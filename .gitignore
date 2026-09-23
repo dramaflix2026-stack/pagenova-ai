@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Next.js
+.next/
+**/.next/
+out/
+
+# Backend build
+dist/
+**/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# PageNova development backups
+*.bak
+*.bak.*
+*.BACKUP
+*.backup
+
+# TypeScript cache
+*.tsbuildinfo
+# Local backup archive
+backups/
+
+# Local development artifacts
+image-tests/
+PAGENOVA_*.ps1
+HANDOFF-*.txt
+PAGENOVA_*TRACE*.txt
