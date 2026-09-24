@@ -906,3 +906,153 @@ body {
     animation: none !important;
   }
 }
+
+/* ==========================================================
+   PAGENOVA_F5_2_PUBLIC_MOTION
+   Premium micro-interactions for the public landing page.
+   ========================================================== */
+
+@keyframes pagenova-premium-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@keyframes pagenova-premium-glow {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes pagenova-premium-shimmer {
+  0% {
+    transform: translateX(-160%) skewX(-18deg);
+  }
+
+  55%,
+  100% {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}
+
+@keyframes pagenova-premium-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 34px rgba(108, 59, 255, 0.18),
+      0 0 0 rgba(139, 92, 246, 0);
+  }
+
+  50% {
+    box-shadow:
+      0 16px 44px rgba(108, 59, 255, 0.28),
+      0 0 28px rgba(139, 92, 246, 0.12);
+  }
+}
+
+/* Product/editor/generator visual surfaces */
+.pagenova-premium-float {
+  animation: pagenova-premium-float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Soft aura. */
+.pagenova-premium-glow {
+  animation: pagenova-premium-glow 5s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Reusable premium cards */
+.pagenova-premium-card {
+  transition:
+    transform 260ms ease,
+    border-color 260ms ease,
+    box-shadow 260ms ease,
+    background-color 260ms ease;
+}
+
+.pagenova-premium-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(139, 92, 246, 0.26);
+  box-shadow:
+    0 22px 55px rgba(42, 18, 92, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Premium CTA behavior */
+.pagenova-premium-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition:
+    transform 220ms ease,
+    filter 220ms ease,
+    box-shadow 220ms ease;
+}
+
+.pagenova-premium-cta::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -50%;
+  left: -35%;
+  width: 22%;
+  height: 200%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.28),
+    transparent
+  );
+  transform: translateX(-160%) skewX(-18deg);
+  animation: pagenova-premium-shimmer 5.8s ease-in-out infinite;
+}
+
+.pagenova-premium-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 16px 42px rgba(108, 59, 255, 0.32);
+}
+
+.pagenova-premium-cta:active {
+  transform: translateY(0) scale(0.985);
+}
+
+/* Pricing CTA can use a subtle breathing effect. */
+.pagenova-premium-offer-cta {
+  animation: pagenova-premium-breathe 4.2s ease-in-out infinite;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .pagenova-premium-float,
+  .pagenova-premium-glow,
+  .pagenova-premium-cta::after,
+  .pagenova-premium-offer-cta {
+    animation: none !important;
+  }
+
+  .pagenova-premium-card,
+  .pagenova-premium-cta {
+    transition: none !important;
+  }
+
+  .pagenova-premium-card:hover,
+  .pagenova-premium-cta:hover,
+  .pagenova-premium-cta:active {
+    transform: none !important;
+  }
+}

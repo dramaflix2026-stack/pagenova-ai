@@ -88,7 +88,7 @@ export function PageNovaGeneratorDemo() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#0B0715] shadow-[0_30px_100px_rgba(74,39,160,0.18)]">
+    <div className="relative overflow-hidden rounded-[32px] border pagenova-premium-card border-white/10 bg-[#0B0715] shadow-[0_30px_100px_rgba(74,39,160,0.18)]">
       <div className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#6F3CFF]/15 blur-[90px]" />
       <div className="pointer-events-none absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-[#9C7BFF]/10 blur-[100px]" />
 

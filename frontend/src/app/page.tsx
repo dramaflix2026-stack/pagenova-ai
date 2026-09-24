@@ -153,7 +153,7 @@ export default function Home() {
 
               <Link
                 href="/app"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#815BFF] to-[#6338F2] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#815BFF] to-[#6338F2] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110 pagenova-premium-cta"
               >
                 Começar agora
                 <Arrow />
@@ -246,7 +246,7 @@ export default function Home() {
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="rounded-[24px] border border-[#E7E2F0] bg-white p-6 shadow-[0_16px_50px_rgba(38,25,70,0.05)]"
+                className="rounded-[24px] border pagenova-premium-card border-[#E7E2F0] bg-white p-6 shadow-[0_16px_50px_rgba(38,25,70,0.05)]"
               >
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#835FFF] to-[#6034EB] font-bold text-white shadow-lg shadow-violet-500/15">
                   {feature.icon}
