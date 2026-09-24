@@ -152,7 +152,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/app"
+                href="https://pay.kiwify.com.br/cMMBGQH"
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#815BFF] to-[#6338F2] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110 pagenova-premium-cta"
               >
                 Começar agora
@@ -182,7 +182,7 @@ export default function Home() {
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="/app"
+              href="https://pay.kiwify.com.br/cMMBGQH"
               className="inline-flex min-h-13 items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#845FFF] to-[#6438F4] px-7 py-3.5 text-sm font-bold shadow-[0_14px_45px_rgba(108,59,255,0.32)] transition hover:-translate-y-0.5 hover:brightness-110"
             >
               Começar agora — R$97
@@ -286,7 +286,7 @@ export default function Home() {
               </div>
 
               <Link
-                href="/app"
+                href="https://pay.kiwify.com.br/cMMBGQH"
                 className="mt-9 inline-flex items-center gap-3 rounded-xl bg-[#171329] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#251D3B]"
               >
                 Conhecer a PageNova
@@ -383,7 +383,7 @@ export default function Home() {
             </div>
 
             <Link
-              href="/app"
+              href="https://pay.kiwify.com.br/cMMBGQH"
               className="inline-flex items-center gap-2 text-sm font-semibold text-violet-300"
             >
               Começar agora
