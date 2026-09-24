@@ -1056,3 +1056,129 @@ body {
     transform: none !important;
   }
 }
+/* ==========================================================
+   PAGENOVA_F5_3_DEMO_CURSOR
+   Animated pointer for the public PageNova product demo.
+   ========================================================== */
+
+.pagenova-demo-cursor {
+  position: absolute;
+  z-index: 60;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  pointer-events: none;
+  opacity: 1;
+  transform:
+    translate3d(var(--pagenova-cursor-x), var(--pagenova-cursor-y), 0)
+    rotate(-28deg);
+  transition:
+    transform 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 220ms ease;
+  filter: drop-shadow(0 4px 7px rgba(0, 0, 0, 0.38));
+  will-change: transform, opacity;
+}
+
+.pagenova-demo-cursor-pointer {
+  position: relative;
+  z-index: 2;
+  display: block;
+  color: #ffffff;
+  font-size: 25px;
+  line-height: 1;
+  text-shadow:
+    0 0 1px rgba(0, 0, 0, 0.95),
+    0 0 10px rgba(124, 58, 237, 0.65);
+}
+
+.pagenova-demo-cursor--hidden {
+  --pagenova-cursor-x: 72%;
+  --pagenova-cursor-y: 82px;
+  opacity: 0;
+}
+
+.pagenova-demo-cursor--clone {
+  --pagenova-cursor-x: calc(100% - 100px);
+  --pagenova-cursor-y: 92px;
+}
+
+.pagenova-demo-cursor--headline {
+  --pagenova-cursor-x: 46%;
+  --pagenova-cursor-y: 315px;
+}
+
+.pagenova-demo-cursor--editing {
+  --pagenova-cursor-x: 39%;
+  --pagenova-cursor-y: 322px;
+}
+
+.pagenova-demo-cursor--save,
+.pagenova-demo-cursor--saved {
+  --pagenova-cursor-x: calc(100% - 80px);
+  --pagenova-cursor-y: 92px;
+}
+
+.pagenova-demo-cursor--saved {
+  opacity: 0;
+  transition:
+    transform 720ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 700ms ease 260ms;
+}
+
+.pagenova-demo-click-ring {
+  position: absolute;
+  left: -8px;
+  top: -8px;
+  width: 34px;
+  height: 34px;
+  border: 2px solid rgba(167, 139, 250, 0.9);
+  border-radius: 9999px;
+  opacity: 0;
+  transform: scale(0.35);
+}
+
+.pagenova-demo-click-ring--active {
+  animation: pagenova-demo-click 560ms ease-out;
+}
+
+@keyframes pagenova-demo-click {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+@media (max-width: 767px) {
+  .pagenova-demo-cursor--clone,
+  .pagenova-demo-cursor--save,
+  .pagenova-demo-cursor--saved {
+    --pagenova-cursor-x: calc(100% - 68px);
+    --pagenova-cursor-y: 94px;
+  }
+
+  .pagenova-demo-cursor--headline,
+  .pagenova-demo-cursor--editing {
+    --pagenova-cursor-x: 38%;
+    --pagenova-cursor-y: 330px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagenova-demo-cursor {
+    display: none !important;
+  }
+
+  .pagenova-demo-click-ring--active {
+    animation: none !important;
+  }
+}

@@ -115,6 +115,36 @@ export function PageNovaProductDemo() {
   return (
     <div className="relative">
       {/* PAGENOVA_LP_A4_INTERACTIVE_DEMO */}
+      {/* PAGENOVA_F5_3_LIVE_CURSOR */}
+
+      <div
+        aria-hidden="true"
+        className={`pagenova-demo-cursor ${
+          phase === "clicking"
+            ? "pagenova-demo-cursor--clone"
+            : phase === "preview"
+              ? "pagenova-demo-cursor--headline"
+              : phase === "editing"
+                ? "pagenova-demo-cursor--editing"
+                : phase === "saving"
+                  ? "pagenova-demo-cursor--save"
+                  : phase === "saved"
+                    ? "pagenova-demo-cursor--saved"
+                    : "pagenova-demo-cursor--hidden"
+        }`}
+      >
+        <span className="pagenova-demo-cursor-pointer">➤</span>
+
+        <span
+          className={`pagenova-demo-click-ring ${
+            phase === "clicking" ||
+            phase === "preview" ||
+            phase === "saving"
+              ? "pagenova-demo-click-ring--active"
+              : ""
+          }`}
+        />
+      </div>
 
       <div className="absolute -right-1 top-[-54px] z-20">
         <button
