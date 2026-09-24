@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, Suspense, useState } from "react";
@@ -121,9 +121,12 @@ function LoginForm() {
                   Senha
                 </label>
 
-                <span className="text-[11px] text-white/25">
-                  Recuperação em breve
-                </span>
+                <Link
+                  href="/forgot-password"
+                  className="text-[11px] font-medium text-violet-300 transition hover:text-violet-200"
+                >
+                  Esqueci minha senha
+                </Link>
               </div>
 
               <input
