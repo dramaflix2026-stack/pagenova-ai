@@ -228,7 +228,7 @@ export default function GeneratorPage() {
     let aiCopy: import("@/lib/pagenova-generator").PageNovaAICopy | undefined;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_PAGENOVA_API_URL ?? "http://127.0.0.1:8001"}/api/pagenova/generate-copy`, {
+      const response = await fetch("/api/pagenova/generate-copy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -319,7 +319,7 @@ export default function GeneratorPage() {
 
           try {
             const imageResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_PAGENOVA_IMAGE_API_URL ?? process.env.NEXT_PUBLIC_PAGENOVA_API_URL ?? "http://127.0.0.1:8002"}/api/pagenova/generate-image`,
+              "/api/pagenova/generate-image",
               {
                 method: "POST",
                 headers: {

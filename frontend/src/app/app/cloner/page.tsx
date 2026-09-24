@@ -115,7 +115,7 @@ export default function ClonerPage() {
     const apiUrl =
       process.env
         .NEXT_PUBLIC_API_URL ||
-      (process.env.NEXT_PUBLIC_PAGENOVA_API_URL ?? "http://localhost:8001");
+      "";
 
     try {
       const response =
