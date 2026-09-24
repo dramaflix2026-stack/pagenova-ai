@@ -3,32 +3,39 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogoutButton } from "@/components/auth/logout-button";
+import {
+  CircleHelp,
+  Copy,
+  Files,
+  House,
+  Sparkles,
+} from "lucide-react";
 
 const items = [
   {
     href: "/app",
     label: "Início",
-    icon: "⌂",
+    icon: House,
   },
   {
     href: "/app/cloner",
     label: "Clonador",
-    icon: "◇",
+    icon: Copy,
   },
   {
     href: "/app/gerador",
     label: "Gerador",
-    icon: "✦",
+    icon: Sparkles,
   },
   {
     href: "/app/paginas",
     label: "Minhas páginas",
-    icon: "▤",
+    icon: Files,
   },
   {
     href: "/app/como-usar",
     label: "Como usar",
-    icon: "?",
+    icon: CircleHelp,
   },
 ];
 
@@ -37,7 +44,7 @@ export function Sidebar() {
 
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden border-r border-white/[0.07] bg-[#090613] lg:flex lg:flex-col">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(108,59,255,0.17),transparent_68%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(0,245,180,0.10),transparent_68%)]" />
 
       <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
         <Link
@@ -70,22 +77,22 @@ export function Sidebar() {
               href={item.href}
               className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
                 active
-                  ? "border border-violet-400/20 bg-violet-500/[0.13] text-white shadow-[inset_0_0_24px_rgba(108,59,255,0.07)]"
-                  : "border border-transparent text-white/45 hover:bg-white/[0.04] hover:text-white"
+                  ? "border border-emerald-400/20 bg-emerald-400/[0.09] text-white shadow-[inset_0_0_26px_rgba(16,185,129,0.06),0_0_24px_rgba(16,185,129,0.025)]"
+                  : "border border-transparent text-white/45 hover:border-emerald-400/10 hover:bg-emerald-400/[0.045] hover:text-white"
               }`}
             >
               {active && (
-                <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-violet-400 shadow-[0_0_12px_rgba(139,92,246,0.9)]" />
+                <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.85)]" />
               )}
 
               <span
                 className={`flex h-7 w-7 items-center justify-center rounded-lg text-base transition ${
                   active
-                    ? "bg-violet-500/15 text-violet-300"
-                    : "bg-white/[0.03] text-white/40 group-hover:text-white/80"
+                    ? "bg-emerald-400/[0.12] text-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.08)]"
+                    : "bg-white/[0.03] text-white/40 group-hover:bg-emerald-400/[0.07] group-hover:text-emerald-300"
                 }`}
               >
-                {item.icon}
+                <item.icon className="h-[15px] w-[15px]" strokeWidth={1.8} />
               </span>
 
               {item.label}
@@ -112,7 +119,7 @@ export function Sidebar() {
             PageNova AI
           </p>
 
-          <div className="mt-4 h-px bg-gradient-to-r from-violet-500/30 via-white/5 to-transparent" />
+          <div className="mt-4 h-px bg-gradient-to-r from-emerald-400/30 via-white/5 to-transparent" />
 
           <div className="mt-3 flex items-center gap-2 text-xs font-medium text-emerald-400">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
