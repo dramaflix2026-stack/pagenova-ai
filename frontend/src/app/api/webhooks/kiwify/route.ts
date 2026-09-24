@@ -371,6 +371,7 @@ export async function POST(request: NextRequest) {
 
   if (status === "active") {
     let authUserExists = false;
+    let buyerLookupFailed = false;
     let page = 1;
 
     while (!authUserExists && page <= 10) {
@@ -390,6 +391,7 @@ export async function POST(request: NextRequest) {
           }
         );
 
+        buyerLookupFailed = true;
         break;
       }
 
@@ -406,6 +408,19 @@ export async function POST(request: NextRequest) {
       }
 
       page += 1;
+    }
+
+    if (buyerLookupFailed) {
+      return NextResponse.json(
+        {
+          ok: false,
+          processed: false,
+          error: "buyer_account_lookup_failed",
+        },
+        {
+          status: 500,
+        }
+      );
     }
 
     if (!authUserExists) {
@@ -438,6 +453,17 @@ export async function POST(request: NextRequest) {
             "[KIWIFY] Buyer invitation failed.",
             {
               code: inviteError.code,
+            }
+          );
+
+          return NextResponse.json(
+            {
+              ok: false,
+              processed: false,
+              error: "buyer_invitation_failed",
+            },
+            {
+              status: 500,
             }
           );
         } else {
