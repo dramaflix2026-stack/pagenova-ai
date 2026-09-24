@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+﻿import { SignOutButton } from "./sign-out-button";
 
 export default function AccessRequiredPage() {
   return (
@@ -19,12 +19,7 @@ export default function AccessRequiredPage() {
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-xl border border-white/10 px-5 py-3 text-sm font-medium text-white transition hover:bg-white/5"
-            >
-              Voltar ao login
-            </Link>
+            <SignOutButton />
 
             <a
               href="https://pay.kiwify.com.br/cMMBGQH"
