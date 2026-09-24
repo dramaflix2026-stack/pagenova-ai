@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 const items = [
   {
@@ -132,13 +133,7 @@ export function Sidebar() {
             Ativo
           </div>
           {/* PAGENOVA_NAV_EXIT */}
-          <Link
-            href="/"
-            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-2.5 text-xs font-semibold text-white/45 transition hover:border-violet-400/20 hover:bg-violet-500/[0.07] hover:text-white"
-          >
-            <span aria-hidden="true">←</span>
-            Sair
-          </Link>
+          <LogoutButton />
         </div>
       </div>
     </aside>
