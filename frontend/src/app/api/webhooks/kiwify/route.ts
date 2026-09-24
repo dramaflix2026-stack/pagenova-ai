@@ -4,52 +4,51 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type JsonObject = Record<string, unknown>;
+type EntitlementStatus =
+  | "active"
+  | "refunded"
+  | "chargeback";
 
-function asObject(value: unknown): JsonObject {
-  return value !== null && typeof value === "object" && !Array.isArray(value)
-    ? (value as JsonObject)
-    : {};
-}
+type KiwifyPayload = {
+  order_id?: string;
+  order_ref?: string;
+  order_status?: string;
+  approved_date?: string | null;
+  webhook_event_type?: string;
 
-function asString(value: unknown): string | null {
-  return typeof value === "string" && value.trim()
-    ? value.trim()
-    : null;
-}
+  Product?: {
+    product_id?: string;
+    product_name?: string;
+  };
 
-function normalizeEmail(value: unknown): string | null {
-  const email = asString(value)?.toLowerCase() ?? null;
+  Customer?: {
+    email?: string;
+  };
+};
 
-  if (!email || !email.includes("@")) {
+function normalizeEmail(value: unknown) {
+  if (typeof value !== "string") {
     return null;
   }
 
-  return email;
+  const normalized = value.trim().toLowerCase();
+
+  return normalized || null;
 }
 
-function mapStatus(event: string | null): {
-  status: "active" | "refunded" | "chargeback";
-  revoked: boolean;
-} | null {
+function getStatus(
+  event: string
+): EntitlementStatus | null {
   if (event === "order_approved") {
-    return { status: "active", revoked: false };
+    return "active";
   }
 
-  if (
-    event === "order_refunded" ||
-    event === "refund" ||
-    event === "refunded"
-  ) {
-    return { status: "refunded", revoked: true };
+  if (event === "order_refunded") {
+    return "refunded";
   }
 
-  if (
-    event === "chargeback" ||
-    event === "order_chargeback" ||
-    event === "order_chargedback"
-  ) {
-    return { status: "chargeback", revoked: true };
+  if (event === "chargeback") {
+    return "chargeback";
   }
 
   return null;
@@ -58,106 +57,131 @@ function mapStatus(event: string | null): {
 export async function GET() {
   return NextResponse.json({
     ok: true,
-    service: "PageNova AI",
-    webhook: "kiwify",
+    service: "pagenova-kiwify-webhook",
   });
 }
 
 export async function POST(request: NextRequest) {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseSecret = process.env.SUPABASE_SECRET_KEY;
-  const webhookToken = process.env.KIWIFY_WEBHOOK_TOKEN;
+  const supabaseUrl =
+    process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-  if (!supabaseUrl || !supabaseSecret || !webhookToken) {
-    console.error("[KIWIFY] Server configuration incomplete.");
+  const supabaseSecret =
+    process.env.SUPABASE_SECRET_KEY;
+
+  const webhookToken =
+    process.env.KIWIFY_WEBHOOK_TOKEN;
+
+  if (
+    !supabaseUrl ||
+    !supabaseSecret ||
+    !webhookToken
+  ) {
+    console.error(
+      "[KIWIFY] Server configuration missing."
+    );
 
     return NextResponse.json(
-      { ok: false, error: "server_not_configured" },
-      { status: 500 }
+      {
+        ok: false,
+        error: "server_configuration_missing",
+      },
+      {
+        status: 500,
+      }
     );
   }
 
-  const signature = request.nextUrl.searchParams.get("signature");
+  const signature =
+    request.nextUrl.searchParams.get("signature");
 
   if (!signature) {
-    console.warn("[KIWIFY] Request rejected: missing signature.");
-
     return NextResponse.json(
-      { ok: false, error: "missing_signature" },
-      { status: 401 }
+      {
+        ok: false,
+        error: "signature_missing",
+      },
+      {
+        status: 401,
+      }
     );
   }
 
-  let payload: unknown;
+  let payload: KiwifyPayload;
 
   try {
-    payload = await request.json();
+    payload =
+      (await request.json()) as KiwifyPayload;
   } catch {
     return NextResponse.json(
-      { ok: false, error: "invalid_json" },
-      { status: 400 }
+      {
+        ok: false,
+        error: "invalid_json",
+      },
+      {
+        status: 400,
+      }
     );
   }
 
-  const body = asObject(payload);
-  const customer = asObject(body.Customer);
-  const product = asObject(body.Product);
-
   const event =
-    asString(body.webhook_event_type) ??
-    asString(body.event) ??
-    asString(body.event_type) ??
-    asString(body.type);
+    typeof payload.webhook_event_type === "string"
+      ? payload.webhook_event_type
+          .trim()
+          .toLowerCase()
+      : "";
 
-  const mapped = mapStatus(event);
+  const status = getStatus(event);
 
-  if (!mapped) {
-    console.log("[KIWIFY] Event ignored.", {
-      event,
-    });
+  if (!status) {
+    console.log(
+      "[KIWIFY] Event ignored.",
+      {
+        event:
+          event || "unknown",
+      }
+    );
 
     return NextResponse.json({
       ok: true,
-      ignored: true,
+      processed: false,
     });
-  }
-
-  const orderId = asString(body.order_id);
-  const orderRef = asString(body.order_ref);
-  const orderStatus = asString(body.order_status);
-  const email = normalizeEmail(customer.email);
-  const productId = asString(product.product_id);
-  const productName = asString(product.product_name);
-
-  if (!orderId || !email) {
-    console.warn("[KIWIFY] Request rejected: required fields missing.", {
-      event,
-      hasOrderId: Boolean(orderId),
-      hasEmail: Boolean(email),
-    });
-
-    return NextResponse.json(
-      { ok: false, error: "missing_required_fields" },
-      { status: 400 }
-    );
   }
 
   if (
     event === "order_approved" &&
-    orderStatus !== "paid"
+    payload.order_status !== "paid"
   ) {
-    console.warn("[KIWIFY] Approved event without paid status.", {
-      event,
-      orderStatus,
-    });
+    console.log(
+      "[KIWIFY] Approved event ignored because order is not paid."
+    );
 
+    return NextResponse.json({
+      ok: true,
+      processed: false,
+    });
+  }
+
+  const orderId =
+    typeof payload.order_id === "string"
+      ? payload.order_id.trim()
+      : "";
+
+  const email =
+    normalizeEmail(payload.Customer?.email);
+
+  if (!orderId || !email) {
     return NextResponse.json(
-      { ok: false, error: "invalid_order_status" },
-      { status: 400 }
+      {
+        ok: false,
+        error: "required_fields_missing",
+      },
+      {
+        status: 400,
+      }
     );
   }
 
-  const supabase = createClient(
+  const admin = createClient(
     supabaseUrl,
     supabaseSecret,
     {
@@ -169,60 +193,195 @@ export async function POST(request: NextRequest) {
     }
   );
 
-  const now = new Date().toISOString();
+  const now =
+    new Date().toISOString();
 
-  const entitlement = {
-    email,
-    product: "pagenova-ai",
-    status: mapped.status,
-    provider: "kiwify",
-    provider_order_id: orderId,
-    provider_customer_id: null,
-    purchase_data: {
-      order_ref: orderRef,
-      order_status: orderStatus,
-      event,
-      product_id: productId,
-      product_name: productName,
-    },
-    purchased_at:
-      mapped.status === "active"
-        ? asString(body.approved_date) ?? now
-        : null,
-    revoked_at:
-      mapped.revoked
-        ? now
-        : null,
-    updated_at: now,
+  const purchaseData = {
+    order_ref:
+      payload.order_ref ?? null,
+
+    order_status:
+      payload.order_status ?? null,
+
+    event,
+
+    product_id:
+      payload.Product?.product_id ?? null,
+
+    product_name:
+      payload.Product?.product_name ?? null,
   };
 
-  const { error } = await supabase
-    .from("entitlements")
-    .upsert(entitlement, {
-      onConflict: "provider,provider_order_id",
-    });
+  if (status === "active") {
+    const purchasedAt =
+      payload.approved_date || now;
 
-  if (error) {
-    console.error("[KIWIFY] Entitlement persistence failed.", {
-      code: error.code,
-    });
+    const {
+      error,
+    } = await admin
+      .from("entitlements")
+      .upsert(
+        {
+          email,
+          product: "pagenova-ai",
+          status: "active",
+          provider: "kiwify",
+          provider_order_id: orderId,
+          provider_customer_id: null,
+          purchase_data: purchaseData,
+          purchased_at: purchasedAt,
+          revoked_at: null,
+          updated_at: now,
+        },
+        {
+          onConflict:
+            "provider,provider_order_id",
+        }
+      );
 
-    return NextResponse.json(
-      { ok: false, error: "persistence_failed" },
-      { status: 500 }
-    );
+    if (error) {
+      console.error(
+        "[KIWIFY] Entitlement persistence failed.",
+        {
+          code: error.code,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "persistence_failed",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+  } else {
+    const {
+      data: existing,
+      error: lookupError,
+    } = await admin
+      .from("entitlements")
+      .select(
+        "id,purchased_at"
+      )
+      .eq(
+        "provider",
+        "kiwify"
+      )
+      .eq(
+        "provider_order_id",
+        orderId
+      )
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error(
+        "[KIWIFY] Entitlement lookup failed.",
+        {
+          code: lookupError.code,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "lookup_failed",
+        },
+        {
+          status: 500,
+        }
+      );
+    }
+
+    if (existing) {
+      const {
+        error: updateError,
+      } = await admin
+        .from("entitlements")
+        .update({
+          email,
+          status,
+          purchase_data: purchaseData,
+          revoked_at: now,
+          updated_at: now,
+        })
+        .eq(
+          "id",
+          existing.id
+        );
+
+      if (updateError) {
+        console.error(
+          "[KIWIFY] Entitlement revocation failed.",
+          {
+            code: updateError.code,
+          }
+        );
+
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "revocation_failed",
+          },
+          {
+            status: 500,
+          }
+        );
+      }
+    } else {
+      const {
+        error: insertError,
+      } = await admin
+        .from("entitlements")
+        .insert({
+          email,
+          product: "pagenova-ai",
+          status,
+          provider: "kiwify",
+          provider_order_id: orderId,
+          provider_customer_id: null,
+          purchase_data: purchaseData,
+          purchased_at: null,
+          revoked_at: now,
+          updated_at: now,
+        });
+
+      if (insertError) {
+        console.error(
+          "[KIWIFY] Revoked entitlement persistence failed.",
+          {
+            code: insertError.code,
+          }
+        );
+
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "persistence_failed",
+          },
+          {
+            status: 500,
+          }
+        );
+      }
+    }
   }
 
-  console.log("[KIWIFY] Entitlement updated.", {
-    event,
-    status: mapped.status,
-    hasOrderId: true,
-    hasEmail: true,
-  });
+  console.log(
+    "[KIWIFY] Entitlement updated.",
+    {
+      event,
+      status,
+      hasOrderId: true,
+      hasEmail: true,
+    }
+  );
 
   return NextResponse.json({
     ok: true,
     processed: true,
-    status: mapped.status,
+    status,
   });
 }
