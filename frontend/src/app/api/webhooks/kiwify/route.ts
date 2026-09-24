@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -366,6 +366,94 @@ export async function POST(request: NextRequest) {
           }
         );
       }
+    }
+  }
+
+  if (status === "active") {
+    let authUserExists = false;
+    let page = 1;
+
+    while (!authUserExists && page <= 10) {
+      const {
+        data: usersData,
+        error: usersError,
+      } = await admin.auth.admin.listUsers({
+        page,
+        perPage: 1000,
+      });
+
+      if (usersError) {
+        console.error(
+          "[KIWIFY] Buyer account lookup failed.",
+          {
+            code: usersError.code,
+          }
+        );
+
+        break;
+      }
+
+      authUserExists = usersData.users.some(
+        (user) =>
+          user.email?.trim().toLowerCase() === email
+      );
+
+      if (
+        authUserExists ||
+        usersData.users.length < 1000
+      ) {
+        break;
+      }
+
+      page += 1;
+    }
+
+    if (!authUserExists) {
+      const {
+        error: inviteError,
+      } =
+        await admin.auth.admin.inviteUserByEmail(
+          email,
+          {
+            redirectTo:
+              "https://www.pagenovaai.com.br/auth/callback?next=/reset-password",
+            data: {
+              source: "kiwify",
+              product: "pagenova-ai",
+            },
+          }
+        );
+
+      if (inviteError) {
+        const message =
+          inviteError.message.toLowerCase();
+
+        const alreadyExists =
+          message.includes("already") ||
+          message.includes("registered") ||
+          message.includes("exists");
+
+        if (!alreadyExists) {
+          console.error(
+            "[KIWIFY] Buyer invitation failed.",
+            {
+              code: inviteError.code,
+            }
+          );
+        } else {
+          console.log(
+            "[KIWIFY] Buyer account already exists."
+          );
+        }
+      } else {
+        console.log(
+          "[KIWIFY] Buyer invitation sent."
+        );
+      }
+    } else {
+      console.log(
+        "[KIWIFY] Buyer account already exists."
+      );
     }
   }
 
