@@ -24,6 +24,11 @@ const items = [
     label: "Minhas páginas",
     icon: "▤",
   },
+  {
+    href: "/app/como-usar",
+    label: "Como usar",
+    icon: "?",
+  },
 ];
 
 export function Sidebar() {
