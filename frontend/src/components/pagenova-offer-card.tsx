@@ -274,7 +274,7 @@ export function PageNovaOfferCard() {
               </div>
 
               <Link
-                href="/app"
+                href="https://pay.kiwify.com.br/cMMBGQH"
                 className="group/cta relative mt-6 flex min-h-14 w-full items-center justify-center overflow-hidden rounded-xl bg-gradient-to-r from-[#8A61FF] via-[#7447FF] to-[#6534F2] px-6 text-sm font-black text-white shadow-[0_18px_48px_rgba(109,61,255,0.28)] transition duration-500 hover:-translate-y-0.5 hover:shadow-[0_24px_65px_rgba(109,61,255,0.40)]"
               >
                 <span className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/4 skew-x-[-22deg] bg-white/[0.13] blur-sm transition-all duration-700 group-hover/cta:left-[120%]" />
