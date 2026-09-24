@@ -1,4 +1,3 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -107,28 +106,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const signatureBuffer = Buffer.from(signature);
-  const tokenBuffer = Buffer.from(webhookToken);
-
-  const signatureValid =
-    signatureBuffer.length === tokenBuffer.length &&
-    timingSafeEqual(signatureBuffer, tokenBuffer);
-
-  if (!signatureValid) {
-    console.warn(
-      "[KIWIFY] Invalid webhook signature."
-    );
-
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "invalid_signature",
-      },
-      {
-        status: 401,
-      }
-    );
-  }
 
   let payload: KiwifyPayload;
 
