@@ -40,30 +40,16 @@ export function Sidebar() {
       <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(108,59,255,0.17),transparent_68%)]" />
 
       <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
-        <Link href="/app" className="group flex items-center gap-3">
-          <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-violet-300/20 bg-gradient-to-br from-[#8B5CFF] via-[#6C3BFF] to-[#4320C9] shadow-[0_0_28px_rgba(108,59,255,0.28)]">
-            <span className="text-lg font-black tracking-[-0.08em] text-white">
-              N
-            </span>
-
-            <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-white/40 blur-[3px]" />
-          </div>
-
-          <div>
-            <div className="flex items-baseline gap-1">
-              <p className="font-bold tracking-[-0.03em] text-white">
-                PageNova
-              </p>
-
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-400">
-                AI
-              </span>
-            </div>
-
-            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/30">
-              Landing Page Studio
-            </p>
-          </div>
+        <Link
+          href="/app"
+          className="group flex min-w-0 items-center"
+          aria-label="PageNova AI"
+        >
+          <img
+            src="/brand/pagenova-logo.png"
+            alt="PageNova AI"
+            className="h-[54px] w-auto max-w-[190px] object-contain object-left transition duration-200 group-hover:brightness-110"
+          />
         </Link>
       </div>
 
