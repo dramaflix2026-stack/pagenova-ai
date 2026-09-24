@@ -143,7 +143,7 @@ export async function POST(
       }
 
       const input = {
-        productType,
+        productType: productType as "physical" | "info" | "ebook",
         category,
         categoryLabel,
         productName,
