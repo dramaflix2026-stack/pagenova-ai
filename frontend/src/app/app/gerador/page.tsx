@@ -396,15 +396,6 @@ export default function GeneratorPage() {
       }
     }
 
-    if (successfulImageGenerations > 0) {
-      const remainingImageCredits = Math.max(
-        0,
-        availableImageCredits - successfulImageGenerations,
-      );
-
-      setAvailableImageCredits(remainingImageCredits);
-    }
-
     if (
       imageSlots.length > 0 &&
       successfulImageGenerations < imageSlots.length
@@ -430,6 +421,15 @@ export default function GeneratorPage() {
     try {
       // PAGENOVA_V7_9I_6F_INDEXEDDB_HANDOFF
       await savePageNovaProject(project.id, project);
+      if (successfulImageGenerations > 0) {
+        const remainingImageCredits = Math.max(
+          0,
+          availableImageCredits - successfulImageGenerations,
+        );
+
+        setAvailableImageCredits(remainingImageCredits);
+      }
+
 
       window.sessionStorage.setItem(
         "lp-clone-current-project",
