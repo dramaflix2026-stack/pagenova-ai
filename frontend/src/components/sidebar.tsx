@@ -48,7 +48,7 @@ export function Sidebar() {
           <img
             src="/brand/pagenova-logo.png"
             alt="PageNova AI"
-            className="h-[54px] w-auto max-w-[190px] object-contain object-left transition duration-200 group-hover:brightness-110"
+            className="h-[62px] w-auto max-w-[218px] object-contain object-left transition duration-200 group-hover:brightness-110"
           />
         </Link>
       </div>

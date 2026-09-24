@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
@@ -74,27 +74,14 @@ export default function ResetPasswordPage() {
       <div className="relative w-full max-w-[430px]">
         <Link
           href="/"
-          className="mx-auto mb-8 flex w-fit items-center gap-3"
+          className="mx-auto mb-8 flex w-fit items-center justify-center"
+          aria-label="PageNova AI"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#8B5CFF] via-[#6C3BFF] to-[#4320C9] text-xl font-black shadow-[0_0_30px_rgba(108,59,255,0.3)]">
-            N
-          </div>
-
-          <div>
-            <div className="flex items-baseline gap-1">
-              <span className="text-lg font-bold tracking-[-0.04em]">
-                PageNova
-              </span>
-
-              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-400">
-                AI
-              </span>
-            </div>
-
-            <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/30">
-              Landing Page Studio
-            </p>
-          </div>
+          <img
+            src="/brand/pagenova-logo.png"
+            alt="PageNova AI"
+            className="h-[72px] w-auto max-w-[250px] object-contain transition duration-200 hover:brightness-110"
+          />
         </Link>
 
         <section className="rounded-[28px] border border-white/[0.09] bg-white/[0.035] p-7 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9">
