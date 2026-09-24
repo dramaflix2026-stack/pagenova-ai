@@ -265,7 +265,7 @@ export function installEditorDomBridge(
     event.preventDefault();
     event.stopPropagation();
 
-    
+
 
     // V4B_2_5_IMAGE_CLICK_PROMOTION
     let target: HTMLElement =
@@ -403,9 +403,275 @@ onSelect({
     true
   );
 
-  document.addEventListener(
+
+  // PAGENOVA_F3A_INLINE_TEXT_EDITOR
+  let inlineEditingElement: HTMLElement | null =
+    null;
+
+  let inlineOriginalHtml = "";
+
+  const blockedInlineTags =
+    new Set([
+      "html",
+      "body",
+      "head",
+      "script",
+      "style",
+      "link",
+      "meta",
+      "img",
+      "video",
+      "audio",
+      "iframe",
+      "svg",
+      "path",
+      "input",
+      "textarea",
+      "select",
+      "option",
+    ]);
+
+  const isInlineTextCandidate = (
+    element: HTMLElement
+  ): boolean => {
+    const tag =
+      element.tagName.toLowerCase();
+
+    if (blockedInlineTags.has(tag)) {
+      return false;
+    }
+
+    const text =
+      (
+        element.innerText ||
+        element.textContent ||
+        ""
+      ).trim();
+
+    if (!text) {
+      return false;
+    }
+
+    const structuralChild =
+      Array.from(
+        element.children
+      ).some((child) => {
+        const childTag =
+          child.tagName.toLowerCase();
+
+        return ![
+          "span",
+          "strong",
+          "b",
+          "em",
+          "i",
+          "u",
+          "small",
+          "br",
+        ].includes(childTag);
+      });
+
+    return !structuralChild;
+  };
+
+  const finishInlineEditing = (
+    saveChanges: boolean
+  ) => {
+    if (!inlineEditingElement) {
+      return;
+    }
+
+    const element =
+      inlineEditingElement;
+
+    if (!saveChanges) {
+      element.innerHTML =
+        inlineOriginalHtml;
+    }
+
+    element.contentEditable =
+      "false";
+
+    element.removeAttribute(
+      "contenteditable"
+    );
+
+    element.removeAttribute(
+      "data-pagenova-inline-editing"
+    );
+
+    element.style.removeProperty(
+      "cursor"
+    );
+
+    element.style.removeProperty(
+      "outline"
+    );
+
+    element.style.removeProperty(
+      "outline-offset"
+    );
+
+    inlineEditingElement = null;
+    inlineOriginalHtml = "";
+  };
+
+  const handleDoubleClick = (
+    event: MouseEvent
+  ) => {
+    const rawTarget =
+      event.target;
+
+    if (!isHtmlElement(rawTarget)) {
+      return;
+    }
+
+    let target =
+      rawTarget;
+
+    if (
+      !isInlineTextCandidate(target)
+    ) {
+      const candidate =
+        target.closest(
+          "h1,h2,h3,h4,h5,h6,p,span,a,button,label,li,strong,b,em,i,small"
+        );
+
+      if (
+        !candidate ||
+        !isHtmlElement(candidate) ||
+        !isInlineTextCandidate(candidate)
+      ) {
+        return;
+      }
+
+      target = candidate;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (
+      inlineEditingElement &&
+      inlineEditingElement !== target
+    ) {
+      finishInlineEditing(true);
+    }
+
+    if (
+      inlineEditingElement === target
+    ) {
+      return;
+    }
+
+    inlineEditingElement = target;
+    inlineOriginalHtml =
+      target.innerHTML;
+
+    target.contentEditable =
+      "true";
+
+    target.setAttribute(
+      "data-pagenova-inline-editing",
+      "true"
+    );
+
+    target.style.cursor = "text";
+    target.style.outline =
+      "2px solid #a78bfa";
+    target.style.outlineOffset =
+      "2px";
+
+    target.focus();
+
+    const selection =
+      target.ownerDocument
+        .defaultView
+        ?.getSelection();
+
+    if (selection) {
+      const range =
+        target.ownerDocument
+          .createRange();
+
+      range.selectNodeContents(
+        target
+      );
+
+      range.collapse(false);
+
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+  };
+
+  const handleInlineKeyDown = (
+    event: KeyboardEvent
+  ) => {
+    if (!inlineEditingElement) {
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+
+      finishInlineEditing(false);
+      return;
+    }
+
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      finishInlineEditing(true);
+    }
+  };
+
+  const handleInlineFocusOut = (
+    event: FocusEvent
+  ) => {
+    if (!inlineEditingElement) {
+      return;
+    }
+
+    const relatedTarget =
+      event.relatedTarget;
+
+    if (
+      isDomNode(relatedTarget) &&
+      inlineEditingElement.contains(
+        relatedTarget
+      )
+    ) {
+      return;
+    }
+
+    finishInlineEditing(true);
+  };
+document.addEventListener(
     "click",
     handleClick,
+    true
+  );
+  document.addEventListener(
+    "dblclick",
+    handleDoubleClick,
+    true
+  );
+
+  document.addEventListener(
+    "keydown",
+    handleInlineKeyDown,
+    true
+  );
+
+  document.addEventListener(
+    "focusout",
+    handleInlineFocusOut,
     true
   );
 
@@ -427,6 +693,25 @@ onSelect({
       handleClick,
       true
     );
+    document.removeEventListener(
+      "dblclick",
+      handleDoubleClick,
+      true
+    );
+
+    document.removeEventListener(
+      "keydown",
+      handleInlineKeyDown,
+      true
+    );
+
+    document.removeEventListener(
+      "focusout",
+      handleInlineFocusOut,
+      true
+    );
+
+    finishInlineEditing(true);
 
     clearHover();
 
