@@ -267,6 +267,15 @@ export function installEditorDomBridge(
 
 
 
+    // PAGENOVA_F3A_5_SECOND_CLICK
+    // Start direct editing on the second consecutive click
+    // before the normal element-selection pipeline runs.
+    if (
+      event.detail >= 2 &&
+      startInlineEditing(rawTarget)
+    ) {
+      return;
+    }
     // V4B_2_5_IMAGE_CLICK_PROMOTION
     let target: HTMLElement =
       rawTarget;
@@ -516,14 +525,12 @@ onSelect({
     inlineOriginalHtml = "";
   };
 
-  const handleDoubleClick = (
-    event: MouseEvent
-  ) => {
-    const rawTarget =
-      event.target;
-
+  // PAGENOVA_F3A_5_CLICK_DETAIL
+  const startInlineEditing = (
+    rawTarget: EventTarget | null
+  ): boolean => {
     if (!isHtmlElement(rawTarget)) {
-      return;
+      return false;
     }
 
     let target =
@@ -542,14 +549,11 @@ onSelect({
         !isHtmlElement(candidate) ||
         !isInlineTextCandidate(candidate)
       ) {
-        return;
+        return false;
       }
 
       target = candidate;
     }
-
-    event.preventDefault();
-    event.stopPropagation();
 
     if (
       inlineEditingElement &&
@@ -561,7 +565,8 @@ onSelect({
     if (
       inlineEditingElement === target
     ) {
-      return;
+      target.focus();
+      return true;
     }
 
     inlineEditingElement = target;
@@ -576,11 +581,23 @@ onSelect({
       "true"
     );
 
-    target.style.cursor = "text";
-    target.style.outline =
-      "2px solid #a78bfa";
-    target.style.outlineOffset =
-      "2px";
+    target.style.setProperty(
+      "cursor",
+      "text",
+      "important"
+    );
+
+    target.style.setProperty(
+      "outline",
+      "2px solid #a78bfa",
+      "important"
+    );
+
+    target.style.setProperty(
+      "outline-offset",
+      "2px",
+      "important"
+    );
 
     target.focus();
 
@@ -602,6 +619,21 @@ onSelect({
 
       selection.removeAllRanges();
       selection.addRange(range);
+    }
+
+    return true;
+  };
+
+  const handleDoubleClick = (
+    event: MouseEvent
+  ) => {
+    if (
+      startInlineEditing(
+        event.target
+      )
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
     }
   };
 
