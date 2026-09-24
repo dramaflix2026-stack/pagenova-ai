@@ -7,13 +7,7 @@
     },
     "backend": {
       "root": "backend/",
-      "entrypoint": "src/server.ts",
-      "includeFiles": [
-        "node_modules/express/**",
-        "node_modules/cors/**",
-        "node_modules/cheerio/**",
-        "node_modules/dotenv/**"
-      ]
+      "entrypoint": "src/server.ts"
     }
   },
   "rewrites": [
