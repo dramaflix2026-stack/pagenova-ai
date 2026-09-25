@@ -69,6 +69,20 @@ export async function readPageNovaProject<T>(
   }
 }
 
+export async function listPageNovaProjects<T>(): Promise<T[]> {
+  const db = await openPageNovaProjectDb();
+  try {
+    return await new Promise<T[]>((resolve, reject) => {
+      const tx = db.transaction(PAGENOVA_PROJECT_STORE, "readonly");
+      const request = tx.objectStore(PAGENOVA_PROJECT_STORE).getAll();
+      request.onsuccess = () => resolve(request.result as T[]);
+      request.onerror = () => reject(request.error ?? new Error("IndexedDB read failed."));
+    });
+  } finally {
+    db.close();
+  }
+}
+
 export async function deletePageNovaProject(
   id: string,
 ): Promise<void> {

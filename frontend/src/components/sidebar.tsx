@@ -28,6 +28,11 @@ const items = [
     icon: Sparkles,
   },
   {
+    href: "/app/builder",
+    label: "Criar Site com IA",
+    icon: Sparkles,
+  },
+  {
     href: "/app/paginas",
     label: "Minhas páginas",
     icon: Files,

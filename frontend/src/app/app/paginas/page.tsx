@@ -8,6 +8,8 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
+import { listPageNovaProjects } from "@/lib/pagenova-project-store";
+import type { SiteProject } from "@/lib/site-builder";
 
 type CloneProject = {
   id: string;
@@ -112,6 +114,7 @@ export default function PagesPage() {
   // V5B_REAL_MY_PAGES
   const [projects, setProjects] =
     useState<CloneProject[]>([]);
+  const [sites, setSites] = useState<SiteProject[]>([]);
 
   const [loaded, setLoaded] =
     useState(false);
@@ -143,6 +146,13 @@ export default function PagesPage() {
       );
     };
   }, [loadProjects]);
+
+  useEffect(() => {
+    listPageNovaProjects<SiteProject>().then((saved) =>
+      setSites(saved.filter((item) => item?.kind === "institutional-site")
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
+    ).catch(() => setSites([]));
+  }, []);
 
   function openProject(
     project: CloneProject
@@ -254,17 +264,27 @@ export default function PagesPage() {
     <>
       <AppHeader
         title="Minhas páginas"
-        description="Gerencie as landing pages que você clonou ou criou."
+        description="Continue seus sites e landing pages."
       />
 
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+        {sites.length > 0 && <section className="mb-9">
+          <h2 className="mb-4 text-xl font-semibold">Sites institucionais</h2>
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{sites.map((site) =>
+            <Link key={site.id} href={`/app/builder?project=${site.id}`} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6 transition hover:border-emerald-400/50">
+              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">Site institucional</p>
+              <h3 className="mt-3 text-xl font-bold">{site.name}</h3>
+              <p className="mt-2 text-sm text-white/45">{Object.keys(site.pages).length} de 4 páginas criadas</p>
+              <span className="mt-5 inline-block text-sm font-semibold text-emerald-300">Continuar criação →</span>
+            </Link>)}</div>
+        </section>}
         {!loaded ? (
           <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.015]">
             <p className="text-sm text-neutral-500">
               Carregando páginas...
             </p>
           </div>
-        ) : projects.length === 0 ? (
+        ) : projects.length === 0 && sites.length === 0 ? (
           <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-8 text-center">
             <div>
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl text-neutral-500">
@@ -296,7 +316,7 @@ export default function PagesPage() {
               </div>
             </div>
           </div>
-        ) : (
+        ) : projects.length > 0 ? (
           <>
             <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -515,7 +535,7 @@ export default function PagesPage() {
               })}
             </div>
           </>
-        )}
+        ) : null}
       </main>
     </>
   );

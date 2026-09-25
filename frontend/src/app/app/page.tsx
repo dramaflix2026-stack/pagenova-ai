@@ -6,7 +6,7 @@ export default function AppPage() {
     <>
       <AppHeader
         title="Início"
-        description="Seu workspace de landing pages."
+        description="Seu workspace para criar páginas e sites."
       />
 
       <main className="relative mx-auto max-w-7xl overflow-hidden px-6 py-10 lg:px-10">
@@ -22,19 +22,19 @@ export default function AppPage() {
           </div>
 
           <h2 className="mt-5 max-w-3xl text-4xl font-bold tracking-[-0.045em] text-white md:text-5xl">
-            Sua próxima landing page
+            Seu próximo projeto
             <span className="block bg-gradient-to-r from-[#B8A7FF] via-[#8B5CFF] to-[#6C3BFF] bg-clip-text text-transparent">
               começa aqui.
             </span>
           </h2>
 
           <p className="mt-5 max-w-2xl text-base leading-7 text-white/45">
-            Clone uma página existente ou crie uma nova estrutura com a
-            PageNova. Simples, rápido e sem complicação.
+            Clone uma página, crie uma landing page ou acompanhe a criação
+            de um site institucional com IA.
           </p>
         </section>
 
-        <section className="relative mt-10 grid gap-5 md:grid-cols-2">
+        <section className="relative mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           <Link
             href="/app/cloner"
             className="group relative overflow-hidden rounded-[28px] border border-violet-400/20 bg-[#100B1D] p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/40 hover:bg-[#130D24]"
@@ -65,6 +65,18 @@ export default function AppPage() {
                   →
                 </span>
               </div>
+            </div>
+          </Link>
+          <Link
+            href="/app/builder"
+            className="group relative overflow-hidden rounded-[28px] border border-emerald-400/25 bg-[#0B1B19] p-7 transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-400/50"
+          >
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-2xl text-emerald-300">✧</div>
+            <div className="relative mt-8">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-emerald-300">Builder</p>
+              <h3 className="mt-2 text-2xl font-bold tracking-[-0.03em] text-white">Criar Site com IA</h3>
+              <p className="mt-3 leading-7 text-white/45">Descreva seu negócio e veja as páginas do site institucional aparecerem durante a criação.</p>
+              <div className="mt-8 font-semibold text-emerald-300">Começar a criar →</div>
             </div>
           </Link>
 
@@ -137,7 +149,7 @@ export default function AppPage() {
               </p>
 
               <p className="mt-1 text-sm text-white/25">
-                Clone ou crie uma landing page para começar.
+                Clone uma página ou crie um novo projeto para começar.
               </p>
             </div>
           </div>
