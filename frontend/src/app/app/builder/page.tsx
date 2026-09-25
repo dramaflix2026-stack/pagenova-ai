@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
@@ -8,11 +9,27 @@ import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type Si
 
 type Phase = "idle" | "generating" | "ready" | "error";
 
+const projectOptions = [
+  { title: "Site Institucional", description: "Home, Sobre, Serviços e Contato.", icon: "🏢", kind: "builder" },
+  { title: "Landing Page", description: "Uma página para apresentar e vender uma oferta.", icon: "🚀", kind: "link", href: "/app/gerador" },
+  { title: "Clonar Página", description: "Comece a partir de uma URL existente.", icon: "◇", kind: "link", href: "/app/cloner" },
+  { title: "Portfólio", description: "Apresente trabalhos, cases e contato.", icon: "🎨", kind: "builder" },
+  { title: "Site para Clínica", description: "Serviços, equipe e formas de atendimento.", icon: "✚", kind: "builder" },
+  { title: "Site para Serviços", description: "Mostre seus serviços e como contratar.", icon: "🛠", kind: "builder" },
+  { title: "Loja Online", description: "Catálogo, carrinho e pedidos.", icon: "🛍", kind: "future" },
+  { title: "Dashboard", description: "Painéis com dados e indicadores.", icon: "▤", kind: "future" },
+  { title: "CRM", description: "Clientes, negócios e acompanhamento.", icon: "◎", kind: "future" },
+  { title: "Agendamento", description: "Horários, reservas e confirmações.", icon: "◷", kind: "future" },
+  { title: "Área de Membros", description: "Conteúdo e acesso para assinantes.", icon: "♧", kind: "future" },
+  { title: "Quiz e Formulário", description: "Perguntas, respostas e captação.", icon: "☷", kind: "future" },
+] as const;
+
 export default function BuilderPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [brief, setBrief] = useState("");
   const [style, setStyle] = useState("moderno");
+  const [selectedOption, setSelectedOption] = useState("Site Institucional");
   const [project, setProject] = useState<SiteProject | null>(null);
   const [activePage, setActivePage] = useState<SitePageKey>("home");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -87,7 +104,7 @@ export default function BuilderPage() {
       setError("Informe o nome e descreva o negócio com pelo menos 20 caracteres."); return;
     }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
-      brief: brief.trim(), style, pages: {}, createdAt: new Date().toISOString() };
+      brief: `Tipo de site: ${selectedOption}. ${brief.trim()}`, style, pages: {}, createdAt: new Date().toISOString() };
     setProject(site); setActivePage("home");
     router.replace(`/app/builder?project=${site.id}`);
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
@@ -112,17 +129,28 @@ export default function BuilderPage() {
   return <>
     <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
     <main className="mx-auto max-w-[1600px] px-5 py-8 lg:px-9">
-      {!project && <div className="mx-auto max-w-3xl">
+      {!project && <div className="mx-auto max-w-5xl">
         <div className="mb-8"><span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova Builder · Site Institucional</span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight">Conte sobre o negócio. Veja o site nascer.</h1>
-          <p className="mt-3 text-white/50">Vamos criar Início, Sobre, Serviços e Contato, mostrando cada página assim que ficar pronta.</p></div>
-        <form onSubmit={start} className="space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
+          <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
+          <p className="mt-3 text-white/50">Escolha um ponto de partida, descreva sua ideia e acompanhe a criação na tela.</p></div>
+        <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedOption}</p>
           <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          <label className="block text-sm font-medium">O que você quer criar?<textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={3000} rows={6} required placeholder="Descreva o negócio, público, serviços, diferenciais e o que deve aparecer no site..." className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
+          <label className="block text-sm font-medium">O que você quer criar?<textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={6} required placeholder="Descreva o negócio, público, serviços, diferenciais e o que deve aparecer no site..." className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
           <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
-          <button className="w-full rounded-xl bg-emerald-400 px-5 py-4 font-bold text-[#08130e] hover:bg-emerald-300">Criar site institucional →</button>
+          <button className="w-full rounded-xl bg-emerald-400 px-5 py-4 font-bold text-[#08130e] hover:bg-emerald-300">Criar {selectedOption.toLowerCase()} →</button>
         </form>
+        <section className="mt-12" aria-labelledby="builder-options-title">
+          <div className="mb-5"><h2 id="builder-options-title" className="text-2xl font-bold">Explore o que você pode criar</h2><p className="mt-2 text-sm text-white/45">Escolha uma opção para começar. As próximas funções aparecem com seu status real.</p></div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{projectOptions.map((option) => {
+            const content = <><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold text-white">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className={`mt-5 block text-xs font-semibold ${option.kind === "future" ? "text-white/30" : "text-emerald-300"}`}>{option.kind === "future" ? "Em desenvolvimento" : option.kind === "link" ? "Abrir ferramenta →" : "Criar agora →"}</span></>;
+            const className = `block min-h-48 rounded-2xl border p-5 text-left transition ${selectedOption === option.title && option.kind === "builder" ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"} ${option.kind === "future" ? "opacity-65" : "hover:border-emerald-400/45"}`;
+            if (option.kind === "link") return <Link key={option.title} href={option.href} className={className}>{content}</Link>;
+            if (option.kind === "future") return <div key={option.title} className={className}>{content}</div>;
+            return <button type="button" key={option.title} onClick={() => { setSelectedOption(option.title); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedOption === option.title} className={className}>{content}</button>;
+          })}</div>
+        </section>
       </div>}
 
       {project && <div className="grid gap-6 xl:grid-cols-[350px_minmax(0,1fr)]">
