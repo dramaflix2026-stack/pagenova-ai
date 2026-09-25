@@ -6481,6 +6481,49 @@ section:nth-of-type(3n) > *{
     font-size:50px!important;
   }
 }
+
+/* PAGENOVA_GUARANTEE_ASSETS_V1 */
+
+.pn-guarantee-seal{
+  border:0!important;
+  border-radius:0!important;
+  background:none!important;
+  box-shadow:none!important;
+  padding:0!important;
+  width:220px!important;
+  height:auto!important;
+  min-width:220px!important;
+  overflow:visible!important;
+}
+
+.pn-guarantee-seal::before,
+.pn-guarantee-seal::after{
+  display:none!important;
+  content:none!important;
+}
+
+.pn-guarantee-badge{
+  display:block!important;
+  width:100%!important;
+  max-width:220px!important;
+  height:auto!important;
+  object-fit:contain!important;
+  margin:0 auto!important;
+}
+
+@media(max-width:720px){
+  .pn-guarantee-seal{
+    width:190px!important;
+    min-width:190px!important;
+    height:auto!important;
+  }
+
+  .pn-guarantee-badge{
+    width:100%!important;
+    max-width:190px!important;
+    height:auto!important;
+  }
+}
 </style>`;
 
   const body = `
@@ -6795,11 +6838,12 @@ section:nth-of-type(3n) > *{
 
       <div class="guarantee-card">
 
-        <div class="seal">
-          <span class="seal-top">GARANTIA</span>
-          <strong>${copy.guarantee}</strong>
-          <span class="seal-days">DIAS</span>
-          <span class="seal-bottom">COMPRA PROTEGIDA</span>
+        <div class="seal pn-guarantee-seal">
+          <img
+            class="pn-guarantee-badge"
+            src="${copy.guarantee === "30" ? "/guarantees/guarantee-30.png" : copy.guarantee === "15" ? "/guarantees/guarantee-15.png" : "/guarantees/guarantee-7.png"}"
+            alt="Garantia de ${copy.guarantee} dias"
+          />
         </div>
 
         <div class="guarantee-copy">
