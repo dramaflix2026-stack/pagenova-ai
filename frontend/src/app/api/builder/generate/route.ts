@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_PAGES, type SitePage, type SitePageKey } from "@/lib/site-builder";
+import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -27,12 +28,13 @@ export async function POST(request: NextRequest) {
   const brief = typeof body.brief === "string" ? body.brief.trim() : "";
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const style = typeof body.style === "string" ? body.style.trim() : "";
+  const presetId = typeof body.presetId === "string" ? body.presetId : "institucional";
   const key = body.key as SitePageKey;
   const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
   const existingPage = typeof body.existingPage === "string" ? body.existingPage.trim() : "";
 
   if (brief.length < 20 || brief.length > 3000 || name.length < 2 || name.length > 100 ||
-      !keys.has(key) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
+      !keys.has(key) || !SITE_PRESETS.some((preset) => preset.id === presetId) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
   }
   const apiKey = process.env.OPENAI_API_KEY;
@@ -50,8 +52,8 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: process.env.PAGENOVA_OPENAI_MODEL || "gpt-5.6-luna",
         input: [
-          { role: "system", content: "Você cria conteúdo original de sites institucionais em português brasileiro. Produza conteúdo específico ao negócio informado. Não invente endereço, telefone, preços, avaliações, certificações nem fatos não fornecidos. Não inclua HTML, Markdown ou scripts. Cada seção deve ter texto claro e útil." },
-          { role: "user", content: `Negócio: ${name}\nDescrição: ${brief}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nCrie a página com 3 seções relevantes e CTA apropriado. Se houver conteúdo atual, preserve o que não foi solicitado alterar.` },
+          { role: "system", content: "Você cria conteúdo original de sites profissionais em português brasileiro, adaptado ao nicho. Produza conteúdo específico ao negócio informado. Campos entre colchetes são dados ausentes, nunca fatos confirmados. Não invente endereço, telefone, preços, imóveis reais, avaliações, certificações nem fatos não fornecidos. Não inclua HTML, Markdown ou scripts. Evite linguagem genérica e promessas sem fundamento. Cada seção deve ter texto claro e útil." },
+          { role: "user", content: `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos necessários: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nCrie a página com 3 a 5 seções específicas do nicho e CTA apropriado. Na página inicial, priorize a proposta de valor e a jornada principal do visitante. Na página de serviços, descreva ofertas/áreas pertinentes. Se houver conteúdo atual, preserve o que não foi solicitado alterar.` },
         ],
         text: { format: { type: "json_schema", name: "institutional_page", strict: true, schema: {
           type: "object", additionalProperties: false,
