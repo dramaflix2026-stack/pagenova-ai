@@ -1,7 +1,12 @@
+import { assertPublicUrl } from "./public-url-security";
 import * as cheerio from "cheerio";
 import crypto from "node:crypto";
 import dns from "node:dns/promises";
 import net from "node:net";
+
+import {
+  fetchPageWithBrowser,
+} from "./browser-cloner";
 
 import type {
   CloneProject,
@@ -99,106 +104,6 @@ function absolutizeCssUrls(
         : `url("${value}")`;
     }
   );
-}
-
-function isPrivateIp(ip: string): boolean {
-  if (net.isIPv4(ip)) {
-    const [a, b] = ip.split(".").map(Number);
-
-    if (a === 10) return true;
-    if (a === 127) return true;
-    if (a === 0) return true;
-    if (a === 169 && b === 254) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-
-    return false;
-  }
-
-  if (net.isIPv6(ip)) {
-    const normalized = ip.toLowerCase();
-
-    return (
-      normalized === "::1" ||
-      normalized === "::" ||
-      normalized.startsWith("fc") ||
-      normalized.startsWith("fd") ||
-      normalized.startsWith("fe8") ||
-      normalized.startsWith("fe9") ||
-      normalized.startsWith("fea") ||
-      normalized.startsWith("feb")
-    );
-  }
-
-  return true;
-}
-
-async function assertPublicUrl(
-  rawUrl: string
-): Promise<URL> {
-  let url: URL;
-
-  try {
-    url = new URL(rawUrl);
-  } catch {
-    throw new Error("URL_INVALIDA");
-  }
-
-  if (!["http:", "https:"].includes(url.protocol)) {
-    throw new Error("PROTOCOLO_NAO_PERMITIDO");
-  }
-
-  if (url.username || url.password) {
-    throw new Error(
-      "URL_COM_CREDENCIAIS_NAO_PERMITIDA"
-    );
-  }
-
-  const hostname = url.hostname.toLowerCase();
-
-  if (
-    hostname === "localhost" ||
-    hostname.endsWith(".localhost") ||
-    hostname === "0.0.0.0"
-  ) {
-    throw new Error("HOST_NAO_PERMITIDO");
-  }
-
-  if (net.isIP(hostname)) {
-    if (isPrivateIp(hostname)) {
-      throw new Error("HOST_NAO_PERMITIDO");
-    }
-
-    return url;
-  }
-
-  let addresses: Array<{
-    address: string;
-    family: number;
-  }>;
-
-  try {
-    addresses = await dns.lookup(
-      hostname,
-      { all: true }
-    );
-  } catch {
-    throw new Error("HOST_NAO_ENCONTRADO");
-  }
-
-  if (!addresses.length) {
-    throw new Error("HOST_NAO_ENCONTRADO");
-  }
-
-  if (
-    addresses.some((item) =>
-      isPrivateIp(item.address)
-    )
-  ) {
-    throw new Error("HOST_NAO_PERMITIDO");
-  }
-
-  return url;
 }
 
 function inferSectionType(
@@ -880,10 +785,52 @@ export async function cloneLandingPage(
       sourceUrl
     );
 
-  const fetched =
-    await fetchPage(
-      requestedUrl
-    );
+  let fetched: {
+    html: string;
+    finalUrl: URL;
+  };
+
+  try {
+    fetched =
+      await fetchPage(
+        requestedUrl
+      );
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : "";
+
+    if (message !== "HTTP_403") {
+      throw error;
+    }
+
+    const browserFetched =
+      await fetchPageWithBrowser(
+        requestedUrl.href
+      );
+
+    const browserFinalUrl =
+      await assertPublicUrl(
+        browserFetched.finalUrl.href
+      );
+
+    if (
+      Buffer.byteLength(
+        browserFetched.html,
+        "utf8"
+      ) > MAX_HTML_BYTES
+    ) {
+      throw new Error(
+        "PAGINA_MUITO_GRANDE"
+      );
+    }
+
+    fetched = {
+      html: browserFetched.html,
+      finalUrl: browserFinalUrl,
+    };
+  }
 
   const originalHtml =
     fetched.html;
