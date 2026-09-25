@@ -36,6 +36,7 @@ function escapeHtml(value: string): string {
 export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): string {
   const page = project.pages[pageKey];
   if (!page) return "";
+  if (pageKey === "contato") return renderContactPreview(project, page);
   if (project.presetId === "imobiliaria" && pageKey === "home") return renderRealEstateHome(project, page);
 
   const palette = project.style === "vibrante"
@@ -78,3 +79,4 @@ function renderRealEstateHome(project: SiteProject, page: SitePage): string {
   </script></body></html>`;
 }
 import { getSitePreset } from "@/lib/site-builder-presets";
+import { renderContactPreview } from "@/lib/site-builder-contact";

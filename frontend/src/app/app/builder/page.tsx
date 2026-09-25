@@ -26,6 +26,7 @@ export default function BuilderPage() {
   const [name, setName] = useState("");
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
+  const [contactEmail, setContactEmail] = useState("");
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
   const [project, setProject] = useState<SiteProject | null>(null);
@@ -53,7 +54,7 @@ export default function BuilderPage() {
     if (!id) return;
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
-      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style);
+      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || "");
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
@@ -103,7 +104,7 @@ export default function BuilderPage() {
       setError("Informe o nome e descreva o negócio com pelo menos 20 caracteres."); return;
     }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
-      presetId: selectedPresetId, brief: brief.trim(), style, pages: {}, createdAt: new Date().toISOString() };
+      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(), pages: {}, createdAt: new Date().toISOString() };
     setProject(site); setActivePage("home");
     router.replace(`/app/builder?project=${site.id}`);
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
@@ -135,7 +136,7 @@ export default function BuilderPage() {
         <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedPreset.title}</p>
           <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          <label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
+          <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label><label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
           <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
           <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
@@ -143,7 +144,7 @@ export default function BuilderPage() {
         </form>
         <section className="mt-12" aria-labelledby="builder-options-title">
           <div className="mb-5"><h2 id="builder-options-title" className="text-2xl font-bold">Explore o que você pode criar</h2><p className="mt-2 text-sm text-white/45">Escolha uma opção para começar. As próximas funções aparecem com seu status real.</p></div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SITE_PRESETS.map((option) => <button type="button" key={option.id} onClick={() => { setSelectedPresetId(option.id); setBrief(option.brief); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedPresetId === option.id} className={`block min-h-48 rounded-2xl border p-5 text-left transition hover:border-emerald-400/45 ${selectedPresetId === option.id ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"}`}><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className="mt-5 block text-xs font-semibold text-emerald-300">Carregar briefing →</span></button>)}{projectOptions.map((option) => {
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SITE_PRESETS.map((option) => <button type="button" key={option.id} onClick={() => { setSelectedPresetId(option.id); setName(""); setBrief(option.brief); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedPresetId === option.id} className={`block min-h-48 rounded-2xl border p-5 text-left transition hover:border-emerald-400/45 ${selectedPresetId === option.id ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"}`}><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className="mt-5 block text-xs font-semibold text-emerald-300">Carregar briefing →</span></button>)}{projectOptions.map((option) => {
             const content = <><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold text-white">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className={`mt-5 block text-xs font-semibold ${option.kind === "future" ? "text-white/30" : "text-emerald-300"}`}>{option.kind === "future" ? "Em desenvolvimento" : option.kind === "link" ? "Abrir ferramenta →" : "Criar agora →"}</span></>;
             const className = `block min-h-48 rounded-2xl border p-5 text-left transition border-white/10 bg-[#11101b] ${option.kind === "future" ? "opacity-65" : "hover:border-emerald-400/45"}`;
             if (option.kind === "link") return <Link key={option.title} href={option.href} className={className}>{content}</Link>;
