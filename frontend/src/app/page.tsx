@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PageNovaProductDemo } from "@/components/pagenova-product-demo";
 import { PageNovaEditorDemo } from "@/components/pagenova-editor-demo";
 import { PageNovaGeneratorDemo } from "@/components/pagenova-generator-demo";
-import { PageNovaSocialProof } from "@/components/pagenova-social-proof";
+
 import { PageNovaOfferCard } from "@/components/pagenova-offer-card";
 import { PageNovaFaq, PageNovaHowItWorks, PageNovaReveal } from "@/components/pagenova-motion-sections";
 const features = [
@@ -68,7 +68,7 @@ function Arrow() {
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-[#080515] text-white">
-      <div className="border-b border-white/[0.07] bg-gradient-to-r from-[#5222D7] via-[#7547FF] to-[#5222D7]">
+      <div className="border-b border-white/[0.07] bg-gradient-to-r from-[#008B6C] via-[#00C997] to-[#008B6C]">
         <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-center px-6 text-center text-[11px] font-semibold tracking-wide text-white/90">
           ✦ Crie páginas, sites e ferramentas para colocar suas ideias em movimento.
         </div>
@@ -138,7 +138,7 @@ export default function Home() {
               <a href="#como-funciona" className="transition hover:text-white">
                 Como funciona
               </a>
-              <a href="#produto" className="transition hover:text-white">
+              <a href="#modulos" className="transition hover:text-white">
                 Produto
               </a>
               <a href="#preco" className="transition hover:text-white">
@@ -159,7 +159,7 @@ export default function Home() {
 
               <Link
                 href="#preco"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#815BFF] to-[#6338F2] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110 pagenova-premium-cta"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00C997] to-[#008B6C] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110 pagenova-premium-cta"
               >
                 Começar agora
                 <Arrow />
@@ -169,8 +169,8 @@ export default function Home() {
         </header>
 
         <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-24 text-center md:px-8 md:pb-32 md:pt-32">
-          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-violet-300/15 bg-violet-500/[0.09] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-300 shadow-[0_0_10px_rgba(196,181,253,0.9)]" />
+          <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-400/[0.09] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-200">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(196,181,253,0.9)]" />
             CRIE · ORGANIZE · EVOLUA
           </div>
 
@@ -189,7 +189,7 @@ export default function Home() {
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="#preco"
-              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#845FFF] to-[#6438F4] px-7 py-3.5 text-sm font-bold shadow-[0_14px_45px_rgba(108,59,255,0.32)] transition hover:-translate-y-0.5 hover:brightness-110"
+              className="inline-flex min-h-13 items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#00C997] to-[#008B6C] px-7 py-3.5 text-sm font-bold shadow-[0_14px_45px_rgba(108,59,255,0.32)] transition hover:-translate-y-0.5 hover:brightness-110"
             >
               Conhecer os planos
               <Arrow />
@@ -208,7 +208,7 @@ export default function Home() {
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[11px] font-medium text-white/30">
             <span>✓ Planos de assinatura</span>
-            <span>✓ Acesso imediato</span>
+            <span>✓ Acesse as demonstrações</span>
             <span>✓ Escolha seu período</span>
           </div>
 
@@ -228,7 +228,7 @@ export default function Home() {
         id="recursos"
         className="relative scroll-mt-20 overflow-hidden bg-[#F8F7FC] text-[#171329]"
       >
-        <div className="pointer-events-none absolute left-1/2 top-[-240px] h-[430px] w-[900px] -translate-x-1/2 rounded-full bg-violet-300/20 blur-[100px]" />
+        <div className="pointer-events-none absolute left-1/2 top-[-240px] h-[430px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-300/20 blur-[100px]" />
 
         <div className="relative mx-auto max-w-7xl px-6 py-24 md:px-8 md:py-32">
           {/* PAGENOVA_LP_A7_1_RECURSOS_REVEAL */}
@@ -323,8 +323,72 @@ export default function Home() {
         </div>
       </section>
 
-                  {/* PAGENOVA_LP_A6_7_SOCIAL_PROOF */}
-      <PageNovaSocialProof />
+      <section id="modulos" className="relative scroll-mt-20 overflow-hidden bg-[#071611] text-white">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-emerald-400/[0.09] blur-[120px]" />
+        <div className="relative mx-auto max-w-7xl px-6 py-24 md:px-8 md:py-32">
+          <div className="max-w-3xl">
+            <span className="text-xs font-black uppercase tracking-[.22em] text-emerald-300">
+              O produto em ação
+            </span>
+            <h2 className="mt-5 text-4xl font-bold tracking-[-.045em] md:text-6xl">
+              Crie a presença. Organize o próximo passo.
+            </h2>
+            <p className="mt-6 max-w-2xl text-base leading-8 text-white/55">
+              Comece pelo site ou pela página de oferta. Depois use os espaços de trabalho da PageNova
+              para acompanhar leads, indicadores e reservas.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-4 lg:grid-cols-2">
+            <article className="rounded-[26px] border border-emerald-300/20 bg-gradient-to-br from-[#123329] to-[#0c201a] p-7 md:p-9">
+              <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-300">01 · Criar</span>
+              <h3 className="mt-5 text-2xl font-bold">Sites com briefing por nicho</h3>
+              <p className="mt-4 leading-7 text-white/60">
+                Selecione o segmento, ajuste o briefing e acompanhe a geração das páginas na prévia.
+                Imobiliária e SaaS já possuem experiências próprias.
+              </p>
+              <div className="mt-8 rounded-2xl border border-emerald-300/15 bg-[#071a14] p-5">
+                <div className="flex items-center gap-2 text-xs text-emerald-200">
+                  <span className="h-2 w-2 rounded-full bg-emerald-300" />
+                  Briefing → geração → prévia → edição
+                </div>
+              </div>
+            </article>
+
+            <article className="rounded-[26px] border border-white/10 bg-[#10241d] p-7 md:p-9">
+              <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-300">02 · Personalizar</span>
+              <h3 className="mt-5 text-2xl font-bold">Clonador e editor visual</h3>
+              <p className="mt-4 leading-7 text-white/60">
+                Use uma URL como ponto de partida ou crie uma landing page. Ajuste os elementos principais
+                e mantenha seus projetos disponíveis para continuar o trabalho.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-2 text-xs text-white/60">
+                <span className="rounded-full border border-white/15 px-3 py-2">Textos</span>
+                <span className="rounded-full border border-white/15 px-3 py-2">Imagens</span>
+                <span className="rounded-full border border-white/15 px-3 py-2">Links</span>
+              </div>
+            </article>
+
+            <article className="rounded-[26px] border border-white/10 bg-[#10241d] p-7 md:p-9">
+              <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-300">03 · Acompanhar</span>
+              <h3 className="mt-5 text-2xl font-bold">CRM e dashboard</h3>
+              <p className="mt-4 leading-7 text-white/60">
+                Cadastre leads, acompanhe etapas de venda e visualize indicadores calculados a partir do CRM.
+                Nesta versão, os dados ficam no navegador usado para trabalhar.
+              </p>
+            </article>
+
+            <article className="rounded-[26px] border border-white/10 bg-[#10241d] p-7 md:p-9">
+              <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-300">04 · Organizar</span>
+              <h3 className="mt-5 text-2xl font-bold">Agenda de serviços</h3>
+              <p className="mt-4 leading-7 text-white/60">
+                Cadastre serviços, consulte horários livres, bloqueie conflitos e exporte reservas para o calendário.
+                A gestão da agenda também funciona neste navegador.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
 {/* PAGENOVA_LP_A6_6_PREMIUM_OFFER */}
       <section id="preco" className="pagenova-sales relative scroll-mt-20 overflow-hidden bg-[#06130f] text-white">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[620px] w-[960px] -translate-x-1/2 rounded-full bg-emerald-400/[0.11] blur-[130px]" />
@@ -378,7 +442,7 @@ export default function Home() {
 
             <Link
               href="#preco"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-violet-300"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-300"
             >
               Começar agora
               <Arrow />

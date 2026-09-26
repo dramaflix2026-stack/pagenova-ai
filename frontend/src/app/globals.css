@@ -1193,3 +1193,19 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .pagenova-sales article { transition: none; }
 }
+
+/* PAGENOVA_BRAND_REFRESH_2026 */
+.pagenova-sky {
+  background: linear-gradient(180deg, #07110e 0%, #071611 46%, #0c2b21 100%);
+}
+.pagenova-sky-base {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(0, 224, 163, .12), transparent 32%),
+    radial-gradient(circle at 50% 92%, rgba(0, 191, 143, .18), transparent 42%);
+}
+.pagenova-nebula-a { background: rgba(0, 185, 137, .11); }
+.pagenova-nebula-b { background: rgba(0, 133, 103, .10); }
+.pagenova-nebula-c { background: rgba(0, 207, 150, .09); }
+.pagenova-horizon-glow {
+  background: radial-gradient(ellipse at center, rgba(0, 213, 151, .18), transparent 69%);
+}
