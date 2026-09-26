@@ -16,7 +16,7 @@ const projectOptions = [
   { title: "Loja Online", description: "Catálogo, carrinho e pedidos.", icon: "🛍", kind: "future" },
   { title: "Dashboard / Painel", description: "Indicadores reais dos projetos de CRM.", icon: "▤", kind: "link", href: "/app/dashboard" },
   { title: "CRM de Vendas", description: "Funil, leads, responsáveis e indicadores.", icon: "◎", kind: "link", href: "/app/crm" },
-  { title: "Agendamento", description: "Horários, reservas e confirmações.", icon: "◷", kind: "future" },
+  { title: "Agendamento", description: "Serviços, disponibilidade e reservas.", icon: "◷", kind: "link", href: "/app/agendamento" },
   { title: "Área de Membros", description: "Conteúdo e acesso para assinantes.", icon: "♧", kind: "future" },
   { title: "Quiz e Formulário", description: "Perguntas, respostas e captação.", icon: "☷", kind: "future" },
 ] as const;
