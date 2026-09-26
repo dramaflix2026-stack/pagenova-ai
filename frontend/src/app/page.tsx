@@ -1,3 +1,4 @@
+import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
 import Link from "next/link";
 
 const plans = [
@@ -159,7 +160,7 @@ function ProductFrame() {
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#07110e] font-sans text-[#f2f6f1]">
+    <main className="min-h-screen bg-[#07110e] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
       <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#07110e]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between gap-5 px-5 md:px-8">
           <Link href="/" aria-label="PageNova AI, início"><Brand /></Link>
@@ -315,6 +316,7 @@ export default function Home() {
         </p>
       </section>
 
+      <PageNovaVideoShowcase />
       <section id="planos" className="scroll-mt-20 border-t border-white/[.07] bg-[#081710] py-20 md:py-28">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6">

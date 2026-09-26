@@ -1209,3 +1209,19 @@ body {
 .pagenova-horizon-glow {
   background: radial-gradient(ellipse at center, rgba(0, 213, 151, .18), transparent 69%);
 }
+
+/* PAGENOVA_SCROLL_MOTION_V1 */
+@media (prefers-reduced-motion: no-preference) {
+  .pn-reveal {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    transition:
+      opacity 650ms cubic-bezier(.22, 1, .36, 1),
+      transform 650ms cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .pn-reveal.pn-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
