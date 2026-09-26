@@ -39,6 +39,7 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
   if (!page) return "";
   if (pageKey === "contato") return renderContactPreview(project, page);
   if (project.presetId === "imobiliaria") return renderRealEstatePage(project, page, pageKey);
+  if (project.presetId === "landing-saas") return renderSaasPage(project, page, pageKey);
 
   const palette = project.style === "vibrante"
     ? { background: "#10122b", foreground: "#f8f8ff", accent: "#a78bfa", surface: "#1c1e3b" }
@@ -82,3 +83,4 @@ function renderRealEstateHome(project: SiteProject, page: SitePage): string {
 import { getSitePreset } from "@/lib/site-builder-presets";
 import { renderContactPreview } from "@/lib/site-builder-contact";
 import { renderRealEstatePage } from "@/lib/site-builder-real-estate";
+import { renderSaasPage } from "@/lib/site-builder-saas";

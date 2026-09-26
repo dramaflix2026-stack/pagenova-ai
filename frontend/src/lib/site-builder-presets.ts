@@ -14,7 +14,12 @@ export const SITE_PRESETS: SitePreset[] = [
     modules: ["Home de autoridade", "Sobre e diferenciais", "Serviços", "Contato"],
   },
   {
-    id: "imobiliaria", title: "Imobiliária", icon: "🏠", description: "Busca, vitrine e detalhe de imóveis.",
+    id: "landing-saas", title: "Landing de SaaS", icon: "⚡",
+    description: "Produto, recursos, demonstração, planos e conversão.",
+    brief: "Crie uma landing page profissional para o software [nome]. Explique qual problema resolve, quem usa, o fluxo principal do produto e quais funcionalidades existem de verdade. Público: [descrever]. Diferencial: [descrever]. Inclua apresentação do produto, recursos, funcionamento, casos de uso, planos somente se eu informar valores e condições, dúvidas frequentes e chamada para teste ou demonstração. Não invente clientes, depoimentos, métricas, integrações, segurança, período grátis nem preços. Quando faltar informação comercial, convide para solicitar uma demonstração. Escreva de forma específica e convincente, sem promessas não comprovadas.",
+    modules: ["Apresentação do produto", "Prévia da interface", "Recursos", "Como funciona", "Planos", "Perguntas frequentes", "Demonstração"],
+  },
+  {    id: "imobiliaria", title: "Imobiliária", icon: "🏠", description: "Busca, vitrine e detalhe de imóveis.",
     brief: "Crie um site profissional para a imobiliária [nome], que atende [cidade/região] e trabalha com [venda, locação ou ambos]. Público: [perfil dos clientes]. Priorize busca de imóveis com filtros de tipo, bairro, dormitórios e preço; grade de imóveis com preço, metragem, quartos e localização; detalhe com descrição e informações completas; contato com o corretor. Use imóveis demonstrativos identificados como exemplo até eu fornecer o catálogo real. Visual editorial imobiliário, hierarquia clara e navegação simples. Não invente CRECI, avaliações, telefone ou endereços reais.",
     modules: ["Busca e filtros", "Vitrine de imóveis", "Detalhe do imóvel", "Contato com corretor"],
   },
