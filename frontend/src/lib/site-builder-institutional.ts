@@ -57,9 +57,9 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   .section{padding-top:85px;padding-bottom:90px}.section h2{font-size:clamp(32px,4vw,50px);line-height:1.12;margin:15px 0 20px}
   .section-intro{max-width:690px;line-height:1.8;color:#64776a;font-size:17px}.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin-top:35px}
   .service{padding:28px;background:#fff;border:1px solid #e1e8df;border-radius:8px;min-height:225px}.index{color:#087a5b;font-size:12px;font-weight:800}.service h3{font-size:25px;margin:23px 0 12px}.service p{color:#617368;font-size:14px;line-height:1.75;margin:0}
-  .story{background:#173a2e;color:#fff}.story-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:70px;padding-top:80px;padding-bottom:80px}
-  .story h2{font-size:clamp(32px,4vw,51px);margin:16px 0}.story p{line-height:1.8;color:#c8dacf}.story .kicker{color:#9cd3b4}.media-frame{height:390px}
-  .proof{padding:35px;border-left:3px solid #9cd3b4;background:#ffffff0b;margin-top:24px}.proof strong{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#9cd3b4}
+  .story{background:#e7eee7;color:#19332c}.story-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:70px;padding-top:80px;padding-bottom:80px}
+  .story h2{font-size:clamp(32px,4vw,51px);margin:16px 0}.story p{line-height:1.8;color:#526c5c}.story .kicker{color:#087a5b}.media-frame{height:390px}
+  .proof{padding:24px;border-left:3px solid #087a5b;background:#fff;border-radius:0 8px 8px 0;margin-top:20px}.proof strong{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#087a5b}
   .gallery{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}.gallery .media-frame{height:295px}
   .closing{text-align:center;background:#e7f0e7;padding:76px 22px}.closing h2{font-size:clamp(32px,4vw,49px);margin:15px auto;max-width:750px}.closing p{color:#627468;line-height:1.7}footer{padding:35px 6%;background:#102d23;color:#d9e7dd;font-size:13px}
   @media(max-width:850px){.hero-grid,.story-grid{grid-template-columns:1fr;gap:35px}.hero-media{height:420px}.services{grid-template-columns:repeat(2,1fr)}}
@@ -77,8 +77,8 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
       <div class="services">${sections}</div>
     </section>
     <section class="story"><div class="shell story-grid"><div class="media-frame">${business}</div><div>
-      <span class="kicker">O negócio por trás do nome</span><h2>Uma apresentação com conteúdo real.</h2>
-      <p>${pageKey === "sobre" ? esc(page.introduction) : "Conheça a proposta, o trabalho e a forma de atendimento antes de entrar em contato."}</p>
+      <span class="kicker">Sobre ${name}</span><h2>${pageKey === "sobre" ? esc(page.heading) : "Conheça quem está por trás deste trabalho."}</h2>
+      <p>${esc(page.introduction)}</p>
       ${process ? `<div class="proof"><strong>Como funciona</strong>${process}</div>` : ""}
       ${proof ? `<div class="proof"><strong>Informações fornecidas</strong>${proof}</div>` : ""}
     </div></div></section>

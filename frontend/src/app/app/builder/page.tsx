@@ -78,6 +78,50 @@ export default function BuilderPage() {
   const [currentStep, setCurrentStep] = useState<SitePageKey | null>(null);
   const [error, setError] = useState("");
   const [instruction, setInstruction] = useState("");
+  const [revisionImage, setRevisionImage] = useState("");
+  const [revisionImageError, setRevisionImageError] = useState("");
+
+  async function prepareRevisionImage(file: File) {
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setRevisionImageError("Envie um print PNG, JPG ou WebP."); return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setRevisionImageError("O print deve ter até 8 MB."); return;
+    }
+    const url = URL.createObjectURL(file);
+    try {
+      const picture = new Image();
+      await new Promise<void>((resolve, reject) => {
+        picture.onload = () => resolve();
+        picture.onerror = () => reject(new Error("Não foi possível abrir o print."));
+        picture.src = url;
+      });
+      const ratio = Math.min(1, 1400 / Math.max(picture.naturalWidth, picture.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(picture.naturalWidth * ratio));
+      canvas.height = Math.max(1, Math.round(picture.naturalHeight * ratio));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Não foi possível processar o print.");
+      context.drawImage(picture, 0, 0, canvas.width, canvas.height);
+      const data = canvas.toDataURL("image/jpeg", 0.72);
+      if (data.length > 1200000) throw new Error("O print ficou grande demais. Recorte a área importante e tente novamente.");
+      setRevisionImage(data);
+      setRevisionImageError("");
+    } catch (cause) {
+      setRevisionImageError(cause instanceof Error ? cause.message : "Falha ao ler o print.");
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  function pasteRevisionImage(event: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const file = Array.from(event.clipboardData.items)
+      .find((item) => item.kind === "file" && item.type.startsWith("image/"))?.getAsFile();
+    if (file) {
+      event.preventDefault();
+      void prepareRevisionImage(file);
+    }
+  }
   const [pendingKeys, setPendingKeys] = useState<SitePageKey[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
@@ -116,7 +160,7 @@ export default function BuilderPage() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = ""): Promise<SitePage> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<SitePage> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -129,7 +173,7 @@ export default function BuilderPage() {
           process: site.institutional?.process || "",
           proof: site.institutional?.proof || "",
         } : undefined,
-        instruction: editInstruction, existingPage: editInstruction ? JSON.stringify(site.pages[key]) : "" }),
+        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]) : "" }),
     });
     const data = await response.json() as { page?: SitePage; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
@@ -180,10 +224,10 @@ export default function BuilderPage() {
     if (!project || !instruction.trim() || phase === "generating") return;
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
-      const page = await requestPage(project, activePage, instruction.trim());
+      const page = await requestPage(project, activePage, instruction.trim(), revisionImage);
       const updated = { ...project, pages: { ...project.pages, [activePage]: page } };
       await savePageNovaProject(updated.id, updated);
-      setProject(updated); setInstruction(""); setPhase("ready");
+      setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível aplicar a alteração."); setPhase("error");
     } finally { setCurrentStep(null); }
@@ -266,7 +310,21 @@ export default function BuilderPage() {
           {phase === "error" && pendingKeys.length > 0 && <button onClick={() => void generatePages(project, pendingKeys)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Tentar novamente</button>}
           {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&
             <button onClick={() => void generatePages(project, SITE_PAGES.filter(({ key }) => !project.pages[key]).map(({ key }) => key))} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Continuar criação</button>}
-          <form onSubmit={revise} className="border-t border-white/10 pt-5"><label className="text-sm font-semibold" htmlFor="builder-change">Peça uma alteração nesta página</label><textarea id="builder-change" value={instruction} onChange={(event) => setInstruction(event.target.value)} maxLength={700} rows={3} placeholder="Ex.: destaque o atendimento personalizado" className="mt-3 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" /><button disabled={!project.pages[activePage] || phase === "generating" || !instruction.trim()} className="mt-2 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">Aplicar alteração</button></form>
+          <form onSubmit={revise} className="border-t border-white/10 pt-5">
+            <label className="text-sm font-semibold" htmlFor="builder-change">Peça uma alteração nesta página</label>
+            <p className="mt-1 text-xs leading-5 text-white/45">Escreva o que deseja mudar. Você também pode colar um print aqui com Ctrl+V para a IA analisar a referência.</p>
+            <textarea id="builder-change" value={instruction} onChange={(event) => setInstruction(event.target.value)} onPaste={pasteRevisionImage} maxLength={700} rows={4} placeholder="Ex.: use este print como referência para melhorar a seção de apresentação, mantendo minhas informações reais." className="mt-3 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
+            <label className="mt-3 block cursor-pointer rounded-xl border border-dashed border-white/20 px-3 py-3 text-xs text-white/65 hover:border-emerald-400/50">
+              Anexar print da tela
+              <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-2 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-emerald-400 file:px-2 file:py-1 file:text-black" onChange={(event) => { const file = event.target.files?.[0]; if (file) void prepareRevisionImage(file); event.target.value = ""; }} />
+            </label>
+            {revisionImage && <div className="mt-3 rounded-xl border border-emerald-400/30 p-2">
+              <img src={revisionImage} alt="Print anexado para a IA analisar" className="max-h-44 w-full rounded-lg object-contain" />
+              <button type="button" onClick={() => setRevisionImage("")} className="mt-2 text-xs text-emerald-300">Remover print</button>
+            </div>}
+            {revisionImageError && <p role="alert" className="mt-2 text-xs text-red-300">{revisionImageError}</p>}
+            <button disabled={!project.pages[activePage] || phase === "generating" || !instruction.trim()} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">Enviar pedido e print para a IA</button>
+          </form>
           <p className="text-xs text-white/35">Projeto salvo neste navegador. A publicação e o domínio serão adicionados em uma próxima etapa.</p>
         </aside>
         <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#191923]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Prévia ao vivo</span></div>
