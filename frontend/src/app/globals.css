@@ -1225,3 +1225,60 @@ body {
     transform: translate3d(0, 0, 0);
   }
 }
+/* PAGENOVA_MOBILE_CENTER_V1 */
+@media (max-width: 767px) {
+  .pn-mobile-centered > section h1,
+  .pn-mobile-centered > section h2,
+  .pn-mobile-centered > section h3,
+  .pn-mobile-centered > section p,
+  .pn-mobile-centered > section article,
+  .pn-mobile-centered > section details,
+  .pn-mobile-centered > footer {
+    text-align: center;
+  }
+
+  .pn-mobile-centered > section > div,
+  .pn-mobile-centered > section > div > div {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pn-mobile-centered > section a,
+  .pn-mobile-centered > section button {
+    justify-content: center;
+  }
+
+  .pn-mobile-centered > section .flex.flex-wrap {
+    justify-content: center;
+  }
+
+  .pn-mobile-centered > section article p,
+  .pn-mobile-centered > section article h3,
+  .pn-mobile-centered > section details p {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pn-mobile-centered > section details summary {
+    text-align: center;
+  }
+
+  .pn-mobile-centered > section details summary span {
+    flex-shrink: 0;
+  }
+
+  /* O painel ilustrativo mantém a leitura de uma interface de produto. */
+  .pn-mobile-centered .pn-sequence,
+  .pn-mobile-centered .pn-sequence * {
+    text-align: left;
+  }
+
+  .pn-mobile-centered .pn-sequence .flex {
+    justify-content: initial;
+  }
+
+  .pn-mobile-centered footer > div {
+    justify-content: center;
+    text-align: center;
+  }
+}
