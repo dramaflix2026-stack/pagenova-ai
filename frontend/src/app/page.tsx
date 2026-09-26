@@ -9,52 +9,58 @@ import { PageNovaFaq, PageNovaHowItWorks, PageNovaReveal } from "@/components/pa
 const features = [
   {
     icon: "◇",
-    title: "Clone por URL",
-    description:
-      "Cole a URL de uma landing page e transforme sua estrutura em um projeto editável.",
+    title: "Clonador por URL",
+    description: "Transforme a estrutura de uma página existente em um projeto que você pode editar.",
   },
   {
     icon: "✎",
     title: "Editor visual",
-    description:
-      "Altere textos, imagens e links diretamente na página, sem precisar programar.",
+    description: "Ajuste textos, imagens e links diretamente na página e continue de onde parou.",
   },
   {
     icon: "✦",
-    title: "Criação com IA",
-    description:
-      "Comece uma nova landing page a partir das informações principais da sua oferta.",
+    title: "Landing pages com IA",
+    description: "Comece uma página de oferta com uma estrutura gerada a partir do seu briefing.",
+  },
+  {
+    icon: "▦",
+    title: "Sites por nicho",
+    description: "Parta de um briefing para imobiliária, SaaS e outros segmentos, com prévia durante a criação.",
+  },
+  {
+    icon: "◎",
+    title: "CRM de vendas",
+    description: "Organize leads, etapas e responsáveis em um espaço de trabalho no seu navegador.",
   },
   {
     icon: "▤",
+    title: "Dashboard",
+    description: "Visualize indicadores e a evolução dos negócios cadastrados no CRM.",
+  },
+  {
+    icon: "◷",
+    title: "Agendamento",
+    description: "Cadastre serviços, organize reservas e evite conflitos entre horários.",
+  },
+  {
+    icon: "▣",
     title: "Seus projetos",
-    description:
-      "Organize as páginas que você clonou ou criou dentro de um único workspace.",
+    description: "Reabra as páginas e os sites salvos para seguir editando e evoluindo suas ideias.",
   },
 ];
-
 function Brand() {
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-violet-300/20 bg-gradient-to-br from-[#8B5CFF] via-[#6C3BFF] to-[#4320C9] shadow-[0_0_30px_rgba(108,59,255,0.3)]">
-        <span className="text-lg font-black tracking-[-0.08em] text-white">
-          N
-        </span>
-        <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full bg-white/50 blur-[3px]" />
-      </div>
-
-      <div className="flex items-baseline gap-1">
-        <span className="text-[17px] font-bold tracking-[-0.035em] text-white">
-          PageNova
-        </span>
-        <span className="text-[9px] font-black uppercase tracking-[0.16em] text-violet-400">
-          AI
-        </span>
-      </div>
+    <div className="flex items-center">
+      <img
+        src="/brand/pagenova-logo.png"
+        alt="PageNova AI — Landing Page Studio"
+        width={210}
+        height={64}
+        className="h-12 w-auto max-w-[180px] object-contain object-left sm:h-14 sm:max-w-[210px]"
+      />
     </div>
   );
 }
-
 function Arrow() {
   return <span aria-hidden="true">→</span>;
 }
@@ -64,7 +70,7 @@ export default function Home() {
     <main className="min-h-screen overflow-hidden bg-[#080515] text-white">
       <div className="border-b border-white/[0.07] bg-gradient-to-r from-[#5222D7] via-[#7547FF] to-[#5222D7]">
         <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-center px-6 text-center text-[11px] font-semibold tracking-wide text-white/90">
-          ✦ Transforme sua próxima ideia em uma landing page.
+          ✦ Crie páginas, sites e ferramentas para colocar suas ideias em movimento.
         </div>
       </div>
 
@@ -152,7 +158,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="https://pay.kiwify.com.br/cMMBGQH"
+                href="#preco"
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#815BFF] to-[#6338F2] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_30px_rgba(108,59,255,0.28)] transition hover:brightness-110 pagenova-premium-cta"
               >
                 Começar agora
@@ -165,27 +171,27 @@ export default function Home() {
         <div className="relative z-10 mx-auto max-w-7xl px-6 pb-24 pt-24 text-center md:px-8 md:pb-32 md:pt-32">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-violet-300/15 bg-violet-500/[0.09] px-4 py-2 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-200">
             <span className="h-1.5 w-1.5 rounded-full bg-violet-300 shadow-[0_0_10px_rgba(196,181,253,0.9)]" />
-            Clone · Edite · Crie
+            CRIE · ORGANIZE · EVOLUA
           </div>
 
-          <h1 className="mx-auto mt-7 max-w-5xl text-5xl font-bold leading-[0.98] tracking-[-0.055em] md:text-7xl lg:text-[82px]">
-            Landing pages
-            <span className="block bg-gradient-to-r from-[#D8CEFF] via-[#A98CFF] to-[#7547FF] bg-clip-text text-transparent">
-              em minutos.
+                    <h1 className="mx-auto mt-7 max-w-5xl text-5xl font-bold leading-[0.98] tracking-[-0.055em] md:text-7xl lg:text-[82px]">
+            Sua ideia merece
+            <span className="block bg-gradient-to-r from-[#C5FFE5] via-[#28F2BC] to-[#00BB91] bg-clip-text text-transparent">
+              mais que um template.
             </span>
           </h1>
 
-          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-white/50 md:text-lg md:leading-8">
-            Clone uma landing page existente ou crie uma nova estrutura.
-            Personalize textos, imagens e links em um editor visual simples.
+          <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-white/60 md:text-lg md:leading-8">
+            Crie landing pages e sites, edite visualmente e organize projetos, leads e agendamentos.
+            Uma plataforma para tirar sua operação do papel e continuar evoluindo.
           </p>
 
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
-              href="https://pay.kiwify.com.br/cMMBGQH"
+              href="#preco"
               className="inline-flex min-h-13 items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#845FFF] to-[#6438F4] px-7 py-3.5 text-sm font-bold shadow-[0_14px_45px_rgba(108,59,255,0.32)] transition hover:-translate-y-0.5 hover:brightness-110"
             >
-              Começar agora — R$97
+              Conhecer os planos
               <Arrow />
             </Link>
 
@@ -201,9 +207,9 @@ export default function Home() {
           </div>
 
           <div className="mt-7 flex flex-wrap items-center justify-center gap-x-7 gap-y-3 text-[11px] font-medium text-white/30">
-            <span>✓ Pagamento único</span>
+            <span>✓ Planos de assinatura</span>
             <span>✓ Acesso imediato</span>
-            <span>✓ Sem mensalidade</span>
+            <span>✓ Escolha seu período</span>
           </div>
 
           <div
@@ -233,12 +239,11 @@ export default function Home() {
             </span>
 
             <h2 className="mt-5 text-4xl font-bold tracking-[-0.045em] md:text-5xl">
-              Tudo que você precisa para trabalhar sua landing page.
+              Da primeira página à operação do seu negócio.
             </h2>
 
             <p className="mx-auto mt-5 max-w-2xl leading-7 text-[#716C80]">
-              Do clone à edição, a PageNova reúne as principais etapas em um
-              único ambiente.
+              A PageNova reúne criação, edição e ferramentas para você organizar o trabalho em um só lugar.
             </p>
           </div>
 
@@ -286,7 +291,7 @@ export default function Home() {
               </div>
 
               <Link
-                href="https://pay.kiwify.com.br/cMMBGQH"
+                href="#preco"
                 className="mt-9 inline-flex items-center gap-3 rounded-xl bg-[#171329] px-6 py-3.5 text-sm font-bold text-white transition hover:bg-[#251D3B]"
               >
                 Conhecer a PageNova
@@ -321,31 +326,20 @@ export default function Home() {
                   {/* PAGENOVA_LP_A6_7_SOCIAL_PROOF */}
       <PageNovaSocialProof />
 {/* PAGENOVA_LP_A6_6_PREMIUM_OFFER */}
-      <section
-        id="preco"
-        className="relative scroll-mt-20 overflow-hidden bg-[#090516] text-white"
-      >
-        <div className="pointer-events-none absolute left-1/2 top-[44%] h-[760px] w-[1000px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#6D3DFF]/[0.14] blur-[140px]" />
-        <div className="pointer-events-none absolute left-[8%] top-[18%] h-64 w-64 rounded-full bg-violet-600/[0.07] blur-[100px]" />
-        <div className="pointer-events-none absolute bottom-[6%] right-[8%] h-72 w-72 rounded-full bg-fuchsia-500/[0.05] blur-[110px]" />
-
+      <section id="preco" className="pagenova-sales relative scroll-mt-20 overflow-hidden bg-[#06130f] text-white">
+        <div className="pointer-events-none absolute left-1/2 top-0 h-[620px] w-[960px] -translate-x-1/2 rounded-full bg-emerald-400/[0.11] blur-[130px]" />
         <div className="relative mx-auto max-w-7xl px-6 py-24 md:px-8 md:py-32">
           <div className="mx-auto max-w-3xl text-center">
-            <span className="inline-flex items-center rounded-full border border-violet-400/25 bg-violet-500/[0.08] px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] text-violet-200">
-              Acesso completo
+            <span className="inline-flex rounded-full border border-emerald-300/25 bg-emerald-400/10 px-4 py-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-200">
+              Uma plataforma. Seu ritmo.
             </span>
-
-            <h2 className="mt-6 text-4xl font-bold tracking-[-0.045em] md:text-5xl">
-              Tudo em um único acesso.
+            <h2 className="mt-6 text-4xl font-bold tracking-[-.045em] md:text-6xl">
+              Escolha como você quer crescer.
             </h2>
-
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-white/45">
-              Uma única compra para acessar o ecossistema PageNova e
-              começar a trabalhar suas landing pages.
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/55">
+              Os mesmos recursos da PageNova em todos os períodos. Assine mensalmente ou economize ao escolher um ciclo maior.
             </p>
           </div>
-
-          {/* PAGENOVA_LP_A6_8_3D_OFFER */}
           <PageNovaOfferCard />
         </div>
       </section>
@@ -383,7 +377,7 @@ export default function Home() {
             </div>
 
             <Link
-              href="https://pay.kiwify.com.br/cMMBGQH"
+              href="#preco"
               className="inline-flex items-center gap-2 text-sm font-semibold text-violet-300"
             >
               Começar agora

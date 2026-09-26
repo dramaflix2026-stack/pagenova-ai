@@ -184,9 +184,9 @@ const faqItems = [
       "Não. A proposta da PageNova é permitir que você clone, crie e edite sua landing page visualmente, sem depender de programação para as alterações principais.",
   },
   {
-    question: "A PageNova tem mensalidade?",
+    question: "Como funcionam os planos de assinatura?",
     answer:
-      "Na oferta atual, o acesso é vendido por pagamento único de R$97, sem mensalidade.",
+      "Sim. O plano mensal custa R$147 por mês. Há opções trimestral, semestral e anual com menor custo mensal equivalente. A cobrança ocorre pelo período escolhido.",
   },
   {
     question: "Posso editar a página depois de criar?",

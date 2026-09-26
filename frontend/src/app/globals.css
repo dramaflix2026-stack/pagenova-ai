@@ -1182,3 +1182,14 @@ body {
     animation: none !important;
   }
 }
+
+/* PAGENOVA_SALES_2026 */
+.pagenova-sales {
+  background-image:
+    radial-gradient(circle at 50% -10%, rgba(0, 225, 164, .13), transparent 46%),
+    linear-gradient(160deg, #06130f, #07110e 65%, #0b1a15);
+}
+.pagenova-sales article { will-change: transform; }
+@media (prefers-reduced-motion: reduce) {
+  .pagenova-sales article { transition: none; }
+}
