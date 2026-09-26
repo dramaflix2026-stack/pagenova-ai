@@ -27,6 +27,49 @@ export default function BuilderPage() {
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
   const [contactEmail, setContactEmail] = useState("");
+  const [role, setRole] = useState("");
+  const [audience, setAudience] = useState("");
+  const [offer, setOffer] = useState("");
+  const [process, setProcess] = useState("");
+  const [proof, setProof] = useState("");
+  const [photos, setPhotos] = useState<{ portrait?: string; businessPhoto?: string; workPhoto?: string }>({});
+  const [photoError, setPhotoError] = useState("");
+
+  async function selectPhoto(key: "portrait" | "businessPhoto" | "workPhoto", file?: File) {
+    if (!file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setPhotoError("Use uma imagem JPG, PNG ou WebP."); return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setPhotoError("A imagem deve ter no máximo 8 MB."); return;
+    }
+    try {
+      const image = new Image();
+      const source = URL.createObjectURL(file);
+      try {
+        await new Promise<void>((resolve, reject) => {
+          image.onload = () => resolve();
+          image.onerror = () => reject(new Error("Não foi possível abrir a imagem."));
+          image.src = source;
+        });
+        const scale = Math.min(1, 1400 / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const context = canvas.getContext("2d");
+        if (!context) throw new Error("Não foi possível preparar a imagem.");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const result = canvas.toDataURL("image/jpeg", 0.78);
+        if (result.length > 1200000) throw new Error("Imagem grande demais após otimização.");
+        setPhotos((current) => ({ ...current, [key]: result }));
+        setPhotoError("");
+      } finally {
+        URL.revokeObjectURL(source);
+      }
+    } catch (cause) {
+      setPhotoError(cause instanceof Error ? cause.message : "Falha ao carregar a imagem.");
+    }
+  }
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
   const [project, setProject] = useState<SiteProject | null>(null);
@@ -55,6 +98,16 @@ export default function BuilderPage() {
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
       setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || "");
+      setRole(saved.institutional?.role || "");
+      setAudience(saved.institutional?.audience || "");
+      setOffer(saved.institutional?.offer || "");
+      setProcess(saved.institutional?.process || "");
+      setProof(saved.institutional?.proof || "");
+      setPhotos({
+        portrait: saved.institutional?.portrait,
+        businessPhoto: saved.institutional?.businessPhoto,
+        workPhoto: saved.institutional?.workPhoto,
+      });
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
@@ -69,6 +122,13 @@ export default function BuilderPage() {
     const response = await fetch("/api/builder/generate", {
       method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
       body: JSON.stringify({ name: site.name, brief: site.brief, style: site.style, key, presetId: site.presetId,
+        institutional: site.presetId === "institucional" ? {
+          role: site.institutional?.role || "",
+          audience: site.institutional?.audience || "",
+          offer: site.institutional?.offer || "",
+          process: site.institutional?.process || "",
+          proof: site.institutional?.proof || "",
+        } : undefined,
         instruction: editInstruction, existingPage: editInstruction ? JSON.stringify(site.pages[key]) : "" }),
     });
     const data = await response.json() as { page?: SitePage; error?: string };
@@ -104,7 +164,12 @@ export default function BuilderPage() {
       setError("Informe o nome e descreva o negócio com pelo menos 20 caracteres."); return;
     }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
-      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(), pages: {}, createdAt: new Date().toISOString() };
+      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(),
+      institutional: selectedPresetId === "institucional" ? {
+        role: role.trim(), audience: audience.trim(), offer: offer.trim(),
+        process: process.trim(), proof: proof.trim(), ...photos,
+      } : undefined,
+      pages: {}, createdAt: new Date().toISOString() };
     setProject(site); setActivePage("home");
     router.replace(`/app/builder?project=${site.id}`);
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
@@ -137,7 +202,46 @@ export default function BuilderPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedPreset.title}</p>
           <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
           <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label><label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
-          <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
+          {selectedPresetId === "institucional" && <section className="space-y-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5">
+            <div>
+              <h2 className="text-lg font-bold">Apresente seu negócio de verdade</h2>
+              <p className="mt-1 text-sm text-white/55">Esses dados aparecem na apresentação e orientam a escrita da IA. Preencha apenas o que for real.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-sm font-medium">Quem é você e o que faz?
+                <input value={role} onChange={(event) => setRole(event.target.value)} maxLength={160} placeholder="Ex.: psicóloga clínica, atendimento individual" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-white outline-none focus:border-emerald-400" />
+              </label>
+              <label className="block text-sm font-medium">Para quem é o seu trabalho?
+                <input value={audience} onChange={(event) => setAudience(event.target.value)} maxLength={180} placeholder="Ex.: adultos que buscam acompanhamento psicológico" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-white outline-none focus:border-emerald-400" />
+              </label>
+            </div>
+            <label className="block text-sm font-medium">O que você oferece e entrega?
+              <textarea value={offer} onChange={(event) => setOffer(event.target.value)} maxLength={700} rows={3} placeholder="Liste serviços reais e explique o que está incluído." className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-white outline-none focus:border-emerald-400" />
+            </label>
+            <label className="block text-sm font-medium">Como funciona o atendimento ou trabalho?
+              <textarea value={process} onChange={(event) => setProcess(event.target.value)} maxLength={600} rows={3} placeholder="Descreva as etapas reais, do primeiro contato à entrega." className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-white outline-none focus:border-emerald-400" />
+            </label>
+            <label className="block text-sm font-medium">Dados, experiência ou credenciais verificáveis
+              <textarea value={proof} onChange={(event) => setProof(event.target.value)} maxLength={450} rows={2} placeholder="Opcional. Informe apenas dados comprováveis, sem inventar números ou depoimentos." className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-white outline-none focus:border-emerald-400" />
+            </label>
+            <div>
+              <h3 className="text-sm font-semibold">Imagens do site</h3>
+              <p className="mt-1 text-xs text-white/45">Opcionais. Serão otimizadas e salvas neste navegador com o projeto. Sem foto, a prévia mostra um espaço preparado para você adicioná-la.</p>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                {([
+                  ["portrait", "Foto principal sua"],
+                  ["businessPhoto", "Foto do negócio ou ambiente"],
+                  ["workPhoto", "Foto do trabalho ou serviço"],
+                ] as const).map(([key, label]) => <label key={key} className="cursor-pointer rounded-xl border border-dashed border-white/20 p-3 text-sm">
+                  <span className="block font-medium">{label}</span>
+                  {photos[key] ? <img src={photos[key]} alt={`Prévia: ${label}`} className="mt-2 h-28 w-full rounded-lg object-cover" /> : <span className="mt-2 block text-xs text-white/40">Adicionar imagem</span>}
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => void selectPhoto(key, event.target.files?.[0])} className="mt-3 block w-full text-xs text-white/50 file:mr-2 file:rounded file:border-0 file:bg-emerald-400 file:px-2 file:py-1 file:text-black" />
+                  {photos[key] && <button type="button" onClick={(event) => { event.preventDefault(); setPhotos((current) => ({ ...current, [key]: undefined })); }} className="mt-2 text-xs text-emerald-300">Remover imagem</button>}
+                </label>)}
+              </div>
+              {photoError && <p role="alert" className="mt-2 text-sm text-red-300">{photoError}</p>}
+            </div>
+          </section>}          <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
           <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
           <button className="w-full rounded-xl bg-emerald-400 px-5 py-4 font-bold text-[#08130e] hover:bg-emerald-300">Criar {selectedPreset.title.toLowerCase()} →</button>

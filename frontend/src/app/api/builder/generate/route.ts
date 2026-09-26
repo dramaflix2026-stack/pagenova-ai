@@ -32,6 +32,12 @@ export async function POST(request: NextRequest) {
   const key = body.key as SitePageKey;
   const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
   const existingPage = typeof body.existingPage === "string" ? body.existingPage.trim() : "";
+  const submitted = body.institutional && typeof body.institutional === "object"
+    ? body.institutional as Record<string, unknown> : {};
+  const facts = ["role", "audience", "offer", "process", "proof"].map((field) => {
+    const value = submitted[field];
+    return `${field}: ${typeof value === "string" ? value.slice(0, 700).trim() : ""}`;
+  }).join("\n");
 
   if (brief.length < 20 || brief.length > 3000 || name.length < 2 || name.length > 100 ||
       !keys.has(key) || !SITE_PRESETS.some((preset) => preset.id === presetId) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
         model: process.env.PAGENOVA_OPENAI_MODEL || "gpt-5.6-luna",
         input: [
           { role: "system", content: "Você cria conteúdo original de sites profissionais em português brasileiro, adaptado ao nicho. Produza conteúdo específico ao negócio informado. Campos entre colchetes são dados ausentes, nunca fatos confirmados. Não invente endereço, telefone, preços, imóveis reais, avaliações, certificações nem fatos não fornecidos. Não inclua HTML, Markdown ou scripts. Evite linguagem genérica e promessas sem fundamento. Cada seção deve ter texto claro e útil." },
-          { role: "user", content: `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos necessários: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nPara Landing de SaaS: escreva recursos concretos, fluxo de uso e casos de uso específicos ao briefing; na home, seções para benefícios, recursos, funcionamento e objeções; na página de serviços, detalhe funcionalidades. Planos e depoimentos só podem conter dados fornecidos. Para outros nichos: Crie a página com 3 a 5 seções específicas do nicho e CTA apropriado. Na página inicial, priorize a proposta de valor e a jornada principal do visitante. Na página de serviços, descreva ofertas/áreas pertinentes. Se houver conteúdo atual, preserve o que não foi solicitado alterar.` },
+          { role: "user", content: `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos necessários: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nInformações fornecidas pelo cliente (campos vazios não são fatos):\n${presetId === "institucional" ? facts : "não aplicável"}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nPara Landing de SaaS: escreva recursos concretos, fluxo de uso e casos de uso específicos ao briefing; na home, seções para benefícios, recursos, funcionamento e objeções; na página de serviços, detalhe funcionalidades. Planos e depoimentos só podem conter dados fornecidos. Para outros nichos: Crie a página com 3 a 5 seções específicas do nicho e CTA apropriado. Na página inicial, priorize a proposta de valor e a jornada principal do visitante. Na página de serviços, descreva ofertas/áreas pertinentes. Se houver conteúdo atual, preserve o que não foi solicitado alterar.` },
         ],
         text: { format: { type: "json_schema", name: "institutional_page", strict: true, schema: {
           type: "object", additionalProperties: false,
