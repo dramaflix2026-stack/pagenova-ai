@@ -51,14 +51,32 @@ button[type=submit]:hover{background:#08684f}
 .notice{font-size:12px;color:#76877d;line-height:1.5;margin-top:16px}
 footer{background:#123c35;color:#d3e5db;padding:32px 6%;font-size:13px}
 @media(max-width:760px){header{flex-direction:column;align-items:flex-start}main{padding:60px 20px}.layout{grid-template-columns:1fr}.fields{grid-template-columns:1fr}label.full{grid-column:auto}form,.aside{padding:25px}}
-</style></head><body>
+.institutional-contact{background:#f7f7f3;color:#233b31}
+.institutional-contact main{max-width:1240px;padding:100px 28px 110px}
+.institutional-contact .layout{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(36px,7vw,110px);align-items:start}
+.institutional-contact .contact-copy{padding-top:30px}
+.institutional-contact h1{font:700 clamp(38px,4.6vw,62px)/1.1 Georgia,serif;max-width:580px;margin:22px 0 25px}
+.institutional-contact .intro{max-width:520px;font-size:19px;margin:0 0 37px}
+.institutional-contact .contact-details{border-top:1px solid #d9e1d9;padding-top:24px}
+.institutional-contact .contact-details a{color:#257951;font-weight:700;overflow-wrap:anywhere}
+.institutional-contact .contact-details p{line-height:1.7;color:#66776c}
+.institutional-contact form{border-radius:15px;padding:32px;box-shadow:0 16px 46px #153a2420}
+.institutional-contact form h2{font:700 29px Georgia,serif;color:#203a2d}
+.institutional-contact .fields{grid-template-columns:1fr 1fr}
+.institutional-contact input,.institutional-contact select,.institutional-contact textarea{background:#f8f7f2}
+.institutional-contact button[type=submit]{width:100%;background:#297b53}
+.institutional-contact button[type=submit]:hover{background:#1d6040}
+.institutional-contact footer{background:#f1f1ed;color:#53675b;border-top:1px solid #dce4db}
+@media(max-width:800px){.institutional-contact main{padding:65px 24px}.institutional-contact .layout{grid-template-columns:1fr;gap:30px}.institutional-contact .contact-copy{padding-top:0}}
+@media(max-width:520px){.institutional-contact main{padding:50px 18px 70px}.institutional-contact .fields{grid-template-columns:1fr}.institutional-contact form{padding:22px}.institutional-contact h1{font-size:40px}}
+</style></head><body class="${project.presetId === "institucional" ? "institutional-contact" : ""}">
 <header><strong>${name}</strong><nav>${nav}</nav></header>
-<main><span class="kicker">${niche} · Contato</span>
+<main>${project.presetId === "institucional" ? '<div class="layout"><div class="contact-copy">' : ""}<span class="kicker">${niche} · Contato</span>
 <h1>${esc(page.heading)}</h1>
 <p class="intro">${esc(page.introduction)}</p>
-<div class="layout">
+${project.presetId === "institucional" ? `<div class="contact-details">${email ? `<a href="mailto:${esc(email)}">✉ &nbsp; ${esc(email)}</a>` : "<p>Configure o e-mail de contato no projeto para receber mensagens.</p>"}<p>Atendimento conforme disponibilidade informada pela equipe.</p></div></div>` : '<div class="layout">'}
 <form id="contact">
-<h2>Vamos conversar?</h2>
+<h2>${project.presetId === "institucional" ? "Envie sua mensagem" : "Vamos conversar?"}</h2>
 <p class="hint">Conte o que você procura. Os dados serão preparados para envio ao e-mail da empresa.</p>
 <div class="fields">
 <label>Seu nome<input name="nome" autocomplete="name" required maxlength="100"></label>
@@ -71,10 +89,10 @@ ${project.presetId === "imobiliaria" ? '<option>Comprar imóvel</option><option>
 </div><button type="submit">Preparar mensagem →</button>
 <p class="notice" id="status">${email ? "Ao clicar, seu aplicativo de e-mail será aberto para você confirmar o envio." : "Configure o e-mail de contato no projeto para habilitar o envio."}</p>
 </form>
-<aside class="aside"><span class="kicker">Atendimento</span><h2>O próximo passo começa aqui.</h2>
+${project.presetId === "institucional" ? "" : `<aside class="aside"><span class="kicker">Atendimento</span><h2>O próximo passo começa aqui.</h2>
 <p>Descreva sua necessidade para que a equipe possa entender o pedido e orientar você.</p>
 ${email ? `<a href="mailto:${esc(email)}">${esc(email)} ↗</a>` : "<p>E-mail da empresa ainda não informado.</p>"}
-</aside></div></main>
+</aside>`}</div></main>
 <footer>${name} · Site criado com PageNova AI</footer>
 <script>
 const recipient=${emailJson};

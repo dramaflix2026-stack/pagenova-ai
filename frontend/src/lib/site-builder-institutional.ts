@@ -24,8 +24,8 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const businessImage = photo(info?.businessPhoto, `ambiente de ${project.name}`, "business-art");
   const workImage = photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
-  const highlights = page.sections.slice(0, 4).map(({ title }, index) => `<span class="intro-pill"><b>${String(index + 1).padStart(2, "0")}</b>${esc(title)}</span>`).join("");
-  const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature">
+  const highlights = page.sections.slice(0, 4).map(({ title }, index) => `<a class="intro-pill" href="#feature-${index + 1}"><b>${String(index + 1).padStart(2, "0")}</b><span>${esc(title)}</span><span aria-hidden="true">↗</span></a>`).join("");
+  const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature" id="feature-${index + 1}">
     <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
     </article>`).join("");
   const sectionTitle = pageKey === "sobre" ? "O que nos move" : pageKey === "servicos" ? "O que entregamos" : "Uma atuação feita para você";
@@ -81,11 +81,32 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   @media(max-width:1080px){.features.features-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:700px){.intro-grid{grid-template-columns:1fr;gap:20px;padding:30px 0}.intro-pill{font-size:11px}}
   @media(max-width:650px){.features.features-four{grid-template-columns:1fr}.features-four .feature{padding:25px}}
-  @media(prefers-reduced-motion:reduce){[data-pn-ready="true"] .intro-strip .intro-pill{opacity:1!important;transform:none!important;transition:none!important}}  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  @media(prefers-reduced-motion:reduce){[data-pn-ready="true"] .intro-strip .intro-pill{opacity:1!important;transform:none!important;transition:none!important}}  .intro-grid{display:block;padding:48px 0 52px}
+  .intro-label{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:24px}
+  .intro-label h2{font-size:clamp(25px,2.8vw,38px)}
+  .intro-highlights{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:stretch}
+  .intro-pill{min-height:86px;border-radius:10px;padding:18px;justify-content:flex-start;gap:13px;align-items:center;box-shadow:0 7px 25px #1c3c2710;transition:transform .3s,box-shadow .3s}
+  .intro-pill span:nth-child(2){flex:1}
+  .intro-pill:hover{transform:translateY(-4px);box-shadow:0 15px 34px #1c3c2720}
+  .intro-pill span:last-child{color:#32885b;font-size:18px}
+  .feature{scroll-margin-top:30px}
+  .testimonials{background:#f1f0eb;padding:95px 0}
+  .testimonials-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+  .testimonials h2{margin:18px 0 22px;max-width:12ch}
+  .testimonials p{line-height:1.7;color:#58675e;max-width:48ch}
+  .testimonial-card{background:#fff;border:1px solid #e2e2dc;padding:37px;border-radius:14px;box-shadow:0 20px 60px #1c3c2712}
+  .testimonial-card .quote-mark{font:64px Georgia,serif;color:#3d9668;line-height:.8}
+  .testimonial-card p{font-size:20px;line-height:1.5;color:#30453a;margin:19px 0 30px}
+  .testimonial-card .text-link{color:#247a57;border-color:#98bd9d}
+  .testimonials .kicker{color:#4d9a6c}
+  @media(max-width:980px){.intro-highlights{grid-template-columns:repeat(2,minmax(0,1fr))}.testimonials-grid{gap:35px}}
+  @media(max-width:650px){.intro-grid{padding:40px 0}.intro-label{display:block}.intro-highlights{grid-template-columns:1fr 1fr}.intro-pill{min-height:100px;align-items:start;flex-direction:column;gap:8px;padding:16px}.intro-pill span:last-child{display:none}.testimonials{padding:68px 0}.testimonials-grid{grid-template-columns:1fr}.testimonial-card{padding:27px}.testimonial-card p{font-size:17px}}
+  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
   <section class="intro-strip"><div class="shell intro-grid"><div class="intro-label"><span>01 / EXPLORE</span><h2>Como podemos ajudar</h2></div><div class="intro-highlights">${highlights}</div></div></section>
   <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
+  ${pageKey === "home" ? `<section class="testimonials"><div class="shell testimonials-grid"><div><span class="kicker">Depoimentos</span><h2>Histórias de quem já passou por aqui.</h2><p>Um espaço para compartilhar experiências reais de clientes. Os depoimentos aparecem aqui quando forem cadastrados.</p></div><div class="testimonial-card"><span class="quote-mark" aria-hidden="true">“</span><p>Sua experiência pode ajudar outras pessoas a conhecer este trabalho.</p>${project.pages.contato ? '<a class="text-link" href="#contato" data-page="contato">Conte sua experiência <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>` : ""}
 <section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos conversar?</h2><p>Entre em contato para saber mais sobre o atendimento.</p></div>${cta}</div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(page.introduction)}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
   <script>document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
