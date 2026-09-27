@@ -82,8 +82,8 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
       ${process ? `<div class="proof"><strong>Como funciona</strong>${process}</div>` : ""}
       ${proof ? `<div class="proof"><strong>Informações fornecidas</strong>${proof}</div>` : ""}
     </div></div></section>
-    <section class="shell section"><span class="kicker">Nosso trabalho</span><h2>Conheça mais de perto.</h2>
-      <p class="section-intro">Um espaço visual para mostrar a experiência, a equipe, o ambiente ou o serviço com suas próprias fotografias.</p>
+    <section class="shell section"><span class="kicker">Nosso trabalho</span><h2>Conheça a experiência de perto.</h2>
+      <p class="section-intro">${esc(info?.offer || page.introduction)}</p>
       <div class="gallery"><div class="media-frame">${work}</div><div class="media-frame">${business}</div></div>
     </section>
     <section class="closing"><span class="kicker">Próximo passo</span><h2>Vamos conversar sobre o que você procura?</h2>

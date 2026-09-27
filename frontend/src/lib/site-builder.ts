@@ -47,10 +47,11 @@ function escapeHtml(value: string): string {
 export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): string {
   const page = project.pages[pageKey];
   if (!page) return "";
-  if (pageKey === "contato") return renderContactPreview(project, page);
-  if (project.presetId === "imobiliaria") return renderRealEstatePage(project, page, pageKey);
-  if (project.presetId === "landing-saas") return renderSaasPage(project, page, pageKey);
-  return renderInstitutionalPage(project, page, pageKey);
+  const html = pageKey === "contato" ? renderContactPreview(project, page)
+    : project.presetId === "imobiliaria" ? renderRealEstatePage(project, page, pageKey)
+    : project.presetId === "landing-saas" ? renderSaasPage(project, page, pageKey)
+    : renderInstitutionalPage(project, page, pageKey);
+  return enhanceSitePreview(html);
 }
 function renderRealEstateHome(project: SiteProject, page: SitePage): string {
   const nav = SITE_PAGES.filter(({ key }) => project.pages[key]).map(({ key, label }) => `<a href="#${key}" data-page="${key}">${label}</a>`).join("");
@@ -75,3 +76,5 @@ import { renderContactPreview } from "@/lib/site-builder-contact";
 import { renderRealEstatePage } from "@/lib/site-builder-real-estate";
 import { renderSaasPage } from "@/lib/site-builder-saas";
 import { renderInstitutionalPage } from "@/lib/site-builder-institutional";
+
+import { enhanceSitePreview } from "@/lib/site-builder-motion";

@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
+  const prompt = `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nEscreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
   try {
@@ -64,7 +65,9 @@ export async function POST(request: NextRequest) {
         model: process.env.PAGENOVA_OPENAI_MODEL || "gpt-5.6-luna",
         input: [
           { role: "system", content: "Você cria conteúdo original de sites profissionais em português brasileiro, adaptado ao nicho. Produza conteúdo específico ao negócio informado. Campos entre colchetes são dados ausentes, nunca fatos confirmados. Não invente endereço, telefone, preços, imóveis reais, avaliações, certificações nem fatos não fornecidos. Não inclua HTML, Markdown ou scripts. Evite linguagem genérica e promessas sem fundamento. Cada seção deve ter texto claro e útil." },
-          { role: "user", content: screenshot ? [{ type: "input_text", text: `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos necessários: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nInformações fornecidas pelo cliente (campos vazios não são fatos):\n${presetId === "institucional" ? facts : "não aplicável"}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nPara Landing de SaaS: escreva recursos concretos, fluxo de uso e casos de uso específicos ao briefing; na home, seções para benefícios, recursos, funcionamento e objeções; na página de serviços, detalhe funcionalidades. Planos e depoimentos só podem conter dados fornecidos. Para outros nichos: Crie a página com 3 a 5 seções específicas do nicho e CTA apropriado. Na página inicial, priorize a proposta de valor e a jornada principal do visitante. Na página de serviços, descreva ofertas/áreas pertinentes. Se houver conteúdo atual, preserve o que não foi solicitado alterar. Analise o print anexado como referência visual para o pedido do cliente; não copie nomes, marcas ou dados de terceiros e não invente informações. O resultado deve continuar sendo conteúdo JSON para a página atual.` }, { type: "input_image", image_url: screenshot, detail: "high" }] : `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração solicitada: ${instruction || "nenhuma"}\nCrie conteúdo profissional específico ao negócio. Preserve o conteúdo atual que não foi solicitado alterar.` },
+          { role: "user", content: screenshot
+            ? [{ type: "input_text", text: prompt }, { type: "input_image", image_url: screenshot, detail: "high" }]
+            : prompt },
         ],
         text: { format: { type: "json_schema", name: "institutional_page", strict: true, schema: {
           type: "object", additionalProperties: false,
@@ -92,8 +95,8 @@ export async function POST(request: NextRequest) {
       throw new Error("Invalid AI page");
     }
     const page: SitePage = { key, eyebrow: parsed.eyebrow.slice(0, 100), heading: parsed.heading.slice(0, 180),
-      introduction: parsed.introduction.slice(0, 800), cta: parsed.cta.slice(0, 80),
-      sections: parsed.sections.map((section) => ({ title: section.title.slice(0, 120), body: section.body.slice(0, 800) })) };
+      introduction: parsed.introduction.slice(0, 300), cta: parsed.cta.slice(0, 80),
+      sections: parsed.sections.slice(0, 4).map((section) => ({ title: section.title.slice(0, 80), body: section.body.slice(0, 280) })) };
     return NextResponse.json({ page });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
