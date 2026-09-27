@@ -26,9 +26,9 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
   const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature">
     <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
-    <span class="feature-arrow" aria-hidden="true">↗</span></article>`).join("");
+    </article>`).join("");
   const sectionTitle = pageKey === "sobre" ? "O que nos move" : pageKey === "servicos" ? "O que entregamos" : "Uma atuação feita para você";
-  const storyTitle = info?.role || (pageKey === "sobre" ? "Conheça nossa história e nosso jeito de trabalhar." : "Pessoas, ideias e trabalho em cada detalhe.");
+  const storyTitle = info?.role || (pageKey === "sobre" ? "Conheça nossa história e nosso jeito de trabalhar." : "Um atendimento com atenção a cada detalhe.");
   const storyText = info?.process || info?.offer || page.introduction;
   const proof = info?.proof ? `<p class="fact">${esc(info.proof)}</p>` : "";
   const audience = info?.audience ? `<p class="audience">Para ${esc(info.audience)}</p>` : "";
@@ -46,13 +46,21 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   .closing{background:#163e33;color:#fff;padding:94px 0}.closing-inner{display:flex;justify-content:space-between;align-items:center;gap:40px}.closing h2{max-width:690px;margin-top:18px}.closing p{color:#d0e3d7;line-height:1.7;max-width:550px}footer{background:#0b2923;color:#bdd3c5;padding:55px 0 25px}.footer-grid{display:flex;justify-content:space-between;gap:35px;padding-bottom:60px}.footer-grid .brand{color:#fff}.footer-grid nav{flex-wrap:wrap}.footer-bottom{border-top:1px solid #ffffff25;padding-top:20px;font-size:12px;color:#a3bcae}
   @media(max-width:900px){.features{grid-template-columns:repeat(2,1fr)}.section-head{align-items:start;flex-direction:column}.editorial-grid{grid-template-columns:1fr}.editorial-image{min-height:360px;height:360px}.editorial-copy{padding:65px 6%}.hero{min-height:580px}.hero-media:after{background:linear-gradient(90deg,#0b302bf5,#0d342d9c)}}
   @media(max-width:650px){.personal.hero{display:block;min-height:0}.personal .hero-media{position:relative;inset:auto;width:100%;height:390px;border-radius:0}.personal .hero-content{max-width:none;padding:0}.personal .hero-inner{padding-top:62px;padding-bottom:60px}.shell{width:min(100% - 36px,1240px)}.header-inner{min-height:unset;padding:19px 0;display:block}.brand{display:block;margin-bottom:15px}nav{gap:16px;flex-wrap:wrap;font-size:12px}.hero{min-height:620px;align-items:flex-end}.hero-inner{padding-top:85px;padding-bottom:68px}.hero-media:after{background:linear-gradient(0deg,#0a2c27 4%,#123e34bd 62%,#153f3599 100%)}h1{font-size:clamp(44px,11vw,67px)}.intro-grid{grid-template-columns:1fr;gap:18px;padding:35px 0}.section{padding:75px 0}.features{grid-template-columns:1fr}.feature{min-height:215px;padding:26px}.feature h3{margin-top:23px}.gallery{grid-template-columns:1fr}.gallery-image,.gallery-image:last-child{height:290px}.editorial-image{height:300px;min-height:300px}.closing-inner,.footer-grid{align-items:start;flex-direction:column}.closing{padding:70px 0}.footer-grid{padding-bottom:35px}.footer-grid nav{gap:14px}}
-  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+    /* Ajuste editorial do institucional */
+  .brand{font-size:clamp(16px,1.5vw,19px);letter-spacing:-.02em;max-width:360px;line-height:1.25}
+  .hero h1{font-size:clamp(36px,4.3vw,62px);line-height:1.12;max-width:720px}
+  .personal h1{font-size:clamp(38px,4.5vw,64px)}
+  .section h2,.editorial h2,.closing h2{font-size:clamp(29px,3.6vw,46px)}
+  .features{gap:20px;background:transparent;border:0}
+  .feature{min-height:0;padding:27px 28px 31px;background:#fff;border:1px solid #dce6dc;border-top:3px solid #4aaa70;border-radius:8px}
+  .feature h3{font-size:clamp(20px,1.9vw,25px);margin:18px 0 10px}
+  .feature p{max-width:40ch;line-height:1.65}
+  @media(max-width:650px){.hero h1,.personal h1{font-size:clamp(36px,9vw,48px)}.features{gap:14px}.feature{padding:25px}}  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
-  <div class="intro-strip"><div class="shell intro-grid"><strong>${name}<br/>O que fazemos</strong><p>${esc(info?.offer || page.introduction)}</p></div></div>
-  <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div><p>Explore as áreas e soluções que fazem parte do nosso trabalho.</p></div><div class="features">${cards}</div></section>
+  <div class="intro-strip"><div class="shell intro-grid"><strong>Como podemos ajudar</strong><p>${esc(info?.offer || page.introduction)}</p></div></div>
+  <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div></div><div class="features">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
-  <section class="shell section"><div class="gallery-head"><span class="kicker">Em imagens</span><h2>Uma visão de perto do nosso trabalho.</h2><p>Este espaço está pronto para apresentar as pessoas, ambientes e projetos que representam ${name}.</p></div><div class="gallery"><div class="gallery-image">${workImage}</div><div class="gallery-image">${businessImage}</div></div></section>
-  <div class="wide-image">${workImage}</div><section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos construir o próximo capítulo juntos?</h2><p>Converse com a nossa equipe e descubra como podemos ajudar.</p></div>${cta}</div></section></main>
-  <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>Uma presença digital feita para contar a sua história.</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name} · Site criado com PageNova AI</div></div></footer>
+<section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos conversar?</h2><p>Entre em contato para saber mais sobre o atendimento.</p></div>${cta}</div></section></main>
+  <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(page.introduction)}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
   <script>document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
