@@ -27,6 +27,7 @@ export default function BuilderPage() {
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
   const [contactEmail, setContactEmail] = useState("");
+  const [institutionalFacts, setInstitutionalFacts] = useState({ role: "", audience: "", offer: "", process: "", proof: "" });
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
   const [project, setProject] = useState<SiteProject | null>(null);
@@ -98,7 +99,7 @@ export default function BuilderPage() {
     if (!id) return;
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
-      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || "");
+      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || ""); setInstitutionalFacts({ role: saved.institutional?.role || "", audience: saved.institutional?.audience || "", offer: saved.institutional?.offer || "", process: saved.institutional?.process || "", proof: saved.institutional?.proof || "" });
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
@@ -185,6 +186,7 @@ export default function BuilderPage() {
     }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
       presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(),
+      institutional: selectedPresetId === "institucional" ? Object.fromEntries(Object.entries(institutionalFacts).map(([key, value]) => [key, value.trim()])) as SiteProject["institutional"] : undefined,
       pages: {}, createdAt: new Date().toISOString() };
     setProject(site); setActivePage("home");
     router.replace(`/app/builder?project=${site.id}`);
@@ -218,6 +220,13 @@ export default function BuilderPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedPreset.title}</p>
           <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
           <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label><label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
+          {selectedPresetId === "institucional" && <fieldset className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5"><legend className="px-2 text-sm font-semibold text-emerald-200">Dados reais para personalizar o site</legend><p className="mb-4 text-xs leading-5 text-white/55">Preencha apenas o que você pode confirmar. Campos vazios não serão inventados pela IA.</p><div className="grid gap-3 sm:grid-cols-2">{([
+            ["role", "Quem você é / sua atuação", "Ex.: psicóloga clínica"],
+            ["audience", "Quem você atende", "Ex.: adultos em atendimento online"],
+            ["offer", "Serviços e modalidades", "Ex.: psicoterapia individual online"],
+            ["process", "Como funciona o atendimento", "Ex.: primeira conversa para conhecer a demanda"],
+            ["proof", "Credencial verificável", "Ex.: registro profissional, se aplicável"],
+          ] as const).map(([key, label, placeholder]) => <label key={key} className="block text-xs font-medium text-white/80">{label}<input value={institutionalFacts[key]} onChange={(event) => setInstitutionalFacts((current) => ({ ...current, [key]: event.target.value }))} maxLength={400} placeholder={placeholder} className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white outline-none focus:border-emerald-400" /></label>)}</div></fieldset>}
           <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
           <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
