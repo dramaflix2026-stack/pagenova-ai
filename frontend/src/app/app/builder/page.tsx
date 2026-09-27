@@ -127,6 +127,18 @@ export default function BuilderPage() {
     return data.page;
   }
 
+  async function requestImage(site: SiteProject, kind: "hero" | "work"): Promise<string> {
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const response = await fetch("/api/builder/image", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+      body: JSON.stringify({ name: site.name, brief: site.brief, kind }),
+    });
+    const data = await response.json() as { image?: string; error?: string };
+    if (!response.ok || !data.image?.startsWith("data:image/jpeg;base64,")) throw new Error(data.error || "Falha ao criar a imagem.");
+    return data.image;
+  }
+
   async function generatePages(site: SiteProject, keys: SitePageKey[]) {
     setPhase("generating"); setError(""); setPendingKeys(keys);
     let current = site;
@@ -138,6 +150,23 @@ export default function BuilderPage() {
         current = { ...current, pages: { ...current.pages, [key]: page } };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
+        if (site.presetId === "institucional" && (key === "home" || key === "sobre")) {
+          try {
+            const image = await requestImage(current, key === "home" ? "hero" : "work");
+            current = { ...current, institutional: {
+              role: current.institutional?.role || "", audience: current.institutional?.audience || "",
+              offer: current.institutional?.offer || "", process: current.institutional?.process || "",
+              proof: current.institutional?.proof || "",
+              ...current.institutional,
+              [key === "home" ? "portrait" : "businessPhoto"]: image,
+            } };
+            await savePageNovaProject(current.id, current);
+            setProject(current);
+          } catch (imageError) {
+            if ((imageError as Error).name === "AbortError") return;
+            console.warn("[Builder] Imagem indisponÃ­vel; conteÃºdo preservado", imageError);
+          }
+        }
       } catch (cause) {
         if ((cause as Error).name === "AbortError") return;
         setError(cause instanceof Error ? cause.message : "Falha na geração.");

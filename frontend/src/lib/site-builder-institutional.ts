@@ -4,13 +4,11 @@ const esc = (value: string): string => value.replace(/[&<>"']/g, (character) => 
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
 })[character] ?? character);
 
-function media(value: string | undefined, label: string, variant: string): string {
-  if (value && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(value) && value.length < 1200000) {
+function photo(value: string | undefined, label: string, style: string): string {
+  if (value && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value) && value.length < 8000000) {
     return `<img src="${value}" alt="${esc(label)}" />`;
   }
-  return `<div class="media-placeholder ${variant}" aria-label="Espaço reservado para ${esc(label)}">
-    <span class="placeholder-mark">✳</span><span>ESPAÇO PARA IMAGEM</span><strong>${esc(label)}</strong>
-    <small>Adicione sua própria fotografia no início da criação.</small></div>`;
+  return `<div class="image-space ${style}" role="img" aria-label="Espaço para ${esc(label)}"><span>✦</span><small>FOTO DO PROJETO</small></div>`;
 }
 
 export function renderInstitutionalPage(project: SiteProject, page: SitePage, pageKey: SitePageKey): string {
@@ -18,77 +16,43 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const name = esc(project.name);
   const nav = ([
     ["home", "Início"], ["sobre", "Sobre"], ["servicos", "Serviços"], ["contato", "Contato"],
-  ] as const).filter(([key]) => project.pages[key])
-    .map(([key, label]) => `<a href="#${key}" data-page="${key}" ${key === pageKey ? 'aria-current="page"' : ""}>${label}</a>`).join("");
-
-  const sections = page.sections.map(({ title, body }, index) =>
-    `<article class="service"><span class="index">${String(index + 1).padStart(2, "0")}</span>
-      <h3>${esc(title)}</h3><p>${esc(body)}</p></article>`).join("");
-
-  const intro = info?.role ? `<span class="identity">${esc(info.role)}</span>` : "";
-  const audience = info?.audience ? `<p class="audience">Para quem: ${esc(info.audience)}</p>` : "";
-  const offer = info?.offer ? `<p>${esc(info.offer)}</p>` : "";
-  const process = info?.process ? `<p>${esc(info.process)}</p>` : "";
-  const proof = info?.proof ? `<p>${esc(info.proof)}</p>` : "";
-  const cta = project.pages.contato
-    ? `<a class="button" href="#contato" data-page="contato">${esc(page.cta || "Entrar em contato")} <span>↗</span></a>` : "";
-  const photo = media(info?.portrait, `Foto principal de ${project.name}`, "portrait");
-  const business = media(info?.businessPhoto, `Ambiente de ${project.name}`, "environment");
-  const work = media(info?.workPhoto, `Trabalho de ${project.name}`, "work");
-  const heading = pageKey === "home" ? "Conheça o que fazemos" : pageKey === "sobre" ? "Nossa forma de trabalhar" : "Como podemos ajudar";
-
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>${name} — ${esc(page.heading)}</title>
-  <style>
-  *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f8f4;color:#19332c;font-family:Arial,Helvetica,sans-serif}
-  a{color:inherit;text-decoration:none}header{background:#fff;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:21px max(5%,calc((100% - 1200px)/2));border-bottom:1px solid #e4eae2}
-  .brand{font-size:21px;font-weight:800;letter-spacing:-.045em}nav{display:flex;flex-wrap:wrap;gap:24px;font-size:14px}nav a[aria-current]{color:#087a5b;font-weight:800}
-  .shell{max-width:1200px;margin:auto;padding-left:26px;padding-right:26px}
-  .hero{background:#edf2eb}.hero-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(300px,.92fr);gap:65px;align-items:center;padding-top:68px;padding-bottom:76px}
-  .eyebrow,.kicker{display:block;font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase;color:#087a5b}
-  h1,h2,h3{font-family:Georgia,serif;font-weight:400;letter-spacing:-.04em}h1{font-size:clamp(42px,5vw,69px);line-height:1.09;margin:20px 0;max-width:720px}
-  .lead{font-size:18px;line-height:1.75;color:#586d60;max-width:610px}.identity{display:block;color:#087a5b;font-weight:700;margin-top:22px}
-  .audience{font-size:14px;color:#64776a;line-height:1.6}.button{display:inline-flex;gap:32px;align-items:center;justify-content:space-between;border-radius:7px;background:#136c51;color:#fff;font-weight:800;padding:16px 20px;margin-top:22px}
-  .hero-media,.media-frame{overflow:hidden;border-radius:8px;background:#d7e4d7}.hero-media{height:500px}.hero-media img,.media-frame img{width:100%;height:100%;object-fit:cover;display:block}
-  .media-placeholder{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:25px;background:linear-gradient(145deg,#dbe8db,#bacfc2);color:#315849}
-  .media-placeholder.environment{background:linear-gradient(145deg,#d5e5dd,#a6c3b2)}.media-placeholder.work{background:linear-gradient(145deg,#e3e8d8,#b8cbb9)}
-  .placeholder-mark{font:58px Georgia,serif;opacity:.28}.media-placeholder span:not(.placeholder-mark){font-size:10px;font-weight:800;letter-spacing:.17em}.media-placeholder strong{font:25px Georgia,serif}.media-placeholder small{font-size:12px;line-height:1.5;max-width:230px}
-  .section{padding-top:85px;padding-bottom:90px}.section h2{font-size:clamp(32px,4vw,50px);line-height:1.12;margin:15px 0 20px}
-  .section-intro{max-width:690px;line-height:1.8;color:#64776a;font-size:17px}.services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px;margin-top:35px}
-  .service{padding:28px;background:#fff;border:1px solid #e1e8df;border-radius:8px;min-height:225px}.index{color:#087a5b;font-size:12px;font-weight:800}.service h3{font-size:25px;margin:23px 0 12px}.service p{color:#617368;font-size:14px;line-height:1.75;margin:0}
-  .story{background:#e7eee7;color:#19332c}.story-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:70px;padding-top:80px;padding-bottom:80px}
-  .story h2{font-size:clamp(32px,4vw,51px);margin:16px 0}.story p{line-height:1.8;color:#526c5c}.story .kicker{color:#087a5b}.media-frame{height:390px}
-  .proof{padding:24px;border-left:3px solid #087a5b;background:#fff;border-radius:0 8px 8px 0;margin-top:20px}.proof strong{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#087a5b}
-  .gallery{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px}.gallery .media-frame{height:295px}
-  .closing{text-align:center;background:#e7f0e7;padding:76px 22px}.closing h2{font-size:clamp(32px,4vw,49px);margin:15px auto;max-width:750px}.closing p{color:#627468;line-height:1.7}footer{padding:35px 6%;background:#102d23;color:#d9e7dd;font-size:13px}
-  @media(max-width:850px){.hero-grid,.story-grid{grid-template-columns:1fr;gap:35px}.hero-media{height:420px}.services{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:620px){header{flex-direction:column;align-items:flex-start}.shell{padding-left:20px;padding-right:20px}.hero-grid{padding-top:55px;padding-bottom:55px}.hero-media{height:350px}.section{padding-top:65px;padding-bottom:70px}.services,.gallery{grid-template-columns:1fr}.story-grid{padding-top:65px;padding-bottom:65px}.media-frame,.gallery .media-frame{height:285px}h1{font-size:43px}}
-  </style></head><body>
-  <header><strong class="brand">${name}</strong><nav>${nav}</nav></header>
-  <main>
-    <section class="hero"><div class="shell hero-grid">
-      <div><span class="eyebrow">${esc(page.eyebrow)}</span><h1>${esc(page.heading)}</h1>
-      <p class="lead">${esc(page.introduction)}</p>${intro}${audience}${cta}</div>
-      <div class="hero-media">${photo}</div>
-    </div></section>
-    <section class="shell section"><span class="kicker">${name}</span><h2>${heading}</h2>
-      <p class="section-intro">${offer || esc(page.introduction)}</p>
-      <div class="services">${sections}</div>
-    </section>
-    <section class="story"><div class="shell story-grid"><div class="media-frame">${business}</div><div>
-      <span class="kicker">Sobre ${name}</span><h2>${pageKey === "sobre" ? esc(page.heading) : "Conheça quem está por trás deste trabalho."}</h2>
-      <p>${esc(page.introduction)}</p>
-      ${process ? `<div class="proof"><strong>Como funciona</strong>${process}</div>` : ""}
-      ${proof ? `<div class="proof"><strong>Informações fornecidas</strong>${proof}</div>` : ""}
-    </div></div></section>
-    <section class="shell section"><span class="kicker">Nosso trabalho</span><h2>Conheça a experiência de perto.</h2>
-      <p class="section-intro">${esc(info?.offer || page.introduction)}</p>
-      <div class="gallery"><div class="media-frame">${work}</div><div class="media-frame">${business}</div></div>
-    </section>
-    <section class="closing"><span class="kicker">Próximo passo</span><h2>Vamos conversar sobre o que você procura?</h2>
-      <p>Entre em contato para conhecer as possibilidades de atendimento.</p>${cta}</section>
-  </main><footer>${name} · Site em criação no PageNova AI</footer>
-  <script>document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script>
-  </body></html>`;
+  ] as const).filter(([key]) => project.pages[key]);
+  const links = nav.map(([key, label]) => `<a href="#${key}" data-page="${key}" ${key === pageKey ? 'aria-current="page"' : ""}>${label}</a>`).join("");
+  const cta = project.pages.contato ? `<a class="btn" href="#contato" data-page="contato">${esc(page.cta || "Fale conosco")} <span aria-hidden="true">↗</span></a>` : "";
+  const secondary = project.pages.servicos && pageKey !== "servicos" ? `<a class="text-link" href="#servicos" data-page="servicos">Conheça nossos serviços <span aria-hidden="true">↗</span></a>` : "";
+  const heroImage = photo(info?.portrait, `imagem principal de ${project.name}`, "hero-art");
+  const businessImage = photo(info?.businessPhoto, `ambiente de ${project.name}`, "business-art");
+  const workImage = photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
+  const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
+  const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature">
+    <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
+    <span class="feature-arrow" aria-hidden="true">↗</span></article>`).join("");
+  const sectionTitle = pageKey === "sobre" ? "O que nos move" : pageKey === "servicos" ? "O que entregamos" : "Uma atuação feita para você";
+  const storyTitle = info?.role || (pageKey === "sobre" ? "Conheça nossa história e nosso jeito de trabalhar." : "Pessoas, ideias e trabalho em cada detalhe.");
+  const storyText = info?.process || info?.offer || page.introduction;
+  const proof = info?.proof ? `<p class="fact">${esc(info.proof)}</p>` : "";
+  const audience = info?.audience ? `<p class="audience">Para ${esc(info.audience)}</p>` : "";
+  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${name} — ${esc(page.heading)}</title><style>
+  *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f8f4;color:#17362f;font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}button{font:inherit}
+  .shell{width:min(1240px,100% - 56px);margin:auto}.topline{height:5px;background:#62bd76}header{background:#fff;border-bottom:1px solid #e7eae5}.header-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:28px}.brand{font-size:clamp(20px,2vw,27px);font-weight:800;letter-spacing:-.065em;max-width:260px;overflow-wrap:anywhere}nav{display:flex;gap:32px;align-items:center;font-size:13px;font-weight:700}nav a{padding:12px 0}nav a:hover,nav a[aria-current]{color:#247a57}nav a[aria-current]{box-shadow:inset 0 -2px #64bf78}
+  .hero{position:relative;min-height:min(700px,80vh);display:flex;align-items:center;color:white;background:#133b31;isolation:isolate;overflow:hidden}.hero-media{position:absolute;inset:0;z-index:-2}.hero-media img{width:100%;height:100%;object-fit:cover;display:block}.hero-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0b302bfa 0%,#123c35e8 35%,#123c3570 69%,#123c3530 100%)}.hero-inner{padding-top:108px;padding-bottom:116px}.hero-content{max-width:740px}.eyebrow{display:block;text-transform:uppercase;letter-spacing:.19em;font-size:11px;font-weight:800;color:#8bd99b}.eyebrow:before{content:"";display:inline-block;width:28px;height:2px;background:currentColor;vertical-align:middle;margin-right:12px}h1,h2,h3{margin:0;letter-spacing:-.045em}h1{font-size:clamp(46px,6.2vw,89px);line-height:1.04;margin:26px 0;max-width:900px;font-weight:750}h2{font-size:clamp(34px,4.4vw,57px);line-height:1.11}h3{font-size:clamp(23px,2.2vw,30px);line-height:1.18}.hero-lead{max-width:590px;font-size:clamp(17px,1.5vw,20px);line-height:1.65;color:#e2ede7}.audience{color:#c4dfca;font-size:14px;margin:15px 0}.actions{display:flex;align-items:center;gap:28px;flex-wrap:wrap;margin-top:33px}.btn{display:inline-flex;align-items:center;justify-content:space-between;gap:40px;background:#71c982;color:#103b2c;padding:17px 22px;font-size:13px;font-weight:800;min-height:53px;border-radius:4px}.btn:hover{background:#91dda0}.text-link{font-size:13px;font-weight:800;color:#fff;border-bottom:1px solid #9bc7ad;padding:12px 0}.text-link span{padding-left:18px}
+  .image-space{width:100%;height:100%;position:relative;overflow:hidden;background:radial-gradient(circle at 70% 34%,#82b99566 0 12%,transparent 35%),linear-gradient(130deg,#2b6457,#173f35 52%,#102f2a);display:flex;align-items:flex-end;padding:28px;color:#d4ebdc}.image-space:before{content:"";position:absolute;inset:12% 12% -25% 35%;border:1px solid #ffffff28;border-radius:48% 48% 0 0;box-shadow:0 0 0 48px #ffffff06,0 0 0 115px #ffffff04}.image-space>span{position:absolute;top:14%;right:16%;font:clamp(100px,20vw,270px) Georgia,serif;opacity:.12}.image-space small{position:relative;font-size:10px;letter-spacing:.18em;font-weight:700}.hero-art{background:radial-gradient(circle at 77% 44%,#9bc89a70,transparent 28%),linear-gradient(135deg,#235d50,#12372f 60%,#0d2d29)}
+  .personal.hero{background:#f4f0eb;color:#1e241f;min-height:670px}.personal .hero-media{inset:72px max(5%,calc((100% - 1240px)/2)) 72px auto;width:36%;z-index:-1;border-radius:16px;overflow:hidden}.personal .hero-media:after{display:none}.personal .hero-inner{padding-top:125px;padding-bottom:125px}.personal .hero-content{max-width:60%;padding-right:36px}.personal .hero-lead{color:#5a645d}.personal .eyebrow{color:#ad4c2f}.personal .btn{background:#ba502e;color:white}.personal .text-link{color:#17362f;border-color:#a6b3a9}.personal h1{font-family:Georgia,serif;font-weight:700;font-size:clamp(48px,6vw,83px)}
+  .intro-strip{background:#fff;border-bottom:1px solid #e2e9e1}.intro-grid{display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:center;padding:46px 0}.intro-grid strong{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#298054}.intro-grid p{margin:0;font-size:clamp(18px,2vw,26px);line-height:1.48;letter-spacing:-.02em;color:#415a4d}
+  .section{padding:110px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:35px;margin-bottom:45px}.section-head h2{max-width:660px;margin-top:18px}.section-head p{max-width:330px;color:#627469;line-height:1.7;font-size:15px;margin:0}.kicker{display:block;color:#268154;font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.features{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#dce6dc;border:1px solid #dce6dc}.feature{min-height:265px;padding:33px;position:relative;background:#fff;display:flex;flex-direction:column;align-items:flex-start}.number{font-size:12px;color:#278354;font-weight:800;letter-spacing:.12em}.feature h3{margin:37px 0 13px}.feature p{margin:0;color:#63756a;font-size:14px;line-height:1.7;max-width:35ch}.feature-arrow{margin-top:auto;padding-top:22px;color:#278354;font-size:20px}
+  .editorial{background:#eaf0e9}.editorial-grid{display:grid;grid-template-columns:1fr 1fr;min-height:560px}.editorial-image{min-height:560px;overflow:hidden}.editorial-image img,.wide-image img,.gallery-image img{width:100%;height:100%;object-fit:cover;display:block}.business-art{background:linear-gradient(145deg,#75aa87,#2b6553 62%,#194739)}.editorial-copy{display:flex;flex-direction:column;justify-content:center;padding:70px clamp(30px,6vw,100px)}.editorial-copy h2{margin:18px 0 25px}.editorial-copy p{color:#52675a;line-height:1.8;font-size:17px;max-width:52ch}.fact{border-left:3px solid #55b46c;padding-left:18px;font-weight:700}.editorial-copy .text-link{color:#236a49;border-color:#75a986;align-self:flex-start;margin-top:12px}
+  .gallery-head{max-width:700px;margin-bottom:40px}.gallery-head h2{margin:18px 0}.gallery-head p{color:#65766a;line-height:1.7}.gallery{display:grid;grid-template-columns:1.3fr .7fr;gap:22px}.gallery-image{height:390px;overflow:hidden}.gallery-image:last-child{height:320px;align-self:end}.work-art{background:linear-gradient(135deg,#a9c7ad,#548a70 58%,#275a47)}.wide-image{height:350px;overflow:hidden}.wide-image .image-space{background:linear-gradient(110deg,#1d4d41,#317764 55%,#89b996)}
+  .closing{background:#163e33;color:#fff;padding:94px 0}.closing-inner{display:flex;justify-content:space-between;align-items:center;gap:40px}.closing h2{max-width:690px;margin-top:18px}.closing p{color:#d0e3d7;line-height:1.7;max-width:550px}footer{background:#0b2923;color:#bdd3c5;padding:55px 0 25px}.footer-grid{display:flex;justify-content:space-between;gap:35px;padding-bottom:60px}.footer-grid .brand{color:#fff}.footer-grid nav{flex-wrap:wrap}.footer-bottom{border-top:1px solid #ffffff25;padding-top:20px;font-size:12px;color:#a3bcae}
+  @media(max-width:900px){.features{grid-template-columns:repeat(2,1fr)}.section-head{align-items:start;flex-direction:column}.editorial-grid{grid-template-columns:1fr}.editorial-image{min-height:360px;height:360px}.editorial-copy{padding:65px 6%}.hero{min-height:580px}.hero-media:after{background:linear-gradient(90deg,#0b302bf5,#0d342d9c)}}
+  @media(max-width:650px){.personal.hero{display:block;min-height:0}.personal .hero-media{position:relative;inset:auto;width:100%;height:390px;border-radius:0}.personal .hero-content{max-width:none;padding:0}.personal .hero-inner{padding-top:62px;padding-bottom:60px}.shell{width:min(100% - 36px,1240px)}.header-inner{min-height:unset;padding:19px 0;display:block}.brand{display:block;margin-bottom:15px}nav{gap:16px;flex-wrap:wrap;font-size:12px}.hero{min-height:620px;align-items:flex-end}.hero-inner{padding-top:85px;padding-bottom:68px}.hero-media:after{background:linear-gradient(0deg,#0a2c27 4%,#123e34bd 62%,#153f3599 100%)}h1{font-size:clamp(44px,11vw,67px)}.intro-grid{grid-template-columns:1fr;gap:18px;padding:35px 0}.section{padding:75px 0}.features{grid-template-columns:1fr}.feature{min-height:215px;padding:26px}.feature h3{margin-top:23px}.gallery{grid-template-columns:1fr}.gallery-image,.gallery-image:last-child{height:290px}.editorial-image{height:300px;min-height:300px}.closing-inner,.footer-grid{align-items:start;flex-direction:column}.closing{padding:70px 0}.footer-grid{padding-bottom:35px}.footer-grid nav{gap:14px}}
+  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
+  <div class="intro-strip"><div class="shell intro-grid"><strong>${name}<br/>O que fazemos</strong><p>${esc(info?.offer || page.introduction)}</p></div></div>
+  <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div><p>Explore as áreas e soluções que fazem parte do nosso trabalho.</p></div><div class="features">${cards}</div></section>
+  <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
+  <section class="shell section"><div class="gallery-head"><span class="kicker">Em imagens</span><h2>Uma visão de perto do nosso trabalho.</h2><p>Este espaço está pronto para apresentar as pessoas, ambientes e projetos que representam ${name}.</p></div><div class="gallery"><div class="gallery-image">${workImage}</div><div class="gallery-image">${businessImage}</div></div></section>
+  <div class="wide-image">${workImage}</div><section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos construir o próximo capítulo juntos?</h2><p>Converse com a nossa equipe e descubra como podemos ajudar.</p></div>${cta}</div></section></main>
+  <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>Uma presença digital feita para contar a sua história.</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name} · Site criado com PageNova AI</div></div></footer>
+  <script>document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
