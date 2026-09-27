@@ -24,6 +24,7 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const businessImage = photo(info?.businessPhoto, `ambiente de ${project.name}`, "business-art");
   const workImage = photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
+  const highlights = page.sections.slice(0, 4).map(({ title }, index) => `<span class="intro-pill"><b>${String(index + 1).padStart(2, "0")}</b>${esc(title)}</span>`).join("");
   const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature">
     <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
     </article>`).join("");
@@ -55,10 +56,35 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   .feature{min-height:0;padding:27px 28px 31px;background:#fff;border:1px solid #dce6dc;border-top:3px solid #4aaa70;border-radius:8px}
   .feature h3{font-size:clamp(20px,1.9vw,25px);margin:18px 0 10px}
   .feature p{max-width:40ch;line-height:1.65}
-  @media(max-width:650px){.hero h1,.personal h1{font-size:clamp(36px,9vw,48px)}.features{gap:14px}.feature{padding:25px}}  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  @media(max-width:650px){.hero h1,.personal h1{font-size:clamp(36px,9vw,48px)}.features{gap:14px}.feature{padding:25px}}  /* Faixa de atuação, grade adaptativa e rodapé neutro */
+  .intro-strip{background:#f8f7f3;border-bottom:1px solid #e6e8e1}
+  .intro-grid{grid-template-columns:minmax(230px,.75fr) minmax(0,2fr);gap:34px;padding:36px 0}
+  .intro-label span{font-size:10px;font-weight:800;letter-spacing:.18em;color:#438e5f}
+  .intro-label h2{font-size:clamp(23px,2.4vw,34px);margin:8px 0 0;letter-spacing:-.035em}
+  .intro-highlights{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .intro-pill{display:inline-flex;align-items:center;gap:10px;background:white;border:1px solid #d9e4d9;border-radius:100px;padding:11px 14px;color:#344d3c;font-size:12px;font-weight:700;line-height:1.25}
+  .intro-pill b{font-size:10px;color:#32885b}
+  [data-pn-ready="true"] .intro-strip.pn-reveal .intro-pill{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}
+  [data-pn-ready="true"] .intro-strip.pn-visible .intro-pill{opacity:1;transform:none}
+  .intro-pill:nth-child(2){transition-delay:90ms!important}
+  .intro-pill:nth-child(3){transition-delay:180ms!important}
+  .intro-pill:nth-child(4){transition-delay:270ms!important}
+  .features.features-four{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .features-four .feature{padding:24px;min-width:0}
+  .features-four .feature h3{font-size:clamp(18px,1.65vw,23px)}
+  footer{background:#f1f1ed;color:#293b32;padding:45px 0 24px}
+  footer .footer-grid{padding-bottom:32px}
+  footer .footer-grid .brand{color:#213d30}
+  footer .footer-grid p{max-width:56ch;color:#67746b;line-height:1.6}
+  footer nav a[aria-current]{box-shadow:none;color:#247a57}
+  footer .footer-bottom{border-color:#d7ded5;color:#69786f}
+  @media(max-width:1080px){.features.features-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:700px){.intro-grid{grid-template-columns:1fr;gap:20px;padding:30px 0}.intro-pill{font-size:11px}}
+  @media(max-width:650px){.features.features-four{grid-template-columns:1fr}.features-four .feature{padding:25px}}
+  @media(prefers-reduced-motion:reduce){[data-pn-ready="true"] .intro-strip .intro-pill{opacity:1!important;transform:none!important;transition:none!important}}  </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
-  <div class="intro-strip"><div class="shell intro-grid"><strong>Como podemos ajudar</strong><p>${esc(info?.offer || page.introduction)}</p></div></div>
-  <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div></div><div class="features">${cards}</div></section>
+  <section class="intro-strip"><div class="shell intro-grid"><div class="intro-label"><span>01 / EXPLORE</span><h2>Como podemos ajudar</h2></div><div class="intro-highlights">${highlights}</div></div></section>
+  <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
 <section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos conversar?</h2><p>Entre em contato para saber mais sobre o atendimento.</p></div>${cta}</div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(page.introduction)}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
