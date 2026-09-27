@@ -57,17 +57,15 @@ const escapeHtml = (value: string): string =>
     "'": "&#39;",
   })[character] ?? character);
 
-function avatar(index: number, name: string): string {
-  const backgrounds = ["#c8dfd0", "#e6d2c7", "#cfdadf", "#e0dac1", "#d8d2e2"];
-  const background = backgrounds[index % backgrounds.length];
-  const initials = name.split(" ").map((part) => part[0]).slice(0, 2).join("");
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="${background}"/><circle cx="40" cy="30" r="13" fill="#719784"/><path d="M13 76c2-19 13-29 27-29s25 10 27 29" fill="#719784"/><text x="40" y="73" text-anchor="middle" fill="white" font-family="Arial" font-weight="700" font-size="11">${initials}</text></svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+function avatar(index: number): string {
+  const x = (index % 5) * 25;
+  const y = Math.floor(index / 5) * 25;
+  return `<span class="example-avatar" role="img" aria-label="Retrato sintético de personagem fictício" style="background-position:${x}% ${y}%"></span>`;
 }
 
 export function renderExampleTestimonials(): string {
   const cards = examples.map(({ name, city, quote }, index) =>
-    `<article class="example-review"><span class="example-tag">Exemplo fictício</span><p>“${escapeHtml(quote)}”</p><div class="example-person"><img src="${avatar(index, name)}" alt="Avatar ilustrativo, não fotografia real" width="48" height="48"><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(city)}</small></span></div></article>`
+    `<article class="example-review"><span class="example-tag">Exemplo fictício</span><p>“${escapeHtml(quote)}”</p><div class="example-person"><img src="${avatar(index)}" alt="Avatar ilustrativo, não fotografia real" width="48" height="48"><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(city)}</small></span></div></article>`
   ).join("");
 
   return `<section class="testimonials examples" aria-label="Depoimentos ilustrativos"><div class="shell example-heading"><div><span class="kicker">Depoimentos ilustrativos</span><h2>Veja como sua prova social pode aparecer.</h2><p>25 exemplos fictícios para visualizar o layout. Substitua por avaliações autorizadas de clientes antes de publicar.</p></div><button type="button" class="example-toggle" aria-pressed="false">Pausar animação</button></div><div class="example-window"><div class="example-track"><div class="example-group">${cards}</div><div class="example-group" aria-hidden="true">${cards}</div></div></div></section>`;
