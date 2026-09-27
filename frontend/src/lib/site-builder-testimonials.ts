@@ -65,7 +65,7 @@ function avatar(index: number): string {
 
 export function renderExampleTestimonials(): string {
   const cards = examples.map(({ name, city, quote }, index) =>
-    `<article class="example-review"><span class="example-tag">Exemplo fictício</span><p>“${escapeHtml(quote)}”</p><div class="example-person"><img src="${avatar(index)}" alt="Avatar ilustrativo, não fotografia real" width="48" height="48"><span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(city)}</small></span></div></article>`
+    `<article class="example-review"><span class="example-tag">Exemplo fictício</span><p>“${escapeHtml(quote)}”</p><div class="example-person">${avatar(index)}<span><strong>${escapeHtml(name)}</strong><small>${escapeHtml(city)}</small></span></div></article>`
   ).join("");
 
   return `<section class="testimonials examples" aria-label="Depoimentos ilustrativos"><div class="shell example-heading"><div><span class="kicker">Depoimentos ilustrativos</span><h2>Veja como sua prova social pode aparecer.</h2><p>25 exemplos fictícios para visualizar o layout. Substitua por avaliações autorizadas de clientes antes de publicar.</p></div><button type="button" class="example-toggle" aria-pressed="false">Pausar animação</button></div><div class="example-window"><div class="example-track"><div class="example-group">${cards}</div><div class="example-group" aria-hidden="true">${cards}</div></div></div></section>`;
