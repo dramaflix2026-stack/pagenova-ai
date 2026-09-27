@@ -1,4 +1,5 @@
 import type { SitePage, SitePageKey, SiteProject } from "@/lib/site-builder";
+import { renderExampleTestimonials } from "@/lib/site-builder-testimonials";
 
 const esc = (value: string): string => value.replace(/[&<>"']/g, (character) => ({
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -150,12 +151,42 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   @media(max-width:1080px){.features.features-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:650px){.services-section{padding-top:65px;padding-bottom:65px}.features.features-four{grid-template-columns:1fr}.features-four .feature{min-height:0}.testimonials{padding:55px 0}.testimonials-grid{grid-template-columns:1fr;gap:20px}}
   @media(prefers-reduced-motion:reduce){.features-four .feature{transition:none;will-change:auto}.features-four .feature:hover{transform:none}}
+  .hero:not(.personal) .hero-content{position:relative;z-index:2}
+  .hero:not(.personal):before{content:"";position:absolute;right:5%;top:12%;width:clamp(130px,17vw,260px);aspect-ratio:1;border:1px solid #ffffff48;border-radius:28%;transform:rotate(24deg);box-shadow:0 0 0 20px #ffffff0c,0 0 0 50px #ffffff08,15px 25px 55px #041c1855;animation:hero-float 8s ease-in-out infinite;z-index:-1}
+  .hero-media img{transform:scale(1.035);animation:hero-image 11s ease-in-out infinite alternate}
+  .editorial-image{perspective:900px}
+  .editorial-image img{transition:transform .8s ease}
+  .editorial:hover .editorial-image img{transform:scale(1.045)}
+  .features-four .feature:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,#ffffffa3 0%,transparent 38%);pointer-events:none}
+  .features-four .feature>*{position:relative;transform:translateZ(12px)}
+  @keyframes hero-float{50%{transform:translateY(-19px) rotate(30deg)}}
+  @keyframes hero-image{to{transform:scale(1.09)}}
+  .examples{overflow:hidden;padding:75px 0 85px}
+  .example-heading{display:flex;align-items:end;justify-content:space-between;gap:25px;margin-bottom:30px}
+  .example-heading h2{font-size:clamp(28px,3vw,42px);max-width:25ch;margin:9px 0}
+  .example-heading p{max-width:590px;font-size:13px}
+  .example-toggle{flex:none;border:1px solid #b9cdbd;border-radius:8px;background:#fff;color:#24573a;padding:12px 15px;cursor:pointer;font:700 12px Arial,sans-serif}
+  .example-window{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+  .example-track{display:flex;width:max-content;animation:reviews-scroll 190s linear infinite}
+  .example-window:hover .example-track,.example-window:focus-within .example-track,.examples.is-paused .example-track{animation-play-state:paused}
+  .example-group{display:flex;gap:17px;padding-right:17px}
+  .example-review{width:330px;min-height:235px;flex:none;background:#fff;border:1px solid #d9e2d8;border-radius:16px;padding:22px;display:flex;flex-direction:column;box-shadow:0 12px 28px #243f2612}
+  .example-tag{display:inline-block;align-self:flex-start;color:#42785a;background:#edf5ee;border-radius:50px;padding:5px 9px;font-size:10px;font-weight:700;letter-spacing:.03em}
+  .example-review p{font-size:15px;line-height:1.55;margin:16px 0 20px;color:#293e31;flex:1}
+  .example-person{display:flex;align-items:center;gap:11px;border-top:1px solid #e8ede7;padding-top:14px}
+  .example-person img{border-radius:50%;width:42px;height:42px}
+  .example-person strong,.example-person small{display:block}
+  .example-person strong{font-size:13px}
+  .example-person small{font-size:11px;color:#758579;margin-top:3px}
+  @keyframes reviews-scroll{to{transform:translateX(-50%)}}
+  @media(max-width:650px){.hero:not(.personal):before{width:100px;right:5%;top:6%}.examples{padding:55px 0}.example-heading{align-items:start;flex-direction:column}.example-review{width:280px}.example-track{animation-duration:240s}}
+  @media(prefers-reduced-motion:reduce){.hero:not(.personal):before,.hero-media img,.example-track{animation:none}.editorial-image img{transition:none}.editorial:hover .editorial-image img{transform:none}.example-window{overflow-x:auto;mask-image:none}}
   </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "Nossa atuação" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Como podemos ajudar" : sectionTitle}</h2></div><p>${pageKey === "home" ? "Um cuidado pensado para cada etapa da sua jornada." : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
-  ${pageKey === "home" ? `<section class="testimonials"><div class="shell testimonials-grid"><div><span class="kicker">Depoimentos</span><h2>Experiências que merecem ser compartilhadas.</h2><p>Relatos reais de clientes poderão aparecer aqui.</p></div><div class="testimonial-card"><span class="quote-mark" aria-hidden="true">“</span><p>Este espaço está pronto para receber o primeiro depoimento.</p>${project.pages.contato ? '<a class="text-link" href="#contato" data-page="contato">Compartilhar uma experiência <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>` : ""}
+  ${pageKey === "home" ? renderExampleTestimonials() : ""}
   <section class="contact-section" id="entre-em-contato"><div class="shell contact-grid"><div class="contact-copy"><span class="kicker">Contato</span><h2>Vamos conversar?</h2><p>${esc(project.pages.contato?.introduction || "Conte um pouco sobre o que você procura. Vamos conversar sobre o próximo passo.")}</p><div class="contact-email">${contactEmail ? `<a href="mailto:${esc(contactEmail)}">✉ &nbsp; ${esc(contactEmail)}</a>` : "Informe o e-mail de contato no projeto para habilitar o formulário."}</div></div><form class="contact-form" id="institutional-contact"><h3>Envie sua mensagem</h3><div class="contact-fields"><label>Nome<input name="nome" autocomplete="name" required maxlength="100" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="150" placeholder="voce@email.com"></label><label class="full">Mensagem<textarea name="mensagem" required maxlength="2000" placeholder="Como podemos ajudar?"></textarea></label></div><button type="submit">Preparar mensagem ↗</button><p class="contact-status" id="institutional-contact-status">${contactEmail ? "Seu aplicativo de e-mail será aberto para você confirmar o envio." : "Configure um e-mail de contato no projeto para receber mensagens."}</p></form></div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(page.introduction)}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
-  <script>const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Confira e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
+  <script>const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Confira e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const toggle=event.target.closest(".example-toggle");if(toggle){const section=toggle.closest(".examples");const paused=section.classList.toggle("is-paused");toggle.setAttribute("aria-pressed",String(paused));toggle.textContent=paused?"Retomar animação":"Pausar animação";return}const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
