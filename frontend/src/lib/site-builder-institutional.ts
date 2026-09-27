@@ -24,7 +24,7 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const businessImage = photo(info?.businessPhoto, `ambiente de ${project.name}`, "business-art");
   const workImage = photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
-  const highlights = page.sections.slice(0, 4).map(({ title }, index) => `<a class="intro-pill" href="#feature-${index + 1}"><b>${String(index + 1).padStart(2, "0")}</b><span>${esc(title)}</span><span aria-hidden="true">↗</span></a>`).join("");
+
   const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature" id="feature-${index + 1}">
     <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
     </article>`).join("");
@@ -33,6 +33,9 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const storyText = info?.process || info?.offer || page.introduction;
   const proof = info?.proof ? `<p class="fact">${esc(info.proof)}</p>` : "";
   const audience = info?.audience ? `<p class="audience">Para ${esc(info.audience)}</p>` : "";
+  const contactEmail = project.contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(project.contactEmail) ? project.contactEmail : "";
+  const contactEmailJson = JSON.stringify(contactEmail).replace(/</g, "\\u003c");
+  const contactSubjectJson = JSON.stringify(`Contato pelo site — ${project.name}`).replace(/</g, "\\u003c");
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${name} — ${esc(page.heading)}</title><style>
   *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f8f4;color:#17362f;font-family:Arial,Helvetica,sans-serif}a{color:inherit;text-decoration:none}button{font:inherit}
@@ -101,13 +104,39 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   .testimonials .kicker{color:#4d9a6c}
   @media(max-width:980px){.intro-highlights{grid-template-columns:repeat(2,minmax(0,1fr))}.testimonials-grid{gap:35px}}
   @media(max-width:650px){.intro-grid{padding:40px 0}.intro-label{display:block}.intro-highlights{grid-template-columns:1fr 1fr}.intro-pill{min-height:100px;align-items:start;flex-direction:column;gap:8px;padding:16px}.intro-pill span:last-child{display:none}.testimonials{padding:68px 0}.testimonials-grid{grid-template-columns:1fr}.testimonial-card{padding:27px}.testimonial-card p{font-size:17px}}
+  .intro-strip{background:#f7f8f4;border:0}
+  .intro-grid{display:flex;align-items:center;justify-content:space-between;gap:35px;padding:75px 0 12px}
+  .intro-label{display:block;margin:0}
+  .intro-label span{display:block}
+  .intro-label h2{max-width:18ch;font-size:clamp(31px,3.6vw,48px);margin-top:15px}
+  .intro-highlights{display:none}
+  .intro-summary{max-width:380px;margin:0;color:#647469;line-height:1.7;font-size:16px}
+  .contact-section{background:#fafaf7;padding:100px 0;border-top:1px solid #e1e7dd}
+  .contact-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:clamp(40px,7vw,110px)}
+  .contact-copy{padding-top:25px}
+  .contact-copy h2{margin:18px 0 24px;max-width:12ch}
+  .contact-copy p{font-size:18px;line-height:1.7;color:#5c7063;max-width:46ch}
+  .contact-email{border-top:1px solid #d9e2d9;margin-top:35px;padding-top:25px;overflow-wrap:anywhere;color:#247a57;font-weight:700}
+  .contact-form{background:#fff;border:1px solid #dfe7df;box-shadow:0 18px 50px #173c2615;padding:38px;border-radius:14px}
+  .contact-form h3{font-size:28px;margin-bottom:24px}
+  .contact-fields{display:grid;grid-template-columns:1fr 1fr;gap:17px}
+  .contact-fields label{font-size:13px;font-weight:700;color:#30483a}
+  .contact-fields .full{grid-column:1/-1}
+  .contact-fields input,.contact-fields textarea{display:block;margin-top:9px;width:100%;border:1px solid #d9e2d8;background:#f8f9f5;border-radius:7px;padding:15px;font:inherit;color:#233a2d;outline:none}
+  .contact-fields textarea{min-height:145px;resize:vertical}
+  .contact-fields input:focus,.contact-fields textarea:focus{border-color:#39865d;box-shadow:0 0 0 3px #39865d22}
+  .contact-form button{width:100%;margin-top:20px;border:0;border-radius:7px;padding:17px;color:white;background:#267b51;font-weight:800;cursor:pointer}
+  .contact-form button:hover{background:#195e3c}
+  .contact-status{font-size:12px;color:#68786b;line-height:1.5}
+  @media(max-width:760px){.intro-grid{padding:55px 0 10px;display:block}.intro-summary{margin-top:15px}.contact-section{padding:68px 0}.contact-grid{grid-template-columns:1fr;gap:35px}.contact-copy{padding:0}.contact-form{padding:27px}}
+  @media(max-width:520px){.contact-fields{grid-template-columns:1fr}.contact-fields .full{grid-column:auto}.contact-copy h2{font-size:36px}}
   </style></head><body><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><section class="hero ${personal ? "personal" : ""}"><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>
-  <section class="intro-strip"><div class="shell intro-grid"><div class="intro-label"><span>01 / EXPLORE</span><h2>Como podemos ajudar</h2></div><div class="intro-highlights">${highlights}</div></div></section>
+  <section class="intro-strip"><div class="shell intro-grid"><div class="intro-label"><span>01 / NOSSA ATUAÇÃO</span><h2>Como podemos ajudar</h2></div><p class="intro-summary">Conheça as possibilidades e descubra o próximo passo para você.</p></div></section>
   <section class="shell section"><div class="section-head"><div><span class="kicker">Conheça nossa atuação</span><h2>${sectionTitle}</h2></div></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2><p>${esc(storyText)}</p>${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
   ${pageKey === "home" ? `<section class="testimonials"><div class="shell testimonials-grid"><div><span class="kicker">Depoimentos</span><h2>Histórias de quem já passou por aqui.</h2><p>Um espaço para compartilhar experiências reais de clientes. Os depoimentos aparecem aqui quando forem cadastrados.</p></div><div class="testimonial-card"><span class="quote-mark" aria-hidden="true">“</span><p>Sua experiência pode ajudar outras pessoas a conhecer este trabalho.</p>${project.pages.contato ? '<a class="text-link" href="#contato" data-page="contato">Conte sua experiência <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>` : ""}
-<section class="closing"><div class="shell closing-inner"><div><span class="eyebrow">Próximo passo</span><h2>Vamos conversar?</h2><p>Entre em contato para saber mais sobre o atendimento.</p></div>${cta}</div></section></main>
+  <section class="contact-section" id="entre-em-contato"><div class="shell contact-grid"><div class="contact-copy"><span class="kicker">Contato</span><h2>Vamos conversar?</h2><p>${esc(project.pages.contato?.introduction || "Conte um pouco sobre o que você procura. Vamos conversar sobre o próximo passo.")}</p><div class="contact-email">${contactEmail ? `<a href="mailto:${esc(contactEmail)}">✉ &nbsp; ${esc(contactEmail)}</a>` : "Informe o e-mail de contato no projeto para habilitar o formulário."}</div></div><form class="contact-form" id="institutional-contact"><h3>Envie sua mensagem</h3><div class="contact-fields"><label>Nome<input name="nome" autocomplete="name" required maxlength="100" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="150" placeholder="voce@email.com"></label><label class="full">Mensagem<textarea name="mensagem" required maxlength="2000" placeholder="Como podemos ajudar?"></textarea></label></div><button type="submit">Preparar mensagem ↗</button><p class="contact-status" id="institutional-contact-status">${contactEmail ? "Seu aplicativo de e-mail será aberto para você confirmar o envio." : "Configure um e-mail de contato no projeto para receber mensagens."}</p></form></div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(page.introduction)}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
-  <script>document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
+  <script>const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Confira e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
