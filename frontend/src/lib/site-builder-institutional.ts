@@ -22,9 +22,9 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const cta = project.pages.contato ? `<a class="btn" href="#contato" data-page="contato">${esc(page.cta || "Fale conosco")} <span aria-hidden="true">↗</span></a>` : "";
   const secondary = project.pages.servicos && pageKey !== "servicos" ? `<a class="text-link" href="#servicos" data-page="servicos">Conheça nossos serviços <span aria-hidden="true">↗</span></a>` : "";
   const laundry = /lavanderia|lavagem de roupas|passadoria|roupas e peças/i.test(`${project.name} ${project.brief}`);
-  const heroImage = photo(info?.portrait, `imagem principal de ${project.name}`, "hero-art");
+  const heroImage = laundry ? '<img src="/pagenova-lavanderia-banner-1.png" alt="Roupas limpas dobradas em uma lavanderia" />' : photo(info?.portrait, `imagem principal de ${project.name}`, "hero-art");
   const businessImage = photo(info?.businessPhoto, `ambiente de ${project.name}`, "business-art");
-  const workImage = photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
+  const workImage = laundry ? '<img src="/pagenova-lavanderia-banner-2.png" alt="Passadoria de roupas em uma lavanderia" />' : photo(info?.workPhoto || info?.businessPhoto, `trabalho de ${project.name}`, "work-art");
   const sensitive = /psicolog|terap|saúde|saude|cl[ií]nic|m[eé]dic|advog|nutri[cç]/i.test(`${project.name} ${project.brief}`);
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
   const theme = project.previewTheme || "original";
@@ -300,7 +300,63 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   footer .social-links a:hover{border-color:#ffffffa0;background:#ffffff13}
   footer .social-icon{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:50%;border:1px solid currentColor;font-size:16px;line-height:1}
   footer .social-facebook{font-family:Arial,sans-serif;font-weight:900}
-  @media(max-width:650px){.pn-laundry .hero:not(.personal){min-height:650px}.pn-laundry .hero:not(.personal) .hero-media:after{background:linear-gradient(0deg,#102321f5 0%,#142a26b0 65%,#142a2670 100%)}footer .social-links{gap:8px}}  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  @media(max-width:650px){.pn-laundry .hero:not(.personal){min-height:650px}.pn-laundry .hero:not(.personal) .hero-media:after{background:linear-gradient(0deg,#102321f5 0%,#142a26b0 65%,#142a2670 100%)}footer .social-links{gap:8px}}  /* A headline já está impressa nos banners da lavanderia. */
+  .pn-laundry .hero .eyebrow,
+  .pn-laundry .hero h1,
+  .pn-laundry .hero-slide-two h2,
+  .pn-laundry .hero .hero-lead,
+  .pn-laundry .hero .audience {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    white-space: nowrap !important;
+  }
+  .pn-laundry .hero:not(.personal) .hero-media:after {
+    display: none;
+  }
+  .pn-laundry .hero .hero-inner {
+    display: flex;
+    align-items: flex-end;
+  }
+  .pn-laundry .hero .hero-content {
+    max-width: none;
+    width: 100%;
+  }
+  .pn-laundry .hero .actions {
+    margin-top: 0;
+    margin-bottom: 10px;
+  }
+  .pn-laundry .hero .btn {
+    box-shadow: 0 14px 35px #071b1970;
+  }
+  @media(max-width:650px) {
+    .pn-laundry .hero:not(.personal) {
+      min-height: 0;
+    }
+    .pn-laundry .hero:not(.personal) .hero-media {
+      position: relative;
+      inset: auto;
+      z-index: auto;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+    }
+    .pn-laundry .hero:not(.personal) .hero-media img {
+      object-fit: contain;
+      background: #102b28;
+    }
+    .pn-laundry .hero:not(.personal) .hero-inner {
+      min-height: 0;
+      padding-top: 16px;
+      padding-bottom: 78px;
+    }
+    .pn-laundry .hero .actions {
+      margin: 0;
+    }
+  }  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
