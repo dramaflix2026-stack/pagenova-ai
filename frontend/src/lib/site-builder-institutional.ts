@@ -91,11 +91,11 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     project.contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(project.contactEmail)
       ? `<a href="mailto:${esc(project.contactEmail)}" aria-label="Enviar e-mail"><span class="social-icon" aria-hidden="true">✉</span><span>E-mail</span></a>` : "",
     whatsAppUrl
-      ? `<a href="${esc(whatsAppUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Conversar pelo WhatsApp"><span class="social-icon" aria-hidden="true">✆</span><span>WhatsApp</span></a>` : "",
+      ? `<a href="${esc(whatsAppUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Conversar pelo WhatsApp"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.86 11.86 0 0 0 12.07 0C5.49 0 .13 5.36.13 11.94c0 2.1.55 4.15 1.6 5.96L0 24l6.27-1.64a11.9 11.9 0 0 0 5.8 1.48h.01c6.58 0 11.93-5.36 11.93-11.94a11.86 11.86 0 0 0-3.49-8.42ZM12.08 21.82h-.01a9.86 9.86 0 0 1-5.03-1.38l-.36-.21-3.73.98.99-3.63-.24-.37a9.88 9.88 0 0 1-1.52-5.27C2.18 6.47 6.62 2.03 12.08 2.03a9.82 9.82 0 0 1 6.99 2.9 9.82 9.82 0 0 1 2.89 7.01c0 5.45-4.44 9.88-9.88 9.88Zm5.42-7.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.47-2.4-1.49-.89-.79-1.49-1.76-1.66-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.61-.92-2.21-.24-.58-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.22 3.08c.15.2 2.1 3.21 5.09 4.5.71.31 1.27.49 1.7.62.71.23 1.35.2 1.86.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35Z"/></svg></span><span>WhatsApp</span></a>` : "",
     instagramUrl
-      ? `<a href="${esc(instagramUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram"><span class="social-icon" aria-hidden="true">◎</span><span>Instagram</span></a>` : "",
+      ? `<a href="${esc(instagramUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="18" cy="6" r="1" fill="currentColor" stroke="none"/></svg></span><span>Instagram</span></a>` : "",
     facebookUrl
-      ? `<a href="${esc(facebookUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Facebook"><span class="social-icon social-facebook" aria-hidden="true">f</span><span>Facebook</span></a>` : "",
+      ? `<a href="${esc(facebookUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir Facebook"><span class="social-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12Z"/></svg></span><span>Facebook</span></a>` : "",
   ].filter(Boolean).join("");
   const contactEmailJson =JSON.stringify(contactEmail).replace(/</g, "\\u003c");
   const contactSubjectJson = JSON.stringify(`Contato pelo site — ${project.name}`).replace(/</g, "\\u003c");
@@ -356,6 +356,19 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     .pn-laundry .hero .actions {
       margin: 0;
     }
+  }  footer .social-icon {
+    width: 26px;
+    height: 26px;
+    padding: 4px;
+    border: 0;
+  }
+  footer .social-icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  footer .social-links a:hover .social-icon {
+    transform: scale(1.1);
   }  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
