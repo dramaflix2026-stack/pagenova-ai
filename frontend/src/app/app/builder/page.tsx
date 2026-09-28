@@ -28,6 +28,10 @@ export default function BuilderPage() {
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
   const [contactEmail, setContactEmail] = useState("");
+  const [contactWhatsApp, setContactWhatsApp] = useState("");
+  const [contactInstagram, setContactInstagram] = useState("");
+  const [contactFacebook, setContactFacebook] = useState("");
+  const [refreshingImages, setRefreshingImages] = useState(false);
   const [institutionalFacts, setInstitutionalFacts] = useState({ role: "", audience: "", offer: "", process: "", proof: "" });
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
@@ -116,7 +120,7 @@ export default function BuilderPage() {
     if (!id) return;
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
-      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || ""); setInstitutionalFacts({ role: saved.institutional?.role || "", audience: saved.institutional?.audience || "", offer: saved.institutional?.offer || "", process: saved.institutional?.process || "", proof: saved.institutional?.proof || "" });
+      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || ""); setContactWhatsApp(saved.contactWhatsApp || ""); setContactInstagram(saved.contactInstagram || ""); setContactFacebook(saved.contactFacebook || ""); setInstitutionalFacts({ role: saved.institutional?.role || "", audience: saved.institutional?.audience || "", offer: saved.institutional?.offer || "", process: saved.institutional?.process || "", proof: saved.institutional?.proof || "" });
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
@@ -205,7 +209,7 @@ export default function BuilderPage() {
       setError("Informe os serviços ou produtos reais que devem aparecer nos cards."); return;
     }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
-      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(),
+      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(), contactWhatsApp: contactWhatsApp.trim(), contactInstagram: contactInstagram.trim(), contactFacebook: contactFacebook.trim(),
       institutional: selectedPresetId === "institucional" ? Object.fromEntries(Object.entries(institutionalFacts).map(([key, value]) => [key, value.trim()])) as SiteProject["institutional"] : undefined,
       pages: {}, createdAt: new Date().toISOString() };
     setProject(site); setActivePage("home");
@@ -272,7 +276,11 @@ export default function BuilderPage() {
         <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedPreset.title}</p>
           <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label><label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
+          <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="block text-sm font-medium">WhatsApp do negócio<input type="tel" value={contactWhatsApp} onChange={(event) => setContactWhatsApp(event.target.value)} placeholder="11999999999" maxLength={22} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
+            <label className="block text-sm font-medium">Instagram<input value={contactInstagram} onChange={(event) => setContactInstagram(event.target.value)} placeholder="@suaempresa" maxLength={100} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
+            <label className="block text-sm font-medium">Facebook<input value={contactFacebook} onChange={(event) => setContactFacebook(event.target.value)} placeholder="facebook.com/suaempresa" maxLength={200} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
+          </div>          <label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
           {selectedPresetId === "institucional" && <fieldset className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5"><legend className="px-2 text-sm font-semibold text-emerald-200">Dados reais para personalizar o site</legend><p className="mb-4 text-xs leading-5 text-white/55">Preencha apenas o que você pode confirmar. Campos vazios não serão inventados pela IA.</p><div className="grid gap-3 sm:grid-cols-2">{([
             ["role", "Quem você é / sua atuação", "Ex.: psicóloga clínica"],
             ["audience", "Quem você atende", "Ex.: adultos em atendimento online"],
@@ -301,7 +309,53 @@ export default function BuilderPage() {
         <aside className="space-y-5 rounded-2xl border border-white/10 bg-[#11101b] p-5">
           <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{getSitePreset(project.presetId || "institucional").title}</span><h1 className="mt-2 text-2xl font-bold">{project.name}</h1><p className="mt-2 text-sm text-white/45">{phase === "generating" ? "Criando seu site…" : phase === "ready" ? "Site criado. Você pode pedir alterações." : "A criação foi interrompida."}</p></div>
           {project.presetId === "institucional" && <label className="block text-xs font-medium text-white/75">Serviços e produtos reais<textarea value={project.institutional?.offer || ""} onChange={(event) => { const updated = { ...project, institutional: { role: "", audience: "", process: "", proof: "", ...project.institutional, offer: event.target.value } }; setProject(updated); void savePageNovaProject(updated.id, updated).catch(() => setError("Falha ao salvar os serviços.")); }} rows={3} maxLength={400} placeholder="Ex.: lavagem de roupas, passadoria, coleta e entrega (somente o que você realmente oferece)" className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white" /></label>}
-          <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
+          <fieldset className="space-y-2 rounded-xl border border-white/10 p-3">
+            <legend className="px-1 text-xs font-semibold text-emerald-200">Contatos e redes do site</legend>
+            {([
+              ["contactEmail", "E-mail", "contato@suaempresa.com.br"],
+              ["contactWhatsApp", "WhatsApp", "11999999999"],
+              ["contactInstagram", "Instagram", "@suaempresa"],
+              ["contactFacebook", "Facebook", "facebook.com/suaempresa"],
+            ] as const).map(([key, label, placeholder]) => (
+              <label key={key} className="block text-xs text-white/75">{label}
+                <input type={key === "contactEmail" ? "email" : "text"} value={project[key] || ""}
+                  onChange={(event) => {
+                    const updated = { ...project, [key]: event.target.value };
+                    setProject(updated);
+                    void savePageNovaProject(updated.id, updated).catch(() => setError("Não foi possível salvar o contato."));
+                  }}
+                  placeholder={placeholder} maxLength={200}
+                  className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 p-2.5 text-sm text-white" />
+              </label>
+            ))}
+          </fieldset>          {project.presetId === "institucional" && <button type="button" disabled={refreshingImages}
+            onClick={async () => {
+              setRefreshingImages(true);
+              setError("");
+              try {
+                const hero = await requestImage(project, "hero");
+                const work = await requestImage(project, "work");
+                const updated = {
+                  ...project,
+                  institutional: {
+                    role: "", audience: "", offer: "", process: "", proof: "",
+                    ...project.institutional,
+                    portrait: hero,
+                    workPhoto: work,
+                    businessPhoto: work,
+                  },
+                };
+                await savePageNovaProject(updated.id, updated);
+                setProject(updated);
+              } catch (cause) {
+                setError(cause instanceof Error ? cause.message : "Falha ao gerar as imagens.");
+              } finally {
+                setRefreshingImages(false);
+              }
+            }}
+            className="w-full rounded-xl border border-emerald-400/35 px-4 py-3 text-sm font-semibold text-emerald-200 disabled:opacity-50">
+            {refreshingImages ? "Gerando dois banners…" : "Gerar novamente os dois banners"}
+          </button>}          <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           {phase === "error" && pendingKeys.length > 0 && <button onClick={() => void generatePages(project, pendingKeys)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Tentar novamente</button>}
           {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&

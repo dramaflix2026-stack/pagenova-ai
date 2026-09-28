@@ -25,6 +25,9 @@ export type SiteProject = {
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
   liveEdits?: Partial<Record<SitePageKey, import("@/lib/site-builder-live-editor").LiveEdit[]>>;
   contactEmail?: string;
+  contactWhatsApp?: string;
+  contactInstagram?: string;
+  contactFacebook?: string;
   institutional?: {
     role: string;
     audience: string;

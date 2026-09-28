@@ -31,7 +31,15 @@ export async function POST(request: NextRequest) {
   if (process.env.PAGENOVA_AI_PROVIDER !== "openai" || !apiKey) {
     return NextResponse.json({ error: "Geração de imagem indisponível." }, { status: 503 });
   }
-  const prompt = `Crie uma fotografia editorial premium para o website de ${name}. Contexto do negócio: ${brief.slice(0, 1500)}. Cena: ${kind === "hero" ? "imagem principal forte, com assunto à direita e área livre à esquerda para texto; se o briefing for de profissional individual, retrato ficcional representativo, sem se passar pela pessoa real" : "ambiente, equipe em ação ou detalhe do trabalho adequados ao contexto, composição editorial diferente da imagem principal"}. Fotografia realista, direção de arte sofisticada, luz natural, composição profissional, tons equilibrados. Sem logos, sem marcas, sem texto, sem dados ou alegações fabricados. A pessoa retratada, caso apareça, é uma personagem ilustrativa, não o titular real do negócio.`;
+  const laundry = /lavanderia|lavagem de roupas|passadoria|roupas e peças/i.test(`${name} ${brief}`);
+  const scene = laundry
+    ? kind === "hero"
+      ? "Fotografia comercial de uma lavanderia contemporânea em funcionamento. Pilhas de roupas limpas e dobradas, tecidos com textura visível, lavadoras profissionais discretas ao fundo. Foco no serviço e nas roupas, sem retrato ou rosto em destaque. Composição horizontal com área escura e limpa à esquerda para texto e ação principal à direita."
+      : "Fotografia comercial diferente da primeira: mãos realizando passadoria ou dobra cuidadosa de roupas em bancada limpa, tecidos claros em primeiro plano e ambiente real de lavanderia ao fundo. Foco no processo, sem rosto em destaque, composição horizontal."
+    : kind === "hero"
+      ? "Fotografia principal do serviço ou ambiente descrito no briefing, com elemento relevante à direita e espaço livre à esquerda para texto. Retrato de pessoa apenas se o negócio for centrado em profissional individual."
+      : "Fotografia de processo, detalhe do trabalho ou ambiente descrito no briefing, com composição diferente da imagem principal.";
+  const prompt = `Crie uma fotografia editorial premium para o website de ${name}. Contexto: ${brief.slice(0, 1500)}. Cena obrigatória: ${scene} Fotografia realista, direção de arte profissional, iluminação natural, sem logos, marcas, letras ou alegações fabricadas. Não mostre a mesma cena nos dois banners.`;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 78000);
   try {
