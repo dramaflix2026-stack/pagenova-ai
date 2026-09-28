@@ -369,6 +369,157 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   }
   footer .social-links a:hover .social-icon {
     transform: scale(1.1);
+  }  /* O primeiro banner já contém a headline na própria imagem. */
+  .pn-laundry .hero-carousel > .hero:first-child .actions {
+    display: none !important;
+  }
+
+  /* Método com contraste suave e leitura mais leve. */
+  .pn-method,
+  .pn-legal .pn-method,
+  .pn-laundry .pn-method {
+    background: #f4f2ed !important;
+    color: #20342e !important;
+  }
+  .pn-method::before,
+  .pn-method::after,
+  .pn-method .shell::before,
+  .pn-method .shell::after {
+    opacity: .08 !important;
+  }
+  .pn-method .pn-eyebrow,
+  .pn-method-step b {
+    color: #7a806e !important;
+  }
+  .pn-method-head h2,
+  .pn-method-step h3 {
+    color: #20342e !important;
+  }
+  .pn-method-head > p,
+  .pn-method-step p {
+    color: #58665d !important;
+  }
+  .pn-method-grid {
+    gap: 16px;
+  }
+  .pn-method-step {
+    background: #fffdfa !important;
+    border: 1px solid #dedfd6 !important;
+    border-radius: 15px;
+    box-shadow: 0 14px 35px #273d2810;
+  }
+  .pn-method-step:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 45px #273d281a;
+  }
+
+  /* Rodapé organizado em marca, canais e navegação. */
+  footer {
+    background: #eeefea !important;
+    color: #263b32 !important;
+    padding: 74px 0 26px !important;
+  }
+  footer .footer-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0,1.3fr) minmax(220px,1fr) minmax(160px,.55fr);
+    align-items: start !important;
+    gap: 55px !important;
+    padding-bottom: 68px !important;
+  }
+  footer .pn-footer-kicker {
+    display: block;
+    margin-bottom: 18px;
+    color: #657a69;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  footer .pn-footer-brand .brand {
+    display: block;
+    color: #20382d !important;
+    font-size: clamp(23px,2.4vw,34px);
+    letter-spacing: -.045em;
+  }
+  footer .pn-footer-brand p {
+    max-width: 37ch;
+    color: #66756a !important;
+    line-height: 1.7;
+  }
+  footer .pn-footer-contact > strong,
+  footer .footer-grid nav > strong {
+    display: block;
+    margin-bottom: 21px;
+    color: #263b32;
+    font-size: 13px;
+  }
+  footer .pn-footer-contact > p {
+    color: #66756a;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  footer .social-links {
+    display: grid !important;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px !important;
+    margin: 0 !important;
+  }
+  footer .social-links a {
+    justify-content: flex-start;
+    border: 1px solid #d3dcd2 !important;
+    border-radius: 9px !important;
+    padding: 10px 12px !important;
+    color: #2d493a !important;
+    background: #ffffffa8;
+    font-size: 12px;
+    transition: transform .2s,box-shadow .2s,border-color .2s;
+  }
+  footer .social-links a:hover {
+    transform: translateY(-2px);
+    border-color: #9bb5a1 !important;
+    box-shadow: 0 8px 20px #263b3215;
+  }
+  footer .footer-grid nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px !important;
+    font-size: 13px;
+  }
+  footer .footer-grid nav > strong {
+    margin-bottom: 8px;
+  }
+  footer .footer-grid nav a {
+    color: #596c60;
+  }
+  footer .footer-grid nav a:hover {
+    color: #187450;
+  }
+  footer .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-top: 1px solid #d5ded3 !important;
+    padding-top: 23px;
+    color: #77847a !important;
+  }
+  @media(max-width:900px) {
+    footer .footer-grid {
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap: 40px;
+    }
+  }
+  @media(max-width:600px) {
+    footer { padding-top: 55px !important; }
+    footer .footer-grid {
+      grid-template-columns: 1fr;
+      gap: 34px;
+      padding-bottom: 48px !important;
+    }
+    footer .social-links {
+      grid-template-columns: repeat(2,minmax(0,1fr));
+    }
   }  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
@@ -376,8 +527,8 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   ${pageKey === "home" ? `<section class="pn-expanded pn-intro-section"><div class="shell pn-intro-grid"><div class="pn-intro-copy"><span class="pn-eyebrow">${legal ? "Áreas de atuação" : "O que fazemos"}</span><h2>${legal ? "Atuação para cada situação." : "O serviço certo, explicado com clareza."}</h2><p>${esc(aboutText)}</p><span class="pn-small-line" aria-hidden="true"></span></div><div class="pn-area-list">${detailItems}</div></div></section>
   <section class="pn-expanded pn-method"><div class="shell"><div class="pn-method-head"><div><span class="pn-eyebrow">${legal ? "Nosso método" : "Como funciona"}</span><h2>Do primeiro contato ao próximo passo.</h2></div><p>${esc(processText || "Uma conversa inicial ajuda a entender sua necessidade e definir o melhor caminho para continuar.")}</p></div><div class="pn-method-grid"><article class="pn-method-step"><b>01 / CONTATO</b><h3>Conte sua necessidade</h3><p>Envie uma mensagem com o contexto e o que você procura.</p></article><article class="pn-method-step"><b>02 / ANÁLISE</b><h3>Converse com a equipe</h3><p>Receba orientações sobre a atuação e esclareça suas dúvidas iniciais.</p></article><article class="pn-method-step"><b>03 / PRÓXIMO PASSO</b><h3>Decida como seguir</h3><p>As condições e a possibilidade de atendimento são confirmadas diretamente com a equipe.</p></article></div></div></section>
   <section class="pn-expanded pn-faq"><div class="shell pn-faq-grid"><div><span class="pn-eyebrow">Perguntas frequentes</span><h2>Respostas antes de começar.</h2><p class="pn-faq-lead">Informações para você entender a proposta e iniciar uma conversa com mais clareza.</p></div><div class="pn-faq-list">${faq}</div></div></section>
-  <section class="pn-expanded pn-closing"><div class="shell pn-closing-inner"><div><span class="pn-eyebrow">Vamos conversar</span><h2>${legal ? "Cada caso merece atenção individual." : "O próximo passo começa com uma conversa."}</h2><p>Descreva sua necessidade e entre em contato para conhecer as possibilidades de atendimento.</p></div><a href="#entre-em-contato">Entrar em contato ↗</a></div></section>` : ""}  ${pageKey === "home" ? (sensitive ? `<section class="trust-section"><div class="shell"><span class="kicker">Antes de começar</span><h2>Um primeiro passo com clareza.</h2><div class="trust-grid"><article><span>01</span><h3>Conheça a proposta</h3><p>Veja as informações sobre a atuação e os serviços apresentados.</p></article><article><span>02</span><h3>Esclareça suas dúvidas</h3><p>Use o contato para perguntar sobre o atendimento e os próximos passos.</p></article><article><span>03</span><h3>Converse diretamente</h3><p>Decida com tranquilidade se esta proposta faz sentido para você.</p></article></div></div></section>` : "") + renderExampleTestimonials() : ""}
+  ` : ""}  ${pageKey === "home" ? (sensitive ? `<section class="trust-section"><div class="shell"><span class="kicker">Antes de começar</span><h2>Um primeiro passo com clareza.</h2><div class="trust-grid"><article><span>01</span><h3>Conheça a proposta</h3><p>Veja as informações sobre a atuação e os serviços apresentados.</p></article><article><span>02</span><h3>Esclareça suas dúvidas</h3><p>Use o contato para perguntar sobre o atendimento e os próximos passos.</p></article><article><span>03</span><h3>Converse diretamente</h3><p>Decida com tranquilidade se esta proposta faz sentido para você.</p></article></div></div></section>` : "") + renderExampleTestimonials() : ""}
   <section class="contact-section" id="entre-em-contato"><div class="shell contact-grid"><div class="contact-copy"><span class="kicker">Contato</span><h2>Vamos conversar?</h2><p>${esc(project.pages.contato?.introduction || "Conte um pouco sobre o que você procura. Vamos conversar sobre o próximo passo.")}</p><div class="contact-email">${contactEmail ? `<a href="mailto:${esc(contactEmail)}">✉ &nbsp; ${esc(contactEmail)}</a>` : "Informe o e-mail de contato no projeto para habilitar o formulário."}</div></div><form class="contact-form" id="institutional-contact"><h3>Envie sua mensagem</h3><div class="contact-fields"><label>Nome<input name="nome" autocomplete="name" required maxlength="100" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="150" placeholder="voce@email.com"></label><label class="full">Mensagem<textarea name="mensagem" required maxlength="2000" placeholder="Como podemos ajudar?"></textarea></label></div><button type="submit">Abrir e-mail para enviar ↗</button><p class="contact-status" id="institutional-contact-status">${contactEmail ? "Seu aplicativo de e-mail abrirá. Revise a mensagem e confirme o envio." : "Configure um e-mail de contato no projeto para receber mensagens."}</p></form></div></section></main>
-  <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(info?.role || "Fale com nossa equipe para conhecer o atendimento.")}</p><div class="social-links">${socialLinks}</div></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
+  <footer><div class="shell"><div class="footer-grid"><div class="pn-footer-brand"><span class="pn-footer-kicker">Fale com a gente</span><strong class="brand">${name}</strong><p>${esc(info?.role || "Conheça nossos serviços e converse com a equipe.")}</p></div><div class="pn-footer-contact"><strong>Canais de atendimento</strong>${socialLinks ? `<div class="social-links">${socialLinks}</div>` : `<p>Os canais de contato aparecerão aqui quando forem cadastrados.</p>`}</div><nav aria-label="Navegação do rodapé"><strong>Explore</strong>${links}</nav></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ${name}</span><span>Feito para apresentar o que você faz com clareza.</span></div></div></footer>
   <script>const heroCarousel=document.getElementById("hero-carousel");if(heroCarousel){const slides=Array.from(heroCarousel.querySelectorAll("[data-hero-slide]"));const dots=Array.from(heroCarousel.querySelectorAll("[data-hero-index]"));let active=0;let timer;const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");function showSlide(index){active=(index+slides.length)%slides.length;slides.forEach((slide,i)=>{slide.hidden=i!==active});dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));const status=heroCarousel.querySelector(".hero-slide-status");if(status)status.textContent=(active+1)+" / "+slides.length}function stop(){if(timer)clearInterval(timer);timer=undefined}function start(){stop();if(slides.length>1&&!reduced.matches&&!document.hidden)timer=setInterval(()=>showSlide(active+1),7000)}heroCarousel.querySelector("[data-hero-prev]")?.addEventListener("click",()=>{showSlide(active-1);start()});heroCarousel.querySelector("[data-hero-next]")?.addEventListener("click",()=>{showSlide(active+1);start()});dots.forEach((dot,i)=>dot.addEventListener("click",()=>{showSlide(i);start()}));heroCarousel.addEventListener("mouseenter",stop);heroCarousel.addEventListener("mouseleave",start);heroCarousel.addEventListener("focusin",stop);heroCarousel.addEventListener("focusout",event=>{if(!heroCarousel.contains(event.relatedTarget))start()});document.addEventListener("visibilitychange",start);reduced.addEventListener?.("change",start);start()}const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Revise e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const toggle=event.target.closest(".example-toggle");if(toggle){const section=toggle.closest(".examples");const paused=section.classList.toggle("is-paused");toggle.setAttribute("aria-pressed",String(paused));toggle.textContent=paused?"Retomar animação":"Pausar animação";return}const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
