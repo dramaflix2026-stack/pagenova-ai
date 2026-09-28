@@ -116,8 +116,17 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
         el.style.setProperty('resize','both','important');
         el.style.setProperty('overflow','auto','important');
       }
-      if(Number.isFinite(edit.x))el.style.setProperty('left',edit.x+'px','important');
-      if(Number.isFinite(edit.y))el.style.setProperty('top',edit.y+'px','important');
+      if(edit.movable&&Number.isFinite(edit.x)&&Number.isFinite(edit.y)&&!el.hasAttribute('data-pn-free-text')){
+        el.setAttribute('data-pn-movable','true');
+        el.setAttribute('data-pn-transform-drag','true');
+        el.dataset.pnDragX=String(edit.x);
+        el.dataset.pnDragY=String(edit.y);
+        el.style.setProperty('transform','translate('+edit.x+'px,'+edit.y+'px)','important');
+        el.style.setProperty('will-change','transform','important');
+      }else{
+        if(Number.isFinite(edit.x))el.style.setProperty('left',edit.x+'px','important');
+        if(Number.isFinite(edit.y))el.style.setProperty('top',edit.y+'px','important');
+      }
       if(Number.isFinite(edit.width))el.style.setProperty('width',edit.width+'px','important');
       if(Number.isFinite(edit.height))el.style.setProperty('height',edit.height+'px','important');
     }
@@ -181,8 +190,8 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
         color:color.value||'',
         align:getComputedStyle(selected).textAlign,
         movable:selected.hasAttribute('data-pn-movable')||selected.hasAttribute('data-pn-free-text'),
-        x:Math.round(scrollX+box.left),
-        y:Math.round(scrollY+box.top),
+        x:selected.hasAttribute('data-pn-transform-drag')?Math.round(parseFloat(selected.dataset.pnDragX||'0')||0):Math.round(scrollX+box.left),
+        y:selected.hasAttribute('data-pn-transform-drag')?Math.round(parseFloat(selected.dataset.pnDragY||'0')||0):Math.round(scrollY+box.top),
         width:Math.round(box.width),
         height:Math.round(box.height)
       };
@@ -221,7 +230,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
       if(!header)return;
       applyHeader(header,layout);
       parent.postMessage({type:'pagenova-live-edit',key:${JSON.stringify(key)},edit:{selector:path(header),headerLayout:layout}},'*');
-      select(header);
+      bar.style.display='none';
     }
 
     bar.addEventListener('click',function(event){
@@ -261,7 +270,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
 
     document.addEventListener('click',function(event){
       if(bar.contains(event.target))return;
-      const el=event.target.closest(editableSelector+',header');
+      const el=event.target.closest(editableSelector);
       if(!el||el.closest('script,style,#pn-edit-bar'))return;
       event.preventDefault();
       event.stopPropagation();
@@ -293,31 +302,44 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
 
       if(!el.hasAttribute('data-pn-free-text')&&!el.hasAttribute('data-pn-movable')){
         el.setAttribute('data-pn-movable','true');
-        el.style.setProperty('position','absolute','important');
-        el.style.setProperty('left',Math.round(scrollX+box.left)+'px','important');
-        el.style.setProperty('top',Math.round(scrollY+box.top)+'px','important');
-        el.style.setProperty('width',Math.round(box.width)+'px','important');
-        el.style.setProperty('min-height',Math.max(32,Math.round(box.height))+'px','important');
-        el.style.setProperty('z-index','90','important');
+        el.setAttribute('data-pn-transform-drag','true');
+        el.dataset.pnDragX=el.dataset.pnDragX||'0';
+        el.dataset.pnDragY=el.dataset.pnDragY||'0';
+        el.style.setProperty('will-change','transform','important');
+        el.style.setProperty('cursor','grabbing','important');
         el.style.setProperty('resize','both','important');
         el.style.setProperty('overflow','auto','important');
-        el.style.setProperty('cursor','grabbing','important');
       }
 
       event.preventDefault();
       event.stopPropagation();
       select(el);
 
-      const x=parseFloat(el.style.left)||box.left+scrollX;
-      const y=parseFloat(el.style.top)||box.top+scrollY;
-      drag={el:el,startX:event.clientX,startY:event.clientY,x:x,y:y,moved:false};
+      let x=0;
+      let y=0;
+      if(el.hasAttribute('data-pn-transform-drag')){
+        x=parseFloat(el.dataset.pnDragX||'0')||0;
+        y=parseFloat(el.dataset.pnDragY||'0')||0;
+      }else{
+        x=parseFloat(el.style.left)||box.left+scrollX;
+        y=parseFloat(el.style.top)||box.top+scrollY;
+      }
+      drag={el:el,startX:event.clientX,startY:event.clientY,x:x,y:y,moved:false,transform:el.hasAttribute('data-pn-transform-drag')};
     },true);
 
     document.addEventListener('pointermove',function(event){
       if(!drag)return;
       event.preventDefault();
-      drag.el.style.setProperty('left',drag.x+event.clientX-drag.startX+'px','important');
-      drag.el.style.setProperty('top',drag.y+event.clientY-drag.startY+'px','important');
+      const nextX=drag.x+event.clientX-drag.startX;
+      const nextY=drag.y+event.clientY-drag.startY;
+      if(drag.transform){
+        drag.el.dataset.pnDragX=String(nextX);
+        drag.el.dataset.pnDragY=String(nextY);
+        drag.el.style.setProperty('transform','translate('+nextX+'px,'+nextY+'px)','important');
+      }else{
+        drag.el.style.setProperty('left',nextX+'px','important');
+        drag.el.style.setProperty('top',nextY+'px','important');
+      }
       drag.moved=true;
       showBar();
     },true);
