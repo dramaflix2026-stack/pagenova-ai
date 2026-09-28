@@ -44,6 +44,16 @@ export async function POST(request: NextRequest) {
     return `${field}: ${typeof value === "string" ? value.slice(0, 700).trim() : ""}`;
   }).join("\n");
 
+  const nicheText = `${name} ${brief}`.toLowerCase();
+  const nicheGuide = /lavanderia|lavagem de roupas|roupas e peças/.test(nicheText)
+    ? "Lavanderia: priorize serviços de lavagem, secagem, passadoria, peças atendidas, coleta/entrega, área e prazo somente se confirmados. Cada card deve explicar uma oferta real; não substitua serviços por cards de atendimento ou dúvidas."
+    : /psicolog|terap|saúde|saude|clínic|clinic/.test(nicheText)
+      ? "Saúde e bem-estar: apresente modalidades, público e abordagem confirmados. Não prometa melhora, cura ou disponibilidade. Separe serviços da jornada de primeiro contato."
+      : /restaurante|caf[eé]|pizzaria|padaria/.test(nicheText)
+        ? "Alimentação: priorize cozinha, cardápio e formas de pedido/reserva confirmados; não invente pratos, preços ou horários."
+        : /imobili[aá]r|corretor|im[oó]ve/.test(nicheText)
+          ? "Imobiliário: diferencie busca, tipos de imóveis, regiões e atendimento. Não apresente imóvel ou preço fictício como oferta real."
+          : "Defina a oferta principal com base apenas em fatos fornecidos. Cards devem representar serviços, produtos ou etapas concretas do negócio; jamais quatro variações de 'entre em contato'.";
   if (brief.length < 20 || brief.length > 3000 || name.length < 2 || name.length > 100 ||
       !keys.has(key) || !SITE_PRESETS.some((preset) => preset.id === presetId) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
@@ -53,7 +63,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nEscreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.`;
+  const prompt = `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nDireção editorial: ${nicheGuide}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nEscreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
   try {
