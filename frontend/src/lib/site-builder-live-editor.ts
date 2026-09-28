@@ -320,11 +320,7 @@ export function renderEditablePreview(
       event.preventDefault();
       event.stopPropagation();
 
-      if(isSection(selected)){
-        selected.dataset.pnSection='true';
-      }else{
-        selected=ensureMovable(selected);
-      }
+      selected=ensureMovable(selected);
       const rect=selected.getBoundingClientRect();
 
       activeResize={
@@ -421,26 +417,16 @@ export function renderEditablePreview(
     guides.y.dataset.open='false';
   }
 
-  function isSection(el){
-    return !!(el && el.matches && el.matches(sectionSelector));
-  }
-
-  function isSocial(el){
-    return !!(el && el.matches && el.matches(socialSelector));
-  }
-
   function snapPosition(el,left,top){
     try{
       const rect=el.getBoundingClientRect();
-      const width=rect.width;
-      const height=rect.height;
       const threshold=7;
       const guides=ensureGuides();
       let bestX=null;
       let bestY=null;
 
-      const currentX=[left,left+width/2,left+width];
-      const currentY=[top,top+height/2,top+height];
+      const currentX=[left,left+rect.width/2,left+rect.width];
+      const currentY=[top,top+rect.height/2,top+rect.height];
 
       document.querySelectorAll(editableSelector).forEach(function(other){
         if(!other || other===el || other.closest('#pn-edit-bar,#pn-edit-box') || other.offsetParent===null) return;
@@ -559,7 +545,7 @@ export function renderEditablePreview(
     const rect=el.getBoundingClientRect();
     const st=getComputedStyle(el);
     const isDivider=el.dataset.pnDivider==='true';
-    const section=isSection(el);
+    const isSection=el.dataset.pnSection==='true';
     const source=el.dataset.pnSourceSelector || cssPath(el);
 
     const edit={
@@ -572,8 +558,8 @@ export function renderEditablePreview(
       y: Math.round(rect.top+scrollY),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
-      movable: !section && (el.dataset.pnMovable==='true' || el.dataset.pnFreeText==='true' || el.dataset.pnGhost==='true' || isDivider),
-      kind: isDivider ? 'divider' : (section ? 'section' : (isSocial(el) ? 'social' : (el.matches(cardSelector) ? 'card' : 'text')))
+      movable: !isSection && (el.dataset.pnMovable==='true' || el.dataset.pnFreeText==='true' || el.dataset.pnGhost==='true' || isDivider),
+      kind: isDivider ? 'divider' : (isSection ? 'section' : (el.matches(cardSelector) ? 'card' : 'text'))
     };
 
     parent.postMessage({type:'pagenova-live-edit',key:KEY,edit:edit},'*');
@@ -749,11 +735,10 @@ export function renderEditablePreview(
   document.addEventListener('click',function(event){
     if(event.target.closest('#pn-edit-bar,#pn-edit-box')) return;
 
-    const social=event.target.closest(socialSelector);
     const text=event.target.closest(textSelector);
     const divider=event.target.closest('[data-pn-divider=true]');
     const card=event.target.closest(cardSelector);
-    const el=social || divider || text || card;
+    const el=divider || text || card;
 
     if(!el || el.closest('script,style')) return;
 
@@ -769,8 +754,7 @@ export function renderEditablePreview(
       const el=social || event.target.closest(editableSelector);
     if(!el || el.closest('script,style,nav')) return;
 
-    clearNativeSelection();
-      pendingDrag={
+    pendingDrag={
       el:el,
       startX:event.clientX,
       startY:event.clientY,
@@ -837,14 +821,9 @@ export function renderEditablePreview(
     if(activeResize){
       save(activeResize.el);
       activeResize=null;
-      hideGuides();
     }
 
     if(pendingDrag){
-      if(!pendingDrag.active && pendingDrag.el){
-        select(pendingDrag.el);
-        updateTools();
-      }
       if(pendingDrag.active){
         pendingDrag.el.removeAttribute('data-pn-dragging');
         document.body.classList.remove('pn-is-dragging');
