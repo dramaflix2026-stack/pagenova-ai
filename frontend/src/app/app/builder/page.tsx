@@ -1,12 +1,13 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject } from "@/lib/site-builder";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
+import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 
 type Phase = "idle" | "generating" | "ready" | "error";
 
@@ -38,6 +39,7 @@ export default function BuilderPage() {
   const [instruction, setInstruction] = useState("");
   const [revisionImage, setRevisionImage] = useState("");
   const [revisionImageError, setRevisionImageError] = useState("");
+  const [viewport, setViewport] = useState<"desktop" | "tablet" | "celular">("desktop");
 
   async function prepareRevisionImage(file: File) {
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
@@ -86,13 +88,28 @@ export default function BuilderPage() {
 
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
-      if (event.source !== previewRef.current?.contentWindow || event.data?.type !== "pagenova-site-preview-page") return;
+      if (event.source !== previewRef.current?.contentWindow) return;
+      if (event.data?.type === "pagenova-live-edit") {
+        const key = event.data.key as SitePageKey;
+        const edit = event.data.edit as LiveEdit;
+        if (!project || key !== activePage || !project.pages[key] || typeof edit?.selector !== "string" ||
+          edit.selector.length > 500 || typeof edit.text !== "string" || edit.text.length > 2000 ||
+          !Number.isFinite(edit.size) || edit.size < 10 || edit.size > 120 ||
+          !/^#[a-fA-F0-9]{6}$/.test(edit.color)) return;
+        const current = project.liveEdits?.[key] || [];
+        const updated = { ...project, liveEdits: { ...project.liveEdits,
+          [key]: [...current.filter((item) => item.selector !== edit.selector), edit].slice(-100) } };
+        setProject(updated);
+        void savePageNovaProject(updated.id, updated).catch(() => setError("Não foi possível salvar a edição."));
+        return;
+      }
+      if (event.data?.type !== "pagenova-site-preview-page") return;
       const key = event.data.key as SitePageKey;
       if (SITE_PAGES.some((item) => item.key === key) && project?.pages[key]) setActivePage(key);
     }
     window.addEventListener("message", handlePreviewNavigation);
     return () => window.removeEventListener("message", handlePreviewNavigation);
-  }, [project]);
+  }, [project, activePage]);
 
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get("project");
@@ -121,7 +138,7 @@ export default function BuilderPage() {
           process: site.institutional?.process || "",
           proof: site.institutional?.proof || "",
         } : undefined,
-        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]) : "" }),
+        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
@@ -165,7 +182,7 @@ export default function BuilderPage() {
             setProject(current);
           } catch (imageError) {
             if ((imageError as Error).name === "AbortError") return;
-            console.warn("[Builder] Imagem indisponÃ­vel; conteÃºdo preservado", imageError);
+            console.warn("[Builder] Imagem indisponível; conteúdo preservado", imageError);
           }
         }
       } catch (cause) {
@@ -195,11 +212,11 @@ export default function BuilderPage() {
 
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!project || !instruction.trim() || phase === "generating") return;
+    if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
-      const page = await requestPage(project, activePage, instruction.trim(), revisionImage);
-      const updated = { ...project, pages: { ...project.pages, [activePage]: page } };
+      const page = await requestPage(project, activePage, instruction.trim() || "Analise o print e melhore esta página mantendo os dados reais.", revisionImage);
+      const updated = { ...project, pages: { ...project.pages, [activePage]: page }, liveEdits: { ...project.liveEdits, [activePage]: [] } };
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");
     } catch (cause) {
@@ -207,7 +224,18 @@ export default function BuilderPage() {
     } finally { setCurrentStep(null); }
   }
 
-  const preview = project ? renderSitePreview(project, activePage) : "";
+  const preview = useMemo(() => project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : "",
+    // Text edits already update the current iframe; regenerate only on page or theme changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [project?.pages[activePage], project?.previewTheme, activePage]);
+
+  async function changeTheme(theme: PreviewTheme) {
+    if (!project) return;
+    const updated = { ...project, previewTheme: theme };
+    setProject(updated);
+    try { await savePageNovaProject(updated.id, updated); }
+    catch { setError("Não foi possível salvar o tema."); }
+  }
 
   return <>
     <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
@@ -265,12 +293,16 @@ export default function BuilderPage() {
               <button type="button" onClick={() => setRevisionImage("")} className="mt-2 text-xs text-emerald-300">Remover print</button>
             </div>}
             {revisionImageError && <p role="alert" className="mt-2 text-xs text-red-300">{revisionImageError}</p>}
-            <button disabled={!project.pages[activePage] || phase === "generating" || !instruction.trim()} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">Enviar pedido e print para a IA</button>
+            <button disabled={!project.pages[activePage] || phase === "generating" || (!instruction.trim() && !revisionImage)} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">Enviar pedido e print para a IA</button>
           </form>
           <p className="text-xs text-white/35">Projeto salvo neste navegador. A publicação e o domínio serão adicionados em uma próxima etapa.</p>
         </aside>
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#191923]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Prévia ao vivo</span></div>
-          {preview ? <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading} title={`Prévia de ${activePage}`} sandbox="allow-scripts" srcDoc={preview} className="h-[720px] w-full bg-white" /> : <div className="flex h-[720px] items-center justify-center text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
+        <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#191923]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
+            <label className="text-xs text-white/70">Tema <select aria-label="Tema do site" value={project.previewTheme || "original"} onChange={(e) => void changeTheme(e.target.value as PreviewTheme)} className="ml-2 rounded-lg bg-white/10 p-2 text-white"><option className="text-black" value="original">Original</option><option className="text-black" value="claro">Claro</option><option className="text-black" value="escuro">Escuro</option><option className="text-black" value="areia">Areia</option></select></label>
+            <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
+          </div>
+          {preview ? <div className="overflow-auto bg-[#303630] p-3"><iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts" srcDoc={preview} style={{ width: viewport === "desktop" ? "100%" : viewport === "tablet" ? 768 : 390, maxWidth: "100%" }} className="mx-auto block h-[720px] bg-white" /></div> : <div className="flex h-[720px] items-center justify-center text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
         </section>
       </div>}
     </main>
