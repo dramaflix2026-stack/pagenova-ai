@@ -430,61 +430,66 @@ export function renderEditablePreview(
   }
 
   function snapPosition(el,left,top){
-    const rect=el.getBoundingClientRect();
-    const width=rect.width;
-    const height=rect.height;
-    const threshold=7;
-    const guides=ensureGuides();
+    try{
+      const rect=el.getBoundingClientRect();
+      const width=rect.width;
+      const height=rect.height;
+      const threshold=7;
+      const guides=ensureGuides();
 
-    let bestX=null;
-    let bestY=null;
+      let bestX=null;
+      let bestY=null;
 
-    const currentX=[left,left+width/2,left+width];
-    const currentY=[top,top+height/2,top+height];
+      const currentX=[left,left+width/2,left+width];
+      const currentY=[top,top+height/2,top+height];
 
-    document.querySelectorAll(editableSelector).forEach(function(other){
-      if(!other || other===el || other.closest('#pn-edit-bar,#pn-edit-box') || other.offsetParent===null) return;
+      document.querySelectorAll(editableSelector).forEach(function(other){
+        if(!other || other===el || other.closest('#pn-edit-bar,#pn-edit-box') || other.offsetParent===null) return;
 
-      const r=other.getBoundingClientRect();
-      const ox=[r.left+scrollX,r.left+scrollX+r.width/2,r.left+scrollX+r.width];
-      const oy=[r.top+scrollY,r.top+scrollY+r.height/2,r.top+scrollY+r.height];
+        const r=other.getBoundingClientRect();
+        const ox=[r.left+scrollX,r.left+scrollX+r.width/2,r.left+scrollX+r.width];
+        const oy=[r.top+scrollY,r.top+scrollY+r.height/2,r.top+scrollY+r.height];
 
-      currentX.forEach(function(cx,index){
-        ox.forEach(function(target){
-          const diff=target-cx;
-          if(Math.abs(diff)<=threshold && (!bestX || Math.abs(diff)<Math.abs(bestX.diff))){
-            bestX={diff:diff,guide:target,index:index};
-          }
+        currentX.forEach(function(cx){
+          ox.forEach(function(target){
+            const diff=target-cx;
+            if(Math.abs(diff)<=threshold && (!bestX || Math.abs(diff)<Math.abs(bestX.diff))){
+              bestX={diff:diff,guide:target};
+            }
+          });
+        });
+
+        currentY.forEach(function(cy){
+          oy.forEach(function(target){
+            const diff=target-cy;
+            if(Math.abs(diff)<=threshold && (!bestY || Math.abs(diff)<Math.abs(bestY.diff))){
+              bestY={diff:diff,guide:target};
+            }
+          });
         });
       });
 
-      currentY.forEach(function(cy,index){
-        oy.forEach(function(target){
-          const diff=target-cy;
-          if(Math.abs(diff)<=threshold && (!bestY || Math.abs(diff)<Math.abs(bestY.diff))){
-            bestY={diff:diff,guide:target,index:index};
-          }
-        });
-      });
-    });
+      if(bestX){
+        left+=bestX.diff;
+        guides.y.style.left=px(bestX.guide-scrollX);
+        guides.y.dataset.open='true';
+      }else{
+        guides.y.dataset.open='false';
+      }
 
-    if(bestX){
-      left+=bestX.diff;
-      guides.y.style.left=px(bestX.guide-scrollX);
-      guides.y.dataset.open='true';
-    }else{
-      guides.y.dataset.open='false';
+      if(bestY){
+        top+=bestY.diff;
+        guides.x.style.top=px(bestY.guide-scrollY);
+        guides.x.dataset.open='true';
+      }else{
+        guides.x.dataset.open='false';
+      }
+
+      return {left:left,top:top};
+    }catch(error){
+      console.warn('PageNova align fallback:', error);
+      return {left:left,top:top};
     }
-
-    if(bestY){
-      top+=bestY.diff;
-      guides.x.style.top=px(bestY.guide-scrollY);
-      guides.x.dataset.open='true';
-    }else{
-      guides.x.dataset.open='false';
-    }
-
-    return {left:left,top:top};
   }
 
   function selectSectionFromCurrent(){
@@ -492,6 +497,23 @@ export function renderEditablePreview(
     if(!section) return;
     section.dataset.pnSection='true';
     select(section);
+  }
+  function safeSelect(el){
+    try{
+      if(!el || el.closest('#pn-edit-bar,#pn-edit-box,script,style')) return;
+      select(el);
+      updateTools();
+    }catch(error){
+      console.warn('PageNova editor select fallback:', error);
+    }
+  }
+
+  function safeClosest(target, selector){
+    try{
+      return target && target.closest ? target.closest(selector) : null;
+    }catch(error){
+      return null;
+    }
   }
   function clearSelection(){
     if(selected) selected.removeAttribute('data-pn-selected');
@@ -743,20 +765,21 @@ export function renderEditablePreview(
   },true);
 
   document.addEventListener('click',function(event){
-    if(event.target.closest('#pn-edit-bar,#pn-edit-box')) return;
+    if(safeClosest(event.target,'#pn-edit-bar,#pn-edit-box')) return;
 
-    const social=event.target.closest(socialSelector);
-    const divider=event.target.closest('[data-pn-divider=true]');
-    const text=event.target.closest(textSelector);
-    const card=event.target.closest(cardSelector);
-    const section=event.target.closest(sectionSelector);
+    const target=event.target;
+    const social=typeof socialSelector!=='undefined' ? safeClosest(target,socialSelector) : null;
+    const divider=safeClosest(target,'[data-pn-divider=true]');
+    const text=safeClosest(target,textSelector);
+    const card=safeClosest(target,cardSelector);
+    const section=typeof sectionSelector!=='undefined' ? safeClosest(target,sectionSelector) : null;
     const el=social || divider || text || card || section;
 
-    if(!el || el.closest('script,style')) return;
+    if(!el || safeClosest(el,'script,style')) return;
 
     event.preventDefault();
     event.stopPropagation();
-    select(el);
+    safeSelect(el);
   },true);
 
   document.addEventListener('pointerdown',function(event){
@@ -764,7 +787,7 @@ export function renderEditablePreview(
 
     const social=event.target.closest(socialSelector);
     const el=social || event.target.closest(editableSelector);
-    if(!el || el.closest('script,style,nav')) return;
+    if(!el || el.closest('script,style,nav:not(.social-links)')) return;
 
     clearNativeSelection();
     pendingDrag={
