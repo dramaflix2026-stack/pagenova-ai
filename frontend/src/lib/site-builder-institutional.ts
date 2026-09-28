@@ -520,7 +520,133 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     footer .social-links {
       grid-template-columns: repeat(2,minmax(0,1fr));
     }
-  }  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  }  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_START */
+
+  .pn-services article,
+  .pn-service-card,
+  .pn-method-step,
+  .pn-expanded article,
+  .pn-expanded .card,
+  section article {
+    position: relative !important;
+    min-height: 230px;
+    border-radius: 24px !important;
+    border: 1px solid rgba(37, 78, 57, .22) !important;
+    background:
+      linear-gradient(145deg, rgba(255,255,255,.98), rgba(243,246,239,.96)) !important;
+    box-shadow:
+      0 34px 70px rgba(22, 47, 34, .18),
+      0 12px 24px rgba(22, 47, 34, .10),
+      inset 0 1px 0 rgba(255,255,255,.95) !important;
+    transform: perspective(900px) translateZ(0);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease !important;
+    overflow: hidden !important;
+  }
+
+  .pn-services article::before,
+  .pn-service-card::before,
+  .pn-method-step::before,
+  .pn-expanded article::before,
+  section article::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 !important;
+    pointer-events: none !important;
+    background:
+      radial-gradient(circle at 18% 12%, rgba(16, 155, 92, .18), transparent 32%),
+      linear-gradient(135deg, rgba(255,255,255,.78), transparent 44%) !important;
+  }
+
+  .pn-services article:hover,
+  .pn-service-card:hover,
+  .pn-method-step:hover,
+  .pn-expanded article:hover,
+  section article:hover {
+    transform: perspective(900px) translateY(-10px) rotateX(2deg) rotateY(-2deg) !important;
+    border-color: rgba(18, 126, 78, .42) !important;
+    box-shadow:
+      0 44px 90px rgba(22, 47, 34, .24),
+      0 18px 34px rgba(22, 47, 34, .14),
+      inset 0 1px 0 rgba(255,255,255,1) !important;
+  }
+
+  .pn-services article h3,
+  .pn-service-card h3,
+  .pn-method-step h3,
+  .pn-expanded article h3,
+  section article h3 {
+    position: relative !important;
+    color: #12382d !important;
+    font-size: clamp(22px, 2vw, 30px) !important;
+    letter-spacing: -.04em !important;
+  }
+
+  .pn-services article p,
+  .pn-service-card p,
+  .pn-method-step p,
+  .pn-expanded article p,
+  section article p {
+    position: relative !important;
+    color: #5c6f62 !important;
+    font-size: 16px !important;
+    line-height: 1.75 !important;
+  }
+
+  footer {
+    margin-top: 0 !important;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(44, 169, 103, .22), transparent 30%),
+      linear-gradient(135deg, #102d24 0%, #071711 100%) !important;
+    color: rgba(255,255,255,.82) !important;
+    padding: 76px 0 30px !important;
+  }
+
+  footer .footer-grid {
+    display: grid !important;
+    grid-template-columns: 1.35fr 1fr .7fr !important;
+    gap: 46px !important;
+    align-items: start !important;
+    padding-bottom: 48px !important;
+  }
+
+  footer .brand {
+    color: #fff !important;
+    font-size: clamp(26px, 2.7vw, 40px) !important;
+    letter-spacing: -.05em !important;
+  }
+
+  footer p,
+  footer a {
+    color: rgba(255,255,255,.72) !important;
+  }
+
+  footer .social-links {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  footer .social-links a {
+    border: 1px solid rgba(255,255,255,.14) !important;
+    background: rgba(255,255,255,.07) !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    box-shadow: 0 14px 28px rgba(0,0,0,.14) !important;
+  }
+
+  footer .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,.13) !important;
+    padding-top: 22px !important;
+    color: rgba(255,255,255,.55) !important;
+  }
+
+  @media(max-width: 800px) {
+    footer .footer-grid {
+      grid-template-columns: 1fr !important;
+    }
+  }
+
+  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_END */  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
