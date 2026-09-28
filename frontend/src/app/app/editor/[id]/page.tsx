@@ -143,6 +143,22 @@ export default function EditorPage() {
 
   const [contextEditStatus, setContextEditStatus] =
     useState<string | null>(null);
+  // PAGENOVA_EDITOR_TEXT_BLOCKS_START
+  const [textBlockContent, setTextBlockContent] =
+    useState("Novo texto");
+
+  const [textFontSize, setTextFontSize] =
+    useState("28");
+
+  const [textFontFamily, setTextFontFamily] =
+    useState("Arial, sans-serif");
+
+  const [textColor, setTextColor] =
+    useState("#202020");
+
+  const [textAlign, setTextAlign] =
+    useState("left");
+  // PAGENOVA_EDITOR_TEXT_BLOCKS_END
 
   const handleEditorIframeLoad =
     useCallback(() => {
@@ -1133,6 +1149,69 @@ if (!project) {
         );
       }
     }, [project]);
+  // PAGENOVA_EDITOR_TEXT_COMMANDS_START
+  const sendEditorCommand =
+    useCallback((command: Record<string, unknown>) => {
+      editorIframeRef.current?.contentWindow?.postMessage(
+        {
+          type: "pagenova-editor-command",
+          ...command,
+        },
+        "*"
+      );
+    }, []);
+
+  const addFreeTextBlock =
+    useCallback(() => {
+      sendEditorCommand({
+        command: "add-text-block",
+        text: textBlockContent,
+        fontSize: Number(textFontSize) || 28,
+        fontFamily: textFontFamily,
+        color: textColor,
+        textAlign,
+      });
+    }, [
+      sendEditorCommand,
+      textBlockContent,
+      textFontSize,
+      textFontFamily,
+      textColor,
+      textAlign,
+    ]);
+
+  const applyTextStyleToSelected =
+    useCallback(() => {
+      sendEditorCommand({
+        command: "style-selected",
+        fontSize: Number(textFontSize) || 28,
+        fontFamily: textFontFamily,
+        color: textColor,
+        textAlign,
+      });
+    }, [
+      sendEditorCommand,
+      textFontSize,
+      textFontFamily,
+      textColor,
+      textAlign,
+    ]);
+
+  const enableSelectedTextDrag =
+    useCallback(() => {
+      sendEditorCommand({
+        command: "enable-selected-drag",
+      });
+    }, [sendEditorCommand]);
+
+  const setPreviewHeaderLayout =
+    useCallback((layout: "left" | "center" | "right") => {
+      sendEditorCommand({
+        command: "header-layout",
+        layout,
+      });
+    }, [sendEditorCommand]);
+  // PAGENOVA_EDITOR_TEXT_COMMANDS_END
   const [viewport, setViewport] =
     useState<Viewport>(
       "desktop"
@@ -1316,6 +1395,100 @@ if (!project) {
               </p>
             </div>
           </div>
+
+          {/* PAGENOVA_EDITOR_TEXT_PANEL_START */}
+          <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-400">
+              Logo e cabeçalho
+            </p>
+
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <button type="button" onClick={() => setPreviewHeaderLayout("left")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">
+                Esq.
+              </button>
+              <button type="button" onClick={() => setPreviewHeaderLayout("center")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">
+                Meio
+              </button>
+              <button type="button" onClick={() => setPreviewHeaderLayout("right")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">
+                Dir.
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-white/10 bg-black/20 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-400">
+              Texto livre
+            </p>
+
+            <textarea
+              value={textBlockContent}
+              onChange={(event) => setTextBlockContent(event.target.value)}
+              rows={3}
+              className="mt-3 w-full resize-y rounded-lg border border-zinc-800 bg-[#090909] px-3 py-2 text-xs text-white outline-none focus:border-emerald-500/60"
+            />
+
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                min={10}
+                max={140}
+                value={textFontSize}
+                onChange={(event) => setTextFontSize(event.target.value)}
+                className="rounded-lg border border-zinc-800 bg-[#090909] px-3 py-2 text-xs text-white outline-none focus:border-emerald-500/60"
+              />
+
+              <input
+                type="color"
+                value={textColor}
+                onChange={(event) => setTextColor(event.target.value)}
+                className="h-9 w-full rounded-lg border border-zinc-800 bg-[#090909] px-2"
+              />
+            </div>
+
+            <select
+              value={textFontFamily}
+              onChange={(event) => setTextFontFamily(event.target.value)}
+              className="mt-2 w-full rounded-lg border border-zinc-800 bg-[#090909] px-3 py-2 text-xs text-white outline-none focus:border-emerald-500/60"
+            >
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Inter, system-ui, sans-serif">Inter / Moderna</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'Times New Roman', serif">Times</option>
+              <option value="'Montserrat', Arial, sans-serif">Montserrat</option>
+              <option value="'Poppins', Arial, sans-serif">Poppins</option>
+            </select>
+
+            <div className="mt-2 grid grid-cols-3 gap-2">
+              <button type="button" onClick={() => setTextAlign("left")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">Esq.</button>
+              <button type="button" onClick={() => setTextAlign("center")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">Meio</button>
+              <button type="button" onClick={() => setTextAlign("right")} className="rounded-lg border border-white/10 px-2 py-2 text-xs text-zinc-300 hover:bg-white/5">Dir.</button>
+            </div>
+
+            <button
+              type="button"
+              onClick={addFreeTextBlock}
+              className="mt-3 w-full rounded-lg bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-black transition hover:bg-emerald-300"
+            >
+              Adicionar bloco
+            </button>
+
+            <button
+              type="button"
+              onClick={applyTextStyleToSelected}
+              className="mt-2 w-full rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-4 py-2.5 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-400/15"
+            >
+              Aplicar no selecionado
+            </button>
+
+            <button
+              type="button"
+              onClick={enableSelectedTextDrag}
+              className="mt-2 w-full rounded-lg border border-white/10 px-4 py-2.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/5"
+            >
+              Liberar arraste
+            </button>
+          </div>
+          {/* PAGENOVA_EDITOR_TEXT_PANEL_END */}
         </aside>
 
         <section className="min-w-0 flex-1 overflow-auto bg-[#1a1a1a] p-4 md:p-6">

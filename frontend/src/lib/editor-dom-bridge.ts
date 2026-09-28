@@ -171,6 +171,17 @@ export function installEditorDomBridge(
       outline: 3px solid #22c55e !important;
       outline-offset: 2px !important;
     }
+    [data-pagenova-free-text="true"],
+    [data-pagenova-movable-text="true"] {
+      position: absolute !important;
+      z-index: 80 !important;
+      min-width: 90px !important;
+      min-height: 32px !important;
+      resize: both !important;
+      overflow: auto !important;
+      cursor: move !important;
+      box-sizing: border-box !important;
+    }
   `;
 
   document.head.appendChild(style);
@@ -182,6 +193,322 @@ export function installEditorDomBridge(
   let selected:
     | HTMLElement
     | null = null;
+  // PAGENOVA_EDITOR_DRAG_TEXT_START
+  const publishSelection = (
+    target: HTMLElement
+  ) => {
+    clearHover();
+
+    if (selected && selected !== target) {
+      selected.removeAttribute(
+        "data-lp-editor-selected"
+      );
+    }
+
+    selected = target;
+
+    selected.setAttribute(
+      "data-lp-editor-selected",
+      "true"
+    );
+
+    const anchor =
+      target.closest("a");
+
+    const image =
+      target.tagName.toLowerCase() === "img"
+        ? target
+        : target.querySelector("img");
+
+    (document as Document & {
+      __lpStudioSelectedElement?: HTMLElement;
+    }).__lpStudioSelectedElement = target;
+
+    onSelect({
+      tagName: target.tagName.toLowerCase(),
+      text: normalizeText(target.innerText || target.textContent),
+      href: anchor?.getAttribute("href") || "",
+      src: image?.getAttribute("src") || "",
+      id: target.id || "",
+      className: typeof target.className === "string" ? target.className : "",
+      selector: createSelector(target),
+    });
+  };
+
+  const makeMovableText = (
+    target: HTMLElement
+  ) => {
+    const tag = target.tagName.toLowerCase();
+
+    if (["html", "body", "head", "script", "style", "img", "svg", "path"].includes(tag)) {
+      return;
+    }
+
+    const rect = target.getBoundingClientRect();
+
+    target.setAttribute(
+      "data-pagenova-movable-text",
+      "true"
+    );
+
+    target.style.setProperty("position", "absolute", "important");
+    target.style.setProperty("left", `${frameWindow.scrollX + rect.left}px`, "important");
+    target.style.setProperty("top", `${frameWindow.scrollY + rect.top}px`, "important");
+    target.style.setProperty("width", `${Math.max(90, rect.width)}px`, "important");
+    target.style.setProperty("min-height", `${Math.max(32, rect.height)}px`, "important");
+    target.style.setProperty("z-index", "80", "important");
+    target.style.setProperty("resize", "both", "important");
+    target.style.setProperty("overflow", "auto", "important");
+    target.style.setProperty("cursor", "move", "important");
+
+    publishSelection(target);
+  };
+
+  let dragState:
+    | {
+        element: HTMLElement;
+        startX: number;
+        startY: number;
+        left: number;
+        top: number;
+      }
+    | null = null;
+
+  const handleTextPointerDown = (
+    event: PointerEvent
+  ) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    if (!isHtmlElement(event.target)) {
+      return;
+    }
+
+    const candidate =
+      event.target.closest(
+        '[data-pagenova-free-text="true"],[data-pagenova-movable-text="true"]'
+      );
+
+    if (!candidate || !isHtmlElement(candidate)) {
+      return;
+    }
+
+    if (
+      event.target.closest(
+        '[contenteditable="true"],input,textarea,select,button'
+      )
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    publishSelection(candidate);
+
+    const left =
+      parseFloat(candidate.style.left || "0") ||
+      candidate.getBoundingClientRect().left + frameWindow.scrollX;
+
+    const top =
+      parseFloat(candidate.style.top || "0") ||
+      candidate.getBoundingClientRect().top + frameWindow.scrollY;
+
+    dragState = {
+      element: candidate,
+      startX: event.clientX,
+      startY: event.clientY,
+      left,
+      top,
+    };
+  };
+
+  const handleTextPointerMove = (
+    event: PointerEvent
+  ) => {
+    if (!dragState) {
+      return;
+    }
+
+    event.preventDefault();
+
+    dragState.element.style.setProperty(
+      "left",
+      `${dragState.left + event.clientX - dragState.startX}px`,
+      "important"
+    );
+
+    dragState.element.style.setProperty(
+      "top",
+      `${dragState.top + event.clientY - dragState.startY}px`,
+      "important"
+    );
+  };
+
+  const handleTextPointerUp = () => {
+    dragState = null;
+  };
+
+  const handleEditorCommand = (
+    event: MessageEvent
+  ) => {
+    const data = event.data as {
+      type?: string;
+      command?: string;
+      text?: string;
+      fontSize?: number;
+      fontFamily?: string;
+      color?: string;
+      textAlign?: string;
+      layout?: string;
+    };
+
+    if (!data || data.type !== "pagenova-editor-command") {
+      return;
+    }
+
+    if (data.command === "add-text-block") {
+      const block =
+        document.createElement("div");
+
+      block.textContent =
+        data.text || "Novo texto";
+
+      block.setAttribute(
+        "data-pagenova-free-text",
+        "true"
+      );
+
+      block.style.cssText = [
+        "position:absolute",
+        "left:80px",
+        "top:120px",
+        "width:320px",
+        "min-height:48px",
+        "z-index:80",
+        "padding:6px 8px",
+        "resize:both",
+        "overflow:auto",
+        "cursor:move",
+        "background:transparent",
+        "box-sizing:border-box",
+        `font-size:${Number(data.fontSize) || 28}px`,
+        `font-family:${data.fontFamily || "Arial, sans-serif"}`,
+        `color:${data.color || "#202020"}`,
+        `text-align:${data.textAlign || "left"}`,
+        "line-height:1.2",
+        "font-weight:700",
+      ].join(";");
+
+      document.body.appendChild(block);
+      publishSelection(block);
+      return;
+    }
+
+    if (data.command === "style-selected") {
+      const target =
+        selected ??
+        (document as Document & {
+          __lpStudioSelectedElement?: HTMLElement;
+        }).__lpStudioSelectedElement;
+
+      if (!target) {
+        return;
+      }
+
+      if (data.fontFamily) {
+        target.style.setProperty("font-family", data.fontFamily, "important");
+      }
+
+      if (data.fontSize) {
+        target.style.setProperty("font-size", `${Number(data.fontSize)}px`, "important");
+      }
+
+      if (data.color) {
+        target.style.setProperty("color", data.color, "important");
+      }
+
+      if (data.textAlign) {
+        target.style.setProperty("text-align", data.textAlign, "important");
+      }
+
+      publishSelection(target);
+      return;
+    }
+
+    if (data.command === "enable-selected-drag") {
+      const target =
+        selected ??
+        (document as Document & {
+          __lpStudioSelectedElement?: HTMLElement;
+        }).__lpStudioSelectedElement;
+
+      if (target) {
+        makeMovableText(target);
+      }
+
+      return;
+    }
+
+    if (data.command === "header-layout") {
+      const header =
+        document.querySelector<HTMLElement>("header");
+
+      if (!header) {
+        return;
+      }
+
+      const layout =
+        ["left", "center", "right"].includes(String(data.layout))
+          ? String(data.layout)
+          : "left";
+
+      header.classList.add("pn-site-header");
+      header.classList.remove("pn-header-left", "pn-header-center", "pn-header-right", "is-menu-open");
+      header.classList.add(`pn-header-${layout}`);
+
+      let nav =
+        header.querySelector<HTMLElement>("nav");
+
+      if (nav && !nav.id) {
+        nav.id = "pn-header-menu";
+      }
+
+      let button =
+        header.querySelector<HTMLButtonElement>(".pn-menu-toggle");
+
+      if (!button) {
+        button = document.createElement("button");
+        button.type = "button";
+        button.className = "pn-menu-toggle";
+        button.textContent = "Menu";
+        button.setAttribute("aria-expanded", "false");
+
+        const inner =
+          header.querySelector<HTMLElement>(".header-inner") ?? header;
+
+        inner.insertBefore(button, nav ?? null);
+      }
+
+      if (nav) {
+        button.setAttribute("aria-controls", nav.id || "pn-header-menu");
+      }
+
+      button.onclick = () => {
+        const open =
+          header.classList.toggle("is-menu-open");
+
+        button?.setAttribute(
+          "aria-expanded",
+          String(open)
+        );
+      };
+
+      publishSelection(header);
+    }
+  };
+  // PAGENOVA_EDITOR_DRAG_TEXT_END
 
   const clearHover = () => {
     if (hovered) {
@@ -559,7 +886,29 @@ onSelect({
       inlineEditingElement &&
       inlineEditingElement !== target
     ) {
-      finishInlineEditing(true);
+      frameWindow.removeEventListener(
+      "message",
+      handleEditorCommand
+    );
+
+    document.removeEventListener(
+      "pointerdown",
+      handleTextPointerDown,
+      true
+    );
+
+    document.removeEventListener(
+      "pointermove",
+      handleTextPointerMove,
+      true
+    );
+
+    document.removeEventListener(
+      "pointerup",
+      handleTextPointerUp,
+      true
+    );
+    finishInlineEditing(true);
     }
 
     if (
@@ -659,7 +1008,29 @@ onSelect({
       event.preventDefault();
       event.stopPropagation();
 
-      finishInlineEditing(true);
+      frameWindow.removeEventListener(
+      "message",
+      handleEditorCommand
+    );
+
+    document.removeEventListener(
+      "pointerdown",
+      handleTextPointerDown,
+      true
+    );
+
+    document.removeEventListener(
+      "pointermove",
+      handleTextPointerMove,
+      true
+    );
+
+    document.removeEventListener(
+      "pointerup",
+      handleTextPointerUp,
+      true
+    );
+    finishInlineEditing(true);
     }
   };
 
@@ -682,8 +1053,52 @@ onSelect({
       return;
     }
 
+    frameWindow.removeEventListener(
+      "message",
+      handleEditorCommand
+    );
+
+    document.removeEventListener(
+      "pointerdown",
+      handleTextPointerDown,
+      true
+    );
+
+    document.removeEventListener(
+      "pointermove",
+      handleTextPointerMove,
+      true
+    );
+
+    document.removeEventListener(
+      "pointerup",
+      handleTextPointerUp,
+      true
+    );
     finishInlineEditing(true);
   };
+frameWindow.addEventListener(
+    "message",
+    handleEditorCommand
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    handleTextPointerDown,
+    true
+  );
+
+  document.addEventListener(
+    "pointermove",
+    handleTextPointerMove,
+    true
+  );
+
+  document.addEventListener(
+    "pointerup",
+    handleTextPointerUp,
+    true
+  );
 document.addEventListener(
     "click",
     handleClick,
@@ -743,6 +1158,28 @@ document.addEventListener(
       true
     );
 
+    frameWindow.removeEventListener(
+      "message",
+      handleEditorCommand
+    );
+
+    document.removeEventListener(
+      "pointerdown",
+      handleTextPointerDown,
+      true
+    );
+
+    document.removeEventListener(
+      "pointermove",
+      handleTextPointerMove,
+      true
+    );
+
+    document.removeEventListener(
+      "pointerup",
+      handleTextPointerUp,
+      true
+    );
     finishInlineEditing(true);
 
     clearHover();

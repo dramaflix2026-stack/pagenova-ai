@@ -520,338 +520,231 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     footer .social-links {
       grid-template-columns: repeat(2,minmax(0,1fr));
     }
-  }    /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_START */
-
-  .pn-services article,
-  .pn-service-card,
-  .pn-method-step,
-  .pn-expanded article,
-  .pn-expanded .card {
-    position: relative !important;
-    border-radius: 20px !important;
-    border: 1px solid rgba(32, 52, 46, .12) !important;
-    background: linear-gradient(145deg, #ffffff 0%, #fbfaf6 100%) !important;
-    box-shadow:
-      0 22px 45px rgba(32, 52, 46, .10),
-      0 8px 18px rgba(32, 52, 46, .06),
-      inset 0 1px 0 rgba(255,255,255,.95) !important;
-    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease !important;
-    overflow: hidden !important;
+  }
+  /* PAGENOVAI_HEADER_TEXT_LOGO_CARDS_START */
+  header.pn-site-header .header-inner{
+    display:flex!important;
+    align-items:center!important;
+    gap:24px!important;
   }
 
-  .pn-services article:hover,
-  .pn-service-card:hover,
-  .pn-method-step:hover,
-  .pn-expanded article:hover,
-  .pn-expanded .card:hover {
-    transform: translateY(-6px) !important;
-    border-color: rgba(32, 52, 46, .20) !important;
-    box-shadow:
-      0 28px 58px rgba(32, 52, 46, .14),
-      0 12px 24px rgba(32, 52, 46, .08),
-      inset 0 1px 0 rgba(255,255,255,1) !important;
+  header.pn-site-header .brand,
+  footer .brand{
+    display:inline-block!important;
+    width:auto!important;
+    max-width:min(360px,70vw)!important;
+    margin:0!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:inherit!important;
+    font-size:clamp(15px,1.45vw,22px)!important;
+    font-weight:900!important;
+    line-height:1.05!important;
+    letter-spacing:.045em!important;
+    text-transform:uppercase!important;
+    text-wrap:balance!important;
   }
 
-  .pn-services article::before,
-  .pn-service-card::before,
-  .pn-method-step::before,
-  .pn-expanded article::before {
-    content: none !important;
+  header.pn-site-header .brand::before,
+  header.pn-site-header .brand::after,
+  footer .brand::before,
+  footer .brand::after{
+    content:none!important;
+    display:none!important;
   }
 
-  .pn-services article h3,
-  .pn-service-card h3,
-  .pn-method-step h3,
-  .pn-expanded article h3 {
-    color: #1d332b !important;
-    letter-spacing: -.035em !important;
+  header.pn-header-left .header-inner{justify-content:space-between!important}
+  header.pn-header-left .pn-menu-toggle{display:none!important}
+
+  header.pn-header-right .header-inner{
+    justify-content:space-between!important;
+    flex-direction:row-reverse!important;
+  }
+  header.pn-header-right .pn-menu-toggle{display:none!important}
+
+  header.pn-header-center .header-inner{
+    justify-content:center!important;
+    position:relative!important;
+  }
+  header.pn-header-center .brand{text-align:center!important}
+  header.pn-header-center .pn-menu-toggle{
+    position:absolute!important;
+    right:0!important;
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    min-height:40px!important;
+    padding:0 14px!important;
+    border:1px solid #d8ddd6!important;
+    border-radius:999px!important;
+    background:#fff!important;
+    color:#20251f!important;
+    font:800 12px/1 system-ui,sans-serif!important;
+    letter-spacing:.08em!important;
+    text-transform:uppercase!important;
+    cursor:pointer!important;
+  }
+  header.pn-header-center nav{
+    position:absolute!important;
+    top:calc(100% + 10px)!important;
+    right:0!important;
+    z-index:20!important;
+    display:none!important;
+    min-width:220px!important;
+    padding:12px!important;
+    border:1px solid #e3e5df!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    box-shadow:0 18px 42px rgba(20,25,22,.16)!important;
+  }
+  header.pn-header-center.is-menu-open nav{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:4px!important;
+  }
+  header.pn-header-center nav a{
+    padding:10px 12px!important;
+    border-radius:10px!important;
+  }
+  header.pn-header-center nav a:hover{
+    background:#f3f4ef!important;
+    color:#20251f!important;
   }
 
-  .pn-services article p,
-  .pn-service-card p,
-  .pn-method-step p,
-  .pn-expanded article p {
-    color: #617168 !important;
-    line-height: 1.7 !important;
+  .features{
+    align-items:stretch!important;
+  }
+  .feature{
+    position:relative!important;
+    min-height:220px!important;
+    padding:30px!important;
+    border:1px solid rgba(31,41,55,.12)!important;
+    border-radius:20px!important;
+    background:linear-gradient(145deg,#ffffff 0%,#f6f4ee 100%)!important;
+    box-shadow:0 18px 36px rgba(31,41,55,.10), inset 0 1px 0 rgba(255,255,255,.9)!important;
+    transform:perspective(900px) translateZ(0)!important;
+    transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease!important;
+  }
+  .feature:hover{
+    transform:perspective(900px) translateY(-5px) rotateX(1deg)!important;
+    border-color:rgba(31,41,55,.20)!important;
+    box-shadow:0 26px 54px rgba(31,41,55,.16), inset 0 1px 0 rgba(255,255,255,.95)!important;
+  }
+  .feature > span:first-child,
+  .feature .feature-number,
+  .feature .number{
+    display:inline-grid!important;
+    place-items:center!important;
+    width:42px!important;
+    height:42px!important;
+    margin:0 0 22px!important;
+    border-radius:12px!important;
+    background:#20251f!important;
+    color:#fff!important;
+    font-weight:900!important;
+    line-height:1!important;
+    box-shadow:0 10px 20px rgba(31,41,55,.18)!important;
+  }
+  .feature h3{
+    margin:0 0 12px!important;
+    line-height:1.15!important;
+  }
+  .feature p{
+    margin:0!important;
+    max-width:58ch!important;
+    line-height:1.65!important;
   }
 
-  footer {
-    background: #f3f1eb !important;
-    color: #20342e !important;
-    border-top: 1px solid #dedbd2 !important;
-    padding: 62px 0 26px !important;
+  footer{
+    background:#f3f1ea!important;
+    color:#20251f!important;
+    padding:54px 0 24px!important;
+  }
+  footer .footer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(240px,1.25fr) minmax(220px,.9fr) minmax(220px,.85fr)!important;
+    align-items:start!important;
+    gap:34px!important;
+    padding-bottom:34px!important;
+  }
+  footer .pn-footer-kicker{
+    display:block!important;
+    margin-bottom:12px!important;
+    color:#6d746c!important;
+    font-size:12px!important;
+    font-weight:800!important;
+    letter-spacing:.14em!important;
+    text-transform:uppercase!important;
+  }
+  footer .pn-footer-brand p,
+  footer .pn-footer-contact p{
+    margin-top:14px!important;
+    max-width:52ch!important;
+    color:#646b63!important;
+    line-height:1.65!important;
+  }
+  footer .pn-footer-contact > strong,
+  footer .footer-grid nav > strong{
+    display:block!important;
+    margin-bottom:14px!important;
+    color:#20251f!important;
+    font-size:13px!important;
+    font-weight:900!important;
+    letter-spacing:.08em!important;
+    text-transform:uppercase!important;
+  }
+  footer .footer-grid nav{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:8px!important;
+  }
+  footer a{
+    color:#40483f!important;
+  }
+  footer a:hover{
+    color:#111!important;
+  }
+  footer .footer-bottom{
+    display:flex!important;
+    justify-content:space-between!important;
+    gap:16px!important;
+    flex-wrap:wrap!important;
+    border-top:1px solid #d8d5cc!important;
+    padding-top:20px!important;
+    color:#6d746c!important;
   }
 
-  footer .footer-grid {
-    display: grid !important;
-    grid-template-columns: minmax(0,1.4fr) minmax(220px,1fr) minmax(150px,.6fr) !important;
-    gap: 44px !important;
-    align-items: start !important;
-    padding-bottom: 46px !important;
-  }
-
-  footer .brand {
-    display: block !important;
-    color: #20342e !important;
-    font-size: clamp(24px, 2.4vw, 34px) !important;
-    letter-spacing: -.045em !important;
-    margin-bottom: 12px !important;
-  }
-
-  footer p,
-  footer a {
-    color: #66736b !important;
-    line-height: 1.65 !important;
-  }
-
-  footer a:hover {
-    color: #20342e !important;
-  }
-
-  footer .social-links {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 10px !important;
-    margin-top: 16px !important;
-  }
-
-  footer .social-links a {
-    border: 1px solid #d7d4ca !important;
-    background: #fffdfa !important;
-    border-radius: 12px !important;
-    padding: 10px 13px !important;
-    box-shadow: 0 10px 22px rgba(32, 52, 46, .07) !important;
-  }
-
-  footer .footer-bottom {
-    border-top: 1px solid #d8d5cc !important;
-    padding-top: 20px !important;
-    color: #7b857e !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    gap: 12px !important;
-    flex-wrap: wrap !important;
-  }
-
-  @media(max-width: 800px) {
-    footer .footer-grid {
-      grid-template-columns: 1fr !important;
-      gap: 30px !important;
+  @media(max-width:650px){
+    header.pn-site-header .header-inner{
+      min-height:64px!important;
+      padding:14px 0!important;
+      flex-direction:row!important;
+    }
+    header.pn-header-center .pn-menu-toggle{
+      position:static!important;
+      margin-left:auto!important;
+    }
+    header.pn-header-center nav{
+      right:0!important;
+      left:auto!important;
+    }
+    footer .footer-grid{
+      grid-template-columns:1fr!important;
+      gap:28px!important;
+    }
+    .feature{
+      min-height:auto!important;
+      padding:24px!important;
+      border-radius:18px!important;
     }
   }
-
-  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_END */  /* PAGENOVAI_BRAND_LOGO_START */
-
-  header .brand,
-  .pn-header .brand,
-  .site-header .brand,
-  nav .brand {
-    position: relative !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 12px !important;
-    width: fit-content !important;
-    color: #172e27 !important;
-    font-family: Georgia, "Times New Roman", serif !important;
-    font-size: clamp(23px, 2.4vw, 34px) !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    letter-spacing: -.065em !important;
-    padding: 12px 16px 12px 14px !important;
-    border: 1px solid rgba(45, 52, 43, .14) !important;
-    border-radius: 999px !important;
-    background: linear-gradient(145deg, #fffdfa, #f5f1e8) !important;
-    box-shadow:
-      0 16px 34px rgba(32, 52, 46, .10),
-      inset 0 1px 0 rgba(255,255,255,.95) !important;
-    text-decoration: none !important;
-    white-space: nowrap !important;
-  }
-
-  header .brand::before,
-  .pn-header .brand::before,
-  .site-header .brand::before,
-  nav .brand::before {
-    content: "" !important;
-    width: 15px !important;
-    height: 15px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(145deg, #d7c19b, #f4ead3) !important;
-    box-shadow:
-      0 0 0 5px rgba(215,193,155,.18),
-      inset 0 1px 2px rgba(255,255,255,.7) !important;
-    flex: 0 0 auto !important;
-  }
-
-  header .brand::after,
-  .pn-header .brand::after,
-  .site-header .brand::after,
-  nav .brand::after {
-    content: "" !important;
-    position: absolute !important;
-    inset: 4px !important;
-    border-radius: 999px !important;
-    border: 1px solid rgba(255,255,255,.58) !important;
-    pointer-events: none !important;
-  }
-
-  footer .brand {
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    color: #172e27 !important;
-    font-family: Georgia, "Times New Roman", serif !important;
-    font-size: clamp(24px, 2.3vw, 34px) !important;
-    font-weight: 900 !important;
-    line-height: 1 !important;
-    letter-spacing: -.06em !important;
-    margin-bottom: 14px !important;
-  }
-
-  footer .brand::before {
-    content: "" !important;
-    width: 13px !important;
-    height: 13px !important;
-    border-radius: 50% !important;
-    background: linear-gradient(145deg, #d7c19b, #f4ead3) !important;
-    box-shadow: 0 0 0 5px rgba(215,193,155,.16) !important;
-    flex: 0 0 auto !important;
-  }
-
-  @media(max-width: 800px) {
-    header .brand,
-    .pn-header .brand,
-    .site-header .brand,
-    nav .brand {
-      font-size: 21px !important;
-      padding: 10px 13px !important;
-      max-width: 100% !important;
-      white-space: normal !important;
-    }
-  }
-
-  /* PAGENOVAI_BRAND_LOGO_END */  /* PAGENOVAI_CARD_OPTIMIZATION_START */
-
-  .pn-services article,
-  .pn-service-card,
-  .pn-method-step,
-  .pn-expanded article,
-  .pn-expanded .card {
-    min-height: auto !important;
-    padding: 28px 30px !important;
-    display: grid !important;
-    grid-template-columns: 44px minmax(0, 1fr) 24px !important;
-    column-gap: 18px !important;
-    row-gap: 10px !important;
-    align-items: start !important;
-    border-radius: 18px !important;
-    background: #fffefa !important;
-    border: 1px solid rgba(31, 54, 47, .12) !important;
-    box-shadow:
-      0 18px 38px rgba(31, 54, 47, .10),
-      0 6px 14px rgba(31, 54, 47, .05) !important;
-  }
-
-  .pn-services article:hover,
-  .pn-service-card:hover,
-  .pn-method-step:hover,
-  .pn-expanded article:hover,
-  .pn-expanded .card:hover {
-    transform: translateY(-4px) !important;
-    box-shadow:
-      0 24px 48px rgba(31, 54, 47, .13),
-      0 8px 18px rgba(31, 54, 47, .07) !important;
-  }
-
-  .pn-services article b,
-  .pn-service-card b,
-  .pn-method-step b,
-  .pn-expanded article b,
-  .pn-services article > span:first-child,
-  .pn-service-card > span:first-child,
-  .pn-method-step > span:first-child,
-  .pn-expanded article > span:first-child {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-    width: 34px !important;
-    height: 34px !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    border-radius: 999px !important;
-    background: #f0eee6 !important;
-    color: #17724e !important;
-    font-size: 13px !important;
-    font-weight: 900 !important;
-    letter-spacing: .02em !important;
-    margin: 0 !important;
-  }
-
-  .pn-services article h3,
-  .pn-service-card h3,
-  .pn-method-step h3,
-  .pn-expanded article h3 {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    margin: 0 !important;
-    color: #1a332b !important;
-    font-size: clamp(21px, 2vw, 27px) !important;
-    line-height: 1.12 !important;
-    letter-spacing: -.045em !important;
-  }
-
-  .pn-services article p,
-  .pn-service-card p,
-  .pn-method-step p,
-  .pn-expanded article p {
-    grid-column: 2 / 4 !important;
-    grid-row: 2 !important;
-    margin: 0 !important;
-    max-width: 62ch !important;
-    color: #64746b !important;
-    font-size: 15.5px !important;
-    line-height: 1.62 !important;
-  }
-
-  .pn-services article a,
-  .pn-service-card a,
-  .pn-method-step a,
-  .pn-expanded article a {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-    justify-self: end !important;
-    align-self: start !important;
-  }
-
-  @media(max-width: 700px) {
-    .pn-services article,
-    .pn-service-card,
-    .pn-method-step,
-    .pn-expanded article,
-    .pn-expanded .card {
-      padding: 24px 22px !important;
-      grid-template-columns: 38px minmax(0, 1fr) 20px !important;
-      column-gap: 14px !important;
-    }
-
-    .pn-services article h3,
-    .pn-service-card h3,
-    .pn-method-step h3,
-    .pn-expanded article h3 {
-      font-size: 22px !important;
-    }
-
-    .pn-services article p,
-    .pn-service-card p,
-    .pn-method-step p,
-    .pn-expanded article p {
-      font-size: 15px !important;
-      grid-column: 1 / 4 !important;
-      margin-top: 4px !important;
-    }
-  }
-
-  /* PAGENOVAI_CARD_OPTIMIZATION_END */  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  /* PAGENOVAI_HEADER_TEXT_LOGO_CARDS_END */
+  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="pn-site-header pn-header-left"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
@@ -861,5 +754,5 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   ` : ""}  ${pageKey === "home" ? (sensitive ? `<section class="trust-section"><div class="shell"><span class="kicker">Antes de começar</span><h2>Um primeiro passo com clareza.</h2><div class="trust-grid"><article><span>01</span><h3>Conheça a proposta</h3><p>Veja as informações sobre a atuação e os serviços apresentados.</p></article><article><span>02</span><h3>Esclareça suas dúvidas</h3><p>Use o contato para perguntar sobre o atendimento e os próximos passos.</p></article><article><span>03</span><h3>Converse diretamente</h3><p>Decida com tranquilidade se esta proposta faz sentido para você.</p></article></div></div></section>` : "") + renderExampleTestimonials() : ""}
   <section class="contact-section" id="entre-em-contato"><div class="shell contact-grid"><div class="contact-copy"><span class="kicker">Contato</span><h2>Vamos conversar?</h2><p>${esc(project.pages.contato?.introduction || "Conte um pouco sobre o que você procura. Vamos conversar sobre o próximo passo.")}</p><div class="contact-email">${contactEmail ? `<a href="mailto:${esc(contactEmail)}">✉ &nbsp; ${esc(contactEmail)}</a>` : "Informe o e-mail de contato no projeto para habilitar o formulário."}</div></div><form class="contact-form" id="institutional-contact"><h3>Envie sua mensagem</h3><div class="contact-fields"><label>Nome<input name="nome" autocomplete="name" required maxlength="100" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="150" placeholder="voce@email.com"></label><label class="full">Mensagem<textarea name="mensagem" required maxlength="2000" placeholder="Como podemos ajudar?"></textarea></label></div><button type="submit">Abrir e-mail para enviar ↗</button><p class="contact-status" id="institutional-contact-status">${contactEmail ? "Seu aplicativo de e-mail abrirá. Revise a mensagem e confirme o envio." : "Configure um e-mail de contato no projeto para receber mensagens."}</p></form></div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div class="pn-footer-brand"><span class="pn-footer-kicker">Fale com a gente</span><strong class="brand">${name}</strong><p>${esc(info?.role || "Conheça nossos serviços e converse com a equipe.")}</p></div><div class="pn-footer-contact"><strong>Canais de atendimento</strong>${socialLinks ? `<div class="social-links">${socialLinks}</div>` : `<p>Os canais de contato aparecerão aqui quando forem cadastrados.</p>`}</div><nav aria-label="Navegação do rodapé"><strong>Explore</strong>${links}</nav></div><div class="footer-bottom"><span>© ${new Date().getFullYear()} ${name}</span><span>Feito para apresentar o que você faz com clareza.</span></div></div></footer>
-  <script>const heroCarousel=document.getElementById("hero-carousel");if(heroCarousel){const slides=Array.from(heroCarousel.querySelectorAll("[data-hero-slide]"));const dots=Array.from(heroCarousel.querySelectorAll("[data-hero-index]"));let active=0;let timer;const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");function showSlide(index){active=(index+slides.length)%slides.length;slides.forEach((slide,i)=>{slide.hidden=i!==active});dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));const status=heroCarousel.querySelector(".hero-slide-status");if(status)status.textContent=(active+1)+" / "+slides.length}function stop(){if(timer)clearInterval(timer);timer=undefined}function start(){stop();if(slides.length>1&&!reduced.matches&&!document.hidden)timer=setInterval(()=>showSlide(active+1),7000)}heroCarousel.querySelector("[data-hero-prev]")?.addEventListener("click",()=>{showSlide(active-1);start()});heroCarousel.querySelector("[data-hero-next]")?.addEventListener("click",()=>{showSlide(active+1);start()});dots.forEach((dot,i)=>dot.addEventListener("click",()=>{showSlide(i);start()}));heroCarousel.addEventListener("mouseenter",stop);heroCarousel.addEventListener("mouseleave",start);heroCarousel.addEventListener("focusin",stop);heroCarousel.addEventListener("focusout",event=>{if(!heroCarousel.contains(event.relatedTarget))start()});document.addEventListener("visibilitychange",start);reduced.addEventListener?.("change",start);start()}const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Revise e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const toggle=event.target.closest(".example-toggle");if(toggle){const section=toggle.closest(".examples");const paused=section.classList.toggle("is-paused");toggle.setAttribute("aria-pressed",String(paused));toggle.textContent=paused?"Retomar animação":"Pausar animação";return}const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
+  <script>const heroCarousel=document.getElementById("hero-carousel");if(heroCarousel){const slides=Array.from(heroCarousel.querySelectorAll("[data-hero-slide]"));const dots=Array.from(heroCarousel.querySelectorAll("[data-hero-index]"));let active=0;let timer;const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");function showSlide(index){active=(index+slides.length)%slides.length;slides.forEach((slide,i)=>{slide.hidden=i!==active});dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));const status=heroCarousel.querySelector(".hero-slide-status");if(status)status.textContent=(active+1)+" / "+slides.length}function stop(){if(timer)clearInterval(timer);timer=undefined}function start(){stop();if(slides.length>1&&!reduced.matches&&!document.hidden)timer=setInterval(()=>showSlide(active+1),7000)}heroCarousel.querySelector("[data-hero-prev]")?.addEventListener("click",()=>{showSlide(active-1);start()});heroCarousel.querySelector("[data-hero-next]")?.addEventListener("click",()=>{showSlide(active+1);start()});dots.forEach((dot,i)=>dot.addEventListener("click",()=>{showSlide(i);start()}));heroCarousel.addEventListener("mouseenter",stop);heroCarousel.addEventListener("mouseleave",start);heroCarousel.addEventListener("focusin",stop);heroCarousel.addEventListener("focusout",event=>{if(!heroCarousel.contains(event.relatedTarget))start()});document.addEventListener("visibilitychange",start);reduced.addEventListener?.("change",start);start()}const pnHeader=document.querySelector(".pn-site-header");const pnMenuToggle=document.querySelector(".pn-menu-toggle");const pnMenu=document.getElementById("pn-header-menu");if(pnHeader&&pnMenuToggle&&pnMenu){pnMenuToggle.addEventListener("click",function(){const open=pnHeader.classList.toggle("is-menu-open");pnMenuToggle.setAttribute("aria-expanded",String(open))});document.addEventListener("click",function(event){if(!pnHeader.contains(event.target)){pnHeader.classList.remove("is-menu-open");pnMenuToggle.setAttribute("aria-expanded","false")}})}const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Revise e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const toggle=event.target.closest(".example-toggle");if(toggle){const section=toggle.closest(".examples");const paused=section.classList.toggle("is-paused");toggle.setAttribute("aria-pressed",String(paused));toggle.textContent=paused?"Retomar animação":"Pausar animação";return}const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
 }
