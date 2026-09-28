@@ -640,7 +640,97 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     }
   }
 
-  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_END */  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_END */  /* PAGENOVAI_BRAND_LOGO_START */
+
+  header .brand,
+  .pn-header .brand,
+  .site-header .brand,
+  nav .brand {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: fit-content !important;
+    color: #172e27 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: clamp(23px, 2.4vw, 34px) !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -.065em !important;
+    padding: 12px 16px 12px 14px !important;
+    border: 1px solid rgba(45, 52, 43, .14) !important;
+    border-radius: 999px !important;
+    background: linear-gradient(145deg, #fffdfa, #f5f1e8) !important;
+    box-shadow:
+      0 16px 34px rgba(32, 52, 46, .10),
+      inset 0 1px 0 rgba(255,255,255,.95) !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  header .brand::before,
+  .pn-header .brand::before,
+  .site-header .brand::before,
+  nav .brand::before {
+    content: "" !important;
+    width: 15px !important;
+    height: 15px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #d7c19b, #f4ead3) !important;
+    box-shadow:
+      0 0 0 5px rgba(215,193,155,.18),
+      inset 0 1px 2px rgba(255,255,255,.7) !important;
+    flex: 0 0 auto !important;
+  }
+
+  header .brand::after,
+  .pn-header .brand::after,
+  .site-header .brand::after,
+  nav .brand::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: 4px !important;
+    border-radius: 999px !important;
+    border: 1px solid rgba(255,255,255,.58) !important;
+    pointer-events: none !important;
+  }
+
+  footer .brand {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    color: #172e27 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: clamp(24px, 2.3vw, 34px) !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: -.06em !important;
+    margin-bottom: 14px !important;
+  }
+
+  footer .brand::before {
+    content: "" !important;
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(145deg, #d7c19b, #f4ead3) !important;
+    box-shadow: 0 0 0 5px rgba(215,193,155,.16) !important;
+    flex: 0 0 auto !important;
+  }
+
+  @media(max-width: 800px) {
+    header .brand,
+    .pn-header .brand,
+    .site-header .brand,
+    nav .brand {
+      font-size: 21px !important;
+      padding: 10px 13px !important;
+      max-width: 100% !important;
+      white-space: normal !important;
+    }
+  }
+
+  /* PAGENOVAI_BRAND_LOGO_END */  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
