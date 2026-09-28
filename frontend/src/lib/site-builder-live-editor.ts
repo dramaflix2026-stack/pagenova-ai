@@ -198,12 +198,16 @@ export function renderEditablePreview(
   const STATE=${safeState};
   const edits=Array.isArray(STATE.edits)?STATE.edits:[];
   const textSelector='h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,span,button,[data-pn-free-text=true]';
-  const cardSelector='article,section .card,[class*="card"],[class*="Card"],.service-card,.servico-card,.step-card,.process-card,.feature-card,.benefit-card,.metodo-card,.solution-card';
-  const editableSelector=textSelector+','+cardSelector+',[data-pn-divider=true]';
+  const cardSelector='';
+  const sectionSelector='section,.section,[class*="section"],[class*="Section"]';
+  const socialSelector='.social-links,[class*="social-links"],[class*="socialLinks"]';
+  const editableSelector=textSelector+','+cardSelector+','+sectionSelector+','+socialSelector+',[data-pn-divider=true]';
 
   let selected=null;
   let hovered=null;
-  let pendingDrag=null;
+  let document.body.classList.remove('pn-is-dragging');
+      hideGuides();
+      pendingDrag=null;
   let activeResize=null;
 
   function cssPath(el){
@@ -250,6 +254,7 @@ export function renderEditablePreview(
       '<button type="button" data-act="text">+ Texto</button>'+
       '<button type="button" data-act="line">+ Linha</button>'+
       '<button type="button" data-act="card">Card</button>'+
+      '<button type="button" data-act="section">Seção</button>'+
       '<button type="button" data-act="left">Logo Esq.</button>'+
       '<button type="button" data-act="center">Logo Meio</button>'+
       '<button type="button" data-act="right">Logo Dir.</button>'+
@@ -284,6 +289,7 @@ export function renderEditablePreview(
       if(action==='text') return addText();
       if(action==='line') return addDivider();
       if(action==='card') return selectCardFromCurrent();
+      if(action==='section') return selectSectionFromCurrent();
       if(action==='left' || action==='center' || action==='right') return setHeaderLayout(action);
       if(action==='ok') return clearSelection();
     });
@@ -314,7 +320,11 @@ export function renderEditablePreview(
       event.preventDefault();
       event.stopPropagation();
 
-      selected=ensureMovable(selected);
+      if(isSection(selected)){
+        selected.dataset.pnSection='true';
+      }else{
+        selected=ensureMovable(selected);
+      }
       const rect=selected.getBoundingClientRect();
 
       activeResize={
@@ -381,6 +391,112 @@ export function renderEditablePreview(
     hovered=null;
   }
 
+  function clearNativeSelection(){
+    const sel=window.getSelection&&window.getSelection();
+    if(sel) sel.removeAllRanges();
+  }
+
+  function ensureGuides(){
+    let gx=document.getElementById('pn-align-x');
+    let gy=document.getElementById('pn-align-y');
+
+    if(!gx){
+      gx=document.createElement('div');
+      gx.id='pn-align-x';
+      document.body.appendChild(gx);
+    }
+
+    if(!gy){
+      gy=document.createElement('div');
+      gy.id='pn-align-y';
+      document.body.appendChild(gy);
+    }
+
+    return {x:gx,y:gy};
+  }
+
+  function hideGuides(){
+    const guides=ensureGuides();
+    guides.x.dataset.open='false';
+    guides.y.dataset.open='false';
+  }
+
+  function isSection(el){
+    return !!(el && el.matches && el.matches(sectionSelector));
+  }
+
+  function isSocial(el){
+    return !!(el && el.matches && el.matches(socialSelector));
+  }
+
+  function snapPosition(el,left,top){
+    try{
+      const rect=el.getBoundingClientRect();
+      const width=rect.width;
+      const height=rect.height;
+      const threshold=7;
+      const guides=ensureGuides();
+      let bestX=null;
+      let bestY=null;
+
+      const currentX=[left,left+width/2,left+width];
+      const currentY=[top,top+height/2,top+height];
+
+      document.querySelectorAll(editableSelector).forEach(function(other){
+        if(!other || other===el || other.closest('#pn-edit-bar,#pn-edit-box') || other.offsetParent===null) return;
+
+        const r=other.getBoundingClientRect();
+        const ox=[r.left+scrollX,r.left+scrollX+r.width/2,r.left+scrollX+r.width];
+        const oy=[r.top+scrollY,r.top+scrollY+r.height/2,r.top+scrollY+r.height];
+
+        currentX.forEach(function(cx){
+          ox.forEach(function(target){
+            const diff=target-cx;
+            if(Math.abs(diff)<=threshold && (!bestX || Math.abs(diff)<Math.abs(bestX.diff))){
+              bestX={diff:diff,guide:target};
+            }
+          });
+        });
+
+        currentY.forEach(function(cy){
+          oy.forEach(function(target){
+            const diff=target-cy;
+            if(Math.abs(diff)<=threshold && (!bestY || Math.abs(diff)<Math.abs(bestY.diff))){
+              bestY={diff:diff,guide:target};
+            }
+          });
+        });
+      });
+
+      if(bestX){
+        left+=bestX.diff;
+        guides.y.style.left=px(bestX.guide-scrollX);
+        guides.y.dataset.open='true';
+      }else{
+        guides.y.dataset.open='false';
+      }
+
+      if(bestY){
+        top+=bestY.diff;
+        guides.x.style.top=px(bestY.guide-scrollY);
+        guides.x.dataset.open='true';
+      }else{
+        guides.x.dataset.open='false';
+      }
+
+      return {left:left,top:top};
+    }catch(error){
+      return {left:left,top:top};
+    }
+  }
+
+  function selectSectionFromCurrent(){
+    const base=selected || hovered;
+    const section=base && base.closest ? base.closest(sectionSelector) : null;
+    if(!section) return;
+    section.dataset.pnSection='true';
+    select(section);
+  }
   function clearSelection(){
     if(selected) selected.removeAttribute('data-pn-selected');
     selected=null;
@@ -443,6 +559,7 @@ export function renderEditablePreview(
     const rect=el.getBoundingClientRect();
     const st=getComputedStyle(el);
     const isDivider=el.dataset.pnDivider==='true';
+    const section=isSection(el);
     const source=el.dataset.pnSourceSelector || cssPath(el);
 
     const edit={
@@ -455,8 +572,8 @@ export function renderEditablePreview(
       y: Math.round(rect.top+scrollY),
       width: Math.round(rect.width),
       height: Math.round(rect.height),
-      movable: el.dataset.pnMovable==='true' || el.dataset.pnFreeText==='true' || el.dataset.pnGhost==='true' || isDivider,
-      kind: isDivider ? 'divider' : (el.matches(cardSelector) ? 'card' : 'text')
+      movable: !section && (el.dataset.pnMovable==='true' || el.dataset.pnFreeText==='true' || el.dataset.pnGhost==='true' || isDivider),
+      kind: isDivider ? 'divider' : (section ? 'section' : (isSocial(el) ? 'social' : (el.matches(cardSelector) ? 'card' : 'text')))
     };
 
     parent.postMessage({type:'pagenova-live-edit',key:KEY,edit:edit},'*');
@@ -590,6 +707,12 @@ export function renderEditablePreview(
     if(edit.size) el.style.setProperty('font-size',edit.size+'px','important');
     if(edit.color) el.style.setProperty('color',edit.color,'important');
 
+    if(edit.kind==='section'){
+      el.dataset.pnSection='true';
+      if(Number.isFinite(edit.height)) el.style.setProperty('min-height',Math.max(40,edit.height)+'px','important');
+      if(Number.isFinite(edit.height)) el.style.setProperty('height',Math.max(40,edit.height)+'px','important');
+    }
+
     if(edit.movable){
       el.dataset.pnMovable='true';
       el.style.setProperty('position','absolute','important');
@@ -609,7 +732,8 @@ export function renderEditablePreview(
 
   document.addEventListener('mouseover',function(event){
     if(event.target.closest('#pn-edit-bar,#pn-edit-box,script,style')) return;
-    const el=event.target.closest(editableSelector);
+    const social=event.target.closest(socialSelector);
+      const el=social || event.target.closest(editableSelector);
     if(!el || el.closest('nav')) return;
     if(hovered && hovered!==el) hovered.removeAttribute('data-pn-editable-hover');
     hovered=el;
@@ -625,10 +749,11 @@ export function renderEditablePreview(
   document.addEventListener('click',function(event){
     if(event.target.closest('#pn-edit-bar,#pn-edit-box')) return;
 
+    const social=event.target.closest(socialSelector);
     const text=event.target.closest(textSelector);
     const divider=event.target.closest('[data-pn-divider=true]');
     const card=event.target.closest(cardSelector);
-    const el=divider || text || card;
+    const el=social || divider || text || card;
 
     if(!el || el.closest('script,style')) return;
 
@@ -640,10 +765,13 @@ export function renderEditablePreview(
   document.addEventListener('pointerdown',function(event){
     if(event.target.closest('#pn-edit-bar,#pn-edit-box,input,textarea,select')) return;
 
-    const el=event.target.closest(editableSelector);
+    const social=event.target.closest(socialSelector);
+      const el=social || event.target.closest(editableSelector);
     if(!el || el.closest('script,style,nav')) return;
 
-    pendingDrag={
+    event.preventDefault();
+      clearNativeSelection();
+      pendingDrag={
       el:el,
       startX:event.clientX,
       startY:event.clientY,
@@ -694,11 +822,14 @@ export function renderEditablePreview(
       pendingDrag.left=rect.left+scrollX;
       pendingDrag.top=rect.top+scrollY;
       pendingDrag.active=true;
+      document.body.classList.add('pn-is-dragging');
+      clearNativeSelection();
       pendingDrag.el.dataset.pnDragging='true';
     }
 
-    pendingDrag.el.style.setProperty('left',px(pendingDrag.left+event.clientX-pendingDrag.startX),'important');
-    pendingDrag.el.style.setProperty('top',px(pendingDrag.top+event.clientY-pendingDrag.startY),'important');
+    const snapped=snapPosition(pendingDrag.el,pendingDrag.left+event.clientX-pendingDrag.startX,pendingDrag.top+event.clientY-pendingDrag.startY);
+    pendingDrag.el.style.setProperty('left',px(snapped.left),'important');
+    pendingDrag.el.style.setProperty('top',px(snapped.top),'important');
     updateTools();
   },true);
 
@@ -706,13 +837,19 @@ export function renderEditablePreview(
     if(activeResize){
       save(activeResize.el);
       activeResize=null;
+      hideGuides();
     }
 
     if(pendingDrag){
       if(pendingDrag.active){
         pendingDrag.el.removeAttribute('data-pn-dragging');
+        document.body.classList.remove('pn-is-dragging');
+        hideGuides();
+        clearNativeSelection();
         save(pendingDrag.el);
       }
+      document.body.classList.remove('pn-is-dragging');
+      hideGuides();
       pendingDrag=null;
     }
 
