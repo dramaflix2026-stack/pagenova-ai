@@ -769,8 +769,7 @@ export function renderEditablePreview(
       const el=social || event.target.closest(editableSelector);
     if(!el || el.closest('script,style,nav')) return;
 
-    event.preventDefault();
-      clearNativeSelection();
+    clearNativeSelection();
       pendingDrag={
       el:el,
       startX:event.clientX,
@@ -827,6 +826,7 @@ export function renderEditablePreview(
       pendingDrag.el.dataset.pnDragging='true';
     }
 
+    clearNativeSelection();
     const snapped=snapPosition(pendingDrag.el,pendingDrag.left+event.clientX-pendingDrag.startX,pendingDrag.top+event.clientY-pendingDrag.startY);
     pendingDrag.el.style.setProperty('left',px(snapped.left),'important');
     pendingDrag.el.style.setProperty('top',px(snapped.top),'important');
@@ -841,6 +841,10 @@ export function renderEditablePreview(
     }
 
     if(pendingDrag){
+      if(!pendingDrag.active && pendingDrag.el){
+        select(pendingDrag.el);
+        updateTools();
+      }
       if(pendingDrag.active){
         pendingDrag.el.removeAttribute('data-pn-dragging');
         document.body.classList.remove('pn-is-dragging');
