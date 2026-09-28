@@ -520,129 +520,123 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     footer .social-links {
       grid-template-columns: repeat(2,minmax(0,1fr));
     }
-  }  /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_START */
+  }    /* PAGENOVAI_FORCE_3D_CARDS_FOOTER_START */
 
   .pn-services article,
   .pn-service-card,
   .pn-method-step,
   .pn-expanded article,
-  .pn-expanded .card,
-  section article {
+  .pn-expanded .card {
     position: relative !important;
-    min-height: 230px;
-    border-radius: 24px !important;
-    border: 1px solid rgba(37, 78, 57, .22) !important;
-    background:
-      linear-gradient(145deg, rgba(255,255,255,.98), rgba(243,246,239,.96)) !important;
+    border-radius: 20px !important;
+    border: 1px solid rgba(32, 52, 46, .12) !important;
+    background: linear-gradient(145deg, #ffffff 0%, #fbfaf6 100%) !important;
     box-shadow:
-      0 34px 70px rgba(22, 47, 34, .18),
-      0 12px 24px rgba(22, 47, 34, .10),
+      0 22px 45px rgba(32, 52, 46, .10),
+      0 8px 18px rgba(32, 52, 46, .06),
       inset 0 1px 0 rgba(255,255,255,.95) !important;
-    transform: perspective(900px) translateZ(0);
-    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease !important;
+    transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease !important;
     overflow: hidden !important;
-  }
-
-  .pn-services article::before,
-  .pn-service-card::before,
-  .pn-method-step::before,
-  .pn-expanded article::before,
-  section article::before {
-    content: "" !important;
-    position: absolute !important;
-    inset: 0 !important;
-    pointer-events: none !important;
-    background:
-      radial-gradient(circle at 18% 12%, rgba(16, 155, 92, .18), transparent 32%),
-      linear-gradient(135deg, rgba(255,255,255,.78), transparent 44%) !important;
   }
 
   .pn-services article:hover,
   .pn-service-card:hover,
   .pn-method-step:hover,
   .pn-expanded article:hover,
-  section article:hover {
-    transform: perspective(900px) translateY(-10px) rotateX(2deg) rotateY(-2deg) !important;
-    border-color: rgba(18, 126, 78, .42) !important;
+  .pn-expanded .card:hover {
+    transform: translateY(-6px) !important;
+    border-color: rgba(32, 52, 46, .20) !important;
     box-shadow:
-      0 44px 90px rgba(22, 47, 34, .24),
-      0 18px 34px rgba(22, 47, 34, .14),
+      0 28px 58px rgba(32, 52, 46, .14),
+      0 12px 24px rgba(32, 52, 46, .08),
       inset 0 1px 0 rgba(255,255,255,1) !important;
+  }
+
+  .pn-services article::before,
+  .pn-service-card::before,
+  .pn-method-step::before,
+  .pn-expanded article::before {
+    content: none !important;
   }
 
   .pn-services article h3,
   .pn-service-card h3,
   .pn-method-step h3,
-  .pn-expanded article h3,
-  section article h3 {
-    position: relative !important;
-    color: #12382d !important;
-    font-size: clamp(22px, 2vw, 30px) !important;
-    letter-spacing: -.04em !important;
+  .pn-expanded article h3 {
+    color: #1d332b !important;
+    letter-spacing: -.035em !important;
   }
 
   .pn-services article p,
   .pn-service-card p,
   .pn-method-step p,
-  .pn-expanded article p,
-  section article p {
-    position: relative !important;
-    color: #5c6f62 !important;
-    font-size: 16px !important;
-    line-height: 1.75 !important;
+  .pn-expanded article p {
+    color: #617168 !important;
+    line-height: 1.7 !important;
   }
 
   footer {
-    margin-top: 0 !important;
-    background:
-      radial-gradient(circle at 12% 0%, rgba(44, 169, 103, .22), transparent 30%),
-      linear-gradient(135deg, #102d24 0%, #071711 100%) !important;
-    color: rgba(255,255,255,.82) !important;
-    padding: 76px 0 30px !important;
+    background: #f3f1eb !important;
+    color: #20342e !important;
+    border-top: 1px solid #dedbd2 !important;
+    padding: 62px 0 26px !important;
   }
 
   footer .footer-grid {
     display: grid !important;
-    grid-template-columns: 1.35fr 1fr .7fr !important;
-    gap: 46px !important;
+    grid-template-columns: minmax(0,1.4fr) minmax(220px,1fr) minmax(150px,.6fr) !important;
+    gap: 44px !important;
     align-items: start !important;
-    padding-bottom: 48px !important;
+    padding-bottom: 46px !important;
   }
 
   footer .brand {
-    color: #fff !important;
-    font-size: clamp(26px, 2.7vw, 40px) !important;
-    letter-spacing: -.05em !important;
+    display: block !important;
+    color: #20342e !important;
+    font-size: clamp(24px, 2.4vw, 34px) !important;
+    letter-spacing: -.045em !important;
+    margin-bottom: 12px !important;
   }
 
   footer p,
   footer a {
-    color: rgba(255,255,255,.72) !important;
+    color: #66736b !important;
+    line-height: 1.65 !important;
+  }
+
+  footer a:hover {
+    color: #20342e !important;
   }
 
   footer .social-links {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
     gap: 10px !important;
+    margin-top: 16px !important;
   }
 
   footer .social-links a {
-    border: 1px solid rgba(255,255,255,.14) !important;
-    background: rgba(255,255,255,.07) !important;
+    border: 1px solid #d7d4ca !important;
+    background: #fffdfa !important;
     border-radius: 12px !important;
-    padding: 12px 14px !important;
-    box-shadow: 0 14px 28px rgba(0,0,0,.14) !important;
+    padding: 10px 13px !important;
+    box-shadow: 0 10px 22px rgba(32, 52, 46, .07) !important;
   }
 
   footer .footer-bottom {
-    border-top: 1px solid rgba(255,255,255,.13) !important;
-    padding-top: 22px !important;
-    color: rgba(255,255,255,.55) !important;
+    border-top: 1px solid #d8d5cc !important;
+    padding-top: 20px !important;
+    color: #7b857e !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
   }
 
   @media(max-width: 800px) {
     footer .footer-grid {
       grid-template-columns: 1fr !important;
+      gap: 30px !important;
     }
   }
 
