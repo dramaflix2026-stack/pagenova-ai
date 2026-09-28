@@ -37,7 +37,38 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const secondLead = info?.process || (sensitive ? "Tire suas dúvidas sobre a proposta de atendimento e entenda os próximos passos antes de decidir." : "Conte o que você precisa e descubra como podemos ajudar.");
   const proof = info?.proof ? `<p class="fact">${esc(info.proof)}</p>` : "";
   const audience = info?.audience ? `<p class="audience">Para ${esc(info.audience)}</p>` : "";
-  const contactEmail = project.contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(project.contactEmail) ? project.contactEmail : "";
+  const legal = /advog|jur[ií]d|escrit[oó]rio de advocacia|direito/i.test(`${project.name} ${project.brief}`);
+  const offerList = (info?.offer || "")
+    .split(/[;,\n]+/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+  const detailItems = page.sections.slice(0, 4).map(({ title, body }, index) =>
+    `<article class="pn-area-row"><span class="pn-area-index">${String(index + 1).padStart(2, "0")}</span><div><h3>${esc(title)}</h3><p>${esc(body)}</p></div><span class="pn-area-arrow" aria-hidden="true">↗</span></article>`
+  ).join("");
+  const processText = info?.process?.trim() || "";
+  const aboutText = project.pages.sobre?.introduction || page.introduction;
+  const faqItems = [
+    {
+      question: legal ? "Quais áreas são atendidas?" : "Quais serviços são oferecidos?",
+      answer: offerList.length
+        ? `As opções informadas são: ${offerList.join(", ")}. Entre em contato para explicar sua necessidade.`
+        : "Entre em contato para confirmar os serviços disponíveis para sua necessidade.",
+    },
+    {
+      question: "Como funciona o primeiro contato?",
+      answer: processText || "Envie uma mensagem com o que você procura. A equipe poderá explicar os próximos passos diretamente.",
+    },
+    {
+      question: legal ? "O atendimento garante algum resultado?" : "Como posso saber se o serviço atende ao meu caso?",
+      answer: legal
+        ? "Cada situação exige análise individual. A apresentação do site não constitui promessa de resultado."
+        : "Descreva sua necessidade no formulário para receber orientações sobre as opções disponíveis.",
+    },
+  ];
+  const faq = faqItems.map(({ question, answer }) =>
+    `<details class="pn-faq-item"><summary>${esc(question)}<span aria-hidden="true">+</span></summary><p>${esc(answer)}</p></details>`
+  ).join("");  const contactEmail = project.contactEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(project.contactEmail) ? project.contactEmail : "";
   const contactEmailJson = JSON.stringify(contactEmail).replace(/</g, "\\u003c");
   const contactSubjectJson = JSON.stringify(`Contato pelo site — ${project.name}`).replace(/</g, "\\u003c");
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -154,11 +185,87 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   .theme-areia footer{background:#e6dbcc;color:#372d27}
   @media(max-width:900px){.features,.features.features-four{grid-template-columns:repeat(2,minmax(0,1fr))}.theme-claro .hero:not(.personal) .hero-content{max-width:65%}}
   @media(max-width:650px){.hero-carousel .hero:not(.personal),.hero:not(.personal) .hero-inner{min-height:620px}.hero:not(.personal) .hero-inner{padding-top:80px;padding-bottom:100px}.hero h1{font-size:clamp(36px,9vw,50px)}.features,.features.features-four{grid-template-columns:1fr}.feature,.features-four .feature{min-height:0;padding:27px}.theme-claro .hero:not(.personal) .hero-media{inset:0}.theme-claro .hero:not(.personal){color:#fff}.theme-claro .hero:not(.personal) .hero-media:after{background:linear-gradient(0deg,#183c34ed,#1d453dbb)}.theme-claro .hero:not(.personal) .hero-content{max-width:100%}.theme-claro .hero:not(.personal) .hero-lead,.theme-claro .hero:not(.personal) .eyebrow,.theme-claro .hero:not(.personal) .text-link{color:#f3fbf4}}
-  </style></head><body class="theme-${theme}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
+  /* PAGENOVA_EXPANDED_INSTITUTIONAL_V1 */
+  .pn-expanded{background:#f7f8f4;color:#183b32}
+  .pn-expanded .shell{width:min(1240px,100% - 56px)}
+  .pn-eyebrow{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#288255}
+  .pn-intro-section{padding:115px 0 105px;border-top:1px solid #e3e9df}
+  .pn-intro-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(45px,7vw,110px);align-items:start}
+  .pn-intro-copy{position:sticky;top:35px}
+  .pn-intro-copy h2{font-size:clamp(39px,4.7vw,66px);line-height:1.08;max-width:12ch;margin:20px 0 25px;letter-spacing:-.055em}
+  .pn-intro-copy p{font-size:17px;line-height:1.75;color:#5a7063;max-width:43ch}
+  .pn-intro-copy .pn-small-line{display:block;width:75px;height:2px;background:#4caa70;margin-top:35px}
+  .pn-area-list{border-top:1px solid #cbd8ce}
+  .pn-area-row{display:grid;grid-template-columns:42px minmax(0,1fr) 24px;gap:18px;padding:28px 4px;border-bottom:1px solid #cbd8ce;transition:padding .25s ease,background .25s ease}
+  .pn-area-row:hover{padding-left:16px;background:#edf3ed}
+  .pn-area-index,.pn-area-arrow{color:#218054;font-weight:800;font-size:13px}
+  .pn-area-row h3{font-size:clamp(23px,2.1vw,32px);margin:0 0 12px;line-height:1.2}
+  .pn-area-row p{font-size:15px;line-height:1.65;color:#5c7064;margin:0;max-width:57ch}
+  .pn-method{background:#143a30;color:#f5f8f2;padding:110px 0;position:relative;overflow:hidden}
+  .pn-method:before{content:"";position:absolute;width:500px;height:500px;border:1px solid #ffffff19;border-radius:50%;right:-130px;top:-160px;box-shadow:0 0 0 85px #ffffff06,0 0 0 175px #ffffff04;pointer-events:none}
+  .pn-method-head{display:flex;justify-content:space-between;align-items:end;gap:40px;margin-bottom:48px;position:relative}
+  .pn-method-head h2{font-size:clamp(39px,4.6vw,65px);line-height:1.08;max-width:13ch;margin:15px 0 0}
+  .pn-method-head p{color:#c4dacf;font-size:17px;line-height:1.7;max-width:42ch}
+  .pn-method .pn-eyebrow{color:#9ed6ad}
+  .pn-method-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;position:relative}
+  .pn-method-step{min-height:265px;border:1px solid #ffffff2a;background:#ffffff0c;border-radius:15px;padding:30px;display:flex;flex-direction:column}
+  .pn-method-step b{color:#a3ddb2;font-size:12px;letter-spacing:.12em}
+  .pn-method-step h3{font-size:clamp(23px,2vw,30px);margin:auto 0 14px}
+  .pn-method-step p{font-size:14px;line-height:1.7;color:#d2e3d8;margin:0}
+  .pn-faq{padding:110px 0;background:#f2f4ef}
+  .pn-faq-grid{display:grid;grid-template-columns:minmax(0,.75fr) minmax(0,1.25fr);gap:clamp(35px,7vw,105px)}
+  .pn-faq h2{font-size:clamp(38px,4.2vw,58px);line-height:1.1;margin:18px 0 20px;max-width:13ch}
+  .pn-faq-lead{font-size:16px;line-height:1.7;color:#61746a;max-width:38ch}
+  .pn-faq-list{border-top:1px solid #c9d5ca}
+  .pn-faq-item{border-bottom:1px solid #c9d5ca;padding:22px 0}
+  .pn-faq-item summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:20px;font-size:18px;font-weight:750}
+  .pn-faq-item summary::-webkit-details-marker{display:none}
+  .pn-faq-item summary span{color:#2f8757;font-size:24px;font-weight:400}
+  .pn-faq-item[open] summary span{transform:rotate(45deg)}
+  .pn-faq-item p{line-height:1.7;color:#5b7063;margin:15px 30px 0 0;font-size:15px}
+  .pn-closing{padding:95px 0;background:#e8eee7}
+  .pn-closing-inner{display:flex;justify-content:space-between;align-items:center;gap:45px}
+  .pn-closing h2{font-size:clamp(37px,4.4vw,61px);line-height:1.09;max-width:14ch;margin:15px 0 0}
+  .pn-closing p{font-size:16px;line-height:1.7;color:#586e60;max-width:42ch}
+  .pn-closing a{display:inline-flex;align-items:center;justify-content:center;min-height:53px;padding:15px 25px;background:#227c50;color:#fff;border-radius:7px;font-size:14px;font-weight:800;white-space:nowrap}
+  body.pn-legal{font-family:Arial,Helvetica,sans-serif;background:#f6f3ed;color:#292b28}
+  .pn-legal .hero h1,.pn-legal .pn-expanded h2,.pn-legal .pn-expanded h3{font-family:Georgia,serif;font-weight:400;letter-spacing:-.04em}
+  .pn-legal .hero:not(.personal){background:#252d2b}
+  .pn-legal .hero:not(.personal) .hero-media:after{background:linear-gradient(90deg,#202827f5 0%,#252d2beb 48%,#252d2b6b)}
+  .pn-legal .hero .btn,.pn-legal .pn-closing a{background:#aa8662;color:#fff}
+  .pn-legal .pn-expanded,.pn-legal .pn-faq{background:#f6f3ed;color:#292b28}
+  .pn-legal .pn-eyebrow,.pn-legal .pn-area-index,.pn-legal .pn-area-arrow{color:#9d7654}
+  .pn-legal .pn-area-row:hover{background:#eee8de}
+  .pn-legal .pn-method{background:#252d2b}
+  .pn-legal .pn-method-step b,.pn-legal .pn-method .pn-eyebrow{color:#d3b18d}
+  .pn-legal .pn-closing{background:#eae3d8}
+  @media(max-width:900px){
+    .pn-intro-grid,.pn-faq-grid{grid-template-columns:1fr;gap:38px}
+    .pn-intro-copy{position:static}
+    .pn-method-grid{grid-template-columns:1fr}
+    .pn-method-step{min-height:190px}
+    .pn-method-head{align-items:start;flex-direction:column}
+  }
+  @media(max-width:650px){
+    .pn-expanded .shell{width:min(100% - 36px,1240px)}
+    .pn-intro-section,.pn-faq{padding:75px 0}
+    .pn-method{padding:78px 0}
+    .pn-closing{padding:72px 0}
+    .pn-closing-inner{align-items:start;flex-direction:column}
+    .pn-area-row{grid-template-columns:30px minmax(0,1fr) 16px;gap:10px}
+    .pn-area-row h3{font-size:23px}
+    .pn-method-step{padding:25px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .pn-area-row{transition:none}
+  }  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""}"><div class="topline"></div><header><div class="shell header-inner"><strong class="brand">${name}</strong><nav aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${esc(page.eyebrow || name)}</span><h1>${esc(page.heading)}</h1><p class="hero-lead">${esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${esc(secondTitle)}</h2><p class="hero-lead">${esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>
-  ${pageKey === "home" ? (sensitive ? `<section class="trust-section"><div class="shell"><span class="kicker">Antes de começar</span><h2>Um primeiro passo com clareza.</h2><div class="trust-grid"><article><span>01</span><h3>Conheça a proposta</h3><p>Veja as informações sobre a atuação e os serviços apresentados.</p></article><article><span>02</span><h3>Esclareça suas dúvidas</h3><p>Use o contato para perguntar sobre o atendimento e os próximos passos.</p></article><article><span>03</span><h3>Converse diretamente</h3><p>Decida com tranquilidade se esta proposta faz sentido para você.</p></article></div></div></section>` : "") + renderExampleTestimonials() : ""}
+  ${pageKey === "home" ? `<section class="pn-expanded pn-intro-section"><div class="shell pn-intro-grid"><div class="pn-intro-copy"><span class="pn-eyebrow">${legal ? "Áreas de atuação" : "O que fazemos"}</span><h2>${legal ? "Atuação para cada situação." : "O serviço certo, explicado com clareza."}</h2><p>${esc(aboutText)}</p><span class="pn-small-line" aria-hidden="true"></span></div><div class="pn-area-list">${detailItems}</div></div></section>
+  <section class="pn-expanded pn-method"><div class="shell"><div class="pn-method-head"><div><span class="pn-eyebrow">${legal ? "Nosso método" : "Como funciona"}</span><h2>Do primeiro contato ao próximo passo.</h2></div><p>${esc(processText || "Uma conversa inicial ajuda a entender sua necessidade e definir o melhor caminho para continuar.")}</p></div><div class="pn-method-grid"><article class="pn-method-step"><b>01 / CONTATO</b><h3>Conte sua necessidade</h3><p>Envie uma mensagem com o contexto e o que você procura.</p></article><article class="pn-method-step"><b>02 / ANÁLISE</b><h3>Converse com a equipe</h3><p>Receba orientações sobre a atuação e esclareça suas dúvidas iniciais.</p></article><article class="pn-method-step"><b>03 / PRÓXIMO PASSO</b><h3>Decida como seguir</h3><p>As condições e a possibilidade de atendimento são confirmadas diretamente com a equipe.</p></article></div></div></section>
+  <section class="pn-expanded pn-faq"><div class="shell pn-faq-grid"><div><span class="pn-eyebrow">Perguntas frequentes</span><h2>Respostas antes de começar.</h2><p class="pn-faq-lead">Informações para você entender a proposta e iniciar uma conversa com mais clareza.</p></div><div class="pn-faq-list">${faq}</div></div></section>
+  <section class="pn-expanded pn-closing"><div class="shell pn-closing-inner"><div><span class="pn-eyebrow">Vamos conversar</span><h2>${legal ? "Cada caso merece atenção individual." : "O próximo passo começa com uma conversa."}</h2><p>Descreva sua necessidade e entre em contato para conhecer as possibilidades de atendimento.</p></div><a href="#entre-em-contato">Entrar em contato ↗</a></div></section>` : ""}  ${pageKey === "home" ? (sensitive ? `<section class="trust-section"><div class="shell"><span class="kicker">Antes de começar</span><h2>Um primeiro passo com clareza.</h2><div class="trust-grid"><article><span>01</span><h3>Conheça a proposta</h3><p>Veja as informações sobre a atuação e os serviços apresentados.</p></article><article><span>02</span><h3>Esclareça suas dúvidas</h3><p>Use o contato para perguntar sobre o atendimento e os próximos passos.</p></article><article><span>03</span><h3>Converse diretamente</h3><p>Decida com tranquilidade se esta proposta faz sentido para você.</p></article></div></div></section>` : "") + renderExampleTestimonials() : ""}
   <section class="contact-section" id="entre-em-contato"><div class="shell contact-grid"><div class="contact-copy"><span class="kicker">Contato</span><h2>Vamos conversar?</h2><p>${esc(project.pages.contato?.introduction || "Conte um pouco sobre o que você procura. Vamos conversar sobre o próximo passo.")}</p><div class="contact-email">${contactEmail ? `<a href="mailto:${esc(contactEmail)}">✉ &nbsp; ${esc(contactEmail)}</a>` : "Informe o e-mail de contato no projeto para habilitar o formulário."}</div></div><form class="contact-form" id="institutional-contact"><h3>Envie sua mensagem</h3><div class="contact-fields"><label>Nome<input name="nome" autocomplete="name" required maxlength="100" placeholder="Seu nome"></label><label>E-mail<input name="email" type="email" autocomplete="email" required maxlength="150" placeholder="voce@email.com"></label><label class="full">Mensagem<textarea name="mensagem" required maxlength="2000" placeholder="Como podemos ajudar?"></textarea></label></div><button type="submit">Abrir e-mail para enviar ↗</button><p class="contact-status" id="institutional-contact-status">${contactEmail ? "Seu aplicativo de e-mail abrirá. Revise a mensagem e confirme o envio." : "Configure um e-mail de contato no projeto para receber mensagens."}</p></form></div></section></main>
   <footer><div class="shell"><div class="footer-grid"><div><strong class="brand">${name}</strong><p>${esc(info?.role || "Fale com nossa equipe para conhecer o atendimento.")}</p></div><nav aria-label="Navegação do rodapé">${links}</nav></div><div class="footer-bottom">${name}</div></div></footer>
   <script>const heroCarousel=document.getElementById("hero-carousel");if(heroCarousel){const slides=Array.from(heroCarousel.querySelectorAll("[data-hero-slide]"));const dots=Array.from(heroCarousel.querySelectorAll("[data-hero-index]"));let active=0;let timer;const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");function showSlide(index){active=(index+slides.length)%slides.length;slides.forEach((slide,i)=>{slide.hidden=i!==active});dots.forEach((dot,i)=>dot.setAttribute("aria-current",String(i===active)));const status=heroCarousel.querySelector(".hero-slide-status");if(status)status.textContent=(active+1)+" / "+slides.length}function stop(){if(timer)clearInterval(timer);timer=undefined}function start(){stop();if(slides.length>1&&!reduced.matches&&!document.hidden)timer=setInterval(()=>showSlide(active+1),7000)}heroCarousel.querySelector("[data-hero-prev]")?.addEventListener("click",()=>{showSlide(active-1);start()});heroCarousel.querySelector("[data-hero-next]")?.addEventListener("click",()=>{showSlide(active+1);start()});dots.forEach((dot,i)=>dot.addEventListener("click",()=>{showSlide(i);start()}));heroCarousel.addEventListener("mouseenter",stop);heroCarousel.addEventListener("mouseleave",start);heroCarousel.addEventListener("focusin",stop);heroCarousel.addEventListener("focusout",event=>{if(!heroCarousel.contains(event.relatedTarget))start()});document.addEventListener("visibilitychange",start);reduced.addEventListener?.("change",start);start()}const contactRecipient=${contactEmailJson};const contactSubject=${contactSubjectJson};document.getElementById("institutional-contact").addEventListener("submit",function(event){event.preventDefault();const status=document.getElementById("institutional-contact-status");if(!contactRecipient){status.textContent="Informe um e-mail de contato no projeto antes de receber mensagens.";return}const fields=new FormData(this);const message=["Nome: "+fields.get("nome"),"E-mail: "+fields.get("email"),"",String(fields.get("mensagem")||"")].join("\\n");window.location.href="mailto:"+contactRecipient+"?subject="+encodeURIComponent(contactSubject)+"&body="+encodeURIComponent(message);status.textContent="Revise e confirme o envio no seu aplicativo de e-mail."});document.addEventListener("click",function(event){const toggle=event.target.closest(".example-toggle");if(toggle){const section=toggle.closest(".examples");const paused=section.classList.toggle("is-paused");toggle.setAttribute("aria-pressed",String(paused));toggle.textContent=paused?"Retomar animação":"Pausar animação";return}const link=event.target.closest("[data-page]");if(link){event.preventDefault();parent.postMessage({type:"pagenova-site-preview-page",key:link.dataset.page},"*")}})</script></body></html>`;
