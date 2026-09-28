@@ -34,6 +34,10 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
     #pn-edit-bar button,#pn-edit-bar select,#pn-edit-bar input{height:32px;border:1px solid #ddded8;border-radius:9px;background:#fff;color:#171a16;font:700 12px Arial,sans-serif}
     #pn-edit-bar button{padding:0 10px;cursor:pointer}
     #pn-edit-bar button:hover{background:#f2f2ee}
+    [data-pn-editable-hover=true]{outline:1.5px dashed rgba(17,17,17,.55)!important;outline-offset:5px!important;cursor:grab!important}
+    [data-pn-editable-hover=true]:active{cursor:grabbing!important}
+    .pn-menu-toggle{width:42px!important;height:38px!important;padding:0!important;gap:4px!important;flex-direction:column!important}
+    .pn-menu-toggle span{display:block!important;width:18px!important;height:2px!important;border-radius:99px!important;background:currentColor!important}
     #pn-edit-bar input[type=number]{width:62px;padding:0 8px}
     #pn-edit-bar input[type=color]{width:38px;padding:2px}
     #pn-edit-bar select{padding:0 8px}
@@ -78,7 +82,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
         btn=document.createElement('button');
         btn.type='button';
         btn.className='pn-menu-toggle';
-        btn.textContent='Menu';
+        btn.innerHTML='<span></span><span></span><span></span>';
         btn.setAttribute('aria-expanded','false');
         if(nav)btn.setAttribute('aria-controls',nav.id||'pn-header-menu');
         inner.insertBefore(btn,nav||null);
@@ -131,7 +135,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
 
     const bar=document.createElement('div');
     bar.id='pn-edit-bar';
-    bar.innerHTML='<button type="button" data-act="add">+ Texto</button><button type="button" data-act="drag">Arrastar</button><button type="button" data-act="left">Logo Esq.</button><button type="button" data-act="center">Logo Meio</button><button type="button" data-act="right">Logo Dir.</button><select aria-label="Fonte"><option value="">Fonte</option><option value="Arial, sans-serif">Arial</option><option value="Inter, system-ui, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option><option value="Poppins, Arial, sans-serif">Poppins</option><option value="Montserrat, Arial, sans-serif">Montserrat</option></select><input aria-label="Tamanho" type="number" min="10" max="140"><input aria-label="Cor" type="color"><button type="button" data-act="done">OK</button>';
+    bar.innerHTML='<button type="button" data-act="add">+ Texto</button><button type="button" data-act="left">Logo Esq.</button><button type="button" data-act="center">Logo Meio</button><button type="button" data-act="right">Logo Dir.</button><select aria-label="Fonte"><option value="">Fonte</option><option value="Arial, sans-serif">Arial</option><option value="Inter, system-ui, sans-serif">Inter</option><option value="Georgia, serif">Georgia</option><option value="Poppins, Arial, sans-serif">Poppins</option><option value="Montserrat, Arial, sans-serif">Montserrat</option></select><input aria-label="Tamanho" type="number" min="10" max="140"><input aria-label="Cor" type="color"><button type="button" data-act="done">OK</button>';
     document.body.appendChild(bar);
 
     const font=bar.querySelector('select');
@@ -225,7 +229,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
       event.stopPropagation();
       const action=event.target.closest('[data-act]')?.getAttribute('data-act');
       if(action==='add')addText();
-      if(action==='drag'&&selected)enableDrag(selected);
+
       if(action==='left')setHeader('left');
       if(action==='center')setHeader('center');
       if(action==='right')setHeader('right');
@@ -236,11 +240,31 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
     size.addEventListener('change',save);
     color.addEventListener('change',save);
 
+    const editableSelector='h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,span,.brand,[data-pn-free-text],[data-pn-movable]';
+    let hoveredEditable=null;
+
+    document.addEventListener('mouseover',function(event){
+      if(bar.contains(event.target))return;
+      const el=event.target.closest(editableSelector);
+      if(!el||el.closest('script,style,#pn-edit-bar,nav'))return;
+      if(hoveredEditable&&hoveredEditable!==el)hoveredEditable.removeAttribute('data-pn-editable-hover');
+      hoveredEditable=el;
+      hoveredEditable.setAttribute('data-pn-editable-hover','true');
+    },true);
+
+    document.addEventListener('mouseout',function(event){
+      if(!hoveredEditable)return;
+      if(event.relatedTarget&&hoveredEditable.contains(event.relatedTarget))return;
+      hoveredEditable.removeAttribute('data-pn-editable-hover');
+      hoveredEditable=null;
+    },true);
+
     document.addEventListener('click',function(event){
       if(bar.contains(event.target))return;
-      const el=event.target.closest('h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,button,a,span,.brand,header,[data-pn-free-text],[data-pn-movable]');
+      const el=event.target.closest(editableSelector+',header');
       if(!el||el.closest('script,style,#pn-edit-bar'))return;
       event.preventDefault();
+      event.stopPropagation();
       select(el);
     },true);
 
@@ -262,13 +286,31 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
 
     document.addEventListener('pointerdown',function(event){
       if(bar.contains(event.target))return;
-      const el=event.target.closest('[data-pn-free-text],[data-pn-movable]');
-      if(!el||event.target.closest('[contenteditable=true],input,textarea,select,button'))return;
+      const el=event.target.closest(editableSelector);
+      if(!el||el.closest('script,style,#pn-edit-bar,nav')||event.target.closest('[contenteditable=true],input,textarea,select,button'))return;
+
+      const box=el.getBoundingClientRect();
+
+      if(!el.hasAttribute('data-pn-free-text')&&!el.hasAttribute('data-pn-movable')){
+        el.setAttribute('data-pn-movable','true');
+        el.style.setProperty('position','absolute','important');
+        el.style.setProperty('left',Math.round(scrollX+box.left)+'px','important');
+        el.style.setProperty('top',Math.round(scrollY+box.top)+'px','important');
+        el.style.setProperty('width',Math.round(box.width)+'px','important');
+        el.style.setProperty('min-height',Math.max(32,Math.round(box.height))+'px','important');
+        el.style.setProperty('z-index','90','important');
+        el.style.setProperty('resize','both','important');
+        el.style.setProperty('overflow','auto','important');
+        el.style.setProperty('cursor','grabbing','important');
+      }
+
       event.preventDefault();
+      event.stopPropagation();
       select(el);
-      const x=parseFloat(el.style.left)||el.getBoundingClientRect().left+scrollX;
-      const y=parseFloat(el.style.top)||el.getBoundingClientRect().top+scrollY;
-      drag={el:el,startX:event.clientX,startY:event.clientY,x:x,y:y};
+
+      const x=parseFloat(el.style.left)||box.left+scrollX;
+      const y=parseFloat(el.style.top)||box.top+scrollY;
+      drag={el:el,startX:event.clientX,startY:event.clientY,x:x,y:y,moved:false};
     },true);
 
     document.addEventListener('pointermove',function(event){
@@ -276,11 +318,12 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
       event.preventDefault();
       drag.el.style.setProperty('left',drag.x+event.clientX-drag.startX+'px','important');
       drag.el.style.setProperty('top',drag.y+event.clientY-drag.startY+'px','important');
+      drag.moved=true;
       showBar();
     },true);
 
     document.addEventListener('pointerup',function(){
-      if(drag){save()}
+      if(drag){drag.el.style.setProperty('cursor','grab','important');save()}
       drag=null;
     },true);
 
