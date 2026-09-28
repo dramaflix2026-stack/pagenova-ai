@@ -201,6 +201,9 @@ export default function BuilderPage() {
     if (name.trim().length < 2 || brief.trim().length < 20) {
       setError("Informe o nome e descreva o negócio com pelo menos 20 caracteres."); return;
     }
+    if (selectedPresetId === "institucional" && institutionalFacts.offer.trim().length < 8) {
+      setError("Informe os serviços ou produtos reais que devem aparecer nos cards."); return;
+    }
     const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
       presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(),
       institutional: selectedPresetId === "institucional" ? Object.fromEntries(Object.entries(institutionalFacts).map(([key, value]) => [key, value.trim()])) as SiteProject["institutional"] : undefined,
@@ -222,6 +225,28 @@ export default function BuilderPage() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível aplicar a alteração."); setPhase("error");
     } finally { setCurrentStep(null); }
+  }
+
+  async function regenerateCopy() {
+    if (!project || phase === "generating" || !window.confirm("Recriar os textos das quatro páginas? As edições manuais de texto serão substituídas. As imagens serão mantidas.")) return;
+    if (!project.institutional?.offer?.trim()) { setError("Informe os serviços ou produtos reais antes de refazer os textos."); return; }
+    setPhase("generating"); setError("");
+    let current = project;
+    for (const { key } of SITE_PAGES) {
+      if (!current.pages[key]) continue;
+      setCurrentStep(key);
+      try {
+        const page = await requestPage(current, key);
+        current = { ...current, pages: { ...current.pages, [key]: page },
+          liveEdits: { ...current.liveEdits, [key]: [] } };
+        await savePageNovaProject(current.id, current);
+        setProject(current); setActivePage(key);
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Falha ao recriar os textos.");
+        setPhase("error"); setCurrentStep(null); return;
+      }
+    }
+    setCurrentStep(null); setPhase("ready");
   }
 
   const preview = useMemo(() => project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : "",
@@ -254,7 +279,7 @@ export default function BuilderPage() {
             ["offer", "Serviços e modalidades", "Ex.: psicoterapia individual online"],
             ["process", "Como funciona o atendimento", "Ex.: primeira conversa para conhecer a demanda"],
             ["proof", "Credencial verificável", "Ex.: registro profissional, se aplicável"],
-          ] as const).map(([key, label, placeholder]) => <label key={key} className="block text-xs font-medium text-white/80">{label}<input value={institutionalFacts[key]} onChange={(event) => setInstitutionalFacts((current) => ({ ...current, [key]: event.target.value }))} maxLength={400} placeholder={placeholder} className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white outline-none focus:border-emerald-400" /></label>)}</div></fieldset>}
+          ] as const).map(([key, label, placeholder]) => <label key={key} className="block text-xs font-medium text-white/80">{label}{key === "offer" && <span className="ml-1 text-emerald-300">* obrigatório</span>}<input value={institutionalFacts[key]} onChange={(event) => setInstitutionalFacts((current) => ({ ...current, [key]: event.target.value }))} required={key === "offer"} maxLength={400} placeholder={placeholder} className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white outline-none focus:border-emerald-400" /></label>)}</div></fieldset>}
           <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
           <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
           {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
@@ -275,11 +300,13 @@ export default function BuilderPage() {
       {project && <div className="grid gap-6 xl:grid-cols-[350px_minmax(0,1fr)]">
         <aside className="space-y-5 rounded-2xl border border-white/10 bg-[#11101b] p-5">
           <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{getSitePreset(project.presetId || "institucional").title}</span><h1 className="mt-2 text-2xl font-bold">{project.name}</h1><p className="mt-2 text-sm text-white/45">{phase === "generating" ? "Criando seu site…" : phase === "ready" ? "Site criado. Você pode pedir alterações." : "A criação foi interrompida."}</p></div>
+          {project.presetId === "institucional" && <label className="block text-xs font-medium text-white/75">Serviços e produtos reais<textarea value={project.institutional?.offer || ""} onChange={(event) => { const updated = { ...project, institutional: { role: "", audience: "", process: "", proof: "", ...project.institutional, offer: event.target.value } }; setProject(updated); void savePageNovaProject(updated.id, updated).catch(() => setError("Falha ao salvar os serviços.")); }} rows={3} maxLength={400} placeholder="Ex.: lavagem de roupas, passadoria, coleta e entrega (somente o que você realmente oferece)" className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white" /></label>}
           <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           {phase === "error" && pendingKeys.length > 0 && <button onClick={() => void generatePages(project, pendingKeys)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Tentar novamente</button>}
           {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&
             <button onClick={() => void generatePages(project, SITE_PAGES.filter(({ key }) => !project.pages[key]).map(({ key }) => key))} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Continuar criação</button>}
+          {phase === "ready" && project.presetId === "institucional" && <button type="button" onClick={() => void regenerateCopy()} className="w-full rounded-xl border border-emerald-400/35 px-4 py-3 text-sm font-semibold text-emerald-200">Refazer textos com as novas diretrizes</button>}
           <form onSubmit={revise} className="border-t border-white/10 pt-5">
             <label className="text-sm font-semibold" htmlFor="builder-change">Peça uma alteração nesta página</label>
             <p className="mt-1 text-xs leading-5 text-white/45">Escreva o que deseja mudar. Você também pode colar um print aqui com Ctrl+V para a IA analisar a referência.</p>

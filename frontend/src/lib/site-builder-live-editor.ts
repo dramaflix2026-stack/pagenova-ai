@@ -13,7 +13,7 @@ export function renderEditablePreview(html: string, site: SiteProject, key: Site
     escuro: "body{background:#101b18!important;color:#edf5ee!important}header,.services-section,.intro-strip,.editorial,.testimonials,.closing{background:#14251f!important;color:#edf5ee!important}.feature,.testimonial-card,.intro-pill{background:#20372d!important;color:#edf5ee!important;border-color:#41644d!important}.section p,.editorial p,.testimonials p,.feature p,.testimonial-card p,.intro-grid p{color:#d1e1d4!important}header a,footer a,.intro-label h2{color:#edf5ee!important}footer{background:#101b18!important;color:#d1e1d4!important}.kicker,.testimonial-card .quote-mark{color:#a0d6a6!important}",
     areia: "body{background:#f6f0e7!important;color:#342d28!important}header,.services-section,.intro-strip{background:#f6f0e7!important;color:#342d28!important}.editorial,.testimonials{background:#eee4d5!important;color:#342d28!important}.feature,.testimonial-card,.intro-pill{background:#fffaf2!important;color:#342d28!important;border-color:#d7c7ad!important}.section p,.editorial p,.testimonials p{color:#594a3b!important}footer{background:#e8dece!important;color:#342d28!important}",
   };
-  const css = '<style id="pn-theme">' + palette[theme] + '</style>';
+  const css = '<style id="pn-theme">' + (site.presetId === "institucional" ? "" : palette[theme]) + '</style>';
   const script = `<script id="pn-live-editor">(function(){
     const state=${payload};
     function apply(el,edit){
