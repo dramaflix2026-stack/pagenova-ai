@@ -1282,3 +1282,156 @@ body {
     text-align: center;
   }
 }
+/* ============================================================
+   AJUSTE VISUAL - CARDS 3D + RODAPE ORGANIZADO
+   ============================================================ */
+
+main :is(.card, .cards, .service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) {
+  position: relative;
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) {
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.98), rgba(247,250,246,.94));
+  border: 1px solid rgba(20, 63, 49, .14);
+  border-radius: 20px;
+  box-shadow:
+    0 26px 55px rgba(15, 48, 38, .13),
+    0 8px 18px rgba(15, 48, 38, .08),
+    inset 0 1px 0 rgba(255,255,255,.95);
+  transform: perspective(900px) translateZ(0);
+  transition:
+    transform .28s ease,
+    box-shadow .28s ease,
+    border-color .28s ease,
+    background .28s ease;
+  overflow: hidden;
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"])::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(22, 128, 84, .13), transparent 34%),
+    linear-gradient(135deg, rgba(255,255,255,.55), transparent 42%);
+  opacity: .85;
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]):hover {
+  transform: perspective(900px) translateY(-8px) rotateX(2deg) rotateY(-2deg);
+  border-color: rgba(20, 112, 76, .28);
+  box-shadow:
+    0 34px 70px rgba(15, 48, 38, .18),
+    0 14px 28px rgba(15, 48, 38, .12),
+    inset 0 1px 0 rgba(255,255,255,1);
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) h3,
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) h2 {
+  position: relative;
+  color: #123b2f;
+  letter-spacing: -0.02em;
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) p,
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) small {
+  position: relative;
+  color: rgba(18, 59, 47, .72);
+  line-height: 1.65;
+}
+
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) span:first-child,
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) .number,
+main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) .numero {
+  color: #0b8f5a;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+/* Rodape mais organizado */
+footer {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(35, 140, 96, .22), transparent 28%),
+    linear-gradient(135deg, #102d24, #071712);
+  color: rgba(255,255,255,.82);
+  border-top: 1px solid rgba(255,255,255,.12);
+  padding: 56px 24px 28px;
+}
+
+footer > div {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+footer :is(.footer-content, .footer-grid, .rodape-content, .rodape-grid),
+footer > div:first-child {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(3, minmax(140px, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
+footer h2,
+footer h3,
+footer h4,
+footer strong {
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+footer p,
+footer a,
+footer li,
+footer small {
+  color: rgba(255,255,255,.72);
+  line-height: 1.7;
+}
+
+footer a {
+  text-decoration: none;
+  transition: color .2s ease, transform .2s ease;
+}
+
+footer a:hover {
+  color: #7dffba;
+}
+
+footer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+footer li + li {
+  margin-top: 8px;
+}
+
+footer .footer-bottom,
+footer .rodape-bottom,
+footer > div:last-child {
+  margin-top: 34px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,.12);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+}
+
+@media (max-width: 800px) {
+  footer :is(.footer-content, .footer-grid, .rodape-content, .rodape-grid),
+  footer > div:first-child {
+    grid-template-columns: 1fr;
+  }
+
+  footer {
+    padding: 44px 20px 24px;
+  }
+
+  main :is(.service-card, .servico-card, .step-card, .process-card, .feature-card, .benefit-card, .metodo-card, .solution-card, [class*="card"], [class*="Card"]) {
+    border-radius: 18px;
+  }
+}
