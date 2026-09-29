@@ -225,6 +225,27 @@ export function renderEditablePreview(
     justify-content:space-between!important;
     align-items:center!important;
   }
+
+  /* pn-section-flow-lock */
+  section[data-pn-section=true],
+  [data-pn-section=true]{
+    position:relative!important;
+    left:auto!important;
+    top:auto!important;
+    right:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    width:auto!important;
+    max-width:none!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+
+  section[data-pn-section=true]{
+    resize:vertical!important;
+    min-height:220px!important;
+    max-height:1200px!important;
+  }
 </style>`;
 
   const script = `
