@@ -3,7 +3,7 @@
   const KEY = cfg.key || "home";
   const savedEdits = Array.isArray(cfg.edits) ? cfg.edits : [];
 
-  const textSel = "h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,span,button,[data-pn-free-text=true]";
+  const textSel = "h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,button,[data-pn-free-text=true]";
   const cardSel = "article,[class*='card'],[class*='Card'],.service-card,.servico-card,.feature-card,.benefit-card,.step-card,.process-card,.metodo-card,.solution-card";
   const sectionSel = "section,.section,[class*='section'],[class*='Section']";
   const socialSel = ".social-links,[class*='social-links'],[class*='socialLinks']";
@@ -289,11 +289,22 @@
   }
 
   function candidate(target) {
+    if (closest(target, "svg,path,circle,rect,line,polyline,polygon,use,img,picture,source")) {
+      target = closest(target, "a,button,li,article,[class*='card'],[class*='Card']") || target.parentElement;
+    }
+
     const social = closest(target, socialSel);
-    if (social) return social;
+    if (social) {
+      const socialItem = closest(target, "a,button,li");
+      if (socialItem && social.contains(socialItem)) return socialItem;
+      return social;
+    }
+
+    const directText = closest(target, textSel);
+    if (directText) return directText;
 
     const card = closest(target, cardSel);
-    if (card && !closest(target, textSel)) return card;
+    if (card) return card;
 
     return closest(target, editSel);
   }
