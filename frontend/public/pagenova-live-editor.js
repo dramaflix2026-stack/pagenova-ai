@@ -460,4 +460,89 @@
 
   makeUi();
   savedEdits.forEach(applyEdit);
+
+  function installSectionFlowGuard() {
+    if (document.getElementById("pn-section-flow-guard-style")) return;
+
+    const style = document.createElement("style");
+    style.id = "pn-section-flow-guard-style";
+    style.textContent = [
+      "section[data-pn-section=true],[data-pn-section=true]{",
+      "position:relative!important;",
+      "left:auto!important;",
+      "top:auto!important;",
+      "right:auto!important;",
+      "bottom:auto!important;",
+      "transform:none!important;",
+      "max-width:none!important;",
+      "box-sizing:border-box!important;",
+      "}",
+      "section[data-pn-section=true]{",
+      "resize:vertical!important;",
+      "overflow:hidden!important;",
+      "min-height:220px!important;",
+      "max-height:1200px!important;",
+      "}"
+    ].join("");
+    document.head.appendChild(style);
+
+    function fixSection(section) {
+      if (!section || section.nodeType !== 1) return;
+      if (section.closest("#pn-edit-bar,#pn-edit-box")) return;
+
+      section.removeAttribute("data-pn-movable");
+      section.style.setProperty("position", "relative", "important");
+      section.style.setProperty("left", "auto", "important");
+      section.style.setProperty("top", "auto", "important");
+      section.style.setProperty("right", "auto", "important");
+      section.style.setProperty("bottom", "auto", "important");
+      section.style.setProperty("transform", "none", "important");
+      section.style.setProperty("max-width", "none", "important");
+      section.style.setProperty("box-sizing", "border-box", "important");
+      section.style.setProperty("overflow", "hidden", "important");
+      section.style.setProperty("min-height", "220px", "important");
+      section.style.setProperty("max-height", "1200px", "important");
+
+      const rect = section.getBoundingClientRect();
+      if (rect.height > 1200) {
+        section.style.setProperty("height", "720px", "important");
+      }
+    }
+
+    function fixAllSections() {
+      document.querySelectorAll("section[data-pn-section=true],[data-pn-section=true]").forEach(fixSection);
+    }
+
+    let scheduled = false;
+    function scheduleFix() {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(function () {
+        scheduled = false;
+        fixAllSections();
+      });
+    }
+
+    document.addEventListener("pointerup", scheduleFix, true);
+    document.addEventListener("mouseup", scheduleFix, true);
+    document.addEventListener("click", scheduleFix, true);
+    document.addEventListener("input", scheduleFix, true);
+
+    const observer = new MutationObserver(scheduleFix);
+    observer.observe(document.documentElement, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["style", "data-pn-section", "data-pn-movable"]
+    });
+
+    fixAllSections();
+    setInterval(fixAllSections, 800);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installSectionFlowGuard);
+  } else {
+    installSectionFlowGuard();
+  }
+
 })();
