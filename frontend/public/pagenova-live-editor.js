@@ -64,18 +64,35 @@
       '<input data-field="color" type="color" value="#111111">';
     document.body.appendChild(bar);
 
-    const deleteButton = bar.querySelector('[data-act="delete"]');
-    if (deleteButton) {
-      deleteButton.id = "pn-delete-style";
-      deleteButton.style.setProperty("background", "#fee2e2", "important");
-      deleteButton.style.setProperty("color", "#991b1b", "important");
-      deleteButton.style.setProperty("border-color", "#fecaca", "important");
-    }
-
     const box = document.createElement("div");
     box.id = "pn-edit-box";
-    box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
+    box.innerHTML = '<button type="button" id="pn-edit-delete">Excluir</button><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     document.body.appendChild(box);
+
+    if (!document.getElementById("pn-selection-delete-style")) {
+      const style = document.createElement("style");
+      style.id = "pn-selection-delete-style";
+      style.textContent = `
+        body #pn-edit-bar{display:none!important}
+        body #pn-edit-bar[data-open=true]{display:flex!important}
+        #pn-edit-delete{
+          position:absolute!important;
+          right:-1px!important;
+          top:-38px!important;
+          height:30px!important;
+          border:1px solid #fecaca!important;
+          border-radius:9px!important;
+          background:#fee2e2!important;
+          color:#991b1b!important;
+          padding:0 10px!important;
+          font:700 12px Arial,sans-serif!important;
+          cursor:pointer!important;
+          pointer-events:auto!important;
+          box-shadow:0 8px 22px rgba(0,0,0,.14)!important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
 
     const gx = document.createElement("div");
     gx.id = "pn-align-x";
@@ -106,6 +123,16 @@
       if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
     });
 
+    const deleteButton = box.querySelector("#pn-edit-delete");
+    if (deleteButton && !deleteButton.dataset.pnDeleteButtonBound) {
+      deleteButton.dataset.pnDeleteButtonBound = "true";
+      deleteButton.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteSelected();
+      }, true);
+    }
+
     box.addEventListener("pointerdown", function (e) {
       const h = e.target.dataset.h;
       if (!h || !selected) return;
@@ -133,11 +160,15 @@
     if (!box) return;
     if (!selected) {
       box.dataset.open = "false";
+      const bar = document.getElementById("pn-edit-bar");
+      if (bar) bar.dataset.open = "false";
       return;
     }
 
     const r = selected.getBoundingClientRect();
     box.dataset.open = "true";
+    const bar = document.getElementById("pn-edit-bar");
+    if (bar) bar.dataset.open = "true";
     box.style.left = px(r.left - 5);
     box.style.top = px(r.top - 5);
     box.style.width = px(r.width + 10);
@@ -433,6 +464,15 @@
     if (!hovered || (e.relatedTarget && hovered.contains(e.relatedTarget))) return;
     hovered.removeAttribute("data-pn-hover");
     hovered = null;
+  }, true);
+
+  document.addEventListener("dblclick", function (e) {
+    if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
+    const el = candidate(e.target);
+    if (!el) return;
+    e.preventDefault();
+    e.stopPropagation();
+    select(el);
   }, true);
 
   document.addEventListener("click", function (e) {
