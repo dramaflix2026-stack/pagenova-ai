@@ -14,7 +14,6 @@ export type LiveEdit = {
   kind?: "text" | "card" | "divider" | "section";
   ghostId?: string;
   headerLayout?: "left" | "center" | "right";
-  deleted?: boolean;
 };
 
 export type LiveEditorState = {

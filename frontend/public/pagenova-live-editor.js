@@ -3,12 +3,11 @@
   const KEY = cfg.key || "home";
   const savedEdits = Array.isArray(cfg.edits) ? cfg.edits : [];
 
-  const textSel = "h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,button,[data-pn-free-text=true]";
+  const textSel = "h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,span,button,[data-pn-free-text=true]";
   const cardSel = "article,[class*='card'],[class*='Card'],.service-card,.servico-card,.feature-card,.benefit-card,.step-card,.process-card,.metodo-card,.solution-card";
   const sectionSel = "section,.section,[class*='section'],[class*='Section']";
-  const numberSel = ".step-number,.process-number,.card-number,.badge,.tag,.pill,[class*='number'],[class*='Number'],[class*='badge'],[class*='Badge'],[class*='tag'],[class*='Tag'],[class*='pill'],[class*='Pill']";
   const socialSel = ".social-links,[class*='social-links'],[class*='socialLinks']";
-  const editSel = textSel + "," + numberSel + "," + cardSel + "," + sectionSel + "," + socialSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
+  const editSel = textSel + "," + cardSel + "," + sectionSel + "," + socialSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
 
   let selected = null;
   let hovered = null;
@@ -53,7 +52,7 @@
     bar.id = "pn-edit-bar";
     bar.innerHTML =
       '<button data-act="text">+ Texto</button>' +
-      '<button data-act="line">+ Linha</button><button data-act="delete">Excluir</button>' +
+      '<button data-act="line">+ Linha</button>' +
       '<button data-act="card">Card</button>' +
       '<button data-act="section">Seção</button>' +
       '<button data-act="logo-left">Logo esquerda</button>' +
@@ -66,38 +65,8 @@
 
     const box = document.createElement("div");
     box.id = "pn-edit-box";
-    box.innerHTML = '<button type="button" id="pn-edit-delete">Excluir</button><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
+    box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     document.body.appendChild(box);
-    const deleteStyle = document.createElement("style");
-    deleteStyle.id = "pn-edit-delete-style";
-    deleteStyle.textContent = "#pn-edit-delete{position:absolute!important;right:-1px!important;top:-34px!important;height:28px!important;padding:0 10px!important;border:1px solid #fecaca!important;border-radius:8px!important;background:#fff1f2!important;color:#b91c1c!important;font:700 12px Arial,sans-serif!important;cursor:pointer!important;z-index:2147483647!important}";
-    document.head.appendChild(deleteStyle);
-
-
-    if (!document.getElementById("pn-selection-delete-style")) {
-      const style = document.createElement("style");
-      style.id = "pn-selection-delete-style";
-      style.textContent = `
-        body #pn-edit-bar{display:none!important}
-        body #pn-edit-bar[data-open=true]{display:flex!important}
-        #pn-edit-delete{
-          position:absolute!important;
-          right:-1px!important;
-          top:-38px!important;
-          height:30px!important;
-          border:1px solid #fecaca!important;
-          border-radius:9px!important;
-          background:#fee2e2!important;
-          color:#991b1b!important;
-          padding:0 10px!important;
-          font:700 12px Arial,sans-serif!important;
-          cursor:pointer!important;
-          pointer-events:auto!important;
-          box-shadow:0 8px 22px rgba(0,0,0,.14)!important;
-        }
-      `;
-      document.head.appendChild(style);
-    }
 
     const gx = document.createElement("div");
     gx.id = "pn-align-x";
@@ -122,31 +91,11 @@
 
       if (act === "text") addText();
       if (act === "line") addLine();
-      if (act === "delete") deleteSelected();
       if (act === "card") select(closest(selected, cardSel) || closest(selected, socialSel) || selected);
       if (act === "section") selectSection();
       if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
     });
 
-    const deleteButton = box.querySelector("#pn-edit-delete");
-    if (deleteButton && !deleteButton.dataset.pnDeleteButtonBound) {
-      deleteButton.dataset.pnDeleteButtonBound = "true";
-      deleteButton.addEventListener("click", function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        deleteSelected();
-      }, true);
-    }
-
-
-    const boxDeleteButton = box.querySelector("#pn-edit-delete");
-    if (boxDeleteButton) {
-      boxDeleteButton.addEventListener("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        deleteSelected();
-      }, true);
-    }
     box.addEventListener("pointerdown", function (e) {
       const h = e.target.dataset.h;
       if (!h || !selected) return;
@@ -174,15 +123,11 @@
     if (!box) return;
     if (!selected) {
       box.dataset.open = "false";
-      const bar = document.getElementById("pn-edit-bar");
-      if (bar) bar.dataset.open = "false";
       return;
     }
 
     const r = selected.getBoundingClientRect();
     box.dataset.open = "true";
-    const bar = document.getElementById("pn-edit-bar");
-    if (bar) bar.dataset.open = "true";
     box.style.left = px(r.left - 5);
     box.style.top = px(r.top - 5);
     box.style.width = px(r.width + 10);
@@ -192,11 +137,6 @@
   function select(el) {
     makeUi();
     if (!el) return;
-
-    if (edit.deleted) {
-      el.style.setProperty("display", "none", "important");
-      return;
-    }
     selected = el;
     document.querySelectorAll("[data-pn-selected=true]").forEach(x => x.removeAttribute("data-pn-selected"));
     selected.dataset.pnSelected = "true";
@@ -273,11 +213,6 @@
     }
     if (!el) return;
 
-    if (edit.deleted) {
-      el.style.setProperty("display", "none", "important");
-      return;
-    }
-
     if (edit.kind === "section") el.dataset.pnSection = "true";
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
     if (edit.font) el.style.setProperty("font-family", edit.font, "important");
@@ -320,36 +255,6 @@
     save();
   }
 
-
-  function deleteSelected() {
-    if (!selected) return;
-
-    const sourceSelector = selected.dataset.pnSource || path(selected);
-    const ghostId = selected.dataset.pnGhost === "true" ? selected.dataset.pnId : "";
-
-    if (selected.dataset.pnGhost === "true" || selected.dataset.pnFreeText === "true" || selected.dataset.pnDivider === "true") {
-      selected.remove();
-    } else {
-      selected.style.setProperty("display", "none", "important");
-    }
-
-    parent.postMessage({
-      type: "pagenova-live-edit",
-      key: KEY,
-      edit: {
-        selector: sourceSelector,
-        ghostId: ghostId,
-        text: "",
-        font: "",
-        size: 0,
-        color: "",
-        deleted: true
-      }
-    }, "*");
-
-    selected = null;
-    syncBox();
-  }
   function selectSection() {
     if (!selected) return;
     const s = closest(selected, sectionSel);
@@ -384,28 +289,15 @@
   }
 
   function candidate(target) {
-    if (closest(target, "svg,path,circle,rect,line,polyline,polygon,use,img,picture,source")) {
-      target = closest(target, "a,button,li,article,[class*='card'],[class*='Card']") || target.parentElement;
-    }
-
     const social = closest(target, socialSel);
-    if (social) {
-      const socialItem = closest(target, "a,button,li");
-      if (socialItem && social.contains(socialItem)) return socialItem;
-      return social;
-    }
-
-    const number = closest(target, numberSel);
-    if (number) return number;
-
-    const directText = closest(target, textSel);
-    if (directText) return directText;
+    if (social) return social;
 
     const card = closest(target, cardSel);
-    if (card) return card;
+    if (card && !closest(target, textSel)) return card;
 
     return closest(target, editSel);
   }
+
   function guidesFor(el, left, top) {
     const gx = document.getElementById("pn-align-x");
     const gy = document.getElementById("pn-align-y");
@@ -464,11 +356,6 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
-
-    if (edit.deleted) {
-      el.style.setProperty("display", "none", "important");
-      return;
-    }
     if (hovered && hovered !== el) hovered.removeAttribute("data-pn-hover");
     hovered = el;
     hovered.dataset.pnHover = "true";
@@ -480,24 +367,10 @@
     hovered = null;
   }, true);
 
-  document.addEventListener("dblclick", function (e) {
-    if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    const el = candidate(e.target);
-    if (!el) return;
-    e.preventDefault();
-    e.stopPropagation();
-    select(el);
-  }, true);
-
   document.addEventListener("click", function (e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
-
-    if (edit.deleted) {
-      el.style.setProperty("display", "none", "important");
-      return;
-    }
     e.preventDefault();
     e.stopPropagation();
     select(el);
@@ -507,11 +380,6 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
     const el = candidate(e.target);
     if (!el) return;
-
-    if (edit.deleted) {
-      el.style.setProperty("display", "none", "important");
-      return;
-    }
 
     clearSelection();
     select(el);
