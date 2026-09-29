@@ -53,7 +53,7 @@
     bar.id = "pn-edit-bar";
     bar.innerHTML =
       '<button data-act="text">+ Texto</button>' +
-      '<button data-act="line">+ Linha</button>' +
+      '<button data-act="line">+ Linha</button><button data-act="delete">Excluir</button>' +
       '<button data-act="card">Card</button>' +
       '<button data-act="section">Seção</button>' +
       '<button data-act="logo-left">Logo esquerda</button>' +
@@ -63,6 +63,14 @@
       '<input data-field="size" type="number" min="8" max="120" placeholder="Tam.">' +
       '<input data-field="color" type="color" value="#111111">';
     document.body.appendChild(bar);
+
+    const deleteButton = bar.querySelector('[data-act="delete"]');
+    if (deleteButton) {
+      deleteButton.id = "pn-delete-style";
+      deleteButton.style.setProperty("background", "#fee2e2", "important");
+      deleteButton.style.setProperty("color", "#991b1b", "important");
+      deleteButton.style.setProperty("border-color", "#fecaca", "important");
+    }
 
     const box = document.createElement("div");
     box.id = "pn-edit-box";
@@ -92,6 +100,7 @@
 
       if (act === "text") addText();
       if (act === "line") addLine();
+      if (act === "delete") deleteSelected();
       if (act === "card") select(closest(selected, cardSel) || closest(selected, socialSel) || selected);
       if (act === "section") selectSection();
       if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
@@ -138,6 +147,11 @@
   function select(el) {
     makeUi();
     if (!el) return;
+
+    if (edit.deleted) {
+      el.style.setProperty("display", "none", "important");
+      return;
+    }
     selected = el;
     document.querySelectorAll("[data-pn-selected=true]").forEach(x => x.removeAttribute("data-pn-selected"));
     selected.dataset.pnSelected = "true";
@@ -214,6 +228,11 @@
     }
     if (!el) return;
 
+    if (edit.deleted) {
+      el.style.setProperty("display", "none", "important");
+      return;
+    }
+
     if (edit.kind === "section") el.dataset.pnSection = "true";
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
     if (edit.font) el.style.setProperty("font-family", edit.font, "important");
@@ -256,6 +275,36 @@
     save();
   }
 
+
+  function deleteSelected() {
+    if (!selected) return;
+
+    const sourceSelector = selected.dataset.pnSource || path(selected);
+    const ghostId = selected.dataset.pnGhost === "true" ? selected.dataset.pnId : "";
+
+    if (selected.dataset.pnGhost === "true" || selected.dataset.pnFreeText === "true" || selected.dataset.pnDivider === "true") {
+      selected.remove();
+    } else {
+      selected.style.setProperty("display", "none", "important");
+    }
+
+    parent.postMessage({
+      type: "pagenova-live-edit",
+      key: KEY,
+      edit: {
+        selector: sourceSelector,
+        ghostId: ghostId,
+        text: "",
+        font: "",
+        size: 0,
+        color: "",
+        deleted: true
+      }
+    }, "*");
+
+    selected = null;
+    syncBox();
+  }
   function selectSection() {
     if (!selected) return;
     const s = closest(selected, sectionSel);
@@ -370,6 +419,11 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
+
+    if (edit.deleted) {
+      el.style.setProperty("display", "none", "important");
+      return;
+    }
     if (hovered && hovered !== el) hovered.removeAttribute("data-pn-hover");
     hovered = el;
     hovered.dataset.pnHover = "true";
@@ -385,6 +439,11 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
+
+    if (edit.deleted) {
+      el.style.setProperty("display", "none", "important");
+      return;
+    }
     e.preventDefault();
     e.stopPropagation();
     select(el);
@@ -394,6 +453,11 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
     const el = candidate(e.target);
     if (!el) return;
+
+    if (edit.deleted) {
+      el.style.setProperty("display", "none", "important");
+      return;
+    }
 
     clearSelection();
     select(el);
