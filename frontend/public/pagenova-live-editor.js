@@ -137,7 +137,6 @@
   function select(el) {
     makeUi();
     if (!el) return;
-    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     selected = el;
     document.querySelectorAll("[data-pn-selected=true]").forEach(x => x.removeAttribute("data-pn-selected"));
     selected.dataset.pnSelected = "true";
@@ -213,7 +212,6 @@
       if (edit.ghostId) el.dataset.pnId = edit.ghostId;
     }
     if (!el) return;
-    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
 
     if (edit.kind === "section") el.dataset.pnSection = "true";
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
@@ -358,7 +356,6 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
-    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     if (hovered && hovered !== el) hovered.removeAttribute("data-pn-hover");
     hovered = el;
     hovered.dataset.pnHover = "true";
@@ -374,7 +371,6 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
-    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     e.preventDefault();
     e.stopPropagation();
     select(el);
@@ -384,7 +380,6 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
     const el = candidate(e.target);
     if (!el) return;
-    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
 
     clearSelection();
     select(el);
@@ -465,117 +460,4 @@
 
   makeUi();
   savedEdits.forEach(applyEdit);
-
-  function installSelectionDeleteLayer() {
-    if (document.getElementById("pn-floating-delete")) return;
-
-    const button = document.createElement("button");
-    button.id = "pn-floating-delete";
-    button.type = "button";
-    button.textContent = "Excluir";
-    button.setAttribute("aria-label", "Excluir bloco selecionado");
-    button.style.cssText = [
-      "position:fixed",
-      "display:none",
-      "z-index:2147483647",
-      "height:28px",
-      "padding:0 10px",
-      "border:1px solid #fecaca",
-      "border-radius:8px",
-      "background:#fff1f2",
-      "color:#b91c1c",
-      "font:700 12px Arial,sans-serif",
-      "box-shadow:0 8px 22px rgba(15,23,42,.14)",
-      "cursor:pointer"
-    ].join(";") + ";";
-
-    document.body.appendChild(button);
-
-    function fallbackPath(el) {
-      if (!el || el.nodeType !== 1) return "";
-      const parts = [];
-      while (el && el.nodeType === 1 && el !== document.body) {
-        let name = el.nodeName.toLowerCase();
-        if (el.id) {
-          parts.unshift("#" + el.id);
-          break;
-        }
-        let index = 1;
-        let prev = el.previousElementSibling;
-        while (prev) {
-          if (prev.nodeName === el.nodeName) index++;
-          prev = prev.previousElementSibling;
-        }
-        parts.unshift(name + ":nth-of-type(" + index + ")");
-        el = el.parentElement;
-      }
-      return parts.join(">");
-    }
-
-    function currentSelected() {
-      try {
-        if (typeof selected !== "undefined" && selected && selected.nodeType === 1) return selected;
-      } catch (_) {}
-      return null;
-    }
-
-    function syncDeleteButton() {
-      const box = document.getElementById("pn-edit-box");
-      const target = currentSelected();
-
-      if (!box || !target) {
-        button.style.display = "none";
-        requestAnimationFrame(syncDeleteButton);
-        return;
-      }
-
-      const rect = box.getBoundingClientRect();
-      const visible = rect.width > 0 && rect.height > 0;
-
-      if (!visible) {
-        button.style.display = "none";
-        requestAnimationFrame(syncDeleteButton);
-        return;
-      }
-
-      button.style.display = "block";
-      button.style.left = Math.max(8, Math.round(rect.right - 62)) + "px";
-      button.style.top = Math.max(8, Math.round(rect.top - 34)) + "px";
-
-      requestAnimationFrame(syncDeleteButton);
-    }
-
-    button.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const target = currentSelected();
-      if (!target) return;
-
-      const selector = typeof path === "function" ? path(target) : fallbackPath(target);
-      const pageKey = typeof key !== "undefined" ? key : "home";
-
-      target.style.setProperty("display", "none", "important");
-      button.style.display = "none";
-
-      parent.postMessage({
-        type: "pagenova-live-edit",
-        key: pageKey,
-        edit: { selector, text: "", font: "", size: 0, color: "", deleted: true }
-      }, "*");
-
-      try {
-        if (typeof hideBox === "function") hideBox();
-      } catch (_) {}
-    }, true);
-
-    requestAnimationFrame(syncDeleteButton);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installSelectionDeleteLayer);
-  } else {
-    installSelectionDeleteLayer();
-  }
-
 })();
