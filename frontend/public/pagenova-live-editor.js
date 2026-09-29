@@ -65,8 +65,13 @@
 
     const box = document.createElement("div");
     box.id = "pn-edit-box";
-    box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
+    box.innerHTML = '<button type="button" id="pn-edit-delete" title="Excluir">Excluir</button><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     document.body.appendChild(box);
+    const deleteStyle = document.createElement("style");
+    deleteStyle.id = "pn-edit-delete-style";
+    deleteStyle.textContent = "#pn-edit-delete{position:absolute!important;right:-1px!important;top:-34px!important;height:28px!important;padding:0 10px!important;border:1px solid #fecaca!important;border-radius:8px!important;background:#fff1f2!important;color:#b91c1c!important;font:700 12px Arial,sans-serif!important;cursor:pointer!important;z-index:2147483647!important}#pn-edit-delete:hover{background:#fee2e2!important}";
+    document.head.appendChild(deleteStyle);
+
 
     const gx = document.createElement("div");
     gx.id = "pn-align-x";
@@ -96,6 +101,13 @@
       if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
     });
 
+
+    const boxDeleteButton = box.querySelector("#pn-edit-delete");
+    boxDeleteButton.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      deleteSelected();
+    }, true);
     box.addEventListener("pointerdown", function (e) {
       const h = e.target.dataset.h;
       if (!h || !selected) return;
@@ -137,6 +149,7 @@
   function select(el) {
     makeUi();
     if (!el) return;
+    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     selected = el;
     document.querySelectorAll("[data-pn-selected=true]").forEach(x => x.removeAttribute("data-pn-selected"));
     selected.dataset.pnSelected = "true";
@@ -181,6 +194,19 @@
     return ghost;
   }
 
+
+  function deleteSelected() {
+    if (!selected) return;
+    const target = selected;
+    target.style.setProperty("display", "none", "important");
+    parent.postMessage({
+      type: "pagenova-live-edit",
+      key,
+      edit: { selector: path(target), text: "", font: "", size: 0, color: "", deleted: true }
+    }, "*");
+    selected = null;
+    if (typeof hideBox === "function") hideBox();
+  }
   function save() {
     if (!selected) return;
 
@@ -212,6 +238,7 @@
       if (edit.ghostId) el.dataset.pnId = edit.ghostId;
     }
     if (!el) return;
+    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
 
     if (edit.kind === "section") el.dataset.pnSection = "true";
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
@@ -356,6 +383,7 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
+    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     if (hovered && hovered !== el) hovered.removeAttribute("data-pn-hover");
     hovered = el;
     hovered.dataset.pnHover = "true";
@@ -371,6 +399,7 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
     if (!el) return;
+    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
     e.preventDefault();
     e.stopPropagation();
     select(el);
@@ -380,6 +409,7 @@
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
     const el = candidate(e.target);
     if (!el) return;
+    if (edit.deleted) { el.style.setProperty("display", "none", "important"); return; }
 
     clearSelection();
     select(el);
