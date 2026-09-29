@@ -6,8 +6,9 @@
   const textSel = "h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,button,[data-pn-free-text=true]";
   const cardSel = "article,[class*='card'],[class*='Card'],.service-card,.servico-card,.feature-card,.benefit-card,.step-card,.process-card,.metodo-card,.solution-card";
   const sectionSel = "section,.section,[class*='section'],[class*='Section']";
+  const numberSel = ".step-number,.process-number,.card-number,.badge,.tag,.pill,[class*='number'],[class*='Number'],[class*='badge'],[class*='Badge'],[class*='tag'],[class*='Tag'],[class*='pill'],[class*='Pill']";
   const socialSel = ".social-links,[class*='social-links'],[class*='socialLinks']";
-  const editSel = textSel + "," + cardSel + "," + sectionSel + "," + socialSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
+  const editSel = textSel + "," + numberSel + "," + cardSel + "," + sectionSel + "," + socialSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
 
   let selected = null;
   let hovered = null;
@@ -300,6 +301,9 @@
       return social;
     }
 
+    const number = closest(target, numberSel);
+    if (number) return number;
+
     const directText = closest(target, textSel);
     if (directText) return directText;
 
@@ -308,7 +312,6 @@
 
     return closest(target, editSel);
   }
-
   function guidesFor(el, left, top) {
     const gx = document.getElementById("pn-align-x");
     const gy = document.getElementById("pn-align-y");
