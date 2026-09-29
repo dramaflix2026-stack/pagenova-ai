@@ -65,13 +65,8 @@
 
     const box = document.createElement("div");
     box.id = "pn-edit-box";
-    box.innerHTML = '<button type="button" id="pn-edit-delete" title="Excluir">Excluir</button><i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
+    box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     document.body.appendChild(box);
-    const deleteStyle = document.createElement("style");
-    deleteStyle.id = "pn-edit-delete-style";
-    deleteStyle.textContent = "#pn-edit-delete{position:absolute!important;right:-1px!important;top:-34px!important;height:28px!important;padding:0 10px!important;border:1px solid #fecaca!important;border-radius:8px!important;background:#fff1f2!important;color:#b91c1c!important;font:700 12px Arial,sans-serif!important;cursor:pointer!important;z-index:2147483647!important}#pn-edit-delete:hover{background:#fee2e2!important}";
-    document.head.appendChild(deleteStyle);
-
 
     const gx = document.createElement("div");
     gx.id = "pn-align-x";
@@ -101,13 +96,6 @@
       if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
     });
 
-
-    const boxDeleteButton = box.querySelector("#pn-edit-delete");
-    boxDeleteButton.addEventListener("click", function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      deleteSelected();
-    }, true);
     box.addEventListener("pointerdown", function (e) {
       const h = e.target.dataset.h;
       if (!h || !selected) return;
@@ -194,19 +182,6 @@
     return ghost;
   }
 
-
-  function deleteSelected() {
-    if (!selected) return;
-    const target = selected;
-    target.style.setProperty("display", "none", "important");
-    parent.postMessage({
-      type: "pagenova-live-edit",
-      key,
-      edit: { selector: path(target), text: "", font: "", size: 0, color: "", deleted: true }
-    }, "*");
-    selected = null;
-    if (typeof hideBox === "function") hideBox();
-  }
   function save() {
     if (!selected) return;
 
@@ -490,4 +465,117 @@
 
   makeUi();
   savedEdits.forEach(applyEdit);
+
+  function installSelectionDeleteLayer() {
+    if (document.getElementById("pn-floating-delete")) return;
+
+    const button = document.createElement("button");
+    button.id = "pn-floating-delete";
+    button.type = "button";
+    button.textContent = "Excluir";
+    button.setAttribute("aria-label", "Excluir bloco selecionado");
+    button.style.cssText = [
+      "position:fixed",
+      "display:none",
+      "z-index:2147483647",
+      "height:28px",
+      "padding:0 10px",
+      "border:1px solid #fecaca",
+      "border-radius:8px",
+      "background:#fff1f2",
+      "color:#b91c1c",
+      "font:700 12px Arial,sans-serif",
+      "box-shadow:0 8px 22px rgba(15,23,42,.14)",
+      "cursor:pointer"
+    ].join(";") + ";";
+
+    document.body.appendChild(button);
+
+    function fallbackPath(el) {
+      if (!el || el.nodeType !== 1) return "";
+      const parts = [];
+      while (el && el.nodeType === 1 && el !== document.body) {
+        let name = el.nodeName.toLowerCase();
+        if (el.id) {
+          parts.unshift("#" + el.id);
+          break;
+        }
+        let index = 1;
+        let prev = el.previousElementSibling;
+        while (prev) {
+          if (prev.nodeName === el.nodeName) index++;
+          prev = prev.previousElementSibling;
+        }
+        parts.unshift(name + ":nth-of-type(" + index + ")");
+        el = el.parentElement;
+      }
+      return parts.join(">");
+    }
+
+    function currentSelected() {
+      try {
+        if (typeof selected !== "undefined" && selected && selected.nodeType === 1) return selected;
+      } catch (_) {}
+      return null;
+    }
+
+    function syncDeleteButton() {
+      const box = document.getElementById("pn-edit-box");
+      const target = currentSelected();
+
+      if (!box || !target) {
+        button.style.display = "none";
+        requestAnimationFrame(syncDeleteButton);
+        return;
+      }
+
+      const rect = box.getBoundingClientRect();
+      const visible = rect.width > 0 && rect.height > 0;
+
+      if (!visible) {
+        button.style.display = "none";
+        requestAnimationFrame(syncDeleteButton);
+        return;
+      }
+
+      button.style.display = "block";
+      button.style.left = Math.max(8, Math.round(rect.right - 62)) + "px";
+      button.style.top = Math.max(8, Math.round(rect.top - 34)) + "px";
+
+      requestAnimationFrame(syncDeleteButton);
+    }
+
+    button.addEventListener("click", function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const target = currentSelected();
+      if (!target) return;
+
+      const selector = typeof path === "function" ? path(target) : fallbackPath(target);
+      const pageKey = typeof key !== "undefined" ? key : "home";
+
+      target.style.setProperty("display", "none", "important");
+      button.style.display = "none";
+
+      parent.postMessage({
+        type: "pagenova-live-edit",
+        key: pageKey,
+        edit: { selector, text: "", font: "", size: 0, color: "", deleted: true }
+      }, "*");
+
+      try {
+        if (typeof hideBox === "function") hideBox();
+      } catch (_) {}
+    }, true);
+
+    requestAnimationFrame(syncDeleteButton);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installSelectionDeleteLayer);
+  } else {
+    installSelectionDeleteLayer();
+  }
+
 })();
