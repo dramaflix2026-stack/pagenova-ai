@@ -25,18 +25,18 @@ export function renderContactPreview(project: SiteProject, page: SitePage): stri
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Contato — ${name}</title>
 <style>
-*{box-sizing:border-box}body{margin:0;color:#18302a;background:#f7f8f5;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}body{margin:0;color:#18302a;background:#f7f8f5;font-family:"Poppins",sans-serif}
 a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}
 header{background:white;padding:23px max(5%,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:20px;border-bottom:1px solid #e4e9e3}
 header strong{font-size:22px;letter-spacing:-.05em}nav{display:flex;gap:25px;flex-wrap:wrap;font-size:14px}
 nav a[aria-current]{color:#087f63;font-weight:800}
 main{max-width:1180px;margin:auto;padding:85px 28px 100px}
 .kicker{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#087f63}
-h1{font:400 clamp(44px,5vw,70px)/1.08 Georgia,serif;letter-spacing:-.045em;max-width:830px;margin:20px 0}
+h1{font:400 clamp(44px,5vw,70px)/1.08 "Poppins",sans-serif;letter-spacing:-.045em;max-width:830px;margin:20px 0}
 .intro{font-size:18px;line-height:1.7;color:#5d7168;max-width:700px;margin-bottom:55px}
 .layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:28px;align-items:start}
 form,.aside{background:white;border:1px solid #e3eae3;border-radius:20px;padding:34px;box-shadow:0 20px 55px #123c3510}
-form h2,.aside h2{font:400 29px Georgia,serif;margin:0 0 9px}
+form h2,.aside h2{font:400 29px "Poppins",sans-serif;margin:0 0 9px}
 .hint{color:#66776d;line-height:1.6;font-size:14px;margin:0 0 28px}
 .fields{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 label{display:block;font-size:13px;font-weight:700;color:#31463c}
@@ -55,13 +55,13 @@ footer{background:#123c35;color:#d3e5db;padding:32px 6%;font-size:13px}
 .institutional-contact main{max-width:1240px;padding:100px 28px 110px}
 .institutional-contact .layout{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(36px,7vw,110px);align-items:start}
 .institutional-contact .contact-copy{padding-top:30px}
-.institutional-contact h1{font:700 clamp(38px,4.6vw,62px)/1.1 Georgia,serif;max-width:580px;margin:22px 0 25px}
+.institutional-contact h1{font:700 clamp(38px,4.6vw,62px)/1.1 "Poppins",sans-serif;max-width:580px;margin:22px 0 25px}
 .institutional-contact .intro{max-width:520px;font-size:19px;margin:0 0 37px}
 .institutional-contact .contact-details{border-top:1px solid #d9e1d9;padding-top:24px}
 .institutional-contact .contact-details a{color:#257951;font-weight:700;overflow-wrap:anywhere}
 .institutional-contact .contact-details p{line-height:1.7;color:#66776c}
 .institutional-contact form{border-radius:15px;padding:32px;box-shadow:0 16px 46px #153a2420}
-.institutional-contact form h2{font:700 29px Georgia,serif;color:#203a2d}
+.institutional-contact form h2{font:700 29px "Poppins",sans-serif;color:#203a2d}
 .institutional-contact .fields{grid-template-columns:1fr 1fr}
 .institutional-contact input,.institutional-contact select,.institutional-contact textarea{background:#f8f7f2}
 .institutional-contact button[type=submit]{width:100%;background:#297b53}

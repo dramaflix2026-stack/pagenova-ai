@@ -89,7 +89,7 @@ export function renderEditablePreview(
     border-radius:10px!important;
     background:#fff!important;
     color:#111!important;
-    font:600 12px Arial,sans-serif!important;
+    font:600 12px "Poppins",sans-serif!important;
     padding:0 10px!important;
   }
 

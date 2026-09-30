@@ -114,7 +114,7 @@ export function renderSaasPage(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${title} — ${name}</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#090f19;color:#ecf5f4;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#090f19;color:#ecf5f4;font-family:"Poppins",sans-serif}
 a{color:inherit;text-decoration:none}button{font:inherit}h1,h2,h3,p{margin-top:0}
 .wrap{width:min(1160px,calc(100% - 40px));margin:auto}
 header{position:sticky;top:0;z-index:5;border-bottom:1px solid #ffffff18;background:#09101be8;backdrop-filter:blur(18px)}

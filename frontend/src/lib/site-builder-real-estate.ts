@@ -61,7 +61,7 @@ export function renderRealEstatePage(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${name} — ${escape(page.heading)}</title>
 <style>
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f5ef;color:#202822;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f7f5ef;color:#202822;font-family:"Poppins",sans-serif}
 button,select{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}[hidden]{display:none!important}
 header{background:#fff;display:flex;justify-content:space-between;align-items:center;gap:22px;padding:22px max(5%,calc((100% - 1200px)/2));border-bottom:1px solid #e9e5dd}
 .brand{font-size:22px;font-weight:800;letter-spacing:-.055em}nav{display:flex;flex-wrap:wrap;gap:25px;font-size:14px}nav a[aria-current]{color:#bd6848;font-weight:800}
@@ -83,9 +83,9 @@ h2{font-size:clamp(33px,4vw,49px);margin:10px 0 0}.section-title p{font-size:13p
 .property:hover{transform:translateY(-4px);box-shadow:0 18px 42px #1d291921}
 .property-art{height:215px;display:flex;align-items:end;justify-content:space-between;padding:16px;background:linear-gradient(135deg,#c4c0b3,#6d8279);color:#fff}
 .art-1{background:linear-gradient(135deg,#c9c1b2,#847b71)}.art-2{background:linear-gradient(135deg,#abbdb7,#5c766e)}.art-3{background:linear-gradient(135deg,#d2c1aa,#826f5c)}
-.sample{background:#19271da8;border-radius:4px;padding:8px;font-size:9px;font-weight:800;letter-spacing:.1em}.art-number{font:48px Georgia,serif;opacity:.45}
+.sample{background:#19271da8;border-radius:4px;padding:8px;font-size:9px;font-weight:800;letter-spacing:.1em}.art-number{font:48px "Poppins",sans-serif;opacity:.45}
 .property-body{display:flex;flex-direction:column;gap:12px;padding:22px}.meta{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#b45b40}
-.property-body strong{font:24px Georgia,serif;letter-spacing:-.025em}.features{font-size:13px;color:#73776e}
+.property-body strong{font:24px "Poppins",sans-serif;letter-spacing:-.025em}.features{font-size:13px;color:#73776e}
 .bottom{border-top:1px solid #eee9e0;padding-top:17px;display:flex;justify-content:space-between;align-items:center;gap:8px}.bottom b{font-size:19px}.bottom span{font-size:12px;color:#b45b40;font-weight:800}
 .empty{border:1px dashed #c8c4b7;border-radius:10px;padding:30px;color:#71766b}
 .about{background:#e9eee8}.about-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:30px}.about-item{border-top:1px solid #b9c8ba;padding:23px 12px 0 0}
