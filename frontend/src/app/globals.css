@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -1528,4 +1529,14 @@ body footer > div:last-child:not(:first-child) {
   body footer {
     padding: 44px 20px 24px !important;
   }
+}
+
+/* PageNova U5.2 - global typography */
+html,
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Poppins", sans-serif;
 }

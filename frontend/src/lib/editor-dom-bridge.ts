@@ -394,7 +394,7 @@ export function installEditorDomBridge(
         "background:transparent",
         "box-sizing:border-box",
         `font-size:${Number(data.fontSize) || 28}px`,
-        `font-family:${data.fontFamily || "Arial, sans-serif"}`,
+        `font-family:${data.fontFamily || "Poppins, sans-serif"}`,
         `color:${data.color || "#202020"}`,
         `text-align:${data.textAlign || "left"}`,
         "line-height:1.2",

@@ -58,7 +58,7 @@
       '<button data-act="logo-left">Logo esquerda</button>' +
       '<button data-act="logo-center">Logo centro</button>' +
       '<button data-act="logo-right">Logo direita</button>' +
-      '<select data-field="font"><option value="">Fonte</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Montserrat">Montserrat</option><option value="Inter">Inter</option></select>' +
+      '<select data-field="font"><option value="">Fonte</option><option value="Poppins">Poppins</option><option value="Inter">Inter</option><option value="Montserrat">Montserrat</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Oswald">Oswald</option><option value="Bebas Neue">Bebas Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select>' +
       '<input data-field="size" type="number" min="8" max="120" placeholder="Tam.">' +
       '<input data-field="color" type="color" value="#111111">';
     document.body.appendChild(bar);
