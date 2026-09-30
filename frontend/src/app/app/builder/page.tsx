@@ -216,7 +216,7 @@ export default function BuilderPage() {
       setCreatingBrief(false);
     }
   }
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"] }> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; institutional?: SiteProject["institutional"] }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -231,11 +231,12 @@ export default function BuilderPage() {
         } : undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
-    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; error?: string };
+    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; institutional?: SiteProject["institutional"]; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
     return {
       page: data.page as SitePage,
       visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
+      institutional: data.institutional as SiteProject["institutional"] | undefined,
     };
   }
 
@@ -357,7 +358,17 @@ export default function BuilderPage() {
         .toLowerCase()
     ));
   }
-  async function revise(event: FormEvent<HTMLFormElement>) {
+    function requestsInstitutionalRevision(value: string) {
+    const normalized = value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+    return /\b(publico|audience|cliente ideal|clientes ideais|segmento atendido|segmentos atendidos|para quem|quem atende|quem atendemos|funcao|atividade|papel|atuacao|oferta|produto|produtos|servico|servicos|processo|metodo|metodologia|etapa|etapas|como funciona|prova|credencial|credenciais|experiencia|resultado comprovado|resultados comprovados|evidencia|evidencias|certificacao|certificacoes)\b/.test(
+      normalized
+    );
+  }
+async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
     setError(""); setPhase("generating"); setCurrentStep(activePage);
@@ -376,6 +387,12 @@ export default function BuilderPage() {
           requestsVisualRevision(instruction, Boolean(revisionImage))
             ? (result.visualDirection || project.visualDirection)
             : project.visualDirection,
+        institutional:
+          project.presetId === "institucional" &&
+          requestsInstitutionalRevision(instruction) &&
+          result.institutional
+            ? result.institutional
+            : project.institutional,
       };
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");

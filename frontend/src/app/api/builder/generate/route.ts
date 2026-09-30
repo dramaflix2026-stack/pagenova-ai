@@ -76,6 +76,19 @@ export async function POST(request: NextRequest) {
   }
 
   const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.
+DADOS INSTITUCIONAIS:
+Retorne também institutional com role, audience, offer, process e proof.
+Esses campos representam fatos persistidos do negócio, não copy decorativa.
+Em geração inicial, use somente fatos sustentados pelo briefing ou pelos dados confirmados.
+Se um fato não estiver sustentado, use string vazia. Nunca invente.
+Em MODO DE REVISÃO, preserve exatamente os dados institucionais existentes que o usuário não pediu para alterar.
+Somente altere role quando a instrução tratar da função, atividade ou papel do negócio.
+Somente altere audience quando a instrução tratar do público, cliente ideal, segmento atendido ou para quem o serviço é destinado.
+Somente altere offer quando a instrução tratar da oferta, produto ou serviço oferecido.
+Somente altere process quando a instrução tratar do processo, método, etapas ou forma de execução.
+Somente altere proof quando a instrução tratar de prova, credencial, experiência, resultado comprovado ou evidência.
+Se o usuário pedir explicitamente para remover um desses dados, devolva string vazia nesse campo.
+Uma alteração de título, texto, CTA, seção, layout, hero, imagem, cards, estilo ou screenshot não autoriza modificar dados institucionais.
 DIREÇÃO VISUAL:
 Escolha visualDirection semanticamente com base no negócio, no pedido do usuário e, quando houver, no screenshot de referência.
 heroLayout:
@@ -144,7 +157,18 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
               },
               required: ["businessModel", "primaryGoal", "conversion", "tone", "sectionKinds"],
             },
-                        visualDirection: {
+                        institutional: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                role: { type: "string" },
+                audience: { type: "string" },
+                offer: { type: "string" },
+                process: { type: "string" },
+                proof: { type: "string" },
+              },
+              required: ["role", "audience", "offer", "process", "proof"],
+            },            visualDirection: {
               type: "object",
               additionalProperties: false,
               properties: {
@@ -207,7 +231,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
               required: ["eyebrow", "heading", "introduction", "sections", "cta"],
             },
           },
-          required: ["strategy", "visualDirection", "page"],
+          required: ["strategy", "institutional", "visualDirection", "page"],
         } } },
       }),
     });
@@ -226,7 +250,13 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
         tone?: string;
         sectionKinds?: string[];
       };
-      visualDirection?: {
+      institutional?: {
+        role?: string;
+        audience?: string;
+        offer?: string;
+        process?: string;
+        proof?: string;
+      };      visualDirection?: {
         heroLayout?: "overlay" | "split-left" | "split-right" | "centered";
         heroAlignment?: "left" | "center";
         heroContentWidth?: "narrow" | "medium" | "wide";
@@ -238,6 +268,92 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
 
     const semanticStrategy = parsed.strategy;
     const parsedPage = parsed.page;
+    const rawInstitutional = parsed.institutional;
+
+    if (
+      !rawInstitutional ||
+      typeof rawInstitutional.role !== "string" ||
+      typeof rawInstitutional.audience !== "string" ||
+      typeof rawInstitutional.offer !== "string" ||
+      typeof rawInstitutional.process !== "string" ||
+      typeof rawInstitutional.proof !== "string"
+    ) {
+      throw new Error("Invalid AI institutional data");
+    }
+
+    const currentInstitutional = {
+      role: typeof submitted.role === "string" ? submitted.role.slice(0, 700).trim() : "",
+      audience: typeof submitted.audience === "string" ? submitted.audience.slice(0, 700).trim() : "",
+      offer: typeof submitted.offer === "string" ? submitted.offer.slice(0, 700).trim() : "",
+      process: typeof submitted.process === "string" ? submitted.process.slice(0, 700).trim() : "",
+      proof: typeof submitted.proof === "string" ? submitted.proof.slice(0, 700).trim() : "",
+    };
+
+    let institutional = {
+      role: rawInstitutional.role.slice(0, 700).trim(),
+      audience: rawInstitutional.audience.slice(0, 700).trim(),
+      offer: rawInstitutional.offer.slice(0, 700).trim(),
+      process: rawInstitutional.process.slice(0, 700).trim(),
+      proof: rawInstitutional.proof.slice(0, 700).trim(),
+    };
+
+    if (instruction) {
+      const normalizedInstitutionalInstruction = instruction
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
+
+      const mentionsRole =
+        /\b(funcao|atividade|papel|atuacao|o que a empresa faz|o que o negocio faz)\b/.test(
+          normalizedInstitutionalInstruction
+        );
+
+      const mentionsAudience =
+        /\b(publico|audience|cliente ideal|clientes ideais|segmento atendido|segmentos atendidos|para quem|quem atende|quem atendemos)\b/.test(
+          normalizedInstitutionalInstruction
+        );
+
+      const mentionsOffer =
+        /\b(oferta|produto|produtos|servico|servicos|o que oferece|o que vende|o que entregamos)\b/.test(
+          normalizedInstitutionalInstruction
+        );
+
+      const mentionsProcess =
+        /\b(processo|metodo|metodologia|etapa|etapas|como funciona|forma de execucao|como executa)\b/.test(
+          normalizedInstitutionalInstruction
+        );
+
+      const mentionsProof =
+        /\b(prova|credencial|credenciais|experiencia|resultado comprovado|resultados comprovados|evidencia|evidencias|certificacao|certificacoes)\b/.test(
+          normalizedInstitutionalInstruction
+        );
+
+      institutional = {
+        role: mentionsRole
+          ? institutional.role
+          : currentInstitutional.role,
+        audience: mentionsAudience
+          ? institutional.audience
+          : currentInstitutional.audience,
+        offer: mentionsOffer
+          ? institutional.offer
+          : currentInstitutional.offer,
+        process: mentionsProcess
+          ? institutional.process
+          : currentInstitutional.process,
+        proof: mentionsProof
+          ? institutional.proof
+          : currentInstitutional.proof,
+      };
+
+      console.info("[Builder] Granular institutional revision", {
+        preserveRole: !mentionsRole,
+        preserveAudience: !mentionsAudience,
+        preserveOffer: !mentionsOffer,
+        preserveProcess: !mentionsProcess,
+        preserveProof: !mentionsProof,
+      });
+    }
 
     if (!semanticStrategy ||
         typeof semanticStrategy.businessModel !== "string" ||
@@ -398,7 +514,7 @@ console.info("[Builder] Semantic strategy", {
       })),
     };
 
-    return NextResponse.json({ page, visualDirection });
+    return NextResponse.json({ page, visualDirection, institutional });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
     return NextResponse.json({ error: "Não foi possível gerar esta página. Você pode tentar novamente." }, { status: 502 });
