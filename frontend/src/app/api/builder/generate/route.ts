@@ -3,6 +3,7 @@ import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { SITE_PAGES, type SitePage, type SitePageKey } from "@/lib/site-builder";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
+import { planUniversalSite } from "@/lib/site-builder-universal";
 
 export const runtime = "nodejs";
 export const maxDuration = 90;
@@ -43,17 +44,28 @@ export async function POST(request: NextRequest) {
     const value = submitted[field];
     return `${field}: ${typeof value === "string" ? value.slice(0, 700).trim() : ""}`;
   }).join("\n");
-  const nicheText = `${name} ${brief}`.toLowerCase();
-  const nicheGuide = /lavanderia|lavagem de roupas|roupas e peças/.test(nicheText)
-    ? "Lavanderia: priorize serviços de lavagem, secagem, passadoria, peças atendidas, coleta/entrega, área e prazo somente se confirmados. Cada card deve explicar uma oferta real; não substitua serviços por cards de atendimento ou dúvidas."
-    : /psicolog|terap|saúde|saude|clínic|clinic/.test(nicheText)
-      ? "Saúde e bem-estar: apresente modalidades, público e abordagem confirmados. Não prometa melhora, cura ou disponibilidade. Separe serviços da jornada de primeiro contato."
-      : /restaurante|caf[eé]|pizzaria|padaria/.test(nicheText)
-        ? "Alimentação: priorize cozinha, cardápio e formas de pedido/reserva confirmados; não invente pratos, preços ou horários."
-        : /imobili[aá]r|corretor|im[oó]ve/.test(nicheText)
-          ? "Imobiliário: diferencie busca, tipos de imóveis, regiões e atendimento. Não apresente imóvel ou preço fictício como oferta real."
-          : "Defina a oferta principal com base apenas em fatos fornecidos. Cards devem representar serviços, produtos ou etapas concretas do negócio; jamais quatro variações de 'entre em contato'.";
+  const universalStrategy = planUniversalSite({
+    name,
+    brief,
+    category: getSitePreset(presetId).title,
+    offer: typeof submitted.offer === "string" ? submitted.offer : "",
+    audience: typeof submitted.audience === "string" ? submitted.audience : "",
+  });
 
+  const universalSectionPlan = universalStrategy.sections
+    .map((section) => `${section.priority}. ${section.kind}: ${section.purpose}`)
+    .join("\n");
+
+  const universalDirection = [
+    `Modelo de negócio: ${universalStrategy.profile.businessModel}`,
+    `Objetivo principal: ${universalStrategy.profile.primaryGoal}`,
+    `Conversão principal: ${universalStrategy.profile.conversion}`,
+    `Tom: ${universalStrategy.profile.tone}`,
+    `Densidade visual: ${universalStrategy.design.density}`,
+    `Hero: ${universalStrategy.design.heroStyle}`,
+    `Cards: ${universalStrategy.design.cardStyle}`,
+    `Fonte padrão: ${universalStrategy.design.defaultFont}`,
+  ].join("\n");
   if (brief.length < 20 || brief.length > 3000 || name.length < 2 || name.length > 100 ||
       !keys.has(key) || !SITE_PRESETS.some((preset) => preset.id === presetId) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
@@ -63,7 +75,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nNicho: ${getSitePreset(presetId).title}\nMódulos: ${getSitePreset(presetId).modules.join(", ")}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nDireção editorial: ${nicheGuide}\nEstilo: ${style}\nPágina: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nEscreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
+  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nUse a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
