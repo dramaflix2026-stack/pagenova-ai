@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nUse a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
+  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
@@ -92,14 +92,69 @@ export async function POST(request: NextRequest) {
             ? [{ type: "input_text", text: prompt }, { type: "input_image", image_url: screenshot, detail: "high" }]
             : prompt },
         ],
-        text: { format: { type: "json_schema", name: "institutional_page", strict: true, schema: {
-          type: "object", additionalProperties: false,
+        text: { format: { type: "json_schema", name: "universal_site_page", strict: true, schema: {
+          type: "object",
+          additionalProperties: false,
           properties: {
-            eyebrow: { type: "string" }, heading: { type: "string" }, introduction: { type: "string" },
-            sections: { type: "array", items: { type: "object", additionalProperties: false,
-              properties: { title: { type: "string" }, body: { type: "string" } }, required: ["title", "body"] } },
-            cta: { type: "string" },
-          }, required: ["eyebrow", "heading", "introduction", "sections", "cta"],
+            strategy: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                businessModel: {
+                  type: "string",
+                  enum: ["professional-service", "local-service", "hospitality", "commerce", "product", "content", "software", "property", "generic"],
+                },
+                primaryGoal: {
+                  type: "string",
+                  enum: ["lead-generation", "booking", "sales", "authority", "portfolio", "contact"],
+                },
+                conversion: {
+                  type: "string",
+                  enum: ["whatsapp", "form", "booking", "checkout", "phone", "email"],
+                },
+                tone: {
+                  type: "string",
+                  enum: ["professional", "premium", "friendly", "bold", "technical", "minimal"],
+                },
+                sectionKinds: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 10,
+                  items: {
+                    type: "string",
+                    enum: ["hero", "services", "products", "benefits", "features", "about", "authority", "process", "portfolio", "gallery", "team", "testimonials", "pricing", "faq", "location", "contact", "final-cta"],
+                  },
+                },
+              },
+              required: ["businessModel", "primaryGoal", "conversion", "tone", "sectionKinds"],
+            },
+            page: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                eyebrow: { type: "string" },
+                heading: { type: "string" },
+                introduction: { type: "string" },
+                sections: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 6,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      title: { type: "string" },
+                      body: { type: "string" },
+                    },
+                    required: ["title", "body"],
+                  },
+                },
+                cta: { type: "string" },
+              },
+              required: ["eyebrow", "heading", "introduction", "sections", "cta"],
+            },
+          },
+          required: ["strategy", "page"],
         } } },
       }),
     });
@@ -110,16 +165,67 @@ export async function POST(request: NextRequest) {
     const payload = await ai.json() as { output?: { content?: { text?: string }[] }[]; output_text?: string };
     const text = payload.output_text || payload.output?.flatMap((item) => item.content || []).map((item) => item.text || "").join("");
     if (!text) throw new Error("Empty AI output");
-    const parsed = JSON.parse(text) as Omit<SitePage, "key">;
-    if (typeof parsed.heading !== "string" || typeof parsed.introduction !== "string" ||
-        typeof parsed.eyebrow !== "string" || typeof parsed.cta !== "string" ||
-        !Array.isArray(parsed.sections) || parsed.sections.length < 1 || parsed.sections.length > 6 ||
-        parsed.sections.some((section) => typeof section.title !== "string" || typeof section.body !== "string")) {
+    const parsed = JSON.parse(text) as {
+      strategy?: {
+        businessModel?: string;
+        primaryGoal?: string;
+        conversion?: string;
+        tone?: string;
+        sectionKinds?: string[];
+      };
+      page?: Omit<SitePage, "key">;
+    };
+
+    const semanticStrategy = parsed.strategy;
+    const parsedPage = parsed.page;
+
+    if (!semanticStrategy ||
+        typeof semanticStrategy.businessModel !== "string" ||
+        typeof semanticStrategy.primaryGoal !== "string" ||
+        typeof semanticStrategy.conversion !== "string" ||
+        typeof semanticStrategy.tone !== "string" ||
+        !Array.isArray(semanticStrategy.sectionKinds) ||
+        semanticStrategy.sectionKinds.length < 1) {
+      throw new Error("Invalid AI strategy");
+    }
+
+    if (!parsedPage ||
+        typeof parsedPage.heading !== "string" ||
+        typeof parsedPage.introduction !== "string" ||
+        typeof parsedPage.eyebrow !== "string" ||
+        typeof parsedPage.cta !== "string" ||
+        !Array.isArray(parsedPage.sections) ||
+        parsedPage.sections.length < 1 ||
+        parsedPage.sections.length > 6 ||
+        parsedPage.sections.some((section) =>
+          typeof section.title !== "string" ||
+          typeof section.body !== "string"
+        )) {
       throw new Error("Invalid AI page");
     }
-    const page: SitePage = { key, eyebrow: parsed.eyebrow.slice(0, 100), heading: parsed.heading.slice(0, 180),
-      introduction: parsed.introduction.slice(0, 300), cta: parsed.cta.slice(0, 80),
-      sections: parsed.sections.slice(0, 4).map((section) => ({ title: section.title.slice(0, 80), body: section.body.slice(0, 280) })) };
+
+    console.info("[Builder] Semantic strategy", {
+      deterministicBusinessModel: universalStrategy.profile.businessModel,
+      semanticBusinessModel: semanticStrategy.businessModel,
+      deterministicGoal: universalStrategy.profile.primaryGoal,
+      semanticGoal: semanticStrategy.primaryGoal,
+      deterministicConversion: universalStrategy.profile.conversion,
+      semanticConversion: semanticStrategy.conversion,
+      semanticSections: semanticStrategy.sectionKinds,
+    });
+
+    const page: SitePage = {
+      key,
+      eyebrow: parsedPage.eyebrow.slice(0, 100),
+      heading: parsedPage.heading.slice(0, 180),
+      introduction: parsedPage.introduction.slice(0, 300),
+      cta: parsedPage.cta.slice(0, 80),
+      sections: parsedPage.sections.slice(0, 4).map((section) => ({
+        title: section.title.slice(0, 80),
+        body: section.body.slice(0, 280),
+      })),
+    };
+
     return NextResponse.json({ page });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
