@@ -26,6 +26,9 @@ export default function BuilderPage() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
+  const [briefIdea, setBriefIdea] = useState("");
+  const [creatingBrief, setCreatingBrief] = useState(false);
+  const [briefError, setBriefError] = useState("");
   const [style, setStyle] = useState("moderno");
   const [contactEmail, setContactEmail] = useState("");
   const [contactWhatsApp, setContactWhatsApp] = useState("");
@@ -129,6 +132,90 @@ export default function BuilderPage() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
+  async function createBriefWithAI() {
+    if (creatingBrief || phase === "generating") return;
+
+    const cleanName = name.trim();
+    const cleanIdea = briefIdea.trim();
+
+    if (cleanName.length < 2) {
+      setBriefError("Informe primeiro o nome do negócio.");
+      return;
+    }
+
+    if (cleanIdea.length < 10) {
+      setBriefError("Descreva rapidamente o negócio com pelo menos 10 caracteres.");
+      return;
+    }
+
+    setCreatingBrief(true);
+    setBriefError("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/builder/brief", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: cleanName,
+          description: cleanIdea,
+          presetId: selectedPresetId,
+        }),
+      });
+
+      const data = await response.json() as {
+        brief?: string;
+        institutional?: {
+          role?: string;
+          audience?: string;
+          offer?: string;
+          process?: string;
+          proof?: string;
+        };
+        error?: string;
+      };
+
+      if (!response.ok || !data.brief) {
+        throw new Error(
+          data.error ||
+          "Não foi possível criar o briefing.",
+        );
+      }
+
+      setBrief(data.brief);
+
+      if (
+        selectedPresetId === "institucional" &&
+        data.institutional
+      ) {
+        setInstitutionalFacts((current) => ({
+          role:
+            data.institutional?.role?.trim() ||
+            current.role,
+          audience:
+            data.institutional?.audience?.trim() ||
+            current.audience,
+          offer:
+            data.institutional?.offer?.trim() ||
+            current.offer,
+          process:
+            data.institutional?.process?.trim() ||
+            current.process,
+          proof:
+            data.institutional?.proof?.trim() ||
+            current.proof,
+        }));
+      }
+    } catch (cause) {
+      setBriefError(
+        cause instanceof Error
+          ? cause.message
+          : "Não foi possível criar o briefing.",
+      );
+    } finally {
+      setCreatingBrief(false);
+    }
+  }
   async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<SitePage> {
     const controller = new AbortController();
     abortRef.current = controller;
@@ -280,7 +367,64 @@ export default function BuilderPage() {
             <label className="block text-sm font-medium">WhatsApp do negócio<input type="tel" value={contactWhatsApp} onChange={(event) => setContactWhatsApp(event.target.value)} placeholder="11999999999" maxLength={22} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
             <label className="block text-sm font-medium">Instagram<input value={contactInstagram} onChange={(event) => setContactInstagram(event.target.value)} placeholder="@suaempresa" maxLength={100} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
             <label className="block text-sm font-medium">Facebook<input value={contactFacebook} onChange={(event) => setContactFacebook(event.target.value)} placeholder="facebook.com/suaempresa" maxLength={200} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          </div>          <label className="block text-sm font-medium">Briefing do site <span className="font-normal text-white/45">· edite os campos entre colchetes e acrescente seus dados</span><textarea value={brief} onChange={(event) => setBrief(event.target.value)} maxLength={2800} rows={10} required className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400" /></label>
+          </div>          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-semibold text-white">
+                Quer que a IA monte o briefing?
+              </span>
+              <span className="text-xs leading-5 text-white/45">
+                Explique rapidamente o negócio. A IA organiza um briefing completo e você pode revisar tudo antes de criar o site.
+              </span>
+            </div>
+
+            <textarea
+              value={briefIdea}
+              onChange={(event) => {
+                setBriefIdea(event.target.value);
+                if (briefError) setBriefError("");
+              }}
+              maxLength={1200}
+              rows={3}
+              placeholder="Ex.: Somos a DroneField e fazemos inspeções de lavouras com drones para identificar áreas afetadas e gerar relatórios técnicos para produtores rurais."
+              className="mt-4 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 text-sm leading-6 text-white outline-none placeholder:text-white/25 focus:border-emerald-400"
+            />
+
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-xs text-white/35">
+                A IA não cria o site ainda — apenas prepara o briefing.
+              </span>
+
+              <button
+                type="button"
+                onClick={() => void createBriefWithAI()}
+                disabled={creatingBrief || phase === "generating"}
+                className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/15 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {creatingBrief ? "Criando briefing..." : "✨ Criar briefing com IA"}
+              </button>
+            </div>
+
+            {briefError && (
+              <p role="alert" className="mt-3 text-sm text-red-300">
+                {briefError}
+              </p>
+            )}
+          </div>
+
+          <label className="block text-sm font-medium">
+            Briefing do site
+            <span className="font-normal text-white/45">
+              {" "}· revise e edite antes de gerar
+            </span>
+            <textarea
+              value={brief}
+              onChange={(event) => setBrief(event.target.value)}
+              maxLength={2800}
+              rows={10}
+              required
+              className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400"
+            />
+          </label>
           {selectedPresetId === "institucional" && <fieldset className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5"><legend className="px-2 text-sm font-semibold text-emerald-200">Dados reais para personalizar o site</legend><p className="mb-4 text-xs leading-5 text-white/55">Preencha apenas o que você pode confirmar. Campos vazios não serão inventados pela IA.</p><div className="grid gap-3 sm:grid-cols-2">{([
             ["role", "Quem você é / sua atuação", "Ex.: psicóloga clínica"],
             ["audience", "Quem você atende", "Ex.: adultos em atendimento online"],
