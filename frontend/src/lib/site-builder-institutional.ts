@@ -54,7 +54,18 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const secondTitle = info?.process ? (sensitive ? "Como funciona o primeiro contato" : "Conheça nosso jeito de trabalhar") : (sensitive ? "Converse sobre o atendimento" : "Vamos falar sobre seu projeto");
   const secondLead = info?.process || (sensitive ? "Tire suas dúvidas sobre a proposta de atendimento e entenda os próximos passos antes de decidir." : "Conte o que você precisa e descubra como podemos ajudar.");
   const proof = info?.proof ? `<p class="fact">${esc(info.proof)}</p>` : "";
-  const audience = info?.audience ? `<p class="audience">Para ${esc(info.audience)}</p>` : "";
+  const audienceValue = (info?.audience || "").trim();
+  const normalizedAudience = audienceValue.replace(/^para\s+/i, "").trim();
+
+  const audienceAddsUsefulContext =
+    normalizedAudience.length >= 3 &&
+    normalizedAudience.length <= 90 &&
+    !/^(todos|todo mundo|geral|público geral|publico geral|clientes|empresas|pessoas)$/i.test(normalizedAudience);
+
+  const audience =
+    audienceAddsUsefulContext
+      ? `<p class="audience">Para ${esc(normalizedAudience)}</p>`
+      : "";
   const legal = /advog|jur[ií]d|escrit[oó]rio de advocacia|direito/i.test(`${project.name} ${project.brief}`);
   const offerList = (info?.offer || "")
     .split(/[;,\n]+/)
