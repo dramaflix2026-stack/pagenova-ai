@@ -315,6 +315,48 @@ export default function BuilderPage() {
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
   }
 
+  function requestsVisualRevision(text: string, hasScreenshot: boolean) {
+    if (hasScreenshot) return true;
+
+    const normalized = text
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+    return [
+      "visual",
+      "layout",
+      "hero",
+      "imagem a esquerda",
+      "imagem à esquerda",
+      "imagem a direita",
+      "imagem à direita",
+      "texto a esquerda",
+      "texto à esquerda",
+      "texto a direita",
+      "texto à direita",
+      "centraliz",
+      "alinh",
+      "espac",
+      "compact",
+      "borda",
+      "cards",
+      "card ",
+      "composicao",
+      "composição",
+      "apresentacao",
+      "apresentação",
+      "design",
+      "aparencia",
+      "aparência",
+      "split",
+    ].some((term) => normalized.includes(
+      term
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+    ));
+  }
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
@@ -331,7 +373,9 @@ export default function BuilderPage() {
         ...project,
         pages: { ...project.pages, [activePage]: page },
         visualDirection:
-          result.visualDirection || project.visualDirection,
+          requestsVisualRevision(instruction, Boolean(revisionImage))
+            ? (result.visualDirection || project.visualDirection)
+            : project.visualDirection,
       };
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");

@@ -964,6 +964,167 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     padding-bottom:110px!important;
   }
 }
+
+/* U5.5D split refinement */
+.hero.pn-hero-split-left,
+.hero.pn-hero-split-right {
+  position: relative;
+  min-height: 640px;
+  overflow: hidden;
+}
+
+.hero.pn-hero-split-left .hero-inner,
+.hero.pn-hero-split-right .hero-inner {
+  position: relative;
+  z-index: 2;
+  min-height: 640px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.hero.pn-hero-split-left .hero-media,
+.hero.pn-hero-split-right .hero-media {
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  min-height: 640px;
+  overflow: hidden;
+  opacity: 1;
+  border-radius: 0;
+}
+
+.hero.pn-hero-split-left .hero-media img,
+.hero.pn-hero-split-right .hero-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 640px;
+  object-fit: cover;
+}
+
+.hero.pn-hero-split-left .hero-content,
+.hero.pn-hero-split-right .hero-content,
+.hero.pn-hero-split-left .hero-copy,
+.hero.pn-hero-split-right .hero-copy {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: none;
+}
+
+.hero.pn-hero-split-left .hero-content,
+.hero.pn-hero-split-right .hero-content {
+  min-height: 640px;
+  padding: clamp(64px, 7vw, 112px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero.pn-hero-split-left .hero-inner {
+  grid-template-areas: "media content";
+}
+
+.hero.pn-hero-split-left .hero-media {
+  grid-area: media;
+}
+
+.hero.pn-hero-split-left .hero-content {
+  grid-area: content;
+}
+
+.hero.pn-hero-split-right .hero-inner {
+  grid-template-areas: "content media";
+}
+
+.hero.pn-hero-split-right .hero-media {
+  grid-area: media;
+}
+
+.hero.pn-hero-split-right .hero-content {
+  grid-area: content;
+}
+
+.hero.pn-hero-split-left::before,
+.hero.pn-hero-split-right::before,
+.hero.pn-hero-split-left::after,
+.hero.pn-hero-split-right::after {
+  pointer-events: none;
+}
+
+.hero.pn-focus-left .hero-media img {
+  object-position: left center;
+}
+
+.hero.pn-focus-center .hero-media img {
+  object-position: center center;
+}
+
+.hero.pn-focus-right .hero-media img {
+  object-position: right center;
+}
+
+.hero.pn-density-compact .hero-content {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.hero.pn-density-balanced .hero-content {
+  padding-top: 72px;
+  padding-bottom: 72px;
+}
+
+.hero.pn-density-spacious .hero-content {
+  padding-top: 112px;
+  padding-bottom: 112px;
+}
+
+.hero.pn-width-narrow .hero-copy {
+  max-width: 460px;
+}
+
+.hero.pn-width-medium .hero-copy {
+  max-width: 600px;
+}
+
+.hero.pn-width-wide .hero-copy {
+  max-width: 760px;
+}
+
+@media (max-width: 820px) {
+  .hero.pn-hero-split-left .hero-inner,
+  .hero.pn-hero-split-right .hero-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .hero.pn-hero-split-left .hero-media,
+  .hero.pn-hero-split-right .hero-media {
+    order: 1;
+    min-height: 360px;
+    height: 46vh;
+    max-height: 520px;
+  }
+
+  .hero.pn-hero-split-left .hero-media img,
+  .hero.pn-hero-split-right .hero-media img {
+    min-height: 360px;
+  }
+
+  .hero.pn-hero-split-left .hero-content,
+  .hero.pn-hero-split-right .hero-content {
+    order: 2;
+    min-height: 0;
+    padding: 48px 28px 56px;
+  }
+}
 </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${visualClasses} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="pn-site-header pn-header-left"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
