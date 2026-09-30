@@ -37,6 +37,19 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     cardStyle: "elevated",
   };
 
+  // PAGENOVA_AI_HEADER_DIRECTION_V1
+  const headerDirection = project.headerDirection || {
+    logoPosition: "left",
+    menuStyle: "inline",
+    density: "balanced",
+  };
+
+  const headerClasses = [
+    "pn-site-header",
+    `pn-header-${headerDirection.logoPosition}`,
+    `pn-header-menu-${headerDirection.menuStyle}`,
+    `pn-header-density-${headerDirection.density}`,
+  ].join(" ");
   const visualClasses = [
     `pn-hero-${visual.heroLayout}`,
     `pn-align-${visual.heroAlignment}`,
@@ -584,14 +597,62 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     display:none!important;
   }
 
+  /* PAGENOVA_AI_HEADER_DIRECTION_CSS_V1 */
+
+  header.pn-header-density-compact .header-inner{
+    min-height:58px!important;
+    padding-top:10px!important;
+    padding-bottom:10px!important;
+  }
+
+  header.pn-header-density-balanced .header-inner{
+    min-height:72px!important;
+    padding-top:14px!important;
+    padding-bottom:14px!important;
+  }
+
+  header.pn-header-density-spacious .header-inner{
+    min-height:92px!important;
+    padding-top:20px!important;
+    padding-bottom:20px!important;
+  }
+
+  header.pn-header-menu-inline .pn-menu-toggle{
+    display:none!important;
+  }
+
+  header.pn-header-menu-inline nav{
+    display:flex!important;
+    position:static!important;
+  }
+
+  header.pn-header-menu-dropdown .pn-menu-toggle{
+    display:inline-flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  header.pn-header-menu-dropdown nav{
+    display:none!important;
+  }
+
+  header.pn-header-menu-dropdown.is-menu-open nav{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+  }
+
+  header.pn-header-menu-dropdown .header-inner{
+    position:relative!important;
+  }
   header.pn-header-left .header-inner{justify-content:space-between!important}
-  header.pn-header-left .pn-menu-toggle{display:none!important}
+
 
   header.pn-header-right .header-inner{
     justify-content:space-between!important;
     flex-direction:row-reverse!important;
   }
-  header.pn-header-right .pn-menu-toggle{display:none!important}
+
 
   header.pn-header-center .header-inner{
     justify-content:center!important;
@@ -615,7 +676,7 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     text-transform:uppercase!important;
     cursor:pointer!important;
   }
-  header.pn-header-center nav{
+  header.pn-header-center.pn-header-menu-dropdown nav{
     position:absolute!important;
     top:calc(100% + 10px)!important;
     right:0!important;
@@ -628,7 +689,7 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     background:#fff!important;
     box-shadow:0 18px 42px rgba(20,25,22,.16)!important;
   }
-  header.pn-header-center.is-menu-open nav{
+  header.pn-header-center.pn-header-menu-dropdown.is-menu-open nav{
     display:flex!important;
     flex-direction:column!important;
     align-items:stretch!important;
@@ -1136,7 +1197,7 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     padding: 48px 28px 56px;
   }
 }
-</style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${visualClasses} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="pn-site-header pn-header-left"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
+</style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${visualClasses} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="${headerClasses}"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>

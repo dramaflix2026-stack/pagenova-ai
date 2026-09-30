@@ -32,6 +32,11 @@ export type SiteProject = {
   style: string;
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
   visualDirection?: VisualDirection;
+  headerDirection?: {
+    logoPosition: "left" | "center" | "right";
+    menuStyle: "inline" | "dropdown";
+    density: "compact" | "balanced" | "spacious";
+  };
   liveEdits?: Partial<Record<SitePageKey, import("@/lib/site-builder-live-editor").LiveEdit[]>>;
   contactEmail?: string;
   contactWhatsApp?: string;

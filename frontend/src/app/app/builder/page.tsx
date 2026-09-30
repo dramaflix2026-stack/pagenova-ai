@@ -216,7 +216,7 @@ export default function BuilderPage() {
       setCreatingBrief(false);
     }
   }
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; institutional?: SiteProject["institutional"] }> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"] }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -231,11 +231,12 @@ export default function BuilderPage() {
         } : undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
-    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; institutional?: SiteProject["institutional"]; error?: string };
+    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
     return {
       page: data.page as SitePage,
       visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
+      headerDirection: data.headerDirection as SiteProject["headerDirection"] | undefined,
       institutional: data.institutional as SiteProject["institutional"] | undefined,
     };
   }
@@ -268,6 +269,10 @@ export default function BuilderPage() {
             key === "home" && result.visualDirection
               ? result.visualDirection
               : current.visualDirection,
+          headerDirection:
+            key === "home" && result.headerDirection
+              ? result.headerDirection
+              : current.headerDirection,
         };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
@@ -316,6 +321,14 @@ export default function BuilderPage() {
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
   }
 
+  function requestsHeaderRevision(value: string) {
+    const normalized = value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+
+    return /\b(header|cabecalho|logo|logotipo|marca|menu|navegacao|navbar|nav)\b/.test(normalized);
+  }
   function requestsVisualRevision(text: string, hasScreenshot: boolean) {
     if (hasScreenshot) return true;
 
@@ -380,13 +393,30 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         revisionImage,
       );
       const page = result.page;
+
+      const headerRevisionRequested = requestsHeaderRevision(instruction);
+
+      const nextLiveEdits = headerRevisionRequested
+        ? {
+            ...project.liveEdits,
+            [activePage]: (project.liveEdits?.[activePage] || []).filter(
+              (edit) => !edit.headerLayout
+            ),
+          }
+        : project.liveEdits;
+
       const updated = {
         ...project,
         pages: { ...project.pages, [activePage]: page },
+        liveEdits: nextLiveEdits,
         visualDirection:
           requestsVisualRevision(instruction, Boolean(revisionImage))
             ? (result.visualDirection || project.visualDirection)
             : project.visualDirection,
+        headerDirection:
+          requestsHeaderRevision(instruction)
+            ? (result.headerDirection || project.headerDirection)
+            : project.headerDirection,
         institutional:
           project.presetId === "institucional" &&
           requestsInstitutionalRevision(instruction) &&
@@ -430,7 +460,15 @@ async function revise(event: FormEvent<HTMLFormElement>) {
   const preview = useMemo(() => project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : "",
     // Text edits already update the current iframe; regenerate only on page or theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [project?.pages[activePage], project?.previewTheme, activePage]);
+        [
+      project?.pages[activePage],
+      project?.previewTheme,
+      project?.visualDirection,
+      project?.headerDirection,
+      project?.institutional,
+      project?.liveEdits?.[activePage],
+      activePage,
+    ]);
 
   async function changeTheme(theme: PreviewTheme) {
     if (!project) return;
