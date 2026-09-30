@@ -78,7 +78,7 @@ export function renderEditablePreview(
     background:rgba(255,255,255,.94)!important;
     box-shadow:0 18px 50px rgba(0,0,0,.18)!important;
     backdrop-filter:blur(12px)!important;
-    font-family:Arial,sans-serif!important;
+    font-family: "Poppins", sans-serif!important;
   }
 
   #pn-edit-bar button,

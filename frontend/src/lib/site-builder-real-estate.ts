@@ -68,7 +68,7 @@ header{background:#fff;display:flex;justify-content:space-between;align-items:ce
 .shell{max-width:1200px;margin:auto;padding-left:28px;padding-right:28px}
 .hero{background:#f0ebe2;border-bottom:1px solid #e4dccf}.hero-grid{display:grid;grid-template-columns:1.25fr .75fr;align-items:center;gap:70px;padding-top:75px;padding-bottom:75px}
 .eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#b45b40}
-h1,h2,h3{font-family:Georgia,serif;font-weight:400;letter-spacing:-.045em}h1{font-size:clamp(42px,5.5vw,76px);line-height:1.07;margin:20px 0;max-width:780px}
+h1,h2,h3{font-family: "Poppins", sans-serif;font-weight:400;letter-spacing:-.045em}h1{font-size:clamp(42px,5.5vw,76px);line-height:1.07;margin:20px 0;max-width:780px}
 .hero p,.intro{line-height:1.75;color:#67675f;font-size:17px;max-width:650px}
 .hero-art{min-height:360px;border-radius:12px;background:linear-gradient(155deg,#c2b7a7,#858679 60%,#46584e);position:relative;overflow:hidden}
 .hero-art:before{content:"";position:absolute;left:12%;right:12%;bottom:0;height:75%;border:2px solid #fff6;border-bottom:0;border-radius:130px 130px 0 0;box-shadow:0 0 0 28px #ffffff0d}

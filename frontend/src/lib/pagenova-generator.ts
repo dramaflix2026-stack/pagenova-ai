@@ -688,7 +688,7 @@ body{
   margin:0;
   background:var(--bg);
   color:var(--text);
-  font-family:Inter,Arial,sans-serif;
+  font-family: "Poppins", sans-serif;
   line-height:1.5;
   overflow-x:hidden;
 }
