@@ -28,6 +28,23 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
   const sensitive = /psicolog|terap|saúde|saude|cl[ií]nic|m[eé]dic|advog|nutri[cç]/i.test(`${project.name} ${project.brief}`);
   const personal = /portf[oó]lio|designer|consultor|profissional aut[oô]nom|fot[oó]graf|advogad|terapeut|arquiteto|desenvolvedor/i.test(project.brief);
   const theme = project.previewTheme || "original";
+  const visual = project.visualDirection || {
+    heroLayout: "overlay",
+    heroAlignment: "left",
+    heroContentWidth: "medium",
+    imageFocus: "center",
+    density: "balanced",
+    cardStyle: "elevated",
+  };
+
+  const visualClasses = [
+    `pn-hero-${visual.heroLayout}`,
+    `pn-align-${visual.heroAlignment}`,
+    `pn-width-${visual.heroContentWidth}`,
+    `pn-focus-${visual.imageFocus}`,
+    `pn-density-${visual.density}`,
+    `pn-cards-${visual.cardStyle}`,
+  ].join(" ");
   const cards = page.sections.slice(0, 6).map(({ title, body }, index) => `<article class="feature" id="feature-${index + 1}">
     <span class="number">${String(index + 1).padStart(2, "0")}</span><h3>${esc(title)}</h3><p>${esc(body)}</p>
     </article>`).join("");
@@ -744,7 +761,210 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     }
   }
   /* PAGENOVAI_HEADER_TEXT_LOGO_CARDS_END */
-  </style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="pn-site-header pn-header-left"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
+
+/* PAGENOVA_VISUAL_DIRECTION_V1 */
+
+/* IMAGE FOCUS */
+.pn-focus-left .hero-media img{
+  object-position:left center!important;
+}
+.pn-focus-center .hero-media img{
+  object-position:center center!important;
+}
+.pn-focus-right .hero-media img{
+  object-position:right center!important;
+}
+
+/* CONTENT WIDTH */
+.pn-width-narrow .hero:not(.personal) .hero-content{
+  max-width:520px!important;
+}
+.pn-width-medium .hero:not(.personal) .hero-content{
+  max-width:680px!important;
+}
+.pn-width-wide .hero:not(.personal) .hero-content{
+  max-width:850px!important;
+}
+
+/* ALIGNMENT */
+.pn-align-center .hero:not(.personal) .hero-content{
+  text-align:center;
+  margin-left:auto;
+  margin-right:auto;
+}
+.pn-align-center .hero:not(.personal) .hero-lead{
+  margin-left:auto;
+  margin-right:auto;
+}
+.pn-align-center .hero:not(.personal) .hero-actions{
+  justify-content:center;
+}
+
+/* OVERLAY */
+.pn-hero-overlay .hero:not(.personal) .hero-media{
+  position:absolute!important;
+  inset:0!important;
+}
+.pn-hero-overlay .hero:not(.personal) .hero-content{
+  position:relative;
+  z-index:2;
+}
+
+/* SPLIT RIGHT:
+   content left / image right */
+.pn-hero-split-right .hero:not(.personal){
+  background:var(--surface)!important;
+  color:var(--ink)!important;
+}
+.pn-hero-split-right .hero:not(.personal) .hero-media{
+  position:absolute!important;
+  inset:0 0 0 52%!important;
+}
+.pn-hero-split-right .hero:not(.personal) .hero-media:after{
+  background:linear-gradient(
+    90deg,
+    var(--surface) 0%,
+    var(--surface) 4%,
+    transparent 42%
+  )!important;
+}
+.pn-hero-split-right .hero:not(.personal) .hero-content{
+  width:46%;
+  margin-left:0;
+  margin-right:auto;
+}
+.pn-hero-split-right .hero:not(.personal) .hero-lead{
+  color:var(--muted)!important;
+}
+.pn-hero-split-right .hero:not(.personal) .eyebrow{
+  color:var(--accent)!important;
+}
+
+/* SPLIT LEFT:
+   image left / content right */
+.pn-hero-split-left .hero:not(.personal){
+  background:var(--surface)!important;
+  color:var(--ink)!important;
+}
+.pn-hero-split-left .hero:not(.personal) .hero-media{
+  position:absolute!important;
+  inset:0 52% 0 0!important;
+}
+.pn-hero-split-left .hero:not(.personal) .hero-media:after{
+  background:linear-gradient(
+    270deg,
+    var(--surface) 0%,
+    var(--surface) 4%,
+    transparent 42%
+  )!important;
+}
+.pn-hero-split-left .hero:not(.personal) .hero-content{
+  width:46%;
+  margin-left:auto;
+  margin-right:0;
+}
+.pn-hero-split-left .hero:not(.personal) .hero-lead{
+  color:var(--muted)!important;
+}
+.pn-hero-split-left .hero:not(.personal) .eyebrow{
+  color:var(--accent)!important;
+}
+
+/* CENTERED */
+.pn-hero-centered .hero:not(.personal) .hero-media{
+  position:absolute!important;
+  inset:0!important;
+}
+.pn-hero-centered .hero:not(.personal) .hero-content{
+  max-width:850px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  text-align:center!important;
+}
+.pn-hero-centered .hero:not(.personal) .hero-lead{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.pn-hero-centered .hero:not(.personal) .hero-actions{
+  justify-content:center!important;
+}
+
+/* DENSITY */
+.pn-density-compact .hero:not(.personal) .hero-inner{
+  min-height:540px!important;
+  padding-top:65px!important;
+  padding-bottom:75px!important;
+}
+
+.pn-density-balanced .hero:not(.personal) .hero-inner{
+  min-height:640px!important;
+}
+
+.pn-density-spacious .hero:not(.personal) .hero-inner{
+  min-height:760px!important;
+  padding-top:110px!important;
+  padding-bottom:140px!important;
+}
+
+/* CARD STYLE */
+.pn-cards-flat .feature,
+.pn-cards-flat .features-four .feature{
+  box-shadow:none!important;
+  border-color:transparent!important;
+}
+
+.pn-cards-bordered .feature,
+.pn-cards-bordered .features-four .feature{
+  box-shadow:none!important;
+  border:1px solid var(--line)!important;
+}
+
+.pn-cards-elevated .feature,
+.pn-cards-elevated .features-four .feature{
+  box-shadow:0 18px 48px #102c2218!important;
+}
+
+/* MOBILE */
+@media(max-width:650px){
+  .pn-hero-split-left .hero:not(.personal) .hero-media,
+  .pn-hero-split-right .hero:not(.personal) .hero-media{
+    inset:0!important;
+  }
+
+  .pn-hero-split-left .hero:not(.personal) .hero-media:after,
+  .pn-hero-split-right .hero:not(.personal) .hero-media:after{
+    background:linear-gradient(
+      0deg,
+      #183c34ed,
+      #1d453dbb
+    )!important;
+  }
+
+  .pn-hero-split-left .hero:not(.personal),
+  .pn-hero-split-right .hero:not(.personal){
+    color:#fff!important;
+  }
+
+  .pn-hero-split-left .hero:not(.personal) .hero-content,
+  .pn-hero-split-right .hero:not(.personal) .hero-content{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+
+  .pn-hero-split-left .hero:not(.personal) .hero-lead,
+  .pn-hero-split-right .hero:not(.personal) .hero-lead{
+    color:#f3fbf4!important;
+  }
+
+  .pn-density-spacious .hero:not(.personal) .hero-inner{
+    min-height:650px!important;
+    padding-top:90px!important;
+    padding-bottom:110px!important;
+  }
+}
+</style></head><body class="theme-${theme} ${legal ? "pn-legal" : ""} ${visualClasses} ${laundry ? "pn-laundry" : ""}"><div class="topline"></div><header class="pn-site-header pn-header-left"><div class="shell header-inner"><strong class="brand">${name}</strong><button class="pn-menu-toggle" type="button" aria-controls="pn-header-menu" aria-expanded="false">Menu</button><nav id="pn-header-menu" aria-label="Navegação principal">${links}</nav></div></header>
   <main><div class="hero-carousel" id="hero-carousel"><section class="hero ${personal ? "personal" : ""}" data-hero-slide><div class="hero-media">${heroImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "Lavanderia · cuidado com suas roupas" : esc(page.eyebrow || name)}</span><h1>${laundry ? "Suas roupas bem cuidadas, do início ao fim." : esc(page.heading)}</h1><p class="hero-lead">${laundry ? esc(info?.offer || page.introduction) : esc(page.introduction)}</p>${audience}<div class="actions">${cta}${secondary}</div></div></div></section>${pageKey === "home" ? `<section class="hero hero-slide-two" data-hero-slide hidden><div class="hero-media">${workImage}</div><div class="shell hero-inner"><div class="hero-content"><span class="eyebrow">${laundry ? "O cuidado acontece em cada etapa" : sensitive ? "Atendimento" : "Como trabalhamos"}</span><h2>${laundry ? "Lavagem, passadoria e acabamento com atenção aos detalhes." : esc(secondTitle)}</h2><p class="hero-lead">${laundry ? esc(info?.process || "Conte quais peças precisam de cuidado e converse com a equipe sobre os serviços disponíveis.") : esc(secondLead)}</p><div class="actions"><a class="btn" href="#entre-em-contato">${sensitive ? "Tirar dúvidas" : "Vamos conversar"} <span aria-hidden="true">↗</span></a></div></div><div class="second-orbit" aria-hidden="true"></div></div></section><div class="hero-controls" aria-label="Slides do banner"><button type="button" data-hero-prev aria-label="Slide anterior">←</button><button type="button" class="hero-dot" data-hero-index="0" aria-label="Mostrar slide 1" aria-current="true"></button><button type="button" class="hero-dot" data-hero-index="1" aria-label="Mostrar slide 2" aria-current="false"></button><button type="button" data-hero-next aria-label="Próximo slide">→</button><span class="hero-slide-status" aria-live="polite">1 / 2</span></div>` : ""}</div>
   <section class="shell section services-section"><div class="section-head"><div><span class="kicker">${pageKey === "home" ? "O que oferecemos" : esc(page.eyebrow || "Nossa atuação")}</span><h2>${pageKey === "home" ? "Soluções para o que você precisa" : sectionTitle}</h2></div><p>${pageKey === "home" ? esc(info?.offer || "") : esc(page.introduction)}</p></div><div class="features ${page.sections.length === 4 ? "features-four" : ""}">${cards}</div></section>
   <section class="editorial"><div class="editorial-grid"><div class="editorial-image">${businessImage}</div><div class="editorial-copy"><span class="kicker">Sobre ${name}</span><h2>${esc(storyTitle)}</h2>${storyText ? `<p>${esc(storyText)}</p>` : ""}${proof}${project.pages.sobre && pageKey !== "sobre" ? '<a class="text-link" href="#sobre" data-page="sobre">Saiba mais sobre nós <span aria-hidden="true">↗</span></a>' : ""}</div></div></section>

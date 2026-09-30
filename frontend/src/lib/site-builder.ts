@@ -7,6 +7,14 @@ export const SITE_PAGES: { key: SitePageKey; label: string }[] = [
   { key: "contato", label: "Contato" },
 ];
 
+export type VisualDirection = {
+  heroLayout: "overlay" | "split-left" | "split-right" | "centered";
+  heroAlignment: "left" | "center";
+  heroContentWidth: "narrow" | "medium" | "wide";
+  imageFocus: "left" | "center" | "right";
+  density: "compact" | "balanced" | "spacious";
+  cardStyle: "flat" | "bordered" | "elevated";
+};
 export type SitePage = {
   key: SitePageKey;
   eyebrow: string;
@@ -23,6 +31,7 @@ export type SiteProject = {
   brief: string;
   style: string;
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
+  visualDirection?: VisualDirection;
   liveEdits?: Partial<Record<SitePageKey, import("@/lib/site-builder-live-editor").LiveEdit[]>>;
   contactEmail?: string;
   contactWhatsApp?: string;

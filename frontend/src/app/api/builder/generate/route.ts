@@ -75,7 +75,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Quando existir uma instrução de alteração e conteúdo atual, você está em MODO DE REVISÃO. Nesse modo, trate o conteúdo atual como fonte principal da página. Altere somente o que a instrução solicitar. Todo campo não solicitado deve ser devolvido exatamente igual ao conteúdo atual, caractere por caractere sempre que possível. Não reescreva títulos, introdução, CTA ou seções apenas para melhorar estilo. Não acrescente novas seções, não remova seções e não reorganize seções, exceto quando a instrução pedir explicitamente isso. Se a instrução mencionar somente título, altere somente heading. Se mencionar somente subtítulo ou introdução, altere somente introduction. Se mencionar somente CTA ou botão, altere somente cta. Se mencionar uma seção específica, preserve todas as demais seções sem alteração. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
+  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.
+DIREÇÃO VISUAL:
+Escolha visualDirection semanticamente com base no negócio, no pedido do usuário e, quando houver, no screenshot de referência.
+heroLayout:
+- overlay = texto sobre imagem de fundo;
+- split-left = imagem à esquerda e conteúdo à direita;
+- split-right = conteúdo à esquerda e imagem à direita;
+- centered = conteúdo centralizado com composição visual central.
+heroAlignment controla o alinhamento principal do conteúdo.
+heroContentWidth controla a largura visual do bloco textual.
+imageFocus indica qual região da imagem deve receber prioridade.
+density controla respiro e espaçamento geral.
+cardStyle define a linguagem visual dos cards.
+
+Quando houver screenshot, analise composição, hierarquia, proporções, distribuição de imagem e texto, densidade e estilo de cards. Use a referência como direção visual, sem copiar marca, logotipo, textos ou identidade proprietária.
+
+Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúdo textual atual e altere visualDirection conforme o pedido. Se o pedido for somente textual e não mencionar layout, composição, visual, estilo, hero, imagem, cards, espaçamento ou screenshot, preserve a direção visual existente quando ela for fornecida. Quando existir uma instrução de alteração e conteúdo atual, você está em MODO DE REVISÃO. Nesse modo, trate o conteúdo atual como fonte principal da página. Altere somente o que a instrução solicitar. Todo campo não solicitado deve ser devolvido exatamente igual ao conteúdo atual, caractere por caractere sempre que possível. Não reescreva títulos, introdução, CTA ou seções apenas para melhorar estilo. Não acrescente novas seções, não remova seções e não reorganize seções, exceto quando a instrução pedir explicitamente isso. Se a instrução mencionar somente título, altere somente heading. Se mencionar somente subtítulo ou introdução, altere somente introduction. Se mencionar somente CTA ou botão, altere somente cta. Se mencionar uma seção específica, preserve todas as demais seções sem alteração. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
@@ -128,7 +144,44 @@ export async function POST(request: NextRequest) {
               },
               required: ["businessModel", "primaryGoal", "conversion", "tone", "sectionKinds"],
             },
-            page: {
+                        visualDirection: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                heroLayout: {
+                  type: "string",
+                  enum: ["overlay", "split-left", "split-right", "centered"],
+                },
+                heroAlignment: {
+                  type: "string",
+                  enum: ["left", "center"],
+                },
+                heroContentWidth: {
+                  type: "string",
+                  enum: ["narrow", "medium", "wide"],
+                },
+                imageFocus: {
+                  type: "string",
+                  enum: ["left", "center", "right"],
+                },
+                density: {
+                  type: "string",
+                  enum: ["compact", "balanced", "spacious"],
+                },
+                cardStyle: {
+                  type: "string",
+                  enum: ["flat", "bordered", "elevated"],
+                },
+              },
+              required: [
+                "heroLayout",
+                "heroAlignment",
+                "heroContentWidth",
+                "imageFocus",
+                "density",
+                "cardStyle"
+              ],
+            },            page: {
               type: "object",
               additionalProperties: false,
               properties: {
@@ -154,7 +207,7 @@ export async function POST(request: NextRequest) {
               required: ["eyebrow", "heading", "introduction", "sections", "cta"],
             },
           },
-          required: ["strategy", "page"],
+          required: ["strategy", "visualDirection", "page"],
         } } },
       }),
     });
@@ -173,7 +226,14 @@ export async function POST(request: NextRequest) {
         tone?: string;
         sectionKinds?: string[];
       };
-      page?: Omit<SitePage, "key">;
+      visualDirection?: {
+        heroLayout?: "overlay" | "split-left" | "split-right" | "centered";
+        heroAlignment?: "left" | "center";
+        heroContentWidth?: "narrow" | "medium" | "wide";
+        imageFocus?: "left" | "center" | "right";
+        density?: "compact" | "balanced" | "spacious";
+        cardStyle?: "flat" | "bordered" | "elevated";
+      };      page?: Omit<SitePage, "key">;
     };
 
     const semanticStrategy = parsed.strategy;
@@ -287,6 +347,45 @@ console.info("[Builder] Semantic strategy", {
       semanticSections: semanticStrategy.sectionKinds,
     });
 
+    const rawVisualDirection = parsed.visualDirection;
+
+    if (
+      !rawVisualDirection ||
+      typeof rawVisualDirection.heroLayout !== "string" ||
+      typeof rawVisualDirection.heroAlignment !== "string" ||
+      typeof rawVisualDirection.heroContentWidth !== "string" ||
+      typeof rawVisualDirection.imageFocus !== "string" ||
+      typeof rawVisualDirection.density !== "string" ||
+      typeof rawVisualDirection.cardStyle !== "string" ||
+      !["overlay", "split-left", "split-right", "centered"].includes(
+        rawVisualDirection.heroLayout
+      ) ||
+      !["left", "center"].includes(
+        rawVisualDirection.heroAlignment
+      ) ||
+      !["narrow", "medium", "wide"].includes(
+        rawVisualDirection.heroContentWidth
+      ) ||
+      !["left", "center", "right"].includes(
+        rawVisualDirection.imageFocus
+      ) ||
+      !["compact", "balanced", "spacious"].includes(
+        rawVisualDirection.density
+      ) ||
+      !["flat", "bordered", "elevated"].includes(
+        rawVisualDirection.cardStyle
+      )
+    ) {
+      throw new Error("Invalid AI visual direction");
+    }
+    const visualDirection = {
+      heroLayout: rawVisualDirection.heroLayout as "overlay" | "split-left" | "split-right" | "centered",
+      heroAlignment: rawVisualDirection.heroAlignment as "left" | "center",
+      heroContentWidth: rawVisualDirection.heroContentWidth as "narrow" | "medium" | "wide",
+      imageFocus: rawVisualDirection.imageFocus as "left" | "center" | "right",
+      density: rawVisualDirection.density as "compact" | "balanced" | "spacious",
+      cardStyle: rawVisualDirection.cardStyle as "flat" | "bordered" | "elevated",
+    };
     const page: SitePage = {
       key,
       eyebrow: parsedPage.eyebrow.slice(0, 100),
@@ -299,7 +398,7 @@ console.info("[Builder] Semantic strategy", {
       })),
     };
 
-    return NextResponse.json({ page });
+    return NextResponse.json({ page, visualDirection });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
     return NextResponse.json({ error: "Não foi possível gerar esta página. Você pode tentar novamente." }, { status: 502 });

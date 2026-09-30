@@ -216,7 +216,7 @@ export default function BuilderPage() {
       setCreatingBrief(false);
     }
   }
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<SitePage> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"] }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -231,9 +231,12 @@ export default function BuilderPage() {
         } : undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
-    const data = await response.json() as { page?: SitePage; error?: string };
+    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
-    return data.page;
+    return {
+      page: data.page as SitePage,
+      visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
+    };
   }
 
   async function requestImage(site: SiteProject, kind: "hero" | "work"): Promise<string> {
@@ -255,8 +258,16 @@ export default function BuilderPage() {
       const key = keys[index];
       setCurrentStep(key);
       try {
-        const page = await requestPage(current, key);
-        current = { ...current, pages: { ...current.pages, [key]: page } };
+        const result = await requestPage(current, key);
+        const page = result.page;
+        current = {
+          ...current,
+          pages: { ...current.pages, [key]: page },
+          visualDirection:
+            key === "home" && result.visualDirection
+              ? result.visualDirection
+              : current.visualDirection,
+        };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
         if (site.presetId === "institucional" && (key === "home" || key === "sobre")) {
@@ -309,8 +320,19 @@ export default function BuilderPage() {
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
-      const page = await requestPage(project, activePage, instruction.trim() || "Analise o print e melhore esta página mantendo os dados reais.", revisionImage);
-      const updated = { ...project, pages: { ...project.pages, [activePage]: page } };
+      const result = await requestPage(
+        project,
+        activePage,
+        instruction.trim() || "Analise o print e melhore esta página mantendo os dados reais.",
+        revisionImage,
+      );
+      const page = result.page;
+      const updated = {
+        ...project,
+        pages: { ...project.pages, [activePage]: page },
+        visualDirection:
+          result.visualDirection || project.visualDirection,
+      };
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");
     } catch (cause) {
@@ -327,9 +349,13 @@ export default function BuilderPage() {
       if (!current.pages[key]) continue;
       setCurrentStep(key);
       try {
-        const page = await requestPage(current, key);
-        current = { ...current, pages: { ...current.pages, [key]: page },
-          liveEdits: { ...current.liveEdits, [key]: [] } };
+        const result = await requestPage(current, key);
+        const page = result.page;
+        current = {
+          ...current,
+          pages: { ...current.pages, [key]: page },
+          liveEdits: { ...current.liveEdits, [key]: [] },
+        };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key);
       } catch (cause) {
