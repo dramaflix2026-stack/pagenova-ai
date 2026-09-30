@@ -310,7 +310,7 @@ export default function BuilderPage() {
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
       const page = await requestPage(project, activePage, instruction.trim() || "Analise o print e melhore esta página mantendo os dados reais.", revisionImage);
-      const updated = { ...project, pages: { ...project.pages, [activePage]: page }, liveEdits: { ...project.liveEdits, [activePage]: [] } };
+      const updated = { ...project, pages: { ...project.pages, [activePage]: page } };
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");
     } catch (cause) {

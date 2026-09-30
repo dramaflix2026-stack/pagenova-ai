@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
+  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar. Quando existir uma instrução de alteração e conteúdo atual, você está em MODO DE REVISÃO. Nesse modo, trate o conteúdo atual como fonte principal da página. Altere somente o que a instrução solicitar. Todo campo não solicitado deve ser devolvido exatamente igual ao conteúdo atual, caractere por caractere sempre que possível. Não reescreva títulos, introdução, CTA ou seções apenas para melhorar estilo. Não acrescente novas seções, não remova seções e não reorganize seções, exceto quando a instrução pedir explicitamente isso. Se a instrução mencionar somente título, altere somente heading. Se mencionar somente subtítulo ou introdução, altere somente introduction. Se mencionar somente CTA ou botão, altere somente cta. Se mencionar uma seção específica, preserve todas as demais seções sem alteração. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos. `;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 65000);
@@ -204,7 +204,80 @@ export async function POST(request: NextRequest) {
       throw new Error("Invalid AI page");
     }
 
-    console.info("[Builder] Semantic strategy", {
+        if (instruction && existingPage) {
+      try {
+        const currentPage = JSON.parse(existingPage) as Partial<SitePage>;
+
+        const normalizedInstruction = instruction
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        const mentionsHeading =
+          /\b(titulo|headline|heading|chamada principal|hero)\b/.test(normalizedInstruction);
+
+        const mentionsIntroduction =
+          /\b(subtitulo|introducao|descricao principal|texto principal|paragrafo principal)\b/.test(normalizedInstruction);
+
+        const mentionsCta =
+          /\b(cta|botao|chamada para acao|call to action)\b/.test(normalizedInstruction);
+
+        const mentionsSections =
+          /\b(secao|secoes|card|cards|servico|servicos|beneficio|beneficios|bloco|blocos|conteudo)\b/.test(normalizedInstruction);
+
+        const broadRevision =
+          /\b(toda|tudo|pagina inteira|pagina completa|reescreva a pagina|refaca a pagina|recrie a pagina|melhore a pagina inteira|mude tudo)\b/.test(normalizedInstruction);
+
+        if (!broadRevision) {
+          if (!mentionsHeading && typeof currentPage.heading === "string") {
+            parsedPage.heading = currentPage.heading;
+          }
+
+          if (!mentionsIntroduction && typeof currentPage.introduction === "string") {
+            parsedPage.introduction = currentPage.introduction;
+          }
+
+          if (!mentionsCta && typeof currentPage.cta === "string") {
+            parsedPage.cta = currentPage.cta;
+          }
+
+          if (!mentionsSections && Array.isArray(currentPage.sections)) {
+            parsedPage.sections = currentPage.sections
+              .filter((section) =>
+                section &&
+                typeof section.title === "string" &&
+                typeof section.body === "string"
+              )
+              .map((section) => ({
+                title: section.title,
+                body: section.body,
+              }));
+          }
+
+          if (
+            typeof currentPage.eyebrow === "string" &&
+            !/\b(eyebrow|rotulo|categoria acima do titulo|texto acima do titulo)\b/.test(normalizedInstruction)
+          ) {
+            parsedPage.eyebrow = currentPage.eyebrow;
+          }
+        }
+
+        console.info("[Builder] Granular revision", {
+          key,
+          broadRevision,
+          preserveHeading: !broadRevision && !mentionsHeading,
+          preserveIntroduction: !broadRevision && !mentionsIntroduction,
+          preserveSections: !broadRevision && !mentionsSections,
+          preserveCta: !broadRevision && !mentionsCta,
+        });
+      } catch (revisionError) {
+        console.warn(
+          "[Builder] Could not apply deterministic revision preservation",
+          revisionError,
+        );
+      }
+    }
+console.info("[Builder] Semantic strategy", {
       deterministicBusinessModel: universalStrategy.profile.businessModel,
       semanticBusinessModel: semanticStrategy.businessModel,
       deterministicGoal: universalStrategy.profile.primaryGoal,
