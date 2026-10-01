@@ -666,90 +666,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
       throw new Error("Invalid AI page");
     }
 
-        if (instruction && existingPage) {
-      try {
-        const currentPage = JSON.parse(existingPage) as Partial<SitePage>;
-
-        const normalizedInstruction = instruction
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
-
-        const mentionsHeading =
-          /\b(titulo|headline|heading|chamada principal|hero)\b/.test(normalizedInstruction);
-
-        const mentionsIntroduction =
-          /\b(subtitulo|introducao|descricao principal|texto principal|paragrafo principal)\b/.test(normalizedInstruction);
-
-        const mentionsCta =
-          /\b(cta|botao|chamada para acao|call to action)\b/.test(normalizedInstruction);
-
-        const mentionsSections =
-          /\b(secao|secoes|card|cards|servico|servicos|beneficio|beneficios|bloco|blocos|conteudo)\b/.test(normalizedInstruction);
-
-        const broadRevision =
-          /\b(toda|tudo|pagina inteira|pagina completa|reescreva a pagina|refaca a pagina|recrie a pagina|melhore a pagina inteira|mude tudo)\b/.test(normalizedInstruction);
-
-        if (!broadRevision) {
-          if (!mentionsHeading && typeof currentPage.heading === "string") {
-            parsedPage.heading = currentPage.heading;
-          }
-
-          if (!mentionsIntroduction && typeof currentPage.introduction === "string") {
-            parsedPage.introduction = currentPage.introduction;
-          }
-
-          if (!mentionsCta && typeof currentPage.cta === "string") {
-            parsedPage.cta = currentPage.cta;
-          }
-
-          if (!mentionsSections && Array.isArray(currentPage.sections)) {
-            parsedPage.sections = currentPage.sections
-              .filter((section) =>
-                section &&
-                typeof section.title === "string" &&
-                typeof section.body === "string"
-              )
-              .map((section) => ({
-                title: section.title,
-                body: section.body,
-              }));
-          }
-
-          if (
-            typeof currentPage.eyebrow === "string" &&
-            !/\b(eyebrow|rotulo|categoria acima do titulo|texto acima do titulo)\b/.test(normalizedInstruction)
-          ) {
-            parsedPage.eyebrow = currentPage.eyebrow;
-          }
-        }
-
-        console.info("[Builder] Granular revision", {
-          key,
-          broadRevision,
-          preserveHeading: !broadRevision && !mentionsHeading,
-          preserveIntroduction: !broadRevision && !mentionsIntroduction,
-          preserveSections: !broadRevision && !mentionsSections,
-          preserveCta: !broadRevision && !mentionsCta,
-        });
-      } catch (revisionError) {
-        console.warn(
-          "[Builder] Could not apply deterministic revision preservation",
-          revisionError,
-        );
-      }
-    }
-console.info("[Builder] Semantic strategy", {
-      deterministicBusinessModel: universalStrategy.profile.businessModel,
-      semanticBusinessModel: semanticStrategy.businessModel,
-      deterministicGoal: universalStrategy.profile.primaryGoal,
-      semanticGoal: semanticStrategy.primaryGoal,
-      deterministicConversion: universalStrategy.profile.conversion,
-      semanticConversion: semanticStrategy.conversion,
-      semanticSections: semanticStrategy.sectionKinds,
-    });
-
-    const rawRevisionPlan = parsed.revisionPlan;
+        const rawRevisionPlan = parsed.revisionPlan;
 
     if (
       !rawRevisionPlan ||
@@ -773,6 +690,122 @@ console.info("[Builder] Semantic strategy", {
       sectionChanges: rawRevisionPlan.sectionChanges,
       elementChanges: rawRevisionPlan.elementChanges,
     };
+
+    if (instruction && existingPage) {
+      try {
+        const currentPage = JSON.parse(existingPage) as Partial<SitePage>;
+
+        const requestedContentFields = new Set(
+          revisionPlan.contentChanges.map((change) => change.field),
+        );
+
+        const preserveHeading =
+          !requestedContentFields.has("heading");
+
+        const preserveIntroduction =
+          !requestedContentFields.has("introduction");
+
+        const preserveCta =
+          !requestedContentFields.has("cta");
+
+        const preserveEyebrow =
+          !requestedContentFields.has("eyebrow");
+
+        if (
+          preserveHeading &&
+          typeof currentPage.heading === "string"
+        ) {
+          parsedPage.heading = currentPage.heading;
+        }
+
+        if (
+          preserveIntroduction &&
+          typeof currentPage.introduction === "string"
+        ) {
+          parsedPage.introduction = currentPage.introduction;
+        }
+
+        if (
+          preserveCta &&
+          typeof currentPage.cta === "string"
+        ) {
+          parsedPage.cta = currentPage.cta;
+        }
+
+        if (
+          preserveEyebrow &&
+          typeof currentPage.eyebrow === "string"
+        ) {
+          parsedPage.eyebrow = currentPage.eyebrow;
+        }
+
+        /*
+         * U5.6D.2:
+         * Section structure is intentionally NOT controlled by
+         * revisionPlan yet. Keep deterministic protection until
+         * sectionChanges receives its own validated application step.
+         */
+        const normalizedInstruction = instruction
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .toLowerCase();
+
+        const mentionsSections =
+          /\b(secao|secoes|card|cards|servico|servicos|beneficio|beneficios|bloco|blocos|conteudo)\b/.test(
+            normalizedInstruction,
+          );
+
+        const broadRevision =
+          /\b(toda|tudo|pagina inteira|pagina completa|reescreva a pagina|refaca a pagina|recrie a pagina|melhore a pagina inteira|mude tudo)\b/.test(
+            normalizedInstruction,
+          );
+
+        const preserveSections =
+          !broadRevision && !mentionsSections;
+
+        if (
+          preserveSections &&
+          Array.isArray(currentPage.sections)
+        ) {
+          parsedPage.sections = currentPage.sections
+            .filter(
+              (section) =>
+                section &&
+                typeof section.title === "string" &&
+                typeof section.body === "string",
+            )
+            .map((section) => ({
+              title: section.title,
+              body: section.body,
+            }));
+        }
+
+        console.info("[Builder] Revision plan content protection", {
+          key,
+          requestedContentFields: Array.from(requestedContentFields),
+          preserveHeading,
+          preserveIntroduction,
+          preserveCta,
+          preserveEyebrow,
+          preserveSections,
+          sectionAuthority: "legacy-temporary",
+        });
+      } catch (revisionError) {
+        console.warn(
+          "[Builder] Could not apply revision plan content protection",
+          revisionError,
+        );
+      }
+    }
+console.info("[Builder] Semantic strategy", {
+      deterministicBusinessModel: universalStrategy.profile.businessModel,
+      semanticBusinessModel: semanticStrategy.businessModel,
+      deterministicGoal: universalStrategy.profile.primaryGoal,
+      semanticGoal: semanticStrategy.primaryGoal,
+      deterministicConversion: universalStrategy.profile.conversion,
+      semanticConversion: semanticStrategy.conversion,
+      semanticSections: semanticStrategy.sectionKinds,
+    });
 
     const rawHeaderDirection = parsed.headerDirection;
 
