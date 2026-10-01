@@ -36,45 +36,65 @@ export type SitePage = {
 export type RevisionPlan = {
   scope: "page" | "site";
 
-  contentChanges?: {
-    heading?: string;
-    eyebrow?: string;
-    introduction?: string;
-    cta?: string;
-  };
-
-  institutionalChanges?: {
-    role?: string;
-    audience?: string;
-    offer?: string;
-    process?: string;
-    proof?: string;
-  };
-
-  visualChanges?: {
-    heroLayout?: "overlay" | "split-left" | "split-right" | "centered";
-    heroAlignment?: "left" | "center";
-    heroContentWidth?: "narrow" | "medium" | "wide";
-    imageFocus?: "left" | "center" | "right";
-    density?: "compact" | "balanced" | "spacious";
-    cardStyle?: "flat" | "bordered" | "elevated";
-  };
-
-  headerChanges?: {
-    logoPosition?: "left" | "center" | "right";
-    menuStyle?: "inline" | "dropdown";
-    density?: "compact" | "balanced" | "spacious";
-  };
-
-  sectionChanges?: Array<{
-    action: "update" | "remove" | "add" | "move";
-    index?: number;
-    targetIndex?: number;
-    title?: string;
-    body?: string;
+  contentChanges: Array<{
+    field: "eyebrow" | "heading" | "introduction" | "cta";
+    value: string;
   }>;
 
-  elementChanges?: Array<{
+  institutionalChanges: Array<{
+    field: "role" | "audience" | "offer" | "process" | "proof";
+    value: string;
+  }>;
+
+  visualChanges: Array<{
+    field:
+      | "heroLayout"
+      | "heroAlignment"
+      | "heroContentWidth"
+      | "imageFocus"
+      | "density"
+      | "cardStyle";
+    value:
+      | "overlay"
+      | "split-left"
+      | "split-right"
+      | "centered"
+      | "left"
+      | "center"
+      | "right"
+      | "narrow"
+      | "medium"
+      | "wide"
+      | "compact"
+      | "balanced"
+      | "spacious"
+      | "flat"
+      | "bordered"
+      | "elevated";
+  }>;
+
+  headerChanges: Array<{
+    field: "logoPosition" | "menuStyle" | "density";
+    value:
+      | "left"
+      | "center"
+      | "right"
+      | "inline"
+      | "dropdown"
+      | "compact"
+      | "balanced"
+      | "spacious";
+  }>;
+
+  sectionChanges: Array<{
+    action: "update" | "remove" | "add" | "move";
+    index: number;
+    targetIndex: number;
+    title: string;
+    body: string;
+  }>;
+
+  elementChanges: Array<{
     target:
       | "heading"
       | "eyebrow"
@@ -94,14 +114,12 @@ export type RevisionPlan = {
       | "align"
       | "restyle";
 
-    sectionIndex?: number;
+    sectionIndex: number;
 
-    properties?: {
-      alignment?: "left" | "center" | "right";
-      size?: "smaller" | "default" | "larger";
-      emphasis?: "subtle" | "default" | "strong";
-      cardStyle?: "flat" | "bordered" | "elevated";
-    };
+    alignment: "none" | "left" | "center" | "right";
+    size: "none" | "smaller" | "default" | "larger";
+    emphasis: "none" | "subtle" | "default" | "strong";
+    cardStyle: "none" | "flat" | "bordered" | "elevated";
   }>;
 };
 export type SiteProject = {
