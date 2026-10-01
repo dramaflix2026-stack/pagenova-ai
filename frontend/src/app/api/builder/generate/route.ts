@@ -5,6 +5,7 @@ import { SITE_PAGES, type SitePage, type SitePageKey } from "@/lib/site-builder"
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 import { planUniversalSite } from "@/lib/site-builder-universal";
 
+import { applySectionChanges } from "@/lib/site-builder-revision-plan";
 export const runtime = "nodejs";
 export const maxDuration = 90;
 
@@ -681,13 +682,91 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
       throw new Error("Invalid AI revision plan");
     }
 
+    const validSectionActions = new Set([
+      "update",
+      "remove",
+      "add",
+      "move",
+    ] as const);
+
+    type ValidSectionAction =
+      | "update"
+      | "remove"
+      | "add"
+      | "move";
+
+    const normalizedSectionChanges = rawRevisionPlan.sectionChanges
+      .map((change) => {
+        const action =
+          typeof change.action === "string" &&
+          validSectionActions.has(
+            change.action as ValidSectionAction,
+          )
+            ? (change.action as ValidSectionAction)
+            : null;
+
+        const index =
+          typeof change.index === "number" &&
+          Number.isInteger(change.index) &&
+          change.index >= -1 &&
+          change.index <= 20
+            ? change.index
+            : null;
+
+        const targetIndex =
+          typeof change.targetIndex === "number" &&
+          Number.isInteger(change.targetIndex) &&
+          change.targetIndex >= -1 &&
+          change.targetIndex <= 20
+            ? change.targetIndex
+            : null;
+
+        const title =
+          typeof change.title === "string"
+            ? change.title
+            : null;
+
+        const body =
+          typeof change.body === "string"
+            ? change.body
+            : null;
+
+        if (
+          action === null ||
+          index === null ||
+          targetIndex === null ||
+          title === null ||
+          body === null
+        ) {
+          return null;
+        }
+
+        return {
+          action,
+          index,
+          targetIndex,
+          title,
+          body,
+        };
+      })
+      .filter(
+        (
+          change,
+        ): change is {
+          action: ValidSectionAction;
+          index: number;
+          targetIndex: number;
+          title: string;
+          body: string;
+        } => change !== null,
+      );
     const revisionPlan = {
       scope: rawRevisionPlan.scope as "page" | "site",
       contentChanges: rawRevisionPlan.contentChanges,
       institutionalChanges: rawRevisionPlan.institutionalChanges,
       visualChanges: rawRevisionPlan.visualChanges,
       headerChanges: rawRevisionPlan.headerChanges,
-      sectionChanges: rawRevisionPlan.sectionChanges,
+      sectionChanges: normalizedSectionChanges,
       elementChanges: rawRevisionPlan.elementChanges,
     };
 
@@ -739,47 +818,37 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
           parsedPage.eyebrow = currentPage.eyebrow;
         }
 
-        /*
-         * U5.6D.2:
-         * Section structure is intentionally NOT controlled by
-         * revisionPlan yet. Keep deterministic protection until
-         * sectionChanges receives its own validated application step.
-         */
-        const normalizedInstruction = instruction
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .toLowerCase();
+        const currentSections = Array.isArray(currentPage.sections)
+          ? currentPage.sections
+              .filter(
+                (section) =>
+                  section &&
+                  typeof section.title === "string" &&
+                  typeof section.body === "string",
+              )
+              .map((section) => ({
+                title: section.title,
+                body: section.body,
+              }))
+          : [];
 
-        const mentionsSections =
-          /\b(secao|secoes|card|cards|servico|servicos|beneficio|beneficios|bloco|blocos|conteudo)\b/.test(
-            normalizedInstruction,
-          );
+        const sectionRevision = applySectionChanges(
+          currentSections,
+          revisionPlan.sectionChanges,
+        );
 
-        const broadRevision =
-          /\b(toda|tudo|pagina inteira|pagina completa|reescreva a pagina|refaca a pagina|recrie a pagina|melhore a pagina inteira|mude tudo)\b/.test(
-            normalizedInstruction,
-          );
+        parsedPage.sections = sectionRevision.sections;
 
         const preserveSections =
-          !broadRevision && !mentionsSections;
+          revisionPlan.sectionChanges.length === 0;
 
-        if (
-          preserveSections &&
-          Array.isArray(currentPage.sections)
-        ) {
-          parsedPage.sections = currentPage.sections
-            .filter(
-              (section) =>
-                section &&
-                typeof section.title === "string" &&
-                typeof section.body === "string",
-            )
-            .map((section) => ({
-              title: section.title,
-              body: section.body,
-            }));
-        }
-
+        console.info("[Builder] Revision plan section application", {
+          key,
+          requested: revisionPlan.sectionChanges.length,
+          applied: sectionRevision.applied,
+          ignored: sectionRevision.ignored,
+          preserveSections,
+        });
         console.info("[Builder] Revision plan content protection", {
           key,
           requestedContentFields: Array.from(requestedContentFields),
@@ -788,7 +857,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
           preserveCta,
           preserveEyebrow,
           preserveSections,
-          sectionAuthority: "legacy-temporary",
+          sectionAuthority: "revision-plan",
         });
       } catch (revisionError) {
         console.warn(
