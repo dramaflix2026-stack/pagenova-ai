@@ -139,6 +139,23 @@ Somente altere process quando a instrução tratar do processo, método, etapas 
 Somente altere proof quando a instrução tratar de prova, credencial, experiência, resultado comprovado ou evidência.
 Se o usuário pedir explicitamente para remover um desses dados, devolva string vazia nesse campo.
 Uma alteração de título, texto, CTA, seção, layout, hero, imagem, cards, estilo ou screenshot não autoriza modificar dados institucionais.
+PLANO ESTRUTURADO DE REVISÃO:
+Além dos objetos completos abaixo, devolva revisionPlan descrevendo SOMENTE as alterações explicitamente solicitadas pelo usuário.
+
+Em geração inicial, use scope "page" e devolva todos os arrays de mudanças vazios.
+
+Em MODO DE REVISÃO:
+- scope deve ser "page", exceto quando o usuário pedir explicitamente uma alteração global no site;
+- cada categoria não solicitada deve ser [];
+- não invente alterações para preencher o plano;
+- contentChanges registra mudanças em eyebrow, heading, introduction ou cta;
+- institutionalChanges registra mudanças em role, audience, offer, process ou proof;
+- visualChanges registra mudanças em heroLayout, heroAlignment, heroContentWidth, imageFocus, density ou cardStyle;
+- headerChanges registra mudanças em logoPosition, menuStyle ou density;
+- sectionChanges registra update, remove, add ou move de seções;
+- elementChanges registra mudanças visuais direcionadas a elementos específicos;
+- revisionPlan descreve intenção. Não use o plano para reescrever campos que o usuário não pediu.
+
 DIREÇÃO VISUAL:
 Escolha visualDirection semanticamente com base no negócio, no pedido do usuário e, quando houver, no screenshot de referência.
 heroLayout:
@@ -273,7 +290,180 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
                 "density",
                 "cardStyle"
               ],
-            },            page: {
+            },            revisionPlan: {
+              type: "object",
+              additionalProperties: false,
+              properties: {
+                scope: {
+                  type: "string",
+                  enum: ["page", "site"],
+                },
+                contentChanges: {
+                  type: "array",
+                  maxItems: 8,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      field: {
+                        type: "string",
+                        enum: ["eyebrow", "heading", "introduction", "cta"],
+                      },
+                      value: { type: "string" },
+                    },
+                    required: ["field", "value"],
+                  },
+                },
+                institutionalChanges: {
+                  type: "array",
+                  maxItems: 8,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      field: {
+                        type: "string",
+                        enum: ["role", "audience", "offer", "process", "proof"],
+                      },
+                      value: { type: "string" },
+                    },
+                    required: ["field", "value"],
+                  },
+                },
+                visualChanges: {
+                  type: "array",
+                  maxItems: 8,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      field: {
+                        type: "string",
+                        enum: ["heroLayout", "heroAlignment", "heroContentWidth", "imageFocus", "density", "cardStyle"],
+                      },
+                      value: {
+                        type: "string",
+                        enum: [
+                          "overlay",
+                          "split-left",
+                          "split-right",
+                          "centered",
+                          "left",
+                          "center",
+                          "right",
+                          "narrow",
+                          "medium",
+                          "wide",
+                          "compact",
+                          "balanced",
+                          "spacious",
+                          "flat",
+                          "bordered",
+                          "elevated"
+                        ],
+                      },
+                    },
+                    required: ["field", "value"],
+                  },
+                },
+                headerChanges: {
+                  type: "array",
+                  maxItems: 6,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      field: {
+                        type: "string",
+                        enum: ["logoPosition", "menuStyle", "density"],
+                      },
+                      value: {
+                        type: "string",
+                        enum: ["left", "center", "right", "inline", "dropdown", "compact", "balanced", "spacious"],
+                      },
+                    },
+                    required: ["field", "value"],
+                  },
+                },
+                sectionChanges: {
+                  type: "array",
+                  maxItems: 12,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      action: {
+                        type: "string",
+                        enum: ["update", "remove", "add", "move"],
+                      },
+                      index: { type: "integer", minimum: -1, maximum: 20 },
+                      targetIndex: { type: "integer", minimum: -1, maximum: 20 },
+                      title: { type: "string" },
+                      body: { type: "string" },
+                    },
+                    required: ["action", "index", "targetIndex", "title", "body"],
+                  },
+                },
+                elementChanges: {
+                  type: "array",
+                  maxItems: 12,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    properties: {
+                      target: {
+                        type: "string",
+                        enum: ["heading", "eyebrow", "introduction", "cta", "hero", "header", "navigation", "logo", "cards", "section"],
+                      },
+                      action: {
+                        type: "string",
+                        enum: ["update", "remove", "resize", "align", "restyle"],
+                      },
+                      sectionIndex: {
+                        type: "integer",
+                        minimum: -1,
+                        maximum: 20,
+                      },
+                      alignment: {
+                        type: "string",
+                        enum: ["none", "left", "center", "right"],
+                      },
+                      size: {
+                        type: "string",
+                        enum: ["none", "smaller", "default", "larger"],
+                      },
+                      emphasis: {
+                        type: "string",
+                        enum: ["none", "subtle", "default", "strong"],
+                      },
+                      cardStyle: {
+                        type: "string",
+                        enum: ["none", "flat", "bordered", "elevated"],
+                      },
+                    },
+                    required: [
+                      "target",
+                      "action",
+                      "sectionIndex",
+                      "alignment",
+                      "size",
+                      "emphasis",
+                      "cardStyle"
+                    ],
+                  },
+                },
+              },
+              required: [
+                "scope",
+                "contentChanges",
+                "institutionalChanges",
+                "visualChanges",
+                "headerChanges",
+                "sectionChanges",
+                "elementChanges"
+              ],
+            },
+            page: {
               type: "object",
               additionalProperties: false,
               properties: {
@@ -299,7 +489,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
               required: ["eyebrow", "heading", "introduction", "sections", "cta"],
             },
           },
-          required: ["strategy", "institutional", "headerDirection", "visualDirection", "page"],
+          required: ["strategy", "institutional", "headerDirection", "visualDirection", "revisionPlan", "page"],
         } } },
       }),
     });
@@ -335,7 +525,31 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
         imageFocus?: "left" | "center" | "right";
         density?: "compact" | "balanced" | "spacious";
         cardStyle?: "flat" | "bordered" | "elevated";
-      };      page?: Omit<SitePage, "key">;
+      };
+      revisionPlan?: {
+        scope?: "page" | "site";
+        contentChanges?: Array<{ field?: string; value?: string }>;
+        institutionalChanges?: Array<{ field?: string; value?: string }>;
+        visualChanges?: Array<{ field?: string; value?: string }>;
+        headerChanges?: Array<{ field?: string; value?: string }>;
+        sectionChanges?: Array<{
+          action?: string;
+          index?: number;
+          targetIndex?: number;
+          title?: string;
+          body?: string;
+        }>;
+        elementChanges?: Array<{
+          target?: string;
+          action?: string;
+          sectionIndex?: number;
+          alignment?: string;
+          size?: string;
+          emphasis?: string;
+          cardStyle?: string;
+        }>;
+      };
+      page?: Omit<SitePage, "key">;
     };
 
     const semanticStrategy = parsed.strategy;
@@ -535,6 +749,31 @@ console.info("[Builder] Semantic strategy", {
       semanticSections: semanticStrategy.sectionKinds,
     });
 
+    const rawRevisionPlan = parsed.revisionPlan;
+
+    if (
+      !rawRevisionPlan ||
+      !["page", "site"].includes(String(rawRevisionPlan.scope)) ||
+      !Array.isArray(rawRevisionPlan.contentChanges) ||
+      !Array.isArray(rawRevisionPlan.institutionalChanges) ||
+      !Array.isArray(rawRevisionPlan.visualChanges) ||
+      !Array.isArray(rawRevisionPlan.headerChanges) ||
+      !Array.isArray(rawRevisionPlan.sectionChanges) ||
+      !Array.isArray(rawRevisionPlan.elementChanges)
+    ) {
+      throw new Error("Invalid AI revision plan");
+    }
+
+    const revisionPlan = {
+      scope: rawRevisionPlan.scope as "page" | "site",
+      contentChanges: rawRevisionPlan.contentChanges,
+      institutionalChanges: rawRevisionPlan.institutionalChanges,
+      visualChanges: rawRevisionPlan.visualChanges,
+      headerChanges: rawRevisionPlan.headerChanges,
+      sectionChanges: rawRevisionPlan.sectionChanges,
+      elementChanges: rawRevisionPlan.elementChanges,
+    };
+
     const rawHeaderDirection = parsed.headerDirection;
 
     if (
@@ -605,7 +844,7 @@ console.info("[Builder] Semantic strategy", {
       })),
     };
 
-    return NextResponse.json({ page, visualDirection, headerDirection, institutional });
+    return NextResponse.json({ page, visualDirection, headerDirection, institutional, revisionPlan });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
     return NextResponse.json({ error: "Não foi possível gerar esta página. Você pode tentar novamente." }, { status: 502 });
