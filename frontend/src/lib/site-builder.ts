@@ -24,6 +24,86 @@ export type SitePage = {
   cta: string;
 };
 
+/**
+ * Structured AI revision contract.
+ *
+ * The AI describes WHAT should change.
+ * Validation/merge code decides HOW that change is safely applied
+ * to the persisted SiteProject.
+ *
+ * Keep this contract independent from niche-specific renderers.
+ */
+export type RevisionPlan = {
+  scope: "page" | "site";
+
+  contentChanges?: {
+    heading?: string;
+    eyebrow?: string;
+    introduction?: string;
+    cta?: string;
+  };
+
+  institutionalChanges?: {
+    role?: string;
+    audience?: string;
+    offer?: string;
+    process?: string;
+    proof?: string;
+  };
+
+  visualChanges?: {
+    heroLayout?: "overlay" | "split-left" | "split-right" | "centered";
+    heroAlignment?: "left" | "center";
+    heroContentWidth?: "narrow" | "medium" | "wide";
+    imageFocus?: "left" | "center" | "right";
+    density?: "compact" | "balanced" | "spacious";
+    cardStyle?: "flat" | "bordered" | "elevated";
+  };
+
+  headerChanges?: {
+    logoPosition?: "left" | "center" | "right";
+    menuStyle?: "inline" | "dropdown";
+    density?: "compact" | "balanced" | "spacious";
+  };
+
+  sectionChanges?: Array<{
+    action: "update" | "remove" | "add" | "move";
+    index?: number;
+    targetIndex?: number;
+    title?: string;
+    body?: string;
+  }>;
+
+  elementChanges?: Array<{
+    target:
+      | "heading"
+      | "eyebrow"
+      | "introduction"
+      | "cta"
+      | "hero"
+      | "header"
+      | "navigation"
+      | "logo"
+      | "cards"
+      | "section";
+
+    action:
+      | "update"
+      | "remove"
+      | "resize"
+      | "align"
+      | "restyle";
+
+    sectionIndex?: number;
+
+    properties?: {
+      alignment?: "left" | "center" | "right";
+      size?: "smaller" | "default" | "larger";
+      emphasis?: "subtle" | "default" | "strong";
+      cardStyle?: "flat" | "bordered" | "elevated";
+    };
+  }>;
+};
 export type SiteProject = {
   kind: "institutional-site";
   id: string;
