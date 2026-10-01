@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
-import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject } from "@/lib/site-builder";
+import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 
@@ -216,7 +216,7 @@ export default function BuilderPage() {
       setCreatingBrief(false);
     }
   }
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"] }> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; revisionPlan?: RevisionPlan }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -232,13 +232,14 @@ export default function BuilderPage() {
         currentHeaderDirection: site.headerDirection || undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
-    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; error?: string };
+    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; revisionPlan?: RevisionPlan; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
     return {
       page: data.page as SitePage,
       visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
       headerDirection: data.headerDirection as SiteProject["headerDirection"] | undefined,
       institutional: data.institutional as SiteProject["institutional"] | undefined,
+      revisionPlan: data.revisionPlan as RevisionPlan | undefined,
     };
   }
 
@@ -395,7 +396,20 @@ async function revise(event: FormEvent<HTMLFormElement>) {
       );
       const page = result.page;
 
-      const headerRevisionRequested = requestsHeaderRevision(instruction);
+      const revisionPlan = result.revisionPlan;
+
+      if (!revisionPlan) {
+        throw new Error("A IA não retornou um plano de revisão válido.");
+      }
+
+      const headerRevisionRequested =
+        revisionPlan.headerChanges.length > 0;
+
+      const visualRevisionRequested =
+        revisionPlan.visualChanges.length > 0;
+
+      const institutionalRevisionRequested =
+        revisionPlan.institutionalChanges.length > 0;
 
       const nextLiveEdits = headerRevisionRequested
         ? {
@@ -411,16 +425,16 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         pages: { ...project.pages, [activePage]: page },
         liveEdits: nextLiveEdits,
         visualDirection:
-          requestsVisualRevision(instruction, Boolean(revisionImage))
+          visualRevisionRequested
             ? (result.visualDirection || project.visualDirection)
             : project.visualDirection,
         headerDirection:
-          requestsHeaderRevision(instruction)
+          headerRevisionRequested
             ? (result.headerDirection || project.headerDirection)
             : project.headerDirection,
         institutional:
           project.presetId === "institucional" &&
-          requestsInstitutionalRevision(instruction) &&
+          institutionalRevisionRequested &&
           result.institutional
             ? result.institutional
             : project.institutional,
