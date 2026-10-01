@@ -34,6 +34,27 @@ export async function POST(request: NextRequest) {
   const instruction = typeof body.instruction === "string" ? body.instruction.trim() : "";
   const existingPage = typeof body.existingPage === "string" ? body.existingPage.trim() : "";
   const screenshot = typeof body.screenshot === "string" ? body.screenshot : "";
+
+  const submittedHeader =
+    body.currentHeaderDirection &&
+    typeof body.currentHeaderDirection === "object"
+      ? body.currentHeaderDirection as Record<string, unknown>
+      : {};
+
+  const currentHeaderDirection = {
+    logoPosition:
+      ["left", "center", "right"].includes(String(submittedHeader.logoPosition))
+        ? String(submittedHeader.logoPosition)
+        : "left",
+    menuStyle:
+      ["inline", "dropdown"].includes(String(submittedHeader.menuStyle))
+        ? String(submittedHeader.menuStyle)
+        : "inline",
+    density:
+      ["compact", "balanced", "spacious"].includes(String(submittedHeader.density))
+        ? String(submittedHeader.density)
+        : "balanced",
+  };
   if (screenshot && (!instruction || screenshot.length > 1200000 ||
       !/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(screenshot))) {
     return NextResponse.json({ error: "Print inválido ou grande demais." }, { status: 400 });
@@ -78,6 +99,14 @@ export async function POST(request: NextRequest) {
   const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.
 DADOS INSTITUCIONAIS:
 Retorne também institutional com role, audience, offer, process e proof.
+ESTADO ATUAL DO CABEÇALHO:
+${JSON.stringify(currentHeaderDirection)}
+
+Em MODO DE REVISÃO, considere esse objeto como o cabeçalho atualmente persistido.
+Quando a instrução pedir uma mudança no cabeçalho, logo, logotipo, marca, menu ou navegação, transforme esse estado conforme o pedido.
+Preserve exatamente as propriedades do cabeçalho que o usuário não pediu para alterar.
+Não retorne uma propriedade ao padrão anterior sem solicitação explícita.
+
 DIREÇÃO DO CABEÇALHO:
 Você também deve decidir a composição estrutural do cabeçalho em headerDirection.
 

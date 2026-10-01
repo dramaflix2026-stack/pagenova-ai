@@ -229,6 +229,7 @@ export default function BuilderPage() {
           process: site.institutional?.process || "",
           proof: site.institutional?.proof || "",
         } : undefined,
+        currentHeaderDirection: site.headerDirection || undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; error?: string };
