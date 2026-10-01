@@ -585,61 +585,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
     };
 
     if (instruction) {
-      const normalizedInstitutionalInstruction = instruction
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase();
 
-      const mentionsRole =
-        /\b(funcao|atividade|papel|atuacao|o que a empresa faz|o que o negocio faz)\b/.test(
-          normalizedInstitutionalInstruction
-        );
-
-      const mentionsAudience =
-        /\b(publico|audience|cliente ideal|clientes ideais|segmento atendido|segmentos atendidos|para quem|quem atende|quem atendemos)\b/.test(
-          normalizedInstitutionalInstruction
-        );
-
-      const mentionsOffer =
-        /\b(oferta|produto|produtos|servico|servicos|o que oferece|o que vende|o que entregamos)\b/.test(
-          normalizedInstitutionalInstruction
-        );
-
-      const mentionsProcess =
-        /\b(processo|metodo|metodologia|etapa|etapas|como funciona|forma de execucao|como executa)\b/.test(
-          normalizedInstitutionalInstruction
-        );
-
-      const mentionsProof =
-        /\b(prova|credencial|credenciais|experiencia|resultado comprovado|resultados comprovados|evidencia|evidencias|certificacao|certificacoes)\b/.test(
-          normalizedInstitutionalInstruction
-        );
-
-      institutional = {
-        role: mentionsRole
-          ? institutional.role
-          : currentInstitutional.role,
-        audience: mentionsAudience
-          ? institutional.audience
-          : currentInstitutional.audience,
-        offer: mentionsOffer
-          ? institutional.offer
-          : currentInstitutional.offer,
-        process: mentionsProcess
-          ? institutional.process
-          : currentInstitutional.process,
-        proof: mentionsProof
-          ? institutional.proof
-          : currentInstitutional.proof,
-      };
-
-      console.info("[Builder] Granular institutional revision", {
-        preserveRole: !mentionsRole,
-        preserveAudience: !mentionsAudience,
-        preserveOffer: !mentionsOffer,
-        preserveProcess: !mentionsProcess,
-        preserveProof: !mentionsProof,
-      });
     }
 
     if (!semanticStrategy ||
@@ -682,6 +628,54 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
       throw new Error("Invalid AI revision plan");
     }
 
+    const validInstitutionalFields = new Set([
+      "role",
+      "audience",
+      "offer",
+      "process",
+      "proof",
+    ] as const);
+
+    type ValidInstitutionalField =
+      | "role"
+      | "audience"
+      | "offer"
+      | "process"
+      | "proof";
+
+    const normalizedInstitutionalChanges =
+      rawRevisionPlan.institutionalChanges
+        .map((change) => {
+          const field =
+            typeof change.field === "string" &&
+            validInstitutionalFields.has(
+              change.field as ValidInstitutionalField,
+            )
+              ? (change.field as ValidInstitutionalField)
+              : null;
+
+          const value =
+            typeof change.value === "string"
+              ? change.value.slice(0, 700).trim()
+              : null;
+
+          if (field === null || value === null) {
+            return null;
+          }
+
+          return {
+            field,
+            value,
+          };
+        })
+        .filter(
+          (
+            change,
+          ): change is {
+            field: ValidInstitutionalField;
+            value: string;
+          } => change !== null,
+        );
     const validSectionActions = new Set([
       "update",
       "remove",
@@ -763,13 +757,67 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
     const revisionPlan = {
       scope: rawRevisionPlan.scope as "page" | "site",
       contentChanges: rawRevisionPlan.contentChanges,
-      institutionalChanges: rawRevisionPlan.institutionalChanges,
+      institutionalChanges: normalizedInstitutionalChanges,
       visualChanges: rawRevisionPlan.visualChanges,
       headerChanges: rawRevisionPlan.headerChanges,
       sectionChanges: normalizedSectionChanges,
       elementChanges: rawRevisionPlan.elementChanges,
     };
 
+    if (instruction && existingPage) {
+      const requestedInstitutionalFields = new Set(
+        revisionPlan.institutionalChanges.map(
+          (change) => change.field,
+        ),
+      );
+
+      const preserveRole =
+        !requestedInstitutionalFields.has("role");
+
+      const preserveAudience =
+        !requestedInstitutionalFields.has("audience");
+
+      const preserveOffer =
+        !requestedInstitutionalFields.has("offer");
+
+      const preserveProcess =
+        !requestedInstitutionalFields.has("process");
+
+      const preserveProof =
+        !requestedInstitutionalFields.has("proof");
+
+      institutional = {
+        role: preserveRole
+          ? currentInstitutional.role
+          : institutional.role,
+        audience: preserveAudience
+          ? currentInstitutional.audience
+          : institutional.audience,
+        offer: preserveOffer
+          ? currentInstitutional.offer
+          : institutional.offer,
+        process: preserveProcess
+          ? currentInstitutional.process
+          : institutional.process,
+        proof: preserveProof
+          ? currentInstitutional.proof
+          : institutional.proof,
+      };
+
+      console.info(
+        "[Builder] Revision plan institutional protection",
+        {
+          requestedInstitutionalFields:
+            Array.from(requestedInstitutionalFields),
+          preserveRole,
+          preserveAudience,
+          preserveOffer,
+          preserveProcess,
+          preserveProof,
+          institutionalAuthority: "revision-plan",
+        },
+      );
+    }
     if (instruction && existingPage) {
       try {
         const currentPage = JSON.parse(existingPage) as Partial<SitePage>;
