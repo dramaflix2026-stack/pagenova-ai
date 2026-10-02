@@ -24,6 +24,10 @@ export type SitePage = {
     title: string;
     body: string;
     kind?: import("@/lib/site-builder-universal").UniversalSectionKind;
+    items?: Array<{
+      title: string;
+      body: string;
+    }>;
   }[];
   cta: string;
 };

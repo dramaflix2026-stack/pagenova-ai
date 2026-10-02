@@ -99,6 +99,27 @@ export async function POST(request: NextRequest) {
 
   const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual.
 
+CONTEÚDO ESTRUTURADO DAS SEÇÕES:
+- Toda seção retornada deve incluir "items".
+- "items" representa unidades factuais distintas pertencentes ao kind da seção.
+- Cada item possui "title" e "body".
+- Se não houver unidades factuais suficientes, retorne "items": [].
+- Não invente conteúdo para preencher cards.
+- Não fragmente artificialmente uma frase ou parágrafo para produzir vários items.
+- services: somente serviços reais informados.
+- products: somente produtos ou ofertas reais informados.
+- benefits: somente benefícios sustentados pelos dados.
+- features: somente recursos ou características sustentados pelos dados.
+- process: cada item representa uma etapa real e deve preservar a ordem.
+- portfolio e gallery: somente trabalhos, projetos ou itens realmente informados.
+- team: somente pessoas ou funções realmente informadas.
+- testimonials: somente depoimentos reais fornecidos.
+- pricing: somente preços, planos ou condições explicitamente fornecidos.
+- faq: title representa a pergunta e body representa a resposta; não invente perguntas.
+- location: somente informações reais fornecidas.
+- contact: não invente telefone, WhatsApp, e-mail, endereço ou outro canal.
+- final-cta normalmente deve usar "items": [].
+- Mantenha title e body de cada item objetivos e específicos.
 IDENTIDADE SEMÂNTICA DAS SEÇÕES:
 Cada item de page.sections deve declarar em kind o significado real do conteúdo retornado. O kind não representa posição, aparência visual nem um espaço a ser preenchido. Ele representa exclusivamente a função semântica daquela seção.
 
@@ -536,8 +557,21 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
                       },
                       title: { type: "string" },
                       body: { type: "string" },
+                      items: {
+                        type: "array",
+                        maxItems: 6,
+                        items: {
+                          type: "object",
+                          additionalProperties: false,
+                          properties: {
+                            title: { type: "string" },
+                            body: { type: "string" },
+                          },
+                          required: ["title", "body"],
+                        },
+                      },
                     },
-                    required: ["kind", "title", "body"],
+                    required: ["kind", "title", "body", "items"],
                   },
                 },
                 cta: { type: "string" },
@@ -931,6 +965,14 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
                 title: section.title,
                 body: section.body,
                 ...(section.kind ? { kind: section.kind } : {}),
+                ...(Array.isArray(section.items) && section.items.length > 0
+                  ? {
+                      items: section.items.map((item) => ({
+                        title: item.title,
+                        body: item.body,
+                      })),
+                    }
+                  : {}),
               }))
           : [];
 
@@ -1053,11 +1095,85 @@ console.info("[Builder] Semantic strategy", {
             return [];
           }
 
+          const items = Array.isArray(semanticSection.items)
+
+
+            ? semanticSection.items
+
+
+                .filter(
+
+
+                  (item) =>
+
+
+                    item &&
+
+
+                    typeof item === "object" &&
+
+
+                    typeof item.title === "string" &&
+
+
+                    typeof item.body === "string",
+
+
+                )
+
+
+                .map((item) => ({
+
+
+                  title: item.title.trim().slice(0, 100),
+
+
+                  body: item.body.trim().slice(0, 320),
+
+
+                }))
+
+
+                .filter(
+
+
+                  (item) =>
+
+
+                    item.title.length > 0 ||
+
+
+                    item.body.length > 0,
+
+
+                )
+
+
+                .slice(0, 6)
+
+
+            : [];
+
+
+
           return [{
+
+
             title: semanticSection.title.slice(0, 80),
+
+
             body: semanticSection.body.slice(0, 280),
+
+
             kind:
+
+
               plannedSection.kind as SitePage["sections"][number]["kind"],
+
+
+            ...(items.length > 0 ? { items } : {}),
+
+
           }];
         })
         .slice(0, 4),

@@ -22,6 +22,14 @@ function cloneSections(
     title: section.title,
     body: section.body,
     ...(section.kind ? { kind: section.kind } : {}),
+    ...(Array.isArray(section.items) && section.items.length > 0
+      ? {
+          items: section.items.map((item) => ({
+            title: item.title,
+            body: item.body,
+          })),
+        }
+      : {}),
   }));
 }
 
@@ -63,6 +71,14 @@ function applyUpdate(
     title: title || current.title,
     body: body || current.body,
     ...(current.kind ? { kind: current.kind } : {}),
+    ...(Array.isArray(current.items) && current.items.length > 0
+      ? {
+          items: current.items.map((item) => ({
+            title: item.title,
+            body: item.body,
+          })),
+        }
+      : {}),
   };
 
   return true;
