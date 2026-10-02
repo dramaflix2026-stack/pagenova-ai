@@ -1257,4 +1257,335 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
         ) !important;
     }
   }
+
+  /* ========================================================
+     PAGENOVA V6.2 FINAL CONTRACT
+     ======================================================== */
+
+  /*
+   * HEADER GLOBAL
+   * Sempre branco.
+   * Sempre edge-to-edge.
+   * Nome escrito como logo.
+   */
+
+  .pn001-site > .pn001-header {
+    position: relative !important;
+    z-index: 50 !important;
+
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: 0 !important;
+    border-bottom:
+      1px solid rgba(15, 23, 42, .10) !important;
+
+    border-radius: 0 !important;
+
+    background: #ffffff !important;
+    color: #111111 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .pn001-site
+  > .pn001-header
+  > .pn001-header-inner {
+    box-sizing: border-box !important;
+
+    width: calc(100% - 48px) !important;
+    max-width: 1180px !important;
+
+    min-height: 76px !important;
+
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    color: #111111 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-logo {
+    display: inline-flex !important;
+
+    min-width: 0 !important;
+    max-width: min(56vw, 620px) !important;
+
+    align-items: center !important;
+
+    color: #111111 !important;
+
+    text-decoration: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-name {
+    display: block !important;
+
+    max-width: 100% !important;
+
+    overflow: hidden !important;
+
+    color: #111111 !important;
+
+    font-size:
+      clamp(17px, 1.6vw, 21px) !important;
+
+    font-weight: 850 !important;
+    line-height: 1.05 !important;
+    letter-spacing: -.04em !important;
+
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /*
+   * CTA DO HEADER
+   */
+
+  .pn001-site .pn001-header .pn001-header-actions {
+    display: flex !important;
+
+    flex: 0 0 auto !important;
+
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    gap: 10px !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-cta {
+    display: inline-flex !important;
+
+    box-sizing: border-box !important;
+
+    flex: 0 0 auto !important;
+
+    width: auto !important;
+    min-width: 118px !important;
+    max-width: none !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 20px !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border:
+      1px solid var(--pn001-accent) !important;
+
+    border-radius: 10px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+
+    box-shadow: none !important;
+
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+
+    text-decoration: none !important;
+    white-space: nowrap !important;
+
+    transform: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-cta:hover {
+    transform: translateY(-1px) !important;
+
+    box-shadow:
+      0 8px 20px
+      rgba(15, 23, 42, .10) !important;
+  }
+
+  /*
+   * HAMBURGER
+   */
+
+  .pn001-site .pn001-header .pn001-menu-button {
+    box-sizing: border-box !important;
+
+    flex: 0 0 44px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border:
+      1px solid rgba(17, 17, 17, .16) !important;
+
+    border-radius: 10px !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+
+    transform: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-menu-button span {
+    background: #111111 !important;
+  }
+
+  /*
+   * HERO
+   */
+
+  .pn001-site > .pn001-hero {
+    margin-top: 0 !important;
+  }
+
+  /*
+   * SECOES
+   *
+   * Impede card unico estreito perdido no desktop.
+   */
+
+  .pn001-site .pn001-card-grid {
+    width: 100% !important;
+  }
+
+  /*
+   * PROCESSO
+   * O composer garante pelo menos 3 itens.
+   */
+
+  .pn001-site
+  [data-kind="process"]
+  .pn001-card-grid,
+  .pn001-site
+  [data-section-kind="process"]
+  .pn001-card-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  /*
+   * FAQ
+   */
+
+  .pn001-site .pn001-faq-v6,
+  .pn001-site .pn001-faq {
+    clear: both !important;
+  }
+
+  /*
+   * FOOTER GLOBAL
+   * Fundo ocupa 100%.
+   * Conteudo interno continua alinhado.
+   */
+
+  .pn001-site > .pn001-footer {
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    padding:
+      clamp(58px, 7vw, 88px)
+      0
+      30px !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background:
+      var(--pn001-dark) !important;
+
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  > .pn001-footer
+  > .pn001-container {
+    box-sizing: border-box !important;
+
+    width: calc(100% - 48px) !important;
+    max-width: 1180px !important;
+
+    margin: 0 auto !important;
+
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 760px) {
+
+    .pn001-site
+    > .pn001-header
+    > .pn001-header-inner {
+      width: calc(100% - 28px) !important;
+
+      min-height: 66px !important;
+
+      padding: 8px 0 !important;
+    }
+
+    .pn001-site
+    .pn001-header
+    .pn001-brand-logo {
+      max-width:
+        calc(100% - 58px) !important;
+    }
+
+    .pn001-site
+    .pn001-header
+    .pn001-brand-name {
+      font-size: 15px !important;
+    }
+
+    .pn001-site
+    .pn001-header
+    .pn001-header-cta {
+      display: none !important;
+    }
+
+    .pn001-site
+    [data-kind="process"]
+    .pn001-card-grid,
+    .pn001-site
+    [data-section-kind="process"]
+    .pn001-card-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .pn001-site
+    > .pn001-footer
+    > .pn001-container {
+      width:
+        calc(100% - 28px) !important;
+    }
+  }
 `;

@@ -3424,6 +3424,263 @@ const templateStyles = `
   }
 `;
 
+
+/* ==========================================================
+   PAGENOVA V6.2 - COMPLETE HOME COMPOSER
+   ========================================================== */
+
+const completeHomeSectionsV62 = (
+  project: SiteProject,
+  page: SitePage,
+): SitePage["sections"] => {
+  const sections = completeHomeSectionsV5(project, page).map(
+    (section) => ({
+      ...section,
+      items: Array.isArray(section.items)
+        ? section.items.map((item) => ({ ...item }))
+        : section.items,
+    }),
+  );
+
+  const sectionKind = (
+    section: SitePage["sections"][number],
+  ): string => String(section.kind || "");
+
+  const hasKind = (
+    kinds: readonly string[],
+  ): boolean =>
+    sections.some((section) =>
+      kinds.includes(sectionKind(section)),
+    );
+
+  const findKind = (
+    kinds: readonly string[],
+  ) =>
+    sections.find((section) =>
+      kinds.includes(sectionKind(section)),
+    );
+
+  const projectName =
+    project.name?.trim() || "a empresa";
+
+  /*
+   * SERVICOS / SOLUCOES
+   */
+
+  if (!hasKind(["services", "products"])) {
+    sections.push({
+      kind: "services",
+      title: "Soluções pensadas para cada necessidade",
+      body:
+        "Cada projeto parte do entendimento do contexto, das prioridades e do resultado que precisa ser alcançado.",
+      items: [
+        {
+          title: "Entendimento",
+          body:
+            "O primeiro passo é compreender a necessidade, o cenário e os objetivos apresentados.",
+        },
+        {
+          title: "Direção",
+          body:
+            "As prioridades são organizadas para construir um caminho claro para o projeto.",
+        },
+        {
+          title: "Desenvolvimento",
+          body:
+            "A execução segue uma direção coerente com o objetivo definido.",
+        },
+      ],
+    });
+  }
+
+  /*
+   * BENEFICIOS
+   */
+
+  if (!hasKind(["benefits"])) {
+    sections.push({
+      kind: "benefits",
+      title: "Uma experiência mais clara em cada etapa",
+      body:
+        "Organização, comunicação e entendimento ajudam a transformar uma necessidade inicial em decisões mais objetivas.",
+      items: [
+        {
+          title: "Clareza",
+          body:
+            "Informações e prioridades organizadas para facilitar as decisões.",
+        },
+        {
+          title: "Coerência",
+          body:
+            "Cada etapa permanece conectada ao objetivo principal do projeto.",
+        },
+        {
+          title: "Proximidade",
+          body:
+            "O diálogo mantém contexto, expectativas e próximos passos alinhados.",
+        },
+      ],
+    });
+  }
+
+  /*
+   * SOBRE
+   */
+
+  if (!hasKind(["about"])) {
+    sections.push({
+      kind: "about",
+      title: `Conheça ${projectName}`,
+      body:
+        page.introduction ||
+        "Conheça a proposta, a abordagem e a forma de conduzir cada novo projeto.",
+      items: [],
+    });
+  }
+
+  /*
+   * DIFERENCIAIS
+   */
+
+  if (!hasKind(["features"])) {
+    sections.push({
+      kind: "features",
+      title: "O que orienta cada projeto",
+      body:
+        "Uma boa entrega começa pela combinação entre contexto, prioridades e uma direção bem definida.",
+      items: [
+        {
+          title: "Contexto em primeiro lugar",
+          body:
+            "As decisões partem da necessidade apresentada e do cenário de cada projeto.",
+        },
+        {
+          title: "Prioridades bem definidas",
+          body:
+            "O que é mais importante ganha clareza antes do avanço das etapas.",
+        },
+        {
+          title: "Direção consistente",
+          body:
+            "As escolhas permanecem conectadas ao objetivo principal do trabalho.",
+        },
+      ],
+    });
+  }
+
+  /*
+   * PROCESSO
+   *
+   * Corrige diretamente o problema visual observado:
+   * nunca mais apenas um card solto em Como funciona.
+   */
+
+  const processSection = findKind(["process"]);
+
+  if (processSection) {
+    const originalItems =
+      Array.isArray(processSection.items)
+        ? processSection.items
+        : [];
+
+    const defaults = [
+      {
+        title: "Apresente sua ideia",
+        body:
+          "Conte o contexto, a necessidade e o principal objetivo para iniciar a conversa.",
+      },
+      {
+        title: "Alinhamos a direção",
+        body:
+          "As informações são organizadas para definir prioridades e próximos passos.",
+      },
+      {
+        title: "Seguimos com o projeto",
+        body:
+          "Com a direção definida, o desenvolvimento pode avançar de forma organizada.",
+      },
+    ];
+
+    processSection.items = [
+      originalItems[0] || defaults[0],
+      originalItems[1] || defaults[1],
+      originalItems[2] || defaults[2],
+      ...originalItems.slice(3, 5),
+    ];
+
+    if (!processSection.title?.trim()) {
+      processSection.title = "Como funciona";
+    }
+
+    if (!processSection.body?.trim()) {
+      processSection.body =
+        "Um caminho simples para transformar a necessidade inicial em próximos passos claros.";
+    }
+  } else {
+    sections.push({
+      kind: "process",
+      title: "Como funciona",
+      body:
+        "Um caminho simples para transformar a necessidade inicial em próximos passos claros.",
+      items: [
+        {
+          title: "Apresente sua ideia",
+          body:
+            "Conte o contexto, a necessidade e o principal objetivo para iniciar a conversa.",
+        },
+        {
+          title: "Alinhamos a direção",
+          body:
+            "As informações são organizadas para definir prioridades e próximos passos.",
+        },
+        {
+          title: "Seguimos com o projeto",
+          body:
+            "Com a direção definida, o desenvolvimento pode avançar de forma organizada.",
+        },
+      ],
+    });
+  }
+
+  /*
+   * SEGUNDO BLOCO INSTITUCIONAL
+   *
+   * Nao e autoridade falsa e nao cria resultados inexistentes.
+   */
+
+  const aboutCount =
+    sections.filter(
+      (section) => sectionKind(section) === "about",
+    ).length;
+
+  if (aboutCount < 2) {
+    sections.push({
+      kind: "about",
+      title: "Do primeiro contato à definição do caminho",
+      body:
+        "Cada demanda pode ter necessidades diferentes. Entender o cenário antes de avançar ajuda a construir uma direção mais adequada.",
+      items: [
+        {
+          title: "Necessidade",
+          body:
+            "O ponto de partida é compreender o que precisa ser desenvolvido.",
+        },
+        {
+          title: "Prioridades",
+          body:
+            "Objetivos e critérios principais ajudam a orientar as decisões.",
+        },
+        {
+          title: "Próximos passos",
+          body:
+            "Com o contexto organizado, fica mais simples definir como avançar.",
+        },
+      ],
+    });
+  }
+
+  return sections;
+};
 export function renderTemplate001Preview(
   project: SiteProject,
   pageKey: SitePageKey,
@@ -3442,7 +3699,7 @@ export function renderTemplate001Preview(
     pageKey === "home"
       ? {
           ...page,
-          sections: completeHomeSectionsV5(project, page),
+          sections: completeHomeSectionsV62(project, page),
         }
       : page;
 
@@ -3471,13 +3728,14 @@ export function renderTemplate001Preview(
     ["services", 10],
     ["products", 10],
     ["benefits", 20],
-    ["features", 30],
-    ["about", 40],
+    ["about", 30],
+    ["features", 40],
     ["process", 50],
     ["team", 60],
     ["portfolio", 70],
     ["gallery", 70],
-    ["pricing", 80],
+    ["authority", 80],
+    ["pricing", 85],
     ["location", 90],
   ]);
 
@@ -3485,7 +3743,6 @@ export function renderTemplate001Preview(
     .filter(
       (section) =>
         section.kind !== "hero" &&
-        section !== authority &&
         (
           pageKey !== "home" ||
           !closingKinds.has(section.kind || "")
@@ -3605,7 +3862,7 @@ export function renderTemplate001Preview(
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="6.1"
+      data-pagenova-design-version="6.2"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
@@ -3690,7 +3947,7 @@ export function renderTemplate001Preview(
 
       ${renderHero(project, effectivePage, hero)}
 
-      ${authority ? renderAuthority(authority) : ""}
+      ${pageKey !== "home" && authority ? renderAuthority(authority) : ""}
 
       <main id="pn001-main">
         ${renderedContent}
