@@ -451,7 +451,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-[#0b1511] text-white">
+      <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
   <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
 
     <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_.7fr_1.15fr] lg:gap-16">
