@@ -584,8 +584,54 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
       }),
     });
     if (!ai.ok) {
-      console.error("[Builder] Provider request failed", ai.status);
-      return NextResponse.json({ error: "A IA não conseguiu criar esta página. Tente novamente." }, { status: 502 });
+      const providerText = await ai.text();
+
+      let providerMessage = "";
+      let providerCode = "";
+
+      try {
+        const providerPayload = JSON.parse(providerText) as {
+          error?: {
+            message?: string;
+            code?: string;
+            type?: string;
+          };
+        };
+
+        providerMessage =
+          typeof providerPayload.error?.message === "string"
+            ? providerPayload.error.message
+            : "";
+
+        providerCode =
+          typeof providerPayload.error?.code === "string"
+            ? providerPayload.error.code
+            : typeof providerPayload.error?.type === "string"
+              ? providerPayload.error.type
+              : "";
+      } catch {
+        providerMessage = providerText;
+      }
+
+      const safeMessage = providerMessage
+        .replace(/sk-[A-Za-z0-9_-]+/g, "[REDACTED]")
+        .replace(/Bearer\s+[A-Za-z0-9._-]+/gi, "Bearer [REDACTED]")
+        .slice(0, 700);
+
+      console.error("[Builder] Provider request failed", {
+        status: ai.status,
+        code: providerCode || "unknown",
+        message: safeMessage || "No provider message",
+      });
+
+      return NextResponse.json(
+        {
+          error:
+            `Erro da IA (${ai.status}${providerCode ? ` / ${providerCode}` : ""}): ` +
+            (safeMessage || "O provedor recusou a geração."),
+        },
+        { status: 502 },
+      );
     }
     const payload = await ai.json() as { output?: { content?: { text?: string }[] }[]; output_text?: string };
     const text = payload.output_text || payload.output?.flatMap((item) => item.content || []).map((item) => item.text || "").join("");
