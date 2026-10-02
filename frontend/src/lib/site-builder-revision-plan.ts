@@ -21,6 +21,7 @@ function cloneSections(
   return sections.map((section) => ({
     title: section.title,
     body: section.body,
+    ...(section.kind ? { kind: section.kind } : {}),
   }));
 }
 
@@ -61,6 +62,7 @@ function applyUpdate(
   sections[change.index] = {
     title: title || current.title,
     body: body || current.body,
+    ...(current.kind ? { kind: current.kind } : {}),
   };
 
   return true;

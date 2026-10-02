@@ -97,7 +97,32 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
 
-  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.
+  const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual.
+
+IDENTIDADE SEMÂNTICA DAS SEÇÕES:
+Cada item de page.sections deve declarar em kind o significado real do conteúdo retornado. O kind não representa posição, aparência visual nem um espaço a ser preenchido. Ele representa exclusivamente a função semântica daquela seção.
+
+Use os kinds com estes significados:
+- services: serviços efetivamente oferecidos pelo negócio.
+- products: produtos efetivamente oferecidos ou vendidos.
+- benefits: benefícios concretos da oferta sustentados pelo briefing, sem inventar resultados.
+- features: funcionalidades, capacidades ou recursos concretos da solução.
+- about: identidade, contexto, posicionamento ou forma de atuação da empresa.
+- authority: credenciais, experiência, certificações ou evidências reais de autoridade; omita sem dados.
+- process: etapas reais de atendimento, implantação, entrega ou funcionamento.
+- portfolio: projetos, trabalhos ou cases reais; omita sem dados.
+- gallery: conteúdo visual ou itens de galeria sustentados pelos dados; omita sem material correspondente.
+- team: pessoas ou equipe realmente informadas; omita sem dados.
+- testimonials: depoimentos reais fornecidos; nunca invente depoimentos e omita sem dados.
+- pricing: preços, planos ou condições comerciais reais e explicitamente fornecidos; nunca use pricing para contato, demonstração, benefícios, recursos ou CTA e omita quando não houver preços ou planos publicados.
+- faq: perguntas e respostas úteis que possam ser respondidas somente com fatos disponíveis; não invente políticas, garantias ou condições.
+- location: endereço, área física de atendimento ou localização real fornecida; omita sem dados.
+- contact: formas reais de contato ou orientação para iniciar contato usando somente canais efetivamente fornecidos.
+- final-cta: chamada final para a ação principal, coerente com uma conversão realmente disponível.
+
+Nunca transfira conteúdo de um kind para outro apenas porque o plano recomendou aquela seção. Se não houver conteúdo factual para um kind planejado, simplesmente não retorne esse kind em page.sections. Não transforme contato em pricing, processo em testimonials, benefícios em features ou qualquer outro significado apenas para preencher quantidade ou posição. O backend fará a correspondência pelo kind e poderá omitir seções sem conteúdo.
+
+Em page.sections, retorne somente seções semanticamente sustentadas pelo briefing e pelos dados confirmados. Não crie uma seção vazia, genérica ou com conteúdo de outro tipo para satisfazer o plano recomendado. Um nicho desconhecido deve continuar recebendo conteúdo específico a partir do briefing, sem depender de uma categoria cadastrada. Não mencione internamente modelo de negócio, estratégia universal, plano de seções ou classificação ao visitante. Escreva para o visitante final, nunca sobre a criação do site. Entregue uma proposta clara e específica do negócio, serviços e caminho para contato. Na home: hero explica a proposta; seções representam ofertas distintas confirmadas; sobre explica identidade e método sem repetir o hero; contato orienta o próximo passo. Não repita o mesmo argumento em cards, introdução e rodapé. Dê nomes concretos aos serviços se constarem dos dados. Se faltarem fatos, omita a afirmação; jamais publique frases como "pendente", "adicione aqui", "este espaço", "site em construção" ou listas de dados faltantes. Não invente credenciais, números, preços, depoimentos, resultados ou disponibilidade. Títulos de até 9 palavras; introdução de até 260 caracteres; 3 a 4 seções, cada uma com corpo de até 220 caracteres, diferentes entre si e adequadas ao nicho. Evite repetir o nome do negócio em todos os textos. Se houver print, use como referência de hierarquia visual e intenção, sem copiar marcas ou fatos de terceiros. Preserve conteúdo atual que não foi pedido para alterar.
 DADOS INSTITUCIONAIS:
 Retorne também institutional com role, audience, offer, process e proof.
 ESTADO ATUAL DO CABEÇALHO:
@@ -488,10 +513,31 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
                     type: "object",
                     additionalProperties: false,
                     properties: {
+                      kind: {
+                        type: "string",
+                        enum: [
+                          "services",
+                          "products",
+                          "benefits",
+                          "features",
+                          "about",
+                          "authority",
+                          "process",
+                          "portfolio",
+                          "gallery",
+                          "team",
+                          "testimonials",
+                          "pricing",
+                          "faq",
+                          "location",
+                          "contact",
+                          "final-cta",
+                        ],
+                      },
                       title: { type: "string" },
                       body: { type: "string" },
                     },
-                    required: ["title", "body"],
+                    required: ["kind", "title", "body"],
                   },
                 },
                 cta: { type: "string" },
@@ -613,6 +659,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
         parsedPage.sections.length < 1 ||
         parsedPage.sections.length > 6 ||
         parsedPage.sections.some((section) =>
+          typeof section.kind !== "string" ||
           typeof section.title !== "string" ||
           typeof section.body !== "string"
         )) {
@@ -883,6 +930,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
               .map((section) => ({
                 title: section.title,
                 body: section.body,
+                ...(section.kind ? { kind: section.kind } : {}),
               }))
           : [];
 
@@ -994,23 +1042,25 @@ console.info("[Builder] Semantic strategy", {
       heading: parsedPage.heading.slice(0, 180),
       introduction: parsedPage.introduction.slice(0, 300),
       cta: parsedPage.cta.slice(0, 80),
-      sections: parsedPage.sections.slice(0, 4).map((section, index) => {
-        const semanticKind =
-          universalStrategy.sections
-            .filter((plannedSection) => plannedSection.kind !== "hero")
-            [index]?.kind;
+      sections: universalStrategy.sections
+        .filter((plannedSection) => plannedSection.kind !== "hero")
+        .flatMap((plannedSection) => {
+          const semanticSection = parsedPage.sections.find(
+            (section) => section.kind === plannedSection.kind,
+          );
 
-        return {
-          title: section.title.slice(0, 80),
-          body: section.body.slice(0, 280),
-          ...(typeof semanticKind === "string"
-            ? {
-                kind:
-                  semanticKind as SitePage["sections"][number]["kind"],
-              }
-            : {}),
-        };
-      }),
+          if (!semanticSection) {
+            return [];
+          }
+
+          return [{
+            title: semanticSection.title.slice(0, 80),
+            body: semanticSection.body.slice(0, 280),
+            kind:
+              plannedSection.kind as SitePage["sections"][number]["kind"],
+          }];
+        })
+        .slice(0, 4),
     };
 
     return NextResponse.json({
