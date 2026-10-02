@@ -164,11 +164,38 @@ function escapeHtml(value: string): string {
 
 export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): string {
   const page = project.pages[pageKey];
-  if (!page) return "";
-  const html = pageKey === "contato" ? renderContactPreview(project, page)
-    : project.presetId === "imobiliaria" ? renderRealEstatePage(project, page, pageKey)
-    : project.presetId === "landing-saas" ? renderSaasPage(project, page, pageKey)
-    : renderInstitutionalPage(project, page, pageKey);
+
+  if (!page) {
+    return "";
+  }
+
+  /*
+   * Universal Renderer migration boundary:
+   *
+   * - projects with persisted SiteStrategy use semantic rendering;
+   * - legacy projects without SiteStrategy keep their existing renderer;
+   * - legacy renderers remain untouched during migration.
+   */
+  if (hasUniversalRenderStrategy(project)) {
+    const universalHtml = renderUniversalSitePreview(
+      project,
+      pageKey,
+    );
+
+    if (universalHtml) {
+      return enhanceSitePreview(universalHtml);
+    }
+  }
+
+  const html =
+    pageKey === "contato"
+      ? renderContactPreview(project, page)
+      : project.presetId === "imobiliaria"
+        ? renderRealEstatePage(project, page, pageKey)
+        : project.presetId === "landing-saas"
+          ? renderSaasPage(project, page, pageKey)
+          : renderInstitutionalPage(project, page, pageKey);
+
   return enhanceSitePreview(html);
 }
 function renderRealEstateHome(project: SiteProject, page: SitePage): string {
@@ -196,3 +223,7 @@ import { renderSaasPage } from "@/lib/site-builder-saas";
 import { renderInstitutionalPage } from "@/lib/site-builder-institutional";
 
 import { enhanceSitePreview } from "@/lib/site-builder-motion";
+import {
+  hasUniversalRenderStrategy,
+  renderUniversalSitePreview,
+} from "@/lib/site-builder-universal-renderer";
