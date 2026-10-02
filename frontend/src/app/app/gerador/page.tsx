@@ -447,20 +447,20 @@ export default function GeneratorPage() {
     <>
       <AppHeader title="Gerador" description="Crie sua landing page em poucos passos." />
 
-      <main className="mx-auto max-w-6xl px-6 py-10 lg:px-10">
+      <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-6 lg:px-10 lg:py-10">
         <div
-          className="overflow-hidden rounded-[32px] border border-white/10 bg-[#0E0D13] shadow-[0_30px_100px_rgba(0,0,0,0.32)]"
-          style={{ backgroundImage: `radial-gradient(circle at 12% 0%, ${glow}, transparent 34%), radial-gradient(circle at 100% 100%, ${glow}, transparent 30%)` }}
+          className="relative overflow-hidden rounded-[28px] border border-emerald-300/[0.10] bg-[#0b1110] shadow-[0_30px_100px_rgba(0,0,0,0.38)]"
+          style={{ backgroundImage: `radial-gradient(circle at 8% 0%, rgba(16,185,129,0.09), transparent 30%), radial-gradient(circle at 100% 100%, ${glow}, transparent 34%)` }}
         >
-          <div className="border-b border-white/10 px-6 py-6 md:px-9">
+          <div className="border-b border-white/[0.07] bg-white/[0.012] px-6 py-6 md:px-9">
             <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl text-white shadow-lg" style={{ background: `linear-gradient(135deg, ${accent}, #6333F5)` }}>
+                <div className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-emerald-300/15 bg-emerald-400/[0.08] text-emerald-300 shadow-[0_12px_35px_rgba(16,185,129,0.10)]">
                   <Icon name="sparkles" className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-neutral-500">PageNova AI</p>
-                  <h1 className="text-xl font-bold text-white">Gerador Automático</h1>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-400/70">PAGENOVA AI</p>
+                  <h1 className="mt-0.5 text-xl font-bold tracking-[-0.02em] text-white">Gerador de Landing Page</h1>
                 </div>
               </div>
 
@@ -478,7 +478,7 @@ export default function GeneratorPage() {
           <div className="p-6 md:p-9">
             {step === 1 && (
               <section>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#875DFF]/20 bg-[#875DFF]/10 px-3 py-1.5 text-xs font-bold text-[#B9A7FF]">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-400/[0.07] px-3 py-1.5 text-[10px] font-bold tracking-[0.14em] text-emerald-300">
                   <Icon name="sparkles" className="h-4 w-4" />
                   ESTRUTURA INTELIGENTE
                 </div>
@@ -488,17 +488,17 @@ export default function GeneratorPage() {
 
                 <div className="mt-8 grid gap-4 md:grid-cols-3">
                   {productTypes.map((type) => (
-                    <button key={type.id} type="button" onClick={() => chooseProductType(type.id)} className="group relative min-h-[265px] overflow-hidden rounded-[24px] border border-white/10 bg-black/20 p-6 text-left transition duration-300 hover:-translate-y-1 hover:border-[#875DFF]/50 hover:bg-white/[0.04] hover:shadow-[0_20px_60px_rgba(117,87,255,0.12)]">
-                      <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-[#875DFF]/10 blur-3xl transition group-hover:bg-[#875DFF]/20" />
+                    <button key={type.id} type="button" onClick={() => chooseProductType(type.id)} className="group relative min-h-[250px] overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.018] p-6 text-left transition duration-300 hover:-translate-y-1 hover:border-emerald-300/20 hover:bg-white/[0.035] hover:shadow-[0_20px_60px_rgba(0,0,0,0.24)]">
+                      <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-emerald-400/[0.05] blur-3xl transition group-hover:bg-emerald-400/[0.09]" />
                       <div className="relative">
                         <div className="flex items-start justify-between">
-                          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-[#875DFF]/25 to-[#6333F5]/5 text-[#BBA9FF] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]"><ProductIcon type={type.id} /></div>
+                          <div className="flex h-14 w-14 items-center justify-center rounded-[16px] border border-emerald-300/15 bg-emerald-400/[0.07] text-emerald-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"><ProductIcon type={type.id} /></div>
                           <span className="rounded-full border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[10px] font-bold tracking-wider text-neutral-500">AUTOMÁTICO</span>
                         </div>
-                        <p className="mt-6 text-[10px] font-bold tracking-[0.16em] text-[#8C73FF]">{type.eyebrow}</p>
+                        <p className="mt-6 text-[10px] font-bold tracking-[0.16em] text-emerald-400/70">{type.eyebrow}</p>
                         <h3 className="mt-2 text-xl font-bold text-white">{type.title}</h3>
                         <p className="mt-2 min-h-[48px] text-sm leading-6 text-neutral-500">{type.description}</p>
-                        <div className="mt-5 flex items-center gap-2 text-sm font-bold text-[#A98FFF]">Selecionar <span className="transition-transform group-hover:translate-x-1">?</span></div>
+                        <div className="mt-5 flex items-center gap-2 text-sm font-bold text-emerald-300">Selecionar <span className="transition-transform group-hover:translate-x-1">?</span></div>
                       </div>
                     </button>
                   ))}
@@ -516,7 +516,7 @@ export default function GeneratorPage() {
                     <h2 className="mt-2 text-3xl font-bold tracking-tight text-white md:text-4xl">Qual é a categoria?</h2>
                     <p className="mt-3 max-w-2xl text-neutral-400">A categoria define cores, atmosfera e identidade visual inicial da sua página.</p>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.025] px-4 py-3">
+                  <div className="rounded-[16px] border border-emerald-300/[0.10] bg-emerald-400/[0.035] px-4 py-3">
                     <p className="text-[10px] font-bold tracking-[0.16em] text-neutral-600">TIPO SELECIONADO</p>
                     <p className="mt-1 font-semibold text-white">{selectedProductType?.title}</p>
                   </div>
@@ -524,7 +524,7 @@ export default function GeneratorPage() {
 
                 <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {categories[productType].map((category) => (
-                    <button key={category.id} type="button" onClick={() => chooseCategory(category.id)} className="group relative min-h-[190px] overflow-hidden rounded-[22px] border border-white/10 bg-black/20 p-5 text-left transition duration-300 hover:-translate-y-1" style={{ boxShadow: `inset 0 0 0 1px ${category.accent}20` }}>
+                    <button key={category.id} type="button" onClick={() => chooseCategory(category.id)} className="group relative min-h-[185px] overflow-hidden rounded-[20px] border border-white/[0.08] bg-white/[0.018] p-5 text-left transition duration-300 hover:-translate-y-1 hover:border-white/[0.16] hover:bg-white/[0.03]" style={{ boxShadow: `inset 0 0 0 1px ${category.accent}18` }}>
                       <div className="absolute inset-x-0 top-0 h-1" style={{ background: `linear-gradient(90deg, ${category.accent}, transparent)` }} />
                       <div className="absolute -right-10 -top-10 h-28 w-28 rounded-full blur-3xl transition group-hover:scale-125" style={{ backgroundColor: category.glow }} />
                       <div className="relative flex items-start justify-between">
@@ -553,17 +553,17 @@ export default function GeneratorPage() {
                     <p className="mt-3 max-w-2xl text-neutral-400">Informe apenas o essencial. A PageNova monta a estrutura, cria os textos iniciais e prepara os CTAs automaticamente.</p>
 
                     <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
-                      <div className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+                      <div className="rounded-[18px] border border-white/[0.08] bg-white/[0.018] p-5">
                         <label className="text-sm font-semibold text-neutral-200">Nome do produto</label>
                         <p className="mt-1 text-xs text-neutral-600">O nome principal que aparecerá na landing page.</p>
-                        <input required name="productName" placeholder="Ex.: Método Venda Todo Dia" className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-[#09090C] px-4 text-white outline-none transition placeholder:text-neutral-700 focus:border-white/20" style={{ caretColor: accent }} />
+                        <input required name="productName" placeholder="Ex.: Método Venda Todo Dia" className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-[#080d0c] px-4 text-white outline-none transition placeholder:text-neutral-700 focus:border-white/20" style={{ caretColor: accent }} />
                       </div>
 
                       <div className="grid gap-6">
-                        <div className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+                        <div className="rounded-[18px] border border-white/[0.08] bg-white/[0.018] p-5">
                           <label className="text-sm font-semibold text-neutral-200">Preço</label>
                           <p className="mt-1 text-xs text-neutral-600">Valor principal da oferta.</p>
-                          <input required name="price" placeholder="R$ 47,00" className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-[#09090C] px-4 text-white outline-none transition placeholder:text-neutral-700 focus:border-white/20" style={{ caretColor: accent }} />
+                          <input required name="price" placeholder="R$ 47,00" className="mt-4 h-14 w-full rounded-xl border border-white/10 bg-[#080d0c] px-4 text-white outline-none transition placeholder:text-neutral-700 focus:border-white/20" style={{ caretColor: accent }} />
                         </div>
 
                         
@@ -607,7 +607,7 @@ export default function GeneratorPage() {
                   </span>
                 </div>
               </div>
-<div className="rounded-[22px] border border-white/10 bg-black/20 p-5">
+<div className="rounded-[18px] border border-white/[0.08] bg-white/[0.018] p-5">
                           <label className="text-sm font-semibold text-neutral-200">Garantia</label>
                           <p className="mt-1 text-xs text-neutral-600">Escolha o período da oferta.</p>
                           <div className="mt-4 flex gap-2">
@@ -686,7 +686,7 @@ export default function GeneratorPage() {
                     rows={3}
                     maxLength={600}
                     placeholder="Ex.: notebook mostrando uma plataforma de SaaS, celular ao lado, aparência premium, sem pessoas."
-                    className="mt-2 w-full resize-none rounded-xl border border-white/[0.08] bg-black/25 px-4 py-3 text-xs leading-5 text-white outline-none transition placeholder:text-neutral-600 focus:border-white/20"
+                    className="mt-2 w-full resize-none rounded-xl border border-white/[0.08] bg-[#080d0c] px-4 py-3 text-xs leading-5 text-white outline-none transition placeholder:text-neutral-600 focus:border-white/20"
                   />
 
                   <div className="mt-2 text-right text-[9px] text-neutral-600">
@@ -834,7 +834,7 @@ export default function GeneratorPage() {
                             <p className="mt-4 text-xs leading-5 text-neutral-600">Depois de gerar, você poderá alterar qualquer texto diretamente no editor.</p>
                           </div>
 
-                      <button type="submit" className="mt-1 flex h-15 w-full items-center justify-center gap-2 rounded-xl px-8 font-bold text-white shadow-lg transition hover:-translate-y-0.5 md:w-auto md:justify-self-start" style={{ background: `linear-gradient(90deg, ${accent}, #6333F5)`, boxShadow: `0 14px 40px ${glow}` }}>
+                      <button type="submit" className="mt-1 flex h-14 w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/20 bg-emerald-400 px-8 font-bold text-[#062019] shadow-[0_14px_40px_rgba(16,185,129,0.16)] transition hover:-translate-y-0.5 hover:bg-emerald-300 md:w-auto md:justify-self-start">
                         <Icon name="sparkles" className="h-5 w-5" />
                         Gerar minha Landing Page
                       </button>
@@ -844,8 +844,8 @@ export default function GeneratorPage() {
                   </div>
 
                   <aside className="lg:pt-16">
-                    <div className="sticky top-6 overflow-hidden rounded-[24px] border border-white/10 bg-black/20">
-                      <div className="h-1.5" style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }} />
+                    <div className="sticky top-6 overflow-hidden rounded-[20px] border border-white/[0.08] bg-[#080d0c]/90 shadow-[0_24px_70px_rgba(0,0,0,0.22)]">
+                      <div className="h-px bg-gradient-to-r from-emerald-400/70 via-emerald-300/20 to-transparent" />
                       <div className="p-5">
                         <p className="text-[10px] font-bold tracking-[0.18em] text-neutral-600">SUA CONFIGURAÇÃO</p>
                         <div className="mt-5 flex items-center gap-3">
