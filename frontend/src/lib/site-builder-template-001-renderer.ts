@@ -2,6 +2,7 @@ import {
   getPageNovaDesignDirection,
   PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
   PAGENOVA_DESIGN_LIBRARY_V2_STYLES,
+  PAGENOVA_DESIGN_LIBRARY_V3_STYLES,
 } from "@/lib/site-builder-design-library-v1";
 import { SITE_PAGES } from "./site-builder";
 import type {
@@ -120,6 +121,9 @@ const renderGenericCards = (
 ): string => {
   const items = sectionItems(section);
 
+  const hasCardMedia =
+    items.some((item) => Boolean(itemImage(item)));
+
   const cards =
     items.length > 0
       ? items
@@ -132,7 +136,7 @@ const renderGenericCards = (
             const image = itemImage(item);
 
             return `
-              <article class="pn001-card pn-v2-card">
+              <article class="pn001-card pn-v2-card ${image ? "pn-v3-card-media" : "pn-v3-card-text"}">
                 ${
                   image
                     ? renderImage(
@@ -187,7 +191,7 @@ const renderGenericCards = (
           }
         </div>
 
-        <div class="pn001-grid pn-v2-card-grid">
+        <div class="pn001-grid pn-v2-card-grid ${hasCardMedia ? "pn-v3-grid-has-media" : "pn-v3-grid-text-only"}">
           ${cards}
         </div>
       </div>
@@ -3527,13 +3531,13 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="2"
+      data-pagenova-design-version="3"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
       data-pagenova-card-layout="${designDirection.id === "editorial" ? "numbered-list" : designDirection.id === "studio" ? "bento-grid" : "impact-grid"}"
     >

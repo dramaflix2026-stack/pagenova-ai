@@ -691,16 +691,19 @@ export const PAGENOVA_DESIGN_LIBRARY_V2_STYLES = `
      V2 SHARED
      ======================================================== */
 
-  .pn001-site[data-pagenova-design-version="2"] {
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"] {
     --pn-v2-gap: clamp(28px, 5vw, 72px);
   }
 
-  .pn001-site[data-pagenova-design-version="2"]
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"]
   .pn-v2-hero-visual {
     min-width: 0;
   }
 
-  .pn001-site[data-pagenova-design-version="2"]
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"]
   .pn-v2-card {
     transition:
       transform 220ms ease,
@@ -1425,6 +1428,518 @@ export const PAGENOVA_DESIGN_LIBRARY_V2_STYLES = `
     .pn-design-studio .pn-v2-footer {
       margin: 0 8px 8px;
       border-radius: 22px;
+    }
+  }
+`;
+
+/* ==========================================================
+   PAGENOVA DESIGN LIBRARY V3
+   Quality / density / media-aware composition
+   ========================================================== */
+
+export const PAGENOVA_DESIGN_LIBRARY_V3_STYLES = `
+
+  /* ========================================================
+     GLOBAL V3 RHYTHM
+     ======================================================== */
+
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"]
+  .pn001-section {
+    scroll-margin-top: 40px;
+  }
+
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"]
+  .pn001-section-head {
+    margin-bottom: clamp(34px, 5vw, 62px);
+  }
+
+  .pn001-site[data-pagenova-design-version="2"],
+  .pn001-site[data-pagenova-design-version="3"]
+  .pn001-section-head > p {
+    max-width: 760px;
+  }
+
+  /* ========================================================
+     CARD DENSITY
+     Critical V3 fix:
+     no huge empty Bento cards when there is no media.
+     ======================================================== */
+
+  .pn001-site
+  .pn-v3-grid-text-only {
+    align-items: stretch;
+  }
+
+  .pn001-site
+  .pn-v3-grid-text-only
+  .pn-v3-card-text {
+    min-height: 0 !important;
+  }
+
+  .pn001-site
+  .pn-v3-card-text
+  .pn001-card-index {
+    flex: 0 0 auto;
+  }
+
+  .pn001-site
+  .pn-v3-card-text
+  .pn001-card-content {
+    min-height: 0;
+  }
+
+  .pn001-site
+  .pn-v3-card-text
+  .pn001-card-content p {
+    max-width: 660px;
+  }
+
+  /* --------------------------------------------------------
+     BOLD TEXT-ONLY SERVICES
+     -------------------------------------------------------- */
+
+  .pn-design-bold
+  .pn-v3-grid-text-only {
+    display: grid;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn-v3-card-text,
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn-v3-card-text:nth-child(3n+1) {
+    grid-column: auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 290px !important;
+    padding: 30px 28px;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn001-card-index {
+    margin-bottom: auto;
+    font-size: clamp(38px, 5vw, 64px);
+    line-height: 1;
+    opacity: .20;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn001-card-content {
+    padding: 0;
+    margin-top: 54px;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn001-card-content h3 {
+    font-size: clamp(23px, 2.2vw, 32px);
+    line-height: 1.05;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-text-only
+  .pn001-card-content p {
+    margin-top: 14px;
+    line-height: 1.65;
+  }
+
+  /* Media exists -> V2 Bento stays active */
+
+  .pn-design-bold
+  .pn-v3-grid-has-media
+  .pn-v3-card-media {
+    overflow: hidden;
+  }
+
+  .pn-design-bold
+  .pn-v3-grid-has-media
+  .pn001-card-image {
+    object-fit: cover;
+  }
+
+  /* --------------------------------------------------------
+     STUDIO TEXT-ONLY SERVICES
+     -------------------------------------------------------- */
+
+  .pn-design-studio
+  .pn-v3-grid-text-only {
+    display: grid;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn-v3-card-text,
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn-v3-card-text:nth-child(1),
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn-v3-card-text:nth-child(2),
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn-v3-card-text:nth-child(5),
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn-v3-card-text:nth-child(6) {
+    grid-column: auto;
+    min-height: 260px !important;
+  }
+
+  .pn-design-studio
+  .pn-v3-grid-text-only
+  .pn001-card-content {
+    padding-top: 18px;
+  }
+
+  /* --------------------------------------------------------
+     EDITORIAL TEXT-ONLY SERVICES
+     -------------------------------------------------------- */
+
+  .pn-design-editorial
+  .pn-v3-grid-text-only
+  .pn-v3-card-text {
+    min-height: 0 !important;
+    padding-top: 28px;
+    padding-bottom: 28px;
+  }
+
+  /* ========================================================
+     MEDIA CARDS
+     ======================================================== */
+
+  .pn-v3-card-media
+  .pn001-card-image {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .pn-design-studio
+  .pn-v3-card-media
+  .pn001-card-image {
+    min-height: 230px;
+  }
+
+  .pn-design-bold
+  .pn-v3-card-media
+  .pn001-card-image {
+    min-height: 280px;
+  }
+
+  /* ========================================================
+     ABOUT - reduce dead space
+     ======================================================== */
+
+  .pn-design-bold
+  .pn-v2-about {
+    padding-top: clamp(76px, 9vw, 118px);
+    padding-bottom: clamp(76px, 9vw, 118px);
+  }
+
+  .pn-design-bold
+  .pn-v2-about-grid {
+    align-items: center;
+  }
+
+  .pn-design-bold
+  .pn-v2-about
+  .pn001-about-image {
+    min-height: 520px;
+    max-height: 680px;
+    object-fit: cover;
+  }
+
+  .pn-design-studio
+  .pn-v2-about
+  .pn001-about-image {
+    min-height: 500px;
+  }
+
+  /* ========================================================
+     TESTIMONIALS V3
+     Stronger hierarchy; less repetitive wall of cards.
+     ======================================================== */
+
+  .pn-design-bold
+  .pn-v2-testimonial-layout {
+    grid-template-columns:
+      minmax(0, 1.2fr)
+      minmax(0, .8fr)
+      minmax(0, .8fr);
+    gap: 14px;
+  }
+
+  .pn-design-bold
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child {
+    grid-row: span 2;
+    padding: clamp(34px, 4vw, 52px);
+  }
+
+  .pn-design-bold
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child > p {
+    font-size: clamp(24px, 2.6vw, 36px);
+    line-height: 1.35;
+  }
+
+  .pn-design-bold
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:nth-child(n+6) {
+    display: none;
+  }
+
+  .pn-design-studio
+  .pn-v2-testimonial-layout {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .pn-design-studio
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child {
+    grid-column: span 2;
+  }
+
+  .pn-design-studio
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:nth-child(n+6) {
+    display: none;
+  }
+
+  .pn-design-editorial
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:nth-child(n+4) {
+    display: none;
+  }
+
+  /* ========================================================
+     FAQ V3
+     ======================================================== */
+
+  .pn001-site
+  .pn-v2-faq {
+    padding-top: clamp(80px, 9vw, 128px);
+    padding-bottom: clamp(80px, 9vw, 128px);
+  }
+
+  .pn-design-bold
+  .pn-v2-faq
+  .pn001-faq-intro h2 {
+    max-width: 520px;
+    font-size: clamp(58px, 6vw, 88px);
+    line-height: .88;
+  }
+
+  .pn-design-bold
+  .pn-v2-faq
+  .pn001-faq-item {
+    padding-top: 23px;
+    padding-bottom: 23px;
+  }
+
+  .pn-design-studio
+  .pn-v2-faq
+  .pn001-faq-item {
+    min-height: 92px;
+  }
+
+  /* ========================================================
+     CONTACT V3
+     Remove excessive empty area around conversion section.
+     ======================================================== */
+
+  .pn001-site
+  .pn001-contact {
+    padding-top: clamp(72px, 8vw, 112px);
+    padding-bottom: clamp(72px, 8vw, 112px);
+  }
+
+  .pn001-site
+  .pn001-contact-card {
+    min-height: 0;
+  }
+
+  /* ========================================================
+     FINAL CTA V3
+     More intentional closing, less isolated rectangle.
+     ======================================================== */
+
+  .pn001-site
+  .pn-v2-final-cta {
+    padding-top: clamp(36px, 5vw, 72px);
+    padding-bottom: clamp(76px, 9vw, 120px);
+  }
+
+  .pn-design-bold
+  .pn-v2-final-cta-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 430px;
+    grid-template-columns:
+      minmax(0, 1.25fr)
+      minmax(220px, .35fr);
+    align-items: end;
+  }
+
+  .pn-design-bold
+  .pn-v2-final-cta-card::before {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    right: -90px;
+    top: -130px;
+    border: 2px solid rgba(7,17,13,.22);
+    border-radius: 50%;
+  }
+
+  .pn-design-bold
+  .pn-v2-final-cta-card::after {
+    content: "";
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    right: 80px;
+    top: -70px;
+    border: 2px solid rgba(7,17,13,.16);
+    border-radius: 50%;
+  }
+
+  .pn-design-bold
+  .pn001-final-cta-action {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .pn-design-bold
+  .pn001-final-cta-action
+  .pn001-button {
+    min-width: 190px;
+    justify-content: center;
+  }
+
+  .pn-design-studio
+  .pn-v2-final-cta-card {
+    min-height: 360px;
+  }
+
+  .pn-design-editorial
+  .pn-v2-final-cta-card {
+    min-height: 390px;
+  }
+
+  /* ========================================================
+     FOOTER TRANSITION
+     ======================================================== */
+
+  .pn001-site
+  .pn-v2-footer {
+    margin-top: 0;
+  }
+
+  /* ========================================================
+     MOBILE V3
+     ======================================================== */
+
+  @media (max-width: 980px) {
+
+    .pn-design-bold
+    .pn-v3-grid-text-only,
+    .pn-design-studio
+    .pn-v3-grid-text-only {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    }
+
+    .pn-design-bold
+    .pn-v2-testimonial-layout,
+    .pn-design-studio
+    .pn-v2-testimonial-layout {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    }
+
+    .pn-design-bold
+    .pn-v2-testimonial-layout
+    .pn001-testimonial-card-v6:first-child {
+      grid-row: auto;
+    }
+
+    .pn-design-bold
+    .pn-v2-final-cta-card {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+
+    .pn-design-bold
+    .pn001-final-cta-action {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (max-width: 700px) {
+
+    .pn-design-bold
+    .pn-v3-grid-text-only,
+    .pn-design-studio
+    .pn-v3-grid-text-only {
+      grid-template-columns: 1fr;
+    }
+
+    .pn-design-bold
+    .pn-v3-grid-text-only
+    .pn-v3-card-text,
+    .pn-design-studio
+    .pn-v3-grid-text-only
+    .pn-v3-card-text {
+      min-height: 220px !important;
+    }
+
+    .pn-design-bold
+    .pn-v2-testimonial-layout,
+    .pn-design-studio
+    .pn-v2-testimonial-layout,
+    .pn-design-editorial
+    .pn-v2-testimonial-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .pn-design-studio
+    .pn-v2-testimonial-layout
+    .pn001-testimonial-card-v6:first-child {
+      grid-column: auto;
+    }
+
+    .pn-design-bold
+    .pn-v2-about
+    .pn001-about-image,
+    .pn-design-studio
+    .pn-v2-about
+    .pn001-about-image {
+      min-height: 390px;
+    }
+
+    .pn-design-bold
+    .pn-v2-final-cta-card,
+    .pn-design-studio
+    .pn-v2-final-cta-card,
+    .pn-design-editorial
+    .pn-v2-final-cta-card {
+      min-height: 0;
     }
   }
 `;
