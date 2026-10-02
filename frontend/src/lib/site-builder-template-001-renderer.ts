@@ -1,3 +1,7 @@
+import {
+  getPageNovaDesignDirection,
+  PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
+} from "@/lib/site-builder-design-library-v1";
 import { SITE_PAGES } from "./site-builder";
 import type {
 
@@ -647,6 +651,9 @@ const renderInstitutionalFaq = (
   project: SiteProject,
 ): string => {
   const brandName = resolveTemplate001BrandName(project);
+
+  const designDirection =
+    getPageNovaDesignDirection(project);
 
   const offer = firstText(
     project.institutional?.offer,
@@ -3417,6 +3424,9 @@ export function renderTemplate001Preview(
 
   const brandName = resolveTemplate001BrandName(project);
 
+  const designDirection =
+    getPageNovaDesignDirection(project);
+
   const hero = sectionByKind(page, ["hero"]);
 
   const authority = sectionByKind(page, ["authority"]);
@@ -3516,11 +3526,12 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}</style>
 
     <div
-      class="pn001-site"
+      class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
+      data-pagenova-design="${designDirection.id}"
     >
       <header class="pn001-header">
         <div class="pn001-container pn001-header-inner">
