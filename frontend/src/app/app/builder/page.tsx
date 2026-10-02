@@ -232,7 +232,6 @@ export default function BuilderPage() {
 
     const explicitNamePatterns = [
       /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”']?([^,.;\n]{2,60})/i,
-      /\b(?:empresa|marca|cl[ií]nica|neg[oó]cio|loja|escrit[oó]rio|ag[eê]ncia)\s+(?:chamad[ao]\s+)?["“”']?([^,.;\n]{2,60})/i,
       /\b(?:nome|marca)\s*[:\-]\s*["“”']?([^,.;\n]{2,60})/i,
     ];
 

@@ -157,6 +157,15 @@ Essa arquitetura é adaptativa.
 Não force todos os blocos.
 O modelo de negócio e os dados disponíveis determinam quais seções realmente devem existir.
 
+REQUISITOS DE FECHAMENTO INSTITUCIONAL:
+- Quando houver informação suficiente, FAQ e contato são blocos de alta prioridade.
+- FAQ deve responder somente com informações sustentadas pelo briefing e pelos dados institucionais.
+- Contato deve convidar o visitante a iniciar conversa, solicitar atendimento, orçamento, avaliação ou próximo passo apropriado.
+- Não invente avaliações de clientes.
+- Se não houver depoimentos reais fornecidos, não atribua frases inventadas a pessoas reais ou fictícias.
+- O renderer pode exibir conteúdo demonstrativo claramente identificado para mostrar a área de avaliações.
+- A página deve terminar com um próximo passo claro.
+- Evite repetir CTA final e contato com exatamente o mesmo texto.
 QUALIDADE DE COPY:
 - Títulos curtos, fortes e específicos.
 - Parágrafos escaneáveis.

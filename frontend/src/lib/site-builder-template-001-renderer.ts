@@ -1,4 +1,6 @@
+import { SITE_PAGES } from "./site-builder";
 import type {
+
   SitePage,
   SitePageKey,
   SiteProject,
@@ -194,12 +196,14 @@ const renderHero = (
   hero: SiteSection | undefined,
 ): string => {
   const title = firstText(
+    page.heading,
     hero ? sectionTitle(hero) : "",
     project.name,
     "Soluções pensadas para o que você precisa.",
   );
 
   const description = firstText(
+    page.introduction,
     hero ? sectionSubtitle(hero) : "",
     hero ? sectionBody(hero) : "",
     "Conheça as soluções, diferenciais e formas de atendimento.",
@@ -485,33 +489,239 @@ const renderFaq = (
 };
 
 const renderContact = (
+  project: SiteProject,
   section: SiteSection,
-): string => `
-  <section
-    class="pn001-section pn001-contact"
-    id="pn001-contact"
-  >
-    <div class="pn001-container">
-      <div class="pn001-contact-card">
-        <div>
-          <span class="pn001-eyebrow">Contato</span>
-          <h2>${escapeHtml(sectionTitle(section))}</h2>
+): string => {
+  const email = firstText(project.contactEmail);
+  const whatsapp = firstText(project.contactWhatsApp);
+  const instagram = firstText(project.contactInstagram);
 
-          ${
-            sectionBody(section)
-              ? `<p>${escapeHtml(sectionBody(section))}</p>`
-              : ""
-          }
+  return `
+    <section
+      class="pn001-section pn001-contact"
+      id="pn001-contact"
+    >
+      <div class="pn001-container">
+        <div class="pn001-contact-shell">
+          <div class="pn001-contact-copy">
+            <span class="pn001-eyebrow">Entre em contato</span>
+
+            <h2>${escapeHtml(
+              firstText(
+                sectionTitle(section),
+                `Fale com ${project.name}`,
+              ),
+            )}</h2>
+
+            <p>
+              ${escapeHtml(
+                firstText(
+                  sectionBody(section),
+                  "Preencha seus dados e conte brevemente como podemos ajudar.",
+                ),
+              )}
+            </p>
+
+            <div class="pn001-contact-channels">
+              ${
+                email
+                  ? `<div><span>E-mail</span><strong>${escapeHtml(email)}</strong></div>`
+                  : ""
+              }
+
+              ${
+                whatsapp
+                  ? `<div><span>WhatsApp</span><strong>${escapeHtml(whatsapp)}</strong></div>`
+                  : ""
+              }
+
+              ${
+                instagram
+                  ? `<div><span>Instagram</span><strong>${escapeHtml(instagram)}</strong></div>`
+                  : ""
+              }
+            </div>
+          </div>
+
+          <form class="pn001-form" id="pn001-contact-form">
+            <div class="pn001-form-row">
+              <label>
+                <span>Nome</span>
+                <input
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Seu nome"
+                  required
+                />
+              </label>
+
+              <label>
+                <span>Telefone</span>
+                <input
+                  name="phone"
+                  type="tel"
+                  autocomplete="tel"
+                  placeholder="(00) 00000-0000"
+                />
+              </label>
+            </div>
+
+            <label>
+              <span>E-mail</span>
+              <input
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="voce@email.com"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Como podemos ajudar?</span>
+              <textarea
+                name="message"
+                rows="5"
+                placeholder="Escreva sua mensagem..."
+                required
+              ></textarea>
+            </label>
+
+            <button
+              class="pn001-form-submit"
+              type="submit"
+            >
+              Enviar mensagem
+              <span>→</span>
+            </button>
+
+            <p class="pn001-form-status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  `;
+};
+const renderInstitutionalFaq = (
+  project: SiteProject,
+): string => {
+  const offer = firstText(project.institutional?.offer);
+  const audience = firstText(project.institutional?.audience);
+  const process = firstText(project.institutional?.process);
+
+  const faqItems = [
+    offer
+      ? {
+          question: `Quais serviços ${project.name} oferece?`,
+          answer: offer,
+        }
+      : null,
+
+    audience
+      ? {
+          question: "Para quem são os serviços?",
+          answer: audience,
+        }
+      : null,
+
+    process
+      ? {
+          question: "Como funciona o atendimento?",
+          answer: process,
+        }
+      : null,
+
+    {
+      question: "Como posso entrar em contato?",
+      answer:
+        "Use o formulário desta página para enviar sua mensagem e solicitar mais informações.",
+    },
+  ].filter(
+    (
+      item,
+    ): item is {
+      question: string;
+      answer: string;
+    } => Boolean(item),
+  );
+
+  if (faqItems.length === 0) return "";
+
+  return `
+    <section class="pn001-section pn001-faq">
+      <div class="pn001-container pn001-faq-layout">
+        <div class="pn001-section-head pn001-section-head-sticky">
+          <span class="pn001-eyebrow">FAQ</span>
+          <h2>Perguntas frequentes</h2>
+          <p>
+            Informações rápidas para ajudar antes do primeiro contato.
+          </p>
         </div>
 
-        <a class="pn001-button pn001-button-primary" href="#">
-          Entrar em contato
-        </a>
+        <div class="pn001-faq-list">
+          ${faqItems
+            .map(
+              (item) => `
+                <details class="pn001-faq-item">
+                  <summary>
+                    <span>${escapeHtml(item.question)}</span>
+                    <span class="pn001-faq-plus">+</span>
+                  </summary>
+
+                  <p>${escapeHtml(item.answer)}</p>
+                </details>
+              `,
+            )
+            .join("")}
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+const renderDemoTestimonials = (
+  project: SiteProject,
+): string => `
+  <section class="pn001-section pn001-testimonials pn001-demo-testimonials">
+    <div class="pn001-container">
+      <div class="pn001-section-head">
+        <span class="pn001-eyebrow">Depoimentos</span>
+        <h2>Experiências de clientes</h2>
+        <p>
+          Espaço preparado para avaliações reais de clientes.
+          Os exemplos abaixo são demonstrativos e devem ser substituídos antes da publicação.
+        </p>
+      </div>
+
+      <div class="pn001-testimonial-grid">
+        <article class="pn001-quote">
+          <div class="pn001-stars">★★★★★</div>
+          <blockquote>
+            “Exemplo de depoimento: descreva aqui uma experiência real de atendimento.”
+          </blockquote>
+          <strong>Depoimento demonstrativo</strong>
+        </article>
+
+        <article class="pn001-quote">
+          <div class="pn001-stars">★★★★★</div>
+          <blockquote>
+            “Exemplo de depoimento: destaque aqui um ponto real valorizado pelo cliente.”
+          </blockquote>
+          <strong>Depoimento demonstrativo</strong>
+        </article>
+
+        <article class="pn001-quote">
+          <div class="pn001-stars">★★★★★</div>
+          <blockquote>
+            “Exemplo de depoimento: adicione aqui uma avaliação verdadeira recebida pela empresa.”
+          </blockquote>
+          <strong>Depoimento demonstrativo</strong>
+        </article>
       </div>
     </div>
   </section>
 `;
-
 const renderFinalCta = (
   project: SiteProject,
   section: SiteSection,
@@ -586,7 +796,7 @@ const renderSemanticSection = (
       return renderFaq(section);
 
     case "contact":
-      return renderContact(section);
+      return renderContact(project, section);
 
     case "final-cta":
       return renderFinalCta(project, section);
@@ -1793,6 +2003,411 @@ const templateStyles = `
       padding: 38px 0 50px;
     }
   }
+
+  /* ============================================================
+     TEMPLATE 001 V4 — PROFESSIONAL INSTITUTIONAL
+     ============================================================ */
+
+  .pn001-header {
+    padding: 20px 0 8px;
+  }
+
+  .pn001-header-inner {
+    min-height: 78px;
+    padding: 10px 12px 10px 16px;
+    border-radius: 24px;
+    background: rgba(255,255,255,.94);
+    box-shadow:
+      0 18px 60px rgba(12,31,23,.08),
+      0 1px 0 rgba(255,255,255,.8) inset;
+  }
+
+  .pn001-brand-logo {
+    gap: 13px;
+  }
+
+  .pn001-brand-symbol {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 14px;
+    background:
+      linear-gradient(145deg, var(--pn001-accent), var(--pn001-accent-strong));
+    color: #fff;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -.03em;
+    box-shadow: 0 10px 24px rgba(26,155,112,.22);
+  }
+
+  .pn001-brand-name {
+    max-width: 290px;
+    overflow: hidden;
+    color: var(--pn001-text);
+    font-size: 17px;
+    font-weight: 850;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pn001-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pn001-menu-button {
+    display: flex;
+    width: 52px;
+    height: 52px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 5px;
+    border: 0;
+    border-radius: 16px;
+    background: var(--pn001-dark);
+    cursor: pointer;
+  }
+
+  .pn001-menu-button span {
+    width: 20px;
+    height: 2px;
+    border-radius: 10px;
+    background: #fff;
+    transition: transform .25s ease;
+  }
+
+  .pn001-menu-overlay {
+    position: fixed;
+    z-index: 90;
+    inset: 0;
+    visibility: hidden;
+    background: rgba(4,14,10,.58);
+    opacity: 0;
+    backdrop-filter: blur(8px);
+    transition: .3s ease;
+  }
+
+  .pn001-menu-panel {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    right: 0;
+    width: min(460px, 92vw);
+    height: 100vh;
+    padding: 30px;
+    overflow-y: auto;
+    background: #fff;
+    box-shadow: -30px 0 100px rgba(5,20,14,.18);
+    transform: translateX(105%);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .pn001-menu-open .pn001-menu-overlay {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .pn001-menu-open .pn001-menu-panel {
+    transform: translateX(0);
+  }
+
+  .pn001-menu-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--pn001-line);
+  }
+
+  .pn001-menu-close {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border: 1px solid var(--pn001-line);
+    border-radius: 50%;
+    background: #fff;
+    color: var(--pn001-text);
+    font-size: 28px;
+    cursor: pointer;
+  }
+
+  .pn001-menu-links {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 0;
+  }
+
+  .pn001-menu-links a {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 21px 4px;
+    border-bottom: 1px solid var(--pn001-line);
+  }
+
+  .pn001-menu-links a span {
+    color: var(--pn001-accent-strong);
+    font-size: 11px;
+    font-weight: 850;
+  }
+
+  .pn001-menu-links a strong {
+    font-size: clamp(24px, 4vw, 34px);
+    letter-spacing: -.04em;
+  }
+
+  .pn001-menu-links a b {
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .pn001-menu-bottom {
+    margin-top: 20px;
+    padding: 25px;
+    border-radius: 22px;
+    background: var(--pn001-dark);
+    color: #fff;
+  }
+
+  .pn001-menu-bottom span {
+    display: block;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,.55);
+    font-size: 12px;
+  }
+
+  .pn001-menu-contact {
+    font-weight: 800;
+  }
+
+  .pn001-hero {
+    padding-top: 70px;
+  }
+
+  .pn001-hero h1 {
+    font-size: clamp(48px, 5.2vw, 72px);
+    line-height: 1;
+  }
+
+  .pn001-hero-image {
+    aspect-ratio: 4 / 5;
+    min-height: 0;
+    max-height: 620px;
+  }
+
+  .pn001-demo-testimonials {
+    position: relative;
+    background:
+      radial-gradient(circle at 90% 0%, rgba(43,195,142,.11), transparent 30%),
+      #eef3f0;
+  }
+
+  .pn001-contact-shell {
+    display: grid;
+    grid-template-columns: .82fr 1.18fr;
+    gap: clamp(45px, 7vw, 90px);
+    padding: clamp(38px, 6vw, 72px);
+    border: 1px solid var(--pn001-line);
+    border-radius: 36px;
+    background: #fff;
+    box-shadow: 0 25px 80px rgba(14,30,22,.07);
+  }
+
+  .pn001-contact-copy h2 {
+    margin: 14px 0 20px;
+    font-size: clamp(38px, 4.5vw, 58px);
+    line-height: 1.02;
+    letter-spacing: -.05em;
+  }
+
+  .pn001-contact-copy > p {
+    color: var(--pn001-muted);
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .pn001-contact-channels {
+    display: grid;
+    gap: 12px;
+    margin-top: 34px;
+  }
+
+  .pn001-contact-channels > div {
+    padding: 16px 18px;
+    border: 1px solid var(--pn001-line);
+    border-radius: 16px;
+    background: #f8faf9;
+  }
+
+  .pn001-contact-channels span,
+  .pn001-contact-channels strong {
+    display: block;
+  }
+
+  .pn001-contact-channels span {
+    margin-bottom: 5px;
+    color: var(--pn001-muted);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+  }
+
+  .pn001-contact-channels strong {
+    font-size: 14px;
+  }
+
+  .pn001-form {
+    display: grid;
+    gap: 17px;
+    padding: 30px;
+    border-radius: 28px;
+    background: #f4f7f5;
+  }
+
+  .pn001-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .pn001-form label {
+    display: grid;
+    gap: 8px;
+  }
+
+  .pn001-form label > span {
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .pn001-form input,
+  .pn001-form textarea {
+    width: 100%;
+    border: 1px solid rgba(16,21,19,.1);
+    border-radius: 14px;
+    outline: 0;
+    background: #fff;
+    color: var(--pn001-text);
+    font: inherit;
+  }
+
+  .pn001-form input {
+    height: 54px;
+    padding: 0 16px;
+  }
+
+  .pn001-form textarea {
+    min-height: 130px;
+    padding: 16px;
+    resize: vertical;
+  }
+
+  .pn001-form input:focus,
+  .pn001-form textarea:focus {
+    border-color: var(--pn001-accent);
+    box-shadow: 0 0 0 4px rgba(26,155,112,.09);
+  }
+
+  .pn001-form-submit {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border: 0;
+    border-radius: 15px;
+    background:
+      linear-gradient(135deg, var(--pn001-accent-strong), var(--pn001-accent));
+    color: #fff;
+    font-weight: 850;
+    cursor: pointer;
+  }
+
+  .pn001-form-submit span {
+    font-size: 20px;
+  }
+
+  .pn001-form-status {
+    min-height: 18px;
+    margin: 0;
+    color: var(--pn001-muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .pn001-footer {
+    padding: 48px 0;
+    background: #eef2f0;
+  }
+
+  @media (max-width: 900px) {
+    .pn001-header-cta {
+      display: none;
+    }
+
+    .pn001-contact-shell {
+      grid-template-columns: 1fr;
+      gap: 35px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pn001-header-inner {
+      min-height: 66px;
+      border-radius: 20px;
+    }
+
+    .pn001-brand-symbol {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+    }
+
+    .pn001-brand-name {
+      max-width: 180px;
+      font-size: 14px;
+    }
+
+    .pn001-menu-button {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+    }
+
+    .pn001-menu-panel {
+      width: 100%;
+      padding: 22px;
+    }
+
+    .pn001-hero {
+      padding-top: 38px;
+    }
+
+    .pn001-hero h1 {
+      font-size: clamp(39px, 12vw, 54px);
+    }
+
+    .pn001-contact-shell {
+      padding: 26px 20px;
+      border-radius: 26px;
+    }
+
+    .pn001-form {
+      padding: 20px;
+      border-radius: 20px;
+    }
+
+    .pn001-form-row {
+      grid-template-columns: 1fr;
+    }
+  }
 `;
 
 export function renderTemplate001Preview(
@@ -1830,6 +2445,20 @@ export function renderTemplate001Preview(
     ["contact"],
   ).length > 0;
 
+  const hasFaq =
+    sectionsByKind(page, ["faq"]).length > 0;
+
+  const hasTestimonials =
+    sectionsByKind(page, ["testimonials"]).length > 0;
+
+  const homeEnhancements =
+    pageKey === "home"
+      ? `
+          ${hasTestimonials ? "" : renderDemoTestimonials(project)}
+          ${hasFaq ? "" : renderInstitutionalFaq(project)}
+        `
+      : "";
+
   return `
     <style>${templateStyles}</style>
 
@@ -1839,24 +2468,103 @@ export function renderTemplate001Preview(
     >
       <header class="pn001-header">
         <div class="pn001-container pn001-header-inner">
-          <a class="pn001-brand" href="#">
-            <span class="pn001-brand-mark"></span>
-            <span>${escapeHtml(project.name || "PageNova")}</span>
+          <a class="pn001-brand pn001-brand-logo" href="#" data-page="home">
+            <span class="pn001-brand-symbol">
+              ${escapeHtml(
+                (project.name || "P")
+                  .split(/\s+/)
+                  .filter(Boolean)
+                  .slice(0, 2)
+                  .map((part) => part.charAt(0))
+                  .join("")
+                  .toUpperCase(),
+              )}
+            </span>
+
+            <span class="pn001-brand-name">
+              ${escapeHtml(project.name || "PageNova")}
+            </span>
           </a>
 
-          <nav class="pn001-nav">
-            <a href="#pn001-main">Conheça</a>
-            <a href="#pn001-main">Soluções</a>
-            <a href="#pn001-contact">Contato</a>
+          <div class="pn001-header-actions">
+            <a
+              class="pn001-header-cta"
+              href="${hasContact ? "#pn001-contact" : "#pn001-main"}"
+            >
+              Falar agora
+            </a>
+
+            <button
+              class="pn001-menu-button"
+              type="button"
+              aria-label="Abrir menu"
+              aria-expanded="false"
+              aria-controls="pn001-menu"
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="pn001-menu-overlay"></div>
+
+        <aside
+          class="pn001-menu-panel"
+          id="pn001-menu"
+          aria-hidden="true"
+        >
+          <div class="pn001-menu-top">
+            <div class="pn001-brand pn001-brand-logo">
+              <span class="pn001-brand-symbol">
+                ${escapeHtml(
+                  (project.name || "P")
+                    .split(/\s+/)
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map((part) => part.charAt(0))
+                    .join("")
+                    .toUpperCase(),
+                )}
+              </span>
+
+              <span class="pn001-brand-name">
+                ${escapeHtml(project.name || "PageNova")}
+              </span>
+            </div>
+
+            <button
+              class="pn001-menu-close"
+              type="button"
+              aria-label="Fechar menu"
+            >
+              ×
+            </button>
+          </div>
+
+          <nav class="pn001-menu-links">
+            ${SITE_PAGES
+              .filter(({ key }) => Boolean(project.pages[key]))
+              .map(
+                ({ key, label }, index) => `
+                  <a href="#" data-page="${key}">
+                    <span>0${index + 1}</span>
+                    <strong>${escapeHtml(label)}</strong>
+                    <b>→</b>
+                  </a>
+                `,
+              )
+              .join("")}
           </nav>
 
-          <a
-            class="pn001-header-cta"
-            href="${hasContact ? "#pn001-contact" : "#pn001-main"}"
-          >
-            Falar agora
-          </a>
-        </div>
+          <div class="pn001-menu-bottom">
+            <span>Vamos conversar?</span>
+            <a href="#pn001-contact" class="pn001-menu-contact">
+              Entrar em contato →
+            </a>
+          </div>
+        </aside>
       </header>
 
       ${renderHero(project, page, hero)}
@@ -1865,6 +2573,7 @@ export function renderTemplate001Preview(
 
       <main id="pn001-main">
         ${renderedContent}
+        ${homeEnhancements}
       </main>
 
       <footer class="pn001-footer">
@@ -1882,5 +2591,72 @@ export function renderTemplate001Preview(
         </div>
       </footer>
     </div>
+
+    <script>
+      (() => {
+        const root = document.querySelector(".pn001-site");
+        if (!root) return;
+
+        const openButton = root.querySelector(".pn001-menu-button");
+        const closeButton = root.querySelector(".pn001-menu-close");
+        const panel = root.querySelector(".pn001-menu-panel");
+        const overlay = root.querySelector(".pn001-menu-overlay");
+
+        const setMenu = (open) => {
+          root.classList.toggle("pn001-menu-open", open);
+
+          if (openButton) {
+            openButton.setAttribute(
+              "aria-expanded",
+              open ? "true" : "false",
+            );
+          }
+
+          if (panel) {
+            panel.setAttribute(
+              "aria-hidden",
+              open ? "false" : "true",
+            );
+          }
+        };
+
+        openButton?.addEventListener(
+          "click",
+          () => setMenu(true),
+        );
+
+        closeButton?.addEventListener(
+          "click",
+          () => setMenu(false),
+        );
+
+        overlay?.addEventListener(
+          "click",
+          () => setMenu(false),
+        );
+
+        root.querySelectorAll(".pn001-menu-links [data-page]")
+          .forEach((link) => {
+            link.addEventListener("click", () => setMenu(false));
+          });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") setMenu(false);
+        });
+
+        const form = root.querySelector("#pn001-contact-form");
+
+        form?.addEventListener("submit", (event) => {
+          event.preventDefault();
+
+          const status = form.querySelector(".pn001-form-status");
+
+          if (status) {
+            status.textContent =
+              "Mensagem preenchida. Configure o canal de recebimento ao publicar o site.";
+          }
+        });
+      })();
+    </script>
   `;
 }
