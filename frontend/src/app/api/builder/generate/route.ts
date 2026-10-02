@@ -1000,7 +1000,14 @@ console.info("[Builder] Semantic strategy", {
       })),
     };
 
-    return NextResponse.json({ page, visualDirection, headerDirection, institutional, revisionPlan });
+    return NextResponse.json({
+    page,
+    visualDirection,
+    headerDirection,
+    institutional,
+    revisionPlan,
+    siteStrategy: universalStrategy,
+  });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
     return NextResponse.json({ error: "Não foi possível gerar esta página. Você pode tentar novamente." }, { status: 502 });

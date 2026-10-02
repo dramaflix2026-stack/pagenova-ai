@@ -217,7 +217,7 @@ export default function BuilderPage() {
       setCreatingBrief(false);
     }
   }
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; revisionPlan?: RevisionPlan }> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -233,13 +233,14 @@ export default function BuilderPage() {
         currentHeaderDirection: site.headerDirection || undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
-    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; revisionPlan?: RevisionPlan; error?: string };
+    const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
     return {
       page: data.page as SitePage,
       visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
       headerDirection: data.headerDirection as SiteProject["headerDirection"] | undefined,
       institutional: data.institutional as SiteProject["institutional"] | undefined,
+      siteStrategy: data.siteStrategy as SiteProject["siteStrategy"] | undefined,
       revisionPlan: data.revisionPlan as RevisionPlan | undefined,
     };
   }
@@ -268,6 +269,7 @@ export default function BuilderPage() {
         current = {
           ...current,
           pages: { ...current.pages, [key]: page },
+          siteStrategy: result.siteStrategy ?? current.siteStrategy,
           visualDirection:
             key === "home" && result.visualDirection
               ? result.visualDirection

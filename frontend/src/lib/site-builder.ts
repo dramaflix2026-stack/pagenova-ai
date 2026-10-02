@@ -130,6 +130,7 @@ export type SiteProject = {
   style: string;
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
   visualDirection?: VisualDirection;
+  siteStrategy?: import("@/lib/site-builder-universal").UniversalSiteStrategy;
   headerDirection?: {
     logoPosition: "left" | "center" | "right";
     menuStyle: "inline" | "dropdown";
