@@ -1,4 +1,10 @@
 import {
+  completeHomeSectionsV5,
+  pageNovaPaletteStyleV5,
+  PAGENOVA_DESIGN_CORE_V5_STYLES,
+  resolvePageNovaPaletteV5,
+} from "@/lib/site-builder-design-core-v5";
+import {
   getPageNovaDesignDirection,
   PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
   PAGENOVA_DESIGN_LIBRARY_V2_STYLES,
@@ -3428,14 +3434,27 @@ export function renderTemplate001Preview(
     return "";
   }
 
+  const effectivePage =
+    pageKey === "home"
+      ? {
+          ...page,
+          sections: completeHomeSectionsV5(project, page),
+        }
+      : page;
+
   const brandName = resolveTemplate001BrandName(project);
+  const paletteV5 =
+    resolvePageNovaPaletteV5(project);
+
+  const paletteStyleV5 =
+    pageNovaPaletteStyleV5(paletteV5);
 
   const designDirection =
     getPageNovaDesignDirection(project);
 
-  const hero = sectionByKind(page, ["hero"]);
+  const hero = sectionByKind(effectivePage, ["hero"]);
 
-  const authority = sectionByKind(page, ["authority"]);
+  const authority = sectionByKind(effectivePage, ["authority"]);
 
   const closingKinds = new Set([
     "testimonials",
@@ -3444,7 +3463,7 @@ export function renderTemplate001Preview(
     "final-cta",
   ]);
 
-  const contentSections = page.sections.filter(
+  const contentSections = effectivePage.sections.filter(
     (section) =>
       section.kind !== "hero" &&
       section !== authority &&
@@ -3461,33 +3480,33 @@ export function renderTemplate001Preview(
     .join("");
 
   const hasContact = sectionsByKind(
-    page,
+    effectivePage,
     ["contact"],
   ).length > 0;
 
   const hasFaq =
-    sectionsByKind(page, ["faq"]).length > 0;
+    sectionsByKind(effectivePage, ["faq"]).length > 0;
 
   const hasTestimonials =
-    sectionsByKind(page, ["testimonials"]).length > 0;
+    sectionsByKind(effectivePage, ["testimonials"]).length > 0;
 
   const testimonialSection = sectionByKind(
-    page,
+    effectivePage,
     ["testimonials"],
   );
 
   const faqSection = sectionByKind(
-    page,
+    effectivePage,
     ["faq"],
   );
 
   const contactSection = sectionByKind(
-    page,
+    effectivePage,
     ["contact"],
   );
 
   const finalCtaSection = sectionByKind(
-    page,
+    effectivePage,
     ["final-cta"],
   );
 
@@ -3532,13 +3551,15 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="4"
+      data-pagenova-design-version="5"
+      data-pagenova-palette="${paletteV5.id}"
+      style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
       data-pagenova-card-layout="${designDirection.id === "editorial" ? "numbered-list" : designDirection.id === "studio" ? "bento-grid" : "impact-grid"}"
     >
@@ -3643,7 +3664,7 @@ export function renderTemplate001Preview(
         </aside>
       </header>
 
-      ${renderHero(project, page, hero)}
+      ${renderHero(project, effectivePage, hero)}
 
       ${authority ? renderAuthority(authority) : ""}
 
