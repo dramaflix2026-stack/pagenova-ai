@@ -1,6 +1,7 @@
 import {
   getPageNovaDesignDirection,
   PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
+  PAGENOVA_DESIGN_LIBRARY_V2_STYLES,
 } from "@/lib/site-builder-design-library-v1";
 import { SITE_PAGES } from "./site-builder";
 import type {
@@ -131,7 +132,7 @@ const renderGenericCards = (
             const image = itemImage(item);
 
             return `
-              <article class="pn001-card">
+              <article class="pn001-card pn-v2-card">
                 ${
                   image
                     ? renderImage(
@@ -186,7 +187,7 @@ const renderGenericCards = (
           }
         </div>
 
-        <div class="pn001-grid">
+        <div class="pn001-grid pn-v2-card-grid">
           ${cards}
         </div>
       </div>
@@ -261,9 +262,9 @@ const renderHero = (
   );
 
   return `
-    <section class="pn001-hero">
-      <div class="pn001-container pn001-hero-grid">
-        <div class="pn001-hero-copy">
+    <section class="pn001-hero pn-v2-hero">
+      <div class="pn001-container pn001-hero-grid pn-v2-hero-grid">
+        <div class="pn001-hero-copy pn-v2-hero-copy">
           <span class="pn001-pill">
             ${escapeHtml(resolveTemplate001BrandName(project))}
           </span>
@@ -288,7 +289,7 @@ const renderHero = (
           </div>
         </div>
 
-        <div class="pn001-hero-visual">
+        <div class="pn001-hero-visual pn-v2-hero-visual">
           ${
             image
               ? renderImage(
@@ -373,8 +374,8 @@ const renderAbout = (
   );
 
   return `
-    <section class="pn001-section pn001-about">
-      <div class="pn001-container pn001-about-grid">
+    <section class="pn001-section pn001-about pn-v2-about">
+      <div class="pn001-container pn001-about-grid pn-v2-about-grid">
         <div class="pn001-about-copy">
           <span class="pn001-eyebrow">Sobre</span>
 
@@ -721,7 +722,7 @@ const renderInstitutionalFaq = (
 
   return `
     <section
-      class="pn001-section pn001-faq pn001-faq-v6"
+      class="pn001-section pn001-faq pn001-faq-v6 pn-v2-faq"
     >
       <div class="pn001-container pn001-faq-layout">
 
@@ -905,7 +906,7 @@ const renderDemoTestimonials = (
 
   return `
     <section
-      class="pn001-section pn001-testimonials pn001-testimonials-v6"
+      class="pn001-section pn001-testimonials pn001-testimonials-v6 pn-v2-testimonials"
     >
       <div class="pn001-container">
 
@@ -942,7 +943,7 @@ const renderDemoTestimonials = (
         </div>
 
         <div
-          class="pn001-testimonial-slider"
+          class="pn001-testimonial-slider pn-v2-testimonial-layout"
           tabindex="0"
         >
           ${cards}
@@ -981,10 +982,10 @@ const renderFinalCta = (
 
   return `
     <section
-      class="pn001-section pn001-final-cta"
+      class="pn001-section pn001-final-cta pn-v2-final-cta"
     >
       <div class="pn001-container">
-        <div class="pn001-final-cta-card">
+        <div class="pn001-final-cta-card pn-v2-final-cta-card">
 
           <div class="pn001-final-cta-copy">
             <span class="pn001-kicker">
@@ -3526,12 +3527,15 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
+      data-pagenova-design-version="2"
+      data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
+      data-pagenova-card-layout="${designDirection.id === "editorial" ? "numbered-list" : designDirection.id === "studio" ? "bento-grid" : "impact-grid"}"
     >
       <header class="pn001-header">
         <div class="pn001-container pn001-header-inner">
@@ -3643,7 +3647,7 @@ export function renderTemplate001Preview(
         ${homeEnhancements}
       </main>
 
-      <footer class="pn001-footer pn001-footer-v5">
+      <footer class="pn001-footer pn001-footer-v5 pn-v2-footer">
         <div class="pn001-container">
           <div class="pn001-footer-main">
             <div class="pn001-footer-brand-column">
