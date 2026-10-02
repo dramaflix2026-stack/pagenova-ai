@@ -5,6 +5,10 @@ import {
   resolvePageNovaPaletteV5,
 } from "@/lib/site-builder-design-core-v5";
 import {
+  PAGENOVA_DESIGN_CORE_V6_SCRIPT,
+  PAGENOVA_DESIGN_CORE_V6_STYLES,
+} from "@/lib/site-builder-design-core-v6";
+import {
   getPageNovaDesignDirection,
   PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
   PAGENOVA_DESIGN_LIBRARY_V2_STYLES,
@@ -3551,13 +3555,13 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="5"
+      data-pagenova-design-version="6"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
@@ -3841,5 +3845,6 @@ export function renderTemplate001Preview(
         });
       })();
     </script>
+    <script>${PAGENOVA_DESIGN_CORE_V6_SCRIPT}</script>
   `;
 }

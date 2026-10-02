@@ -269,30 +269,13 @@ export const completeHomeSectionsV5 = (
       ],
     });
   }
-
   /*
-   * Portfolio/gallery is only added when institutional images
-   * actually exist. This avoids fake projects/cases.
+   * V6:
+   * Do not fabricate a gallery section from generic institutional
+   * images. Portfolio/gallery remains available when it exists in
+   * the semantic project itself, but the automatic text-only
+   * fallback is intentionally disabled.
    */
-  const institutional = project.institutional;
-
-  const hasVisualMaterial = Boolean(
-    institutional?.portrait ||
-    institutional?.businessPhoto ||
-    institutional?.workPhoto
-  );
-
-  if (
-    hasVisualMaterial &&
-    !hasKind(sections, ["portfolio", "gallery"])
-  ) {
-    sections.push({
-      title: "Uma visão do trabalho",
-      body:
-        "Alguns registros visuais ajudam a apresentar a linguagem, o cuidado e a forma como o trabalho ganha vida.",
-      kind: "gallery",
-    });
-  }
 
   return sections;
 };
