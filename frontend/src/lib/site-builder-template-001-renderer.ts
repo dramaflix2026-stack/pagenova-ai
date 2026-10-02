@@ -3408,7 +3408,7 @@ const templateStyles = `
    * HEADER-INNER nunca pode ser card.
    */
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header {
     position: relative !important;
     z-index: 100 !important;
@@ -3440,7 +3440,7 @@ const templateStyles = `
     overflow: visible !important;
   }
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   > .pn001-header-inner {
     position: relative !important;
@@ -3487,11 +3487,11 @@ const templateStyles = `
     overflow: visible !important;
   }
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   > .pn001-header-inner::before,
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   > .pn001-header-inner::after {
     content: none !important;
@@ -3509,11 +3509,11 @@ const templateStyles = `
      BRAND
      ========================= */
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-brand,
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-brand-logo {
     display: inline-flex !important;
@@ -3538,7 +3538,7 @@ const templateStyles = `
     text-decoration: none !important;
   }
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-brand-name {
     display: block !important;
@@ -3556,11 +3556,11 @@ const templateStyles = `
     white-space: nowrap !important;
   }
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-brand-symbol,
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-brand-mark {
     display: none !important;
@@ -3570,7 +3570,7 @@ const templateStyles = `
      ACTIONS
      ========================= */
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-header-actions {
     display: flex !important;
@@ -3597,7 +3597,7 @@ const templateStyles = `
      CTA
      ========================= */
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-header-cta {
     box-sizing: border-box !important;
@@ -3643,7 +3643,7 @@ const templateStyles = `
      MENU
      ========================= */
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-menu-button {
     box-sizing: border-box !important;
@@ -3677,7 +3677,7 @@ const templateStyles = `
     box-shadow: none !important;
   }
 
-  .pn001-site[data-pagenova-design-version="6.4"]
+  .pn001-site[data-pagenova-design-version="6.5"]
   > header.pn001-header
   .pn001-menu-button span {
     display: block !important;
@@ -3700,7 +3700,7 @@ const templateStyles = `
 
   @media (max-width: 760px) {
 
-    .pn001-site[data-pagenova-design-version="6.4"]
+    .pn001-site[data-pagenova-design-version="6.5"]
     > header.pn001-header
     > .pn001-header-inner {
       width: calc(100% - 28px) !important;
@@ -3719,13 +3719,13 @@ const templateStyles = `
       box-shadow: none !important;
     }
 
-    .pn001-site[data-pagenova-design-version="6.4"]
+    .pn001-site[data-pagenova-design-version="6.5"]
     > header.pn001-header
     .pn001-header-cta {
       display: none !important;
     }
 
-    .pn001-site[data-pagenova-design-version="6.4"]
+    .pn001-site[data-pagenova-design-version="6.5"]
     > header.pn001-header
     .pn001-brand-name {
       font-size: 15px !important;
@@ -4157,7 +4157,7 @@ export function renderTemplate001Preview(
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="6.4"
+      data-pagenova-design-version="6.5"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"

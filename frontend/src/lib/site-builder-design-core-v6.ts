@@ -3185,4 +3185,576 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
   }
 
   /* PAGENOVA_HEADER_HARD_FIX_END */
-`;
+
+  /* PAGENOVA_V65_BEGIN */
+
+  /* ============================================================
+     PAGENOVA V6.5
+     DENSITY + TYPOGRAPHY + SECTION VARIETY
+
+     Objetivos:
+     - reduzir escala exagerada
+     - reduzir altura vertical
+     - aumentar densidade visual
+     - evitar repeticao de cards
+     - preservar identidade dinamica
+     - preservar header
+     - preservar About
+     - preservar footer
+     ============================================================ */
+
+  /*
+   * GLOBAL CONTENT DENSITY
+   */
+
+  .pn001-site .pn001-section {
+    padding-top: clamp(68px, 7vw, 96px) !important;
+    padding-bottom: clamp(68px, 7vw, 96px) !important;
+  }
+
+  .pn001-site .pn001-section-head {
+    margin-bottom: clamp(28px, 3.5vw, 46px) !important;
+  }
+
+  /*
+   * SECTION TYPOGRAPHY
+   */
+
+  .pn001-site .pn001-section-head h2,
+  .pn001-site .pn001-services h2,
+  .pn001-site .pn001-benefits h2,
+  .pn001-site .pn001-features h2,
+  .pn001-site .pn001-process h2,
+  .pn001-site .pn001-testimonials-v6 h2,
+  .pn001-site .pn001-faq h2,
+  .pn001-site .pn001-contact h2 {
+    font-size: clamp(36px, 4.2vw, 52px) !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.045em !important;
+  }
+
+  .pn001-site .pn001-section-head p,
+  .pn001-site .pn001-services .pn001-section-copy,
+  .pn001-site .pn001-benefits .pn001-section-copy,
+  .pn001-site .pn001-features .pn001-section-copy,
+  .pn001-site .pn001-process .pn001-section-copy {
+    max-width: 760px !important;
+    font-size: clamp(16px, 1.45vw, 18px) !important;
+    line-height: 1.65 !important;
+  }
+
+  /*
+   * HERO
+   * Mantem impacto, mas para de ocupar uma tela inteira.
+   */
+
+  .pn001-site .pn001-hero {
+    min-height: 0 !important;
+
+    padding-top: clamp(54px, 5.5vw, 76px) !important;
+    padding-bottom: clamp(58px, 6vw, 82px) !important;
+  }
+
+  .pn001-site .pn001-hero h1 {
+    max-width: 720px !important;
+
+    font-size: clamp(48px, 5.4vw, 66px) !important;
+    line-height: .98 !important;
+    letter-spacing: -0.052em !important;
+  }
+
+  .pn001-site .pn001-hero p {
+    max-width: 620px !important;
+
+    font-size: clamp(16px, 1.5vw, 19px) !important;
+    line-height: 1.55 !important;
+  }
+
+  .pn001-site .pn001-hero-media,
+  .pn001-site .pn001-hero-media img,
+  .pn001-site .pn001-hero-image {
+    min-height: 400px !important;
+    max-height: 520px !important;
+  }
+
+  /*
+   * GENERIC CARDS
+   * Remove gigantismo.
+   */
+
+  .pn001-site .pn001-card {
+    min-height: 0 !important;
+    height: auto !important;
+
+    padding: clamp(24px, 2.8vw, 34px) !important;
+
+    box-shadow:
+      0 14px 38px
+      rgba(15, 20, 18, .045) !important;
+  }
+
+  .pn001-site .pn001-card h3,
+  .pn001-site .pn001-card strong {
+    font-size: clamp(24px, 2.4vw, 34px) !important;
+    line-height: 1.08 !important;
+  }
+
+  .pn001-site .pn001-card p {
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+  }
+
+  /*
+   * SERVICES
+   * Editorial rows.
+   * Continua elegante e numerado, mas muito mais compacto.
+   */
+
+  .pn001-site .pn001-services .pn001-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 0 !important;
+
+    border-top:
+      1px solid
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site .pn001-services .pn001-card {
+    display: grid !important;
+    grid-template-columns:
+      minmax(72px, .18fr)
+      minmax(220px, .75fr)
+      minmax(280px, 1.5fr) !important;
+
+    align-items: center !important;
+
+    gap: clamp(20px, 3vw, 46px) !important;
+
+    padding:
+      clamp(26px, 3vw, 40px)
+      0 !important;
+
+    border: 0 !important;
+    border-bottom:
+      1px solid
+      var(--pn001-line) !important;
+
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-services .pn001-card-number,
+  .pn001-site .pn001-services .pn001-number {
+    font-size: clamp(32px, 4vw, 54px) !important;
+    opacity: .16 !important;
+  }
+
+  /*
+   * BENEFITS
+   * Nao repete Services.
+   * Vira grid compacto com cards leves.
+   */
+
+  .pn001-site .pn001-benefits {
+    background:
+      var(--pn-v63-neutral-white, #f7f8fa) !important;
+  }
+
+  .pn001-site .pn001-benefits .pn001-grid {
+    display: grid !important;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 18px !important;
+  }
+
+  .pn001-site .pn001-benefits .pn001-card {
+    min-height: 220px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+
+    padding: 28px !important;
+
+    border:
+      1px solid
+      var(--pn001-line) !important;
+
+    border-radius: 22px !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-benefits .pn001-card::before {
+    content: "" !important;
+
+    display: block !important;
+
+    width: 42px !important;
+    height: 3px !important;
+
+    margin-bottom: auto !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    border-radius: 999px !important;
+  }
+
+  /*
+   * FEATURES / DIFERENCIAIS
+   * Duas colunas editoriais.
+   * Diferente de Services e Benefits.
+   */
+
+  .pn001-site .pn001-features .pn001-grid {
+    display: grid !important;
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 1px !important;
+
+    overflow: hidden !important;
+
+    border:
+      1px solid
+      var(--pn001-line) !important;
+
+    border-radius: 24px !important;
+
+    background:
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site .pn001-features .pn001-card {
+    min-height: 190px !important;
+
+    padding:
+      clamp(28px, 3vw, 40px) !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  /*
+   * PROCESS
+   * Timeline horizontal no desktop.
+   */
+
+  .pn001-site .pn001-process {
+    background:
+      var(--pn-v63-neutral-white, #f7f8fa) !important;
+  }
+
+  .pn001-site .pn001-process .pn001-grid {
+    position: relative !important;
+
+    display: grid !important;
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 22px !important;
+  }
+
+  .pn001-site .pn001-process .pn001-grid::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    top: 27px !important;
+    left: 7% !important;
+    right: 7% !important;
+
+    height: 1px !important;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 34%,
+        var(--pn001-line)
+      ) !important;
+  }
+
+  .pn001-site .pn001-process .pn001-card {
+    position: relative !important;
+    z-index: 1 !important;
+
+    min-height: 0 !important;
+
+    padding:
+      70px
+      24px
+      26px !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-process .pn001-card-number,
+  .pn001-site .pn001-process .pn001-number {
+    position: absolute !important;
+
+    top: 8px !important;
+    left: 24px !important;
+
+    display: flex !important;
+
+    width: 40px !important;
+    height: 40px !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+
+    font-size: 13px !important;
+    font-weight: 800 !important;
+
+    opacity: 1 !important;
+  }
+
+  /*
+   * ABOUT
+   * Nao muda estrutura/composicao.
+   * Somente impede tipografia gigante.
+   */
+
+  .pn001-site .pn001-about h2 {
+    font-size: clamp(40px, 4.7vw, 58px) !important;
+    line-height: 1 !important;
+  }
+
+  /*
+   * TESTIMONIALS
+   */
+
+  .pn001-site .pn001-testimonials-v6 {
+    padding-top: clamp(70px, 7vw, 94px) !important;
+    padding-bottom: clamp(70px, 7vw, 94px) !important;
+  }
+
+  .pn001-site .pn001-testimonials-v6 .pn001-quote,
+  .pn001-site .pn001-testimonials-v6 .pn001-card {
+    min-height: 0 !important;
+
+    padding: 24px !important;
+
+    border-radius: 20px !important;
+  }
+
+  .pn001-site .pn001-quote {
+    min-height: 0 !important;
+  }
+
+  /*
+   * FAQ
+   */
+
+  .pn001-site .pn001-faq {
+    padding-top: clamp(72px, 7vw, 96px) !important;
+    padding-bottom: clamp(72px, 7vw, 96px) !important;
+  }
+
+  .pn001-site .pn001-faq-layout,
+  .pn001-site .pn001-faq-grid {
+    gap: clamp(34px, 5vw, 72px) !important;
+  }
+
+  .pn001-site .pn001-faq h2 {
+    max-width: 440px !important;
+  }
+
+  .pn001-site .pn001-faq details,
+  .pn001-site .pn001-faq-item {
+    min-height: 0 !important;
+  }
+
+  .pn001-site .pn001-faq summary {
+    padding:
+      22px
+      24px !important;
+
+    font-size: clamp(16px, 1.4vw, 18px) !important;
+  }
+
+  /*
+   * CONTACT
+   */
+
+  .pn001-site .pn001-contact {
+    padding-top: clamp(68px, 7vw, 94px) !important;
+    padding-bottom: clamp(68px, 7vw, 94px) !important;
+  }
+
+  .pn001-site .pn001-contact-card,
+  .pn001-site .pn001-contact-shell {
+    min-height: 0 !important;
+
+    padding:
+      clamp(32px, 4vw, 54px) !important;
+
+    border-radius: 28px !important;
+  }
+
+  .pn001-site .pn001-contact input,
+  .pn001-site .pn001-contact textarea {
+    font-size: 16px !important;
+  }
+
+  .pn001-site .pn001-contact textarea {
+    min-height: 110px !important;
+  }
+
+  /*
+   * FINAL CTA
+   */
+
+  .pn001-site .pn001-final-cta {
+    min-height: 0 !important;
+
+    padding:
+      clamp(52px, 6vw, 76px)
+      0 !important;
+  }
+
+  .pn001-site .pn001-final-cta-card,
+  .pn001-site .pn-v2-final-cta-card {
+    min-height: 0 !important;
+
+    padding:
+      clamp(30px, 4vw, 46px) !important;
+  }
+
+  .pn001-site .pn001-final-cta h2,
+  .pn001-site .pn001-final h2 {
+    font-size: clamp(38px, 4.5vw, 56px) !important;
+    line-height: 1 !important;
+  }
+
+  /*
+   * TABLET
+   */
+
+  @media (max-width: 900px) {
+
+    .pn001-site .pn001-benefits .pn001-grid,
+    .pn001-site .pn001-process .pn001-grid {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pn001-site .pn001-services .pn001-card {
+      grid-template-columns:
+        64px
+        1fr !important;
+    }
+
+    .pn001-site .pn001-services .pn001-card p {
+      grid-column: 2 !important;
+    }
+
+    .pn001-site .pn001-process .pn001-grid::before {
+      display: none !important;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+
+    .pn001-site .pn001-section {
+      padding-top: 58px !important;
+      padding-bottom: 58px !important;
+    }
+
+    .pn001-site .pn001-section-head h2,
+    .pn001-site .pn001-services h2,
+    .pn001-site .pn001-benefits h2,
+    .pn001-site .pn001-features h2,
+    .pn001-site .pn001-process h2,
+    .pn001-site .pn001-testimonials-v6 h2,
+    .pn001-site .pn001-faq h2,
+    .pn001-site .pn001-contact h2 {
+      font-size: clamp(32px, 9vw, 42px) !important;
+    }
+
+    .pn001-site .pn001-hero {
+      padding-top: 42px !important;
+      padding-bottom: 52px !important;
+    }
+
+    .pn001-site .pn001-hero h1 {
+      font-size: clamp(42px, 12vw, 56px) !important;
+    }
+
+    .pn001-site .pn001-hero-media,
+    .pn001-site .pn001-hero-media img,
+    .pn001-site .pn001-hero-image {
+      min-height: 300px !important;
+      max-height: 400px !important;
+    }
+
+    .pn001-site .pn001-services .pn001-card {
+      grid-template-columns: 52px 1fr !important;
+
+      gap: 14px !important;
+
+      padding:
+        24px
+        0 !important;
+    }
+
+    .pn001-site .pn001-benefits .pn001-grid,
+    .pn001-site .pn001-features .pn001-grid,
+    .pn001-site .pn001-process .pn001-grid {
+      grid-template-columns: 1fr !important;
+    }
+
+    .pn001-site .pn001-benefits .pn001-card,
+    .pn001-site .pn001-features .pn001-card {
+      min-height: 0 !important;
+    }
+
+    .pn001-site .pn001-process .pn001-card {
+      padding:
+        62px
+        4px
+        22px !important;
+    }
+
+    .pn001-site .pn001-process .pn001-card-number,
+    .pn001-site .pn001-process .pn001-number {
+      left: 4px !important;
+    }
+
+    .pn001-site .pn001-about h2 {
+      font-size: clamp(36px, 10vw, 48px) !important;
+    }
+
+    .pn001-site .pn001-final-cta h2,
+    .pn001-site .pn001-final h2 {
+      font-size: clamp(34px, 9vw, 44px) !important;
+    }
+  }
+
+  /* PAGENOVA_V65_END */`;
