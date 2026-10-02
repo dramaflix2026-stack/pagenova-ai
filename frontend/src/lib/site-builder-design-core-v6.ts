@@ -75,8 +75,8 @@ export const PAGENOVA_DESIGN_CORE_V6_STYLES = `
       clamp(18px, 4vw, 56px)
       0 !important;
 
-    background: var(--pn001-dark) !important;
-    color: #fff !important;
+    background: #ffffff !important;
+    color: #111111 !important;
 
     border: 0 !important;
   }
@@ -2651,6 +2651,203 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     .pn001-header-cta {
       display:
         none !important;
+    }
+  }
+
+  /* ============================================================
+     PAGENOVA HEADER CONTRACT V6.3.2
+     GLOBAL / WHITE / FULL WIDTH / NO CARD
+     ============================================================ */
+
+  .pn001-site .pn001-header,
+  .pn001-site > .pn001-header {
+    position: relative !important;
+    z-index: 100 !important;
+
+    display: block !important;
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-inner,
+  .pn001-site > .pn001-header > .pn001-header-inner {
+    display: flex !important;
+    box-sizing: border-box !important;
+
+    width: min(calc(100% - 48px), 1180px) !important;
+    max-width: 1180px !important;
+
+    min-height: 76px !important;
+
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px !important;
+
+    background: #ffffff !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    outline: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-logo,
+  .pn001-site .pn001-header .pn001-brand,
+  .pn001-site .pn001-header .pn001-brand-name {
+    color: #111111 !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-logo,
+  .pn001-site .pn001-header .pn001-brand {
+    text-decoration: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-name {
+    font-size: clamp(17px, 1.6vw, 21px) !important;
+    font-weight: 850 !important;
+    letter-spacing: -0.035em !important;
+  }
+
+  .pn001-site .pn001-header .pn001-brand-mark {
+    display: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-actions {
+    display: flex !important;
+
+    flex: 0 0 auto !important;
+
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    gap: 10px !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-cta {
+    display: inline-flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    width: auto !important;
+    min-width: 118px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 20px !important;
+
+    background: var(--pn001-accent) !important;
+    background-image: none !important;
+
+    color: var(--pn001-accent-contrast) !important;
+
+    border: 1px solid var(--pn001-accent) !important;
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+
+    font-weight: 800 !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+  }
+
+  .pn001-site .pn001-header .pn001-header-cta:hover {
+    background: var(--pn001-accent-strong) !important;
+    border-color: var(--pn001-accent-strong) !important;
+
+    transform: translateY(-1px) !important;
+  }
+
+  .pn001-site .pn001-header .pn001-menu-button {
+    display: inline-flex !important;
+    box-sizing: border-box !important;
+
+    flex: 0 0 44px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+
+    gap: 5px !important;
+
+    background: #ffffff !important;
+    background-image: none !important;
+
+    border: 1px solid rgba(17,17,17,.16) !important;
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-header .pn001-menu-button span {
+    width: 18px !important;
+    height: 2px !important;
+
+    margin: 0 !important;
+
+    background: #111111 !important;
+
+    border-radius: 999px !important;
+  }
+
+  .pn001-site > .pn001-hero {
+    margin-top: 0 !important;
+  }
+
+  @media (max-width: 760px) {
+
+    .pn001-site .pn001-header .pn001-header-inner,
+    .pn001-site > .pn001-header > .pn001-header-inner {
+      width: calc(100% - 28px) !important;
+
+      min-height: 66px !important;
+
+      padding: 8px 0 !important;
+    }
+
+    .pn001-site .pn001-header .pn001-header-cta {
+      display: none !important;
+    }
+
+    .pn001-site .pn001-header .pn001-brand-name {
+      font-size: 15px !important;
     }
   }
 `;

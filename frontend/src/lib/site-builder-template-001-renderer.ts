@@ -3846,7 +3846,7 @@ export function renderTemplate001Preview(
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="6.3"
+      data-pagenova-design-version="6.3.2"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
