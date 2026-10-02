@@ -1157,12 +1157,7 @@ const templateStyles = `
     gap: 24px;
     min-height: 64px;
     padding: 10px 12px 10px 22px;
-    border: 1px solid var(--pn001-line);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 14px 40px rgba(20, 32, 27, 0.05);
-    backdrop-filter: blur(18px);
-  }
+}
 
   .pn001-brand {
     display: flex;
@@ -1915,10 +1910,7 @@ const templateStyles = `
 
   .pn001-header-inner {
     min-height: 68px;
-    border-color: rgba(16, 21, 19, .08);
-    background: rgba(255, 255, 255, .91);
-    box-shadow: 0 16px 45px rgba(14, 28, 21, .06);
-  }
+}
 
   .pn001-brand {
     max-width: 300px;
@@ -2188,8 +2180,7 @@ const templateStyles = `
     .pn001-header-inner {
       min-height: 58px;
       padding: 8px 10px 8px 15px;
-      border-radius: 22px;
-    }
+}
 
     .pn001-nav {
       display: none;
@@ -2291,12 +2282,7 @@ const templateStyles = `
   .pn001-header-inner {
     min-height: 78px;
     padding: 10px 12px 10px 16px;
-    border-radius: 24px;
-    background: rgba(255,255,255,.94);
-    box-shadow:
-      0 18px 60px rgba(12,31,23,.08),
-      0 1px 0 rgba(255,255,255,.8) inset;
-  }
+}
 
   .pn001-brand-logo {
     gap: 13px;
@@ -2637,8 +2623,7 @@ const templateStyles = `
   @media (max-width: 640px) {
     .pn001-header-inner {
       min-height: 66px;
-      border-radius: 20px;
-    }
+}
 
     .pn001-brand-symbol {
       width: 40px;
@@ -2697,11 +2682,7 @@ const templateStyles = `
   .pn001-header-inner {
     min-height: 76px;
     padding: 10px 12px 10px 16px;
-    border: 1px solid rgba(15, 35, 28, .08);
-    border-radius: 24px;
-    background: rgba(255, 255, 255, .94);
-    box-shadow: 0 18px 55px rgba(18, 40, 31, .08);
-  }
+}
 
   .pn001-brand-logo {
     display: inline-flex;
@@ -3000,8 +2981,7 @@ const templateStyles = `
     .pn001-header-inner {
       min-height: 64px;
       padding: 7px 8px 7px 10px;
-      border-radius: 19px;
-    }
+}
 
     .pn001-brand-logo {
       max-width: calc(100% - 118px);
@@ -3079,12 +3059,7 @@ const templateStyles = `
   .pn001-header-inner {
     min-height: 72px;
     padding: 9px 10px 9px 16px;
-    border: 1px solid rgba(16, 21, 19, 0.08);
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 14px 45px rgba(16, 21, 19, 0.07);
-    backdrop-filter: blur(18px);
-  }
+}
 
   .pn001-brand-logo {
     gap: 12px;
@@ -3371,8 +3346,7 @@ const templateStyles = `
     .pn001-header-inner {
       min-height: 62px;
       padding: 7px 8px 7px 11px;
-      border-radius: 17px;
-    }
+}
 
     .pn001-brand-symbol {
       width: 38px;
@@ -3422,6 +3396,343 @@ const templateStyles = `
       padding: 22px;
     }
   }
+
+  /* PAGENOVA_V64_CANONICAL_HEADER_BEGIN */
+
+  /*
+   * PAGENOVA V6.4
+   * CANONICAL GLOBAL HEADER
+   *
+   * HEADER = estrutura global.
+   * HEADER-INNER = apenas container.
+   * HEADER-INNER nunca pode ser card.
+   */
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header {
+    position: relative !important;
+    z-index: 100 !important;
+
+    box-sizing: border-box !important;
+
+    display: block !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    overflow: visible !important;
+  }
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  > .pn001-header-inner {
+    position: relative !important;
+
+    box-sizing: border-box !important;
+
+    display: flex !important;
+
+    width: min(calc(100% - 48px), 1180px) !important;
+    max-width: 1180px !important;
+
+    min-height: 76px !important;
+
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px !important;
+
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+
+    border-radius: 0 !important;
+
+    outline: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    filter: none !important;
+
+    overflow: visible !important;
+  }
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  > .pn001-header-inner::before,
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  > .pn001-header-inner::after {
+    content: none !important;
+    display: none !important;
+
+    background: none !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+  }
+
+  /* =========================
+     BRAND
+     ========================= */
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-brand,
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-brand-logo {
+    display: inline-flex !important;
+
+    align-items: center !important;
+
+    width: auto !important;
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    text-decoration: none !important;
+  }
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-brand-name {
+    display: block !important;
+
+    margin: 0 !important;
+
+    color: #111111 !important;
+
+    font-size: clamp(17px, 1.65vw, 21px) !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+
+    letter-spacing: -0.035em !important;
+
+    white-space: nowrap !important;
+  }
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-brand-symbol,
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-brand-mark {
+    display: none !important;
+  }
+
+  /* =========================
+     ACTIONS
+     ========================= */
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-header-actions {
+    display: flex !important;
+
+    flex: 0 0 auto !important;
+
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    gap: 10px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+  }
+
+  /* =========================
+     CTA
+     ========================= */
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-header-cta {
+    box-sizing: border-box !important;
+
+    display: inline-flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 auto !important;
+
+    width: auto !important;
+    min-width: 116px !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 20px !important;
+
+    background: var(--pn001-accent) !important;
+    background-color: var(--pn001-accent) !important;
+    background-image: none !important;
+
+    color: var(--pn001-accent-contrast) !important;
+
+    border: 1px solid var(--pn001-accent) !important;
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+
+    font-size: 14px !important;
+    font-weight: 800 !important;
+
+    line-height: 1 !important;
+
+    text-decoration: none !important;
+
+    white-space: nowrap !important;
+  }
+
+  /* =========================
+     MENU
+     ========================= */
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-menu-button {
+    box-sizing: border-box !important;
+
+    display: inline-flex !important;
+
+    flex: 0 0 44px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex-direction: column !important;
+
+    gap: 5px !important;
+
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 1px solid rgba(17,17,17,.16) !important;
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site[data-pagenova-design-version="6.4"]
+  > header.pn001-header
+  .pn001-menu-button span {
+    display: block !important;
+
+    width: 18px !important;
+    height: 2px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 999px !important;
+  }
+
+  /* =========================
+     MOBILE
+     ========================= */
+
+  @media (max-width: 760px) {
+
+    .pn001-site[data-pagenova-design-version="6.4"]
+    > header.pn001-header
+    > .pn001-header-inner {
+      width: calc(100% - 28px) !important;
+
+      min-height: 66px !important;
+
+      padding: 8px 0 !important;
+
+      gap: 12px !important;
+
+      background: transparent !important;
+
+      border: 0 !important;
+      border-radius: 0 !important;
+
+      box-shadow: none !important;
+    }
+
+    .pn001-site[data-pagenova-design-version="6.4"]
+    > header.pn001-header
+    .pn001-header-cta {
+      display: none !important;
+    }
+
+    .pn001-site[data-pagenova-design-version="6.4"]
+    > header.pn001-header
+    .pn001-brand-name {
+      font-size: 15px !important;
+    }
+  }
+
+  /* PAGENOVA_V64_CANONICAL_HEADER_END */
 `;
 
 
@@ -3846,7 +4157,7 @@ export function renderTemplate001Preview(
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="6.3.3"
+      data-pagenova-design-version="6.4"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
