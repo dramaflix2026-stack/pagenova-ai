@@ -196,16 +196,21 @@ const renderHero = (
   const title = firstText(
     hero ? sectionTitle(hero) : "",
     project.name,
-    "Uma nova forma de apresentar seu negócio.",
+    "Soluções pensadas para o que você precisa.",
   );
 
   const description = firstText(
     hero ? sectionSubtitle(hero) : "",
     hero ? sectionBody(hero) : "",
-    "Clareza, confiança e uma experiência digital construída para transformar atenção em ação.",
+    "Conheça as soluções, diferenciais e formas de atendimento.",
   );
 
-  const image = hero ? sectionImage(hero) : "";
+  const image = firstText(
+    hero ? sectionImage(hero) : "",
+    project.institutional?.portrait,
+    project.institutional?.businessPhoto,
+    project.institutional?.workPhoto,
+  );
 
   return `
     <section class="pn001-hero">
@@ -231,7 +236,7 @@ const renderHero = (
 
           <div class="pn001-hero-proof">
             <span class="pn001-proof-dot"></span>
-            <span>Experiência clara, moderna e orientada à conversão.</span>
+            <span>Atendimento com clareza, confiança e atenção aos detalhes.</span>
           </div>
         </div>
 
@@ -244,22 +249,18 @@ const renderHero = (
                   "pn001-hero-image",
                 )
               : `
-                <div class="pn001-visual-placeholder">
-                  <div class="pn001-visual-orb"></div>
-
-                  <div class="pn001-floating-card pn001-floating-card-a">
-                    <span>01</span>
-                    <strong>Estratégia</strong>
-                  </div>
-
-                  <div class="pn001-floating-card pn001-floating-card-b">
-                    <span>02</span>
-                    <strong>Experiência</strong>
-                  </div>
-
-                  <div class="pn001-floating-card pn001-floating-card-c">
-                    <span>03</span>
-                    <strong>Resultado</strong>
+                <div class="pn001-visual-placeholder pn001-visual-placeholder-clean">
+                  <div class="pn001-visual-glow"></div>
+                  <div class="pn001-visual-monogram">
+                    ${escapeHtml(
+                      (project.name || "P")
+                        .split(/\s+/)
+                        .filter(Boolean)
+                        .slice(0, 2)
+                        .map((part) => part.charAt(0))
+                        .join("")
+                        .toUpperCase(),
+                    )}
                   </div>
                 </div>
               `
@@ -313,9 +314,15 @@ const renderAuthority = (
 };
 
 const renderAbout = (
+  project: SiteProject,
   section: SiteSection,
 ): string => {
-  const image = sectionImage(section);
+  const image = firstText(
+    sectionImage(section),
+    project.institutional?.businessPhoto,
+    project.institutional?.workPhoto,
+    project.institutional?.portrait,
+  );
 
   return `
     <section class="pn001-section pn001-about">
@@ -341,9 +348,9 @@ const renderAbout = (
                   "pn001-about-image",
                 )
               : `
-                <div class="pn001-about-panel">
-                  <span>PageNova</span>
-                  <strong>Uma apresentação que transmite valor antes mesmo da primeira conversa.</strong>
+                <div class="pn001-about-panel pn001-about-panel-brand">
+                  <span>Sobre</span>
+                  <strong>${escapeHtml(project.name || "Nossa história")}</strong>
                 </div>
               `
           }
@@ -546,7 +553,7 @@ const renderSemanticSection = (
       return renderAuthority(section);
 
     case "about":
-      return renderAbout(section);
+      return renderAbout(project, section);
 
     case "benefits":
       return renderGenericCards(section, "Benefícios");
@@ -1403,6 +1410,387 @@ const templateStyles = `
     .pn001-footer-inner {
       align-items: flex-start;
       flex-direction: column;
+    }
+  }
+
+  /* ============================================================
+     PAGENOVA TEMPLATE 001 V2
+     ============================================================ */
+
+  .pn001-site {
+    background:
+      radial-gradient(circle at 82% 5%, rgba(49, 205, 151, .12), transparent 26%),
+      linear-gradient(180deg, #f8faf9 0%, #f3f6f4 100%);
+  }
+
+  .pn001-header {
+    padding-top: 18px;
+  }
+
+  .pn001-header-inner {
+    min-height: 68px;
+    border-color: rgba(16, 21, 19, .08);
+    background: rgba(255, 255, 255, .91);
+    box-shadow: 0 16px 45px rgba(14, 28, 21, .06);
+  }
+
+  .pn001-brand {
+    max-width: 300px;
+    font-size: 17px;
+  }
+
+  .pn001-hero {
+    padding: 54px 0 78px;
+  }
+
+  .pn001-hero-grid {
+    grid-template-columns: minmax(0, 1.02fr) minmax(380px, .98fr);
+    gap: clamp(42px, 6vw, 86px);
+  }
+
+  .pn001-hero h1 {
+    max-width: 760px;
+    margin-top: 22px;
+    font-size: clamp(48px, 5.6vw, 76px);
+    line-height: .98;
+    letter-spacing: -.058em;
+    text-wrap: balance;
+  }
+
+  .pn001-hero-copy > p {
+    max-width: 610px;
+    font-size: clamp(17px, 1.7vw, 20px);
+    line-height: 1.62;
+  }
+
+  .pn001-hero-image,
+  .pn001-visual-placeholder {
+    min-height: 520px;
+    max-height: 650px;
+    border-radius: 34px;
+  }
+
+  .pn001-hero-image {
+    display: block;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .pn001-visual-placeholder-clean {
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 70% 25%, rgba(67, 225, 169, .85), transparent 23%),
+      linear-gradient(145deg, #10261e 0%, #0a1712 100%);
+  }
+
+  .pn001-visual-glow {
+    position: absolute;
+    width: 70%;
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: rgba(48, 205, 150, .48);
+    filter: blur(55px);
+  }
+
+  .pn001-visual-monogram {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    width: 170px;
+    aspect-ratio: 1;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 42px;
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    font-size: 54px;
+    font-weight: 850;
+    letter-spacing: -.07em;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 28px 70px rgba(0,0,0,.22);
+  }
+
+  .pn001-section {
+    padding: 78px 0;
+  }
+
+  .pn001-section + .pn001-section {
+    padding-top: 56px;
+  }
+
+  .pn001-section-head {
+    max-width: 760px;
+    margin-bottom: 36px;
+  }
+
+  .pn001-section-head h2,
+  .pn001-about h2,
+  .pn001-contact h2,
+  .pn001-final h2 {
+    text-wrap: balance;
+    letter-spacing: -.045em;
+  }
+
+  .pn001-section-head h2,
+  .pn001-about h2 {
+    font-size: clamp(38px, 4.4vw, 58px);
+    line-height: 1.02;
+  }
+
+  .pn001-grid {
+    gap: 18px;
+  }
+
+  .pn001-card {
+    min-height: 260px;
+    border: 1px solid rgba(16, 21, 19, .08);
+    border-radius: 26px;
+    background: rgba(255,255,255,.88);
+    box-shadow: 0 18px 55px rgba(18, 31, 25, .055);
+    transition:
+      transform .25s ease,
+      box-shadow .25s ease,
+      border-color .25s ease;
+  }
+
+  .pn001-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(26, 155, 112, .22);
+    box-shadow: 0 26px 70px rgba(18, 31, 25, .09);
+  }
+
+  .pn001-card-index {
+    color: rgba(16, 21, 19, .16);
+    font-size: 38px;
+    font-weight: 850;
+    letter-spacing: -.05em;
+  }
+
+  .pn001-card h3 {
+    font-size: 21px;
+    letter-spacing: -.025em;
+  }
+
+  .pn001-card p {
+    line-height: 1.65;
+  }
+
+  .pn001-about-grid {
+    gap: 56px;
+  }
+
+  .pn001-about-image,
+  .pn001-about-panel {
+    min-height: 440px;
+    border-radius: 32px;
+  }
+
+  .pn001-about-image {
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .pn001-about-panel-brand {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px;
+    background:
+      radial-gradient(circle at 75% 20%, rgba(52, 214, 156, .48), transparent 28%),
+      #0d1713;
+    color: #fff;
+  }
+
+  .pn001-about-panel-brand span {
+    color: rgba(255,255,255,.55);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+  }
+
+  .pn001-about-panel-brand strong {
+    max-width: 480px;
+    margin-top: 12px;
+    font-size: clamp(34px, 4vw, 54px);
+    line-height: 1;
+    letter-spacing: -.05em;
+  }
+
+  .pn001-final {
+    padding: 60px 0;
+  }
+
+  .pn001-final-card {
+    padding: clamp(42px, 6vw, 76px);
+    border-radius: 34px;
+  }
+
+  .pn001-contact {
+    padding-top: 54px;
+    padding-bottom: 72px;
+  }
+
+  .pn001-contact-card {
+    gap: 36px;
+    padding: clamp(34px, 5vw, 58px);
+    border-radius: 30px;
+    box-shadow: 0 22px 70px rgba(17, 30, 24, .07);
+  }
+
+  .pn001-contact-card > div {
+    max-width: 760px;
+  }
+
+  .pn001-contact-card h2 {
+    margin-top: 12px;
+    font-size: clamp(36px, 4vw, 54px);
+    line-height: 1.02;
+  }
+
+  .pn001-button {
+    min-height: 52px;
+    padding-inline: 25px;
+  }
+
+  .pn001-button-primary {
+    color: #fff;
+    background: linear-gradient(135deg, #149a6d, #22b47f);
+    box-shadow: 0 16px 36px rgba(20, 154, 109, .22);
+  }
+
+  @media (max-width: 900px) {
+    .pn001-hero {
+      padding: 34px 0 56px;
+    }
+
+    .pn001-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 34px;
+    }
+
+    .pn001-hero h1 {
+      font-size: clamp(44px, 10vw, 66px);
+    }
+
+    .pn001-hero-image,
+    .pn001-visual-placeholder {
+      min-height: 420px;
+    }
+
+    .pn001-section {
+      padding: 58px 0;
+    }
+
+    .pn001-about-grid {
+      gap: 32px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pn001-container {
+      width: min(calc(100% - 28px), 1180px);
+    }
+
+    .pn001-header {
+      padding: 12px 0;
+    }
+
+    .pn001-header-inner {
+      min-height: 58px;
+      padding: 8px 10px 8px 15px;
+      border-radius: 22px;
+    }
+
+    .pn001-nav {
+      display: none;
+    }
+
+    .pn001-header-cta {
+      padding: 11px 15px;
+      font-size: 12px;
+    }
+
+    .pn001-brand {
+      max-width: 55%;
+      font-size: 14px;
+    }
+
+    .pn001-hero {
+      padding: 30px 0 44px;
+    }
+
+    .pn001-hero h1 {
+      margin: 18px 0;
+      font-size: clamp(40px, 12vw, 56px);
+      line-height: .98;
+    }
+
+    .pn001-hero-copy > p {
+      font-size: 17px;
+    }
+
+    .pn001-hero-actions {
+      margin-top: 26px;
+    }
+
+    .pn001-button {
+      width: 100%;
+    }
+
+    .pn001-hero-image,
+    .pn001-visual-placeholder {
+      min-height: 360px;
+      border-radius: 26px;
+    }
+
+    .pn001-section {
+      padding: 48px 0;
+    }
+
+    .pn001-section + .pn001-section {
+      padding-top: 38px;
+    }
+
+    .pn001-section-head {
+      margin-bottom: 26px;
+    }
+
+    .pn001-section-head h2,
+    .pn001-about h2 {
+      font-size: 38px;
+    }
+
+    .pn001-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .pn001-card {
+      min-height: 220px;
+      border-radius: 22px;
+    }
+
+    .pn001-about-image,
+    .pn001-about-panel {
+      min-height: 340px;
+      border-radius: 24px;
+    }
+
+    .pn001-final {
+      padding: 38px 0;
+    }
+
+    .pn001-final-card,
+    .pn001-contact-card {
+      padding: 30px 24px;
+      border-radius: 24px;
+    }
+
+    .pn001-contact {
+      padding: 38px 0 50px;
     }
   }
 `;

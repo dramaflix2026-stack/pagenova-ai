@@ -228,12 +228,34 @@ export default function BuilderPage() {
       return;
     }
 
-    const inferredName =
-      prompt
-        .replace(/\s+/g, " ")
-        .slice(0, 72)
-        .replace(/[.,;:!?]+$/g, "")
-        .trim() || "Novo site";
+    const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
+
+    const explicitNamePatterns = [
+      /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”']?([^,.;\n]{2,60})/i,
+      /\b(?:empresa|marca|cl[ií]nica|neg[oó]cio|loja|escrit[oó]rio|ag[eê]ncia)\s+(?:chamad[ao]\s+)?["“”']?([^,.;\n]{2,60})/i,
+      /\b(?:nome|marca)\s*[:\-]\s*["“”']?([^,.;\n]{2,60})/i,
+    ];
+
+    let inferredName = "";
+
+    for (const pattern of explicitNamePatterns) {
+      const match = normalizedPrompt.match(pattern);
+
+      if (match?.[1]) {
+        inferredName = match[1]
+          .replace(/["“”']+$/g, "")
+          .replace(/\s+(?:especializada|especializado|que|com|voltada|voltado)\b.*$/i, "")
+          .trim();
+
+        if (inferredName) break;
+      }
+    }
+
+    if (!inferredName) {
+      inferredName = "Novo site";
+    }
+
+    inferredName = inferredName.slice(0, 72);
 
     const site: SiteProject = {
       kind: "institutional-site",

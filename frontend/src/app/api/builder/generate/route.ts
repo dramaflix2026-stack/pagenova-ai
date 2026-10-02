@@ -99,6 +99,20 @@ export async function POST(request: NextRequest) {
 
   const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual.
 
+INTERPRETAÇÃO DO PEDIDO E DA MARCA:
+- O briefing é uma instrução do usuário para construir o site; ele NÃO é texto publicável por padrão.
+- Nunca publique comandos como "crie um site", "faça um site", "quero um site", "site premium", "site moderno", "chamada", "chamado", "quero transmitir", "use a cor", "estilo elegante" ou equivalentes como nome da marca, título, eyebrow, menu, rodapé ou copy.
+- Extraia o nome real da empresa, marca ou profissional quando ele estiver explicitamente informado no briefing.
+- O nome da marca deve conter somente o nome identificável do negócio, sem a frase que o introduz.
+- Exemplo: em "Crie um site premium para uma clínica odontológica chamada Lumina Odonto", a marca é "Lumina Odonto"; a frase inteira jamais deve aparecer no site.
+- heading deve ser copy comercial voltada ao visitante, não uma repetição do pedido do usuário.
+- eyebrow deve identificar categoria, benefício ou contexto real do negócio, nunca repetir o briefing.
+- introduction deve explicar proposta de valor de forma natural e específica.
+- Evite metalinguagem sobre site, página, design, experiência digital, estratégia, conversão ou criação do site, salvo quando o próprio negócio vender esses serviços.
+- Nunca use "PageNova" como conteúdo do site gerado.
+- Não invente fatos. Diferencie copy persuasiva de alegações factuais.
+- Na página inicial, priorize proposta de valor, serviços reais e próximo passo.
+- Cada página deve parecer escrita para o cliente final daquele negócio.
 CONTEÚDO ESTRUTURADO DAS SEÇÕES:
 - Toda seção retornada deve incluir "items".
 - "items" representa unidades factuais distintas pertencentes ao kind da seção.
