@@ -1943,3 +1943,625 @@ export const PAGENOVA_DESIGN_LIBRARY_V3_STYLES = `
     }
   }
 `;
+
+
+/* ==========================================================
+   PAGENOVA DESIGN LIBRARY V4
+   FINAL STABILIZATION LAYER
+
+   Goals:
+   - visually independent header
+   - equal testimonial cards
+   - real horizontal carousel
+   - repaired FAQ
+   - remove V3 testimonial conflicts
+   - cleaner section rhythm
+   ========================================================== */
+
+export const PAGENOVA_DESIGN_LIBRARY_V4_STYLES = `
+
+  /* ========================================================
+     HEADER V4
+     Header must read as its own interface layer.
+     ======================================================== */
+
+  .pn001-site .pn001-header {
+    position: relative;
+    z-index: 40;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .pn001-site .pn001-header-inner {
+    min-height: 82px !important;
+    padding:
+      12px
+      clamp(20px, 3vw, 38px) !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    box-shadow:
+      0 1px 0 rgba(0,0,0,.08),
+      0 14px 40px rgba(0,0,0,.05) !important;
+
+    backdrop-filter: none !important;
+  }
+
+  /* ---------------- BOLD ---------------- */
+
+  .pn-design-bold .pn001-header {
+    background: #ffffff !important;
+  }
+
+  .pn-design-bold .pn001-header-inner {
+    background: #ffffff !important;
+    color: #07110d !important;
+  }
+
+  .pn-design-bold .pn001-brand-name {
+    color: #07110d !important;
+  }
+
+  .pn-design-bold .pn001-brand-symbol {
+    background: var(--pn001-accent, #20bd8c) !important;
+    color: #07110d !important;
+    border-radius: 10px !important;
+  }
+
+  .pn-design-bold .pn001-header-cta {
+    background: #07110d !important;
+    color: #ffffff !important;
+    border-color: #07110d !important;
+  }
+
+  .pn-design-bold .pn001-menu-button {
+    background:
+      var(--pn001-accent, #20bd8c) !important;
+
+    border-color:
+      var(--pn001-accent, #20bd8c) !important;
+  }
+
+  .pn-design-bold
+  .pn001-menu-button span {
+    background: #07110d !important;
+  }
+
+  /* ---------------- STUDIO ---------------- */
+
+  .pn-design-studio .pn001-header {
+    background: #ffffff !important;
+  }
+
+  .pn-design-studio .pn001-header-inner {
+    max-width: none !important;
+    background: #ffffff !important;
+    color: #0b1511 !important;
+  }
+
+  .pn-design-studio .pn001-brand-name {
+    color: #0b1511 !important;
+  }
+
+  /* ---------------- EDITORIAL ---------------- */
+
+  .pn-design-editorial .pn001-header {
+    background: #f4f1eb !important;
+  }
+
+  .pn-design-editorial .pn001-header-inner {
+    background: #f4f1eb !important;
+    color: #151713 !important;
+  }
+
+  .pn-design-editorial .pn001-brand-name {
+    color: #151713 !important;
+  }
+
+  /* ========================================================
+     HERO / HEADER SEPARATION
+     ======================================================== */
+
+  .pn001-site .pn001-hero {
+    border-top: 0 !important;
+  }
+
+  .pn-design-bold .pn001-hero {
+    padding-top:
+      clamp(74px, 8vw, 116px) !important;
+  }
+
+  /* ========================================================
+     TESTIMONIALS V4
+     One consistent premium carousel.
+     Equal cards. No masonry. No giant first card.
+     ======================================================== */
+
+  .pn001-site .pn001-testimonials-v6 {
+    overflow: hidden !important;
+  }
+
+  .pn001-site .pn001-testimonial-heading {
+    align-items: end !important;
+    margin-bottom:
+      clamp(38px, 5vw, 62px) !important;
+  }
+
+  .pn001-site .pn001-testimonial-slider,
+  .pn-design-bold .pn001-testimonial-slider,
+  .pn-design-studio .pn001-testimonial-slider,
+  .pn-design-editorial .pn001-testimonial-slider,
+  .pn001-site .pn-v2-testimonial-layout,
+  .pn-design-bold .pn-v2-testimonial-layout,
+  .pn-design-studio .pn-v2-testimonial-layout,
+  .pn-design-editorial .pn-v2-testimonial-layout {
+
+    display: grid !important;
+
+    grid-template-columns: none !important;
+
+    grid-auto-flow: column !important;
+
+    grid-auto-columns:
+      minmax(330px, 390px) !important;
+
+    gap: 18px !important;
+
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+
+    scroll-snap-type: x mandatory !important;
+    scroll-behavior: smooth !important;
+
+    overscroll-behavior-inline:
+      contain !important;
+
+    padding:
+      4px
+      4px
+      24px !important;
+
+    scrollbar-width: thin !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-card-v6,
+  .pn-design-bold
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child,
+  .pn-design-studio
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child {
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    grid-column: auto !important;
+    grid-row: auto !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 360px !important;
+    min-height: 360px !important;
+    max-height: 360px !important;
+
+    padding: 28px !important;
+
+    border:
+      1px solid
+      rgba(11,21,17,.15) !important;
+
+    border-radius: 18px !important;
+
+    background: #ffffff !important;
+
+    box-shadow:
+      0 18px 50px
+      rgba(11,21,17,.055) !important;
+
+    scroll-snap-align: start !important;
+
+    overflow: hidden !important;
+  }
+
+  /* Restore every testimonial.
+     V3 hid cards after N items. */
+
+  .pn001-site
+  .pn001-testimonial-card-v6:nth-child(n) {
+    display: flex !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-person {
+    min-height: 54px !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-photo {
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+
+    border-radius: 50% !important;
+
+    object-fit: cover !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-stars {
+    margin-top: 30px !important;
+
+    font-size: 16px !important;
+    letter-spacing: 3px !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-card-v6 > p,
+  .pn-design-bold
+  .pn-v2-testimonial-layout
+  .pn001-testimonial-card-v6:first-child > p {
+
+    margin-top: 24px !important;
+
+    font-size: 18px !important;
+    line-height: 1.55 !important;
+
+    display: -webkit-box !important;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+
+    overflow: hidden !important;
+  }
+
+  .pn001-site
+  .pn001-demo-disclosure {
+    max-width: 390px !important;
+  }
+
+  /* ========================================================
+     FAQ V4 - HARD REPAIR
+     Prevent giant blank areas / sticky collisions.
+     ======================================================== */
+
+  .pn001-site .pn001-faq,
+  .pn001-site .pn001-faq-v6,
+  .pn001-site .pn-v2-faq {
+
+    padding-top:
+      clamp(84px, 9vw, 124px) !important;
+
+    padding-bottom:
+      clamp(84px, 9vw, 124px) !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    overflow: visible !important;
+  }
+
+  .pn001-site .pn001-faq-layout,
+  .pn001-site
+  .pn001-faq-v6
+  .pn001-faq-layout {
+
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(260px, .72fr)
+      minmax(0, 1.28fr) !important;
+
+    gap:
+      clamp(48px, 7vw, 100px) !important;
+
+    align-items: start !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  /* Kill sticky behavior inside editor/preview.
+     This was creating the visual displacement. */
+
+  .pn001-site
+  .pn001-faq-intro,
+
+  .pn001-site
+  .pn001-section-head-sticky,
+
+  .pn001-site
+  .pn001-faq-v6
+  .pn001-faq-intro {
+
+    position: relative !important;
+    top: auto !important;
+
+    align-self: start !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .pn001-site .pn001-faq-list {
+    display: block !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+  }
+
+  .pn001-site .pn001-faq-item {
+    display: block !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    min-height: 0 !important;
+    height: auto !important;
+
+    border: 0 !important;
+    border-bottom:
+      1px solid
+      rgba(11,21,17,.16) !important;
+
+    background:
+      transparent !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item:first-child {
+    border-top:
+      1px solid
+      rgba(11,21,17,.16) !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item summary {
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px !important;
+
+    width: 100% !important;
+
+    min-height: 82px !important;
+
+    padding:
+      24px
+      0 !important;
+
+    margin: 0 !important;
+
+    cursor: pointer !important;
+
+    list-style: none !important;
+
+    font-size:
+      clamp(17px, 1.5vw, 20px) !important;
+
+    line-height: 1.35 !important;
+    font-weight: 800 !important;
+
+    color: var(--pn001-text) !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item summary::-webkit-details-marker {
+    display: none !important;
+  }
+
+  .pn001-site
+  .pn001-faq-plus {
+
+    display: grid !important;
+
+    place-items: center !important;
+
+    flex: 0 0 30px !important;
+
+    width: 30px !important;
+    height: 30px !important;
+
+    border-radius: 50% !important;
+
+    background:
+      rgba(26,155,112,.10) !important;
+
+    color:
+      var(--pn001-accent-strong) !important;
+
+    font-size: 20px !important;
+    line-height: 1 !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item[open]
+  .pn001-faq-plus {
+
+    transform: rotate(45deg) !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item > p {
+
+    display: block !important;
+
+    max-width: 720px !important;
+
+    margin:
+      0
+      0
+      26px !important;
+
+    padding:
+      0
+      54px
+      0
+      0 !important;
+
+    color:
+      var(--pn001-muted) !important;
+
+    font-size: 16px !important;
+    line-height: 1.7 !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item:not([open]) > p {
+    display: none !important;
+  }
+
+  /* ========================================================
+     SECTION RHYTHM
+     ======================================================== */
+
+  .pn001-site .pn001-contact {
+    margin-top: 0 !important;
+  }
+
+  .pn001-site .pn-v2-final-cta {
+    margin-top: 0 !important;
+  }
+
+  /* ========================================================
+     TABLET
+     ======================================================== */
+
+  @media (max-width: 980px) {
+
+    .pn001-site .pn001-header-inner {
+      min-height: 74px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-slider,
+    .pn-design-bold
+    .pn-v2-testimonial-layout,
+    .pn-design-studio
+    .pn-v2-testimonial-layout,
+    .pn-design-editorial
+    .pn-v2-testimonial-layout {
+
+      grid-auto-columns:
+        minmax(310px, 72vw) !important;
+    }
+
+    .pn001-site
+    .pn001-faq-layout,
+    .pn001-site
+    .pn001-faq-v6
+    .pn001-faq-layout {
+
+      grid-template-columns:
+        1fr !important;
+
+      gap: 42px !important;
+    }
+  }
+
+  /* ========================================================
+     MOBILE
+     ======================================================== */
+
+  @media (max-width: 700px) {
+
+    .pn001-site .pn001-header-inner {
+      min-height: 68px !important;
+
+      padding:
+        9px
+        14px !important;
+    }
+
+    .pn001-site
+    .pn001-brand-name {
+      font-size: 15px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-heading {
+      display: block !important;
+    }
+
+    .pn001-site
+    .pn001-demo-disclosure {
+      margin-top: 24px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-slider,
+    .pn-design-bold
+    .pn001-testimonial-slider,
+    .pn-design-studio
+    .pn001-testimonial-slider,
+    .pn-design-editorial
+    .pn001-testimonial-slider,
+    .pn-design-bold
+    .pn-v2-testimonial-layout,
+    .pn-design-studio
+    .pn-v2-testimonial-layout,
+    .pn-design-editorial
+    .pn-v2-testimonial-layout {
+
+      display: grid !important;
+
+      grid-template-columns:
+        none !important;
+
+      grid-auto-flow:
+        column !important;
+
+      grid-auto-columns:
+        minmax(285px, 86vw) !important;
+
+      overflow-x:
+        auto !important;
+
+      overflow-y:
+        hidden !important;
+
+      gap: 14px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-card-v6 {
+
+      height: 340px !important;
+      min-height: 340px !important;
+      max-height: 340px !important;
+
+      padding: 24px !important;
+    }
+
+    .pn001-site .pn001-faq,
+    .pn001-site .pn001-faq-v6,
+    .pn001-site .pn-v2-faq {
+
+      padding-top: 72px !important;
+      padding-bottom: 72px !important;
+    }
+
+    .pn001-site
+    .pn001-faq-item summary {
+
+      min-height: 74px !important;
+
+      padding:
+        20px
+        0 !important;
+
+      font-size: 16px !important;
+    }
+
+    .pn001-site
+    .pn001-faq-item > p {
+
+      padding-right: 20px !important;
+    }
+  }
+`;

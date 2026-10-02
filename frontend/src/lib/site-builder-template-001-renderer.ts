@@ -3,6 +3,7 @@ import {
   PAGENOVA_DESIGN_LIBRARY_V1_STYLES,
   PAGENOVA_DESIGN_LIBRARY_V2_STYLES,
   PAGENOVA_DESIGN_LIBRARY_V3_STYLES,
+  PAGENOVA_DESIGN_LIBRARY_V4_STYLES,
 } from "@/lib/site-builder-design-library-v1";
 import { SITE_PAGES } from "./site-builder";
 import type {
@@ -3531,13 +3532,13 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="3"
+      data-pagenova-design-version="4"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
       data-pagenova-card-layout="${designDirection.id === "editorial" ? "numbered-list" : designDirection.id === "studio" ? "bento-grid" : "impact-grid"}"
     >
