@@ -324,66 +324,6 @@ export default function BuilderPage() {
     void generatePages(site, SITE_PAGES.map(({ key }) => key));
   }
 
-  function requestsHeaderRevision(value: string) {
-    const normalized = value
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-
-    return /\b(header|cabecalho|logo|logotipo|marca|menu|navegacao|navbar|nav)\b/.test(normalized);
-  }
-  function requestsVisualRevision(text: string, hasScreenshot: boolean) {
-    if (hasScreenshot) return true;
-
-    const normalized = text
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-
-    return [
-      "visual",
-      "layout",
-      "hero",
-      "imagem a esquerda",
-      "imagem à esquerda",
-      "imagem a direita",
-      "imagem à direita",
-      "texto a esquerda",
-      "texto à esquerda",
-      "texto a direita",
-      "texto à direita",
-      "centraliz",
-      "alinh",
-      "espac",
-      "compact",
-      "borda",
-      "cards",
-      "card ",
-      "composicao",
-      "composição",
-      "apresentacao",
-      "apresentação",
-      "design",
-      "aparencia",
-      "aparência",
-      "split",
-    ].some((term) => normalized.includes(
-      term
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-    ));
-  }
-    function requestsInstitutionalRevision(value: string) {
-    const normalized = value
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-
-    return /\b(publico|audience|cliente ideal|clientes ideais|segmento atendido|segmentos atendidos|para quem|quem atende|quem atendemos|funcao|atividade|papel|atuacao|oferta|produto|produtos|servico|servicos|processo|metodo|metodologia|etapa|etapas|como funciona|prova|credencial|credenciais|experiencia|resultado comprovado|resultados comprovados|evidencia|evidencias|certificacao|certificacoes)\b/.test(
-      normalized
-    );
-  }
 async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;

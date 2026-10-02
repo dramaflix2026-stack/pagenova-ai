@@ -593,9 +593,6 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
       proof: rawInstitutional.proof.slice(0, 700).trim(),
     };
 
-    if (instruction) {
-
-    }
 
     if (!semanticStrategy ||
         typeof semanticStrategy.businessModel !== "string" ||
