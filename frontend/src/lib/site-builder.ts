@@ -178,6 +178,23 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
   }
 
   /*
+   * PageNova Template 001
+   *
+   * Explicit opt-in path.
+   * Existing universal and legacy renderers remain available below.
+   */
+  if (project.presetId === "template-001") {
+    const template001Html = renderTemplate001Preview(
+      project,
+      pageKey,
+    );
+
+    if (template001Html) {
+      return enhanceSitePreview(template001Html);
+    }
+  }
+
+  /*
    * Universal Renderer migration boundary:
    *
    * - projects with persisted SiteStrategy use semantic rendering;
@@ -231,6 +248,7 @@ import { renderSaasPage } from "@/lib/site-builder-saas";
 import { renderInstitutionalPage } from "@/lib/site-builder-institutional";
 
 import { enhanceSitePreview } from "@/lib/site-builder-motion";
+import { renderTemplate001Preview } from "@/lib/site-builder-template-001-renderer";
 import {
   hasUniversalRenderStrategy,
   renderUniversalSitePreview,
