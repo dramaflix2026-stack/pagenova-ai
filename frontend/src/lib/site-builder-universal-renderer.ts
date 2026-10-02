@@ -630,12 +630,131 @@ function renderUniversalHero(
   `;
 }
 
+function universalSemanticVisual(
+  kind: UniversalSectionKind,
+): string {
+  switch (kind) {
+    case "benefits":
+      return `
+        <div class="pn-semantic-visual pn-benefits-visual" aria-hidden="true">
+          <span class="pn-benefit-orb pn-benefit-orb-a"></span>
+          <span class="pn-benefit-orb pn-benefit-orb-b"></span>
+          <span class="pn-benefit-check">✓</span>
+        </div>
+      `;
+
+    case "features":
+      return `
+        <div class="pn-semantic-visual pn-features-visual" aria-hidden="true">
+          <span class="pn-feature-module pn-feature-module-a"></span>
+          <span class="pn-feature-module pn-feature-module-b"></span>
+          <span class="pn-feature-module pn-feature-module-c"></span>
+        </div>
+      `;
+
+    case "services":
+      return `
+        <div class="pn-semantic-visual pn-services-visual" aria-hidden="true">
+          <span class="pn-service-line"></span>
+          <span class="pn-service-node pn-service-node-a"></span>
+          <span class="pn-service-node pn-service-node-b"></span>
+          <span class="pn-service-node pn-service-node-c"></span>
+        </div>
+      `;
+
+    case "products":
+      return `
+        <div class="pn-semantic-visual pn-products-visual" aria-hidden="true">
+          <span class="pn-product-panel pn-product-panel-back"></span>
+          <span class="pn-product-panel pn-product-panel-front"></span>
+        </div>
+      `;
+
+    case "process":
+      return `
+        <div class="pn-semantic-visual pn-process-visual" aria-hidden="true">
+          <span class="pn-process-track"></span>
+          <span class="pn-process-dot pn-process-dot-a">1</span>
+          <span class="pn-process-dot pn-process-dot-b">2</span>
+          <span class="pn-process-dot pn-process-dot-c">3</span>
+        </div>
+      `;
+
+    case "about":
+    case "authority":
+      return `
+        <div class="pn-semantic-visual pn-editorial-visual" aria-hidden="true">
+          <span class="pn-editorial-block pn-editorial-block-a"></span>
+          <span class="pn-editorial-block pn-editorial-block-b"></span>
+        </div>
+      `;
+
+    case "portfolio":
+    case "gallery":
+      return `
+        <div class="pn-semantic-visual pn-gallery-visual" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      `;
+
+    case "team":
+      return `
+        <div class="pn-semantic-visual pn-team-visual" aria-hidden="true">
+          <span class="pn-avatar pn-avatar-a"></span>
+          <span class="pn-avatar pn-avatar-b"></span>
+          <span class="pn-avatar pn-avatar-c"></span>
+        </div>
+      `;
+
+    case "testimonials":
+      return `
+        <div class="pn-semantic-visual pn-testimonial-visual" aria-hidden="true">
+          <span class="pn-quote-mark">“</span>
+          <span class="pn-quote-line pn-quote-line-a"></span>
+          <span class="pn-quote-line pn-quote-line-b"></span>
+        </div>
+      `;
+
+    case "pricing":
+      return `
+        <div class="pn-semantic-visual pn-pricing-visual" aria-hidden="true">
+          <span class="pn-price-line"></span>
+          <span class="pn-price-line pn-price-line-short"></span>
+          <span class="pn-price-button"></span>
+        </div>
+      `;
+
+    case "faq":
+      return `
+        <div class="pn-semantic-visual pn-faq-visual" aria-hidden="true">
+          <span>+</span>
+          <span>+</span>
+          <span>+</span>
+        </div>
+      `;
+
+    case "location":
+      return `
+        <div class="pn-semantic-visual pn-location-visual" aria-hidden="true">
+          <span class="pn-location-ring"></span>
+          <span class="pn-location-pin"></span>
+        </div>
+      `;
+
+    default:
+      return "";
+  }
+}
+
 function renderUniversalGenericSection(
   section: UniversalRenderableSection,
   occurrence: number,
   legacyFeatureIndex: number,
 ): string {
   const semanticId = universalSectionId(section, occurrence);
+
   const legacyId =
     legacyFeatureIndex > 0
       ? `feature-${legacyFeatureIndex}`
@@ -652,10 +771,19 @@ function renderUniversalGenericSection(
     ? `<p>${escapeUniversalHtml(section.body)}</p>`
     : "";
 
+  const visual = universalSemanticVisual(section.kind);
+
+  const compositionClass =
+    section.kind === "process"
+      ? "pn-composition-process"
+      : section.kind === "faq"
+        ? "pn-composition-faq"
+        : "pn-composition-semantic";
+
   return `
     <section
       id="${legacyId}"
-      class="${className}"
+      class="${className} ${compositionClass}"
       data-pn-section="true"
       data-pn-section-kind="${escapeUniversalHtml(section.kind)}"
       data-pn-semantic-id="${escapeUniversalHtml(semanticId)}"
@@ -668,13 +796,16 @@ function renderUniversalGenericSection(
         </div>
 
         <div class="pn-universal-section-content">
-          ${body}
+          <div class="pn-semantic-copy">
+            ${body}
+          </div>
+
+          ${visual}
         </div>
       </div>
     </section>
   `;
 }
-
 function renderUniversalContactSection(
   project: SiteProject,
   section: UniversalRenderableSection,
@@ -1267,7 +1398,505 @@ function universalRendererStyles(
         padding:22px;
       }
     }
-  `;
+
+    /* ==========================================================
+       U5.6E.7 - UNIVERSAL SEMANTIC VISUAL COMPOSITIONS
+       ========================================================== */
+
+    .pn-composition-semantic .pn-universal-section-content,
+    .pn-composition-process .pn-universal-section-content,
+    .pn-composition-faq .pn-universal-section-content{
+      position:relative;
+      overflow:hidden;
+      min-height:260px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:30px;
+      padding:34px;
+      border-radius:28px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.98),
+          rgba(248,250,252,.92)
+        );
+      box-shadow:0 22px 60px rgba(15,23,42,.07);
+    }
+
+    .pn-semantic-copy{
+      position:relative;
+      z-index:2;
+      max-width:680px;
+    }
+
+    .pn-semantic-copy p{
+      margin:0;
+    }
+
+    .pn-semantic-visual{
+      position:relative;
+      z-index:1;
+      min-height:110px;
+      border-radius:22px;
+      overflow:hidden;
+    }
+
+    /* BENEFITS */
+
+    .pn-benefits-visual{
+      background:
+        radial-gradient(
+          circle at 18% 50%,
+          rgba(15,23,42,.09),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          rgba(15,23,42,.035),
+          #fff
+        );
+    }
+
+    .pn-benefit-orb{
+      position:absolute;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.16);
+    }
+
+    .pn-benefit-orb-a{
+      width:110px;
+      height:110px;
+      left:24px;
+      top:50%;
+      transform:translateY(-50%);
+    }
+
+    .pn-benefit-orb-b{
+      width:62px;
+      height:62px;
+      left:72px;
+      top:50%;
+      transform:translateY(-50%);
+      background:rgba(15,23,42,.06);
+    }
+
+    .pn-benefit-check{
+      position:absolute;
+      right:34px;
+      top:50%;
+      transform:translateY(-50%);
+      font-size:52px;
+      line-height:1;
+      font-weight:800;
+      color:var(--pn-accent);
+    }
+
+    /* FEATURES */
+
+    .pn-features-visual{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      grid-template-rows:1fr 1fr;
+      gap:10px;
+      background:transparent;
+    }
+
+    .pn-feature-module{
+      display:block;
+      border-radius:18px;
+      border:1px solid var(--pn-border);
+      background:
+        linear-gradient(
+          145deg,
+          rgba(15,23,42,.06),
+          #fff
+        );
+    }
+
+    .pn-feature-module-a{
+      grid-row:1 / 3;
+    }
+
+    .pn-feature-module-b{
+      opacity:.78;
+    }
+
+    .pn-feature-module-c{
+      opacity:.52;
+    }
+
+    /* SERVICES */
+
+    .pn-services-visual{
+      background:
+        linear-gradient(
+          90deg,
+          rgba(15,23,42,.04),
+          #fff
+        );
+    }
+
+    .pn-service-line{
+      position:absolute;
+      left:12%;
+      right:12%;
+      top:50%;
+      height:2px;
+      background:rgba(15,23,42,.16);
+    }
+
+    .pn-service-node{
+      position:absolute;
+      top:50%;
+      width:28px;
+      height:28px;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:#fff;
+      border:7px solid var(--pn-accent);
+      box-shadow:0 8px 22px rgba(15,23,42,.12);
+    }
+
+    .pn-service-node-a{
+      left:18%;
+    }
+
+    .pn-service-node-b{
+      left:50%;
+    }
+
+    .pn-service-node-c{
+      left:82%;
+    }
+
+    /* PRODUCTS */
+
+    .pn-products-visual{
+      min-height:145px;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(15,23,42,.035),
+          #fff
+        );
+    }
+
+    .pn-product-panel{
+      position:absolute;
+      width:54%;
+      height:88px;
+      border-radius:18px;
+      border:1px solid var(--pn-border);
+      background:#fff;
+      box-shadow:0 18px 42px rgba(15,23,42,.08);
+    }
+
+    .pn-product-panel-back{
+      right:10%;
+      top:18px;
+      opacity:.62;
+      transform:rotate(4deg);
+    }
+
+    .pn-product-panel-front{
+      left:10%;
+      bottom:18px;
+      border-top:5px solid var(--pn-accent);
+    }
+
+    /* PROCESS */
+
+    .pn-composition-process .pn-universal-section-content{
+      border-left:4px solid var(--pn-accent);
+    }
+
+    .pn-process-visual{
+      min-height:92px;
+      overflow:visible;
+    }
+
+    .pn-process-track{
+      position:absolute;
+      left:8%;
+      right:8%;
+      top:50%;
+      height:2px;
+      background:var(--pn-border);
+    }
+
+    .pn-process-dot{
+      position:absolute;
+      top:50%;
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:var(--pn-accent);
+      color:#fff;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .pn-process-dot-a{
+      left:8%;
+    }
+
+    .pn-process-dot-b{
+      left:50%;
+      opacity:.72;
+    }
+
+    .pn-process-dot-c{
+      left:92%;
+      opacity:.48;
+    }
+
+    /* ABOUT / AUTHORITY */
+
+    .pn-editorial-visual{
+      min-height:128px;
+      background:
+        linear-gradient(
+          135deg,
+          #111827,
+          #334155
+        );
+    }
+
+    .pn-editorial-block{
+      position:absolute;
+      border-radius:18px;
+      background:#fff;
+    }
+
+    .pn-editorial-block-a{
+      width:42%;
+      height:58%;
+      left:8%;
+      top:18%;
+      opacity:.92;
+    }
+
+    .pn-editorial-block-b{
+      width:32%;
+      height:34%;
+      right:10%;
+      bottom:16%;
+      opacity:.35;
+    }
+
+    /* PORTFOLIO / GALLERY */
+
+    .pn-gallery-visual{
+      display:grid;
+      grid-template-columns:1.3fr .8fr .8fr;
+      gap:10px;
+      min-height:145px;
+      background:transparent;
+    }
+
+    .pn-gallery-visual span{
+      display:block;
+      border-radius:18px;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(15,23,42,.10),
+          rgba(15,23,42,.025)
+        );
+      border:1px solid var(--pn-border);
+    }
+
+    /* TEAM */
+
+    .pn-team-visual{
+      min-height:120px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+      background:rgba(15,23,42,.035);
+    }
+
+    .pn-avatar{
+      width:68px;
+      height:68px;
+      border-radius:999px;
+      border:8px solid #fff;
+      background:#cbd5e1;
+      box-shadow:0 10px 28px rgba(15,23,42,.1);
+    }
+
+    .pn-avatar-b{
+      width:84px;
+      height:84px;
+      background:#94a3b8;
+    }
+
+    /* TESTIMONIALS */
+
+    .pn-testimonial-visual{
+      padding:20px 26px;
+      background:rgba(15,23,42,.035);
+    }
+
+    .pn-quote-mark{
+      font-size:64px;
+      line-height:.8;
+      font-weight:900;
+      color:var(--pn-accent);
+    }
+
+    .pn-quote-line{
+      position:absolute;
+      left:88px;
+      height:10px;
+      border-radius:999px;
+      background:var(--pn-border);
+    }
+
+    .pn-quote-line-a{
+      right:10%;
+      top:38px;
+    }
+
+    .pn-quote-line-b{
+      right:30%;
+      top:64px;
+    }
+
+    /* PRICING */
+
+    .pn-pricing-visual{
+      min-height:130px;
+      padding:26px;
+      background:#111827;
+    }
+
+    .pn-price-line{
+      display:block;
+      width:58%;
+      height:12px;
+      margin-bottom:14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.82);
+    }
+
+    .pn-price-line-short{
+      width:34%;
+      opacity:.45;
+    }
+
+    .pn-price-button{
+      position:absolute;
+      right:24px;
+      bottom:24px;
+      width:110px;
+      height:36px;
+      border-radius:999px;
+      background:#fff;
+    }
+
+    /* FAQ */
+
+    .pn-composition-faq .pn-universal-section-content{
+      gap:14px;
+    }
+
+    .pn-faq-visual{
+      min-height:auto;
+      display:grid;
+      gap:8px;
+      background:transparent;
+    }
+
+    .pn-faq-visual span{
+      height:46px;
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      padding:0 18px;
+      border:1px solid var(--pn-border);
+      border-radius:14px;
+      background:#fff;
+      color:var(--pn-text);
+      font-size:24px;
+    }
+
+    /* LOCATION */
+
+    .pn-location-visual{
+      min-height:135px;
+      background:
+        linear-gradient(
+          45deg,
+          transparent 48%,
+          var(--pn-border) 49%,
+          var(--pn-border) 51%,
+          transparent 52%
+        ),
+        linear-gradient(
+          -45deg,
+          transparent 48%,
+          var(--pn-border) 49%,
+          var(--pn-border) 51%,
+          transparent 52%
+        ),
+        rgba(15,23,42,.025);
+      background-size:42px 42px;
+    }
+
+    .pn-location-ring{
+      position:absolute;
+      width:72px;
+      height:72px;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      border:2px solid var(--pn-accent);
+      border-radius:999px;
+    }
+
+    .pn-location-pin{
+      position:absolute;
+      width:22px;
+      height:22px;
+      left:50%;
+      top:50%;
+      transform:translate(-50%,-50%);
+      border-radius:999px;
+      background:var(--pn-accent);
+      box-shadow:0 0 0 10px rgba(15,23,42,.10);
+    }
+
+    /* MOBILE */
+
+    @media(max-width:760px){
+      .pn-composition-semantic .pn-universal-section-content,
+      .pn-composition-process .pn-universal-section-content,
+      .pn-composition-faq .pn-universal-section-content{
+        min-height:auto;
+        padding:24px;
+        border-radius:22px;
+      }
+
+      .pn-semantic-visual{
+        min-height:92px;
+      }
+
+      .pn-gallery-visual{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .pn-gallery-visual span:first-child{
+        grid-column:1 / -1;
+        min-height:92px;
+      }
+    }
+`;
 }
 
 function universalRendererScript(): string {
