@@ -190,6 +190,46 @@ const renderGenericCards = (
   `;
 };
 
+const resolveTemplate001BrandName = (
+  project: SiteProject,
+): string => {
+  const raw = firstText(project.name).trim();
+
+  if (!raw) return "Sua marca";
+
+  const instructionLike =
+    /^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere)\b/i.test(raw) ||
+    /\b(?:site premium|site moderno|site institucional|landing page)\b/i.test(raw);
+
+  if (!instructionLike) {
+    return raw.slice(0, 72);
+  }
+
+  const patterns = [
+    /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”'`]?([^,.;:\n]{2,72})/i,
+    /\b(?:nome|marca)\s*[:=-]\s*["“”'`]?([^,.;:\n]{2,72})/i,
+    /\b(?:sob\s+o\s+nome|com\s+o\s+nome)\s+["“”'`]?([^,.;:\n]{2,72})/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = raw.match(pattern);
+
+    if (match?.[1]) {
+      const candidate = match[1]
+        .replace(/^["“”'`]+|["“”'`]+$/g, "")
+        .replace(
+          /\s+(?:especializad[ao]|focad[ao]|voltad[ao]|que\s+(?:atua|oferece|trabalha)|com\s+(?:foco|atendimento|serviços)|para\s+(?:atender|oferecer))\b.*$/i,
+          "",
+        )
+        .replace(/[.,;:!?]+$/g, "")
+        .trim();
+
+      if (candidate) return candidate.slice(0, 72);
+    }
+  }
+
+  return "Sua marca";
+};
 const renderHero = (
   project: SiteProject,
   page: SitePage,
@@ -606,21 +646,30 @@ const renderContact = (
 const renderInstitutionalFaq = (
   project: SiteProject,
 ): string => {
+  const brandName = resolveTemplate001BrandName(project);
   const offer = firstText(project.institutional?.offer);
   const audience = firstText(project.institutional?.audience);
   const process = firstText(project.institutional?.process);
+  const proof = firstText(project.institutional?.proof);
+
+  const contactChannels = [
+    project.contactWhatsApp ? "WhatsApp" : "",
+    project.contactEmail ? "e-mail" : "",
+    project.contactInstagram ? "Instagram" : "",
+    project.contactFacebook ? "Facebook" : "",
+  ].filter(Boolean);
 
   const faqItems = [
     offer
       ? {
-          question: `Quais serviços ${project.name} oferece?`,
+          question: `O que ${brandName} oferece?`,
           answer: offer,
         }
       : null,
 
     audience
       ? {
-          question: "Para quem são os serviços?",
+          question: "Para quem os serviços são indicados?",
           answer: audience,
         }
       : null,
@@ -632,10 +681,27 @@ const renderInstitutionalFaq = (
         }
       : null,
 
+    proof
+      ? {
+          question: "Quais são os diferenciais do trabalho?",
+          answer: proof,
+        }
+      : null,
+
+    offer
+      ? {
+          question: "Como saber qual serviço faz sentido para mim?",
+          answer:
+            "Entre em contato e explique o que você procura. A equipe poderá orientar o próximo passo com base nos serviços apresentados.",
+        }
+      : null,
+
     {
-      question: "Como posso entrar em contato?",
+      question: "Como posso solicitar mais informações?",
       answer:
-        "Use o formulário desta página para enviar sua mensagem e solicitar mais informações.",
+        contactChannels.length > 0
+          ? `Você pode entrar em contato por ${contactChannels.join(", ")} ou utilizar o formulário desta página.`
+          : "Utilize o formulário desta página para enviar sua mensagem e solicitar mais informações.",
     },
   ].filter(
     (
@@ -646,24 +712,23 @@ const renderInstitutionalFaq = (
     } => Boolean(item),
   );
 
-  if (faqItems.length === 0) return "";
-
   return `
     <section class="pn001-section pn001-faq">
       <div class="pn001-container pn001-faq-layout">
         <div class="pn001-section-head pn001-section-head-sticky">
           <span class="pn001-eyebrow">FAQ</span>
           <h2>Perguntas frequentes</h2>
-          <p>
-            Informações rápidas para ajudar antes do primeiro contato.
-          </p>
+          <p>Respostas rápidas antes do primeiro contato.</p>
         </div>
 
         <div class="pn001-faq-list">
           ${faqItems
             .map(
-              (item) => `
-                <details class="pn001-faq-item">
+              (item, index) => `
+                <details
+                  class="pn001-faq-item"
+                  ${index === 0 ? "open" : ""}
+                >
                   <summary>
                     <span>${escapeHtml(item.question)}</span>
                     <span class="pn001-faq-plus">+</span>
@@ -679,49 +744,86 @@ const renderInstitutionalFaq = (
     </section>
   `;
 };
-
 const renderDemoTestimonials = (
   project: SiteProject,
-): string => `
-  <section class="pn001-section pn001-testimonials pn001-demo-testimonials">
-    <div class="pn001-container">
-      <div class="pn001-section-head">
-        <span class="pn001-eyebrow">Depoimentos</span>
-        <h2>Experiências de clientes</h2>
-        <p>
-          Espaço preparado para avaliações reais de clientes.
-          Os exemplos abaixo são demonstrativos e devem ser substituídos antes da publicação.
-        </p>
+): string => {
+  const brandName = resolveTemplate001BrandName(project);
+
+  const demoTestimonials = [
+    ["Mariana Alves", "MA", "Atendimento muito cuidadoso do início ao fim. A equipe explicou cada etapa com clareza e me deixou muito confortável."],
+    ["Lucas Ferreira", "LF", "Gostei muito da organização e da atenção aos detalhes. O atendimento foi profissional e a comunicação foi excelente."],
+    ["Camila Rodrigues", "CR", "Minha experiência foi muito positiva. Fui bem atendida, tive minhas dúvidas esclarecidas e me senti segura durante todo o processo."],
+    ["Rafael Martins", "RM", "Equipe atenciosa, ambiente muito bem preparado e um atendimento que realmente transmite confiança."],
+    ["Juliana Costa", "JC", "O cuidado no atendimento fez toda a diferença. Tudo foi explicado de maneira simples e objetiva."],
+    ["Bruno Almeida", "BA", "Desde o primeiro contato percebi profissionalismo e atenção. A experiência foi muito boa."],
+    ["Fernanda Oliveira", "FO", "Fui recebida com muita atenção. Gostei especialmente da clareza das informações e do acompanhamento."],
+    ["Gustavo Santos", "GS", "Atendimento ágil, organizado e muito profissional. Tive uma ótima experiência com a equipe."],
+    ["Patrícia Lima", "PL", "A equipe foi muito cuidadosa e prestativa. Senti confiança desde o primeiro atendimento."],
+    ["Eduardo Ribeiro", "ER", "Excelente experiência. Comunicação clara, atenção aos detalhes e muita cordialidade em todas as etapas."],
+    ["Renata Carvalho", "RC", "Gostei bastante do atendimento e da forma como tudo foi conduzido. Equipe muito atenciosa."],
+    ["Felipe Moreira", "FM", "Profissionalismo e cuidado definem bem minha experiência. Recomendo pelo atendimento e pela atenção."],
+    ["Amanda Nunes", "AN", "O atendimento foi acolhedor e muito bem organizado. Todas as minhas dúvidas foram respondidas com clareza."],
+    ["Diego Barbosa", "DB", "Uma experiência muito positiva. A equipe demonstrou atenção, preparo e cuidado durante todo o atendimento."],
+    ["Isabela Rocha", "IR", "Fiquei muito satisfeita com a experiência. O atendimento foi próximo, profissional e bastante cuidadoso."],
+  ];
+
+  return `
+    <section class="pn001-section pn001-testimonials pn001-demo-testimonials">
+      <div class="pn001-container">
+        <div class="pn001-testimonial-heading">
+          <div>
+            <span class="pn001-eyebrow">Experiências</span>
+            <h2>O que clientes podem dizer sobre ${escapeHtml(brandName)}</h2>
+          </div>
+
+          <p class="pn001-demo-notice">
+            CONTEÚDO DEMONSTRATIVO · Substitua estes exemplos por avaliações reais antes de publicar.
+          </p>
+        </div>
+
+        <div class="pn001-testimonial-slider">
+          ${demoTestimonials
+            .map(
+              ([name, initials, quote], index) => `
+                <article class="pn001-quote pn001-quote-v5">
+                  <div class="pn001-quote-top">
+                    <div class="pn001-demo-avatar" aria-hidden="true">
+                      ${escapeHtml(initials)}
+                    </div>
+
+                    <div class="pn001-review-person">
+                      <strong>${escapeHtml(name)}</strong>
+                      <span>Perfil demonstrativo</span>
+                    </div>
+
+                    <span class="pn001-demo-badge">DEMO</span>
+                  </div>
+
+                  <div class="pn001-stars" aria-label="5 estrelas">
+                    ★★★★★
+                  </div>
+
+                  <blockquote>
+                    “${escapeHtml(quote)}”
+                  </blockquote>
+
+                  <div class="pn001-review-footer">
+                    <span>${escapeHtml(brandName)}</span>
+                    <span>${String(index + 1).padStart(2, "0")}</span>
+                  </div>
+                </article>
+              `,
+            )
+            .join("")}
+        </div>
+
+        <div class="pn001-testimonial-note">
+          Estes perfis, nomes e textos são exemplos visuais do template e não representam clientes reais.
+        </div>
       </div>
-
-      <div class="pn001-testimonial-grid">
-        <article class="pn001-quote">
-          <div class="pn001-stars">★★★★★</div>
-          <blockquote>
-            “Exemplo de depoimento: descreva aqui uma experiência real de atendimento.”
-          </blockquote>
-          <strong>Depoimento demonstrativo</strong>
-        </article>
-
-        <article class="pn001-quote">
-          <div class="pn001-stars">★★★★★</div>
-          <blockquote>
-            “Exemplo de depoimento: destaque aqui um ponto real valorizado pelo cliente.”
-          </blockquote>
-          <strong>Depoimento demonstrativo</strong>
-        </article>
-
-        <article class="pn001-quote">
-          <div class="pn001-stars">★★★★★</div>
-          <blockquote>
-            “Exemplo de depoimento: adicione aqui uma avaliação verdadeira recebida pela empresa.”
-          </blockquote>
-          <strong>Depoimento demonstrativo</strong>
-        </article>
-      </div>
-    </div>
-  </section>
-`;
+    </section>
+  `;
+};
 const renderFinalCta = (
   project: SiteProject,
   section: SiteSection,
@@ -2408,6 +2510,387 @@ const templateStyles = `
       grid-template-columns: 1fr;
     }
   }
+
+  /* ============================================================
+     PAGENOVA TEMPLATE 001 V5
+     HEADER + FOOTER + TESTIMONIALS
+     ============================================================ */
+
+  .pn001-header {
+    padding: 18px 0 8px;
+  }
+
+  .pn001-header-inner {
+    min-height: 76px;
+    padding: 10px 12px 10px 16px;
+    border: 1px solid rgba(15, 35, 28, .08);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 18px 55px rgba(18, 40, 31, .08);
+  }
+
+  .pn001-brand-logo {
+    display: inline-flex;
+    min-width: 0;
+    max-width: min(52vw, 460px);
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pn001-brand-symbol {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(20, 154, 109, .22);
+  }
+
+  .pn001-brand-name {
+    overflow: hidden;
+    color: #0d1713;
+    font-size: 17px;
+    font-weight: 850;
+    letter-spacing: -.025em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pn001-header-actions {
+    gap: 10px;
+  }
+
+  .pn001-header-cta {
+    min-height: 48px;
+    padding: 0 22px;
+    border-radius: 16px;
+  }
+
+  .pn001-menu-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 16px;
+  }
+
+  .pn001-demo-testimonials {
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 80% 0%, rgba(34, 180, 127, .12), transparent 30%),
+      #edf4f0;
+  }
+
+  .pn001-testimonial-heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 430px);
+    align-items: end;
+    gap: 42px;
+    margin-bottom: 38px;
+  }
+
+  .pn001-testimonial-heading h2 {
+    max-width: 720px;
+    margin: 10px 0 0;
+    font-size: clamp(40px, 5vw, 66px);
+    line-height: .98;
+    letter-spacing: -.055em;
+  }
+
+  .pn001-demo-notice {
+    margin: 0;
+    padding: 15px 18px;
+    border: 1px solid rgba(15, 90, 65, .12);
+    border-radius: 16px;
+    background: rgba(255,255,255,.58);
+    color: #52625b;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.55;
+    letter-spacing: .04em;
+  }
+
+  .pn001-testimonial-slider {
+    display: grid;
+    grid-auto-columns: minmax(330px, 390px);
+    grid-auto-flow: column;
+    gap: 18px;
+    overflow-x: auto;
+    padding: 4px 2px 24px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .pn001-quote-v5 {
+    display: flex;
+    min-height: 330px;
+    flex-direction: column;
+    scroll-snap-align: start;
+    padding: 28px;
+    border: 1px solid rgba(16, 35, 28, .08);
+    border-radius: 26px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 18px 50px rgba(20, 38, 31, .06);
+  }
+
+  .pn001-quote-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .pn001-demo-avatar {
+    display: grid;
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    place-items: center;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.35), transparent 25%),
+      linear-gradient(145deg, #1ba979, #0d6148);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: -.02em;
+  }
+
+  .pn001-review-person {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .pn001-review-person strong {
+    color: #0e1814;
+    font-size: 15px;
+  }
+
+  .pn001-review-person span {
+    color: #718078;
+    font-size: 12px;
+  }
+
+  .pn001-demo-badge {
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: #e4f4ed;
+    color: #08724e;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: .1em;
+  }
+
+  .pn001-quote-v5 .pn001-stars {
+    margin-top: 26px;
+    letter-spacing: .12em;
+  }
+
+  .pn001-quote-v5 blockquote {
+    flex: 1;
+    margin: 18px 0 26px;
+    color: #17221d;
+    font-size: 18px;
+    line-height: 1.62;
+  }
+
+  .pn001-review-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(15,35,28,.08);
+    color: #66746d;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .pn001-testimonial-note {
+    margin-top: 12px;
+    color: #74817b;
+    font-size: 11px;
+  }
+
+  .pn001-faq-item {
+    background: rgba(255,255,255,.62);
+  }
+
+  .pn001-faq-item[open] {
+    background: #fff;
+    box-shadow: 0 14px 45px rgba(20, 38, 31, .05);
+  }
+
+  .pn001-footer-v5 {
+    margin-top: 0;
+    padding: 70px 0 30px;
+    background: #0c1712;
+    color: #fff;
+  }
+
+  .pn001-footer-main {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(180px, .65fr) minmax(220px, .8fr);
+    gap: clamp(42px, 7vw, 90px);
+    padding-bottom: 58px;
+  }
+
+  .pn001-footer-brand-column {
+    max-width: 470px;
+  }
+
+  .pn001-footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 850;
+    letter-spacing: -.035em;
+    text-decoration: none;
+  }
+
+  .pn001-footer-brand-column p {
+    max-width: 440px;
+    margin: 24px 0 0;
+    color: rgba(255,255,255,.57);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .pn001-footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .pn001-footer-label {
+    color: rgba(255,255,255,.38);
+    font-size: 10px;
+    font-weight: 850;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+
+  .pn001-footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 13px;
+  }
+
+  .pn001-footer-links a,
+  .pn001-footer-links span {
+    color: rgba(255,255,255,.78);
+    font-size: 14px;
+    line-height: 1.45;
+    text-decoration: none;
+  }
+
+  .pn001-footer-links a {
+    transition: color .2s ease, transform .2s ease;
+  }
+
+  .pn001-footer-links a:hover {
+    color: #fff;
+    transform: translateX(3px);
+  }
+
+  .pn001-footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding-top: 26px;
+    border-top: 1px solid rgba(255,255,255,.1);
+    color: rgba(255,255,255,.38);
+    font-size: 11px;
+  }
+
+  @media (max-width: 900px) {
+    .pn001-testimonial-heading {
+      grid-template-columns: 1fr;
+      align-items: start;
+      gap: 20px;
+    }
+
+    .pn001-footer-main {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .pn001-footer-brand-column {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pn001-header-inner {
+      min-height: 64px;
+      padding: 7px 8px 7px 10px;
+      border-radius: 19px;
+    }
+
+    .pn001-brand-logo {
+      max-width: calc(100% - 118px);
+      gap: 9px;
+    }
+
+    .pn001-brand-symbol {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+    }
+
+    .pn001-brand-name {
+      font-size: 14px;
+    }
+
+    .pn001-header-cta {
+      display: none;
+    }
+
+    .pn001-menu-button {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+    }
+
+    .pn001-testimonial-heading h2 {
+      font-size: 40px;
+    }
+
+    .pn001-testimonial-slider {
+      grid-auto-columns: minmax(280px, 88vw);
+    }
+
+    .pn001-quote-v5 {
+      min-height: 315px;
+      padding: 23px;
+      border-radius: 22px;
+    }
+
+    .pn001-footer-v5 {
+      padding-top: 52px;
+    }
+
+    .pn001-footer-main {
+      grid-template-columns: 1fr;
+      gap: 38px;
+      padding-bottom: 42px;
+    }
+
+    .pn001-footer-brand-column {
+      grid-column: auto;
+    }
+
+    .pn001-footer-bottom {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .pn001-footer-signature {
+      display: none;
+    }
+  }
 `;
 
 export function renderTemplate001Preview(
@@ -2423,6 +2906,8 @@ export function renderTemplate001Preview(
   if (!page) {
     return "";
   }
+
+  const brandName = resolveTemplate001BrandName(project);
 
   const hero = sectionByKind(page, ["hero"]);
 
@@ -2471,7 +2956,7 @@ export function renderTemplate001Preview(
           <a class="pn001-brand pn001-brand-logo" href="#" data-page="home">
             <span class="pn001-brand-symbol">
               ${escapeHtml(
-                (project.name || "P")
+                (brandName || "P")
                   .split(/\s+/)
                   .filter(Boolean)
                   .slice(0, 2)
@@ -2482,7 +2967,7 @@ export function renderTemplate001Preview(
             </span>
 
             <span class="pn001-brand-name">
-              ${escapeHtml(project.name || "PageNova")}
+              ${escapeHtml(brandName)}
             </span>
           </a>
 
@@ -2519,7 +3004,7 @@ export function renderTemplate001Preview(
             <div class="pn001-brand pn001-brand-logo">
               <span class="pn001-brand-symbol">
                 ${escapeHtml(
-                  (project.name || "P")
+                  (brandName || "P")
                     .split(/\s+/)
                     .filter(Boolean)
                     .slice(0, 2)
@@ -2530,7 +3015,7 @@ export function renderTemplate001Preview(
               </span>
 
               <span class="pn001-brand-name">
-                ${escapeHtml(project.name || "PageNova")}
+                ${escapeHtml(brandName)}
               </span>
             </div>
 
@@ -2576,18 +3061,104 @@ export function renderTemplate001Preview(
         ${homeEnhancements}
       </main>
 
-      <footer class="pn001-footer">
-        <div class="pn001-container pn001-footer-inner">
-          <div class="pn001-brand">
-            <span class="pn001-brand-mark"></span>
-            <span>${escapeHtml(project.name || "PageNova")}</span>
+      <footer class="pn001-footer pn001-footer-v5">
+        <div class="pn001-container">
+          <div class="pn001-footer-main">
+            <div class="pn001-footer-brand-column">
+              <a class="pn001-footer-logo" href="#" data-page="home">
+                <span class="pn001-brand-symbol">
+                  ${escapeHtml(
+                    (brandName || "P")
+                      .split(/\s+/)
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .map((part) => part.charAt(0))
+                      .join("")
+                      .toUpperCase(),
+                  )}
+                </span>
+
+                <span>${escapeHtml(brandName)}</span>
+              </a>
+
+              <p>
+                ${escapeHtml(
+                  firstText(
+                    project.institutional?.role,
+                    project.pages.home?.introduction,
+                    "Informações, serviços e canais de atendimento em um só lugar.",
+                  ),
+                )}
+              </p>
+            </div>
+
+            <div class="pn001-footer-column">
+              <span class="pn001-footer-label">Navegação</span>
+
+              <nav class="pn001-footer-links">
+                ${SITE_PAGES
+                  .filter(({ key }) => Boolean(project.pages[key]))
+                  .map(
+                    ({ key, label }) => `
+                      <a href="#" data-page="${key}">
+                        ${escapeHtml(label)}
+                      </a>
+                    `,
+                  )
+                  .join("")}
+              </nav>
+            </div>
+
+            <div class="pn001-footer-column">
+              <span class="pn001-footer-label">Contato</span>
+
+              <div class="pn001-footer-links">
+                ${
+                  project.contactWhatsApp
+                    ? `<span>${escapeHtml(project.contactWhatsApp)}</span>`
+                    : ""
+                }
+
+                ${
+                  project.contactEmail
+                    ? `<span>${escapeHtml(project.contactEmail)}</span>`
+                    : ""
+                }
+
+                ${
+                  project.contactInstagram
+                    ? `<span>${escapeHtml(project.contactInstagram)}</span>`
+                    : ""
+                }
+
+                ${
+                  project.contactFacebook
+                    ? `<span>${escapeHtml(project.contactFacebook)}</span>`
+                    : ""
+                }
+
+                ${
+                  !project.contactWhatsApp &&
+                  !project.contactEmail &&
+                  !project.contactInstagram &&
+                  !project.contactFacebook
+                    ? `<a href="#pn001-contact">Falar com a equipe →</a>`
+                    : ""
+                }
+              </div>
+            </div>
           </div>
 
-          <span>
-            © ${new Date().getFullYear()}
-            ${escapeHtml(project.name || "")}.
-            Todos os direitos reservados.
-          </span>
+          <div class="pn001-footer-bottom">
+            <span>
+              © ${new Date().getFullYear()} ${escapeHtml(brandName)}.
+              Todos os direitos reservados.
+            </span>
+
+            <span class="pn001-footer-signature">
+              Atendimento profissional · Informações claras
+            </span>
+          </div>
         </div>
       </footer>
     </div>

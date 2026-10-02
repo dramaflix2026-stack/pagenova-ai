@@ -187,6 +187,14 @@ DIREÇÃO VISUAL:
 - Evite grandes áreas vazias sem função.
 - A primeira dobra deve comunicar negócio, valor e ação sem depender de rolagem extensa.
 - O mobile deve preservar hierarquia, legibilidade e CTA.
+PADRÃO DE FAQ E PROVA SOCIAL V5:
+- Quando houver informações suficientes, produza um FAQ útil com várias perguntas distintas sobre oferta, público, processo, contato e dúvidas sustentadas pelo briefing.
+- Não crie respostas factuais sobre preço, prazo, garantia, localização, certificações ou políticas quando esses dados não forem fornecidos.
+- Depoimentos reais só podem ser tratados como reais quando forem fornecidos pelo usuário.
+- Nunca invente clientes, avaliações, resultados ou endossos como fatos.
+- A interface pode possuir exemplos demonstrativos claramente identificados apenas para visualizar o componente antes da publicação.
+- Quando depoimentos reais forem fornecidos, priorize nome, texto e demais dados exatamente como recebidos.
+- Header e footer devem exibir somente o nome real da marca, nunca o briefing ou instruções do usuário.
 CONTEÚDO ESTRUTURADO DAS SEÇÕES:
 - Toda seção retornada deve incluir "items".
 - "items" representa unidades factuais distintas pertencentes ao kind da seção.

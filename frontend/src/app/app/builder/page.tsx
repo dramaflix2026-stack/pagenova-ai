@@ -230,9 +230,21 @@ export default function BuilderPage() {
 
     const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
 
+    const cleanBusinessName = (value: string) =>
+      value
+        .replace(/^["“”'`]+|["“”'`]+$/g, "")
+        .replace(
+          /\s+(?:especializad[ao]|focad[ao]|voltad[ao]|que\s+(?:atua|oferece|trabalha)|com\s+(?:foco|atendimento|serviços)|para\s+(?:atender|oferecer))\b.*$/i,
+          "",
+        )
+        .replace(/[.,;:!?]+$/g, "")
+        .trim()
+        .slice(0, 72);
+
     const explicitNamePatterns = [
-      /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”']?([^,.;\n]{2,60})/i,
-      /\b(?:nome|marca)\s*[:\-]\s*["“”']?([^,.;\n]{2,60})/i,
+      /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”'`]?([^,.;:\n]{2,72})/i,
+      /\b(?:nome|marca)\s*[:=-]\s*["“”'`]?([^,.;:\n]{2,72})/i,
+      /\b(?:sob\s+o\s+nome|com\s+o\s+nome)\s+["“”'`]?([^,.;:\n]{2,72})/i,
     ];
 
     let inferredName = "";
@@ -241,11 +253,7 @@ export default function BuilderPage() {
       const match = normalizedPrompt.match(pattern);
 
       if (match?.[1]) {
-        inferredName = match[1]
-          .replace(/["“”']+$/g, "")
-          .replace(/\s+(?:especializada|especializado|que|com|voltada|voltado)\b.*$/i, "")
-          .trim();
-
+        inferredName = cleanBusinessName(match[1]);
         if (inferredName) break;
       }
     }
@@ -253,8 +261,6 @@ export default function BuilderPage() {
     if (!inferredName) {
       inferredName = "Novo site";
     }
-
-    inferredName = inferredName.slice(0, 72);
 
     const site: SiteProject = {
       kind: "institutional-site",
