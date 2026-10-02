@@ -208,6 +208,15 @@ export function renderEditablePreview(
     background:currentColor!important;
   }
 
+  /* pn-live-editor-menu-authority */
+  header.pn-header-menu-inline .pn-menu-toggle{
+    display:none!important;
+  }
+
+  header.pn-header-menu-dropdown .pn-menu-toggle{
+    display:inline-flex!important;
+  }
+
   header[data-pn-header-layout=center]{
     display:grid!important;
     grid-template-columns:42px 1fr 42px!important;
