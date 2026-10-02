@@ -157,6 +157,18 @@ Essa arquitetura é adaptativa.
 Não force todos os blocos.
 O modelo de negócio e os dados disponíveis determinam quais seções realmente devem existir.
 
+PADRÃO PAGENOVA V6:
+- Nunca transforme o pedido do usuário em texto visível do site.
+- Frases como "crie um site", "faça um site", "quero um site", "site premium para" e equivalentes são instruções, nunca conteúdo publicável.
+- O hero deve falar diretamente com o visitante final e comunicar a proposta do negócio.
+- O nome da empresa deve conter somente a marca identificável.
+- Na home, priorize proposta principal, serviços ou ofertas, contexto ou diferenciais, prova social real quando fornecida, FAQ, contato e chamada final.
+- Não invente preço, prazo, garantia, certificação, endereço, política, resultado ou avaliação.
+- Depoimentos reais só existem quando fornecidos pelo usuário.
+- Quando não houver depoimentos reais, o renderer pode apresentar exemplos demonstrativos claramente identificados.
+- FAQ deve ser útil e contextual, sem inventar fatos.
+- Evite repetir a mesma chamada para ação em várias seções.
+- Header e footer devem ser compactos, institucionais e orientados à navegação.
 REQUISITOS DE FECHAMENTO INSTITUCIONAL:
 - Quando houver informação suficiente, FAQ e contato são blocos de alta prioridade.
 - FAQ deve responder somente com informações sustentadas pelo briefing e pelos dados institucionais.

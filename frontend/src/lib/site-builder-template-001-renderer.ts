@@ -261,7 +261,7 @@ const renderHero = (
       <div class="pn001-container pn001-hero-grid">
         <div class="pn001-hero-copy">
           <span class="pn001-pill">
-            ${escapeHtml(project.name || "PageNova")}
+            ${escapeHtml(resolveTemplate001BrandName(project))}
           </span>
 
           <h1>${escapeHtml(title)}</h1>
@@ -647,10 +647,22 @@ const renderInstitutionalFaq = (
   project: SiteProject,
 ): string => {
   const brandName = resolveTemplate001BrandName(project);
-  const offer = firstText(project.institutional?.offer);
-  const audience = firstText(project.institutional?.audience);
-  const process = firstText(project.institutional?.process);
-  const proof = firstText(project.institutional?.proof);
+
+  const offer = firstText(
+    project.institutional?.offer,
+  );
+
+  const audience = firstText(
+    project.institutional?.audience,
+  );
+
+  const process = firstText(
+    project.institutional?.process,
+  );
+
+  const proof = firstText(
+    project.institutional?.proof,
+  );
 
   const contactChannels = [
     project.contactWhatsApp ? "WhatsApp" : "",
@@ -659,66 +671,66 @@ const renderInstitutionalFaq = (
     project.contactFacebook ? "Facebook" : "",
   ].filter(Boolean);
 
+  const contactAnswer =
+    contactChannels.length > 0
+      ? `Você pode falar com a ${brandName} por ${contactChannels.join(", ")}.`
+      : "Utilize o formulário desta página para enviar sua mensagem e solicitar mais informações.";
+
   const faqItems = [
-    offer
-      ? {
-          question: `O que ${brandName} oferece?`,
-          answer: offer,
-        }
-      : null,
-
-    audience
-      ? {
-          question: "Para quem os serviços são indicados?",
-          answer: audience,
-        }
-      : null,
-
-    process
-      ? {
-          question: "Como funciona o atendimento?",
-          answer: process,
-        }
-      : null,
-
-    proof
-      ? {
-          question: "Quais são os diferenciais do trabalho?",
-          answer: proof,
-        }
-      : null,
-
-    offer
-      ? {
-          question: "Como saber qual serviço faz sentido para mim?",
-          answer:
-            "Entre em contato e explique o que você procura. A equipe poderá orientar o próximo passo com base nos serviços apresentados.",
-        }
-      : null,
-
     {
-      question: "Como posso solicitar mais informações?",
+      question: `O que a ${brandName} oferece?`,
       answer:
-        contactChannels.length > 0
-          ? `Você pode entrar em contato por ${contactChannels.join(", ")} ou utilizar o formulário desta página.`
-          : "Utilize o formulário desta página para enviar sua mensagem e solicitar mais informações.",
+        offer ||
+        "Conheça os principais serviços apresentados nesta página e entre em contato para entender qual opção corresponde melhor à sua necessidade.",
     },
-  ].filter(
-    (
-      item,
-    ): item is {
-      question: string;
-      answer: string;
-    } => Boolean(item),
-  );
+    {
+      question: "Para quem os serviços são indicados?",
+      answer:
+        audience ||
+        "Os serviços podem atender diferentes necessidades. Explique o que você procura para que a equipe possa orientar o próximo passo.",
+    },
+    {
+      question: "Como funciona o atendimento?",
+      answer:
+        process ||
+        "O atendimento começa pelo entendimento da sua necessidade. Depois disso, a equipe pode orientar sobre as opções e os próximos passos disponíveis.",
+    },
+    {
+      question: "Como escolher o serviço mais adequado?",
+      answer:
+        "Conheça as opções apresentadas no site e converse com a equipe para esclarecer suas dúvidas antes de decidir.",
+    },
+    {
+      question: `Por que conhecer a ${brandName}?`,
+      answer:
+        proof ||
+        `Nesta página você encontra informações sobre a proposta, os serviços e a forma de atendimento da ${brandName}.`,
+    },
+    {
+      question: "Como solicitar mais informações?",
+      answer: contactAnswer,
+    },
+  ];
 
   return `
-    <section class="pn001-section pn001-faq">
+    <section
+      class="pn001-section pn001-faq pn001-faq-v6"
+    >
       <div class="pn001-container pn001-faq-layout">
-        <div class="pn001-section-head pn001-section-head-sticky">
-          <span class="pn001-eyebrow">FAQ</span>
-          <h2>Perguntas frequentes</h2>
-          <p>Respostas rápidas antes do primeiro contato.</p>
+
+        <div class="pn001-faq-intro">
+          <span class="pn001-kicker">
+            DÚVIDAS FREQUENTES
+          </span>
+
+          <h2>
+            Antes de entrar em contato
+          </h2>
+
+          <p>
+            Confira respostas rápidas sobre serviços,
+            atendimento e próximos passos.
+          </p>
         </div>
 
         <div class="pn001-faq-list">
@@ -730,16 +742,24 @@ const renderInstitutionalFaq = (
                   ${index === 0 ? "open" : ""}
                 >
                   <summary>
-                    <span>${escapeHtml(item.question)}</span>
-                    <span class="pn001-faq-plus">+</span>
+                    <span>
+                      ${escapeHtml(item.question)}
+                    </span>
+
+                    <span class="pn001-faq-plus">
+                      +
+                    </span>
                   </summary>
 
-                  <p>${escapeHtml(item.answer)}</p>
+                  <p>
+                    ${escapeHtml(item.answer)}
+                  </p>
                 </details>
               `,
             )
             .join("")}
         </div>
+
       </div>
     </section>
   `;
@@ -747,79 +767,180 @@ const renderInstitutionalFaq = (
 const renderDemoTestimonials = (
   project: SiteProject,
 ): string => {
-  const brandName = resolveTemplate001BrandName(project);
+  const brandName =
+    resolveTemplate001BrandName(project);
 
-  const demoTestimonials = [
-    ["Mariana Alves", "MA", "Atendimento muito cuidadoso do início ao fim. A equipe explicou cada etapa com clareza e me deixou muito confortável."],
-    ["Lucas Ferreira", "LF", "Gostei muito da organização e da atenção aos detalhes. O atendimento foi profissional e a comunicação foi excelente."],
-    ["Camila Rodrigues", "CR", "Minha experiência foi muito positiva. Fui bem atendida, tive minhas dúvidas esclarecidas e me senti segura durante todo o processo."],
-    ["Rafael Martins", "RM", "Equipe atenciosa, ambiente muito bem preparado e um atendimento que realmente transmite confiança."],
-    ["Juliana Costa", "JC", "O cuidado no atendimento fez toda a diferença. Tudo foi explicado de maneira simples e objetiva."],
-    ["Bruno Almeida", "BA", "Desde o primeiro contato percebi profissionalismo e atenção. A experiência foi muito boa."],
-    ["Fernanda Oliveira", "FO", "Fui recebida com muita atenção. Gostei especialmente da clareza das informações e do acompanhamento."],
-    ["Gustavo Santos", "GS", "Atendimento ágil, organizado e muito profissional. Tive uma ótima experiência com a equipe."],
-    ["Patrícia Lima", "PL", "A equipe foi muito cuidadosa e prestativa. Senti confiança desde o primeiro atendimento."],
-    ["Eduardo Ribeiro", "ER", "Excelente experiência. Comunicação clara, atenção aos detalhes e muita cordialidade em todas as etapas."],
-    ["Renata Carvalho", "RC", "Gostei bastante do atendimento e da forma como tudo foi conduzido. Equipe muito atenciosa."],
-    ["Felipe Moreira", "FM", "Profissionalismo e cuidado definem bem minha experiência. Recomendo pelo atendimento e pela atenção."],
-    ["Amanda Nunes", "AN", "O atendimento foi acolhedor e muito bem organizado. Todas as minhas dúvidas foram respondidas com clareza."],
-    ["Diego Barbosa", "DB", "Uma experiência muito positiva. A equipe demonstrou atenção, preparo e cuidado durante todo o atendimento."],
-    ["Isabela Rocha", "IR", "Fiquei muito satisfeita com a experiência. O atendimento foi próximo, profissional e bastante cuidadoso."],
+  const demos = [
+    {
+      name: "Mariana Alves",
+      photo: "https://i.pravatar.cc/160?img=47",
+      text: `Gostei muito da experiência com a ${brandName}. Fui atendida com atenção e senti bastante cuidado em cada etapa.`,
+    },
+    {
+      name: "Lucas Ferreira",
+      photo: "https://i.pravatar.cc/160?img=12",
+      text: `A equipe da ${brandName} foi muito profissional. Tudo foi explicado de forma clara e o atendimento foi muito organizado.`,
+    },
+    {
+      name: "Camila Rodrigues",
+      photo: "https://i.pravatar.cc/160?img=32",
+      text: `Minha experiência com a ${brandName} foi muito positiva. Gostei principalmente da atenção e da clareza durante o atendimento.`,
+    },
+    {
+      name: "Rafael Martins",
+      photo: "https://i.pravatar.cc/160?img=11",
+      text: `O atendimento da ${brandName} me passou confiança. A equipe ouviu o que eu precisava antes de orientar o próximo passo.`,
+    },
+    {
+      name: "Juliana Costa",
+      photo: "https://i.pravatar.cc/160?img=44",
+      text: `Fui muito bem atendida pela ${brandName}. A comunicação foi simples, próxima e profissional.`,
+    },
+    {
+      name: "Bruno Carvalho",
+      photo: "https://i.pravatar.cc/160?img=15",
+      text: `Gostei bastante da experiência com a ${brandName}. O processo foi organizado e recebi atenção sempre que precisei.`,
+    },
+    {
+      name: "Fernanda Lima",
+      photo: "https://i.pravatar.cc/160?img=45",
+      text: `Desde o primeiro contato, a equipe da ${brandName} foi muito atenciosa. A experiência foi tranquila e bem conduzida.`,
+    },
+    {
+      name: "Gustavo Almeida",
+      photo: "https://i.pravatar.cc/160?img=13",
+      text: `A ${brandName} demonstrou profissionalismo e cuidado. Gostei da forma objetiva como minhas dúvidas foram esclarecidas.`,
+    },
+    {
+      name: "Patrícia Mendes",
+      photo: "https://i.pravatar.cc/160?img=49",
+      text: `Tive uma ótima experiência com a ${brandName}. Senti atenção aos detalhes e bastante cuidado durante todo o atendimento.`,
+    },
+    {
+      name: "André Ribeiro",
+      photo: "https://i.pravatar.cc/160?img=14",
+      text: `A ${brandName} me chamou atenção pela organização e pela comunicação. Tudo foi conduzido com bastante atenção.`,
+    },
+    {
+      name: "Renata Oliveira",
+      photo: "https://i.pravatar.cc/160?img=48",
+      text: `Gostei muito do atendimento da ${brandName}. A equipe tornou todo o processo fácil de entender e me deixou à vontade.`,
+    },
+    {
+      name: "Felipe Santos",
+      photo: "https://i.pravatar.cc/160?img=16",
+      text: `Minha experiência com a ${brandName} foi excelente. Atendimento cuidadoso, comunicação clara e muita organização.`,
+    },
+    {
+      name: "Aline Barbosa",
+      photo: "https://i.pravatar.cc/160?img=46",
+      text: `A equipe da ${brandName} ouviu minhas dúvidas e explicou tudo com calma. Foi uma experiência muito boa do início ao fim.`,
+    },
+    {
+      name: "Diego Moreira",
+      photo: "https://i.pravatar.cc/160?img=17",
+      text: `Encontrei na ${brandName} um atendimento próximo e profissional. Gostei muito da atenção recebida durante todo o processo.`,
+    },
+    {
+      name: "Isabela Rocha",
+      photo: "https://i.pravatar.cc/160?img=43",
+      text: `Fiquei muito satisfeita com a experiência na ${brandName}. Tudo foi conduzido com cuidado, respeito e atenção.`,
+    },
   ];
 
-  return `
-    <section class="pn001-section pn001-testimonials pn001-demo-testimonials">
-      <div class="pn001-container">
-        <div class="pn001-testimonial-heading">
-          <div>
-            <span class="pn001-eyebrow">Experiências</span>
-            <h2>O que clientes podem dizer sobre ${escapeHtml(brandName)}</h2>
+  const cards = demos
+    .map(
+      (testimonial) => `
+        <article
+          class="pn001-testimonial-card pn001-testimonial-card-v6"
+        >
+          <div class="pn001-testimonial-person">
+
+            <img
+              class="pn001-testimonial-photo"
+              src="${escapeHtml(testimonial.photo)}"
+              alt="Perfil demonstrativo"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+            />
+
+            <div class="pn001-testimonial-identity">
+              <strong>
+                ${escapeHtml(testimonial.name)}
+              </strong>
+
+              <span>
+                Perfil demonstrativo
+              </span>
+            </div>
+
+            <span class="pn001-demo-badge">
+              DEMO
+            </span>
+
           </div>
 
-          <p class="pn001-demo-notice">
-            CONTEÚDO DEMONSTRATIVO · Substitua estes exemplos por avaliações reais antes de publicar.
+          <div
+            class="pn001-testimonial-stars"
+            aria-label="Exemplo visual de avaliação"
+          >
+            ★★★★★
+          </div>
+
+          <p>
+            “${escapeHtml(testimonial.text)}”
           </p>
+
+        </article>
+      `,
+    )
+    .join("");
+
+  return `
+    <section
+      class="pn001-section pn001-testimonials pn001-testimonials-v6"
+    >
+      <div class="pn001-container">
+
+        <div class="pn001-testimonial-heading">
+
+          <div>
+            <span class="pn001-kicker">
+              EXPERIÊNCIAS
+            </span>
+
+            <h2>
+              Experiências com
+              ${escapeHtml(brandName)}
+            </h2>
+
+            <p class="pn001-testimonial-lead">
+              Veja como avaliações reais podem ser
+              apresentadas nesta área do site.
+            </p>
+          </div>
+
+          <div class="pn001-demo-disclosure">
+            <strong>
+              CONTEÚDO DEMONSTRATIVO
+            </strong>
+
+            <span>
+              Os perfis, imagens e relatos desta seção
+              são exemplos visuais. Substitua-os por
+              avaliações reais antes da publicação.
+            </span>
+          </div>
+
         </div>
 
-        <div class="pn001-testimonial-slider">
-          ${demoTestimonials
-            .map(
-              ([name, initials, quote], index) => `
-                <article class="pn001-quote pn001-quote-v5">
-                  <div class="pn001-quote-top">
-                    <div class="pn001-demo-avatar" aria-hidden="true">
-                      ${escapeHtml(initials)}
-                    </div>
-
-                    <div class="pn001-review-person">
-                      <strong>${escapeHtml(name)}</strong>
-                      <span>Perfil demonstrativo</span>
-                    </div>
-
-                    <span class="pn001-demo-badge">DEMO</span>
-                  </div>
-
-                  <div class="pn001-stars" aria-label="5 estrelas">
-                    ★★★★★
-                  </div>
-
-                  <blockquote>
-                    “${escapeHtml(quote)}”
-                  </blockquote>
-
-                  <div class="pn001-review-footer">
-                    <span>${escapeHtml(brandName)}</span>
-                    <span>${String(index + 1).padStart(2, "0")}</span>
-                  </div>
-                </article>
-              `,
-            )
-            .join("")}
+        <div
+          class="pn001-testimonial-slider"
+          tabindex="0"
+        >
+          ${cards}
         </div>
 
-        <div class="pn001-testimonial-note">
-          Estes perfis, nomes e textos são exemplos visuais do template e não representam clientes reais.
-        </div>
       </div>
     </section>
   `;
@@ -827,35 +948,65 @@ const renderDemoTestimonials = (
 const renderFinalCta = (
   project: SiteProject,
   section: SiteSection,
-): string => `
-  <section class="pn001-final">
-    <div class="pn001-container">
-      <div class="pn001-final-card">
-        <span class="pn001-eyebrow">Próximo passo</span>
+): string => {
+  const brandName =
+    resolveTemplate001BrandName(project);
 
-        <h2>
-          ${escapeHtml(
-            firstText(
-              sectionTitle(section),
-              `Vamos conversar sobre ${project.name}?`,
-            ),
-          )}
-        </h2>
+  const title = firstText(
+    sectionTitle(section),
+    `Pronto para dar o próximo passo com a ${brandName}?`,
+  );
 
-        ${
-          sectionBody(section)
-            ? `<p>${escapeHtml(sectionBody(section))}</p>`
-            : ""
-        }
+  const body = firstText(
+    sectionBody(section),
+    "Entre em contato para conversar sobre sua necessidade e conhecer os próximos passos.",
+  );
 
-        <a class="pn001-button pn001-button-light" href="#pn001-contact">
-          Começar agora
-        </a>
+  const whatsappDigits = String(
+    project.contactWhatsApp || "",
+  ).replace(/\D/g, "");
+
+  const href = whatsappDigits
+    ? `https://wa.me/${whatsappDigits}`
+    : project.contactEmail
+      ? `mailto:${project.contactEmail}`
+      : "#pn001-contact";
+
+  return `
+    <section
+      class="pn001-section pn001-final-cta"
+    >
+      <div class="pn001-container">
+        <div class="pn001-final-cta-card">
+
+          <div class="pn001-final-cta-copy">
+            <span class="pn001-kicker">
+              PRÓXIMO PASSO
+            </span>
+
+            <h2>
+              ${escapeHtml(title)}
+            </h2>
+
+            <p>
+              ${escapeHtml(body)}
+            </p>
+          </div>
+
+          <div class="pn001-final-cta-action">
+            <a
+              class="pn001-button pn001-button-primary"
+              href="${escapeHtml(href)}"
+            >
+              Falar agora
+            </a>
+          </div>
+
+        </div>
       </div>
-    </div>
-  </section>
-`;
-
+    </section>
+  `;
+};
 const renderSemanticSection = (
   project: SiteProject,
   section: SiteSection,
@@ -2891,6 +3042,363 @@ const templateStyles = `
       display: none;
     }
   }
+
+  /* ==========================================================
+     PAGENOVA TEMPLATE 001 V6
+     ========================================================== */
+
+  .pn001-header {
+    padding-top: 16px;
+    padding-bottom: 6px;
+    background: transparent;
+  }
+
+  .pn001-header-inner {
+    min-height: 72px;
+    padding: 9px 10px 9px 16px;
+    border: 1px solid rgba(16, 21, 19, 0.08);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 14px 45px rgba(16, 21, 19, 0.07);
+    backdrop-filter: blur(18px);
+  }
+
+  .pn001-brand-logo {
+    gap: 12px;
+  }
+
+  .pn001-brand-symbol {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 13px;
+  }
+
+  .pn001-brand-name {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+  }
+
+  .pn001-header-actions {
+    gap: 9px;
+  }
+
+  .pn001-header-cta {
+    min-height: 44px;
+    padding: 0 19px;
+    border-radius: 13px;
+  }
+
+  .pn001-menu-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+
+  .pn001-hero {
+    padding-top: 64px;
+  }
+
+  .pn001-pill {
+    max-width: max-content;
+    white-space: normal;
+  }
+
+  .pn001-testimonials-v6 {
+    overflow: hidden;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    background:
+      radial-gradient(
+        circle at 84% 10%,
+        rgba(26, 155, 112, 0.13),
+        transparent 32%
+      ),
+      #edf5f1;
+  }
+
+  .pn001-testimonial-heading {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.25fr)
+      minmax(280px, 0.75fr);
+    gap: 48px;
+    align-items: end;
+    margin-bottom: 42px;
+  }
+
+  .pn001-testimonial-heading h2 {
+    max-width: 760px;
+    margin: 10px 0 14px;
+    font-size: clamp(40px, 5vw, 66px);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+  }
+
+  .pn001-testimonial-lead {
+    max-width: 580px;
+    margin: 0;
+    color: var(--pn001-muted);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .pn001-demo-disclosure {
+    padding: 18px 20px;
+    border: 1px solid rgba(16, 21, 19, 0.09);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.68);
+  }
+
+  .pn001-demo-disclosure strong,
+  .pn001-demo-disclosure span {
+    display: block;
+  }
+
+  .pn001-demo-disclosure strong {
+    margin-bottom: 6px;
+    font-size: 10px;
+    letter-spacing: 0.09em;
+  }
+
+  .pn001-demo-disclosure span {
+    color: var(--pn001-muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .pn001-testimonial-slider {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(330px, 390px);
+    gap: 18px;
+    overflow-x: auto;
+    padding: 2px 2px 22px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+  }
+
+  .pn001-testimonial-card-v6 {
+    min-height: 350px;
+    padding: 27px;
+    border: 1px solid rgba(16, 21, 19, 0.08);
+    border-radius: 25px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 20px 55px rgba(16, 21, 19, 0.055);
+    scroll-snap-align: start;
+  }
+
+  .pn001-testimonial-person {
+    display: grid;
+    grid-template-columns:
+      52px
+      minmax(0, 1fr)
+      auto;
+    align-items: center;
+    gap: 13px;
+  }
+
+  .pn001-testimonial-photo {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #dce9e3;
+  }
+
+  .pn001-testimonial-identity strong,
+  .pn001-testimonial-identity span {
+    display: block;
+  }
+
+  .pn001-testimonial-identity strong {
+    font-size: 15px;
+  }
+
+  .pn001-testimonial-identity span {
+    margin-top: 3px;
+    color: var(--pn001-muted);
+    font-size: 12px;
+  }
+
+  .pn001-demo-badge {
+    padding: 6px 8px;
+    border-radius: 999px;
+    background: rgba(26, 155, 112, 0.10);
+    color: var(--pn001-accent-strong);
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  .pn001-testimonial-stars {
+    margin-top: 27px;
+    color: var(--pn001-accent-strong);
+    letter-spacing: 4px;
+  }
+
+  .pn001-testimonial-card-v6 > p {
+    margin: 24px 0 0;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+
+  .pn001-faq-v6 {
+    padding-top: 108px;
+    padding-bottom: 108px;
+    background: #ffffff;
+  }
+
+  .pn001-faq-v6 .pn001-faq-layout {
+    display: grid;
+    grid-template-columns:
+      minmax(260px, 0.72fr)
+      minmax(0, 1.28fr);
+    gap: clamp(50px, 8vw, 118px);
+    align-items: start;
+  }
+
+  .pn001-faq-v6 .pn001-faq-intro {
+    position: sticky;
+    top: 28px;
+  }
+
+  .pn001-faq-v6 .pn001-faq-intro h2 {
+    margin: 10px 0 18px;
+    font-size: clamp(40px, 5vw, 62px);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+  }
+
+  .pn001-faq-v6 .pn001-faq-intro p {
+    max-width: 350px;
+    color: var(--pn001-muted);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+
+  .pn001-faq-v6 .pn001-faq-item {
+    border-bottom: 1px solid var(--pn001-line);
+  }
+
+  .pn001-faq-v6 .pn001-faq-item:first-child {
+    border-top: 1px solid var(--pn001-line);
+  }
+
+  .pn001-faq-v6 summary {
+    display: flex;
+    justify-content: space-between;
+    gap: 22px;
+    padding: 25px 0;
+    cursor: pointer;
+    font-size: 17px;
+    font-weight: 800;
+    list-style: none;
+  }
+
+  .pn001-faq-v6 summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .pn001-faq-v6 .pn001-faq-item > p {
+    max-width: 720px;
+    margin: -2px 0 27px;
+    color: var(--pn001-muted);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .pn001-faq-plus {
+    color: var(--pn001-accent-strong);
+    font-size: 22px;
+  }
+
+  .pn001-footer-v5 {
+    padding-top: 58px;
+    padding-bottom: 22px;
+  }
+
+  .pn001-footer-v5 .pn001-footer-main {
+    padding-bottom: 38px;
+  }
+
+  @media (max-width: 900px) {
+    .pn001-testimonial-heading,
+    .pn001-faq-v6 .pn001-faq-layout {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+
+    .pn001-faq-v6 .pn001-faq-intro {
+      position: static;
+    }
+
+    .pn001-testimonial-slider {
+      grid-auto-columns: minmax(290px, 84vw);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pn001-header {
+      padding-top: 9px;
+      padding-bottom: 4px;
+    }
+
+    .pn001-header-inner {
+      min-height: 62px;
+      padding: 7px 8px 7px 11px;
+      border-radius: 17px;
+    }
+
+    .pn001-brand-symbol {
+      width: 38px;
+      height: 38px;
+      flex-basis: 38px;
+      border-radius: 11px;
+    }
+
+    .pn001-brand-name {
+      max-width: 155px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 15px;
+    }
+
+    .pn001-header-cta {
+      display: none;
+    }
+
+    .pn001-menu-button {
+      width: 41px;
+      height: 41px;
+    }
+
+    .pn001-hero {
+      padding-top: 42px;
+    }
+
+    .pn001-testimonials-v6,
+    .pn001-faq-v6 {
+      padding-top: 74px;
+      padding-bottom: 74px;
+    }
+
+    .pn001-testimonial-heading h2,
+    .pn001-faq-v6 .pn001-faq-intro h2 {
+      font-size: 39px;
+    }
+
+    .pn001-testimonial-slider {
+      grid-auto-columns: 88vw;
+    }
+
+    .pn001-testimonial-card-v6 {
+      min-height: 340px;
+      padding: 22px;
+    }
+  }
 `;
 
 export function renderTemplate001Preview(
@@ -2913,10 +3421,21 @@ export function renderTemplate001Preview(
 
   const authority = sectionByKind(page, ["authority"]);
 
+  const closingKinds = new Set([
+    "testimonials",
+    "faq",
+    "contact",
+    "final-cta",
+  ]);
+
   const contentSections = page.sections.filter(
     (section) =>
       section.kind !== "hero" &&
-      section !== authority,
+      section !== authority &&
+      (
+        pageKey !== "home" ||
+        !closingKinds.has(section.kind || "")
+      ),
   );
 
   const renderedContent = contentSections
@@ -2936,14 +3455,66 @@ export function renderTemplate001Preview(
   const hasTestimonials =
     sectionsByKind(page, ["testimonials"]).length > 0;
 
+  const testimonialSection = sectionByKind(
+    page,
+    ["testimonials"],
+  );
+
+  const faqSection = sectionByKind(
+    page,
+    ["faq"],
+  );
+
+  const contactSection = sectionByKind(
+    page,
+    ["contact"],
+  );
+
+  const finalCtaSection = sectionByKind(
+    page,
+    ["final-cta"],
+  );
+
   const homeEnhancements =
     pageKey === "home"
       ? `
-          ${hasTestimonials ? "" : renderDemoTestimonials(project)}
-          ${hasFaq ? "" : renderInstitutionalFaq(project)}
+          ${
+            testimonialSection
+              ? renderSemanticSection(
+                  project,
+                  testimonialSection,
+                )
+              : renderDemoTestimonials(project)
+          }
+
+          ${
+            faqSection
+              ? renderSemanticSection(
+                  project,
+                  faqSection,
+                )
+              : renderInstitutionalFaq(project)
+          }
+
+          ${
+            contactSection
+              ? renderSemanticSection(
+                  project,
+                  contactSection,
+                )
+              : ""
+          }
+
+          ${
+            finalCtaSection
+              ? renderSemanticSection(
+                  project,
+                  finalCtaSection,
+                )
+              : ""
+          }
         `
       : "";
-
   return `
     <style>${templateStyles}</style>
 
