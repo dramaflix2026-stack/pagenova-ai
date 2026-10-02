@@ -941,4 +941,320 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     boot();
   }
 })();
+
+  /* ========================================================
+     PAGENOVA V6.1 STRUCTURAL CONTRACT
+     Header/footer are global surfaces, never floating cards.
+     ======================================================== */
+
+  .pn001-site {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* HEADER: ALWAYS WHITE + FULL WIDTH */
+
+  .pn001-site .pn001-header {
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+    color: var(--pn001-text) !important;
+
+    border: 0 !important;
+    border-bottom:
+      1px solid
+      color-mix(
+        in srgb,
+        var(--pn001-text) 10%,
+        transparent
+      ) !important;
+
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-header-inner {
+    width:
+      min(
+        calc(100% - 40px),
+        1180px
+      ) !important;
+
+    max-width: 1180px !important;
+    min-height: 78px !important;
+
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+    color: var(--pn001-text) !important;
+
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .pn001-site .pn001-brand-logo {
+    display: inline-flex !important;
+    align-items: center !important;
+
+    min-width: 0 !important;
+    max-width:
+      min(
+        52vw,
+        560px
+      ) !important;
+
+    gap: 0 !important;
+  }
+
+  .pn001-site .pn001-brand-symbol {
+    display: none !important;
+  }
+
+  .pn001-site .pn001-brand,
+  .pn001-site .pn001-brand-name {
+    color: var(--pn001-text) !important;
+  }
+
+  .pn001-site .pn001-brand-name {
+    max-width: 100% !important;
+
+    overflow: hidden !important;
+
+    font-size:
+      clamp(
+        17px,
+        1.7vw,
+        22px
+      ) !important;
+
+    font-weight: 850 !important;
+    letter-spacing: -.04em !important;
+
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .pn001-site .pn001-header-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    flex: 0 0 auto !important;
+    gap: 10px !important;
+  }
+
+  .pn001-site .pn001-header-cta {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 auto !important;
+
+    width: auto !important;
+    min-width: 118px !important;
+    min-height: 46px !important;
+
+    padding: 0 20px !important;
+
+    border:
+      1px solid
+      var(--pn001-accent) !important;
+
+    border-radius: 12px !important;
+
+    background: var(--pn001-accent) !important;
+    color: var(--pn001-accent-contrast) !important;
+
+    box-shadow: none !important;
+
+    font-size: 13px !important;
+    font-weight: 850 !important;
+    line-height: 1 !important;
+
+    white-space: nowrap !important;
+  }
+
+  .pn001-site .pn001-header-cta:hover {
+    transform: translateY(-1px) !important;
+
+    background:
+      var(--pn001-accent-strong) !important;
+
+    border-color:
+      var(--pn001-accent-strong) !important;
+  }
+
+  .pn001-site .pn001-menu-button {
+    flex: 0 0 46px !important;
+
+    width: 46px !important;
+    height: 46px !important;
+
+    border-radius: 12px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    border-color:
+      var(--pn001-accent) !important;
+  }
+
+  /* FAQ: CLOSING SECTION, STABLE LAYOUT */
+
+  .pn001-site .pn001-faq,
+  .pn001-site .pn001-faq-v6 {
+    position: relative !important;
+    clear: both !important;
+
+    width: 100% !important;
+
+    padding-top:
+      clamp(
+        80px,
+        9vw,
+        126px
+      ) !important;
+
+    padding-bottom:
+      clamp(
+        80px,
+        9vw,
+        126px
+      ) !important;
+  }
+
+  .pn001-site .pn001-faq-layout {
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(0, .78fr)
+      minmax(0, 1.22fr) !important;
+
+    gap:
+      clamp(
+        42px,
+        7vw,
+        92px
+      ) !important;
+
+    align-items: start !important;
+  }
+
+  .pn001-site .pn001-faq-intro,
+  .pn001-site .pn001-section-head-sticky {
+    position: static !important;
+    top: auto !important;
+  }
+
+  .pn001-site .pn001-faq-list {
+    min-width: 0 !important;
+  }
+
+  /* FOOTER: ALWAYS FULL WIDTH */
+
+  .pn001-site .pn001-footer,
+  .pn001-site .pn001-footer-v5,
+  .pn001-site .pn-v2-footer {
+    position: relative !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    padding:
+      clamp(
+        58px,
+        7vw,
+        88px
+      )
+      0
+      30px !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: var(--pn001-dark) !important;
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site .pn001-footer > .pn001-container {
+    width:
+      min(
+        calc(100% - 40px),
+        1180px
+      ) !important;
+
+    max-width: 1180px !important;
+    margin: 0 auto !important;
+  }
+
+  .pn001-site .pn001-footer-logo .pn001-brand-symbol {
+    display: none !important;
+  }
+
+  .pn001-site .pn001-footer-logo {
+    gap: 0 !important;
+  }
+
+  /* MOBILE */
+
+  @media (max-width: 700px) {
+
+    .pn001-site .pn001-header-inner {
+      width:
+        min(
+          calc(100% - 28px),
+          1180px
+        ) !important;
+
+      min-height: 68px !important;
+      padding: 8px 0 !important;
+    }
+
+    .pn001-site .pn001-brand-logo {
+      max-width:
+        calc(100% - 58px) !important;
+    }
+
+    .pn001-site .pn001-brand-name {
+      font-size: 16px !important;
+    }
+
+    .pn001-site .pn001-header-cta {
+      display: none !important;
+    }
+
+    .pn001-site .pn001-menu-button {
+      flex-basis: 44px !important;
+      width: 44px !important;
+      height: 44px !important;
+    }
+
+    .pn001-site .pn001-faq-layout {
+      grid-template-columns:
+        1fr !important;
+
+      gap: 34px !important;
+    }
+
+    .pn001-site .pn001-footer > .pn001-container {
+      width:
+        min(
+          calc(100% - 28px),
+          1180px
+        ) !important;
+    }
+  }
 `;

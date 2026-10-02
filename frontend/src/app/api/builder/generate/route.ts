@@ -156,6 +156,24 @@ ARQUITETURA EDITORIAL IDEAL:
 Essa arquitetura é adaptativa.
 Não force todos os blocos.
 O modelo de negócio e os dados disponíveis determinam quais seções realmente devem existir.
+PADRÃO PAGENOVA V6.1 - HOME PREMIUM COMPLETA:
+- A Home deve ser percebida como uma página institucional premium completa, não como uma página curta.
+- Você pode retornar até 14 seções semânticas em page.sections quando o briefing sustentar essa profundidade.
+- Em uma geração nova de Home, explore amplamente as informações reais do briefing antes de decidir omitir seções.
+- Não reduza a Home a hero + FAQ + contato quando existirem informações suficientes para serviços, benefícios, diferenciais, sobre, processo ou outras seções relevantes.
+- Prefira desenvolver aspectos distintos do negócio em seções distintas em vez de concentrar tudo em um único bloco.
+- Serviços/produtos devem explicar a oferta real.
+- Benefits deve explicar benefícios concretos que decorrem diretamente da oferta informada.
+- Features deve representar características, capacidades ou diferenciais concretos presentes no briefing.
+- About deve apresentar identidade, abordagem ou posicionamento sem repetir o hero.
+- Process pode organizar etapas quando o briefing descrever ou permitir representar com segurança o fluxo de atendimento, desenvolvimento ou entrega.
+- Authority, portfolio, gallery, team, testimonials, pricing e location continuam condicionados a dados reais; nunca invente fatos para preencher a página.
+- FAQ pertence ao fechamento da Home e nunca deve ser planejado imediatamente depois do hero.
+- Contact pertence ao fechamento da Home.
+- Final-cta pertence ao fechamento da Home.
+- A ordem editorial preferencial é: oferta -> benefícios/diferenciais -> sobre -> processo -> conteúdo contextual real -> prova real -> experiências -> FAQ -> contato -> CTA final.
+- Não repita o mesmo texto ou argumento em seções diferentes.
+- Quantidade não autoriza invenção: use até 14 seções, mas cada seção factual deve continuar sustentada pelos dados disponíveis.
 
 PADRÃO PAGENOVA V6:
 - Nunca transforme o pedido do usuário em texto visível do site.
@@ -637,7 +655,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
                 sections: {
                   type: "array",
                   minItems: 1,
-                  maxItems: 6,
+                  maxItems: 14,
                   items: {
                     type: "object",
                     additionalProperties: false,
@@ -845,7 +863,7 @@ Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúd
         typeof parsedPage.cta !== "string" ||
         !Array.isArray(parsedPage.sections) ||
         parsedPage.sections.length < 1 ||
-        parsedPage.sections.length > 6 ||
+        parsedPage.sections.length > 14 ||
         parsedPage.sections.some((section) =>
           typeof section.kind !== "string" ||
           typeof section.title !== "string" ||

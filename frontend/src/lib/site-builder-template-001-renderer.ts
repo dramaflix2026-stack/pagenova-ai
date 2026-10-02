@@ -3467,15 +3467,41 @@ export function renderTemplate001Preview(
     "final-cta",
   ]);
 
-  const contentSections = effectivePage.sections.filter(
-    (section) =>
-      section.kind !== "hero" &&
-      section !== authority &&
-      (
-        pageKey !== "home" ||
-        !closingKinds.has(section.kind || "")
-      ),
-  );
+  const homeContentPriority = new Map<string, number>([
+    ["services", 10],
+    ["products", 10],
+    ["benefits", 20],
+    ["features", 30],
+    ["about", 40],
+    ["process", 50],
+    ["team", 60],
+    ["portfolio", 70],
+    ["gallery", 70],
+    ["pricing", 80],
+    ["location", 90],
+  ]);
+
+  const contentSections = effectivePage.sections
+    .filter(
+      (section) =>
+        section.kind !== "hero" &&
+        section !== authority &&
+        (
+          pageKey !== "home" ||
+          !closingKinds.has(section.kind || "")
+        ),
+    )
+    .sort((a, b) => {
+      if (pageKey !== "home") return 0;
+
+      const priorityA =
+        homeContentPriority.get(a.kind || "") ?? 55;
+
+      const priorityB =
+        homeContentPriority.get(b.kind || "") ?? 55;
+
+      return priorityA - priorityB;
+    });
 
   const renderedContent = contentSections
     .map((section) =>
@@ -3541,7 +3567,16 @@ export function renderTemplate001Preview(
                   project,
                   contactSection,
                 )
-              : ""
+              : renderContact(
+                  project,
+                  {
+                    kind: "contact",
+                    title: `Vamos conversar sobre o que você precisa?`,
+                    body:
+                      "Conte brevemente sua necessidade para iniciar uma conversa com a equipe.",
+                    items: [],
+                  },
+                )
           }
 
           ${
@@ -3550,7 +3585,16 @@ export function renderTemplate001Preview(
                   project,
                   finalCtaSection,
                 )
-              : ""
+              : renderFinalCta(
+                  project,
+                  {
+                    kind: "final-cta",
+                    title: `Pronto para dar o próximo passo com ${brandName}?`,
+                    body:
+                      "Entre em contato para conversar sobre sua necessidade e entender os próximos passos.",
+                    items: [],
+                  },
+                )
           }
         `
       : "";
@@ -3561,7 +3605,7 @@ export function renderTemplate001Preview(
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
       data-pagenova-design="${designDirection.id}"
-      data-pagenova-design-version="6"
+      data-pagenova-design-version="6.1"
       data-pagenova-palette="${paletteV5.id}"
       style="${paletteStyleV5}"
       data-pagenova-hero-layout="${designDirection.id === "editorial" ? "editorial-overlay" : designDirection.id === "studio" ? "split-studio" : "impact-split"}"
@@ -3570,18 +3614,6 @@ export function renderTemplate001Preview(
       <header class="pn001-header">
         <div class="pn001-container pn001-header-inner">
           <a class="pn001-brand pn001-brand-logo" href="#" data-page="home">
-            <span class="pn001-brand-symbol">
-              ${escapeHtml(
-                (brandName || "P")
-                  .split(/\s+/)
-                  .filter(Boolean)
-                  .slice(0, 2)
-                  .map((part) => part.charAt(0))
-                  .join("")
-                  .toUpperCase(),
-              )}
-            </span>
-
             <span class="pn001-brand-name">
               ${escapeHtml(brandName)}
             </span>
@@ -3618,18 +3650,6 @@ export function renderTemplate001Preview(
         >
           <div class="pn001-menu-top">
             <div class="pn001-brand pn001-brand-logo">
-              <span class="pn001-brand-symbol">
-                ${escapeHtml(
-                  (brandName || "P")
-                    .split(/\s+/)
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((part) => part.charAt(0))
-                    .join("")
-                    .toUpperCase(),
-                )}
-              </span>
-
               <span class="pn001-brand-name">
                 ${escapeHtml(brandName)}
               </span>
@@ -3682,18 +3702,6 @@ export function renderTemplate001Preview(
           <div class="pn001-footer-main">
             <div class="pn001-footer-brand-column">
               <a class="pn001-footer-logo" href="#" data-page="home">
-                <span class="pn001-brand-symbol">
-                  ${escapeHtml(
-                    (brandName || "P")
-                      .split(/\s+/)
-                      .filter(Boolean)
-                      .slice(0, 2)
-                      .map((part) => part.charAt(0))
-                      .join("")
-                      .toUpperCase(),
-                  )}
-                </span>
-
                 <span>${escapeHtml(brandName)}</span>
               </a>
 
