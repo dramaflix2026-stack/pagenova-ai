@@ -1588,4 +1588,570 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
         calc(100% - 28px) !important;
     }
   }
+
+  /* ========================================================
+     PAGENOVA GLOBAL WHITE HEADER V6.2.1
+
+     PRODUCT CONTRACT:
+     - always white
+     - always full width
+     - never a floating card
+     - text-only brand
+     - accent CTA
+     - independent from generated Design DNA
+     ======================================================== */
+
+  html body .pn001-site > header.pn001-header {
+    position: relative !important;
+    z-index: 100 !important;
+
+    display: block !important;
+
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: none !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    border:
+      0 !important;
+
+    border-bottom:
+      1px solid rgba(15, 23, 42, .10) !important;
+
+    border-radius:
+      0 !important;
+
+    outline:
+      0 !important;
+
+    background:
+      #ffffff !important;
+
+    background-color:
+      #ffffff !important;
+
+    background-image:
+      none !important;
+
+    color:
+      #111111 !important;
+
+    box-shadow:
+      none !important;
+
+    filter:
+      none !important;
+
+    transform:
+      none !important;
+
+    backdrop-filter:
+      none !important;
+
+    -webkit-backdrop-filter:
+      none !important;
+  }
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner {
+    position: relative !important;
+
+    display: flex !important;
+
+    box-sizing: border-box !important;
+
+    width:
+      min(
+        calc(100% - 48px),
+        1180px
+      ) !important;
+
+    min-width:
+      0 !important;
+
+    max-width:
+      1180px !important;
+
+    min-height:
+      76px !important;
+
+    margin:
+      0 auto !important;
+
+    padding:
+      10px 0 !important;
+
+    align-items:
+      center !important;
+
+    justify-content:
+      space-between !important;
+
+    gap:
+      20px !important;
+
+    border:
+      0 !important;
+
+    border-radius:
+      0 !important;
+
+    outline:
+      0 !important;
+
+    background:
+      transparent !important;
+
+    background-color:
+      transparent !important;
+
+    background-image:
+      none !important;
+
+    color:
+      #111111 !important;
+
+    box-shadow:
+      none !important;
+
+    filter:
+      none !important;
+
+    transform:
+      none !important;
+
+    backdrop-filter:
+      none !important;
+
+    -webkit-backdrop-filter:
+      none !important;
+  }
+
+  /*
+   * Remove qualquer pseudo-elemento decorativo herdado.
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header::before,
+
+  html body
+  .pn001-site
+  > header.pn001-header::after,
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner::before,
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner::after {
+    display:
+      none !important;
+
+    content:
+      none !important;
+  }
+
+  /*
+   * BRAND
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-brand-logo {
+    display:
+      inline-flex !important;
+
+    flex:
+      1 1 auto !important;
+
+    min-width:
+      0 !important;
+
+    max-width:
+      620px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    align-items:
+      center !important;
+
+    gap:
+      0 !important;
+
+    border:
+      0 !important;
+
+    border-radius:
+      0 !important;
+
+    background:
+      transparent !important;
+
+    color:
+      #111111 !important;
+
+    box-shadow:
+      none !important;
+
+    text-decoration:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+  /*
+   * Nunca usar monograma/icone automatico como logo.
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-brand-symbol {
+    display:
+      none !important;
+  }
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-brand-name {
+    display:
+      block !important;
+
+    max-width:
+      100% !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    overflow:
+      hidden !important;
+
+    color:
+      #111111 !important;
+
+    font-size:
+      clamp(
+        17px,
+        1.55vw,
+        21px
+      ) !important;
+
+    font-weight:
+      850 !important;
+
+    line-height:
+      1.05 !important;
+
+    letter-spacing:
+      -.04em !important;
+
+    text-overflow:
+      ellipsis !important;
+
+    white-space:
+      nowrap !important;
+
+    text-shadow:
+      none !important;
+  }
+
+  /*
+   * ACTIONS
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-header-actions {
+    display:
+      flex !important;
+
+    flex:
+      0 0 auto !important;
+
+    width:
+      auto !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    align-items:
+      center !important;
+
+    justify-content:
+      flex-end !important;
+
+    gap:
+      10px !important;
+
+    background:
+      transparent !important;
+
+    box-shadow:
+      none !important;
+  }
+
+  /*
+   * FALAR AGORA
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-header-cta {
+    display:
+      inline-flex !important;
+
+    box-sizing:
+      border-box !important;
+
+    flex:
+      0 0 auto !important;
+
+    width:
+      auto !important;
+
+    min-width:
+      118px !important;
+
+    max-width:
+      none !important;
+
+    height:
+      44px !important;
+
+    min-height:
+      44px !important;
+
+    max-height:
+      44px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 20px !important;
+
+    align-items:
+      center !important;
+
+    justify-content:
+      center !important;
+
+    border:
+      1px solid
+      var(--pn001-accent) !important;
+
+    border-radius:
+      999px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    background-color:
+      var(--pn001-accent) !important;
+
+    background-image:
+      none !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+
+    box-shadow:
+      none !important;
+
+    filter:
+      none !important;
+
+    transform:
+      none !important;
+
+    font-size:
+      13px !important;
+
+    font-weight:
+      850 !important;
+
+    line-height:
+      1 !important;
+
+    letter-spacing:
+      -.01em !important;
+
+    text-decoration:
+      none !important;
+
+    white-space:
+      nowrap !important;
+  }
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-header-cta:hover {
+    transform:
+      translateY(-1px) !important;
+
+    box-shadow:
+      0 8px 22px
+      rgba(15, 23, 42, .12) !important;
+  }
+
+  /*
+   * HAMBURGER
+   */
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-menu-button {
+    display:
+      inline-flex !important;
+
+    box-sizing:
+      border-box !important;
+
+    flex:
+      0 0 44px !important;
+
+    width:
+      44px !important;
+
+    min-width:
+      44px !important;
+
+    max-width:
+      44px !important;
+
+    height:
+      44px !important;
+
+    min-height:
+      44px !important;
+
+    max-height:
+      44px !important;
+
+    margin:
+      0 !important;
+
+    padding:
+      0 !important;
+
+    align-items:
+      center !important;
+
+    justify-content:
+      center !important;
+
+    border:
+      1px solid
+      rgba(17, 17, 17, .16) !important;
+
+    border-radius:
+      12px !important;
+
+    background:
+      #ffffff !important;
+
+    background-color:
+      #ffffff !important;
+
+    background-image:
+      none !important;
+
+    color:
+      #111111 !important;
+
+    box-shadow:
+      none !important;
+
+    filter:
+      none !important;
+
+    transform:
+      none !important;
+  }
+
+  html body
+  .pn001-site
+  > header.pn001-header
+  .pn001-menu-button span {
+    background:
+      #111111 !important;
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 760px) {
+
+    html body
+    .pn001-site
+    > header.pn001-header
+    > .pn001-header-inner {
+      width:
+        calc(100% - 28px) !important;
+
+      min-height:
+        66px !important;
+
+      padding:
+        8px 0 !important;
+
+      gap:
+        10px !important;
+    }
+
+    html body
+    .pn001-site
+    > header.pn001-header
+    .pn001-brand-logo {
+      max-width:
+        calc(100% - 56px) !important;
+    }
+
+    html body
+    .pn001-site
+    > header.pn001-header
+    .pn001-brand-name {
+      font-size:
+        15px !important;
+    }
+
+    html body
+    .pn001-site
+    > header.pn001-header
+    .pn001-header-cta {
+      display:
+        none !important;
+    }
+  }
 `;
