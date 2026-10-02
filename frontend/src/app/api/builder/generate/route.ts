@@ -371,6 +371,7 @@ PAGENOVA V6.2 - HOME COMPLETA:
 - Location somente com localizacao fornecida.
 - Testimonials reais somente com depoimentos fornecidos.
 - Nunca invente clientes, projetos, numeros, premios, certificacoes, anos de experiencia, membros de equipe, enderecos ou precos.
+- A Home deve ter no maximo UMA secao do tipo about/Sobre. Nunca crie dois blocos institucionais com a mesma funcao editorial.
 - Cada secao deve ter uma funcao editorial diferente.
 - Nao repita o mesmo titulo, argumento ou texto em varias secoes.`;
 

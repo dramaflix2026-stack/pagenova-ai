@@ -3642,44 +3642,28 @@ const completeHomeSectionsV62 = (
     });
   }
 
-  /*
-   * SEGUNDO BLOCO INSTITUCIONAL
+    /*
+   * PAGENOVA V6.3.1 - SINGLE ABOUT CONTRACT
    *
-   * Nao e autoridade falsa e nao cria resultados inexistentes.
+   * A Home pode ter no maximo uma secao semantica "about".
+   * Se a IA enviar mais de uma, preservamos somente a primeira.
    */
+  let aboutSeen = false;
 
-  const aboutCount =
-    sections.filter(
-      (section) => sectionKind(section) === "about",
-    ).length;
+  const uniqueSections = sections.filter((section) => {
+    if (sectionKind(section) !== "about") {
+      return true;
+    }
 
-  if (aboutCount < 2) {
-    sections.push({
-      kind: "about",
-      title: "Do primeiro contato à definição do caminho",
-      body:
-        "Cada demanda pode ter necessidades diferentes. Entender o cenário antes de avançar ajuda a construir uma direção mais adequada.",
-      items: [
-        {
-          title: "Necessidade",
-          body:
-            "O ponto de partida é compreender o que precisa ser desenvolvido.",
-        },
-        {
-          title: "Prioridades",
-          body:
-            "Objetivos e critérios principais ajudam a orientar as decisões.",
-        },
-        {
-          title: "Próximos passos",
-          body:
-            "Com o contexto organizado, fica mais simples definir como avançar.",
-        },
-      ],
-    });
-  }
+    if (aboutSeen) {
+      return false;
+    }
 
-  return sections;
+    aboutSeen = true;
+    return true;
+  });
+
+  return uniqueSections;
 };
 export function renderTemplate001Preview(
   project: SiteProject,
