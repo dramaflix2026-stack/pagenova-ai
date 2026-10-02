@@ -452,16 +452,23 @@ export default function Home() {
       </section>
 
       <footer className="border-t border-white/10 bg-[#0b1511] text-white">
-  <div className="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
-    <div className="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 lg:grid-cols-[1.25fr_.8fr_1fr]">
-      <div>
+  <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
+
+    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_.7fr_1.15fr] lg:gap-16">
+
+      {/* MARCA */}
+      <div className="min-w-0">
         <Brand />
 
-        <p className="mt-5 max-w-sm text-sm leading-6 text-white/50">
-          Crie páginas, organize seus projetos e concentre sua operação digital em um único espaço.
+        <p className="mt-5 max-w-[390px] text-sm leading-7 text-white/50">
+          Crie páginas, organize seus projetos e concentre sua operação digital
+          em um único espaço.
         </p>
 
-        <div className="mt-6 flex flex-wrap gap-2" aria-label="Canais PageNova">
+        <div
+          className="mt-6 flex max-w-[430px] flex-wrap gap-2"
+          aria-label="Canais PageNova"
+        >
           {[
             ["WhatsApp", "WA"],
             ["Instagram", "IG"],
@@ -471,103 +478,134 @@ export default function Home() {
             <span
               key={label}
               title={`${label} — canal em configuração`}
-              className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-3 text-xs font-semibold text-white/45"
+              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[.035] px-3.5 text-xs font-semibold text-white/50"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#50dca9]/10 text-[10px] font-black text-[#50dca9]">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#50dca9]/10 text-[10px] font-black text-[#50dca9]">
                 {icon}
               </span>
+
               {label}
             </span>
           ))}
         </div>
 
-        <p className="mt-3 text-[11px] leading-5 text-white/30">
-          Os links oficiais dos canais serão ativados após o cadastro das informações comerciais.
+        <p className="mt-4 max-w-[410px] text-[11px] leading-5 text-white/30">
+          Os links oficiais dos canais serão ativados após o cadastro das
+          informações comerciais.
         </p>
       </div>
 
-      <div>
+      {/* NAVEGACAO */}
+      <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
           Navegação
         </p>
 
-        <nav className="mt-5 grid gap-3 text-sm text-white/60" aria-label="Rodapé">
-          <a href="#plataforma" className="w-fit transition hover:text-white">
+        <nav
+          className="mt-5 flex flex-col items-start gap-3.5 text-sm text-white/60"
+          aria-label="Rodapé"
+        >
+          <a
+            href="#plataforma"
+            className="transition hover:text-white"
+          >
             Plataforma
           </a>
-          <a href="#planos" className="w-fit transition hover:text-white">
+
+          <a
+            href="#planos"
+            className="transition hover:text-white"
+          >
             Planos
           </a>
-          <a href="#faq" className="w-fit transition hover:text-white">
+
+          <a
+            href="#faq"
+            className="transition hover:text-white"
+          >
             Dúvidas frequentes
           </a>
-          <Link href="/login" className="w-fit transition hover:text-white">
+
+          <Link
+            href="/login"
+            className="transition hover:text-white"
+          >
             Entrar
           </Link>
         </nav>
       </div>
 
-      <div>
+      {/* ATENDIMENTO */}
+      <div className="min-w-0">
         <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
           Atendimento
         </p>
 
-        <div className="mt-5 grid gap-4 text-sm">
-          <div className="flex gap-3">
-            <span
-              aria-hidden="true"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
-            >
+        <div className="mt-5 grid gap-5">
+
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
               ◷
             </span>
-            <div>
-              <p className="font-semibold text-white/80">Horário de atendimento</p>
-              <p className="mt-1 text-xs leading-5 text-white/40">
+
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white/75">
+                Horário de atendimento
+              </p>
+
+              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
                 Informação comercial em atualização
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <span
-              aria-hidden="true"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
-            >
-              ◉
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
+              ◎
             </span>
-            <div>
-              <p className="font-semibold text-white/80">Localização</p>
-              <p className="mt-1 text-xs leading-5 text-white/40">
+
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white/75">
+                Localização
+              </p>
+
+              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
                 Informação comercial em atualização
               </p>
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <span
-              aria-hidden="true"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
-            >
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
               #
             </span>
-            <div>
-              <p className="font-semibold text-white/80">CNPJ</p>
-              <p className="mt-1 text-xs leading-5 text-white/40">
+
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white/75">
+                CNPJ
+              </p>
+
+              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
                 Informação comercial em atualização
               </p>
             </div>
           </div>
+
         </div>
       </div>
     </div>
 
-    <div className="flex flex-col gap-3 pt-7 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
-      <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
+    {/* FECHAMENTO */}
+    <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
+      <p>
+        © 2026 PageNova AI. Todos os direitos reservados.
+      </p>
 
       <p className="text-white/25">
         Landing Page Studio
       </p>
     </div>
+
   </div>
 </footer>
     </main>
