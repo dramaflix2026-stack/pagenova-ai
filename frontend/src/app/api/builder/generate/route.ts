@@ -154,6 +154,15 @@ Em MODO DE REVISÃO:
 - visualChanges registra mudanças em heroLayout, heroAlignment, heroContentWidth, imageFocus, density ou cardStyle;
 - headerChanges registra mudanças em logoPosition, menuStyle ou density;
 - sectionChanges registra update, remove, add ou move de seções;
+- em sectionChanges, todos os índices são zero-based;
+- em update, index é a seção atual a editar e targetIndex deve ser -1;
+- em remove, index é a seção atual a remover e targetIndex deve ser -1;
+- em move, index é a seção de origem e targetIndex é a posição de destino;
+- em add, index deve ser -1 e targetIndex é a posição onde a nova seção deve ser inserida;
+- em add, use targetIndex -1 para adicionar a nova seção ao final;
+- em sectionChanges, campos numéricos não utilizados devem ser -1;
+- em sectionChanges, title e body não utilizados devem ser "";
+- em update e add, preencha title e body com o conteúdo final solicitado para a seção;
 - elementChanges registra mudanças visuais direcionadas a elementos específicos;
 - revisionPlan descreve intenção. Não use o plano para reescrever campos que o usuário não pediu.
 
