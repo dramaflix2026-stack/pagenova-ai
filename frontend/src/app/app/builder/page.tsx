@@ -143,12 +143,12 @@ export default function BuilderPage() {
     const response = await fetch("/api/builder/generate", {
       method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
       body: JSON.stringify({ name: site.name, brief: site.brief, style: site.style, key, presetId: site.presetId,
-        institutional: site.presetId === "institucional" ? {
-          role: site.institutional?.role || "",
-          audience: site.institutional?.audience || "",
-          offer: site.institutional?.offer || "",
-          process: site.institutional?.process || "",
-          proof: site.institutional?.proof || "",
+        institutional: site.institutional ? {
+          role: site.institutional.role || "",
+          audience: site.institutional.audience || "",
+          offer: site.institutional.offer || "",
+          process: site.institutional.process || "",
+          proof: site.institutional.proof || "",
         } : undefined,
         currentHeaderDirection: site.headerDirection || undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
@@ -190,7 +190,7 @@ export default function BuilderPage() {
         };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
-        if (site.presetId === "institucional" && (key === "home" || key === "sobre")) {
+        if (key === "home" || key === "sobre") {
           try {
             const image = await requestImage(current, key === "home" ? "hero" : "work");
             current = { ...current, institutional: {
@@ -239,7 +239,7 @@ export default function BuilderPage() {
       kind: "institutional-site",
       id: crypto.randomUUID(),
       name: inferredName,
-      presetId: selectedPresetId,
+      presetId: "template-001",
       brief: prompt,
       style,
       pages: {},
@@ -356,7 +356,6 @@ async function revise(event: FormEvent<HTMLFormElement>) {
               }
             : project.headerDirection,
         institutional:
-          project.presetId === "institucional" &&
           institutionalRevisionRequested &&
           result.institutional
             ? result.institutional
