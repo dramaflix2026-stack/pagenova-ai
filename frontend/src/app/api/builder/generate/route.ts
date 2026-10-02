@@ -1186,6 +1186,7 @@ console.info("[Builder] Semantic strategy", {
     institutional,
     revisionPlan,
     siteStrategy: universalStrategy,
+    presetId: "template-001"
   });
   } catch (error) {
     console.error("[Builder] Generation failed", error);
