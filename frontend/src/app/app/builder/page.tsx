@@ -400,8 +400,27 @@ async function revise(event: FormEvent<HTMLFormElement>) {
             ? (result.visualDirection || project.visualDirection)
             : project.visualDirection,
         headerDirection:
-          headerRevisionRequested
-            ? (result.headerDirection || project.headerDirection)
+          headerRevisionRequested && result.headerDirection
+            ? {
+                logoPosition: revisionPlan.headerChanges.some(
+                  (change) => change.field === "logoPosition",
+                )
+                  ? result.headerDirection.logoPosition
+                  : project.headerDirection?.logoPosition ??
+                    result.headerDirection.logoPosition,
+                menuStyle: revisionPlan.headerChanges.some(
+                  (change) => change.field === "menuStyle",
+                )
+                  ? result.headerDirection.menuStyle
+                  : project.headerDirection?.menuStyle ??
+                    result.headerDirection.menuStyle,
+                density: revisionPlan.headerChanges.some(
+                  (change) => change.field === "density",
+                )
+                  ? result.headerDirection.density
+                  : project.headerDirection?.density ??
+                    result.headerDirection.density,
+              }
             : project.headerDirection,
         institutional:
           project.presetId === "institucional" &&
