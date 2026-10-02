@@ -25,18 +25,9 @@ const projectOptions = [
 
 export default function BuilderPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
-  const [briefIdea, setBriefIdea] = useState("");
-  const [creatingBrief, setCreatingBrief] = useState(false);
-  const [briefError, setBriefError] = useState("");
   const [style, setStyle] = useState("moderno");
-  const [contactEmail, setContactEmail] = useState("");
-  const [contactWhatsApp, setContactWhatsApp] = useState("");
-  const [contactInstagram, setContactInstagram] = useState("");
-  const [contactFacebook, setContactFacebook] = useState("");
   const [refreshingImages, setRefreshingImages] = useState(false);
-  const [institutionalFacts, setInstitutionalFacts] = useState({ role: "", audience: "", offer: "", process: "", proof: "" });
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
   const [project, setProject] = useState<SiteProject | null>(null);
@@ -124,7 +115,7 @@ export default function BuilderPage() {
     if (!id) return;
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
-      setProject(saved); setName(saved.name); setBrief(saved.brief); setStyle(saved.style); setContactEmail(saved.contactEmail || ""); setContactWhatsApp(saved.contactWhatsApp || ""); setContactInstagram(saved.contactInstagram || ""); setContactFacebook(saved.contactFacebook || ""); setInstitutionalFacts({ role: saved.institutional?.role || "", audience: saved.institutional?.audience || "", offer: saved.institutional?.offer || "", process: saved.institutional?.process || "", proof: saved.institutional?.proof || "" });
+      setProject(saved); setBrief(saved.brief); setStyle(saved.style);
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
@@ -133,90 +124,19 @@ export default function BuilderPage() {
 
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  async function createBriefWithAI() {
-    if (creatingBrief || phase === "generating") return;
 
-    const cleanName = name.trim();
-    const cleanIdea = briefIdea.trim();
-
-    if (cleanName.length < 2) {
-      setBriefError("Informe primeiro o nome do negócio.");
-      return;
-    }
-
-    if (cleanIdea.length < 10) {
-      setBriefError("Descreva rapidamente o negócio com pelo menos 10 caracteres.");
-      return;
-    }
-
-    setCreatingBrief(true);
-    setBriefError("");
-    setError("");
-
-    try {
-      const response = await fetch("/api/builder/brief", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: cleanName,
-          description: cleanIdea,
-          presetId: selectedPresetId,
-        }),
-      });
-
-      const data = await response.json() as {
-        brief?: string;
-        institutional?: {
-          role?: string;
-          audience?: string;
-          offer?: string;
-          process?: string;
-          proof?: string;
-        };
-        error?: string;
-      };
-
-      if (!response.ok || !data.brief) {
-        throw new Error(
-          data.error ||
-          "Não foi possível criar o briefing.",
-        );
-      }
-
-      setBrief(data.brief);
-
-      if (
-        selectedPresetId === "institucional" &&
-        data.institutional
-      ) {
-        setInstitutionalFacts((current) => ({
-          role:
-            data.institutional?.role?.trim() ||
-            current.role,
-          audience:
-            data.institutional?.audience?.trim() ||
-            current.audience,
-          offer:
-            data.institutional?.offer?.trim() ||
-            current.offer,
-          process:
-            data.institutional?.process?.trim() ||
-            current.process,
-          proof:
-            data.institutional?.proof?.trim() ||
-            current.proof,
-        }));
-      }
-    } catch (cause) {
-      setBriefError(
-        cause instanceof Error
-          ? cause.message
-          : "Não foi possível criar o briefing.",
-      );
-    } finally {
-      setCreatingBrief(false);
-    }
+  async function requestImage(site: SiteProject, kind: "hero" | "work"): Promise<string> {
+    const controller = new AbortController();
+    abortRef.current = controller;
+    const response = await fetch("/api/builder/image", {
+      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
+      body: JSON.stringify({ name: site.name, brief: site.brief, kind }),
+    });
+    const data = await response.json() as { image?: string; error?: string };
+    if (!response.ok || !data.image?.startsWith("data:image/jpeg;base64,")) throw new Error(data.error || "Falha ao criar a imagem.");
+    return data.image;
   }
+
   async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
     const controller = new AbortController();
     abortRef.current = controller;
@@ -234,7 +154,7 @@ export default function BuilderPage() {
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan; error?: string };
-    if (!response.ok || !data.page) throw new Error(data.error || "Não foi possível gerar a página.");
+    if (!response.ok || !data.page) throw new Error(data.error || "N├úo foi poss├¡vel gerar a p├ígina.");
     return {
       page: data.page as SitePage,
       visualDirection: data.visualDirection as SiteProject["visualDirection"] | undefined,
@@ -245,17 +165,6 @@ export default function BuilderPage() {
     };
   }
 
-  async function requestImage(site: SiteProject, kind: "hero" | "work"): Promise<string> {
-    const controller = new AbortController();
-    abortRef.current = controller;
-    const response = await fetch("/api/builder/image", {
-      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-      body: JSON.stringify({ name: site.name, brief: site.brief, kind }),
-    });
-    const data = await response.json() as { image?: string; error?: string };
-    if (!response.ok || !data.image?.startsWith("data:image/jpeg;base64,")) throw new Error(data.error || "Falha ao criar a imagem.");
-    return data.image;
-  }
 
   async function generatePages(site: SiteProject, keys: SitePageKey[]) {
     setPhase("generating"); setError(""); setPendingKeys(keys);
@@ -311,21 +220,43 @@ export default function BuilderPage() {
   function start(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (phase === "generating") return;
-    if (name.trim().length < 2 || brief.trim().length < 20) {
-      setError("Informe o nome e descreva o negócio com pelo menos 20 caracteres."); return;
-    }
-    if (selectedPresetId === "institucional" && institutionalFacts.offer.trim().length < 8) {
-      setError("Informe os serviços ou produtos reais que devem aparecer nos cards."); return;
-    }
-    const site: SiteProject = { kind: "institutional-site", id: crypto.randomUUID(), name: name.trim(),
-      presetId: selectedPresetId, brief: brief.trim(), style, contactEmail: contactEmail.trim(), contactWhatsApp: contactWhatsApp.trim(), contactInstagram: contactInstagram.trim(), contactFacebook: contactFacebook.trim(),
-      institutional: selectedPresetId === "institucional" ? Object.fromEntries(Object.entries(institutionalFacts).map(([key, value]) => [key, value.trim()])) as SiteProject["institutional"] : undefined,
-      pages: {}, createdAt: new Date().toISOString() };
-    setProject(site); setActivePage("home");
-    router.replace(`/app/builder?project=${site.id}`);
-    void generatePages(site, SITE_PAGES.map(({ key }) => key));
-  }
 
+    const prompt = brief.trim();
+
+    if (prompt.length < 20) {
+      setError("Descreva o site que você quer criar com pelo menos 20 caracteres.");
+      return;
+    }
+
+    const inferredName =
+      prompt
+        .replace(/\s+/g, " ")
+        .slice(0, 72)
+        .replace(/[.,;:!?]+$/g, "")
+        .trim() || "Novo site";
+
+    const site: SiteProject = {
+      kind: "institutional-site",
+      id: crypto.randomUUID(),
+      name: inferredName,
+      presetId: selectedPresetId,
+      brief: prompt,
+      style,
+      pages: {},
+      createdAt: new Date().toISOString(),
+    };
+
+    setError("");
+    setProject(site);
+    setActivePage("home");
+
+    router.replace(`/app/builder?project=${site.id}`);
+
+    void generatePages(
+      site,
+      SITE_PAGES.map(({ key }) => key),
+    );
+  }
 async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
@@ -493,85 +424,88 @@ async function revise(event: FormEvent<HTMLFormElement>) {
           <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
           <p className="mt-3 text-white/50">Escolha um ponto de partida, descreva sua ideia e acompanhe a criação na tela.</p></div>
         <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">{selectedPreset.title}</p>
-          <label className="block text-sm font-medium">Nome do negócio<input value={name} onChange={(event) => setName(event.target.value)} maxLength={100} required placeholder="Ex.: Clínica Horizonte" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          <label className="block text-sm font-medium">E-mail que receberá os contatos<input type="email" value={contactEmail} onChange={(event) => setContactEmail(event.target.value)} required placeholder="contato@suaempresa.com.br" className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>          <div className="grid gap-3 sm:grid-cols-3">
-            <label className="block text-sm font-medium">WhatsApp do negócio<input type="tel" value={contactWhatsApp} onChange={(event) => setContactWhatsApp(event.target.value)} placeholder="11999999999" maxLength={22} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-            <label className="block text-sm font-medium">Instagram<input value={contactInstagram} onChange={(event) => setContactInstagram(event.target.value)} placeholder="@suaempresa" maxLength={100} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-            <label className="block text-sm font-medium">Facebook<input value={contactFacebook} onChange={(event) => setContactFacebook(event.target.value)} placeholder="facebook.com/suaempresa" maxLength={200} className="mt-2 w-full rounded-xl border border-white/15 bg-black/30 p-4 text-white outline-none focus:border-emerald-400" /></label>
-          </div>          <div className="rounded-2xl border border-white/10 bg-black/20 p-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-semibold text-white">
-                Quer que a IA monte o briefing?
-              </span>
-              <span className="text-xs leading-5 text-white/45">
-                Explique rapidamente o negócio. A IA organiza um briefing completo e você pode revisar tudo antes de criar o site.
-              </span>
-            </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
+              Criar site com IA
+            </p>
 
-            <textarea
-              value={briefIdea}
-              onChange={(event) => {
-                setBriefIdea(event.target.value);
-                if (briefError) setBriefError("");
-              }}
-              maxLength={1200}
-              rows={3}
-              placeholder="Ex.: Somos a DroneField e fazemos inspeções de lavouras com drones para identificar áreas afetadas e gerar relatórios técnicos para produtores rurais."
-              className="mt-4 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 text-sm leading-6 text-white outline-none placeholder:text-white/25 focus:border-emerald-400"
-            />
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">
+              Descreva o site que você quer
+            </h2>
 
-            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-xs text-white/35">
-                A IA não cria o site ainda — apenas prepara o briefing.
-              </span>
-
-              <button
-                type="button"
-                onClick={() => void createBriefWithAI()}
-                disabled={creatingBrief || phase === "generating"}
-                className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/15 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {creatingBrief ? "Criando briefing..." : "✨ Criar briefing com IA"}
-              </button>
-            </div>
-
-            {briefError && (
-              <p role="alert" className="mt-3 text-sm text-red-300">
-                {briefError}
-              </p>
-            )}
+            <p className="mt-2 text-sm leading-6 text-white/45">
+              Conte sobre o negócio, serviços, público, estilo ou qualquer detalhe importante. A IA cuida da estrutura e do conteúdo.
+            </p>
           </div>
 
-          <label className="block text-sm font-medium">
-            Briefing do site
-            <span className="font-normal text-white/45">
-              {" "}· revise e edite antes de gerar
-            </span>
+          <label className="block">
+            <span className="sr-only">Descreva o site</span>
+
             <textarea
               value={brief}
-              onChange={(event) => setBrief(event.target.value)}
+              onChange={(event) => {
+                setBrief(event.target.value);
+                if (error) setError("");
+              }}
               maxLength={2800}
-              rows={10}
+              rows={9}
               required
-              className="mt-2 w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 leading-7 text-white outline-none focus:border-emerald-400"
+              autoFocus
+              placeholder="Ex.: Crie um site premium para uma clínica odontológica moderna chamada Lumina Odontologia, especializada em implantes, lentes de contato dental e estética do sorriso. Quero transmitir sofisticação, confiança e tecnologia..."
+              className="w-full resize-y rounded-2xl border border-white/15 bg-black/30 p-5 text-base leading-7 text-white outline-none placeholder:text-white/25 focus:border-emerald-400"
             />
           </label>
-          {selectedPresetId === "institucional" && <fieldset className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-5"><legend className="px-2 text-sm font-semibold text-emerald-200">Dados reais para personalizar o site</legend><p className="mb-4 text-xs leading-5 text-white/55">Preencha apenas o que você pode confirmar. Campos vazios não serão inventados pela IA.</p><div className="grid gap-3 sm:grid-cols-2">{([
-            ["role", "Quem você é / sua atuação", "Ex.: psicóloga clínica"],
-            ["audience", "Quem você atende", "Ex.: adultos em atendimento online"],
-            ["offer", "Serviços e modalidades", "Ex.: psicoterapia individual online"],
-            ["process", "Como funciona o atendimento", "Ex.: primeira conversa para conhecer a demanda"],
-            ["proof", "Credencial verificável", "Ex.: registro profissional, se aplicável"],
-          ] as const).map(([key, label, placeholder]) => <label key={key} className="block text-xs font-medium text-white/80">{label}{key === "offer" && <span className="ml-1 text-emerald-300">* obrigatório</span>}<input value={institutionalFacts[key]} onChange={(event) => setInstitutionalFacts((current) => ({ ...current, [key]: event.target.value }))} required={key === "offer"} maxLength={400} placeholder={placeholder} className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white outline-none focus:border-emerald-400" /></label>)}</div></fieldset>}
-          <div className="flex flex-wrap gap-2">{selectedPreset.modules.map((module) => <span key={module} className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">{module}</span>)}</div>
-          <fieldset><legend className="mb-3 text-sm font-medium">Estilo visual</legend><div className="grid gap-3 sm:grid-cols-3">{["moderno", "elegante", "vibrante"].map((item) => <label key={item} className={`cursor-pointer rounded-xl border p-4 capitalize ${style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10"}`}><input type="radio" name="style" value={item} checked={style === item} onChange={() => setStyle(item)} className="mr-2 accent-emerald-400" />{item}</label>)}</div></fieldset>
-          {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
-          <button className="w-full rounded-xl bg-emerald-400 px-5 py-4 font-bold text-[#08130e] hover:bg-emerald-300">Criar {selectedPreset.title.toLowerCase()} →</button>
+
+          <fieldset>
+            <legend className="mb-3 text-sm font-medium text-white/70">
+              Estilo visual
+            </legend>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              {["moderno", "elegante", "vibrante"].map((item) => (
+                <label
+                  key={item}
+                  className={`cursor-pointer rounded-xl border p-4 text-center capitalize transition ${
+                    style === item
+                      ? "border-emerald-400 bg-emerald-400/10 text-white"
+                      : "border-white/10 text-white/55 hover:border-white/20"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="style"
+                    value={item}
+                    checked={style === item}
+                    onChange={() => setStyle(item)}
+                    className="sr-only"
+                  />
+                  {item}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          {error && (
+            <p role="alert" className="text-sm text-red-300">
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={phase === "generating"}
+            className="w-full rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {phase === "generating" ? "Gerando site..." : "Gerar site →"}
+          </button>
+
+          <p className="text-center text-xs text-white/30">
+            A IA interpreta seu pedido e cria o site diretamente.
+          </p>
         </form>
         <section className="mt-12" aria-labelledby="builder-options-title">
           <div className="mb-5"><h2 id="builder-options-title" className="text-2xl font-bold">Explore o que você pode criar</h2><p className="mt-2 text-sm text-white/45">Escolha uma opção para começar. As próximas funções aparecem com seu status real.</p></div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SITE_PRESETS.map((option) => <button type="button" key={option.id} onClick={() => { setSelectedPresetId(option.id); setName(""); setBrief(option.brief); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedPresetId === option.id} className={`block min-h-48 rounded-2xl border p-5 text-left transition hover:border-emerald-400/45 ${selectedPresetId === option.id ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"}`}><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className="mt-5 block text-xs font-semibold text-emerald-300">Carregar briefing →</span></button>)}{projectOptions.map((option) => {
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SITE_PRESETS.map((option) => <button type="button" key={option.id} onClick={() => { setSelectedPresetId(option.id); setBrief(option.brief); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedPresetId === option.id} className={`block min-h-48 rounded-2xl border p-5 text-left transition hover:border-emerald-400/45 ${selectedPresetId === option.id ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"}`}><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className="mt-5 block text-xs font-semibold text-emerald-300">Carregar briefing →</span></button>)}{projectOptions.map((option) => {
             const content = <><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold text-white">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className={`mt-5 block text-xs font-semibold ${option.kind === "future" ? "text-white/30" : "text-emerald-300"}`}>{option.kind === "future" ? "Em desenvolvimento" : option.kind === "link" ? "Abrir ferramenta →" : "Criar agora →"}</span></>;
             const className = `block min-h-48 rounded-2xl border p-5 text-left transition border-white/10 bg-[#11101b] ${option.kind === "future" ? "opacity-65" : "hover:border-emerald-400/45"}`;
             if (option.kind === "link") return <Link key={option.title} href={option.href} className={className}>{content}</Link>;
