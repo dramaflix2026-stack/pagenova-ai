@@ -31,6 +31,10 @@ export type UniversalRenderableSection = {
   sourceIndex: number | null;
   title: string;
   body: string;
+  items: Array<{
+    title: string;
+    body: string;
+  }>;
 };
 
 export type UniversalRenderModel = {
@@ -112,17 +116,41 @@ function normalizePageSections(
 ): SitePage["sections"] {
   return Array.isArray(page.sections)
     ? page.sections
-        .map((section) => ({
-          title: normalizeText(section.title),
-          body: normalizeText(section.body),
-          kind: isUniversalSectionKind(section.kind)
-            ? section.kind
-            : undefined,
-        }))
+        .map((section) => {
+          const items = Array.isArray(section.items)
+            ? section.items
+                .filter(
+                  (item) =>
+                    item &&
+                    typeof item === "object",
+                )
+                .map((item) => ({
+                  title: normalizeText(item.title),
+                  body: normalizeText(item.body),
+                }))
+                .filter(
+                  (item) =>
+                    item.title.length > 0 ||
+                    item.body.length > 0,
+                )
+                .slice(0, 6)
+            : [];
+
+          return {
+            title: normalizeText(section.title),
+            body: normalizeText(section.body),
+            kind: isUniversalSectionKind(section.kind)
+              ? section.kind
+              : undefined,
+            ...(items.length > 0 ? { items } : {}),
+          };
+        })
         .filter(
           (section) =>
             section.title.length > 0 ||
-            section.body.length > 0,
+            section.body.length > 0 ||
+            (Array.isArray(section.items) &&
+              section.items.length > 0),
         )
     : [];
 }
@@ -142,6 +170,7 @@ function renderHeroModel(
     sourceIndex: null,
     title: "",
     body: "",
+    items: [],
   };
 }
 
@@ -209,6 +238,12 @@ function renderContentModel(
     sourceIndex: source ? resolvedIndex : null,
     title: normalizeText(source?.title),
     body: normalizeText(source?.body),
+    items: Array.isArray(source?.items)
+      ? source.items.map((item) => ({
+          title: normalizeText(item.title),
+          body: normalizeText(item.body),
+        }))
+      : [],
   };
 }
 /**
@@ -748,6 +783,101 @@ function universalSemanticVisual(
   }
 }
 
+function renderUniversalStructuredItems(
+  section: UniversalRenderableSection,
+): string {
+  if (section.items.length === 0) {
+    return "";
+  }
+
+  const renderTitle = (title: string): string =>
+    title
+      ? `<h3>${escapeUniversalHtml(title)}</h3>`
+      : "";
+
+  const renderBody = (body: string): string =>
+    body
+      ? `<p>${escapeUniversalHtml(body)}</p>`
+      : "";
+
+  if (section.kind === "process") {
+    const steps = section.items
+      .map(
+        (item, index) => `
+          <article class="pn-structured-step">
+            <span class="pn-structured-step-number" aria-hidden="true">
+              ${String(index + 1).padStart(2, "0")}
+            </span>
+            <div class="pn-structured-step-copy">
+              ${renderTitle(item.title)}
+              ${renderBody(item.body)}
+            </div>
+          </article>
+        `,
+      )
+      .join("");
+
+    return `
+      <div
+        class="pn-structured-items pn-structured-process"
+        data-pn-structured-kind="process"
+      >
+        ${steps}
+      </div>
+    `;
+  }
+
+  if (section.kind === "faq") {
+    const rows = section.items
+      .map(
+        (item) => `
+          <article class="pn-structured-faq-item">
+            <div class="pn-structured-faq-question">
+              ${renderTitle(item.title)}
+              <span class="pn-structured-faq-mark" aria-hidden="true">+</span>
+            </div>
+            ${renderBody(item.body)}
+          </article>
+        `,
+      )
+      .join("");
+
+    return `
+      <div
+        class="pn-structured-items pn-structured-faq"
+        data-pn-structured-kind="faq"
+      >
+        ${rows}
+      </div>
+    `;
+  }
+
+  const cards = section.items
+    .map(
+      (item, index) => `
+        <article
+          class="pn-structured-card"
+          data-pn-item-index="${index}"
+        >
+          <span class="pn-structured-card-index" aria-hidden="true">
+            ${String(index + 1).padStart(2, "0")}
+          </span>
+          ${renderTitle(item.title)}
+          ${renderBody(item.body)}
+        </article>
+      `,
+    )
+    .join("");
+
+  return `
+    <div
+      class="pn-structured-items pn-structured-grid pn-structured-${escapeUniversalHtml(section.kind)}"
+      data-pn-structured-kind="${escapeUniversalHtml(section.kind)}"
+    >
+      ${cards}
+    </div>
+  `;
+}
 function renderUniversalGenericSection(
   section: UniversalRenderableSection,
   occurrence: number,
@@ -771,7 +901,12 @@ function renderUniversalGenericSection(
     ? `<p>${escapeUniversalHtml(section.body)}</p>`
     : "";
 
-  const visual = universalSemanticVisual(section.kind);
+  const structuredItems =
+    renderUniversalStructuredItems(section);
+
+  const visual =
+    structuredItems ||
+    universalSemanticVisual(section.kind);
 
   const compositionClass =
     section.kind === "process"
@@ -948,7 +1083,8 @@ function renderUniversalSemanticSections(
       (section) =>
         section.kind === "final-cta" ||
         section.title.length > 0 ||
-        section.body.length > 0,
+        section.body.length > 0 ||
+        section.items.length > 0,
     )
     .map((section) => {
       const occurrence =
@@ -1424,6 +1560,143 @@ function universalRendererStyles(
       box-shadow:0 22px 60px rgba(15,23,42,.07);
     }
 
+    .pn-structured-items{
+      position:relative;
+      z-index:2;
+      width:100%;
+      margin-top:26px;
+    }
+
+    .pn-structured-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .pn-structured-card{
+      position:relative;
+      min-width:0;
+      padding:24px;
+      border:1px solid var(--pn-border);
+      border-radius:18px;
+      background:rgba(255,255,255,.78);
+    }
+
+    .pn-structured-card-index{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:36px;
+      height:28px;
+      margin-bottom:24px;
+      padding:0 10px;
+      border:1px solid var(--pn-border);
+      border-radius:999px;
+      color:var(--pn-muted);
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.08em;
+    }
+
+    .pn-structured-card h3,
+    .pn-structured-step h3,
+    .pn-structured-faq-item h3{
+      margin:0;
+      color:var(--pn-text);
+      font-size:18px;
+      line-height:1.3;
+      letter-spacing:-.025em;
+    }
+
+    .pn-structured-card p,
+    .pn-structured-step p,
+    .pn-structured-faq-item p{
+      margin:10px 0 0;
+      color:var(--pn-muted);
+      font-size:15px;
+      line-height:1.7;
+      white-space:pre-line;
+    }
+
+    .pn-structured-process{
+      display:grid;
+      gap:0;
+    }
+
+    .pn-structured-step{
+      display:grid;
+      grid-template-columns:58px minmax(0,1fr);
+      gap:18px;
+      padding:22px 0;
+      border-bottom:1px solid var(--pn-border);
+    }
+
+    .pn-structured-step:first-child{
+      padding-top:0;
+    }
+
+    .pn-structured-step:last-child{
+      padding-bottom:0;
+      border-bottom:0;
+    }
+
+    .pn-structured-step-number{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:46px;
+      height:46px;
+      border-radius:50%;
+      background:var(--pn-text);
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.06em;
+    }
+
+    .pn-structured-step-copy{
+      min-width:0;
+      padding-top:3px;
+    }
+
+    .pn-structured-faq{
+      display:grid;
+      gap:0;
+    }
+
+    .pn-structured-faq-item{
+      padding:20px 0;
+      border-bottom:1px solid var(--pn-border);
+    }
+
+    .pn-structured-faq-item:first-child{
+      padding-top:0;
+    }
+
+    .pn-structured-faq-item:last-child{
+      padding-bottom:0;
+      border-bottom:0;
+    }
+
+    .pn-structured-faq-question{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 32px;
+      gap:20px;
+      align-items:center;
+    }
+
+    .pn-structured-faq-mark{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:32px;
+      height:32px;
+      border:1px solid var(--pn-border);
+      border-radius:50%;
+      color:var(--pn-text);
+      font-size:20px;
+      line-height:1;
+    }
     .pn-semantic-copy{
       position:relative;
       z-index:2;
@@ -1881,6 +2154,24 @@ function universalRendererStyles(
         min-height:auto;
         padding:24px;
         border-radius:22px;
+      }
+
+      .pn-structured-grid{
+        grid-template-columns:1fr;
+      }
+
+      .pn-structured-card{
+        padding:20px;
+      }
+
+      .pn-structured-step{
+        grid-template-columns:46px minmax(0,1fr);
+        gap:14px;
+      }
+
+      .pn-structured-step-number{
+        width:40px;
+        height:40px;
       }
 
       .pn-semantic-visual{
