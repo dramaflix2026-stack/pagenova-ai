@@ -659,6 +659,26 @@ export function renderInstitutionalPage(project: SiteProject, page: SitePage, pa
     position:relative!important;
   }
   header.pn-header-center .brand{text-align:center!important}
+
+  /* PAGENOVA_CENTER_INLINE_HEADER_V1 */
+  header.pn-header-center.pn-header-menu-inline .header-inner{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+    align-items:center!important;
+    width:100%!important;
+  }
+
+  header.pn-header-center.pn-header-menu-inline .brand{
+    grid-column:2!important;
+    justify-self:center!important;
+    margin:0!important;
+  }
+
+  header.pn-header-center.pn-header-menu-inline nav{
+    grid-column:3!important;
+    justify-self:end!important;
+    display:flex!important;
+  }
   header.pn-header-center .pn-menu-toggle{
     position:absolute!important;
     right:0!important;
