@@ -159,33 +159,46 @@ function renderContentModel(
   consumedIndexes: Set<number>,
 ): UniversalRenderableSection {
   /*
-   * Prefer explicit semantic identity generated for new projects.
+   * New universal projects persist semantic identity in page sections.
    *
-   * Older persisted projects do not contain section.kind, therefore
-   * positional resolution remains available as a compatibility
-   * fallback during migration.
+   * Once semantic identity exists, a planned section may consume only
+   * content with the same semantic kind. This prevents content intended
+   * for features, process, benefits, etc. from falling into pricing,
+   * testimonials, FAQ, contact, or another unrelated planned section.
+   *
+   * Positional fallback remains only for legacy projects whose stored
+   * sections predate semantic kind persistence.
    */
-  const semanticIndex = pageSections.findIndex(
-    (section, index) =>
-      !consumedIndexes.has(index) &&
-      section.kind === plan.kind,
+  const hasSemanticContent = pageSections.some(
+    (section) => isUniversalSectionKind(section.kind),
   );
 
-  let resolvedIndex =
-    semanticIndex >= 0
-      ? semanticIndex
-      : sourceIndex;
+  let resolvedIndex = -1;
 
-  while (
-    resolvedIndex < pageSections.length &&
-    consumedIndexes.has(resolvedIndex)
-  ) {
-    resolvedIndex += 1;
+  if (hasSemanticContent) {
+    resolvedIndex = pageSections.findIndex(
+      (section, index) =>
+        !consumedIndexes.has(index) &&
+        section.kind === plan.kind,
+    );
+  } else {
+    resolvedIndex = sourceIndex;
+
+    while (
+      resolvedIndex < pageSections.length &&
+      consumedIndexes.has(resolvedIndex)
+    ) {
+      resolvedIndex += 1;
+    }
   }
 
-  const source = pageSections[resolvedIndex];
+  const source =
+    resolvedIndex >= 0 &&
+    resolvedIndex < pageSections.length
+      ? pageSections[resolvedIndex]
+      : undefined;
 
-  if (source) {
+  if (source && resolvedIndex >= 0) {
     consumedIndexes.add(resolvedIndex);
   }
 
@@ -198,7 +211,6 @@ function renderContentModel(
     body: normalizeText(source?.body),
   };
 }
-
 /**
  * Build the deterministic semantic representation used by the future
  * Universal Renderer.
@@ -337,24 +349,176 @@ function universalNav(project: SiteProject): string {
     .join("");
 }
 
+function universalWhatsAppHref(
+  value: string | undefined,
+): string {
+  const phone = normalizeText(value).replace(/\D/g, "");
+
+  return phone
+    ? `https://wa.me/${phone}`
+    : "";
+}
+
+function universalInstagramHref(
+  value: string | undefined,
+): string {
+  const raw = normalizeText(value);
+
+  if (!raw) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  const handle = raw
+    .replace(/^@/, "")
+    .replace(/^instagram\.com\//i, "")
+    .replace(/^www\.instagram\.com\//i, "")
+    .replace(/\/+$/, "");
+
+  return handle
+    ? `https://www.instagram.com/${handle}`
+    : "";
+}
+
+function universalFacebookHref(
+  value: string | undefined,
+): string {
+  const raw = normalizeText(value);
+
+  if (!raw) {
+    return "";
+  }
+
+  if (/^https?:\/\//i.test(raw)) {
+    return raw;
+  }
+
+  const path = raw
+    .replace(/^facebook\.com\//i, "")
+    .replace(/^www\.facebook\.com\//i, "")
+    .replace(/^\/+/, "")
+    .replace(/\/+$/, "");
+
+  return path
+    ? `https://www.facebook.com/${path}`
+    : "";
+}
+
+function universalEmailHref(
+  value: string | undefined,
+): string {
+  const email = normalizeText(value);
+
+  return email
+    ? `mailto:${encodeURIComponent(email)}`
+    : "";
+}
+
 function universalContactHref(project: SiteProject): string {
   const conversion = project.siteStrategy?.profile.conversion;
 
-  if (conversion === "whatsapp" && project.contactWhatsApp) {
-    const phone = project.contactWhatsApp.replace(/\D/g, "");
+  const whatsappHref =
+    universalWhatsAppHref(project.contactWhatsApp);
 
-    if (phone) {
-      return `https://wa.me/${phone}`;
-    }
+  const emailHref =
+    universalEmailHref(project.contactEmail);
+
+  /*
+   * Respect the planned conversion when the project actually
+   * contains the corresponding persisted contact data.
+   *
+   * The universal strategy currently supports conversion types
+   * whose concrete destination is not yet persisted by SiteProject
+   * (form, checkout, booking, phone and visit). We do not invent
+   * destinations for those channels.
+   */
+  if (conversion === "whatsapp" && whatsappHref) {
+    return whatsappHref;
   }
 
-  if (conversion === "email" && project.contactEmail) {
-    return `mailto:${encodeURIComponent(project.contactEmail)}`;
+  if (conversion === "email" && emailHref) {
+    return emailHref;
+  }
+
+  /*
+   * Safe real-data fallback.
+   *
+   * A CTA must never receive a fabricated URL. If the requested
+   * conversion has no concrete destination, use another persisted
+   * direct contact channel when available, otherwise point to the
+   * semantic contact section.
+   */
+  if (whatsappHref) {
+    return whatsappHref;
+  }
+
+  if (emailHref) {
+    return emailHref;
   }
 
   return "#contato";
 }
 
+function universalContactItems(
+  project: SiteProject,
+): Array<{
+  label: string;
+  value: string;
+  href: string;
+}> {
+  const items: Array<{
+    label: string;
+    value: string;
+    href: string;
+  }> = [];
+
+  const email = normalizeText(project.contactEmail);
+  const whatsapp = normalizeText(project.contactWhatsApp);
+  const instagram = normalizeText(project.contactInstagram);
+  const facebook = normalizeText(project.contactFacebook);
+
+  const emailHref = universalEmailHref(email);
+  const whatsappHref = universalWhatsAppHref(whatsapp);
+  const instagramHref = universalInstagramHref(instagram);
+  const facebookHref = universalFacebookHref(facebook);
+
+  if (whatsapp && whatsappHref) {
+    items.push({
+      label: "WhatsApp",
+      value: whatsapp,
+      href: whatsappHref,
+    });
+  }
+
+  if (email && emailHref) {
+    items.push({
+      label: "E-mail",
+      value: email,
+      href: emailHref,
+    });
+  }
+
+  if (instagram && instagramHref) {
+    items.push({
+      label: "Instagram",
+      value: instagram,
+      href: instagramHref,
+    });
+  }
+
+  if (facebook && facebookHref) {
+    items.push({
+      label: "Facebook",
+      value: facebook,
+      href: facebookHref,
+    });
+  }
+
+  return items;
+}
 function universalSectionLabel(
   kind: UniversalSectionKind,
 ): string {
@@ -511,6 +675,87 @@ function renderUniversalGenericSection(
   `;
 }
 
+function renderUniversalContactSection(
+  project: SiteProject,
+  section: UniversalRenderableSection,
+  occurrence: number,
+  legacyFeatureIndex: number,
+): string {
+  const items = universalContactItems(project);
+
+  if (items.length === 0) {
+    return "";
+  }
+
+  const semanticId = universalSectionId(
+    section,
+    occurrence,
+  );
+
+  const legacyId =
+    legacyFeatureIndex > 0
+      ? `feature-${legacyFeatureIndex}`
+      : semanticId;
+
+  const links = items
+    .map(
+      (item) => `
+        <a
+          class="pn-universal-contact-item"
+          href="${escapeUniversalHtml(item.href)}"
+          target="${
+            item.href.startsWith("http")
+              ? "_blank"
+              : "_self"
+          }"
+          rel="${
+            item.href.startsWith("http")
+              ? "noopener noreferrer"
+              : ""
+          }"
+        >
+          <span class="pn-universal-contact-label">
+            ${escapeUniversalHtml(item.label)}
+          </span>
+          <strong>
+            ${escapeUniversalHtml(item.value)}
+          </strong>
+        </a>
+      `,
+    )
+    .join("");
+
+  return `
+    <section
+      id="${legacyId}"
+      class="pn-universal-section pn-universal-contact"
+      data-pn-section="true"
+      data-pn-section-kind="contact"
+      data-pn-semantic-id="${escapeUniversalHtml(semanticId)}"
+      data-pn-source="#${legacyId}"
+    >
+      <div class="pn-universal-shell">
+        <div class="pn-universal-section-copy">
+          <span class="pn-universal-kicker">Contato</span>
+          ${
+            section.title
+              ? `<h2>${escapeUniversalHtml(section.title)}</h2>`
+              : `<h2>Fale conosco</h2>`
+          }
+          ${
+            section.body
+              ? `<p>${escapeUniversalHtml(section.body)}</p>`
+              : ""
+          }
+        </div>
+
+        <div class="pn-universal-contact-grid">
+          ${links}
+        </div>
+      </div>
+    </section>
+  `;
+}
 function renderUniversalFinalCta(
   project: SiteProject,
   model: UniversalRenderModel,
@@ -568,6 +813,12 @@ function renderUniversalSemanticSections(
 
   return model.sections
     .filter((section) => section.kind !== "hero")
+    .filter(
+      (section) =>
+        section.kind === "final-cta" ||
+        section.title.length > 0 ||
+        section.body.length > 0,
+    )
     .map((section) => {
       const occurrence =
         (occurrences.get(section.kind) ?? 0) + 1;
@@ -582,6 +833,15 @@ function renderUniversalSemanticSections(
        * selector architecture.
        */
       legacyFeatureIndex += 1;
+
+      if (section.kind === "contact") {
+        return renderUniversalContactSection(
+          project,
+          section,
+          occurrence,
+          legacyFeatureIndex,
+        );
+      }
 
       if (section.kind === "final-cta") {
         return renderUniversalFinalCta(
@@ -601,7 +861,6 @@ function renderUniversalSemanticSections(
     })
     .join("");
 }
-
 function universalRendererStyles(
   strategy: UniversalSiteStrategy,
 ): string {
@@ -876,6 +1135,39 @@ function universalRendererStyles(
       border-radius:12px;
     }
 
+    .pn-universal-contact-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+      margin-top:28px;
+    }
+
+    .pn-universal-contact-item{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      padding:18px;
+      border:1px solid var(--pn-border);
+      border-radius:14px;
+      background:#fff;
+      color:inherit;
+      text-decoration:none;
+      overflow-wrap:anywhere;
+    }
+
+    .pn-universal-contact-label{
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--pn-muted);
+    }
+
+    @media (max-width:720px){
+      .pn-universal-contact-grid{
+        grid-template-columns:1fr;
+      }
+    }
     .pn-universal-final-cta{
       background:#111827 !important;
       color:#fff;
