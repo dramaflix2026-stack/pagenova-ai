@@ -8,6 +8,7 @@ import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
+import { applyElementChanges } from "@/lib/site-builder-element-revision";
 
 type Phase = "idle" | "generating" | "ready" | "error";
 
@@ -411,14 +412,44 @@ async function revise(event: FormEvent<HTMLFormElement>) {
       const institutionalRevisionRequested =
         revisionPlan.institutionalChanges.length > 0;
 
-      const nextLiveEdits = headerRevisionRequested
-        ? {
-            ...project.liveEdits,
-            [activePage]: (project.liveEdits?.[activePage] || []).filter(
+      const currentActivePageLiveEdits =
+        project.liveEdits?.[activePage] || [];
+
+      const headerProtectedLiveEdits =
+        headerRevisionRequested
+          ? currentActivePageLiveEdits.filter(
               (edit) => !edit.headerLayout
-            ),
-          }
-        : project.liveEdits;
+            )
+          : currentActivePageLiveEdits;
+
+      const elementRevision = applyElementChanges(
+        headerProtectedLiveEdits,
+        revisionPlan.elementChanges,
+      );
+
+      const elementRevisionRequested =
+        revisionPlan.elementChanges.length > 0;
+
+      const activePageLiveEdits =
+        elementRevisionRequested
+          ? elementRevision.edits
+          : headerProtectedLiveEdits;
+
+      const nextLiveEdits =
+        headerRevisionRequested || elementRevisionRequested
+          ? {
+              ...project.liveEdits,
+              [activePage]: activePageLiveEdits,
+            }
+          : project.liveEdits;
+
+      console.info("[Builder] Revision plan element application", {
+        requested: revisionPlan.elementChanges.length,
+        applied: elementRevision.applied,
+        ignored: elementRevision.ignored,
+        unsupported: elementRevision.unsupported,
+        elementAuthority: "revision-plan",
+      });
 
       const updated = {
         ...project,

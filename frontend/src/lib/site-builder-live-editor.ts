@@ -14,6 +14,9 @@ export type LiveEdit = {
   kind?: "text" | "card" | "divider" | "section";
   ghostId?: string;
   headerLayout?: "left" | "center" | "right";
+  textAlign?: "left" | "center" | "right";
+  fontWeight?: number;
+  cardStyle?: "flat" | "bordered" | "elevated";
 };
 
 export type LiveEditorState = {

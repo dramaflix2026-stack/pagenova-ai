@@ -218,6 +218,23 @@
     if (edit.font) el.style.setProperty("font-family", edit.font, "important");
     if (edit.size) el.style.setProperty("font-size", edit.size + "px", "important");
     if (edit.color) el.style.setProperty("color", edit.color, "important");
+    if (edit.textAlign) el.style.setProperty("text-align", edit.textAlign, "important");
+    if (edit.fontWeight) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
+
+    if (edit.cardStyle === "flat") {
+      el.style.setProperty("box-shadow", "none", "important");
+      el.style.setProperty("border", "0", "important");
+    }
+
+    if (edit.cardStyle === "bordered") {
+      el.style.setProperty("box-shadow", "none", "important");
+      el.style.setProperty("border", "1px solid rgba(20,20,20,.16)", "important");
+    }
+
+    if (edit.cardStyle === "elevated") {
+      el.style.setProperty("border", "1px solid rgba(20,20,20,.08)", "important");
+      el.style.setProperty("box-shadow", "0 18px 44px rgba(20,30,24,.14)", "important");
+    }
 
     if (edit.movable) {
       el.style.setProperty("position", "absolute", "important");
