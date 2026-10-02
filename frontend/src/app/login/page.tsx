@@ -42,7 +42,6 @@ function LoginForm() {
         : "/app";
 
     router.replace(destination);
-    router.refresh();
   }
 
   return (

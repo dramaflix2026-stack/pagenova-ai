@@ -8,6 +8,7 @@ const plans = [
     cycle: "/ mês",
     equivalent: "R$147 por mês",
     saving: "Flexibilidade para começar",
+    checkoutUrl: "https://pay.kiwify.com.br/a13pNpS",
     featured: false,
   },
   {
@@ -16,6 +17,7 @@ const plans = [
     cycle: "/ 3 meses",
     equivalent: "Equivale a R$132,33 por mês",
     saving: "Economize R$44 por ciclo",
+    checkoutUrl: "https://pay.kiwify.com.br/SQ1dOyd",
     featured: false,
   },
   {
@@ -24,6 +26,7 @@ const plans = [
     cycle: "/ 6 meses",
     equivalent: "Equivale a R$124,50 por mês",
     saving: "Economize R$135 por ciclo",
+    checkoutUrl: "https://pay.kiwify.com.br/cgZcPet",
     featured: true,
   },
   {
@@ -32,6 +35,7 @@ const plans = [
     cycle: "/ 12 meses",
     equivalent: "Equivale a R$108,08 por mês",
     saving: "Economize R$467 por ciclo",
+    checkoutUrl: "https://pay.kiwify.com.br/oS6Bmzg",
     featured: false,
   },
 ] as const;
@@ -55,7 +59,42 @@ const questions = [
   {
     question: "Como funcionam os planos?",
     answer:
-      "O plano mensal custa R$147 por mês. Os planos trimestral, semestral e anual são cobrados pelo respectivo período e têm menor custo mensal equivalente. Os links de contratação serão disponibilizados quando os checkouts estiverem prontos.",
+      "O plano mensal custa R$147 por mês. Os planos trimestral, semestral e anual são cobrados pelo respectivo período e têm menor custo mensal equivalente. Escolha o período desejado e siga para o checkout seguro.",
+  },
+  {
+    question: "Preciso instalar algum programa para usar a PageNova?",
+    answer:
+      "Não. A PageNova funciona pelo navegador, então você pode acessar a plataforma online sem instalar um programa no computador.",
+  },
+  {
+    question: "Consigo editar uma página depois de criá-la?",
+    answer:
+      "Sim. Os projetos criados na plataforma podem ser abertos novamente para continuar os ajustes disponíveis no editor.",
+  },
+  {
+    question: "Posso continuar meus projetos depois?",
+    answer:
+      "Sim. A área Minhas páginas permite retornar aos projetos salvos. Recursos que atualmente armazenam dados no navegador, como CRM e agenda, devem ser acessados no mesmo navegador e dispositivo para manter esses dados disponíveis.",
+  },
+  {
+    question: "A PageNova serve apenas para landing pages?",
+    answer:
+      "Não. A plataforma reúne ferramentas para criação de páginas e sites, além de recursos de organização comercial como CRM e agenda.",
+  },
+  {
+    question: "Como escolho entre os planos mensal, trimestral, semestral e anual?",
+    answer:
+      "Os planos dão opções de período diferentes. Você pode comparar o valor total e o custo mensal equivalente exibidos na seção de planos e escolher o período mais adequado para você.",
+  },
+  {
+    question: "O pagamento é feito dentro da PageNova?",
+    answer:
+      "Ao escolher um plano, você é direcionado ao checkout seguro da Kiwify correspondente ao período selecionado.",
+  },
+  {
+    question: "Já tenho cadastro. Como acesso minha conta?",
+    answer:
+      "Use o botão Entrar no topo da página e informe os dados da sua conta para acessar a plataforma.",
   },
 ];
 
@@ -171,12 +210,22 @@ export default function Home() {
             <a href="#planos" className="hover:text-white">Planos</a>
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="hidden text-sm text-white/65 hover:text-white sm:block">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Link
+              href="/login"
+              prefetch
+              className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/[.05] hover:text-white sm:border-0 sm:px-1 sm:text-sm"
+            >
               Entrar
             </Link>
-            <a href="#planos" className="rounded-lg bg-[#36d9a1] px-4 py-2.5 text-xs font-bold text-[#062018] transition hover:bg-[#7debc0] sm:text-sm">
-              Conhecer planos <span aria-hidden="true">↗</span>
+            <a
+              href="#planos"
+              className="rounded-lg bg-[#36d9a1] px-3 py-2 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] sm:px-4 sm:py-2.5 sm:text-sm"
+            >
+              <span className="sm:hidden">Planos</span>
+              <span className="hidden sm:inline">
+                Conhecer planos <span aria-hidden="true">↗</span>
+              </span>
             </a>
           </div>
         </div>
@@ -355,14 +404,23 @@ export default function Home() {
                 </div>
                 <p className="mt-2 text-xs text-white/55">{plan.equivalent}</p>
                 <p className="mt-5 text-xs font-semibold text-[#79e4b6]">{plan.saving}</p>
-                <span className="mt-5 block rounded-lg border border-white/15 px-3 py-2.5 text-center text-xs font-semibold text-white/55">
-                  Checkout em preparação
-                </span>
+                <a
+                  href={plan.checkoutUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`mt-5 block rounded-lg px-3 py-2.5 text-center text-xs font-bold transition ${
+                    plan.featured
+                      ? "bg-[#50dca9] text-[#062018] hover:bg-[#79e4b6]"
+                      : "border border-white/15 bg-white/[.04] text-white hover:border-[#50dca9]/50 hover:bg-[#50dca9]/10"
+                  }`}
+                >
+                  Escolher {plan.name} <span aria-hidden="true">↗</span>
+                </a>
               </article>
             ))}
           </div>
           <p className="mt-6 text-xs leading-6 text-white/40">
-            Os links de contratação serão adicionados após a criação dos quatro checkouts.
+            Selecione o período desejado para continuar no checkout seguro da Kiwify.
           </p>
         </div>
       </section>
@@ -393,17 +451,125 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-white/10 bg-[#07110e]">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-10 md:px-8">
-          <Brand />
-          <div className="flex flex-wrap gap-5 text-xs text-white/45">
-            <a href="#plataforma" className="hover:text-white">Plataforma</a>
-            <a href="#planos" className="hover:text-white">Planos</a>
-            <Link href="/login" className="hover:text-white">Entrar</Link>
-          </div>
-          <p className="text-xs text-white/35">© 2026 PageNova AI.</p>
+      <footer className="border-t border-white/10 bg-[#0b1511] text-white">
+  <div className="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
+    <div className="grid gap-10 border-b border-white/10 pb-10 md:grid-cols-2 lg:grid-cols-[1.25fr_.8fr_1fr]">
+      <div>
+        <Brand />
+
+        <p className="mt-5 max-w-sm text-sm leading-6 text-white/50">
+          Crie páginas, organize seus projetos e concentre sua operação digital em um único espaço.
+        </p>
+
+        <div className="mt-6 flex flex-wrap gap-2" aria-label="Canais PageNova">
+          {[
+            ["WhatsApp", "WA"],
+            ["Instagram", "IG"],
+            ["Facebook", "FB"],
+            ["E-mail", "@"],
+          ].map(([label, icon]) => (
+            <span
+              key={label}
+              title={`${label} — canal em configuração`}
+              className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[.03] px-3 text-xs font-semibold text-white/45"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#50dca9]/10 text-[10px] font-black text-[#50dca9]">
+                {icon}
+              </span>
+              {label}
+            </span>
+          ))}
         </div>
-      </footer>
+
+        <p className="mt-3 text-[11px] leading-5 text-white/30">
+          Os links oficiais dos canais serão ativados após o cadastro das informações comerciais.
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
+          Navegação
+        </p>
+
+        <nav className="mt-5 grid gap-3 text-sm text-white/60" aria-label="Rodapé">
+          <a href="#plataforma" className="w-fit transition hover:text-white">
+            Plataforma
+          </a>
+          <a href="#planos" className="w-fit transition hover:text-white">
+            Planos
+          </a>
+          <a href="#faq" className="w-fit transition hover:text-white">
+            Dúvidas frequentes
+          </a>
+          <Link href="/login" className="w-fit transition hover:text-white">
+            Entrar
+          </Link>
+        </nav>
+      </div>
+
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
+          Atendimento
+        </p>
+
+        <div className="mt-5 grid gap-4 text-sm">
+          <div className="flex gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
+            >
+              ◷
+            </span>
+            <div>
+              <p className="font-semibold text-white/80">Horário de atendimento</p>
+              <p className="mt-1 text-xs leading-5 text-white/40">
+                Informação comercial em atualização
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
+            >
+              ◉
+            </span>
+            <div>
+              <p className="font-semibold text-white/80">Localização</p>
+              <p className="mt-1 text-xs leading-5 text-white/40">
+                Informação comercial em atualização
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <span
+              aria-hidden="true"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.03] text-[#50dca9]"
+            >
+              #
+            </span>
+            <div>
+              <p className="font-semibold text-white/80">CNPJ</p>
+              <p className="mt-1 text-xs leading-5 text-white/40">
+                Informação comercial em atualização
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-3 pt-7 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
+      <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
+
+      <p className="text-white/25">
+        Landing Page Studio
+      </p>
+    </div>
+  </div>
+</footer>
     </main>
   );
 }
