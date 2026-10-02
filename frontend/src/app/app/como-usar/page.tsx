@@ -103,7 +103,7 @@ function Cursor({
       className={`pointer-events-none absolute z-30 transition-all duration-700 ${className}`}
     >
       {click ? (
-        <span className="absolute -left-3 -top-3 h-8 w-8 animate-ping rounded-full border border-violet-400/60" />
+        <span className="absolute -left-3 -top-3 h-8 w-8 animate-ping rounded-full border border-emerald-400/60" />
       ) : null}
       <svg
         width="24"
@@ -126,13 +126,13 @@ function Cursor({
 
 function BrowserShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#07070a] shadow-2xl shadow-black/40">
-      <div className="flex h-10 items-center gap-2 border-b border-white/10 bg-[#0d0c12] px-4">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#07100d] shadow-2xl shadow-black/40">
+      <div className="flex h-10 items-center gap-2 border-b border-white/10 bg-[#0b1210] px-4">
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
         <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
         <div className="ml-3 flex h-6 flex-1 items-center rounded-md border border-white/[0.06] bg-black/30 px-3 text-[9px] text-white/30">
-          pagenova-ai.vercel.app
+          www.pagenovaai.com.br
         </div>
       </div>
       {children}
@@ -149,9 +149,9 @@ function MiniSidebar({ active }: { active: "cloner" | "generator" | "pages" }) {
   ];
 
   return (
-    <div className="hidden w-[105px] shrink-0 border-r border-white/[0.07] bg-[#090713] p-3 sm:block">
+    <div className="hidden w-[105px] shrink-0 border-r border-white/[0.07] bg-[#08110e] p-3 sm:block">
       <div className="mb-5 flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-600 text-[9px] font-black text-white">
+        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500 text-[9px] font-black text-white">
           N
         </div>
         <span className="text-[8px] font-bold text-white">PageNova</span>
@@ -163,7 +163,7 @@ function MiniSidebar({ active }: { active: "cloner" | "generator" | "pages" }) {
             key={id}
             className={`rounded-md px-2 py-2 text-[8px] ${
               active === id
-                ? "border border-violet-500/30 bg-violet-500/15 text-white"
+                ? "border border-emerald-500/30 bg-emerald-500/15 text-white"
                 : "text-white/30"
             }`}
           >
@@ -183,7 +183,7 @@ function ClonerDemo({ step }: { step: number }) {
           <MiniSidebar active="cloner" />
 
           <div className="relative flex-1 p-5 sm:p-7">
-            <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-violet-400">
+            <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-400">
               Clonador
             </div>
             <div className="mt-1 text-lg font-bold text-white">
@@ -201,7 +201,7 @@ function ClonerDemo({ step }: { step: number }) {
               <div
                 className={`relative flex h-11 items-center rounded-lg border px-3 text-[10px] transition ${
                   step === 0
-                    ? "border-violet-500 bg-violet-500/[0.06] shadow-[0_0_0_3px_rgba(139,92,246,.08)]"
+                    ? "border-emerald-500 bg-emerald-500/[0.06] shadow-[0_0_0_3px_rgba(80,220,169,.08)]"
                     : "border-white/10 bg-white/[0.03]"
                 }`}
               >
@@ -209,7 +209,7 @@ function ClonerDemo({ step }: { step: number }) {
                   https://allantorquato.com/
                 </span>
                 {step === 0 ? (
-                  <span className="ml-0.5 h-4 w-px animate-pulse bg-violet-400" />
+                  <span className="ml-0.5 h-4 w-px animate-pulse bg-emerald-400" />
                 ) : null}
               </div>
 
@@ -217,8 +217,8 @@ function ClonerDemo({ step }: { step: number }) {
                 type="button"
                 className={`mt-3 h-10 w-full rounded-lg text-[10px] font-bold text-white transition ${
                   step === 1
-                    ? "bg-violet-500 shadow-[0_0_25px_rgba(124,58,237,.35)]"
-                    : "bg-violet-600"
+                    ? "bg-emerald-500 shadow-[0_0_25px_rgba(80,220,169,.35)]"
+                    : "bg-emerald-500"
                 }`}
               >
                 {step === 1 ? "Clonando página..." : "Clonar página"}
@@ -228,7 +228,7 @@ function ClonerDemo({ step }: { step: number }) {
             {step === 0 ? (
               <>
                 <Cursor className="left-[43%] top-[155px] animate-[tutorialCursor_2.4s_ease-in-out_infinite]" />
-                <div className="absolute bottom-4 right-4 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1.5 text-[8px] font-semibold text-violet-200">
+                <div className="absolute bottom-4 right-4 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1.5 text-[8px] font-semibold text-emerald-200">
                   1. Cole aqui
                 </div>
               </>
@@ -238,7 +238,7 @@ function ClonerDemo({ step }: { step: number }) {
                   click
                   className="bottom-[63px] left-[58%] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
                 />
-                <div className="absolute bottom-4 right-4 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1.5 text-[8px] font-semibold text-violet-200">
+                <div className="absolute bottom-4 right-4 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1.5 text-[8px] font-semibold text-emerald-200">
                   2. Clique para clonar
                 </div>
               </>
@@ -252,13 +252,13 @@ function ClonerDemo({ step }: { step: number }) {
   if (step === 2 || step === 3) {
     return (
       <BrowserShell>
-        <div className="relative min-h-[310px] bg-[#0a090e]">
+        <div className="relative min-h-[310px] bg-[#09110e]">
           <div className="flex h-10 items-center justify-between border-b border-white/10 px-4">
             <div className="text-[9px] font-bold text-white">
               Editor PageNova
             </div>
             <div className="flex gap-1">
-              <span className="rounded-md bg-violet-600 px-2 py-1 text-[7px] font-bold text-white">
+              <span className="rounded-md bg-emerald-500 px-2 py-1 text-[7px] font-bold text-white">
                 Desktop
               </span>
               <span className="rounded-md bg-white/[0.04] px-2 py-1 text-[7px] text-white/35">
@@ -280,7 +280,7 @@ function ClonerDemo({ step }: { step: number }) {
                 <div
                   className={`relative mx-auto max-w-[260px] rounded px-2 py-1 text-[16px] font-black leading-tight text-white ${
                     step === 2
-                      ? "outline outline-2 outline-violet-500"
+                      ? "outline outline-2 outline-emerald-500"
                       : "outline outline-2 outline-emerald-400"
                   }`}
                 >
@@ -302,8 +302,8 @@ function ClonerDemo({ step }: { step: number }) {
               </div>
             </div>
 
-            <div className="hidden w-[130px] border-l border-white/10 bg-[#0d0c12] p-3 sm:block">
-              <div className="text-[7px] font-bold uppercase tracking-[0.16em] text-violet-400">
+            <div className="hidden w-[130px] border-l border-white/10 bg-[#0b1210] p-3 sm:block">
+              <div className="text-[7px] font-bold uppercase tracking-[0.16em] text-emerald-400">
                 Elemento
               </div>
               <div className="mt-3 rounded-md border border-white/10 bg-white/[0.03] p-2 text-[7px] text-white/50">
@@ -320,7 +320,7 @@ function ClonerDemo({ step }: { step: number }) {
                 click
                 className="left-[44%] top-[115px] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
               />
-              <div className="absolute bottom-3 left-3 rounded-full bg-violet-600 px-3 py-1.5 text-[8px] font-bold text-white">
+              <div className="absolute bottom-3 left-3 rounded-full bg-emerald-500 px-3 py-1.5 text-[8px] font-bold text-white">
                 Clique no elemento
               </div>
             </>
@@ -343,14 +343,14 @@ function ClonerDemo({ step }: { step: number }) {
   if (step === 4) {
     return (
       <BrowserShell>
-        <div className="relative min-h-[310px] bg-[#0a090e] p-4">
+        <div className="relative min-h-[310px] bg-[#09110e] p-4">
           <div className="flex items-center justify-center gap-1.5">
             {["Desktop", "Tablet", "Mobile"].map((item, index) => (
               <div
                 key={item}
                 className={`rounded-md px-3 py-2 text-[8px] font-bold ${
                   index === 2
-                    ? "bg-violet-600 text-white"
+                    ? "bg-emerald-400 text-[#062018]"
                     : "border border-white/10 bg-white/[0.03] text-white/40"
                 }`}
               >
@@ -363,7 +363,7 @@ function ClonerDemo({ step }: { step: number }) {
             <div className="h-[205px] w-[145px] overflow-hidden rounded-xl border-4 border-white/10 bg-black shadow-2xl">
               <div className="h-4 border-b border-white/10 bg-[#111]" />
               <div className="p-3 text-center">
-                <div className="mx-auto mt-3 h-2 w-14 rounded bg-violet-500/60" />
+                <div className="mx-auto mt-3 h-2 w-14 rounded bg-emerald-500/60" />
                 <div className="mx-auto mt-3 text-[9px] font-black leading-tight text-white">
                   Transforme sua ideia em resultado
                 </div>
@@ -381,7 +381,7 @@ function ClonerDemo({ step }: { step: number }) {
             className="left-[64%] top-[52px] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
           />
 
-          <div className="absolute bottom-3 right-3 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-[8px] font-bold text-violet-200">
+          <div className="absolute bottom-3 right-3 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[8px] font-bold text-emerald-200">
             Mobile selecionado
           </div>
         </div>
@@ -404,7 +404,7 @@ function ClonerDemo({ step }: { step: number }) {
             </div>
             <button
               type="button"
-              className="rounded-lg bg-violet-600 px-4 py-2 text-[9px] font-bold text-white shadow-[0_0_22px_rgba(124,58,237,.35)]"
+              className="rounded-lg bg-emerald-500 px-4 py-2 text-[9px] font-bold text-white shadow-[0_0_22px_rgba(80,220,169,.35)]"
             >
               Salvar
             </button>
@@ -427,7 +427,7 @@ function ClonerDemo({ step }: { step: number }) {
             className="right-[54px] top-[60px] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
           />
 
-          <div className="absolute bottom-4 right-4 rounded-full bg-violet-600 px-3 py-1.5 text-[8px] font-bold text-white">
+          <div className="absolute bottom-4 right-4 rounded-full bg-emerald-500 px-3 py-1.5 text-[8px] font-bold text-white">
             Clique em Salvar
           </div>
         </div>
@@ -443,14 +443,14 @@ function GeneratorDemo({ step }: { step: number }) {
         <div className="relative flex min-h-[310px]">
           <MiniSidebar active="generator" />
           <div className="relative flex-1 p-5 sm:p-7">
-            <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-violet-400">
+            <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-emerald-400">
               Gerador IA
             </div>
             <div className="mt-1 text-lg font-bold text-white">
               Crie sua Landing Page
             </div>
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-violet-500/40 bg-violet-500/10 p-4">
+              <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4">
                 <div className="text-[10px] font-bold text-white">
                   Produto físico
                 </div>
@@ -471,7 +471,7 @@ function GeneratorDemo({ step }: { step: number }) {
               click
               className="left-[42%] top-[145px] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
             />
-            <div className="absolute bottom-4 right-4 rounded-full bg-violet-600 px-3 py-1.5 text-[8px] font-bold text-white">
+            <div className="absolute bottom-4 right-4 rounded-full bg-emerald-500 px-3 py-1.5 text-[8px] font-bold text-white">
               Escolha o tipo de oferta
             </div>
           </div>
@@ -501,13 +501,13 @@ function GeneratorDemo({ step }: { step: number }) {
                   <div
                     className={`flex h-8 items-center rounded-md border px-2 text-[8px] ${
                       index === 0
-                        ? "border-violet-500 bg-violet-500/[0.05] text-white/80"
+                        ? "border-emerald-500 bg-emerald-500/[0.05] text-white/80"
                         : "border-white/10 bg-white/[0.02] text-white/45"
                     }`}
                   >
                     {value}
                     {index === 0 ? (
-                      <span className="ml-0.5 h-3 w-px animate-pulse bg-violet-400" />
+                      <span className="ml-0.5 h-3 w-px animate-pulse bg-emerald-400" />
                     ) : null}
                   </div>
                 </div>
@@ -537,8 +537,8 @@ function GeneratorDemo({ step }: { step: number }) {
         <div className="relative flex min-h-[310px]">
           <MiniSidebar active="generator" />
           <div className="relative flex flex-1 items-center justify-center p-6">
-            <div className="w-full max-w-sm rounded-xl border border-violet-500/25 bg-violet-500/[0.05] p-5 text-center">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 text-lg">
+            <div className="w-full max-w-sm rounded-xl border border-emerald-500/25 bg-emerald-500/[0.05] p-5 text-center">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-lg">
                 ✦
               </div>
               <div className="mt-3 text-[12px] font-bold text-white">
@@ -549,7 +549,7 @@ function GeneratorDemo({ step }: { step: number }) {
               </div>
               <button
                 type="button"
-                className="mt-5 w-full rounded-lg bg-violet-600 py-3 text-[9px] font-bold text-white shadow-[0_0_28px_rgba(124,58,237,.3)]"
+                className="mt-5 w-full rounded-lg bg-emerald-500 py-3 text-[9px] font-bold text-white shadow-[0_0_28px_rgba(80,220,169,.3)]"
               >
                 Gerar Landing Page
               </button>
@@ -560,7 +560,7 @@ function GeneratorDemo({ step }: { step: number }) {
               className="bottom-[67px] left-[57%] animate-[tutorialClick_1.8s_ease-in-out_infinite]"
             />
 
-            <div className="absolute bottom-3 right-3 rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1.5 text-[8px] font-bold text-violet-200">
+            <div className="absolute bottom-3 right-3 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[8px] font-bold text-emerald-200">
               IA começa a construir
             </div>
           </div>
@@ -572,7 +572,7 @@ function GeneratorDemo({ step }: { step: number }) {
   if (step === 3) {
     return (
       <BrowserShell>
-        <div className="relative min-h-[310px] bg-[#08080a] p-4">
+        <div className="relative min-h-[310px] bg-[#08100d] p-4">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-[9px] font-bold text-white">
               Preview gerado
@@ -583,8 +583,8 @@ function GeneratorDemo({ step }: { step: number }) {
           </div>
 
           <div className="mx-auto max-w-md overflow-hidden rounded-lg border border-white/10 bg-black">
-            <div className="bg-gradient-to-br from-violet-950/70 to-black px-6 py-7 text-center">
-              <div className="text-[7px] font-bold uppercase tracking-[0.2em] text-violet-300">
+            <div className="bg-gradient-to-br from-emerald-950/70 to-black px-6 py-7 text-center">
+              <div className="text-[7px] font-bold uppercase tracking-[0.2em] text-emerald-300">
                 Tecnologia para sua rotina
               </div>
               <div className="mx-auto mt-2 max-w-xs text-[16px] font-black leading-tight text-white">
@@ -592,7 +592,7 @@ function GeneratorDemo({ step }: { step: number }) {
               </div>
               <div className="mx-auto mt-3 h-1.5 w-4/5 rounded-full bg-white/10" />
               <div className="mx-auto mt-1.5 h-1.5 w-3/5 rounded-full bg-white/[0.06]" />
-              <div className="mx-auto mt-4 w-32 rounded-md bg-violet-600 py-2 text-[7px] font-bold text-white">
+              <div className="mx-auto mt-4 w-32 rounded-md bg-emerald-500 py-2 text-[7px] font-bold text-white">
                 CONHECER AGORA
               </div>
             </div>
@@ -616,12 +616,12 @@ function GeneratorDemo({ step }: { step: number }) {
   if (step === 4) {
     return (
       <BrowserShell>
-        <div className="relative min-h-[310px] bg-[#0a090e]">
+        <div className="relative min-h-[310px] bg-[#09110e]">
           <div className="flex h-10 items-center justify-between border-b border-white/10 px-4">
             <div className="text-[9px] font-bold text-white">
               Personalizar página
             </div>
-            <div className="rounded-md bg-violet-600 px-3 py-1.5 text-[7px] font-bold text-white">
+            <div className="rounded-md bg-emerald-500 px-3 py-1.5 text-[7px] font-bold text-white">
               Salvar
             </div>
           </div>
@@ -629,30 +629,30 @@ function GeneratorDemo({ step }: { step: number }) {
           <div className="flex min-h-[270px]">
             <div className="flex-1 bg-black p-5">
               <div className="mx-auto max-w-sm rounded-lg border border-white/10 bg-[#070707] px-5 py-8 text-center">
-                <div className="text-[7px] uppercase tracking-[0.18em] text-violet-300">
+                <div className="text-[7px] uppercase tracking-[0.18em] text-emerald-300">
                   SmartWatch Pro
                 </div>
-                <div className="relative mx-auto mt-2 max-w-[250px] rounded px-2 py-1 text-[15px] font-black text-white outline outline-2 outline-violet-500">
+                <div className="relative mx-auto mt-2 max-w-[250px] rounded px-2 py-1 text-[15px] font-black text-white outline outline-2 outline-emerald-500">
                   Mais controle no seu pulso
                 </div>
                 <div className="mx-auto mt-3 h-1.5 w-3/4 rounded bg-white/10" />
-                <div className="mx-auto mt-5 w-28 rounded bg-violet-600 py-2 text-[7px] font-bold text-white">
+                <div className="mx-auto mt-5 w-28 rounded bg-emerald-500 py-2 text-[7px] font-bold text-white">
                   COMPRAR AGORA
                 </div>
               </div>
             </div>
 
-            <div className="hidden w-[135px] border-l border-white/10 bg-[#0d0c12] p-3 sm:block">
-              <div className="text-[7px] font-bold text-violet-400">
+            <div className="hidden w-[135px] border-l border-white/10 bg-[#0b1210] p-3 sm:block">
+              <div className="text-[7px] font-bold text-emerald-400">
                 TEXTO
               </div>
-              <div className="mt-2 rounded border border-violet-500/30 bg-violet-500/[0.05] p-2 text-[7px] text-white/60">
+              <div className="mt-2 rounded border border-emerald-500/30 bg-emerald-500/[0.05] p-2 text-[7px] text-white/60">
                 Mais controle no seu pulso
               </div>
               <div className="mt-3 grid grid-cols-3 gap-1">
                 <div className="h-6 rounded bg-white/[0.05]" />
                 <div className="h-6 rounded bg-white/[0.05]" />
-                <div className="h-6 rounded bg-violet-500/30" />
+                <div className="h-6 rounded bg-emerald-500/30" />
               </div>
             </div>
           </div>
@@ -682,7 +682,7 @@ function GeneratorDemo({ step }: { step: number }) {
             </div>
             <button
               type="button"
-              className="rounded-lg bg-violet-600 px-4 py-2 text-[9px] font-bold text-white"
+              className="rounded-lg bg-emerald-500 px-4 py-2 text-[9px] font-bold text-white"
             >
               Salvar
             </button>
@@ -744,7 +744,7 @@ export default function ComoUsarPage() {
   }
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full bg-[#07110e]">
       <AppHeader
         title="Como usar"
         description="Veja na prática como usar cada ferramenta da PageNova."
@@ -798,9 +798,9 @@ export default function ComoUsarPage() {
       `}</style>
 
       <main className="mx-auto w-full max-w-7xl px-5 py-8 md:px-7 md:py-10">
-        <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#0c0b11]">
-          <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.22),transparent_38%)] px-7 py-8 md:px-10">
-            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-violet-400">
+        <section className="overflow-hidden rounded-[28px] border border-emerald-400/10 bg-[#0b1110] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
+          <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(80,220,169,0.22),transparent_38%)] px-7 py-8 md:px-10">
+            <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-400">
               Tutorial interativo
             </span>
 
@@ -819,7 +819,7 @@ export default function ComoUsarPage() {
                 onClick={() => changeMode("cloner")}
                 className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
                   mode === "cloner"
-                    ? "bg-violet-600 text-white shadow-lg shadow-violet-950/40"
+                    ? "bg-emerald-400 text-[#062018] shadow-lg shadow-emerald-950/40"
                     : "text-white/50 hover:text-white"
                 }`}
               >
@@ -831,7 +831,7 @@ export default function ComoUsarPage() {
                 onClick={() => changeMode("generator")}
                 className={`rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
                   mode === "generator"
-                    ? "bg-violet-600 text-white shadow-lg shadow-violet-950/40"
+                    ? "bg-emerald-400 text-[#062018] shadow-lg shadow-emerald-950/40"
                     : "text-white/50 hover:text-white"
                 }`}
               >
@@ -846,7 +846,7 @@ export default function ComoUsarPage() {
                 <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30">
                   Passo a passo
                 </span>
-                <span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[9px] font-bold text-violet-300">
+                <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[9px] font-bold text-emerald-300">
                   {activeStep + 1}/{steps.length}
                 </span>
               </div>
@@ -859,14 +859,14 @@ export default function ComoUsarPage() {
                     onClick={() => setActiveStep(index)}
                     className={`group flex w-full items-center gap-3 rounded-2xl border p-3.5 text-left transition ${
                       activeStep === index
-                        ? "border-violet-500/40 bg-violet-500/10"
+                        ? "border-emerald-500/40 bg-emerald-500/10"
                         : "border-transparent hover:border-white/10 hover:bg-white/[0.03]"
                     }`}
                   >
                     <div
                       className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold ${
                         activeStep === index
-                          ? "bg-violet-600 text-white"
+                          ? "bg-emerald-400 text-[#062018]"
                           : "bg-white/[0.05] text-white/35"
                       }`}
                     >
@@ -889,7 +889,7 @@ export default function ComoUsarPage() {
             <div className="flex min-h-[650px] flex-col p-6 md:p-8 lg:p-10">
               <div key={`${mode}-${activeStep}`}>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-violet-400/30 bg-violet-500/10 text-xs font-bold text-violet-300">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-xs font-bold text-emerald-300">
                     {steps[activeStep].number}
                   </span>
                   <span className="text-xs font-semibold uppercase tracking-[0.22em] text-white/30">
@@ -905,8 +905,8 @@ export default function ComoUsarPage() {
                   {steps[activeStep].text}
                 </p>
 
-                <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-violet-500/20 bg-violet-500/[0.06] px-3 py-2 text-[11px] font-semibold text-violet-200">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet-500/20 text-[9px]">
+                <div className="mt-4 inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/[0.06] px-3 py-2 text-[11px] font-semibold text-emerald-200">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/20 text-[9px]">
                     →
                   </span>
                   {steps[activeStep].action}
@@ -937,14 +937,14 @@ export default function ComoUsarPage() {
                         Math.min(steps.length - 1, value + 1),
                       )
                     }
-                    className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                    className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
                   >
                     Próximo passo →
                   </button>
                 ) : (
                   <Link
                     href={mode === "cloner" ? "/app/cloner" : "/app/gerador"}
-                    className="rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                    className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
                   >
                     {mode === "cloner"
                       ? "Abrir Clonador"
