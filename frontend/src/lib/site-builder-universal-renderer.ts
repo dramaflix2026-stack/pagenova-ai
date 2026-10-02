@@ -115,6 +115,9 @@ function normalizePageSections(
         .map((section) => ({
           title: normalizeText(section.title),
           body: normalizeText(section.body),
+          kind: isUniversalSectionKind(section.kind)
+            ? section.kind
+            : undefined,
         }))
         .filter(
           (section) =>
@@ -153,14 +156,44 @@ function renderContentModel(
   plan: UniversalSectionPlan,
   pageSections: SitePage["sections"],
   sourceIndex: number,
+  consumedIndexes: Set<number>,
 ): UniversalRenderableSection {
-  const source = pageSections[sourceIndex];
+  /*
+   * Prefer explicit semantic identity generated for new projects.
+   *
+   * Older persisted projects do not contain section.kind, therefore
+   * positional resolution remains available as a compatibility
+   * fallback during migration.
+   */
+  const semanticIndex = pageSections.findIndex(
+    (section, index) =>
+      !consumedIndexes.has(index) &&
+      section.kind === plan.kind,
+  );
+
+  let resolvedIndex =
+    semanticIndex >= 0
+      ? semanticIndex
+      : sourceIndex;
+
+  while (
+    resolvedIndex < pageSections.length &&
+    consumedIndexes.has(resolvedIndex)
+  ) {
+    resolvedIndex += 1;
+  }
+
+  const source = pageSections[resolvedIndex];
+
+  if (source) {
+    consumedIndexes.add(resolvedIndex);
+  }
 
   return {
     kind: plan.kind,
     priority: plan.priority,
     purpose: normalizeText(plan.purpose),
-    sourceIndex: source ? sourceIndex : null,
+    sourceIndex: source ? resolvedIndex : null,
     title: normalizeText(source?.title),
     body: normalizeText(source?.body),
   };
@@ -192,6 +225,7 @@ export function createUniversalRenderModel(
   const pageSections = normalizePageSections(page);
 
   let sourceIndex = 0;
+  const consumedIndexes = new Set<number>();
 
   const sections = plan.map(
     (section): UniversalRenderableSection => {
@@ -203,10 +237,16 @@ export function createUniversalRenderModel(
         section,
         pageSections,
         sourceIndex,
+        consumedIndexes,
       );
 
       if (rendered.sourceIndex !== null) {
-        sourceIndex += 1;
+        while (
+          sourceIndex < pageSections.length &&
+          consumedIndexes.has(sourceIndex)
+        ) {
+          sourceIndex += 1;
+        }
       }
 
       return rendered;

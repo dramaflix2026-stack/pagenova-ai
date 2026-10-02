@@ -994,10 +994,23 @@ console.info("[Builder] Semantic strategy", {
       heading: parsedPage.heading.slice(0, 180),
       introduction: parsedPage.introduction.slice(0, 300),
       cta: parsedPage.cta.slice(0, 80),
-      sections: parsedPage.sections.slice(0, 4).map((section) => ({
-        title: section.title.slice(0, 80),
-        body: section.body.slice(0, 280),
-      })),
+      sections: parsedPage.sections.slice(0, 4).map((section, index) => {
+        const semanticKind =
+          universalStrategy.sections
+            .filter((plannedSection) => plannedSection.kind !== "hero")
+            [index]?.kind;
+
+        return {
+          title: section.title.slice(0, 80),
+          body: section.body.slice(0, 280),
+          ...(typeof semanticKind === "string"
+            ? {
+                kind:
+                  semanticKind as SitePage["sections"][number]["kind"],
+              }
+            : {}),
+        };
+      }),
     };
 
     return NextResponse.json({

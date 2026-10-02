@@ -20,7 +20,11 @@ export type SitePage = {
   eyebrow: string;
   heading: string;
   introduction: string;
-  sections: { title: string; body: string }[];
+  sections: {
+    title: string;
+    body: string;
+    kind?: import("@/lib/site-builder-universal").UniversalSectionKind;
+  }[];
   cta: string;
 };
 
