@@ -2850,4 +2850,339 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       font-size: 15px !important;
     }
   }
+
+  /* PAGENOVA_HEADER_HARD_FIX_BEGIN */
+
+  /*
+   * GLOBAL HEADER CONTRACT
+   *
+   * Estrutura:
+   *
+   * [ WHITE FULL-WIDTH HEADER ]
+   *       brand        CTA menu
+   *
+   * O header interno NUNCA pode virar card.
+   */
+
+  html body .pn001-site > header.pn001-header {
+    position: relative !important;
+    z-index: 999 !important;
+
+    display: block !important;
+    box-sizing: border-box !important;
+
+    width: 100% !important;
+    max-width: none !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    outline: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    overflow: visible !important;
+  }
+
+  html body .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner {
+    position: relative !important;
+
+    display: flex !important;
+    box-sizing: border-box !important;
+
+    width: min(calc(100% - 48px), 1180px) !important;
+    max-width: 1180px !important;
+
+    min-height: 76px !important;
+
+    margin: 0 auto !important;
+    padding: 10px 0 !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px !important;
+
+    /*
+     * CRITICO:
+     * elimina o card vinho.
+     */
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+
+    color: #111111 !important;
+
+    border: 0 !important;
+    border-width: 0 !important;
+    border-style: none !important;
+    border-color: transparent !important;
+
+    border-radius: 0 !important;
+
+    outline: 0 !important;
+
+    box-shadow: none !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    filter: none !important;
+
+    overflow: visible !important;
+  }
+
+  /*
+   * Mata pseudo-elementos que poderiam pintar
+   * o card internamente.
+   */
+  html body .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner::before,
+
+  html body .pn001-site
+  > header.pn001-header
+  > .pn001-header-inner::after {
+    content: none !important;
+    display: none !important;
+
+    background: transparent !important;
+    background-image: none !important;
+
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /*
+   * BRAND
+   */
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand-logo,
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand,
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand-name {
+    color: #111111 !important;
+  }
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand-logo,
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+
+    text-decoration: none !important;
+  }
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand-mark {
+    display: none !important;
+  }
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-brand-name {
+    font-size: clamp(17px, 1.6vw, 21px) !important;
+    font-weight: 850 !important;
+    letter-spacing: -0.035em !important;
+
+    white-space: nowrap !important;
+  }
+
+  /*
+   * ACTIONS
+   */
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-header-actions {
+    display: flex !important;
+
+    flex: 0 0 auto !important;
+
+    align-items: center !important;
+    justify-content: flex-end !important;
+
+    gap: 10px !important;
+
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /*
+   * CTA
+   */
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-header-cta {
+    display: inline-flex !important;
+
+    box-sizing: border-box !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    flex: 0 0 auto !important;
+
+    width: auto !important;
+    min-width: 118px !important;
+
+    height: 44px !important;
+    min-height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 20px !important;
+
+    background: var(--pn001-accent) !important;
+    background-color: var(--pn001-accent) !important;
+    background-image: none !important;
+
+    color: var(--pn001-accent-contrast) !important;
+
+    border:
+      1px solid
+      var(--pn001-accent) !important;
+
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+
+    font-weight: 800 !important;
+    text-decoration: none !important;
+
+    white-space: nowrap !important;
+  }
+
+  /*
+   * HAMBURGER
+   */
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-menu-button {
+    display: inline-flex !important;
+
+    box-sizing: border-box !important;
+
+    flex: 0 0 44px !important;
+
+    width: 44px !important;
+    height: 44px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+    flex-direction: column !important;
+
+    gap: 5px !important;
+
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+
+    border:
+      1px solid
+      rgba(17,17,17,.18) !important;
+
+    border-radius: 999px !important;
+
+    box-shadow: none !important;
+  }
+
+  html body .pn001-site
+  > header.pn001-header
+  .pn001-menu-button span {
+    display: block !important;
+
+    width: 18px !important;
+    height: 2px !important;
+
+    margin: 0 !important;
+
+    background: #111111 !important;
+
+    border: 0 !important;
+    border-radius: 999px !important;
+  }
+
+  /*
+   * HERO COMECA LOGO ABAIXO DO HEADER.
+   */
+
+  html body .pn001-site
+  > header.pn001-header
+  + .pn001-hero,
+
+  html body .pn001-site
+  > .pn001-hero {
+    margin-top: 0 !important;
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 760px) {
+
+    html body .pn001-site
+    > header.pn001-header
+    > .pn001-header-inner {
+      width: calc(100% - 28px) !important;
+
+      min-height: 66px !important;
+
+      padding: 8px 0 !important;
+
+      background: transparent !important;
+
+      border: 0 !important;
+      border-radius: 0 !important;
+
+      box-shadow: none !important;
+    }
+
+    html body .pn001-site
+    > header.pn001-header
+    .pn001-header-cta {
+      display: none !important;
+    }
+
+    html body .pn001-site
+    > header.pn001-header
+    .pn001-brand-name {
+      font-size: 15px !important;
+    }
+  }
+
+  /* PAGENOVA_HEADER_HARD_FIX_END */
 `;
