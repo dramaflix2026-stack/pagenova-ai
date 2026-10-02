@@ -837,13 +837,512 @@ export const PAGENOVA_DESIGN_CORE_V6_STYLES = `
       transition: none !important;
     }
   }
+
+
+  /* ========================================================
+     PAGENOVA V6.3 - VISUAL IDENTITY MANAGER
+
+     UNIVERSAL PRODUCT CONTRACT
+
+     The generated project keeps its own accent identity.
+
+     Structural visual language:
+     - white
+     - neutral white
+     - project dark
+     - project accent
+
+     No niche mapping.
+     No fixed PageNova green.
+     No beige / ivory / linen structural surfaces.
+     Header remains controlled by V6.2.1.
+     ======================================================== */
+
+  .pn001-site {
+    --pn-v63-white: #ffffff;
+    --pn-v63-neutral: #f7f8fa;
+    --pn-v63-neutral-2: #f1f3f5;
+
+    --pn-v63-text: #15171a;
+    --pn-v63-muted: #687078;
+
+    --pn-v63-line:
+      rgba(15, 23, 42, .11);
+
+    --pn-v63-line-strong:
+      rgba(15, 23, 42, .16);
+
+    --pn-v63-accent-soft:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 7%,
+        #ffffff
+      );
+
+    --pn-v63-accent-soft-2:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 4%,
+        #ffffff
+      );
+
+    --pn-v63-dark-accent:
+      color-mix(
+        in srgb,
+        var(--pn001-dark) 88%,
+        var(--pn001-accent) 12%
+      );
+
+    --pn-v63-dark-accent-strong:
+      color-mix(
+        in srgb,
+        var(--pn001-dark) 80%,
+        var(--pn001-accent) 20%
+      );
+
+    --pn-v63-shadow:
+      0 16px 44px rgba(15, 23, 42, .07);
+
+    --pn-v63-shadow-hover:
+      0 20px 54px rgba(15, 23, 42, .10);
+
+    background:
+      var(--pn-v63-white) !important;
+
+    color:
+      var(--pn-v63-text) !important;
+  }
+
+  /*
+   * GLOBAL LIGHT SURFACES
+   *
+   * Old palette background/surfaceSoft may still exist as variables
+   * for compatibility, but they no longer define the page canvas.
+   */
+
+  .pn001-site main {
+    background:
+      var(--pn-v63-white) !important;
+  }
+
+  .pn001-site .pn001-section:not(.pn001-about):not(.pn001-final-cta),
+  .pn001-site section:not(.pn001-hero):not(.pn001-about):not(.pn001-final-cta) {
+    color:
+      var(--pn-v63-text);
+  }
+
+  /*
+   * HERO
+   *
+   * Dark expression of the generated identity.
+   */
+
+  .pn001-site > .pn001-hero,
+  .pn001-site .pn001-hero {
+    background:
+      radial-gradient(
+        circle at 84% 14%,
+        color-mix(
+          in srgb,
+          var(--pn001-accent) 17%,
+          transparent
+        ),
+        transparent 35%
+      ),
+      linear-gradient(
+        135deg,
+        var(--pn001-dark) 0%,
+        var(--pn-v63-dark-accent) 100%
+      ) !important;
+
+    color:
+      #ffffff !important;
+  }
+
+  .pn001-site .pn001-hero h1,
+  .pn001-site .pn001-hero h2 {
+    color:
+      #ffffff !important;
+  }
+
+  .pn001-site .pn001-hero p {
+    color:
+      rgba(255,255,255,.74) !important;
+  }
+
+  .pn001-site .pn001-hero .pn001-kicker,
+  .pn001-site .pn001-hero .pn001-pill {
+    color:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 78%,
+        #ffffff
+      ) !important;
+  }
+
+  /*
+   * SERVICES / FEATURES / BENEFITS
+   *
+   * White section.
+   * Accent appears in details, not as a tinted page background.
+   */
+
+  .pn001-site .pn001-services,
+  .pn001-site .pn001-features,
+  .pn001-site .pn001-benefits {
+    background:
+      var(--pn-v63-white) !important;
+  }
+
+  /*
+   * PROCESS
+   *
+   * Slight neutral separation, never beige.
+   */
+
+  .pn001-site .pn001-process {
+    background:
+      var(--pn-v63-neutral) !important;
+  }
+
+  /*
+   * CARDS
+   */
+
+  .pn001-site .pn001-card {
+    border:
+      1px solid
+      var(--pn-v63-line) !important;
+
+    background:
+      #ffffff !important;
+
+    color:
+      var(--pn-v63-text) !important;
+
+    box-shadow:
+      var(--pn-v63-shadow) !important;
+  }
+
+  .pn001-site .pn001-card::before {
+    background:
+      linear-gradient(
+        90deg,
+        var(--pn001-accent),
+        color-mix(
+          in srgb,
+          var(--pn001-accent) 20%,
+          transparent
+        )
+      ) !important;
+  }
+
+  .pn001-site .pn001-card:hover {
+    border-color:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 32%,
+        var(--pn-v63-line)
+      ) !important;
+
+    box-shadow:
+      var(--pn-v63-shadow-hover) !important;
+  }
+
+  .pn001-site .pn001-card h3,
+  .pn001-site .pn001-card h4 {
+    color:
+      var(--pn-v63-text) !important;
+  }
+
+  .pn001-site .pn001-card p {
+    color:
+      var(--pn-v63-muted) !important;
+  }
+
+  /*
+   * ABOUT
+   *
+   * Second major dark identity anchor.
+   */
+
+  .pn001-site .pn001-about {
+    background:
+      linear-gradient(
+        135deg,
+        var(--pn001-dark) 0%,
+        var(--pn-v63-dark-accent-strong) 100%
+      ) !important;
+
+    color:
+      #ffffff !important;
+  }
+
+  .pn001-site .pn001-about h2,
+  .pn001-site .pn001-about h3 {
+    color:
+      #ffffff !important;
+  }
+
+  .pn001-site .pn001-about p {
+    color:
+      rgba(255,255,255,.72) !important;
+  }
+
+  /*
+   * PORTFOLIO / GALLERY
+   */
+
+  .pn001-site .pn001-gallery,
+  .pn001-site .pn001-portfolio {
+    background:
+      #ffffff !important;
+  }
+
+  /*
+   * TESTIMONIALS
+   *
+   * Neutral-white stage.
+   * Accent remains in small identity details.
+   */
+
+  .pn001-site .pn001-testimonials,
+  .pn001-site .pn001-testimonials-v6 {
+    background:
+      var(--pn-v63-neutral) !important;
+  }
+
+  .pn001-site .pn001-testimonial-card,
+  .pn001-site .pn001-testimonial-card-v6 {
+    border-color:
+      var(--pn-v63-line) !important;
+
+    background:
+      #ffffff !important;
+
+    color:
+      var(--pn-v63-text) !important;
+
+    box-shadow:
+      var(--pn-v63-shadow) !important;
+  }
+
+  /*
+   * FAQ
+   *
+   * Always a clean closing light section.
+   */
+
+  .pn001-site .pn001-faq,
+  .pn001-site .pn001-faq-v6 {
+    background:
+      #ffffff !important;
+
+    color:
+      var(--pn-v63-text) !important;
+  }
+
+  .pn001-site .pn001-faq-item {
+    border:
+      1px solid
+      var(--pn-v63-line) !important;
+
+    background:
+      #ffffff !important;
+
+    box-shadow:
+      none !important;
+  }
+
+  .pn001-site .pn001-faq-item:hover {
+    border-color:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 34%,
+        var(--pn-v63-line)
+      ) !important;
+  }
+
+  .pn001-site .pn001-faq-item summary,
+  .pn001-site .pn001-faq-question,
+  .pn001-site .pn001-faq-trigger {
+    color:
+      var(--pn-v63-text) !important;
+  }
+
+  .pn001-site .pn001-faq-item p,
+  .pn001-site .pn001-faq-answer {
+    color:
+      var(--pn-v63-muted) !important;
+  }
+
+  /*
+   * CONTACT
+   *
+   * Neutral separation before final CTA.
+   */
+
+  .pn001-site .pn001-contact {
+    background:
+      var(--pn-v63-neutral) !important;
+  }
+
+  .pn001-site .pn001-contact-card,
+  .pn001-site .pn001-contact-panel,
+  .pn001-site .pn001-contact-form {
+    border-color:
+      var(--pn-v63-line) !important;
+
+    background:
+      #ffffff !important;
+
+    color:
+      var(--pn-v63-text) !important;
+
+    box-shadow:
+      var(--pn-v63-shadow) !important;
+  }
+
+  .pn001-site .pn001-contact input,
+  .pn001-site .pn001-contact textarea,
+  .pn001-site .pn001-contact select {
+    border-color:
+      var(--pn-v63-line) !important;
+
+    background:
+      #ffffff !important;
+
+    color:
+      var(--pn-v63-text) !important;
+  }
+
+  .pn001-site .pn001-contact input:focus,
+  .pn001-site .pn001-contact textarea:focus,
+  .pn001-site .pn001-contact select:focus {
+    border-color:
+      var(--pn001-accent) !important;
+
+    outline:
+      3px solid
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 13%,
+        transparent
+      ) !important;
+  }
+
+  /*
+   * FINAL CTA
+   *
+   * Third dark identity anchor.
+   */
+
+  .pn001-site .pn001-final-cta {
+    background:
+      #ffffff !important;
+  }
+
+  .pn001-site .pn001-final-cta-card,
+  .pn001-site .pn-v2-final-cta-card {
+    background:
+      radial-gradient(
+        circle at 86% 14%,
+        color-mix(
+          in srgb,
+          var(--pn001-accent) 20%,
+          transparent
+        ),
+        transparent 34%
+      ),
+      linear-gradient(
+        135deg,
+        var(--pn001-dark) 0%,
+        var(--pn-v63-dark-accent) 100%
+      ) !important;
+
+    color:
+      #ffffff !important;
+  }
+
+  /*
+   * FOOTER
+   *
+   * Full-width dark identity surface.
+   */
+
+  html body
+  .pn001-site
+  > footer.pn001-footer {
+    background:
+      linear-gradient(
+        135deg,
+        var(--pn001-dark) 0%,
+        var(--pn-v63-dark-accent) 100%
+      ) !important;
+
+    background-color:
+      var(--pn001-dark) !important;
+
+    color:
+      rgba(255,255,255,.74) !important;
+  }
+
+  html body
+  .pn001-site
+  > footer.pn001-footer a {
+    color:
+      rgba(255,255,255,.76) !important;
+  }
+
+  html body
+  .pn001-site
+  > footer.pn001-footer a:hover {
+    color:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 72%,
+        #ffffff
+      ) !important;
+  }
+
+  /*
+   * ACCENT CONTROLS
+   */
+
+  .pn001-site .pn001-button-primary,
+  .pn001-site .pn001-contact-form button {
+    background:
+      var(--pn001-accent) !important;
+
+    border-color:
+      var(--pn001-accent) !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+  }
+
+  .pn001-site .pn001-button-primary:hover,
+  .pn001-site .pn001-contact-form button:hover {
+    background:
+      var(--pn001-accent-strong) !important;
+
+    border-color:
+      var(--pn001-accent-strong) !important;
+  }
+
+  /*
+   * IMPORTANT:
+   * Header deliberately NOT redefined here.
+   * V6.2.1 remains the authoritative white-header contract.
+   */
+
 `;
 
 export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
 (() => {
   const boot = () => {
     const sites = document.querySelectorAll(
-      '.pn001-site[data-pagenova-design-version="6"]'
+      '.pn001-site[data-pagenova-design-version^="6"]'
     );
 
     sites.forEach((site) => {
