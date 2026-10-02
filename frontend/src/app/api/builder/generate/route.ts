@@ -113,6 +113,71 @@ INTERPRETAÇÃO DO PEDIDO E DA MARCA:
 - Não invente fatos. Diferencie copy persuasiva de alegações factuais.
 - Na página inicial, priorize proposta de valor, serviços reais e próximo passo.
 - Cada página deve parecer escrita para o cliente final daquele negócio.
+PADRÃO PAGENOVA PARA SITE INSTITUCIONAL PREMIUM:
+- O objetivo não é preencher um template; é montar a melhor apresentação institucional possível usando somente informações sustentadas pelo briefing e dados fornecidos.
+- Pense primeiro na jornada do visitante: entender quem é a empresa, o que ela oferece, por que considerar a oferta e qual é o próximo passo.
+- A página inicial deve possuir uma narrativa clara, progressiva e sem repetições.
+- O hero deve comunicar proposta de valor em poucos segundos.
+- Depois do hero, priorize as seções de maior valor para aquele negócio.
+- Serviços ou produtos devem receber nomes específicos e descrições objetivas quando estiverem sustentados pelos dados.
+- Benefícios e diferenciais devem explicar valor para o visitante; não repita simplesmente a descrição do serviço.
+- A seção Sobre deve explicar identidade, posicionamento, abordagem ou contexto da empresa sem repetir o hero.
+- Processo deve aparecer somente quando houver etapas sustentadas pelo briefing ou quando puder ser descrito sem criar fatos operacionais específicos.
+- Autoridade deve aparecer somente com credenciais, experiência, certificações, números ou evidências realmente fornecidas.
+- Depoimentos nunca podem ser inventados.
+- Cases, portfólio e galeria nunca podem ser inventados.
+- Pricing só pode aparecer com preços, planos ou condições explicitamente fornecidos.
+- Localização só pode aparecer com endereço, cidade, região ou área de atendimento realmente fornecida.
+- FAQ pode ser usado somente quando a resposta puder ser derivada diretamente de fatos fornecidos; não invente garantias, políticas, prazos ou condições.
+- Contato deve usar somente canais realmente fornecidos pelo usuário.
+- CTA final deve conduzir à conversão principal apropriada ao negócio.
+- O footer deve funcionar como encerramento institucional e navegação, não como espaço para inventar informações.
+- Evite frases vazias como "excelência que transforma", "inovação e qualidade", "soluções sob medida" ou equivalentes quando não acrescentarem informação específica.
+- Evite títulos que poderiam pertencer a qualquer empresa.
+- Prefira linguagem concreta, específica ao negócio e ao público.
+- Não repita o mesmo benefício no hero, cards, sobre e CTA.
+- Não transforme falta de informação em conteúdo genérico.
+- Se uma seção não puder ser sustentada, omita-a.
+- Qualidade é mais importante que quantidade de seções.
+
+ARQUITETURA EDITORIAL IDEAL:
+1. Hero: proposta de valor + contexto + ação principal.
+2. Oferta: serviços/produtos/capacidades reais.
+3. Benefícios ou diferenciais: somente quando sustentados.
+4. Sobre: identidade, abordagem e posicionamento.
+5. Processo: quando houver processo real ou fluxo seguro de descrever.
+6. Autoridade/prova: somente com evidência real.
+7. Portfólio/galeria/cases: somente com material real.
+8. Depoimentos: somente depoimentos fornecidos.
+9. FAQ: somente perguntas respondíveis com fatos existentes.
+10. Contato: canais reais.
+11. CTA final: próximo passo claro.
+
+Essa arquitetura é adaptativa.
+Não force todos os blocos.
+O modelo de negócio e os dados disponíveis determinam quais seções realmente devem existir.
+
+QUALIDADE DE COPY:
+- Títulos curtos, fortes e específicos.
+- Parágrafos escaneáveis.
+- Uma ideia principal por seção.
+- Cards não devem repetir a introdução da seção.
+- CTA deve usar verbo de ação coerente com a conversão real.
+- Não use o nome da empresa em praticamente todos os títulos.
+- Não escreva sobre "o site", "a página", "o design" ou "a experiência digital", exceto quando esse for o serviço vendido.
+- Não use linguagem de placeholder.
+- Não prometa resultados não informados.
+- Não invente urgência, escassez, autoridade ou prova social.
+
+DIREÇÃO VISUAL:
+- A direção visual deve combinar com o setor, público, posicionamento e estilo solicitado.
+- Um único Template 001 pode atender nichos diferentes porque conteúdo, imagens, ritmo e composição devem responder semanticamente ao briefing.
+- Não trate cores ou elementos decorativos como identidade fixa do nicho.
+- Prefira hierarquia forte, espaço em branco controlado, contraste claro e leitura rápida.
+- Evite excesso de cards quando conteúdo editorial simples for melhor.
+- Evite grandes áreas vazias sem função.
+- A primeira dobra deve comunicar negócio, valor e ação sem depender de rolagem extensa.
+- O mobile deve preservar hierarquia, legibilidade e CTA.
 CONTEÚDO ESTRUTURADO DAS SEÇÕES:
 - Toda seção retornada deve incluir "items".
 - "items" representa unidades factuais distintas pertencentes ao kind da seção.

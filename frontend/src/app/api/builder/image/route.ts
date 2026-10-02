@@ -31,15 +31,92 @@ export async function POST(request: NextRequest) {
   if (process.env.PAGENOVA_AI_PROVIDER !== "openai" || !apiKey) {
     return NextResponse.json({ error: "Geração de imagem indisponível." }, { status: 503 });
   }
-  const laundry = /lavanderia|lavagem de roupas|passadoria|roupas e peças/i.test(`${name} ${brief}`);
-  const scene = laundry
-    ? kind === "hero"
-      ? "Fotografia comercial de uma lavanderia contemporânea em funcionamento. Pilhas de roupas limpas e dobradas, tecidos com textura visível, lavadoras profissionais discretas ao fundo. Foco no serviço e nas roupas, sem retrato ou rosto em destaque. Composição horizontal com área escura e limpa à esquerda para texto e ação principal à direita."
-      : "Fotografia comercial diferente da primeira: mãos realizando passadoria ou dobra cuidadosa de roupas em bancada limpa, tecidos claros em primeiro plano e ambiente real de lavanderia ao fundo. Foco no processo, sem rosto em destaque, composição horizontal."
-    : kind === "hero"
-      ? "Fotografia principal do serviço ou ambiente descrito no briefing, com elemento relevante à direita e espaço livre à esquerda para texto. Retrato de pessoa apenas se o negócio for centrado em profissional individual."
-      : "Fotografia de processo, detalhe do trabalho ou ambiente descrito no briefing, com composição diferente da imagem principal.";
-  const prompt = `Crie uma fotografia editorial premium para o website de ${name}. Contexto: ${brief.slice(0, 1500)}. Cena obrigatória: ${scene} Fotografia realista, direção de arte profissional, iluminação natural, sem logos, marcas, letras ou alegações fabricadas. Não mostre a mesma cena nos dois banners.`;
+  const visualRole =
+    kind === "hero"
+      ? `
+IMAGEM PRINCIPAL / HERO:
+- Crie a principal fotografia editorial do site.
+- A imagem deve comunicar imediatamente o tipo REAL de negócio descrito.
+- Mostre ambiente, atividade, serviço, produto ou profissional que façam sentido para esse negócio.
+- A composição deve funcionar como hero de website premium.
+- Priorize o assunto principal no centro/direita e preserve respiro visual suficiente.
+- Não coloque texto dentro da imagem.
+`
+      : `
+IMAGEM SECUNDÁRIA / SOBRE / PROCESSO:
+- Crie uma segunda fotografia diferente da imagem principal.
+- Mostre contexto real de trabalho, ambiente, processo, atendimento, detalhe profissional, equipe ou execução do serviço.
+- Não repita enquadramento, cena ou composição da imagem principal.
+- A imagem deve complementar a história visual da empresa.
+- Não coloque texto dentro da imagem.
+`;
+
+  const prompt = `
+Você é diretor de arte de um website institucional premium.
+
+EMPRESA / MARCA:
+${name}
+
+BRIEFING ORIGINAL:
+${brief.slice(0, 1800)}
+
+TAREFA:
+Interprete semanticamente o briefing antes de criar a fotografia.
+
+Descubra:
+- qual é o setor real;
+- qual é o negócio;
+- qual serviço, produto ou atividade representa melhor a empresa;
+- qual ambiente seria autêntico para esse negócio;
+- quais objetos, ferramentas, equipamentos, materiais ou contexto visual pertencem naturalmente ao setor;
+- se faz sentido mostrar uma pessoa, profissional, equipe, ambiente, produto ou processo.
+
+A fotografia DEVE ser específica ao negócio descrito.
+
+Exemplos de raciocínio, apenas para demonstrar a regra:
+- clínica odontológica → contexto odontológico real;
+- escritório de advocacia → ambiente jurídico/profissional coerente;
+- arquitetura → arquitetura, projeto, materiais ou ambiente construído;
+- oficina mecânica → contexto automotivo e trabalho mecânico;
+- restaurante → gastronomia, cozinha, prato ou ambiente coerente;
+- software B2B → ambiente profissional/tecnológico plausível;
+- imobiliária → arquitetura, imóvel ou atendimento imobiliário;
+- estética → clínica, ambiente ou procedimento coerente.
+
+Esses exemplos NÃO são uma lista de nichos.
+Para qualquer outro negócio, interprete o briefing e construa a cena correta.
+
+${visualRole}
+
+DIREÇÃO DE ARTE:
+Fotografia editorial comercial premium.
+Realismo fotográfico.
+Aspecto sofisticado e contemporâneo.
+Iluminação profissional natural.
+Composição limpa.
+Profundidade realista.
+Materiais e texturas convincentes.
+Sem aparência de banco de imagens genérico.
+Sem aparência de render 3D.
+Sem estética artificial de IA.
+Sem colagem.
+Sem mockup de website.
+Sem moldura.
+Sem interface.
+Sem texto.
+Sem letras.
+Sem logos.
+Sem marcas de terceiros.
+Sem watermark.
+
+FIDELIDADE:
+Não invente certificações, prêmios, números, clientes, resultados ou características factuais não fornecidas.
+Não introduza elementos visualmente incompatíveis com o setor.
+Se houver pessoas, use aparência natural e profissional adequada ao contexto.
+Se o negócio não exigir pessoa, priorize ambiente, produto, serviço ou processo.
+
+A imagem deve parecer produzida especificamente para ${name}, e não uma fotografia genérica que poderia servir para qualquer empresa.
+`.trim();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 78000);
   try {
