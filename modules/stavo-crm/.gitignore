@@ -1,0 +1,29 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+playwright-report/
+test-results/
+tmp/
+uploads/
+# Sites publicados e fotos enviadas pelo modulo de Sites com IA (dados, nao codigo)
+storage/
+*.local
+
+# Segredos gerados localmente para o deploy (nunca versionar)
+deploy-secrets.*.txt
+
+# Arquivo temporario com valores para colar no painel
+COLE-ISTO-NA-HOSTINGER.txt
+hostinger.env
+.env.local
+.env.*.local
+deploy-secrets*

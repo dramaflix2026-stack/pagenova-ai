@@ -1,0 +1,18 @@
+# Riscos técnicos e mitigações
+
+| # | Risco | Impacto | Mitigação implementada |
+| --- | --- | --- | --- |
+| 1 | **Quota e custo do Google** | Cobrança inesperada no cartão | Contadores atômicos por SKU (`TEXT_SEARCH`, `PLACE_DETAILS`) em `google_api_usage`; limite interno padrão de 900/mês por SKU bloqueando **antes** da chamada; aviso em 80%; painel com mês/usado/limite/restante; nenhuma página extra é buscada automaticamente |
+| 2 | **Indisponibilidade da API Google** | Usuário sem acesso ao CRM | Integração isolada em adapter; timeout curto, retry só para erro transitório com backoff+jitter, circuit breaker; falha degrada apenas o bloco "Dados atuais do Google" — CRM, notas, vendas e follow-ups continuam |
+| 3 | **Duplicidade de leads** | Dois cards para a mesma empresa | Identidades normalizadas com `UNIQUE`; `place_id` único em `leads`; verificação antes de criar; possível duplicidade vai para revisão humana, nunca merge automático |
+| 4 | **Movimentos repetidos no CRM inflando métricas** | Dashboard mentiroso | `FIRST_CONTACT_RECORDED` e `FIRST_RESPONSE_RECORDED` com no máximo um evento principal por lead, garantido por `UNIQUE` parcial via coluna derivada; follow-up nunca gera contato novo |
+| 5 | **Concorrência em pagamentos** | Pagamento contado duas vezes | Transação + `SELECT ... FOR UPDATE` no recebível + `idempotency_key` única; status do recebível validado dentro da transação |
+| 6 | **Recorrências duplicadas** | Cliente cobrado duas vezes no mesmo mês | `UNIQUE (subscription_id, reference_period)`; job de domínio idempotente que recalcula competências faltantes na ordem correta mesmo se o cron parar |
+| 7 | **Importações inválidas ou destrutivas** | Perda/sobrescrita de dados reais | Nenhuma linha duplicada altera lead existente; preenchimento de campo vazio só por escolha explícita campo a campo; validação por linha com relatório; limite de tamanho e de linhas; sem execução de fórmulas/macros |
+| 8 | **Exposição de segredos** | Vazamento de chave/senha | Segredos só em variáveis de ambiente do servidor; `.env` no `.gitignore`; `.env.example` sem valores; recusa de boot em produção com segredo fraco/ausente/igual ao exemplo; logs redigidos; teste automatizado garante que a chave Google não entra no bundle |
+| 9 | **SSRF na busca de Instagram no site do lead** | Servidor usado para atacar rede interna | Somente HTTP/HTTPS, bloqueio de localhost/IP privado/metadata, validação de DNS pós-resolução e a cada redirect, limite de redirects, limite de tamanho, timeout curto, sem execução de JavaScript, sem crawl de várias páginas, sem armazenar a página |
+| 10 | **Limitações da Hostinger** | Aplicação não sobe | Sem Docker/Redis/systemd/root; um único processo; `0.0.0.0` + `process.env.PORT`; dependências sem binário nativo; cron opcional e dispensável |
+| 11 | **Perda de dados** | Prejuízo comercial | Arquivamento em vez de exclusão; histórico financeiro só por cancelamento/estorno; exportação JSON/CSV autenticada; procedimento documentado de backup, restauração e rollback de migração |
+| 12 | **Sessão comprometida / força bruta** | Acesso indevido | Rate limit + atraso progressivo no login, mensagem genérica, cookie HttpOnly/Secure, expiração por inatividade e absoluta, revogação total ao trocar senha |
+| 13 | **Migração destrutiva em produção** | Downtime/perda | Migrações versionadas, nunca `push` automático em produção, backup obrigatório antes, parada imediata em falha, rollback documentado |
+| 14 | **Fuso horário** | Meta diária errada | Timestamps em UTC no banco; janelas de período calculadas em `America/Sao_Paulo` no backend; frontend nunca calcula finanças |

@@ -1,0 +1,163 @@
+/*
+ * Tema do FullCalendar com os tokens da plataforma.
+ *
+ * A biblioteca traz um visual proprio, cinza e com botoes azuis de outro tom.
+ * Sem esta folha, a agenda pareceria uma tela colada de outro produto -- que
+ * e exatamente o que a especificacao pedia para evitar.
+ *
+ * Tudo aqui usa as mesmas variaveis do design system, entao qualquer ajuste
+ * de tema chega ao calendario sem tocar neste arquivo.
+ */
+
+.stavo-calendario {
+  --fc-border-color: hsl(var(--border));
+  --fc-page-bg-color: hsl(var(--surface));
+  --fc-neutral-bg-color: hsl(var(--muted));
+  --fc-today-bg-color: hsl(var(--primary) / 0.06);
+  --fc-now-indicator-color: hsl(var(--destructive));
+  --fc-event-selected-overlay-color: hsl(var(--primary) / 0.15);
+
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+}
+
+/* --- Cabecalho ---------------------------------------------------------- */
+
+.stavo-calendario .fc-toolbar {
+  gap: 0.5rem;
+}
+
+.stavo-calendario .fc-toolbar-title {
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.stavo-calendario .fc .fc-button {
+  background-color: hsl(var(--surface));
+  border: 1px solid hsl(var(--input));
+  color: hsl(var(--foreground));
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: none;
+  box-shadow: none;
+}
+
+.stavo-calendario .fc .fc-button:hover:not(:disabled) {
+  background-color: hsl(var(--muted));
+}
+
+/* A visao ativa usa o azul primario, como as abas do resto da plataforma. */
+.stavo-calendario .fc .fc-button-active,
+.stavo-calendario .fc .fc-button-active:hover {
+  background-color: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.stavo-calendario .fc .fc-button:disabled {
+  opacity: 0.5;
+}
+
+/* Foco visivel: navegar so pelo teclado precisa continuar possivel. */
+.stavo-calendario .fc .fc-button:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* --- Grade -------------------------------------------------------------- */
+
+.stavo-calendario .fc-col-header-cell {
+  background-color: hsl(var(--muted));
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  color: hsl(var(--muted-foreground));
+  padding: 0.5rem 0;
+}
+
+.stavo-calendario .fc-daygrid-day-number,
+.stavo-calendario .fc-timegrid-slot-label-cushion {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.75rem;
+}
+
+.stavo-calendario .fc-day-today .fc-daygrid-day-number {
+  color: hsl(var(--primary));
+  font-weight: 700;
+}
+
+/* --- Eventos ------------------------------------------------------------ */
+
+.stavo-calendario .fc-event {
+  border-radius: 0.25rem;
+  border-left-width: 3px;
+  padding: 1px 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.stavo-calendario .fc-event:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 1px;
+}
+
+/*
+ * Cancelada continua visivel no historico, mas atenuada.
+ * O risco no texto comunica o estado sem depender so da cor.
+ */
+.stavo-calendario .reuniao-cancelada .fc-event-title,
+.stavo-calendario .reuniao-cancelada .fc-list-event-title {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* --- Visao em lista ----------------------------------------------------- */
+
+.stavo-calendario .fc-list {
+  border-color: hsl(var(--border));
+}
+
+.stavo-calendario .fc-list-day-cushion {
+  background-color: hsl(var(--muted));
+}
+
+.stavo-calendario .fc-list-event:hover td {
+  background-color: hsl(var(--muted));
+}
+
+.stavo-calendario .fc-list-empty {
+  background-color: transparent;
+  color: hsl(var(--muted-foreground));
+}
+
+/* --- Celular ------------------------------------------------------------ */
+
+@media (max-width: 640px) {
+  /*
+   * A barra de controles vira coluna: no celular ela estourava a largura e
+   * empurrava o calendario para o lado.
+   */
+  .stavo-calendario .fc-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stavo-calendario .fc-toolbar-chunk {
+    display: flex;
+    justify-content: center;
+  }
+
+  .stavo-calendario .fc .fc-button {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .stavo-calendario .fc-toolbar-title {
+    text-align: center;
+    padding: 0.25rem 0;
+  }
+}

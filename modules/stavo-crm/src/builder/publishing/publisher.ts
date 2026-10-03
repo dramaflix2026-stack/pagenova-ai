@@ -1,0 +1,271 @@
+/**
+ * Publicacao (secao 16 da especificacao).
+ *
+ * O artefato gerado aqui e a MESMA arvore de arquivos que a exportacao ZIP
+ * (etapa A13) vai empacotar -- `index.html` mais `assets/images/*` -- porque
+ * ambos partem da mesma fonte: `renderSite` sobre o `SiteSchema` congelado
+ * numa versao. Publicar e exportar diferem so no destino final dos bytes.
+ *
+ * Fluxo, e por que cada passo existe nessa ordem:
+ *
+ *  1. o rascunho e validado e lintado de novo -- o editor pode ter permitido
+ *     salvar com aviso, mas publicar com ERRO estrutural nunca;
+ *  2. uma versao NOVA e congelada (origin=PUBLICATION) -- o que fica no ar
+ *     nunca muda silenciosamente se o rascunho for editado depois;
+ *  3. o artefato e escrito num caminho NOVO, exclusivo desta publicacao --
+ *     nunca sobrescreve o anterior;
+ *  4. o ponteiro troca JA (repo.activatePublication) -- a rota publica so
+ *     serve uma publicacao ACTIVE, entao o smoke test do passo seguinte
+ *     precisa que ela ja esteja no ar para testar a URL de verdade;
+ *  5. um smoke test anonimo roda contra o proprio processo; se falhar, a
+ *     troca do passo 4 e desfeita (a publicacao anterior volta a ACTIVE) e
+ *     o administrador nunca ve "sucesso" para um link quebrado.
+ */
+import { getEnv, publicSitesBaseUrl, publicSitesDirAbsolute } from '@server/config/env';
+import { validateSlug } from '@site-kit/types/site-ai';
+import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
+import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
+import { conflict, notFound, unprocessable } from '@server/lib/errors';
+import { logger } from '@server/lib/logger';
+import { buildSiteArtifactFiles } from '@builder/publishing/artifact-builder';
+import * as repo from '@server/modules/site-ai/repository';
+import { assertPublishable, resolveAvailableSlug, validateAndLintConfig } from '@server/modules/site-ai/service';
+import { createLocalStorage } from '@builder/publishing/storage';
+import type { SiteProject } from '@server/db/schema';
+
+/** Raiz de armazenamento de todo artefato publicado. */
+const publicStorage = () => createLocalStorage(publicSitesDirAbsolute());
+
+/** Caminho-base desta publicacao dentro do storage publico. Nunca reaproveitado. */
+const publicationRoot = (projectId: string, publicationId: string): string =>
+  `${projectId}/pub-${publicationId}`;
+
+export interface PublishResult {
+  publication: NonNullable<Awaited<ReturnType<typeof repo.findPublication>>>;
+  url: string;
+}
+
+/**
+ * Publica (ou atualiza a publicacao de) um projeto.
+ *
+ * `acknowledgedWarnings` reflete a confirmacao explicita do administrador
+ * quando o linter so tem avisos -- nunca publica com aviso pendente em
+ * silencio.
+ */
+export async function publishProject(
+  project: SiteProject,
+  actorId: string,
+  options: { acknowledgedWarnings: boolean; desiredSlug?: string },
+): Promise<PublishResult> {
+  if (!project.draftConfig) {
+    throw conflict('Este projeto ainda nao tem um rascunho para publicar.', { code: 'SITE_PROJECT_NO_DRAFT' });
+  }
+
+  const { model, report } = validateAndLintConfig(project.draftConfig);
+  assertPublishable(report, options.acknowledgedWarnings);
+
+  // Passo 2: versao congelada especificamente para esta publicacao.
+  const { id: versionId } = await repo.insertVersion({
+    projectId: project.id,
+    config: model,
+    schemaVersion: model.schemaVersion,
+    rendererVersion: model.rendererVersion,
+    promptVersion: model.project.promptVersion,
+    origin: 'PUBLICATION',
+    summary: 'Publicacao.',
+    createdBy: actorId,
+  });
+
+  // Slug: mantem o mesmo da publicacao anterior (link estavel, secao 16.3);
+  // so resolve um novo quando ainda nao existe nenhum.
+  const slugCandidate = options.desiredSlug ?? project.desiredSlug;
+  let slug: string;
+  if (slugCandidate) {
+    const validated = validateSlug(slugCandidate);
+    if (!validated.ok) throw unprocessable(validated.reason, { code: 'SITE_SLUG_INVALID' });
+    if (await repo.isSlugTaken(validated.slug, project.id)) {
+      throw conflict('Este endereco ja esta em uso por outro projeto.', { code: 'SITE_SLUG_TAKEN' });
+    }
+    slug = validated.slug;
+  } else {
+    slug = await resolveAvailableSlug(project.businessName, model.business.city ?? null, project.id);
+  }
+
+  const { id: publicationId } = await repo.insertPublication({
+    projectId: project.id,
+    versionId,
+    slug,
+    publishedBy: actorId,
+  });
+
+  const previousActivePublicationId = project.activePublicationId;
+
+  try {
+    // Passo 3: escreve o artefato num caminho exclusivo desta publicacao.
+    const manifest = await writeArtifact(project.id, publicationId, model);
+
+    // Passo 4: troca o ponteiro JA -- a rota publica `/p/:slug` (app.ts) so
+    // serve uma publicacao com status ACTIVE, entao o smoke test PRECISA
+    // que esta ja esteja ativa para conseguir buscar a URL de verdade.
+    // Se a verificacao falhar, o passo seguinte desfaz exatamente esta troca.
+    await repo.activatePublication(project.id, publicationId, {
+      artifactKey: publicationRoot(project.id, publicationId),
+      manifest,
+      artifactChecksum: manifest.checksum,
+      baseUrlSnapshot: publicSitesBaseUrl(),
+    });
+
+    // Passo 5: smoke test anonimo contra a URL agora ativa.
+    const smoke = await runSmokeTest(slug, model);
+    await repo.recordSmokeTest(publicationId, smoke, smoke.passed);
+
+    if (!smoke.passed) {
+      // Desfaz a troca do passo 4: a publicacao anterior (se existia) volta a
+      // ser ACTIVE; esta fica FAILED. Sem publicacao anterior, o efeito e
+      // simplesmente nenhuma publicacao ficar ACTIVE -- nunca um site quebrado no ar.
+      if (previousActivePublicationId) {
+        await repo.rollbackToPublication(project.id, previousActivePublicationId);
+      }
+      await repo.markPublicationFailed(publicationId, 'SMOKE_TEST_FAILED', smoke.summary);
+      throw conflict(
+        `A publicacao falhou na verificacao final (${smoke.summary}). A versao anterior continua no ar.`,
+        { code: 'SITE_PUBLISH_SMOKE_FAILED' },
+      );
+    }
+
+    await repo.updateProject(project.id, project.lockVersion, {
+      activePublicationId: publicationId,
+      desiredSlug: slug,
+    });
+    // READY->PUBLISHED na primeira vez; PUBLISHED->PUBLISHED ao atualizar uma
+    // publicacao existente (a maquina de estados permite as duas, secao
+    // site-ai.ts). O `from` e sempre o status JA CONHECIDO deste projeto.
+    if (project.status !== 'PUBLISHED') {
+      await repo.updateProjectStatus(project.id, project.status as never, 'PUBLISHED', {
+        activePublicationId: publicationId,
+      });
+    }
+
+    const publication = await repo.findPublication(publicationId);
+    if (!publication) throw notFound('Publicacao desapareceu logo apos ser criada.');
+
+    return { publication, url: `${publicSitesBaseUrl()}/p/${slug}` };
+  } catch (error) {
+    logger.error({ err: error, publicationId }, 'Falha ao publicar site.');
+    throw error;
+  }
+}
+
+interface ArtifactManifest {
+  files: string[];
+  checksum: string;
+  generatedAt: string;
+}
+
+/** Escreve HTML + assets no storage publico, sob a raiz exclusiva da publicacao. */
+async function writeArtifact(
+  projectId: string,
+  publicationId: string,
+  model: SiteSchemaModel,
+): Promise<ArtifactManifest> {
+  const root = publicationRoot(projectId, publicationId);
+  const output = publicStorage();
+
+  // A demonstracao SEMPRE usa o perfil DEMO (noindex forcado), mesmo que o
+  // rascunho tenha `seo.noindex=false` -- o perfil de indexacao real so vale
+  // para o ZIP exportado (secao 17.3), nunca para o link de prospeccao.
+  const artifact = await buildSiteArtifactFiles(projectId, model, 'DEMO', { inlineRuntime: SITE_RUNTIME_JS });
+
+  const files: string[] = [];
+  for (const file of artifact.files) {
+    await output.write(`${root}/${file.path}`, file.buffer);
+    files.push(file.path);
+  }
+  await output.write(`${root}/index.html`, Buffer.from(artifact.html, 'utf8'));
+  files.push('index.html');
+
+  return { files, checksum: artifact.checksum, generatedAt: new Date().toISOString() };
+}
+
+export interface SmokeTestResult {
+  passed: boolean;
+  summary: string;
+  checks: Record<string, boolean>;
+}
+
+/**
+ * Smoke test anonimo (secao 16.8), sem navegador.
+ *
+ * Roda como uma requisicao HTTP de verdade contra o PROPRIO processo, na
+ * mesma origem que o publico vai usar -- e o que prova que a rota publica
+ * realmente serve o arquivo, sem depender do CRM estar de pe em outro lugar.
+ * Nao usa Chromium: a hospedagem de producao nao tem (nem deveria precisar
+ * de) um navegador instalado. Verificacao visual/cross-browser mais profunda
+ * e responsabilidade do QA determinístico da etapa A11, rodado em build.
+ */
+export async function runSmokeTest(slug: string, model: SiteSchemaModel): Promise<SmokeTestResult> {
+  const env = getEnv();
+  const checks: Record<string, boolean> = {};
+
+  const url = `http://127.0.0.1:${env.PORT}/p/${slug}`;
+  let html = '';
+  let status = 0;
+  let robotsHeader: string | null = null;
+
+  try {
+    const response = await fetch(url, { redirect: 'manual' });
+    status = response.status;
+    robotsHeader = response.headers.get('x-robots-tag');
+    html = await response.text();
+  } catch (error) {
+    return {
+      passed: false,
+      summary: `Nao foi possivel acessar a URL publica: ${error instanceof Error ? error.message : 'erro desconhecido'}.`,
+      checks,
+    };
+  }
+
+  checks.status200 = status === 200;
+  checks.notRedirectedToLogin = !html.includes('name="viewport"') ? false : !html.includes('/entrar');
+  checks.hasRobotsMeta = html.includes('noindex');
+  checks.hasRobotsHeader = Boolean(robotsHeader?.includes('noindex'));
+  checks.hasSingleH1 = (html.match(/<h1/g) ?? []).length === 1;
+  checks.hasWhatsappLinkIfExpected = model.integrations.whatsappE164 ? html.includes('wa.me') : true;
+  checks.noLocalhostLeak = !html.includes('localhost') && !html.includes('127.0.0.1');
+  checks.noPrivatePathLeak = !html.includes('/api/site-projects') && !html.includes('draftConfig');
+
+  const failed = Object.entries(checks).filter(([, ok]) => !ok);
+  return {
+    passed: failed.length === 0,
+    summary: failed.length === 0 ? 'Todas as verificacoes passaram.' : `Falhou: ${failed.map(([name]) => name).join(', ')}.`,
+    checks,
+  };
+}
+
+export async function unpublishProject(project: SiteProject): Promise<void> {
+  const done = await repo.unpublish(project.id);
+  if (!done) {
+    throw conflict('Este projeto nao tem publicacao ativa.', { code: 'SITE_PROJECT_NOT_PUBLISHED' });
+  }
+  await repo.updateProject(project.id, project.lockVersion, { activePublicationId: null });
+  await repo.updateProjectStatus(project.id, 'PUBLISHED', 'READY').catch(() => undefined);
+}
+
+export async function rollbackPublication(project: SiteProject, targetPublicationId: string): Promise<void> {
+  const done = await repo.rollbackToPublication(project.id, targetPublicationId);
+  if (!done) {
+    throw notFound('Publicacao alvo nao encontrada ou nao esta disponivel para rollback.', 'SITE_PUBLICATION_NOT_FOUND');
+  }
+  await repo.updateProject(project.id, project.lockVersion, { activePublicationId: targetPublicationId });
+}
+
+/** Le um arquivo ja publicado, para a rota publica (`app.ts`) servir. */
+export async function readPublishedFile(
+  projectId: string,
+  publicationId: string,
+  relativePath: string,
+): Promise<Buffer | null> {
+  const storage = publicStorage();
+  const key = `${publicationRoot(projectId, publicationId)}/${relativePath}`;
+  return storage.read(key).catch(() => null);
+}

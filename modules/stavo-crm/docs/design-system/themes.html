@@ -1,0 +1,1712 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tokens dos temas — site-kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600;700;800&family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display:wght@400&family=Lora:wght@400;500;600;700&display=swap">
+<style>
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2rem 1rem 4rem;
+    background: #f4f4f5;
+    color: #18181b;
+    font: 16px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  .pagina { max-width: 1100px; margin: 0 auto; }
+  .intro { margin-bottom: 2rem; }
+  .intro h1 { font-size: 1.8rem; margin: 0 0 .5rem; }
+  .intro p { margin: 0 0 .5rem; color: #3f3f46; max-width: 70ch; }
+  .tema {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.75rem;
+    margin-bottom: 2rem;
+  }
+  .tema-cabecalho h2 { font-family: var(--font-heading); font-weight: var(--font-heading-weight); margin: 0 0 .25rem; }
+  .tema-cabecalho .id { margin: 0 0 .5rem; color: hsl(var(--muted)); font-size: .85rem; }
+  .tema-cabecalho .descricao { margin: 0 0 1.5rem; color: hsl(var(--muted)); max-width: 70ch; }
+  .demo {
+    background: hsl(var(--surface));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .demo .eyebrow { margin: 0 0 .5rem; text-transform: uppercase; letter-spacing: .12em; font-size: .72rem; color: hsl(var(--muted)); }
+  .demo h3 {
+    font-family: var(--font-heading);
+    font-weight: var(--font-heading-weight);
+    font-size: clamp(var(--font-heading-min), 4vw, var(--font-heading-max));
+    line-height: var(--leading-tight);
+    margin: 0 0 .75rem;
+  }
+  .demo .corpo { font-family: var(--font-body); line-height: var(--leading-body); margin: 0 0 .5rem; max-width: 60ch; }
+  .demo .apoio { color: hsl(var(--muted)); margin: 0 0 1.25rem; }
+  .acoes { display: flex; flex-wrap: wrap; gap: .75rem; margin-bottom: 1rem; }
+  .botao {
+    display: inline-block;
+    padding: .7rem 1.4rem;
+    border-radius: var(--radius-pill);
+    background: var(--button-gradient);
+    color: hsl(var(--primary-foreground));
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 var(--button-highlight);
+  }
+  .botao.secundario {
+    background: transparent;
+    color: hsl(var(--foreground));
+    border: 1px solid hsl(var(--border));
+    box-shadow: none;
+  }
+  .estados { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .9rem; font-weight: 600; }
+  .estado.sucesso { color: hsl(var(--success)); }
+  .estado.alerta { color: hsl(var(--warning)); }
+  .estado.erro { color: hsl(var(--error)); }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; margin-bottom: 1.5rem; }
+  .swatch { margin: 0; }
+  .chip { height: 48px; border-radius: var(--radius-sm); border: 1px solid hsl(var(--border)); }
+  .swatch figcaption { display: flex; flex-direction: column; font-size: .75rem; margin-top: .35rem; color: hsl(var(--muted)); }
+  .swatch code { color: hsl(var(--foreground)); }
+  table.contraste { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  table.contraste caption { text-align: left; color: hsl(var(--muted)); padding-bottom: .5rem; }
+  table.contraste th, table.contraste td { text-align: left; padding: .4rem .5rem; border-bottom: 1px solid hsl(var(--border)); }
+  table.contraste .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.contraste .ok { color: hsl(var(--success)); font-weight: 600; }
+  table.contraste .falha { color: hsl(var(--error)); font-weight: 700; }
+  @media (max-width: 480px) { body { padding: 1rem .75rem 3rem; } .tema { padding: 1rem; } }
+
+:root[data-theme='personal-editorial'], [data-theme='personal-editorial'] {
+  color-scheme: light;
+  --background: 30 56% 96%;
+  --foreground: 17 19% 14%;
+  --muted: 17 14% 34%;
+  --surface: 0 0% 100%;
+  --primary: 4 39% 44%;
+  --primary-foreground: 18 100% 98%;
+  --secondary: 18 47% 89%;
+  --accent: 14 40% 51%;
+  --border: 25 33% 80%;
+  --ring: 4 39% 44%;
+  --success: 152 39% 30%;
+  --warning: 37 77% 27%;
+  --error: 0 56% 39%;
+  --radius: 14px;
+  --radius-sm: 6px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(17,24,39,.04), 0 8px 24px rgba(17,24,39,.06);
+  --container: 1140px;
+  --font-heading: 'Fraunces',Georgia,'Times New Roman',serif;
+  --font-body: 'Work Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 600;
+  --font-heading-min: 2.1rem;
+  --font-heading-max: 4.2rem;
+  --leading-tight: 1.12;
+  --leading-body: 1.65;
+  --button-gradient: linear-gradient(120deg,#9C4A44,#B4664F);
+  --button-highlight: rgba(255,255,255,.22);
+}
+:root[data-theme='startup-modern'], [data-theme='startup-modern'] {
+  color-scheme: light;
+  --background: 156 38% 97%;
+  --foreground: 159 45% 9%;
+  --muted: 159 19% 30%;
+  --surface: 0 0% 100%;
+  --primary: 168 83% 26%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 159 53% 89%;
+  --accent: 8 63% 47%;
+  --border: 156 28% 81%;
+  --ring: 168 83% 26%;
+  --success: 142 72% 29%;
+  --warning: 39 100% 27%;
+  --error: 2 72% 41%;
+  --radius: 22px;
+  --radius-sm: 9px;
+  --radius-lg: 35px;
+  --radius-pill: 999px;
+  --shadow: 0 2px 4px rgba(17,24,39,.06), 0 16px 40px rgba(17,24,39,.10);
+  --container: 1200px;
+  --font-heading: 'Sora',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-body: 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 700;
+  --font-heading-min: 2.2rem;
+  --font-heading-max: 4.4rem;
+  --leading-tight: 1.08;
+  --leading-body: 1.6;
+  --button-gradient: linear-gradient(120deg,#0B7A63,#12A583);
+  --button-highlight: rgba(255,255,255,.26);
+}
+:root[data-theme='professional-editorial'], [data-theme='professional-editorial'] {
+  color-scheme: light;
+  --background: 40 43% 93%;
+  --foreground: 144 15% 13%;
+  --muted: 137 8% 34%;
+  --surface: 43 100% 99%;
+  --primary: 144 61% 20%;
+  --primary-foreground: 137 47% 97%;
+  --secondary: 90 21% 89%;
+  --accent: 42 60% 34%;
+  --border: 39 30% 75%;
+  --ring: 144 61% 20%;
+  --success: 152 45% 28%;
+  --warning: 37 77% 27%;
+  --error: 0 56% 39%;
+  --radius: 6px;
+  --radius-sm: 2px;
+  --radius-lg: 10px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(17,24,39,.04), 0 8px 24px rgba(17,24,39,.06);
+  --container: 1120px;
+  --font-heading: 'Playfair Display',Georgia,'Times New Roman',serif;
+  --font-body: 'Work Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 600;
+  --font-heading-min: 2.2rem;
+  --font-heading-max: 4.6rem;
+  --leading-tight: 1.1;
+  --leading-body: 1.68;
+  --button-gradient: linear-gradient(120deg,#14532D,#1F6B3B);
+  --button-highlight: rgba(255,255,255,.18);
+}
+:root[data-theme='corporate-trust'], [data-theme='corporate-trust'] {
+  color-scheme: light;
+  --background: 0 0% 100%;
+  --foreground: 162 28% 9%;
+  --muted: 157 12% 30%;
+  --surface: 160 18% 97%;
+  --primary: 162 79% 20%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 157 23% 89%;
+  --accent: 34 93% 31%;
+  --border: 158 16% 87%;
+  --ring: 162 79% 20%;
+  --success: 142 72% 29%;
+  --warning: 39 100% 27%;
+  --error: 2 72% 41%;
+  --radius: 8px;
+  --radius-sm: 3px;
+  --radius-lg: 13px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(17,24,39,.04), 0 8px 24px rgba(17,24,39,.06);
+  --container: 1200px;
+  --font-heading: 'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-body: 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 700;
+  --font-heading-min: 2rem;
+  --font-heading-max: 3.8rem;
+  --leading-tight: 1.14;
+  --leading-body: 1.62;
+  --button-gradient: linear-gradient(120deg,#0B5D45,#0F7A5A);
+  --button-highlight: rgba(255,255,255,.2);
+}
+:root[data-theme='local-vibrant'], [data-theme='local-vibrant'] {
+  color-scheme: light;
+  --background: 24 100% 98%;
+  --foreground: 24 24% 8%;
+  --muted: 23 13% 27%;
+  --surface: 0 0% 100%;
+  --primary: 16 90% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 23 100% 91%;
+  --accent: 212 80% 42%;
+  --border: 25 50% 80%;
+  --ring: 16 90% 40%;
+  --success: 142 72% 29%;
+  --warning: 39 100% 27%;
+  --error: 2 72% 41%;
+  --radius: 12px;
+  --radius-sm: 5px;
+  --radius-lg: 19px;
+  --radius-pill: 999px;
+  --shadow: 0 2px 4px rgba(17,24,39,.06), 0 16px 40px rgba(17,24,39,.10);
+  --container: 1160px;
+  --font-heading: 'Space Grotesk',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-body: 'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 700;
+  --font-heading-min: 2.3rem;
+  --font-heading-max: 4.6rem;
+  --leading-tight: 1.06;
+  --leading-body: 1.58;
+  --button-gradient: linear-gradient(120deg,#C23A0A,#E2600F);
+  --button-highlight: rgba(255,255,255,.28);
+}
+:root[data-theme='local-premium-dark'], [data-theme='local-premium-dark'] {
+  color-scheme: dark;
+  --background: 212 36% 9%;
+  --foreground: 210 40% 96%;
+  --muted: 210 19% 75%;
+  --surface: 211 33% 14%;
+  --primary: 42 73% 59%;
+  --primary-foreground: 210 29% 9%;
+  --secondary: 210 29% 19%;
+  --accent: 42 80% 72%;
+  --border: 210 25% 22%;
+  --ring: 42 73% 59%;
+  --success: 142 69% 58%;
+  --warning: 43 96% 56%;
+  --error: 351 95% 71%;
+  --radius: 10px;
+  --radius-sm: 4px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  --shadow: 0 2px 6px rgba(0,0,0,.40), 0 20px 48px rgba(0,0,0,.45);
+  --container: 1180px;
+  --font-heading: 'DM Serif Display',Georgia,'Times New Roman',serif;
+  --font-body: 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 400;
+  --font-heading-min: 2.3rem;
+  --font-heading-max: 4.8rem;
+  --leading-tight: 1.08;
+  --leading-body: 1.66;
+  --button-gradient: linear-gradient(120deg,#E3B54A,#F1CE7E);
+  --button-highlight: rgba(17,24,31,.24);
+}
+:root[data-theme='clinical-clean'], [data-theme='clinical-clean'] {
+  color-scheme: light;
+  --background: 0 0% 100%;
+  --foreground: 203 55% 12%;
+  --muted: 200 24% 35%;
+  --surface: 200 69% 97%;
+  --primary: 200 88% 33%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 201 67% 92%;
+  --accent: 187 82% 30%;
+  --border: 203 42% 84%;
+  --ring: 200 88% 33%;
+  --success: 142 72% 29%;
+  --warning: 39 100% 27%;
+  --error: 2 72% 41%;
+  --radius: 8px;
+  --radius-sm: 3px;
+  --radius-lg: 13px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(17,24,39,.04), 0 8px 24px rgba(17,24,39,.06);
+  --container: 1180px;
+  --font-heading: 'Manrope',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-body: 'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 600;
+  --font-heading-min: 2rem;
+  --font-heading-max: 3.6rem;
+  --leading-tight: 1.16;
+  --leading-body: 1.64;
+  --button-gradient: linear-gradient(120deg,#0A6C9E,#0E88B8);
+  --button-highlight: rgba(255,255,255,.24);
+}
+:root[data-theme='nature-organic'], [data-theme='nature-organic'] {
+  color-scheme: light;
+  --background: 47 47% 96%;
+  --foreground: 104 22% 14%;
+  --muted: 98 15% 31%;
+  --surface: 0 0% 100%;
+  --primary: 110 35% 31%;
+  --primary-foreground: 100 43% 97%;
+  --secondary: 88 30% 89%;
+  --accent: 20 60% 41%;
+  --border: 46 26% 77%;
+  --ring: 110 35% 31%;
+  --success: 152 45% 28%;
+  --warning: 37 77% 27%;
+  --error: 0 56% 39%;
+  --radius: 18px;
+  --radius-sm: 7px;
+  --radius-lg: 29px;
+  --radius-pill: 999px;
+  --shadow: 0 1px 2px rgba(17,24,39,.04), 0 8px 24px rgba(17,24,39,.06);
+  --container: 1160px;
+  --font-heading: 'Lora',Georgia,'Times New Roman',serif;
+  --font-body: 'Work Sans',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --font-heading-weight: 600;
+  --font-heading-min: 2.1rem;
+  --font-heading-max: 4rem;
+  --leading-tight: 1.14;
+  --leading-body: 1.68;
+  --button-gradient: linear-gradient(120deg,#3D6B34,#548646);
+  --button-highlight: rgba(255,255,255,.22);
+}
+</style>
+</head>
+<body>
+<div class="pagina">
+  <div class="intro">
+    <h1>Tokens dos temas</h1>
+    <p>
+      Gerado por <code>npm run docs:themes</code> a partir de
+      <code>src/site-kit/themes/presets.ts</code>. Cada bloco mostra o tema
+      aplicado de verdade: as amostras, o botao e a tipografia usam as mesmas
+      variaveis CSS que o site publicado usa.
+    </p>
+    <p>
+      As tabelas trazem o contraste medido pelo mesmo codigo que roda no teste
+      (<code>themes/contrast-audit.ts</code>). Nenhum numero aqui foi digitado
+      a mao.
+    </p>
+  </div>
+
+  <section class="tema" data-theme="personal-editorial" aria-labelledby="titulo-personal-editorial">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-personal-editorial">Editorial pessoal</h2>
+      <p class="id"><code>personal-editorial</code> · claro</p>
+      <p class="descricao">Creme e rosa queimado com serifa expressiva. Para quem vende pelo nome proprio: nutricionista, terapeuta, fotografo.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#FBF6F1"></div>
+        <figcaption><code>--background</code><span>#FBF6F1</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#2B211D"></div>
+        <figcaption><code>--foreground</code><span>#2B211D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#63514A"></div>
+        <figcaption><code>--muted</code><span>#63514A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--surface</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9C4A44"></div>
+        <figcaption><code>--primary</code><span>#9C4A44</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFF8F5"></div>
+        <figcaption><code>--primary-foreground</code><span>#FFF8F5</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F0DDD5"></div>
+        <figcaption><code>--secondary</code><span>#F0DDD5</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4664F"></div>
+        <figcaption><code>--accent</code><span>#B4664F</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#DCC8BA"></div>
+        <figcaption><code>--border</code><span>#DCC8BA</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9C4A44"></div>
+        <figcaption><code>--ring</code><span>#9C4A44</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#2F6B4F"></div>
+        <figcaption><code>--success</code><span>#2F6B4F</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#7A5210"></div>
+        <figcaption><code>--warning</code><span>#7A5210</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9B2C2C"></div>
+        <figcaption><code>--error</code><span>#9B2C2C</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">14.61</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">15.70</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">6.97</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">7.48</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">5.75</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">11.96</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">5.86</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">6.43</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">7.01</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">5.62</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">5.62</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">6.04</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">3.95</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.50</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="startup-modern" aria-labelledby="titulo-startup-modern">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-startup-modern">Startup moderna</h2>
+      <p class="id"><code>startup-modern</code> · claro</p>
+      <p class="descricao">Fundo claro com menta, coral e verde, sans forte e formas organicas. Para produto digital e servico novo.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#F6FBF9"></div>
+        <figcaption><code>--background</code><span>#F6FBF9</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0C2019"></div>
+        <figcaption><code>--foreground</code><span>#0C2019</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#3F5C52"></div>
+        <figcaption><code>--muted</code><span>#3F5C52</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--surface</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0B7A63"></div>
+        <figcaption><code>--primary</code><span>#0B7A63</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--primary-foreground</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#D5F2E8"></div>
+        <figcaption><code>--secondary</code><span>#D5F2E8</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#C2402C"></div>
+        <figcaption><code>--accent</code><span>#C2402C</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#C2DDD2"></div>
+        <figcaption><code>--border</code><span>#C2DDD2</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0B7A63"></div>
+        <figcaption><code>--ring</code><span>#0B7A63</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#15803D"></div>
+        <figcaption><code>--success</code><span>#15803D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#8A5A00"></div>
+        <figcaption><code>--warning</code><span>#8A5A00</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4231D"></div>
+        <figcaption><code>--error</code><span>#B4231D</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">16.25</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">16.99</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">7.01</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">7.33</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">5.28</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">14.31</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">4.80</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">5.67</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.28</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">5.05</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">5.05</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">5.28</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">4.94</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.38</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="professional-editorial" aria-labelledby="titulo-professional-editorial">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-professional-editorial">Editorial profissional</h2>
+      <p class="id"><code>professional-editorial</code> · claro</p>
+      <p class="descricao">Bege com verde escuro e tipografia editorial. Ar de consultoria premium: advocacia, arquitetura, financas.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#F5F0E6"></div>
+        <figcaption><code>--background</code><span>#F5F0E6</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#1C2620"></div>
+        <figcaption><code>--foreground</code><span>#1C2620</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#4F5D53"></div>
+        <figcaption><code>--muted</code><span>#4F5D53</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFDF8"></div>
+        <figcaption><code>--surface</code><span>#FFFDF8</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#14532D"></div>
+        <figcaption><code>--primary</code><span>#14532D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F4FBF6"></div>
+        <figcaption><code>--primary-foreground</code><span>#F4FBF6</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#E2E8DC"></div>
+        <figcaption><code>--secondary</code><span>#E2E8DC</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#8A6A22"></div>
+        <figcaption><code>--accent</code><span>#8A6A22</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#D2C5AC"></div>
+        <figcaption><code>--border</code><span>#D2C5AC</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#14532D"></div>
+        <figcaption><code>--ring</code><span>#14532D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#276749"></div>
+        <figcaption><code>--success</code><span>#276749</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#7A5210"></div>
+        <figcaption><code>--warning</code><span>#7A5210</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9B2C2C"></div>
+        <figcaption><code>--error</code><span>#9B2C2C</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">13.72</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">15.33</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">6.12</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">6.83</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">8.67</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">12.48</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">5.92</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">6.08</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.63</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">8.02</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">8.02</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">8.96</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">4.44</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.50</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="corporate-trust" aria-labelledby="titulo-corporate-trust">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-corporate-trust">Corporativo confiavel</h2>
+      <p class="id"><code>corporate-trust</code> · claro</p>
+      <p class="descricao">Verde profundo sobre branco, com destaque ambar. Para empresa que precisa parecer estavel antes de parecer moderna.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--background</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#111E1A"></div>
+        <figcaption><code>--foreground</code><span>#111E1A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#44564F"></div>
+        <figcaption><code>--muted</code><span>#44564F</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F5F8F7"></div>
+        <figcaption><code>--surface</code><span>#F5F8F7</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0B5D45"></div>
+        <figcaption><code>--primary</code><span>#0B5D45</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--primary-foreground</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#DCE9E4"></div>
+        <figcaption><code>--secondary</code><span>#DCE9E4</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9A5B06"></div>
+        <figcaption><code>--accent</code><span>#9A5B06</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#D8E3DF"></div>
+        <figcaption><code>--border</code><span>#D8E3DF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0B5D45"></div>
+        <figcaption><code>--ring</code><span>#0B5D45</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#15803D"></div>
+        <figcaption><code>--success</code><span>#15803D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#8A5A00"></div>
+        <figcaption><code>--warning</code><span>#8A5A00</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4231D"></div>
+        <figcaption><code>--error</code><span>#B4231D</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">17.15</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">16.05</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">7.81</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">7.31</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">7.88</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">13.74</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">5.02</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">5.93</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.56</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">7.88</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">7.88</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">7.37</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">5.42</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.31</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="local-vibrant" aria-labelledby="titulo-local-vibrant">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-local-vibrant">Local vibrante</h2>
+      <p class="id"><code>local-vibrant</code> · claro</p>
+      <p class="descricao">Cores vivas e contraste forte, com CTA impossivel de ignorar. Para servico local que vive de telefone tocando.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#FFF9F5"></div>
+        <figcaption><code>--background</code><span>#FFF9F5</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#1A1410"></div>
+        <figcaption><code>--foreground</code><span>#1A1410</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#4D423B"></div>
+        <figcaption><code>--muted</code><span>#4D423B</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--surface</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#C23A0A"></div>
+        <figcaption><code>--primary</code><span>#C23A0A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--primary-foreground</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFE3D2"></div>
+        <figcaption><code>--secondary</code><span>#FFE3D2</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#1565C0"></div>
+        <figcaption><code>--accent</code><span>#1565C0</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#E5C7B1"></div>
+        <figcaption><code>--border</code><span>#E5C7B1</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#C23A0A"></div>
+        <figcaption><code>--ring</code><span>#C23A0A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#15803D"></div>
+        <figcaption><code>--success</code><span>#15803D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#8A5A00"></div>
+        <figcaption><code>--warning</code><span>#8A5A00</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4231D"></div>
+        <figcaption><code>--error</code><span>#B4231D</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">17.47</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">18.24</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">9.32</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">9.73</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">5.38</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">14.91</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">4.81</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">5.68</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.29</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">5.15</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">5.15</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">5.38</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">5.51</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.53</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="local-premium-dark" aria-labelledby="titulo-local-premium-dark">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-local-premium-dark">Local premium escuro</h2>
+      <p class="id"><code>local-premium-dark</code> · escuro</p>
+      <p class="descricao">Carvao azulado com dourado e alto contraste. Para servico local que cobra caro: estetica, barbearia, gastronomia.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#0F1720"></div>
+        <figcaption><code>--background</code><span>#0F1720</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F1F5F9"></div>
+        <figcaption><code>--foreground</code><span>#F1F5F9</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4C0CC"></div>
+        <figcaption><code>--muted</code><span>#B4C0CC</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#17222E"></div>
+        <figcaption><code>--surface</code><span>#17222E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#E3B54A"></div>
+        <figcaption><code>--primary</code><span>#E3B54A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#11181F"></div>
+        <figcaption><code>--primary-foreground</code><span>#11181F</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#22303E"></div>
+        <figcaption><code>--secondary</code><span>#22303E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F1CE7E"></div>
+        <figcaption><code>--accent</code><span>#F1CE7E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#2A3846"></div>
+        <figcaption><code>--border</code><span>#2A3846</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#E3B54A"></div>
+        <figcaption><code>--ring</code><span>#E3B54A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#4ADE80"></div>
+        <figcaption><code>--success</code><span>#4ADE80</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FBBF24"></div>
+        <figcaption><code>--warning</code><span>#FBBF24</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FB7185"></div>
+        <figcaption><code>--error</code><span>#FB7185</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">16.47</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">14.69</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">9.76</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">8.70</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">9.35</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">12.29</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">10.36</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">10.81</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.70</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">9.43</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">9.43</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">8.41</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">11.92</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.51</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="clinical-clean" aria-labelledby="titulo-clinical-clean">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-clinical-clean">Clinico limpo</h2>
+      <p class="id"><code>clinical-clean</code> · claro</p>
+      <p class="descricao">Branco, azul e cinzas claros. Transmite higiene e competencia: consultorio, laboratorio, odontologia.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--background</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0E2330"></div>
+        <figcaption><code>--foreground</code><span>#0E2330</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#44606E"></div>
+        <figcaption><code>--muted</code><span>#44606E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F4FAFD"></div>
+        <figcaption><code>--surface</code><span>#F4FAFD</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0A6C9E"></div>
+        <figcaption><code>--primary</code><span>#0A6C9E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--primary-foreground</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#DCEEF8"></div>
+        <figcaption><code>--secondary</code><span>#DCEEF8</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0E7C8A"></div>
+        <figcaption><code>--accent</code><span>#0E7C8A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#C6DBE8"></div>
+        <figcaption><code>--border</code><span>#C6DBE8</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#0A6C9E"></div>
+        <figcaption><code>--ring</code><span>#0A6C9E</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#15803D"></div>
+        <figcaption><code>--success</code><span>#15803D</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#8A5A00"></div>
+        <figcaption><code>--warning</code><span>#8A5A00</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#B4231D"></div>
+        <figcaption><code>--error</code><span>#B4231D</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">16.13</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">15.32</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">6.68</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">6.34</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">5.75</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">13.54</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">5.02</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">5.93</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">6.56</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">5.75</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">5.75</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">5.46</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">4.92</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.43</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+
+  <section class="tema" data-theme="nature-organic" aria-labelledby="titulo-nature-organic">
+    <header class="tema-cabecalho">
+      <h2 id="titulo-nature-organic">Natural organico</h2>
+      <p class="id"><code>nature-organic</code> · claro</p>
+      <p class="descricao">Verdes naturais, tons terrosos e cantos suaves. Para quem vende cuidado com a origem: produto natural, paisagismo, pet.</p>
+    </header>
+
+    <div class="demo">
+      <p class="eyebrow">Demonstracao</p>
+      <h3>Um titulo do tamanho que apareceria numa hero</h3>
+      <p class="corpo">
+        Texto de corpo com a fonte e a entrelinha do tema. O contraste deste
+        paragrafo e medido na tabela abaixo.
+      </p>
+      <p class="apoio">Texto de apoio, usado em legenda e descricao curta.</p>
+      <div class="acoes">
+        <span class="botao">Agendar avaliacao</span>
+        <span class="botao secundario">Saber mais</span>
+      </div>
+      <div class="estados">
+        <span class="estado sucesso">Sucesso</span>
+        <span class="estado alerta">Alerta</span>
+        <span class="estado erro">Erro</span>
+      </div>
+    </div>
+
+    <div class="swatches">
+      <figure class="swatch">
+        <div class="chip" style="background:#FAF8F1"></div>
+        <figcaption><code>--background</code><span>#FAF8F1</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#1F2A1B"></div>
+        <figcaption><code>--foreground</code><span>#1F2A1B</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#4B5A42"></div>
+        <figcaption><code>--muted</code><span>#4B5A42</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#FFFFFF"></div>
+        <figcaption><code>--surface</code><span>#FFFFFF</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#3D6B34"></div>
+        <figcaption><code>--primary</code><span>#3D6B34</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#F7FBF5"></div>
+        <figcaption><code>--primary-foreground</code><span>#F7FBF5</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#E3EBDA"></div>
+        <figcaption><code>--secondary</code><span>#E3EBDA</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#A9552A"></div>
+        <figcaption><code>--accent</code><span>#A9552A</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#D4CDB6"></div>
+        <figcaption><code>--border</code><span>#D4CDB6</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#3D6B34"></div>
+        <figcaption><code>--ring</code><span>#3D6B34</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#276749"></div>
+        <figcaption><code>--success</code><span>#276749</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#7A5210"></div>
+        <figcaption><code>--warning</code><span>#7A5210</span></figcaption>
+      </figure>
+      <figure class="swatch">
+        <div class="chip" style="background:#9B2C2C"></div>
+        <figcaption><code>--error</code><span>#9B2C2C</span></figcaption>
+      </figure></div>
+    <table class="contraste">
+    <caption>Contraste medido (WCAG 2.1)</caption>
+    <thead><tr><th>Par</th><th>Medido</th><th>Minimo</th><th>Resultado</th></tr></thead>
+    <tbody>
+        <tr>
+          <td>Texto sobre o fundo</td>
+          <td class="num">14.06</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o cartao</td>
+          <td class="num">14.94</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o fundo</td>
+          <td class="num">6.96</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto de apoio sobre o cartao</td>
+          <td class="num">7.39</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto do botao primario</td>
+          <td class="num">5.99</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Texto sobre o secundario</td>
+          <td class="num">12.21</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Sucesso sobre o fundo</td>
+          <td class="num">6.33</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Alerta sobre o fundo</td>
+          <td class="num">6.50</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Erro sobre o fundo</td>
+          <td class="num">7.08</td>
+          <td class="num">4.5</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Botao primario sobre o fundo</td>
+          <td class="num">5.90</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o fundo</td>
+          <td class="num">5.90</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Anel de foco sobre o cartao</td>
+          <td class="num">6.27</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Destaque sobre o fundo</td>
+          <td class="num">4.92</td>
+          <td class="num">3</td>
+          <td class="ok">passa</td>
+        </tr>
+        <tr>
+          <td>Borda sobre o fundo</td>
+          <td class="num">1.50</td>
+          <td class="num">1.3</td>
+          <td class="ok">passa</td>
+        </tr></tbody>
+  </table>
+  </section>
+</div>
+</body>
+</html>
