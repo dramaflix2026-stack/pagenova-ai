@@ -1351,11 +1351,8 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       /*
        * Automatic testimonial carousel.
        *
-       * PageNova V6.5.1:
-       * advance one testimonial at a time,
-       * loop back to the first card,
-       * pause during interaction,
-       * and respect reduced motion.
+       * PageNova V6.6:
+       * continuous infinite horizontal movement.
        */
       const slider = site.querySelector(
         '.pn001-testimonial-slider'
@@ -1367,145 +1364,197 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       ) {
         slider.dataset.pnV6Carousel = 'ready';
 
-        const cards = Array.from(slider.children).filter(
+        const originals = Array.from(
+          slider.children
+        ).filter(
           (card) =>
             card instanceof HTMLElement &&
             card.dataset.pnV6Clone !== 'true'
         );
 
-        if (cards.length > 1) {
-          const reduceMotion = window.matchMedia(
-            '(prefers-reduced-motion: reduce)'
-          );
+        if (originals.length > 1) {
+          originals.forEach((card) => {
+            const clone = card.cloneNode(true);
 
-          let currentIndex = 0;
-          let autoplayTimer = 0;
+            if (clone instanceof HTMLElement) {
+              clone.dataset.pnV6Clone = 'true';
 
-          const getGap = () => {
-            const styles = window.getComputedStyle(slider);
+              clone.setAttribute(
+                'aria-hidden',
+                'true'
+              );
 
-            const parsed = Number.parseFloat(
-              styles.columnGap || styles.gap || '0'
+              slider.appendChild(clone);
+            }
+          });
+
+          const reduceMotion =
+            window.matchMedia(
+              '(prefers-reduced-motion: reduce)'
             );
 
-            return Number.isFinite(parsed)
-              ? parsed
-              : 0;
-          };
+          let paused = false;
+          let position = 0;
+          let lastTime = 0;
 
-          const getStep = () => {
-            const firstCard = cards[0];
+          const getLoopWidth = () => {
+            const children =
+              Array.from(slider.children);
 
-            if (!(firstCard instanceof HTMLElement)) {
-              return slider.clientWidth;
+            const first =
+              children[0];
+
+            const firstClone =
+              children[originals.length];
+
+            if (
+              first instanceof HTMLElement &&
+              firstClone instanceof HTMLElement
+            ) {
+              return (
+                firstClone.offsetLeft -
+                first.offsetLeft
+              );
             }
 
-            return (
-              firstCard.getBoundingClientRect().width +
-              getGap()
-            );
+            return slider.scrollWidth / 2;
           };
 
-          const goTo = (
-            index,
-            behavior = 'smooth'
-          ) => {
-            currentIndex =
-              ((index % cards.length) + cards.length) %
-              cards.length;
-
-            slider.scrollTo({
-              left: getStep() * currentIndex,
-              behavior
-            });
+          const renderPosition = () => {
+            slider.style.transform =
+              'translate3d(' +
+              (-position) +
+              'px,0,0)';
           };
 
-          const stopAutoplay = () => {
-            if (autoplayTimer) {
-              window.clearInterval(autoplayTimer);
-              autoplayTimer = 0;
-            }
+          const pause = () => {
+            paused = true;
           };
 
-          const startAutoplay = () => {
-            stopAutoplay();
-
-            if (reduceMotion.matches) {
-              return;
-            }
-
-            autoplayTimer = window.setInterval(
-              () => {
-                goTo(currentIndex + 1);
-              },
-              4200
-            );
+          const resume = () => {
+            paused = false;
+            lastTime = performance.now();
           };
 
           slider.addEventListener(
             'mouseenter',
-            stopAutoplay
+            pause
           );
 
           slider.addEventListener(
             'mouseleave',
-            startAutoplay
+            resume
           );
 
           slider.addEventListener(
             'focusin',
-            stopAutoplay
+            pause
           );
 
           slider.addEventListener(
             'focusout',
-            startAutoplay
+            resume
           );
 
           slider.addEventListener(
             'pointerdown',
-            stopAutoplay
+            pause
           );
 
-          slider.addEventListener(
+          window.addEventListener(
             'pointerup',
-            startAutoplay
+            resume
           );
+
+          const frame = (time) => {
+            if (!lastTime) {
+              lastTime = time;
+            }
+
+            const delta = Math.min(
+              time - lastTime,
+              40
+            );
+
+            lastTime = time;
+
+            if (reduceMotion.matches) {
+              position = 0;
+              slider.style.transform = 'none';
+            } else if (!paused) {
+              position += delta * 0.032;
+
+              const loopWidth =
+                getLoopWidth();
+
+              if (
+                loopWidth > 0 &&
+                position >= loopWidth
+              ) {
+                position -= loopWidth;
+              }
+
+              renderPosition();
+            }
+
+            requestAnimationFrame(frame);
+          };
+
+          const motionChanged = () => {
+            if (reduceMotion.matches) {
+              position = 0;
+              slider.style.transform = 'none';
+            } else {
+              lastTime = performance.now();
+            }
+          };
+
+          if (
+            typeof reduceMotion.addEventListener ===
+            'function'
+          ) {
+            reduceMotion.addEventListener(
+              'change',
+              motionChanged
+            );
+          }
 
           window.addEventListener(
             'resize',
             () => {
-              goTo(currentIndex, 'auto');
-            }
-          );
+              const loopWidth =
+                getLoopWidth();
 
-          reduceMotion.addEventListener?.(
-            'change',
-            () => {
-              if (reduceMotion.matches) {
-                stopAutoplay();
-                goTo(0, 'auto');
-              } else {
-                startAutoplay();
+              if (
+                loopWidth > 0 &&
+                position >= loopWidth
+              ) {
+                position =
+                  position % loopWidth;
+
+                renderPosition();
               }
             }
           );
 
-          goTo(0, 'auto');
-          startAutoplay();
+          requestAnimationFrame(frame);
         }
       }
     });
   };
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot, {
-      once: true
-    });
+    document.addEventListener(
+      'DOMContentLoaded',
+      boot,
+      {
+        once: true
+      }
+    );
   } else {
     boot();
   }
-})();
+})()
 
   /* ========================================================
      PAGENOVA V6.1 STRUCTURAL CONTRACT
@@ -4601,4 +4650,873 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
 
   /* PAGENOVA_V651_END */
 
+
+  /* PAGENOVA_V66_BEGIN
+     ============================================================
+     STRUCTURAL COMPOSITION SYSTEM
+     ============================================================ */
+
+  .pn001-site .pn001-v66-services,
+  .pn001-site .pn001-v66-benefits,
+  .pn001-site .pn001-v66-features,
+  .pn001-site .pn001-v66-process {
+    padding-top:
+      clamp(48px, 5vw, 70px) !important;
+
+    padding-bottom:
+      clamp(48px, 5vw, 70px) !important;
+  }
+
+  /*
+   * SHARED HEAD
+   */
+
+  .pn001-site .pn001-v66-head {
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(110px, .34fr)
+      minmax(0, 1.66fr) !important;
+
+    gap:
+      clamp(22px, 4.5vw, 68px) !important;
+
+    align-items:
+      start !important;
+
+    margin-bottom:
+      clamp(25px, 3.4vw, 42px) !important;
+  }
+
+  .pn001-site .pn001-v66-head-copy {
+    max-width:
+      760px !important;
+  }
+
+  .pn001-site .pn001-v66-head h2 {
+    margin:
+      0 !important;
+
+    font-size:
+      clamp(30px, 3.2vw, 44px) !important;
+
+    line-height:
+      1.03 !important;
+  }
+
+  .pn001-site .pn001-v66-head p {
+    max-width:
+      660px !important;
+
+    margin:
+      12px 0 0 !important;
+
+    font-size:
+      15px !important;
+
+    line-height:
+      1.55 !important;
+
+    color:
+      var(--pn001-muted) !important;
+  }
+
+  /*
+   * SERVICES
+   * Thin editorial rows.
+   */
+
+  .pn001-site .pn001-v66-service-list {
+    border-top:
+      1px solid var(--pn001-line) !important;
+  }
+
+  .pn001-site .pn001-v66-service-row {
+    display:
+      grid !important;
+
+    grid-template-columns:
+      52px
+      minmax(180px, .72fr)
+      minmax(260px, 1.28fr)
+      34px !important;
+
+    gap:
+      clamp(14px, 2.2vw, 32px) !important;
+
+    align-items:
+      center !important;
+
+    min-height:
+      94px !important;
+
+    padding:
+      17px 2px !important;
+
+    margin:
+      0 !important;
+
+    border:
+      0 !important;
+
+    border-bottom:
+      1px solid var(--pn001-line) !important;
+
+    border-radius:
+      0 !important;
+
+    background:
+      transparent !important;
+
+    box-shadow:
+      none !important;
+  }
+
+  .pn001-site .pn001-v66-service-number {
+    font-size:
+      11px !important;
+
+    font-weight:
+      800 !important;
+
+    letter-spacing:
+      .12em !important;
+
+    color:
+      var(--pn001-accent) !important;
+  }
+
+  .pn001-site .pn001-v66-service-row h3 {
+    margin:
+      0 !important;
+
+    font-size:
+      clamp(19px, 1.7vw, 24px) !important;
+
+    line-height:
+      1.12 !important;
+  }
+
+  .pn001-site .pn001-v66-service-row p {
+    margin:
+      0 !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.55 !important;
+
+    color:
+      var(--pn001-muted) !important;
+  }
+
+  .pn001-site .pn001-v66-service-arrow {
+    display:
+      grid !important;
+
+    place-items:
+      center !important;
+
+    width:
+      32px !important;
+
+    height:
+      32px !important;
+
+    border:
+      1px solid var(--pn001-line) !important;
+
+    border-radius:
+      999px !important;
+  }
+
+  /*
+   * BENEFITS
+   * Compact tiles.
+   */
+
+  .pn001-site .pn001-v66-benefits {
+    background:
+      var(--pn001-surface-soft) !important;
+  }
+
+  .pn001-site .pn001-v66-benefit-grid {
+    display:
+      grid !important;
+
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+
+    gap:
+      14px !important;
+  }
+
+  .pn001-site .pn001-v66-benefit {
+    min-height:
+      180px !important;
+
+    padding:
+      21px !important;
+
+    border:
+      1px solid var(--pn001-line) !important;
+
+    border-radius:
+      15px !important;
+
+    background:
+      var(--pn001-surface) !important;
+
+    box-shadow:
+      none !important;
+  }
+
+  .pn001-site .pn001-v66-benefit-top {
+    display:
+      flex !important;
+
+    align-items:
+      center !important;
+
+    justify-content:
+      space-between !important;
+
+    margin-bottom:
+      25px !important;
+  }
+
+  .pn001-site .pn001-v66-benefit-dot {
+    width:
+      8px !important;
+
+    height:
+      8px !important;
+
+    border-radius:
+      999px !important;
+
+    background:
+      var(--pn001-accent) !important;
+  }
+
+  .pn001-site .pn001-v66-benefit-number {
+    font-size:
+      10px !important;
+
+    font-weight:
+      800 !important;
+
+    opacity:
+      .46 !important;
+  }
+
+  .pn001-site .pn001-v66-benefit h3 {
+    margin:
+      0 0 8px !important;
+
+    font-size:
+      clamp(19px, 1.6vw, 23px) !important;
+
+    line-height:
+      1.12 !important;
+  }
+
+  .pn001-site .pn001-v66-benefit p {
+    margin:
+      0 !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.5 !important;
+
+    color:
+      var(--pn001-muted) !important;
+  }
+
+  /*
+   * DIFFERENTIALS
+   * Own dark editorial identity.
+   */
+
+  .pn001-site .pn001-v66-feature-shell {
+    padding:
+      clamp(28px, 4vw, 48px) !important;
+
+    border-radius:
+      22px !important;
+
+    background:
+      var(--pn001-dark) !important;
+
+    color:
+      #ffffff !important;
+  }
+
+  .pn001-site
+  .pn001-v66-feature-shell
+  .pn001-eyebrow {
+    color:
+      var(--pn001-accent) !important;
+  }
+
+  .pn001-site
+  .pn001-v66-feature-shell
+  .pn001-v66-head p {
+    color:
+      rgba(255,255,255,.64) !important;
+  }
+
+  .pn001-site .pn001-v66-feature-grid {
+    display:
+      grid !important;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+
+    border-top:
+      1px solid rgba(255,255,255,.14) !important;
+
+    border-left:
+      1px solid rgba(255,255,255,.14) !important;
+  }
+
+  .pn001-site .pn001-v66-feature {
+    display:
+      grid !important;
+
+    grid-template-columns:
+      40px
+      minmax(0, 1fr) !important;
+
+    gap:
+      15px !important;
+
+    min-height:
+      142px !important;
+
+    padding:
+      22px !important;
+
+    border-right:
+      1px solid rgba(255,255,255,.14) !important;
+
+    border-bottom:
+      1px solid rgba(255,255,255,.14) !important;
+  }
+
+  .pn001-site .pn001-v66-feature-index {
+    display:
+      grid !important;
+
+    place-items:
+      center !important;
+
+    width:
+      32px !important;
+
+    height:
+      32px !important;
+
+    border:
+      1px solid rgba(255,255,255,.25) !important;
+
+    border-radius:
+      999px !important;
+
+    font-size:
+      10px !important;
+
+    font-weight:
+      800 !important;
+  }
+
+  .pn001-site .pn001-v66-feature h3 {
+    margin:
+      2px 0 7px !important;
+
+    color:
+      #ffffff !important;
+
+    font-size:
+      clamp(18px, 1.55vw, 22px) !important;
+  }
+
+  .pn001-site .pn001-v66-feature p {
+    margin:
+      0 !important;
+
+    color:
+      rgba(255,255,255,.62) !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.5 !important;
+  }
+
+  /*
+   * PROCESS
+   * Horizontal timeline.
+   */
+
+  .pn001-site .pn001-v66-process-timeline {
+    display:
+      flex !important;
+
+    align-items:
+      flex-start !important;
+
+    width:
+      100% !important;
+
+    gap:
+      0 !important;
+  }
+
+  .pn001-site .pn001-v66-process-step {
+    flex:
+      1 1 0 !important;
+
+    min-width:
+      0 !important;
+
+    padding-right:
+      clamp(16px, 2.5vw, 32px) !important;
+  }
+
+  .pn001-site .pn001-v66-process-track {
+    display:
+      flex !important;
+
+    align-items:
+      center !important;
+
+    margin-bottom:
+      18px !important;
+  }
+
+  .pn001-site .pn001-v66-process-node {
+    display:
+      grid !important;
+
+    place-items:
+      center !important;
+
+    flex:
+      0 0 40px !important;
+
+    width:
+      40px !important;
+
+    height:
+      40px !important;
+
+    border-radius:
+      999px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+
+    font-size:
+      11px !important;
+
+    font-weight:
+      800 !important;
+  }
+
+  .pn001-site .pn001-v66-process-line {
+    display:
+      block !important;
+
+    flex:
+      1 1 auto !important;
+
+    height:
+      1px !important;
+
+    background:
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site
+  .pn001-v66-process-step:last-child
+  .pn001-v66-process-line {
+    opacity:
+      0 !important;
+  }
+
+  .pn001-site .pn001-v66-process-copy {
+    max-width:
+      245px !important;
+  }
+
+  .pn001-site .pn001-v66-process-copy h3 {
+    margin:
+      0 0 7px !important;
+
+    font-size:
+      clamp(18px, 1.5vw, 22px) !important;
+
+    line-height:
+      1.14 !important;
+  }
+
+  .pn001-site .pn001-v66-process-copy p {
+    margin:
+      0 !important;
+
+    color:
+      var(--pn001-muted) !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.5 !important;
+  }
+
+  /*
+   * TESTIMONIALS
+   */
+
+  .pn001-site .pn001-testimonials,
+  .pn001-site .pn001-testimonials-v6 {
+    overflow:
+      hidden !important;
+
+    padding-top:
+      clamp(44px, 4.5vw, 62px) !important;
+
+    padding-bottom:
+      clamp(44px, 4.5vw, 62px) !important;
+  }
+
+  .pn001-site .pn001-testimonial-slider {
+    display:
+      flex !important;
+
+    grid-template-columns:
+      none !important;
+
+    grid-auto-flow:
+      unset !important;
+
+    grid-auto-columns:
+      unset !important;
+
+    gap:
+      14px !important;
+
+    width:
+      max-content !important;
+
+    max-width:
+      none !important;
+
+    overflow:
+      visible !important;
+
+    scroll-snap-type:
+      none !important;
+
+    will-change:
+      transform !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-slider
+  > * {
+    flex:
+      0 0 clamp(260px, 27vw, 318px) !important;
+
+    width:
+      clamp(260px, 27vw, 318px) !important;
+
+    min-width:
+      0 !important;
+
+    min-height:
+      205px !important;
+
+    height:
+      auto !important;
+  }
+
+  .pn001-site .pn001-testimonial-card-v6,
+  .pn001-site
+  .pn001-testimonial-slider
+  .pn001-quote {
+    padding:
+      18px !important;
+
+    border-radius:
+      16px !important;
+  }
+
+  .pn001-site .pn001-testimonial-stars {
+    margin-top:
+      16px !important;
+  }
+
+  .pn001-site .pn001-testimonial-card-v6 > p,
+  .pn001-site
+  .pn001-testimonial-slider
+  blockquote {
+    margin-top:
+      14px !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.52 !important;
+  }
+
+  /*
+   * FINAL CTA
+   */
+
+  .pn001-site .pn001-final-cta {
+    padding-top:
+      28px !important;
+
+    padding-bottom:
+      32px !important;
+  }
+
+  .pn001-site .pn001-final-cta-card {
+    display:
+      grid !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto !important;
+
+    align-items:
+      center !important;
+
+    gap:
+      clamp(24px, 4vw, 58px) !important;
+
+    min-height:
+      0 !important;
+
+    padding:
+      clamp(25px, 3vw, 36px)
+      clamp(25px, 4vw, 46px) !important;
+
+    border-radius:
+      19px !important;
+  }
+
+  .pn001-site .pn001-final-cta-copy {
+    max-width:
+      700px !important;
+  }
+
+  .pn001-site .pn001-final-cta-copy h2 {
+    margin:
+      6px 0 8px !important;
+
+    font-size:
+      clamp(27px, 2.8vw, 40px) !important;
+
+    line-height:
+      1.04 !important;
+  }
+
+  .pn001-site .pn001-final-cta-copy p {
+    margin:
+      0 !important;
+
+    max-width:
+      600px !important;
+
+    font-size:
+      14px !important;
+
+    line-height:
+      1.5 !important;
+  }
+
+  /*
+   * TABLET
+   */
+
+  @media (max-width: 980px) {
+
+    .pn001-site .pn001-v66-head {
+      grid-template-columns:
+        1fr !important;
+
+      gap:
+        9px !important;
+    }
+
+    .pn001-site .pn001-v66-benefit-grid {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pn001-site .pn001-v66-service-row {
+      grid-template-columns:
+        42px
+        minmax(150px, .8fr)
+        minmax(0, 1.2fr)
+        32px !important;
+    }
+
+    .pn001-site .pn001-v66-process-timeline {
+      display:
+        grid !important;
+
+      grid-template-columns:
+        1fr !important;
+    }
+
+    .pn001-site .pn001-v66-process-step {
+      display:
+        grid !important;
+
+      grid-template-columns:
+        42px
+        minmax(0, 1fr) !important;
+
+      gap:
+        15px !important;
+
+      padding:
+        0 0 20px !important;
+    }
+
+    .pn001-site .pn001-v66-process-track {
+      flex-direction:
+        column !important;
+
+      margin:
+        0 !important;
+    }
+
+    .pn001-site .pn001-v66-process-line {
+      width:
+        1px !important;
+
+      min-height:
+        54px !important;
+
+      flex:
+        1 1 54px !important;
+    }
+
+    .pn001-site .pn001-v66-process-copy {
+      max-width:
+        520px !important;
+
+      padding-top:
+        7px !important;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 700px) {
+
+    .pn001-site .pn001-v66-services,
+    .pn001-site .pn001-v66-benefits,
+    .pn001-site .pn001-v66-features,
+    .pn001-site .pn001-v66-process {
+      padding-top:
+        40px !important;
+
+      padding-bottom:
+        40px !important;
+    }
+
+    .pn001-site .pn001-v66-service-row {
+      grid-template-columns:
+        34px
+        minmax(0, 1fr)
+        30px !important;
+
+      gap:
+        10px !important;
+
+      min-height:
+        0 !important;
+
+      padding:
+        16px 0 !important;
+    }
+
+    .pn001-site .pn001-v66-service-row p {
+      grid-column:
+        2 / 4 !important;
+
+      padding-right:
+        10px !important;
+    }
+
+    .pn001-site .pn001-v66-benefit-grid {
+      grid-template-columns:
+        1fr !important;
+    }
+
+    .pn001-site .pn001-v66-benefit {
+      min-height:
+        0 !important;
+    }
+
+    .pn001-site .pn001-v66-feature-shell {
+      padding:
+        23px 17px !important;
+
+      border-radius:
+        18px !important;
+    }
+
+    .pn001-site .pn001-v66-feature-grid {
+      grid-template-columns:
+        1fr !important;
+    }
+
+    .pn001-site .pn001-v66-feature {
+      min-height:
+        0 !important;
+
+      padding:
+        18px 15px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-slider
+    > * {
+      flex-basis:
+        min(82vw, 284px) !important;
+
+      width:
+        min(82vw, 284px) !important;
+    }
+
+    .pn001-site .pn001-final-cta-card {
+      grid-template-columns:
+        1fr !important;
+
+      gap:
+        18px !important;
+
+      padding:
+        24px 19px !important;
+    }
+  }
+
+  /* PAGENOVA_V66_END */
   /* PAGENOVA_V65_END */`;

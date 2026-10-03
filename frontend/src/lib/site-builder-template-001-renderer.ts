@@ -210,6 +210,276 @@ const renderGenericCards = (
   `;
 };
 
+
+/* PAGENOVA_V66_STRUCTURAL_RENDERERS_BEGIN
+   ============================================================
+   PAGENOVA V6.6
+
+   services = editorial rows
+   benefits = compact tiles
+   features = editorial differential panel
+   process  = timeline
+   ============================================================ */
+
+const renderV66SectionHead = (
+  section: SiteSection,
+  eyebrow: string,
+): string => `
+  <div class="pn001-v66-head">
+    <span class="pn001-eyebrow">
+      ${escapeHtml(eyebrow)}
+    </span>
+
+    <div class="pn001-v66-head-copy">
+      <h2>
+        ${escapeHtml(sectionTitle(section))}
+      </h2>
+
+      ${
+        sectionSubtitle(section)
+          ? `<p>${escapeHtml(sectionSubtitle(section))}</p>`
+          : ""
+      }
+    </div>
+  </div>
+`;
+
+const renderV66Services = (
+  section: SiteSection,
+): string => {
+  const items = sectionItems(section);
+
+  const content = items
+    .slice(0, 6)
+    .map((item, index) => {
+      const title =
+        itemTitle(item) ||
+        `Serviço ${String(index + 1).padStart(2, "0")}`;
+
+      const description =
+        itemDescription(item) ||
+        "Conheça esta solução e entenda como ela pode atender à sua necessidade.";
+
+      return `
+        <article class="pn001-v66-service-row">
+          <span class="pn001-v66-service-number">
+            ${String(index + 1).padStart(2, "0")}
+          </span>
+
+          <h3>
+            ${escapeHtml(title)}
+          </h3>
+
+          <p>
+            ${escapeHtml(description)}
+          </p>
+
+          <span
+            class="pn001-v66-service-arrow"
+            aria-hidden="true"
+          >
+            →
+          </span>
+        </article>
+      `;
+    })
+    .join("");
+
+  return `
+    <section
+      class="pn001-section pn001-v66-services"
+      data-kind="services"
+    >
+      <div class="pn001-container">
+        ${renderV66SectionHead(section, "Serviços")}
+
+        <div class="pn001-v66-service-list">
+          ${content}
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+const renderV66Benefits = (
+  section: SiteSection,
+): string => {
+  const items = sectionItems(section);
+
+  const content = items
+    .slice(0, 6)
+    .map((item, index) => {
+      const title =
+        itemTitle(item) ||
+        `Benefício ${String(index + 1).padStart(2, "0")}`;
+
+      const description =
+        itemDescription(item);
+
+      return `
+        <article class="pn001-v66-benefit">
+          <div class="pn001-v66-benefit-top">
+            <span
+              class="pn001-v66-benefit-dot"
+              aria-hidden="true"
+            ></span>
+
+            <span class="pn001-v66-benefit-number">
+              ${String(index + 1).padStart(2, "0")}
+            </span>
+          </div>
+
+          <h3>
+            ${escapeHtml(title)}
+          </h3>
+
+          ${
+            description
+              ? `<p>${escapeHtml(description)}</p>`
+              : ""
+          }
+        </article>
+      `;
+    })
+    .join("");
+
+  return `
+    <section
+      class="pn001-section pn001-v66-benefits"
+      data-kind="benefits"
+    >
+      <div class="pn001-container">
+        ${renderV66SectionHead(section, "Benefícios")}
+
+        <div class="pn001-v66-benefit-grid">
+          ${content}
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+const renderV66Features = (
+  section: SiteSection,
+): string => {
+  const items = sectionItems(section);
+
+  const content = items
+    .slice(0, 6)
+    .map((item, index) => {
+      const title =
+        itemTitle(item) ||
+        `Diferencial ${String(index + 1).padStart(2, "0")}`;
+
+      const description =
+        itemDescription(item);
+
+      return `
+        <article class="pn001-v66-feature">
+          <span class="pn001-v66-feature-index">
+            ${String(index + 1).padStart(2, "0")}
+          </span>
+
+          <div class="pn001-v66-feature-copy">
+            <h3>
+              ${escapeHtml(title)}
+            </h3>
+
+            ${
+              description
+                ? `<p>${escapeHtml(description)}</p>`
+                : ""
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  return `
+    <section
+      class="pn001-section pn001-v66-features"
+      data-kind="features"
+    >
+      <div class="pn001-container">
+        <div class="pn001-v66-feature-shell">
+          ${renderV66SectionHead(section, "Diferenciais")}
+
+          <div class="pn001-v66-feature-grid">
+            ${content}
+          </div>
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+const renderV66Process = (
+  section: SiteSection,
+): string => {
+  const items = sectionItems(section);
+
+  const content = items
+    .slice(0, 5)
+    .map((item, index) => {
+      const rawTitle =
+        itemTitle(item) ||
+        `Etapa ${String(index + 1).padStart(2, "0")}`;
+
+      const title = rawTitle.replace(
+        /^\s*\d{1,2}\s*[·.\-:]\s*/,
+        "",
+      );
+
+      const description =
+        itemDescription(item);
+
+      return `
+        <article class="pn001-v66-process-step">
+          <div class="pn001-v66-process-track">
+            <span class="pn001-v66-process-node">
+              ${String(index + 1).padStart(2, "0")}
+            </span>
+
+            <span
+              class="pn001-v66-process-line"
+              aria-hidden="true"
+            ></span>
+          </div>
+
+          <div class="pn001-v66-process-copy">
+            <h3>
+              ${escapeHtml(title)}
+            </h3>
+
+            ${
+              description
+                ? `<p>${escapeHtml(description)}</p>`
+                : ""
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  return `
+    <section
+      class="pn001-section pn001-v66-process"
+      data-kind="process"
+    >
+      <div class="pn001-container">
+        ${renderV66SectionHead(section, "Como funciona")}
+
+        <div class="pn001-v66-process-timeline">
+          ${content}
+        </div>
+      </div>
+    </section>
+  `;
+};
+
+/* PAGENOVA_V66_STRUCTURAL_RENDERERS_END */
 const resolveTemplate001BrandName = (
   project: SiteProject,
 ): string => {
@@ -443,7 +713,7 @@ const renderTestimonials = (
           }
         </div>
 
-        <div class="pn001-testimonial-grid">
+        <div class="pn001-testimonial-grid pn001-testimonial-slider pn001-v66-testimonial-track" tabindex="0">
           ${
             items.length
               ? items
@@ -1042,19 +1312,19 @@ const renderSemanticSection = (
       return renderAbout(project, section);
 
     case "benefits":
-      return renderGenericCards(section, "Benefícios");
+      return renderV66Benefits(section);
 
     case "features":
-      return renderGenericCards(section, "Diferenciais");
+      return renderV66Features(section);
 
     case "services":
-      return renderGenericCards(section, "Serviços");
+      return renderV66Services(section);
 
     case "products":
       return renderGenericCards(section, "Soluções");
 
     case "process":
-      return renderGenericCards(section, "Como funciona");
+      return renderV66Process(section);
 
     case "portfolio":
       return renderGenericCards(section, "Projetos");
