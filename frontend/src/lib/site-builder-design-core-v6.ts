@@ -1351,8 +1351,11 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       /*
        * Automatic testimonial carousel.
        *
-       * We clone the original cards once so the motion can loop
-       * continuously without a blank gap.
+       * PageNova V6.5.1:
+       * advance one testimonial at a time,
+       * loop back to the first card,
+       * pause during interaction,
+       * and respect reduced motion.
        */
       const slider = site.querySelector(
         '.pn001-testimonial-slider'
@@ -1364,69 +1367,132 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       ) {
         slider.dataset.pnV6Carousel = 'ready';
 
-        const originalCards = Array.from(slider.children);
+        const cards = Array.from(slider.children).filter(
+          (card) =>
+            card instanceof HTMLElement &&
+            card.dataset.pnV6Clone !== 'true'
+        );
 
-        if (originalCards.length > 1) {
-          originalCards.forEach((card) => {
-            const clone = card.cloneNode(true);
-
-            if (clone instanceof HTMLElement) {
-              clone.setAttribute('aria-hidden', 'true');
-              clone.dataset.pnV6Clone = 'true';
-            }
-
-            slider.appendChild(clone);
-          });
-
+        if (cards.length > 1) {
           const reduceMotion = window.matchMedia(
             '(prefers-reduced-motion: reduce)'
           );
 
-          let paused = false;
-          let position = 0;
-          let lastTime = 0;
+          let currentIndex = 0;
+          let autoplayTimer = 0;
 
-          const pause = () => {
-            paused = true;
+          const getGap = () => {
+            const styles = window.getComputedStyle(slider);
+
+            const parsed = Number.parseFloat(
+              styles.columnGap || styles.gap || '0'
+            );
+
+            return Number.isFinite(parsed)
+              ? parsed
+              : 0;
           };
 
-          const resume = () => {
-            paused = false;
-            lastTime = performance.now();
-          };
+          const getStep = () => {
+            const firstCard = cards[0];
 
-          slider.addEventListener('mouseenter', pause);
-          slider.addEventListener('mouseleave', resume);
-          slider.addEventListener('focusin', pause);
-          slider.addEventListener('focusout', resume);
-
-          const frame = (time) => {
-            if (!lastTime) {
-              lastTime = time;
+            if (!(firstCard instanceof HTMLElement)) {
+              return slider.clientWidth;
             }
 
-            const delta = Math.min(time - lastTime, 40);
-            lastTime = time;
+            return (
+              firstCard.getBoundingClientRect().width +
+              getGap()
+            );
+          };
 
-            if (!paused && !reduceMotion.matches) {
-              position += delta * 0.035;
+          const goTo = (
+            index,
+            behavior = 'smooth'
+          ) => {
+            currentIndex =
+              ((index % cards.length) + cards.length) %
+              cards.length;
 
-              const halfWidth = slider.scrollWidth / 2;
+            slider.scrollTo({
+              left: getStep() * currentIndex,
+              behavior
+            });
+          };
 
-              if (halfWidth > 0 && position >= halfWidth) {
-                position -= halfWidth;
+          const stopAutoplay = () => {
+            if (autoplayTimer) {
+              window.clearInterval(autoplayTimer);
+              autoplayTimer = 0;
+            }
+          };
+
+          const startAutoplay = () => {
+            stopAutoplay();
+
+            if (reduceMotion.matches) {
+              return;
+            }
+
+            autoplayTimer = window.setInterval(
+              () => {
+                goTo(currentIndex + 1);
+              },
+              4200
+            );
+          };
+
+          slider.addEventListener(
+            'mouseenter',
+            stopAutoplay
+          );
+
+          slider.addEventListener(
+            'mouseleave',
+            startAutoplay
+          );
+
+          slider.addEventListener(
+            'focusin',
+            stopAutoplay
+          );
+
+          slider.addEventListener(
+            'focusout',
+            startAutoplay
+          );
+
+          slider.addEventListener(
+            'pointerdown',
+            stopAutoplay
+          );
+
+          slider.addEventListener(
+            'pointerup',
+            startAutoplay
+          );
+
+          window.addEventListener(
+            'resize',
+            () => {
+              goTo(currentIndex, 'auto');
+            }
+          );
+
+          reduceMotion.addEventListener?.(
+            'change',
+            () => {
+              if (reduceMotion.matches) {
+                stopAutoplay();
+                goTo(0, 'auto');
+              } else {
+                startAutoplay();
               }
-
-              slider.style.transform =
-                'translate3d(' + (-position) + 'px,0,0)';
-            } else if (reduceMotion.matches) {
-              slider.style.transform = 'none';
             }
+          );
 
-            requestAnimationFrame(frame);
-          };
-
-          requestAnimationFrame(frame);
+          goTo(0, 'auto');
+          startAutoplay();
         }
       }
     });
@@ -3756,5 +3822,783 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
       font-size: clamp(34px, 9vw, 44px) !important;
     }
   }
+
+
+  /* PAGENOVA_V651_BEGIN
+     ============================================================
+     PAGENOVA V6.5.1
+     COMPACT PREMIUM COMPOSITION
+
+     Header  : preserved
+     About   : preserved
+     Footer  : preserved
+     ============================================================ */
+
+  /*
+   * GLOBAL DENSITY
+   */
+
+  .pn001-site .pn001-section:not(.pn001-about) {
+    padding-top:
+      clamp(46px, 4.8vw, 66px) !important;
+
+    padding-bottom:
+      clamp(46px, 4.8vw, 66px) !important;
+  }
+
+  .pn001-site
+  .pn001-section:not(.pn001-about)
+  + .pn001-section:not(.pn001-about) {
+    padding-top:
+      clamp(38px, 4vw, 56px) !important;
+  }
+
+  .pn001-site .pn001-section-head {
+    margin-bottom:
+      clamp(20px, 2.5vw, 30px) !important;
+  }
+
+  .pn001-site .pn001-section-head h2,
+  .pn001-site .pn001-services h2,
+  .pn001-site .pn001-benefits h2,
+  .pn001-site .pn001-features h2,
+  .pn001-site .pn001-process h2,
+  .pn001-site .pn001-testimonials-v6 h2,
+  .pn001-site .pn001-faq h2,
+  .pn001-site .pn001-contact h2 {
+    font-size:
+      clamp(31px, 3.4vw, 45px) !important;
+
+    line-height: 1.03 !important;
+  }
+
+  .pn001-site .pn001-section-head p,
+  .pn001-site .pn001-section-copy {
+    font-size:
+      clamp(15px, 1.25vw, 17px) !important;
+
+    line-height: 1.55 !important;
+  }
+
+  /*
+   * GENERIC CARDS
+   */
+
+  .pn001-site .pn001-card {
+    min-height: 0 !important;
+    height: auto !important;
+
+    border-radius: 18px !important;
+
+    box-shadow:
+      0 10px 28px
+      rgba(18, 31, 25, .04) !important;
+  }
+
+  .pn001-site .pn001-card-index {
+    height: auto !important;
+
+    padding:
+      20px
+      20px
+      4px !important;
+
+    font-size:
+      clamp(27px, 2.6vw, 36px) !important;
+  }
+
+  .pn001-site .pn001-card-content {
+    padding:
+      18px
+      20px
+      22px !important;
+  }
+
+  .pn001-site .pn001-card-content h3 {
+    margin-bottom: 8px !important;
+
+    font-size:
+      clamp(19px, 1.7vw, 23px) !important;
+
+    line-height: 1.12 !important;
+  }
+
+  .pn001-site .pn001-card-content p {
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+
+  /*
+   * TEXT-ONLY CARDS
+   */
+
+  .pn001-site
+  .pn-v3-grid-text-only
+  .pn-v3-card-text {
+    display: grid !important;
+
+    grid-template-columns:
+      62px
+      minmax(0, 1fr) !important;
+
+    align-items: start !important;
+
+    min-height: 0 !important;
+
+    overflow: hidden !important;
+  }
+
+  .pn001-site
+  .pn-v3-grid-text-only
+  .pn-v3-card-text
+  .pn001-card-index {
+    display: flex !important;
+
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+
+    height: 100% !important;
+
+    padding:
+      20px
+      0
+      20px
+      20px !important;
+
+    font-size: 24px !important;
+
+    border-right:
+      1px solid
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site
+  .pn-v3-grid-text-only
+  .pn-v3-card-text
+  .pn001-card-content {
+    padding:
+      20px
+      22px !important;
+  }
+
+  /*
+   * SERVICES
+   * True editorial rows.
+   */
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-grid-text-only {
+    grid-template-columns: 1fr !important;
+
+    gap: 0 !important;
+
+    border-top:
+      1px solid
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text {
+    grid-template-columns:
+      76px
+      minmax(210px, .72fr)
+      minmax(280px, 1.28fr) !important;
+
+    align-items: center !important;
+
+    border: 0 !important;
+
+    border-bottom:
+      1px solid
+      var(--pn001-line) !important;
+
+    border-radius: 0 !important;
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text
+  .pn001-card-index {
+    height: auto !important;
+
+    padding:
+      19px
+      0 !important;
+
+    border-right: 0 !important;
+
+    font-size: 25px !important;
+
+    opacity: .42 !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text
+  .pn001-card-content {
+    display: contents !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text
+  h3 {
+    margin: 0 !important;
+
+    padding:
+      19px
+      20px
+      19px
+      0 !important;
+
+    font-size:
+      clamp(20px, 1.8vw, 25px) !important;
+  }
+
+  .pn001-site
+  .pn001-services
+  .pn-v3-card-text
+  p {
+    margin: 0 !important;
+
+    padding:
+      19px
+      0 !important;
+
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+  }
+
+  /*
+   * BENEFITS
+   */
+
+  .pn001-site
+  .pn001-benefits
+  .pn001-grid {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 13px !important;
+  }
+
+  .pn001-site
+  .pn001-benefits
+  .pn001-card {
+    min-height: 145px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+
+    padding: 20px !important;
+  }
+
+  .pn001-site
+  .pn001-benefits
+  .pn001-card-index {
+    height: auto !important;
+
+    padding:
+      0
+      0
+      22px !important;
+
+    font-size: 22px !important;
+  }
+
+  .pn001-site
+  .pn001-benefits
+  .pn001-card-content {
+    padding: 0 !important;
+  }
+
+  /*
+   * FEATURES / DIFFERENTIALS
+   */
+
+  .pn001-site
+  .pn001-features
+  .pn001-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 1px !important;
+
+    overflow: hidden !important;
+
+    border:
+      1px solid
+      var(--pn001-line) !important;
+
+    border-radius: 18px !important;
+
+    background:
+      var(--pn001-line) !important;
+  }
+
+  .pn001-site
+  .pn001-features
+  .pn001-card {
+    min-height: 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  .pn001-features
+  .pn001-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  /*
+   * PROCESS
+   */
+
+  .pn001-site
+  .pn001-process
+  .pn001-grid {
+    position: relative !important;
+
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr)) !important;
+
+    gap: 0 !important;
+  }
+
+  .pn001-site
+  .pn001-process
+  .pn001-grid::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    top: 20px !important;
+    left: 20px !important;
+    right: 20px !important;
+
+    height: 1px !important;
+
+    background:
+      color-mix(
+        in srgb,
+        var(--pn001-accent) 30%,
+        var(--pn001-line)
+      ) !important;
+  }
+
+  .pn001-site
+  .pn001-process
+  .pn001-card {
+    position: relative !important;
+    z-index: 1 !important;
+
+    min-height: 0 !important;
+
+    border: 0 !important;
+    border-radius: 0 !important;
+
+    background: transparent !important;
+
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  .pn001-process
+  .pn001-card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .pn001-site
+  .pn001-process
+  .pn001-card-index {
+    position: relative !important;
+
+    display: flex !important;
+
+    width: 40px !important;
+    height: 40px !important;
+
+    margin-bottom: 14px !important;
+
+    padding: 0 !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border: 0 !important;
+
+    border-radius: 999px !important;
+
+    background:
+      var(--pn001-accent) !important;
+
+    color:
+      var(--pn001-accent-contrast) !important;
+
+    font-size: 12px !important;
+  }
+
+  .pn001-site
+  .pn001-process
+  .pn001-card-content {
+    padding:
+      0
+      20px
+      12px
+      0 !important;
+  }
+
+  /*
+   * TESTIMONIALS
+   */
+
+  .pn001-site
+  .pn001-testimonials-v6 {
+    padding-top:
+      clamp(46px, 4.8vw, 64px) !important;
+
+    padding-bottom:
+      clamp(46px, 4.8vw, 64px) !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-heading {
+    margin-bottom:
+      clamp(20px, 2.5vw, 28px) !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-slider {
+    gap: 13px !important;
+
+    overflow-x: auto !important;
+
+    scroll-behavior: smooth !important;
+
+    scroll-snap-type:
+      x mandatory !important;
+
+    transform: none !important;
+
+    scrollbar-width: none !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-slider::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-card-v6 {
+    flex:
+      0
+      0
+      clamp(260px, 27vw, 330px) !important;
+
+    min-height: 220px !important;
+
+    padding:
+      18px
+      20px !important;
+
+    border-radius: 17px !important;
+
+    scroll-snap-align: start !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-card-v6
+  > p {
+    margin-top: 16px !important;
+
+    font-size: 15px !important;
+
+    line-height: 1.5 !important;
+  }
+
+  .pn001-site
+  .pn001-testimonial-stars {
+    margin-top: 16px !important;
+
+    font-size: 12px !important;
+
+    letter-spacing: 3px !important;
+  }
+
+  /*
+   * FAQ
+   */
+
+  .pn001-site
+  .pn001-faq-v6 {
+    padding-top:
+      clamp(46px, 4.8vw, 64px) !important;
+
+    padding-bottom:
+      clamp(46px, 4.8vw, 64px) !important;
+  }
+
+  .pn001-site
+  .pn001-faq-v6
+  .pn001-faq-layout {
+    gap:
+      clamp(28px, 4.5vw, 64px) !important;
+  }
+
+  .pn001-site
+  .pn001-faq-item
+  summary {
+    padding:
+      17px
+      0 !important;
+  }
+
+  /*
+   * CONTACT
+   */
+
+  .pn001-site
+  .pn001-contact {
+    padding-top:
+      clamp(46px, 4.8vw, 64px) !important;
+
+    padding-bottom:
+      clamp(46px, 4.8vw, 64px) !important;
+  }
+
+  .pn001-site
+  .pn001-contact-shell,
+  .pn001-site
+  .pn001-contact-card {
+    min-height: 0 !important;
+  }
+
+  /*
+   * FINAL CTA
+   */
+
+  .pn001-site
+  .pn001-final-cta {
+    min-height: 0 !important;
+
+    padding-top:
+      clamp(38px, 4vw, 54px) !important;
+
+    padding-bottom:
+      clamp(38px, 4vw, 54px) !important;
+  }
+
+  .pn001-site
+  .pn001-final-cta-card {
+    min-height: 0 !important;
+
+    padding:
+      clamp(28px, 4vw, 48px) !important;
+  }
+
+  /*
+   * TABLET
+   */
+
+  @media (max-width: 900px) {
+
+    .pn001-site
+    .pn001-services
+    .pn-v3-card-text {
+      grid-template-columns:
+        54px
+        minmax(0, 1fr) !important;
+
+      align-items: start !important;
+    }
+
+    .pn001-site
+    .pn001-services
+    .pn-v3-card-text
+    .pn001-card-content {
+      display: block !important;
+
+      padding:
+        18px
+        0 !important;
+    }
+
+    .pn001-site
+    .pn001-services
+    .pn-v3-card-text
+    h3 {
+      margin-bottom: 7px !important;
+      padding: 0 !important;
+    }
+
+    .pn001-site
+    .pn001-services
+    .pn-v3-card-text
+    p {
+      padding: 0 !important;
+    }
+
+    .pn001-site
+    .pn001-benefits
+    .pn001-grid {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pn001-site
+    .pn001-process
+    .pn001-grid {
+      grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pn001-site
+    .pn001-process
+    .pn001-grid::before {
+      display: none !important;
+    }
+  }
+
+  /*
+   * MOBILE
+   */
+
+  @media (max-width: 640px) {
+
+    .pn001-site
+    .pn001-section:not(.pn001-about) {
+      padding-top: 40px !important;
+      padding-bottom: 40px !important;
+    }
+
+    .pn001-site
+    .pn001-section:not(.pn001-about)
+    + .pn001-section:not(.pn001-about) {
+      padding-top: 34px !important;
+    }
+
+    .pn001-site
+    .pn001-section-head {
+      margin-bottom: 20px !important;
+    }
+
+    .pn001-site .pn001-section-head h2,
+    .pn001-site .pn001-services h2,
+    .pn001-site .pn001-benefits h2,
+    .pn001-site .pn001-features h2,
+    .pn001-site .pn001-process h2,
+    .pn001-site .pn001-testimonials-v6 h2,
+    .pn001-site .pn001-faq h2,
+    .pn001-site .pn001-contact h2 {
+      font-size: 31px !important;
+    }
+
+    .pn001-site
+    .pn-v3-grid-text-only
+    .pn-v3-card-text {
+      grid-template-columns:
+        46px
+        minmax(0, 1fr) !important;
+    }
+
+    .pn001-site
+    .pn-v3-grid-text-only
+    .pn-v3-card-text
+    .pn001-card-index {
+      padding:
+        17px
+        0
+        17px
+        14px !important;
+
+      font-size: 20px !important;
+    }
+
+    .pn001-site
+    .pn-v3-grid-text-only
+    .pn-v3-card-text
+    .pn001-card-content {
+      padding:
+        17px
+        16px !important;
+    }
+
+    .pn001-site
+    .pn001-benefits
+    .pn001-grid,
+    .pn001-site
+    .pn001-features
+    .pn001-grid,
+    .pn001-site
+    .pn001-process
+    .pn001-grid {
+      grid-template-columns:
+        1fr !important;
+    }
+
+    .pn001-site
+    .pn001-benefits
+    .pn001-card {
+      min-height: 0 !important;
+    }
+
+    .pn001-site
+    .pn001-testimonials-v6,
+    .pn001-site
+    .pn001-faq-v6,
+    .pn001-site
+    .pn001-contact {
+      padding-top: 40px !important;
+      padding-bottom: 40px !important;
+    }
+
+    .pn001-site
+    .pn001-testimonial-card-v6 {
+      flex:
+        0
+        0
+        min(82vw, 290px) !important;
+
+      min-height: 205px !important;
+
+      padding: 17px !important;
+    }
+
+    .pn001-site
+    .pn001-final-cta {
+      padding-top: 32px !important;
+      padding-bottom: 32px !important;
+    }
+
+    .pn001-site
+    .pn001-final-cta-card {
+      padding:
+        26px
+        20px !important;
+    }
+  }
+
+  /* PAGENOVA_V651_END */
 
   /* PAGENOVA_V65_END */`;
