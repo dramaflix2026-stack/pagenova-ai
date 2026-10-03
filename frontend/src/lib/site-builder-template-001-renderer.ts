@@ -5253,6 +5253,813 @@ const PAGENOVA_V661_CANONICAL_VISUAL_STYLES = `
 `;
 
  /* PAGENOVA_V661_CANONICAL_VISUAL_END */
+
+/* PAGENOVA_V662_PREMIUM_POLISH_BEGIN */
+
+const PAGENOVA_V662_PREMIUM_POLISH_STYLES = `
+
+/* ==========================================================
+   PAGENOVA V6.6.2
+   PREMIUM NEUTRAL POLISH
+
+   Objetivos:
+   - remover aparencia bege/marrom pesada
+   - mais branco, grafite e superficies neutras
+   - hierarquia editorial
+   - secoes mais compactas
+   - FAQ e contato mais elegantes
+   - CTA final menor
+   - testimonials limpos
+   ========================================================== */
+
+
+/* ----------------------------------------------------------
+   GLOBAL SECTION RHYTHM
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-services,
+.pn001-site .pn001-v66-benefits,
+.pn001-site .pn001-v66-features,
+.pn001-site .pn001-v66-process,
+.pn001-site .pn001-testimonials,
+.pn001-site .pn001-faq,
+.pn001-site .pn001-contact,
+.pn001-site .pn001-final-cta {
+  min-height: 0 !important;
+}
+
+.pn001-site .pn001-v66-services,
+.pn001-site .pn001-v66-benefits,
+.pn001-site .pn001-v66-process {
+  background:
+    #ffffff !important;
+}
+
+.pn001-site .pn001-v66-benefits,
+.pn001-site .pn001-v66-process {
+  border-top:
+    1px solid rgba(17, 24, 39, 0.07) !important;
+}
+
+
+/* ----------------------------------------------------------
+   SECTION HEADINGS
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-head {
+  margin-bottom:
+    clamp(26px, 3vw, 38px) !important;
+}
+
+.pn001-site .pn001-v66-head-copy {
+  max-width:
+    680px !important;
+}
+
+.pn001-site .pn001-v66-head h2 {
+  max-width:
+    650px !important;
+
+  font-size:
+    clamp(30px, 3.6vw, 48px) !important;
+
+  line-height:
+    1.02 !important;
+
+  letter-spacing:
+    -0.045em !important;
+}
+
+.pn001-site .pn001-v66-head p {
+  max-width:
+    620px !important;
+
+  font-size:
+    clamp(15px, 1.35vw, 17px) !important;
+
+  line-height:
+    1.65 !important;
+}
+
+
+/* ----------------------------------------------------------
+   SERVICES
+   preserve two-card composition
+   but remove muddy/beige feeling
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-services {
+  padding:
+    clamp(54px, 5.5vw, 76px)
+    0 !important;
+}
+
+.pn001-site .pn001-v66-services-grid {
+  gap:
+    clamp(14px, 1.8vw, 22px) !important;
+}
+
+.pn001-site .pn001-v66-service-row {
+  min-height:
+    210px !important;
+
+  padding:
+    clamp(24px, 3vw, 34px) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff 0%,
+      #f7f7f5 100%
+    ) !important;
+
+  border:
+    1px solid rgba(17, 24, 39, 0.09) !important;
+
+  border-radius:
+    22px !important;
+
+  box-shadow:
+    0 14px 40px rgba(17, 24, 39, 0.045) !important;
+}
+
+.pn001-site .pn001-v66-service-row:hover {
+  transform:
+    translateY(-3px) !important;
+
+  border-color:
+    rgba(17, 24, 39, 0.15) !important;
+
+  box-shadow:
+    0 20px 48px rgba(17, 24, 39, 0.075) !important;
+}
+
+.pn001-site .pn001-v66-service-number {
+  color:
+    rgba(17, 24, 39, 0.28) !important;
+}
+
+.pn001-site .pn001-v66-service-title {
+  color:
+    #171717 !important;
+}
+
+.pn001-site .pn001-v66-service-description {
+  color:
+    #676767 !important;
+}
+
+
+/* ----------------------------------------------------------
+   BENEFITS
+   clean neutral cards
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-benefits {
+  padding:
+    clamp(54px, 5.5vw, 74px)
+    0 !important;
+}
+
+.pn001-site .pn001-v66-benefit-grid {
+  gap:
+    clamp(12px, 1.5vw, 18px) !important;
+}
+
+.pn001-site .pn001-v66-benefit {
+  min-height:
+    176px !important;
+
+  padding:
+    24px !important;
+
+  background:
+    #f7f7f5 !important;
+
+  border:
+    1px solid rgba(17, 24, 39, 0.07) !important;
+
+  border-radius:
+    18px !important;
+
+  box-shadow:
+    none !important;
+
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    border-color 180ms ease !important;
+}
+
+.pn001-site .pn001-v66-benefit:hover {
+  transform:
+    translateY(-2px) !important;
+
+  background:
+    #ffffff !important;
+
+  border-color:
+    rgba(17, 24, 39, 0.14) !important;
+}
+
+.pn001-site .pn001-v66-benefit-number {
+  color:
+    rgba(17, 24, 39, 0.32) !important;
+}
+
+.pn001-site .pn001-v66-benefit h3,
+.pn001-site .pn001-v66-benefit-title {
+  color:
+    #171717 !important;
+
+  font-size:
+    clamp(18px, 1.7vw, 22px) !important;
+}
+
+.pn001-site .pn001-v66-benefit p,
+.pn001-site .pn001-v66-benefit-description {
+  color:
+    #666666 !important;
+
+  font-size:
+    14px !important;
+
+  line-height:
+    1.6 !important;
+}
+
+
+/* ----------------------------------------------------------
+   DIFFERENTIALS
+   keep dark identity, make it cleaner
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-features {
+  padding:
+    clamp(56px, 6vw, 80px)
+    0 !important;
+
+  background:
+    #ffffff !important;
+}
+
+.pn001-site .pn001-v66-feature-shell {
+  padding:
+    clamp(30px, 4vw, 46px) !important;
+
+  background:
+    linear-gradient(
+      145deg,
+      #171717 0%,
+      #222222 100%
+    ) !important;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08) !important;
+
+  border-radius:
+    24px !important;
+
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.12) !important;
+}
+
+.pn001-site .pn001-v66-feature-grid {
+  gap:
+    1px !important;
+
+  overflow:
+    hidden !important;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.09) !important;
+
+  border-radius:
+    16px !important;
+
+  background:
+    rgba(255, 255, 255, 0.09) !important;
+}
+
+.pn001-site .pn001-v66-feature {
+  min-height:
+    170px !important;
+
+  padding:
+    24px !important;
+
+  background:
+    #202020 !important;
+
+  border:
+    0 !important;
+
+  border-radius:
+    0 !important;
+
+  box-shadow:
+    none !important;
+}
+
+.pn001-site .pn001-v66-feature:hover {
+  background:
+    #272727 !important;
+}
+
+.pn001-site .pn001-v66-feature h3,
+.pn001-site .pn001-v66-feature-title {
+  color:
+    #ffffff !important;
+}
+
+.pn001-site .pn001-v66-feature p,
+.pn001-site .pn001-v66-feature-description {
+  color:
+    rgba(255, 255, 255, 0.65) !important;
+}
+
+
+/* ----------------------------------------------------------
+   PROCESS
+   cleaner timeline
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-v66-process {
+  padding:
+    clamp(56px, 5.5vw, 76px)
+    0 !important;
+}
+
+.pn001-site .pn001-v66-process-timeline {
+  margin-top:
+    8px !important;
+}
+
+.pn001-site .pn001-v66-process-step {
+  padding-top:
+    22px !important;
+}
+
+.pn001-site .pn001-v66-process-node {
+  width:
+    34px !important;
+
+  height:
+    34px !important;
+
+  background:
+    #ffffff !important;
+
+  border:
+    1px solid rgba(17, 24, 39, 0.16) !important;
+
+  box-shadow:
+    0 0 0 7px #ffffff !important;
+}
+
+.pn001-site .pn001-v66-process-line {
+  background:
+    rgba(17, 24, 39, 0.12) !important;
+}
+
+.pn001-site .pn001-v66-process-copy {
+  padding-top:
+    18px !important;
+}
+
+.pn001-site .pn001-v66-process-copy h3 {
+  color:
+    #171717 !important;
+
+  font-size:
+    clamp(17px, 1.5vw, 20px) !important;
+}
+
+.pn001-site .pn001-v66-process-copy p {
+  color:
+    #6b6b6b !important;
+
+  font-size:
+    14px !important;
+
+  line-height:
+    1.6 !important;
+}
+
+
+/* ----------------------------------------------------------
+   TESTIMONIALS
+   preserve infinite automatic marquee
+   visual only
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-testimonials {
+  padding:
+    clamp(52px, 5vw, 70px)
+    0 !important;
+
+  background:
+    #f7f7f5 !important;
+
+  border-top:
+    1px solid rgba(17, 24, 39, 0.06) !important;
+
+  border-bottom:
+    1px solid rgba(17, 24, 39, 0.06) !important;
+
+  overflow:
+    hidden !important;
+}
+
+.pn001-site .pn001-testimonial-heading {
+  margin-bottom:
+    28px !important;
+}
+
+.pn001-site .pn001-testimonial-heading h2 {
+  font-size:
+    clamp(30px, 3.5vw, 46px) !important;
+
+  line-height:
+    1.03 !important;
+
+  letter-spacing:
+    -0.04em !important;
+}
+
+.pn001-site .pn001-testimonial-slider,
+.pn001-site .pn001-v66-testimonial-track {
+  gap:
+    14px !important;
+}
+
+.pn001-site .pn001-testimonial-slider > *,
+.pn001-site .pn001-v66-testimonial-track > * {
+  flex-basis:
+    300px !important;
+
+  width:
+    300px !important;
+
+  min-width:
+    300px !important;
+
+  max-width:
+    300px !important;
+
+  min-height:
+    190px !important;
+
+  padding:
+    22px !important;
+
+  background:
+    #ffffff !important;
+
+  border:
+    1px solid rgba(17, 24, 39, 0.08) !important;
+
+  border-radius:
+    17px !important;
+
+  box-shadow:
+    0 10px 30px rgba(17, 24, 39, 0.035) !important;
+}
+
+
+/* ----------------------------------------------------------
+   FAQ
+   compact editorial accordion
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-faq {
+  padding:
+    clamp(52px, 5vw, 70px)
+    0 !important;
+
+  background:
+    #ffffff !important;
+}
+
+.pn001-site .pn001-faq .pn001-section-head {
+  margin-bottom:
+    26px !important;
+}
+
+.pn001-site .pn001-faq h2 {
+  font-size:
+    clamp(30px, 3.5vw, 46px) !important;
+
+  line-height:
+    1.04 !important;
+
+  letter-spacing:
+    -0.04em !important;
+}
+
+.pn001-site .pn001-faq details {
+  margin:
+    0 !important;
+
+  padding:
+    0 !important;
+
+  background:
+    transparent !important;
+
+  border:
+    0 !important;
+
+  border-bottom:
+    1px solid rgba(17, 24, 39, 0.1) !important;
+
+  border-radius:
+    0 !important;
+
+  box-shadow:
+    none !important;
+}
+
+.pn001-site .pn001-faq summary {
+  padding:
+    20px 0 !important;
+
+  font-size:
+    clamp(15px, 1.35vw, 17px) !important;
+
+  font-weight:
+    650 !important;
+}
+
+.pn001-site .pn001-faq details > p {
+  max-width:
+    760px !important;
+
+  padding:
+    0 0 20px !important;
+
+  color:
+    #686868 !important;
+
+  font-size:
+    14px !important;
+
+  line-height:
+    1.65 !important;
+}
+
+
+/* ----------------------------------------------------------
+   CONTACT
+   smaller / cleaner
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-contact {
+  padding:
+    clamp(54px, 5.5vw, 74px)
+    0 !important;
+
+  background:
+    #f7f7f5 !important;
+
+  border-top:
+    1px solid rgba(17, 24, 39, 0.06) !important;
+}
+
+.pn001-site .pn001-contact h2 {
+  font-size:
+    clamp(30px, 3.5vw, 46px) !important;
+
+  line-height:
+    1.04 !important;
+
+  letter-spacing:
+    -0.04em !important;
+}
+
+.pn001-site .pn001-contact form {
+  background:
+    #ffffff !important;
+
+  border:
+    1px solid rgba(17, 24, 39, 0.08) !important;
+
+  border-radius:
+    20px !important;
+
+  box-shadow:
+    0 16px 46px rgba(17, 24, 39, 0.045) !important;
+}
+
+
+/* ----------------------------------------------------------
+   FINAL CTA
+   compact premium band, not Hero 2
+   ---------------------------------------------------------- */
+
+.pn001-site .pn001-final-cta {
+  padding:
+    clamp(42px, 4.5vw, 60px)
+    0 !important;
+
+  background:
+    #ffffff !important;
+}
+
+.pn001-site .pn001-final-cta-card,
+.pn001-site .pn-v2-final-cta-card {
+  min-height:
+    0 !important;
+
+  padding:
+    clamp(28px, 4vw, 42px) !important;
+
+  background:
+    linear-gradient(
+      135deg,
+      #171717 0%,
+      #232323 100%
+    ) !important;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07) !important;
+
+  border-radius:
+    22px !important;
+
+  box-shadow:
+    0 20px 58px rgba(0, 0, 0, 0.12) !important;
+}
+
+.pn001-site .pn001-final-cta-copy {
+  max-width:
+    650px !important;
+}
+
+.pn001-site .pn001-final-cta h2 {
+  max-width:
+    620px !important;
+
+  font-size:
+    clamp(28px, 3.3vw, 44px) !important;
+
+  line-height:
+    1.02 !important;
+
+  letter-spacing:
+    -0.04em !important;
+}
+
+.pn001-site .pn001-final-cta p {
+  max-width:
+    560px !important;
+
+  font-size:
+    15px !important;
+
+  line-height:
+    1.6 !important;
+}
+
+
+/* ----------------------------------------------------------
+   TABLET
+   ---------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+  .pn001-site .pn001-v66-head {
+    grid-template-columns:
+      1fr !important;
+
+    gap:
+      12px !important;
+  }
+
+  .pn001-site .pn001-v66-head > .pn001-eyebrow {
+    margin-top:
+      0 !important;
+  }
+
+  .pn001-site .pn001-v66-feature-shell {
+    padding:
+      26px !important;
+  }
+
+  .pn001-site .pn001-testimonial-slider > *,
+  .pn001-site .pn001-v66-testimonial-track > * {
+    flex-basis:
+      285px !important;
+
+    width:
+      285px !important;
+
+    min-width:
+      285px !important;
+
+    max-width:
+      285px !important;
+  }
+}
+
+
+/* ----------------------------------------------------------
+   MOBILE
+   ---------------------------------------------------------- */
+
+@media (max-width: 620px) {
+
+  .pn001-site .pn001-v66-services,
+  .pn001-site .pn001-v66-benefits,
+  .pn001-site .pn001-v66-features,
+  .pn001-site .pn001-v66-process,
+  .pn001-site .pn001-testimonials,
+  .pn001-site .pn001-faq,
+  .pn001-site .pn001-contact {
+    padding:
+      42px 0 !important;
+  }
+
+  .pn001-site .pn001-v66-service-row {
+    min-height:
+      190px !important;
+
+    padding:
+      22px !important;
+
+    border-radius:
+      18px !important;
+  }
+
+  .pn001-site .pn001-v66-benefit {
+    min-height:
+      0 !important;
+
+    padding:
+      20px !important;
+  }
+
+  .pn001-site .pn001-v66-feature-shell {
+    padding:
+      18px !important;
+
+    border-radius:
+      20px !important;
+  }
+
+  .pn001-site .pn001-v66-feature {
+    min-height:
+      0 !important;
+
+    padding:
+      20px !important;
+  }
+
+  .pn001-site .pn001-testimonial-slider > *,
+  .pn001-site .pn001-v66-testimonial-track > * {
+    flex-basis:
+      min(82vw, 286px) !important;
+
+    width:
+      min(82vw, 286px) !important;
+
+    min-width:
+      min(82vw, 286px) !important;
+
+    max-width:
+      min(82vw, 286px) !important;
+
+    min-height:
+      180px !important;
+
+    padding:
+      20px !important;
+  }
+
+  .pn001-site .pn001-faq summary {
+    padding:
+      18px 0 !important;
+  }
+
+  .pn001-site .pn001-final-cta {
+    padding:
+      34px 0 !important;
+  }
+
+  .pn001-site .pn001-final-cta-card,
+  .pn001-site .pn-v2-final-cta-card {
+    padding:
+      26px 22px !important;
+
+    border-radius:
+      18px !important;
+  }
+}
+
+`;
+
+/* PAGENOVA_V662_PREMIUM_POLISH_END */
+
 export function renderTemplate001Preview(
   project: SiteProject,
   pageKey: SitePageKey,
@@ -5428,7 +6235,7 @@ export function renderTemplate001Preview(
         `
       : "";
   return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}</style>
+    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}${PAGENOVA_V662_PREMIUM_POLISH_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
