@@ -8,7 +8,7 @@
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Suspense, lazy, type ReactNode } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import { AppLayout } from './components/layout/AppLayout';
 import { LoadingBlock } from './components/ui';
@@ -65,18 +65,41 @@ const pageFallback = (
 
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/entrar" element={<Navigate to="/" replace />} />
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Routes>
+        <Route path="/entrar" element={<Navigate to="/" replace />} />
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route
+          path="/"
+          element={
+            <RequireAuth>
+              <AppLayout />
+            </RequireAuth>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="buscar" element={<SearchPage />} />
+          <Route path="crm" element={<CrmPage />} />
+          <Route path="reunioes" element={<MeetingsPage />} />
+          <Route path="sites-ia" element={<SiteAiPage />} />
+          <Route path="importar" element={<ImportPage />} />
+          <Route path="servicos" element={<ServicesPage />} />
+          <Route path="financeiro" element={<FinancePage />} />
+          <Route path="metas" element={<GoalsPage />} />
+          <Route path="equipe" element={<TeamPage />} />
+          <Route path="configuracoes" element={<SettingsPage />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 
 export function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <HashRouter>
         <AuthProvider>
           <TooltipProvider delayDuration={200}>
             <ToastProvider>
@@ -84,7 +107,7 @@ export function App() {
             </ToastProvider>
           </TooltipProvider>
         </AuthProvider>
-      </BrowserRouter>
+      </HashRouter>
     </QueryClientProvider>
   );
 }
