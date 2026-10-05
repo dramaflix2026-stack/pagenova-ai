@@ -7,6 +7,7 @@ import {
   CircleHelp,
   Copy,
   Files,
+  BriefcaseBusiness,
   House,
   Sparkles,
 } from "lucide-react";
@@ -31,6 +32,11 @@ const items = [
     href: "/app/builder",
     label: "Criar Site com IA",
     icon: Sparkles,
+  },
+  {
+    href: "/app/crm",
+    label: "CRM",
+    icon: BriefcaseBusiness,
   },
   {
     href: "/app/paginas",
