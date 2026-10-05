@@ -33,21 +33,13 @@ const SiteProjectPage = lazy(() => import('./pages/SiteProjectPage'));
 const LegalPage = lazy(() => import('./pages/LegalPage'));
 
 function RequireAuth({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useAuth();
-  const location = useLocation();
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <LoadingBlock label="Verificando sua sessao..." />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/entrar" replace state={{ from: location.pathname }} />;
-  }
-
+  /*
+   * PageNova embedded mode:
+   * /app/crm is already protected by Supabase authentication
+   * and the active PageNova entitlement in the parent application.
+   *
+   * Do not show Stavo's second login screen inside PageNova.
+   */
   return <>{children}</>;
 }
 
@@ -74,136 +66,7 @@ const pageFallback = (
 function AppRoutes() {
   return (
     <Routes>
-      <Route
-        path="/entrar"
-        element={
-          <PublicOnly>
-            <LoginPage />
-          </PublicOnly>
-        }
-      />
-
-      <Route
-        path="/termos"
-        element={
-          <Suspense fallback={pageFallback}>
-            <LegalPage document="terms" />
-          </Suspense>
-        }
-      />
-      <Route
-        path="/privacidade"
-        element={
-          <Suspense fallback={pageFallback}>
-            <LegalPage document="privacy" />
-          </Suspense>
-        }
-      />
-
-      <Route
-        element={
-          <RequireAuth>
-            <AppLayout />
-          </RequireAuth>
-        }
-      >
-        <Route
-          index
-          element={
-            <Suspense fallback={pageFallback}>
-              <DashboardPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="buscar"
-          element={
-            <Suspense fallback={pageFallback}>
-              <SearchPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="crm"
-          element={
-            <Suspense fallback={pageFallback}>
-              <CrmPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="reunioes"
-          element={
-            <Suspense fallback={pageFallback}>
-              <MeetingsPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="equipe"
-          element={
-            <Suspense fallback={pageFallback}>
-              <TeamPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="sites-ia"
-          element={
-            <Suspense fallback={pageFallback}>
-              <SiteAiPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="sites-ia/:projectId"
-          element={
-            <Suspense fallback={pageFallback}>
-              <SiteProjectPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="importar"
-          element={
-            <Suspense fallback={pageFallback}>
-              <ImportPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="servicos"
-          element={
-            <Suspense fallback={pageFallback}>
-              <ServicesPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="financeiro"
-          element={
-            <Suspense fallback={pageFallback}>
-              <FinancePage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="metas"
-          element={
-            <Suspense fallback={pageFallback}>
-              <GoalsPage />
-            </Suspense>
-          }
-        />
-        <Route
-          path="configuracoes"
-          element={
-            <Suspense fallback={pageFallback}>
-              <SettingsPage />
-            </Suspense>
-          }
-        />
-      </Route>
+      <Route path="/entrar" element={<Navigate to="/" replace />} />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
