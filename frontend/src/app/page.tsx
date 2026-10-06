@@ -400,6 +400,53 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="border-t border-white/[.07] bg-[#0b1c15] py-12 md:py-20">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
+            <div>
+              <SectionLabel>Experiência de quem usa</SectionLabel>
+              <h2 className="mt-4 max-w-xl text-[2.15rem] font-semibold leading-[1.08] tracking-[-.045em] md:text-5xl">
+                Depoimentos que mostram o uso real.
+              </h2>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-white/50">
+                Esta área está pronta para receber avaliações verificadas de clientes PageNova, sem inventar nomes, fotos ou resultados.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {["Criação de sites", "Organização comercial", "Edição e publicação"].map((item) => (
+                <div key={item} className="rounded-2xl border border-white/10 bg-white/[.035] p-5">
+                  <div className="text-lg tracking-[.12em] text-[#50dca9]">★★★★★</div>
+                  <p className="mt-4 text-sm font-semibold text-white/80">{item}</p>
+                  <p className="mt-2 text-xs leading-5 text-white/40">Depoimento verificado em breve.</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-14">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="grid overflow-hidden rounded-[22px] border border-[#cfe0d6] bg-white shadow-[0_16px_50px_rgba(20,37,29,.06)] md:grid-cols-[auto_1fr_auto] md:items-center">
+            <div className="grid min-h-28 place-items-center bg-[#e8f7ef] px-8 py-6">
+              <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-[#37c98f] text-center text-[#126c4a]">
+                <div><strong className="block text-2xl leading-none">7</strong><span className="text-[10px] font-bold uppercase tracking-wider">dias</span></div>
+              </div>
+            </div>
+            <div className="p-6 md:p-8">
+              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#168457]">Garantia de satisfação</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-.035em] md:text-3xl">Você tem 7 dias para conhecer a PageNova.</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#647369]">
+                Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.
+              </p>
+            </div>
+            <div className="px-6 pb-6 md:p-8">
+              <a href="#planos" className="inline-flex rounded-xl bg-[#14251d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#1d4937]">Ver planos</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="duvidas" className="scroll-mt-20 bg-[#f3f5f0] py-12 text-[#14251d] md:py-20">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid gap-4 border-b border-[#d9e1d8] pb-7 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
@@ -434,14 +481,14 @@ export default function Home() {
       <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
         <div className="mx-auto w-full max-w-7xl px-5 py-7 md:px-8 md:py-10">
           <div className="grid grid-cols-2 gap-x-7 gap-y-7 text-left lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-12">
-            <div className="col-span-2 min-w-0 lg:col-span-1">
-              <Brand />
-              <p className="mt-3 max-w-[430px] text-xs leading-5 text-white/50 sm:text-sm">
+            <div className="col-span-2 min-w-0 text-center lg:col-span-1 lg:text-left">
+              <div className="flex justify-center lg:justify-start"><Brand /></div>
+              <p className="mx-auto mt-3 max-w-[430px] text-xs leading-5 text-white/50 lg:mx-0 sm:text-sm">
                 Crie, publique e organize sua operação digital em um único espaço.
               </p>
               <div className="mt-4 border-t border-white/[.08] pt-4">
                 <p className="text-[9px] font-bold uppercase tracking-[.17em] text-white/40">Pagamento seguro</p>
-                <div className="mt-2 flex flex-wrap items-center gap-1.5" aria-label="Formas de pagamento aceitas">
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 lg:justify-start" aria-label="Formas de pagamento aceitas">
                   {PAYMENT_BRANDS.map((brand) => <PaymentBrand key={brand} brand={brand} />)}
                 </div>
                 <p className="mt-2 text-[10px] leading-4 text-white/30">Checkout processado pela Kiwify.</p>
