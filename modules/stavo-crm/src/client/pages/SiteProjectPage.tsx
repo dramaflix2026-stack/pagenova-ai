@@ -5,7 +5,8 @@
  * vivo; falhou -> erro com retomada; pronto/publicado -> o editor visual
  * completo, sobre esta mesma pagina.
  */
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye } from 'lucide-react';
+import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -36,6 +37,15 @@ export default function SiteProjectPage() {
   const busy = isProjectBusy(project.status as SiteProjectStatus);
   const editable = project.status === 'READY' || project.status === 'PUBLISHED';
 
+  // O job termina antes do polling normal da pagina em alguns navegadores.
+  // Assim que o job mais recente concluir, atualizamos o projeto para trocar
+  // imediatamente da tela de progresso para o editor/preview.
+  useEffect(() => {
+    if (latestJob?.status === 'SUCCEEDED' && !editable) {
+      void query.refetch();
+    }
+  }, [latestJob?.status, editable, query]);
+
   const header = (
     <PageHeader
       title={project.businessName}
@@ -43,6 +53,12 @@ export default function SiteProjectPage() {
       actions={
         <div className="flex items-center gap-2">
           <Badge tone="outline">Custo: {formatUsd(project.costAccumulatedUsd)}</Badge>
+          {editable ? (
+            <Button variant="secondary" onClick={() => document.getElementById('site-editor-preview')?.scrollIntoView({ behavior: 'smooth' })}>
+              <Eye className="h-4 w-4" aria-hidden="true" />
+              Visualizar site
+            </Button>
+          ) : null}
           <Button variant="secondary" onClick={() => navigate('/sites-ia')}>
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Voltar
@@ -75,7 +91,9 @@ export default function SiteProjectPage() {
     return (
       <>
         {header}
-        <SiteEditor projectId={project.id} />
+        <div id="site-editor-preview">
+          <SiteEditor projectId={project.id} />
+        </div>
       </>
     );
   }
