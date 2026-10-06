@@ -54,6 +54,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [aiInstruction, setAiInstruction] = useState('');
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
+  const [mobilePanel, setMobilePanel] = useState<'preview' | 'sections' | 'edit'>('preview');
 
   const loadedRef = useRef(false);
 
@@ -152,6 +153,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
 
   const updateSections = (sections: SiteSection[]) => history.set({ ...config, sections });
 
+  const handleSelectSection = (id: string) => {
+    setSelectedId(id);
+    if (window.matchMedia('(max-width: 767px)').matches) setMobilePanel('edit');
+  };
+
   const handleSectionChange = (next: SiteSection) => {
     updateSections(config.sections.map((s) => (s.id === next.id ? next : s)));
   };
@@ -210,7 +216,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   };
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] flex-col">
+    <div className="flex h-[calc(100dvh-9.5rem)] min-h-[32rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)]">
       <EditorTopBar
         canUndo={history.canUndo}
         canRedo={history.canRedo}
@@ -237,12 +243,25 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </Callout>
       ) : null}
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="w-56 shrink-0">
+      <div className="flex border-b border-border md:hidden">
+        {(['preview', 'sections', 'edit'] as const).map((panel) => (
+          <button
+            key={panel}
+            type="button"
+            onClick={() => setMobilePanel(panel)}
+            className={'flex-1 px-3 py-2 text-sm font-medium ' + (mobilePanel === panel ? 'bg-primary-soft text-primary' : 'text-muted-foreground')}
+          >
+            {panel === 'preview' ? 'Preview' : panel === 'sections' ? 'Secoes' : 'Editar'}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <div className={(mobilePanel === 'sections' ? 'block' : 'hidden') + ' w-full shrink-0 md:block md:w-56'}>
           <SectionsPanel
             sections={config.sections}
             selectedId={selectedId}
-            onSelect={setSelectedId}
+            onSelect={handleSelectSection}
             onReorder={handleReorder}
             onToggleVisible={handleToggleVisible}
             onDuplicate={handleDuplicate}
@@ -250,18 +269,18 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           />
         </div>
 
-        <div className="flex flex-1 items-start justify-center overflow-auto bg-muted p-4">
+        <div className={(mobilePanel === 'preview' ? 'flex' : 'hidden') + ' min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-2 md:flex md:p-4'}>
           <iframe
             title="Previa do site"
             srcDoc={html}
             className={
               'h-full rounded-md border border-border bg-white shadow-sm transition-all ' +
-              (viewport === 'mobile' ? 'w-[390px]' : 'w-full max-w-5xl')
+              (viewport === 'mobile' ? 'w-full max-w-[390px]' : 'w-full max-w-5xl')
             }
           />
         </div>
 
-        <div className="w-80 shrink-0 border-l border-border">
+        <div className={(mobilePanel === 'edit' ? 'block' : 'hidden') + ' w-full min-w-0 shrink-0 overflow-hidden border-l border-border md:block md:w-80'}>
           {selectedSection ? (
             <div className="flex h-full flex-col">
               <div className="flex-1 overflow-y-auto">
@@ -361,7 +380,7 @@ function EditorTopBar({
   }[saveState];
 
   return (
-    <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+    <div className="flex max-w-full items-center gap-1 overflow-x-auto border-b border-border px-2 py-2 md:gap-2 md:px-3">
       <Button variant="secondary" size="sm" onClick={onUndo} disabled={!canUndo}>
         <Undo2 className="h-4 w-4" aria-hidden="true" />
       </Button>
@@ -369,7 +388,7 @@ function EditorTopBar({
         <Redo2 className="h-4 w-4" aria-hidden="true" />
       </Button>
 
-      <div className="ml-2 flex rounded-md border border-border">
+      <div className="ml-1 hidden rounded-md border border-border sm:flex md:ml-2">
         <button
           type="button"
           onClick={() => onViewportChange('desktop')}
@@ -388,16 +407,16 @@ function EditorTopBar({
         </button>
       </div>
 
-      <span className="text-xs text-muted-foreground">{saveLabel}</span>
+      <span className="shrink-0 text-xs text-muted-foreground">{saveLabel}</span>
 
       {errorCount > 0 ? <Badge tone="danger">{errorCount} erro(s)</Badge> : null}
       {warningCount > 0 ? <Badge tone="warning">{warningCount} aviso(s)</Badge> : null}
 
-      <div className="ml-auto flex items-center gap-2">
-        <Button variant="secondary" size="sm" onClick={onCreateVersion}>
+      <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
+        <Button className="hidden sm:inline-flex" variant="secondary" size="sm" onClick={onCreateVersion}>
           Criar versao
         </Button>
-        <Button variant="secondary" size="sm" onClick={onShowVersions}>
+        <Button className="hidden sm:inline-flex" variant="secondary" size="sm" onClick={onShowVersions}>
           Historico
         </Button>
         <Button size="sm" onClick={onShowPublish}>
