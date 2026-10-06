@@ -47,6 +47,7 @@ export const DETAILS_FIELD_MASK = [
   'primaryTypeDisplayName',
   'businessStatus',
   'googleMapsUri',
+  'photos',
 ].join(',');
 
 export interface GooglePlaceRaw {
@@ -61,6 +62,7 @@ export interface GooglePlaceRaw {
   primaryTypeDisplayName?: { text?: string };
   businessStatus?: string;
   googleMapsUri?: string;
+  photos?: Array<{ name?: string; widthPx?: number; heightPx?: number; authorAttributions?: Array<{ displayName?: string; uri?: string; photoUri?: string }> }>;
 }
 
 export interface TextSearchResponse {
@@ -346,6 +348,23 @@ export async function textSearch(params: TextSearchParams): Promise<TextSearchRe
     places: response.places ?? [],
     nextPageToken: response.nextPageToken ?? null,
   };
+}
+
+/** Resolve uma foto do Places sem expor a chave. A resposta e temporaria. */
+export async function placePhotoMedia(photoName: string, maxWidthPx = 1600, signal?: AbortSignal): Promise<Response> {
+  const env = getEnv();
+  const apiKey = env.GOOGLE_MAPS_API_KEY?.trim();
+  if (!apiKey) throw unprocessable('Google Places nao configurado.', { code: 'GOOGLE_NOT_CONFIGURED' });
+  if (!/^places\\/[^/]+\\/photos\\/[^/]+$/.test(photoName)) throw unprocessable('Referencia de foto invalida.', { code: 'GOOGLE_PHOTO_INVALID' });
+  const width = Math.min(2400, Math.max(400, Math.round(maxWidthPx)));
+  const url = new URL(`${env.GOOGLE_PLACES_BASE_URL}/v1/${photoName}/media`);
+  url.searchParams.set('maxWidthPx', String(width));
+  url.searchParams.set('skipHttpRedirect', 'true');
+  const response = await fetch(url, { headers: { 'X-Goog-Api-Key': apiKey }, signal });
+  if (!response.ok) throw serviceUnavailable('Nao foi possivel carregar a foto do Google agora.', 'GOOGLE_PHOTO_UNAVAILABLE');
+  const payload = await response.json() as { photoUri?: string };
+  if (!payload.photoUri) throw serviceUnavailable('O Google nao retornou a foto solicitada.', 'GOOGLE_PHOTO_UNAVAILABLE');
+  return fetch(payload.photoUri, { signal, redirect: 'follow' });
 }
 
 /** Detalhes ao vivo de um local. A resposta e descartada apos a requisicao. */
