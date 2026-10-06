@@ -1,9 +1,8 @@
 /**
  * Modulo "Sites com IA" (secao 6.2 da especificacao).
  *
- * Lista os projetos, com filtros basicos e o ponto de entrada para criar um
- * projeto avulso. Um projeto ligado a um lead tambem aparece aqui -- este e
- * o painel de visao geral do modulo inteiro, nao so dos avulsos.
+ * Lista os projetos e usa leads cadastrados no CRM como unica origem para
+ * novos sites. O painel acompanha todos os projetos do workspace.
  */
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -38,7 +37,6 @@ export default function SiteAiPage() {
   const diagnostics = useSiteAiDiagnostics();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<SiteProjectStatus | ''>('');
-  const [wizardOpen, setWizardOpen] = useState(false);
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -57,10 +55,7 @@ export default function SiteAiPage() {
         title="Sites com IA"
         description="Crie amostras de site personalizadas para prospeccao, publique e acompanhe."
         actions={
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => setWizardOpen(true)}>Criar do zero</Button>
-            <Button onClick={() => setLeadPickerOpen(true)}>Importar lead do CRM</Button>
-          </div>
+          <Button onClick={() => setLeadPickerOpen(true)}>Selecionar lead do CRM</Button>
         }
       />
       <PageBody className="space-y-4">
@@ -104,12 +99,9 @@ export default function SiteAiPage() {
         {projects.data && projects.data.projects.length === 0 ? (
           <EmptyState
             title="Nenhum site criado ainda"
-            description="Crie o primeiro site com IA a partir de um lead ou de forma avulsa."
+            description="Selecione um lead cadastrado no CRM para gerar o primeiro site com IA."
             action={
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button variant="secondary" onClick={() => setWizardOpen(true)}>Criar do zero</Button>
-                <Button onClick={() => setLeadPickerOpen(true)}>Importar lead do CRM</Button>
-              </div>
+              <Button onClick={() => setLeadPickerOpen(true)}>Selecionar lead do CRM</Button>
             }
           />
         ) : null}
@@ -134,12 +126,6 @@ export default function SiteAiPage() {
           }}
         />
       ) : null}
-
-      <SiteWizardDialog
-        open={wizardOpen}
-        onOpenChange={setWizardOpen}
-        onCreated={(projectId) => navigate(`/sites-ia/${projectId}`)}
-      />
 
       <SiteWizardDialog
         key={selectedLeadId ?? 'crm-lead-site'}
