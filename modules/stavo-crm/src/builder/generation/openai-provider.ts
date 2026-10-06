@@ -5,6 +5,22 @@ import { sitePlanSchema } from '@builder/generation/plan-schema';
 import { estimateCostUsd, PRICING_VERSION } from '@builder/generation/pricing';
 import { ProviderError, type CopyPatchResult, type GenerateSitePlanInput, type OutreachInput, type OutreachResult, type PatchSectionInput, type ReviseCopyInput, type SectionPatchResult, type SiteIntelligenceProvider, type SitePlanResult, type UsageInfo } from '@builder/generation/provider';
 
+function normalizeOpenAiPlan(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(normalizeOpenAiPlan);
+  if (!value || typeof value !== 'object') return value;
+
+  const input = value as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(input)) out[key] = normalizeOpenAiPlan(child);
+
+  for (const key of ['photographyTreatment','customGoal','secondaryCta','headerCtaLabel','primaryCtaMessage','anchor','style','body','icon','subheadline','cta','personRole','tagline']) {
+    if (out[key] === null) delete out[key];
+  }
+
+  if (out.options === null) out.options = [];
+  return out;
+}
+
 function strictifyOpenAiSchema(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(strictifyOpenAiSchema);
   if (!value || typeof value !== 'object') return value;
@@ -50,7 +66,7 @@ export class OpenAiSiteIntelligenceProvider implements SiteIntelligenceProvider 
 
   let parsed:unknown;
   try{
-    parsed=JSON.parse(raw);
+    parsed=normalizeOpenAiPlan(JSON.parse(raw));
   }catch{
     throw new ProviderError('INVALID_JSON','A OpenAI devolveu JSON invalido.',true,usage);
   }
