@@ -74,7 +74,7 @@ const testimonialMocks = [
   ["Matheus Gonçalves","São Bernardo do Campo — SP","A PageNova me ajuda a transformar uma ideia em algo visual rapidamente e continuar evoluindo o projeto."],
 ].map(([name, location, quote], index) => ({
   name, location, quote,
-  avatar: `https://api.dicebear.com/9.x/personas/svg?seed=PageNova-${index + 1}&backgroundColor=0b1c15,153b2d,e8f7ef`,
+  avatar: `https://i.pravatar.cc/180?img=${(index % 70) + 1}`,
 }));
 
 const questions = [
@@ -482,13 +482,20 @@ export default function Home() {
       <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-16">
         <div className="mx-auto max-w-5xl px-5 md:px-8">
           <div className="overflow-hidden rounded-[30px] border border-[#e1d5ad] bg-white shadow-[0_24px_70px_rgba(20,37,29,.10)]">
-            <div className="relative grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#fffdf1_0,#fff3c9_38%,#edf4e9_100%)] px-6 py-8">
+            <div className="relative grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_38%,#fffdf4_0,#fff5d2_35%,#edf5ec_100%)] px-6 py-10">
               <div className="absolute inset-x-10 top-1/2 h-px bg-gradient-to-r from-transparent via-[#d9a82f]/45 to-transparent" />
-              <svg viewBox="0 0 220 220" className="relative h-36 w-36 drop-shadow-[0_12px_22px_rgba(134,91,0,.24)] sm:h-40 sm:w-40" role="img" aria-label="Garantia de 7 dias">
-                <defs><linearGradient id="goldSeal2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff0a8"/><stop offset=".45" stopColor="#f7c84d"/><stop offset="1" stopColor="#d99a1d"/></linearGradient><linearGradient id="blackSeal2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#353535"/><stop offset="1" stopColor="#050505"/></linearGradient></defs>
-                <circle cx="110" cy="110" r="103" fill="url(#goldSeal2)" stroke="#c88713" strokeWidth="4"/><circle cx="110" cy="110" r="76" fill="url(#blackSeal2)" stroke="#8f681e" strokeWidth="4"/>
-                <text x="110" y="41" textAnchor="middle" fill="#111" fontSize="17" fontWeight="900" letterSpacing="4">GARANTIA</text><text x="110" y="199" textAnchor="middle" fill="#111" fontSize="15" fontWeight="900" letterSpacing="3">SETE DIAS</text><text x="110" y="128" textAnchor="middle" fill="#f7c84d" fontSize="82" fontWeight="950">7</text><text x="110" y="158" textAnchor="middle" fill="#f7c84d" fontSize="23" fontWeight="900" letterSpacing="3">DIAS</text>
-                <g fill="#f7c84d"><text x="110" y="73" textAnchor="middle" fontSize="19">★</text><text x="78" y="79" textAnchor="middle" fontSize="13">★</text><text x="142" y="79" textAnchor="middle" fontSize="13">★</text></g>
+              <svg viewBox="0 0 240 240" className="relative h-40 w-40 drop-shadow-[0_18px_30px_rgba(122,82,0,.20)] sm:h-44 sm:w-44" role="img" aria-label="Garantia de 7 dias">
+                <defs><linearGradient id="goldPremium" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff6bd"/><stop offset=".38" stopColor="#f6d267"/><stop offset=".72" stopColor="#dda72f"/><stop offset="1" stopColor="#b7770c"/></linearGradient><linearGradient id="greenPremium" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#173c2e"/><stop offset="1" stopColor="#071b14"/></linearGradient></defs>
+                <circle cx="120" cy="120" r="105" fill="#fffaf0" stroke="#d4a43a" strokeWidth="2"/>
+                <circle cx="120" cy="120" r="96" fill="url(#goldPremium)"/>
+                <circle cx="120" cy="120" r="76" fill="url(#greenPremium)" stroke="#fff1aa" strokeWidth="2"/>
+                <circle cx="120" cy="120" r="66" fill="none" stroke="#d8aa48" strokeWidth="1" opacity=".65"/>
+                <text x="120" y="31" textAnchor="middle" fill="#6e4b0b" fontSize="11" fontWeight="900" letterSpacing="3.2">GARANTIA</text>
+                <text x="120" y="77" textAnchor="middle" fill="#f6d267" fontSize="16">★ ★ ★</text>
+                <text x="120" y="143" textAnchor="middle" fill="#fff3b2" fontSize="78" fontWeight="950">7</text>
+                <text x="120" y="168" textAnchor="middle" fill="#f6d267" fontSize="18" fontWeight="900" letterSpacing="4">DIAS</text>
+                <path d="M91 188l16 16 42-45" fill="none" stroke="#fff1aa" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/>
+                <text x="120" y="226" textAnchor="middle" fill="#6e4b0b" fontSize="9" fontWeight="900" letterSpacing="2.3">COMPRA PROTEGIDA</text>
               </svg>
             </div>
             <div className="px-6 py-7 text-center sm:px-10 sm:py-9">
