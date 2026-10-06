@@ -355,7 +355,7 @@ export async function placePhotoMedia(photoName: string, maxWidthPx = 1600, sign
   const env = getEnv();
   const apiKey = env.GOOGLE_MAPS_API_KEY?.trim();
   if (!apiKey) throw unprocessable('Google Places nao configurado.', { code: 'GOOGLE_NOT_CONFIGURED' });
-  if (!/^places\\/[^/]+\\/photos\\/[^/]+$/.test(photoName)) throw unprocessable('Referencia de foto invalida.', { code: 'GOOGLE_PHOTO_INVALID' });
+  if (!/^places\/[^/]+\/photos\/[^/]+$/.test(photoName)) throw unprocessable('Referencia de foto invalida.', { code: 'GOOGLE_PHOTO_INVALID' });
   const width = Math.min(2400, Math.max(400, Math.round(maxWidthPx)));
   const url = new URL(`${env.GOOGLE_PLACES_BASE_URL}/v1/${photoName}/media`);
   url.searchParams.set('maxWidthPx', String(width));
