@@ -567,6 +567,27 @@ export default function Home() {
             <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
             <p className="text-white/25">Landing Page Studio</p>
           </div>
+
+          <div className="mt-5 flex items-center justify-center gap-4 sm:justify-end" aria-label="Selos de confiança">
+            <div className="flex h-[58px] min-w-[132px] items-center justify-center rounded-xl border border-white/10 bg-white px-4 shadow-[0_8px_24px_rgba(0,0,0,.14)]" title="Norton — segurança">
+              <div className="flex items-center gap-2">
+                <span className="grid h-8 w-8 place-items-center rounded-full border-[3px] border-[#f2c300] text-[18px] font-black leading-none text-[#202020]">✓</span>
+                <div className="text-left leading-none">
+                  <p className="text-[16px] font-black tracking-[-.04em] text-[#242424]">Norton</p>
+                  <p className="mt-1 text-[8px] font-bold uppercase tracking-[.12em] text-[#777]">Security</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex h-[58px] min-w-[142px] items-center justify-center rounded-xl border border-white/10 bg-white px-4 shadow-[0_8px_24px_rgba(0,0,0,.14)]" title="Reclame Aqui">
+              <div className="flex items-center gap-2.5">
+                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#6cad3a] text-[11px] font-black text-white">RA</span>
+                <div className="text-left leading-none">
+                  <p className="text-[11px] font-black uppercase tracking-[-.02em] text-[#262626]">Reclame</p>
+                  <p className="mt-1 text-[11px] font-black uppercase tracking-[-.02em] text-[#6cad3a]">Aqui</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </footer>   </main>
   );
