@@ -19,7 +19,7 @@ import {
   type SiteType,
 } from '@site-kit/types/site-ai';
 import { ApiError } from '../../lib/api';
-import { useCreateSiteProject, useGenerateSite, useSiteProjectByLead } from '../../hooks/useSiteAi';
+import { useCreateSiteProject, useGenerateSite } from '../../hooks/useSiteAi';
 import { Badge, Button, Callout, Field, Input, Textarea } from '../ui';
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/Dialog';
 import { useToast } from '../ui/Toast';
@@ -124,7 +124,6 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
   const { open, onOpenChange, onCreated } = props;
   const toast = useToast();
   const createProject = useCreateSiteProject();
-  const existingProject = useSiteProjectByLead(props.leadId ?? null);
 
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(() => initialState(props));
@@ -215,8 +214,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const existing = existingProject.data?.projects?.[0] ?? null;
-      const project = existing ?? (await createProject.mutateAsync({
+      const project = (await createProject.mutateAsync({
         leadId: props.leadId ?? null,
         businessName: form.businessName.trim(),
         siteType: form.siteType,
@@ -231,9 +229,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
       await handleClose(false);
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.code === 'SITE_PROJECT_ALREADY_EXISTS') {
-          setError(err.message);
-        } else if (err.code === 'SITE_AI_NOT_CONFIGURED') {
+        if (err.code === 'SITE_AI_NOT_CONFIGURED') {
           setError(
             'A geracao por IA ainda nao esta configurada neste servidor. O projeto foi criado; ' +
               'configure a OPENAI_API_KEY para continuar.',
