@@ -40,7 +40,37 @@ export class OpenAiSiteIntelligenceProvider implements SiteIntelligenceProvider 
    return {data,usage:{model,providerRequestId:data.id,inputTokens,cacheCreationTokens:0,cacheReadTokens:0,outputTokens,latencyMs:Date.now()-startedAt,costEstimatedUsd:estimateCostUsd(model,{inputTokens,outputTokens}),pricingVersion:PRICING_VERSION,promptVersion:SITE_PLAN_PROMPT_VERSION,attempts:1}};
   }catch(error){if(error instanceof ProviderError)throw error;if(error instanceof Error&&error.name==='AbortError')throw new ProviderError('TIMEOUT','A chamada a OpenAI excedeu o tempo limite.',true);throw new ProviderError('UNKNOWN',error instanceof Error?error.message:'Falha desconhecida na OpenAI.',true);}finally{clearTimeout(timer);}
  }
- async generateSitePlan(input:GenerateSitePlanInput):Promise<SitePlanResult>{const {data,usage}=await this.response([{role:'developer',content:buildSitePlanSystemPrompt(input.style.motionLevel)},{role:'user',content:buildSitePlanUserMessage(input)}],PLAN_SCHEMA);const raw=outputText(data);if(!raw)throw new ProviderError('INVALID_JSON','A OpenAI nao devolveu o plano do site.',true,usage);try{return {plan:sitePlanSchema.parse(JSON.parse(raw)),usage,adjustments:[],promptVersion:SITE_PLAN_PROMPT_VERSION};}catch{throw new ProviderError('SCHEMA_INVALID','A OpenAI devolveu um plano fora do formato esperado.',true,usage);}}
+ async generateSitePlan(input:GenerateSitePlanInput):Promise<SitePlanResult>{
+  const {data,usage}=await this.response(
+    [{role:'developer',content:buildSitePlanSystemPrompt(input.style.motionLevel)},{role:'user',content:buildSitePlanUserMessage(input)}],
+    PLAN_SCHEMA,
+  );
+  const raw=outputText(data);
+  if(!raw)throw new ProviderError('INVALID_JSON','A OpenAI nao devolveu o plano do site.',true,usage);
+
+  let parsed:unknown;
+  try{
+    parsed=JSON.parse(raw);
+  }catch{
+    throw new ProviderError('INVALID_JSON','A OpenAI devolveu JSON invalido.',true,usage);
+  }
+
+  const validated=sitePlanSchema.safeParse(parsed);
+  if(!validated.success){
+    const issues=validated.error.issues.slice(0,8).map(issue=>{
+      const path=issue.path.length?issue.path.join('.'):'raiz';
+      return `${path}: ${issue.message}`;
+    });
+    throw new ProviderError(
+      'SCHEMA_INVALID',
+      `A OpenAI devolveu um plano fora do formato esperado: ${issues.join(' | ')}`,
+      true,
+      usage,
+    );
+  }
+
+  return {plan:validated.data,usage,adjustments:[],promptVersion:SITE_PLAN_PROMPT_VERSION};
+ }
  async patchSection(input:PatchSectionInput):Promise<SectionPatchResult>{const {data,usage}=await this.response(`Edite somente esta secao JSON conforme a instrucao. Responda apenas JSON.\nInstrucao: ${input.instruction}\nSecao: ${JSON.stringify(input.currentSection)}`);try{return {section:JSON.parse(outputText(data)),usage};}catch{throw new ProviderError('INVALID_JSON','A OpenAI devolveu uma secao invalida.',true,usage);}}
  async reviseCopy(input:ReviseCopyInput):Promise<CopyPatchResult>{const {data,usage}=await this.response(`Reescreva o texto em pt-BR conforme a instrucao, maximo ${input.maxLength} caracteres. Responda somente o texto.\nInstrucao: ${input.instruction}\nTexto: ${input.text}`);return {text:outputText(data).trim().slice(0,input.maxLength),usage};}
  async generateOutreachMessage(input:OutreachInput):Promise<OutreachResult>{const {data,usage}=await this.response(`Crie uma mensagem curta de prospeccao em pt-BR para ${input.businessName}${input.niche?`, nicho ${input.niche}`:''}. Inclua este link: ${input.siteUrl}. Responda somente a mensagem.`);return {message:outputText(data).trim(),usage};}
