@@ -13,23 +13,23 @@
  */
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --surface: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --background: 222 48% 5%;
+    --surface: 220 38% 8%;
+    --foreground: 150 20% 96%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 218 28% 13%;
+    --muted-foreground: 215 15% 65%;
 
-    --border: 214 25% 90%;
-    --input: 214 25% 88%;
-    --ring: 221 83% 53%;
+    --border: 218 24% 17%;
+    --input: 218 24% 20%;
+    --ring: 158 70% 52%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --primary-soft: 221 90% 96%;
+    --primary: 158 70% 52%;
+    --primary-foreground: 164 72% 8%;
+    --primary-soft: 159 42% 14%;
 
-    --secondary: 215 20% 94%;
-    --secondary-foreground: 222 40% 20%;
+    --secondary: 218 24% 14%;
+    --secondary-foreground: 150 20% 92%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
