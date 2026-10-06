@@ -138,6 +138,7 @@ export async function findActiveProjectByLead(
 }
 
 export interface ProjectListFilters {
+  workspaceId: string;
   status?: SiteProjectStatus;
   leadId?: string;
   search?: string;
@@ -150,7 +151,7 @@ export async function listProjects(
   filters: ProjectListFilters,
   db: Database = getDb(),
 ): Promise<{ rows: SiteProject[]; total: number }> {
-  const conditions: SQL[] = [isNull(siteProjects.deletedAt)];
+  const conditions: SQL[] = [eq(siteProjects.workspaceId, filters.workspaceId), isNull(siteProjects.deletedAt)];
 
   if (!filters.includeArchived) conditions.push(isNull(siteProjects.archivedAt));
   if (filters.status) conditions.push(eq(siteProjects.status, filters.status));
