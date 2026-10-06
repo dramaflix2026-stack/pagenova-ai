@@ -6,7 +6,7 @@
  * briefing completo e dispara a geracao em uma unica sequencia -- o
  * administrador nao precisa entender que sao duas chamadas por baixo.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { SiteBriefingInput } from '@shared/schemas';
 import {
@@ -129,6 +129,26 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
   const [form, setForm] = useState<FormState>(() => initialState(props));
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // O lead e carregado de forma assincrona depois que o dialogo e montado.
+  // Sincroniza o formulario quando os dados reais do CRM/Google chegam.
+  useEffect(() => {
+    if (!open) return;
+    setForm(initialState(props));
+    setStep(1);
+    setError(null);
+    setPendingProjectId(null);
+  }, [
+    open,
+    props.leadId,
+    props.initialBusinessName,
+    props.initialNiche,
+    props.initialCity,
+    props.initialPhone,
+    props.initialAddress,
+    props.initialInstagram,
+    props.initialWebsite,
+  ]);
 
   // Precisa de um projectId antes de poder gerar; guarda a mutacao aqui para
   // reutilizar o mesmo hook depois que o projeto existir.
