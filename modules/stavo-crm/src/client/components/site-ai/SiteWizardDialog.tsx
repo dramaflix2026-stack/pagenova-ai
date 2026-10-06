@@ -30,6 +30,8 @@ interface SiteWizardDialogProps {
   /** Quando vem de um card do CRM, os campos ja chegam pre-preenchidos. */
   leadId?: string | null;
   initialBusinessName?: string;
+  initialNiche?: string | null;
+  initialCity?: string | null;
   initialPhone?: string | null;
   initialAddress?: string | null;
   initialInstagram?: string | null;
@@ -98,8 +100,8 @@ interface FormState {
 function initialState(props: SiteWizardDialogProps): FormState {
   return {
     businessName: props.initialBusinessName ?? '',
-    niche: '',
-    city: '',
+    niche: props.initialNiche ?? '',
+    city: props.initialCity ?? '',
     audience: '',
     goal: 'WHATSAPP_CONVERSATIONS',
     customGoal: '',
@@ -212,7 +214,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
         } else if (err.code === 'SITE_AI_NOT_CONFIGURED') {
           setError(
             'A geracao por IA ainda nao esta configurada neste servidor. O projeto foi criado; ' +
-              'configure a chave da Anthropic ou o modo de teste para continuar.',
+              'configure a OPENAI_API_KEY para continuar.',
           );
         } else {
           setError(err.message);
