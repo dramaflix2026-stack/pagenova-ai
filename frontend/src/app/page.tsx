@@ -41,6 +41,42 @@ const plans = [
   },
 ] as const;
 
+const testimonialMocks = [
+  ["Mariana Oliveira","São Paulo — SP","A PageNova deixou muito mais simples tirar uma landing page do papel e continuar os ajustes no mesmo lugar."],
+  ["Carlos Mendes","Belo Horizonte — MG","Consegui organizar meus projetos, páginas e contatos sem ficar alternando entre várias ferramentas."],
+  ["Juliana Costa","Curitiba — PR","O fluxo de criação é direto. Começo pelo briefing, gero a base e depois consigo refinar o conteúdo."],
+  ["Rafael Almeida","Campinas — SP","A parte de sites com IA acelerou bastante a primeira versão e me deu uma base boa para editar."],
+  ["Camila Ferreira","Florianópolis — SC","Gostei de concentrar criação e organização comercial no mesmo painel. Ficou muito mais prático."],
+  ["Bruno Martins","Rio de Janeiro — RJ","Eu precisava ganhar velocidade para testar páginas e a PageNova tornou esse processo bem mais organizado."],
+  ["Larissa Souza","Goiânia — GO","A interface é simples de entender e consigo voltar aos projetos para continuar trabalhando quando preciso."],
+  ["Felipe Rocha","Porto Alegre — RS","O CRM junto com as páginas facilita muito acompanhar o que estou criando para cada oportunidade."],
+  ["Amanda Ribeiro","Recife — PE","O que mais gostei foi poder partir de uma estrutura pronta e personalizar sem precisar começar tudo do zero."],
+  ["Diego Carvalho","Salvador — BA","A PageNova reuniu etapas que antes eu fazia separadas. Hoje meu processo de criação está bem mais enxuto."],
+  ["Beatriz Lima","Fortaleza — CE","Criar a primeira versão ficou rápido e depois consigo revisar textos e seções com muito mais tranquilidade."],
+  ["Lucas Nogueira","Brasília — DF","Uso para organizar ideias e transformar briefing em página. Economiza bastante tempo no começo do projeto."],
+  ["Isabela Moreira","Vitória — ES","A experiência ficou muito mais fluida do que montar cada parte manualmente em ferramentas diferentes."],
+  ["Gustavo Barros","Santos — SP","Gostei principalmente da continuidade: crio, salvo e depois volto para editar o mesmo projeto."],
+  ["Natália Correia","Niterói — RJ","A plataforma me ajuda a manter páginas, contatos e tarefas mais organizados em um único ambiente."],
+  ["Henrique Duarte","Londrina — PR","Para validar novas páginas, ter uma primeira versão rapidamente faz muita diferença no meu dia a dia."],
+  ["Renata Castro","Joinville — SC","Achei o fluxo bem intuitivo. Mesmo sem programar consigo entender o que fazer em cada etapa."],
+  ["Thiago Freitas","Uberlândia — MG","A criação por briefing me ajuda a estruturar melhor a oferta antes de entrar nos detalhes da página."],
+  ["Paula Azevedo","Ribeirão Preto — SP","O editor e a organização dos projetos deixaram meu processo menos improvisado e muito mais consistente."],
+  ["Eduardo Monteiro","Maringá — PR","Consigo centralizar o trabalho e acompanhar melhor cada projeto sem perder o histórico do que já fiz."],
+  ["Carolina Teixeira","João Pessoa — PB","A PageNova tornou a criação mais acessível para mim e ainda deixa espaço para personalizar depois."],
+  ["André Cardoso","Sorocaba — SP","Ter criação e CRM próximos ajuda muito quando estou trabalhando páginas para diferentes negócios."],
+  ["Letícia Moraes","Campo Grande — MS","A primeira versão sai rápido e eu consigo focar meu tempo no que realmente precisa de ajuste."],
+  ["Marcelo Pires","São José dos Campos — SP","O processo ficou mais previsível: briefing, geração, revisão e edição, tudo seguindo uma sequência clara."],
+  ["Gabriela Farias","Natal — RN","Gostei de conseguir visualizar o projeto e continuar refinando sem precisar reconstruir a página."],
+  ["Vinícius Lopes","Cuiabá — MT","Para quem trabalha com várias ideias ao mesmo tempo, ter os projetos organizados ajuda bastante."],
+  ["Priscila Andrade","Belém — PA","A plataforma facilitou meu fluxo e reduziu o tempo que eu gastava montando estruturas repetitivas."],
+  ["Rodrigo Vieira","São Luís — MA","Uso a PageNova para acelerar páginas e manter as oportunidades organizadas no CRM."],
+  ["Fernanda Campos","Aracaju — SE","Foi fácil entender a proposta e começar. O fato de poder editar depois me dá bastante liberdade."],
+  ["Matheus Gonçalves","São Bernardo do Campo — SP","A PageNova me ajuda a transformar uma ideia em algo visual rapidamente e continuar evoluindo o projeto."],
+].map(([name, location, quote], index) => ({
+  name, location, quote,
+  avatar: `https://api.dicebear.com/9.x/personas/svg?seed=PageNova-${index + 1}&backgroundColor=0b1c15,153b2d,e8f7ef`,
+}));
+
 const questions = [
   {
     question: "O que posso criar na PageNova?",
@@ -407,24 +443,25 @@ export default function Home() {
             Histórias de quem constrói com a PageNova.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
-            O carrossel abaixo fica pronto para receber avaliações reais de clientes, com foto, nome, localização e relato.
+            Modelo visual dos depoimentos. Os conteúdos abaixo são demonstrações temporárias e serão substituídos pelas avaliações reais dos clientes.
           </p>
         </div>
         <div className="mt-8 overflow-hidden">
-          <div className="flex w-max [animation:pagenova-testimonials_62s_linear_infinite]">
+          <div className="flex w-max [animation:pagenova-testimonials_72s_linear_infinite]">
             {[0, 1].map((copy) => (
               <div key={copy} className="flex shrink-0 gap-4 pr-4" aria-hidden={copy === 1}>
-                {Array.from({ length: 30 }, (_, index) => (
-                  <article key={index} className="w-[82vw] max-w-[330px] shrink-0 rounded-[22px] border border-white/10 bg-white/[.045] p-5 shadow-[0_14px_38px_rgba(0,0,0,.14)]">
+                {testimonialMocks.map((item, index) => (
+                  <article key={`${copy}-${item.name}`} className="w-[84vw] max-w-[350px] shrink-0 rounded-[24px] border border-[#50dca9]/20 bg-[linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025))] p-5 shadow-[0_18px_48px_rgba(0,0,0,.20)]">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full border border-[#50dca9]/30 bg-[#50dca9]/10 text-sm font-bold text-[#50dca9]">PN</div>
+                      <img src={item.avatar} alt="" className="h-14 w-14 shrink-0 rounded-full border border-[#50dca9]/35 bg-[#10261d] object-cover" loading="lazy" />
                       <div className="min-w-0">
-                        <p className="font-semibold text-white/85">Cliente PageNova</p>
-                        <p className="text-xs text-white/40">Avaliação verificada</p>
+                        <p className="truncate font-semibold text-white">{item.name}</p>
+                        <p className="mt-0.5 text-xs text-white/50">{item.location}</p>
+                        <span className="mt-1 inline-flex rounded-full border border-[#50dca9]/20 bg-[#50dca9]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-[#7ceac2]">Demonstração</span>
                       </div>
                     </div>
-                    <div className="mt-5 text-base tracking-[.1em] text-[#50dca9]">★★★★★</div>
-                    <p className="mt-3 text-sm leading-6 text-white/55">Espaço reservado para o depoimento do cliente.</p>
+                    <div className="mt-4 text-[15px] tracking-[.12em] text-[#50dca9]" aria-label="5 estrelas">★★★★★</div>
+                    <p className="mt-3 text-sm leading-6 text-white/70">“{item.quote}”</p>
                   </article>
                 ))}
               </div>
@@ -442,43 +479,26 @@ export default function Home() {
         `}</style>
       </section>
 
-      <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-14">
-        <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid overflow-hidden rounded-[28px] border border-[#d9dfd9] bg-white shadow-[0_24px_70px_rgba(20,37,29,.10)] md:grid-cols-[240px_1fr_auto] md:items-center">
-            <div className="grid min-h-52 place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff8d6_0,#f5e8b4_34%,#e9f4e9_100%)] px-6 py-8">
-              <svg viewBox="0 0 220 220" className="h-40 w-40 drop-shadow-[0_10px_20px_rgba(0,0,0,.18)]" role="img" aria-label="Garantia de 7 dias">
-                <defs>
-                  <linearGradient id="goldSeal" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0" stopColor="#fff0a8"/><stop offset=".45" stopColor="#f7c84d"/><stop offset="1" stopColor="#d99a1d"/>
-                  </linearGradient>
-                  <linearGradient id="blackSeal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stopColor="#353535"/><stop offset="1" stopColor="#050505"/>
-                  </linearGradient>
-                </defs>
-                <circle cx="110" cy="110" r="103" fill="url(#goldSeal)" stroke="#c88713" strokeWidth="4"/>
-                <circle cx="110" cy="110" r="76" fill="url(#blackSeal)" stroke="#8f681e" strokeWidth="4"/>
-                <text x="110" y="41" textAnchor="middle" fill="#111" fontSize="17" fontWeight="900" letterSpacing="4">GARANTIA</text>
-                <text x="110" y="199" textAnchor="middle" fill="#111" fontSize="15" fontWeight="900" letterSpacing="3">SETE DIAS</text>
-                <text x="110" y="128" textAnchor="middle" fill="#f7c84d" fontSize="82" fontWeight="950">7</text>
-                <text x="110" y="158" textAnchor="middle" fill="#f7c84d" fontSize="23" fontWeight="900" letterSpacing="3">DIAS</text>
-                <g fill="#f7c84d">
-                  <text x="110" y="73" textAnchor="middle" fontSize="19">★</text>
-                  <text x="78" y="79" textAnchor="middle" fontSize="13">★</text>
-                  <text x="142" y="79" textAnchor="middle" fontSize="13">★</text>
-                  <text x="55" y="93" textAnchor="middle" fontSize="9">★</text>
-                  <text x="165" y="93" textAnchor="middle" fontSize="9">★</text>
-                </g>
+      <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-16">
+        <div className="mx-auto max-w-5xl px-5 md:px-8">
+          <div className="overflow-hidden rounded-[30px] border border-[#e1d5ad] bg-white shadow-[0_24px_70px_rgba(20,37,29,.10)]">
+            <div className="relative grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_45%,#fffdf1_0,#fff3c9_38%,#edf4e9_100%)] px-6 py-8">
+              <div className="absolute inset-x-10 top-1/2 h-px bg-gradient-to-r from-transparent via-[#d9a82f]/45 to-transparent" />
+              <svg viewBox="0 0 220 220" className="relative h-36 w-36 drop-shadow-[0_12px_22px_rgba(134,91,0,.24)] sm:h-40 sm:w-40" role="img" aria-label="Garantia de 7 dias">
+                <defs><linearGradient id="goldSeal2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#fff0a8"/><stop offset=".45" stopColor="#f7c84d"/><stop offset="1" stopColor="#d99a1d"/></linearGradient><linearGradient id="blackSeal2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#353535"/><stop offset="1" stopColor="#050505"/></linearGradient></defs>
+                <circle cx="110" cy="110" r="103" fill="url(#goldSeal2)" stroke="#c88713" strokeWidth="4"/><circle cx="110" cy="110" r="76" fill="url(#blackSeal2)" stroke="#8f681e" strokeWidth="4"/>
+                <text x="110" y="41" textAnchor="middle" fill="#111" fontSize="17" fontWeight="900" letterSpacing="4">GARANTIA</text><text x="110" y="199" textAnchor="middle" fill="#111" fontSize="15" fontWeight="900" letterSpacing="3">SETE DIAS</text><text x="110" y="128" textAnchor="middle" fill="#f7c84d" fontSize="82" fontWeight="950">7</text><text x="110" y="158" textAnchor="middle" fill="#f7c84d" fontSize="23" fontWeight="900" letterSpacing="3">DIAS</text>
+                <g fill="#f7c84d"><text x="110" y="73" textAnchor="middle" fontSize="19">★</text><text x="78" y="79" textAnchor="middle" fontSize="13">★</text><text x="142" y="79" textAnchor="middle" fontSize="13">★</text></g>
               </svg>
             </div>
-            <div className="p-6 md:p-8">
-              <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#168457]">Garantia de satisfação</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-.035em] md:text-3xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#647369]">
-                Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.
-              </p>
-            </div>
-            <div className="px-6 pb-6 md:p-8">
-              <a href="#planos" className="inline-flex rounded-xl bg-[#14251d] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#1d4937]">Ver planos</a>
+            <div className="px-6 py-7 text-center sm:px-10 sm:py-9">
+              <span className="inline-flex rounded-full border border-[#e4c86d] bg-[#fff9e7] px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#80621b]">Garantia de satisfação</span>
+              <h2 className="mx-auto mt-5 max-w-2xl text-[1.8rem] font-semibold leading-[1.12] tracking-[-.04em] sm:text-4xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#647369] sm:text-base">Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.</p>
+              <div className="mx-auto mt-6 grid max-w-2xl grid-cols-2 gap-2 text-left sm:grid-cols-4">
+                {["Checkout Kiwify","7 dias de garantia","Dados protegidos","Suporte PageNova"].map((item) => <div key={item} className="rounded-xl border border-[#e7e4d8] bg-[#faf9f3] px-3 py-3 text-xs font-semibold text-[#405047]"><span className="mr-1.5 text-[#168457]">✓</span>{item}</div>)}
+              </div>
+              <a href="#planos" className="mt-7 inline-flex w-full max-w-sm items-center justify-center rounded-2xl bg-[#0d3527] px-6 py-4 text-sm font-bold text-white shadow-[0_12px_28px_rgba(13,53,39,.18)] transition hover:bg-[#164c39]">Ver planos agora <span className="ml-2">→</span></a>
             </div>
           </div>
         </div>
