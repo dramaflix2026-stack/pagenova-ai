@@ -5,6 +5,7 @@ import { defineConfig } from 'vite';
 const resolvePath = (relative: string) => fileURLToPath(new URL(relative, import.meta.url));
 
 export default defineConfig({
+  base: '/stavo-crm/',
   root: resolvePath('./src/client'),
   plugins: [react()],
   resolve: {
