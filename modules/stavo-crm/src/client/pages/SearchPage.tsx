@@ -11,7 +11,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Building2,
-  Globe,
   ExternalLink,
   Instagram,
   MapPin,
@@ -22,7 +21,6 @@ import {
   Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { ATTRIBUTION_TEXT, WEBSITE_FILTER_LABELS, WEBSITE_FILTERS } from '@shared/constants';
 import { formatNumber, formatPhone } from '@shared/format';
@@ -60,7 +58,6 @@ import { useToast } from '../components/ui/Toast';
 import { ApiError, api, newIdempotencyKey } from '../lib/api';
 import { ordenarResultados, type SearchResultItem, type SortOption } from '../lib/searchResults';
 import { useServices } from '../hooks/useCrm';
-import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
 import { useCidades, useEstados } from '../hooks/useLocations';
 import { semAcento } from '../lib/utils';
 
@@ -102,7 +99,6 @@ const EMPTY = '__nenhum__';
 
 export default function SearchPage() {
   const toast = useToast();
-  const navigate = useNavigate();
   const services = useServices();
 
   const [form, setForm] = useState({
@@ -148,7 +144,6 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const [detalhe, setDetalhe] = useState<string | null>(null);
   const [addTarget, setAddTarget] = useState<SearchResultItem | null>(null);
-  const [siteTarget, setSiteTarget] = useState<SearchResultItem | null>(null);
 
   const usage = useQuery({
     queryKey: ['google-usage'],
@@ -453,7 +448,6 @@ export default function SearchPage() {
                   key={result.placeId}
                   result={result}
                   onAdd={() => setAddTarget(result)}
-                  onGenerateSite={() => setSiteTarget(result)}
                 />
               ))}
             </div>
@@ -486,24 +480,6 @@ export default function SearchPage() {
         ) : null}
       </PageBody>
 
-      <SiteWizardDialog
-        key={siteTarget?.placeId ?? 'search-site-wizard'}
-        open={Boolean(siteTarget)}
-        onOpenChange={(open) => {
-          if (!open) setSiteTarget(null);
-        }}
-        leadId={siteTarget?.existing?.leadId ?? null}
-        initialBusinessName={siteTarget?.name ?? ''}
-        initialPhone={siteTarget?.phone.e164 ?? null}
-        initialAddress={siteTarget?.address ?? null}
-        initialInstagram={siteTarget?.actions.instagramUrl ?? null}
-        initialWebsite={siteTarget?.website.url ?? null}
-        onCreated={(projectId) => {
-          setSiteTarget(null);
-          navigate(`/sites-ia/${projectId}`);
-        }}
-      />
-
       <AddToCrmDialog
         result={addTarget}
         form={form}
@@ -532,7 +508,7 @@ export default function SearchPage() {
   );
 }
 
-function ResultCard({ result, onAdd, onGenerateSite }: { result: SearchResultItem; onAdd: () => void; onGenerateSite: () => void }) {
+function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => void }) {
   const isTemporarilyClosed = result.businessStatus === 'CLOSED_TEMPORARILY';
 
   return (
@@ -635,11 +611,6 @@ function ResultCard({ result, onAdd, onGenerateSite }: { result: SearchResultIte
               Adicionar ao CRM
             </Button>
           )}
-
-          <Button size="sm" variant="secondary" onClick={onGenerateSite}>
-            <Globe className="h-4 w-4" aria-hidden="true" />
-            Gerar Site
-          </Button>
         </div>
       </CardContent>
     </Card>
