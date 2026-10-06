@@ -450,21 +450,28 @@ export default function Home() {
               <span className="inline-flex rounded-full border border-[#e4c86d] bg-[#fff9e7] px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#80621b]">Garantia de satisfação</span>
               <h2 className="mx-auto mt-5 max-w-2xl text-[1.8rem] font-semibold leading-[1.12] tracking-[-.04em] sm:text-4xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#647369] sm:text-base">Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.</p>
-              <div className="mx-auto mt-7 grid max-w-2xl grid-cols-2 gap-3 text-left">
+              <div className="mx-auto mt-7 grid max-w-2xl grid-cols-2 gap-3 text-left sm:gap-4">
                 {[
-                  { icon: "◆", title: "Pagamento seguro", text: "Checkout Kiwify" },
-                  { icon: "7", title: "7 dias protegidos", text: "Garantia de satisfação" },
-                  { icon: "✓", title: "Dados protegidos", text: "Compra com segurança" },
-                  { icon: "●", title: "Suporte PageNova", text: "Conte com nosso time" },
+                  { icon: "card", eyebrow: "PAGAMENTO", title: "Pagamento seguro", text: "Checkout protegido pela Kiwify" },
+                  { icon: "shield", eyebrow: "GARANTIA", title: "7 dias protegidos", text: "Compre com tranquilidade" },
+                  { icon: "lock", eyebrow: "PRIVACIDADE", title: "Dados protegidos", text: "Segurança em cada etapa" },
+                  { icon: "support", eyebrow: "ATENDIMENTO", title: "Suporte PageNova", text: "Conte com nosso time" },
                 ].map((item) => (
-                  <div key={item.title} className="group relative overflow-hidden rounded-[18px] border border-[#e7dfc5] bg-[linear-gradient(145deg,#fffdf8_0%,#f7f8f2_100%)] p-3.5 shadow-[0_8px_24px_rgba(20,37,29,.055)] transition duration-300 hover:-translate-y-0.5 hover:border-[#d7bd69] hover:shadow-[0_12px_30px_rgba(20,37,29,.09)] sm:p-4">
-                    <div className="pointer-events-none absolute -right-5 -top-5 h-16 w-16 rounded-full bg-[#e8c85c]/10 blur-xl" />
-                    <div className="relative flex items-start gap-2.5">
-                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#d9c477]/45 bg-[linear-gradient(145deg,#fff9df,#f0f5e9)] text-[13px] font-black text-[#177451] shadow-[inset_0_1px_0_rgba(255,255,255,.9)]">{item.icon}</span>
-                      <div className="min-w-0 pt-0.5">
-                        <p className="text-[12px] font-bold leading-4 text-[#24382e] sm:text-[13px]">{item.title}</p>
-                        <p className="mt-1 text-[10px] leading-4 text-[#718078] sm:text-[11px]">{item.text}</p>
+                  <div key={item.title} className="group relative min-h-[132px] overflow-hidden rounded-[20px] border border-[#dfd5b7] bg-[linear-gradient(145deg,#fffefb_0%,#fbf8ed_52%,#f1f6ef_100%)] p-4 shadow-[0_12px_32px_rgba(34,48,39,.07)] transition duration-300 hover:-translate-y-1 hover:border-[#cdb35d] hover:shadow-[0_18px_38px_rgba(34,48,39,.11)] sm:min-h-[142px] sm:p-5">
+                    <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#d8b84f]/12 blur-2xl transition duration-300 group-hover:bg-[#d8b84f]/20" />
+                    <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[#d5b95f]/55 to-transparent" />
+                    <div className="relative">
+                      <div className="mb-3 flex items-center justify-between gap-2">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-[#d9c477]/55 bg-[linear-gradient(145deg,#fff8d9,#eef6ec)] text-[#126846] shadow-[0_6px_16px_rgba(28,75,56,.08),inset_0_1px_0_rgba(255,255,255,.95)]">
+                          {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
+                          {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
+                          {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
+                          {item.icon === "support" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2ZM17 18c-1 2-3 3-5 3"/></svg>}
+                        </span>
+                        <span className="text-[8px] font-extrabold tracking-[.16em] text-[#a2832c] sm:text-[9px]">{item.eyebrow}</span>
                       </div>
+                      <p className="text-[12px] font-extrabold leading-[1.25] tracking-[-.01em] text-[#21382d] sm:text-[14px]">{item.title}</p>
+                      <p className="mt-1.5 text-[10px] leading-[1.45] text-[#708078] sm:text-[11px]">{item.text}</p>
                     </div>
                   </div>
                 ))}
