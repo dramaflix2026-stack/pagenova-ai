@@ -177,10 +177,10 @@ export const sitePlanSchema = z.object({
   }),
   geo: z.object({
     entitySummary: z.string().trim().min(20).max(400),
-    servicesSummary: z.array(z.string().trim().max(200)).max(12).default([]),
+    servicesSummary: z.array(z.string().trim().max(200)).max(12),
   }),
   /** Avisos que a IA quer levantar sobre dados ausentes -- nunca preenchidos por ela. */
-  missingDataWarnings: z.array(z.string().trim().max(300)).max(10).default([]),
+  missingDataWarnings: z.array(z.string().trim().max(300)).max(10),
 });
 export type SitePlanOutput = z.infer<typeof sitePlanSchema>;
 
