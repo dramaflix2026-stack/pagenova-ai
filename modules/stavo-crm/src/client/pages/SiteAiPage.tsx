@@ -4,7 +4,7 @@
  * Lista os projetos e usa leads cadastrados no CRM como unica origem para
  * novos sites. O painel acompanha todos os projetos do workspace.
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -18,7 +18,7 @@ import {
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
-import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
+import { useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
@@ -40,8 +40,6 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const createProject = useCreateSiteProject();
-  const autoCreatedLeadRef = useRef<string | null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
   const selectedLead = useLeadDetail(selectedLeadId);
   const selectedPlaceId = selectedLead.data?.lead.placeId ?? null;
@@ -73,60 +71,6 @@ export default function SiteAiPage() {
     liveGoogle.city ??
     liveGoogle.locality ??
     null;
-
-  useEffect(() => {
-    if (!selectedLeadId || !selectedLead.data) return;
-    if (autoCreatedLeadRef.current === selectedLeadId) return;
-
-    const lead = selectedLead.data;
-    const phone =
-      lead.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
-      lead.contacts.find((item) => item.type === 'PHONE')?.value ??
-      livePhone ??
-      '';
-    const website =
-      lead.links.find((item) => item.type === 'WEBSITE')?.url ??
-      liveWebsite ??
-      '';
-    const instagram =
-      lead.links.find((item) => item.type === 'INSTAGRAM')?.url ??
-      '';
-
-    const briefing = {
-      business: {
-        name: lead.lead.internalName,
-        niche: lead.lead.prospectingNiche ?? liveCategory ?? undefined,
-        city: lead.lead.prospectingCity ?? liveCity ?? undefined,
-        phoneE164: phone || undefined,
-        address: lead.lead.address ?? liveAddress ?? undefined,
-        instagramUrl: instagram || undefined,
-        websiteUrl: website || undefined,
-        services: [],
-        differentials: [],
-        googleMapsUrl: liveGoogle.mapsUrl ?? undefined,
-        googlePhotos: Array.isArray(liveGoogle.photos) ? liveGoogle.photos : [],
-      },
-      objective: { goal: 'WHATSAPP_CONVERSATIONS' as const },
-      style: {
-        theme: 'AI_DECIDES' as const,
-        keywords: [],
-        density: 'BALANCED' as const,
-        motionLevel: 'BALANCED' as const,
-      },
-      requiredSections: [],
-      forbiddenSections: [],
-    };
-
-    autoCreatedLeadRef.current = selectedLeadId;
-    void createProject.mutateAsync({
-      leadId: selectedLeadId,
-      businessName: lead.lead.internalName,
-      siteType: 'ONE_PAGE',
-      briefing,
-    }).catch(() => {
-      // Projeto pode ja existir para este lead; o wizard continua utilizavel.
-    });
-  }, [selectedLeadId, selectedLead.data, livePhone, liveWebsite, liveCategory, liveCity, liveAddress]);
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -193,7 +137,12 @@ export default function SiteAiPage() {
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {projects.data?.projects.map((project) => (
-            <ProjectCard key={project.id} project={project} onOpen={() => navigate(`/sites-ia/${project.id}`)} />
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onOpen={() => navigate(`/sites-ia/${project.id}`)}
+              onGenerateAnother={() => project.leadId && setSelectedLeadId(project.leadId)}
+            />
           ))}
         </div>
       </PageBody>
@@ -240,7 +189,7 @@ export default function SiteAiPage() {
   );
 }
 
-function ProjectCard({ project, onOpen }: { project: SiteProjectSummary; onOpen: () => void }) {
+function ProjectCard({ project, onOpen, onGenerateAnother }: { project: SiteProjectSummary; onOpen: () => void; onGenerateAnother: () => void }) {
   const action = cardActionFor(project.status);
 
   return (
@@ -256,9 +205,30 @@ function ProjectCard({ project, onOpen }: { project: SiteProjectSummary; onOpen:
         </p>
         <div className="flex items-center justify-between pt-1">
           <span className="text-xs text-muted-foreground">Custo: {formatUsd(project.costAccumulatedUsd)}</span>
-          <Button size="sm" variant="secondary" onClick={onOpen}>
-            {SITE_CARD_ACTION_LABELS[action]}
-          </Button>
+          <div className="flex items-center gap-2">
+            {project.leadId ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onGenerateAnother();
+                }}
+              >
+                + Gerar outro site
+              </Button>
+            ) : null}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+            >
+              {SITE_CARD_ACTION_LABELS[action]}
+            </Button>
+          </div>
         </div>
         {project.lastFailureMessage && project.status === 'FAILED' ? (
           <p className="truncate text-xs text-destructive">{project.lastFailureMessage}</p>
