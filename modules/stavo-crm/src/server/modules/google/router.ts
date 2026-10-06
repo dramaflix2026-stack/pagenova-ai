@@ -19,10 +19,12 @@ import { getEnv } from '../../config/env';
 import { getDb } from '../../db/client';
 import { mapsLinkFromPlaceId } from '../../domain/links';
 import { asyncHandler, parseBody } from '../../lib/http';
+import { serviceUnavailable } from '../../lib/errors';
 import { csrfProtection, requireAuth, requireCapability } from '../../middleware';
 import { createLead } from '../leads/service';
 import { findInstagramOnWebsite } from './instagram';
 import { fetchLiveDetails, searchPlaces } from './service';
+import { placePhotoMedia } from './client';
 import { getUsageSummary } from './usage';
 
 /** Protecao adicional contra cliques repetidos que gastariam quota. */
@@ -81,6 +83,24 @@ googleRouter.get(
 
     const details = await fetchLiveDetails(getDb(), req.session!.workspaceId, req.params.placeId!, controller.signal);
     res.json({ details });
+  }),
+);
+
+googleRouter.get(
+  '/google/photos/media',
+  requireCapability('GOOGLE_SEARCH'),
+  googleRateLimit,
+  asyncHandler(async (req, res) => {
+    const name = typeof req.query.name === 'string' ? req.query.name : '';
+    const width = typeof req.query.width === 'string' ? Number(req.query.width) : 1600;
+    const controller = new AbortController();
+    req.on('close', () => { if (!res.writableEnded) controller.abort(); });
+    const upstream = await placePhotoMedia(name, Number.isFinite(width) ? width : 1600, controller.signal);
+    if (!upstream.ok || !upstream.body) throw serviceUnavailable('Nao foi possivel carregar a foto do Google.', 'GOOGLE_PHOTO_UNAVAILABLE');
+    res.setHeader('Content-Type', upstream.headers.get('content-type') ?? 'image/jpeg');
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    const bytes = Buffer.from(await upstream.arrayBuffer());
+    res.send(bytes);
   }),
 );
 
