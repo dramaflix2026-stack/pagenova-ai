@@ -453,163 +453,83 @@ export default function Home() {
       </section>
 
       <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
-  <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
+        <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
+          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-14">
+            <div className="min-w-0">
+              <Brand />
+              <p className="mt-5 max-w-[390px] text-sm leading-7 text-white/50">
+                Crie páginas, organize seus projetos e concentre sua operação digital em um único espaço.
+              </p>
+              <div className="mt-7">
+                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-white/45">
+                  Formas de pagamento
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2" aria-label="Formas de pagamento aceitas">
+                  {[
+                    ["Visa", "VISA"],
+                    ["Mastercard", "●●"],
+                    ["Elo", "ELO"],
+                    ["American Express", "AMEX"],
+                    ["Hipercard", "HIPER"],
+                    ["Pix", "◇ PIX"],
+                    ["Boleto", "▥"],
+                  ].map(([label, mark]) => (
+                    <span
+                      key={label}
+                      title={label}
+                      aria-label={label}
+                      className="flex h-10 min-w-[58px] items-center justify-center rounded-lg border border-white/10 bg-white px-2.5 text-[10px] font-black tracking-tight text-[#14251d] shadow-sm"
+                    >
+                      {mark}
+                    </span>
+                  ))}
+                </div>
+                <p className="mt-3 text-[11px] leading-5 text-white/30">
+                  Pagamento processado com segurança pela Kiwify.
+                </p>
+              </div>
+            </div>
 
-    <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.45fr_.7fr_1.15fr] lg:gap-16">
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Navegação</p>
+              <nav className="mt-5 flex flex-col items-start gap-3.5 text-sm text-white/60" aria-label="Rodapé">
+                <a href="#plataforma" className="transition hover:text-white">Plataforma</a>
+                <a href="#planos" className="transition hover:text-white">Planos</a>
+                <a href="#duvidas" className="transition hover:text-white">Dúvidas frequentes</a>
+                <Link href="/app" className="transition hover:text-white">Entrar</Link>
+              </nav>
+            </div>
 
-      {/* MARCA */}
-      <div className="min-w-0">
-        <Brand />
+            <div className="min-w-0">
+              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Empresa</p>
+              <div className="mt-5 grid gap-5">
+                <div>
+                  <p className="text-sm font-semibold text-white/75">Localização</p>
+                  <p className="mt-1 max-w-[310px] text-xs leading-5 text-white/45">
+                    Rua Dr. Amâncio de Carvalho<br />
+                    São Bernardo do Campo — SP
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/75">CNPJ</p>
+                  <p className="mt-1 text-xs leading-5 text-white/45">65.879.205/0001-34</p>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/75">Checkout</p>
+                  <p className="mt-1 text-xs leading-5 text-white/45">Compra processada pela Kiwify.</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <p className="mt-5 max-w-[390px] text-sm leading-7 text-white/50">
-          Crie páginas, organize seus projetos e concentre sua operação digital
-          em um único espaço.
-        </p>
-
-        <div
-          className="mt-6 flex max-w-[430px] flex-wrap gap-2"
-          aria-label="Canais PageNova"
-        >
-          {[
-            ["WhatsApp", "WA"],
-            ["Instagram", "IG"],
-            ["Facebook", "FB"],
-            ["E-mail", "@"],
-          ].map(([label, icon]) => (
-            <span
-              key={label}
-              title={`${label} — canal em configuração`}
-              className="inline-flex h-10 shrink-0 items-center gap-2 rounded-full border border-white/10 bg-white/[.035] px-3.5 text-xs font-semibold text-white/50"
-            >
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#50dca9]/10 text-[10px] font-black text-[#50dca9]">
-                {icon}
-              </span>
-
-              {label}
-            </span>
-          ))}
+          <div className="mt-10 border-t border-white/10 pt-6 sm:mt-12">
+            <div className="flex flex-col gap-2 text-[11px] leading-5 text-white/35 sm:flex-row sm:items-center sm:justify-between">
+              <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
+              <p className="text-white/25">Landing Page Studio</p>
+            </div>
+          </div>
         </div>
-
-        <p className="mt-4 max-w-[410px] text-[11px] leading-5 text-white/30">
-          Os links oficiais dos canais serão ativados após o cadastro das
-          informações comerciais.
-        </p>
-      </div>
-
-      {/* NAVEGACAO */}
-      <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
-          Navegação
-        </p>
-
-        <nav
-          className="mt-5 flex flex-col items-start gap-3.5 text-sm text-white/60"
-          aria-label="Rodapé"
-        >
-          <a
-            href="#plataforma"
-            className="transition hover:text-white"
-          >
-            Plataforma
-          </a>
-
-          <a
-            href="#planos"
-            className="transition hover:text-white"
-          >
-            Planos
-          </a>
-
-          <a
-            href="#faq"
-            className="transition hover:text-white"
-          >
-            Dúvidas frequentes
-          </a>
-
-          <Link
-            
-              href="/app"
-            className="transition hover:text-white"
-          >
-            Entrar
-          </Link>
-        </nav>
-      </div>
-
-      {/* ATENDIMENTO */}
-      <div className="min-w-0">
-        <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">
-          Atendimento
-        </p>
-
-        <div className="mt-5 grid gap-5">
-
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
-              ◷
-            </span>
-
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white/75">
-                Horário de atendimento
-              </p>
-
-              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
-                Informação comercial em atualização
-              </p>
-            </div>
-          </div>
-
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
-              ◎
-            </span>
-
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white/75">
-                Localização
-              </p>
-
-              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
-                Informação comercial em atualização
-              </p>
-            </div>
-          </div>
-
-          <div className="flex min-w-0 items-start gap-3">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[.035] text-xs font-bold text-[#50dca9]">
-              #
-            </span>
-
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white/75">
-                CNPJ
-              </p>
-
-              <p className="mt-1 max-w-[280px] text-xs leading-5 text-white/40">
-                Informação comercial em atualização
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    {/* FECHAMENTO */}
-    <div className="mt-12 flex flex-col gap-3 border-t border-white/10 pt-6 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between">
-      <p>
-        © 2026 PageNova AI. Todos os direitos reservados.
-      </p>
-
-      <p className="text-white/25">
-        Landing Page Studio
-      </p>
-    </div>
-
-  </div>
-</footer>
+      </footer>
     </main>
   );
 }
