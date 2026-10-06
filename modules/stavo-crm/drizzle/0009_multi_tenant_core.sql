@@ -183,6 +183,32 @@ ALTER TABLE `payments` ADD CONSTRAINT `payments_workspace_id_workspaces_id_fk` F
 --> statement-breakpoint
 ALTER TABLE `site_projects` ADD CONSTRAINT `site_projects_workspace_id_workspaces_id_fk` FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`) ON DELETE cascade ON UPDATE no action;
 --> statement-breakpoint
+ALTER TABLE `leads` DROP INDEX `leads_place_id_unique`;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `leads_workspace_place_id_unique` ON `leads` (`workspace_id`,`place_id`);
+--> statement-breakpoint
+ALTER TABLE `lead_identity_keys` DROP INDEX `lead_identity_keys_unique`;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `lead_identity_keys_unique` ON `lead_identity_keys` (`workspace_id`,`key_type`,`key_hash`);
+--> statement-breakpoint
+ALTER TABLE `import_jobs` DROP INDEX `import_jobs_idempotency_unique`;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `import_jobs_workspace_idempotency_unique` ON `import_jobs` (`workspace_id`,`idempotency_key`);
+--> statement-breakpoint
+ALTER TABLE `payments` DROP INDEX `payments_idempotency_unique`;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `payments_workspace_idempotency_unique` ON `payments` (`workspace_id`,`idempotency_key`);
+--> statement-breakpoint
+ALTER TABLE `lead_sources` DROP INDEX `lead_sources_slug_unique`;
+--> statement-breakpoint
+CREATE UNIQUE INDEX `lead_sources_slug_unique` ON `lead_sources` (`workspace_id`,`slug`);
+--> statement-breakpoint
+ALTER TABLE `app_settings` DROP PRIMARY KEY;
+--> statement-breakpoint
+ALTER TABLE `app_settings` ADD PRIMARY KEY (`workspace_id`,`setting_key`);
+--> statement-breakpoint
+CREATE INDEX `app_settings_workspace_idx` ON `app_settings` (`workspace_id`);
+--> statement-breakpoint
 CREATE INDEX `workspace_members_user_idx` ON `workspace_members` (`user_id`,`status`);
 --> statement-breakpoint
 CREATE INDEX `workspace_members_workspace_idx` ON `workspace_members` (`workspace_id`,`status`);
