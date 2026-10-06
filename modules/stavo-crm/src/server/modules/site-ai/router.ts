@@ -139,7 +139,7 @@ siteAiRouter.get(
   ...guards,
   asyncHandler(async (req, res) => {
     const filters = parseQuery(siteProjectListSchema, req);
-    const { rows, total } = await repo.listProjects(filters);
+    const { rows, total } = await repo.listProjects({ ...filters, workspaceId: req.session!.workspaceId });
 
     res.json({
       projects: rows.map(toPublicProject),
