@@ -9,6 +9,7 @@ import {
   workspaces,
 } from '../../db/schema';
 import { newId } from '../../lib/ids';
+import { runSeed } from '../../db/seed';
 
 export interface PageNovaIdentity {
   externalUserId: string;
@@ -233,6 +234,10 @@ export async function provisionPageNovaIdentity(
     if (!membership) {
       throw new Error('Nao foi possivel provisionar o membership PageNova.');
     }
+
+    // Cada novo workspace recebe etapas, origens, motivos e preferencias
+    // proprias. O seed e idempotente e nunca sobrescreve configuracao.
+    await runSeed(tx, workspace.id);
 
     return {
       workspaceId: membership.workspaceId,
