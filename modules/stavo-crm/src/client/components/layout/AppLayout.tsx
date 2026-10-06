@@ -41,10 +41,10 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/buscar', label: 'Buscar empresas', icon: Building2, primary: true },
   { to: '/crm', label: 'CRM', icon: KanbanSquare, primary: true },
   { to: '/reunioes', label: 'Reunioes', icon: CalendarDays, primary: true },
-  { to: '/sites-ia', label: 'Sites com IA', icon: Globe },
+  { to: '/sites-ia', label: 'Sites com IA', icon: Globe, primary: true },
   { to: '/importar', label: 'Importar leads', icon: FileSpreadsheet },
   { to: '/servicos', label: 'Servicos', icon: BarChart3 },
-  { to: '/financeiro', label: 'Financeiro', icon: Wallet, primary: true },
+  { to: '/financeiro', label: 'Financeiro', icon: Wallet },
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/equipe', label: 'Equipe', icon: Users },
   { to: '/configuracoes', label: 'Configuracoes', icon: Settings },
@@ -208,13 +208,13 @@ export function AppLayout({ children }: { children?: ReactNode }) {
             end={item.to === '/'}
             className={({ isActive }) =>
               cn(
-                'flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium',
+                'flex min-w-0 flex-1 flex-col items-center gap-1 py-1.5 text-[10px] font-medium leading-none',
                 isActive ? 'text-primary' : 'text-muted-foreground',
               )
             }
           >
-            <item.icon className="h-5 w-5" aria-hidden="true" />
-            <span className="truncate px-1">{item.label.split(' ')[0]}</span>
+            <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+            <span className="block w-full truncate px-0.5 text-center">{item.label.split(' ')[0]}</span>
           </NavLink>
         ))}
       </nav>
