@@ -378,14 +378,14 @@ export default function Home() {
                       <img src={item.avatar} alt="" className="h-16 w-16 shrink-0 rounded-full border-2 border-[#50dca9]/35 object-cover shadow-[0_8px_24px_rgba(0,0,0,.30)]" />
                       <div className="min-w-0 text-left">
                         <p className="truncate text-base font-semibold text-white">{item.name}</p>
-                        <p className="mt-0.5 text-xs text-white/50">{item.location}</p>
+                        <p className="mt-0.5 text-xs text-white/70">{item.location}</p>
                         <span className="mt-1 inline-flex rounded-full border border-[#50dca9]/20 bg-[#50dca9]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-[#7ceac2]">
                           Demonstração
                         </span>
                       </div>
                     </div>
                     <div className="mt-4 text-left text-[15px] tracking-[.12em] text-[#50dca9]" aria-label="5 estrelas">★★★★★</div>
-                    <p className="mt-3 text-left text-sm leading-6 text-white/70">“{item.quote}”</p>
+                    <p className="mt-3 text-left text-sm leading-6 text-white/90">“{item.quote}”</p>
                   </article>
                 ))}
               </div>
@@ -397,8 +397,8 @@ export default function Home() {
           .pn-testimonials-viewport {
             width: 100%;
             overflow: hidden;
-            -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
-            mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+            -webkit-mask-image: none;
+            mask-image: none;
           }
           .pn-testimonials-track {
             display: flex;
@@ -416,12 +416,14 @@ export default function Home() {
             width: min(86vw, 390px);
             min-height: 286px;
             flex: 0 0 auto;
-            border: 1px solid rgba(80,220,169,.20);
+            border: 1px solid rgba(80,220,169,.34);
             border-radius: 24px;
             padding: 20px;
-            background: linear-gradient(145deg,#153127,#0d2119);
-            color: white;
-            box-shadow: 0 18px 48px rgba(0,0,0,.20);
+            background: #102a20;
+            color: #fff;
+            box-shadow: 0 14px 32px rgba(0,0,0,.26);
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
           }
           @keyframes pnTestimonialsMarquee {
             from { transform: translate3d(0,0,0); }
@@ -568,27 +570,23 @@ export default function Home() {
             <p className="text-white/25">Landing Page Studio</p>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-4 sm:justify-end" aria-label="Selos de confiança">
-            <div className="flex h-[58px] min-w-[132px] items-center justify-center rounded-xl border border-white/10 bg-white px-4 shadow-[0_8px_24px_rgba(0,0,0,.14)]" title="Norton — segurança">
-              <div className="flex items-center gap-2">
-                <span className="grid h-8 w-8 place-items-center rounded-full border-[3px] border-[#f2c300] text-[18px] font-black leading-none text-[#202020]">✓</span>
-                <div className="text-left leading-none">
-                  <p className="text-[16px] font-black tracking-[-.04em] text-[#242424]">Norton</p>
-                  <p className="mt-1 text-[8px] font-bold uppercase tracking-[.12em] text-[#777]">Security</p>
-                </div>
-              </div>
+          <div className="mt-5 flex items-center justify-center gap-5 sm:justify-end" aria-label="Selos de confiança">
+            <div className="flex h-[72px] w-[164px] items-center justify-center" title="Norton Secured">
+              <svg viewBox="0 0 250 105" className="h-full w-full" role="img" aria-label="Norton Secured">
+                <circle cx="47" cy="43" r="34" fill="#ffc20e" />
+                <circle cx="47" cy="43" r="24" fill="#fff" />
+                <path d="M31 43l11 12 28-35" fill="none" stroke="#111" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M72 18h126c17 0 29 11 29 25s-12 25-29 25H73" fill="#fff" stroke="#c9c9c9" strokeWidth="2" />
+                <text x="80" y="43" fill="#111" fontSize="27" fontWeight="800" fontFamily="Arial, sans-serif">Norton</text>
+                <text x="82" y="61" fill="#a4a4a4" fontSize="14" fontWeight="600" letterSpacing="2.2" fontFamily="Arial, sans-serif">SECURED</text>
+                <text x="49" y="89" fill="#aaa" fontSize="12" fontFamily="Arial, sans-serif">powered by</text>
+                <text x="111" y="89" fill="#9d003f" fontSize="13" fontWeight="700" fontFamily="Arial, sans-serif">VeriSign</text>
+              </svg>
             </div>
-            <div className="flex h-[58px] min-w-[142px] items-center justify-center rounded-xl border border-white/10 bg-white px-4 shadow-[0_8px_24px_rgba(0,0,0,.14)]" title="Reclame Aqui">
-              <div className="flex items-center gap-2.5">
-                <span className="grid h-8 w-8 place-items-center rounded-full bg-[#6cad3a] text-[11px] font-black text-white">RA</span>
-                <div className="text-left leading-none">
-                  <p className="text-[11px] font-black uppercase tracking-[-.02em] text-[#262626]">Reclame</p>
-                  <p className="mt-1 text-[11px] font-black uppercase tracking-[-.02em] text-[#6cad3a]">Aqui</p>
-                </div>
-              </div>
+            <div className="flex h-[72px] w-[92px] items-center justify-center" title="Reclame Aqui">
+              <svg viewBox="0 0 120 100" className="h-full w-full" role="img" aria-label="Reclame Aqui">
+                <path d="M7 8h46c22 0 35 12 35 30 0 13-7 23-20 27l18 27H54L40 68h-8v24H7V8Zm25 21v19h16c9 0 14-3 14-10 0-6-5-9-14-9H32Z" fill="#93c914"/>
+                <path d="M68 8h45v84H87V70H68l8-22h11V30H75L68 8Z" fill="#008e52"/>
+              </svg>
             </div>
           </div>
-        </div>
-      </footer>   </main>
-  );
-}
