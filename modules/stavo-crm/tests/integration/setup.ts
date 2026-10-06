@@ -122,7 +122,7 @@ export async function resetDatabase(database: Database): Promise<void> {
     await database.execute(sql.raw(`delete from \`${table}\``));
   }
   await database.execute(sql`set foreign_key_checks = 1`);
-  await runSeed(database);
+  await runSeed(database, '01TESTWORKSPACE000000000001');
 }
 
 /** Etapa correspondente a um significado interno. */

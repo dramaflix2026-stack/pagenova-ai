@@ -7,7 +7,7 @@
  * O CSV e protegido contra formula injection: qualquer celula que comece com
  * =, +, - ou @ recebe um apostrofo antes, para que o Excel/Sheets nao execute.
  */
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { Router } from 'express';
 
 import { getDb, type Database } from '../../db/client';
@@ -68,7 +68,7 @@ export function toCsv(rows: Record<string, unknown>[], columns?: string[]): stri
 }
 
 const CSV_DATASETS = {
-  leads: async (db: Database) => {
+  leads: async (db: Database, workspaceId: string) => {
     const rows = await db
       .select({
         id: leads.id,
@@ -90,7 +90,7 @@ const CSV_DATASETS = {
       .orderBy(desc(leads.createdAt));
     return rows;
   },
-  contatos: async (db: Database) =>
+  contatos: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: leadContacts.leadId,
@@ -102,7 +102,7 @@ const CSV_DATASETS = {
         valido: leadContacts.isValid,
       })
       .from(leadContacts),
-  links: async (db: Database) =>
+  links: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: leadLinks.leadId,
@@ -112,7 +112,7 @@ const CSV_DATASETS = {
         origem: leadLinks.origin,
       })
       .from(leadLinks),
-  atividades: async (db: Database) =>
+  atividades: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: activities.leadId,
@@ -122,7 +122,7 @@ const CSV_DATASETS = {
       })
       .from(activities)
       .orderBy(desc(activities.occurredAt)),
-  follow_ups: async (db: Database) =>
+  follow_ups: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: followUps.leadId,
@@ -132,7 +132,7 @@ const CSV_DATASETS = {
         concluido_em: followUps.completedAt,
       })
       .from(followUps),
-  servicos: async (db: Database) =>
+  servicos: async (db: Database, workspaceId: string) =>
     db
       .select({
         id: services.id,
@@ -142,8 +142,9 @@ const CSV_DATASETS = {
         preco_padrao: services.defaultPrice,
         ativo: services.active,
       })
-      .from(services),
-  propostas: async (db: Database) =>
+      .from(services)
+      .where(eq(services.workspaceId, workspaceId)),
+  propostas: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: leadServiceInterests.leadId,
@@ -153,8 +154,15 @@ const CSV_DATASETS = {
         status: leadServiceInterests.status,
       })
       .from(leadServiceInterests)
+      .where(
+        sql`${leadServiceInterests.leadId} in (
+          select ${leads.id}
+          from ${leads}
+          where ${leads.workspaceId} = ${workspaceId}
+        )`,
+      )
       .innerJoin(services, eq(services.id, leadServiceInterests.serviceId)),
-  vendas: async (db: Database) =>
+  vendas: async (db: Database, workspaceId: string) =>
     db
       .select({
         id: sales.id,
@@ -166,7 +174,7 @@ const CSV_DATASETS = {
       })
       .from(sales)
       .orderBy(desc(sales.agreedAt)),
-  itens_venda: async (db: Database) =>
+  itens_venda: async (db: Database, workspaceId: string) =>
     db
       .select({
         venda_id: saleItems.saleId,
@@ -176,8 +184,15 @@ const CSV_DATASETS = {
         quantidade: saleItems.quantity,
         total: saleItems.totalSnapshot,
       })
-      .from(saleItems),
-  recebiveis: async (db: Database) =>
+      .from(saleItems)
+      .innerJoin(
+        sales,
+        and(
+          eq(sales.id, saleItems.saleId),
+          eq(sales.workspaceId, workspaceId),
+        ),
+      ),
+  recebiveis: async (db: Database, workspaceId: string) =>
     db
       .select({
         id: receivables.id,
@@ -191,7 +206,7 @@ const CSV_DATASETS = {
       })
       .from(receivables)
       .orderBy(desc(receivables.dueDate)),
-  pagamentos: async (db: Database) =>
+  pagamentos: async (db: Database, workspaceId: string) =>
     db
       .select({
         id: payments.id,
@@ -205,7 +220,7 @@ const CSV_DATASETS = {
       })
       .from(payments)
       .orderBy(desc(payments.paymentDate)),
-  assinaturas: async (db: Database) =>
+  assinaturas: async (db: Database, workspaceId: string) =>
     db
       .select({
         id: subscriptions.id,
@@ -217,8 +232,9 @@ const CSV_DATASETS = {
         proximo_vencimento: subscriptions.nextDueDate,
         cancelada_em: subscriptions.canceledAt,
       })
-      .from(subscriptions),
-  metas: async (db: Database) =>
+      .from(subscriptions)
+      .where(eq(subscriptions.workspaceId, workspaceId)),
+  metas: async (db: Database, workspaceId: string) =>
     db
       .select({
         metrica: goals.metricType,
@@ -228,8 +244,9 @@ const CSV_DATASETS = {
         fim: goals.endsOn,
         ativa: goals.active,
       })
-      .from(goals),
-  historico_etapas: async (db: Database) =>
+      .from(goals)
+      .where(eq(goals.workspaceId, workspaceId)),
+  historico_etapas: async (db: Database, workspaceId: string) =>
     db
       .select({
         lead_id: stageHistory.leadId,
@@ -262,7 +279,7 @@ exportsRouter.get(
     const loader = CSV_DATASETS[dataset];
     if (!loader) throw badRequest('Conjunto de dados desconhecido.');
 
-    const rows = (await loader(getDb())) as Record<string, unknown>[];
+    const rows = (await loader(getDb(), req.session!.workspaceId)) as Record<string, unknown>[];
     const csv = toCsv(rows);
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
@@ -273,7 +290,7 @@ exportsRouter.get(
 
 exportsRouter.get(
   '/exports/json',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
     const db = getDb();
     const payload: Record<string, unknown> = {
       exportedAt: new Date().toISOString(),
@@ -282,7 +299,7 @@ exportsRouter.get(
     };
 
     for (const [name, loader] of Object.entries(CSV_DATASETS)) {
-      payload[name] = await loader(db);
+      payload[name] = await loader(db, req.session!.workspaceId);
     }
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');

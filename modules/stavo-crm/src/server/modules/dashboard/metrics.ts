@@ -46,6 +46,7 @@ import { resolvePeriod, toLocalDateString, type ResolvedPeriod } from '../../dom
  * metas e dashboard possam pedir recortes diferentes sem acoplamento.
  */
 export interface MetricFilters {
+  workspaceId: string;
   sourceId?: string | undefined;
   serviceId?: string | undefined;
   niche?: string | null | undefined;
@@ -63,7 +64,7 @@ export interface MetricFilters {
 
 /** Filtro por atributos do lead, aplicado como subconsulta nos eventos. */
 function leadScope(filters: MetricFilters) {
-  const conditions = [];
+  const conditions = [eq(leads.workspaceId, filters.workspaceId)];
   if (filters.ownerUserId) conditions.push(eq(leads.ownerUserId, filters.ownerUserId));
   if (filters.sourceId) conditions.push(eq(leads.sourceId, filters.sourceId));
   if (filters.niche) conditions.push(eq(leads.prospectingNiche, filters.niche));
@@ -237,7 +238,7 @@ export async function getPeriodMetrics(
 
   const revenue = await realizedRevenue(db, period, filters);
 
-  // Denominador zero -> null. A interface mostra "—" com explicacao.
+  // Denominador zero -> null. A interface mostra "â€”" com explicacao.
   const rate = (numerator: number): number | null =>
     firstContacts === 0 ? null : numerator / firstContacts;
 
@@ -304,24 +305,38 @@ export interface FinancialSnapshot {
 /** Fotografia financeira atual, independente do periodo selecionado. */
 export async function getFinancialSnapshot(
   db: Database,
+  workspaceId: string,
   ownerUserId?: string | null,
 ): Promise<FinancialSnapshot> {
   // Funcionario ve so a propria carteira; socio e dono veem tudo.
   const doDono = ownerUserId
-    ? sql`${receivables.leadId} in (select ${leads.id} from ${leads} where ${leads.ownerUserId} = ${ownerUserId})`
-    : sql`1 = 1`;
+    ? sql`${receivables.leadId} in (
+        select ${leads.id}
+        from ${leads}
+        where ${leads.workspaceId} = ${workspaceId}
+          and ${leads.ownerUserId} = ${ownerUserId}
+      )`
+    : sql`${receivables.workspaceId} = ${workspaceId}`;
 
   const [pending] = await db
     .select({
       total: sql<string>`coalesce(sum(${receivables.amount}), 0)`,
     })
     .from(receivables)
-    .where(and(inArray(receivables.status, ['PENDING', 'OVERDUE']), doDono));
+    .where(and(
+      eq(receivables.workspaceId, workspaceId),
+      inArray(receivables.status, ['PENDING', 'OVERDUE']),
+      doDono,
+    ));
 
   const [overdue] = await db
     .select({ total: sql<string>`coalesce(sum(${receivables.amount}), 0)` })
     .from(receivables)
-    .where(and(eq(receivables.status, 'OVERDUE'), doDono));
+    .where(and(
+      eq(receivables.workspaceId, workspaceId),
+      eq(receivables.status, 'OVERDUE'),
+      doDono,
+    ));
 
   const [mrr] = await db
     .select({
@@ -332,9 +347,15 @@ export async function getFinancialSnapshot(
     .from(subscriptions)
     .where(
       and(
+        eq(subscriptions.workspaceId, workspaceId),
         eq(subscriptions.status, 'ACTIVE'),
         ownerUserId
-          ? sql`${subscriptions.leadId} in (select ${leads.id} from ${leads} where ${leads.ownerUserId} = ${ownerUserId})`
+          ? sql`${subscriptions.leadId} in (
+              select ${leads.id}
+              from ${leads}
+              where ${leads.workspaceId} = ${workspaceId}
+                and ${leads.ownerUserId} = ${ownerUserId}
+            )`
           : sql`1 = 1`,
       ),
     );
@@ -431,7 +452,7 @@ export async function getAttentionItems(
         : `${MEETING_URGENCY_LABELS[alerta.urgency]}: ${alerta.leadName}`,
       description: pendente
         ? `"${alerta.title}" ja terminou. Marque como concluida, ausencia ou reagende.`
-        : `${alerta.title} — ${formatMeetingWindow(alerta.startAt, alerta.endAt)}`,
+        : `${alerta.title} â€” ${formatMeetingWindow(alerta.startAt, alerta.endAt)}`,
       leadId: alerta.leadId,
       amount: null,
       dueDate: toLocalDateString(alerta.startAt),

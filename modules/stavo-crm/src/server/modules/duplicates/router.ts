@@ -6,7 +6,7 @@
  *  - "Sao leads diferentes" -> registra excecao de identidade auditada;
  *  - "Ignorar"           -> apenas encerra o alerta.
  */
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { Router } from 'express';
 
 import { duplicateFiltersSchema, resolveDuplicateSchema } from '../../../shared/schemas';
@@ -33,6 +33,7 @@ duplicatesRouter.use('/duplicates', requireCapabilityToWrite('LEAD_CREATE'));
 duplicatesRouter.get(
   '/duplicates',
   asyncHandler(async (req, res) => {
+    const workspaceId = req.session!.workspaceId;
     const filters = parseQuery(duplicateFiltersSchema, req);
     const db = getDb();
 
@@ -46,7 +47,12 @@ duplicatesRouter.get(
       .from(duplicateReviews)
       .innerJoin(leads, eq(leads.id, duplicateReviews.existingLeadId))
       .innerJoin(stages, eq(stages.id, leads.currentStageId))
-      .where(eq(duplicateReviews.status, filters.status))
+      .where(
+        and(
+          eq(leads.workspaceId, workspaceId),
+          eq(duplicateReviews.status, filters.status),
+        ),
+      )
       .orderBy(desc(duplicateReviews.createdAt))
       .limit(200);
 
@@ -66,7 +72,12 @@ duplicatesRouter.get(
             })
             .from(leads)
             .innerJoin(stages, eq(stages.id, leads.currentStageId))
-            .where(inArray(leads.id, candidateIds))
+            .where(
+              and(
+                eq(leads.workspaceId, workspaceId),
+                inArray(leads.id, candidateIds),
+              ),
+            )
         : [];
 
     const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]));
@@ -98,6 +109,7 @@ duplicatesRouter.post(
   '/duplicates/:id/resolve',
   csrfProtection,
   asyncHandler(async (req, res) => {
+    const workspaceId = req.session!.workspaceId;
     const input = parseBody(resolveDuplicateSchema, req);
     const db = getDb();
     const actorUserId = req.session!.user.id;
@@ -176,9 +188,24 @@ duplicatesRouter.post(
     await db
       .update(duplicateReviews)
       .set({ status, reviewedAt: now })
-      .where(and(eq(duplicateReviews.id, review.id), eq(duplicateReviews.status, 'PENDING')));
+      .where(
+        and(
+          eq(duplicateReviews.id, review.id),
+          eq(duplicateReviews.status, 'PENDING'),
+          sql`exists (
+            select 1
+            from ${leads}
+            where ${leads.workspaceId} = ${workspaceId}
+              and (
+                ${leads.id} = ${duplicateReviews.candidateLeadId}
+                or ${leads.id} = ${duplicateReviews.existingLeadId}
+              )
+          )`,
+        ),
+      );
 
     await db.insert(auditLog).values({
+      workspaceId,
       id: newId(),
       action: 'DUPLICATE_REVIEW_RESOLVED',
       entityType: 'duplicate_reviews',

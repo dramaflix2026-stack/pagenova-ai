@@ -64,6 +64,13 @@
       "when": 1790089619211,
       "tag": "0008_garimpoo",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1791218489231,
+      "tag": "0009_multi_tenant_core",
+      "breakpoints": true
     }
   ]
 }

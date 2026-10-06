@@ -52,9 +52,7 @@ async function addFromSearch(
   }
   links.push({ type: 'MAPS', url: mapsLinkFromPlaceId(overrides.placeId), isPrimary: false });
 
-  return createLead(
-    db,
-    {
+  return createLead(db, '01TESTWORKSPACE000000000001', {
       internalName: overrides.internalName,
       originType: 'GOOGLE_PLACE',
       sourceId: null,

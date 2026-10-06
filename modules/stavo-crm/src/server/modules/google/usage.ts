@@ -36,9 +36,9 @@ export interface UsageLimits {
 }
 
 /** Preferencia do usuario tem prioridade sobre o valor do ambiente. */
-export async function resolveLimits(db: Database): Promise<UsageLimits> {
+export async function resolveLimits(db: Database, workspaceId: string): Promise<UsageLimits> {
   const env = getEnv();
-  const preferences = await getPreferences(db);
+  const preferences = await getPreferences(db, workspaceId);
 
   return {
     textSearch: preferences.googleTextSearchLimit ?? env.GOOGLE_TEXT_SEARCH_MONTHLY_HARD_LIMIT,
@@ -57,10 +57,11 @@ const limitFor = (limits: UsageLimits, sku: GoogleSkuType): number =>
  */
 export async function reserveUsage(
   db: Database,
+  workspaceId: string,
   sku: GoogleSkuType,
   now: Date = new Date(),
 ): Promise<{ used: number; limit: number; warning: boolean }> {
-  const limits = await resolveLimits(db);
+  const limits = await resolveLimits(db, workspaceId);
   const limit = limitFor(limits, sku);
   const billingMonth = toReferencePeriod(now);
 
@@ -140,9 +141,10 @@ export interface SkuUsage {
 
 export async function getUsageSummary(
   db: Database,
+  workspaceId: string,
   now: Date = new Date(),
 ): Promise<SkuUsage[]> {
-  const limits = await resolveLimits(db);
+  const limits = await resolveLimits(db, workspaceId);
   const billingMonth = toReferencePeriod(now);
 
   const rows = await db

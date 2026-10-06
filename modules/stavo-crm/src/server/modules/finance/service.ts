@@ -18,6 +18,7 @@ import {
   auditLog,
   payments,
   receivables,
+  leads,
   saleItems,
   sales,
   services,
@@ -70,12 +71,23 @@ export interface CreateSaleResult {
  * Deve rodar dentro de uma transacao.
  */
 export async function createSale(tx: Database, input: CreateSaleInput): Promise<CreateSaleResult> {
+  const [workspaceLead] = await tx
+    .select({ workspaceId: leads.workspaceId })
+    .from(leads)
+    .where(eq(leads.id, input.leadId))
+    .limit(1);
+  if (!workspaceLead) throw notFound('Lead nao encontrado.');
+  const workspaceId = workspaceLead.workspaceId;
+
   if (input.items.length === 0) {
     throw badRequest('Selecione pelo menos um servico para registrar a venda.');
   }
 
   const serviceIds = [...new Set(input.items.map((item) => item.serviceId))];
-  const catalog = await tx.select().from(services).where(inArray(services.id, serviceIds));
+  const catalog = await tx
+    .select()
+    .from(services)
+    .where(and(eq(services.workspaceId, workspaceId), inArray(services.id, serviceIds)));
   const byId = new Map(catalog.map((service) => [service.id, service]));
 
   for (const serviceId of serviceIds) {
@@ -135,6 +147,7 @@ export async function createSale(tx: Database, input: CreateSaleInput): Promise<
   // INSERT. Inverter esta ordem derruba a movimentacao com o erro 1452
   // (ER_NO_REFERENCED_ROW_2), que chega ao operador como "Erro inesperado".
   await tx.insert(sales).values({
+    workspaceId,
     id: saleId,
     leadId: input.leadId,
     status: 'PENDING',
@@ -157,6 +170,7 @@ export async function createSale(tx: Database, input: CreateSaleInput): Promise<
   if (toCents(oneTimeTotal) > 0) {
     const receivableId = newId();
     await tx.insert(receivables).values({
+      workspaceId,
       id: receivableId,
       leadId: input.leadId,
       saleId,
@@ -187,6 +201,7 @@ export async function createSale(tx: Database, input: CreateSaleInput): Promise<
     const firstPeriod = input.dueDate.slice(0, 7);
 
     await tx.insert(subscriptions).values({
+      workspaceId,
       id: subscriptionId,
       leadId: input.leadId,
       saleItemId: item.id,
@@ -204,6 +219,7 @@ export async function createSale(tx: Database, input: CreateSaleInput): Promise<
 
     const receivableId = newId();
     await tx.insert(receivables).values({
+      workspaceId,
       id: receivableId,
       leadId: input.leadId,
       saleId,
@@ -321,6 +337,7 @@ export async function confirmPayment(
   );
 
   const receivable = await getReceivable(tx, input.receivableId);
+  const workspaceId = receivable.workspaceId;
 
   if (receivable.status === 'PAID') {
     throw conflict('Este recebimento ja foi confirmado.', { code: 'ALREADY_PAID' });
@@ -348,6 +365,7 @@ export async function confirmPayment(
 
   try {
     await tx.insert(payments).values({
+      workspaceId,
       id: paymentId,
       receivableId: receivable.id,
       leadId: receivable.leadId,
@@ -460,6 +478,7 @@ export async function reversePayment(tx: Database, input: ReversePaymentInput): 
     .where(eq(payments.id, input.paymentId))
     .limit(1);
   if (!original) throw notFound('Pagamento nao encontrado.');
+  const workspaceId = original.workspaceId;
   if (original.status !== 'CONFIRMED') {
     throw conflict('Somente um pagamento confirmado pode ser estornado.');
   }
@@ -477,6 +496,7 @@ export async function reversePayment(tx: Database, input: ReversePaymentInput): 
   const reversalId = newId();
 
   await tx.insert(payments).values({
+    workspaceId,
     id: reversalId,
     receivableId: original.receivableId,
     leadId: original.leadId,
@@ -531,6 +551,7 @@ export async function reversePayment(tx: Database, input: ReversePaymentInput): 
   });
 
   await tx.insert(auditLog).values({
+    workspaceId,
     id: newId(),
     action: 'PAYMENT_REVERSED',
     entityType: 'payments',
@@ -549,6 +570,7 @@ export async function cancelReceivable(
   input: { receivableId: string; reason: string; actorUserId: string },
 ): Promise<void> {
   const receivable = await getReceivable(tx, input.receivableId);
+  const workspaceId = receivable.workspaceId;
 
   if (receivable.status === 'PAID') {
     throw conflict('Um recebimento confirmado deve ser estornado, nao cancelado.', {
@@ -569,6 +591,7 @@ export async function cancelReceivable(
     .where(eq(receivables.id, receivable.id));
 
   await tx.insert(auditLog).values({
+    workspaceId,
     id: newId(),
     action: 'RECEIVABLE_CANCELED',
     entityType: 'receivables',
@@ -591,6 +614,7 @@ export async function cancelSale(
 ): Promise<void> {
   const [sale] = await tx.select().from(sales).where(eq(sales.id, input.saleId)).limit(1);
   if (!sale) throw notFound('Venda nao encontrada.');
+  const workspaceId = sale.workspaceId;
   if (sale.status === 'CANCELED') return;
 
   const now = new Date();
@@ -632,6 +656,7 @@ export async function cancelSale(
   });
 
   await tx.insert(auditLog).values({
+    workspaceId,
     id: newId(),
     action: 'SALE_CANCELED',
     entityType: 'sales',
@@ -855,6 +880,7 @@ async function generateForSubscription(
       await db.transaction(async (tx) => {
         const receivableId = newId();
         await tx.insert(receivables).values({
+          workspaceId: subscription.workspaceId,
           id: receivableId,
           leadId: subscription.leadId,
           saleId: null,

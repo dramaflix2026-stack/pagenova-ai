@@ -109,7 +109,7 @@ leadsRouter.post(
   requireCapability('LEAD_CREATE'),
   asyncHandler(async (req, res) => {
     const input = parseBody(createLeadSchema, req);
-    const result = await createLead(getDb(), input, {
+    const result = await createLead(getDb(), req.session!.workspaceId, input, {
       actorUserId: req.session!.user.id,
       originType: input.originType,
     });

@@ -12,7 +12,7 @@ import { eq } from 'drizzle-orm';
 
 import { getEnv } from '../src/server/config/env';
 import { closeDatabase, getDb } from '../src/server/db/client';
-import { auditLog, authSessions, users } from '../src/server/db/schema';
+import { auditLog, authSessions, users, workspaceMembers } from '../src/server/db/schema';
 import { newId } from '../src/server/lib/ids';
 import { checkPasswordStrength, hashPassword } from '../src/server/modules/auth/password';
 
@@ -48,6 +48,16 @@ async function main(): Promise<void> {
     throw new Error(`Nenhum usuario encontrado para ${email}.`);
   }
 
+  const [membership] = await db
+    .select({ workspaceId: workspaceMembers.workspaceId })
+    .from(workspaceMembers)
+    .where(eq(workspaceMembers.userId, user.id))
+    .limit(1);
+
+  if (!membership) {
+    throw new Error('Usuario sem workspace associado.');
+  }
+
   const now = new Date();
   const passwordHash = await hashPassword(newPassword);
 
@@ -64,6 +74,7 @@ async function main(): Promise<void> {
       .where(eq(authSessions.userId, user.id));
 
     await tx.insert(auditLog).values({
+      workspaceId: membership.workspaceId,
       id: newId(),
       action: 'ADMIN_PASSWORD_RESET_CLI',
       entityType: 'users',

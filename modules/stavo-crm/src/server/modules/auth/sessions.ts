@@ -15,7 +15,7 @@ import type { CookieOptions, Request, Response } from 'express';
 
 import { getEnv } from '../../config/env';
 import type { Database } from '../../db/client';
-import { authSessions, users, type User } from '../../db/schema';
+import { authSessions, users, workspaceMembers, workspaces, type User } from '../../db/schema';
 import { newId } from '../../lib/ids';
 
 export const SESSION_COOKIE = 'stavo_session';
@@ -47,6 +47,7 @@ function cookieOptions(maxAgeMs: number): CookieOptions {
 }
 
 export interface SessionContext {
+  workspaceId: string;
   sessionId: string;
   /**
    * O cargo e o nome viajam na sessao para que cada requisicao decida a
@@ -57,6 +58,7 @@ export interface SessionContext {
 }
 
 export interface CreateSessionOptions {
+  workspaceId: string;
   db: Database;
   userId: string;
   req: Request;
@@ -64,6 +66,7 @@ export interface CreateSessionOptions {
 }
 
 export async function createSession({
+  workspaceId,
   db,
   userId,
   req,
@@ -78,6 +81,7 @@ export async function createSession({
     id: newId(),
     tokenHash: hashToken(token),
     userId,
+    workspaceId,
     createdAt: now,
     lastSeenAt: now,
     expiresAt: new Date(now.getTime() + absoluteMs),
@@ -129,11 +133,12 @@ export async function resolveSession(
   const [row] = await db
     .select({
       sessionId: authSessions.id,
+      workspaceId: authSessions.workspaceId,
       lastSeenAt: authSessions.lastSeenAt,
       userId: users.id,
       email: users.email,
       name: users.name,
-      role: users.role,
+      role: workspaceMembers.role,
       active: users.active,
       lastLoginAt: users.lastLoginAt,
       passwordChangedAt: users.passwordChangedAt,
@@ -143,6 +148,8 @@ export async function resolveSession(
     .where(
       and(
         eq(authSessions.tokenHash, hashToken(token)),
+        eq(workspaceMembers.status, 'ACTIVE'),
+        eq(workspaces.status, 'ACTIVE'),
         isNull(authSessions.revokedAt),
         sql`${authSessions.expiresAt} > ${now}`,
         sql`${authSessions.lastSeenAt} > ${idleCutoff}`,
@@ -163,6 +170,7 @@ export async function resolveSession(
 
   return {
     sessionId: row.sessionId,
+    workspaceId: row.workspaceId,
     user: {
       id: row.userId,
       email: row.email,

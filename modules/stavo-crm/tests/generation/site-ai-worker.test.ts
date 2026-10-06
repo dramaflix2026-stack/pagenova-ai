@@ -12,6 +12,7 @@ import type { SiteProject } from '@server/db/schema';
 
 function projectWith(draftConfig: unknown): SiteProject {
   return {
+    workspaceId: '01TESTWORKSPACE000000000001',
     id: 'p'.repeat(26),
     leadId: null,
     ownerUserId: 'u'.repeat(26),

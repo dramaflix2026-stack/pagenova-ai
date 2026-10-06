@@ -40,8 +40,8 @@ googleRouter.use(requireAuth);
 
 googleRouter.get(
   '/google/usage',
-  asyncHandler(async (_req, res) => {
-    res.json({ usage: await getUsageSummary(getDb()), attribution: ATTRIBUTION_TEXT });
+  asyncHandler(async (req, res) => {
+    res.json({ usage: await getUsageSummary(getDb(), req.session!.workspaceId), attribution: ATTRIBUTION_TEXT });
   }),
 );
 
@@ -60,7 +60,7 @@ googleRouter.post(
       if (!res.writableEnded) controller.abort();
     });
 
-    const result = await searchPlaces(getDb(), input, {
+    const result = await searchPlaces(getDb(), req.session!.workspaceId, input, {
       pageNumber: Number.isFinite(pageNumber) ? pageNumber : 1,
       signal: controller.signal,
     });
@@ -79,7 +79,7 @@ googleRouter.get(
       if (!res.writableEnded) controller.abort();
     });
 
-    const details = await fetchLiveDetails(getDb(), req.params.placeId!, controller.signal);
+    const details = await fetchLiveDetails(getDb(), req.session!.workspaceId, req.params.placeId!, controller.signal);
     res.json({ details });
   }),
 );
@@ -115,6 +115,7 @@ googleRouter.post(
 
     const result = await createLead(
       db,
+      req.session!.workspaceId,
       {
         internalName: input.internalName,
         originType: 'GOOGLE_PLACE',

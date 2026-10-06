@@ -245,6 +245,7 @@ export interface CreateLeadOptions {
  */
 export async function createLead(
   db: Database,
+  workspaceId: string,
   input: CreateLeadInput,
   options: CreateLeadOptions,
 ): Promise<CreateLeadResult> {
@@ -290,6 +291,7 @@ export async function createLead(
 
   const created = await db.transaction(async (tx) => {
     await tx.insert(leads).values({
+      workspaceId,
       id: leadId,
       originType,
       sourceId: input.sourceId ?? null,
@@ -362,7 +364,7 @@ export async function createLead(
     });
 
     // Identidades gravadas na MESMA transacao do lead.
-    await attachIdentities(tx, leadId, buildIdentityKeys(identityInput), {
+    await attachIdentities(tx, workspaceId, leadId, buildIdentityKeys(identityInput), {
       sharedReason:
         verdict.kind === 'REVIEW' && input.allowSharedIdentity
           ? (input.sharedIdentityReason ?? 'Confirmado pelo usuario como leads diferentes')
@@ -1184,6 +1186,7 @@ export async function archiveLead(
     });
 
     await tx.insert(auditLog).values({
+      workspaceId: lead.workspaceId,
       id: newId(),
       action: 'LEAD_ARCHIVED',
       entityType: 'leads',
@@ -1339,6 +1342,16 @@ export async function deleteLead(
   const impacto = await getLeadDeletionImpact(db, leadId);
   const now = new Date();
 
+  const [deleteWorkspace] = await db
+    .select({ workspaceId: leads.workspaceId })
+    .from(leads)
+    .where(eq(leads.id, leadId))
+    .limit(1);
+
+  if (!deleteWorkspace) {
+    throw new Error('Lead nao encontrado.');
+  }
+
   await db.transaction(async (tx) => {
     // 1. Financeiro, do mais dependente para o menos.
     await tx.delete(payments).where(eq(payments.leadId, leadId));
@@ -1384,6 +1397,7 @@ export async function deleteLead(
     );
 
     await tx.insert(auditLog).values({
+      workspaceId: deleteWorkspace.workspaceId,
       id: newId(),
       action: 'LEAD_DELETED',
       entityType: 'leads',
@@ -1455,7 +1469,7 @@ export async function updateLeadData(
       .from(leadLinks)
       .where(eq(leadLinks.leadId, leadId));
 
-    await refreshIdentities(tx, leadId, {
+    await refreshIdentities(tx, lead.workspaceId, leadId, {
       placeId: lead.placeId,
       phones: contacts
         .filter((contact) => contact.type === 'PHONE' || contact.type === 'WHATSAPP')
@@ -1489,7 +1503,7 @@ export async function confirmLeadContact(
   await db.transaction(async (tx) => {
     await insertContacts(tx, leadId, [input], 'USER_CONFIRMED', now);
 
-    await refreshIdentities(tx, leadId, {
+    await refreshIdentities(tx, lead.workspaceId, leadId, {
       placeId: lead.placeId,
       phones: [input.value],
       name: lead.internalName,
@@ -1523,7 +1537,7 @@ export async function confirmLeadLink(
     await insertLinks(tx, leadId, [input], 'USER_CONFIRMED', now);
 
     if (classified.classification === 'OWN_WEBSITE') {
-      await refreshIdentities(tx, leadId, {
+      await refreshIdentities(tx, lead.workspaceId, leadId, {
         placeId: lead.placeId,
         websites: [input.url],
         name: lead.internalName,

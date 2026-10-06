@@ -5,11 +5,22 @@
  */
 import { getDb, closeDatabase } from '../src/server/db/client';
 import { assertStageIntegrity, runSeed } from '../src/server/db/seed';
+import { workspaces } from '../src/server/db/schema';
 
 async function main(): Promise<void> {
   const db = getDb();
-  const result = await runSeed(db);
-  await assertStageIntegrity(db);
+
+  const [workspace] = await db
+    .select({ id: workspaces.id })
+    .from(workspaces)
+    .limit(1);
+
+  if (!workspace) {
+    throw new Error('Nenhum workspace encontrado para executar o seed.');
+  }
+
+  const result = await runSeed(db, workspace.id);
+  await assertStageIntegrity(db, workspace.id);
 
   console.log('Seed concluido (idempotente):');
   console.log(`  etapas criadas .............. ${result.stagesCreated}`);

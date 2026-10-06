@@ -159,6 +159,7 @@ siteAiRouter.post(
     const session = req.session!;
 
     const project = await createProject(
+      session.workspaceId,
       {
         leadId: input.leadId ?? null,
         internalName: input.internalName,

@@ -75,13 +75,13 @@ suite('abordagem por WhatsApp de sites com IA', () => {
       allowSharedIdentity: false,
       sharedIdentityReason: null,
       ...overrides,
-    }) as Parameters<typeof createLead>[1];
+    }) as Parameters<typeof createLead>[2];
 
   async function projectFor(leadId: string | null, businessName: string): Promise<string> {
     const model = buildFixtureSite();
     model.business.name = businessName;
 
-    return repo.insertProject({
+    return repo.insertProject('01TESTWORKSPACE000000000001', {
       leadId,
       ownerUserId: ADMIN,
       internalName: businessName,
@@ -188,7 +188,7 @@ suite('abordagem por WhatsApp de sites com IA', () => {
   });
 
   it('confirmar envio em um projeto COM lead cria uma atividade WHATSAPP_ATTEMPT nesse lead', async () => {
-    const { lead } = await createLead(db, baseLead({ internalName: 'Padaria Outreach' }), { actorUserId: ADMIN });
+    const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead({ internalName: 'Padaria Outreach' }), { actorUserId: ADMIN });
     const projectId = await projectFor(lead.id, 'Padaria Outreach');
     const messageId = await repo.insertOutreachMessage({
       projectId,
@@ -242,7 +242,7 @@ suite('abordagem por WhatsApp de sites com IA', () => {
   });
 
   it('apagar o lead nao apaga a mensagem de abordagem: leadId so vira nulo', async () => {
-    const { lead } = await createLead(db, baseLead({ internalName: 'Padaria Sera Excluida' }), { actorUserId: ADMIN });
+    const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead({ internalName: 'Padaria Sera Excluida' }), { actorUserId: ADMIN });
     const projectId = await projectFor(lead.id, 'Padaria Sera Excluida');
     const messageId = await repo.insertOutreachMessage({
       projectId,

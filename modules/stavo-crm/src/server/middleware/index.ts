@@ -2,6 +2,10 @@
  * Middlewares transversais: contexto de requisicao, autenticacao, CSRF,
  * validacao de origem e tratamento central de erros.
  */
+import {
+  provisionPageNovaIdentity,
+  verifyPageNovaIdentity,
+} from '../modules/auth/pagenova-sso';
 import { randomUUID } from 'node:crypto';
 
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
@@ -48,6 +52,51 @@ export const noIndex: RequestHandler = (_req, res, next) => {
  * Carrega a sessao quando existir, sem exigir autenticacao.
  * Usado por rotas que mudam de comportamento quando ha sessao.
  */
+/**
+ * Recebe a identidade ja autenticada pelo PageNova.
+ *
+ * Estes headers somente sao confiaveis quando possuem assinatura HMAC
+ * criada no backend do PageNova com PAGENOVA_SSO_SECRET.
+ */
+export const loadPageNovaIdentity: RequestHandler = (req, _res, next) => {
+  const externalUserId = req.get('x-pagenova-user-id') ?? '';
+  const email = req.get('x-pagenova-user-email') ?? '';
+  const name = req.get('x-pagenova-user-name') ?? '';
+  const timestamp = req.get('x-pagenova-timestamp') ?? '';
+  const signature = req.get('x-pagenova-signature') ?? '';
+
+  // Requisicao convencional do Stavo: deixa loadSession cuidar dela.
+  if (!externalUserId && !signature) {
+    next();
+    return;
+  }
+
+  const identity = verifyPageNovaIdentity({
+    secret: process.env.PAGENOVA_SSO_SECRET ?? '',
+    externalUserId,
+    email,
+    name,
+    timestamp,
+    signature,
+  });
+
+  if (!identity) {
+    next(unauthorized('Identidade PageNova invalida.'));
+    return;
+  }
+
+  provisionPageNovaIdentity(getDb(), identity)
+    .then((context) => {
+      req.session = {
+        sessionId: `pagenova:${identity.externalUserId}`,
+        workspaceId: context.workspaceId,
+        user: context.user,
+      };
+
+      next();
+    })
+    .catch(next);
+};
 export const loadSession: RequestHandler = (req, _res, next) => {
   const token = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
   resolveSession(getDb(), token)

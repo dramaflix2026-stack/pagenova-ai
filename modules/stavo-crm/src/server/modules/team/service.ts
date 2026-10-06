@@ -15,7 +15,9 @@ import { and, asc, count, eq, ne } from 'drizzle-orm';
 import type { CreateTeamMemberInput, UpdateTeamMemberInput } from '../../../shared/schemas';
 import { USER_ROLE_LABELS, type UserRole } from '../../../shared/roles';
 import type { Database } from '../../db/client';
-import { auditLog, leads, users } from '../../db/schema';
+import { auditLog, leads, users,
+  workspaceMembers,
+} from '../../db/schema';
 import { isDuplicateKeyError } from '../../db/client';
 import { conflict, notFound, unprocessable } from '../../lib/errors';
 import { newId } from '../../lib/ids';
@@ -34,37 +36,53 @@ export interface TeamMember {
   leadCount: number;
 }
 
-export async function listTeam(db: Database): Promise<TeamMember[]> {
+export async function listTeam(db: Database, workspaceId: string): Promise<TeamMember[]> {
   const rows = await db
     .select({
       id: users.id,
       name: users.name,
       email: users.email,
-      role: users.role,
+      role: workspaceMembers.role,
       active: users.active,
       lastLoginAt: users.lastLoginAt,
       createdAt: users.createdAt,
     })
-    .from(users)
+    .from(workspaceMembers)
+    .innerJoin(users, eq(users.id, workspaceMembers.userId))
+    .where(
+      and(
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.status, 'ACTIVE'),
+      ),
+    )
     .orderBy(asc(users.name), asc(users.email));
 
   const carteiras = await db
-    .select({ ownerUserId: leads.ownerUserId, total: count() })
+    .select({
+      ownerUserId: leads.ownerUserId,
+      total: count(),
+    })
     .from(leads)
+    .where(eq(leads.workspaceId, workspaceId))
     .groupBy(leads.ownerUserId);
 
-  const porDono = new Map(carteiras.map((linha) => [linha.ownerUserId, Number(linha.total)]));
+  const porDono = new Map(
+    carteiras.map((linha) => [
+      linha.ownerUserId,
+      Number(linha.total),
+    ]),
+  );
 
   return rows.map((linha) => ({
     ...linha,
     role: linha.role as UserRole,
-    // Sem nome cadastrado (o administrador original), o e-mail identifica.
+    // Sem nome cadastrado, o e-mail identifica.
     name: linha.name.trim() || linha.email,
     leadCount: porDono.get(linha.id) ?? 0,
   }));
 }
 
-async function contarDonosAtivos(db: Database, exceptUserId?: string): Promise<number> {
+async function contarDonosAtivos(db: Database, workspaceId: string, exceptUserId?: string): Promise<number> {
   const [linha] = await db
     .select({ total: count() })
     .from(users)
@@ -78,9 +96,7 @@ async function contarDonosAtivos(db: Database, exceptUserId?: string): Promise<n
   return Number(linha?.total ?? 0);
 }
 
-export async function createTeamMember(
-  db: Database,
-  input: CreateTeamMemberInput,
+export async function createTeamMember(db: Database, workspaceId: string, input: CreateTeamMemberInput,
   actorUserId: string,
 ): Promise<TeamMember> {
   const forca = checkPasswordStrength(input.password);
@@ -114,6 +130,7 @@ export async function createTeamMember(
   }
 
   await db.insert(auditLog).values({
+    workspaceId,
     id: newId(),
     action: 'TEAM_MEMBER_CREATED',
     entityType: 'users',
@@ -136,17 +153,35 @@ export async function createTeamMember(
   };
 }
 
-export async function updateTeamMember(
-  db: Database,
-  userId: string,
+export async function updateTeamMember(db: Database, workspaceId: string, userId: string,
   input: UpdateTeamMemberInput,
   actorUserId: string,
 ): Promise<void> {
-  const [alvo] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-  if (!alvo) throw notFound('Colaborador nao encontrado.');
+  const [alvo] = await db
+    .select({
+      user: users,
+      membershipRole: workspaceMembers.role,
+      membershipStatus: workspaceMembers.status,
+    })
+    .from(users)
+    .innerJoin(
+      workspaceMembers,
+      and(
+        eq(workspaceMembers.userId, users.id),
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.status, 'ACTIVE'),
+      ),
+    )
+    .where(eq(users.id, userId))
+    .limit(1);
 
-  const mudaCargo = input.role !== undefined && input.role !== alvo.role;
-  const desativa = input.active === false && alvo.active;
+  const alvoUser = alvo?.user;
+  if (!alvoUser) throw notFound('Colaborador nao encontrado.');
+
+  const currentRole = (alvo.membershipRole ?? alvoUser.role) as UserRole;
+
+  const mudaCargo = input.role !== undefined && input.role !== alvoUser.role;
+  const desativa = input.active === false && alvoUser.active;
 
   if (userId === actorUserId && (mudaCargo || desativa)) {
     throw unprocessable(
@@ -157,8 +192,8 @@ export async function updateTeamMember(
 
   // Perder o ultimo dono ativo deixaria a conta sem ninguem para gerenciar a
   // equipe: nao haveria caminho de volta pela propria aplicacao.
-  const perdeDono = alvo.role === 'OWNER' && (desativa || (mudaCargo && input.role !== 'OWNER'));
-  if (perdeDono && (await contarDonosAtivos(db, userId)) === 0) {
+  const perdeDono = currentRole === 'OWNER' && (desativa || (mudaCargo && input.role !== 'OWNER'));
+  if (perdeDono && (await contarDonosAtivos(db, workspaceId, userId)) === 0) {
     throw unprocessable(
       'Esta e a unica pessoa com cargo de dono da conta. Promova outra antes de mudar esta.',
       { code: 'LAST_OWNER' },
@@ -181,20 +216,38 @@ export async function updateTeamMember(
     // Os leads voltam ao pote comum em vez de ficarem presos a alguem que
     // nao entra mais no sistema.
     if (desativa) {
-      await tx.update(leads).set({ ownerUserId: null }).where(eq(leads.ownerUserId, userId));
+      await tx.update(leads).set({ ownerUserId: null }).where(and(eq(leads.workspaceId, workspaceId), eq(leads.ownerUserId, userId)));
     }
 
+    if (input.role !== undefined || input.active !== undefined) {
+      await tx
+        .update(workspaceMembers)
+        .set({
+          ...(input.role !== undefined ? { role: input.role } : {}),
+          ...(input.active !== undefined
+            ? { status: input.active ? 'ACTIVE' : 'INACTIVE' }
+            : {}),
+          updatedAt: now,
+        })
+        .where(
+          and(
+            eq(workspaceMembers.workspaceId, workspaceId),
+            eq(workspaceMembers.userId, userId),
+          ),
+        );
+    }
     await tx.insert(auditLog).values({
-      id: newId(),
+      workspaceId,
+    id: newId(),
       action: desativa ? 'TEAM_MEMBER_DEACTIVATED' : 'TEAM_MEMBER_UPDATED',
       entityType: 'users',
       entityId: userId,
       actorUserId,
       summary: desativa
-        ? `${alvo.name || alvo.email} desativado. Os leads dele ficaram sem dono.`
-        : `${alvo.name || alvo.email} atualizado.`,
+        ? `${alvoUser.name || alvoUser.email} desativado. Os leads dele ficaram sem dono.`
+        : `${alvoUser.name || alvoUser.email} atualizado.`,
       metadata: {
-        ...(input.role !== undefined ? { fromRole: alvo.role, toRole: input.role } : {}),
+        ...(input.role !== undefined ? { fromRole: alvoUser.role, toRole: input.role } : {}),
         ...(input.active !== undefined ? { active: input.active } : {}),
       },
       occurredAt: now,
@@ -207,14 +260,26 @@ export async function updateTeamMember(
   }
 }
 
-export async function resetTeamMemberPassword(
-  db: Database,
-  userId: string,
+export async function resetTeamMemberPassword(db: Database, workspaceId: string, userId: string,
   password: string,
   actorUserId: string,
 ): Promise<void> {
-  const [alvo] = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-  if (!alvo) throw notFound('Colaborador nao encontrado.');
+  const [alvo] = await db
+    .select({ user: users })
+    .from(users)
+    .innerJoin(
+      workspaceMembers,
+      and(
+        eq(workspaceMembers.userId, users.id),
+        eq(workspaceMembers.workspaceId, workspaceId),
+        eq(workspaceMembers.status, 'ACTIVE'),
+      ),
+    )
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  const alvoUser = alvo?.user;
+  if (!alvoUser) throw notFound('Colaborador nao encontrado.');
 
   const forca = checkPasswordStrength(password);
   if (!forca.ok) {
@@ -236,12 +301,13 @@ export async function resetTeamMemberPassword(
   await revokeAllSessions(db, userId);
 
   await db.insert(auditLog).values({
+    workspaceId,
     id: newId(),
     action: 'TEAM_MEMBER_PASSWORD_RESET',
     entityType: 'users',
     entityId: userId,
     actorUserId,
-    summary: `Senha de ${alvo.name || alvo.email} redefinida.`,
+    summary: `Senha de ${alvoUser.name || alvoUser.email} redefinida.`,
     metadata: null,
     occurredAt: now,
   });

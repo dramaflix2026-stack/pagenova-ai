@@ -35,11 +35,33 @@ const ts = (name: string) => datetime(name, { mode: 'date', fsp: 3 });
 // Acesso
 // ---------------------------------------------------------------------------
 
+export const workspaces = mysqlTable(
+  'workspaces',
+  {
+    id: id().primaryKey(),
+    /**
+     * Identidade externa do proprietario no PageNova/Supabase.
+     * Permite provisionamento idempotente no primeiro acesso.
+     */
+    externalOwnerId: varchar('external_owner_id', { length: 128 }),
+    name: varchar('name', { length: 160 }).notNull(),
+    slug: varchar('slug', { length: 120 }),
+    status: varchar('status', { length: 16 }).notNull().default('ACTIVE'),
+    createdAt: ts('created_at').notNull(),
+    updatedAt: ts('updated_at').notNull(),
+  },
+  (table) => [
+    uniqueIndex('workspaces_external_owner_unique').on(table.externalOwnerId),
+    uniqueIndex('workspaces_slug_unique').on(table.slug),
+    index('workspaces_status_idx').on(table.status),
+  ],
+);
 export const users = mysqlTable(
   'users',
   {
     id: id().primaryKey(),
     email: varchar('email', { length: 254 }).notNull(),
+    externalAuthId: varchar('external_auth_id', { length: 128 }),
     /** Nome exibido nos cards e no historico: "Lucas esta trabalhando". */
     name: varchar('name', { length: 120 }).notNull().default(''),
     /** OWNER | PARTNER | EMPLOYEE | SUPPORT -- ver src/shared/roles.ts */
@@ -51,9 +73,35 @@ export const users = mysqlTable(
     createdAt: ts('created_at').notNull(),
     updatedAt: ts('updated_at').notNull(),
   },
-  (table) => [uniqueIndex('users_email_unique').on(table.email)],
+  (table) => [uniqueIndex('users_email_unique').on(table.email),
+    uniqueIndex('users_external_auth_id_unique').on(table.externalAuthId),
+],
 );
 
+export const workspaceMembers = mysqlTable(
+  'workspace_members',
+  {
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    userId: varchar('user_id', { length: 26 })
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    /**
+     * OWNER | PARTNER | EMPLOYEE | SUPPORT.
+     * O papel passa a valer dentro do workspace, nao globalmente.
+     */
+    role: varchar('role', { length: 16 }).notNull().default('EMPLOYEE'),
+    status: varchar('status', { length: 16 }).notNull().default('ACTIVE'),
+    createdAt: ts('created_at').notNull(),
+    updatedAt: ts('updated_at').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.userId] }),
+    index('workspace_members_user_idx').on(table.userId, table.status),
+    index('workspace_members_workspace_idx').on(table.workspaceId, table.status),
+  ],
+);
 export const authSessions = mysqlTable(
   'auth_sessions',
   {
@@ -63,6 +111,9 @@ export const authSessions = mysqlTable(
     userId: varchar('user_id', { length: 26 })
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     createdAt: ts('created_at').notNull(),
     lastSeenAt: ts('last_seen_at').notNull(),
     /** Expiracao absoluta; a inatividade e checada contra last_seen_at. */
@@ -75,7 +126,8 @@ export const authSessions = mysqlTable(
   (table) => [
     uniqueIndex('auth_sessions_token_hash_unique').on(table.tokenHash),
     index('auth_sessions_user_idx').on(table.userId, table.expiresAt),
-  ],
+    index('auth_sessions_workspace_idx').on(table.workspaceId),
+],
 );
 
 export const loginAttempts = mysqlTable(
@@ -92,17 +144,30 @@ export const loginAttempts = mysqlTable(
   (table) => [uniqueIndex('login_attempts_key_unique').on(table.attemptKey)],
 );
 
-export const appSettings = mysqlTable('app_settings', {
-  settingKey: varchar('setting_key', { length: 80 }).primaryKey(),
-  /** Valor JSON validado por Zod na leitura. Nunca guarda segredo. */
-  value: json('value').notNull(),
-  updatedAt: ts('updated_at').notNull(),
-});
+export const appSettings = mysqlTable(
+  'app_settings',
+  {
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
+    settingKey: varchar('setting_key', { length: 80 }).notNull(),
+    /** Valor JSON validado por Zod na leitura. Nunca guarda segredo. */
+    value: json('value').notNull(),
+    updatedAt: ts('updated_at').notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.workspaceId, table.settingKey] }),
+    index('app_settings_workspace_idx').on(table.workspaceId),
+  ],
+);
 
 export const auditLog = mysqlTable(
   'audit_log',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     action: varchar('action', { length: 80 }).notNull(),
     entityType: varchar('entity_type', { length: 60 }),
     entityId: varchar('entity_id', { length: 26 }),
@@ -126,6 +191,9 @@ export const leadSources = mysqlTable(
   'lead_sources',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 60 }).notNull(),
     slug: varchar('slug', { length: 60 }).notNull(),
     isSystem: boolean('is_system').notNull().default(false),
@@ -140,6 +208,9 @@ export const stages = mysqlTable(
   'stages',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 60 }).notNull(),
     /** Significado interno; alimenta metricas mesmo apos renomeacao. */
     semanticKey: varchar('semantic_key', { length: 24 }).notNull(),
@@ -166,6 +237,9 @@ export const lossReasons = mysqlTable(
   'loss_reasons',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 80 }).notNull(),
     active: boolean('active').notNull().default(true),
     isSystem: boolean('is_system').notNull().default(false),
@@ -180,6 +254,9 @@ export const services = mysqlTable(
   'services',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 120 }).notNull(),
     description: text('description'),
     /** ONE_TIME | RECURRING_MONTHLY */
@@ -200,6 +277,9 @@ export const leads = mysqlTable(
   'leads',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     /** GOOGLE_PLACE | IMPORTED | MANUAL */
     originType: varchar('origin_type', { length: 20 }).notNull(),
     sourceId: varchar('source_id', { length: 26 }).references(() => leadSources.id, {
@@ -241,7 +321,7 @@ export const leads = mysqlTable(
     updatedAt: ts('updated_at').notNull(),
   },
   (table) => [
-    uniqueIndex('leads_place_id_unique').on(table.placeId),
+    uniqueIndex('leads_workspace_place_id_unique').on(table.workspaceId, table.placeId),
     index('leads_stage_idx').on(table.currentStageId, table.archivedAt),
     index('leads_source_idx').on(table.sourceId),
     index('leads_created_idx').on(table.createdAt),
@@ -307,6 +387,9 @@ export const leadIdentityKeys = mysqlTable(
   'lead_identity_keys',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     /** PLACE_ID | PHONE | OWN_DOMAIN | NAME_ADDRESS */
     keyType: varchar('key_type', { length: 20 }).notNull(),
     keyHash: varchar('key_hash', { length: 64 }).notNull(),
@@ -318,7 +401,7 @@ export const leadIdentityKeys = mysqlTable(
     createdAt: ts('created_at').notNull(),
     updatedAt: ts('updated_at').notNull(),
   },
-  (table) => [uniqueIndex('lead_identity_keys_unique').on(table.keyType, table.keyHash)],
+  (table) => [uniqueIndex('lead_identity_keys_unique').on(table.workspaceId, table.keyType, table.keyHash)],
 );
 
 export const leadIdentityMemberships = mysqlTable(
@@ -539,6 +622,9 @@ export const sales = mysqlTable(
   'sales',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     leadId: varchar('lead_id', { length: 26 })
       .notNull()
       .references(() => leads.id, { onDelete: 'restrict' }),
@@ -590,6 +676,9 @@ export const subscriptions = mysqlTable(
   'subscriptions',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     leadId: varchar('lead_id', { length: 26 })
       .notNull()
       .references(() => leads.id, { onDelete: 'restrict' }),
@@ -643,6 +732,9 @@ export const receivables = mysqlTable(
   'receivables',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     leadId: varchar('lead_id', { length: 26 })
       .notNull()
       .references(() => leads.id, { onDelete: 'restrict' }),
@@ -681,6 +773,9 @@ export const payments = mysqlTable(
   'payments',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     receivableId: varchar('receivable_id', { length: 26 })
       .notNull()
       .references(() => receivables.id, { onDelete: 'restrict' }),
@@ -702,7 +797,7 @@ export const payments = mysqlTable(
     createdAt: ts('created_at').notNull(),
   },
   (table) => [
-    uniqueIndex('payments_idempotency_unique').on(table.idempotencyKey),
+    uniqueIndex('payments_workspace_idempotency_unique').on(table.workspaceId, table.idempotencyKey),
     index('payments_receivable_idx').on(table.receivableId),
     index('payments_date_idx').on(table.paymentDate, table.status),
     index('payments_lead_idx').on(table.leadId),
@@ -713,6 +808,9 @@ export const goals = mysqlTable(
   'goals',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     /**
      * De quem e a meta. Nulo = meta da empresa inteira; preenchido = meta
      * individual, medida so nos leads dessa pessoa.
@@ -745,6 +843,9 @@ export const importJobs = mysqlTable(
   'import_jobs',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     originalFilename: varchar('original_filename', { length: 255 }).notNull(),
     sourceId: varchar('source_id', { length: 26 }),
     serviceId: varchar('service_id', { length: 26 }),
@@ -762,7 +863,7 @@ export const importJobs = mysqlTable(
     completedAt: ts('completed_at'),
   },
   (table) => [
-    uniqueIndex('import_jobs_idempotency_unique').on(table.idempotencyKey),
+    uniqueIndex('import_jobs_workspace_idempotency_unique').on(table.workspaceId, table.idempotencyKey),
     index('import_jobs_created_idx').on(table.createdAt),
   ],
 );
@@ -820,6 +921,9 @@ export const searchRuns = mysqlTable(
   'search_runs',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     queryText: varchar('query_text', { length: 255 }).notNull(),
     niche: varchar('niche', { length: 120 }),
     country: varchar('country', { length: 80 }),
@@ -843,6 +947,9 @@ export const meetings = mysqlTable(
   'meetings',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     /**
      * Toda reuniao pertence a exatamente um lead.
      *
@@ -946,6 +1053,9 @@ export const siteProjects = mysqlTable(
   'site_projects',
   {
     id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 })
+      .notNull()
+      .references(() => workspaces.id, { onDelete: 'cascade' }),
     leadId: varchar('lead_id', { length: 26 }).references(() => leads.id, {
       onDelete: 'set null',
     }),

@@ -41,18 +41,16 @@ import { newId } from '../../lib/ids';
 // Etapas
 // ---------------------------------------------------------------------------
 
-export async function listStages(db: Database, includeInactive = true): Promise<Stage[]> {
+export async function listStages(db: Database, workspaceId: string, includeInactive = true): Promise<Stage[]> {
   const rows = await db
     .select()
     .from(stages)
-    .where(isNull(stages.deletedAt))
+    .where(and(eq(stages.workspaceId, workspaceId), isNull(stages.deletedAt)))
     .orderBy(asc(stages.position), asc(stages.createdAt));
   return includeInactive ? rows : rows.filter((stage) => stage.active);
 }
 
-export async function createStage(
-  db: Database,
-  input: { name: string; color: string; semanticKey: StageSemanticKey },
+export async function createStage(db: Database, workspaceId: string, input: { name: string; color: string; semanticKey: StageSemanticKey },
 ): Promise<Stage> {
   // Etapa principal e unica: duas colunas com o mesmo significado quebrariam
   // as metricas do dashboard.
@@ -78,6 +76,7 @@ export async function createStage(
   const id = newId();
 
   await db.insert(stages).values({
+    workspaceId,
     id,
     name: input.name,
     semanticKey: input.semanticKey,
@@ -89,16 +88,14 @@ export async function createStage(
     updatedAt: now,
   });
 
-  const [row] = await db.select().from(stages).where(eq(stages.id, id)).limit(1);
+  const [row] = await db.select().from(stages).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, id))).limit(1);
   return row!;
 }
 
-export async function updateStage(
-  db: Database,
-  stageId: string,
+export async function updateStage(db: Database, workspaceId: string, stageId: string,
   input: { name?: string; color?: string; active?: boolean },
 ): Promise<Stage> {
-  const [stage] = await db.select().from(stages).where(eq(stages.id, stageId)).limit(1);
+  const [stage] = await db.select().from(stages).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId))).limit(1);
   if (!stage || stage.deletedAt) throw notFound('Etapa nao encontrada.');
 
   // Desativar uma etapa principal esconderia parte do funil.
@@ -117,14 +114,14 @@ export async function updateStage(
       ...(input.active !== undefined ? { active: input.active } : {}),
       updatedAt: new Date(),
     })
-    .where(eq(stages.id, stageId));
+    .where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId)));
 
-  const [row] = await db.select().from(stages).where(eq(stages.id, stageId)).limit(1);
+  const [row] = await db.select().from(stages).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId))).limit(1);
   return row!;
 }
 
-export async function reorderStages(db: Database, orderedIds: string[]): Promise<Stage[]> {
-  const existing = await listStages(db);
+export async function reorderStages(db: Database, workspaceId: string, orderedIds: string[]): Promise<Stage[]> {
+  const existing = await listStages(db, workspaceId);
   const known = new Set(existing.map((stage) => stage.id));
 
   for (const id of orderedIds) {
@@ -134,11 +131,11 @@ export async function reorderStages(db: Database, orderedIds: string[]): Promise
   const now = new Date();
   await db.transaction(async (tx) => {
     for (const [position, id] of orderedIds.entries()) {
-      await tx.update(stages).set({ position, updatedAt: now }).where(eq(stages.id, id));
+      await tx.update(stages).set({ position, updatedAt: now }).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, id)));
     }
   });
 
-  return listStages(db);
+  return listStages(db, workspaceId);
 }
 
 export interface DeleteStageResult {
@@ -152,13 +149,11 @@ export interface DeleteStageResult {
  * Se houver historico apontando para ela, a etapa e apenas retirada do quadro
  * para que stage_history continue integro.
  */
-export async function deleteStage(
-  db: Database,
-  stageId: string,
+export async function deleteStage(db: Database, workspaceId: string, stageId: string,
   destinationStageId: string,
   actorUserId: string,
 ): Promise<DeleteStageResult> {
-  const [stage] = await db.select().from(stages).where(eq(stages.id, stageId)).limit(1);
+  const [stage] = await db.select().from(stages).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId))).limit(1);
   if (!stage || stage.deletedAt) throw notFound('Etapa nao encontrada.');
 
   if (stage.semanticKey !== 'AUXILIARY') {
@@ -176,7 +171,7 @@ export async function deleteStage(
   const [destination] = await db
     .select()
     .from(stages)
-    .where(eq(stages.id, destinationStageId))
+    .where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, destinationStageId)))
     .limit(1);
   if (!destination || destination.deletedAt) throw notFound('Etapa de destino nao encontrada.');
 
@@ -202,12 +197,13 @@ export async function deleteStage(
       await tx
         .update(stages)
         .set({ deletedAt: now, active: false, updatedAt: now })
-        .where(eq(stages.id, stageId));
+        .where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId)));
     } else {
-      await tx.delete(stages).where(eq(stages.id, stageId));
+      await tx.delete(stages).where(and(eq(stages.workspaceId, workspaceId), eq(stages.id, stageId)));
     }
 
     await tx.insert(auditLog).values({
+      workspaceId,
       id: newId(),
       action: 'STAGE_DELETED',
       entityType: 'stages',
@@ -223,11 +219,11 @@ export async function deleteStage(
 }
 
 /** Verifica que todas as etapas principais continuam presentes. */
-export async function missingPrincipalStages(db: Database): Promise<StageSemanticKey[]> {
+export async function missingPrincipalStages(db: Database, workspaceId: string): Promise<StageSemanticKey[]> {
   const rows = await db
     .select({ semanticKey: stages.semanticKey })
     .from(stages)
-    .where(isNull(stages.deletedAt));
+    .where(and(eq(stages.workspaceId, workspaceId), isNull(stages.deletedAt)));
   const present = new Set(rows.map((row) => row.semanticKey));
   return PRINCIPAL_SEMANTIC_KEYS.filter((key) => !present.has(key));
 }
@@ -236,24 +232,25 @@ export async function missingPrincipalStages(db: Database): Promise<StageSemanti
 // Origens
 // ---------------------------------------------------------------------------
 
-export async function listSources(db: Database) {
-  return db.select().from(leadSources).orderBy(asc(leadSources.name));
+export async function listSources(db: Database, workspaceId: string) {
+  return db.select().from(leadSources).where(eq(leadSources.workspaceId, workspaceId)).orderBy(asc(leadSources.name));
 }
 
-export async function createSource(db: Database, name: string) {
+export async function createSource(db: Database, workspaceId: string, name: string) {
   const slug = normalizeText(name).replace(/\s+/g, '-').slice(0, 60);
   if (!slug) throw badRequest('Informe um nome valido para a origem.');
 
   const [existing] = await db
     .select({ id: leadSources.id })
     .from(leadSources)
-    .where(eq(leadSources.slug, slug))
+    .where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.slug, slug)))
     .limit(1);
   if (existing) throw conflict('Ja existe uma origem com esse nome.');
 
   const now = new Date();
   const id = newId();
   await db.insert(leadSources).values({
+    workspaceId,
     id,
     name,
     slug,
@@ -263,19 +260,17 @@ export async function createSource(db: Database, name: string) {
     updatedAt: now,
   });
 
-  const [row] = await db.select().from(leadSources).where(eq(leadSources.id, id)).limit(1);
+  const [row] = await db.select().from(leadSources).where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, id))).limit(1);
   return row!;
 }
 
-export async function updateSource(
-  db: Database,
-  sourceId: string,
+export async function updateSource(db: Database, workspaceId: string, sourceId: string,
   input: { name?: string; active?: boolean },
 ) {
   const [source] = await db
     .select()
     .from(leadSources)
-    .where(eq(leadSources.id, sourceId))
+    .where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, sourceId)))
     .limit(1);
   if (!source) throw notFound('Origem nao encontrada.');
 
@@ -292,14 +287,14 @@ export async function updateSource(
       ...(input.active !== undefined ? { active: input.active } : {}),
       updatedAt: new Date(),
     })
-    .where(eq(leadSources.id, sourceId));
+    .where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, sourceId)));
 
-  const [row] = await db.select().from(leadSources).where(eq(leadSources.id, sourceId)).limit(1);
+  const [row] = await db.select().from(leadSources).where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, sourceId))).limit(1);
   return row!;
 }
 
 /** Origem com leads vinculados nunca e apagada: apenas desativada. */
-export async function deleteSource(db: Database, sourceId: string) {
+export async function deleteSource(db: Database, workspaceId: string, sourceId: string) {
   const [used] = await db
     .select({ total: count() })
     .from(leads)
@@ -315,7 +310,7 @@ export async function deleteSource(db: Database, sourceId: string) {
   const [source] = await db
     .select()
     .from(leadSources)
-    .where(eq(leadSources.id, sourceId))
+    .where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, sourceId)))
     .limit(1);
   if (!source) throw notFound('Origem nao encontrada.');
   if (source.isSystem) {
@@ -324,25 +319,24 @@ export async function deleteSource(db: Database, sourceId: string) {
     });
   }
 
-  await db.delete(leadSources).where(eq(leadSources.id, sourceId));
+  await db.delete(leadSources).where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, sourceId)));
 }
 
 // ---------------------------------------------------------------------------
 // Servicos
 // ---------------------------------------------------------------------------
 
-export async function listServices(db: Database): Promise<Service[]> {
-  return db.select().from(services).orderBy(asc(services.active), asc(services.name));
+export async function listServices(db: Database, workspaceId: string): Promise<Service[]> {
+  return db.select().from(services).where(eq(services.workspaceId, workspaceId)).orderBy(asc(services.active), asc(services.name));
 }
 
-export async function createService(
-  db: Database,
-  input: { name: string; description: string | null; billingType: string; defaultPrice: string },
+export async function createService(db: Database, workspaceId: string, input: { name: string; description: string | null; billingType: string; defaultPrice: string },
 ): Promise<Service> {
   const now = new Date();
   const id = newId();
 
   await db.insert(services).values({
+    workspaceId,
     id,
     name: input.name,
     description: input.description,
@@ -353,13 +347,11 @@ export async function createService(
     updatedAt: now,
   });
 
-  const [row] = await db.select().from(services).where(eq(services.id, id)).limit(1);
+  const [row] = await db.select().from(services).where(and(eq(services.workspaceId, workspaceId), eq(services.id, id))).limit(1);
   return row!;
 }
 
-export async function updateService(
-  db: Database,
-  serviceId: string,
+export async function updateService(db: Database, workspaceId: string, serviceId: string,
   input: {
     name?: string;
     description?: string | null;
@@ -368,7 +360,7 @@ export async function updateService(
     active?: boolean;
   },
 ): Promise<Service> {
-  const [service] = await db.select().from(services).where(eq(services.id, serviceId)).limit(1);
+  const [service] = await db.select().from(services).where(and(eq(services.workspaceId, workspaceId), eq(services.id, serviceId))).limit(1);
   if (!service) throw notFound('Servico nao encontrado.');
 
   // Trocar o tipo de cobranca com historico mudaria o sentido de vendas antigas.
@@ -400,9 +392,9 @@ export async function updateService(
       ...(input.active !== undefined ? { active: input.active } : {}),
       updatedAt: new Date(),
     })
-    .where(eq(services.id, serviceId));
+    .where(and(eq(services.workspaceId, workspaceId), eq(services.id, serviceId)));
 
-  const [row] = await db.select().from(services).where(eq(services.id, serviceId)).limit(1);
+  const [row] = await db.select().from(services).where(and(eq(services.workspaceId, workspaceId), eq(services.id, serviceId))).limit(1);
   return row!;
 }
 
@@ -413,7 +405,7 @@ export interface ServiceUsage {
   hasHistory: boolean;
 }
 
-export async function serviceUsage(db: Database, serviceId: string): Promise<ServiceUsage> {
+export async function serviceUsage(db: Database, workspaceId: string, serviceId: string): Promise<ServiceUsage> {
   const [interests] = await db
     .select({ total: count() })
     .from(leadServiceInterests)
@@ -437,15 +429,15 @@ export async function serviceUsage(db: Database, serviceId: string): Promise<Ser
 }
 
 /** Servico com historico nunca e apagado fisicamente: e desativado. */
-export async function deleteService(db: Database, serviceId: string): Promise<{ deactivated: boolean }> {
-  const usage = await serviceUsage(db, serviceId);
+export async function deleteService(db: Database, workspaceId: string, serviceId: string): Promise<{ deactivated: boolean }> {
+  const usage = await serviceUsage(db, workspaceId, serviceId);
 
   if (usage.hasHistory) {
-    await updateService(db, serviceId, { active: false });
+    await updateService(db, workspaceId, serviceId, { active: false });
     return { deactivated: true };
   }
 
-  await db.delete(services).where(eq(services.id, serviceId));
+  await db.delete(services).where(and(eq(services.workspaceId, workspaceId), eq(services.id, serviceId)));
   return { deactivated: false };
 }
 
@@ -453,18 +445,20 @@ export async function deleteService(db: Database, serviceId: string): Promise<{ 
 // Motivos de perda
 // ---------------------------------------------------------------------------
 
-export async function listLossReasons(db: Database) {
-  return db.select().from(lossReasons).orderBy(asc(lossReasons.position), asc(lossReasons.name));
+export async function listLossReasons(db: Database, workspaceId: string) {
+  return db.select().from(lossReasons).where(eq(lossReasons.workspaceId, workspaceId)).orderBy(asc(lossReasons.position), asc(lossReasons.name));
 }
 
-export async function createLossReason(db: Database, name: string) {
+export async function createLossReason(db: Database, workspaceId: string, name: string) {
   const [maxPosition] = await db
     .select({ value: sql<number>`coalesce(max(${lossReasons.position}), -1)` })
-    .from(lossReasons);
+    .from(lossReasons)
+    .where(eq(lossReasons.workspaceId, workspaceId));
 
   const now = new Date();
   const id = newId();
   await db.insert(lossReasons).values({
+    workspaceId,
     id,
     name,
     active: true,
@@ -474,16 +468,14 @@ export async function createLossReason(db: Database, name: string) {
     updatedAt: now,
   });
 
-  const [row] = await db.select().from(lossReasons).where(eq(lossReasons.id, id)).limit(1);
+  const [row] = await db.select().from(lossReasons).where(and(eq(lossReasons.workspaceId, workspaceId), eq(lossReasons.id, id))).limit(1);
   return row!;
 }
 
-export async function updateLossReason(
-  db: Database,
-  reasonId: string,
+export async function updateLossReason(db: Database, workspaceId: string, reasonId: string,
   input: { name?: string; active?: boolean },
 ) {
-  const [reason] = await db.select().from(lossReasons).where(eq(lossReasons.id, reasonId)).limit(1);
+  const [reason] = await db.select().from(lossReasons).where(and(eq(lossReasons.workspaceId, workspaceId), eq(lossReasons.id, reasonId))).limit(1);
   if (!reason) throw notFound('Motivo nao encontrado.');
 
   // Sempre precisa existir ao menos um motivo ativo para registrar perdas.
@@ -506,9 +498,9 @@ export async function updateLossReason(
       ...(input.active !== undefined ? { active: input.active } : {}),
       updatedAt: new Date(),
     })
-    .where(eq(lossReasons.id, reasonId));
+    .where(and(eq(lossReasons.workspaceId, workspaceId), eq(lossReasons.id, reasonId)));
 
-  const [row] = await db.select().from(lossReasons).where(eq(lossReasons.id, reasonId)).limit(1);
+  const [row] = await db.select().from(lossReasons).where(and(eq(lossReasons.workspaceId, workspaceId), eq(lossReasons.id, reasonId))).limit(1);
   return row!;
 }
 
@@ -538,8 +530,9 @@ const PREFERENCE_DEFAULTS: AppPreferences = {
   googleWarningPercent: null,
 };
 
-export async function getPreferences(db: Database): Promise<AppPreferences> {
-  const rows = await db.select().from(appSettings);
+export async function getPreferences(db: Database, workspaceId: string): Promise<AppPreferences> {
+  const rows = await db.select().from(appSettings)
+    .where(eq(appSettings.workspaceId, workspaceId));
   const map = new Map(rows.map((row) => [row.settingKey, row.value]));
 
   const read = <K extends keyof AppPreferences>(key: K): AppPreferences[K] => {
@@ -561,9 +554,7 @@ export async function getPreferences(db: Database): Promise<AppPreferences> {
   };
 }
 
-export async function updatePreferences(
-  db: Database,
-  input: AppSettingsInput,
+export async function updatePreferences(db: Database, workspaceId: string, input: AppSettingsInput,
   actorUserId: string,
 ): Promise<AppPreferences> {
   const now = new Date();
@@ -574,13 +565,14 @@ export async function updatePreferences(
       // Nenhum segredo entra aqui: chaves de API vivem so no ambiente.
       await tx
         .insert(appSettings)
-        .values({ settingKey: key, value: value as never, updatedAt: now })
+        .values({ workspaceId, settingKey: key, value: value as never, updatedAt: now })
         .onDuplicateKeyUpdate({ set: { value: value as never, updatedAt: now } });
     }
 
     if (entries.length > 0) {
       await tx.insert(auditLog).values({
-        id: newId(),
+        workspaceId,
+      id: newId(),
         action: 'SETTINGS_UPDATED',
         entityType: 'app_settings',
         entityId: null,
@@ -592,5 +584,5 @@ export async function updatePreferences(
     }
   });
 
-  return getPreferences(db);
+  return getPreferences(db, workspaceId);
 }

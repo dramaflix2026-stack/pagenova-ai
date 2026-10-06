@@ -46,6 +46,7 @@ dashboardRouter.get(
     // a URL.
     const filters = {
       ...parseQuery(dashboardFiltersSchema, req),
+      workspaceId: req.session!.workspaceId,
       ownerUserId: metricsOwnerFilter(req.session!.user.role as UserRole, req.session!.user.id),
     };
 
@@ -57,12 +58,12 @@ dashboardRouter.get(
       from: filters.from,
       to: filters.to,
     });
-    const preferences = await getPreferences(db);
+    const preferences = await getPreferences(db, req.session!.workspaceId);
 
     const [metrics, funnel, financial, attention, goals, series, usage] = await Promise.all([
       getPeriodMetrics(db, period, filters),
       getFunnel(db, filters),
-      getFinancialSnapshot(db, filters.ownerUserId),
+      getFinancialSnapshot(db, req.session!.workspaceId, filters.ownerUserId),
       getAttentionItems(db, {
         stalledNegotiationDays: preferences.stalledNegotiationDays,
         stalledSelectedDays: preferences.stalledSelectedDays,
@@ -74,12 +75,13 @@ dashboardRouter.get(
       // Gestor ve as metas da empresa; o vendedor ve as proprias.
       getGoalProgress(
         db,
+        req.session!.workspaceId,
         can(req.session!.user.role as UserRole, 'GOALS_MANAGE')
           ? 'COMPANY'
           : { userId: req.session!.user.id },
       ),
       getDailySeries(db, period, filters),
-      getUsageSummary(db),
+      getUsageSummary(db, req.session!.workspaceId),
     ]);
 
     // Quota perto do limite tambem e um item de atencao.
