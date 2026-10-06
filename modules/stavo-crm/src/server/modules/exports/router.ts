@@ -87,6 +87,7 @@ const CSV_DATASETS = {
       })
       .from(leads)
       .innerJoin(stages, eq(stages.id, leads.currentStageId))
+      .where(eq(leads.workspaceId, workspaceId))
       .orderBy(desc(leads.createdAt));
     return rows;
   },
@@ -101,7 +102,8 @@ const CSV_DATASETS = {
         confirmado: leadContacts.isConfirmed,
         valido: leadContacts.isValid,
       })
-      .from(leadContacts),
+      .from(leadContacts)
+      .innerJoin(leads, and(eq(leads.id, leadContacts.leadId), eq(leads.workspaceId, workspaceId))),
   links: async (db: Database, workspaceId: string) =>
     db
       .select({
@@ -111,7 +113,8 @@ const CSV_DATASETS = {
         host: leadLinks.normalizedHost,
         origem: leadLinks.origin,
       })
-      .from(leadLinks),
+      .from(leadLinks)
+      .innerJoin(leads, and(eq(leads.id, leadLinks.leadId), eq(leads.workspaceId, workspaceId))),
   atividades: async (db: Database, workspaceId: string) =>
     db
       .select({
@@ -121,6 +124,7 @@ const CSV_DATASETS = {
         ocorrido_em: activities.occurredAt,
       })
       .from(activities)
+      .innerJoin(leads, and(eq(leads.id, activities.leadId), eq(leads.workspaceId, workspaceId)))
       .orderBy(desc(activities.occurredAt)),
   follow_ups: async (db: Database, workspaceId: string) =>
     db
@@ -131,7 +135,8 @@ const CSV_DATASETS = {
         nota: followUps.note,
         concluido_em: followUps.completedAt,
       })
-      .from(followUps),
+      .from(followUps)
+      .innerJoin(leads, and(eq(leads.id, followUps.leadId), eq(leads.workspaceId, workspaceId))),
   servicos: async (db: Database, workspaceId: string) =>
     db
       .select({
@@ -173,6 +178,7 @@ const CSV_DATASETS = {
         total: sales.totalSnapshot,
       })
       .from(sales)
+      .where(eq(sales.workspaceId, workspaceId))
       .orderBy(desc(sales.agreedAt)),
   itens_venda: async (db: Database, workspaceId: string) =>
     db
@@ -205,6 +211,7 @@ const CSV_DATASETS = {
         pago_em: receivables.paidAt,
       })
       .from(receivables)
+      .where(eq(receivables.workspaceId, workspaceId))
       .orderBy(desc(receivables.dueDate)),
   pagamentos: async (db: Database, workspaceId: string) =>
     db
@@ -219,6 +226,7 @@ const CSV_DATASETS = {
         motivo: payments.reason,
       })
       .from(payments)
+      .where(eq(payments.workspaceId, workspaceId))
       .orderBy(desc(payments.paymentDate)),
   assinaturas: async (db: Database, workspaceId: string) =>
     db
@@ -256,6 +264,7 @@ const CSV_DATASETS = {
         saiu_em: stageHistory.exitedAt,
       })
       .from(stageHistory)
+      .innerJoin(leads, and(eq(leads.id, stageHistory.leadId), eq(leads.workspaceId, workspaceId)))
       .innerJoin(stages, eq(stages.id, stageHistory.stageId))
       .orderBy(desc(stageHistory.enteredAt)),
 } as const;
