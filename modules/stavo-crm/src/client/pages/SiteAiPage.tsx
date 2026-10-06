@@ -5,7 +5,7 @@
  * projeto avulso. Um projeto ligado a um lead tambem aparece aqui -- este e
  * o painel de visao geral do modulo inteiro, nao so dos avulsos.
  */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -18,6 +18,7 @@ import {
 } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
+import { useBoard, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
@@ -38,6 +39,11 @@ export default function SiteAiPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<SiteProjectStatus | ''>('');
   const [wizardOpen, setWizardOpen] = useState(false);
+  const [leadPickerOpen, setLeadPickerOpen] = useState(false);
+  const [leadSearch, setLeadSearch] = useState('');
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
+  const selectedLead = useLeadDetail(selectedLeadId);
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -50,7 +56,12 @@ export default function SiteAiPage() {
       <PageHeader
         title="Sites com IA"
         description="Crie amostras de site personalizadas para prospeccao, publique e acompanhe."
-        actions={<Button onClick={() => setWizardOpen(true)}>Novo site</Button>}
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" onClick={() => setWizardOpen(true)}>Criar do zero</Button>
+            <Button onClick={() => setLeadPickerOpen(true)}>Importar lead do CRM</Button>
+          </div>
+        }
       />
       <PageBody className="space-y-4">
         {diagnostics.data && diagnostics.data.mode === 'bloqueado' ? (
@@ -94,7 +105,12 @@ export default function SiteAiPage() {
           <EmptyState
             title="Nenhum site criado ainda"
             description="Crie o primeiro site com IA a partir de um lead ou de forma avulsa."
-            action={<Button onClick={() => setWizardOpen(true)}>Novo site</Button>}
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button variant="secondary" onClick={() => setWizardOpen(true)}>Criar do zero</Button>
+                <Button onClick={() => setLeadPickerOpen(true)}>Importar lead do CRM</Button>
+              </div>
+            }
           />
         ) : null}
 
@@ -105,10 +121,46 @@ export default function SiteAiPage() {
         </div>
       </PageBody>
 
+      {leadPickerOpen ? (
+        <LeadPicker
+          columns={board.data?.columns ?? []}
+          loading={board.isLoading}
+          search={leadSearch}
+          onSearch={setLeadSearch}
+          onClose={() => setLeadPickerOpen(false)}
+          onSelect={(leadId) => {
+            setSelectedLeadId(leadId);
+            setLeadPickerOpen(false);
+          }}
+        />
+      ) : null}
+
       <SiteWizardDialog
         open={wizardOpen}
         onOpenChange={setWizardOpen}
         onCreated={(projectId) => navigate(`/sites-ia/${projectId}`)}
+      />
+
+      <SiteWizardDialog
+        key={selectedLeadId ?? 'crm-lead-site'}
+        open={Boolean(selectedLeadId && selectedLead.data)}
+        onOpenChange={(open) => {
+          if (!open) setSelectedLeadId(null);
+        }}
+        leadId={selectedLeadId}
+        initialBusinessName={selectedLead.data?.lead.internalName ?? ''}
+        initialPhone={
+          selectedLead.data?.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
+          selectedLead.data?.contacts.find((item) => item.type === 'PHONE')?.value ??
+          null
+        }
+        initialAddress={selectedLead.data?.lead.address ?? null}
+        initialInstagram={selectedLead.data?.links.find((item) => item.type === 'INSTAGRAM')?.url ?? null}
+        initialWebsite={selectedLead.data?.links.find((item) => item.type === 'WEBSITE')?.url ?? null}
+        onCreated={(projectId) => {
+          setSelectedLeadId(null);
+          navigate(`/sites-ia/${projectId}`);
+        }}
       />
     </>
   );
@@ -139,5 +191,75 @@ function ProjectCard({ project, onOpen }: { project: SiteProjectSummary; onOpen:
         ) : null}
       </CardContent>
     </Card>
+  );
+}
+
+
+function LeadPicker({
+  columns,
+  loading,
+  search,
+  onSearch,
+  onClose,
+  onSelect,
+}: {
+  columns: BoardColumnData[];
+  loading: boolean;
+  search: string;
+  onSearch: (value: string) => void;
+  onClose: () => void;
+  onSelect: (leadId: string) => void;
+}) {
+  const leads = useMemo(
+    () =>
+      columns.flatMap((column) =>
+        column.cards.map((card) => ({
+          id: card.id,
+          name: card.internalName,
+          stage: column.name,
+          city: card.city,
+          niche: card.niche,
+        })),
+      ),
+    [columns],
+  );
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
+      <Card className="w-full max-w-2xl">
+        <CardContent className="space-y-4 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold">Importar lead do CRM</h2>
+              <p className="text-sm text-muted-foreground">Escolha um lead para preencher o gerador de site automaticamente.</p>
+            </div>
+            <Button variant="ghost" size="sm" onClick={onClose}>Fechar</Button>
+          </div>
+          <Input value={search} onChange={(event) => onSearch(event.target.value)} placeholder="Buscar lead por nome..." autoFocus />
+          {loading ? <LoadingBlock label="Carregando leads..." /> : null}
+          {!loading && leads.length === 0 ? (
+            <EmptyState title="Nenhum lead encontrado" description="Adicione empresas ao CRM ou altere a busca." />
+          ) : null}
+          <div className="max-h-[55vh] space-y-2 overflow-y-auto">
+            {leads.map((lead) => (
+              <button
+                key={lead.id}
+                type="button"
+                onClick={() => onSelect(lead.id)}
+                className="flex w-full items-center justify-between gap-3 rounded-md border border-border p-3 text-left transition hover:bg-muted"
+              >
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{lead.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {[lead.niche, lead.city, lead.stage].filter(Boolean).join(' · ')}
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-medium text-primary">Selecionar</span>
+              </button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
