@@ -59,14 +59,9 @@ export interface ActorContext {
 /**
  * Cria um projeto, com ou sem lead.
  *
- * Duas travas deliberadas:
- *
- *  - o lead precisa existir e nao pode estar arquivado. Vincular a um lead
- *    inexistente produziria um projeto orfao que nunca aparece no card;
- *  - um lead so pode ter UM projeto ativo. Sem isso, dois cliques em "Criar
- *    site" geram dois projetos e duas geracoes pagas para o mesmo negocio.
- *    O chamador recebe 409 com o projeto existente para oferecer "Continuar"
- *    ou "Duplicar".
+ * O lead precisa existir e nao pode estar arquivado. Um mesmo lead pode ter
+ * varios projetos independentes: isso permite criar propostas e versoes
+ * criativas diferentes sem sobrescrever o site anterior.
  */
 export async function createProject(
   workspaceId: string,
@@ -93,14 +88,6 @@ export async function createProject(
       );
     }
 
-    const existing = await repo.findActiveProjectByLead(input.leadId);
-    if (existing) {
-      throw conflict(
-        `Este lead ja tem o projeto "${existing.internalName}". Continue o projeto existente ` +
-          'ou duplique-o como uma nova proposta.',
-        { code: 'SITE_PROJECT_ALREADY_EXISTS' },
-      );
-    }
   }
 
   // O slug pretendido e validado agora para o erro aparecer no formulario, e
