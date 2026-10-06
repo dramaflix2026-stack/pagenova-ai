@@ -61,7 +61,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(`/api/crm${path}`, {
+  const response = await fetch(`/api${path}`, {
     method,
     headers,
     credentials: 'same-origin',
