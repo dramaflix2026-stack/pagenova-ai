@@ -410,27 +410,31 @@ export default function Home() {
             O carrossel abaixo fica pronto para receber avaliações reais de clientes, com foto, nome, localização e relato.
           </p>
         </div>
-        <div className="mt-8 flex w-max gap-4 px-5 [animation:pagenova-testimonials_55s_linear_infinite] hover:[animation-play-state:paused] md:px-8">
-          {Array.from({ length: 30 }, (_, index) => (
-            <article key={index} className="w-[82vw] max-w-[330px] shrink-0 rounded-[22px] border border-white/10 bg-white/[.045] p-5 shadow-[0_14px_38px_rgba(0,0,0,.14)]">
-              <div className="flex items-center gap-3">
-                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#50dca9]/30 bg-[#50dca9]/10 text-sm font-bold text-[#50dca9]">PN</div>
-                <div className="min-w-0">
-                  <p className="font-semibold text-white/85">Cliente PageNova</p>
-                  <p className="text-xs text-white/40">Avaliação verificada</p>
-                </div>
+        <div className="mt-8 overflow-hidden">
+          <div className="flex w-max [animation:pagenova-testimonials_62s_linear_infinite]">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex shrink-0 gap-4 pr-4" aria-hidden={copy === 1}>
+                {Array.from({ length: 30 }, (_, index) => (
+                  <article key={index} className="w-[82vw] max-w-[330px] shrink-0 rounded-[22px] border border-white/10 bg-white/[.045] p-5 shadow-[0_14px_38px_rgba(0,0,0,.14)]">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full border border-[#50dca9]/30 bg-[#50dca9]/10 text-sm font-bold text-[#50dca9]">PN</div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white/85">Cliente PageNova</p>
+                        <p className="text-xs text-white/40">Avaliação verificada</p>
+                      </div>
+                    </div>
+                    <div className="mt-5 text-base tracking-[.1em] text-[#50dca9]">★★★★★</div>
+                    <p className="mt-3 text-sm leading-6 text-white/55">Espaço reservado para o depoimento do cliente.</p>
+                  </article>
+                ))}
               </div>
-              <div className="mt-5 text-base tracking-[.1em] text-[#50dca9]">★★★★★</div>
-              <p className="mt-3 text-sm leading-6 text-white/55">
-                Espaço reservado para o depoimento do cliente.
-              </p>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
         <style>{`
           @keyframes pagenova-testimonials {
             from { transform: translateX(0); }
-            to { transform: translateX(calc(-50% - .5rem)); }
+            to { transform: translateX(-50%); }
           }
           @media (prefers-reduced-motion: reduce) {
             [class*="pagenova-testimonials"] { animation: none !important; }
@@ -440,13 +444,30 @@ export default function Home() {
 
       <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-14">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid overflow-hidden rounded-[24px] border border-[#cfe0d6] bg-white shadow-[0_18px_55px_rgba(20,37,29,.07)] md:grid-cols-[220px_1fr_auto] md:items-center">
-            <div className="grid min-h-44 place-items-center bg-[#e8f7ef] px-6 py-7">
-              <svg viewBox="0 0 180 180" className="h-32 w-32" role="img" aria-label="Garantia de 7 dias">
-                <path d="M90 10 111 24l25 2 12 22 21 13-3 25 9 23-17 19-3 25-24 7-17 18-24-9-24 9-17-18-24-7-3-25-17-19 9-23-3-25 21-13 12-22 25-2Z" fill="#dff6eb" stroke="#36c990" strokeWidth="4"/>
-                <circle cx="90" cy="90" r="55" fill="#fff" stroke="#36c990" strokeWidth="2"/>
-                <path d="m60 94 18 18 42-46" fill="none" stroke="#168457" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
-                <text x="90" y="145" textAnchor="middle" fill="#126c4a" fontSize="15" fontWeight="800">7 DIAS</text>
+          <div className="grid overflow-hidden rounded-[28px] border border-[#d9dfd9] bg-white shadow-[0_24px_70px_rgba(20,37,29,.10)] md:grid-cols-[240px_1fr_auto] md:items-center">
+            <div className="grid min-h-52 place-items-center bg-[radial-gradient(circle_at_50%_35%,#fff8d6_0,#f5e8b4_34%,#e9f4e9_100%)] px-6 py-8">
+              <svg viewBox="0 0 220 220" className="h-40 w-40 drop-shadow-[0_10px_20px_rgba(0,0,0,.18)]" role="img" aria-label="Garantia de 7 dias">
+                <defs>
+                  <linearGradient id="goldSeal" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stopColor="#fff0a8"/><stop offset=".45" stopColor="#f7c84d"/><stop offset="1" stopColor="#d99a1d"/>
+                  </linearGradient>
+                  <linearGradient id="blackSeal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stopColor="#353535"/><stop offset="1" stopColor="#050505"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="110" cy="110" r="103" fill="url(#goldSeal)" stroke="#c88713" strokeWidth="4"/>
+                <circle cx="110" cy="110" r="76" fill="url(#blackSeal)" stroke="#8f681e" strokeWidth="4"/>
+                <text x="110" y="41" textAnchor="middle" fill="#111" fontSize="17" fontWeight="900" letterSpacing="4">GARANTIA</text>
+                <text x="110" y="199" textAnchor="middle" fill="#111" fontSize="15" fontWeight="900" letterSpacing="3">SETE DIAS</text>
+                <text x="110" y="128" textAnchor="middle" fill="#f7c84d" fontSize="82" fontWeight="950">7</text>
+                <text x="110" y="158" textAnchor="middle" fill="#f7c84d" fontSize="23" fontWeight="900" letterSpacing="3">DIAS</text>
+                <g fill="#f7c84d">
+                  <text x="110" y="73" textAnchor="middle" fontSize="19">★</text>
+                  <text x="78" y="79" textAnchor="middle" fontSize="13">★</text>
+                  <text x="142" y="79" textAnchor="middle" fontSize="13">★</text>
+                  <text x="55" y="93" textAnchor="middle" fontSize="9">★</text>
+                  <text x="165" y="93" textAnchor="middle" fontSize="9">★</text>
+                </g>
               </svg>
             </div>
             <div className="p-6 md:p-8">
