@@ -69,6 +69,7 @@ export interface ActorContext {
  *    ou "Duplicar".
  */
 export async function createProject(
+  workspaceId: string,
   input: CreateProjectInput,
   actor: ActorContext,
 ): Promise<SiteProject> {
@@ -116,7 +117,7 @@ export async function createProject(
   }
 
   const env = getEnv();
-  const id = await repo.insertProject({
+  const id = await repo.insertProject(workspaceId, {
     leadId: input.leadId,
     ownerUserId: actor.userId,
     internalName: (input.internalName?.trim() || businessName).slice(0, 160),

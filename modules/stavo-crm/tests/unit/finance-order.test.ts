@@ -106,6 +106,9 @@ function violacoesDeChaveEstrangeira(insercoes: Insercao[]): string[] {
  */
 const SEMPRE_VAZIAS = new Set(['lead_events', 'payments']);
 
+const WORKSPACE_ID = 'workspace-finance-order-test';
+const LEAD_ID = 'lead00000000000000000001';
+
 /** Transacao de mentira que anota a sequencia de INSERTs. */
 function criarTransacaoFalsa(catalogo: Linha[]): {
   tx: Database;
@@ -125,6 +128,14 @@ function criarTransacaoFalsa(catalogo: Linha[]): {
   const consultar = (tabela: MySqlTable) => {
     const nome = getTableName(tabela);
     if (nome === 'services') return encadear(catalogo);
+    if (nome === 'leads') {
+      return encadear([
+        {
+          id: LEAD_ID,
+          workspaceId: WORKSPACE_ID,
+        },
+      ]);
+    }
     if (SEMPRE_VAZIAS.has(nome)) return encadear([]);
     return encadear(gravadas.get(nome) ?? []);
   };
@@ -152,6 +163,7 @@ const agora = new Date('2026-08-21T12:00:00Z');
 
 const servico = (id: string, billingType: string): Linha => ({
   id,
+  workspaceId: WORKSPACE_ID,
   name: `Servico ${id}`,
   description: null,
   billingType,
@@ -162,7 +174,7 @@ const servico = (id: string, billingType: string): Linha => ({
 });
 
 const entradaBase = {
-  leadId: 'lead00000000000000000001',
+  leadId: LEAD_ID,
   agreedAt: '2026-08-21',
   dueDate: '2026-09-05',
   notes: null,

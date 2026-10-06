@@ -306,6 +306,7 @@ async function findProbableMatch(
  */
 export async function attachIdentities(
   tx: Database,
+  workspaceId: string,
   leadId: string,
   keys: IdentityKey[],
   options: { sharedReason?: string | null } = {},
@@ -317,7 +318,7 @@ export async function attachIdentities(
     const [existing] = await tx
       .select({ id: leadIdentityKeys.id, isSharedException: leadIdentityKeys.isSharedException })
       .from(leadIdentityKeys)
-      .where(and(eq(leadIdentityKeys.keyType, key.keyType), eq(leadIdentityKeys.keyHash, key.keyHash)))
+      .where(and(eq(leadIdentityKeys.workspaceId, workspaceId), eq(leadIdentityKeys.keyType, key.keyType), eq(leadIdentityKeys.keyHash, key.keyHash)))
       .limit(1);
 
     let keyId = existing?.id;
@@ -325,6 +326,7 @@ export async function attachIdentities(
     if (!keyId) {
       keyId = newId();
       await tx.insert(leadIdentityKeys).values({
+        workspaceId,
         id: keyId,
         keyType: key.keyType,
         keyHash: key.keyHash,
@@ -355,6 +357,7 @@ export async function attachIdentities(
 /** Recalcula as identidades de um lead apos edicao dos dados proprios. */
 export async function refreshIdentities(
   tx: Database,
+  workspaceId: string,
   leadId: string,
   input: IdentityInput,
 ): Promise<void> {
@@ -386,7 +389,7 @@ export async function refreshIdentities(
       );
   }
 
-  await attachIdentities(tx, leadId, keys);
+  await attachIdentities(tx, workspaceId, leadId, keys);
 }
 
 export interface OpenDuplicateReviewInput {

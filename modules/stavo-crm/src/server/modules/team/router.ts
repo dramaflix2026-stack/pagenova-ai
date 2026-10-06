@@ -27,8 +27,8 @@ teamRouter.use(requireAuth);
 
 teamRouter.get(
   '/team',
-  asyncHandler(async (_req, res) => {
-    res.json({ members: await listTeam(getDb()) });
+  asyncHandler(async (req, res) => {
+    res.json({ members: await listTeam(getDb(), req.session!.workspaceId) });
   }),
 );
 
@@ -38,7 +38,7 @@ teamRouter.post(
   requireCapability('TEAM_MANAGE'),
   asyncHandler(async (req, res) => {
     const input = parseBody(createTeamMemberSchema, req);
-    const member = await createTeamMember(getDb(), input, req.session!.user.id);
+    const member = await createTeamMember(getDb(), req.session!.workspaceId, input, req.session!.user.id);
     res.status(201).json({
       member,
       message: `${member.name} pode entrar com o e-mail e a senha que voce definiu.`,
@@ -52,7 +52,7 @@ teamRouter.patch(
   requireCapability('TEAM_MANAGE'),
   asyncHandler(async (req, res) => {
     const input = parseBody(updateTeamMemberSchema, req);
-    await updateTeamMember(getDb(), req.params.id!, input, req.session!.user.id);
+    await updateTeamMember(getDb(), req.session!.workspaceId, req.params.id!, input, req.session!.user.id);
     res.json({ ok: true });
   }),
 );
@@ -63,7 +63,7 @@ teamRouter.post(
   requireCapability('TEAM_MANAGE'),
   asyncHandler(async (req, res) => {
     const input = parseBody(resetTeamMemberPasswordSchema, req);
-    await resetTeamMemberPassword(getDb(), req.params.id!, input.password, req.session!.user.id);
+    await resetTeamMemberPassword(getDb(), req.session!.workspaceId, req.params.id!, input.password, req.session!.user.id);
     res.json({
       ok: true,
       message: 'Senha redefinida. A pessoa foi desconectada e precisa entrar de novo.',

@@ -49,8 +49,8 @@ goalsRouter.get(
     const db = getDb();
     const scope = escopoDe(req);
     res.json({
-      goals: await listGoals(db, { scope }),
-      progress: await getGoalProgress(db, scope),
+      goals: await listGoals(db, req.session!.workspaceId, { scope }),
+      progress: await getGoalProgress(db, req.session!.workspaceId, scope),
     });
   }),
 );
@@ -66,7 +66,7 @@ goalsRouter.get(
   requireCapability('GOALS_MANAGE'),
   asyncHandler(async (req, res) => {
     const { preset } = parseQuery(performanceQuerySchema, req);
-    res.json(await getSellerPerformance(getDb(), preset));
+    res.json(await getSellerPerformance(getDb(), req.session!.workspaceId, preset));
   }),
 );
 
@@ -75,7 +75,7 @@ goalsRouter.post(
   csrfProtection,
   asyncHandler(async (req, res) => {
     const input = parseBody(createGoalSchema, req);
-    res.status(201).json({ goal: await createGoal(getDb(), input) });
+    res.status(201).json({ goal: await createGoal(getDb(), req.session!.workspaceId, input) });
   }),
 );
 
@@ -84,7 +84,7 @@ goalsRouter.patch(
   csrfProtection,
   asyncHandler(async (req, res) => {
     const input = parseBody(updateGoalSchema, req);
-    res.json({ goal: await updateGoal(getDb(), req.params.id!, input) });
+    res.json({ goal: await updateGoal(getDb(), req.session!.workspaceId, req.params.id!, input) });
   }),
 );
 
@@ -92,7 +92,7 @@ goalsRouter.delete(
   '/goals/:id',
   csrfProtection,
   asyncHandler(async (req, res) => {
-    await deleteGoal(getDb(), req.params.id!);
+    await deleteGoal(getDb(), req.session!.workspaceId, req.params.id!);
     res.json({ ok: true });
   }),
 );

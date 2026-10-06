@@ -75,11 +75,12 @@ export interface NewProjectRow {
   createdBy: string;
 }
 
-export async function insertProject(row: NewProjectRow, db: Database = getDb()): Promise<string> {
+export async function insertProject(workspaceId: string, row: NewProjectRow, db: Database = getDb()): Promise<string> {
   const now = new Date();
   const id = newId();
 
   await db.insert(siteProjects).values({
+    workspaceId,
     id,
     leadId: row.leadId,
     ownerUserId: row.ownerUserId,

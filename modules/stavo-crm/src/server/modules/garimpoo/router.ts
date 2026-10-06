@@ -260,6 +260,7 @@ garimpooRouter.post(
 
     const resultado = await searchPlaces(
       db,
+      req.session!.workspaceId,
       {
         niche: input.niche,
         country: 'Brasil',

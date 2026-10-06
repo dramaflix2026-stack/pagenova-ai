@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 
 import type { Database } from '../../db/client';
-import { auditLog, loginAttempts, users } from '../../db/schema';
+import { auditLog, loginAttempts, users, workspaceMembers } from '../../db/schema';
 import { badRequest, tooManyRequests, unauthorized } from '../../lib/errors';
 import { newId } from '../../lib/ids';
 import { checkPasswordStrength, hashPassword, needsRehash, verifyPassword } from './password';
@@ -151,6 +151,12 @@ export async function changePassword(
 
   const now = new Date();
   const passwordHash = await hashPassword(input.newPassword);
+  const [membership] = await db
+    .select({ workspaceId: workspaceMembers.workspaceId })
+    .from(workspaceMembers)
+    .where(eq(workspaceMembers.userId, user.id))
+    .limit(1);
+  if (!membership) throw unauthorized();
 
   await db.transaction(async (tx) => {
     await tx
@@ -162,6 +168,7 @@ export async function changePassword(
     await revokeAllSessions(tx as unknown as Database, user.id);
 
     await tx.insert(auditLog).values({
+      workspaceId: membership.workspaceId,
       id: newId(),
       action: 'PASSWORD_CHANGED',
       entityType: 'users',

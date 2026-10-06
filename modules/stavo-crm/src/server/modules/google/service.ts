@@ -83,11 +83,12 @@ export function buildTextQuery(input: GoogleSearchInput): string {
 
 export async function searchPlaces(
   db: Database,
+  workspaceId: string,
   input: GoogleSearchInput,
   options: { pageNumber: number; signal?: AbortSignal } = { pageNumber: 1 },
 ): Promise<SearchResponse> {
   // Cada pagina realmente solicitada consome uma unidade da SKU TEXT_SEARCH.
-  const usage = await reserveUsage(db, 'TEXT_SEARCH');
+  const usage = await reserveUsage(db, workspaceId, 'TEXT_SEARCH');
 
   const textQuery = buildTextQuery(input);
   const response = await textSearch({
@@ -109,7 +110,7 @@ export async function searchPlaces(
 
   const withExisting = await annotateExisting(db, filtered);
 
-  const searchRunId = input.searchRunId ?? (await createSearchRun(db, input, textQuery));
+  const searchRunId = input.searchRunId ?? (await createSearchRun(db, workspaceId, input, textQuery));
   await bumpSearchRun(db, searchRunId, withExisting.length);
 
   const hiddenByFilters = operational.length - filtered.length;
@@ -220,11 +221,13 @@ async function annotateExisting(
 /** Guarda APENAS os metadados da pesquisa, nunca o conteudo dos resultados. */
 async function createSearchRun(
   db: Database,
+  workspaceId: string,
   input: GoogleSearchInput,
   textQuery: string,
 ): Promise<string> {
   const id = newId();
   await db.insert(searchRuns).values({
+    workspaceId,
     id,
     queryText: textQuery.slice(0, 255),
     niche: input.niche,
@@ -276,10 +279,11 @@ export interface LivePlaceDetails {
  */
 export async function fetchLiveDetails(
   db: Database,
+  workspaceId: string,
   placeId: string,
   signal?: AbortSignal,
 ): Promise<LivePlaceDetails> {
-  await reserveUsage(db, 'PLACE_DETAILS');
+  await reserveUsage(db, workspaceId, 'PLACE_DETAILS');
 
   const place = await placeDetails(placeId, signal);
   const mapped = mapPlace(place);

@@ -72,7 +72,7 @@ suite('integracao das reunioes', () => {
       createdAt: now,
       updatedAt: now,
     });
-    await runSeed(db);
+    await runSeed(db, '01TESTWORKSPACE000000000001');
   });
 
   /**
@@ -90,9 +90,7 @@ suite('integracao das reunioes', () => {
 
   /** Lead minimo para pendurar reunioes. */
   const novoLead = async (nome = 'Padaria Sao Joao') => {
-    const resultado = await createLead(
-      db,
-      {
+    const resultado = await createLead(db, '01TESTWORKSPACE000000000001', {
         internalName: nome,
         originType: 'MANUAL',
         sourceId: null,
@@ -111,7 +109,7 @@ suite('integracao das reunioes', () => {
         nextFollowUpAt: null,
         allowSharedIdentity: false,
         sharedIdentityReason: null,
-      } as Parameters<typeof createLead>[1],
+      } as Parameters<typeof createLead>[2],
       { actorUserId: ADMIN, originType: 'MANUAL' },
     );
     return resultado.lead.id;
@@ -127,8 +125,7 @@ suite('integracao das reunioes', () => {
   };
 
   const agendar = async (leadId: string, horas: number, extras: Record<string, unknown> = {}) =>
-    createMeeting(
-      db,
+    createMeeting(db, '01TESTWORKSPACE000000000001',
       {
         leadId,
         title: 'Apresentacao da proposta',
@@ -141,7 +138,7 @@ suite('integracao das reunioes', () => {
         idempotencyKey: newIdempotencyKey('t'),
         ...daquiA(horas),
         ...extras,
-      } as Parameters<typeof createMeeting>[1],
+      } as Parameters<typeof createMeeting>[2],
       ADMIN,
     );
 

@@ -137,7 +137,7 @@ meetingsRouter.post(
   meetingRateLimit,
   asyncHandler(async (req, res) => {
     const input = parseBody(createMeetingSchema, req);
-    const meeting = await createMeeting(getDb(), input, req.session!.user.id);
+    const meeting = await createMeeting(getDb(), req.session!.workspaceId, input, req.session!.user.id);
     res.status(201).json({ meeting, message: 'Reuniao agendada.' });
   }),
 );

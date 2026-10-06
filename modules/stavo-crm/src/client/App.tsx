@@ -8,14 +8,12 @@
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { Suspense, lazy, type ReactNode } from 'react';
-import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from './components/layout/AppLayout';
-import { LoadingBlock } from './components/ui';
 import { ToastProvider } from './components/ui/Toast';
-import { AuthProvider, useAuth } from './hooks/useAuth';
+import { AuthProvider } from './hooks/useAuth';
 import { queryClient } from './lib/queryClient';
-import { LoginPage } from './pages/LoginPage';
 
 // Areas pesadas carregam sob demanda, deixando a primeira tela util mais rapida.
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
@@ -29,9 +27,6 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const TeamPage = lazy(() => import('./pages/TeamPage'));
 const MeetingsPage = lazy(() => import('./pages/MeetingsPage'));
 const SiteAiPage = lazy(() => import('./pages/SiteAiPage'));
-const SiteProjectPage = lazy(() => import('./pages/SiteProjectPage'));
-const LegalPage = lazy(() => import('./pages/LegalPage'));
-
 function RequireAuth({ children }: { children: ReactNode }) {
   /*
    * PageNova embedded mode:
@@ -42,26 +37,6 @@ function RequireAuth({ children }: { children: ReactNode }) {
    */
   return <>{children}</>;
 }
-
-function PublicOnly({ children }: { children: ReactNode }) {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <LoadingBlock label="Carregando..." />
-      </div>
-    );
-  }
-
-  return user ? <Navigate to="/" replace /> : <>{children}</>;
-}
-
-const pageFallback = (
-  <div className="p-10">
-    <LoadingBlock />
-  </div>
-);
 
 function AppRoutes() {
   return (

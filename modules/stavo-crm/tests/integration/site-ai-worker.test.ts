@@ -76,7 +76,7 @@ suite('fila e worker de sites com IA', () => {
   });
 
   async function createProjectRow(overrides: Partial<{ businessName: string; draftConfig: unknown }> = {}) {
-    return repo.insertProject({
+    return repo.insertProject('01TESTWORKSPACE000000000001', {
       leadId: null,
       ownerUserId: ADMIN,
       internalName: overrides.businessName ?? 'Projeto de teste',

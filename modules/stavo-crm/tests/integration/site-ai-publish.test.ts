@@ -91,7 +91,7 @@ suite('publicacao de sites com IA', () => {
     const model = buildFixtureSite();
     model.business.name = businessName;
 
-    const projectId = await repo.insertProject({
+    const projectId = await repo.insertProject('01TESTWORKSPACE000000000001', {
       leadId: null,
       ownerUserId: ADMIN,
       internalName: businessName,

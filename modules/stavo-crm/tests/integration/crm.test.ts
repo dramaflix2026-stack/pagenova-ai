@@ -82,12 +82,13 @@ suite('integracao do CRM', () => {
       allowSharedIdentity: false,
       sharedIdentityReason: null,
       ...overrides,
-    }) as Parameters<typeof createLead>[1];
+    }) as Parameters<typeof createLead>[2];
 
   const createService = async (billingType: 'ONE_TIME' | 'RECURRING_MONTHLY', price: string) => {
     const id = newIdempotencyKey('svc').slice(0, 26);
     const now = new Date();
     await db.insert(schema.services).values({
+      workspaceId: '01TESTWORKSPACE000000000001',
       id,
       name: billingType === 'ONE_TIME' ? 'Site institucional' : 'Manutencao mensal',
       description: null,
@@ -117,8 +118,8 @@ suite('integracao do CRM', () => {
     });
 
     it('o seed e idempotente: reexecutar nao duplica nada', async () => {
-      await runSeed(db);
-      await runSeed(db);
+      await runSeed(db, '01TESTWORKSPACE000000000001');
+      await runSeed(db, '01TESTWORKSPACE000000000001');
 
       const [stages] = await db.select({ total: count() }).from(schema.stages);
       const [sources] = await db.select({ total: count() }).from(schema.leadSources);
@@ -133,14 +134,12 @@ suite('integracao do CRM', () => {
   // -------------------------------------------------------------------------
   describe('deduplicacao', () => {
     it('o mesmo place_id nunca cria dois cards', async () => {
-      await createLead(db, baseLead({ placeId: 'ChIJ_unico', originType: 'GOOGLE_PLACE' }), {
+      await createLead(db, '01TESTWORKSPACE000000000001', baseLead({ placeId: 'ChIJ_unico', originType: 'GOOGLE_PLACE' }), {
         actorUserId: ADMIN,
       });
 
       await expect(
-        createLead(
-          db,
-          baseLead({
+        createLead(db, '01TESTWORKSPACE000000000001', baseLead({
             placeId: 'ChIJ_unico',
             internalName: 'Outro nome',
             originType: 'GOOGLE_PLACE',
@@ -156,12 +155,10 @@ suite('integracao do CRM', () => {
     });
 
     it('o mesmo telefone importado duas vezes gera um unico card', async () => {
-      await createLead(db, baseLead(), { actorUserId: ADMIN });
+      await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
 
       await expect(
-        createLead(
-          db,
-          baseLead({
+        createLead(db, '01TESTWORKSPACE000000000001', baseLead({
             internalName: 'Padaria do Joao',
             address: 'Rua Diferente, 99',
             contacts: [{ type: 'WHATSAPP', value: '+5511988887777', isPrimary: true }],
@@ -175,11 +172,9 @@ suite('integracao do CRM', () => {
     });
 
     it('a mesma marca em cidades diferentes gera dois leads legitimos', async () => {
-      await createLead(db, baseLead(), { actorUserId: ADMIN });
+      await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
 
-      const segunda = await createLead(
-        db,
-        baseLead({
+      const segunda = await createLead(db, '01TESTWORKSPACE000000000001', baseLead({
           city: 'Campinas',
           address: 'Rua Barao, 500',
           contacts: [{ type: 'PHONE', value: '(19) 97777-6666', isPrimary: true }],
@@ -193,13 +188,13 @@ suite('integracao do CRM', () => {
     });
 
     it('lead arquivado tambem bloqueia duplicata automatica', async () => {
-      const created = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const created = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       await db
         .update(schema.leads)
         .set({ archivedAt: new Date(), status: 'ARCHIVED' })
         .where(eq(schema.leads.id, created.lead.id));
 
-      await expect(createLead(db, baseLead(), { actorUserId: ADMIN })).rejects.toMatchObject({
+      await expect(createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN })).rejects.toMatchObject({
         code: 'DUPLICATE_LEAD',
       });
     });
@@ -208,7 +203,7 @@ suite('integracao do CRM', () => {
   // -------------------------------------------------------------------------
   describe('primeiro contato e follow-up', () => {
     it('tres follow-ups continuam sendo UM primeiro contato', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
 
       const firstContact = await stageId(db, 'FIRST_CONTACT');
       const followUp = await stageId(db, 'FOLLOW_UP');
@@ -282,7 +277,7 @@ suite('integracao do CRM', () => {
     });
 
     it('entrar na coluna Follow-up NAO registra tentativa', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const followUp = await stageId(db, 'FOLLOW_UP');
 
       await moveLead(
@@ -304,7 +299,7 @@ suite('integracao do CRM', () => {
     });
 
     it('a primeira resposta e registrada uma unica vez', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const replied = await stageId(db, 'REPLIED');
       const followUp = await stageId(db, 'FOLLOW_UP');
 
@@ -347,7 +342,7 @@ suite('integracao do CRM', () => {
     });
 
     it('a mesma chave de idempotencia nao move o card duas vezes', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const firstContact = await stageId(db, 'FIRST_CONTACT');
       const key = newIdempotencyKey('unica');
 
@@ -383,7 +378,7 @@ suite('integracao do CRM', () => {
     });
 
     it('mover com a etapa esperada errada devolve conflito', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const firstContact = await stageId(db, 'FIRST_CONTACT');
       const won = await stageId(db, 'WON');
 
@@ -403,7 +398,7 @@ suite('integracao do CRM', () => {
     });
 
     it('o historico de etapas guarda todas as passagens', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const firstContact = await stageId(db, 'FIRST_CONTACT');
       const followUp = await stageId(db, 'FOLLOW_UP');
 
@@ -441,7 +436,7 @@ suite('integracao do CRM', () => {
   // -------------------------------------------------------------------------
   describe('perda', () => {
     it('exige motivo e registra uma unica perda por ciclo', async () => {
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const lost = await stageId(db, 'LOST');
       const [reason] = await db.select().from(schema.lossReasons).limit(1);
 
@@ -479,7 +474,7 @@ suite('integracao do CRM', () => {
   describe('financeiro', () => {
     it('valor pendente NAO conta como receita ate a confirmacao', async () => {
       const serviceId = await createService('ONE_TIME', '1500.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
 
       await moveLead(
@@ -513,7 +508,7 @@ suite('integracao do CRM', () => {
 
     it('confirmar o recebimento transfere o valor e confirma a venda', async () => {
       const serviceId = await createService('ONE_TIME', '1500.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
       const won = await stageId(db, 'WON');
 
@@ -571,7 +566,7 @@ suite('integracao do CRM', () => {
     it('estornar preserva o pagamento original e ajusta a receita liquida', async () => {
       const { reversePayment, confirmPayment } = await import('@server/modules/finance/service');
       const serviceId = await createService('ONE_TIME', '1000.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
 
       await moveLead(
@@ -636,7 +631,7 @@ suite('integracao do CRM', () => {
     it('confirmar duas vezes com a mesma chave nao duplica o pagamento', async () => {
       const { confirmPayment } = await import('@server/modules/finance/service');
       const serviceId = await createService('ONE_TIME', '500.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
 
       await moveLead(
@@ -690,7 +685,7 @@ suite('integracao do CRM', () => {
   describe('recorrencias', () => {
     it('gera uma cobranca por competencia e nunca duplica ao rodar de novo', async () => {
       const serviceId = await createService('RECURRING_MONTHLY', '299.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
 
       await moveLead(
@@ -737,7 +732,7 @@ suite('integracao do CRM', () => {
     it('cancelar a recorrencia interrompe cobrancas futuras e preserva o passado', async () => {
       const { cancelSubscription } = await import('@server/modules/finance/service');
       const serviceId = await createService('RECURRING_MONTHLY', '299.00');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
       const awaiting = await stageId(db, 'AWAITING_PAYMENT');
 
       await moveLead(
@@ -789,7 +784,7 @@ suite('integracao do CRM', () => {
   describe('arquivamento', () => {
     it('arquivar nao apaga eventos nem financeiro', async () => {
       const { archiveLead } = await import('@server/modules/leads/service');
-      const { lead } = await createLead(db, baseLead(), { actorUserId: ADMIN });
+      const { lead } = await createLead(db, '01TESTWORKSPACE000000000001', baseLead(), { actorUserId: ADMIN });
 
       await archiveLead(db, lead.id, ADMIN);
 

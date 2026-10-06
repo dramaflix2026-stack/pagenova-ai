@@ -192,7 +192,7 @@ importsRouter.post(
     const pending = getPending(input.uploadId);
     const parsed = await readSheet(pending, mapping.sheetName);
 
-    const result = await runImport(getDb(), {
+    const result = await runImport(getDb(), req.session!.workspaceId, {
       filename: pending.filename,
       rawRows: parsed.activeSheet.rows,
       mapping,
@@ -218,7 +218,7 @@ importsRouter.post(
 importsRouter.get(
   '/imports/:id',
   asyncHandler(async (req, res) => {
-    res.json(await getImportJob(getDb(), req.params.id!));
+    res.json(await getImportJob(getDb(), req.session!.workspaceId, req.params.id!));
   }),
 );
 
@@ -226,7 +226,7 @@ importsRouter.get(
   '/imports/:id/fillable',
   asyncHandler(async (req, res) => {
     res.json({
-      fields: await listFillableFields(getDb(), req.params.id!),
+      fields: await listFillableFields(getDb(), req.session!.workspaceId, req.params.id!),
       explanation:
         'Adicionar ao lead existente apenas uma informacao que ainda nao existe, apos sua confirmacao. ' +
         'Nenhum dado atual sera substituido.',
@@ -241,6 +241,7 @@ importsRouter.post(
     const input = parseBody(importFillEmptySchema, req);
     const result = await applyFillEmpty(
       getDb(),
+      req.session!.workspaceId,
       req.params.id!,
       input.fields.map((item) => ({ rowId: item.rowId, field: item.field })),
       req.session!.user.id,
@@ -259,7 +260,7 @@ importsRouter.post(
 importsRouter.get(
   '/imports/:id/errors.csv',
   asyncHandler(async (req, res) => {
-    const { rows } = await getImportJob(getDb(), req.params.id!);
+    const { rows } = await getImportJob(getDb(), req.session!.workspaceId, req.params.id!);
 
     const problems = rows
       .filter((row) => row.status !== 'IMPORTED')

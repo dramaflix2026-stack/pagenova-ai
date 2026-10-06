@@ -56,6 +56,7 @@ const envSchema = z
     DB_POOL_SIZE: z.coerce.number().int().min(1).max(50).default(8),
 
     SESSION_SECRET: z.string().default(''),
+    PAGENOVA_SSO_SECRET: z.string().optional(),
     SESSION_IDLE_MINUTES: z.coerce
       .number()
       .int()
@@ -214,6 +215,22 @@ const envSchema = z
           message: 'SESSION_SECRET nao pode usar um valor de exemplo.',
         });
       }
+      const pageNovaSecret = value.PAGENOVA_SSO_SECRET?.trim() ?? '';
+      if (pageNovaSecret && pageNovaSecret.length < 32) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PAGENOVA_SSO_SECRET'],
+          message: 'PAGENOVA_SSO_SECRET precisa de no minimo 32 caracteres quando definido.',
+        });
+      }
+      if (!pageNovaSecret) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PAGENOVA_SSO_SECRET'],
+          message: 'PAGENOVA_SSO_SECRET e obrigatorio em producao.',
+        });
+      }
+
       if (!value.DB_PASSWORD) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

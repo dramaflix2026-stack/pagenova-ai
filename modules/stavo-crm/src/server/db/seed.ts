@@ -5,7 +5,7 @@
  * Nao cria usuario nem qualquer dado secreto -- o administrador e criado pela
  * tarefa administrativa dedicada (scripts/create-admin.ts).
  */
-import { eq, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 import { STAGE_SEMANTIC_KEYS, type StageSemanticKey } from '../../shared/constants';
 import { newId } from '../lib/ids';
@@ -68,7 +68,7 @@ export interface SeedResult {
   settingsCreated: number;
 }
 
-export async function runSeed(db: Database): Promise<SeedResult> {
+export async function runSeed(db: Database, workspaceId: string): Promise<SeedResult> {
   const now = new Date();
   const result: SeedResult = {
     stagesCreated: 0,
@@ -78,12 +78,13 @@ export async function runSeed(db: Database): Promise<SeedResult> {
   };
 
   // --- Etapas: identidade e a semantic_key das etapas principais -----------
-  const existingStages = await db.select().from(stages);
+  const existingStages = await db.select().from(stages).where(eq(stages.workspaceId, workspaceId));
   const bySemantic = new Map(existingStages.map((stage) => [stage.semanticKey, stage]));
 
   for (const [index, seed] of DEFAULT_STAGES.entries()) {
     if (bySemantic.has(seed.semanticKey)) continue;
     await db.insert(stages).values({
+      workspaceId,
       id: newId(),
       name: seed.name,
       semanticKey: seed.semanticKey,
@@ -98,12 +99,13 @@ export async function runSeed(db: Database): Promise<SeedResult> {
   }
 
   // --- Origens: identidade e o slug ---------------------------------------
-  const existingSources = await db.select().from(leadSources);
+  const existingSources = await db.select().from(leadSources).where(eq(leadSources.workspaceId, workspaceId));
   const bySlug = new Set(existingSources.map((source) => source.slug));
 
   for (const seed of DEFAULT_SOURCES) {
     if (bySlug.has(seed.slug)) continue;
     await db.insert(leadSources).values({
+      workspaceId,
       id: newId(),
       name: seed.name,
       slug: seed.slug,
@@ -116,12 +118,13 @@ export async function runSeed(db: Database): Promise<SeedResult> {
   }
 
   // --- Motivos de perda: identidade e o nome ------------------------------
-  const existingReasons = await db.select().from(lossReasons);
+  const existingReasons = await db.select().from(lossReasons).where(eq(lossReasons.workspaceId, workspaceId));
   const byName = new Set(existingReasons.map((reason) => reason.name.toLowerCase()));
 
   for (const [index, name] of DEFAULT_LOSS_REASONS.entries()) {
     if (byName.has(name.toLowerCase())) continue;
     await db.insert(lossReasons).values({
+      workspaceId,
       id: newId(),
       name,
       active: true,
@@ -134,12 +137,12 @@ export async function runSeed(db: Database): Promise<SeedResult> {
   }
 
   // --- Configuracoes: nunca sobrescreve um valor ja ajustado --------------
-  const existingSettings = await db.select().from(appSettings);
+  const existingSettings = await db.select().from(appSettings).where(eq(appSettings.workspaceId, workspaceId));
   const settingKeys = new Set(existingSettings.map((setting) => setting.settingKey));
 
   for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
     if (settingKeys.has(key)) continue;
-    await db.insert(appSettings).values({ settingKey: key, value, updatedAt: now });
+    await db.insert(appSettings).values({ workspaceId, settingKey: key, value, updatedAt: now });
     result.settingsCreated += 1;
   }
 
@@ -150,11 +153,16 @@ export async function runSeed(db: Database): Promise<SeedResult> {
  * Valida que as etapas principais existem e nao se repetem.
  * Executado depois do seed e pelos testes de integracao.
  */
-export async function assertStageIntegrity(db: Database): Promise<void> {
+export async function assertStageIntegrity(db: Database, workspaceId: string): Promise<void> {
   const rows = await db
     .select({ semanticKey: stages.semanticKey, total: sql<number>`count(*)` })
     .from(stages)
-    .where(sql`${stages.semanticKey} <> 'AUXILIARY' and ${stages.deletedAt} is null`)
+    .where(
+      and(
+        eq(stages.workspaceId, workspaceId),
+        sql`${stages.semanticKey} <> 'AUXILIARY' and ${stages.deletedAt} is null`,
+      ),
+    )
     .groupBy(stages.semanticKey);
 
   const counts = new Map(rows.map((row) => [row.semanticKey, Number(row.total)]));
@@ -174,12 +182,13 @@ export async function assertStageIntegrity(db: Database): Promise<void> {
 /** Etapa correspondente a um significado interno. */
 export async function getStageBySemantic(
   db: Database,
+  workspaceId: string,
   semanticKey: StageSemanticKey,
 ): Promise<{ id: string; name: string } | null> {
   const [row] = await db
     .select({ id: stages.id, name: stages.name })
     .from(stages)
-    .where(eq(stages.semanticKey, semanticKey))
+    .where(and(eq(stages.workspaceId, workspaceId), eq(stages.semanticKey, semanticKey)))
     .limit(1);
   return row ?? null;
 }

@@ -248,14 +248,14 @@ suite('API HTTP', () => {
       // Limite interno reduzido para 2 chamadas neste mes.
       await db
         .insert(schema.appSettings)
-        .values({ settingKey: 'googleTextSearchLimit', value: 2, updatedAt: now })
+        .values({ workspaceId: '01TESTWORKSPACE000000000001', settingKey: 'googleTextSearchLimit', value: 2, updatedAt: now })
         .onDuplicateKeyUpdate({ set: { value: 2, updatedAt: now } });
 
-      await reserveUsage(db, 'TEXT_SEARCH', now);
-      await reserveUsage(db, 'TEXT_SEARCH', now);
+      await reserveUsage(db, '01TESTWORKSPACE000000000001', 'TEXT_SEARCH', now);
+      await reserveUsage(db, '01TESTWORKSPACE000000000001', 'TEXT_SEARCH', now);
 
       // A terceira e bloqueada ANTES de qualquer chamada externa.
-      await expect(reserveUsage(db, 'TEXT_SEARCH', now)).rejects.toMatchObject({
+      await expect(reserveUsage(db, '01TESTWORKSPACE000000000001', 'TEXT_SEARCH', now)).rejects.toMatchObject({
         code: 'GOOGLE_QUOTA_EXCEEDED',
       });
 
@@ -270,11 +270,11 @@ suite('API HTTP', () => {
       const { reserveUsage, getUsageSummary } = await import('@server/modules/google/usage');
       const now = new Date();
 
-      await reserveUsage(db, 'TEXT_SEARCH', now);
-      await reserveUsage(db, 'PLACE_DETAILS', now);
-      await reserveUsage(db, 'PLACE_DETAILS', now);
+      await reserveUsage(db, '01TESTWORKSPACE000000000001', 'TEXT_SEARCH', now);
+      await reserveUsage(db, '01TESTWORKSPACE000000000001', 'PLACE_DETAILS', now);
+      await reserveUsage(db, '01TESTWORKSPACE000000000001', 'PLACE_DETAILS', now);
 
-      const summary = await getUsageSummary(db, now);
+      const summary = await getUsageSummary(db, '01TESTWORKSPACE000000000001', now);
       expect(summary.find((entry) => entry.sku === 'TEXT_SEARCH')!.used).toBe(1);
       expect(summary.find((entry) => entry.sku === 'PLACE_DETAILS')!.used).toBe(2);
     });
@@ -285,12 +285,12 @@ suite('API HTTP', () => {
 
       await db
         .insert(schema.appSettings)
-        .values({ settingKey: 'googleTextSearchLimit', value: 5, updatedAt: now })
+        .values({ workspaceId: '01TESTWORKSPACE000000000001', settingKey: 'googleTextSearchLimit', value: 5, updatedAt: now })
         .onDuplicateKeyUpdate({ set: { value: 5, updatedAt: now } });
 
       // Dez tentativas ao mesmo tempo para um limite de cinco.
       const results = await Promise.allSettled(
-        Array.from({ length: 10 }, () => reserveUsage(db, 'TEXT_SEARCH', now)),
+        Array.from({ length: 10 }, () => reserveUsage(db, '01TESTWORKSPACE000000000001', 'TEXT_SEARCH', now)),
       );
 
       const aprovadas = results.filter((result) => result.status === 'fulfilled').length;

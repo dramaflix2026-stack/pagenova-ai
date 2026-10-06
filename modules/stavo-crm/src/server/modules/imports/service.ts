@@ -353,6 +353,7 @@ export interface ImportResult {
 /** Executa a importacao de fato, em lotes transacionais por linha. */
 export async function runImport(
   db: Database,
+  workspaceId: string,
   input: {
     filename: string;
     rawRows: string[][];
@@ -364,7 +365,7 @@ export async function runImport(
   const [existing] = await db
     .select()
     .from(importJobs)
-    .where(eq(importJobs.idempotencyKey, input.idempotencyKey))
+    .where(and(eq(importJobs.workspaceId, workspaceId), eq(importJobs.idempotencyKey, input.idempotencyKey)))
     .limit(1);
 
   if (existing) {
@@ -401,10 +402,11 @@ export async function runImport(
   const now = new Date();
 
   const [source] = input.mapping.sourceId
-    ? await db.select().from(leadSources).where(eq(leadSources.id, input.mapping.sourceId)).limit(1)
-    : await db.select().from(leadSources).where(eq(leadSources.slug, 'planilha')).limit(1);
+    ? await db.select().from(leadSources).where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.id, input.mapping.sourceId))).limit(1)
+    : await db.select().from(leadSources).where(and(eq(leadSources.workspaceId, workspaceId), eq(leadSources.slug, 'planilha'))).limit(1);
 
   await db.insert(importJobs).values({
+    workspaceId,
     id: jobId,
     originalFilename: input.filename.slice(0, 255),
     sourceId: source?.id ?? null,
@@ -419,8 +421,8 @@ export async function runImport(
   const summary = emptySummary();
   summary.totalRows = preview.summary.totalRows;
 
-  const sourcesByName = await loadSourcesByName(db);
-  const servicesByName = await loadServicesByName(db);
+  const sourcesByName = await loadSourcesByName(db, workspaceId);
+  const servicesByName = await loadServicesByName(db, workspaceId);
 
   for (const outcome of preview.rows) {
     if (outcome.status === 'EMPTY') {
@@ -478,6 +480,7 @@ export async function runImport(
     try {
       const created = await createLead(
         db,
+        workspaceId,
         {
           internalName: values.name ?? 'Lead sem nome',
           originType: 'IMPORTED',
@@ -539,7 +542,7 @@ export async function runImport(
       emptyRows: summary.empty,
       completedAt,
     })
-    .where(eq(importJobs.id, jobId));
+    .where(and(eq(importJobs.workspaceId, workspaceId), eq(importJobs.id, jobId)));
 
   return { importJobId: jobId, summary, rows: finalRows, alreadyProcessed: false };
 }
@@ -586,13 +589,19 @@ function buildLinks(values: Partial<Record<ImportField, string>>) {
   return links;
 }
 
-async function loadSourcesByName(db: Database): Promise<Map<string, string>> {
-  const rows = await db.select({ id: leadSources.id, name: leadSources.name }).from(leadSources);
+async function loadSourcesByName(db: Database, workspaceId: string): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ id: leadSources.id, name: leadSources.name })
+    .from(leadSources)
+    .where(eq(leadSources.workspaceId, workspaceId));
   return new Map(rows.map((row) => [row.name.toLowerCase(), row.id]));
 }
 
-async function loadServicesByName(db: Database): Promise<Map<string, string>> {
-  const rows = await db.select({ id: services.id, name: services.name }).from(services);
+async function loadServicesByName(db: Database, workspaceId: string): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ id: services.id, name: services.name })
+    .from(services)
+    .where(eq(services.workspaceId, workspaceId));
   return new Map(rows.map((row) => [row.name.toLowerCase(), row.id]));
 }
 
@@ -616,9 +625,7 @@ export interface FillableField {
  * Lista o que a importacao trouxe e o lead existente ainda NAO tem.
  * Campo ja preenchido nunca aparece: nada pode ser sobrescrito.
  */
-export async function listFillableFields(
-  db: Database,
-  importJobId: string,
+export async function listFillableFields(db: Database, workspaceId: string, importJobId: string,
 ): Promise<FillableField[]> {
   const rows = await db
     .select()
@@ -697,13 +704,11 @@ export async function listFillableFields(
  * quando ainda estiverem vazios. Anotacoes, valores, etapa e historico nunca
  * sao tocados.
  */
-export async function applyFillEmpty(
-  db: Database,
-  importJobId: string,
+export async function applyFillEmpty(db: Database, workspaceId: string, importJobId: string,
   selections: { rowId: string; field: ImportField }[],
   actorUserId: string,
 ): Promise<{ applied: number; skipped: number }> {
-  const available = await listFillableFields(db, importJobId);
+  const available = await listFillableFields(db, workspaceId, importJobId);
   const allowed = new Map(available.map((item) => [`${item.rowId}:${item.field}`, item]));
 
   let applied = 0;
@@ -837,8 +842,8 @@ export async function applyFillEmpty(
   return { applied, skipped };
 }
 
-export async function getImportJob(db: Database, importJobId: string) {
-  const [job] = await db.select().from(importJobs).where(eq(importJobs.id, importJobId)).limit(1);
+export async function getImportJob(db: Database, workspaceId: string, importJobId: string) {
+  const [job] = await db.select().from(importJobs).where(and(eq(importJobs.workspaceId, workspaceId), eq(importJobs.id, importJobId))).limit(1);
   if (!job) throw notFound('Importacao nao encontrada.');
 
   const rows = await db.select().from(importRows).where(eq(importRows.importJobId, importJobId));

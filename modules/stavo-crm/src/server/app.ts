@@ -18,6 +18,7 @@ import {
   apiNotFound,
   ensureCsrfCookie,
   errorHandler,
+  loadPageNovaIdentity,
   loadSession,
   noIndex,
   requestContext,
@@ -92,7 +93,7 @@ export function createApp(): Express {
   app.use('/api', express.json({ limit: '512kb' }));
   app.use('/api', express.urlencoded({ extended: false, limit: '512kb' }));
 
-  app.use('/api', noIndex, ensureCsrfCookie, validateOrigin, loadSession, apiRouter);
+  app.use('/api', noIndex, ensureCsrfCookie, validateOrigin, loadPageNovaIdentity, loadSession, apiRouter);
   app.use('/api', apiNotFound);
 
   // robots.txt restritivo: complementa a autenticacao, nunca a substitui.

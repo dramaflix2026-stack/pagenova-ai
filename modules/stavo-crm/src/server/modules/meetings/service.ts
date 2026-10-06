@@ -411,9 +411,7 @@ async function alreadyProcessed(db: Database, idempotencyKey: string): Promise<s
 // Criacao
 // ---------------------------------------------------------------------------
 
-export async function createMeeting(
-  db: Database,
-  input: CreateMeetingInput,
+export async function createMeeting(db: Database, workspaceId: string, input: CreateMeetingInput,
   actorUserId: string,
   now: Date = new Date(),
 ): Promise<MeetingView> {
@@ -441,6 +439,7 @@ export async function createMeeting(
     await assertNoConflict(tx, { start, end });
 
     await tx.insert(meetings).values({
+      workspaceId,
       id: meetingId,
       leadId: input.leadId,
       title: input.title,

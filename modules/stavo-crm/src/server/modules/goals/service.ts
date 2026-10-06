@@ -66,9 +66,7 @@ function scopeCondition(scope: GoalScope) {
   return eq(goals.userId, scope.userId);
 }
 
-export async function listGoals(
-  db: Database,
-  options: { onlyActive?: boolean; scope?: GoalScope } = {},
+export async function listGoals(db: Database, workspaceId: string, options: { onlyActive?: boolean; scope?: GoalScope } = {},
 ): Promise<GoalWithOwner[]> {
   const today = toLocalDateString(new Date());
   const conditions = [];
@@ -93,7 +91,7 @@ export async function listGoals(
   return rows.map((row) => ({ ...row.goal, userName: row.goal.userId ? row.userName : null }));
 }
 
-export async function createGoal(db: Database, input: CreateGoalInput): Promise<Goal> {
+export async function createGoal(db: Database, workspaceId: string, input: CreateGoalInput): Promise<Goal> {
   if (input.userId) {
     const [pessoa] = await db
       .select({ id: users.id, active: users.active })
@@ -110,6 +108,7 @@ export async function createGoal(db: Database, input: CreateGoalInput): Promise<
   const id = newId();
 
   await db.insert(goals).values({
+    workspaceId,
     id,
     userId: input.userId ?? null,
     metricType: input.metricType,
@@ -122,16 +121,14 @@ export async function createGoal(db: Database, input: CreateGoalInput): Promise<
     updatedAt: now,
   });
 
-  const [row] = await db.select().from(goals).where(eq(goals.id, id)).limit(1);
+  const [row] = await db.select().from(goals).where(and(eq(goals.workspaceId, workspaceId), eq(goals.id, id))).limit(1);
   return row!;
 }
 
-export async function updateGoal(
-  db: Database,
-  goalId: string,
+export async function updateGoal(db: Database, workspaceId: string, goalId: string,
   input: { targetValue?: string; endsOn?: string | null; active?: boolean },
 ): Promise<Goal> {
-  const [goal] = await db.select().from(goals).where(eq(goals.id, goalId)).limit(1);
+  const [goal] = await db.select().from(goals).where(and(eq(goals.workspaceId, workspaceId), eq(goals.id, goalId))).limit(1);
   if (!goal) throw notFound('Meta nao encontrada.');
 
   await db
@@ -144,14 +141,14 @@ export async function updateGoal(
       ...(input.active !== undefined ? { active: input.active } : {}),
       updatedAt: new Date(),
     })
-    .where(eq(goals.id, goalId));
+    .where(and(eq(goals.workspaceId, workspaceId), eq(goals.id, goalId)));
 
-  const [row] = await db.select().from(goals).where(eq(goals.id, goalId)).limit(1);
+  const [row] = await db.select().from(goals).where(and(eq(goals.workspaceId, workspaceId), eq(goals.id, goalId))).limit(1);
   return row!;
 }
 
-export async function deleteGoal(db: Database, goalId: string): Promise<void> {
-  await db.delete(goals).where(eq(goals.id, goalId));
+export async function deleteGoal(db: Database, workspaceId: string, goalId: string): Promise<void> {
+  await db.delete(goals).where(and(eq(goals.workspaceId, workspaceId), eq(goals.id, goalId)));
 }
 
 /** Numeros de um periodo usados pelas metas, ja recortados por pessoa. */
@@ -161,25 +158,28 @@ interface GoalMetrics extends PeriodMetrics {
 
 async function loadGoalMetrics(
   db: Database,
+  workspaceId: string,
   period: ResolvedPeriod,
   ownerUserId: string | null,
 ): Promise<GoalMetrics> {
   // Metas usam o periodo inteiro, sem recorte por origem/servico/cidade.
-  const filters = { ownerUserId };
+  const filters = {
+    workspaceId,
+    ownerUserId,
+  };
+
   const [metrics, leadsProspected] = await Promise.all([
     getPeriodMetrics(db, period, filters),
     countLeadsProspected(db, period, filters),
   ]);
+
   return { ...metrics, leadsProspected };
 }
-
 /** Progresso das metas vigentes dentro do escopo pedido. */
-export async function getGoalProgress(
-  db: Database,
-  scope: GoalScope = 'ALL',
+export async function getGoalProgress(db: Database, workspaceId: string, scope: GoalScope = 'ALL',
   now: Date = new Date(),
 ): Promise<GoalProgress[]> {
-  const active = await listGoals(db, { onlyActive: true, scope });
+  const active = await listGoals(db, workspaceId, { onlyActive: true, scope });
   const results: GoalProgress[] = [];
 
   // Cada combinacao periodo+pessoa e calculada uma vez e reaproveitada.
@@ -192,7 +192,7 @@ export async function getGoalProgress(
     const cacheKey = `${preset}:${goal.userId ?? 'empresa'}`;
     let metrics = metricsCache.get(cacheKey);
     if (!metrics) {
-      metrics = await loadGoalMetrics(db, period, goal.userId);
+      metrics = await loadGoalMetrics(db, workspaceId, period, goal.userId);
       metricsCache.set(cacheKey, metrics);
     }
 
@@ -258,9 +258,7 @@ export interface SellerPerformance {
  * Desempenho de cada vendedor no periodo escolhido, lado a lado com as metas
  * individuais. E a tela em que o dono da conta acompanha a equipe.
  */
-export async function getSellerPerformance(
-  db: Database,
-  preset: PeriodPreset,
+export async function getSellerPerformance(db: Database, workspaceId: string, preset: PeriodPreset,
   now: Date = new Date(),
 ): Promise<{ fromDate: string; toDate: string; sellers: SellerPerformance[] }> {
   const period = resolvePeriod({ preset }, now);
@@ -271,11 +269,11 @@ export async function getSellerPerformance(
     .where(eq(users.role, 'EMPLOYEE'))
     .orderBy(asc(users.name), asc(users.email));
 
-  const allGoals = await getGoalProgress(db, 'ALL', now);
+  const allGoals = await getGoalProgress(db, workspaceId, 'ALL', now);
 
   const result: SellerPerformance[] = [];
   for (const seller of sellers) {
-    const metrics = await loadGoalMetrics(db, period, seller.id);
+    const metrics = await loadGoalMetrics(db, workspaceId, period, seller.id);
     const goalsOfSeller = allGoals.filter((entry) => entry.goal.userId === seller.id);
 
     // Desativado sem meta e sem movimento so polui a tabela.

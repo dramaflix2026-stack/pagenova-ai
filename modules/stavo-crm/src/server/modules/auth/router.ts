@@ -1,3 +1,5 @@
+import { and, eq } from 'drizzle-orm';
+import { workspaceMembers, workspaces } from '../../db/schema';
 /**
  * Rotas de autenticacao.
  *  POST /api/auth/login        publica, com rate limit
@@ -17,6 +19,31 @@ import { csrfProtection, requireAuth } from '../../middleware';
 import { changePassword, attemptLogin } from './service';
 import { clearSessionCookies, createSession, issueCsrfToken, revokeSession } from './sessions';
 
+async function resolveWorkspaceId(
+  db: ReturnType<typeof getDb>,
+  userId: string,
+): Promise<string> {
+  const [membership] = await db
+    .select({
+      workspaceId: workspaceMembers.workspaceId,
+    })
+    .from(workspaceMembers)
+    .innerJoin(workspaces, eq(workspaces.id, workspaceMembers.workspaceId))
+    .where(
+      and(
+        eq(workspaceMembers.userId, userId),
+        eq(workspaceMembers.status, 'ACTIVE'),
+        eq(workspaces.status, 'ACTIVE'),
+      ),
+    )
+    .limit(1);
+
+  if (!membership?.workspaceId) {
+    throw new Error('Usuario sem workspace ativo.');
+  }
+
+  return membership.workspaceId;
+}
 /** Limite por IP. O lockout por conta fica no servico, gravado no banco. */
 const loginRateLimit = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -52,7 +79,14 @@ authRouter.post(
       ip: req.ip,
     });
 
-    await createSession({ db, userId: result.userId, req, res });
+    const workspaceId = await resolveWorkspaceId(db, result.userId);
+    await createSession({
+      db,
+      userId: result.userId,
+      workspaceId,
+      req,
+      res,
+    });
 
     res.status(200).json({ user: { email: result.email } });
   }),
@@ -86,7 +120,14 @@ authRouter.post(
     });
 
     // Todas as sessoes foram revogadas; este navegador recebe uma nova.
-    await createSession({ db, userId, req, res });
+    const workspaceId = await resolveWorkspaceId(db, userId);
+    await createSession({
+      db,
+      userId,
+      workspaceId,
+      req,
+      res,
+    });
 
     res.status(200).json({
       ok: true,
