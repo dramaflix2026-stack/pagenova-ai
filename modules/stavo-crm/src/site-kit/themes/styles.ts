@@ -124,6 +124,78 @@ border-radius:var(--radius-md);padding:1.75rem;box-shadow:var(--shadow)}
 .media{width:100%;border-radius:${imageRadius};object-fit:cover;
 ${theme.imageTreatment === 'SOFT_SHADOW' ? 'box-shadow:var(--shadow);' : ''}}
 
+
+/* ---- PageNova Sites AI V2: acabamento premium --------------------------- */
+body{background:
+radial-gradient(circle at 8% 0%,color-mix(in srgb,var(--primary) 5%,transparent),transparent 28rem),
+var(--bg)}
+.section{position:relative}
+.section>.container{position:relative}
+.section:nth-of-type(even):not(.section--primary):not(.hero){
+background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 54%,var(--bg)),var(--bg))}
+.heading{margin-bottom:clamp(1.75rem,4vw,3rem)}
+.heading h2{max-width:18ch}
+.heading--centered h2{margin-left:auto;margin-right:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:.55rem;font-weight:700}
+.eyebrow::before{content:'';width:1.7rem;height:2px;background:var(--primary);border-radius:2px}
+.lead{line-height:1.65}
+.card,.contrast-card,.rail__item,.stats--grid li,.quote,.hero-highlight-box{
+transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
+.card:hover,.contrast-card:hover,.rail__item:hover,.stats--grid li:hover,.quote:hover{
+transform:translateY(-3px);border-color:color-mix(in srgb,var(--primary) 28%,var(--border));
+box-shadow:0 18px 50px rgba(0,0,0,.09)}
+.card,.contrast-card,.rail__item{overflow:hidden}
+.card .icon,.icon-block .icon,.contrast-card .icon{
+padding:.48rem;width:2.65rem;height:2.65rem;border-radius:12px;
+background:color-mix(in srgb,var(--primary) 10%,transparent)}
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;inset:0;
+background:linear-gradient(105deg,transparent 20%,rgba(255,255,255,.16) 48%,transparent 75%);
+transform:translateX(-130%);transition:transform .65s ease}
+.btn-primary:hover::after{transform:translateX(130%)}
+.hero{padding-top:clamp(4rem,8vw,7rem);padding-bottom:clamp(4rem,8vw,7rem)}
+.hero h1{max-width:14ch;letter-spacing:-.035em}
+.hero-centered h1{margin-left:auto;margin-right:auto}
+.hero .lead{font-size:clamp(1.05rem,2vw,1.28rem)}
+.hero-media{position:relative}
+.hero-media::before{content:'';position:absolute;inset:-1rem 1rem 1rem -1rem;
+border-radius:var(--radius-lg);background:color-mix(in srgb,var(--primary) 10%,transparent);z-index:-1}
+.hero-media img{box-shadow:0 24px 70px rgba(0,0,0,.14)}
+.highlights li{display:inline-flex;align-items:center;gap:.45rem}
+.highlights li::before{content:'✓';color:var(--primary);font-weight:800}
+.detail-row{border-radius:var(--radius-md);padding:1.4rem;border:1px solid transparent}
+.detail-row:hover{background:var(--surface);border-color:var(--border)}
+.steps li::before,.step-num{box-shadow:0 0 0 6px color-mix(in srgb,var(--primary) 8%,transparent)}
+.faq-item{transition:background-color .2s ease}
+.faq-item:hover{background:color-mix(in srgb,var(--surface) 62%,transparent)}
+.cta-card,.offer-card{box-shadow:0 22px 70px rgba(0,0,0,.09)}
+
+@media(max-width:760px){
+:root{--pad-scale:.78}
+.container{padding-left:1.1rem;padding-right:1.1rem}
+.section{padding-top:clamp(3rem,12vw,4.5rem);padding-bottom:clamp(3rem,12vw,4.5rem)}
+.hero{padding-top:3.75rem;padding-bottom:3.75rem}
+.hero h1{font-size:clamp(2.25rem,10.5vw,3.35rem);line-height:1.02}
+h2{font-size:clamp(1.85rem,8vw,2.6rem);line-height:1.08}
+.lead{font-size:1.05rem}
+.actions{display:grid;grid-template-columns:1fr;width:100%}
+.actions .btn{width:100%}
+.card,.contrast-card,.rail__item{padding:1.35rem;border-radius:max(var(--radius-md),16px)}
+.grid{gap:1rem}
+.hero-media::before{inset:-.6rem .6rem .6rem -.6rem}
+.hero-wide-media{margin-top:2rem}
+.hero-wide-media img,.hero-media img{max-height:30rem;object-fit:cover}
+.heading{margin-bottom:1.65rem}
+.heading--centered{text-align:left;margin-left:0;margin-right:0}
+.heading--centered .lead{margin-left:0;margin-right:0}
+.icon-grid .icon-block{text-align:left;padding:1.15rem;border:1px solid var(--border);
+border-radius:var(--radius-md);background:var(--surface)}
+.icon-grid .icon{margin-left:0;margin-right:0}
+.stats{justify-content:flex-start;text-align:left}
+.cta-inline{align-items:stretch}
+.cta-inline .actions{margin-top:.5rem}
+}
+
 /* ---- Cabecalho ---------------------------------------------------------- */
 .site-header{background:color-mix(in srgb,var(--bg) 88%,transparent);
 backdrop-filter:blur(10px);border-bottom:var(--border-w) solid var(--border);z-index:50}
