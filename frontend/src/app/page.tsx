@@ -1,5 +1,6 @@
 import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
 import Link from "next/link";
+import { PageNovaCreationDemo } from "@/components/pagenova-creation-demo";
 import { PAYMENT_BRANDS, PaymentBrand } from "@/components/payment-brands";
 
 const plans = [
@@ -130,81 +131,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 function ProductFrame() {
-  return (
-    <div className="overflow-hidden rounded-[22px] border border-white/10 bg-[#0c1512] shadow-[0_30px_90px_rgba(0,0,0,.38)]">
-      <div className="flex h-11 items-center gap-2 border-b border-white/10 bg-[#0b1713] px-5">
-        <span className="h-2 w-2 rounded-full bg-white/20" />
-        <span className="h-2 w-2 rounded-full bg-white/20" />
-        <span className="h-2 w-2 rounded-full bg-white/20" />
-        <span className="ml-4 text-[11px] text-white/45">PageNova AI / espaço de criação</span>
-        <span className="ml-auto rounded-md bg-[#153b2d] px-2 py-1 text-[10px] font-semibold text-[#7ceac2]">
-          Prévia
-        </span>
-      </div>
-      <div className="grid min-h-[360px] md:grid-cols-[185px_1fr]">
-        <aside className="hidden border-r border-white/10 bg-[#09120f] p-5 md:block">
-          <div className="mb-8 h-2 w-20 rounded-full bg-[#32d9a4]" />
-          {["Início", "Criar com IA", "Clonar", "Meus projetos", "CRM", "Agenda"].map(
-            (item, index) => (
-              <div
-                key={item}
-                className={`mb-2 rounded-lg px-3 py-2.5 text-xs ${
-                  index === 1 ? "bg-[#173c2e] text-[#8ef3c9]" : "text-white/45"
-                }`}
-              >
-                {item}
-              </div>
-            )
-          )}
-        </aside>
-        <div className="p-5 sm:p-8">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[.15em] text-[#5fe0b5]">
-                Novo projeto
-              </p>
-              <h3 className="mt-2 text-lg font-semibold text-white">
-                Da ideia à primeira prévia
-              </h3>
-            </div>
-            <span className="rounded-full border border-[#44dca8]/25 px-3 py-1.5 text-[10px] text-[#9aebc8]">
-              Briefing por nicho
-            </span>
-          </div>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3">
-            {[
-              ["01", "Escolha", "Selecione o tipo de projeto"],
-              ["02", "Descreva", "Personalize o briefing"],
-              ["03", "Acompanhe", "Veja a prévia ganhar forma"],
-            ].map(([number, title, description]) => (
-              <div key={number} className="rounded-xl border border-white/10 bg-white/[.035] p-4">
-                <span className="text-[11px] font-bold text-[#43dca8]">{number}</span>
-                <strong className="mt-5 block text-sm text-white">{title}</strong>
-                <p className="mt-1.5 text-xs leading-5 text-white/45">{description}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 rounded-xl border border-[#4dddab]/15 bg-[#10261d] p-5">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-semibold text-white/75">Prévia do seu site</span>
-              <span className="text-[10px] text-[#8beac1]">Em construção</span>
-            </div>
-            <div className="mt-5 h-2 w-1/3 rounded-full bg-[#78e9b9]/65" />
-            <div className="mt-3 h-2 w-2/3 rounded-full bg-white/15" />
-            <div className="mt-2 h-2 w-1/2 rounded-full bg-white/10" />
-            <div className="mt-5 grid grid-cols-3 gap-2">
-              <div className="h-12 rounded-lg bg-[#1a4c39]" />
-              <div className="h-12 rounded-lg bg-[#19402f]" />
-              <div className="h-12 rounded-lg bg-[#173526]" />
-            </div>
-          </div>
-          <p className="mt-3 text-[10px] text-white/35">
-            Representação da interface. O resultado depende do briefing e do projeto.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+  return <PageNovaCreationDemo />;
 }
 
 export default function Home() {
@@ -222,7 +149,6 @@ export default function Home() {
           </nav>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link
-              
               href="/app"
               prefetch
               className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/[.05] hover:text-white sm:border-0 sm:px-1 sm:text-sm"
@@ -233,10 +159,8 @@ export default function Home() {
               href="#planos"
               className="rounded-lg bg-[#36d9a1] px-3 py-2 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] sm:px-4 sm:py-2.5 sm:text-sm"
             >
-              <span className="sm:hidden">Planos</span>
-              <span className="hidden sm:inline">
-                Conhecer planos <span aria-hidden="true">↗</span>
-              </span>
+              <span className="sm:hidden">Cadastre-se</span>
+              <span className="hidden sm:inline">Criar minha conta <span aria-hidden="true">→</span></span>
             </a>
           </div>
         </div>
