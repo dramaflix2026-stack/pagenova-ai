@@ -105,6 +105,42 @@ UPDATE `payments` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` I
 --> statement-breakpoint
 UPDATE `site_projects` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
 --> statement-breakpoint
+ALTER TABLE `auth_sessions` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `app_settings` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `audit_log` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `lead_sources` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `stages` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `loss_reasons` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `services` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `leads` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `lead_identity_keys` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `goals` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `import_jobs` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `search_runs` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `meetings` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `sales` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `subscriptions` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `receivables` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `payments` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
+ALTER TABLE `site_projects` MODIFY `workspace_id` varchar(26) NOT NULL;
+--> statement-breakpoint
 ALTER TABLE `users` ADD CONSTRAINT `users_external_auth_id_unique` UNIQUE(`external_auth_id`);
 --> statement-breakpoint
 ALTER TABLE `workspace_members` ADD CONSTRAINT `workspace_members_workspace_id_workspaces_id_fk` FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`) ON DELETE cascade ON UPDATE no action;
