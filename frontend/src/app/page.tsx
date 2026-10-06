@@ -1,5 +1,6 @@
 import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
 import Link from "next/link";
+import { PAYMENT_BRANDS, PaymentBrand } from "@/components/payment-brands";
 
 const plans = [
   {
@@ -454,7 +455,7 @@ export default function Home() {
 
       <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
         <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
-          <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-14">
+          <div className="grid gap-9 text-left md:grid-cols-2 lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-14">
             <div className="min-w-0">
               <Brand />
               <p className="mt-5 max-w-[390px] text-sm leading-7 text-white/50">
@@ -464,25 +465,8 @@ export default function Home() {
                 <p className="text-[11px] font-bold uppercase tracking-[.16em] text-white/45">
                   Formas de pagamento
                 </p>
-                <div className="mt-3 flex flex-wrap gap-2" aria-label="Formas de pagamento aceitas">
-                  {[
-                    ["Visa", "VISA"],
-                    ["Mastercard", "●●"],
-                    ["Elo", "ELO"],
-                    ["American Express", "AMEX"],
-                    ["Hipercard", "HIPER"],
-                    ["Pix", "◇ PIX"],
-                    ["Boleto", "▥"],
-                  ].map(([label, mark]) => (
-                    <span
-                      key={label}
-                      title={label}
-                      aria-label={label}
-                      className="flex h-10 min-w-[58px] items-center justify-center rounded-lg border border-white/10 bg-white px-2.5 text-[10px] font-black tracking-tight text-[#14251d] shadow-sm"
-                    >
-                      {mark}
-                    </span>
-                  ))}
+                <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Formas de pagamento aceitas">
+                  {PAYMENT_BRANDS.map((brand) => <PaymentBrand key={brand} brand={brand} />)}
                 </div>
                 <p className="mt-3 text-[11px] leading-5 text-white/30">
                   Pagamento processado com segurança pela Kiwify.
@@ -491,7 +475,7 @@ export default function Home() {
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Navegação</p>
+              <p className="text-left text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Navegação</p>
               <nav className="mt-5 flex flex-col items-start gap-3.5 text-sm text-white/60" aria-label="Rodapé">
                 <a href="#plataforma" className="transition hover:text-white">Plataforma</a>
                 <a href="#planos" className="transition hover:text-white">Planos</a>
@@ -501,8 +485,8 @@ export default function Home() {
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Empresa</p>
-              <div className="mt-5 grid gap-5">
+              <p className="text-left text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Empresa</p>
+              <div className="mt-5 grid gap-4 text-left">
                 <div>
                   <p className="text-sm font-semibold text-white/75">Localização</p>
                   <p className="mt-1 max-w-[310px] text-xs leading-5 text-white/45">
