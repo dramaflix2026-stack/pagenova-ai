@@ -59,6 +59,52 @@ ALTER TABLE `payments` ADD `workspace_id` varchar(26);
 --> statement-breakpoint
 ALTER TABLE `site_projects` ADD `workspace_id` varchar(26);
 --> statement-breakpoint
+-- Compatibilidade segura com bancos Stavo existentes: todo dado legado e agrupado
+-- em um workspace deterministico antes de ativarmos isolamento estrito.
+SET @legacy_workspace_id = '00000000000000000000000001';
+--> statement-breakpoint
+INSERT IGNORE INTO `workspaces` (`id`,`external_owner_id`,`name`,`slug`,`status`,`created_at`,`updated_at`)
+VALUES (@legacy_workspace_id,NULL,'Workspace legado','legacy','ACTIVE',NOW(3),NOW(3));
+--> statement-breakpoint
+INSERT IGNORE INTO `workspace_members` (`workspace_id`,`user_id`,`role`,`status`,`created_at`,`updated_at`)
+SELECT @legacy_workspace_id,u.id,COALESCE(NULLIF(u.role,''),'EMPLOYEE'),'ACTIVE',NOW(3),NOW(3) FROM `users` u;
+--> statement-breakpoint
+UPDATE `auth_sessions` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `app_settings` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `audit_log` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `lead_sources` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `stages` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `loss_reasons` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `services` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `leads` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `lead_identity_keys` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `goals` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `import_jobs` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `search_runs` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `meetings` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `sales` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `subscriptions` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `receivables` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `payments` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
+UPDATE `site_projects` SET `workspace_id`=@legacy_workspace_id WHERE `workspace_id` IS NULL;
+--> statement-breakpoint
 ALTER TABLE `users` ADD CONSTRAINT `users_external_auth_id_unique` UNIQUE(`external_auth_id`);
 --> statement-breakpoint
 ALTER TABLE `workspace_members` ADD CONSTRAINT `workspace_members_workspace_id_workspaces_id_fk` FOREIGN KEY (`workspace_id`) REFERENCES `workspaces`(`id`) ON DELETE cascade ON UPDATE no action;
