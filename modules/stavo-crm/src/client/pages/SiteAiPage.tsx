@@ -109,7 +109,7 @@ export default function SiteAiPage() {
         theme: 'AI_DECIDES' as const,
         keywords: [],
         density: 'BALANCED' as const,
-        motionLevel: 'PREMIUM_BALANCED' as const,
+        motionLevel: 'BALANCED' as const,
       },
       requiredSections: [],
       forbiddenSections: [],
