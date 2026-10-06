@@ -223,6 +223,14 @@ const envSchema = z
           message: 'PAGENOVA_SSO_SECRET precisa de no minimo 32 caracteres quando definido.',
         });
       }
+      if (!pageNovaSecret) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['PAGENOVA_SSO_SECRET'],
+          message: 'PAGENOVA_SSO_SECRET e obrigatorio em producao.',
+        });
+      }
+
       if (!value.DB_PASSWORD) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
