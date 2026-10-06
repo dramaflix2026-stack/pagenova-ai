@@ -92,7 +92,7 @@ const envSchema = z
     // silencio. Nada aqui pode derrubar o CRM (ver secao 24.3 da spec).
     SITE_AI_ENABLED: booleanish.default(false),
     SITE_AI_MOCK_MODE: booleanish.default(false),
-    SITE_AI_PROVIDER: z.enum(['anthropic', 'mock']).default('anthropic'),
+    SITE_AI_PROVIDER: z.enum(['openai', 'anthropic', 'mock']).default('openai'),
 
     ANTHROPIC_API_KEY: z.string().optional(),
     /**
@@ -153,6 +153,8 @@ const envSchema = z
     ANTHROPIC_TIMEOUT_MS: z.coerce.number().int().min(5000).max(600000).default(180000),
 
     OPENAI_API_KEY: z.string().optional(),
+    OPENAI_SITE_MODEL: z.string().default('gpt-5.6-terra'),
+    OPENAI_SITE_TIMEOUT_MS: z.coerce.number().int().min(5000).max(600000).default(180000),
     OPENAI_IMAGE_PRIMARY_MODEL: z.string().default('gpt-image-1'),
     OPENAI_IMAGE_ECONOMY_MODEL: z.string().default('gpt-image-1-mini'),
     OPENAI_IMAGE_TIMEOUT_MS: z.coerce.number().int().min(5000).max(600000).default(120000),
@@ -436,6 +438,7 @@ export type SiteAiMode = 'real' | 'mock' | 'bloqueado';
 export function siteAiMode(): SiteAiMode {
   const env = getEnv();
   if (env.SITE_AI_MOCK_MODE || env.SITE_AI_PROVIDER === 'mock') return 'mock';
+  if (env.SITE_AI_PROVIDER === 'openai') return hasOpenAiKey() ? 'real' : 'bloqueado';
   return hasAnthropicKey() ? 'real' : 'bloqueado';
 }
 
