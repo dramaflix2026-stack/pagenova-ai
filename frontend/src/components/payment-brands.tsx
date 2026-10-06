@@ -5,7 +5,7 @@ const labels: Record<PaymentBrandName, string> = { visa:"Visa", mastercard:"Mast
 export const PAYMENT_BRANDS: PaymentBrandName[] = ["visa","mastercard","elo","amex","hipercard","pix","boleto"];
 
 export function PaymentBrand({ brand }: { brand: PaymentBrandName }) {
-  return <span className="flex h-9 w-[58px] items-center justify-center rounded-md border border-black/10 bg-white px-1.5 shadow-[0_1px_2px_rgba(0,0,0,.12)] sm:h-10 sm:w-[64px]" title={labels[brand]} aria-label={labels[brand]}>
+  return <span className="flex h-9 w-[58px] items-center justify-center rounded-lg border border-white/80 bg-white px-1.5 shadow-[0_5px_14px_rgba(0,0,0,.18),inset_0_0_0_1px_rgba(15,35,26,.04)] transition-transform hover:-translate-y-0.5 sm:h-10 sm:w-[64px]" title={labels[brand]} aria-label={labels[brand]}>
     <svg viewBox="0 0 64 30" aria-hidden="true" className="h-full w-full">
       {brand==="visa"&&<text x="32" y="20" textAnchor="middle" fontFamily="Arial,sans-serif" fontSize="15" fontWeight="900" fontStyle="italic" fill="#1434CB">VISA</text>}
       {brand==="mastercard"&&<><circle cx="26" cy="15" r="9" fill="#EB001B"/><circle cx="38" cy="15" r="9" fill="#F79E1B"/><path d="M32 8.3a9 9 0 0 1 0 13.4 9 9 0 0 1 0-13.4Z" fill="#FF5F00"/></>}
