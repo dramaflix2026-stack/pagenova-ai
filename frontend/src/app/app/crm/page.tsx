@@ -3,41 +3,45 @@
 import { useEffect, useState } from "react";
 
 export default function CrmPage() {
-  const [ready, setReady] = useState(false);
-  const [message, setMessage] = useState("Conectando seu CRM ao PageNova...");
+  const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
     let active = true;
     void fetch("/api/crm/me", { cache: "no-store", credentials: "same-origin" })
-      .then(async (response) => {
+      .then((response) => {
         if (!response.ok) throw new Error("CRM indisponivel");
-        if (active) {
-          setReady(true);
-          setMessage("CRM conectado. A interface integrada sera carregada nesta area.");
-        }
+        if (active) setStatus("ready");
       })
       .catch(() => {
-        if (active) setMessage("Nao foi possivel conectar o CRM. Verifique a configuracao da integracao.");
+        if (active) setStatus("error");
       });
     return () => { active = false; };
   }, []);
 
+  if (status === "ready") {
+    return (
+      <main className="h-[calc(100vh-4rem)] min-h-[640px] overflow-hidden bg-[#070b14]">
+        <iframe
+          src="/stavo-crm/index.html#/"
+          title="PageNova CRM"
+          className="h-full w-full border-0"
+          allow="clipboard-read; clipboard-write"
+        />
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-[#070b14] p-6 text-white">
-      <section className="mx-auto max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] shadow-2xl">
-        <div className="border-b border-white/10 px-7 py-6">
-          <div className="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-400">PageNova</div>
-          <h1 className="mt-2 text-3xl font-semibold">CRM</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-400">Leads, funil, reunioes, vendas e prospeccao no mesmo ecossistema PageNova.</p>
-        </div>
-        <div className="grid min-h-[520px] place-items-center p-8">
-          <div className="max-w-lg text-center">
-            <div className={`mx-auto mb-5 h-3 w-3 rounded-full ${ready ? "bg-emerald-400" : "animate-pulse bg-amber-400"}`} />
-            <p className="text-lg font-medium">{message}</p>
-            <p className="mt-3 text-sm text-slate-500">Seu acesso e liberado automaticamente pelo plano PageNova ativo.</p>
-          </div>
-        </div>
-      </section>
+    <main className="grid min-h-[calc(100vh-4rem)] place-items-center bg-[#070b14] p-6 text-white">
+      <div className="max-w-lg text-center">
+        <div className={`mx-auto mb-5 h-3 w-3 rounded-full ${status === "error" ? "bg-red-400" : "animate-pulse bg-amber-400"}`} />
+        <p className="text-lg font-medium">
+          {status === "error" ? "Nao foi possivel conectar o CRM." : "Conectando seu CRM ao PageNova..."}
+        </p>
+        <p className="mt-3 text-sm text-slate-500">
+          {status === "error" ? "Atualize a pagina para tentar novamente." : "Preparando seu workspace e carregando a interface."}
+        </p>
+      </div>
     </main>
   );
 }
