@@ -4,7 +4,7 @@
  * Lista os projetos e usa leads cadastrados no CRM como unica origem para
  * novos sites. O painel acompanha todos os projetos do workspace.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -18,7 +18,7 @@ import {
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
-import { useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
+import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
@@ -40,6 +40,8 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const createProject = useCreateSiteProject();
+  const autoCreatedLeadRef = useRef<string | null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
   const selectedLead = useLeadDetail(selectedLeadId);
   const selectedPlaceId = selectedLead.data?.lead.placeId ?? null;
@@ -71,6 +73,58 @@ export default function SiteAiPage() {
     liveGoogle.city ??
     liveGoogle.locality ??
     null;
+
+  useEffect(() => {
+    if (!selectedLeadId || !selectedLead.data) return;
+    if (autoCreatedLeadRef.current === selectedLeadId) return;
+
+    const lead = selectedLead.data;
+    const phone =
+      lead.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
+      lead.contacts.find((item) => item.type === 'PHONE')?.value ??
+      livePhone ??
+      '';
+    const website =
+      lead.links.find((item) => item.type === 'WEBSITE')?.url ??
+      liveWebsite ??
+      '';
+    const instagram =
+      lead.links.find((item) => item.type === 'INSTAGRAM')?.url ??
+      '';
+
+    const briefing = {
+      business: {
+        name: lead.lead.internalName,
+        niche: lead.lead.prospectingNiche ?? liveCategory ?? undefined,
+        city: lead.lead.prospectingCity ?? liveCity ?? undefined,
+        phoneE164: phone || undefined,
+        address: lead.lead.address ?? liveAddress ?? undefined,
+        instagramUrl: instagram || undefined,
+        websiteUrl: website || undefined,
+        services: [],
+        differentials: [],
+      },
+      objective: { goal: 'WHATSAPP_CONVERSATIONS' as const },
+      style: {
+        theme: 'AI_DECIDES' as const,
+        keywords: [],
+        density: 'BALANCED' as const,
+        motionLevel: 'PREMIUM_BALANCED' as const,
+      },
+      requiredSections: [],
+      forbiddenSections: [],
+    };
+
+    autoCreatedLeadRef.current = selectedLeadId;
+    void createProject.mutateAsync({
+      leadId: selectedLeadId,
+      businessName: lead.lead.internalName,
+      siteType: 'ONE_PAGE',
+      briefing,
+    }).catch(() => {
+      // Projeto pode ja existir para este lead; o wizard continua utilizavel.
+    });
+  }, [selectedLeadId, selectedLead.data, livePhone, liveWebsite, liveCategory, liveCity, liveAddress]);
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -149,7 +203,7 @@ export default function SiteAiPage() {
           search={leadSearch}
           onSearch={setLeadSearch}
           onClose={() => setLeadPickerOpen(false)}
-          onSelect={(leadId) => {
+          onSelect={async (leadId) => {
             setSelectedLeadId(leadId);
             setLeadPickerOpen(false);
           }}
