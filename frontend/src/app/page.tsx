@@ -212,7 +212,8 @@ export default function Home() {
           </nav>
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link
-              href="/login"
+              
+              href="/app"
               prefetch
               className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/[.05] hover:text-white sm:border-0 sm:px-1 sm:text-sm"
             >
@@ -306,7 +307,7 @@ export default function Home() {
               O briefing já traz uma base para o nicho escolhido. Você personaliza
               a direção do projeto, gera as páginas e navega pela prévia para revisar o resultado.
             </p>
-            <a href="/login" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">
+            <a href="/app" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">
               Entrar na plataforma →
             </a>
           </div>
@@ -527,7 +528,8 @@ export default function Home() {
           </a>
 
           <Link
-            href="/login"
+            
+              href="/app"
             className="transition hover:text-white"
           >
             Entrar
