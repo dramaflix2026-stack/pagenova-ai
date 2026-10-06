@@ -98,6 +98,12 @@ export const loadPageNovaIdentity: RequestHandler = (req, _res, next) => {
     .catch(next);
 };
 export const loadSession: RequestHandler = (req, _res, next) => {
+  // A identidade PageNova assinada ja e uma sessao completa para esta requisicao.
+  if (req.session?.sessionId.startsWith('pagenova:')) {
+    next();
+    return;
+  }
+
   const token = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
   resolveSession(getDb(), token)
     .then((session) => {
