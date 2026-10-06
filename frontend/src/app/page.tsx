@@ -515,6 +515,25 @@ export default function Home() {
                   <p className="mt-1 text-xs leading-5 text-white/45">65.879.205/0001-34</p>
                 </div>
                 <div>
+                  <p className="text-sm font-semibold text-white/75">Suporte</p>
+                  <div className="mt-1 flex flex-col items-start gap-1 text-xs leading-5 text-white/45">
+                    <a
+                      href="https://wa.me/5521987627887"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="transition hover:text-[#50dca9]"
+                    >
+                      WhatsApp: +55 21 98762-7887
+                    </a>
+                    <a
+                      href="mailto:suporte@pagenovaai.com.br"
+                      className="break-all transition hover:text-[#50dca9]"
+                    >
+                      suporte@pagenovaai.com.br
+                    </a>
+                  </div>
+                </div>
+                <div>
                   <p className="text-sm font-semibold text-white/75">Checkout</p>
                   <p className="mt-1 text-xs leading-5 text-white/45">Compra processada pela Kiwify.</p>
                 </div>
