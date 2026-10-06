@@ -145,6 +145,14 @@ export async function resolveSession(
     })
     .from(authSessions)
     .innerJoin(users, eq(users.id, authSessions.userId))
+    .innerJoin(
+      workspaceMembers,
+      and(
+        eq(workspaceMembers.userId, authSessions.userId),
+        eq(workspaceMembers.workspaceId, authSessions.workspaceId),
+      ),
+    )
+    .innerJoin(workspaces, eq(workspaces.id, authSessions.workspaceId))
     .where(
       and(
         eq(authSessions.tokenHash, hashToken(token)),
