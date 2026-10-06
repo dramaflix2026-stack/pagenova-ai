@@ -19,7 +19,7 @@ import {
   type SiteType,
 } from '@site-kit/types/site-ai';
 import { ApiError } from '../../lib/api';
-import { useCreateSiteProject, useGenerateSite } from '../../hooks/useSiteAi';
+import { useCreateSiteProject, useGenerateSite, useSiteProjectByLead } from '../../hooks/useSiteAi';
 import { Badge, Button, Callout, Field, Input, Textarea } from '../ui';
 import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/Dialog';
 import { useToast } from '../ui/Toast';
@@ -124,6 +124,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
   const { open, onOpenChange, onCreated } = props;
   const toast = useToast();
   const createProject = useCreateSiteProject();
+  const existingProject = useSiteProjectByLead(props.leadId ?? null);
 
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(() => initialState(props));
@@ -214,12 +215,13 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
     setError(null);
     setSubmitting(true);
     try {
-      const { project } = await createProject.mutateAsync({
+      const existing = existingProject.data?.projects?.[0] ?? null;
+      const project = existing ?? (await createProject.mutateAsync({
         leadId: props.leadId ?? null,
         businessName: form.businessName.trim(),
         siteType: form.siteType,
         briefing,
-      });
+      })).project;
       setPendingProjectId(project.id);
 
       await generate.mutateAsync();
@@ -493,7 +495,11 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
             </Button>
           )}
 
-          {step < 3 ? (
+          {props.leadId ? (
+            <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting}>
+              {submitting ? 'Gerando...' : 'Gerar site com IA'}
+            </Button>
+          ) : step < 3 ? (
             <Button onClick={() => setStep((step + 1) as Step)} disabled={step === 1 && !canAdvanceFromStep1}>
               Continuar
             </Button>
