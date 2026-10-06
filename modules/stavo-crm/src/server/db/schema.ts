@@ -201,7 +201,7 @@ export const leadSources = mysqlTable(
     createdAt: ts('created_at').notNull(),
     updatedAt: ts('updated_at').notNull(),
   },
-  (table) => [uniqueIndex('lead_sources_slug_unique').on(table.slug)],
+  (table) => [uniqueIndex('lead_sources_slug_unique').on(table.workspaceId, table.slug)],
 );
 
 export const stages = mysqlTable(
