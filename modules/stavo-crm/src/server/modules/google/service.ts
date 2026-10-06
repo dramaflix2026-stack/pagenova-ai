@@ -8,7 +8,7 @@
  *  - so o place_id, o contexto de prospeccao digitado pelo usuario e os dados
  *    que ele confirmar explicitamente viram registro permanente.
  */
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 
 import { ATTRIBUTION_TEXT, type BusinessStatus } from '../../../shared/constants';
 import type { GoogleSearchInput } from '../../../shared/schemas';
@@ -108,7 +108,7 @@ export async function searchPlaces(
     return matchesWebsiteFilter(item.website.classification as never, input.websiteFilter);
   });
 
-  const withExisting = await annotateExisting(db, filtered);
+  const withExisting = await annotateExisting(db, workspaceId, filtered);
 
   const searchRunId = input.searchRunId ?? (await createSearchRun(db, workspaceId, input, textQuery));
   await bumpSearchRun(db, searchRunId, withExisting.length);
@@ -183,6 +183,7 @@ export function mapPlace(place: GooglePlaceRaw): SearchResultItem {
 /** Marca resultados que ja estao no CRM, informando a etapa atual. */
 async function annotateExisting(
   db: Database,
+  workspaceId: string,
   items: SearchResultItem[],
 ): Promise<SearchResultItem[]> {
   if (items.length === 0) return items;
@@ -198,7 +199,7 @@ async function annotateExisting(
     })
     .from(leads)
     .innerJoin(stages, eq(stages.id, leads.currentStageId))
-    .where(inArray(leads.placeId, placeIds));
+    .where(and(eq(leads.workspaceId, workspaceId), inArray(leads.placeId, placeIds)));
 
   const byPlaceId = new Map(rows.map((row) => [row.placeId!, row]));
 
