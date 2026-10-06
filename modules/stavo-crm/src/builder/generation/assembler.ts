@@ -175,15 +175,17 @@ const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
  * A IA escreve/adapta o conteudo, mas nao decide mais a arquitetura.
  * Isso evita paginas dominadas por WhatsApp e mantem previsibilidade mobile.
  */
-function standardizeInitialSections(sections: PlanSection[]): PlanSection[] {
-  const firstByType = new Map<PlanSection['type'], PlanSection>();
-  for (const section of sections) {
-    if (!STANDARD_SECTION_ORDER.includes(section.type)) continue;
-    if (!firstByType.has(section.type)) firstByType.set(section.type, section);
-  }
+function standardizeInitialSections(
+  sections: PlanSection[],
+): Array<{ section: PlanSection; originalIndex: number }> {
+  const firstByType = new Map<PlanSection['type'], { section: PlanSection; originalIndex: number }>();
+  sections.forEach((section, originalIndex) => {
+    if (!STANDARD_SECTION_ORDER.includes(section.type)) return;
+    if (!firstByType.has(section.type)) firstByType.set(section.type, { section, originalIndex });
+  });
   return STANDARD_SECTION_ORDER
     .map((type) => firstByType.get(type))
-    .filter((section): section is PlanSection => Boolean(section));
+    .filter((entry): entry is { section: PlanSection; originalIndex: number } => Boolean(entry));
 }
 
 export function assemblePlan(input: AssembleInput): AssembleResult {
@@ -198,7 +200,7 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
 
   const standardizedSections = standardizeInitialSections(plan.sections);
 
-  for (const [index, planSection] of standardizedSections.entries()) {
+  for (const { section: planSection, originalIndex } of standardizedSections) {
     const ordinal = (counters.get(planSection.type) ?? 0) + 1;
     counters.set(planSection.type, ordinal);
     const id = sectionId(planSection.type, ordinal);
@@ -207,7 +209,7 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
       planSection.type,
     );
 
-    const binding = input.imageBindings?.[index] ?? {};
+    const binding = input.imageBindings?.[originalIndex] ?? {};
     const section = buildSection(planSection, id, anchor, business, droppedSections, binding);
     if (section) built.push(section);
   }
