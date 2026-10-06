@@ -5,7 +5,24 @@ import { sitePlanSchema } from '@builder/generation/plan-schema';
 import { estimateCostUsd, PRICING_VERSION } from '@builder/generation/pricing';
 import { ProviderError, type CopyPatchResult, type GenerateSitePlanInput, type OutreachInput, type OutreachResult, type PatchSectionInput, type ReviseCopyInput, type SectionPatchResult, type SiteIntelligenceProvider, type SitePlanResult, type UsageInfo } from '@builder/generation/provider';
 
-const PLAN_SCHEMA = zodToJsonSchema(sitePlanSchema, { target: 'openAi', $refStrategy: 'none' });
+function strictifyOpenAiSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(strictifyOpenAiSchema);
+  if (!value || typeof value !== 'object') return value;
+
+  const node = value as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(node)) out[key] = strictifyOpenAiSchema(child);
+
+  if (out.type === 'object' && out.properties && typeof out.properties === 'object' && !Array.isArray(out.properties)) {
+    out.required = Object.keys(out.properties as Record<string, unknown>);
+    out.additionalProperties = false;
+  }
+  return out;
+}
+
+const PLAN_SCHEMA = strictifyOpenAiSchema(
+  zodToJsonSchema(sitePlanSchema, { target: 'openAi', $refStrategy: 'none' }),
+);
 type OpenAiResponse = { id?: string; output_text?: string; output?: Array<{ content?: Array<{ type?: string; text?: string }> }>; usage?: { input_tokens?: number; output_tokens?: number }; error?: { message?: string } };
 const outputText = (r: OpenAiResponse) => r.output_text ?? (r.output ?? []).flatMap(i => i.content ?? []).filter(p => p.type === 'output_text').map(p => p.text ?? '').join('');
 function mapStatus(status:number,message:string){if(status===401||status===403)return new ProviderError('AUTH','Credencial da OpenAI invalida ou sem permissao.',false);if(status===429&&/quota|credit|billing/i.test(message))return new ProviderError('QUOTA','Credito ou cota da OpenAI insuficiente.',false);if(status===429)return new ProviderError('RATE_LIMITED','Limite de requisicoes da OpenAI atingido.',true);if(status===404&&/model/i.test(message))return new ProviderError('MODEL_UNAVAILABLE',message,false);if(status>=500)return new ProviderError('SERVER_ERROR','A OpenAI reportou um erro temporario.',true);return new ProviderError('UNKNOWN',message||'Falha na OpenAI.',false);}
