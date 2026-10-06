@@ -48,15 +48,31 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const history = useHistoryState<SiteSchemaModel | null>(null);
   const [lockVersion, setLockVersion] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
+  const [viewport, setViewport] = useState<'desktop' | 'mobile'>(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches ? 'mobile' : 'desktop',
+  );
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error' | 'conflict'>('idle');
   const [conflictConfig, setConflictConfig] = useState<SiteSchemaModel | null>(null);
   const [aiInstruction, setAiInstruction] = useState('');
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [mobilePanel, setMobilePanel] = useState<'preview' | 'sections' | 'edit'>('preview');
+  const [isMobileEditor, setIsMobileEditor] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  );
 
   const loadedRef = useRef(false);
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 767px)');
+    const sync = () => {
+      setIsMobileEditor(media.matches);
+      if (media.matches) setViewport('mobile');
+    };
+    sync();
+    media.addEventListener?.('change', sync);
+    return () => media.removeEventListener?.('change', sync);
+  }, []);
 
   // Carrega o rascunho UMA vez; depois disso o estado local e a autoridade
   // ate o proximo save/restauracao, para o editor nao sobrescrever a
@@ -155,7 +171,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
 
   const handleSelectSection = (id: string) => {
     setSelectedId(id);
-    if (window.matchMedia('(max-width: 767px)').matches) setMobilePanel('edit');
+    if (isMobileEditor) setMobilePanel('edit');
   };
 
   const handleSectionChange = (next: SiteSection) => {
@@ -216,7 +232,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-9.5rem)] min-h-[32rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)]">
+    <div className="flex h-[calc(100dvh-10.5rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
         canUndo={history.canUndo}
         canRedo={history.canRedo}
@@ -243,7 +259,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </Callout>
       ) : null}
 
-      <div className="flex border-b border-border md:hidden">
+      <div className="flex shrink-0 border-b border-border md:hidden">
         {(['preview', 'sections', 'edit'] as const).map((panel) => (
           <button
             key={panel}
@@ -257,7 +273,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       </div>
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className={(mobilePanel === 'sections' ? 'block' : 'hidden') + ' w-full shrink-0 md:block md:w-56'}>
+        <div className={(isMobileEditor ? (mobilePanel === 'sections' ? 'block' : 'hidden') : 'block') + ' w-full min-w-0 shrink-0 overflow-y-auto md:w-56'}>
           <SectionsPanel
             sections={config.sections}
             selectedId={selectedId}
@@ -269,18 +285,18 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           />
         </div>
 
-        <div className={(mobilePanel === 'preview' ? 'flex' : 'hidden') + ' min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-2 md:flex md:p-4'}>
+        <div className={(isMobileEditor ? (mobilePanel === 'preview' ? 'flex' : 'hidden') : 'flex') + ' min-h-0 min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-0 md:p-4'}>
           <iframe
             title="Previa do site"
             srcDoc={html}
             className={
               'h-full rounded-md border border-border bg-white shadow-sm transition-all ' +
-              (viewport === 'mobile' ? 'w-full max-w-[390px]' : 'w-full max-w-5xl')
+              (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-5xl')
             }
           />
         </div>
 
-        <div className={(mobilePanel === 'edit' ? 'block' : 'hidden') + ' w-full min-w-0 shrink-0 overflow-hidden border-l border-border md:block md:w-80'}>
+        <div className={(isMobileEditor ? (mobilePanel === 'edit' ? 'block' : 'hidden') : 'block') + ' w-full min-w-0 shrink-0 overflow-hidden border-l border-border md:w-80'}>
           {selectedSection ? (
             <div className="flex h-full flex-col">
               <div className="flex-1 overflow-y-auto">
