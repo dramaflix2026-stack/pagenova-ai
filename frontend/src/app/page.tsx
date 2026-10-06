@@ -43,42 +43,37 @@ const plans = [
 ] as const;
 
 const testimonialMocks = [
-  ["Mariana Oliveira","São Paulo — SP","A PageNova deixou muito mais simples tirar uma landing page do papel e continuar os ajustes no mesmo lugar."],
-  ["Carlos Mendes","Belo Horizonte — MG","Consegui organizar meus projetos, páginas e contatos sem ficar alternando entre várias ferramentas."],
-  ["Juliana Costa","Curitiba — PR","O fluxo de criação é direto. Começo pelo briefing, gero a base e depois consigo refinar o conteúdo."],
-  ["Rafael Almeida","Campinas — SP","A parte de sites com IA acelerou bastante a primeira versão e me deu uma base boa para editar."],
-  ["Camila Ferreira","Florianópolis — SC","Gostei de concentrar criação e organização comercial no mesmo painel. Ficou muito mais prático."],
-  ["Bruno Martins","Rio de Janeiro — RJ","Eu precisava ganhar velocidade para testar páginas e a PageNova tornou esse processo bem mais organizado."],
-  ["Larissa Souza","Goiânia — GO","A interface é simples de entender e consigo voltar aos projetos para continuar trabalhando quando preciso."],
-  ["Felipe Rocha","Porto Alegre — RS","O CRM junto com as páginas facilita muito acompanhar o que estou criando para cada oportunidade."],
-  ["Amanda Ribeiro","Recife — PE","O que mais gostei foi poder partir de uma estrutura pronta e personalizar sem precisar começar tudo do zero."],
-  ["Diego Carvalho","Salvador — BA","A PageNova reuniu etapas que antes eu fazia separadas. Hoje meu processo de criação está bem mais enxuto."],
-  ["Beatriz Lima","Fortaleza — CE","Criar a primeira versão ficou rápido e depois consigo revisar textos e seções com muito mais tranquilidade."],
-  ["Lucas Nogueira","Brasília — DF","Uso para organizar ideias e transformar briefing em página. Economiza bastante tempo no começo do projeto."],
-  ["Isabela Moreira","Vitória — ES","A experiência ficou muito mais fluida do que montar cada parte manualmente em ferramentas diferentes."],
-  ["Gustavo Barros","Santos — SP","Gostei principalmente da continuidade: crio, salvo e depois volto para editar o mesmo projeto."],
-  ["Natália Correia","Niterói — RJ","A plataforma me ajuda a manter páginas, contatos e tarefas mais organizados em um único ambiente."],
-  ["Henrique Duarte","Londrina — PR","Para validar novas páginas, ter uma primeira versão rapidamente faz muita diferença no meu dia a dia."],
-  ["Renata Castro","Joinville — SC","Achei o fluxo bem intuitivo. Mesmo sem programar consigo entender o que fazer em cada etapa."],
-  ["Thiago Freitas","Uberlândia — MG","A criação por briefing me ajuda a estruturar melhor a oferta antes de entrar nos detalhes da página."],
-  ["Paula Azevedo","Ribeirão Preto — SP","O editor e a organização dos projetos deixaram meu processo menos improvisado e muito mais consistente."],
-  ["Eduardo Monteiro","Maringá — PR","Consigo centralizar o trabalho e acompanhar melhor cada projeto sem perder o histórico do que já fiz."],
-  ["Carolina Teixeira","João Pessoa — PB","A PageNova tornou a criação mais acessível para mim e ainda deixa espaço para personalizar depois."],
-  ["André Cardoso","Sorocaba — SP","Ter criação e CRM próximos ajuda muito quando estou trabalhando páginas para diferentes negócios."],
-  ["Letícia Moraes","Campo Grande — MS","A primeira versão sai rápido e eu consigo focar meu tempo no que realmente precisa de ajuste."],
-  ["Marcelo Pires","São José dos Campos — SP","O processo ficou mais previsível: briefing, geração, revisão e edição, tudo seguindo uma sequência clara."],
-  ["Gabriela Farias","Natal — RN","Gostei de conseguir visualizar o projeto e continuar refinando sem precisar reconstruir a página."],
-  ["Vinícius Lopes","Cuiabá — MT","Para quem trabalha com várias ideias ao mesmo tempo, ter os projetos organizados ajuda bastante."],
-  ["Priscila Andrade","Belém — PA","A plataforma facilitou meu fluxo e reduziu o tempo que eu gastava montando estruturas repetitivas."],
-  ["Rodrigo Vieira","São Luís — MA","Uso a PageNova para acelerar páginas e manter as oportunidades organizadas no CRM."],
-  ["Fernanda Campos","Aracaju — SE","Foi fácil entender a proposta e começar. O fato de poder editar depois me dá bastante liberdade."],
-  ["Matheus Gonçalves","São Bernardo do Campo — SP","A PageNova me ajuda a transformar uma ideia em algo visual rapidamente e continuar evoluindo o projeto."],
-].map(([name, location, quote], index) => ({
-  name,
-  location,
-  quote,
-  portraitPosition: `${(index % 6) * 20}% ${Math.floor(index / 6) * 25}%`,
-}));
+  ["Mariana Oliveira","São Paulo — SP","A PageNova deixou muito mais simples tirar uma landing page do papel e continuar os ajustes no mesmo lugar.","https://i.pravatar.cc/160?img=47"],
+  ["Carlos Mendes","Belo Horizonte — MG","Consegui organizar meus projetos, páginas e contatos sem ficar alternando entre várias ferramentas.","https://i.pravatar.cc/160?img=12"],
+  ["Juliana Costa","Curitiba — PR","O fluxo de criação é direto. Começo pelo briefing, gero a base e depois consigo refinar o conteúdo.","https://i.pravatar.cc/160?img=44"],
+  ["Rafael Almeida","Campinas — SP","A parte de sites com IA acelerou bastante a primeira versão e me deu uma base boa para editar.","https://i.pravatar.cc/160?img=13"],
+  ["Camila Ferreira","Florianópolis — SC","Gostei de concentrar criação e organização comercial no mesmo painel. Ficou muito mais prático.","https://i.pravatar.cc/160?img=32"],
+  ["Bruno Martins","Rio de Janeiro — RJ","Eu precisava ganhar velocidade para testar páginas e a PageNova tornou esse processo bem mais organizado.","https://i.pravatar.cc/160?img=11"],
+  ["Larissa Souza","Goiânia — GO","A interface é simples de entender e consigo voltar aos projetos para continuar trabalhando quando preciso.","https://i.pravatar.cc/160?img=45"],
+  ["Felipe Rocha","Porto Alegre — RS","O CRM junto com as páginas facilita muito acompanhar o que estou criando para cada oportunidade.","https://i.pravatar.cc/160?img=14"],
+  ["Amanda Ribeiro","Recife — PE","O que mais gostei foi poder partir de uma estrutura pronta e personalizar sem precisar começar tudo do zero.","https://i.pravatar.cc/160?img=48"],
+  ["Diego Carvalho","Salvador — BA","A PageNova reuniu etapas que antes eu fazia separadas. Hoje meu processo de criação está bem mais enxuto.","https://i.pravatar.cc/160?img=8"],
+  ["Beatriz Lima","Fortaleza — CE","Criar a primeira versão ficou rápido e depois consigo revisar textos e seções com muito mais tranquilidade.","https://i.pravatar.cc/160?img=36"],
+  ["Lucas Nogueira","Brasília — DF","Uso para organizar ideias e transformar briefing em página. Economiza bastante tempo no começo do projeto.","https://i.pravatar.cc/160?img=3"],
+  ["Isabela Moreira","Vitória — ES","A experiência ficou muito mais fluida do que montar cada parte manualmente em ferramentas diferentes.","https://i.pravatar.cc/160?img=49"],
+  ["Gustavo Barros","Santos — SP","Gostei principalmente da continuidade: crio, salvo e depois volto para editar o mesmo projeto.","https://i.pravatar.cc/160?img=15"],
+  ["Natália Correia","Niterói — RJ","A plataforma me ajuda a manter páginas, contatos e tarefas mais organizados em um único ambiente.","https://i.pravatar.cc/160?img=47"],
+  ["Henrique Duarte","Londrina — PR","Para validar novas páginas, ter uma primeira versão rapidamente faz muita diferença no meu dia a dia.","https://i.pravatar.cc/160?img=12"],
+  ["Renata Castro","Joinville — SC","Achei o fluxo bem intuitivo. Mesmo sem programar consigo entender o que fazer em cada etapa.","https://i.pravatar.cc/160?img=44"],
+  ["Thiago Freitas","Uberlândia — MG","A criação por briefing me ajuda a estruturar melhor a oferta antes de entrar nos detalhes da página.","https://i.pravatar.cc/160?img=13"],
+  ["Paula Azevedo","Ribeirão Preto — SP","O editor e a organização dos projetos deixaram meu processo menos improvisado e muito mais consistente.","https://i.pravatar.cc/160?img=32"],
+  ["Eduardo Monteiro","Maringá — PR","Consigo centralizar o trabalho e acompanhar melhor cada projeto sem perder o histórico do que já fiz.","https://i.pravatar.cc/160?img=11"],
+  ["Carolina Teixeira","João Pessoa — PB","A PageNova tornou a criação mais acessível para mim e ainda deixa espaço para personalizar depois.","https://i.pravatar.cc/160?img=45"],
+  ["André Cardoso","Sorocaba — SP","Ter criação e CRM próximos ajuda muito quando estou trabalhando páginas para diferentes negócios.","https://i.pravatar.cc/160?img=14"],
+  ["Letícia Moraes","Campo Grande — MS","A primeira versão sai rápido e eu consigo focar meu tempo no que realmente precisa de ajuste.","https://i.pravatar.cc/160?img=48"],
+  ["Marcelo Pires","São José dos Campos — SP","O processo ficou mais previsível: briefing, geração, revisão e edição, tudo seguindo uma sequência clara.","https://i.pravatar.cc/160?img=8"],
+  ["Gabriela Farias","Natal — RN","Gostei de conseguir visualizar o projeto e continuar refinando sem precisar reconstruir a página.","https://i.pravatar.cc/160?img=36"],
+  ["Vinícius Lopes","Cuiabá — MT","Para quem trabalha com várias ideias ao mesmo tempo, ter os projetos organizados ajuda bastante.","https://i.pravatar.cc/160?img=3"],
+  ["Priscila Andrade","Belém — PA","A plataforma facilitou meu fluxo e reduziu o tempo que eu gastava montando estruturas repetitivas.","https://i.pravatar.cc/160?img=49"],
+  ["Rodrigo Vieira","São Luís — MA","Uso a PageNova para acelerar páginas e manter as oportunidades organizadas no CRM.","https://i.pravatar.cc/160?img=15"],
+  ["Fernanda Campos","Aracaju — SE","Foi fácil entender a proposta e começar. O fato de poder editar depois me dá bastante liberdade.","https://i.pravatar.cc/160?img=47"],
+  ["Matheus Gonçalves","São Bernardo do Campo — SP","A PageNova me ajuda a transformar uma ideia em algo visual rapidamente e continuar evoluindo o projeto.","https://i.pravatar.cc/160?img=12"],
+].map(([name, location, quote, avatar]) => ({ name, location, quote, avatar }));
 
 const questions = [
   {
@@ -380,16 +375,7 @@ export default function Home() {
                 {testimonialMocks.map((item, index) => (
                   <article key={`${copy}-${item.name}`} className="pn-testimonial-card">
                     <div className="flex items-center gap-3">
-                      <div
-                        role="img"
-                        aria-label={`Foto demonstrativa de ${item.name}`}
-                        className="h-14 w-14 shrink-0 rounded-full border border-[#50dca9]/35 bg-[#10261d] bg-no-repeat shadow-[0_6px_18px_rgba(0,0,0,.22)]"
-                        style={{
-                          backgroundImage: "url('/pagenova-testimonial-portraits.png')",
-                          backgroundSize: "600% 500%",
-                          backgroundPosition: item.portraitPosition,
-                        }}
-                      />
+                      <img src={item.avatar} alt="" className="h-16 w-16 shrink-0 rounded-full border-2 border-[#50dca9]/35 object-cover shadow-[0_8px_24px_rgba(0,0,0,.30)]" />
                       <div className="min-w-0 text-left">
                         <p className="truncate text-base font-semibold text-white">{item.name}</p>
                         <p className="mt-0.5 text-xs text-white/50">{item.location}</p>
@@ -417,7 +403,7 @@ export default function Home() {
           .pn-testimonials-track {
             display: flex;
             width: max-content;
-            animation: pnTestimonialsMarquee 115s linear infinite;
+            animation: pnTestimonialsMarquee 150s linear infinite;
             will-change: transform;
           }
           .pn-testimonials-set {
@@ -427,13 +413,14 @@ export default function Home() {
             padding-right: 16px;
           }
           .pn-testimonial-card {
-            width: min(84vw, 360px);
-            min-height: 260px;
+            width: min(86vw, 390px);
+            min-height: 286px;
             flex: 0 0 auto;
             border: 1px solid rgba(80,220,169,.20);
             border-radius: 24px;
             padding: 20px;
-            background: linear-gradient(145deg,rgba(255,255,255,.065),rgba(255,255,255,.025));
+            background: linear-gradient(145deg,#153127,#0d2119);
+            color: white;
             box-shadow: 0 18px 48px rgba(0,0,0,.20);
           }
           @keyframes pnTestimonialsMarquee {
@@ -441,8 +428,8 @@ export default function Home() {
             to { transform: translate3d(-50%,0,0); }
           }
           @media (max-width: 767px) {
-            .pn-testimonials-track { animation-duration: 92s; }
-            .pn-testimonial-card { width: 82vw; min-height: 272px; }
+            .pn-testimonials-track { animation-duration: 125s; }
+            .pn-testimonial-card { width: 86vw; min-height: 292px; padding: 22px; }
           }
           @media (prefers-reduced-motion: reduce) {
             .pn-testimonials-track { animation-play-state: paused; }
