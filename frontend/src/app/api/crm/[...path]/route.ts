@@ -69,6 +69,17 @@ function signedHeaders(secret: string, who: NonNullable<Awaited<ReturnType<typeo
 }
 
 async function proxy(request: NextRequest, context: RouteContext) {
+  const method = request.method.toUpperCase();
+  if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    const origin = request.headers.get("origin");
+    if (origin && origin !== request.nextUrl.origin) {
+      return NextResponse.json(
+        { error: { code: "FORBIDDEN", message: "Origem da requisicao nao autorizada." } },
+        { status: 403 },
+      );
+    }
+  }
+
   const who = await identity();
   if (!who) return NextResponse.json({ error: { code: "UNAUTHORIZED", message: "Acesso PageNova necessario." } }, { status: 401 });
 
@@ -87,7 +98,6 @@ async function proxy(request: NextRequest, context: RouteContext) {
   if (csrf) headers.set("x-csrf-token", csrf);
   Object.entries(signedHeaders(secret, who)).forEach(([key, value]) => headers.set(key, value));
 
-  const method = request.method.toUpperCase();
   const body = ["GET", "HEAD"].includes(method) ? undefined : await request.arrayBuffer();
   const response = await fetch(target, { method, headers, body, cache: "no-store", redirect: "manual" });
 
