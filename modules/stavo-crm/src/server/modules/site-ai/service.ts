@@ -417,6 +417,8 @@ export async function moduleDiagnostics() {
     enabled: env.SITE_AI_ENABLED,
     mode,
     anthropicConfigured: Boolean(env.ANTHROPIC_API_KEY?.trim()),
+    openAiSiteConfigured: Boolean(env.OPENAI_API_KEY?.trim()),
+    siteProvider: env.SITE_AI_PROVIDER,
     openAiConfigured: Boolean(env.OPENAI_API_KEY?.trim()),
     imageGenerationEnabled: env.SITE_IMAGE_GENERATION_ENABLED,
     siteModel: env.ANTHROPIC_SITE_MODEL,
@@ -436,7 +438,9 @@ export async function moduleDiagnostics() {
     /** O que o operador precisa fazer para sair do estado atual. */
     blockedReason:
       mode === 'bloqueado'
-        ? 'Sem ANTHROPIC_API_KEY. A interface funciona, mas gerar um site esta bloqueado.'
+        ? env.SITE_AI_PROVIDER === 'openai'
+          ? 'Sem OPENAI_API_KEY. A interface funciona, mas gerar um site esta bloqueado.'
+          : 'Sem ANTHROPIC_API_KEY. A interface funciona, mas gerar um site esta bloqueado.'
         : null,
   };
 }
