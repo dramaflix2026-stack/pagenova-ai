@@ -232,7 +232,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   };
 
   return (
-    <div className="flex h-[calc(100dvh-10.5rem)] min-h-0 w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
+    <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
         canUndo={history.canUndo}
         canRedo={history.canRedo}
