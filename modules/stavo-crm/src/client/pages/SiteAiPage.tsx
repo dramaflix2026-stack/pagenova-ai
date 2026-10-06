@@ -103,6 +103,8 @@ export default function SiteAiPage() {
         websiteUrl: website || undefined,
         services: [],
         differentials: [],
+        googleMapsUrl: liveGoogle.mapsUrl ?? undefined,
+        googlePhotos: Array.isArray(liveGoogle.photos) ? liveGoogle.photos : [],
       },
       objective: { goal: 'WHATSAPP_CONVERSATIONS' as const },
       style: {
