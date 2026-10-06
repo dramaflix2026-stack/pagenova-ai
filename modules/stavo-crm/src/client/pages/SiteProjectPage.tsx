@@ -27,24 +27,25 @@ export default function SiteProjectPage() {
   const generate = useGenerateSite(projectId ?? '');
   const archive = useArchiveSiteProject();
 
-  if (query.isLoading) return <LoadingBlock label="Carregando projeto..." />;
-  if (query.isError || !query.data) {
-    return <ErrorState message="Projeto nao encontrado ou voce nao tem acesso a ele." />;
-  }
-
-  const { project, jobs } = query.data;
+  const project = query.data?.project;
+  const jobs = query.data?.jobs ?? [];
   const latestJob = jobs[0];
-  const busy = isProjectBusy(project.status as SiteProjectStatus);
-  const editable = project.status === 'READY' || project.status === 'PUBLISHED';
+  const busy = project ? isProjectBusy(project.status as SiteProjectStatus) : false;
+  const editable = project ? project.status === 'READY' || project.status === 'PUBLISHED' : false;
 
-  // O job termina antes do polling normal da pagina em alguns navegadores.
-  // Assim que o job mais recente concluir, atualizamos o projeto para trocar
-  // imediatamente da tela de progresso para o editor/preview.
+  // Hooks precisam rodar na mesma ordem em todos os renders. Antes este hook
+  // ficava depois dos returns de loading/error; quando a query terminava de
+  // carregar, o React recebia um hook extra e a pagina podia desmontar inteira.
   useEffect(() => {
     if (latestJob?.status === 'SUCCEEDED' && !editable) {
       void query.refetch();
     }
-  }, [latestJob?.status, editable, query]);
+  }, [latestJob?.status, editable, query.refetch]);
+
+  if (query.isLoading) return <LoadingBlock label="Carregando projeto..." />;
+  if (query.isError || !query.data || !project) {
+    return <ErrorState message="Projeto nao encontrado ou voce nao tem acesso a ele." />;
+  }
 
   const header = (
     <PageHeader
