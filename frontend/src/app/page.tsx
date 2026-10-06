@@ -400,42 +400,58 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="border-t border-white/[.07] bg-[#0b1c15] py-12 md:py-20">
+      <section className="overflow-hidden border-t border-white/[.07] bg-[#0b1c15] py-12 md:py-20">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid gap-8 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
-            <div>
-              <SectionLabel>Experiência de quem usa</SectionLabel>
-              <h2 className="mt-4 max-w-xl text-[2.15rem] font-semibold leading-[1.08] tracking-[-.045em] md:text-5xl">
-                Depoimentos que mostram o uso real.
-              </h2>
-              <p className="mt-4 max-w-lg text-sm leading-6 text-white/50">
-                Esta área está pronta para receber avaliações verificadas de clientes PageNova, sem inventar nomes, fotos ou resultados.
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              {["Criação de sites", "Organização comercial", "Edição e publicação"].map((item) => (
-                <div key={item} className="rounded-2xl border border-white/10 bg-white/[.035] p-5">
-                  <div className="text-lg tracking-[.12em] text-[#50dca9]">★★★★★</div>
-                  <p className="mt-4 text-sm font-semibold text-white/80">{item}</p>
-                  <p className="mt-2 text-xs leading-5 text-white/40">Depoimento verificado em breve.</p>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SectionLabel>Experiência de quem usa</SectionLabel>
+          <h2 className="mt-4 max-w-2xl text-[2.15rem] font-semibold leading-[1.08] tracking-[-.045em] md:text-5xl">
+            Histórias de quem constrói com a PageNova.
+          </h2>
+          <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
+            O carrossel abaixo fica pronto para receber avaliações reais de clientes, com foto, nome, localização e relato.
+          </p>
         </div>
+        <div className="mt-8 flex w-max gap-4 px-5 [animation:pagenova-testimonials_55s_linear_infinite] hover:[animation-play-state:paused] md:px-8">
+          {Array.from({ length: 30 }, (_, index) => (
+            <article key={index} className="w-[82vw] max-w-[330px] shrink-0 rounded-[22px] border border-white/10 bg-white/[.045] p-5 shadow-[0_14px_38px_rgba(0,0,0,.14)]">
+              <div className="flex items-center gap-3">
+                <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-[#50dca9]/30 bg-[#50dca9]/10 text-sm font-bold text-[#50dca9]">PN</div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-white/85">Cliente PageNova</p>
+                  <p className="text-xs text-white/40">Avaliação verificada</p>
+                </div>
+              </div>
+              <div className="mt-5 text-base tracking-[.1em] text-[#50dca9]">★★★★★</div>
+              <p className="mt-3 text-sm leading-6 text-white/55">
+                Espaço reservado para o depoimento do cliente.
+              </p>
+            </article>
+          ))}
+        </div>
+        <style>{`
+          @keyframes pagenova-testimonials {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(-50% - .5rem)); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            [class*="pagenova-testimonials"] { animation: none !important; }
+          }
+        `}</style>
       </section>
 
       <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-14">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid overflow-hidden rounded-[22px] border border-[#cfe0d6] bg-white shadow-[0_16px_50px_rgba(20,37,29,.06)] md:grid-cols-[auto_1fr_auto] md:items-center">
-            <div className="grid min-h-28 place-items-center bg-[#e8f7ef] px-8 py-6">
-              <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-[#37c98f] text-center text-[#126c4a]">
-                <div><strong className="block text-2xl leading-none">7</strong><span className="text-[10px] font-bold uppercase tracking-wider">dias</span></div>
-              </div>
+          <div className="grid overflow-hidden rounded-[24px] border border-[#cfe0d6] bg-white shadow-[0_18px_55px_rgba(20,37,29,.07)] md:grid-cols-[220px_1fr_auto] md:items-center">
+            <div className="grid min-h-44 place-items-center bg-[#e8f7ef] px-6 py-7">
+              <svg viewBox="0 0 180 180" className="h-32 w-32" role="img" aria-label="Garantia de 7 dias">
+                <path d="M90 10 111 24l25 2 12 22 21 13-3 25 9 23-17 19-3 25-24 7-17 18-24-9-24 9-17-18-24-7-3-25-17-19 9-23-3-25 21-13 12-22 25-2Z" fill="#dff6eb" stroke="#36c990" strokeWidth="4"/>
+                <circle cx="90" cy="90" r="55" fill="#fff" stroke="#36c990" strokeWidth="2"/>
+                <path d="m60 94 18 18 42-46" fill="none" stroke="#168457" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round"/>
+                <text x="90" y="145" textAnchor="middle" fill="#126c4a" fontSize="15" fontWeight="800">7 DIAS</text>
+              </svg>
             </div>
             <div className="p-6 md:p-8">
               <p className="text-[10px] font-bold uppercase tracking-[.18em] text-[#168457]">Garantia de satisfação</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-.035em] md:text-3xl">Você tem 7 dias para conhecer a PageNova.</h2>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-.035em] md:text-3xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#647369]">
                 Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.
               </p>
