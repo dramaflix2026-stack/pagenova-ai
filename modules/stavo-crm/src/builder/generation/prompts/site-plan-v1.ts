@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.0.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.1.0';
 
 /**
  * Instrucao de sistema.
@@ -76,12 +76,30 @@ Cores: proponha "primary", "accent", "background", "surface", "text", "muted", "
 
 Tipografia: no maximo duas familias, escolhidas entre fontes amplamente disponiveis (ex.: Inter, Fraunces, Sora, Manrope, Lora, Space Grotesk, Playfair Display, Work Sans).
 
-## COMPOSICAO DA PAGINA
+## COMPOSICAO PADRAO PAGENOVA
 
-- Um numero de secoes entre 4 e 10 e o normal; mais que isso raramente ajuda a conversao.
-- Sempre inclua exatamente uma secao "hero" e uma secao "footer".
-- Inclua "whatsappForm" ou "contactMap" quando o objetivo pedir contato direto.
-- Nao repita o mesmo "type" mais de duas vezes.
+A arquitetura NAO e livre. O PageNova usa uma espinha dorsal consistente em todos os nichos; voce adapta copy, itens, imagens disponiveis, tom e identidade visual, mas nao transforma o canal de contato no assunto da pagina.
+
+Monte as secoes nesta ordem:
+1. "hero" -- exatamente uma. Apresente o negocio e sua proposta. Use imagem real quando houver candidato adequado. Um CTA principal; CTA secundario somente quando realmente complementar.
+2. "about" -- exatamente uma. Explique o negocio de forma curta e factual.
+3. "services" -- exatamente uma. Mostre servicos/especialidades. Priorize os servicos fornecidos no briefing; nao invente procedimentos especificos.
+4. "benefits" -- exatamente uma. Diferenciais/beneficios de escolher o negocio, sem inventar credenciais ou numeros.
+5. "gallery" -- somente quando existirem pelo menos duas imagens reais candidatas. Nunca crie galeria vazia ou ficticia.
+6. "process" -- exatamente uma. Explique em 3 passos simples como funciona o atendimento/contratacao. WhatsApp pode aparecer em no maximo um passo, se fizer sentido.
+7. "testimonials" -- somente se o sistema informar que existem depoimentos confirmados.
+8. "contactMap" -- exatamente uma quando existir qualquer informacao confirmada de endereco, telefone, e-mail, horario ou mapa.
+9. "cta" -- exatamente uma chamada final para a acao principal.
+10. "footer" -- exatamente um e sempre por ultimo.
+
+Regras estruturais obrigatorias:
+- NAO gere "whatsappForm" na geracao inicial padrao.
+- NAO use "offer", "audience", "authority", "stats" ou "faq" na geracao inicial padrao, salvo se estiverem explicitamente em "Secoes obrigatorias".
+- WhatsApp e CANAL DE CONVERSAO, nao tema editorial. A palavra "WhatsApp" nao deve dominar titulos, subtitulos, cards ou passos.
+- No maximo hero, CTA final e cabecalho podem ter chamada direta para WhatsApp. As demais secoes devem falar do negocio, servicos, diferenciais, processo e informacoes reais.
+- Nao repita secoes nem crie varias secoes com a mesma funcao.
+- O hero deve ser compacto no celular: headline curta, sem texto excessivo e sem composicao que dependa de grande vazio vertical.
+- Prefira variantes mobile-friendly. Quando houver imagem real adequada, use uma variante de hero que suporte imagem.
 - A ordem do array "sections" e a ordem final da pagina.
 
 ## SEGURANCA
