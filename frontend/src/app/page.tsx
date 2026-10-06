@@ -44,58 +44,31 @@ const plans = [
 const questions = [
   {
     question: "O que posso criar na PageNova?",
-    answer:
-      "Você pode criar landing pages, iniciar sites a partir de briefings por nicho, clonar páginas por URL e editar seus projetos. A plataforma também oferece CRM, dashboard e agenda de serviços.",
+    answer: "Você pode criar landing pages e sites com IA, clonar páginas para edição e organizar sua operação com CRM, agenda e projetos em um só lugar.",
   },
   {
     question: "Preciso saber programar?",
-    answer:
-      "Não para iniciar e editar os elementos disponíveis na interface. Você informa o briefing, acompanha a criação e ajusta o projeto pelo editor.",
+    answer: "Não. A PageNova foi feita para você partir de um briefing, gerar a primeira versão e continuar os ajustes pela interface visual.",
   },
   {
-    question: "Os dados do CRM e da agenda ficam salvos onde?",
-    answer:
-      "Os dados do CRM e da agenda ficam vinculados à sua conta e ao seu espaço de trabalho na PageNova.",
+    question: "Consigo editar o site depois de criá-lo?",
+    answer: "Sim. Você pode voltar aos projetos salvos e continuar refinando textos, seções e outros elementos disponíveis no editor.",
   },
   {
-    question: "Como funcionam os planos?",
-    answer:
-      "O plano mensal custa R$147 por mês. Os planos trimestral, semestral e anual são cobrados pelo respectivo período e têm menor custo mensal equivalente. Escolha o período desejado e siga para o checkout seguro.",
-  },
-  {
-    question: "Preciso instalar algum programa para usar a PageNova?",
-    answer:
-      "Não. A PageNova funciona pelo navegador, então você pode acessar a plataforma online sem instalar um programa no computador.",
-  },
-  {
-    question: "Consigo editar uma página depois de criá-la?",
-    answer:
-      "Sim. Os projetos criados na plataforma podem ser abertos novamente para continuar os ajustes disponíveis no editor.",
-  },
-  {
-    question: "Posso continuar meus projetos depois?",
-    answer:
-      "Sim. Seus projetos ficam disponíveis na sua conta para você retornar e continuar o trabalho.",
+    question: "Onde ficam meus projetos, CRM e agenda?",
+    answer: "Os dados ficam vinculados à sua conta e ao seu espaço de trabalho na PageNova, para você continuar sua operação depois.",
   },
   {
     question: "A PageNova serve apenas para landing pages?",
-    answer:
-      "Não. A plataforma reúne ferramentas para criação de páginas e sites, além de recursos de organização comercial como CRM e agenda.",
+    answer: "Não. Além de landing pages, a plataforma reúne criação de sites, clonagem e edição de páginas, CRM, agenda e organização de projetos.",
   },
   {
-    question: "Como escolho entre os planos mensal, trimestral, semestral e anual?",
-    answer:
-      "Os planos dão opções de período diferentes. Você pode comparar o valor total e o custo mensal equivalente exibidos na seção de planos e escolher o período mais adequado para você.",
-  },
-  {
-    question: "O pagamento é feito dentro da PageNova?",
-    answer:
-      "Ao escolher um plano, você é direcionado ao checkout seguro da Kiwify correspondente ao período selecionado.",
+    question: "Como funcionam os planos?",
+    answer: "Você escolhe entre mensal, trimestral, semestral e anual. Os ciclos maiores reduzem o custo mensal equivalente e o pagamento é concluído no checkout seguro da Kiwify.",
   },
   {
     question: "Já tenho cadastro. Como acesso minha conta?",
-    answer:
-      "Use o botão Entrar no topo da página e informe os dados da sua conta para acessar a plataforma.",
+    answer: "Toque em Entrar no topo da página e use os dados da sua conta para acessar a plataforma e seus projetos.",
   },
 ];
 
@@ -427,26 +400,31 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="duvidas" className="scroll-mt-20 bg-[#f3f5f0] py-14 text-[#14251d] md:py-24">
-        <div className="mx-auto grid max-w-7xl gap-7 px-5 md:px-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
-              Dúvidas frequentes
-            </span>
-            <h2 className="mt-5 text-4xl font-semibold tracking-[-.05em] md:text-5xl">
-              Antes de começar.
-            </h2>
+      <section id="duvidas" className="scroll-mt-20 bg-[#f3f5f0] py-12 text-[#14251d] md:py-20">
+        <div className="mx-auto max-w-7xl px-5 md:px-8">
+          <div className="grid gap-4 border-b border-[#d9e1d8] pb-7 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
+                Dúvidas frequentes
+              </span>
+              <h2 className="mt-3 text-[2.15rem] font-semibold leading-tight tracking-[-.045em] md:text-5xl">
+                Ficou alguma dúvida?
+              </h2>
+            </div>
+            <p className="max-w-xl text-left text-sm leading-6 text-[#647369] lg:justify-self-end">
+              Respostas rápidas sobre criação, edição, seus dados e os planos da PageNova.
+            </p>
           </div>
-          <div className="divide-y divide-[#d9e1d8] border-y border-[#d9e1d8]">
+          <div className="mt-4 grid gap-2 lg:grid-cols-2 lg:gap-3">
             {questions.map(({ question, answer }) => (
-              <details key={question} className="group py-4 sm:py-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-sm font-semibold marker:hidden sm:text-base">
-                  {question}
-                  <span aria-hidden="true" className="text-xl font-normal text-[#168457] group-open:rotate-45">
+              <details key={question} className="group rounded-2xl border border-[#d9e1d8] bg-white px-5 shadow-[0_1px_0_rgba(20,37,29,.02)] open:border-[#b8d9ca] open:bg-[#fbfdfb]">
+                <summary className="flex min-h-[72px] cursor-pointer list-none items-center justify-between gap-4 text-left text-[15px] font-semibold leading-5 marker:hidden">
+                  <span>{question}</span>
+                  <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#eaf5ef] text-xl font-normal text-[#168457] transition group-open:rotate-45">
                     +
                   </span>
                 </summary>
-                <p className="max-w-2xl pt-3 text-sm leading-7 text-[#647369]">{answer}</p>
+                <p className="border-t border-[#e7ece8] pb-5 pt-4 text-left text-sm leading-6 text-[#647369]">{answer}</p>
               </details>
             ))}
           </div>
@@ -454,38 +432,39 @@ export default function Home() {
       </section>
 
       <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
-        <div className="mx-auto w-full max-w-7xl px-5 py-8 md:px-8 lg:py-12">
-          <div className="grid grid-cols-2 gap-x-5 gap-y-8 text-left lg:grid-cols-[1.2fr_.7fr_1fr] lg:gap-12">
+        <div className="mx-auto w-full max-w-7xl px-5 py-7 md:px-8 md:py-10">
+          <div className="grid grid-cols-2 gap-x-7 gap-y-7 text-left lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-12">
             <div className="col-span-2 min-w-0 lg:col-span-1">
               <Brand />
               <p className="mt-3 max-w-[430px] text-xs leading-5 text-white/50 sm:text-sm">
-                Crie páginas, organize seus projetos e concentre sua operação digital em um único espaço.
+                Crie, publique e organize sua operação digital em um único espaço.
               </p>
-              <div className="mt-5">
-                <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/45">Formas de pagamento</p>
+              <div className="mt-4 border-t border-white/[.08] pt-4">
+                <p className="text-[9px] font-bold uppercase tracking-[.17em] text-white/40">Pagamento seguro</p>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5" aria-label="Formas de pagamento aceitas">
                   {PAYMENT_BRANDS.map((brand) => <PaymentBrand key={brand} brand={brand} />)}
                 </div>
-                <p className="mt-2 text-[10px] leading-4 text-white/30">Pagamento seguro processado pela Kiwify.</p>
+                <p className="mt-2 text-[10px] leading-4 text-white/30">Checkout processado pela Kiwify.</p>
               </div>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#50dca9]">Navegação</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#50dca9]">Navegação</p>
               <nav className="mt-3 flex flex-col items-start gap-2.5 text-xs text-white/60 sm:text-sm" aria-label="Rodapé">
                 <a href="#plataforma" className="transition hover:text-white">Plataforma</a>
+                <a href="#criacao" className="transition hover:text-white">Criação</a>
                 <a href="#planos" className="transition hover:text-white">Planos</a>
-                <a href="#duvidas" className="transition hover:text-white">Dúvidas frequentes</a>
-                <Link href="/app" className="transition hover:text-white">Entrar</Link>
+                <a href="#duvidas" className="transition hover:text-white">Dúvidas</a>
+                <Link href="/app" className="font-semibold text-white/80 transition hover:text-white">Entrar</Link>
               </nav>
             </div>
 
             <div className="min-w-0">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#50dca9]">Empresa</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#50dca9]">Empresa</p>
               <div className="mt-3 grid gap-3 text-left text-[11px] leading-4 text-white/45 sm:text-xs">
                 <div>
                   <p className="font-semibold text-white/75">Localização</p>
-                  <p className="mt-1">Rua Dr. Amâncio de Carvalho<br />São Bernardo do Campo — SP</p>
+                  <p className="mt-1">São Bernardo do Campo — SP</p>
                 </div>
                 <div>
                   <p className="font-semibold text-white/75">CNPJ</p>
@@ -493,7 +472,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-semibold text-white/75">Suporte</p>
-                  <div className="mt-1 flex flex-col items-start gap-0.5">
+                  <div className="mt-1 flex flex-col items-start gap-1">
                     <a href="https://wa.me/5521987627887" target="_blank" rel="noopener noreferrer" className="transition hover:text-[#50dca9]">WhatsApp</a>
                     <a href="mailto:suporte@pagenovaai.com.br" className="break-all transition hover:text-[#50dca9]">suporte@pagenovaai.com.br</a>
                   </div>
@@ -502,12 +481,11 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-7 border-t border-white/10 pt-4 text-center text-[10px] leading-4 text-white/35 sm:flex sm:items-center sm:justify-between sm:text-left">
+          <div className="mt-6 flex flex-col gap-1 border-t border-white/10 pt-4 text-center text-[10px] leading-4 text-white/35 sm:flex-row sm:items-center sm:justify-between sm:text-left">
             <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
-            <p className="mt-1 text-white/25 sm:mt-0">Landing Page Studio</p>
+            <p className="text-white/25">Landing Page Studio</p>
           </div>
         </div>
-      </footer>
-    </main>
+      </footer>   </main>
   );
 }
