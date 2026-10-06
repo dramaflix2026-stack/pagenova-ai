@@ -152,8 +152,24 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     };
   }, [assetsQuery.data]);
 
-  const html = useMemo(() => (config ? renderSite(config, previewCtx) : ''), [config, previewCtx]);
-  const lintReport = useMemo(() => (config ? lintSite(config) : null), [config]);
+  const previewResult = useMemo(() => {
+    if (!config) return { html: '', error: null as string | null };
+    try {
+      return { html: renderSite(config, previewCtx), error: null as string | null };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { html: '', error: message || 'Erro desconhecido ao renderizar o site.' };
+    }
+  }, [config, previewCtx]);
+
+  const lintReport = useMemo(() => {
+    if (!config) return null;
+    try {
+      return lintSite(config);
+    } catch {
+      return null;
+    }
+  }, [config]);
 
   const selectedSection = config?.sections.find((s) => s.id === selectedId) ?? null;
   const anchors = config?.sections.map((s) => s.anchor).filter((a): a is string => Boolean(a)) ?? [];
@@ -286,14 +302,24 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
 
         <div className={(isMobileEditor ? (mobilePanel === 'preview' ? 'flex' : 'hidden') : 'flex') + ' min-h-0 min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-0 md:p-4'}>
-          <iframe
-            title="Previa do site"
-            srcDoc={html}
-            className={
-              'h-full rounded-md border border-border bg-white shadow-sm transition-all ' +
-              (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-5xl')
-            }
-          />
+          {previewResult.error ? (
+            <div className="m-3 w-full max-w-2xl rounded-lg border border-danger/30 bg-surface p-4 text-left shadow-sm">
+              <p className="text-sm font-semibold text-danger">Erro ao montar a previa do site</p>
+              <p className="mt-2 break-words text-xs text-muted-foreground">{previewResult.error}</p>
+              <p className="mt-3 text-xs text-muted-foreground">
+                O projeto continua salvo. Este erro esta somente no renderer da previa.
+              </p>
+            </div>
+          ) : (
+            <iframe
+              title="Previa do site"
+              srcDoc={previewResult.html}
+              className={
+                'h-full rounded-md border border-border bg-white shadow-sm transition-all ' +
+                (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-5xl')
+              }
+            />
+          )}
         </div>
 
         <div className={(isMobileEditor ? (mobilePanel === 'edit' ? 'block' : 'hidden') : 'block') + ' w-full min-w-0 shrink-0 overflow-hidden border-l border-border md:w-80'}>
