@@ -152,50 +152,52 @@ export async function provisionPageNovaIdentity(
       throw new Error('Nao foi possivel provisionar o usuario PageNova.');
     }
 
+    // O assinante PageNova sempre entra no workspace proprio, identificado
+    // pelo mesmo externalUserId do Supabase. Participar da equipe de outro
+    // workspace nao pode redirecionar o assinante para dados de terceiros.
+    let [workspace] = await tx
+      .select()
+      .from(workspaces)
+      .where(eq(workspaces.externalOwnerId, identity.externalUserId))
+      .limit(1);
+
+    if (!workspace) {
+      const workspaceId = newId();
+      const now = new Date();
+
+      await tx.insert(workspaces).values({
+        id: workspaceId,
+        externalOwnerId: identity.externalUserId,
+        name: `${identity.name || identity.email} - PageNova`,
+        status: 'ACTIVE',
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      [workspace] = await tx
+        .select()
+        .from(workspaces)
+        .where(eq(workspaces.id, workspaceId))
+        .limit(1);
+    }
+
+    if (!workspace) {
+      throw new Error('Nao foi possivel provisionar o workspace PageNova.');
+    }
+
     let [membership] = await tx
       .select()
       .from(workspaceMembers)
       .where(
         and(
+          eq(workspaceMembers.workspaceId, workspace.id),
           eq(workspaceMembers.userId, user.id),
-          eq(workspaceMembers.status, 'ACTIVE'),
         ),
       )
       .limit(1);
 
     if (!membership) {
-      let [workspace] = await tx
-        .select()
-        .from(workspaces)
-        .where(eq(workspaces.externalOwnerId, identity.externalUserId))
-        .limit(1);
-
-      if (!workspace) {
-        const workspaceId = newId();
-        const now = new Date();
-
-        await tx.insert(workspaces).values({
-          id: workspaceId,
-          externalOwnerId: identity.externalUserId,
-          name: `${identity.name || identity.email} - PageNova`,
-          status: 'ACTIVE',
-          createdAt: now,
-          updatedAt: now,
-        });
-
-        [workspace] = await tx
-          .select()
-          .from(workspaces)
-          .where(eq(workspaces.id, workspaceId))
-          .limit(1);
-      }
-
-      if (!workspace) {
-        throw new Error('Nao foi possivel provisionar o workspace PageNova.');
-      }
-
       const now = new Date();
-
       await tx.insert(workspaceMembers).values({
         workspaceId: workspace.id,
         userId: user.id,
@@ -215,6 +217,17 @@ export async function provisionPageNovaIdentity(
           ),
         )
         .limit(1);
+    } else if (membership.status !== 'ACTIVE' || membership.role !== 'OWNER') {
+      await tx
+        .update(workspaceMembers)
+        .set({ role: 'OWNER', status: 'ACTIVE', updatedAt: new Date() })
+        .where(
+          and(
+            eq(workspaceMembers.workspaceId, workspace.id),
+            eq(workspaceMembers.userId, user.id),
+          ),
+        );
+      membership = { ...membership, role: 'OWNER', status: 'ACTIVE', updatedAt: new Date() };
     }
 
     if (!membership) {
