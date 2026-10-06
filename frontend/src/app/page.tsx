@@ -55,7 +55,7 @@ const questions = [
   {
     question: "Os dados do CRM e da agenda ficam salvos onde?",
     answer:
-      "Nesta versão, CRM e agenda guardam os dados no navegador em que você trabalha. Use o mesmo navegador e dispositivo para continuar esses projetos.",
+      "Os dados do CRM e da agenda ficam vinculados à sua conta e ao seu espaço de trabalho na PageNova.",
   },
   {
     question: "Como funcionam os planos?",
@@ -75,7 +75,7 @@ const questions = [
   {
     question: "Posso continuar meus projetos depois?",
     answer:
-      "Sim. A área Minhas páginas permite retornar aos projetos salvos. Recursos que atualmente armazenam dados no navegador, como CRM e agenda, devem ser acessados no mesmo navegador e dispositivo para manter esses dados disponíveis.",
+      "Sim. Seus projetos ficam disponíveis na sua conta para você retornar e continuar o trabalho.",
   },
   {
     question: "A PageNova serve apenas para landing pages?",
@@ -236,18 +236,18 @@ export default function Home() {
       <section id="plataforma" className="relative overflow-hidden border-b border-white/[.07]">
         <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#0b7b55]/20 blur-[130px]" />
         <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#00aa78]/10 blur-[110px]" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-5 pb-20 pt-20 md:px-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 lg:pb-28 lg:pt-28">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-9 px-5 pb-14 pt-14 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 lg:pb-24 lg:pt-24">
           <div>
             <SectionLabel>Seu espaço para criar e evoluir</SectionLabel>
-            <h1 className="mt-6 max-w-xl text-[clamp(2.8rem,5.2vw,5rem)] font-semibold leading-[1.04] tracking-[-.065em]">
+            <h1 className="mt-5 max-w-xl text-[clamp(2.45rem,5.2vw,5rem)] font-semibold leading-[1.04] tracking-[-.055em]">
               Sua ideia ganha forma.{" "}
               <span className="text-[#68e6b6]">Seu trabalho ganha ritmo.</span>
             </h1>
-            <p className="mt-7 max-w-lg text-base leading-8 text-white/58">
+            <p className="mt-5 max-w-lg text-[15px] leading-7 text-white/58 sm:text-base sm:leading-8">
               Crie páginas e sites, edite o resultado e organize leads e agendamentos
               em um mesmo espaço de trabalho.
             </p>
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3">
               <a href="#criacao" className="rounded-xl bg-[#36d9a1] px-6 py-3.5 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
                 Explorar a plataforma →
               </a>
@@ -263,14 +263,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="criacao" className="scroll-mt-20 bg-[#f3f5f0] py-20 text-[#14251d] md:py-28">
+      <section id="criacao" className="scroll-mt-20 bg-[#f3f5f0] py-14 text-[#14251d] md:py-24">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <div className="grid gap-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-16">
+          <div className="grid gap-5 lg:grid-cols-[.85fr_1.15fr] lg:gap-16">
             <div>
               <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
                 01 / Criação
               </span>
-              <h2 className="mt-5 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-.05em] md:text-5xl">
+              <h2 className="mt-4 max-w-lg text-[2.15rem] font-semibold leading-[1.1] tracking-[-.045em] md:text-5xl">
                 Comece pela página que seu negócio precisa.
               </h2>
             </div>
@@ -280,28 +280,28 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-12 grid overflow-hidden rounded-[24px] border border-[#d7e1d7] bg-white lg:grid-cols-3">
+          <div className="mt-8 grid overflow-hidden rounded-[22px] border border-[#d7e1d7] bg-white lg:mt-12 lg:grid-cols-3">
             {[
               ["Sites por nicho", "Comece com um briefing voltado ao seu segmento. Imobiliária e SaaS já têm experiências próprias.", "Briefing → páginas → prévia"],
               ["Landing pages", "Gere uma página de oferta a partir das informações do produto ou serviço e refine o conteúdo.", "Oferta → estrutura → edição"],
               ["Clonar e editar", "Use uma URL como ponto de partida para um projeto editável e ajuste textos, imagens e links.", "URL → projeto → editor"],
             ].map(([title, description, path], index) => (
-              <article key={title} className={`p-7 md:p-9 ${index < 2 ? "border-b border-[#e4e9e2] lg:border-b-0 lg:border-r" : ""}`}>
+              <article key={title} className={`p-6 md:p-9 ${index < 2 ? "border-b border-[#e4e9e2] lg:border-b-0 lg:border-r" : ""}`}>
                 <span className="text-xs font-bold text-[#178759]">0{index + 1}</span>
-                <h3 className="mt-10 text-2xl font-semibold tracking-[-.035em]">{title}</h3>
-                <p className="mt-4 min-h-24 text-sm leading-7 text-[#607064]">{description}</p>
-                <p className="mt-7 border-t border-[#e9eee8] pt-5 text-xs font-semibold text-[#187552]">{path}</p>
+                <h3 className="mt-5 text-xl font-semibold tracking-[-.035em] md:mt-10 md:text-2xl">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-[#607064] md:min-h-24 md:leading-7">{description}</p>
+                <p className="mt-5 border-t border-[#e9eee8] pt-4 text-xs font-semibold text-[#187552]">{path}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="scroll-mt-20 border-y border-white/[.07] bg-[#0a1b14] py-20 md:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 md:px-8 lg:grid-cols-2 lg:gap-20">
+      <section className="scroll-mt-20 border-y border-white/[.07] bg-[#0a1b14] py-14 md:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 md:px-8 lg:grid-cols-2 lg:gap-20">
           <div>
             <SectionLabel>O processo aparece na tela</SectionLabel>
-            <h2 className="mt-5 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-.05em] md:text-5xl">
+            <h2 className="mt-4 max-w-lg text-[2.15rem] font-semibold leading-[1.1] tracking-[-.045em] md:text-5xl">
               Você acompanha a construção.
             </h2>
             <p className="mt-6 max-w-lg text-base leading-8 text-white/55">
@@ -331,13 +331,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="operacao" className="scroll-mt-20 bg-[#f3f5f0] py-20 text-[#14251d] md:py-28">
-        <div className="mx-auto grid max-w-7xl gap-12 px-5 md:px-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
+      <section id="operacao" className="scroll-mt-20 bg-[#f3f5f0] py-14 text-[#14251d] md:py-24">
+        <div className="mx-auto grid max-w-7xl gap-8 px-5 md:px-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
               02 / Operação
             </span>
-            <h2 className="mt-5 max-w-lg text-4xl font-semibold leading-[1.12] tracking-[-.05em] md:text-5xl">
+            <h2 className="mt-4 max-w-lg text-[2.15rem] font-semibold leading-[1.1] tracking-[-.045em] md:text-5xl">
               Depois de publicar a ideia, organize o trabalho.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#586a5e]">
@@ -363,12 +363,12 @@ export default function Home() {
           </div>
         </div>
         <p className="mx-auto mt-8 max-w-7xl px-5 text-xs leading-6 text-[#748277] md:px-8">
-          Nesta versão, CRM e agenda armazenam os dados no navegador utilizado.
+          CRM, leads e agenda ficam vinculados à sua conta e ao seu espaço de trabalho.
         </p>
       </section>
 
       <PageNovaVideoShowcase />
-      <section id="planos" className="scroll-mt-20 border-t border-white/[.07] bg-[#081710] py-20 md:py-28">
+      <section id="planos" className="scroll-mt-20 border-t border-white/[.07] bg-[#081710] py-14 md:py-24">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
@@ -382,26 +382,26 @@ export default function Home() {
               custo mensal equivalente.
             </p>
           </div>
-          <div className="mt-10 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-7 grid grid-cols-2 gap-2.5 md:mt-10 md:grid-cols-2 md:gap-3 xl:grid-cols-4">
             {plans.map((plan) => (
               <article
                 key={plan.name}
-                className={`flex flex-col rounded-[18px] border p-5 ${
+                className={`flex flex-col rounded-[16px] border p-4 sm:p-5 ${
                   plan.featured
                     ? "border-[#50dca9]/60 bg-[#123729]"
                     : "border-white/10 bg-[#0d2117]"
                 }`}
               >
                 <div className="flex min-h-7 items-center justify-between gap-2">
-                  <h3 className="text-sm font-semibold text-white/85">{plan.name}</h3>
+                  <h3 className="text-xs font-semibold text-white/85 sm:text-sm">{plan.name}</h3>
                   {plan.featured && (
                     <span className="rounded-full bg-[#40dfa5] px-2.5 py-1 text-[10px] font-bold text-[#082219]">
                       Destaque
                     </span>
                   )}
                 </div>
-                <div className="mt-5 flex flex-wrap items-baseline gap-1.5">
-                  <strong className="text-[32px] font-semibold tracking-[-.05em]">{plan.price}</strong>
+                <div className="mt-4 flex flex-wrap items-baseline gap-1 sm:mt-5 sm:gap-1.5">
+                  <strong className="text-[26px] font-semibold tracking-[-.05em] sm:text-[32px]">{plan.price}</strong>
                   <span className="text-xs text-white/45">{plan.cycle}</span>
                 </div>
                 <p className="mt-2 text-xs text-white/55">{plan.equivalent}</p>
@@ -427,8 +427,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="duvidas" className="scroll-mt-20 bg-[#f3f5f0] py-20 text-[#14251d] md:py-28">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 md:px-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
+      <section id="duvidas" className="scroll-mt-20 bg-[#f3f5f0] py-14 text-[#14251d] md:py-24">
+        <div className="mx-auto grid max-w-7xl gap-7 px-5 md:px-8 lg:grid-cols-[.7fr_1.3fr] lg:gap-20">
           <div>
             <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
               Dúvidas frequentes
@@ -439,7 +439,7 @@ export default function Home() {
           </div>
           <div className="divide-y divide-[#d9e1d8] border-y border-[#d9e1d8]">
             {questions.map(({ question, answer }) => (
-              <details key={question} className="group py-5">
+              <details key={question} className="group py-4 sm:py-5">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-sm font-semibold marker:hidden sm:text-base">
                   {question}
                   <span aria-hidden="true" className="text-xl font-normal text-[#168457] group-open:rotate-45">
