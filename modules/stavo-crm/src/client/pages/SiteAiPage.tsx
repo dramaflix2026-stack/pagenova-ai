@@ -66,7 +66,7 @@ export default function SiteAiPage() {
       <PageBody className="space-y-4">
         {diagnostics.data && diagnostics.data.mode === 'bloqueado' ? (
           <Callout tone="warning" title="Geracao por IA nao configurada">
-            A interface funciona normalmente, mas gerar um site exige configurar ANTHROPIC_API_KEY no
+            A interface funciona normalmente, mas gerar um site exige configurar a OPENAI_API_KEY no
             servidor ou ligar o modo de teste. Veja Configuracoes.
           </Callout>
         ) : null}
