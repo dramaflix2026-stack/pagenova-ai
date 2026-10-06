@@ -17,7 +17,7 @@ import {
 } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
-import { useBoard, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
+import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
@@ -42,6 +42,35 @@ export default function SiteAiPage() {
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
   const selectedLead = useLeadDetail(selectedLeadId);
+  const selectedPlaceId = selectedLead.data?.lead.placeId ?? null;
+  const googleDetails = useGoogleDetails(selectedPlaceId, Boolean(selectedLeadId && selectedLead.data));
+
+  const liveGoogle = (googleDetails.data?.details ?? {}) as Record<string, any>;
+  const liveAddress =
+    liveGoogle.formattedAddress ??
+    liveGoogle.formatted_address ??
+    liveGoogle.address ??
+    null;
+  const livePhone =
+    liveGoogle.internationalPhoneNumber ??
+    liveGoogle.international_phone_number ??
+    liveGoogle.nationalPhoneNumber ??
+    liveGoogle.formatted_phone_number ??
+    null;
+  const liveWebsite =
+    liveGoogle.websiteUri ??
+    liveGoogle.website ??
+    null;
+  const liveCategory =
+    liveGoogle.primaryTypeDisplayName?.text ??
+    liveGoogle.primary_type_display_name?.text ??
+    liveGoogle.primaryType ??
+    liveGoogle.primary_type ??
+    null;
+  const liveCity =
+    liveGoogle.city ??
+    liveGoogle.locality ??
+    null;
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -135,14 +164,17 @@ export default function SiteAiPage() {
         }}
         leadId={selectedLeadId}
         initialBusinessName={selectedLead.data?.lead.internalName ?? ''}
+        initialNiche={selectedLead.data?.lead.prospectingNiche ?? liveCategory ?? ''}
+        initialCity={selectedLead.data?.lead.prospectingCity ?? liveCity ?? ''}
         initialPhone={
           selectedLead.data?.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
           selectedLead.data?.contacts.find((item) => item.type === 'PHONE')?.value ??
+          livePhone ??
           null
         }
-        initialAddress={selectedLead.data?.lead.address ?? null}
+        initialAddress={selectedLead.data?.lead.address ?? liveAddress ?? null}
         initialInstagram={selectedLead.data?.links.find((item) => item.type === 'INSTAGRAM')?.url ?? null}
-        initialWebsite={selectedLead.data?.links.find((item) => item.type === 'WEBSITE')?.url ?? null}
+        initialWebsite={selectedLead.data?.links.find((item) => item.type === 'WEBSITE')?.url ?? liveWebsite ?? null}
         onCreated={(projectId) => {
           setSelectedLeadId(null);
           navigate(`/sites-ia/${projectId}`);
