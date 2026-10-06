@@ -120,7 +120,7 @@ export function AppLayout({ children }: { children?: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
-  const appName = app?.name ?? 'Stavo Digital';
+  const appName = app?.name?.replace(/Stavo Digital/gi, 'PageNova CRM') ?? 'PageNova CRM';
   const currentTitle =
     NAV_ITEMS.find((item) =>
       item.to === '/' ? location.pathname === '/' : location.pathname.startsWith(item.to),
