@@ -214,7 +214,7 @@ export interface VisualReviewResult {
  * 8.7), nao parte do fluxo obrigatorio.
  */
 export interface SiteIntelligenceProvider {
-  readonly name: 'anthropic' | 'mock';
+  readonly name: 'anthropic' | 'openai' | 'mock';
   generateSitePlan(input: GenerateSitePlanInput): Promise<SitePlanResult>;
   patchSection(input: PatchSectionInput): Promise<SectionPatchResult>;
   reviseCopy(input: ReviseCopyInput): Promise<CopyPatchResult>;
