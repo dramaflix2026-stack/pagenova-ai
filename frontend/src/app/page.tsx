@@ -450,8 +450,24 @@ export default function Home() {
               <span className="inline-flex rounded-full border border-[#e4c86d] bg-[#fff9e7] px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#80621b]">Garantia de satisfação</span>
               <h2 className="mx-auto mt-5 max-w-2xl text-[1.8rem] font-semibold leading-[1.12] tracking-[-.04em] sm:text-4xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
               <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#647369] sm:text-base">Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.</p>
-              <div className="mx-auto mt-6 grid max-w-2xl grid-cols-2 gap-2 text-left sm:grid-cols-4">
-                {["Checkout Kiwify","7 dias de garantia","Dados protegidos","Suporte PageNova"].map((item) => <div key={item} className="rounded-xl border border-[#e7e4d8] bg-[#faf9f3] px-3 py-3 text-xs font-semibold text-[#405047]"><span className="mr-1.5 text-[#168457]">✓</span>{item}</div>)}
+              <div className="mx-auto mt-7 grid max-w-2xl grid-cols-2 gap-3 text-left">
+                {[
+                  { icon: "◆", title: "Pagamento seguro", text: "Checkout Kiwify" },
+                  { icon: "7", title: "7 dias protegidos", text: "Garantia de satisfação" },
+                  { icon: "✓", title: "Dados protegidos", text: "Compra com segurança" },
+                  { icon: "●", title: "Suporte PageNova", text: "Conte com nosso time" },
+                ].map((item) => (
+                  <div key={item.title} className="group relative overflow-hidden rounded-[18px] border border-[#e7dfc5] bg-[linear-gradient(145deg,#fffdf8_0%,#f7f8f2_100%)] p-3.5 shadow-[0_8px_24px_rgba(20,37,29,.055)] transition duration-300 hover:-translate-y-0.5 hover:border-[#d7bd69] hover:shadow-[0_12px_30px_rgba(20,37,29,.09)] sm:p-4">
+                    <div className="pointer-events-none absolute -right-5 -top-5 h-16 w-16 rounded-full bg-[#e8c85c]/10 blur-xl" />
+                    <div className="relative flex items-start gap-2.5">
+                      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#d9c477]/45 bg-[linear-gradient(145deg,#fff9df,#f0f5e9)] text-[13px] font-black text-[#177451] shadow-[inset_0_1px_0_rgba(255,255,255,.9)]">{item.icon}</span>
+                      <div className="min-w-0 pt-0.5">
+                        <p className="text-[12px] font-bold leading-4 text-[#24382e] sm:text-[13px]">{item.title}</p>
+                        <p className="mt-1 text-[10px] leading-4 text-[#718078] sm:text-[11px]">{item.text}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
               <a href="#planos" className="mt-7 inline-flex w-full max-w-sm items-center justify-center rounded-2xl bg-[#0d3527] px-6 py-4 text-sm font-bold text-white shadow-[0_12px_28px_rgba(13,53,39,.18)] transition hover:bg-[#164c39]">Ver planos agora <span className="ml-2">→</span></a>
             </div>
