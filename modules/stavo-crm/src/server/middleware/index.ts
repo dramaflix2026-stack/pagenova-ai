@@ -182,6 +182,11 @@ export const ensureCsrfCookie: RequestHandler = (req, res, next) => {
 export const csrfProtection: RequestHandler = (req, _res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
 
+  // Requisicoes PageNova chegam por um proxy same-origin autenticado e
+  // possuem identidade HMAC validada antes deste middleware. O proxy faz a
+  // verificacao de Origin; nao existe cookie Stavo para double-submit aqui.
+  if (req.session?.sessionId.startsWith('pagenova:')) return next();
+
   const cookies = (req.cookies ?? {}) as Record<string, string>;
   const cookieToken = cookies[CSRF_COOKIE];
   const headerToken = req.get(CSRF_HEADER);
