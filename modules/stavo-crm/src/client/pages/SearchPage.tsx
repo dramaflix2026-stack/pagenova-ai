@@ -22,6 +22,7 @@ import {
   Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { ATTRIBUTION_TEXT, WEBSITE_FILTER_LABELS, WEBSITE_FILTERS } from '@shared/constants';
 import { formatNumber, formatPhone } from '@shared/format';
@@ -101,6 +102,7 @@ const EMPTY = '__nenhum__';
 
 export default function SearchPage() {
   const toast = useToast();
+  const navigate = useNavigate();
   const services = useServices();
 
   const [form, setForm] = useState({
@@ -498,7 +500,7 @@ export default function SearchPage() {
         initialWebsite={siteTarget?.website.url ?? null}
         onCreated={(projectId) => {
           setSiteTarget(null);
-          window.location.hash = `#/sites-ia/${projectId}`;
+          navigate(`/sites-ia/${projectId}`);
         }}
       />
 
