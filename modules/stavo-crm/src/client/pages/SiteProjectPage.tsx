@@ -95,6 +95,17 @@ export default function SiteProjectPage() {
           </Callout>
         ) : null}
 
+        {project.status === 'FAILED' ? (
+          <Callout tone="neutral" title="A ultima geracao falhou">
+            <div className="flex items-center justify-between gap-3">
+              <span>O lead e o briefing continuam salvos. Inicie uma nova geracao com os dados deste projeto.</span>
+              <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+                {generate.isPending ? 'Enviando...' : 'Gerar novamente'}
+              </Button>
+            </div>
+          </Callout>
+        ) : null}
+
         {(busy || project.status === 'FAILED') && latestJob ? (
           <SiteProgressView projectId={project.id} jobId={latestJob.id} />
         ) : null}
