@@ -272,6 +272,7 @@ export interface LivePlaceDetails {
   whatsappUrl: string | null;
   attribution: string;
   fetchedAt: string;
+  photos: Array<{ name: string; widthPx: number | null; heightPx: number | null; attribution: string | null }>;
 }
 
 /**
@@ -303,5 +304,11 @@ export async function fetchLiveDetails(
     whatsappUrl: mapped.actions.whatsappUrl,
     attribution: ATTRIBUTION_TEXT,
     fetchedAt: new Date().toISOString(),
+    photos: (place.photos ?? []).filter((photo) => Boolean(photo.name)).slice(0, 8).map((photo) => ({
+      name: photo.name!,
+      widthPx: photo.widthPx ?? null,
+      heightPx: photo.heightPx ?? null,
+      attribution: photo.authorAttributions?.map((item) => item.displayName).filter(Boolean).join(', ') || null,
+    })),
   };
 }
