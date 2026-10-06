@@ -157,6 +157,35 @@ function resolveVariant(
   return fallback?.id ?? requested;
 }
 
+const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
+  'hero',
+  'about',
+  'services',
+  'benefits',
+  'gallery',
+  'process',
+  'testimonials',
+  'contactMap',
+  'cta',
+  'footer',
+];
+
+/**
+ * PageNova V1 usa uma espinha dorsal unica em todos os nichos.
+ * A IA escreve/adapta o conteudo, mas nao decide mais a arquitetura.
+ * Isso evita paginas dominadas por WhatsApp e mantem previsibilidade mobile.
+ */
+function standardizeInitialSections(sections: PlanSection[]): PlanSection[] {
+  const firstByType = new Map<PlanSection['type'], PlanSection>();
+  for (const section of sections) {
+    if (!STANDARD_SECTION_ORDER.includes(section.type)) continue;
+    if (!firstByType.has(section.type)) firstByType.set(section.type, section);
+  }
+  return STANDARD_SECTION_ORDER
+    .map((type) => firstByType.get(type))
+    .filter((section): section is PlanSection => Boolean(section));
+}
+
 export function assemblePlan(input: AssembleInput): AssembleResult {
   const { plan, business, siteType, creativeSeed, promptVersion } = input;
   const droppedSections: Array<{ type: string; reason: string }> = [];
@@ -167,7 +196,9 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
   const built: SiteSection[] = [];
   const counters = new Map<string, number>();
 
-  for (const [index, planSection] of plan.sections.entries()) {
+  const standardizedSections = standardizeInitialSections(plan.sections);
+
+  for (const [index, planSection] of standardizedSections.entries()) {
     const ordinal = (counters.get(planSection.type) ?? 0) + 1;
     counters.set(planSection.type, ordinal);
     const id = sectionId(planSection.type, ordinal);
@@ -598,8 +629,10 @@ function buildNavigation(sections: SiteSection[], plan: SitePlanOutput, business
   const whatsapp = confirmedWhatsapp(business);
 
   return {
-    showMenu: plan.navigation.showMenu,
-    headerVariant: plan.navigation.headerVariant,
+    // Cabecalho padrao PageNova: marca textual (ou logo quando houver),
+    // menu responsivo/hamburguer e CTA discreto.
+    showMenu: true,
+    headerVariant: 'inline-right' as const,
     items,
     logo: null,
     wordmark: plan.navigation.wordmark ? sanitizeLine(plan.navigation.wordmark, 60) : business.name,
