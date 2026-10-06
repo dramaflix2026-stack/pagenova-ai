@@ -9,7 +9,7 @@ import { CheckCircle2, CircleDashed, Loader2 } from 'lucide-react';
 
 import { SITE_JOB_STAGES, SITE_JOB_STAGE_LABELS, stageProgress, type SiteJobStage } from '@site-kit/types/site-ai';
 import { formatDateTime } from '@shared/format';
-import { useCancelSiteJob, useRetrySiteJob, useSiteJobProgress, type SiteJobSummary } from '../../hooks/useSiteAi';
+import { useCancelSiteJob, useGenerateSite, useRetrySiteJob, useSiteJobProgress, type SiteJobSummary } from '../../hooks/useSiteAi';
 import { Button, Callout } from '../ui';
 
 interface SiteProgressViewProps {
@@ -22,6 +22,7 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
   const { job, events, connected } = useSiteJobProgress(jobId);
   const cancel = useCancelSiteJob(projectId);
   const retry = useRetrySiteJob(projectId);
+  const generate = useGenerateSite(projectId);
 
   const completedStages = new Set(
     events.filter((e) => e.stage && (e.eventType === 'STAGE_STARTED' || e.eventType === 'COMPLETED')).map((e) => e.stage),
@@ -69,9 +70,14 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
               Tentar novamente
             </Button>
           ) : (
-            <p className="mt-2 text-xs text-muted-foreground">
-              Este job esgotou as tentativas. Crie uma nova geracao a partir do projeto.
-            </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <p className="text-xs text-muted-foreground">
+                Este job esgotou as tentativas. Inicie uma nova geracao com o briefing salvo.
+              </p>
+              <Button size="sm" onClick={() => generate.mutate()} disabled={generate.isPending}>
+                {generate.isPending ? 'Enviando...' : 'Gerar novamente'}
+              </Button>
+            </div>
           )}
         </Callout>
       ) : null}
