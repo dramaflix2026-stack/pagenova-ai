@@ -454,29 +454,25 @@ export default function Home() {
       </section>
 
       <footer className="pn-landing-footer border-t border-white/10 bg-[#0b1511] text-white">
-        <div className="mx-auto w-full max-w-7xl px-5 py-12 md:px-8 lg:py-16">
-          <div className="grid gap-9 text-left md:grid-cols-2 lg:grid-cols-[1.25fr_.65fr_1fr] lg:gap-14">
-            <div className="min-w-0">
+        <div className="mx-auto w-full max-w-7xl px-5 py-8 md:px-8 lg:py-12">
+          <div className="grid grid-cols-2 gap-x-5 gap-y-8 text-left lg:grid-cols-[1.2fr_.7fr_1fr] lg:gap-12">
+            <div className="col-span-2 min-w-0 lg:col-span-1">
               <Brand />
-              <p className="mt-5 max-w-[390px] text-sm leading-7 text-white/50">
+              <p className="mt-3 max-w-[430px] text-xs leading-5 text-white/50 sm:text-sm">
                 Crie páginas, organize seus projetos e concentre sua operação digital em um único espaço.
               </p>
-              <div className="mt-7">
-                <p className="text-[11px] font-bold uppercase tracking-[.16em] text-white/45">
-                  Formas de pagamento
-                </p>
-                <div className="mt-3 flex flex-wrap items-center gap-2" aria-label="Formas de pagamento aceitas">
+              <div className="mt-5">
+                <p className="text-[10px] font-bold uppercase tracking-[.16em] text-white/45">Formas de pagamento</p>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5" aria-label="Formas de pagamento aceitas">
                   {PAYMENT_BRANDS.map((brand) => <PaymentBrand key={brand} brand={brand} />)}
                 </div>
-                <p className="mt-3 text-[11px] leading-5 text-white/30">
-                  Pagamento processado com segurança pela Kiwify.
-                </p>
+                <p className="mt-2 text-[10px] leading-4 text-white/30">Pagamento seguro processado pela Kiwify.</p>
               </div>
             </div>
 
             <div className="min-w-0">
-              <p className="text-left text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Navegação</p>
-              <nav className="mt-5 flex flex-col items-start gap-3.5 text-sm text-white/60" aria-label="Rodapé">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#50dca9]">Navegação</p>
+              <nav className="mt-3 flex flex-col items-start gap-2.5 text-xs text-white/60 sm:text-sm" aria-label="Rodapé">
                 <a href="#plataforma" className="transition hover:text-white">Plataforma</a>
                 <a href="#planos" className="transition hover:text-white">Planos</a>
                 <a href="#duvidas" className="transition hover:text-white">Dúvidas frequentes</a>
@@ -485,51 +481,30 @@ export default function Home() {
             </div>
 
             <div className="min-w-0">
-              <p className="text-left text-xs font-bold uppercase tracking-[.18em] text-[#50dca9]">Empresa</p>
-              <div className="mt-5 grid gap-4 text-left">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#50dca9]">Empresa</p>
+              <div className="mt-3 grid gap-3 text-left text-[11px] leading-4 text-white/45 sm:text-xs">
                 <div>
-                  <p className="text-sm font-semibold text-white/75">Localização</p>
-                  <p className="mt-1 max-w-[310px] text-xs leading-5 text-white/45">
-                    Rua Dr. Amâncio de Carvalho<br />
-                    São Bernardo do Campo — SP
-                  </p>
+                  <p className="font-semibold text-white/75">Localização</p>
+                  <p className="mt-1">Rua Dr. Amâncio de Carvalho<br />São Bernardo do Campo — SP</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white/75">CNPJ</p>
-                  <p className="mt-1 text-xs leading-5 text-white/45">65.879.205/0001-34</p>
+                  <p className="font-semibold text-white/75">CNPJ</p>
+                  <p className="mt-1">65.879.205/0001-34</p>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white/75">Suporte</p>
-                  <div className="mt-1 flex flex-col items-start gap-1 text-xs leading-5 text-white/45">
-                    <a
-                      href="https://wa.me/5521987627887"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="transition hover:text-[#50dca9]"
-                    >
-                      WhatsApp: +55 21 98762-7887
-                    </a>
-                    <a
-                      href="mailto:suporte@pagenovaai.com.br"
-                      className="break-all transition hover:text-[#50dca9]"
-                    >
-                      suporte@pagenovaai.com.br
-                    </a>
+                  <p className="font-semibold text-white/75">Suporte</p>
+                  <div className="mt-1 flex flex-col items-start gap-0.5">
+                    <a href="https://wa.me/5521987627887" target="_blank" rel="noopener noreferrer" className="transition hover:text-[#50dca9]">WhatsApp</a>
+                    <a href="mailto:suporte@pagenovaai.com.br" className="break-all transition hover:text-[#50dca9]">suporte@pagenovaai.com.br</a>
                   </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white/75">Checkout</p>
-                  <p className="mt-1 text-xs leading-5 text-white/45">Compra processada pela Kiwify.</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-10 border-t border-white/10 pt-6 sm:mt-12">
-            <div className="flex flex-col gap-2 text-[11px] leading-5 text-white/35 sm:flex-row sm:items-center sm:justify-between">
-              <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
-              <p className="text-white/25">Landing Page Studio</p>
-            </div>
+          <div className="mt-7 border-t border-white/10 pt-4 text-center text-[10px] leading-4 text-white/35 sm:flex sm:items-center sm:justify-between sm:text-left">
+            <p>© 2026 PageNova AI. Todos os direitos reservados.</p>
+            <p className="mt-1 text-white/25 sm:mt-0">Landing Page Studio</p>
           </div>
         </div>
       </footer>
