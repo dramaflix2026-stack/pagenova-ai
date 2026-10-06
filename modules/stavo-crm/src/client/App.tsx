@@ -27,6 +27,7 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage'));
 const TeamPage = lazy(() => import('./pages/TeamPage'));
 const MeetingsPage = lazy(() => import('./pages/MeetingsPage'));
 const SiteAiPage = lazy(() => import('./pages/SiteAiPage'));
+const SiteProjectPage = lazy(() => import('./pages/SiteProjectPage'));
 function RequireAuth({ children }: { children: ReactNode }) {
   /*
    * PageNova embedded mode:
@@ -57,6 +58,7 @@ function AppRoutes() {
           <Route path="crm" element={<CrmPage />} />
           <Route path="reunioes" element={<MeetingsPage />} />
           <Route path="sites-ia" element={<SiteAiPage />} />
+          <Route path="sites-ia/:projectId" element={<SiteProjectPage />} />
           <Route path="importar" element={<ImportPage />} />
           <Route path="servicos" element={<ServicesPage />} />
           <Route path="financeiro" element={<FinancePage />} />
