@@ -184,7 +184,10 @@
   function select(el) {
     makeUi();
     if (!el) return;
-    if (selected && selected !== el && selected.isContentEditable) selected.contentEditable = "false";
+    if (selected && selected !== el && selected.isContentEditable) {
+      save();
+      selected.contentEditable = "false";
+    }
     document.querySelectorAll("[data-pn-selected=true]").forEach(function(x) { x.removeAttribute("data-pn-selected"); });
     selected = el;
     selected.dataset.pnSelected = "true";
@@ -317,7 +320,25 @@
   }, true);
 
   document.addEventListener("input", function(e) {
-    if (selected && e.target === selected && selected.isContentEditable) { syncUi(); save(); }
+    // Keep the editing session entirely inside the iframe while the user types.
+    // Persisting on every keystroke makes React rebuild srcDoc and destroys
+    // contentEditable/focus, which feels like the editor is kicking the user out.
+    if (selected && e.target === selected && selected.isContentEditable) syncUi();
+  }, true);
+
+  document.addEventListener("keydown", function(e) {
+    if (!selected || e.target !== selected || !selected.isContentEditable) return;
+    if (e.key === "Escape") {
+      e.preventDefault();
+      closeToolbar();
+      selected.blur();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      closeToolbar();
+      selected.blur();
+    }
   }, true);
 
   document.addEventListener("pointerdown", function(e) {
