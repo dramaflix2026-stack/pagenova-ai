@@ -571,22 +571,11 @@ export default function Home() {
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-5 sm:justify-end" aria-label="Selos de confiança">
-            <div className="flex h-[72px] w-[164px] items-center justify-center" title="Norton Secured">
-              <svg viewBox="0 0 250 105" className="h-full w-full" role="img" aria-label="Norton Secured">
-                <circle cx="47" cy="43" r="34" fill="#ffc20e" />
-                <circle cx="47" cy="43" r="24" fill="#fff" />
-                <path d="M31 43l11 12 28-35" fill="none" stroke="#111" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M72 18h126c17 0 29 11 29 25s-12 25-29 25H73" fill="#fff" stroke="#c9c9c9" strokeWidth="2" />
-                <text x="80" y="43" fill="#111" fontSize="27" fontWeight="800" fontFamily="Arial, sans-serif">Norton</text>
-                <text x="82" y="61" fill="#a4a4a4" fontSize="14" fontWeight="600" letterSpacing="2.2" fontFamily="Arial, sans-serif">SECURED</text>
-                <text x="49" y="89" fill="#aaa" fontSize="12" fontFamily="Arial, sans-serif">powered by</text>
-                <text x="111" y="89" fill="#9d003f" fontSize="13" fontWeight="700" fontFamily="Arial, sans-serif">VeriSign</text>
-              </svg>
+            <div className="flex h-[72px] w-[164px] items-center justify-center" title="Norton">
+              <img src="/trust/norton.svg" alt="Norton" className="h-full w-full object-contain" />
             </div>
             <div className="flex h-[72px] w-[92px] items-center justify-center" title="Reclame Aqui">
-              <svg viewBox="0 0 120 100" className="h-full w-full" role="img" aria-label="Reclame Aqui">
-                <path d="M7 8h46c22 0 35 12 35 30 0 13-7 23-20 27l18 27H54L40 68h-8v24H7V8Zm25 21v19h16c9 0 14-3 14-10 0-6-5-9-14-9H32Z" fill="#93c914"/>
-                <path d="M68 8h45v84H87V70H68l8-22h11V30H75L68 8Z" fill="#008e52"/>
-              </svg>
+              <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-full w-full object-contain" />
             </div>
+          </div>
           </div>
