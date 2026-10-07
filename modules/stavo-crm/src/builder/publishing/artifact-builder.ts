@@ -72,11 +72,12 @@ export async function buildSiteArtifactFiles(
 
     const buffer = await assets.read(source.storageKey).catch(() => null);
     if (!buffer) {
-      // Publicacao deve ser total para qualquer SiteSchema valido. Storage de
-      // trabalho e efemero em alguns deploys; uma imagem ausente nao pode
-      // impedir o site inteiro de ir ao ar. O renderer ja suporta resolveAsset
-      // nulo e remove o bloco visual sem criar placeholder quebrado.
-      continue;
+      // Nunca publique silenciosamente um SiteSchema que referencia uma imagem
+      // cujo byte desapareceu do storage de trabalho. Isso produzia "sucesso"
+      // com fotos visiveis no editor e ausentes no link publico. O publisher
+      // reidrata assets Google antes de chegar aqui; se ainda faltar byte,
+      // falhar e mais seguro do que mutilar o site publicado.
+      throw new Error(`Asset referenciado indisponivel no storage: ${assetId} (${source.source}).`);
     }
 
     const relative = `assets/images/${assetId}.webp`;
