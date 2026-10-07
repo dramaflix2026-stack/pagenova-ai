@@ -206,7 +206,7 @@ export async function publishProject(
 
   try {
     // Passo 3: escreve o artefato num caminho exclusivo desta publicacao.
-    const manifest = await writeArtifact(project.id, publicationId, model);
+    const manifest = await writeArtifact(project.id, publicationId, slug, model);
 
     // Passo 4: troca o ponteiro JA -- a rota publica `/p/:slug` (app.ts) so
     // serve uma publicacao com status ACTIVE, entao o smoke test PRECISA
@@ -271,6 +271,7 @@ interface ArtifactManifest {
 async function writeArtifact(
   projectId: string,
   publicationId: string,
+  slug: string,
   model: SiteSchemaModel,
 ): Promise<ArtifactManifest> {
   const root = publicationRoot(projectId, publicationId);
