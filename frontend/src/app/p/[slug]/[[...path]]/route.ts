@@ -7,6 +7,44 @@ export const dynamic = "force-dynamic";
 const BUCKET = "pagenova-published-sites";
 const PAGE_KEYS = new Set(["home", "sobre", "servicos", "contato"]);
 
+function crmUpstream() {
+  return process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\/+$/, "") || "";
+}
+
+async function railwayPublishedSite(slug: string, path: string[] | undefined) {
+  const upstream = crmUpstream();
+  if (!upstream) return null;
+
+  const suffix = [slug, ...(path || [])].map(encodeURIComponent).join("/");
+  const target = new URL(`${upstream}/p/${suffix}`);
+
+  try {
+    const response = await fetch(target, {
+      method: "GET",
+      cache: "no-store",
+      redirect: "manual",
+      headers: { accept: "*/*" },
+    });
+
+    // 404 means this slug is not a Railway publication. Keep the old
+    // Supabase publication path as a compatibility fallback for legacy sites.
+    if (response.status === 404) return null;
+
+    const headers = new Headers();
+    const contentType = response.headers.get("content-type");
+    const cacheControl = response.headers.get("cache-control");
+    const robots = response.headers.get("x-robots-tag");
+    if (contentType) headers.set("content-type", contentType);
+    headers.set("cache-control", cacheControl || "public, max-age=0, must-revalidate");
+    headers.set("x-robots-tag", robots || "noindex, nofollow, noarchive");
+
+    return new NextResponse(response.body, { status: response.status, headers });
+  } catch {
+    // Railway temporarily unavailable: legacy sites must keep working.
+    return null;
+  }
+}
+
 function adminClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
@@ -37,6 +75,14 @@ export async function GET(
     return new NextResponse("Pagina nao encontrada.", { status: 404 });
   }
 
+  // New Sites com IA are published and stored by Railway. Proxy the public
+  // artifact through the PageNova domain so preview and publication use the
+  // exact same renderer/config. This also proxies nested image assets.
+  const railway = await railwayPublishedSite(slug, path);
+  if (railway) return railway;
+
+  // Compatibility only: publications created by the old builder still live
+  // in Supabase and use the historical multi-page keys below.
   const pageKey = path?.[0] || "home";
   if ((path?.length ?? 0) > 1 || !PAGE_KEYS.has(pageKey)) {
     return new NextResponse("Pagina nao encontrada.", { status: 404 });
