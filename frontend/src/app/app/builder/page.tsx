@@ -261,7 +261,31 @@ export default function BuilderPage() {
     }
 
     if (!inferredName) {
-      inferredName = "Novo site";
+      // Briefings naturais frequentemente comecam pelo nome da marca:
+      // "Atelier Noma, escritorio de arquitetura..." ou "Lumiere Estetica - clinica...".
+      // Aproveita esse primeiro segmento quando ele parece nome proprio, sem
+      // transformar instrucoes como "Crie um site..." em nome da empresa.
+      const leadingSegment = normalizedPrompt
+        .split(/[,;:\n]|\s+[—–-]\s+/)[0]
+        ?.trim();
+
+      const looksLikeInstruction =
+        /^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(
+          leadingSegment || "",
+        );
+
+      if (
+        leadingSegment &&
+        leadingSegment.length >= 2 &&
+        leadingSegment.length <= 72 &&
+        !looksLikeInstruction
+      ) {
+        inferredName = cleanBusinessName(leadingSegment);
+      }
+    }
+
+    if (!inferredName) {
+      inferredName = "Sua marca";
     }
 
     const site: SiteProject = {
