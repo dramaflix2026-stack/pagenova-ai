@@ -71,8 +71,15 @@ export const unprocessable = (
 export const tooManyRequests = (message: string, code = 'TOO_MANY_REQUESTS') =>
   new AppError(429, code, message, { retryable: true });
 
-export const serviceUnavailable = (message: string, code = 'SERVICE_UNAVAILABLE') =>
-  new AppError(503, code, message, { retryable: true });
+export const serviceUnavailable = (
+  message: string,
+  code = 'SERVICE_UNAVAILABLE',
+  details?: Record<string, unknown>,
+) =>
+  new AppError(503, code, message, {
+    retryable: true,
+    ...(details ? { details } : {}),
+  });
 
 export const internal = (message = 'Erro inesperado. Tente novamente.', cause?: unknown) =>
   new AppError(500, 'INTERNAL_ERROR', message, { cause, retryable: true });
