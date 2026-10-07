@@ -51,12 +51,14 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
   const photos = details.photos.slice(0, MAX_GOOGLE_ASSETS);
   if (photos.length === 0) return existing.length;
 
-  // Primeiro restaura, no MESMO storageKey, assets Google que o SiteSchema
-  // ja referencia. Isso preserva os assetIds do preview e permite publicar
-  // mesmo depois de um redeploy.
-  for (let index = 0; index < missingExisting.length && index < photos.length; index += 1) {
+  // Primeiro restaura, no MESMO storageKey, todos os assets Google perdidos
+  // pelo filesystem efemero do Railway. O assetId fica estavel no SiteSchema;
+  // apenas os bytes sao reconstruidos. Fazemos ciclo nas fotos disponiveis
+  // para nao deixar um asset referenciado sem byte quando existem menos fotos
+  // atuais do que linhas historicas de asset no projeto.
+  for (let index = 0; index < missingExisting.length; index += 1) {
     const asset = missingExisting[index]!;
-    const photo = photos[index]!;
+    const photo = photos[index % photos.length]!;
     try {
       const response = await placePhotoMedia(photo.name, index === 0 ? 2000 : 1600);
       if (!response.ok) continue;
