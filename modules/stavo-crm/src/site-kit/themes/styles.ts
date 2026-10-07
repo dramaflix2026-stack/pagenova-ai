@@ -714,6 +714,117 @@ transition:opacity .56s ease,transform .56s cubic-bezier(.22,1,.36,1)}
 .js .section:not([data-animate]):not([data-animate-stagger]){opacity:1;transform:none;transition:none}
 }
 
+
+/* ---- PageNova Responsive Composition V5 -------------------------------
+   Desktop ganha composicao editorial real; mobile preserva a leitura aprovada
+   e garante que midia valida nunca seja comprimida ou ocultada pelo grid. */
+@media(min-width:900px){
+  .hero-split{
+    grid-template-columns:minmax(0,.92fr) minmax(420px,1.08fr);
+    gap:clamp(3.5rem,7vw,7rem);
+    align-items:center;
+  }
+  .hero-split>div:first-child:not(.hero-media){
+    max-width:620px;
+  }
+  .hero-split .heading{
+    margin-left:0;margin-right:0;text-align:left;
+  }
+  .hero-split .heading h2,.hero-split .heading .lead{
+    margin-left:0;margin-right:0;
+  }
+  .hero-media,.about-media{
+    position:relative;
+    isolation:isolate;
+  }
+  .hero-media::after,.about-media::after{
+    content:'';
+    position:absolute;
+    inset:8% -5% -7% 9%;
+    z-index:-1;
+    border-radius:calc(var(--radius-lg) + 8px);
+    background:color-mix(in srgb,var(--primary) 9%,transparent);
+    filter:blur(1px);
+  }
+  .hero-media img,.about-media img{
+    width:100%;
+    border-radius:var(--radius-lg);
+    box-shadow:0 28px 80px rgba(0,0,0,.16);
+    transition:transform .55s cubic-bezier(.22,1,.36,1),box-shadow .55s ease;
+  }
+  .hero-media:hover img,.about-media:hover img{
+    transform:translateY(-6px) scale(1.012);
+    box-shadow:0 34px 90px rgba(0,0,0,.20);
+  }
+  .about--lead .hero-split{
+    grid-template-columns:minmax(0,1fr) minmax(390px,.9fr);
+    align-items:center;
+  }
+  .about--lead .hero-split>div:first-child{
+    max-width:640px;
+  }
+  .about--lead .heading{
+    text-align:left;
+    margin-left:0;
+    margin-right:0;
+  }
+  .about--lead .heading h2{
+    margin-left:0;
+    margin-right:0;
+  }
+  .services--cards .grid,.benefits .grid,.step-cards{
+    gap:clamp(1rem,2vw,1.5rem);
+  }
+  .services--cards .card,.benefits .card,.step-cards .card{
+    justify-content:flex-start;
+    padding:clamp(1.65rem,2.4vw,2.25rem);
+  }
+  .section:not(.hero)>.container{
+    padding-left:clamp(1.5rem,3vw,2.5rem);
+    padding-right:clamp(1.5rem,3vw,2.5rem);
+  }
+}
+
+@media(max-width:899px){
+  .hero-media,.about-media,.hero-wide-media,.alt-row__media{
+    width:100%;
+    min-width:0;
+    overflow:visible;
+  }
+  .hero-media img,.about-media img,.hero-wide-media img,.alt-row__media img{
+    display:block!important;
+    visibility:visible!important;
+    width:100%!important;
+    max-width:100%!important;
+    height:auto;
+    opacity:1;
+    object-fit:cover;
+  }
+}
+
+@media(max-width:760px){
+  .hero-split{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .hero-split>div:first-child:not(.hero-media){
+    width:100%;
+  }
+  .hero-media,.about-media{
+    margin-top:.35rem;
+  }
+  .hero-media img,.about-media img{
+    aspect-ratio:16/10;
+    min-height:220px;
+    border-radius:max(var(--radius-lg),18px);
+    box-shadow:0 18px 48px rgba(0,0,0,.12);
+  }
+  .about--lead .hero-split{
+    gap:1.65rem;
+  }
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
