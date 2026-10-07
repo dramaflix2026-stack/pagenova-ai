@@ -66,6 +66,13 @@ h1,h2,h3,h4,h5,h6,p,li,blockquote,.lead,.statement,.brand,.btn{
 overflow-wrap:break-word;word-break:normal;hyphens:none}
 h1,h2,h3,h4,h5,h6{text-wrap:balance}
 p,.lead,.statement,blockquote{text-wrap:pretty}
+/* PageNova typography V6.2: controlled line lengths keep generated copy
+   from producing awkward 1-word lines or oversized mobile headings. */
+.heading h2{max-width:min(18ch,100%)}
+.hero h1{max-width:min(16ch,100%);text-wrap:balance}
+.hero .lead{max-width:min(58ch,100%);text-wrap:pretty}
+.card h3,.contrast-card h3,.rail__item h3{max-width:28ch;text-wrap:balance}
+.btn{overflow-wrap:normal;word-break:normal;text-wrap:balance}
 p{margin:0 0 1em;max-width:68ch}
 ul,ol{margin:0 0 1em}
 img,svg,video{max-width:100%;height:auto;display:block}
@@ -184,8 +191,13 @@ border-radius:var(--radius-lg);background:color-mix(in srgb,var(--primary) 10%,t
 .container{padding-left:1.1rem;padding-right:1.1rem}
 .section{padding-top:clamp(3rem,12vw,4.5rem);padding-bottom:clamp(3rem,12vw,4.5rem)}
 .hero{padding-top:3.75rem;padding-bottom:3.75rem}
-.hero h1{font-size:clamp(2.25rem,10.5vw,3.35rem);line-height:1.02}
-h2{font-size:clamp(1.85rem,8vw,2.6rem);line-height:1.08}
+.hero h1{font-size:clamp(2rem,9.2vw,3rem);line-height:1.06;letter-spacing:-.03em;max-width:100%}
+h2{font-size:clamp(1.75rem,7.2vw,2.45rem);line-height:1.1;letter-spacing:-.02em;max-width:100%}
+h3{line-height:1.2}
+.hero .lead{max-width:100%;line-height:1.58}
+.heading h2{max-width:100%}
+.eyebrow{max-width:100%;line-height:1.4}
+.btn{white-space:normal;line-height:1.25;text-align:center}
 .lead{font-size:1.05rem}
 .actions{display:grid;grid-template-columns:1fr;width:100%}
 .actions .btn{width:100%}
