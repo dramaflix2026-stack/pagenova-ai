@@ -126,7 +126,11 @@ export default function SiteProjectPage() {
         ) : null}
 
         {(busy || project.status === 'FAILED') && latestJob ? (
-          <SiteProgressView projectId={project.id} jobId={latestJob.id} />
+          <SiteProgressView
+            projectId={project.id}
+            jobId={latestJob.id}
+            onCompleted={() => void query.refetch()}
+          />
         ) : null}
       </PageBody>
     </>
