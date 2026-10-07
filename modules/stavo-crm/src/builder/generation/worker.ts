@@ -196,7 +196,12 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     await assertNotCanceled(job.id);
 
     const provider = createSiteIntelligenceProvider();
-    const { plan, usage, imageBindings, adjustments, promptVersion } = await provider.generateSitePlan(input);
+    const result = await provider.generateSitePlan(input);
+    const { plan, usage, adjustments, promptVersion } = result;
+    // Providers podem nao devolver bindings de imagem. O worker precisa de um
+    // array mutavel porque a rede de seguranca visual injeta fotos reais por
+    // indice de secao depois que o plano ja foi gerado.
+    const imageBindings = result.imageBindings ? [...result.imageBindings] : [];
 
     // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
     // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
