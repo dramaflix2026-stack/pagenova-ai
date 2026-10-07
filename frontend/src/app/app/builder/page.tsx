@@ -146,6 +146,20 @@ export default function BuilderPage() {
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       setPhase("ready");
+
+      // Projetos novos do Institucional sao projetos reais do motor Sites com IA.
+      // Ao recarregar a pagina, restaura a mesma renderizacao vinda do Railway.
+      if (saved.id.length === 26) {
+        setCrmProjectId(saved.id);
+        void fetch(`/api/crm/site-projects/${saved.id}/render`, {
+          credentials: "same-origin",
+          cache: "no-store",
+        })
+          .then(async (response) => {
+            if (response.ok) setCrmPreviewHtml(await response.text());
+          })
+          .catch(() => undefined);
+      }
     }).catch(() => setError("Não foi possível abrir o projeto salvo."));
   }, []);
 
