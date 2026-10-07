@@ -71,7 +71,14 @@ export async function buildSiteArtifactFiles(
     if (!source) continue; // asset removido depois de referenciado: some do site, nao quebra.
 
     const buffer = await assets.read(source.storageKey).catch(() => null);
-    if (!buffer) continue;
+    if (!buffer) {
+      // Nunca publique silenciosamente um HTML sem uma imagem que o modelo
+      // referencia. Em storage efemero isso gerava exatamente o caso em que
+      // o preview mostrava a foto e o site publicado ficava sem ela.
+      throw new Error(
+        `Asset ${assetId} referenciado pelo projeto ${projectId} nao esta disponivel no storage (${source.storageKey}).`,
+      );
+    }
 
     const relative = `assets/images/${assetId}.webp`;
     files.push({ path: relative, buffer });
