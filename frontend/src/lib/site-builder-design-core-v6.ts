@@ -5920,5 +5920,77 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     }
   }
 
+  /* ============================================================
+     PAGENOVA V6.8.1 HARD MOBILE CLOSING CONTRACT
+     Kept after all legacy rules so narrow canvases cannot retain
+     desktop CTA/footer columns.
+     ============================================================ */
+  @media (max-width: 760px) {
+    html body .pn001-site .pn001-final-cta-card,
+    html body .pn001-site .pn-v2-final-cta-card {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 20px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    html body .pn001-site .pn001-final-cta-copy,
+    html body .pn001-site .pn001-final-cta-action,
+    html body .pn001-site .pn001-final-cta-action .pn001-button {
+      display: block !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+
+    html body .pn001-site .pn001-final-cta-copy h2,
+    html body .pn001-site .pn001-final-cta-copy p {
+      width: 100% !important;
+      max-width: 100% !important;
+      white-space: normal !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+    }
+
+    html body .pn001-site .pn001-footer-main {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      grid-template-columns: none !important;
+      gap: 30px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    html body .pn001-site .pn001-footer-brand-column,
+    html body .pn001-site .pn001-footer-column {
+      display: block !important;
+      position: static !important;
+      grid-column: auto !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      transform: none !important;
+    }
+
+    html body .pn001-site .pn001-footer-brand-column p,
+    html body .pn001-site .pn001-footer-links,
+    html body .pn001-site .pn001-footer-links a,
+    html body .pn001-site .pn001-footer-links span {
+      width: 100% !important;
+      max-width: 100% !important;
+      white-space: normal !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+    }
+  }
+
   /* PAGENOVA_V66_END */
   /* PAGENOVA_V65_END */`;
