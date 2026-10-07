@@ -40,7 +40,13 @@ const highlightsList = (section: HeroSection, klass = 'highlights'): string =>
     : '';
 
 export function renderHero(section: HeroSection, ctx: RenderContext): string {
-  const image = renderImage(section.image, ctx, { loading: 'eager' });
+  const renderedImage = renderImage(section.image, ctx, { loading: 'eager' });
+  const image =
+    renderedImage ||
+    '<div class="pn-image-slot pn-image-slot--hero" aria-label="Espaco reservado para foto do negocio">' +
+      '<span class="pn-image-slot__icon" aria-hidden="true">+</span>' +
+      '<span>Foto principal</span>' +
+    '</div>';
   const body = textBlock(section);
 
   switch (section.variant) {
@@ -72,7 +78,7 @@ export function renderHero(section: HeroSection, ctx: RenderContext): string {
      * Exige imagem com area de respiro; sem imagem, cai para o centralizado.
      */
     case 'overlay-full':
-      if (!image) return renderHero({ ...section, variant: 'centered-statement' }, ctx);
+      if (!renderedImage) return renderHero({ ...section, variant: 'editorial-split' }, ctx);
       return wrap(
         section,
         'hero--overlay',
@@ -102,7 +108,7 @@ export function renderHero(section: HeroSection, ctx: RenderContext): string {
         section,
         'hero--stacked',
         `<div class="hero-centered">${body}${actions(section)}</div>` +
-          `${image ? `<div class="hero-wide-media">${image}</div>` : ''}`,
+          `${renderedImage ? `<div class="hero-wide-media">${renderedImage}</div>` : ''}`,
       );
 
     /**
