@@ -573,6 +573,70 @@ transition:none!important}
 *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
 
+/* ---- PageNova Premium Layout V3 ----------------------------------------
+   Estrutura universal: ritmo compacto, conteudo equilibrado no centro e
+   desktop composto em vez de apenas ampliar o mobile. */
+main{overflow:hidden}
+.section:not(.hero){padding-top:clamp(3.25rem,6vw,5.75rem);padding-bottom:clamp(3.25rem,6vw,5.75rem)}
+.section>.container{max-width:min(var(--container),1180px)}
+.heading{max-width:760px;margin-left:auto;margin-right:auto;text-align:center}
+.heading h2{max-width:20ch;margin-left:auto;margin-right:auto}
+.heading .lead{margin-left:auto;margin-right:auto}
+.grid{align-items:stretch}
+.card{height:100%}
+.hero{min-height:0;padding-top:clamp(3.75rem,7vw,6.25rem);padding-bottom:clamp(3.75rem,7vw,6.25rem)}
+.hero-split{max-width:1180px;margin:0 auto}
+.hero-centered{max-width:780px}
+.hero h1{overflow-wrap:anywhere}
+.hero-media,.about-media,.alt-row__media,.hero-wide-media{min-height:0}
+.hero-media img,.about-media img,.alt-row__media img{object-fit:cover}
+.pn-image-slot{min-height:0;aspect-ratio:4/3}
+.pn-image-slot--hero{aspect-ratio:4/3}
+.pn-image-slot--about{min-height:0;aspect-ratio:16/10}
+.detail-list,.steps,.faq--columns,.faq-open,.contact-grid{max-width:980px;margin-left:auto;margin-right:auto}
+.cta-inline{max-width:1040px;margin-left:auto;margin-right:auto}
+.site-footer{padding:2.75rem 0}
+
+@media(min-width:900px){
+.hero-split{grid-template-columns:minmax(0,1.02fr) minmax(380px,.98fr);gap:clamp(3rem,6vw,6rem)}
+.hero-media img{aspect-ratio:4/3;max-height:560px}
+.hero-wide-media{max-width:1040px;margin:2.75rem auto 0}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.contact-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+}
+
+@media(max-width:760px){
+:root{--pad-scale:.64}
+.container{padding-left:1.25rem;padding-right:1.25rem}
+.section:not(.hero){padding-top:2.75rem;padding-bottom:2.75rem}
+.hero{padding-top:3rem;padding-bottom:3rem}
+.hero-split{gap:2rem}
+.hero h1{font-size:clamp(2.05rem,9.4vw,3rem);line-height:1.04;max-width:100%}
+h2{font-size:clamp(1.75rem,7.7vw,2.4rem)}
+.heading,.heading--centered{text-align:center;margin-left:auto;margin-right:auto}
+.heading h2,.heading--centered h2,.heading .lead,.heading--centered .lead{margin-left:auto;margin-right:auto}
+.heading{margin-bottom:1.5rem}
+.hero-centered{text-align:center}
+.hero-centered .lead{margin-left:auto;margin-right:auto}
+.hero-split>div:first-child{text-align:center}
+.hero-split>div:first-child .lead,.hero-split>div:first-child p{margin-left:auto;margin-right:auto}
+.hero-split>div:first-child .actions{justify-content:center}
+.eyebrow{justify-content:center}
+.actions{margin-top:1.35rem}
+.card,.contrast-card,.rail__item{padding:1.2rem}
+.grid{gap:.9rem}
+.pn-image-slot,.pn-image-slot--about{min-height:0;aspect-ratio:16/10}
+.hero-media::before{display:none}
+.hero-media img,.hero-wide-media img,.about-media img,.alt-row__media img{max-height:none;aspect-ratio:16/10}
+.hero-wide-media{margin-top:1.75rem}
+.alt-row{margin-bottom:2.25rem}
+.detail-list{gap:1rem}
+.detail-row{padding:1rem;text-align:left}
+.steps li{padding-bottom:1.45rem}
+.faq-item summary{padding:1.1rem 0}
+.site-footer{padding:2.25rem 0}
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
