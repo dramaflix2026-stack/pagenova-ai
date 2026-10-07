@@ -1,64 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import {
-  BriefcaseBusiness,
+  BarChart3,
+  Building2,
+  CalendarDays,
   CircleHelp,
   Copy,
+  FileSpreadsheet,
   Files,
-  House,
+  Globe,
+  KanbanSquare,
+  LayoutDashboard,
   Menu,
+  Settings,
   Sparkles,
+  Target,
+  Users,
+  Wallet,
   X,
 } from "lucide-react";
 
 const items = [
-  {
-    href: "/app",
-    label: "Início",
-    icon: House,
-  },
-  {
-    href: "/app/cloner",
-    label: "Clonador",
-    icon: Copy,
-  },
-  {
-    href: "/app/gerador",
-    label: "Gerador",
-    icon: Sparkles,
-  },
-  {
-    href: "/app/builder",
-    label: "Criar Site com IA",
-    icon: Sparkles,
-  },
-  {
-    href: "/app/crm",
-    label: "CRM",
-    icon: BriefcaseBusiness,
-  },
-  {
-    href: "/app/paginas",
-    label: "Minhas páginas",
-    icon: Files,
-  },
-  {
-    href: "/app/como-usar",
-    label: "Como usar",
-    icon: CircleHelp,
-  },
+  { href: "/app/crm?view=dashboard", label: "Dashboard", icon: LayoutDashboard, crmView: "dashboard" },
+  { href: "/app/crm?view=buscar", label: "Buscar empresas", icon: Building2, crmView: "buscar" },
+  { href: "/app/crm?view=crm", label: "CRM", icon: KanbanSquare, crmView: "crm" },
+  { href: "/app/crm?view=reunioes", label: "Reuniões", icon: CalendarDays, crmView: "reunioes" },
+  { href: "/app/crm?view=sites-ia", label: "Sites com IA", icon: Globe, crmView: "sites-ia" },
+  { href: "/app/crm?view=importar", label: "Importar lead", icon: FileSpreadsheet, crmView: "importar" },
+  { href: "/app/crm?view=servicos", label: "Serviços", icon: BarChart3, crmView: "servicos" },
+  { href: "/app/crm?view=financeiro", label: "Financeiro", icon: Wallet, crmView: "financeiro" },
+  { href: "/app/crm?view=metas", label: "Metas", icon: Target, crmView: "metas" },
+  { href: "/app/crm?view=equipe", label: "Equipes", icon: Users, crmView: "equipe" },
+  { href: "/app/crm?view=configuracoes", label: "Configurações", icon: Settings, crmView: "configuracoes" },
+  { href: "/app/gerador", label: "Gerar Landing Page com IA", icon: Sparkles },
+  { href: "/app/builder", label: "Gerar Novo Site com IA", icon: Sparkles },
+  { href: "/app/cloner", label: "Clonar Site com IA", icon: Copy },
+  { href: "/app/paginas", label: "Minhas páginas", icon: Files },
+  { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
 ];
 
-function isItemActive(pathname: string, href: string) {
-  return href === "/app" ? pathname === "/app" : pathname.startsWith(href);
+function isItemActive(pathname: string, href: string, crmView: string | undefined, currentCrmView: string | null) {
+  if (crmView) {
+    return pathname === "/app/crm" && (currentCrmView ?? "dashboard") === crmView;
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 export function Sidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentCrmView = searchParams.get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
@@ -178,7 +173,7 @@ export function Sidebar() {
 
             <div className="space-y-1.5">
               {items.map((item) => {
-                const active = isItemActive(pathname, item.href);
+                const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
 
                 return (
                   <Link
@@ -269,7 +264,7 @@ export function Sidebar() {
           </p>
 
           {items.map((item) => {
-            const active = isItemActive(pathname, item.href);
+            const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
 
             return (
               <Link
