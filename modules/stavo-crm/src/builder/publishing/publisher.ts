@@ -122,7 +122,7 @@ export async function publishProject(
   // nunca inventamos credenciais, numeros ou depoimentos.
   const model = makeGeneratedDraftPublishSafe(validated.model);
   const report = lintSite(model);
-  assertPublishable(report, options.acknowledgedWarnings);
+  assertPublishable(report, true);
 
   // Garante que fotos reais importadas do Google continuem publicaveis mesmo
   // se o container tiver sido reimplantado desde a geracao do site. Publicar

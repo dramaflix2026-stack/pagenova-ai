@@ -18,7 +18,6 @@ import {
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
-import { formatUsd } from '../lib/site-ai-format';
 import { api, ApiError } from '../lib/api';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
@@ -330,7 +329,7 @@ function ProjectCard({ project, onOpen, onGenerateAnother }: { project: SiteProj
           {formatDate(project.updatedAt)}
         </p>
         <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-muted-foreground">Custo: {formatUsd(project.costAccumulatedUsd)}</span>
+          <span />
           <div className="flex items-center gap-2">
             {project.leadId ? (
               <Button

@@ -15,7 +15,6 @@ import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteEditor } from '../components/site-ai/editor/SiteEditor';
 import { SiteProgressView } from '../components/site-ai/SiteProgressView';
 import { useArchiveSiteProject, useGenerateSite, useSiteProject } from '../hooks/useSiteAi';
-import { formatUsd } from '../lib/site-ai-format';
 import { Badge, Button, Callout, ErrorState, LoadingBlock } from '../components/ui';
 import { useToast } from '../components/ui/Toast';
 
@@ -53,7 +52,6 @@ export default function SiteProjectPage() {
       description={`${SITE_PROJECT_STATUS_LABELS[project.status]} · atualizado em ${formatDate(project.updatedAt)}`}
       actions={
         <div className="flex items-center gap-2">
-          <Badge tone="outline">Custo: {formatUsd(project.costAccumulatedUsd)}</Badge>
           {editable ? (
             <Button variant="secondary" onClick={() => document.getElementById('site-editor-preview')?.scrollIntoView({ behavior: 'smooth' })}>
               <Eye className="h-4 w-4" aria-hidden="true" />
