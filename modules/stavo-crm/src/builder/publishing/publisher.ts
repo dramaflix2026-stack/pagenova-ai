@@ -28,6 +28,7 @@ import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
 import { conflict, notFound, unprocessable } from '@server/lib/errors';
 import { logger } from '@server/lib/logger';
 import { buildSiteArtifactFiles } from '@builder/publishing/artifact-builder';
+import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertPublishable, resolveAvailableSlug, validateAndLintConfig } from '@server/modules/site-ai/service';
 import { createLocalStorage } from '@builder/publishing/storage';
@@ -63,6 +64,10 @@ export async function publishProject(
 
   const { model, report } = validateAndLintConfig(project.draftConfig);
   assertPublishable(report, options.acknowledgedWarnings);
+
+  // Garante que fotos reais importadas do Google continuem publicaveis mesmo
+  // se o container tiver sido reimplantado desde a geracao do site.
+  await ensureGooglePlaceAssets(project);
 
   // Passo 2: versao congelada especificamente para esta publicacao.
   const { id: versionId } = await repo.insertVersion({
