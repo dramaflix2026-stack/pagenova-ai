@@ -641,6 +641,67 @@ grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
     opacity:.92;
   }
 
+  /* Aberturas editoriais: centralizadas apenas no celular. */
+  .process .heading,
+  .testimonials .heading,
+  .faq .heading,
+  .contact .heading,
+  .wa-form .heading{
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .process .heading .eyebrow,
+  .testimonials .heading .eyebrow,
+  .faq .heading .eyebrow,
+  .contact .heading .eyebrow,
+  .wa-form .heading .eyebrow{
+    justify-content:center;
+    text-align:center;
+  }
+  .process .heading h2,.process .heading .lead,
+  .testimonials .heading h2,.testimonials .heading .lead,
+  .faq .heading h2,.faq .heading .lead,
+  .contact .heading h2,.contact .heading .lead,
+  .wa-form .heading h2,.wa-form .heading .lead{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    text-wrap:balance;
+  }
+
+  /* Rodape mobile: uma coluna real. Impede a grade desktop de comprimir
+     marca/tagline em poucas letras por linha. */
+  .site-footer,.site-footer .container,.footer-grid,.footer-grid>div{
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .footer-grid{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:1.6rem;
+  }
+  .footer-grid>div{display:block;text-align:center}
+  .footer-name,.site-footer .muted,.footer-title{
+    width:100%;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+  }
+  .footer-name{font-size:1.1rem}
+  .site-footer .muted{max-width:34ch;line-height:1.6}
+  .footer-links,.site-footer .links{
+    width:100%;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  .footer-links li,.site-footer .links li{width:auto;max-width:100%}
+  .site-footer a{overflow-wrap:normal;word-break:normal}
+
   /* Beneficios: abertura centralizada no celular. */
   .section--benefits .heading,
   section[id*="benef"] .heading{
