@@ -25,6 +25,18 @@ const projectOptions = [
 
 export default function BuilderPage() {
   const router = useRouter();
+
+  // PageNova principal usa a mesma superficie Sites com IA do CRM.
+  // Geracao, rascunho, autosave, versoes e publicacao ficam no backend Railway.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const crmProjectId = params.get("crmProject");
+    router.replace(
+      crmProjectId
+        ? `/stavo-crm/sites-ia/${encodeURIComponent(crmProjectId)}`
+        : "/stavo-crm/sites-ia",
+    );
+  }, [router]);
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
   const [refreshingImages, setRefreshingImages] = useState(false);
