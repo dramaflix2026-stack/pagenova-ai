@@ -194,7 +194,10 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
         motionLevel: form.motionLevel,
       },
       freeformInstructions: form.freeformInstructions.trim() || undefined,
-      requiredSections: [],
+      // Estrutura editorial minima de qualidade para qualquer nicho. A IA continua
+      // escolhendo copy, variantes e composicao, mas nao pode devolver uma pagina
+      // sem hero, proposta, explicacao, conversao e fechamento.
+      requiredSections: ['hero', 'services', 'benefits', 'about', 'process', 'faq', 'cta', 'footer'],
       forbiddenSections: [],
     }),
     [form],
