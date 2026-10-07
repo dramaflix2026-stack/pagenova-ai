@@ -98,8 +98,18 @@ export default function BuilderPage() {
           !Number.isFinite(edit.size) || edit.size < 10 || edit.size > 120 ||
           !/^#[a-fA-F0-9]{6}$/.test(edit.color)) return;
         const current = project.liveEdits?.[key] || [];
+        const protectedClosingSelector = /pn001-(?:final-cta|footer)/i;
+        const sanitizedCurrent = current.filter((item) => {
+          if (item.selector === edit.selector) return false;
+          // Old drag snapshots for the responsive closing blocks can contain
+          // fixed pixel geometry. Drop them as soon as any new edit is saved.
+          return !protectedClosingSelector.test(item.selector);
+        });
+        const safeEdit = protectedClosingSelector.test(edit.selector)
+          ? { ...edit, ghostId: "", left: undefined, top: undefined, width: undefined, height: undefined, movable: false }
+          : edit;
         const updated = { ...project, liveEdits: { ...project.liveEdits,
-          [key]: [...current.filter((item) => item.selector !== edit.selector), edit].slice(-100) } };
+          [key]: [...sanitizedCurrent, safeEdit].slice(-100) } };
         setProject(updated);
         void savePageNovaProject(updated.id, updated).catch(() => setError("Não foi possível salvar a edição."));
         return;
