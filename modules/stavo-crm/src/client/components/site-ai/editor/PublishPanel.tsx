@@ -82,7 +82,17 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
             toast.error(`Bloqueado por ${errors.length} erro(s). Corrija no editor antes de publicar.`);
             return;
           }
-          toast.error(error instanceof ApiError ? error.message : 'Nao foi possivel publicar.');
+          const apiMessage = error instanceof ApiError ? error.message?.trim() : '';
+          const apiCode = error instanceof ApiError ? error.code?.trim() : '';
+          const detailMessage =
+            error instanceof ApiError && typeof error.details?.message === 'string'
+              ? error.details.message.trim()
+              : '';
+          toast.error(
+            apiMessage ||
+              detailMessage ||
+              (apiCode ? `Falha ao publicar (${apiCode}).` : 'Nao foi possivel publicar. Tente novamente.'),
+          );
         },
       },
     );
