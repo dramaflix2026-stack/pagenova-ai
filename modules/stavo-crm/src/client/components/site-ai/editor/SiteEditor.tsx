@@ -11,6 +11,7 @@ import { Loader2, Monitor, Redo2, Smartphone, Undo2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
+import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
 import { siteSchema, type SiteSchemaModel, type SiteSection } from '@site-kit/schemas/site-schema';
 import { lintSite } from '@site-kit/utils/linter';
 import { useHistoryState } from '../../../hooks/useHistoryState';
@@ -141,6 +142,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     const byId = new Map((assetsQuery.data ?? []).map((asset) => [asset.id, asset]));
     return {
       profile: 'DEMO',
+      inlineRuntime: SITE_RUNTIME_JS,
       resolveAsset: (assetId) => {
         const asset = byId.get(assetId);
         return asset ? { url: asset.url, width: asset.width ?? undefined, height: asset.height ?? undefined } : null;
