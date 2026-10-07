@@ -53,48 +53,83 @@ export { renderStyles } from '@site-kit/themes/styles';
  * escrever o renderer vira erro de compilacao, e nao um buraco silencioso na
  * pagina publicada.
  */
-function renderSection(section: SiteSection, ctx: RenderContext): string {
+function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchemaModel): string {
+  let index = 0;
+  return html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
+    const key = `${sectionId}:${index++}`;
+    const edit = model.visualTextEdits.find((item) => item.key === key);
+    const styles: string[] = [];
+    if (edit?.fontSizePx) styles.push(`font-size:${edit.fontSizePx}px`);
+    if (edit?.fontFamily) styles.push(`font-family:${edit.fontFamily === 'Georgia' ? 'Georgia,serif' : `${edit.fontFamily},sans-serif`}`);
+    if (edit?.color) styles.push(`color:${edit.color}`);
+    if (edit?.fontWeight) styles.push(`font-weight:${edit.fontWeight}`);
+    if (edit?.fontStyle) styles.push(`font-style:${edit.fontStyle}`);
+    if (edit?.textAlign) styles.push(`text-align:${edit.textAlign}`);
+    const attrs = ` data-pn-edit="${escapeHtml(key)}"${styles.length ? ` style="${styles.join(';')}"` : ''}`;
+    return tag.replace(/>$/, `${attrs}>`);
+  });
+}
+
+function renderSection(section: SiteSection, ctx: RenderContext, model: SiteSchemaModel): string {
   if (!section.visible) return '';
 
+  let html: string;
   switch (section.type) {
     case 'hero':
-      return renderHero(section, ctx);
+      html = renderHero(section, ctx);
+      break;
     case 'about':
-      return renderAbout(section, ctx);
+      html = renderAbout(section, ctx);
+      break;
     case 'services':
-      return renderServices(section, ctx);
+      html = renderServices(section, ctx);
+      break;
     case 'benefits':
-      return renderBenefits(section, ctx);
+      html = renderBenefits(section, ctx);
+      break;
     case 'audience':
-      return renderAudience(section, ctx);
+      html = renderAudience(section, ctx);
+      break;
     case 'authority':
-      return renderAuthority(section, ctx);
+      html = renderAuthority(section, ctx);
+      break;
     case 'stats':
-      return renderStats(section, ctx);
+      html = renderStats(section, ctx);
+      break;
     case 'process':
-      return renderProcess(section, ctx);
+      html = renderProcess(section, ctx);
+      break;
     case 'gallery':
-      return renderGallery(section, ctx);
+      html = renderGallery(section, ctx);
+      break;
     case 'offer':
-      return renderOffer(section, ctx);
+      html = renderOffer(section, ctx);
+      break;
     case 'testimonials':
-      return renderTestimonials(section, ctx);
+      html = renderTestimonials(section, ctx);
+      break;
     case 'faq':
-      return renderFaq(section, ctx);
+      html = renderFaq(section, ctx);
+      break;
     case 'cta':
-      return renderCta(section, ctx);
+      html = renderCta(section, ctx);
+      break;
     case 'contactMap':
-      return renderContact(section, ctx);
+      html = renderContact(section, ctx);
+      break;
     case 'whatsappForm':
-      return renderWhatsAppForm(section, ctx);
+      html = renderWhatsAppForm(section, ctx);
+      break;
     case 'footer':
-      return renderFooter(section, ctx);
+      html = renderFooter(section, ctx);
+      break;
     default: {
       const exhaustive: never = section;
       void exhaustive;
       return '';
     }
   }
+  return applyVisualTextEdits(html, section.id, model);
 }
 
 /**
@@ -140,7 +175,7 @@ function renderJsonLd(model: SiteSchemaModel): string {
  * bloqueante e o arquivo e pequeno. O JS vai no fim do `<body>` e e opcional.
  */
 export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
-  const sections = model.sections.map((section) => renderSection(section, ctx)).join('\n');
+  const sections = model.sections.map((section) => renderSection(section, ctx, model)).join('\n');
 
   const robots =
     ctx.profile === 'DEMO' || model.seo.noindex
