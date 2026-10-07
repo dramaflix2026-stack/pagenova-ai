@@ -14,8 +14,6 @@
 import { ImagePlus, Plus, Trash2, X } from 'lucide-react';
 import { useRef } from 'react';
 
-import { MOTION_PRESETS } from '@site-kit/interactions/motion';
-import { variantsFor } from '@site-kit/registry/variants';
 import type { ActionLink, AssetRef, SiteSection } from '@site-kit/schemas/site-schema';
 import { fieldPolicy, READONLY_EXPLANATION } from '../../../lib/site-editor-fields';
 import { useSiteAssets, useUploadSiteAsset, type SiteAssetSummary } from '../../../hooks/useSiteAi';
@@ -84,8 +82,6 @@ export function PropertiesPanel({ projectId, section, anchors, onChange }: Prope
       </div>
 
       <div className="space-y-4">
-        <VariantField section={section} onChange={(variant) => patch('variant', variant)} />
-        <MotionField motionPreset={record.motionPreset as string} onChange={(preset) => patch('motionPreset', preset)} />
 
         {editableKeys.map((key) => {
           if (key === 'visible' || key === 'variant' || key === 'motionPreset') return null;
@@ -186,47 +182,6 @@ const labelFor = (key: string): string =>
     secondaryCta: 'Botao secundario',
     cta: 'Botao',
   })[key] ?? key;
-
-function VariantField({ section, onChange }: { section: SiteSection; onChange: (variant: string) => void }) {
-  const options = variantsFor(section.type);
-  if (options.length <= 1) return null;
-
-  return (
-    <Field label="Variante" hint="Muda a composicao visual desta secao.">
-      <Select value={section.variant} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.id} value={option.id}>
-              {option.id}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
-  );
-}
-
-function MotionField({ motionPreset, onChange }: { motionPreset: string; onChange: (preset: string) => void }) {
-  return (
-    <Field label="Animacao">
-      <Select value={motionPreset} onValueChange={onChange}>
-        <SelectTrigger>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {MOTION_PRESETS.map((preset) => (
-            <SelectItem key={preset} value={preset}>
-              {preset}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
-  );
-}
 
 function ReadOnlyField({ label, value }: { label: string; value: unknown }) {
   const display = Array.isArray(value) ? `${value.length} item(ns)` : String(value ?? '—');
