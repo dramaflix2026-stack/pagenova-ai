@@ -78,7 +78,7 @@ function makeGeneratedDraftPublishSafe(model: SiteSchemaModel): SiteSchemaModel 
     'xxx-xxxx', 'seu texto aqui', 'texto de exemplo', 'todo:', 'tbd',
   ];
   const containsPlaceholder = (value: string) => {
-    const flat = value.normalize('NFD').replace(/\\p{Diacritic}/gu, '').toLowerCase();
+    const flat = value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
     return placeholderTokens.some((token) => flat.includes(token));
   };
   const clean = (value: unknown, key = ''): unknown => {
