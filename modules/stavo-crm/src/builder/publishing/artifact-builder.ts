@@ -58,7 +58,7 @@ export async function buildSiteArtifactFiles(
   projectId: string,
   model: SiteSchemaModel,
   profile: RenderContext['profile'],
-  options: { inlineRuntime?: string } = {},
+  options: { inlineRuntime?: string; publicBasePath?: string } = {},
 ): Promise<BuiltArtifact> {
   const assetIds = collectAssetIds(model);
   const assets = createLocalStorage(siteAssetsDirAbsolute());
@@ -82,7 +82,10 @@ export async function buildSiteArtifactFiles(
 
     const relative = `assets/images/${assetId}.webp`;
     files.push({ path: relative, buffer });
-    resolved.set(assetId, { url: relative, width: source.width ?? undefined, height: source.height ?? undefined });
+    const publicUrl = options.publicBasePath
+      ? `${options.publicBasePath.replace(/\/$/, '')}/${relative}`
+      : relative;
+    resolved.set(assetId, { url: publicUrl, width: source.width ?? undefined, height: source.height ?? undefined });
   }
 
   const ctx: RenderContext = {
