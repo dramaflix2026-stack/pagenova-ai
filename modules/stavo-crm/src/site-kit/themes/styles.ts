@@ -599,6 +599,95 @@ grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
 .footer-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem}
 .footer-bar .links{margin:0}
 
+/* ---- PageNova mobile composition V6.3 ----------------------------------
+   Normaliza todas as secoes, nao apenas o hero: largura, ritmo vertical,
+   cards, processos, depoimentos, FAQ, contato, formulario, CTA e rodape. */
+@media(max-width:760px){
+  .section{overflow:hidden}
+  .section>.container{width:100%;min-width:0}
+  .heading,.prose,.cta-card,.cta-quiet,.form-card,.form-card--inline,
+  .contact .heading{width:100%;max-width:100%}
+  .heading h2,.heading .lead,.prose p,.card h3,.card p,
+  .contrast-card h3,.contrast-card p,.rail__item h3,.rail__item p{
+    max-width:100%;
+  }
+
+  .grid,.grid-2,.grid-3,.numbered-grid,.checklist,.contact-grid,.footer-grid{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .card--lead{grid-column:auto}
+  .card,.contrast-card,.rail__item,.hero-card,.hero-highlight-box{
+    min-width:0;
+  }
+
+  .alt-row{margin-bottom:2.5rem;gap:1.35rem}
+  .alt-row__media,.about-media{min-width:0;width:100%}
+  .alt-row__media img,.about-media img{
+    width:100%;max-height:28rem;object-fit:cover;
+  }
+
+  .numbered-grid{gap:0}
+  .numbered-grid li{padding-top:3rem;padding-bottom:1.5rem}
+  .detail-list{gap:1.25rem}
+  .detail-row{grid-template-columns:auto minmax(0,1fr);gap:1rem;padding:1.1rem 0}
+  .steps{max-width:100%}
+
+  .rail{
+    width:calc(100% + 1.1rem);
+    margin-right:-1.1rem;
+    gap:.85rem;
+    scroll-padding-left:0;
+  }
+  .rail__item{flex-basis:min(86vw,320px)}
+
+  .faq-item{min-width:0}
+  .faq-item summary,.faq-item button{
+    overflow-wrap:break-word;word-break:normal;
+  }
+
+  .cta-card,.offer-card,.form-card,.form-card--inline{
+    padding:1.35rem;
+    border-radius:max(var(--radius-md),18px);
+  }
+  .cta-inline{display:grid;grid-template-columns:1fr;gap:1rem}
+  .cta-inline .actions{width:100%}
+
+  .form-field{margin-bottom:1rem}
+  .form-field input,.form-field textarea,.form-field select{
+    width:100%;min-width:0;font-size:16px;
+  }
+  .form-field textarea{min-height:120px}
+
+  .site-footer{
+    padding:2.5rem 0 calc(2.5rem + env(safe-area-inset-bottom));
+    overflow:hidden;
+  }
+  .site-footer .container{min-width:0}
+  .footer-grid{gap:1.75rem}
+  .footer-bar{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    justify-items:start;
+    align-items:start;
+    gap:1rem;
+  }
+  .site-footer--centered .footer-bar,
+  .site-footer--legal .footer-bar,
+  .site-footer--contrast .footer-bar{justify-items:center}
+  .footer-bar .links,.site-footer .links{
+    width:100%;
+    display:flex;
+    flex-wrap:wrap;
+    gap:.65rem 1rem;
+  }
+  .site-footer--centered .links,
+  .site-footer--legal .links,
+  .site-footer--contrast .links{justify-content:center}
+  .footer-name,.footer-title,.footer-links,.site-footer p{
+    max-width:100%;overflow-wrap:break-word;word-break:normal;
+  }
+}
+
 /* ---- Celular ------------------------------------------------------------ */
 @media(max-width:768px){
 .nav{position:fixed;inset:68px 0 auto 0;flex-direction:column;align-items:stretch;
