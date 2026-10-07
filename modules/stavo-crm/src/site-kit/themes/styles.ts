@@ -1566,6 +1566,229 @@ transition:opacity .56s ease,transform .56s cubic-bezier(.22,1,.36,1)}
   .hero__inner{min-height:0}
 }
 
+/* ---- PageNova Mobile Final Composition V8 -------------------------------
+   Fica no FIM do stylesheet: nenhuma variante posterior pode reabrir grids.
+   Mobile e uma composicao propria, nao desktop reduzido. */
+@media screen and (max-width:899px){
+  :root{--container:100%}
+
+  .container{
+    width:100%!important;
+    max-width:100%!important;
+    padding-left:clamp(1.15rem,5vw,1.5rem)!important;
+    padding-right:clamp(1.15rem,5vw,1.5rem)!important;
+  }
+  .section:not(.hero){
+    padding-top:clamp(3.5rem,10vw,5rem)!important;
+    padding-bottom:clamp(3.5rem,10vw,5rem)!important;
+  }
+
+  /* Hero: headline/subheadline realmente centralizadas. */
+  .hero,.hero__inner,.hero-split,.hero-centered,.hero-minimal,
+  .hero-split>div:first-child:not(.hero-media){
+    text-align:center!important;
+  }
+  .hero-split{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    grid-template-columns:none!important;
+  }
+  .hero h1{
+    width:100%!important;
+    max-width:15ch!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+    font-size:clamp(2.45rem,11vw,3.65rem)!important;
+    line-height:1.02!important;
+  }
+  .hero .lead,.hero-split>div:first-child p{
+    max-width:34ch!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+    font-size:clamp(1.05rem,4.3vw,1.25rem)!important;
+    line-height:1.6!important;
+  }
+  .hero .eyebrow,.hero .actions,.hero .highlights{
+    justify-content:center!important;
+  }
+
+  /* TODA colecao de cards: exatamente uma coluna. */
+  .grid,.grid-2,.grid-3,
+  .services .grid,.services--cards .grid,.services--numbered .numbered-grid,
+  .benefits .grid,.benefits .icon-grid,.benefits .contrast-grid,.benefits .feature-lead,
+  .differentials .grid,.differentials .icon-grid,.differentials .contrast-grid,
+  .numbered-grid,.icon-grid,.contrast-grid,.feature-lead,.checklist,.step-cards,
+  .stats--grid,.process .timeline,.timeline,
+  .testimonials .rail,.rail,
+  .contact-grid,.footer-grid{
+    display:grid!important;
+    grid-template-columns:100%!important;
+    grid-template-rows:auto!important;
+    grid-auto-columns:100%!important;
+    grid-auto-flow:row!important;
+    gap:1rem!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    overflow:visible!important;
+  }
+  .grid>*,.grid-2>*,.grid-3>*,
+  .numbered-grid>*,.icon-grid>*,.contrast-grid>*,.feature-lead>*,
+  .checklist>*,.step-cards>*,.stats--grid>*,.timeline>*,.rail>*,
+  .services .card,.benefits .card,.differentials .card,
+  .testimonials .rail__item{
+    display:block!important;
+    grid-column:1!important;
+    grid-row:auto!important;
+    width:100%!important;
+    min-width:100%!important;
+    max-width:100%!important;
+    flex-basis:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    box-sizing:border-box!important;
+  }
+
+  /* Cards grandes e legiveis, nao miniaturas de desktop. */
+  .card,.contrast-card,.icon-block,.rail__item,.stats--grid li,
+  .numbered-grid>*,.step-cards>*{
+    min-height:0!important;
+    padding:clamp(1.45rem,5.5vw,1.9rem)!important;
+    text-align:left!important;
+  }
+  .card h3,.contrast-card h3,.icon-block h3,.numbered-grid h3,.step-cards h3{
+    font-size:clamp(1.3rem,5.5vw,1.65rem)!important;
+    line-height:1.16!important;
+  }
+  .card p,.contrast-card p,.icon-block p,.numbered-grid p,.step-cards p{
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    font-size:clamp(.98rem,4vw,1.08rem)!important;
+    line-height:1.6!important;
+  }
+
+  /* Sobre: escala e imagem proprias de telefone. */
+  .about .heading,.about--lead .heading,.about--split .heading{
+    width:100%!important;
+    max-width:100%!important;
+    text-align:left!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  .about .heading h2,.about--lead .heading h2,.about--split .heading h2{
+    max-width:16ch!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    text-align:left!important;
+    font-size:clamp(2rem,8.5vw,2.75rem)!important;
+    line-height:1.06!important;
+  }
+  .about .lead,.about--lead .lead,.about--split .lead{
+    max-width:none!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    text-align:left!important;
+    font-size:clamp(1.02rem,4.2vw,1.18rem)!important;
+    line-height:1.65!important;
+  }
+  .about-media,.pn-image-slot--about{
+    width:100%!important;
+    margin-top:1.5rem!important;
+  }
+  .about-media img,.pn-image-slot--about img{
+    width:100%!important;
+    height:auto!important;
+    min-height:280px!important;
+    aspect-ratio:4/3!important;
+    object-fit:cover!important;
+  }
+
+  /* Processo: cada etapa e um bloco vertical grande. */
+  .process .heading{margin-bottom:2rem!important}
+  .process .timeline{
+    display:grid!important;
+    grid-template-columns:100%!important;
+    gap:0!important;
+  }
+  .process .timeline li{
+    width:100%!important;
+    min-width:0!important;
+    border-top:0!important;
+    border-left:2px solid var(--border)!important;
+    padding:0 0 2rem 1.6rem!important;
+  }
+  .process .timeline__dot{left:-7px!important;top:.3rem!important}
+  .process .timeline h3{font-size:1.2rem!important}
+  .process .timeline p{font-size:1rem!important;line-height:1.6!important}
+
+  /* FAQ: cabecalho em cima, perguntas embaixo. */
+  .faq>.container,.faq .container{
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .faq .heading{
+    width:100%!important;
+    max-width:100%!important;
+    margin:0 0 1.75rem!important;
+    text-align:left!important;
+  }
+  .faq .heading h2,.faq .heading .lead{
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    text-align:left!important;
+  }
+  .faq .heading h2{font-size:clamp(2rem,8vw,2.6rem)!important}
+  .faq--columns,.faq-open,.faq-list{
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+    columns:1!important;
+    column-count:1!important;
+  }
+  .faq-item summary{
+    min-height:64px!important;
+    padding:1.2rem 0!important;
+    font-size:1.02rem!important;
+    line-height:1.45!important;
+  }
+
+  /* Depoimentos deixam de ser carrossel horizontal no telefone. */
+  .testimonials .rail{
+    display:grid!important;
+    grid-template-columns:100%!important;
+    transform:none!important;
+    scroll-snap-type:none!important;
+  }
+  .testimonials .rail__item{scroll-snap-align:none!important}
+
+  /* Contato, CTA e footer: fluxo vertical e legivel. */
+  .contact-grid,.cta-inline,.site-footer .footer-grid{
+    display:grid!important;
+    grid-template-columns:100%!important;
+    gap:1.5rem!important;
+  }
+  .contact .form-card,.contact .form-card--inline{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .cta-inline{text-align:center!important}
+  .cta-inline .actions,.cta-inline .btn{width:100%!important}
+  .site-footer{padding:3rem 0!important}
+  .site-footer .footer-grid{text-align:left!important}
+  .site-footer .brand,.site-footer p,.site-footer a{
+    font-size:max(.98rem,16px)!important;
+    line-height:1.6!important;
+  }
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
