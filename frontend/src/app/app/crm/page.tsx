@@ -1,8 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
+const CRM_ROUTES: Record<string, string> = {
+  dashboard: "/",
+  buscar: "/buscar",
+  crm: "/crm",
+  reunioes: "/reunioes",
+  "sites-ia": "/sites-ia",
+  importar: "/importar",
+  servicos: "/servicos",
+  financeiro: "/financeiro",
+  metas: "/metas",
+  equipe: "/equipe",
+  configuracoes: "/configuracoes",
+};
 
 export default function CrmPage() {
+  const searchParams = useSearchParams();
+  const crmView = searchParams.get("view") ?? "dashboard";
+  const iframeSrc = useMemo(
+    () => `/stavo-crm/index.html#${CRM_ROUTES[crmView] ?? "/"}`,
+    [crmView],
+  );
+
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
 
   useEffect(() => {
@@ -22,7 +44,7 @@ export default function CrmPage() {
     return (
       <main className="h-[calc(100vh-4rem)] min-h-[640px] overflow-hidden bg-[#070b14]">
         <iframe
-          src="/stavo-crm/index.html#/"
+          src={iframeSrc}
           title="PageNova CRM"
           className="h-full w-full border-0"
           allow="clipboard-read; clipboard-write"
