@@ -5992,5 +5992,138 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     }
   }
 
+  /* ============================================================
+     PAGENOVA V6.9 MOBILE COMPOSITION
+     Mobile is a dedicated composition, not a shrunken desktop.
+     ============================================================ */
+  @media (max-width: 640px) {
+    html body .pn001-site .pn001-container {
+      width: calc(100% - 32px) !important;
+    }
+
+    html body .pn001-site .pn001-v66-head,
+    html body .pn001-site .pn001-section-head,
+    html body .pn001-site .pn001-faq-layout,
+    html body .pn001-site .pn001-contact-shell {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: none !important;
+      gap: 18px !important;
+      max-width: 100% !important;
+    }
+
+    html body .pn001-site .pn001-v66-benefit-grid,
+    html body .pn001-site .pn001-v66-feature-grid,
+    html body .pn001-site .pn001-benefits .pn001-grid,
+    html body .pn001-site .pn001-features .pn001-grid {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      gap: 12px !important;
+    }
+
+    html body .pn001-site .pn001-v66-benefit,
+    html body .pn001-site .pn001-v66-feature,
+    html body .pn001-site .pn001-benefits .pn001-card,
+    html body .pn001-site .pn001-features .pn001-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      padding: 20px !important;
+    }
+
+    html body .pn001-site .pn001-v66-process-list,
+    html body .pn001-site .pn001-process .pn001-grid {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: none !important;
+      gap: 0 !important;
+    }
+
+    html body .pn001-site .pn001-v66-process-item,
+    html body .pn001-site .pn001-process .pn001-card {
+      width: 100% !important;
+      min-width: 0 !important;
+      padding: 18px 0 18px 38px !important;
+      position: relative !important;
+      border-bottom: 1px solid var(--pn001-line) !important;
+    }
+
+    html body .pn001-site .pn001-v66-service-row {
+      grid-template-columns: 34px minmax(0, 1fr) 32px !important;
+      gap: 10px !important;
+      min-height: 0 !important;
+      padding: 18px 0 !important;
+    }
+
+    html body .pn001-site .pn001-v66-service-row p {
+      grid-column: 2 / -1 !important;
+      padding-right: 4px !important;
+    }
+
+    html body .pn001-site .pn001-testimonial-slider {
+      display: flex !important;
+      gap: 12px !important;
+      overflow-x: auto !important;
+      scroll-snap-type: x mandatory !important;
+      padding: 2px 16px 18px !important;
+      margin-left: -16px !important;
+      margin-right: -16px !important;
+      scrollbar-width: none !important;
+    }
+
+    html body .pn001-site .pn001-testimonial-slider > *,
+    html body .pn001-site .pn001-testimonial-card-v6 {
+      flex: 0 0 calc(100vw - 56px) !important;
+      width: calc(100vw - 56px) !important;
+      max-width: 360px !important;
+      min-width: 0 !important;
+      scroll-snap-align: center !important;
+    }
+
+    html body .pn001-site .pn001-faq-list,
+    html body .pn001-site .pn001-faq-items {
+      width: 100% !important;
+      min-width: 0 !important;
+    }
+
+    html body .pn001-site .pn001-contact-copy,
+    html body .pn001-site .pn001-contact-card,
+    html body .pn001-site .pn001-form {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    html body .pn001-site .pn001-form-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    html body .pn001-site .pn001-final-cta-card,
+    html body .pn001-site .pn-v2-final-cta-card {
+      padding: 24px 20px !important;
+      border-radius: 20px !important;
+    }
+
+    html body .pn001-site .pn001-final-cta h2 {
+      font-size: clamp(29px, 8.5vw, 38px) !important;
+    }
+
+    html body .pn001-site .pn001-footer-main,
+    html body .pn001-site .pn001-footer-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      grid-template-columns: none !important;
+      gap: 26px !important;
+    }
+
+    html body .pn001-site .pn001-footer-brand-column,
+    html body .pn001-site .pn001-footer-column,
+    html body .pn001-site .pn001-footer-inner > * {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+  }
+
   /* PAGENOVA_V66_END */
   /* PAGENOVA_V65_END */`;
