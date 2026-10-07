@@ -25,9 +25,7 @@ import {
 } from '../../../hooks/useSiteAi';
 import { Badge, Button, Callout, LoadingBlock, Textarea } from '../../ui';
 import { useToast } from '../../ui/Toast';
-import { PropertiesPanel } from './PropertiesPanel';
 import { PublishPanel } from './PublishPanel';
-import { SectionsPanel } from './SectionsPanel';
 
 const AUTOSAVE_DELAY_MS = 1200;
 
@@ -56,17 +54,15 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [aiInstruction, setAiInstruction] = useState('');
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
-  const [mobilePanel, setMobilePanel] = useState<'preview' | 'sections' | 'edit'>('preview');
-  const [isMobileEditor, setIsMobileEditor] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
-  );
+  const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
+  const editElementRef = useRef<HTMLElement | null>(null);
+  const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number } | null>(null);
 
   const loadedRef = useRef(false);
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)');
     const sync = () => {
-      setIsMobileEditor(media.matches);
       if (media.matches) setViewport('mobile');
     };
     sync();
@@ -185,10 +181,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
 
   const updateSections = (sections: SiteSection[]) => history.set({ ...config, sections });
 
-  const handleSelectSection = (id: string) => {
-    setSelectedId(id);
-    if (isMobileEditor) setMobilePanel('edit');
-  };
+  const handleSelectSection = (id: string) => setSelectedId(id);
 
   const handleSectionChange = (next: SiteSection) => {
     updateSections(config.sections.map((s) => (s.id === next.id ? next : s)));
@@ -247,6 +240,79 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     toast.error('Suas alteracoes locais foram descartadas: a versao mais recente do servidor foi carregada.');
   };
 
+  const replaceTextInSection = (section: SiteSection, before: string, after: string): SiteSection => {
+    let replaced = false;
+    const walk = (value: unknown): unknown => {
+      if (!replaced && typeof value === 'string' && value.trim() === before.trim()) {
+        replaced = true;
+        return after;
+      }
+      if (Array.isArray(value)) return value.map(walk);
+      if (value && typeof value === 'object') {
+        const out: Record<string, unknown> = {};
+        for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+          out[key] = ['id', 'type', 'variant', 'anchor'].includes(key) ? child : walk(child);
+        }
+        return out;
+      }
+      return value;
+    };
+    return walk(section) as SiteSection;
+  };
+
+  const installInlineEditor = () => {
+    const frame = previewFrameRef.current;
+    const doc = frame?.contentDocument;
+    if (!doc) return;
+
+    doc.addEventListener('dblclick', (event) => {
+      const target = event.target instanceof frame.contentWindow!.HTMLElement ? event.target as HTMLElement : null;
+      if (!target || !target.textContent?.trim()) return;
+      const editable = target.closest('h1,h2,h3,h4,p,span,a,button,li') as HTMLElement | null;
+      if (!editable) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      editElementRef.current = editable;
+      const original = editable.innerText;
+      editable.contentEditable = 'true';
+      editable.dataset.pnOriginalText = original;
+      editable.style.outline = '2px solid #31d6a1';
+      editable.style.outlineOffset = '3px';
+      editable.focus();
+
+      const rect = editable.getBoundingClientRect();
+      const frameRect = frame.getBoundingClientRect();
+      setInlineEditor({
+        x: Math.max(12, Math.min(frameRect.left + rect.left, window.innerWidth - 330)),
+        y: Math.max(8, frameRect.top + rect.top - 52),
+      });
+
+      editable.onblur = () => {
+        const before = editable.dataset.pnOriginalText ?? original;
+        const after = editable.innerText.trim();
+        editable.contentEditable = 'false';
+        editable.style.outline = '';
+        editable.style.outlineOffset = '';
+        if (after && after !== before) {
+          const sectionNode = editable.closest('section[id]');
+          const anchorId = sectionNode?.id;
+          const section = config.sections.find((item) => item.anchor === anchorId)
+            ?? config.sections.find((item) => item.id === anchorId);
+          if (section) handleSectionChange(replaceTextInSection(section, before, after));
+        }
+        window.setTimeout(() => setInlineEditor(null), 120);
+      };
+    });
+  };
+
+  const styleInlineElement = (property: 'fontSize' | 'fontFamily' | 'color' | 'fontWeight' | 'fontStyle', value: string) => {
+    const element = editElementRef.current;
+    if (!element) return;
+    element.style[property] = value;
+    element.focus();
+  };
+
   return (
     <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
@@ -275,88 +341,46 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </Callout>
       ) : null}
 
-      <div className="flex shrink-0 border-b border-border md:hidden">
-        {(['preview', 'sections', 'edit'] as const).map((panel) => (
-          <button
-            key={panel}
-            type="button"
-            onClick={() => setMobilePanel(panel)}
-            className={'flex-1 px-3 py-2 text-sm font-medium ' + (mobilePanel === panel ? 'bg-primary-soft text-primary' : 'text-muted-foreground')}
-          >
-            {panel === 'preview' ? 'Preview' : panel === 'sections' ? 'Secoes' : 'Editar'}
-          </button>
-        ))}
-      </div>
-
-      <div className="flex min-h-0 flex-1 overflow-hidden">
-        <div className={(isMobileEditor ? (mobilePanel === 'sections' ? 'block' : 'hidden') : 'block') + ' w-full min-w-0 shrink-0 overflow-y-auto md:w-56'}>
-          <SectionsPanel
-            sections={config.sections}
-            selectedId={selectedId}
-            onSelect={handleSelectSection}
-            onReorder={handleReorder}
-            onToggleVisible={handleToggleVisible}
-            onDuplicate={handleDuplicate}
-            onDelete={handleDelete}
-          />
-        </div>
-
-        <div className={(isMobileEditor ? (mobilePanel === 'preview' ? 'flex' : 'hidden') : 'flex') + ' min-h-0 min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-0 md:p-4'}>
+      <div className="relative flex min-h-0 flex-1 overflow-hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 items-start justify-center overflow-auto bg-muted p-0 md:p-4">
           {previewResult.error ? (
             <div className="m-3 w-full max-w-2xl rounded-lg border border-danger/30 bg-surface p-4 text-left shadow-sm">
               <p className="text-sm font-semibold text-danger">Erro ao montar a previa do site</p>
               <p className="mt-2 break-words text-xs text-muted-foreground">{previewResult.error}</p>
-              <p className="mt-3 text-xs text-muted-foreground">
-                O projeto continua salvo. Este erro esta somente no renderer da previa.
-              </p>
             </div>
           ) : (
             <iframe
+              ref={previewFrameRef}
+              onLoad={installInlineEditor}
               title="Previa do site"
               srcDoc={previewResult.html}
-              className={
-                'h-full rounded-md border border-border bg-white shadow-sm transition-all ' +
-                (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-5xl')
-              }
+              className={'h-full rounded-md border border-border bg-white shadow-sm transition-all ' + (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-6xl')}
             />
           )}
         </div>
 
-        <div className={(isMobileEditor ? (mobilePanel === 'edit' ? 'block' : 'hidden') : 'block') + ' w-full min-w-0 shrink-0 overflow-hidden border-l border-border md:w-80'}>
-          {selectedSection ? (
-            <div className="flex h-full flex-col">
-              <div className="flex-1 overflow-y-auto">
-                <PropertiesPanel
-                  projectId={projectId}
-                  section={selectedSection}
-                  anchors={anchors}
-                  onChange={handleSectionChange}
-                />
-              </div>
-              <div className="border-t border-border p-3">
-                <Textarea
-                  rows={2}
-                  value={aiInstruction}
-                  onChange={(e) => setAiInstruction(e.target.value)}
-                  placeholder='Comando para a IA, ex.: "deixe mais direto"'
-                />
-                <Button
-                  size="sm"
-                  className="mt-2 w-full"
-                  onClick={handleAiEdit}
-                  disabled={!aiInstruction.trim() || aiEdit.isPending}
-                >
-                  {aiEdit.isPending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-                  Editar com IA
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="flex h-full items-center justify-center p-4 text-center text-sm text-muted-foreground">
-              Selecione uma secao para editar.
-            </div>
-          )}
-        </div>
+        {inlineEditor ? (
+          <div
+            className="fixed z-[100] flex items-center gap-1 rounded-lg border border-border bg-surface p-1.5 shadow-xl"
+            style={{ left: inlineEditor.x, top: inlineEditor.y }}
+            onMouseDown={(event) => event.preventDefault()}
+          >
+            <select className="h-8 rounded border border-border bg-surface px-2 text-xs" defaultValue="" onChange={(e) => styleInlineElement('fontSize', e.target.value)}>
+              <option value="" disabled>Tamanho</option>
+              <option value="14px">14</option><option value="16px">16</option><option value="20px">20</option><option value="28px">28</option><option value="36px">36</option><option value="48px">48</option>
+            </select>
+            <button type="button" className="h-8 w-8 rounded font-bold hover:bg-muted" onClick={() => styleInlineElement('fontWeight', editElementRef.current?.style.fontWeight === '700' ? '400' : '700')}>B</button>
+            <button type="button" className="h-8 w-8 rounded italic hover:bg-muted" onClick={() => styleInlineElement('fontStyle', editElementRef.current?.style.fontStyle === 'italic' ? 'normal' : 'italic')}>I</button>
+            <select className="h-8 max-w-28 rounded border border-border bg-surface px-2 text-xs" defaultValue="" onChange={(e) => styleInlineElement('fontFamily', e.target.value)}>
+              <option value="" disabled>Fonte</option>
+              <option value="Inter, sans-serif">Inter</option>
+              <option value="Poppins, sans-serif">Poppins</option>
+              <option value="Montserrat, sans-serif">Montserrat</option>
+              <option value="Georgia, serif">Georgia</option>
+            </select>
+            <input aria-label="Cor do texto" type="color" className="h-8 w-9 cursor-pointer bg-transparent" onChange={(e) => styleInlineElement('color', e.target.value)} />
+          </div>
+        ) : null}
 
         {showPublish ? (
           <PublishPanel
