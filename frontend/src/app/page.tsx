@@ -459,12 +459,12 @@ export default function Home() {
                   { icon: "lock", eyebrow: "PRIVACIDADE", title: "Dados protegidos", text: "Segurança em cada etapa" },
                   { icon: "support", eyebrow: "ATENDIMENTO", title: "Suporte PageNova", text: "Conte com nosso time" },
                 ].map((item) => (
-                  <div key={item.title} className="group relative min-h-[132px] overflow-hidden rounded-[20px] border border-[#dfd5b7] bg-[linear-gradient(145deg,#fffefb_0%,#fbf8ed_52%,#f1f6ef_100%)] p-4 shadow-[0_12px_32px_rgba(34,48,39,.07)] transition duration-300 hover:-translate-y-1 hover:border-[#cdb35d] hover:shadow-[0_18px_38px_rgba(34,48,39,.11)] sm:min-h-[142px] sm:p-5">
-                    <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[#d8b84f]/12 blur-2xl transition duration-300 group-hover:bg-[#d8b84f]/20" />
-                    <div className="pointer-events-none absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[#d5b95f]/55 to-transparent" />
+                  <div key={item.title} className="group relative min-h-[144px] overflow-hidden rounded-[24px] border border-[#d9d1b7]/80 bg-white p-4 shadow-[0_14px_34px_rgba(18,55,42,.08),inset_0_1px_0_rgba(255,255,255,1)] transition duration-300 hover:-translate-y-1 hover:border-[#c8b15e] hover:shadow-[0_20px_42px_rgba(18,55,42,.13)] sm:min-h-[150px] sm:p-5">
+                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(217,185,82,.14),transparent_43%),radial-gradient(circle_at_0%_100%,rgba(64,199,151,.09),transparent_42%)]" />
+                    <div className="pointer-events-none absolute left-4 right-4 top-0 h-px bg-gradient-to-r from-transparent via-[#c9ad4c]/70 to-transparent" />
                     <div className="relative">
-                      <div className="mb-3 flex items-center justify-between gap-2">
-                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[13px] border border-[#d9c477]/55 bg-[linear-gradient(145deg,#fff8d9,#eef6ec)] text-[#126846] shadow-[0_6px_16px_rgba(28,75,56,.08),inset_0_1px_0_rgba(255,255,255,.95)]">
+                      <div className="mb-4 flex items-center justify-between gap-2">
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#d7c474]/60 bg-[#f8f6ea] text-[#0c6848] shadow-[0_8px_20px_rgba(24,82,59,.10),inset_0_1px_0_rgba(255,255,255,1)] transition duration-300 group-hover:scale-105 group-hover:bg-[#f4f1df]">
                           {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
                           {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
                           {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
@@ -571,10 +571,10 @@ export default function Home() {
           </div>
 
           <div className="mt-5 flex items-center justify-center gap-5 sm:justify-end" aria-label="Selos de confiança">
-            <div className="flex h-[72px] w-[164px] items-center justify-center" title="Norton">
+            <div className="flex h-[62px] w-[190px] items-center justify-center" title="Norton">
               <img src="/trust/norton.svg" alt="Norton" className="h-full w-full object-contain" />
             </div>
-            <div className="flex h-[72px] w-[92px] items-center justify-center" title="Reclame Aqui">
+            <div className="flex h-[62px] w-[150px] items-center justify-center" title="Reclame Aqui">
               <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-full w-full object-contain" />
             </div>
           </div>
