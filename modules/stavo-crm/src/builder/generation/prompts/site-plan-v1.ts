@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.1.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.2.0';
 
 /**
  * Instrucao de sistema.
@@ -76,30 +76,31 @@ Cores: proponha "primary", "accent", "background", "surface", "text", "muted", "
 
 Tipografia: no maximo duas familias, escolhidas entre fontes amplamente disponiveis (ex.: Inter, Fraunces, Sora, Manrope, Lora, Space Grotesk, Playfair Display, Work Sans).
 
-## COMPOSICAO PADRAO PAGENOVA
+## COMPOSICAO MASTER PAGENOVA
 
-A arquitetura NAO e livre. O PageNova usa uma espinha dorsal consistente em todos os nichos; voce adapta copy, itens, imagens disponiveis, tom e identidade visual, mas nao transforma o canal de contato no assunto da pagina.
+A arquitetura NAO e livre. O PageNova usa um Template Master consistente em qualquer nicho. Voce adapta copy, servicos, beneficios, FAQ, tom e identidade visual; o renderer controla a composicao.
 
 Monte as secoes nesta ordem:
-1. "hero" -- exatamente uma. Apresente o negocio e sua proposta. Use imagem real quando houver candidato adequado. Um CTA principal; CTA secundario somente quando realmente complementar.
-2. "about" -- exatamente uma. Explique o negocio de forma curta e factual.
-3. "services" -- exatamente uma. Mostre servicos/especialidades. Priorize os servicos fornecidos no briefing; nao invente procedimentos especificos.
-4. "benefits" -- exatamente uma. Diferenciais/beneficios de escolher o negocio, sem inventar credenciais ou numeros.
-5. "gallery" -- somente quando existirem pelo menos duas imagens reais candidatas. Nunca crie galeria vazia ou ficticia.
-6. "process" -- exatamente uma. Explique em 3 passos simples como funciona o atendimento/contratacao. WhatsApp pode aparecer em no maximo um passo, se fizer sentido.
-7. "testimonials" -- somente se o sistema informar que existem depoimentos confirmados.
-8. "contactMap" -- exatamente uma quando existir qualquer informacao confirmada de endereco, telefone, e-mail, horario ou mapa.
-9. "cta" -- exatamente uma chamada final para a acao principal.
+1. "hero" -- exatamente uma. Proposta principal, cidade/nicho quando fornecidos e CTA. Este e o SLOT DE IMAGEM 1.
+2. "services" -- exatamente uma. De 3 a 6 servicos/produtos/especialidades. Use o briefing; quando ele for curto, escreva categorias genericas coerentes sem afirmar fatos especificos nao fornecidos.
+3. "benefits" -- exatamente uma. De 3 a 4 beneficios neutros e verificaveis; nunca invente premio, credencial, numero ou promessa.
+4. "about" -- exatamente uma. Historia/proposta curta do negocio. Este e o SLOT DE IMAGEM 2.
+5. "process" -- exatamente uma. Tres passos simples de atendimento, compra, agendamento ou contratacao conforme o nicho.
+6. "testimonials" -- somente quando o sistema informar depoimentos confirmados. Nunca invente avaliacao.
+7. "faq" -- exatamente uma, com 4 a 6 perguntas uteis e respostas prudentes. Nao invente horario, preco, politica ou condicao comercial.
+8. "contactMap" -- quando existir qualquer contato, endereco, horario ou mapa confirmado.
+9. "cta" -- exatamente uma chamada final, curta e forte.
 10. "footer" -- exatamente um e sempre por ultimo.
 
 Regras estruturais obrigatorias:
-- NAO gere "whatsappForm" na geracao inicial padrao.
-- NAO use "offer", "audience", "authority", "stats" ou "faq" na geracao inicial padrao, salvo se estiverem explicitamente em "Secoes obrigatorias".
-- WhatsApp e CANAL DE CONVERSAO, nao tema editorial. A palavra "WhatsApp" nao deve dominar titulos, subtitulos, cards ou passos.
-- No maximo hero, CTA final e cabecalho podem ter chamada direta para WhatsApp. As demais secoes devem falar do negocio, servicos, diferenciais, processo e informacoes reais.
+- Existem EXATAMENTE DOIS slots de imagem na geracao inicial: hero e about. Nao associe imagem a services, benefits, process ou outras secoes.
+- NAO gere "gallery" na geracao inicial. Fotos adicionais poderao ser adicionadas no editor depois.
+- Se nao houver imagem real, mantenha hero/about normalmente: o renderer mostra um slot visual neutro para futura substituicao.
+- NAO gere "whatsappForm", "offer", "audience", "authority" ou "stats" na geracao inicial padrao, salvo se estiverem explicitamente em "Secoes obrigatorias".
+- Dado factual vem do Google/CRM/briefing confirmado. Quando faltar, omita o fato ou use copy neutra; nunca complete endereco, horario, avaliacao, nota, quantidade, preco, credencial ou experiencia por suposicao.
+- WhatsApp e CANAL DE CONVERSAO, nao tema editorial. No maximo hero, CTA final e cabecalho devem destacar o canal.
 - Nao repita secoes nem crie varias secoes com a mesma funcao.
-- O hero deve ser compacto no celular: headline curta, sem texto excessivo e sem composicao que dependa de grande vazio vertical.
-- Prefira variantes mobile-friendly. Quando houver imagem real adequada, use uma variante de hero que suporte imagem.
+- O hero deve ser compacto no celular e nao pode depender de grande vazio vertical.
 - A ordem do array "sections" e a ordem final da pagina.
 
 ## SEGURANCA
