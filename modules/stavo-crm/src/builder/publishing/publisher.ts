@@ -210,7 +210,18 @@ export async function publishProject(
 
     return { publication, url: `${publicSitesBaseUrl()}/p/${slug}` };
   } catch (error) {
-    logger.error({ err: error, publicationId }, 'Falha ao publicar site.');
+    const message = error instanceof Error ? error.message : 'Falha desconhecida ao publicar.';
+    // Uma tentativa que falhou nao pode permanecer eternamente como BUILDING:
+    // isso polui o historico, dificulta o retry e esconde a causa real no banco.
+    await repo.markPublicationFailed(publicationId, 'SITE_PUBLICATION_FAILED', message.slice(0, 500)).catch(() => undefined);
+
+    // Se a nova publicacao chegou a ser ativada antes de uma falha posterior,
+    // restaura a anterior quando houver uma versao superseded disponivel.
+    if (previousActivePublicationId) {
+      await repo.rollbackToPublication(project.id, previousActivePublicationId).catch(() => false);
+    }
+
+    logger.error({ err: error, publicationId, projectId: project.id }, 'Falha ao publicar site.');
     throw error;
   }
 }
