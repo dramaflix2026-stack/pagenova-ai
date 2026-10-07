@@ -5518,5 +5518,260 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     }
   }
 
+
+  /* ========================================================
+     PAGENOVA V6.7 - GLOBAL COMPOSITION QUALITY
+     Keeps every generated page centered, readable and stable.
+     ======================================================== */
+
+  .pn001-site,
+  .pn001-site * { box-sizing: border-box !important; }
+
+  .pn001-site {
+    overflow-x: clip !important;
+    text-rendering: optimizeLegibility !important;
+  }
+
+  .pn001-site .pn001-container {
+    width: min(calc(100% - clamp(32px, 7vw, 96px)), 1180px) !important;
+    max-width: 1180px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .pn001-site h1,
+  .pn001-site h2,
+  .pn001-site h3,
+  .pn001-site p,
+  .pn001-site a,
+  .pn001-site span {
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
+  }
+
+  .pn001-site img {
+    max-width: 100% !important;
+    height: auto;
+  }
+
+  .pn001-site .pn001-section,
+  .pn001-site .pn001-about,
+  .pn001-site .pn001-contact,
+  .pn001-site .pn001-testimonials,
+  .pn001-site .pn001-testimonials-v6 {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  .pn001-site .pn001-section-head,
+  .pn001-site .pn001-v66-head {
+    width: 100% !important;
+    max-width: 920px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .pn001-site .pn001-section-head > p,
+  .pn001-site .pn001-v66-head-copy > p {
+    max-width: 720px !important;
+  }
+
+  .pn001-site .pn001-hero-grid,
+  .pn001-site .pn001-about-grid,
+  .pn001-site .pn001-contact-shell,
+  .pn001-site .pn001-faq-layout {
+    min-width: 0 !important;
+  }
+
+  .pn001-site .pn001-hero-copy,
+  .pn001-site .pn001-about-copy,
+  .pn001-site .pn001-contact-copy,
+  .pn001-site .pn001-v66-head-copy {
+    min-width: 0 !important;
+  }
+
+  .pn001-site .pn001-hero-actions {
+    align-items: center !important;
+    flex-wrap: wrap !important;
+  }
+
+  .pn001-site .pn001-button,
+  .pn001-site .pn001-form-submit {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .pn001-site .pn001-footer {
+    padding: clamp(42px, 6vw, 72px) 0 clamp(30px, 4vw, 48px) !important;
+  }
+
+  .pn001-site .pn001-footer-inner {
+    width: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    grid-template-columns: minmax(180px, 1.2fr) repeat(2, minmax(140px, .8fr)) !important;
+    align-items: start !important;
+    gap: clamp(24px, 5vw, 64px) !important;
+    padding-top: clamp(24px, 3vw, 36px) !important;
+  }
+
+  .pn001-site .pn001-footer-inner > * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .pn001-site .pn001-footer nav,
+  .pn001-site .pn001-footer ul {
+    display: grid !important;
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .pn001-site .pn001-footer a {
+    line-height: 1.5 !important;
+  }
+
+  @media (max-width: 900px) {
+    .pn001-site .pn001-container {
+      width: min(calc(100% - 36px), 1180px) !important;
+    }
+
+    .pn001-site .pn001-hero-grid,
+    .pn001-site .pn001-about-grid,
+    .pn001-site .pn001-contact-shell {
+      grid-template-columns: minmax(0, 1fr) !important;
+      gap: clamp(30px, 7vw, 52px) !important;
+    }
+
+    .pn001-site .pn001-hero-copy,
+    .pn001-site .pn001-about-copy {
+      width: 100% !important;
+      max-width: 760px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .pn001-site .pn001-hero-visual,
+    .pn001-site .pn001-about-visual {
+      width: 100% !important;
+      max-width: 760px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+    }
+
+    .pn001-site .pn001-footer-inner {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .pn001-site .pn001-container {
+      width: calc(100% - 28px) !important;
+    }
+
+    .pn001-site .pn001-header {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+    }
+
+    .pn001-site .pn001-header-inner {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .pn001-site .pn001-hero {
+      padding-top: 48px !important;
+      padding-bottom: 58px !important;
+    }
+
+    .pn001-site .pn001-hero h1 {
+      max-width: 100% !important;
+      font-size: clamp(38px, 11.5vw, 54px) !important;
+      line-height: .98 !important;
+      letter-spacing: -.045em !important;
+    }
+
+    .pn001-site .pn001-hero-copy > p {
+      max-width: 100% !important;
+      font-size: 16px !important;
+      line-height: 1.62 !important;
+    }
+
+    .pn001-site .pn001-hero-actions {
+      width: 100% !important;
+      gap: 10px !important;
+    }
+
+    .pn001-site .pn001-hero-actions .pn001-button {
+      width: 100% !important;
+      min-height: 50px !important;
+    }
+
+    .pn001-site .pn001-hero-image,
+    .pn001-site .pn001-about-image {
+      width: 100% !important;
+      min-height: 0 !important;
+      max-height: 520px !important;
+      aspect-ratio: 4 / 5 !important;
+      object-fit: cover !important;
+      object-position: center !important;
+    }
+
+    .pn001-site .pn001-section,
+    .pn001-site .pn001-v66-services,
+    .pn001-site .pn001-v66-benefits,
+    .pn001-site .pn001-v66-features,
+    .pn001-site .pn001-v66-process {
+      padding-top: 56px !important;
+      padding-bottom: 56px !important;
+    }
+
+    .pn001-site .pn001-section-head h2,
+    .pn001-site .pn001-v66-head h2 {
+      font-size: clamp(32px, 9vw, 44px) !important;
+      line-height: 1.02 !important;
+      letter-spacing: -.035em !important;
+    }
+
+    .pn001-site .pn001-contact-shell,
+    .pn001-site .pn001-contact-card,
+    .pn001-site .pn001-form {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .pn001-site .pn001-form-row {
+      grid-template-columns: 1fr !important;
+    }
+
+    .pn001-site .pn001-final-cta {
+      padding: 18px 0 28px !important;
+    }
+
+    .pn001-site .pn001-final-cta-card,
+    .pn001-site .pn-v2-final-cta-card {
+      width: 100% !important;
+      padding: 28px 20px !important;
+    }
+
+    .pn001-site .pn001-footer {
+      padding-top: 38px !important;
+    }
+
+    .pn001-site .pn001-footer-inner {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 22px !important;
+    }
+
+    .pn001-site .pn001-footer-inner > * {
+      width: 100% !important;
+    }
+  }
+
   /* PAGENOVA_V66_END */
   /* PAGENOVA_V65_END */`;
