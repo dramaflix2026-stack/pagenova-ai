@@ -26,7 +26,7 @@ import { shell } from '@site-kit/primitives/section-shell';
 export function renderAbout(section: AboutSection, ctx: RenderContext): string {
   const text = section.body.map((block) => paragraphs(block)).join('');
   const cta = section.cta ? renderActions([section.cta]) : '';
-  const renderedImage = renderImage(section.image, ctx);
+  const renderedImage = renderImage(section.image, ctx, { loading: 'eager', sizes: '(max-width: 899px) 100vw, 46vw' });
   const image =
     renderedImage ||
     '<div class="pn-image-slot pn-image-slot--about" aria-label="Espaco reservado para segunda foto do negocio">' +
