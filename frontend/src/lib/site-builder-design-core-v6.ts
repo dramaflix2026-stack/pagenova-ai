@@ -5850,5 +5850,75 @@ export const PAGENOVA_DESIGN_CORE_V6_SCRIPT = `
     }
   }
 
+  /* ============================================================
+     PAGENOVA V6.8 PREVIEW-SAFE RESPONSIVE CLOSING
+     Container queries make the closing blocks responsive to the
+     actual preview canvas, even when embedded in the builder iframe.
+     ============================================================ */
+  .pn001-site {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 760px) {
+    .pn001-site .pn001-final-cta-card,
+    .pn001-site .pn-v2-final-cta-card {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      gap: 20px !important;
+      padding: 28px 22px !important;
+    }
+
+    .pn001-site .pn001-final-cta-copy,
+    .pn001-site .pn001-final-cta-action,
+    .pn001-site .pn001-final-cta-action .pn001-button {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    .pn001-site .pn001-final-cta h2,
+    .pn001-site .pn001-final-cta p {
+      max-width: 100% !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+    }
+
+    .pn001-site .pn001-footer-main {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      gap: 30px !important;
+    }
+
+    .pn001-site .pn001-footer-brand-column,
+    .pn001-site .pn001-footer-column {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-column: auto !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: none !important;
+    }
+
+    .pn001-site .pn001-footer-brand-column p,
+    .pn001-site .pn001-footer-links,
+    .pn001-site .pn001-footer-links a,
+    .pn001-site .pn001-footer-links span {
+      width: auto !important;
+      max-width: 100% !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+    }
+
+    .pn001-site .pn001-footer-bottom {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+    }
+  }
+
   /* PAGENOVA_V66_END */
   /* PAGENOVA_V65_END */`;
