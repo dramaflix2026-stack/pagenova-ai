@@ -161,6 +161,33 @@ export default function SiteAiPage() {
         />
       ) : null}
 
+      {selectedLeadId && selectedLead.isLoading ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          role="status"
+          aria-live="polite"
+        >
+          <Card className="relative z-[60] w-full max-w-md">
+            <CardContent className="p-6">
+              <LoadingBlock label="Carregando dados do lead..." />
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
+
+      {selectedLeadId && selectedLead.isError ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <Card className="relative z-[60] w-full max-w-md">
+            <CardContent className="space-y-4 p-6">
+              <ErrorState message="Nao foi possivel carregar os dados deste lead." />
+              <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>
+                Voltar para os leads
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
+
       <SiteWizardDialog
         key={selectedLeadId ?? 'crm-lead-site'}
         open={Boolean(selectedLeadId && selectedLead.data)}
