@@ -28,7 +28,7 @@
  * abrir com duplo clique.
  */
 
-export const SITE_RUNTIME_VERSION = '1.1.0';
+export const SITE_RUNTIME_VERSION = '1.2.0';
 
 /**
  * Codigo entregue ao navegador.
@@ -111,7 +111,7 @@ export const SITE_RUNTIME_JS = `
   }
 
   // ---- Presets de entrada -------------------------------------------------
-  var animated = doc.querySelectorAll('[data-animate], [data-animate-stagger]');
+  var animated = doc.querySelectorAll('[data-animate], [data-animate-stagger], .section');
 
   function revealAll() {
     for (var i = 0; i < animated.length; i++) {
