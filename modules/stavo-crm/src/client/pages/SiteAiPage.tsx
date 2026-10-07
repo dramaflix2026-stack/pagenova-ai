@@ -17,7 +17,7 @@ import {
 } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
-import { useCreateSiteProject, useGenerateSite, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
+import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
 import { api, ApiError } from '../lib/api';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
