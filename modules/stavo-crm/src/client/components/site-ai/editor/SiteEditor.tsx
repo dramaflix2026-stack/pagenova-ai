@@ -313,10 +313,35 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     });
   };
 
-  const styleInlineElement = (property: 'fontSize' | 'fontFamily' | 'color' | 'fontWeight' | 'fontStyle', value: string) => {
+  const styleInlineElement = (
+    property: 'fontSize' | 'fontFamily' | 'color' | 'fontWeight' | 'fontStyle' | 'textAlign',
+    value: string,
+  ) => {
     const element = editElementRef.current;
     if (!element) return;
     element.style[property] = value;
+
+    const key = element.dataset.pnEdit;
+    if (key) {
+      const previous = config.visualTextEdits.find((item) => item.key === key) ?? { key };
+      const patch =
+        property === 'fontSize'
+          ? { fontSizePx: Number.parseInt(value, 10) }
+          : property === 'fontFamily'
+            ? { fontFamily: value.split(',')[0]!.trim() as 'Inter' | 'Poppins' | 'Montserrat' | 'Georgia' }
+            : property === 'color'
+              ? { color: value }
+              : property === 'fontWeight'
+                ? { fontWeight: value as '400' | '500' | '600' | '700' | '800' | '900' }
+                : property === 'fontStyle'
+                  ? { fontStyle: value as 'normal' | 'italic' }
+                  : { textAlign: value as 'left' | 'center' | 'right' };
+      const nextEdit = { ...previous, ...patch };
+      history.set({
+        ...config,
+        visualTextEdits: [...config.visualTextEdits.filter((item) => item.key !== key), nextEdit],
+      });
+    }
     element.focus();
   };
 
@@ -386,6 +411,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
               <option value="Georgia, serif">Georgia</option>
             </select>
             <input aria-label="Cor do texto" type="color" className="h-8 w-9 cursor-pointer bg-transparent" onChange={(e) => styleInlineElement('color', e.target.value)} />
+            <button type="button" title="Alinhar a esquerda" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'left')}>L</button>
+            <button type="button" title="Centralizar" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'center')}>C</button>
+            <button type="button" title="Alinhar a direita" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'right')}>R</button>
           </div>
         ) : null}
 
