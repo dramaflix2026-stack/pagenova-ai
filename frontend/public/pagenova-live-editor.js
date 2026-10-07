@@ -195,9 +195,16 @@
     syncUi();
   }
 
+  function isResponsiveStructure(el) {
+    return !!closest(
+      el,
+      ".pn001-final-cta,.pn001-final-cta-card,.pn001-final-cta-copy,.pn001-final-cta-action,.pn001-footer,.pn001-footer-main,.pn001-footer-brand-column,.pn001-footer-column,.pn001-footer-bottom"
+    );
+  }
+
   function ensureMovable(el) {
     if (!el || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
-    if (el.matches(sectionSel)) return el;
+    if (el.matches(sectionSel) || isResponsiveStructure(el)) return el;
     const r = el.getBoundingClientRect();
     const source = path(el);
     el.dataset.pnSourceHidden = "true";
@@ -263,7 +270,12 @@
     // Geometry is only restored when the user actually dragged an element.
     // Plain text edits also store their measured rectangle, but applying that
     // rectangle as absolute positioning destroys responsive grids on reload.
-    const hasMovedGeometry = edit.movable && !!edit.ghostId && edit.left != null && edit.top != null;
+    const hasMovedGeometry =
+      edit.movable &&
+      !!edit.ghostId &&
+      edit.left != null &&
+      edit.top != null &&
+      !isResponsiveStructure(source || el);
     if (hasMovedGeometry) {
       el.style.setProperty("position", "absolute", "important");
       el.style.setProperty("left", edit.left + "px", "important");
@@ -351,7 +363,7 @@
     if (!el) return;
     const wasSelected = selected === el;
     select(el);
-    if (!wasSelected || el.matches(sectionSel) || el.isContentEditable) return;
+    if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
     pending = { el: el, x:e.clientX, y:e.clientY, started:false };
   }, true);
 
