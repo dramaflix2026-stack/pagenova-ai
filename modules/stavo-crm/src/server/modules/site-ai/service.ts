@@ -365,11 +365,22 @@ export function validateAndLintConfig(raw: unknown): {
  * mas precisa de confirmacao consciente de quem clicou.
  */
 export function assertPublishable(report: LintReport, acknowledgedWarnings: boolean): void {
-  if (!report.canPublish) {
+  // Achados de qualidade continuam aparecendo no editor, mas um SiteSchema
+  // valido e renderizavel nao pode ficar impossivel de publicar. O bloqueio
+  // fica reservado a conteudo materialmente falso ou resto de template.
+  const hardErrors = report.errors.filter((finding) =>
+    [
+      'COPY_PLACEHOLDER',
+      'FACT_UNCONFIRMED_CREDENTIAL',
+      'FACT_UNCONFIRMED_TESTIMONIAL',
+      'FACT_UNCONFIRMED_STAT',
+    ].includes(finding.code),
+  );
+
+  if (hardErrors.length > 0) {
     throw unprocessable(
-      `O site tem ${report.errors.length} problema(s) que impedem a publicacao. ` +
-        'Corrija no editor antes de gerar o link.',
-      { code: 'SITE_LINT_BLOCKED', details: { errors: report.errors } },
+      `O site tem ${hardErrors.length} problema(s) de conteudo que impedem a publicacao. Corrija os dados nao confirmados antes de publicar.`,
+      { code: 'SITE_LINT_BLOCKED', details: { errors: hardErrors } },
     );
   }
 
