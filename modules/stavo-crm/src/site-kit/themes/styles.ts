@@ -477,6 +477,77 @@ body:has(.sticky-bar){padding-bottom:5.5rem}
 border:var(--border-w) solid var(--border)}
 .map-frame iframe{height:100%;min-height:320px}
 
+/* ---- PageNova Contact Composition V1 -----------------------------------
+   Contato precisa parecer um bloco de conversao, nao texto solto em uma
+   area vazia. Mantem botoes compactos em telas largas e full-width no mobile. */
+.contact{position:relative}
+.contact .heading{max-width:760px}
+.contact .contact-grid{
+  gap:clamp(1rem,2.4vw,1.75rem);
+  align-items:stretch;
+}
+.contact .contact-grid>.card,
+.contact--band .contact-grid>div{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  min-height:100%;
+}
+.contact .address{
+  margin:0;
+  font-size:clamp(1rem,1.35vw,1.15rem);
+  line-height:1.65;
+  font-weight:500;
+}
+.contact .hours{margin:1rem 0 0}
+.contact .actions{
+  width:auto;
+  align-items:center;
+  margin-top:1.25rem;
+}
+.contact .actions .btn{
+  width:auto;
+  min-width:0;
+  white-space:nowrap;
+}
+.contact--band .contact-grid{
+  max-width:1040px;
+  padding:clamp(1.4rem,3vw,2.35rem);
+  border:var(--border-w) solid var(--border);
+  border-radius:var(--radius-md);
+  background:var(--surface);
+  box-shadow:var(--shadow);
+}
+.contact--band .contact-grid>div+div{
+  border-left:var(--border-w) solid var(--border);
+  padding-left:clamp(1.4rem,3vw,2.35rem);
+}
+.contact--channels>.container>.address,
+.contact--channels>.container>.hours,
+.contact--channels>.container>.actions,
+.contact--channels .channel-list{
+  max-width:720px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.contact--channels .channel-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+.contact--channels .channel .btn{width:100%}
+.contact .map-frame{box-shadow:var(--shadow);background:var(--surface)}
+
+@media(max-width:760px){
+  .contact .contact-grid{gap:1rem}
+  .contact .actions{display:grid;width:100%}
+  .contact .actions .btn{width:100%;white-space:normal}
+  .contact--band .contact-grid{padding:1.2rem}
+  .contact--band .contact-grid>div+div{
+    border-left:0;
+    border-top:var(--border-w) solid var(--border);
+    padding-left:0;
+    padding-top:1.2rem;
+  }
+  .contact--channels .channel-list{grid-template-columns:1fr}
+}
+
 /* ---- Formulario --------------------------------------------------------- */
 .form-card{max-width:560px;margin:0 auto}
 .form-card--inline{max-width:720px}
