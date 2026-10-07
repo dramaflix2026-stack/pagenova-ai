@@ -56,7 +56,7 @@ export const DialogContent = forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          'fixed z-50 flex flex-col bg-surface shadow-xl focus:outline-none',
+          'fixed z-[60] flex flex-col bg-surface shadow-xl focus:outline-none',
           layout === 'drawer'
             ? // Celular: folha inferior. Desktop: painel lateral.
               'inset-x-0 bottom-0 top-16 rounded-t-xl sm:inset-y-0 sm:left-auto sm:right-0 sm:top-0 sm:w-full sm:max-w-xl sm:rounded-none sm:border-l sm:animate-slide-in-right'
