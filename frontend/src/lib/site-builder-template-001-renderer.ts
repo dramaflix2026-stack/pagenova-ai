@@ -6234,8 +6234,7 @@ export function renderTemplate001Preview(
           }
         `
       : "";
-  return `
-    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}${PAGENOVA_V662_PREMIUM_POLISH_STYLES}</style>
+  return `<!doctype html>\n<html lang="pt-BR">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n    <title>${escapeHtml(brandName)}</title>\n    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}${PAGENOVA_V662_PREMIUM_POLISH_STYLES}</style>
 
     <div
       class="pn001-site ${designDirection.className}"
@@ -6706,7 +6705,4 @@ export function renderTemplate001Preview(
           600
         );
       })();
-    </script>
-
-  `;
-}
+    </script>\n  </body>\n</html>\n  `;\n}
