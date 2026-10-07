@@ -7,17 +7,20 @@
   const cardSel = "article,[class*='card'],[class*='Card'],.service-card,.servico-card,.feature-card,.benefit-card,.step-card,.process-card,.metodo-card,.solution-card";
   const sectionSel = "section,.section,[class*='section'],[class*='Section']";
   const socialSel = ".social-links,[class*='social-links'],[class*='socialLinks']";
-  const editSel = textSel + "," + cardSel + "," + sectionSel + "," + socialSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
+  const imageSel = "img,picture";
+  const editSel = textSel + "," + cardSel + "," + sectionSel + "," + socialSel + "," + imageSel + ",[data-pn-divider=true],[data-pn-ghost=true]";
 
   let selected = null;
-  let hovered = null;
   let pending = null;
   let resizing = null;
+  let toolbarOpen = false;
+  let lastTap = { el: null, at: 0 };
 
   function px(v) { return Math.round(v) + "px"; }
   function uid() { return "pn-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8); }
   function closest(t, s) { try { return t && t.closest ? t.closest(s) : null; } catch (_) { return null; } }
-  function clearSelection() { const s = window.getSelection && window.getSelection(); if (s) s.removeAllRanges(); }
+  function clearNativeSelection() { const s = window.getSelection && window.getSelection(); if (s) s.removeAllRanges(); }
+  function find(selector) { try { return document.querySelector(selector); } catch (_) { return null; } }
 
   function path(el) {
     if (!el || !el.tagName) return "";
@@ -35,14 +38,26 @@
     return parts.join(">");
   }
 
-  function find(selector) {
-    try { return document.querySelector(selector); } catch (_) { return null; }
-  }
-
   function hex(color) {
+    if (/^#[0-9a-f]{6}$/i.test(String(color || ""))) return String(color);
     const m = String(color || "").match(/\d+/g);
     if (!m || m.length < 3) return "#111111";
-    return "#" + m.slice(0, 3).map(n => Math.max(0, Math.min(255, parseInt(n, 10))).toString(16).padStart(2, "0")).join("");
+    return "#" + m.slice(0, 3).map(function(n) {
+      return Math.max(0, Math.min(255, parseInt(n, 10))).toString(16).padStart(2, "0");
+    }).join("");
+  }
+
+  function candidate(target) {
+    if (closest(target, "#pn-edit-bar,#pn-edit-box")) return null;
+    const image = closest(target, imageSel);
+    if (image) return image;
+    const social = closest(target, socialSel);
+    if (social) return social;
+    const text = closest(target, textSel);
+    if (text) return text;
+    const card = closest(target, cardSel);
+    if (card) return card;
+    return closest(target, sectionSel + ",[data-pn-divider=true],[data-pn-ghost=true]");
   }
 
   function makeUi() {
@@ -50,17 +65,16 @@
 
     const bar = document.createElement("div");
     bar.id = "pn-edit-bar";
+    bar.setAttribute("aria-hidden", "true");
     bar.innerHTML =
-      '<button data-act="text">+ Texto</button>' +
-      '<button data-act="line">+ Linha</button>' +
-      '<button data-act="card">Card</button>' +
-      '<button data-act="section">Seção</button>' +
-      '<button data-act="logo-left">Logo esquerda</button>' +
-      '<button data-act="logo-center">Logo centro</button>' +
-      '<button data-act="logo-right">Logo direita</button>' +
-      '<select data-field="font"><option value="">Fonte</option><option value="Poppins">Poppins</option><option value="Inter">Inter</option><option value="Montserrat">Montserrat</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Oswald">Oswald</option><option value="Bebas Neue">Bebas Neue</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select>' +
-      '<input data-field="size" type="number" min="8" max="120" placeholder="Tam.">' +
-      '<input data-field="color" type="color" value="#111111">';
+      '<button type="button" data-act="bold" title="Negrito"><b>B</b></button>' +
+      '<button type="button" data-act="align-left" title="Alinhar à esquerda">≡</button>' +
+      '<button type="button" data-act="align-center" title="Centralizar">≣</button>' +
+      '<button type="button" data-act="align-right" title="Alinhar à direita">≡</button>' +
+      '<select data-field="font" title="Fonte"><option value="Poppins">Poppins</option><option value="Inter">Inter</option><option value="Montserrat">Montserrat</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Oswald">Oswald</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select>' +
+      '<input data-field="size" type="number" min="10" max="120" inputmode="numeric" aria-label="Tamanho">' +
+      '<input data-field="color" type="color" value="#111111" aria-label="Cor">' +
+      '<button type="button" data-act="close" title="Fechar">×</button>';
     document.body.appendChild(bar);
 
     const box = document.createElement("div");
@@ -68,106 +82,129 @@
     box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     document.body.appendChild(box);
 
-    const gx = document.createElement("div");
-    gx.id = "pn-align-x";
-    const gy = document.createElement("div");
-    gy.id = "pn-align-y";
+    const gx = document.createElement("div"); gx.id = "pn-align-x";
+    const gy = document.createElement("div"); gy.id = "pn-align-y";
     document.body.append(gx, gy);
 
-    bar.addEventListener("input", function (e) {
-      if (!selected) return;
+    bar.addEventListener("input", function(e) {
+      if (!selected || !selected.matches(textSel)) return;
       const field = e.target.dataset.field;
-      if (field === "font") selected.style.setProperty("font-family", e.target.value, "important");
-      if (field === "size") selected.style.setProperty("font-size", e.target.value + "px", "important");
+      if (field === "font" && e.target.value) selected.style.setProperty("font-family", e.target.value, "important");
+      if (field === "size" && e.target.value) selected.style.setProperty("font-size", e.target.value + "px", "important");
       if (field === "color") selected.style.setProperty("color", e.target.value, "important");
-      syncBox();
-      save();
+      syncUi(); save();
     });
 
-    bar.addEventListener("click", function (e) {
-      const act = e.target.dataset.act;
-      if (!act) return;
-      e.preventDefault();
-
-      if (act === "text") addText();
-      if (act === "line") addLine();
-      if (act === "card") select(closest(selected, cardSel) || closest(selected, socialSel) || selected);
-      if (act === "section") selectSection();
-      if (act.indexOf("logo-") === 0) setLogo(act.replace("logo-", ""));
+    bar.addEventListener("click", function(e) {
+      const act = e.target.closest("[data-act]")?.dataset.act;
+      if (!act || !selected) return;
+      e.preventDefault(); e.stopPropagation();
+      if (act === "close") { closeToolbar(); return; }
+      if (!selected.matches(textSel)) return;
+      if (act === "bold") {
+        const weight = parseInt(getComputedStyle(selected).fontWeight, 10) || 400;
+        selected.style.setProperty("font-weight", weight >= 600 ? "400" : "700", "important");
+      }
+      if (act.indexOf("align-") === 0) selected.style.setProperty("text-align", act.replace("align-", ""), "important");
+      syncUi(); save();
     });
 
-    box.addEventListener("pointerdown", function (e) {
+    box.addEventListener("pointerdown", function(e) {
       const h = e.target.dataset.h;
       if (!h || !selected) return;
-      e.preventDefault();
-      e.stopPropagation();
-      clearSelection();
-
+      e.preventDefault(); e.stopPropagation(); clearNativeSelection();
       const r = selected.getBoundingClientRect();
-      resizing = {
-        h,
-        x: e.clientX,
-        y: e.clientY,
-        left: r.left + scrollX,
-        top: r.top + scrollY,
-        width: r.width,
-        height: r.height,
-        section: selected.dataset.pnSection === "true"
-      };
-      selected.setPointerCapture && selected.setPointerCapture(e.pointerId);
+      resizing = { h: h, x: e.clientX, y: e.clientY, left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height, section: selected.matches(sectionSel) };
     }, true);
   }
 
-  function syncBox() {
+  function closeToolbar() {
+    toolbarOpen = false;
+    const bar = document.getElementById("pn-edit-bar");
+    if (bar) { bar.dataset.open = "false"; bar.setAttribute("aria-hidden", "true"); }
+    if (selected && selected.isContentEditable) {
+      selected.contentEditable = "false";
+      save();
+    }
+  }
+
+  function openToolbar(el) {
+    if (!el || !el.matches(textSel)) return;
+    select(el);
+    toolbarOpen = true;
+    el.contentEditable = "true";
+    const bar = document.getElementById("pn-edit-bar");
+    bar.dataset.open = "true";
+    bar.setAttribute("aria-hidden", "false");
+    syncUi();
+    try { el.focus({ preventScroll: true }); } catch (_) {}
+  }
+
+  function syncUi() {
     const box = document.getElementById("pn-edit-box");
+    const bar = document.getElementById("pn-edit-bar");
     if (!box) return;
-    if (!selected) {
+    if (!selected || !document.documentElement.contains(selected)) {
       box.dataset.open = "false";
+      if (bar) bar.dataset.open = "false";
       return;
     }
-
     const r = selected.getBoundingClientRect();
     box.dataset.open = "true";
-    box.style.left = px(r.left - 5);
-    box.style.top = px(r.top - 5);
-    box.style.width = px(r.width + 10);
-    box.style.height = px(r.height + 10);
+    box.style.left = px(r.left - 3);
+    box.style.top = px(r.top - 3);
+    box.style.width = px(r.width + 6);
+    box.style.height = px(r.height + 6);
+
+    if (toolbarOpen && bar) {
+      const cs = getComputedStyle(selected);
+      const font = bar.querySelector('[data-field="font"]');
+      const size = bar.querySelector('[data-field="size"]');
+      const color = bar.querySelector('[data-field="color"]');
+      const family = cs.fontFamily.split(",")[0].replaceAll('"', "").trim();
+      if ([].some.call(font.options, function(o) { return o.value === family; })) font.value = family;
+      size.value = parseInt(cs.fontSize, 10) || 16;
+      color.value = hex(cs.color);
+      const bw = Math.min(bar.offsetWidth || 360, innerWidth - 16);
+      const left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2));
+      const preferredTop = r.top - (bar.offsetHeight || 48) - 10;
+      const top = preferredTop >= 8 ? preferredTop : Math.min(innerHeight - (bar.offsetHeight || 48) - 8, r.bottom + 10);
+      bar.style.left = px(left);
+      bar.style.top = px(top);
+    }
+  }
+
+  function deselect() {
+    closeToolbar();
+    document.querySelectorAll("[data-pn-selected=true]").forEach(function(x) { x.removeAttribute("data-pn-selected"); });
+    selected = null;
+    syncUi();
   }
 
   function select(el) {
     makeUi();
     if (!el) return;
+    if (selected && selected !== el && selected.isContentEditable) selected.contentEditable = "false";
+    document.querySelectorAll("[data-pn-selected=true]").forEach(function(x) { x.removeAttribute("data-pn-selected"); });
     selected = el;
-    document.querySelectorAll("[data-pn-selected=true]").forEach(x => x.removeAttribute("data-pn-selected"));
     selected.dataset.pnSelected = "true";
-
-    const cs = getComputedStyle(selected);
-    const bar = document.getElementById("pn-edit-bar");
-    bar.querySelector('[data-field="font"]').value = cs.fontFamily.split(",")[0].replaceAll('"', "");
-    bar.querySelector('[data-field="size"]').value = parseInt(cs.fontSize, 10) || "";
-    bar.querySelector('[data-field="color"]').value = hex(cs.color);
-
-    syncBox();
+    if (!selected.dataset.pnId) selected.dataset.pnId = uid();
+    syncUi();
   }
 
-  function ensureGhost(el) {
+  function ensureMovable(el) {
     if (!el || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
-    if (el.matches(sectionSel)) {
-      el.dataset.pnSection = "true";
-      return el;
-    }
-
+    if (el.matches(sectionSel)) return el;
     const r = el.getBoundingClientRect();
     const source = path(el);
-
     el.dataset.pnSourceHidden = "true";
     el.style.setProperty("visibility", "hidden", "important");
-
     const ghost = el.cloneNode(true);
     ghost.dataset.pnGhost = "true";
     ghost.dataset.pnSource = source;
     ghost.dataset.pnId = uid();
     ghost.removeAttribute("id");
+    ghost.removeAttribute("data-pn-selected");
     ghost.style.setProperty("visibility", "visible", "important");
     ghost.style.setProperty("position", "absolute", "important");
     ghost.style.setProperty("left", px(r.left + scrollX), "important");
@@ -176,390 +213,167 @@
     ghost.style.setProperty("height", px(r.height), "important");
     ghost.style.setProperty("z-index", "120", "important");
     ghost.style.setProperty("box-sizing", "border-box", "important");
-
     document.body.appendChild(ghost);
     return ghost;
   }
 
   function save() {
     if (!selected) return;
-
     const r = selected.getBoundingClientRect();
-    const isSection = selected.dataset.pnSection === "true";
+    const isSection = selected.matches(sectionSel);
+    const isText = selected.matches(textSel);
+    const isImage = selected.matches(imageSel) || !!selected.querySelector?.("img");
+    const cs = getComputedStyle(selected);
     const edit = {
       selector: selected.dataset.pnSource || path(selected),
       ghostId: selected.dataset.pnGhost === "true" ? selected.dataset.pnId : "",
-      text: selected.matches(textSel) ? selected.textContent.trim() : "",
-      font: selected.style.fontFamily || "",
-      size: parseFloat(selected.style.fontSize) || 0,
-      color: selected.style.color || "",
+      text: isText ? selected.textContent.trim() : "",
+      font: isText ? cs.fontFamily.split(",")[0].replaceAll('"', "").trim() : "",
+      size: isText ? Math.max(10, Math.min(120, parseFloat(cs.fontSize) || 16)) : 16,
+      color: isText ? hex(cs.color) : "#111111",
       left: Math.round(r.left + scrollX),
       top: Math.round(r.top + scrollY),
       width: Math.round(r.width),
       height: Math.round(r.height),
       movable: !isSection,
-      kind: selected.dataset.pnDivider === "true" ? "divider" : (isSection ? "section" : (selected.matches(cardSel) || selected.matches(socialSel) ? "card" : "text"))
+      kind: isImage ? "image" : (selected.dataset.pnDivider === "true" ? "divider" : (isSection ? "section" : (selected.matches(cardSel) || selected.matches(socialSel) ? "card" : "text"))),
+      textAlign: isText ? (cs.textAlign === "center" || cs.textAlign === "right" ? cs.textAlign : "left") : undefined,
+      fontWeight: isText ? (parseInt(cs.fontWeight, 10) || 400) : undefined
     };
-
-    parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit }, "*");
+    parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit: edit }, "*");
   }
 
   function applyEdit(edit) {
     const source = find(edit.selector);
     let el = edit.ghostId ? find('[data-pn-id="' + edit.ghostId + '"]') : source;
     if (!el && source && edit.movable) {
-      el = ensureGhost(source);
+      el = ensureMovable(source);
       if (edit.ghostId) el.dataset.pnId = edit.ghostId;
     }
     if (!el) return;
-
-    if (edit.kind === "section") el.dataset.pnSection = "true";
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
-    if (edit.font) el.style.setProperty("font-family", edit.font, "important");
-    if (edit.size) el.style.setProperty("font-size", edit.size + "px", "important");
-    if (edit.color) el.style.setProperty("color", edit.color, "important");
-    if (edit.textAlign) el.style.setProperty("text-align", edit.textAlign, "important");
-    if (edit.fontWeight) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
-
-    if (edit.cardStyle === "flat") {
-      el.style.setProperty("box-shadow", "none", "important");
-      el.style.setProperty("border", "0", "important");
-    }
-
-    if (edit.cardStyle === "bordered") {
-      el.style.setProperty("box-shadow", "none", "important");
-      el.style.setProperty("border", "1px solid rgba(20,20,20,.16)", "important");
-    }
-
-    if (edit.cardStyle === "elevated") {
-      el.style.setProperty("border", "1px solid rgba(20,20,20,.08)", "important");
-      el.style.setProperty("box-shadow", "0 18px 44px rgba(20,30,24,.14)", "important");
-    }
-
-    if (edit.movable) {
+    if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
+    if (edit.size && el.matches(textSel)) el.style.setProperty("font-size", edit.size + "px", "important");
+    if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
+    if (edit.textAlign && el.matches(textSel)) el.style.setProperty("text-align", edit.textAlign, "important");
+    if (edit.fontWeight && el.matches(textSel)) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
+    if (edit.movable && edit.left != null && edit.top != null) {
       el.style.setProperty("position", "absolute", "important");
       el.style.setProperty("left", edit.left + "px", "important");
       el.style.setProperty("top", edit.top + "px", "important");
-      el.style.setProperty("width", edit.width + "px", "important");
-      el.style.setProperty("height", edit.height + "px", "important");
+      if (edit.width) el.style.setProperty("width", edit.width + "px", "important");
+      if (edit.height) el.style.setProperty("height", edit.height + "px", "important");
       el.style.setProperty("z-index", "120", "important");
     } else if (edit.kind === "section" && edit.height) {
       el.style.setProperty("min-height", Math.max(40, edit.height) + "px", "important");
-      el.style.setProperty("height", Math.max(40, edit.height) + "px", "important");
     }
-  }
-
-  function addText() {
-    const el = document.createElement("div");
-    el.dataset.pnFreeText = "true";
-    el.dataset.pnId = uid();
-    el.textContent = "Novo texto";
-    el.contentEditable = "true";
-    el.style.cssText = "position:absolute;left:120px;top:" + (scrollY + 140) + "px;width:260px;min-height:44px;z-index:130;font:600 24px Arial;color:#111;background:transparent;";
-    document.body.appendChild(el);
-    select(el);
-    save();
-  }
-
-  function addLine() {
-    const el = document.createElement("div");
-    el.dataset.pnDivider = "true";
-    el.dataset.pnId = uid();
-    el.className = "pn-live-divider";
-    el.style.cssText = "position:absolute;left:120px;top:" + (scrollY + 180) + "px;width:280px;height:2px;z-index:110;background:rgba(20,20,20,.35);";
-    document.body.appendChild(el);
-    select(el);
-    save();
-  }
-
-  function selectSection() {
-    if (!selected) return;
-    const s = closest(selected, sectionSel);
-    if (!s) return;
-    s.dataset.pnSection = "true";
-    select(s);
-  }
-
-  function setLogo(pos) {
-    const header = document.querySelector("header");
-    if (!header) return;
-
-    let brand = header.querySelector(".brand,.logo,a,h1,h2");
-    if (brand) brand.classList.add("pn-brand-logo");
-
-    header.dataset.pnHeaderLayout = pos;
-
-    let btn = header.querySelector(".pn-menu-toggle");
-    if (pos === "center") {
-      if (!btn) {
-        btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "pn-menu-toggle";
-        btn.innerHTML = "<span></span><span></span><span></span>";
-        header.insertBefore(btn, header.firstChild);
-      }
-    } else if (btn) {
-      btn.remove();
-    }
-
-    parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit: { selector: path(header), text: "", font: "", size: 0, color: "", headerLayout: pos } }, "*");
-  }
-
-  function candidate(target) {
-    const social = closest(target, socialSel);
-    if (social) return social;
-
-    const card = closest(target, cardSel);
-    if (card && !closest(target, textSel)) return card;
-
-    return closest(target, editSel);
   }
 
   function guidesFor(el, left, top) {
     const gx = document.getElementById("pn-align-x");
     const gy = document.getElementById("pn-align-y");
-    if (!gx || !gy) return { left, top };
-
-    gx.dataset.open = "false";
-    gy.dataset.open = "false";
-
+    if (!gx || !gy) return { left: left, top: top };
+    gx.dataset.open = "false"; gy.dataset.open = "false";
     const r = el.getBoundingClientRect();
-    const w = r.width;
-    const h = r.height;
-    const pointsX = [left, left + w / 2, left + w];
-    const pointsY = [top, top + h / 2, top + h];
-
-    let bestX = null;
-    let bestY = null;
-
-    document.querySelectorAll(editSel).forEach(other => {
-      if (other === el || other.dataset.pnSourceHidden === "true") return;
+    const pointsX = [left, left + r.width / 2, left + r.width];
+    const pointsY = [top, top + r.height / 2, top + r.height];
+    let bestX = null, bestY = null;
+    document.querySelectorAll(editSel).forEach(function(other) {
+      if (other === el || other.dataset.pnSourceHidden === "true" || closest(other, "#pn-edit-bar,#pn-edit-box")) return;
       const o = other.getBoundingClientRect();
       const ox = [o.left + scrollX, o.left + scrollX + o.width / 2, o.left + scrollX + o.width];
       const oy = [o.top + scrollY, o.top + scrollY + o.height / 2, o.top + scrollY + o.height];
-
-      pointsX.forEach((p, i) => ox.forEach(q => {
-        if (Math.abs(p - q) <= 7) bestX = { delta: q - p, at: q, i };
-      }));
-
-      pointsY.forEach((p, i) => oy.forEach(q => {
-        if (Math.abs(p - q) <= 7) bestY = { delta: q - p, at: q, i };
-      }));
+      pointsX.forEach(function(p) { ox.forEach(function(q) { if (Math.abs(p-q) <= 6) bestX = { delta:q-p, at:q }; }); });
+      pointsY.forEach(function(p) { oy.forEach(function(q) { if (Math.abs(p-q) <= 6) bestY = { delta:q-p, at:q }; }); });
     });
-
-    if (bestX) {
-      left += bestX.delta;
-      gy.style.left = px(bestX.at - scrollX);
-      gy.dataset.open = "true";
-    }
-
-    if (bestY) {
-      top += bestY.delta;
-      gx.style.top = px(bestY.at - scrollY);
-      gx.dataset.open = "true";
-    }
-
-    return { left, top };
+    if (bestX) { left += bestX.delta; gy.style.left = px(bestX.at-scrollX); gy.dataset.open = "true"; }
+    if (bestY) { top += bestY.delta; gx.style.top = px(bestY.at-scrollY); gx.dataset.open = "true"; }
+    return { left:left, top:top };
   }
 
   function hideGuides() {
-    const gx = document.getElementById("pn-align-x");
-    const gy = document.getElementById("pn-align-y");
-    if (gx) gx.dataset.open = "false";
-    if (gy) gy.dataset.open = "false";
+    const gx=document.getElementById("pn-align-x"), gy=document.getElementById("pn-align-y");
+    if(gx) gx.dataset.open="false"; if(gy) gy.dataset.open="false";
   }
 
-  document.addEventListener("mouseover", function (e) {
+  document.addEventListener("click", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
     const el = candidate(e.target);
-    if (!el) return;
-    if (hovered && hovered !== el) hovered.removeAttribute("data-pn-hover");
-    hovered = el;
-    hovered.dataset.pnHover = "true";
-  }, true);
-
-  document.addEventListener("mouseout", function (e) {
-    if (!hovered || (e.relatedTarget && hovered.contains(e.relatedTarget))) return;
-    hovered.removeAttribute("data-pn-hover");
-    hovered = null;
-  }, true);
-
-  document.addEventListener("click", function (e) {
-    if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    const el = candidate(e.target);
-    if (!el) return;
-    e.preventDefault();
-    e.stopPropagation();
+    if (!el) { deselect(); return; }
+    e.preventDefault(); e.stopPropagation();
+    const now = Date.now();
+    const doubleTap = lastTap.el === el && now - lastTap.at < 420;
+    lastTap = { el: el, at: now };
     select(el);
+    if (doubleTap && el.matches(textSel)) openToolbar(el);
+    else if (toolbarOpen && selected !== el) closeToolbar();
   }, true);
 
-  document.addEventListener("pointerdown", function (e) {
+  document.addEventListener("dblclick", function(e) {
+    if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
+    const el = candidate(e.target);
+    if (!el || !el.matches(textSel)) return;
+    e.preventDefault(); e.stopPropagation(); openToolbar(el);
+  }, true);
+
+  document.addEventListener("input", function(e) {
+    if (selected && e.target === selected && selected.isContentEditable) { syncUi(); save(); }
+  }, true);
+
+  document.addEventListener("pointerdown", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
     const el = candidate(e.target);
     if (!el) return;
-
-    clearSelection();
+    const wasSelected = selected === el;
     select(el);
-
-    pending = { el, x: e.clientX, y: e.clientY, started: false };
+    if (!wasSelected || el.matches(sectionSel) || el.isContentEditable) return;
+    pending = { el: el, x:e.clientX, y:e.clientY, started:false };
   }, true);
 
-  document.addEventListener("pointermove", function (e) {
+  document.addEventListener("pointermove", function(e) {
     if (resizing && selected) {
-      clearSelection();
-      const dx = e.clientX - resizing.x;
-      const dy = e.clientY - resizing.y;
-
+      e.preventDefault(); clearNativeSelection();
+      const dx=e.clientX-resizing.x, dy=e.clientY-resizing.y;
       if (resizing.section) {
-        selected.style.setProperty("height", Math.max(40, resizing.height + dy) + "px", "important");
-        selected.style.setProperty("min-height", Math.max(40, resizing.height + dy) + "px", "important");
+        selected.style.setProperty("min-height", Math.max(80,resizing.height+dy)+"px","important");
       } else {
-        let left = resizing.left;
-        let top = resizing.top;
-        let width = resizing.width;
-        let height = resizing.height;
-
-        if (resizing.h.includes("e")) width += dx;
-        if (resizing.h.includes("s")) height += dy;
-        if (resizing.h.includes("w")) { left += dx; width -= dx; }
-        if (resizing.h.includes("n")) { top += dy; height -= dy; }
-
-        selected.style.setProperty("left", px(left), "important");
-        selected.style.setProperty("top", px(top), "important");
-        selected.style.setProperty("width", px(Math.max(24, width)), "important");
-        selected.style.setProperty("height", px(Math.max(12, height)), "important");
+        let left=resizing.left, top=resizing.top, width=resizing.width, height=resizing.height;
+        if(resizing.h.includes("e")) width+=dx;
+        if(resizing.h.includes("s")) height+=dy;
+        if(resizing.h.includes("w")) { left+=dx; width-=dx; }
+        if(resizing.h.includes("n")) { top+=dy; height-=dy; }
+        selected.style.setProperty("left",px(left),"important");
+        selected.style.setProperty("top",px(top),"important");
+        selected.style.setProperty("width",px(Math.max(32,width)),"important");
+        selected.style.setProperty("height",px(Math.max(18,height)),"important");
       }
-
-      syncBox();
-      return;
+      syncUi(); return;
     }
-
     if (!pending) return;
-
-    const moved = Math.abs(e.clientX - pending.x) + Math.abs(e.clientY - pending.y);
-    if (moved < 5 && !pending.started) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-    clearSelection();
-
-    if (!pending.started) {
-      selected = ensureGhost(pending.el);
-      select(selected);
-      const r = selected.getBoundingClientRect();
-      pending.left = r.left + scrollX;
-      pending.top = r.top + scrollY;
-      pending.started = true;
-      document.body.classList.add("pn-is-dragging");
+    const moved=Math.abs(e.clientX-pending.x)+Math.abs(e.clientY-pending.y);
+    if(moved<8&&!pending.started) return;
+    e.preventDefault(); e.stopPropagation(); clearNativeSelection();
+    if(!pending.started) {
+      selected=ensureMovable(pending.el); select(selected);
+      const r=selected.getBoundingClientRect();
+      pending.left=r.left+scrollX; pending.top=r.top+scrollY; pending.started=true;
+      document.body.classList.add("pn-is-dragging"); closeToolbar();
     }
-
-    let left = pending.left + e.clientX - pending.x;
-    let top = pending.top + e.clientY - pending.y;
-    const snap = guidesFor(selected, left, top);
-
-    selected.style.setProperty("left", px(snap.left), "important");
-    selected.style.setProperty("top", px(snap.top), "important");
-    selected.dataset.pnDragging = "true";
-    syncBox();
+    const snap=guidesFor(selected,pending.left+e.clientX-pending.x,pending.top+e.clientY-pending.y);
+    selected.style.setProperty("left",px(snap.left),"important");
+    selected.style.setProperty("top",px(snap.top),"important");
+    selected.dataset.pnDragging="true"; syncUi();
   }, true);
 
-  document.addEventListener("pointerup", function () {
-    if (resizing || (pending && pending.started)) save();
-    if (selected) selected.removeAttribute("data-pn-dragging");
-    resizing = null;
-    pending = null;
-    document.body.classList.remove("pn-is-dragging");
-    hideGuides();
+  document.addEventListener("pointerup", function() {
+    if(resizing||(pending&&pending.started)) save();
+    if(selected) selected.removeAttribute("data-pn-dragging");
+    resizing=null; pending=null; document.body.classList.remove("pn-is-dragging"); hideGuides(); syncUi();
   }, true);
 
-  window.addEventListener("scroll", syncBox, true);
-  window.addEventListener("resize", syncBox);
+  window.addEventListener("scroll", syncUi, true);
+  window.addEventListener("resize", syncUi);
 
   makeUi();
   savedEdits.forEach(applyEdit);
-
-  function installSectionFlowGuard() {
-    if (document.getElementById("pn-section-flow-guard-style")) return;
-
-    const style = document.createElement("style");
-    style.id = "pn-section-flow-guard-style";
-    style.textContent = [
-      "section[data-pn-section=true],[data-pn-section=true]{",
-      "position:relative!important;",
-      "left:auto!important;",
-      "top:auto!important;",
-      "right:auto!important;",
-      "bottom:auto!important;",
-      "transform:none!important;",
-      "max-width:none!important;",
-      "box-sizing:border-box!important;",
-      "}",
-      "section[data-pn-section=true]{",
-      "resize:vertical!important;",
-      "overflow:hidden!important;",
-      "min-height:220px!important;",
-      "max-height:1200px!important;",
-      "}"
-    ].join("");
-    document.head.appendChild(style);
-
-    function fixSection(section) {
-      if (!section || section.nodeType !== 1) return;
-      if (section.closest("#pn-edit-bar,#pn-edit-box")) return;
-
-      section.removeAttribute("data-pn-movable");
-      section.style.setProperty("position", "relative", "important");
-      section.style.setProperty("left", "auto", "important");
-      section.style.setProperty("top", "auto", "important");
-      section.style.setProperty("right", "auto", "important");
-      section.style.setProperty("bottom", "auto", "important");
-      section.style.setProperty("transform", "none", "important");
-      section.style.setProperty("max-width", "none", "important");
-      section.style.setProperty("box-sizing", "border-box", "important");
-      section.style.setProperty("overflow", "hidden", "important");
-      section.style.setProperty("min-height", "220px", "important");
-      section.style.setProperty("max-height", "1200px", "important");
-
-      const rect = section.getBoundingClientRect();
-      if (rect.height > 1200) {
-        section.style.setProperty("height", "720px", "important");
-      }
-    }
-
-    function fixAllSections() {
-      document.querySelectorAll("section[data-pn-section=true],[data-pn-section=true]").forEach(fixSection);
-    }
-
-    let scheduled = false;
-    function scheduleFix() {
-      if (scheduled) return;
-      scheduled = true;
-      requestAnimationFrame(function () {
-        scheduled = false;
-        fixAllSections();
-      });
-    }
-
-    document.addEventListener("pointerup", scheduleFix, true);
-    document.addEventListener("mouseup", scheduleFix, true);
-    document.addEventListener("click", scheduleFix, true);
-    document.addEventListener("input", scheduleFix, true);
-
-    const observer = new MutationObserver(scheduleFix);
-    observer.observe(document.documentElement, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["style", "data-pn-section", "data-pn-movable"]
-    });
-
-    fixAllSections();
-    setInterval(fixAllSections, 800);
-  }
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", installSectionFlowGuard);
-  } else {
-    installSectionFlowGuard();
-  }
-
 })();
