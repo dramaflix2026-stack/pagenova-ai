@@ -21,7 +21,7 @@ import {
 import { ApiError } from '../../lib/api';
 import { useCreateSiteProject, useGenerateSite } from '../../hooks/useSiteAi';
 import { Badge, Button, Callout, Field, Input, Textarea } from '../ui';
-import { Dialog, DialogBody, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '../ui/Dialog';
+
 import { useToast } from '../ui/Toast';
 
 interface SiteWizardDialogProps {
@@ -248,12 +248,27 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
     }
   }
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={(next) => void handleClose(next)}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Criar site com IA</DialogTitle>
-        </DialogHeader>
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70 p-3 sm:p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="site-wizard-title"
+    >
+      <div className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-xl">
+        <div className="shrink-0 border-b border-border p-4 pr-12 sm:p-5 sm:pr-12">
+          <h2 id="site-wizard-title" className="text-base font-semibold text-foreground">Criar site com IA</h2>
+          <button
+            type="button"
+            onClick={() => void handleClose(false)}
+            className="absolute right-3 top-3 rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
 
         <div className="flex items-center gap-2 px-6 pt-2 text-xs text-muted-foreground">
           {[1, 2, 3].map((n) => (
@@ -278,7 +293,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
           </span>
         </div>
 
-        <DialogBody className="space-y-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4 sm:p-5">
           {error ? (
             <Callout tone="danger" title="Nao foi possivel continuar">
               {error}
@@ -481,9 +496,9 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
               </div>
             </div>
           ) : null}
-        </DialogBody>
+        </div>
 
-        <DialogFooter>
+        <div className="shrink-0 flex flex-col-reverse gap-2 border-t border-border p-4 sm:flex-row sm:justify-end sm:p-5">
           {step > 1 ? (
             <Button variant="secondary" onClick={() => setStep((step - 1) as Step)} disabled={submitting}>
               Voltar
@@ -507,8 +522,8 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
               {submitting ? 'Criando...' : 'Criar site'}
             </Button>
           )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   );
 }
