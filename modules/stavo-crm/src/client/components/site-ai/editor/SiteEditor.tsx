@@ -237,8 +237,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const discardAndReload = () => {
     if (!conflictConfig) return;
     history.reset(conflictConfig);
+    const serverLockVersion = projectQuery.data?.lockVersion ?? draftQuery.data?.lockVersion;
+    if (typeof serverLockVersion === 'number') setLockVersion(serverLockVersion);
     setConflictConfig(null);
     setSaveState('saved');
+    void draftQuery.refetch().then((result) => {
+      if (typeof result.data?.lockVersion === 'number') setLockVersion(result.data.lockVersion);
+    });
     toast.error('Suas alteracoes locais foram descartadas: a versao mais recente do servidor foi carregada.');
   };
 
