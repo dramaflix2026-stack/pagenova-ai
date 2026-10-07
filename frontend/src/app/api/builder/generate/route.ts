@@ -354,8 +354,14 @@ cardStyle define a linguagem visual dos cards.
 Quando houver screenshot, analise composição, hierarquia, proporções, distribuição de imagem e texto, densidade e estilo de cards. Use a referência como direção visual, sem copiar marca, logotipo, textos ou identidade proprietária.
 
 Em MODO DE REVISÃO, se o usuário pedir alteração visual, preserve o conteúdo textual atual e altere visualDirection conforme o pedido. Se o pedido for somente textual e não mencionar layout, composição, visual, estilo, hero, imagem, cards, espaçamento ou screenshot, preserve a direção visual existente quando ela for fornecida. Quando existir uma instrução de alteração e conteúdo atual, você está em MODO DE REVISÃO. Nesse modo, trate o conteúdo atual como fonte principal da página. Altere somente o que a instrução solicitar. Todo campo não solicitado deve ser devolvido exatamente igual ao conteúdo atual, caractere por caractere sempre que possível. Não reescreva títulos, introdução, CTA ou seções apenas para melhorar estilo. Não acrescente novas seções, não remova seções e não reorganize seções, exceto quando a instrução pedir explicitamente isso. Se a instrução mencionar somente título, altere somente heading. Se mencionar somente subtítulo ou introdução, altere somente introduction. Se mencionar somente CTA ou botão, altere somente cta. Se mencionar uma seção específica, preserve todas as demais seções sem alteração. Direção de conteúdo obrigatória: o título principal deve nomear o serviço, produto ou transformação concreta. Na home, cada seção precisa corresponder a uma oferta diferente que conste do briefing ou dos dados confirmados; não use cards intitulados Sobre, Serviços, Contato, Atendimento, Diferenciais ou Dúvidas. Se as ofertas fornecidas não sustentarem quatro seções diferentes, entregue apenas as seções fundamentadas pelos fatos informados. Nunca escreva frases autorreferentes como Conheça os serviços disponíveis, saiba mais sobre nós, soluções para você, cuidado para sua rotina, atendimento pensado ou apresentação clara. Use frases curtas, com benefício específico e linguagem natural. Na página Sobre, não replique as ofertas da home. Evite repetir palavras ou sentenças entre páginas. Não invente prova social nem fatos.
-PAGENOVA V6.2 - HOME COMPLETA:
-- Uma nova Home institucional deve ser substancial e visualmente rica quando o briefing permitir.
+PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
+- Uma nova Home institucional deve ser substancial, visualmente rica e COMPLETA quando o briefing permitir.
+- Na geracao inicial da HOME, entregue normalmente de 9 a 12 secoes editoriais uteis; nunca reduza um briefing suficiente a 3, 4 ou 5 blocos.
+- O template e universal, mas a arquitetura editorial deve responder ao NICHO. Nao replique mecanicamente a mesma sequencia em todos os negocios.
+- Base minima para uma Home com dados suficientes: services + benefits + about + features + process + FAQ + contact + final-cta. O hero e renderizado separadamente pelo template.
+- Para arquitetura, interiores, fotografia, design e trabalhos visuais, priorize tambem portfolio ou gallery quando houver imagens/material real; sem material real, mantenha a Home completa com services, benefits, about, features, process, FAQ, contact e final-cta, sem inventar projetos.
+- Para servicos profissionais, use authority somente quando houver fatos que sustentem autoridade. Para negocios locais, location somente com localizacao confirmada. Para software/produto, features e benefits devem ser fortes e distintos.
+- Testimonials so entram como depoimentos reais quando houver depoimentos fornecidos. A ausencia deles NAO autoriza encurtar o restante da pagina.
 - Voce pode usar ate 14 secoes.
 - Nao reduza uma Home com briefing suficiente a poucos blocos.
 - Separe servicos, beneficios, sobre, diferenciais e processo em secoes proprias quando forem relevantes.
@@ -416,8 +422,8 @@ PAGENOVA V6.2 - HOME COMPLETA:
                 },
                 sectionKinds: {
                   type: "array",
-                  minItems: 1,
-                  maxItems: 10,
+                  minItems: 8,
+                  maxItems: 14,
                   items: {
                     type: "string",
                     enum: ["hero", "services", "products", "benefits", "features", "about", "authority", "process", "portfolio", "gallery", "team", "testimonials", "pricing", "faq", "location", "contact", "final-cta"],
