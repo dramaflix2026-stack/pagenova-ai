@@ -21,7 +21,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
@@ -117,7 +117,6 @@ function UserArea({ compact }: { compact?: boolean }) {
 
 export function AppLayout({ children }: { children?: ReactNode }) {
   const { app } = useAuth();
-  const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
 
   const appName = app?.name?.replace(/Stavo Digital/gi, 'PageNova CRM') ?? 'PageNova CRM';
@@ -153,43 +152,9 @@ export function AppLayout({ children }: { children?: ReactNode }) {
           <p className="truncate text-sm font-semibold">{currentTitle}</p>
           <p className="truncate text-[11px] text-muted-foreground">{appName}</p>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Abrir menu de navegacao"
-        >
-          <Menu className="h-5 w-5" aria-hidden="true" />
-        </Button>
       </header>
 
-      {menuOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            className="absolute inset-0 bg-foreground/40"
-            aria-label="Fechar menu"
-            onClick={() => setMenuOpen(false)}
-          />
-          <div className="absolute inset-y-0 right-0 flex w-72 animate-slide-in-right flex-col bg-surface shadow-xl">
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <p className="text-sm font-semibold">{appName}</p>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMenuOpen(false)}
-                aria-label="Fechar menu"
-              >
-                <X className="h-5 w-5" aria-hidden="true" />
-              </Button>
-            </div>
-            <div className="scroll-thin flex-1 overflow-y-auto p-2">
-              <NavLinks onNavigate={() => setMenuOpen(false)} />
-            </div>
-            <UserArea />
-          </div>
-        </div>
-      ) : null}
+
 
       {/* --- Conteudo ------------------------------------------------------ */}
       <main id="conteudo" className="min-w-0 flex-1 pb-16 lg:pb-0">
