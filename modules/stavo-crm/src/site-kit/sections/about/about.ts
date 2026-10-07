@@ -26,7 +26,13 @@ import { shell } from '@site-kit/primitives/section-shell';
 export function renderAbout(section: AboutSection, ctx: RenderContext): string {
   const text = section.body.map((block) => paragraphs(block)).join('');
   const cta = section.cta ? renderActions([section.cta]) : '';
-  const image = renderImage(section.image, ctx);
+  const renderedImage = renderImage(section.image, ctx);
+  const image =
+    renderedImage ||
+    '<div class="pn-image-slot pn-image-slot--about" aria-label="Espaco reservado para segunda foto do negocio">' +
+      '<span class="pn-image-slot__icon" aria-hidden="true">+</span>' +
+      '<span>Foto do negocio</span>' +
+    '</div>';
   const heading = (centered = false) =>
     sectionHeading({ headline: section.headline, centered });
 
@@ -36,9 +42,7 @@ export function renderAbout(section: AboutSection, ctx: RenderContext): string {
       return shell(
         section,
         'about about--lead',
-        image
-          ? `<div class="hero-split"><div>${heading()}${text}${cta}</div><div>${image}</div></div>`
-          : `${heading()}<div class="prose">${text}${cta}</div>`,
+        `<div class="hero-split"><div>${heading()}${text}${cta}</div><div class="about-media">${image}</div></div>`,
       );
 
     /** Duas colunas de texto, sem imagem: densidade de revista. */
@@ -62,7 +66,7 @@ export function renderAbout(section: AboutSection, ctx: RenderContext): string {
       return shell(
         section,
         'about about--media-above',
-        `${image ? `<div class="hero-wide-media">${image}</div>` : ''}` +
+        `${renderedImage ? `<div class="hero-wide-media">${renderedImage}</div>` : ''}` +
           `${heading(true)}<div class="prose">${text}${cta}</div>`,
       );
 
