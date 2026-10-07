@@ -595,6 +595,16 @@ export const navigationConfigSchema = z.object({
 // SiteSchema
 // ---------------------------------------------------------------------------
 
+export const visualTextEditSchema = z.object({
+  key: z.string().trim().min(1).max(96),
+  fontSizePx: z.number().int().min(10).max(120).optional(),
+  fontFamily: z.enum(['Inter', 'Poppins', 'Montserrat', 'Georgia']).optional(),
+  color: hexColor.optional(),
+  fontWeight: z.enum(['400', '500', '600', '700', '800', '900']).optional(),
+  fontStyle: z.enum(['normal', 'italic']).optional(),
+  textAlign: z.enum(['left', 'center', 'right']).optional(),
+});
+
 export const siteSchema = z.object({
   schemaVersion: z.string().max(16),
   rendererVersion: z.string().max(16),
@@ -636,6 +646,9 @@ export const siteSchema = z.object({
     servicesSummary: z.array(line(200)).max(12).default([]),
     locationSummary: optionalLine(200),
   }),
+  /** Ajustes visuais feitos diretamente no preview. Chaves apontam para
+   * elementos editaveis deterministicos gerados pelo renderer. */
+  visualTextEdits: z.array(visualTextEditSchema).max(300).default([]),
   integrations: z.object({
     whatsappE164: z.string().trim().max(24).nullable().default(null),
     mapsPlaceId: z.string().trim().max(255).nullable().default(null),
