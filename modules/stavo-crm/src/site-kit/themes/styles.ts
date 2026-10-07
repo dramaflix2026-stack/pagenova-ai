@@ -60,6 +60,12 @@ line-height:${typography.lineHeightTight};margin:0 0 .5em;letter-spacing:-.01em}
 h1{font-size:clamp(${typography.headingMinRem}rem,5vw,${typography.headingMaxRem}rem)}
 h2{font-size:clamp(${(typography.headingMinRem * 0.8).toFixed(2)}rem,3.6vw,${(typography.headingMaxRem * 0.68).toFixed(2)}rem)}
 h3{font-size:clamp(1.05rem,2vw,1.35rem)}
+/* Quebra tipografica segura: evita palavras soltas, cortes agressivos e
+   overflow em titulos/textos sem transformar toda palavra longa em fragmentos. */
+h1,h2,h3,h4,h5,h6,p,li,blockquote,.lead,.statement,.brand,.btn{
+overflow-wrap:break-word;word-break:normal;hyphens:none}
+h1,h2,h3,h4,h5,h6{text-wrap:balance}
+p,.lead,.statement,blockquote{text-wrap:pretty}
 p{margin:0 0 1em;max-width:68ch}
 ul,ol{margin:0 0 1em}
 img,svg,video{max-width:100%;height:auto;display:block}
@@ -697,7 +703,7 @@ main{overflow:hidden}
 .hero{min-height:0;padding-top:clamp(3.75rem,7vw,6.25rem);padding-bottom:clamp(3.75rem,7vw,6.25rem)}
 .hero-split{max-width:1180px;margin:0 auto}
 .hero-centered{max-width:780px}
-.hero h1{overflow-wrap:anywhere}
+.hero h1{overflow-wrap:break-word;word-break:normal;text-wrap:balance}
 .hero-media,.about-media,.alt-row__media,.hero-wide-media{min-height:0}
 .hero-media img,.about-media img,.alt-row__media img{object-fit:cover}
 .pn-image-slot{min-height:0;aspect-ratio:4/3}
@@ -721,7 +727,9 @@ main{overflow:hidden}
 .section:not(.hero){padding-top:2.75rem;padding-bottom:2.75rem}
 .hero{padding-top:3rem;padding-bottom:3rem}
 .hero-split{gap:2rem}
-.hero h1{font-size:clamp(2.05rem,9.4vw,3rem);line-height:1.04;max-width:100%}
+.hero h1{font-size:clamp(2rem,9vw,2.9rem);line-height:1.06;max-width:100%;text-wrap:balance}
+.hero .lead{max-width:34ch;text-wrap:pretty}
+.heading h2{max-width:18ch;text-wrap:balance}
 h2{font-size:clamp(1.75rem,7.7vw,2.4rem)}
 .heading,.heading--centered{text-align:center;margin-left:auto;margin-right:auto}
 .heading h2,.heading--centered h2,.heading .lead,.heading--centered .lead{margin-left:auto;margin-right:auto}
