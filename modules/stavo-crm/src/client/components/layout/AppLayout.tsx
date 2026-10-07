@@ -14,12 +14,10 @@ import {
   KanbanSquare,
   LayoutDashboard,
   LogOut,
-  Menu,
   Settings,
   Target,
   Users,
   Wallet,
-  X,
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
