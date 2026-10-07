@@ -192,18 +192,11 @@ export async function publishProject(
       logger.warn({ publicationId, slug, smoke }, 'Smoke test registrou alerta apos a publicacao.');
     }
 
-    await repo.updateProject(project.id, project.lockVersion, {
-      activePublicationId: publicationId,
-      desiredSlug: slug,
-    });
-    // READY->PUBLISHED na primeira vez; PUBLISHED->PUBLISHED ao atualizar uma
-    // publicacao existente (a maquina de estados permite as duas, secao
-    // site-ai.ts). O `from` e sempre o status JA CONHECIDO deste projeto.
-    if (project.status !== 'PUBLISHED') {
-      await repo.updateProjectStatus(project.id, project.status as never, 'PUBLISHED', {
-        activePublicationId: publicationId,
-      });
-    }
+    // Publicar nao altera o rascunho. Nao use o lockVersion capturado quando
+    // a tela abriu: autosave/F5 pode muda-lo enquanto o artefato e construido.
+    // A publicacao ja esta ACTIVE neste ponto; sincronizamos apenas o ponteiro
+    // e o status do projeto sem disputar o optimistic lock do editor.
+    await repo.syncPublishedProject(project.id, publicationId, slug);
 
     const publication = await repo.findPublication(publicationId);
     if (!publication) throw notFound('Publicacao desapareceu logo apos ser criada.');
