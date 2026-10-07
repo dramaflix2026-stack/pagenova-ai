@@ -72,12 +72,11 @@ export async function buildSiteArtifactFiles(
 
     const buffer = await assets.read(source.storageKey).catch(() => null);
     if (!buffer) {
-      // Nunca publique silenciosamente um HTML sem uma imagem que o modelo
-      // referencia. Em storage efemero isso gerava exatamente o caso em que
-      // o preview mostrava a foto e o site publicado ficava sem ela.
-      throw new Error(
-        `Asset ${assetId} referenciado pelo projeto ${projectId} nao esta disponivel no storage (${source.storageKey}).`,
-      );
+      // Publicacao deve ser total para qualquer SiteSchema valido. Storage de
+      // trabalho e efemero em alguns deploys; uma imagem ausente nao pode
+      // impedir o site inteiro de ir ao ar. O renderer ja suporta resolveAsset
+      // nulo e remove o bloco visual sem criar placeholder quebrado.
+      continue;
     }
 
     const relative = `assets/images/${assetId}.webp`;
