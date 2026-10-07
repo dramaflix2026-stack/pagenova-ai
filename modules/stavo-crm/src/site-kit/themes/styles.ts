@@ -916,6 +916,104 @@ padding:1rem 1.25rem 1.5rem;gap:0;display:none}
 .hero-overlay-scrim{display:none}
 }
 
+/* ---- PageNova Phone Composition V7 -------------------------------------
+   Em telefone, o site deixa de parecer um desktop/folheto reduzido.
+   Todas as colecoes viram uma coluna real, inclusive variantes editoriais,
+   processos, beneficios, provas e formularios. */
+@media(max-width:900px){
+  .grid,.grid-2,.grid-3,
+  .services--cards .grid,.services--numbered .numbered-grid,
+  .benefits .grid,.benefits .feature-lead,.benefits .contrast-grid,
+  .icon-grid,.numbered-grid,.contrast-grid,.feature-lead,
+  .checklist,.step-cards,.timeline,.stats--grid,
+  .contact-grid,.footer-grid,.profile-card{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .grid>*,.grid-2>*,.grid-3>*,
+  .numbered-grid>*,.contrast-grid>*,.feature-lead>*,
+  .checklist>*,.step-cards>*,.timeline>*,.stats--grid>*{
+    grid-column:auto!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+
+  /* Depoimentos deixam de ser uma faixa horizontal de folheto. */
+  .testimonials .rail{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    gap:1rem!important;
+    scroll-snap-type:none!important;
+  }
+  .testimonials .rail__item{
+    width:100%!important;
+    max-width:100%!important;
+    flex:none!important;
+    scroll-snap-align:none!important;
+  }
+
+  /* Processo: um passo embaixo do outro, sem linha horizontal comprimida. */
+  .process .timeline{
+    gap:0!important;
+  }
+  .process .timeline li{
+    border-top:0!important;
+    border-left:2px solid var(--border);
+    padding:0 0 1.75rem 1.5rem!important;
+  }
+  .process .timeline__dot{
+    top:.25rem!important;
+    left:-7px!important;
+  }
+
+  /* FAQ, contato, CTA e rodape sao blocos verticais no telefone. */
+  .faq .container,.contact .container,.cta .container,.site-footer .container{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .faq--columns{columns:1!important}
+  .contact-grid{gap:1rem!important}
+  .contact-grid>*,.contact .form-card,.contact .form-card--inline{
+    width:100%!important;
+    max-width:100%!important;
+  }
+  .cta-inline{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    width:100%!important;
+    max-width:100%!important;
+    text-align:center!important;
+  }
+  .cta-inline .actions,.cta-inline .btn{width:100%!important}
+  .site-footer .footer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    text-align:center!important;
+  }
+
+  /* Evita a sensacao de pagina desktop miniaturizada. */
+  .card,.contrast-card,.quote,.rail__item,.stats--grid li{
+    min-height:0!important;
+    padding:1.35rem!important;
+  }
+  .services--cards .card,.benefits .card,.benefits .icon-block,.step-cards .card{
+    align-items:flex-start!important;
+    text-align:left!important;
+  }
+  .services--cards .card p,.benefits .card p,.benefits .icon-block p,.step-cards .card p{
+    margin-left:0!important;
+    margin-right:0!important;
+    max-width:100%!important;
+  }
+}
+
 /* ---- Movimento ----------------------------------------------------------
    O conteudo NASCE visivel. Toda regra de entrada vive atras da classe js,
    que so o runtime adiciona -- se o JavaScript falhar, nada fica escondido.
