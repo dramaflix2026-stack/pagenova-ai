@@ -18,7 +18,7 @@
  * com a v1, um site gerado em Opus aparecia ~3x mais caro do que era, e o
  * orcamento mensal bloqueava a geracao antes da hora.
  */
-export const PRICING_VERSION = '2026-09-anthropic-v2';
+export const PRICING_VERSION = '2026-10-multi-provider-v3';
 
 interface ModelRate {
   /** Dolares por milhao de tokens. */
@@ -45,6 +45,14 @@ const rate = (input: number, output: number, cacheRead = input * 0.1): ModelRate
  * sufixo de data no nome do modelo sem exigir atualizacao do codigo.
  */
 const RATES: Array<{ prefix: string; rate: ModelRate }> = [
+  // OpenAI GPT-5.6 — Standard API, contexto curto (<= 272K tokens).
+  // Fonte oficial verificada em 07/10/2026:
+  // https://developers.openai.com/api/docs/pricing
+  { prefix: 'gpt-5.6-sol', rate: rate(4, 20, 0.4) },
+  { prefix: 'gpt-5.6-terra', rate: rate(2, 12, 0.2) },
+  { prefix: 'gpt-5.6-luna', rate: rate(0.2, 1.2, 0.02) },
+  // O alias gpt-5.6 aponta para Sol. Deve vir depois dos nomes especificos.
+  { prefix: 'gpt-5.6', rate: rate(4, 20, 0.4) },
   { prefix: 'claude-fable-5-1', rate: rate(10, 50, 0.25) },
   { prefix: 'claude-fable-5', rate: rate(10, 50) },
   { prefix: 'claude-opus-5', rate: rate(5, 25) },
