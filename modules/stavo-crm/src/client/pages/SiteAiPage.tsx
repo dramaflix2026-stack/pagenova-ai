@@ -32,8 +32,14 @@ const STATUS_TONE: Record<SiteProjectStatus, 'neutral' | 'primary' | 'success' |
   ARCHIVED: 'neutral',
 };
 
-function optionalAbsoluteUrl(value: string | null | undefined): string | undefined {
-  const raw = value?.trim();
+function optionalText(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined;
+  const text = value.trim();
+  return text || undefined;
+}
+
+function optionalAbsoluteUrl(value: unknown): string | undefined {
+  const raw = optionalText(value);
   if (!raw) return undefined;
   const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
   try {
@@ -100,7 +106,7 @@ export default function SiteAiPage() {
     if (!selectedLeadId || !selectedLead.data || creatingFromLead) return;
 
     const lead = selectedLead.data;
-    const businessName = lead.lead.internalName.trim();
+    const businessName = optionalText(lead.lead.internalName) ?? '';
     if (businessName.length < 2) {
       setCreateError('Este lead nao possui um nome de negocio valido.');
       return;
@@ -112,15 +118,14 @@ export default function SiteAiPage() {
       const briefing = {
         business: {
           name: businessName,
-          niche: lead.lead.prospectingNiche ?? liveCategory ?? undefined,
-          city: lead.lead.prospectingCity ?? liveCity ?? undefined,
-          state: lead.lead.prospectingState ?? undefined,
+          niche: optionalText(lead.lead.prospectingNiche) ?? optionalText(liveCategory),
+          city: optionalText(lead.lead.prospectingCity) ?? optionalText(liveCity),
+          state: optionalText(lead.lead.prospectingState),
           phoneE164:
-            lead.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
-            lead.contacts.find((item) => item.type === 'PHONE')?.value ??
-            livePhone ??
-            undefined,
-          address: lead.lead.address ?? liveAddress ?? undefined,
+            optionalText(lead.contacts.find((item) => item.type === 'WHATSAPP')?.value) ??
+            optionalText(lead.contacts.find((item) => item.type === 'PHONE')?.value) ??
+            optionalText(livePhone),
+          address: optionalText(lead.lead.address) ?? optionalText(liveAddress),
           instagramUrl: optionalAbsoluteUrl(
             lead.links.find((item) => item.type === 'INSTAGRAM')?.url,
           ),
