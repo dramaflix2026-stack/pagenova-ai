@@ -570,12 +570,12 @@ export default function Home() {
             <p className="text-white/25">Landing Page Studio</p>
           </div>
 
-          <div className="mt-5 flex items-center justify-center gap-5 sm:justify-end" aria-label="Selos de confiança">
-            <div className="flex h-[62px] w-[190px] items-center justify-center" title="Norton">
-              <img src="/trust/norton.svg" alt="Norton" className="h-full w-full object-contain" />
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:ml-auto sm:max-w-[360px]" aria-label="Selos de confiança">
+            <div className="flex h-[68px] items-center justify-center rounded-2xl border border-white/10 bg-white px-4 shadow-[0_10px_28px_rgba(0,0,0,.16)]" title="Norton">
+              <img src="/trust/norton.svg" alt="Norton" className="h-[42px] w-full object-contain" />
             </div>
-            <div className="flex h-[62px] w-[150px] items-center justify-center" title="Reclame Aqui">
-              <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-full w-full object-contain" />
+            <div className="flex h-[68px] items-center justify-center rounded-2xl border border-white/10 bg-white px-4 shadow-[0_10px_28px_rgba(0,0,0,.16)]" title="Reclame Aqui">
+              <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-[52px] w-full object-contain" />
             </div>
           </div>
         </div>
