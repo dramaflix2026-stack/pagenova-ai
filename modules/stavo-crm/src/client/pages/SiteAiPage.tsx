@@ -4,7 +4,7 @@
  * Lista os projetos e usa leads cadastrados no CRM como unica origem para
  * novos sites. O painel acompanha todos os projetos do workspace.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -19,7 +19,7 @@ import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useCreateSiteProject, useGenerateSite, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
-import { ApiError } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
 const STATUS_TONE: Record<SiteProjectStatus, 'neutral' | 'primary' | 'success' | 'warning' | 'danger'> = {
@@ -126,18 +126,9 @@ export default function SiteAiPage() {
         briefing,
       });
 
-      // Dispara diretamente pela API usando o id recem-criado. Nao depende de
-      // um hook reconstruir com o novo projectId entre dois renders.
-      const response = await fetch(`/api/site-projects/${project.id}/generate`, {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
-      if (!response.ok) {
-        const payload = await response.json().catch(() => null) as { error?: { message?: string } } | null;
-        throw new Error(payload?.error?.message ?? 'Nao foi possivel iniciar a geracao.');
-      }
+      // Usa o cliente oficial do CRM para manter /api/crm, CSRF e sessao.
+      // O endpoint devolve 202 quando a geracao entra na fila.
+      await api.post(`/site-projects/${project.id}/generate`, {});
 
       setSelectedLeadId(null);
       navigate(`/sites-ia/${project.id}`);
@@ -151,6 +142,23 @@ export default function SiteAiPage() {
       setCreatingFromLead(false);
     }
   }
+
+  useEffect(() => {
+    if (
+      !selectedLeadId ||
+      !selectedLead.data ||
+      selectedLead.isLoading ||
+      googleDetails.isLoading ||
+      creatingFromLead ||
+      createError
+    ) {
+      return;
+    }
+    void createSiteDirectlyFromLead();
+    // A selecao do lead e a conclusao das consultas sao os gatilhos. A funcao
+    // protege contra reentrada com creatingFromLead.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeadId, selectedLead.data, selectedLead.isLoading, googleDetails.isLoading]);
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -267,9 +275,7 @@ export default function SiteAiPage() {
               ) : selectedLead.data ? (
                 <>
                   <LoadingBlock label={creatingFromLead ? "Criando projeto e iniciando geração..." : "Dados carregados. Iniciando geração..."} />
-                  {!creatingFromLead ? (
-                    <button type="button" className="hidden" ref={(node) => { if (node) void createSiteDirectlyFromLead(); }} />
-                  ) : null}
+
                 </>
               ) : null}
             </CardContent>
