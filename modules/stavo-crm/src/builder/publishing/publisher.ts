@@ -26,7 +26,7 @@ import { validateSlug } from '@site-kit/types/site-ai';
 import { lintSite } from '@site-kit/utils/linter';
 import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
 import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
-import { conflict, notFound, unprocessable } from '@server/lib/errors';
+import { AppError, conflict, notFound, serviceUnavailable, unprocessable } from '@server/lib/errors';
 import { logger } from '@server/lib/logger';
 import { buildSiteArtifactFiles } from '@builder/publishing/artifact-builder';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
@@ -142,16 +142,26 @@ export async function publishProject(
   await ensureGooglePlaceAssets(project).catch(() => 0);
 
   // Passo 2: versao congelada especificamente para esta publicacao.
-  const { id: versionId } = await repo.insertVersion({
-    projectId: project.id,
-    config: model,
-    schemaVersion: model.schemaVersion,
-    rendererVersion: model.rendererVersion,
-    promptVersion: model.project.promptVersion,
-    origin: 'PUBLICATION',
-    summary: 'Publicacao.',
-    createdBy: actorId,
-  });
+  let versionId: string;
+  try {
+    ({ id: versionId } = await repo.insertVersion({
+      projectId: project.id,
+      config: model,
+      schemaVersion: model.schemaVersion,
+      rendererVersion: model.rendererVersion,
+      promptVersion: model.project.promptVersion,
+      origin: 'PUBLICATION',
+      summary: 'Publicacao.',
+      createdBy: actorId,
+    }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Falha desconhecida ao congelar a versao.';
+    logger.error({ err: error, projectId: project.id, stage: 'VERSION' }, 'Falha ao preparar versao para publicacao.');
+    throw serviceUnavailable('Nao foi possivel preparar a versao do site para publicacao.', 'SITE_PUBLISH_VERSION_FAILED', {
+      stage: 'VERSION',
+      technicalMessage: message.slice(0, 300),
+    });
+  }
 
   // Slug: mantem o mesmo da publicacao anterior (link estavel, secao 16.3);
   // so resolve um novo quando ainda nao existe nenhum.
@@ -168,12 +178,22 @@ export async function publishProject(
     slug = await resolveAvailableSlug(project.businessName, model.business.city ?? null, project.id);
   }
 
-  const { id: publicationId } = await repo.insertPublication({
-    projectId: project.id,
-    versionId,
-    slug,
-    publishedBy: actorId,
-  });
+  let publicationId: string;
+  try {
+    ({ id: publicationId } = await repo.insertPublication({
+      projectId: project.id,
+      versionId,
+      slug,
+      publishedBy: actorId,
+    }));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Falha desconhecida ao criar a publicacao.';
+    logger.error({ err: error, projectId: project.id, stage: 'PUBLICATION_RECORD' }, 'Falha ao criar registro de publicacao.');
+    throw serviceUnavailable('Nao foi possivel iniciar a publicacao do site.', 'SITE_PUBLISH_RECORD_FAILED', {
+      stage: 'PUBLICATION_RECORD',
+      technicalMessage: message.slice(0, 300),
+    });
+  }
 
   const previousActivePublicationId = project.activePublicationId;
 
@@ -224,8 +244,13 @@ export async function publishProject(
       await repo.rollbackToPublication(project.id, previousActivePublicationId).catch(() => false);
     }
 
-    logger.error({ err: error, publicationId, projectId: project.id }, 'Falha ao publicar site.');
-    throw error;
+    logger.error({ err: error, publicationId, projectId: project.id, stage: 'ARTIFACT_OR_ACTIVATION' }, 'Falha ao publicar site.');
+    if (error instanceof AppError) throw error;
+    throw serviceUnavailable('A publicacao falhou durante a montagem ou ativacao do site.', 'SITE_PUBLISH_RUNTIME_FAILED', {
+      stage: 'ARTIFACT_OR_ACTIVATION',
+      technicalMessage: message.slice(0, 300),
+      publicationId,
+    });
   }
 }
 
