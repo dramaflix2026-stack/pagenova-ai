@@ -260,7 +260,11 @@
     if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
     if (edit.textAlign && el.matches(textSel)) el.style.setProperty("text-align", edit.textAlign, "important");
     if (edit.fontWeight && el.matches(textSel)) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
-    if (edit.movable && edit.left != null && edit.top != null) {
+    // Geometry is only restored when the user actually dragged an element.
+    // Plain text edits also store their measured rectangle, but applying that
+    // rectangle as absolute positioning destroys responsive grids on reload.
+    const hasMovedGeometry = edit.movable && !!edit.ghostId && edit.left != null && edit.top != null;
+    if (hasMovedGeometry) {
       el.style.setProperty("position", "absolute", "important");
       el.style.setProperty("left", edit.left + "px", "important");
       el.style.setProperty("top", edit.top + "px", "important");
