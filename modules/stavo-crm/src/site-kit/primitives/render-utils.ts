@@ -84,7 +84,7 @@ export function renderImage(
 
   return (
     `<img src="${escapeHtml(asset.url)}" alt="${escapeHtml(image.alt)}"${dimensions}` +
-    ` loading="${options.loading ?? 'lazy'}" decoding="async"` +
+    ` loading="${options.loading ?? 'lazy'}" decoding="async" onerror="this.remove()"` +
     (options.sizes ? ` sizes="${escapeHtml(options.sizes)}"` : '') +
     ` class="${escapeHtml(options.className ?? 'media')}"` +
     ` style="object-position:${objectPosition}">`
