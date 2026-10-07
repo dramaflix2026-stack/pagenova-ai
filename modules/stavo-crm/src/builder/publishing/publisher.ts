@@ -115,12 +115,22 @@ export async function publishProject(
     throw conflict('Este projeto ainda nao tem um rascunho para publicar.', { code: 'SITE_PROJECT_NO_DRAFT' });
   }
 
-  const validated = validateAndLintConfig(project.draftConfig);
+  // O editor permite salvar rascunhos com findings de qualidade. Publicar
+  // precisa primeiro normalizar esses findings automaticos; por isso nao
+  // podemos chamar validateAndLintConfig aqui, pois ele bloqueia ANTES de
+  // makeGeneratedDraftPublishSafe ter a chance de corrigi-los.
+  const { siteSchema } = await import('@site-kit/schemas/site-schema');
+  const parsed = siteSchema.safeParse(project.draftConfig);
+  if (!parsed.success) {
+    throw unprocessable('O site possui uma estrutura invalida e precisa ser salvo novamente antes de publicar.', {
+      code: 'SITE_SCHEMA_INVALID',
+    });
+  }
   // A geracao automatica nao pode entregar um rascunho estruturalmente valido
   // que depois seja impossivel de publicar por residuos do proprio modelo.
   // Corrigimos apenas bloqueios mecanicos e removemos prova social nao confirmada;
   // nunca inventamos credenciais, numeros ou depoimentos.
-  const model = makeGeneratedDraftPublishSafe(validated.model);
+  const model = makeGeneratedDraftPublishSafe(parsed.data);
   const report = lintSite(model);
   assertPublishable(report, true);
 
