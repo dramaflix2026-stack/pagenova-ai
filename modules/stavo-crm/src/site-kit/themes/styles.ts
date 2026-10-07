@@ -1014,6 +1014,99 @@ padding:1rem 1.25rem 1.5rem;gap:0;display:none}
   }
 }
 
+/* ---- PageNova Mobile Hard Layout ----------------------------------------
+   Regra final para smartphone. Fica no fim da folha para vencer variantes e
+   estilos de tema: hero centralizado e TODAS as colecoes em uma coluna. */
+@media screen and (max-width:900px){
+  .hero,.hero .container,.hero .hero-content,.hero .hero-copy,
+  .hero--split .hero-content,.hero--editorial .hero-content,
+  .hero--minimal .hero-content,.hero--centered .hero-content{
+    text-align:center!important;
+  }
+  .hero h1,.hero .display,.hero .hero-title,
+  .hero p,.hero .lead,.hero .hero-subtitle{
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+  }
+  .hero .actions{
+    justify-content:center!important;
+    align-items:center!important;
+  }
+
+  section .grid,
+  section .grid-2,
+  section .grid-3,
+  section .numbered-grid,
+  section .icon-grid,
+  section .contrast-grid,
+  section .feature-lead,
+  section .checklist,
+  section .step-cards,
+  section .timeline,
+  section .stats--grid,
+  section .rail,
+  .services .grid,
+  .services .numbered-grid,
+  .benefits .grid,
+  .benefits .icon-grid,
+  .benefits .contrast-grid,
+  .benefits .feature-lead,
+  .differentials .grid,
+  .process .timeline,
+  .testimonials .rail,
+  .contact-grid,
+  .footer-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    grid-auto-columns:minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    width:100%!important;
+    max-width:100%!important;
+    overflow:visible!important;
+  }
+
+  section .grid>*,
+  section .grid-2>*,
+  section .grid-3>*,
+  section .numbered-grid>*,
+  section .icon-grid>*,
+  section .contrast-grid>*,
+  section .feature-lead>*,
+  section .checklist>*,
+  section .step-cards>*,
+  section .timeline>*,
+  section .stats--grid>*,
+  section .rail>*,
+  .services .card,
+  .benefits .card,
+  .differentials .card,
+  .testimonials .rail__item{
+    grid-column:1/-1!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    flex:0 0 100%!important;
+  }
+
+  .testimonials .rail{
+    margin:0!important;
+    padding:0!important;
+    gap:1rem!important;
+    scroll-snap-type:none!important;
+  }
+  .process .timeline li{
+    border-top:0!important;
+    border-left:2px solid var(--border)!important;
+    padding:0 0 1.75rem 1.5rem!important;
+  }
+  .process .timeline__dot{left:-7px!important;top:.25rem!important}
+  .faq--columns{columns:1!important}
+  .contact-grid,.cta-inline,.site-footer .footer-grid{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
+
 /* ---- Movimento ----------------------------------------------------------
    O conteudo NASCE visivel. Toda regra de entrada vive atras da classe js,
    que so o runtime adiciona -- se o JavaScript falhar, nada fica escondido.
