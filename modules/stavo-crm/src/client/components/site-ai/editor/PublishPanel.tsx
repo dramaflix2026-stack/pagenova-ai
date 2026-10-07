@@ -55,6 +55,7 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [draftText, setDraftText] = useState('');
+  const [publishError, setPublishError] = useState<string | null>(null);
 
   const active = publications.data?.find((p) => p.status === 'ACTIVE');
   const latestOutreach = outreach.data?.[0] ?? null;
@@ -64,12 +65,14 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
   }, [latestOutreach?.id, latestOutreach?.messageText]);
 
   const doPublish = (acknowledgedWarnings: boolean) => {
+    setPublishError(null);
     publish.mutate(
       { acknowledgedWarnings, desiredSlug: currentSlug ?? undefined },
       {
         onSuccess: (result) => {
           setPublishedUrl(result.url);
           setWarnings(null);
+          setPublishError(null);
           toast.success('Site publicado.');
         },
         onError: (error: unknown) => {
@@ -93,11 +96,11 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
               ? error.details.stage.trim()
               : '';
           const diagnostic = [apiCode, stage, detailMessage].filter(Boolean).join(' · ');
-          toast.error(
-            diagnostic
-              ? `${apiMessage || 'Falha ao publicar.'} [${diagnostic}]`
-              : apiMessage || 'Nao foi possivel publicar. Tente novamente.',
-          );
+          const visibleMessage = diagnostic
+            ? `${apiMessage || 'Falha ao publicar.'} [${diagnostic}]`
+            : apiMessage || 'Nao foi possivel publicar. Tente novamente.';
+          setPublishError(visibleMessage);
+          toast.error(visibleMessage);
         },
       },
     );
@@ -149,6 +152,13 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
           >
             Despublicar
           </Button>
+        </div>
+      ) : null}
+
+      {publishError ? (
+        <div className="mb-4 rounded-md border border-red-500/50 bg-red-950/40 p-3 text-left">
+          <p className="mb-1 text-sm font-semibold text-red-200">Erro ao publicar</p>
+          <p className="break-words text-xs leading-relaxed text-red-100">{publishError}</p>
         </div>
       ) : null}
 
