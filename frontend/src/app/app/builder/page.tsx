@@ -86,6 +86,18 @@ export default function BuilderPage() {
   const [pendingKeys, setPendingKeys] = useState<SitePageKey[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
+  const previewStageRef = useRef<HTMLDivElement | null>(null);
+  const [previewStageWidth, setPreviewStageWidth] = useState(0);
+
+  useEffect(() => {
+    const stage = previewStageRef.current;
+    if (!stage) return;
+    const update = () => setPreviewStageWidth(stage.clientWidth);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [project]);
 
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
@@ -521,7 +533,7 @@ async function revise(event: FormEvent<HTMLFormElement>) {
 
   return <>
     <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
-    <main className="mx-auto max-w-[1600px] px-5 py-8 lg:px-9">
+    <main className="mx-auto max-w-[1800px] px-3 py-5 sm:px-5 lg:px-8">
       {!project && <div className="mx-auto max-w-5xl">
         <div className="mb-8"><span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova Builder · {selectedPreset.title}</span>
           <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
@@ -618,8 +630,8 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         </section>
       </div>}
 
-      {project && <div className="grid gap-6 xl:grid-cols-[350px_minmax(0,1fr)]">
-        <aside className="space-y-5 rounded-2xl border border-white/10 bg-[#11101b] p-5">
+      {project && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
+        <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{getSitePreset(project.presetId || "institucional").title}</span><h1 className="mt-2 text-2xl font-bold">{project.name}</h1><p className="mt-2 text-sm text-white/45">{phase === "generating" ? "Criando seu site…" : phase === "ready" ? "Site criado. Você pode pedir alterações." : "A criação foi interrompida."}</p></div>
           {project.presetId === "institucional" && <label className="block text-xs font-medium text-white/75">Serviços e produtos reais<textarea value={project.institutional?.offer || ""} onChange={(event) => { const updated = { ...project, institutional: { role: "", audience: "", process: "", proof: "", ...project.institutional, offer: event.target.value } }; setProject(updated); void savePageNovaProject(updated.id, updated).catch(() => setError("Falha ao salvar os serviços.")); }} rows={3} maxLength={400} placeholder="Ex.: lavagem de roupas, passadoria, coleta e entrega (somente o que você realmente oferece)" className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white" /></label>}
           <fieldset className="space-y-2 rounded-xl border border-white/10 p-3">
@@ -691,7 +703,7 @@ async function revise(event: FormEvent<HTMLFormElement>) {
           </form>
           <p className="text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
         </aside>
-        <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#191923]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
+        <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
             <label className="text-xs text-white/70">Tema <select aria-label="Tema do site" value={project.previewTheme || "original"} onChange={(e) => void changeTheme(e.target.value as PreviewTheme)} className="ml-2 rounded-lg bg-white/10 p-2 text-white"><option className="text-black" value="original">Original</option><option className="text-black" value="claro">Claro</option><option className="text-black" value="escuro">Escuro</option><option className="text-black" value="areia">Areia</option></select></label>
             <div className="flex flex-wrap items-center gap-2">
@@ -705,7 +717,20 @@ async function revise(event: FormEvent<HTMLFormElement>) {
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
             </div>
           </div>
-          {preview ? <div className="overflow-auto bg-[#303630] p-3"><iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts" srcDoc={preview} style={{ width: viewport === "desktop" ? "100%" : viewport === "tablet" ? 768 : 390, maxWidth: "100%" }} className="mx-auto block h-[720px] bg-white" /></div> : <div className="flex h-[720px] items-center justify-center text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
+          {preview ? (() => {
+            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : 390;
+            const available = Math.max(280, previewStageWidth - 32);
+            const scale = Math.min(1, available / virtualWidth);
+            const visibleHeight = Math.round(900 * scale);
+            return <div ref={previewStageRef} className="relative overflow-hidden bg-[#090d0c] p-4 sm:p-6">
+              <div className="mx-auto overflow-hidden rounded-[22px] border border-white/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,.42)]" style={{ width: virtualWidth * scale, height: visibleHeight }}>
+                <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts" srcDoc={preview}
+                  style={{ width: virtualWidth, height: 900, transform: `scale(${scale})`, transformOrigin: "top left", border: 0 }}
+                  className="block bg-white" />
+              </div>
+              <div className="pointer-events-none mt-3 text-center text-[10px] font-semibold uppercase tracking-[.16em] text-white/30">{viewport} · {virtualWidth}px · {Math.round(scale * 100)}%</div>
+            </div>;
+          })() : <div ref={previewStageRef} className="flex h-[720px] items-center justify-center bg-[#090d0c] text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
         </section>
       </div>}
     </main>
