@@ -26,7 +26,17 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
   const existing = (await repo.listAssets(project.id)).filter(
     (asset) => asset.source === 'GOOGLE_PLACES' && !asset.deletedAt,
   );
-  if (existing.length >= 2) return existing.length;
+  const storage = createLocalStorage(siteAssetsDirAbsolute());
+
+  // Railway pode reiniciar/reimplantar entre a geracao e a publicacao. Os
+  // metadados dos assets continuam no banco, mas o arquivo local pode sumir.
+  // Nao trate apenas a linha no banco como prova de que os bytes existem.
+  const missingExisting: typeof existing = [];
+  for (const asset of existing) {
+    const available = await storage.read(asset.storageKey).then(() => true).catch(() => false);
+    if (!available) missingExisting.push(asset);
+  }
+  if (existing.length >= 2 && missingExisting.length === 0) return existing.length;
 
   const db = getDb();
   const [lead] = await db
@@ -41,7 +51,24 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
   const photos = details.photos.slice(0, MAX_GOOGLE_ASSETS);
   if (photos.length === 0) return existing.length;
 
-  const storage = createLocalStorage(siteAssetsDirAbsolute());
+  // Primeiro restaura, no MESMO storageKey, assets Google que o SiteSchema
+  // ja referencia. Isso preserva os assetIds do preview e permite publicar
+  // mesmo depois de um redeploy.
+  for (let index = 0; index < missingExisting.length && index < photos.length; index += 1) {
+    const asset = missingExisting[index]!;
+    const photo = photos[index]!;
+    try {
+      const response = await placePhotoMedia(photo.name, index === 0 ? 2000 : 1600);
+      if (!response.ok) continue;
+      const buffer = Buffer.from(await response.arrayBuffer());
+      const processed = await processUploadedImage(buffer);
+      if (!processed.ok) continue;
+      await storage.write(asset.storageKey, processed.image.optimized.buffer);
+    } catch {
+      continue;
+    }
+  }
+
   let imported = existing.length;
 
   for (const [index, photo] of photos.entries()) {
