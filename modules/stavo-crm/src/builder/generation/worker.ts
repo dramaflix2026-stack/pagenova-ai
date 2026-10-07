@@ -213,9 +213,25 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         focalY: candidate.focalY,
       });
       const heroIndex = plan.sections.findIndex((section) => section.type === 'hero');
-      const secondaryIndex = plan.sections.findIndex(
-        (section) => section.type === 'about' || section.type === 'authority',
-      );
+      // A segunda foto nao pode depender de um nicho gerar especificamente
+      // "about" ou "authority". Escolhe uma secao editorial interna que exista
+      // no plano, priorizando tipos com suporte visual. Como ultimo recurso,
+      // usa uma secao intermediaria diferente do hero.
+      const secondaryPreferredTypes = ['about', 'authority', 'services', 'benefits', 'process'] as const;
+      let secondaryIndex = -1;
+      for (const type of secondaryPreferredTypes) {
+        secondaryIndex = plan.sections.findIndex((section, index) => index !== heroIndex && section.type === type);
+        if (secondaryIndex >= 0) break;
+      }
+      if (secondaryIndex < 0) {
+        const middle = Math.floor(plan.sections.length / 2);
+        secondaryIndex = plan.sections.findIndex(
+          (section, index) =>
+            index !== heroIndex &&
+            index >= Math.max(1, middle - 1) &&
+            !['header', 'footer', 'cta', 'faq', 'contact'].includes(section.type),
+        );
+      }
       const heroCandidate =
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
         imageCandidates.at(0);
