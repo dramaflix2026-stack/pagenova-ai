@@ -99,6 +99,8 @@ A mensagem traz a lista de imagens REAIS disponiveis, cada uma com um apelido (i
 - Sem imagens disponiveis: use "none" em tudo, prefira variantes "sem imagem" e nao inclua galeria.
 - Com imagens: escolha variantes que as valorizem (a orientacao importa: retrato combina com composicoes laterais; paisagem com faixas largas). Uma variante que EXIGE imagem so pode ser usada se voce atribuir uma imagem real a ela.
 - Nao repita a mesma imagem em secoes vizinhas.
+- Quando houver 2 ou mais imagens reais, priorize duas insercoes fortes e distintas: uma no hero ou imediatamente apos ele e outra aproximadamente no meio da pagina. Nao espalhe fotos apenas para preencher espaco.
+- Imagem e conteudo, nao espacador: nunca escolha composicao que dependa de uma foto se ela nao estiver realmente atribuida.
 
 # Fatos: o que voce NAO pode escrever
 
@@ -114,6 +116,10 @@ Voce nao tem acesso a depoimentos, credenciais, precos, anos de experiencia, qua
 - CTAs especificos ("Agendar avaliacao"), nunca "Clique aqui".
 - Evite cliches ("transforme sua jornada", "excelencia", "solucao completa", "lider de mercado") e travessao longo repetido.
 - Nada de placeholder, colchetes ou lorem ipsum. Nada de urgencia falsa.
+- Cada secao precisa acrescentar informacao nova. Services explica O QUE o negocio oferece; benefits explica POR QUE isso ajuda o cliente; process explica COMO acontece; about contextualiza o negocio. Nao parafraseie a mesma ideia entre essas secoes.
+- Evite repetir o nome do negocio em todo titulo ou paragrafo. Use-o apenas quando melhora clareza ou identidade.
+- Items visuais devem receber um icone valido da allowlist sempre que a variante exibir icones; nao use "none" nesses cards.
+- Se um fato comercial importante nao estiver confirmado (horarios, entrega, retirada, pagamento, preco, area atendida), nao invente. Prefira uma pergunta de FAQ que oriente confirmar pelo canal real, ou registre o dado em missingData.
 
 # Composicao
 
@@ -121,6 +127,9 @@ Voce nao tem acesso a depoimentos, credenciais, precos, anos de experiencia, qua
 - Inclua "whatsappForm" ou "contactMap" quando o objetivo pedir contato.
 - Nao repita o mesmo "type" mais de duas vezes.
 - Respeite secoes obrigatorias e proibidas informadas na mensagem.
+- Evite duas secoes consecutivas com cards equivalentes. Se services usa cards, escolha para benefits uma checklist, linhas ou contraste; se process existe, use uma composicao claramente sequencial.
+- Mantenha a pagina enxuta: 3 a 4 items fortes costumam ser melhores que muitos cards rasos. Nao crie item apenas para completar grade.
+- Para negocios locais com contato confirmado, faca a reta final resolver a decisao: FAQ util -> contato/localizacao -> CTA final -> footer, sem repetir o mesmo argumento em todas.
 
 # Paleta e tipografia
 
