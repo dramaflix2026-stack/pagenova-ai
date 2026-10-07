@@ -270,13 +270,73 @@ export const completeHomeSectionsV5 = (
     });
   }
   /*
-   * V6:
-   * Do not fabricate a gallery section from generic institutional
-   * images. Portfolio/gallery remains available when it exists in
-   * the semantic project itself, but the automatic text-only
-   * fallback is intentionally disabled.
+   * V6.7: uma Home nunca deve parecer incompleta so porque a IA devolveu
+   * poucos blocos. Estes fallbacks sao editoriais e deliberadamente neutros:
+   * nao inventam preco, endereco, credencial, cliente, avaliacao ou resultado.
+   * Se a IA ja produziu o kind, preservamos integralmente o conteudo dela.
    */
+  if (!hasKind(sections, ["benefits"])) {
+    sections.push({
+      title: "Uma experiência mais clara em cada etapa",
+      body: "Organização, comunicação e entendimento ajudam a transformar a necessidade inicial em decisões mais objetivas.",
+      kind: "benefits",
+      items: [
+        { title: "Clareza", body: "Informações e prioridades organizadas para facilitar as decisões." },
+        { title: "Coerência", body: "Cada etapa permanece conectada ao objetivo principal do projeto." },
+        { title: "Proximidade", body: "O diálogo mantém contexto, expectativas e próximos passos alinhados." },
+        { title: "Acompanhamento", body: "O desenvolvimento segue com visibilidade sobre o que está sendo construído." },
+      ],
+    });
+  }
 
+  if (!hasKind(sections, ["features"])) {
+    sections.push({
+      title: "O que orienta cada projeto",
+      body: "Uma boa entrega começa pela combinação entre contexto, prioridades e uma direção bem definida.",
+      kind: "features",
+      items: [
+        { title: "Contexto em primeiro lugar", body: "As decisões partem da necessidade apresentada e do cenário de cada projeto." },
+        { title: "Prioridades bem definidas", body: "O que é mais importante ganha clareza antes do avanço das etapas." },
+        { title: "Decisões conectadas", body: "As escolhas são organizadas para manter unidade entre intenção e execução." },
+      ],
+    });
+  }
+
+  if (!hasKind(sections, ["faq"])) {
+    sections.push({
+      title: "Dúvidas frequentes",
+      body: "Informações essenciais para entender a proposta e iniciar uma conversa.",
+      kind: "faq",
+      items: [
+        { title: "Como funciona o primeiro contato?", body: "O primeiro passo é entender a necessidade, o contexto e o objetivo para orientar os próximos passos." },
+        { title: "Como saber quais soluções fazem sentido?", body: "A conversa inicial ajuda a organizar prioridades e identificar o caminho mais adequado ao projeto." },
+        { title: "Posso tirar dúvidas antes de começar?", body: "Sim. Use o canal de contato informado para esclarecer os pontos necessários antes de avançar." },
+      ],
+    });
+  }
+
+  if (!hasKind(sections, ["contact"])) {
+    sections.push({
+      title: `Converse com ${project.name || "a equipe"}`,
+      body: "Apresente sua necessidade e dê o primeiro passo para entender as possibilidades do projeto.",
+      kind: "contact",
+      items: [],
+    });
+  }
+
+  if (!hasKind(sections, ["final-cta"])) {
+    sections.push({
+      title: "Vamos conversar sobre o próximo passo?",
+      body: "Compartilhe o que você precisa e inicie uma conversa para entender como seguir.",
+      kind: "final-cta",
+      items: [],
+    });
+  }
+
+  /*
+   * Portfolio/gallery continua condicionado a material visual real. Nao
+   * fabricamos projetos apenas para completar a pagina.
+   */
   return sections;
 };
 
