@@ -13,7 +13,25 @@ function normalizeOpenAiPlan(value: unknown): unknown {
   const out: Record<string, unknown> = {};
   for (const [key, child] of Object.entries(input)) out[key] = normalizeOpenAiPlan(child);
 
-  for (const key of ['photographyTreatment','customGoal','secondaryCta','headerCtaLabel','primaryCtaMessage','anchor','style','body','icon','subheadline','cta','personRole','tagline']) {
+  // Structured Outputs may materialize optional Zod properties as null.
+  // Zod optional() accepts undefined/absence, not null, so normalize every
+  // nullable optional leaf that the site-plan schema can emit before parsing.
+  for (const key of [
+    'photographyTreatment',
+    'customGoal',
+    'secondaryCta',
+    'headerCtaLabel',
+    'primaryCtaMessage',
+    'prefilledMessage',
+    'anchor',
+    'style',
+    'body',
+    'icon',
+    'subheadline',
+    'cta',
+    'personRole',
+    'tagline',
+  ]) {
     if (out[key] === null) delete out[key];
   }
 
