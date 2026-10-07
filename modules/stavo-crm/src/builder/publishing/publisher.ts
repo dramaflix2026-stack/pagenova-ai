@@ -279,7 +279,10 @@ async function writeArtifact(
   // A demonstracao SEMPRE usa o perfil DEMO (noindex forcado), mesmo que o
   // rascunho tenha `seo.noindex=false` -- o perfil de indexacao real so vale
   // para o ZIP exportado (secao 17.3), nunca para o link de prospeccao.
-  const artifact = await buildSiteArtifactFiles(projectId, model, 'DEMO', { inlineRuntime: SITE_RUNTIME_JS });
+  const artifact = await buildSiteArtifactFiles(projectId, model, 'DEMO', {
+    inlineRuntime: SITE_RUNTIME_JS,
+    publicBasePath: `/p/${slug}`,
+  });
 
   const files: string[] = [];
   for (const file of artifact.files) {
