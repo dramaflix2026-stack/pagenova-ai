@@ -607,6 +607,28 @@ grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
   .section>.container{width:100%;min-width:0}
   .heading,.prose,.cta-card,.cta-quiet,.form-card,.form-card--inline,
   .contact .heading{width:100%;max-width:100%}
+
+  /* Beneficios: abertura centralizada no celular. */
+  .section--benefits .heading,
+  section[id*="benef"] .heading{
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .section--benefits .heading .eyebrow,
+  section[id*="benef"] .heading .eyebrow{
+    justify-content:center;
+    text-align:center;
+  }
+  .section--benefits .heading h2,
+  .section--benefits .heading .lead,
+  section[id*="benef"] .heading h2,
+  section[id*="benef"] .heading .lead{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    text-wrap:balance;
+  }
   .heading h2,.heading .lead,.prose p,.card h3,.card p,
   .contrast-card h3,.contrast-card p,.rail__item h3,.rail__item p{
     max-width:100%;
