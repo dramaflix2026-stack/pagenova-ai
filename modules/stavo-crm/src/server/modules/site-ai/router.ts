@@ -1140,7 +1140,7 @@ function toPublicAsset(asset: {
     focalY: Number(asset.focalY ?? 0.5),
     rightsStatus: asset.rightsStatus,
     createdAt: asset.createdAt,
-    url: `/api/site-projects/${asset.projectId}/assets/${asset.id}/file`,
+    url: `/api/crm/site-projects/${asset.projectId}/assets/${asset.id}/file`,
   };
 }
 
