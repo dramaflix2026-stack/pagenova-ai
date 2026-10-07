@@ -6488,6 +6488,73 @@ export function renderTemplate001Preview(
         });
       })();
     </script>
+    <style>
+      /*
+       * Closing layout is defined beside the closing markup on purpose.
+       * The preview editor may run inside a wide iframe while the visible
+       * canvas is narrow, so viewport media queries are not authoritative.
+       */
+      .pn001-site .pn001-final-cta-card {
+        container-type: inline-size;
+      }
+
+      @container (max-width: 760px) {
+        .pn001-site .pn001-final-cta-card {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 20px !important;
+        }
+
+        .pn001-site .pn001-final-cta-copy,
+        .pn001-site .pn001-final-cta-action,
+        .pn001-site .pn001-final-cta-action .pn001-button {
+          width: 100% !important;
+          min-width: 0 !important;
+          max-width: 100% !important;
+        }
+
+        .pn001-site .pn001-final-cta-copy h2,
+        .pn001-site .pn001-final-cta-copy p {
+          width: 100% !important;
+          max-width: 100% !important;
+          white-space: normal !important;
+          word-break: normal !important;
+          overflow-wrap: break-word !important;
+        }
+      }
+
+      .pn001-site .pn001-footer-main {
+        container-type: inline-size;
+      }
+
+      @container (max-width: 760px) {
+        .pn001-site .pn001-footer-main {
+          display: flex !important;
+          flex-direction: column !important;
+          align-items: stretch !important;
+          gap: 30px !important;
+        }
+
+        .pn001-site .pn001-footer-brand-column,
+        .pn001-site .pn001-footer-column {
+          display: block !important;
+          position: static !important;
+          width: 100% !important;
+          min-width: 0 !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          transform: none !important;
+        }
+
+        .pn001-site .pn001-footer-brand-column p,
+        .pn001-site .pn001-footer-links {
+          width: 100% !important;
+          min-width: 0 !important;
+          max-width: 100% !important;
+        }
+      }
+    </style>
     <script>${PAGENOVA_DESIGN_CORE_V6_SCRIPT}</script>
     <script>
       (() => {
