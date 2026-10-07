@@ -154,9 +154,11 @@ export default function SiteAiPage() {
           search={leadSearch}
           onSearch={setLeadSearch}
           onClose={() => setLeadPickerOpen(false)}
-          onSelect={async (leadId) => {
-            setSelectedLeadId(leadId);
+          onSelect={(leadId) => {
+            // Fecha primeiro o seletor e so depois monta o wizard.
+            // Evita duas camadas modais concorrendo no mesmo frame no mobile.
             setLeadPickerOpen(false);
+            window.requestAnimationFrame(() => setSelectedLeadId(leadId));
           }}
         />
       ) : null}
