@@ -66,8 +66,11 @@ export async function publishProject(
   assertPublishable(report, options.acknowledgedWarnings);
 
   // Garante que fotos reais importadas do Google continuem publicaveis mesmo
-  // se o container tiver sido reimplantado desde a geracao do site.
-  await ensureGooglePlaceAssets(project);
+  // se o container tiver sido reimplantado desde a geracao do site. Publicar
+  // nao deve depender de a API do Google responder naquele exato segundo:
+  // se a reidratacao falhar, o builder abaixo ainda publica normalmente
+  // quando os bytes locais ja existem e devolve um erro preciso quando nao.
+  await ensureGooglePlaceAssets(project).catch(() => 0);
 
   // Passo 2: versao congelada especificamente para esta publicacao.
   const { id: versionId } = await repo.insertVersion({
