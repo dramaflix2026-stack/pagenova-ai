@@ -39,6 +39,8 @@ export default function BuilderPage() {
   const [revisionImage, setRevisionImage] = useState("");
   const [revisionImageError, setRevisionImageError] = useState("");
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "celular">("desktop");
+  const [publishing, setPublishing] = useState(false);
+  const [publishedUrl, setPublishedUrl] = useState("");
 
   async function prepareRevisionImage(file: File) {
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
@@ -461,6 +463,27 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
+  async function publishSite() {
+    if (!project?.pages.home || publishing) return;
+    setPublishing(true);
+    setError("");
+    try {
+      const response = await fetch("/api/builder/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project }),
+      });
+      const data = await response.json() as { url?: string; error?: string };
+      if (!response.ok || !data.url) throw new Error(data.error || "Nao foi possivel publicar o site.");
+      setPublishedUrl(data.url);
+      window.open(data.url, "_blank", "noopener,noreferrer");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Nao foi possivel publicar o site.");
+    } finally {
+      setPublishing(false);
+    }
+  }
+
   return <>
     <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
     <main className="mx-auto max-w-[1600px] px-5 py-8 lg:px-9">
@@ -641,6 +664,10 @@ async function revise(event: FormEvent<HTMLFormElement>) {
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
                 Abrir prévia em nova aba ↗
               </button>
+              <button type="button" disabled={!project.pages.home || publishing || phase === "generating"} onClick={() => void publishSite()} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:opacity-40">
+                {publishing ? "Publicando..." : publishedUrl ? "Atualizar publicação" : "Publicar site"}
+              </button>
+              {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
             </div>
           </div>
           {preview ? <div className="overflow-auto bg-[#303630] p-3"><iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts" srcDoc={preview} style={{ width: viewport === "desktop" ? "100%" : viewport === "tablet" ? 768 : 390, maxWidth: "100%" }} className="mx-auto block h-[720px] bg-white" /></div> : <div className="flex h-[720px] items-center justify-center text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
