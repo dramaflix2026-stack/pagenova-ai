@@ -292,6 +292,42 @@ siteAiRouter.get(
 );
 
 /**
+ * HTML de previa produzido pelo MESMO renderer usado pelo editor/publicacao.
+ * O PageNova Institucional consome esta rota para mostrar exatamente o site
+ * gerado pelo motor Sites com IA, sem manter um segundo renderer.
+ */
+siteAiRouter.get(
+  '/site-projects/:id/render',
+  ...guards,
+  asyncHandler(async (req, res) => {
+    const project = await getProjectOrThrow(req.params.id!);
+    const { model } = validateAndLintConfig(project.draftConfig);
+    const assets = await repo.listAssets(project.id);
+    const byId = new Map(assets.map((asset) => [asset.id, asset]));
+    const { renderSite } = await import('@site-kit/renderer/render-site');
+    const { SITE_RUNTIME_JS } = await import('@site-kit/interactions/runtime');
+
+    const html = renderSite(model, {
+      profile: 'DEMO',
+      inlineRuntime: SITE_RUNTIME_JS,
+      resolveAsset: (assetId: string) => {
+        const asset = byId.get(assetId);
+        return asset
+          ? {
+              url: `/api/crm/site-projects/${project.id}/assets/${asset.id}/file`,
+              width: asset.width ?? undefined,
+              height: asset.height ?? undefined,
+            }
+          : null;
+      },
+    });
+
+    res.setHeader('Cache-Control', 'no-store');
+    res.type('text/html').send(html);
+  }),
+);
+
+/**
  * Salva o rascunho inteiro.
  *
  * O cliente monta o SiteSchema completo (secoes reordenadas, textos
