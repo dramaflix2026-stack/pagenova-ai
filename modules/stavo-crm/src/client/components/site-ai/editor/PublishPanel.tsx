@@ -85,13 +85,18 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
           const apiMessage = error instanceof ApiError ? error.message?.trim() : '';
           const apiCode = error instanceof ApiError ? error.code?.trim() : '';
           const detailMessage =
-            error instanceof ApiError && typeof error.details?.message === 'string'
-              ? error.details.message.trim()
+            error instanceof ApiError && typeof error.details?.technicalMessage === 'string'
+              ? error.details.technicalMessage.trim()
               : '';
+          const stage =
+            error instanceof ApiError && typeof error.details?.stage === 'string'
+              ? error.details.stage.trim()
+              : '';
+          const diagnostic = [apiCode, stage, detailMessage].filter(Boolean).join(' · ');
           toast.error(
-            apiMessage ||
-              detailMessage ||
-              (apiCode ? `Falha ao publicar (${apiCode}).` : 'Nao foi possivel publicar. Tente novamente.'),
+            diagnostic
+              ? `${apiMessage || 'Falha ao publicar.'} [${diagnostic}]`
+              : apiMessage || 'Nao foi possivel publicar. Tente novamente.',
           );
         },
       },
