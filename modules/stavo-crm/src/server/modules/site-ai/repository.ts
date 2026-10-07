@@ -263,6 +263,30 @@ export async function updateProjectStatus(
   return affectedRows(result) > 0;
 }
 
+/**
+ * Sincroniza o ponteiro/status depois de uma publicacao concluida.
+ * Publicacao nao edita o rascunho, portanto nao disputa o optimistic lock
+ * usado pelo editor/autosave. Isso torna publish seguro apos F5 e autosave.
+ */
+export async function syncPublishedProject(
+  id: string,
+  publicationId: string,
+  slug: string,
+  db: Database = getDb(),
+): Promise<void> {
+  await db
+    .update(siteProjects)
+    .set({
+      activePublicationId: publicationId,
+      desiredSlug: slug,
+      status: 'PUBLISHED',
+      lastFailureCode: null,
+      lastFailureMessage: null,
+      updatedAt: new Date(),
+    })
+    .where(and(eq(siteProjects.id, id), isNull(siteProjects.deletedAt)));
+}
+
 export async function addProjectCost(
   id: string,
   amountUsd: string,
