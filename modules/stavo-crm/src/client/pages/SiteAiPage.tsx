@@ -16,10 +16,10 @@ import {
   type SiteProjectStatus,
 } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
-import { SiteWizardDialog } from '../components/site-ai/SiteWizardDialog';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
-import { useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
+import { useCreateSiteProject, useGenerateSite, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { formatUsd } from '../lib/site-ai-format';
+import { ApiError } from '../lib/api';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
 const STATUS_TONE: Record<SiteProjectStatus, 'neutral' | 'primary' | 'success' | 'warning' | 'danger'> = {
@@ -40,8 +40,11 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
+  const [creatingFromLead, setCreatingFromLead] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
   const selectedLead = useLeadDetail(selectedLeadId);
+  const createProject = useCreateSiteProject();
   const selectedPlaceId = selectedLead.data?.lead.placeId ?? null;
   const googleDetails = useGoogleDetails(selectedPlaceId, Boolean(selectedLeadId && selectedLead.data));
 
@@ -71,6 +74,83 @@ export default function SiteAiPage() {
     liveGoogle.city ??
     liveGoogle.locality ??
     null;
+
+  async function createSiteDirectlyFromLead() {
+    if (!selectedLeadId || !selectedLead.data || creatingFromLead) return;
+
+    const lead = selectedLead.data;
+    const businessName = lead.lead.internalName.trim();
+    if (businessName.length < 2) {
+      setCreateError('Este lead nao possui um nome de negocio valido.');
+      return;
+    }
+
+    setCreatingFromLead(true);
+    setCreateError(null);
+    try {
+      const briefing = {
+        business: {
+          name: businessName,
+          niche: lead.lead.prospectingNiche ?? liveCategory ?? undefined,
+          city: lead.lead.prospectingCity ?? liveCity ?? undefined,
+          state: lead.lead.prospectingState ?? undefined,
+          phoneE164:
+            lead.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
+            lead.contacts.find((item) => item.type === 'PHONE')?.value ??
+            livePhone ??
+            undefined,
+          address: lead.lead.address ?? liveAddress ?? undefined,
+          instagramUrl: lead.links.find((item) => item.type === 'INSTAGRAM')?.url ?? undefined,
+          websiteUrl:
+            lead.links.find((item) => item.type === 'WEBSITE')?.url ??
+            liveWebsite ??
+            undefined,
+          services: [],
+          differentials: [],
+        },
+        objective: { goal: 'WHATSAPP_CONVERSATIONS' as const },
+        style: {
+          theme: 'AI_DECIDES' as const,
+          keywords: [],
+          density: 'BALANCED' as const,
+          motionLevel: 'BALANCED' as const,
+        },
+        requiredSections: ['hero', 'services', 'benefits', 'about', 'process', 'faq', 'cta', 'footer'],
+        forbiddenSections: [],
+      };
+
+      const { project } = await createProject.mutateAsync({
+        leadId: selectedLeadId,
+        businessName,
+        siteType: 'ONE_PAGE',
+        briefing,
+      });
+
+      // Dispara diretamente pela API usando o id recem-criado. Nao depende de
+      // um hook reconstruir com o novo projectId entre dois renders.
+      const response = await fetch(`/api/site-projects/${project.id}/generate`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => null) as { error?: { message?: string } } | null;
+        throw new Error(payload?.error?.message ?? 'Nao foi possivel iniciar a geracao.');
+      }
+
+      setSelectedLeadId(null);
+      navigate(`/sites-ia/${project.id}`);
+    } catch (error) {
+      setCreateError(
+        error instanceof ApiError || error instanceof Error
+          ? error.message
+          : 'Nao foi possivel criar o site deste lead.',
+      );
+    } finally {
+      setCreatingFromLead(false);
+    }
+  }
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -163,57 +243,40 @@ export default function SiteAiPage() {
         />
       ) : null}
 
-      {selectedLeadId && selectedLead.isLoading ? (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-          role="status"
-          aria-live="polite"
-        >
-          <Card className="relative z-[60] w-full max-w-md">
-            <CardContent className="p-6">
-              <LoadingBlock label="Carregando dados do lead..." />
-            </CardContent>
-          </Card>
-        </div>
-      ) : null}
-
-      {selectedLeadId && selectedLead.isError ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <Card className="relative z-[60] w-full max-w-md">
+      {selectedLeadId ? (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-background p-4" role="status" aria-live="polite">
+          <Card className="w-full max-w-md">
             <CardContent className="space-y-4 p-6">
-              <ErrorState message="Nao foi possivel carregar os dados deste lead." />
-              <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>
-                Voltar para os leads
-              </Button>
+              {selectedLead.isLoading || (selectedLead.data && googleDetails.isLoading) ? (
+                <LoadingBlock label="Preparando os dados do lead para gerar o site..." />
+              ) : selectedLead.isError ? (
+                <>
+                  <ErrorState message="Nao foi possivel carregar os dados deste lead." />
+                  <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Voltar para os leads</Button>
+                </>
+              ) : createError ? (
+                <>
+                  <ErrorState message={createError} />
+                  <div className="flex gap-2">
+                    <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Cancelar</Button>
+                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead}>
+                      {creatingFromLead ? 'Gerando...' : 'Tentar novamente'}
+                    </Button>
+                  </div>
+                </>
+              ) : selectedLead.data ? (
+                <>
+                  <LoadingBlock label={creatingFromLead ? "Criando projeto e iniciando geração..." : "Dados carregados. Iniciando geração..."} />
+                  {!creatingFromLead ? (
+                    <button type="button" className="hidden" ref={(node) => { if (node) void createSiteDirectlyFromLead(); }} />
+                  ) : null}
+                </>
+              ) : null}
             </CardContent>
           </Card>
         </div>
       ) : null}
-
-      <SiteWizardDialog
-        key={selectedLeadId ?? 'crm-lead-site'}
-        open={Boolean(selectedLeadId && selectedLead.data)}
-        onOpenChange={(open) => {
-          if (!open) setSelectedLeadId(null);
-        }}
-        leadId={selectedLeadId}
-        initialBusinessName={selectedLead.data?.lead.internalName ?? ''}
-        initialNiche={selectedLead.data?.lead.prospectingNiche ?? liveCategory ?? ''}
-        initialCity={selectedLead.data?.lead.prospectingCity ?? liveCity ?? ''}
-        initialPhone={
-          selectedLead.data?.contacts.find((item) => item.type === 'WHATSAPP')?.value ??
-          selectedLead.data?.contacts.find((item) => item.type === 'PHONE')?.value ??
-          livePhone ??
-          null
-        }
-        initialAddress={selectedLead.data?.lead.address ?? liveAddress ?? null}
-        initialInstagram={selectedLead.data?.links.find((item) => item.type === 'INSTAGRAM')?.url ?? null}
-        initialWebsite={selectedLead.data?.links.find((item) => item.type === 'WEBSITE')?.url ?? liveWebsite ?? null}
-        onCreated={(projectId) => {
-          setSelectedLeadId(null);
-          navigate(`/sites-ia/${projectId}`);
-        }}
-      />
+>
     </>
   );
 }
