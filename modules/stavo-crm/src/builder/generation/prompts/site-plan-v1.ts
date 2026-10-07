@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.2.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.3.0';
 
 /**
  * Instrucao de sistema.
@@ -82,8 +82,8 @@ A arquitetura NAO e livre. O PageNova usa um Template Master consistente em qual
 
 Monte as secoes nesta ordem:
 1. "hero" -- exatamente uma. Proposta principal, cidade/nicho quando fornecidos e CTA. Este e o SLOT DE IMAGEM 1.
-2. "services" -- exatamente uma. De 3 a 6 servicos/produtos/especialidades. Use o briefing; quando ele for curto, escreva categorias genericas coerentes sem afirmar fatos especificos nao fornecidos.
-3. "benefits" -- exatamente uma. De 3 a 4 beneficios neutros e verificaveis; nunca invente premio, credencial, numero ou promessa.
+2. "services" -- exatamente uma. Gere SEMPRE quantidade PAR: 4 ou 6 servicos/produtos/especialidades. Use o briefing; quando ele for curto, escreva categorias genericas coerentes sem afirmar fatos especificos nao fornecidos.
+3. "benefits" -- exatamente uma. Gere SEMPRE 4 beneficios neutros e verificaveis; nunca invente premio, credencial, numero ou promessa.
 4. "about" -- exatamente uma. Historia/proposta curta do negocio. Este e o SLOT DE IMAGEM 2.
 5. "process" -- exatamente uma. Tres passos simples de atendimento, compra, agendamento ou contratacao conforme o nicho.
 6. "testimonials" -- somente quando o sistema informar depoimentos confirmados. Nunca invente avaliacao.
