@@ -456,7 +456,8 @@ async function revise(event: FormEvent<HTMLFormElement>) {
       project?.visualDirection,
       project?.headerDirection,
       project?.institutional,
-      project?.liveEdits?.[activePage],
+      // Live edits are applied directly inside the iframe. Rebuilding srcDoc
+      // here causes a white flash and destroys the active drag/resize gesture.
       activePage,
     ]);
 
