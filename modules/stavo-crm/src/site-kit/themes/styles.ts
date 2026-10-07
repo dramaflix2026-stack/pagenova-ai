@@ -958,6 +958,33 @@ transition:opacity .56s ease,transform .56s cubic-bezier(.22,1,.36,1)}
   .js .section.is-visible .detail-row{animation:none}
 }
 
+
+/* ---- PageNova Hero Wrapper V6.1 ---------------------------------------
+   O container interno nao e uma segunda secao hero. Mantem a primeira dobra
+   centralizada e previsivel em desktop sem duplicar min-height/padding. */
+.hero__inner{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.hero--split .hero__inner,
+.hero--reverse .hero__inner,
+.hero--duo .hero__inner{align-items:stretch}
+.hero--centered .hero__inner,
+.hero--minimal .hero__inner,
+.hero--stacked .hero__inner{align-items:center}
+@media(min-width:1101px){
+  .hero__inner{min-height:calc(clamp(620px,calc(100svh - 76px),900px) - clamp(4rem,8vh,8rem))}
+  .hero--split .hero-split,.hero--reverse .hero-split,.hero--duo .hero-split{width:100%}
+}
+@media(max-width:1100px) and (orientation:landscape){
+  .hero__inner{min-height:calc(100svh - 60px - clamp(3.5rem,10vh,6rem))}
+}
+@media(max-width:760px) and (orientation:portrait){
+  .hero__inner{min-height:0}
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
