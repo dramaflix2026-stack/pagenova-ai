@@ -245,9 +245,12 @@ const ICONS: Record<string, string> = {
     '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/>',
 };
 
-export function renderIcon(name: string | undefined): string {
-  if (!name) return '';
-  const path = ICONS[name];
+export function renderIcon(name: string | undefined, fallback = 'sparkles'): string {
+  // Conteudo gerado por IA pode chegar sem icone ou com um nome fora da
+  // allowlist. Cards visuais nao devem ficar "furados": usa um glifo neutro
+  // e seguro da propria biblioteca. Quem realmente quiser nenhum icone pode
+  // passar fallback vazio.
+  const path = (name && ICONS[name]) || (fallback ? ICONS[fallback] : undefined);
   if (!path) return '';
 
   return (
