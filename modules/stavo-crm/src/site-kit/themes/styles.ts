@@ -825,6 +825,139 @@ transition:opacity .56s ease,transform .56s cubic-bezier(.22,1,.36,1)}
   }
 }
 
+
+/* ---- PageNova Responsive Composition V6 -------------------------------
+   Hero ocupa a primeira dobra com composicao intencional, inclusive landscape.
+   Desktop recebe mais profundidade/microinteracao sem sacrificar mobile. */
+.hero{
+  display:flex;
+  align-items:center;
+  min-height:clamp(560px,calc(100svh - 68px),820px);
+}
+.hero>.container{width:100%}
+.hero--overlay{display:block;min-height:0}
+.hero--banner{min-height:0}
+.hero-minimal{
+  width:min(100%,760px);
+  margin-left:auto;
+  margin-right:auto;
+}
+.hero--minimal .hero-minimal{text-align:center}
+.hero--minimal .rule{margin-left:auto;margin-right:auto}
+.hero--minimal .lead{margin-left:auto;margin-right:auto}
+.hero--minimal .actions{justify-content:center}
+.hero--duo .hero-split,.hero--split .hero-split,.hero--reverse .hero-split{
+  width:100%;
+}
+.hero .eyebrow,.hero h1,.hero .lead,.hero .actions,.hero .highlights{
+  position:relative;
+  z-index:1;
+}
+.hero-media,.hero-wide-media,.about-media,.alt-row__media{
+  transform:translateZ(0);
+}
+.card,.contrast-card,.rail__item,.icon-block,.faq-item,.detail-row{
+  will-change:transform;
+}
+.card:hover .icon,.contrast-card:hover .icon,.icon-block:hover .icon{
+  transform:translateY(-2px) rotate(-2deg) scale(1.04);
+}
+.card .icon,.contrast-card .icon,.icon-block .icon{
+  transition:transform .3s cubic-bezier(.22,1,.36,1);
+}
+.faq-item summary{transition:padding-left .22s ease,color .22s ease}
+.faq-item:hover summary{padding-left:.35rem;color:var(--primary)}
+.site-header .brand,.site-header .nav-toggle{transition:transform .22s ease,opacity .22s ease}
+.site-header .brand:hover{transform:translateY(-1px)}
+.nav-toggle:hover{transform:scale(1.05)}
+
+@media(min-width:1101px){
+  .site-header .container{min-height:76px}
+  .nav{gap:clamp(.8rem,1.35vw,1.45rem)}
+  .nav>a:not(.btn){white-space:nowrap;position:relative}
+  .nav>a:not(.btn)::after{
+    content:'';position:absolute;left:0;right:100%;bottom:-.35rem;height:2px;
+    background:var(--primary);transition:right .25s cubic-bezier(.22,1,.36,1)
+  }
+  .nav>a:not(.btn):hover::after{right:0}
+  .hero{min-height:clamp(620px,calc(100svh - 76px),900px)}
+  .hero>.container{padding-top:clamp(2rem,4vh,4rem);padding-bottom:clamp(2rem,4vh,4rem)}
+  .hero-split>div:first-child:not(.hero-media){align-self:center}
+  .hero h1{max-width:13ch}
+  .hero .lead{max-width:54ch}
+  .hero--stacked{align-items:center}
+  .hero--stacked .hero{padding-top:clamp(2.5rem,5vh,4.5rem);padding-bottom:clamp(2.5rem,5vh,4.5rem)}
+  .hero-wide-media img{max-height:min(48vh,520px);object-fit:cover}
+}
+
+@media(max-width:1100px){
+  .hero{min-height:calc(100svh - 68px)}
+}
+
+@media(max-width:1100px) and (orientation:landscape){
+  .hero{
+    min-height:calc(100svh - 60px);
+    padding-top:clamp(1.75rem,5vh,3rem);
+    padding-bottom:clamp(1.75rem,5vh,3rem);
+  }
+  .hero>.container{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    min-height:calc(100svh - 60px);
+  }
+  .hero h1{font-size:clamp(2.25rem,6.2vw,4.5rem);max-width:14ch}
+  .hero .lead{font-size:clamp(1rem,2.1vw,1.22rem);max-width:58ch}
+  .hero--minimal .hero-minimal{max-width:min(760px,88vw)}
+  .hero--minimal .hero-minimal,
+  .hero-centered{text-align:center;margin-left:auto;margin-right:auto}
+  .hero--minimal .eyebrow,.hero--minimal .actions,.hero--minimal .highlights{
+    justify-content:center
+  }
+  .hero--minimal h1,.hero--minimal .lead{margin-left:auto;margin-right:auto}
+  .hero-split{grid-template-columns:minmax(0,1fr) minmax(300px,.82fr);gap:clamp(1.5rem,4vw,3rem)}
+  .hero-media img{max-height:calc(100svh - 150px);aspect-ratio:4/3;object-fit:cover}
+  .hero-wide-media{margin-top:1.5rem}
+  .hero-wide-media img{max-height:42vh;object-fit:cover}
+  .actions{margin-top:1.15rem}
+  .highlights{margin-top:1.2rem}
+  .section:not(.hero){padding-top:clamp(2.75rem,8vh,4.5rem);padding-bottom:clamp(2.75rem,8vh,4.5rem)}
+}
+
+@media(max-width:760px) and (orientation:portrait){
+  .hero{
+    min-height:auto;
+    display:block;
+    padding-top:3.25rem;
+    padding-bottom:3.25rem;
+  }
+  .hero>.container{min-height:0}
+  .hero--minimal .hero-minimal{text-align:center}
+  .hero--minimal .rule{margin-left:auto;margin-right:auto}
+}
+
+/* Animacao base premium: secoes sem preset entram suavemente e elementos
+   importantes ganham profundidade em sequencia. */
+.js .section.is-visible .card,
+.js .section.is-visible .icon-block,
+.js .section.is-visible .detail-row{
+  animation:pn-card-settle .62s cubic-bezier(.22,1,.36,1) both;
+}
+.js .section.is-visible .grid>*:nth-child(2){animation-delay:.055s}
+.js .section.is-visible .grid>*:nth-child(3){animation-delay:.11s}
+.js .section.is-visible .grid>*:nth-child(4){animation-delay:.165s}
+.js .section.is-visible .grid>*:nth-child(5){animation-delay:.22s}
+.js .section.is-visible .grid>*:nth-child(6){animation-delay:.275s}
+@keyframes pn-card-settle{
+  from{opacity:0;transform:translate3d(0,14px,0) scale(.985)}
+  to{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .js .section.is-visible .card,
+  .js .section.is-visible .icon-block,
+  .js .section.is-visible .detail-row{animation:none}
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
