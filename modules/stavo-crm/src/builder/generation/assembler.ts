@@ -159,21 +159,22 @@ function resolveVariant(
 
 const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
   'hero',
-  'about',
   'services',
   'benefits',
-  'gallery',
+  'about',
   'process',
   'testimonials',
+  'faq',
   'contactMap',
   'cta',
   'footer',
 ];
 
 /**
- * PageNova V1 usa uma espinha dorsal unica em todos os nichos.
+ * PageNova Master usa uma espinha dorsal unica em todos os nichos.
  * A IA escreve/adapta o conteudo, mas nao decide mais a arquitetura.
- * Isso evita paginas dominadas por WhatsApp e mantem previsibilidade mobile.
+ * Hero e Sobre sao os dois unicos slots de imagem da geracao inicial.
+ * Secoes factuais opcionais continuam existindo apenas quando ha fonte confirmada.
  */
 function standardizeInitialSections(
   sections: PlanSection[],
@@ -313,7 +314,7 @@ function buildSection(
 
   switch (plan.type) {
     case 'hero': {
-      const variant = resolveVariant('hero', plan.variant, 0, Boolean(binding.image));
+      const variant = resolveVariant('hero', 'editorial-split', 0, Boolean(binding.image));
       return {
         ...base,
         type: 'hero',
@@ -336,7 +337,7 @@ function buildSection(
       return {
         ...base,
         type: 'about',
-        variant: resolveVariant('about', plan.variant, 0, Boolean(binding.image)),
+        variant: resolveVariant('about', 'text-lead', 0, Boolean(binding.image)),
         headline: sanitizeLine(plan.headline, 120),
         body: plan.body.map((block) => sanitizeText(block, 600)),
         cta: resolveActionLink(plan.cta, business, anchor, false),
@@ -350,9 +351,9 @@ function buildSection(
         title: sanitizeLine(item.title, 80),
         body: item.body ? sanitizeText(item.body, 300) : undefined,
         icon: item.icon,
-        image: binding.itemImages?.[itemIndex],
+        image: undefined,
       }));
-      const variant = resolveVariant(plan.type, plan.variant, items.length, items.some((item) => item.image));
+      const variant = resolveVariant(plan.type, plan.variant, items.length, false);
 
       if (plan.type === 'services') {
         return {
@@ -420,12 +421,12 @@ function buildSection(
         title: sanitizeLine(item.title, 80),
         body: item.body ? sanitizeText(item.body, 300) : undefined,
         icon: item.icon,
-        image: binding.itemImages?.[itemIndex],
+        image: undefined,
       }));
       return {
         ...base,
         type: 'process',
-        variant: resolveVariant('process', plan.variant, steps.length, steps.some((step) => step.image)),
+        variant: resolveVariant('process', plan.variant, steps.length, false),
         headline: sanitizeLine(plan.headline, 120),
         subheadline: plan.subheadline ? sanitizeLine(plan.subheadline, 220) : undefined,
         steps,
