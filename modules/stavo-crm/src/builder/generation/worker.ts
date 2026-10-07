@@ -28,6 +28,7 @@ import { createSiteIntelligenceProvider } from '@builder/generation';
 import { assemblePlan, newCreativeSeed, ProviderError } from '@builder/generation';
 import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/provider';
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
+import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
 
@@ -181,7 +182,9 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     await emitStage(job.id, 'VALIDATING_BRIEFING', 'Organizando as informacoes do negocio.');
     await assertNotCanceled(job.id);
 
-    // Imagens REAIS do projeto (uploads). A IA so recebe apelidos delas.
+    // Traz fotos REAIS do Google Places quando o lead possui placeId.
+    // Falha de foto nunca bloqueia a geracao do site.
+    const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
@@ -194,6 +197,35 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
 
     const provider = createSiteIntelligenceProvider();
     const { plan, usage, imageBindings, adjustments, promptVersion } = await provider.generateSitePlan(input);
+
+    // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
+    // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
+    if (imageCandidates.length >= 2) {
+      const toRef = (candidate: (typeof imageCandidates)[number]) => ({
+        assetId: candidate.assetId,
+        alt: candidate.description.slice(0, 200),
+        focalX: candidate.focalX,
+        focalY: candidate.focalY,
+      });
+      const heroIndex = plan.sections.findIndex((section) => section.type === 'hero');
+      const secondaryIndex = plan.sections.findIndex(
+        (section) => section.type === 'about' || section.type === 'authority',
+      );
+      const heroCandidate =
+        imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
+        imageCandidates[0]!;
+      const secondaryCandidate =
+        imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates[1]!;
+      if (heroIndex >= 0) {
+        imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
+      }
+      if (secondaryIndex >= 0) {
+        imageBindings[secondaryIndex] = {
+          ...(imageBindings[secondaryIndex] ?? {}),
+          image: toRef(secondaryCandidate),
+        };
+      }
+    }
 
     await repo.recordUsage(
       usageRecord({
@@ -245,8 +277,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       job.id,
       'PREPARING_ASSETS',
       imageCandidates.length === 0
-        ? 'Nenhuma imagem enviada para este projeto: layouts escolhidos para funcionar sem foto.'
-        : `${usedImages} de ${imageCandidates.length} imagem(ns) enviada(s) usada(s) no site.`,
+        ? 'Nenhuma imagem real disponivel: o layout foi preparado para funcionar sem foto.'
+        : `${usedImages} de ${imageCandidates.length} imagem(ns) real(is) usada(s) no site${googleAssetCount > 0 ? ', incluindo fotos do Google Places' : ''}.`,
     );
     await assertNotCanceled(job.id);
 
