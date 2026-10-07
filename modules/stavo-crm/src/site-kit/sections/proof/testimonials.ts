@@ -37,7 +37,22 @@ export function renderTestimonials(section: TestimonialsSection, ctx: RenderCont
     `<figcaption>${escapeHtml(item.author)}` +
     `${item.role ? ` <span class="muted">&middot; ${escapeHtml(item.role)}</span>` : ''}</figcaption></figure>`;
 
-  const items = section.items as Array<{ quote: string; author: string; role?: string }>;
+  // Nunca exibe rotulos internos de seed/demo no site final. Esses termos sao
+  // metadados de geracao, nao conteudo para o visitante.
+  const cleanDemoLabel = (value: string | undefined): string | undefined => {
+    if (!value) return undefined;
+    const cleaned = value
+      .replace(/\b(?:perfil|conte[uú]do)\s+demonstrativo\b/gi, '')
+      .replace(/\bdemonstrativo\b/gi, '')
+      .replace(/\bdemo\b/gi, '')
+      .replace(/^[\s·|—–-]+|[\s·|—–-]+$/g, '')
+      .trim();
+    return cleaned || undefined;
+  };
+
+  const items = (section.items as Array<{ quote: string; author: string; role?: string }>).map(
+    (item) => ({ ...item, role: cleanDemoLabel(item.role) }),
+  );
 
   switch (section.variant) {
     /** Dois depoimentos lado a lado, tipografia de citacao. */
