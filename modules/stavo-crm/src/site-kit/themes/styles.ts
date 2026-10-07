@@ -608,6 +608,39 @@ grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
   .heading,.prose,.cta-card,.cta-quiet,.form-card,.form-card--inline,
   .contact .heading{width:100%;max-width:100%}
 
+  /* Sobre: abertura centralizada e leitura mais clara no celular. */
+  .section--about .heading,
+  section[id*="sobre"] .heading,
+  section[id*="about"] .heading{
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .section--about .heading .eyebrow,
+  section[id*="sobre"] .heading .eyebrow,
+  section[id*="about"] .heading .eyebrow{
+    justify-content:center;
+    text-align:center;
+    opacity:1;
+  }
+  .section--about .heading h2,
+  .section--about .heading .lead,
+  section[id*="sobre"] .heading h2,
+  section[id*="sobre"] .heading .lead,
+  section[id*="about"] .heading h2,
+  section[id*="about"] .heading .lead{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    text-wrap:balance;
+  }
+  .section--about .heading .lead,
+  section[id*="sobre"] .heading .lead,
+  section[id*="about"] .heading .lead{
+    line-height:1.65;
+    opacity:.92;
+  }
+
   /* Beneficios: abertura centralizada no celular. */
   .section--benefits .heading,
   section[id*="benef"] .heading{
