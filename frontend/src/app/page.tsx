@@ -578,6 +578,7 @@ export default function Home() {
               <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-full w-full object-contain" />
             </div>
           </div>
+        </div>
       </footer>
     </main>
   );
