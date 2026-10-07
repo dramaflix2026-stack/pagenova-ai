@@ -170,10 +170,17 @@ export async function publishProject(
   if (slugCandidate) {
     const validated = validateSlug(slugCandidate);
     if (!validated.ok) throw unprocessable(validated.reason, { code: 'SITE_SLUG_INVALID' });
+
+    // O slug salvo no projeto pode ter sido herdado/copied de outro projeto.
+    // Isso nao deve bloquear a primeira publicacao: cada projeto recebe um
+    // endereco publico exclusivo automaticamente. Depois que este projeto
+    // tiver sua propria publicacao, desiredSlug passa a ser esse endereco e
+    // as atualizacoes futuras permanecem no mesmo link.
     if (await repo.isSlugTaken(validated.slug, project.id)) {
-      throw conflict('Este endereco ja esta em uso por outro projeto.', { code: 'SITE_SLUG_TAKEN' });
+      slug = await resolveAvailableSlug(project.businessName, model.business.city ?? null, project.id);
+    } else {
+      slug = validated.slug;
     }
-    slug = validated.slug;
   } else {
     slug = await resolveAvailableSlug(project.businessName, model.business.city ?? null, project.id);
   }
