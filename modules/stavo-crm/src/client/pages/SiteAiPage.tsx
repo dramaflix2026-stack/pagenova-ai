@@ -32,6 +32,27 @@ const STATUS_TONE: Record<SiteProjectStatus, 'neutral' | 'primary' | 'success' |
   ARCHIVED: 'neutral',
 };
 
+function optionalAbsoluteUrl(value: string | null | undefined): string | undefined {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  try {
+    const url = new URL(candidate);
+    return (url.protocol === 'http:' || url.protocol === 'https:') && url.hostname.includes('.')
+      ? url.toString()
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function describeApiError(error: ApiError): string {
+  const fields = Object.entries(error.fieldErrors ?? {}).flatMap(([field, messages]) =>
+    messages.map((message) => `${field}: ${message}`),
+  );
+  return fields.length > 0 ? `${error.message} ${fields.join(' | ')}` : error.message;
+}
+
 export default function SiteAiPage() {
   const navigate = useNavigate();
   const diagnostics = useSiteAiDiagnostics();
@@ -100,11 +121,12 @@ export default function SiteAiPage() {
             livePhone ??
             undefined,
           address: lead.lead.address ?? liveAddress ?? undefined,
-          instagramUrl: lead.links.find((item) => item.type === 'INSTAGRAM')?.url ?? undefined,
-          websiteUrl:
-            lead.links.find((item) => item.type === 'WEBSITE')?.url ??
-            liveWebsite ??
-            undefined,
+          instagramUrl: optionalAbsoluteUrl(
+            lead.links.find((item) => item.type === 'INSTAGRAM')?.url,
+          ),
+          websiteUrl: optionalAbsoluteUrl(
+            lead.links.find((item) => item.type === 'WEBSITE')?.url ?? liveWebsite,
+          ),
           services: [],
           differentials: [],
         },
@@ -134,9 +156,11 @@ export default function SiteAiPage() {
       navigate(`/sites-ia/${project.id}`);
     } catch (error) {
       setCreateError(
-        error instanceof ApiError || error instanceof Error
-          ? error.message
-          : 'Nao foi possivel criar o site deste lead.',
+        error instanceof ApiError
+          ? describeApiError(error)
+          : error instanceof Error
+            ? error.message
+            : 'Nao foi possivel criar o site deste lead.',
       );
     } finally {
       setCreatingFromLead(false);
