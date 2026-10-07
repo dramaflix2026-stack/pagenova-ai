@@ -200,7 +200,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
 
     // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
     // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
-    if (imageCandidates.length >= 2) {
+    if (imageCandidates.length >= 2 && Array.isArray(plan.sections) && plan.sections.length > 0) {
       const toRef = (candidate: (typeof imageCandidates)[number]) => ({
         assetId: candidate.assetId,
         alt: candidate.description.slice(0, 200),
@@ -213,13 +213,14 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       );
       const heroCandidate =
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
-        imageCandidates[0]!;
-      const secondaryCandidate =
-        imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates[1]!;
-      if (heroIndex >= 0) {
+        imageCandidates.at(0);
+      const secondaryCandidate = heroCandidate
+        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates.at(1)
+        : undefined;
+      if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
-      if (secondaryIndex >= 0) {
+      if (secondaryIndex >= 0 && secondaryCandidate) {
         imageBindings[secondaryIndex] = {
           ...(imageBindings[secondaryIndex] ?? {}),
           image: toRef(secondaryCandidate),
