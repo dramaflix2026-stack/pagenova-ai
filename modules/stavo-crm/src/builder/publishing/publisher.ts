@@ -23,6 +23,7 @@
  */
 import { getEnv, publicSitesBaseUrl, publicSitesDirAbsolute } from '@server/config/env';
 import { validateSlug } from '@site-kit/types/site-ai';
+import { lintSite } from '@site-kit/utils/linter';
 import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
 import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
 import { conflict, notFound, unprocessable } from '@server/lib/errors';
@@ -46,6 +47,58 @@ export interface PublishResult {
   url: string;
 }
 
+
+/**
+ * Normalizacao deterministica imediatamente antes da publicacao.
+ * Mantem o conteudo criativo intacto e atua somente nos quatro bloqueios que
+ * podem nascer da geracao automatica: placeholders e prova social nao
+ * confirmada. Isso garante que um site gerado pela PageNova nao dependa de
+ * uma correcao manual para conseguir ser publicado.
+ */
+function makeGeneratedDraftPublishSafe(model: SiteSchemaModel): SiteSchemaModel {
+  const copy = structuredClone(model) as SiteSchemaModel;
+  const blockedProofTypes = new Set(['authority', 'testimonials', 'stats']);
+  const initial = lintSite(copy);
+  const badProofIndexes = new Set<number>();
+
+  for (const finding of initial.errors) {
+    if (!['FACT_UNCONFIRMED_CREDENTIAL', 'FACT_UNCONFIRMED_TESTIMONIAL', 'FACT_UNCONFIRMED_STAT'].includes(finding.code)) continue;
+    const match = finding.path.match(/^sections\\[(\\d+)\\]/);
+    if (match) badProofIndexes.add(Number(match[1]));
+  }
+
+  if (badProofIndexes.size) {
+    copy.sections = copy.sections.filter((section, index) =>
+      !badProofIndexes.has(index) || !blockedProofTypes.has(section.type),
+    );
+  }
+
+  const placeholderTokens = [
+    'lorem ipsum', '[inserir', '[insira', '[nome', '[telefone', '[cidade',
+    'xxx-xxxx', 'seu texto aqui', 'texto de exemplo', 'todo:', 'tbd',
+  ];
+  const containsPlaceholder = (value: string) => {
+    const flat = value.normalize('NFD').replace(/\\p{Diacritic}/gu, '').toLowerCase();
+    return placeholderTokens.some((token) => flat.includes(token));
+  };
+  const clean = (value: unknown, key = ''): unknown => {
+    if (typeof value === 'string' && containsPlaceholder(value)) {
+      if (/headline|title|name/i.test(key)) return copy.business.name;
+      if (/label/i.test(key)) return 'Saiba mais';
+      return 'Entre em contato para saber mais.';
+    }
+    if (Array.isArray(value)) return value.map((item) => clean(item, key));
+    if (value && typeof value === 'object') {
+      const out: Record<string, unknown> = {};
+      for (const [childKey, child] of Object.entries(value as Record<string, unknown>)) out[childKey] = clean(child, childKey);
+      return out;
+    }
+    return value;
+  };
+
+  return clean(copy) as SiteSchemaModel;
+}
+
 /**
  * Publica (ou atualiza a publicacao de) um projeto.
  *
@@ -62,7 +115,13 @@ export async function publishProject(
     throw conflict('Este projeto ainda nao tem um rascunho para publicar.', { code: 'SITE_PROJECT_NO_DRAFT' });
   }
 
-  const { model, report } = validateAndLintConfig(project.draftConfig);
+  const validated = validateAndLintConfig(project.draftConfig);
+  // A geracao automatica nao pode entregar um rascunho estruturalmente valido
+  // que depois seja impossivel de publicar por residuos do proprio modelo.
+  // Corrigimos apenas bloqueios mecanicos e removemos prova social nao confirmada;
+  // nunca inventamos credenciais, numeros ou depoimentos.
+  const model = makeGeneratedDraftPublishSafe(validated.model);
+  const report = lintSite(model);
   assertPublishable(report, options.acknowledgedWarnings);
 
   // Garante que fotos reais importadas do Google continuem publicaveis mesmo
