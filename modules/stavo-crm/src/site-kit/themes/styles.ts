@@ -637,6 +637,34 @@ h2{font-size:clamp(1.75rem,7.7vw,2.4rem)}
 .site-footer{padding:2.25rem 0}
 }
 
+/* ---- PageNova Premium Layout V4 ----------------------------------------
+   Cards mais editoriais, alinhamento consistente e menor repeticao visual. */
+.services--cards .card,.benefits .card,.benefits .icon-block,.step-cards .card{
+  display:flex;flex-direction:column;align-items:center;text-align:center
+}
+.card .icon,.icon-block .icon{
+  flex:0 0 auto;margin-bottom:1rem
+}
+.services--cards .card h3,.benefits .card h3,.benefits .icon-block h3,.step-cards .card h3{
+  margin-bottom:.55rem
+}
+.services--cards .card p,.benefits .card p,.benefits .icon-block p,.step-cards .card p{
+  max-width:34ch;margin-left:auto;margin-right:auto
+}
+.services--cards .grid,.benefits .grid,.step-cards{max-width:1080px;margin-left:auto;margin-right:auto}
+.checklist,.contrast-grid,.divided,.feature-lead{max-width:1040px;margin-left:auto;margin-right:auto}
+.services--cards .actions,.services--numbered .actions,.process .actions{justify-content:center}
+.alt-row:last-of-type{margin-bottom:0}
+.hero-media:empty,.hero-wide-media:empty,.about-media:empty,.alt-row__media:empty,.pn-image-slot:empty{display:none!important}
+@media(min-width:900px){
+  .services--cards .card,.benefits .card,.step-cards .card{padding:clamp(1.45rem,2.2vw,2rem)}
+}
+@media(max-width:760px){
+  .services--cards .card,.benefits .card,.benefits .icon-block,.step-cards .card{min-height:0}
+  .services--cards .card p,.benefits .card p,.benefits .icon-block p,.step-cards .card p{max-width:31ch}
+  .section--primary .actions{justify-content:center}
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
