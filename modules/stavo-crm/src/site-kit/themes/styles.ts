@@ -665,6 +665,16 @@ h2{font-size:clamp(1.75rem,7.7vw,2.4rem)}
   .section--primary .actions{justify-content:center}
 }
 
+/* ---- PageNova universal scroll reveal ---------------------------------
+   Entrada discreta para todas as secoes, mesmo quando a IA nao escolhe um
+   preset especifico. Progressive enhancement + reduced-motion seguro. */
+.js .section.pn-scroll-reveal{opacity:0;transform:translate3d(0,18px,0);
+transition:opacity .56s ease,transform .56s cubic-bezier(.22,1,.36,1)}
+.js .section.pn-scroll-reveal.is-visible{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){
+.js .section.pn-scroll-reveal{opacity:1;transform:none;transition:none}
+}
+
 @media print{
 .site-header,.nav-toggle,.sticky-bar,.skip{display:none}
 .section{padding:1.5rem 0}
