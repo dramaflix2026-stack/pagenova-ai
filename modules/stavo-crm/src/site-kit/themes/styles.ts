@@ -804,6 +804,100 @@ grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
   }
 }
 
+/* ---- PageNova mobile headings + footer V6.4 -----------------------------
+   As aberturas das secoes ficam centralizadas no mobile independentemente da
+   variante escolhida. O rodape abandona qualquer composicao desktop. */
+@media(max-width:760px){
+  .services .heading,
+  .benefits .heading,
+  .about .heading,
+  .process .heading,
+  .testimonials .heading,
+  .faq .heading,
+  .contact .heading,
+  .wa .heading{
+    width:100%;
+    max-width:100%;
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+  }
+  .services .heading .eyebrow,.benefits .heading .eyebrow,.about .heading .eyebrow,
+  .process .heading .eyebrow,.testimonials .heading .eyebrow,.faq .heading .eyebrow,
+  .contact .heading .eyebrow,.wa .heading .eyebrow{
+    text-align:center;
+    justify-content:center;
+    opacity:1;
+  }
+  .services .heading h2,.services .heading .lead,
+  .benefits .heading h2,.benefits .heading .lead,
+  .about .heading h2,.about .heading .lead,
+  .process .heading h2,.process .heading .lead,
+  .testimonials .heading h2,.testimonials .heading .lead,
+  .faq .heading h2,.faq .heading .lead,
+  .contact .heading h2,.contact .heading .lead,
+  .wa .heading h2,.wa .heading .lead{
+    margin-left:auto;
+    margin-right:auto;
+    text-align:center;
+    text-wrap:balance;
+  }
+  .about .heading .lead,.process .heading .lead,.testimonials .heading .lead,
+  .faq .heading .lead,.contact .heading .lead,.wa .heading .lead{
+    line-height:1.6;
+  }
+
+  .site-footer{padding:2.5rem 0 calc(2.5rem + env(safe-area-inset-bottom));text-align:center}
+  .site-footer .container{width:100%;min-width:0}
+  .site-footer .footer-grid,.site-footer .footer-bar{
+    display:flex!important;
+    flex-direction:column!important;
+    grid-template-columns:none!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:1.5rem;
+    text-align:center!important;
+  }
+  .site-footer .footer-grid>div{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    text-align:center!important;
+  }
+  .site-footer .footer-name,.site-footer .footer-title,.site-footer p{
+    width:auto!important;
+    max-width:min(100%,34ch)!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    text-align:center!important;
+    overflow-wrap:normal!important;
+    word-break:normal!important;
+    white-space:normal;
+  }
+  .site-footer .footer-links,.site-footer .links{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:.7rem!important;
+    margin-left:auto!important;
+    margin-right:auto!important;
+    padding:0!important;
+    text-align:center!important;
+  }
+  .site-footer .footer-links li,.site-footer .links li{
+    width:auto!important;
+    max-width:100%!important;
+  }
+  .site-footer a{
+    display:inline-block;
+    max-width:100%;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+  }
+}
+
 /* ---- Celular ------------------------------------------------------------ */
 @media(max-width:768px){
 .nav{position:fixed;inset:68px 0 auto 0;flex-direction:column;align-items:stretch;
