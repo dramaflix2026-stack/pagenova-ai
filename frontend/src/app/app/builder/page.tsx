@@ -42,6 +42,8 @@ export default function BuilderPage() {
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "celular">("desktop");
   const [publishing, setPublishing] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState("");
+  const [crmProjectId, setCrmProjectId] = useState<string | null>(null);
+  const [crmPreviewHtml, setCrmPreviewHtml] = useState("");
 
   async function prepareRevisionImage(file: File) {
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
@@ -242,97 +244,140 @@ export default function BuilderPage() {
     setCurrentStep(null); setPendingKeys([]); setPhase("ready");
   }
 
-  function start(event: FormEvent<HTMLFormElement>) {
+  async function start(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (phase === "generating") return;
 
     const prompt = brief.trim();
-
     if (prompt.length < 20) {
       setError("Descreva o site que você quer criar com pelo menos 20 caracteres.");
       return;
     }
 
     const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
+    const named = normalizedPrompt.match(/(?:chamad[ao]|nome|marca|empresa)\s*(?:[:=-]|é|e)?\s*["“”']?([^,.;:\n]{2,72})/i);
+    const leading = normalizedPrompt.split(/[,;:\n]|\s+[—–-]\s+/)[0]?.trim() ?? "";
+    const inferredName = (named?.[1] || (/^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(leading) ? "" : leading) || "Sua marca")
+      .replace(/^["“”'\`]+|["“”'\`]+$/g, "")
+      .replace(/[.,;:!?]+$/g, "")
+      .trim()
+      .slice(0, 72);
 
-    const cleanBusinessName = (value: string) =>
-      value
-        .replace(/^["“”'`]+|["“”'`]+$/g, "")
-        .replace(
-          /\s+(?:especializad[ao]|focad[ao]|voltad[ao]|que\s+(?:atua|oferece|trabalha)|com\s+(?:foco|atendimento|serviços)|para\s+(?:atender|oferecer))\b.*$/i,
-          "",
-        )
-        .replace(/[.,;:!?]+$/g, "")
-        .trim()
-        .slice(0, 72);
-
-    const explicitNamePatterns = [
-      /\b(?:chamad[ao]|nomead[ao]|denominad[ao])\s+["“”'`]?([^,.;:\n]{2,72})/i,
-      /\b(?:nome|marca)\s*[:=-]\s*["“”'`]?([^,.;:\n]{2,72})/i,
-      /\b(?:sob\s+o\s+nome|com\s+o\s+nome)\s+["“”'`]?([^,.;:\n]{2,72})/i,
-    ];
-
-    let inferredName = "";
-
-    for (const pattern of explicitNamePatterns) {
-      const match = normalizedPrompt.match(pattern);
-
-      if (match?.[1]) {
-        inferredName = cleanBusinessName(match[1]);
-        if (inferredName) break;
-      }
-    }
-
-    if (!inferredName) {
-      // Briefings naturais frequentemente comecam pelo nome da marca:
-      // "Atelier Noma, escritorio de arquitetura..." ou "Lumiere Estetica - clinica...".
-      // Aproveita esse primeiro segmento quando ele parece nome proprio, sem
-      // transformar instrucoes como "Crie um site..." em nome da empresa.
-      const leadingSegment = normalizedPrompt
-        .split(/[,;:\n]|\s+[—–-]\s+/)[0]
-        ?.trim();
-
-      const looksLikeInstruction =
-        /^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(
-          leadingSegment || "",
-        );
-
-      if (
-        leadingSegment &&
-        leadingSegment.length >= 2 &&
-        leadingSegment.length <= 72 &&
-        !looksLikeInstruction
-      ) {
-        inferredName = cleanBusinessName(leadingSegment);
-      }
-    }
-
-    if (!inferredName) {
-      inferredName = "Sua marca";
-    }
-
-    const site: SiteProject = {
-      kind: "institutional-site",
-      id: crypto.randomUUID(),
-      name: inferredName,
-      presetId: "template-001",
-      brief: prompt,
-      style,
-      pages: {},
-      createdAt: new Date().toISOString(),
-    };
-
+    setPhase("generating");
     setError("");
-    setProject(site);
-    setActivePage("home");
+    setCurrentStep("home");
+    setPendingKeys(["home"]);
+    setCrmPreviewHtml("");
 
-    router.replace(`/app/builder?project=${site.id}`);
+    try {
+      const createResponse = await fetch("/api/crm/site-projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          leadId: null,
+          businessName: inferredName,
+          internalName: inferredName,
+          siteType: "ONE_PAGE",
+          briefing: {
+            business: { name: inferredName, services: [], differentials: [] },
+            objective: { goal: "QUOTE_REQUESTS" },
+            style: {
+              theme: "AI_DECIDES",
+              keywords: [style, "premium", "responsivo"],
+              density: "BALANCED",
+              motionLevel: "BALANCED"
+            },
+            freeformInstructions: prompt,
+            requiredSections: ["hero", "services", "benefits", "about", "process", "faq", "cta", "footer"],
+            forbiddenSections: []
+          }
+        }),
+      });
+      const created = await createResponse.json() as { project?: { id: string }; error?: { message?: string } };
+      if (!createResponse.ok || !created.project?.id) {
+        throw new Error(created.error?.message || "Não foi possível criar o site no motor do PageNova.");
+      }
 
-    void generatePages(
-      site,
-      SITE_PAGES.map(({ key }) => key),
-    );
+      const projectId = created.project.id;
+      setCrmProjectId(projectId);
+
+      const localSite: SiteProject = {
+        kind: "institutional-site",
+        id: projectId,
+        name: inferredName,
+        presetId: "institucional",
+        brief: prompt,
+        style,
+        pages: {
+          home: {
+            key: "home",
+            eyebrow: "",
+            heading: inferredName,
+            introduction: "",
+            sections: [],
+            cta: ""
+          }
+        },
+        createdAt: new Date().toISOString(),
+      };
+      setProject(localSite);
+      setActivePage("home");
+      await savePageNovaProject(projectId, localSite);
+      router.replace(`/app/builder?project=${projectId}`);
+
+      const generateResponse = await fetch(`/api/crm/site-projects/${projectId}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ idempotencyKey: `pagenova_${crypto.randomUUID()}` }),
+      });
+      const generation = await generateResponse.json() as { jobId?: string; error?: { message?: string } };
+      if (!generateResponse.ok || !generation.jobId) {
+        throw new Error(generation.error?.message || "Não foi possível iniciar a geração.");
+      }
+
+      let ready = false;
+      for (let attempt = 0; attempt < 120; attempt++) {
+        await new Promise((resolve) => window.setTimeout(resolve, 1500));
+        const statusResponse = await fetch(`/api/crm/site-projects/${projectId}`, {
+          credentials: "same-origin",
+          cache: "no-store",
+        });
+        const detail = await statusResponse.json() as {
+          project?: { status?: string; lastFailureMessage?: string | null };
+          jobs?: Array<{ status?: string; progress?: number; errorMessage?: string | null }>;
+          error?: { message?: string };
+        };
+        if (!statusResponse.ok) throw new Error(detail.error?.message || "Falha ao acompanhar a geração.");
+        const status = detail.project?.status;
+        if (status === "READY" || status === "PUBLISHED") {
+          ready = true;
+          break;
+        }
+        if (status === "FAILED") {
+          throw new Error(detail.project?.lastFailureMessage || detail.jobs?.[0]?.errorMessage || "A geração falhou.");
+        }
+      }
+      if (!ready) throw new Error("A geração demorou mais que o esperado. Tente novamente.");
+
+      const renderResponse = await fetch(`/api/crm/site-projects/${projectId}/render`, {
+        credentials: "same-origin",
+        cache: "no-store",
+      });
+      if (!renderResponse.ok) throw new Error("O site foi gerado, mas a prévia não pôde ser carregada.");
+      setCrmPreviewHtml(await renderResponse.text());
+      setCurrentStep(null);
+      setPendingKeys([]);
+      setPhase("ready");
+    } catch (cause) {
+      setCurrentStep(null);
+      setPendingKeys([]);
+      setPhase("error");
+      setError(cause instanceof Error ? cause.message : "Falha na geração.");
+    }
   }
+
 async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
@@ -470,10 +515,11 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     setCurrentStep(null); setPhase("ready");
   }
 
-  const preview = useMemo(() => project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : "",
+  const preview = useMemo(() => crmPreviewHtml || (project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : ""),
     // Text edits already update the current iframe; regenerate only on page or theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
         [
+      crmPreviewHtml,
       project?.pages[activePage],
       project?.previewTheme,
       project?.visualDirection,
@@ -497,7 +543,7 @@ async function revise(event: FormEvent<HTMLFormElement>) {
 
     // A nova aba recebe a mesma renderizacao do editor, mas sem a camada de
     // edicao inline. Isso evita publicar ou duplicar dados so para visualizar.
-    const html = renderSitePreview(project, activePage);
+    const html = crmPreviewHtml || renderSitePreview(project, activePage);
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const opened = window.open(url, "_blank", "noopener,noreferrer");
@@ -516,6 +562,20 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     setPublishing(true);
     setError("");
     try {
+      if (crmProjectId) {
+        const response = await fetch(`/api/crm/site-projects/${crmProjectId}/publish`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ acknowledgedWarnings: true }),
+        });
+        const data = await response.json() as { url?: string; error?: { message?: string } };
+        if (!response.ok || !data.url) throw new Error(data.error?.message || "Nao foi possivel publicar o site.");
+        setPublishedUrl(data.url);
+        window.open(data.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       const response = await fetch("/api/builder/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
