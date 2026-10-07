@@ -157,6 +157,6 @@ function wrap(
   inner: string,
   options: { bare?: boolean } = {},
 ): string {
-  const content = options.bare ? inner : `<div class="container hero">${inner}</div>`;
+  const content = options.bare ? inner : `<div class="container hero__inner">${inner}</div>`;
   return `<section${sectionAttrs(section, `hero ${variantClass}`)} data-hero>${content}</section>`;
 }
