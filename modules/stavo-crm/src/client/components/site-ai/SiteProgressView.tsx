@@ -6,6 +6,7 @@
  * servidor nao confirmou a etapa, ela aparece como pendente, parada.
  */
 import { CheckCircle2, CircleDashed, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
 
 import { SITE_JOB_STAGES, SITE_JOB_STAGE_LABELS, stageProgress, type SiteJobStage } from '@site-kit/types/site-ai';
 import { formatDateTime } from '@shared/format';
@@ -28,7 +29,9 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
     events.filter((e) => e.stage && (e.eventType === 'STAGE_STARTED' || e.eventType === 'COMPLETED')).map((e) => e.stage),
   );
 
-  if (job?.status === 'SUCCEEDED' && onCompleted) onCompleted();
+  useEffect(() => {
+    if (job?.status === 'SUCCEEDED') onCompleted?.();
+  }, [job?.status, onCompleted]);
 
   return (
     <div className="space-y-4">
@@ -61,6 +64,15 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
           />
         ))}
       </ol>
+
+      {job?.status === 'SUCCEEDED' ? (
+        <Callout tone="success" title="Site criado com sucesso">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p>O site esta pronto. Abrindo o editor para revisao...</p>
+            {onCompleted ? <Button size="sm" onClick={onCompleted}>Abrir site agora</Button> : null}
+          </div>
+        </Callout>
+      ) : null}
 
       {job?.status === 'FAILED' ? (
         <Callout tone="danger" title="A geracao falhou">
