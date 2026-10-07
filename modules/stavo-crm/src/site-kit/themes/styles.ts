@@ -158,6 +158,7 @@ transform:translateX(-130%);transition:transform .65s ease}
 .hero-centered h1{margin-left:auto;margin-right:auto}
 .hero .lead{font-size:clamp(1.05rem,2vw,1.28rem)}
 .hero-media{position:relative}
+.hero-media:empty,.hero-wide-media:empty,.alt-row__media:empty{display:none}
 .hero-media::before{content:'';position:absolute;inset:-1rem 1rem 1rem -1rem;
 border-radius:var(--radius-lg);background:color-mix(in srgb,var(--primary) 10%,transparent);z-index:-1}
 .hero-media img{box-shadow:0 24px 70px rgba(0,0,0,.14)}
@@ -171,7 +172,7 @@ border-radius:var(--radius-lg);background:color-mix(in srgb,var(--primary) 10%,t
 .cta-card,.offer-card{box-shadow:0 22px 70px rgba(0,0,0,.09)}
 
 @media(max-width:760px){
-:root{--pad-scale:.78}
+:root{--pad-scale:.72}
 .container{padding-left:1.1rem;padding-right:1.1rem}
 .section{padding-top:clamp(3rem,12vw,4.5rem);padding-bottom:clamp(3rem,12vw,4.5rem)}
 .hero{padding-top:3.75rem;padding-bottom:3.75rem}
