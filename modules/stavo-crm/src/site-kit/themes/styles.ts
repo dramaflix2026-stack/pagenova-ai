@@ -228,6 +228,45 @@ left:0;right:0;top:0}
 .site-header--overlay.is-condensed{position:fixed;background:color-mix(in srgb,var(--bg) 92%,transparent);
 border-bottom-color:var(--border)}
 
+/* ---- Responsividade universal do cabecalho ------------------------------
+   O menu desktop so aparece quando ha largura real para marca + links + CTA.
+   Isso cobre celular em landscape, tablets estreitos e janelas compactas,
+   evitando textos quebrados, CTA esmagado e overflow horizontal. */
+@media(max-width:1100px){
+.site-header:not(.site-header--minimal) .nav{
+position:fixed;left:0;right:0;top:68px;z-index:55;display:none;
+max-height:calc(100dvh - 68px);overflow-y:auto;overscroll-behavior:contain;
+flex-direction:column;align-items:stretch;gap:0;
+padding:1rem max(1.25rem,env(safe-area-inset-right)) calc(1.5rem + env(safe-area-inset-bottom)) max(1.25rem,env(safe-area-inset-left));
+background:color-mix(in srgb,var(--bg) 97%,transparent);
+border-bottom:var(--border-w) solid var(--border);box-shadow:var(--shadow);
+backdrop-filter:blur(14px)}
+.site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex}
+.site-header:not(.site-header--minimal) .nav a{
+display:block;width:100%;padding:.9rem 0;border-bottom:1px solid var(--border);
+font-size:1rem;line-height:1.35;white-space:normal;overflow-wrap:anywhere}
+.site-header:not(.site-header--minimal) .nav .btn{margin-top:1rem;border-bottom:0;width:100%;white-space:normal}
+.site-header:not(.site-header--minimal) .nav-toggle{display:block;flex:0 0 48px}
+.site-header .brand{min-width:0;max-width:calc(100% - 64px);overflow-wrap:anywhere}
+.site-header .brand-logo{max-width:min(220px,calc(100vw - 100px))}
+.site-header--centered .container{display:flex;grid-template-columns:none}
+.site-header--centered .brand--center{order:-1;grid-column:auto;text-align:left;margin-right:auto}
+.site-header--centered .nav--split{grid-column:auto}
+.site-header--centered .header-tail{grid-column:auto}
+.site-header--stacked .nav{top:68px}
+}
+@media(max-width:1100px) and (orientation:landscape){
+.site-header .container{min-height:60px}
+.site-header:not(.site-header--minimal) .nav{top:60px;max-height:calc(100dvh - 60px)}
+.site-header--stacked .topbar{display:none}
+.hero{padding-top:clamp(2.5rem,8vh,4rem);padding-bottom:clamp(2.5rem,8vh,4rem)}
+}
+@media(max-width:560px){
+.site-header .container{gap:.65rem}
+.site-header .brand{font-size:1.05rem}
+.site-header .brand-logo{max-height:34px}
+}
+
 /* ---- Hero --------------------------------------------------------------- */
 .hero{padding:calc(var(--section-pad) * 1.25) 0}
 .hero-split{display:grid;gap:calc(var(--gap) * 1.5);align-items:center;grid-template-columns:1fr}
