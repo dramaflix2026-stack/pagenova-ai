@@ -26,6 +26,7 @@ import { scoreLead, type ScoreReason } from '../../domain/scoring';
 import { newId } from '../../lib/ids';
 import { mapBusinessStatus, placeDetails, textSearch, type GooglePlaceRaw } from './client';
 import { reserveUsage } from './usage';
+import { releaseWorkspaceQuota, reserveWorkspaceQuota, workspaceQuotasEnabled } from '../billing/workspace-usage';
 
 export interface SearchResultItem {
   placeId: string;
@@ -88,7 +89,24 @@ export async function searchPlaces(
   options: { pageNumber: number; signal?: AbortSignal } = { pageNumber: 1 },
 ): Promise<SearchResponse> {
   // Cada pagina realmente solicitada consome uma unidade da SKU TEXT_SEARCH.
-  const usage = await reserveUsage(db, workspaceId, 'TEXT_SEARCH');
+  // Customer quota is reserved first; if the global Google budget refuses the call,
+  // compensate the customer reservation before any paid provider request.
+  const quotaNow = new Date();
+  const customerReserved = workspaceQuotasEnabled();
+  if (customerReserved) await reserveWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
+  let usage: Awaited<ReturnType<typeof reserveUsage>>;
+  try {
+    usage = await reserveUsage(db, workspaceId, 'TEXT_SEARCH');
+  } catch (error) {
+    if (customerReserved) {
+      try {
+        await releaseWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
+      } catch (refundError) {
+        console.error('[PageNova] Could not refund quota after Google budget rejection', refundError);
+      }
+    }
+    throw error;
+  }
 
   const textQuery = buildTextQuery(input);
   const response = await textSearch({
