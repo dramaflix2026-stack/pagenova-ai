@@ -538,11 +538,16 @@
         img.alt=item.kind==="hero"?"Foto principal":"Foto do negócio";
         slot.appendChild(img);
       }
-      const rect=slot.getBoundingClientRect();
+      // The uploaded photo defines the slot's height, rather than the
+      // placeholder's fixed height. Keep the original width and page flow.
       slot.style.setProperty("position","relative");
       slot.style.setProperty("overflow","hidden");
-      if(rect.height>0&&rect.height<560)slot.style.setProperty("min-height",Math.round(rect.height)+"px");
-      img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:520px!important;object-fit:contain!important;border-radius:inherit";
+      slot.style.setProperty("height","auto","important");
+      slot.style.setProperty("min-height","0","important");
+      slot.style.setProperty("max-height","none","important");
+      slot.style.setProperty("aspect-ratio","auto","important");
+      slot.style.setProperty("padding","0","important");
+      img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;min-height:0!important;object-fit:contain!important;aspect-ratio:auto!important;border-radius:inherit";
       img.src=item.src;
     });
   }
