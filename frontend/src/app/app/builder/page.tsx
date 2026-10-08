@@ -494,6 +494,28 @@ export default function BuilderPage() {
     return null;
   }
 
+  function tryLocalIframeCopy(field: "heading" | "eyebrow" | "cta", value: string): Promise<boolean> {
+    const frame = previewRef.current?.contentWindow;
+    if (!frame) return Promise.resolve(false);
+    return new Promise((resolve) => {
+      const id = "local-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      let done = false;
+      const finish = (ok: boolean) => {
+        if (done) return;
+        done = true;
+        window.clearTimeout(timer);
+        window.removeEventListener("message", onMessage);
+        resolve(ok);
+      };
+      const onMessage = (event: MessageEvent) => {
+        if (event.source === frame && event.data?.type === "pagenova-local-command-result" && event.data.id === id) finish(event.data.ok === true);
+      };
+      window.addEventListener("message", onMessage);
+      const timer = window.setTimeout(() => finish(false), 1000);
+      frame.postMessage({ type: "pagenova-local-command", id, command: { field, value } }, "*");
+    });
+  }
+
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
@@ -511,6 +533,14 @@ export default function BuilderPage() {
         setProject(updated); setInstruction(""); setError("");
         return;
       } catch { setError("Falha ao salvar alinhamento; nenhuma chamada de IA foi feita."); return; }
+    }
+    if (local?.kind === "text" && crmPreviewHtml) {
+      // O iframe gera a mesma LiveEdit usada pelo editor visual e pela publicacao.
+      // Se nao houver um alvo unico e seguro, seguimos com a IA existente.
+      if (await tryLocalIframeCopy(local.field, local.value)) {
+        setInstruction(""); setError("");
+        return;
+      }
     }
     // Texto estruturado so pode ser alterado localmente se a pagina renderizada
     // for a do proprio projeto. No HTML do Railway, a alteracao seria invisivel.
