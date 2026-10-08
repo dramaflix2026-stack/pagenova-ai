@@ -837,7 +837,7 @@ async function revise(event: FormEvent<HTMLFormElement>) {
             const visibleHeight = Math.round(900 * scale);
             return <div ref={previewStageRef} className="relative overflow-hidden bg-[#090d0c] p-4 sm:p-6">
               <div className="mx-auto overflow-hidden rounded-[22px] border border-white/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,.42)]" style={{ width: virtualWidth * scale, height: visibleHeight }}>
-                <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts" srcDoc={preview}
+                <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts allow-forms allow-downloads" srcDoc={preview}
                   style={{ width: virtualWidth, height: 900, transform: `scale(${scale})`, transformOrigin: "top left", border: 0 }}
                   className="block bg-white" />
               </div>
