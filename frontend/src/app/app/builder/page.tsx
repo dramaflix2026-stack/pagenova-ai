@@ -534,7 +534,9 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     setCurrentStep(null); setPhase("ready");
   }
 
-  const preview = useMemo(() => crmPreviewHtml || (project ? renderEditablePreview(renderSitePreview(project, activePage), project, activePage) : ""),
+  const preview = useMemo(() => project
+    ? renderEditablePreview(crmPreviewHtml || renderSitePreview(project, activePage), project, activePage)
+    : "",
     // Text edits already update the current iframe; regenerate only on page or theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
         [
