@@ -61,3 +61,23 @@ export async function getWorkspaceQuotaSummary(db: Database, workspaceId: string
     return { meter, billingMonth, used, limit, remaining: Math.max(0, limit - used) };
   });
 }
+
+/** Refund only a reservation that was never used for a provider request. */
+export async function releaseWorkspaceQuota(
+  db: Database,
+  workspaceId: string,
+  meter: PageNovaMeter,
+  now: Date = new Date(),
+): Promise<void> {
+  if (!workspaceId) throw new Error('Workspace identity is required for quota release.');
+  const billingMonth = toReferencePeriod(now);
+  await db.execute(sql`
+    update ${pagenovaWorkspaceUsage}
+       set ${pagenovaWorkspaceUsage.requestCount} = greatest(${pagenovaWorkspaceUsage.requestCount} - 1, 0),
+           ${pagenovaWorkspaceUsage.updatedAt} = ${now}
+     where ${pagenovaWorkspaceUsage.workspaceId} = ${workspaceId}
+       and ${pagenovaWorkspaceUsage.billingMonth} = ${billingMonth}
+       and ${pagenovaWorkspaceUsage.meter} = ${meter}
+       and ${pagenovaWorkspaceUsage.requestCount} > 0
+  `);
+}
