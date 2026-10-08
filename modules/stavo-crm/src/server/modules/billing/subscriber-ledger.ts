@@ -33,6 +33,15 @@ export async function reserveSubscriberSite(input: SubscriberDebit): Promise<{ a
       [input.subscriberId, input.generationId],
     );
     if ((previous as unknown[]).length) {
+      // A duplicate request is idempotent only within the SAME billing cycle.
+      const [priorCycle] = await connection.execute(
+        'SELECT cycle_start FROM pagenova_generation_debits WHERE subscriber_id=? AND generation_id=? LIMIT 1',
+        [input.subscriberId, input.generationId],
+      );
+      const priorStart = (priorCycle as Array<{cycle_start:Date}>)[0]?.cycle_start;
+      if (!priorStart || new Date(priorStart).getTime() !== input.cycleStart.getTime()) {
+        throw new Error('Generation ID belongs to a different billing cycle');
+      }
       await connection.commit();
       return { accepted: true, duplicate: true, used, remaining: Math.max(0, PAGENOVA_MONTHLY_QUOTAS.generatedSites - used) };
     }
