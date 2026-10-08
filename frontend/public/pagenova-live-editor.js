@@ -556,7 +556,41 @@
       img.src=item.src;
     });
   }
+  // Conservative zero-API edits on the real Railway HTML. Only unique targets.
+  function applyLocalCommand(command) {
+    if (!command || !["heading", "cta", "eyebrow"].includes(command.field) || typeof command.value !== "string" || !command.value.trim() || command.value.length > 180) return false;
+    const selectors = {
+      heading: "main h1, h1",
+      eyebrow: "[class*=eyebrow], [class*=Eyebrow]",
+      cta: "main a[href], main button, section a[href], section button"
+    };
+    let nodes;
+    try { nodes = Array.from(document.querySelectorAll(selectors[command.field])).filter(function(el) {
+      if (!el.getClientRects().length || !el.matches(textSel)) return false;
+      if (command.field === "cta") return /^(?:saiba mais|fale conosco|entre em contato|comec[eç]ar|solicitar|conhe[cç]a|agende|ver mais)/i.test((el.textContent || "").trim()) && el.children.length === 0;
+      return el.children.length === 0;
+    }); } catch (_) { return false; }
+    // Do not choose a random element if the target is ambiguous.
+    if (nodes.length !== 1) return false;
+    const el = nodes[0], selector = path(el), cs = getComputedStyle(el);
+    if (!selector || !find(selector) || find(selector) !== el) return false;
+    const edit = {
+      selector: selector, text: command.value.trim(), font: cs.fontFamily || "Arial",
+      size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
+      color: hex(cs.color), kind: "text",
+      textAlign: cs.textAlign === "center" || cs.textAlign === "right" ? cs.textAlign : "left",
+      fontWeight: parseInt(cs.fontWeight, 10) || 400
+    };
+    applyEdit(edit);
+    parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit: edit }, "*");
+    return true;
+  }
   window.addEventListener("message", function(event) {
+    if (event.source !== parent && event.source !== window) return;
+    if (event.data?.type === "pagenova-local-command") {
+      const ok = applyLocalCommand(event.data.command);
+      parent.postMessage({ type: "pagenova-local-command-result", id: event.data.id, ok: ok }, "*");
+    }
     if (event.data?.type === "pagenova-user-images") updateUploadedImages(event.data.images);
   });
   makeUi();
