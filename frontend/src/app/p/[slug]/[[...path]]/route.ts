@@ -56,8 +56,8 @@ async function railwayPublishedSite(slug: string, path: string[] | undefined) {
       const overlay = await publishedOverlay(slug, path?.[0] || "home");
       if (overlay) {
         const html = await response.text();
-        const output = /<\\/body>/i.test(html)
-          ? html.replace(/<\\/body>/i, overlay + "</body>")
+        const output = /<\/body>/i.test(html)
+          ? html.replace(/<\/body>/i, overlay + "</body>")
           : html + overlay;
         headers.delete("content-length");
         return new NextResponse(output, { status: response.status, headers });
