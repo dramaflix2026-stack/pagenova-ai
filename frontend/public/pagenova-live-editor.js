@@ -498,33 +498,28 @@
   function imageSlotFor(kind) {
     const existing=document.querySelector('[data-pn-photo-slot="'+kind+'"]');
     if(existing)return existing;
-    const nodes=Array.from(document.querySelectorAll("div,span,p,button"));
-    const label=nodes.find(function(node) {
-      if(node.children.length>2)return false;
-      const text=(node.textContent||"").trim();
-      return text.length<65&&photoKindFromText(text)===kind;
-    });
-    if(!label)return null;
-    // Find the original framed placeholder, not the caption itself or the
-    // outer page/card. The original frame encloses both the + and caption.
-    let node=label;
-    for(let i=0;i<6&&node.parentElement;i++,node=node.parentElement) {
-      const rect=node.getBoundingClientRect();
-      if(rect.width<130||rect.height<110)continue;
-      const css=getComputedStyle(node);
-      const hasFrame=css.borderTopStyle!=="none"||css.borderBottomStyle!=="none"||
-        css.backgroundColor!=="rgba(0, 0, 0, 0)";
-      if(hasFrame||node.querySelector("button"))return node;
+    const candidates=Array.from(document.querySelectorAll("div,span,p,button"))
+      .filter(function(node) {
+        const text=(node.textContent||"").trim();
+        return text.length<80&&photoKindFromText(text)===kind;
+      });
+    for(const label of candidates) {
+      let node=label;
+      for(let i=0;i<6&&node;i++,node=node.parentElement) {
+        if(node===document.body||node.matches("section,article,main"))break;
+        const rect=node.getBoundingClientRect();
+        if(rect.width<130||rect.height<100||rect.height>560)continue;
+        const css=getComputedStyle(node);
+        const framed=css.borderTopStyle!=="none"||css.borderBottomStyle!=="none"||
+          css.borderLeftStyle!=="none"||css.borderRightStyle!=="none";
+        if(framed)return node;
+      }
     }
-    return label.parentElement||null;
+    return null;
   }
   function updateUploadedImages(images) {
     if(!images)return;
-    const mappings=[
-      {kind:"hero",src:images.portrait},
-      {kind:"work",src:images.businessPhoto||images.workPhoto}
-    ];
-    mappings.forEach(function(item) {
+    [{kind:"hero",src:images.portrait},{kind:"work",src:images.businessPhoto||images.workPhoto}].forEach(function(item) {
       if(!item.src||!item.src.startsWith("data:image/"))return;
       const slot=imageSlotFor(item.kind);
       if(!slot)return;
@@ -532,18 +527,22 @@
       slot.dataset.pnUploadKind=item.kind;
       let img=slot.querySelector('img[data-pn-uploaded="'+item.kind+'"]');
       if(!img) {
-        // Replace placeholder contents in the image frame itself so the +
-        // and caption disappear instead of floating over the uploaded photo.
-        slot.replaceChildren();
+        // Preserve the original placeholder and layout. Only conceal its
+        // decorative contents, never replace the card or section children.
+        Array.from(slot.children).forEach(function(child) {
+          if(child.dataset.pnUploaded)return;
+          child.style.setProperty("display","none","important");
+        });
         img=document.createElement("img");
         img.dataset.pnUploaded=item.kind;
         img.alt=item.kind==="hero"?"Foto principal":"Foto do negócio";
         slot.appendChild(img);
       }
+      const rect=slot.getBoundingClientRect();
+      slot.style.setProperty("position","relative");
       slot.style.setProperty("overflow","hidden");
-      slot.style.setProperty("padding","0","important");
-      slot.style.setProperty("display","block","important");
-      img.style.cssText="display:block!important;width:100%!important;height:100%!important;max-width:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;border-radius:inherit";
+      if(rect.height>0&&rect.height<560)slot.style.setProperty("min-height",Math.round(rect.height)+"px");
+      img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:520px!important;object-fit:contain!important;border-radius:inherit";
       img.src=item.src;
     });
   }
