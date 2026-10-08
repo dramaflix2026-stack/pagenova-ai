@@ -91,10 +91,22 @@
       if (!selected || !selected.matches(textSel)) return;
       const field = e.target.dataset.field;
       if (field === "font" && e.target.value) selected.style.setProperty("font-family", e.target.value, "important");
-      if (field === "size" && e.target.value) selected.style.setProperty("font-size", e.target.value + "px", "important");
+      if (field === "size") return; // Commit only when the user finishes editing the number.
       if (field === "color") selected.style.setProperty("color", e.target.value, "important");
       syncUi(); save();
     });
+
+    const fontSizeInput = bar.querySelector('[data-field="size"]');
+    function commitFontSize() {
+      if (!selected || !selected.matches(textSel)) return;
+      const value = Number(fontSizeInput.value);
+      if (!Number.isFinite(value) || value < 10 || value > 120) return;
+      selected.style.setProperty("font-size", value + "px", "important");
+      save();
+      syncUi();
+    }
+    fontSizeInput.addEventListener("change", commitFontSize);
+    fontSizeInput.addEventListener("blur", commitFontSize);
 
     bar.addEventListener("click", function(e) {
       const act = e.target.closest("[data-act]")?.dataset.act;
@@ -166,7 +178,7 @@
       const color = bar.querySelector('[data-field="color"]');
       const family = cs.fontFamily.split(",")[0].replaceAll('"', "").trim();
       if ([].some.call(font.options, function(o) { return o.value === family; })) font.value = family;
-      size.value = parseInt(cs.fontSize, 10) || 16;
+      if (document.activeElement !== size) size.value = parseInt(cs.fontSize, 10) || 16;
       color.value = hex(cs.color);
       const bw = Math.min(bar.offsetWidth || 360, innerWidth - 16);
       const left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2));
