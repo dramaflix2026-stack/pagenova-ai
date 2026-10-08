@@ -246,6 +246,7 @@ export default function BuilderPage() {
           } catch (imageError) {
             if ((imageError as Error).name === "AbortError") return;
             console.warn("[Builder] Imagem indisponível; conteúdo preservado", imageError);
+            setError(`A página foi criada, mas a imagem ${key === "home" ? "principal" : "do negócio"} não carregou. Use "Gerar novamente os dois banners" para tentar novamente.`);
           }
         }
       } catch (cause) {
@@ -733,20 +734,30 @@ async function revise(event: FormEvent<HTMLFormElement>) {
               setRefreshingImages(true);
               setError("");
               try {
-                const hero = await requestImage(project, "hero");
-                const work = await requestImage(project, "work");
-                const updated = {
-                  ...project,
-                  institutional: {
-                    role: "", audience: "", offer: "", process: "", proof: "",
-                    ...project.institutional,
-                    portrait: hero,
-                    workPhoto: work,
-                    businessPhoto: work,
-                  },
-                };
-                await savePageNovaProject(updated.id, updated);
-                setProject(updated);
+                // Persist each successful image independently. A failure in the
+                // second request must not discard the first generated image.
+                let current = project;
+                const failures: string[] = [];
+                for (const kind of ["hero", "work"] as const) {
+                  try {
+                    const image = await requestImage(current, kind);
+                    current = {
+                      ...current,
+                      institutional: {
+                        role: "", audience: "", offer: "", process: "", proof: "",
+                        ...current.institutional,
+                        ...(kind === "hero"
+                          ? { portrait: image }
+                          : { workPhoto: image, businessPhoto: image }),
+                      },
+                    };
+                    await savePageNovaProject(current.id, current);
+                    setProject(current);
+                  } catch (cause) {
+                    failures.push(`${kind === "hero" ? "Imagem principal" : "Foto do negócio"}: ${cause instanceof Error ? cause.message : "falha desconhecida"}`);
+                  }
+                }
+                if (failures.length) setError(failures.join(" | "));
               } catch (cause) {
                 setError(cause instanceof Error ? cause.message : "Falha ao gerar as imagens.");
               } finally {
