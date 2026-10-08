@@ -206,7 +206,7 @@
   }
 
   function ensureMovable(el) {
-    if (!el || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
+    if (!el || el.matches(textSel) || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
     if (el.matches(sectionSel) || isResponsiveStructure(el)) return el;
     const r = el.getBoundingClientRect();
     const source = path(el);
@@ -274,6 +274,7 @@
     // Plain text edits also store their measured rectangle, but applying that
     // rectangle as absolute positioning destroys responsive grids on reload.
     const hasMovedGeometry =
+      edit.kind !== "text" &&
       edit.movable &&
       !!edit.ghostId &&
       edit.left != null &&
@@ -286,6 +287,9 @@
       if (edit.width) el.style.setProperty("width", edit.width + "px", "important");
       if (edit.height) el.style.setProperty("height", edit.height + "px", "important");
       el.style.setProperty("z-index", "120", "important");
+    } else if (edit.kind === "text" && edit.width) {
+      el.style.setProperty("max-width", "100%", "important");
+      el.style.setProperty("width", edit.width + "px", "important");
     } else if (edit.kind === "section" && edit.height) {
       el.style.setProperty("min-height", Math.max(40, edit.height) + "px", "important");
     }
@@ -394,7 +398,7 @@
     if (!el) return;
     const wasSelected = selected === el;
     select(el);
-    if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
+    if (!wasSelected || el.matches(textSel) || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
     pending = { el: el, x:e.clientX, y:e.clientY, started:false };
   }, true);
 
@@ -402,7 +406,14 @@
     if (resizing && selected) {
       e.preventDefault(); clearNativeSelection();
       const dx=e.clientX-resizing.x, dy=e.clientY-resizing.y;
-      if (resizing.section) {
+      if (selected.matches(textSel)) {
+        // Text must remain in document flow; resizing its box with absolute
+        // coordinates can hide the text completely on narrow mobile screens.
+        selected.style.setProperty("max-width", "100%", "important");
+        selected.style.setProperty("width", Math.max(100, Math.min(resizing.width + dx, document.documentElement.clientWidth - 24)) + "px", "important");
+        selected.style.removeProperty("height");
+        selected.style.removeProperty("overflow");
+      } else if (resizing.section) {
         selected.style.setProperty("min-height", Math.max(80,resizing.height+dy)+"px","important");
       } else {
         let left=resizing.left, top=resizing.top, width=resizing.width, height=resizing.height;
