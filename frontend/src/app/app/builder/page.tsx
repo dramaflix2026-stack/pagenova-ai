@@ -601,7 +601,22 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     // A nova aba recebe a mesma renderizacao do editor, mas sem a camada de
     // edicao inline. Isso evita publicar ou duplicar dados so para visualizar.
     const html = crmPreviewHtml || renderSitePreview(project, activePage);
-    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const config = JSON.stringify({
+      version: 1,
+      page: activePage,
+      pages: project.liveEdits || {},
+      images: {
+        portrait: project.institutional?.portrait || "",
+        businessPhoto: project.institutional?.businessPhoto || project.institutional?.workPhoto || "",
+      },
+    }).replace(/</g, "\\u003c");
+    const overlay = '<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=' + config +
+      ';<\\/script><script src="' + window.location.origin +
+      '/pagenova-published-overlay.js" defer><\\/script>';
+    const withEdits = /<\\/body>/i.test(html)
+      ? html.replace(/<\\/body>/i, overlay + "</body>")
+      : html + overlay;
+    const blob = new Blob([withEdits], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const opened = window.open(url, "_blank", "noopener,noreferrer");
 
@@ -841,6 +856,8 @@ async function revise(event: FormEvent<HTMLFormElement>) {
               </button>
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
             </div>
+            {error && <div role="alert" className="mt-3 w-full rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-3 text-sm text-red-100">{error}</div>}
+            {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
           {preview ? (() => {
             const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : 390;
