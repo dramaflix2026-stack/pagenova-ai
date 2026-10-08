@@ -107,6 +107,31 @@ export default function BuilderPage() {
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
       if (event.source !== previewRef.current?.contentWindow) return;
+      if (event.data?.type === "pagenova-image-upload-error") {
+        setError(String(event.data.message || "Falha no envio da imagem."));
+        return;
+      }
+      if (event.data?.type === "pagenova-image-upload-file") {
+        const dataUrl = event.data.dataUrl;
+        if (typeof dataUrl !== "string" || dataUrl.length > 7_500_000 ||
+          !/^data:image\\/(png|jpeg|webp);base64,/.test(dataUrl)) {
+          setError("Arquivo de imagem inválido ou muito grande.");
+          return;
+        }
+        const kind: "hero" | "work" = event.data.kind === "work" ? "work" : "hero";
+        try {
+          const comma = dataUrl.indexOf(",");
+          const raw = atob(dataUrl.slice(comma + 1));
+          const bytes = new Uint8Array(raw.length);
+          for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+          const type = dataUrl.slice(5, dataUrl.indexOf(";"));
+          const file = new File([bytes], kind + ".png", { type });
+          void uploadSiteImage(file, kind);
+        } catch {
+          setError("Não foi possível processar a imagem selecionada.");
+        }
+        return;
+      }
       if (event.data?.type === "pagenova-image-upload-request") {
         inlineImageKindRef.current = event.data.kind === "work" ? "work" : "hero";
         inlineImageInputRef.current?.click();
