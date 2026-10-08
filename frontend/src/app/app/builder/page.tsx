@@ -479,9 +479,12 @@ export default function BuilderPage() {
     | { kind: "theme"; value: PreviewTheme }
     | { kind: "text"; field: "heading" | "eyebrow" | "cta"; value: string }
     | { kind: "logo"; value: "left" | "center" | "right" }
+    | { kind: "replace"; from: string; to: string }
     | null {
     const input = raw.trim();
     const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    const literal = input.match(/^(?:mude|troque|altere|substitua) (.{3,120}?) (?:para|por) (.{2,160})$/i);
+    if (literal) return { kind: "replace", from: literal[1].trim(), to: literal[2].trim() };
     const theme = normalized.match(/^(?:mude|mudar|troque|trocar|altere|alterar|coloque|usar|use|aplique) (?:o |a )?(?:tema|aparencia)(?: (?:do site|da pagina))? (?:para |pra |por )?(original|claro|escuro|areia)$/);
     if (theme) return { kind: "theme", value: theme[1] as PreviewTheme };
     const logo = normalized.match(/^(?:alinhe|alinhar|posicione|posicionar|coloque|mude|troque) (?:o |a )?(?:logo|logotipo|logomarca) (?:para |a |ao |na |no )?(centro|esquerda|direita)$/);
@@ -495,7 +498,7 @@ export default function BuilderPage() {
     return null;
   }
 
-  function tryLocalIframeCopy(field: "heading" | "eyebrow" | "cta", value: string): Promise<boolean> {
+  function tryLocalIframeCopy(field: "heading" | "eyebrow" | "cta" | "replace", value: string, from?: string): Promise<boolean> {
     const frame = previewRef.current?.contentWindow;
     if (!frame) return Promise.resolve(false);
     return new Promise((resolve) => {
@@ -513,7 +516,7 @@ export default function BuilderPage() {
       };
       window.addEventListener("message", onMessage);
       const timer = window.setTimeout(() => finish(false), 1000);
-      frame.postMessage({ type: "pagenova-local-command", id, command: { field, value } }, "*");
+      frame.postMessage({ type: "pagenova-local-command", id, command: { field, value, from } }, "*");
     });
   }
 
@@ -535,6 +538,7 @@ export default function BuilderPage() {
         return;
       } catch { setError("Falha ao salvar alinhamento; nenhuma chamada de IA foi feita."); return; }
     }
+    if (local?.kind === "replace" && crmPreviewHtml && await tryLocalIframeCopy("replace", local.to, local.from)) { setInstruction(""); setError(""); return; }
     if (local?.kind === "text" && crmPreviewHtml) {
       // O iframe gera a mesma LiveEdit usada pelo editor visual e pela publicacao.
       // Se nao houver um alvo unico e seguro, seguimos com a IA existente.
