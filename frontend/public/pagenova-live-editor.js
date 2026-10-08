@@ -206,29 +206,21 @@
     );
   }
 
-  function ensureMovable(el) {
-    if (!el || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
-    if (el.matches(sectionSel) || isResponsiveStructure(el)) return el;
-    const r = el.getBoundingClientRect();
-    const source = path(el);
-    el.dataset.pnSourceHidden = "true";
-    el.style.setProperty("visibility", "hidden", "important");
-    const ghost = el.cloneNode(true);
-    ghost.dataset.pnGhost = "true";
-    ghost.dataset.pnSource = source;
-    ghost.dataset.pnId = uid();
-    ghost.removeAttribute("id");
-    ghost.removeAttribute("data-pn-selected");
-    ghost.style.setProperty("visibility", "visible", "important");
-    ghost.style.setProperty("position", "absolute", "important");
-    ghost.style.setProperty("left", px(r.left + scrollX), "important");
-    ghost.style.setProperty("top", px(r.top + scrollY), "important");
-    ghost.style.setProperty("width", px(r.width), "important");
-    ghost.style.setProperty("height", px(r.height), "important");
-    ghost.style.setProperty("z-index", "120", "important");
-    ghost.style.setProperty("box-sizing", "border-box", "important");
-    document.body.appendChild(ghost);
-    return ghost;
+  // Keep the real DOM node in flow. Cloning/hiding it interrupted touch events
+  // and detached image-upload targets from the live preview.
+  function ensureMovable(el) { return el; }
+  function baseTransform(el) {
+    return el.dataset.pnBaseTransform !== undefined ? el.dataset.pnBaseTransform : (el.dataset.pnBaseTransform = getComputedStyle(el).transform === "none" ? "" : getComputedStyle(el).transform);
+  }
+  function moveElement(el, x, y) {
+    el.dataset.pnOffsetX = String(x);
+    el.dataset.pnOffsetY = String(y);
+    const base = baseTransform(el);
+    el.style.setProperty("transform", (base ? base + " " : "") + "translate3d(" + x + "px," + y + "px,0)", "important");
+  }
+  function paintUi() {
+    if (paintUi.frame) return;
+    paintUi.frame = requestAnimationFrame(function() { paintUi.frame = 0; syncUi(); });
   }
 
   function save() {
@@ -240,7 +232,9 @@
     const cs = getComputedStyle(selected);
     const edit = {
       selector: selected.dataset.pnSource || path(selected),
-      ghostId: selected.dataset.pnGhost === "true" ? selected.dataset.pnId : "",
+      ghostId: "",
+      offsetX: Number(selected.dataset.pnOffsetX || 0),
+      offsetY: Number(selected.dataset.pnOffsetY || 0),
       text: isText ? selected.textContent.trim() : "",
       font: isText ? cs.fontFamily.split(",")[0].replaceAll('"', "").trim() : "",
       size: isText ? Math.max(10, Math.min(120, parseFloat(cs.fontSize) || 16)) : 16,
@@ -259,11 +253,7 @@
 
   function applyEdit(edit) {
     const source = find(edit.selector);
-    let el = edit.ghostId ? find('[data-pn-id="' + edit.ghostId + '"]') : source;
-    if (!el && source && edit.movable) {
-      el = ensureMovable(source);
-      if (edit.ghostId) el.dataset.pnId = edit.ghostId;
-    }
+    const el = source;
     if (!el) return;
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
     if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
@@ -271,29 +261,19 @@
     if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
     if (edit.textAlign && el.matches(textSel)) el.style.setProperty("text-align", edit.textAlign, "important");
     if (edit.fontWeight && el.matches(textSel)) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
-    // Geometry is only restored when the user actually dragged an element.
-    // Plain text edits also store their measured rectangle, but applying that
-    // rectangle as absolute positioning destroys responsive grids on reload.
-    const hasMovedGeometry =
-      edit.kind !== "text" &&
-      edit.movable &&
-      !!edit.ghostId &&
-      edit.left != null &&
-      edit.top != null &&
-      !isResponsiveStructure(source || el);
-    if (hasMovedGeometry) {
-      el.style.setProperty("position", "absolute", "important");
-      el.style.setProperty("left", edit.left + "px", "important");
-      el.style.setProperty("top", edit.top + "px", "important");
-      if (edit.width) el.style.setProperty("width", edit.width + "px", "important");
-      if (edit.height) el.style.setProperty("height", edit.height + "px", "important");
-      el.style.setProperty("z-index", "120", "important");
-    } else if (edit.kind === "text" && edit.width) {
+    if (Number.isFinite(edit.offsetX) && Number.isFinite(edit.offsetY) && (edit.offsetX || edit.offsetY)) {
+      moveElement(el, edit.offsetX, edit.offsetY);
+    } else if (edit.ghostId && edit.left != null && edit.top != null) {
+      // Migrate legacy ghost edits without recreating a hidden source.
+      const rect = el.getBoundingClientRect();
+      moveElement(el, edit.left - rect.left - scrollX, edit.top - rect.top - scrollY);
+    }
+    if (edit.width && edit.width > 0 && edit.kind !== "section") {
       el.style.setProperty("max-width", "100%", "important");
       el.style.setProperty("width", edit.width + "px", "important");
-    } else if (edit.kind === "section" && edit.height) {
-      el.style.setProperty("min-height", Math.max(40, edit.height) + "px", "important");
     }
+    if (edit.kind === "section" && edit.height) el.style.setProperty("min-height", Math.max(40, edit.height) + "px", "important");
+    if (edit.kind !== "text" && edit.kind !== "section" && edit.height) el.style.setProperty("min-height", Math.max(18, edit.height) + "px", "important");
   }
 
   // Guides are visual-only. Scanning every editable node on every pointer
@@ -309,25 +289,31 @@
   function imagePlaceholder(target) {
     const direct = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder,[data-pn-upload-kind]");
     if (direct) return direct;
-    let node = target;
-    for (let depth = 0; node && depth < 8; depth++, node = node.parentElement) {
+    const labelPattern = /foto\\s*(?:principal|do\\s*neg[oó]cio)/i;
+    let node=target;
+    for(let depth=0;node&&depth<9;depth++,node=node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const text = (node.textContent || "").replace(/\\s+/g, " ").trim();
-      if (/Foto\\s+(?:principal|do\\s+neg[oó]cio)/i.test(text) && text.length < 240) return node;
+      const label=(node.textContent||"").replace(/\\s+/g," ").trim();
+      if(label.length<300 && labelPattern.test(label)) return node;
     }
     return null;
+  }
+  function uploadKind(holder) {
+    const label=(holder.textContent||"")+" "+(holder.getAttribute("aria-label")||"");
+    return holder.dataset.pnUploadKind || (/neg[oó]cio/i.test(label) ? "work" : "hero");
+  }
+  function requestUpload(e) {
+    if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
+    const holder=imagePlaceholder(e.target);
+    if(!holder) return false;
+    e.preventDefault(); e.stopPropagation();
+    parent.postMessage({type:"pagenova-image-upload-request",kind:uploadKind(holder)},"*");
+    return true;
   }
 
   document.addEventListener("click", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    const placeholder = imagePlaceholder(e.target);
-    if (placeholder) {
-      e.preventDefault(); e.stopPropagation();
-      const label = placeholder.innerText || "";
-      const kind = placeholder.dataset.pnUploadKind || (/neg[oó]cio/i.test(label) ? "work" : "hero");
-      parent.postMessage({ type: "pagenova-image-upload-request", kind: kind }, "*");
-      return;
-    }
+    if (requestUpload(e)) return;
     const el = candidate(e.target);
     if (!el) { deselect(); return; }
     e.preventDefault(); e.stopPropagation();
@@ -376,15 +362,14 @@
   }, true);
 
   document.addEventListener("pointerdown", function(e) {
-    if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select")) return;
+    if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select") || imagePlaceholder(e.target)) return;
     const el = candidate(e.target);
     if (!el) return;
     const wasSelected = selected === el;
     if (!wasSelected) select(el);
     if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
     pending = { el: el, pointerId:e.pointerId, x:e.clientX, y:e.clientY, started:false };
-    // Do not capture on the source: ensureMovable hides it and creates a ghost.
-    // Pointer capture on a hidden source can cancel the gesture on Android.
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
   }, true);
 
   document.addEventListener("pointermove", function(e) {
@@ -409,42 +394,38 @@
         if(resizing.h.includes("s")) height+=dy;
         if(resizing.h.includes("w")) { left+=dx; width-=dx; }
         if(resizing.h.includes("n")) { top+=dy; height-=dy; }
-        selected.style.setProperty("left",px(left),"important");
-        selected.style.setProperty("top",px(top),"important");
+        // Resizing in-flow nodes must not write absolute left/top coordinates.
         selected.style.setProperty("width",px(Math.max(32,width)),"important");
-        selected.style.setProperty("height",px(Math.max(18,height)),"important");
+        selected.style.setProperty("min-height",px(Math.max(18,height)),"important");
       }
-      syncUi(); return;
+      paintUi(); return;
     }
     if (!pending || pending.pointerId !== e.pointerId) return;
     const moved=Math.abs(e.clientX-pending.x)+Math.abs(e.clientY-pending.y);
     if(moved<8&&!pending.started) return;
     e.preventDefault(); e.stopPropagation(); clearNativeSelection();
     if(!pending.started) {
-      selected=ensureMovable(pending.el); select(selected);
-      const r=selected.getBoundingClientRect();
-      pending.left=r.left+scrollX; pending.top=r.top+scrollY; pending.started=true;
-      document.body.classList.add("pn-is-dragging"); closeToolbar();
+      pending.started=true;
+      pending.offsetX=Number(pending.el.dataset.pnOffsetX||0);
+      pending.offsetY=Number(pending.el.dataset.pnOffsetY||0);
+      document.body.classList.add("pn-is-dragging");
+      closeToolbar();
     }
-    const left = pending.left + e.clientX - pending.x;
-    const top = pending.top + e.clientY - pending.y;
-    selected.style.setProperty("transform", "translate3d(" + px(left - pending.left) + "," + px(top - pending.top) + ",0)", "important");
-    pending.finalLeft = left;
-    pending.finalTop = top;
-    selected.dataset.pnDragging="true";
-    if (!pending.frame) pending.frame = requestAnimationFrame(function() { if (pending) pending.frame = 0; syncUi(); });
+    moveElement(pending.el, pending.offsetX+e.clientX-pending.x, pending.offsetY+e.clientY-pending.y);
+    pending.el.dataset.pnDragging="true";
+    paintUi();
   }, true);
 
-  document.addEventListener("pointerup", function() {
-    if (pending && pending.started && selected) {
-      selected.style.removeProperty("transform");
-      selected.style.setProperty("left", px(pending.finalLeft ?? pending.left), "important");
-      selected.style.setProperty("top", px(pending.finalTop ?? pending.top), "important");
-    }
-    if(resizing||(pending&&pending.started)) save();
-    if(selected) selected.removeAttribute("data-pn-dragging");
-    resizing=null; pending=null; document.body.classList.remove("pn-is-dragging"); hideGuides(); syncUi();
-  }, true);
+  function finishGesture(e) {
+    if (e && resizing && resizing.pointerId !== e.pointerId && (!pending || pending.pointerId !== e.pointerId)) return;
+    if (resizing || (pending && pending.started)) save();
+    if (selected) selected.removeAttribute("data-pn-dragging");
+    resizing=null; pending=null;
+    document.body.classList.remove("pn-is-dragging");
+    hideGuides(); paintUi();
+  }
+  document.addEventListener("pointerup", finishGesture, true);
+  document.addEventListener("pointercancel", finishGesture, true);
 
   window.addEventListener("scroll", syncUi, true);
   window.addEventListener("resize", syncUi);
