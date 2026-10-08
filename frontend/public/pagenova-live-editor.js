@@ -299,24 +299,40 @@
   }
 
   function photoKindFromText(text) {
-    const normalized = String(text || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/\\s+/g," ");
-    if (normalized.includes("foto do negocio")) return "work";
-    if (normalized.includes("foto principal")) return "hero";
+    const normalized=String(text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ");
+    if(normalized.includes("foto do negocio"))return "work";
+    if(normalized.includes("foto principal"))return "hero";
     return "";
   }
   function imagePlaceholder(target) {
-    const direct = closest(target,"[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
-    if (direct) return direct;
+    const direct=closest(target,"[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
+    if(direct)return direct;
     let node=target;
-    for(let depth=0;node&&depth<9;depth++,node=node.parentElement) {
-      if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
+    for(let depth=0;node&&depth<10;depth++,node=node.parentElement) {
+      if(node.id==="pn-edit-bar"||node.id==="pn-edit-box")return null;
       const label=(node.textContent||"").trim();
-      if(label.length<400 && photoKindFromText(label)) return node;
+      if(label.length<800&&photoKindFromText(label))return node;
     }
     return null;
   }
   function uploadKind(holder) {
-    return holder.dataset.pnUploadKind || photoKindFromText(holder.textContent||holder.getAttribute("aria-label")) || "hero";
+    return holder.dataset.pnUploadKind||photoKindFromText(holder.textContent||holder.getAttribute("aria-label"))||"hero";
+  }
+  function imageCard(target) {
+    const holder=imagePlaceholder(target);
+    if(!holder)return null;
+    let card=holder;
+    while(card.parentElement&&card.parentElement!==document.body) {
+      const parent=card.parentElement;
+      const text=(parent.textContent||"").trim();
+      if(text.length>1000||parent.querySelectorAll("section,article").length>1)break;
+      if(parent.querySelectorAll("[data-pn-upload-kind]").length>1)break;
+      if(parent.getBoundingClientRect().height>620)break;
+      card=parent;
+      if(card.matches("article,[class*=card],[class*=Card]"))break;
+    }
+    card.dataset.pnUploadKind=uploadKind(holder);
+    return card;
   }
   // The picker must open inside the original user click. A postMessage to
   // the parent loses transient user activation on mobile Chrome.
@@ -354,7 +370,14 @@
 
   document.addEventListener("click", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    if (requestUpload(e)) return;
+    const card=imageCard(e.target);
+    if(card) {
+      const now=Date.now();
+      const doubleTap=lastTap.el===card&&now-lastTap.at<450;
+      lastTap={el:card,at:now};
+      if(doubleTap)requestUpload(e);
+      return;
+    }
     const el = candidate(e.target);
     if (!el) { deselect(); return; }
     e.preventDefault(); e.stopPropagation();
@@ -368,6 +391,7 @@
 
   document.addEventListener("dblclick", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
+    if (imageCard(e.target)) { requestUpload(e); return; }
     const el = candidate(e.target);
     if (!el || !el.matches(textSel)) return;
     e.preventDefault(); e.stopPropagation(); openToolbar(el);
@@ -403,7 +427,7 @@
   }, true);
 
   document.addEventListener("pointerdown", function(e) {
-    if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select") || imagePlaceholder(e.target)) return;
+    if (closest(e.target, "#pn-edit-bar,#pn-edit-box") || closest(e.target, "input,textarea,select") || imageCard(e.target)) return;
     const el = candidate(e.target);
     if (!el) return;
     const wasSelected = selected === el;
