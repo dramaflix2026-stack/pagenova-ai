@@ -6235,6 +6235,27 @@ export function renderTemplate001Preview(
         `
       : "";
   return `<!doctype html>\n<html lang="pt-BR">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n    <title>${escapeHtml(brandName)}</title>\n    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}${PAGENOVA_V662_PREMIUM_POLISH_STYLES}
+/* PAGENOVA DESKTOP HEADER V9 — prevent wrapping and crowded navigation */
+@media (min-width:901px){
+  html body .pn001-site > header.pn001-header .pn001-header-inner{
+    display:flex!important;align-items:center!important;justify-content:space-between!important;
+    flex-wrap:nowrap!important;gap:24px!important;width:min(calc(100% - 48px),1200px)!important;
+    max-width:1200px!important;margin-inline:auto!important;padding:12px 0!important;
+  }
+  html body .pn001-site > header.pn001-header .pn001-brand-logo{
+    display:flex!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;
+  }
+  html body .pn001-site > header.pn001-header .pn001-brand-name{
+    display:block!important;max-width:100%!important;white-space:nowrap!important;
+    overflow:hidden!important;text-overflow:ellipsis!important;
+    font-size:clamp(17px,1.6vw,23px)!important;line-height:1.25!important;
+  }
+  html body .pn001-site > header.pn001-header .pn001-header-actions{
+    display:flex!important;flex:0 0 auto!important;align-items:center!important;gap:12px!important;
+  }
+  html body .pn001-site > header.pn001-header .pn001-header-cta{white-space:nowrap!important;}
+  html body .pn001-site > header.pn001-header .pn001-nav{display:none!important;}
+}
 /* PAGENOVA MOBILE COMPOSITION V8 — single authoritative phone/tablet contract */
 @media (max-width:900px){
   html body .pn001-site{font-size:16px!important}
