@@ -44,6 +44,28 @@ export default function BuilderPage() {
   const [publishedUrl, setPublishedUrl] = useState("");
   const [crmProjectId, setCrmProjectId] = useState<string | null>(null);
   const [crmPreviewHtml, setCrmPreviewHtml] = useState("");
+  const [costDebugEnabled, setCostDebugEnabled] = useState(false);
+  const [costPanelOpen, setCostPanelOpen] = useState(false);
+  const [costInfo, setCostInfo] = useState<{ costAccumulatedUsd: string; status: string } | null>(null);
+  const [costError, setCostError] = useState("");
+
+  async function refreshCost(projectId: string) {
+    setCostError("");
+    try {
+      const response = await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}`, { credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) throw new Error(`Falha HTTP ${response.status}`);
+      const detail = await response.json() as { project?: { costAccumulatedUsd?: string | number | null; status?: string } };
+      const amount = detail.project?.costAccumulatedUsd;
+      if (amount == null || !Number.isFinite(Number(amount))) throw new Error("O backend não retornou um custo válido.");
+      setCostInfo({ costAccumulatedUsd: String(amount), status: detail.project?.status || "DESCONHECIDO" });
+    } catch (cause) {
+      setCostError(cause instanceof Error ? cause.message : "Não foi possível consultar o custo.");
+    }
+  }
+
+  useEffect(() => {
+    setCostDebugEnabled(new URLSearchParams(window.location.search).get("costDebug") === "1");
+  }, []);
 
   async function prepareRevisionImage(file: File) {
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
@@ -183,6 +205,7 @@ export default function BuilderPage() {
       // Ao recarregar a pagina, restaura a mesma renderizacao vinda do Railway.
       if (saved.id.length === 26) {
         setCrmProjectId(saved.id);
+        void refreshCost(saved.id);
         void fetch(`/api/crm/site-projects/${saved.id}/render`, {
           credentials: "same-origin",
           cache: "no-store",
@@ -323,6 +346,8 @@ export default function BuilderPage() {
     setCurrentStep("home");
     setPendingKeys(["home"]);
     setCrmPreviewHtml("");
+    setCostInfo(null);
+    setCostError("");
 
     try {
       const createResponse = await fetch("/api/crm/site-projects", {
@@ -422,6 +447,7 @@ export default function BuilderPage() {
       });
       if (!renderResponse.ok) throw new Error("O site foi gerado, mas a prévia não pôde ser carregada.");
       setCrmPreviewHtml(await renderResponse.text());
+      await refreshCost(projectId);
       setCurrentStep(null);
       setPendingKeys([]);
       setPhase("ready");
@@ -908,7 +934,9 @@ async function revise(event: FormEvent<HTMLFormElement>) {
                 {publishing ? "Publicando..." : publishedUrl ? "Atualizar publicação" : "Publicar site"}
               </button>
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
+              {costDebugEnabled && crmProjectId ? <button type="button" onClick={() => { setCostPanelOpen((value) => !value); void refreshCost(crmProjectId); }} className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200">🔒 Custo IA</button> : null}
             </div>
+            {costDebugEnabled && costPanelOpen && crmProjectId ? <div className="w-full rounded-xl border border-amber-400/25 bg-black/40 p-4 text-xs text-white/75" role="region" aria-label="Diagnóstico de custo da IA"><p className="font-semibold text-amber-200">Custo estimado acumulado pelo backend</p><p className="mt-2 text-xl font-bold text-white">{costInfo ? `US$ ${Number(costInfo.costAccumulatedUsd).toFixed(6)}` : "Consultando..."}</p><p className="mt-1">Status: {costInfo?.status || "Aguardando"} · Projeto: {crmProjectId}</p><p className="mt-2 text-white/50">Valor acumulado registrado no banco para este projeto. Pode incluir regenerações e edições. Não representa cobrança auditada nem discrimina tokens.</p>{costError ? <p className="mt-2 text-red-300">{costError}</p> : null}<button type="button" onClick={() => void refreshCost(crmProjectId)} className="mt-3 rounded-lg border border-white/20 px-3 py-2">Atualizar custo</button></div> : null}
             {error && <div role="alert" className="mt-3 w-full rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-3 text-sm text-red-100">{error}</div>}
             {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
