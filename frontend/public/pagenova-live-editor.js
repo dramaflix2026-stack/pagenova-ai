@@ -307,15 +307,13 @@
   }
 
   function imagePlaceholder(target) {
-    const el = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
-    if (el) return el;
-    // Generated CRM previews use a circular + button and a caption inside a dashed frame.
+    const direct = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder,[data-pn-upload-kind]");
+    if (direct) return direct;
     let node = target;
-    for (let depth = 0; node && depth < 5; depth++, node = node.parentElement) {
+    for (let depth = 0; node && depth < 7; depth++, node = node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const text = (node.innerText || "").trim().replace(/\s+/g, " ");
-      if (/^(?:\+\s*)?Foto (?:principal|do negócio)$/i.test(text)) return node;
-      if (text.length > 120) break;
+      const text = (node.innerText || "").replace(/\\s+/g, " ").trim();
+      if (/Foto\\s+(?:principal|do\\s+neg[oó]cio)/i.test(text) && text.length < 180) return node;
     }
     return null;
   }
@@ -326,7 +324,8 @@
     if (placeholder) {
       e.preventDefault(); e.stopPropagation();
       const label = placeholder.innerText || "";
-      parent.postMessage({ type: "pagenova-image-upload-request", kind: /negócio/i.test(label) ? "work" : "hero" }, "*");
+      const kind = placeholder.dataset.pnUploadKind || (/neg[oó]cio/i.test(label) ? "work" : "hero");
+      parent.postMessage({ type: "pagenova-image-upload-request", kind: kind }, "*");
       return;
     }
     const el = candidate(e.target);
@@ -454,9 +453,10 @@
           return child.nodeType === Node.TEXT_NODE;
         }).map(function(child) { return child.textContent; }).join("").trim();
         const label = ownText || (node.children.length === 0 ? node.textContent.trim() : "");
-        if (label !== item.name) return;
+        if (label !== item.name && !(item.kind === "work" && /Foto\\s+do\\s+neg[oó]cio/i.test(label))) return;
         const holder = imagePlaceholder(node) || node.parentElement;
         if (!holder) return;
+        holder.dataset.pnUploadKind = item.kind;
         let picture = holder.querySelector('img[data-pn-uploaded="' + item.kind + '"]');
         if (!picture) {
           picture = document.createElement("img");
