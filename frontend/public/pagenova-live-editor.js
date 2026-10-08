@@ -318,12 +318,26 @@
     if(gx) gx.dataset.open="false"; if(gy) gy.dataset.open="false";
   }
 
+  function imagePlaceholder(target) {
+    const el = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
+    if (el) return el;
+    // Generated CRM previews use a circular + button and a caption inside a dashed frame.
+    let node = target;
+    for (let depth = 0; node && depth < 5; depth++, node = node.parentElement) {
+      if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
+      const text = (node.innerText || "").trim().replace(/\\s+/g, " ");
+      if (/^(?:\\+\\s*)?Foto (?:principal|do negócio)$/i.test(text)) return node;
+      if (text.length > 120) break;
+    }
+    return null;
+  }
+
   document.addEventListener("click", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    const placeholder = closest(e.target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
-    const label = (placeholder || e.target.closest("div") || e.target).textContent?.trim() || "";
-    if (placeholder || /^(?:\\+\\s*)?Foto (?:principal|do negócio)$/i.test(label)) {
+    const placeholder = imagePlaceholder(e.target);
+    if (placeholder) {
       e.preventDefault(); e.stopPropagation();
+      const label = placeholder.innerText || "";
       parent.postMessage({ type: "pagenova-image-upload-request", kind: /negócio/i.test(label) ? "work" : "hero" }, "*");
       return;
     }
