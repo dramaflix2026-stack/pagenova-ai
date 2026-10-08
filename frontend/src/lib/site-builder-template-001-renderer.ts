@@ -6237,6 +6237,7 @@ export function renderTemplate001Preview(
   return `<!doctype html>\n<html lang="pt-BR">\n  <head>\n    <meta charset="utf-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n    <title>${escapeHtml(brandName)}</title>\n    <style>${templateStyles}${PAGENOVA_DESIGN_LIBRARY_V1_STYLES}${PAGENOVA_DESIGN_LIBRARY_V2_STYLES}${PAGENOVA_DESIGN_LIBRARY_V3_STYLES}${PAGENOVA_DESIGN_LIBRARY_V4_STYLES}${PAGENOVA_DESIGN_CORE_V5_STYLES}${PAGENOVA_DESIGN_CORE_V6_STYLES}${PAGENOVA_V661_CANONICAL_VISUAL_STYLES}${PAGENOVA_V662_PREMIUM_POLISH_STYLES}
 /* PAGENOVA MOBILE COMPOSITION V8 — single authoritative phone/tablet contract */
 @media (max-width:900px){
+  html body .pn001-site{font-size:16px!important}
   html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
   html body .pn001-site{width:100%!important;max-width:100%!important;overflow-x:hidden!important}
   html body .pn001-site .pn001-container{width:calc(100% - 32px)!important;max-width:760px!important;margin-inline:auto!important}
@@ -6336,6 +6337,13 @@ export function renderTemplate001Preview(
   html body .pn001-site .pn001-hero-image,
   html body .pn001-site .pn001-about-image{aspect-ratio:4/5!important}
   html body .pn001-site .pn001-v66-feature-shell{padding:18px!important;border-radius:20px!important}
+}
+
+/* Final mobile layout contract: match the actual generated semantic sections. */
+@media (max-width: 900px) {
+  .pn001-site :is(.pn001-v66-services-grid,.pn001-v66-service-list,.pn001-v66-benefit-grid,.pn001-v66-feature-grid,.pn001-v66-process-timeline,.pn001-faq-layout,.pn001-faq-grid,.pn001-contact-shell,.pn001-footer-main) {grid-template-columns:minmax(0,1fr)!important;}
+  .pn001-site :is(.pn001-v66-process-timeline,.pn001-faq-layout,.pn001-faq-grid,.pn001-contact-shell,.pn001-footer-main) {display:flex!important;flex-direction:column!important;}
+  .pn001-site :is(.pn001-v66-service-row,.pn001-v66-benefit,.pn001-v66-feature,.pn001-faq-item,.pn001-contact-card) {min-width:0!important;max-width:100%!important;}
 }
 </style>\n  </head>\n  <body>\n\n    <div
       class="pn001-site ${designDirection.className}"
