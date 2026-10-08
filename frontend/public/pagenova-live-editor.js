@@ -428,6 +428,31 @@
   window.addEventListener("scroll", syncUi, true);
   window.addEventListener("resize", syncUi);
 
+  function updateUploadedImages(images) {
+    if (!images) return;
+    const mappings = [
+      { name: "Foto principal", src: images.portrait },
+      { name: "Foto do negócio", src: images.businessPhoto || images.workPhoto }
+    ];
+    mappings.forEach(function(item) {
+      if (!item.src || !/^data:image\\/(?:png|jpeg|webp);base64,/.test(item.src)) return;
+      document.querySelectorAll("div,button,span").forEach(function(node) {
+        if (node.children.length > 3 || !node.textContent || node.textContent.trim() !== item.name) return;
+        const holder = node.closest("[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder") || node.parentElement;
+        if (!holder || holder.querySelector("img[data-pn-uploaded]")) return;
+        const picture = document.createElement("img");
+        picture.src = item.src;
+        picture.alt = item.name;
+        picture.dataset.pnUploaded = "true";
+        picture.style.cssText = "display:block;width:100%;height:100%;min-height:220px;object-fit:cover;border-radius:inherit";
+        holder.replaceChildren(picture);
+      });
+    });
+  }
+  window.addEventListener("message", function(event) {
+    if (event.data?.type === "pagenova-user-images") updateUploadedImages(event.data.images);
+  });
   makeUi();
   savedEdits.forEach(applyEdit);
+  updateUploadedImages(cfg.images);
 })();
