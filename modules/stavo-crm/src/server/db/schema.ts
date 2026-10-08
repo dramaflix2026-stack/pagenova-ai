@@ -925,6 +925,20 @@ export const pagenovaBillingCycles = mysqlTable('pagenova_billing_cycles', {
   index('pagenova_billing_cycles_subscriber_idx').on(t.subscriberId, t.startsAt),
 ]);
 
+export const pagenovaSubscriptionCycles = mysqlTable('pagenova_subscription_cycles', {
+  id: id().primaryKey(),
+  subscriberId: varchar('subscriber_id', { length: 128 }).notNull(),
+  cycleStart: ts('cycle_start').notNull(),
+  cycleEnd: ts('cycle_end').notNull(),
+  status: varchar('status', { length: 16 }).notNull(),
+  provider: varchar('provider', { length: 32 }).notNull(),
+  providerReference: varchar('provider_reference', { length: 128 }).notNull(),
+  updatedAt: ts('updated_at').notNull(),
+}, (t) => [
+  uniqueIndex('pagenova_subscription_cycles_unique').on(t.subscriberId, t.cycleStart),
+  index('pagenova_subscription_cycles_lookup').on(t.subscriberId, t.status, t.cycleEnd),
+]);
+
 export const pagenovaSubscriberUsage = mysqlTable('pagenova_subscriber_usage', {
   id: id().primaryKey(),
   subscriberId: varchar('subscriber_id', { length: 128 }).notNull(),
