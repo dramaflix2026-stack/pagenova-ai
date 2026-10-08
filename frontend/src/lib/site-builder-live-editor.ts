@@ -126,6 +126,8 @@ export function renderEditablePreview(
 
   [data-pn-selected=true]{outline:1px solid rgba(16,185,129,.32)!important;outline-offset:2px!important}
   [data-pn-free-text=true],[data-pn-divider=true],[data-pn-ghost=true]{box-sizing:border-box!important}
+  /* Only the selected element captures drag gestures; other content can scroll. */
+  [data-pn-selected=true]:not([contenteditable=true]){touch-action:none!important}
   [data-pn-dragging=true]{cursor:grabbing!important}
   body.pn-is-dragging,body.pn-is-dragging *{user-select:none!important;-webkit-user-select:none!important;cursor:grabbing!important}
 
