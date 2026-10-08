@@ -312,8 +312,8 @@
     let node = target;
     for (let depth = 0; node && depth < 7; depth++, node = node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const text = (node.innerText || "").replace(/\\s+/g, " ").trim();
-      if (/Foto\\s+(?:principal|do\\s+neg[oó]cio)/i.test(text) && text.length < 180) return node;
+      const text = (node.innerText || "").replace(/\s+/g, " ").trim();
+      if (/Foto\s+(?:principal|do\s+neg[oó]cio)/i.test(text) && text.length < 180) return node;
     }
     return null;
   }
@@ -380,9 +380,10 @@
     const el = candidate(e.target);
     if (!el) return;
     const wasSelected = selected === el;
-    select(el);
+    if (!wasSelected) select(el);
     if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
     pending = { el: el, pointerId:e.pointerId, x:e.clientX, y:e.clientY, started:false };
+    try { el.setPointerCapture(e.pointerId); } catch (_) {}
   }, true);
 
   document.addEventListener("pointermove", function(e) {
@@ -424,13 +425,21 @@
       pending.left=r.left+scrollX; pending.top=r.top+scrollY; pending.started=true;
       document.body.classList.add("pn-is-dragging"); closeToolbar();
     }
-    const snap=guidesFor(selected,pending.left+e.clientX-pending.x,pending.top+e.clientY-pending.y);
-    selected.style.setProperty("left",px(snap.left),"important");
-    selected.style.setProperty("top",px(snap.top),"important");
-    selected.dataset.pnDragging="true"; syncUi();
+    const left = pending.left + e.clientX - pending.x;
+    const top = pending.top + e.clientY - pending.y;
+    selected.style.setProperty("transform", "translate3d(" + px(left - pending.left) + "," + px(top - pending.top) + ",0)", "important");
+    pending.finalLeft = left;
+    pending.finalTop = top;
+    selected.dataset.pnDragging="true";
+    if (!pending.frame) pending.frame = requestAnimationFrame(function() { if (pending) pending.frame = 0; syncUi(); });
   }, true);
 
   document.addEventListener("pointerup", function() {
+    if (pending && pending.started && selected) {
+      selected.style.removeProperty("transform");
+      selected.style.setProperty("left", px(pending.finalLeft ?? pending.left), "important");
+      selected.style.setProperty("top", px(pending.finalTop ?? pending.top), "important");
+    }
     if(resizing||(pending&&pending.started)) save();
     if(selected) selected.removeAttribute("data-pn-dragging");
     resizing=null; pending=null; document.body.classList.remove("pn-is-dragging"); hideGuides(); syncUi();
@@ -453,7 +462,7 @@
           return child.nodeType === Node.TEXT_NODE;
         }).map(function(child) { return child.textContent; }).join("").trim();
         const label = ownText || (node.children.length === 0 ? node.textContent.trim() : "");
-        if (label !== item.name && !(item.kind === "work" && /Foto\\s+do\\s+neg[oó]cio/i.test(label))) return;
+        if (label !== item.name && !(item.kind === "work" && /Foto\s+do\s+neg[oó]cio/i.test(label))) return;
         const holder = imagePlaceholder(node) || node.parentElement;
         if (!holder) return;
         holder.dataset.pnUploadKind = item.kind;
