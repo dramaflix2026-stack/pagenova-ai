@@ -629,6 +629,21 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
+  async function readPublicationResponse(response: Response, stage: string): Promise<{ url?: string; error?: string | { message?: string } }> {
+    const raw = await response.text();
+    let data: { url?: string; error?: string | { message?: string } } = {};
+    try { data = JSON.parse(raw) as typeof data; }
+    catch {
+      const detail = raw.replace(/<[^>]*>/g, " ").replace(/\\s+/g, " ").trim().slice(0, 180);
+      throw new Error(stage + " falhou (HTTP " + response.status + "). O servidor retornou texto em vez de JSON: " + (detail || response.statusText || "resposta vazia"));
+    }
+    if (!response.ok) {
+      const message = typeof data.error === "string" ? data.error : data.error?.message;
+      throw new Error(stage + " falhou (HTTP " + response.status + "): " + (message || "Erro no servidor."));
+    }
+    return data;
+  }
+
   async function publishSite() {
     if (!project?.pages.home || publishing) return;
     setPublishing(true);
@@ -641,8 +656,8 @@ async function revise(event: FormEvent<HTMLFormElement>) {
           credentials: "same-origin",
           body: JSON.stringify({ acknowledgedWarnings: true }),
         });
-        const data = await response.json() as { url?: string; error?: { message?: string } };
-        if (!response.ok || !data.url) throw new Error(data.error?.message || "Nao foi possivel publicar o site.");
+        const data = await readPublicationResponse(response, "Publicação no Railway");
+        if (!data.url) throw new Error("O Railway não retornou o endereço do site publicado.");
         // The Railway publication contains the original generated HTML.
         // Persist the visual editor overlay before reporting publication success.
         const overlayResponse = await fetch("/api/builder/published-overlay", {
@@ -651,9 +666,9 @@ async function revise(event: FormEvent<HTMLFormElement>) {
           credentials: "same-origin",
           body: JSON.stringify({ project, url: data.url }),
         });
-        const overlayResult = await overlayResponse.json() as { error?: string };
+        const overlayResult = await readPublicationResponse(overlayResponse, "Sincronização das imagens e edições");
         if (!overlayResponse.ok) {
-          throw new Error(overlayResult.error || "Site publicado, mas as edições visuais não foram sincronizadas. Tente publicar novamente.");
+          throw new Error(typeof overlayResult.error === "string" ? overlayResult.error : overlayResult.error?.message || "Site publicado, mas as edições visuais não foram sincronizadas.");
         }
         setPublishedUrl(data.url);
         window.open(data.url, "_blank", "noopener,noreferrer");
@@ -665,8 +680,8 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ project }),
       });
-      const data = await response.json() as { url?: string; error?: string };
-      if (!response.ok || !data.url) throw new Error(data.error || "Nao foi possivel publicar o site.");
+      const data = await readPublicationResponse(response, "Publicação do site");
+      if (!data.url) throw new Error("A publicação não retornou o endereço do site.");
       setPublishedUrl(data.url);
       window.open(data.url, "_blank", "noopener,noreferrer");
     } catch (cause) {
