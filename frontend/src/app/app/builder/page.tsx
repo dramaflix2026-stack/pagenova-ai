@@ -644,6 +644,32 @@ async function revise(event: FormEvent<HTMLFormElement>) {
     return data;
   }
 
+  async function optimizePublicationImage(source: string): Promise<string> {
+    if (!source.startsWith("data:image/")) return source;
+    const image = new Image();
+    image.src = source;
+    await image.decode();
+    const maxSide = 1400;
+    const scale = Math.min(1, maxSide / Math.max(image.naturalWidth, image.naturalHeight));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Não foi possível preparar a imagem para publicação.");
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    let output = canvas.toDataURL("image/webp", 0.76);
+    if (output.length > 950_000) {
+      const shrink = Math.sqrt(950_000 / output.length);
+      const smaller = document.createElement("canvas");
+      smaller.width = Math.max(1, Math.round(canvas.width * shrink));
+      smaller.height = Math.max(1, Math.round(canvas.height * shrink));
+      smaller.getContext("2d")?.drawImage(canvas, 0, 0, smaller.width, smaller.height);
+      output = smaller.toDataURL("image/webp", 0.68);
+    }
+    if (output.length > 1_500_000) throw new Error("Imagem grande demais para publicação. Envie uma imagem menor.");
+    return output;
+  }
+
   async function publishSite() {
     if (!project?.pages.home || publishing) return;
     setPublishing(true);
@@ -664,7 +690,18 @@ async function revise(event: FormEvent<HTMLFormElement>) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "same-origin",
-          body: JSON.stringify({ project, url: data.url }),
+          body: JSON.stringify({
+            url: data.url,
+            project: {
+              id: project.id,
+              kind: project.kind,
+              liveEdits: project.liveEdits || {},
+              institutional: {
+                portrait: await optimizePublicationImage(project.institutional?.portrait || ""),
+                businessPhoto: await optimizePublicationImage(project.institutional?.businessPhoto || project.institutional?.workPhoto || ""),
+              },
+            },
+          }),
         });
         const overlayResult = await readPublicationResponse(overlayResponse, "Sincronização das imagens e edições");
         if (!overlayResponse.ok) {
