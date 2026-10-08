@@ -85,6 +85,20 @@
       "when": 1791500000000,
       "tag": "0011_pagenova_subscriber_quotas",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1791496021000,
+      "tag": "0011_pagenova_subscriber_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1791496022000,
+      "tag": "0012_pagenova_generation_debits",
+      "breakpoints": true
     }
   ]
 }
