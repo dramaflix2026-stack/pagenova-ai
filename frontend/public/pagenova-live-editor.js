@@ -286,27 +286,31 @@
     if(gx) gx.dataset.open="false"; if(gy) gy.dataset.open="false";
   }
 
+  function photoKindFromText(text) {
+    const normalized = String(text || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/\\s+/g," ");
+    if (normalized.includes("foto do negocio")) return "work";
+    if (normalized.includes("foto principal")) return "hero";
+    return "";
+  }
   function imagePlaceholder(target) {
-    const direct = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder,[data-pn-upload-kind]");
+    const direct = closest(target,"[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
     if (direct) return direct;
-    const labelPattern = /foto\\s*(?:principal|do\\s*neg[oó]cio)/i;
     let node=target;
     for(let depth=0;node&&depth<9;depth++,node=node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const label=(node.textContent||"").replace(/\\s+/g," ").trim();
-      if(label.length<300 && labelPattern.test(label)) return node;
+      const label=(node.textContent||"").trim();
+      if(label.length<400 && photoKindFromText(label)) return node;
     }
     return null;
   }
   function uploadKind(holder) {
-    const label=(holder.textContent||"")+" "+(holder.getAttribute("aria-label")||"");
-    return holder.dataset.pnUploadKind || (/neg[oó]cio/i.test(label) ? "work" : "hero");
+    return holder.dataset.pnUploadKind || photoKindFromText(holder.textContent||holder.getAttribute("aria-label")) || "hero";
   }
   function requestUpload(e) {
     if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
     const holder=imagePlaceholder(e.target);
-    if(!holder) return false;
-    e.preventDefault(); e.stopPropagation();
+    if(!holder)return false;
+    e.preventDefault();e.stopPropagation();
     parent.postMessage({type:"pagenova-image-upload-request",kind:uploadKind(holder)},"*");
     return true;
   }
