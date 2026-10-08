@@ -188,7 +188,7 @@ export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
 <html lang="${escapeHtml(model.project.language)}">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>${escapeHtml(model.seo.title)}</title>
 <meta name="description" content="${escapeHtml(model.seo.description)}">
 ${robots}
@@ -200,7 +200,19 @@ ${model.seo.canonicalUrl ? `<link rel="canonical" href="${escapeHtml(model.seo.c
 ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : ''}
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags([model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
-<style>${renderStyles(model.theme)}</style>
+<style>${renderStyles(model.theme)}
+/* Critical responsive guard: emitted by the document renderer itself. */
+@media screen and (max-width:899px){
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.container{width:100%!important;max-width:100%!important}
+.grid,.grid-2,.grid-3,.numbered-grid,.icon-grid,.contrast-grid,.feature-lead,.checklist,.step-cards,.stats--grid,.timeline,.rail,.contact-grid,.footer-grid{grid-template-columns:minmax(0,1fr)!important;grid-auto-columns:minmax(0,1fr)!important;grid-auto-flow:row!important;width:100%!important;max-width:100%!important}
+.grid>*,.grid-2>*,.grid-3>*,.numbered-grid>*,.icon-grid>*,.contrast-grid>*,.feature-lead>*,.checklist>*,.step-cards>*,.stats--grid>*,.timeline>*,.rail>*{grid-column:1!important;width:100%!important;min-width:0!important;max-width:100%!important}
+.rail{display:grid!important;overflow:visible!important;transform:none!important}
+.hero-split{display:flex!important;flex-direction:column!important;grid-template-columns:none!important}
+.process .timeline{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+.contact-grid,.cta-inline,.site-footer .footer-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+}
+</style>
 ${renderJsonLd(model)}
 </head>
 <body>
