@@ -558,7 +558,28 @@
   }
   // Conservative zero-API edits on the real Railway HTML. Only unique targets.
   function applyLocalCommand(command) {
-    if (!command || !["heading", "cta", "eyebrow"].includes(command.field) || typeof command.value !== "string" || !command.value.trim() || command.value.length > 180) return false;
+    if (!command || !["heading", "cta", "eyebrow", "replace"].includes(command.field) || typeof command.value !== "string" || !command.value.trim() || command.value.length > 180) return false;
+    if (command.field === "replace") {
+      const from = typeof command.from === "string" ? command.from.trim() : "";
+      if (from.length < 3 || from.length > 120) return false;
+      const matches = Array.from(document.querySelectorAll(textSel)).filter(function(el) {
+        return el.children.length === 0 && el.getClientRects().length > 0 &&
+          (el.textContent || "").toLocaleLowerCase("pt-BR").includes(from.toLocaleLowerCase("pt-BR"));
+      });
+      if (matches.length !== 1) return false;
+      const el = matches[0], current = el.textContent || "";
+      const index = current.toLocaleLowerCase("pt-BR").indexOf(from.toLocaleLowerCase("pt-BR"));
+      if (index < 0) return false;
+      const next = current.slice(0, index) + command.value.trim() + current.slice(index + from.length);
+      const cs = getComputedStyle(el), selector = path(el);
+      if (!selector || find(selector) !== el || next.length > 2000) return false;
+      const edit = { selector: selector, text: next, font: cs.fontFamily || "Arial",
+        size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
+        color: hex(cs.color), kind: "text" };
+      applyEdit(edit);
+      parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit: edit }, "*");
+      return true;
+    }
     const selectors = {
       heading: "main h1, h1",
       eyebrow: "[class*=eyebrow], [class*=Eyebrow]",
