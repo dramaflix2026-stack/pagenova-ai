@@ -15,6 +15,7 @@ export interface SubscriberDebit {
 export async function reserveSubscriberSite(input: SubscriberDebit): Promise<{ accepted: boolean; duplicate: boolean; used: number; remaining: number }> {
   const now = new Date();
   if (!billingCycleContains(now, input.cycleStart, input.cycleEnd)) throw new Error('Inactive subscription cycle');
+  if (input.source !== 'crm' && input.source !== 'builder') throw new Error('Invalid generation source');
   if (!/^[a-zA-Z0-9_:-]{1,128}$/.test(input.subscriberId) || !/^[a-zA-Z0-9_:-]{1,128}$/.test(input.generationId)) throw new Error('Invalid subscriber or generation ID');
   const connection = await getPool().getConnection();
   try {
