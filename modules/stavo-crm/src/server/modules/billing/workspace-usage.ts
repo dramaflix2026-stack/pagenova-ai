@@ -22,6 +22,7 @@ export async function reserveWorkspaceQuota(
   now: Date = new Date(),
 ): Promise<{ used: number; limit: number; remaining: number }> {
   if (!workspaceId) throw new Error('Workspace identity is required for quota reservation.');
+  if (meter !== 'googleSearchPages' && meter !== 'generatedSites') throw new Error('Unknown quota meter.');
   const billingMonth = toReferencePeriod(now);
   const limit = PAGENOVA_MONTHLY_QUOTAS[meter];
   await db.insert(pagenovaWorkspaceUsage).values({
