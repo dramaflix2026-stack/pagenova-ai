@@ -174,6 +174,22 @@ export default function BuilderPage() {
         inlineImageInputRef.current?.click();
         return;
       }
+      if (event.data?.type === "pagenova-live-edits") {
+        const key = event.data.key as SitePageKey;
+        const edits = event.data.edits as LiveEdit[];
+        if (!project || key !== activePage || !project.pages[key] || !Array.isArray(edits) || !edits.length || edits.length > 30 ||
+          edits.some((edit) => typeof edit?.selector !== "string" || edit.selector.length > 500 ||
+            typeof edit.text !== "string" || edit.text.length > 2000 ||
+            !Number.isFinite(edit.size) || edit.size < 10 || edit.size > 120 ||
+            !/^#[a-fA-F0-9]{6}$/.test(edit.color))) return;
+        const selectors = new Set(edits.map((edit) => edit.selector));
+        const current = (project.liveEdits?.[key] || []).filter((edit) => !selectors.has(edit.selector));
+        const updated = { ...project, liveEdits: { ...project.liveEdits,
+          [key]: [...current, ...edits].slice(-100) } };
+        setProject(updated);
+        void savePageNovaProject(updated.id, updated).catch(() => setError("Não foi possível salvar a alteração de texto."));
+        return;
+      }
       if (event.data?.type === "pagenova-live-edit") {
         const key = event.data.key as SitePageKey;
         const edit = event.data.edit as LiveEdit;
