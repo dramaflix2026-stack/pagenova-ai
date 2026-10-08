@@ -305,7 +305,7 @@
     return "";
   }
   function imagePlaceholder(target) {
-    const direct=closest(target,"[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
+    const direct=closest(target,"[data-pn-photo-slot],[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
     if(direct)return direct;
     let node=target;
     for(let depth=0;node&&depth<10;depth++,node=node.parentElement) {
@@ -495,39 +495,56 @@
   window.addEventListener("scroll", syncUi, true);
   window.addEventListener("resize", syncUi);
 
+  function imageSlotFor(kind) {
+    const existing=document.querySelector('[data-pn-photo-slot="'+kind+'"]');
+    if(existing)return existing;
+    const nodes=Array.from(document.querySelectorAll("div,span,p,button"));
+    const label=nodes.find(function(node) {
+      if(node.children.length>2)return false;
+      const text=(node.textContent||"").trim();
+      return text.length<65&&photoKindFromText(text)===kind;
+    });
+    if(!label)return null;
+    // Find the original framed placeholder, not the caption itself or the
+    // outer page/card. The original frame encloses both the + and caption.
+    let node=label;
+    for(let i=0;i<6&&node.parentElement;i++,node=node.parentElement) {
+      const rect=node.getBoundingClientRect();
+      if(rect.width<130||rect.height<110)continue;
+      const css=getComputedStyle(node);
+      const hasFrame=css.borderTopStyle!=="none"||css.borderBottomStyle!=="none"||
+        css.backgroundColor!=="rgba(0, 0, 0, 0)";
+      if(hasFrame||node.querySelector("button"))return node;
+    }
+    return label.parentElement||null;
+  }
   function updateUploadedImages(images) {
-    if (!images) return;
-    const mappings = [
-      { kind: "hero", name: "Foto principal", src: images.portrait },
-      { kind: "work", name: "Foto do negócio", src: images.businessPhoto || images.workPhoto }
+    if(!images)return;
+    const mappings=[
+      {kind:"hero",src:images.portrait},
+      {kind:"work",src:images.businessPhoto||images.workPhoto}
     ];
     mappings.forEach(function(item) {
-      if (!item.src || !item.src.startsWith("data:image/")) return;
-      const nodes = Array.from(document.querySelectorAll("div,button,span"));
-      nodes.forEach(function(node) {
-        const ownText = Array.from(node.childNodes).filter(function(child) {
-          return child.nodeType === Node.TEXT_NODE;
-        }).map(function(child) { return child.textContent; }).join("").trim();
-        const label = ownText || (node.children.length === 0 ? node.textContent.trim() : "");
-        if (label !== item.name && !(item.kind === "work" && /Foto\s+do\s+neg[oó]cio/i.test(label))) return;
-        const holder = imagePlaceholder(node) || node.parentElement;
-        if (!holder) return;
-        holder.dataset.pnUploadKind = item.kind;
-        let picture = holder.querySelector('img[data-pn-uploaded="' + item.kind + '"]');
-        if (!picture) {
-          picture = document.createElement("img");
-          picture.dataset.pnUploaded = item.kind;
-          picture.alt = item.name;
-          picture.style.cssText = "display:block;width:100%;min-height:220px;max-height:520px;object-fit:cover;border-radius:inherit";
-          holder.replaceChildren(picture);
-        }
-        picture.src = item.src;
-      });
-      // Replacing the first placeholder removes its caption. Keep the target
-      // identifiable on subsequent uploads through its stable data attribute.
-      document.querySelectorAll('img[data-pn-uploaded="' + item.kind + '"]').forEach(function(img) {
-        img.src = item.src;
-      });
+      if(!item.src||!item.src.startsWith("data:image/"))return;
+      const slot=imageSlotFor(item.kind);
+      if(!slot)return;
+      slot.dataset.pnPhotoSlot=item.kind;
+      slot.dataset.pnUploadKind=item.kind;
+      let img=slot.querySelector('img[data-pn-uploaded="'+item.kind+'"]');
+      if(!img) {
+        // Replace placeholder contents in the image frame itself so the +
+        // and caption disappear instead of floating over the uploaded photo.
+        slot.replaceChildren();
+        img=document.createElement("img");
+        img.dataset.pnUploaded=item.kind;
+        img.alt=item.kind==="hero"?"Foto principal":"Foto do negócio";
+        slot.appendChild(img);
+      }
+      slot.style.setProperty("overflow","hidden");
+      slot.style.setProperty("padding","0","important");
+      slot.style.setProperty("display","block","important");
+      img.style.cssText="display:block!important;width:100%!important;height:100%!important;max-width:100%!important;min-height:0!important;max-height:none!important;object-fit:cover!important;border-radius:inherit";
+      img.src=item.src;
     });
   }
   window.addEventListener("message", function(event) {
