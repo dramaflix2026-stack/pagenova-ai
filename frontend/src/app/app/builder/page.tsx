@@ -473,23 +473,54 @@ export default function BuilderPage() {
     }
   }
 
-/** Local-only fast path: intentionally narrow, never guesses ambiguous instructions. */
-  function localThemeInstruction(raw: string): PreviewTheme | null {
-    const normalized = raw.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
-    const match = normalized.match(/^(?:mude|mudar|troque|trocar|altere|alterar|coloque|usar|use|aplique) (?:o |a )?(?:tema|aparencia)(?: (?:do site|da pagina))? (?:para |pra |por )?(original|claro|escuro|areia)$/);
-    return match ? match[1] as PreviewTheme : null;
+/** Deterministic local edits: never guess selectors or rewrite the Railway HTML. */
+  function parseLocalEdit(raw: string):
+    | { kind: "theme"; value: PreviewTheme }
+    | { kind: "text"; field: "heading" | "eyebrow" | "cta"; value: string }
+    | { kind: "logo"; value: "left" | "center" | "right" }
+    | null {
+    const input = raw.trim();
+    const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    const theme = normalized.match(/^(?:mude|mudar|troque|trocar|altere|alterar|coloque|usar|use|aplique) (?:o |a )?(?:tema|aparencia)(?: (?:do site|da pagina))? (?:para |pra |por )?(original|claro|escuro|areia)$/);
+    if (theme) return { kind: "theme", value: theme[1] as PreviewTheme };
+    const logo = normalized.match(/^(?:alinhe|alinhar|posicione|posicionar|coloque|mude|troque) (?:o |a )?(?:logo|logotipo|logomarca) (?:para |a |ao |na |no )?(centro|esquerda|direita)$/);
+    if (logo) return { kind: "logo", value: ({ centro: "center", esquerda: "left", direita: "right" } as const)[logo[1] as "centro" | "esquerda" | "direita"] };
+    // Explicit delimiters avoid accidentally treating a complex instruction as literal copy.
+    const copy = input.match(/^(?:troque|altere|mude|substitua|coloque) (?:o |a )?(t[ií]tulo principal|subt[ií]tulo|texto do bot[aã]o principal) (?:para|por) [\"“](.{1,180})[\"”]$/i);
+    if (copy) {
+      const field = /^t[ií]tulo principal$/i.test(copy[1]) ? "heading" : /^subt[ií]tulo$/i.test(copy[1]) ? "eyebrow" : "cta";
+      return { kind: "text", field, value: copy[2] };
+    }
+    return null;
   }
 
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
-    // A mudanca de tema ja e implementada pelo editor; nao precisa de IA.
-    // Nunca aplicar este atalho quando ha print: ele pode conter outras instrucoes.
-    const localTheme = revisionImage ? null : localThemeInstruction(instruction);
-    if (localTheme) {
-      await changeTheme(localTheme);
+    // Sem print e sem instrucao ambigua: alteracoes locais nao usam API.
+    const local = revisionImage ? null : parseLocalEdit(instruction);
+    if (local?.kind === "theme") {
+      await changeTheme(local.value);
       setInstruction("");
       return;
+    }
+    if (local?.kind === "logo" && project.headerDirection) {
+      const updated = { ...project, headerDirection: { ...project.headerDirection, logoPosition: local.value } };
+      try {
+        await savePageNovaProject(updated.id, updated);
+        setProject(updated); setInstruction(""); setError("");
+        return;
+      } catch { setError("Falha ao salvar alinhamento; nenhuma chamada de IA foi feita."); return; }
+    }
+    // Texto estruturado so pode ser alterado localmente se a pagina renderizada
+    // for a do proprio projeto. No HTML do Railway, a alteracao seria invisivel.
+    if (local?.kind === "text" && !crmPreviewHtml && project.pages[activePage]) {
+      const updated = { ...project, pages: { ...project.pages, [activePage]: { ...project.pages[activePage], [local.field]: local.value } } };
+      try {
+        await savePageNovaProject(updated.id, updated);
+        setProject(updated); setInstruction(""); setError("");
+        return;
+      } catch { setError("Falha ao salvar texto; nenhuma chamada de IA foi feita."); return; }
     }
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
