@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PAGENOVA_MONTHLY_QUOTAS, billingCycleContains, isMeteredPageNovaOperation, quotaDecision, generationMeterForAction } from '../../src/server/modules/billing/pagenova-quotas';
+import { PAGENOVA_MONTHLY_QUOTAS, billingCycleContains, isMeteredPageNovaOperation, quotaDecision, generationMeterForAction, billingCycleKey, siteGenerationDebitKey } from '../../src/server/modules/billing/pagenova-quotas';
 
 describe('PageNova monthly subscription policy', () => {
   it('uses 150 Google result pages and 40 generated sites', () => {
@@ -38,5 +38,28 @@ describe('PageNova monthly subscription policy', () => {
     const end = new Date('2026-11-08T12:00:00Z');
     expect(billingCycleContains(start, start, end)).toBe(true);
     expect(billingCycleContains(end, start, end)).toBe(false);
+  });
+});
+
+describe('shared subscription cycle identity', () => {
+  const cycle = {
+    subscriberId: 'subscriber_123',
+    startsAt: new Date('2026-10-17T10:00:00.000Z'),
+    endsAt: new Date('2026-11-17T10:00:00.000Z'),
+  };
+  it('uses the actual subscription anniversary rather than calendar month', () => {
+    const keyBeforeMonthEnd = billingCycleKey(cycle, new Date('2026-10-31T23:59:59.000Z'));
+    const keyAfterMonthStart = billingCycleKey(cycle, new Date('2026-11-01T00:00:00.000Z'));
+    expect(keyBeforeMonthEnd).toBe(keyAfterMonthStart);
+  });
+  it('rejects expired cycles and keeps retries idempotent', () => {
+    const now = new Date('2026-11-05T00:00:00.000Z');
+    expect(siteGenerationDebitKey(cycle, now, 'job_abc')).toBe(siteGenerationDebitKey(cycle, now, 'job_abc'));
+    expect(siteGenerationDebitKey(cycle, now, 'job_abc')).not.toBe(siteGenerationDebitKey(cycle, now, 'job_xyz'));
+    expect(() => billingCycleKey(cycle, cycle.endsAt)).toThrow();
+  });
+  it('rejects missing or unsafe identifiers', () => {
+    expect(() => billingCycleKey({ ...cycle, subscriberId: '' }, cycle.startsAt)).toThrow();
+    expect(() => siteGenerationDebitKey(cycle, cycle.startsAt, ' ')).toThrow();
   });
 });
