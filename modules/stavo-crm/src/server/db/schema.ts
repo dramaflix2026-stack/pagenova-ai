@@ -911,6 +911,25 @@ export const pagenovaWorkspaceUsage = mysqlTable(
   (table) => [uniqueIndex('pagenova_workspace_usage_unique').on(table.workspaceId, table.billingMonth, table.meter)],
 );
 
+export const pagenovaSubscriberUsage = mysqlTable('pagenova_subscriber_usage', {
+  id: id().primaryKey(),
+  subscriberId: varchar('subscriber_id', { length: 128 }).notNull(),
+  cycleStart: ts('cycle_start').notNull(),
+  cycleEnd: ts('cycle_end').notNull(),
+  meter: varchar('meter', { length: 32 }).notNull(),
+  requestCount: int('request_count').notNull().default(0),
+  updatedAt: ts('updated_at').notNull(),
+}, (t) => [uniqueIndex('pagenova_subscriber_usage_unique').on(t.subscriberId, t.cycleStart, t.meter)]);
+
+export const pagenovaGenerationDebits = mysqlTable('pagenova_generation_debits', {
+  id: id().primaryKey(),
+  subscriberId: varchar('subscriber_id', { length: 128 }).notNull(),
+  generationId: varchar('generation_id', { length: 128 }).notNull(),
+  cycleStart: ts('cycle_start').notNull(),
+  source: varchar('source', { length: 32 }).notNull(),
+  createdAt: ts('created_at').notNull(),
+}, (t) => [uniqueIndex('pagenova_generation_debits_unique').on(t.subscriberId, t.generationId)]);
+
 export const googleApiUsage = mysqlTable(
   'google_api_usage',
   {
