@@ -1069,6 +1069,27 @@ export async function recordUsage(row: UsageRow, db: Database = getDb()): Promis
   });
 }
 
+/** Uso por projeto para auditoria de custos; nao retorna conteudo de prompts. */
+export async function listProjectUsage(projectId: string, db: Database = getDb()) {
+  return db.select({
+    id: siteAiUsage.id,
+    jobId: siteAiUsage.jobId,
+    provider: siteAiUsage.provider,
+    operation: siteAiUsage.operation,
+    model: siteAiUsage.model,
+    inputTokens: siteAiUsage.inputTokens,
+    outputTokens: siteAiUsage.outputTokens,
+    cacheReadTokens: siteAiUsage.cacheReadTokens,
+    cacheCreationTokens: siteAiUsage.cacheCreationTokens,
+    imageCount: siteAiUsage.imageCount,
+    costEstimatedUsd: siteAiUsage.costEstimatedUsd,
+    costActualUsd: siteAiUsage.costActualUsd,
+    pricingVersion: siteAiUsage.pricingVersion,
+    status: siteAiUsage.status,
+    createdAt: siteAiUsage.createdAt,
+  }).from(siteAiUsage).where(eq(siteAiUsage.projectId, projectId)).orderBy(desc(siteAiUsage.createdAt)).limit(100);
+}
+
 /**
  * Quanto ja foi gasto no mes corrente.
  *
