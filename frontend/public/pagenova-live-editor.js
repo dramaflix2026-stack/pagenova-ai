@@ -562,22 +562,33 @@
     if (command.field === "replace") {
       const from = typeof command.from === "string" ? command.from.trim() : "";
       if (from.length < 3 || from.length > 120) return false;
+      // Text may appear in multiple locations (header, hero, footer).
+      // Prefer leaf elements to avoid replacing an entire section's markup.
+      const needle = from.toLocaleLowerCase("pt-BR");
       const matches = Array.from(document.querySelectorAll(textSel)).filter(function(el) {
-        return el.children.length === 0 && el.getClientRects().length > 0 &&
-          (el.textContent || "").toLocaleLowerCase("pt-BR").includes(from.toLocaleLowerCase("pt-BR"));
+        if (!el.getClientRects().length || el.closest("script,style,nav[aria-hidden=true]")) return false;
+        const content = (el.textContent || "").toLocaleLowerCase("pt-BR");
+        if (!content.includes(needle)) return false;
+        return !Array.from(el.children).some(function(child) { return (child.textContent || "").toLocaleLowerCase("pt-BR").includes(needle); });
       });
-      if (matches.length !== 1) return false;
-      const el = matches[0], current = el.textContent || "";
-      const index = current.toLocaleLowerCase("pt-BR").indexOf(from.toLocaleLowerCase("pt-BR"));
-      if (index < 0) return false;
-      const next = current.slice(0, index) + command.value.trim() + current.slice(index + from.length);
-      const cs = getComputedStyle(el), selector = path(el);
-      if (!selector || find(selector) !== el || next.length > 2000) return false;
-      const edit = { selector: selector, text: next, font: cs.fontFamily || "Arial",
-        size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
-        color: hex(cs.color), kind: "text" };
-      applyEdit(edit);
-      parent.postMessage({ type: "pagenova-live-edit", key: KEY, edit: edit }, "*");
+      if (!matches.length || matches.length > 30) return false;
+      const edits = [];
+      for (const el of matches) {
+        // Keep nested HTML intact: do not flatten elements with child markup.
+        if (el.children.length) continue;
+        const current = el.textContent || "";
+        const index = current.toLocaleLowerCase("pt-BR").indexOf(needle);
+        if (index < 0) continue;
+        const next = current.slice(0, index) + command.value.trim() + current.slice(index + from.length);
+        const cs = getComputedStyle(el), selector = path(el);
+        if (!selector || find(selector) !== el || next.length > 2000) continue;
+        edits.push({ selector: selector, text: next, font: cs.fontFamily || "Arial",
+          size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
+          color: hex(cs.color), kind: "text" });
+      }
+      if (!edits.length) return false;
+      edits.forEach(applyEdit);
+      parent.postMessage({ type: "pagenova-live-edits", key: KEY, edits: edits }, "*");
       return true;
     }
     const selectors = {
