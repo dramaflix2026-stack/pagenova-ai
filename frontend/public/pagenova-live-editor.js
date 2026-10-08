@@ -206,7 +206,7 @@
   }
 
   function ensureMovable(el) {
-    if (!el || el.matches(textSel) || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
+    if (!el || el.dataset.pnGhost === "true" || el.dataset.pnFreeText === "true" || el.dataset.pnDivider === "true") return el;
     if (el.matches(sectionSel) || isResponsiveStructure(el)) return el;
     const r = el.getBoundingClientRect();
     const source = path(el);
@@ -329,8 +329,8 @@
     let node = target;
     for (let depth = 0; node && depth < 5; depth++, node = node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const text = (node.innerText || "").trim().replace(/\\s+/g, " ");
-      if (/^(?:\\+\\s*)?Foto (?:principal|do negócio)$/i.test(text)) return node;
+      const text = (node.innerText || "").trim().replace(/\s+/g, " ");
+      if (/^(?:\+\s*)?Foto (?:principal|do negócio)$/i.test(text)) return node;
       if (text.length > 120) break;
     }
     return null;
@@ -398,8 +398,8 @@
     if (!el) return;
     const wasSelected = selected === el;
     select(el);
-    if (!wasSelected || el.matches(textSel) || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
-    pending = { el: el, x:e.clientX, y:e.clientY, started:false };
+    if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
+    pending = { el: el, pointerId:e.pointerId, x:e.clientX, y:e.clientY, started:false };
   }, true);
 
   document.addEventListener("pointermove", function(e) {
@@ -410,7 +410,9 @@
         // Text must remain in document flow; resizing its box with absolute
         // coordinates can hide the text completely on narrow mobile screens.
         selected.style.setProperty("max-width", "100%", "important");
-        selected.style.setProperty("width", Math.max(100, Math.min(resizing.width + dx, document.documentElement.clientWidth - 24)) + "px", "important");
+        const delta = resizing.h.includes("w") ? -dx : resizing.h.includes("e") ? dx : 0;
+        const limit = Math.max(100, Math.min(document.documentElement.clientWidth - 24, selected.parentElement?.clientWidth || innerWidth));
+        selected.style.setProperty("width", Math.max(100, Math.min(resizing.width + delta, limit)) + "px", "important");
         selected.style.removeProperty("height");
         selected.style.removeProperty("overflow");
       } else if (resizing.section) {
@@ -428,7 +430,7 @@
       }
       syncUi(); return;
     }
-    if (!pending) return;
+    if (!pending || pending.pointerId !== e.pointerId) return;
     const moved=Math.abs(e.clientX-pending.x)+Math.abs(e.clientY-pending.y);
     if(moved<8&&!pending.started) return;
     e.preventDefault(); e.stopPropagation(); clearNativeSelection();
