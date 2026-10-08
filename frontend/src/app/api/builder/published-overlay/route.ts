@@ -28,8 +28,15 @@ export async function POST(request: NextRequest) {
   let url: URL;
   try { url = new URL(body.url); }
   catch { return NextResponse.json({ error: "Endereço inválido." }, { status: 400 }); }
-  if (url.origin !== request.nextUrl.origin) {
-    return NextResponse.json({ error: "Domínio de publicação inválido." }, { status: 400 });
+  // Railway may return its own host; the public site is proxied on PageNova.
+  const upstream = process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\\/+$/, "");
+  let upstreamOrigin = "";
+  try { if (upstream) upstreamOrigin = new URL(upstream).origin; } catch { /* configuration */ }
+  const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
+  const publicOrigin = forwardedHost ? `${request.nextUrl.protocol}//${forwardedHost}` : request.nextUrl.origin;
+  const trustedOrigins = new Set([request.nextUrl.origin, publicOrigin, upstreamOrigin].filter(Boolean));
+  if (url.protocol !== "https:" || !trustedOrigins.has(url.origin)) {
+    return NextResponse.json({ error: "Domínio de publicação inválido. Confira PAGENOVA_CRM_UPSTREAM." }, { status: 400 });
   }
   const match = /^\/p\/([a-z0-9-]{3,80})\/?$/.exec(url.pathname);
   if (!match || !slugPattern.test(match[1])) {
@@ -76,5 +83,5 @@ export async function POST(request: NextRequest) {
     { contentType: "application/json", upsert: true, cacheControl: "0" },
   );
   if (error) return NextResponse.json({ error: "Falha ao salvar edições para publicação." }, { status: 500 });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, url: `${publicOrigin}/p/${match[1]}` });
 }
