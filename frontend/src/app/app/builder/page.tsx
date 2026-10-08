@@ -48,6 +48,20 @@ export default function BuilderPage() {
   const [costPanelOpen, setCostPanelOpen] = useState(false);
   const [costInfo, setCostInfo] = useState<{ costAccumulatedUsd: string; status: string } | null>(null);
   const [costError, setCostError] = useState("");
+  const [costUsage, setCostUsage] = useState<Array<{ id: string; operation: string; model: string; status: string; inputTokens: number; outputTokens: number; costEstimatedUsd: string | null; costActualUsd: string | null; createdAt: string }>>([]);
+  const [costAuditError, setCostAuditError] = useState("");
+  async function refreshCostAudit(projectId: string) {
+    setCostAuditError("");
+    try {
+      const response = await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/cost-audit`, { credentials: "same-origin", cache: "no-store" });
+      if (!response.ok) throw new Error(response.status === 403 ? "Detalhamento disponível somente para o administrador." : `Detalhamento indisponível (HTTP ${response.status}).`);
+      const result = await response.json() as { usage?: typeof costUsage };
+      setCostUsage(result.usage || []);
+    } catch (cause) {
+      setCostAuditError(cause instanceof Error ? cause.message : "Não foi possível consultar as chamadas.");
+    }
+  }
+
 
   async function refreshCost(projectId: string) {
     setCostError("");
@@ -934,9 +948,9 @@ async function revise(event: FormEvent<HTMLFormElement>) {
                 {publishing ? "Publicando..." : publishedUrl ? "Atualizar publicação" : "Publicar site"}
               </button>
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
-              {costDebugEnabled && crmProjectId ? <button type="button" onClick={() => { setCostPanelOpen((value) => !value); void refreshCost(crmProjectId); }} className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200">🔒 Custo IA</button> : null}
+              {costDebugEnabled && crmProjectId ? <button type="button" onClick={() => { setCostPanelOpen((value) => !value); void refreshCost(crmProjectId); void refreshCostAudit(crmProjectId); }} className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200">🔒 Custo IA</button> : null}
             </div>
-            {costDebugEnabled && costPanelOpen && crmProjectId ? <div className="w-full rounded-xl border border-amber-400/25 bg-black/40 p-4 text-xs text-white/75" role="region" aria-label="Diagnóstico de custo da IA"><p className="font-semibold text-amber-200">Custo estimado acumulado pelo backend</p><p className="mt-2 text-xl font-bold text-white">{costInfo ? `US$ ${Number(costInfo.costAccumulatedUsd).toFixed(6)}` : "Consultando..."}</p><p className="mt-1">Status: {costInfo?.status || "Aguardando"} · Projeto: {crmProjectId}</p><p className="mt-2 text-white/50">Valor acumulado registrado no banco para este projeto. Pode incluir regenerações e edições. Não representa cobrança auditada nem discrimina tokens.</p>{costError ? <p className="mt-2 text-red-300">{costError}</p> : null}<button type="button" onClick={() => void refreshCost(crmProjectId)} className="mt-3 rounded-lg border border-white/20 px-3 py-2">Atualizar custo</button></div> : null}
+            {costDebugEnabled && costPanelOpen && crmProjectId ? <div className="w-full rounded-xl border border-amber-400/25 bg-black/40 p-4 text-xs text-white/75" role="region" aria-label="Diagnóstico de custo da IA"><p className="font-semibold text-amber-200">Custo estimado acumulado pelo backend</p><p className="mt-2 text-xl font-bold text-white">{costInfo ? `US$ ${Number(costInfo.costAccumulatedUsd).toFixed(6)}` : "Consultando..."}</p><p className="mt-1">Status: {costInfo?.status || "Aguardando"} · Projeto: {crmProjectId}</p><p className="mt-2 text-white/50">Valor acumulado registrado no banco para este projeto. Pode incluir regenerações e edições. Não representa cobrança auditada nem discrimina tokens.</p>{costError ? <p className="mt-2 text-red-300">{costError}</p> : null}<button type="button" onClick={() => void refreshCost(crmProjectId)} className="mt-3 rounded-lg border border-white/20 px-3 py-2">Atualizar custo</button><div className="mt-4 border-t border-white/10 pt-3"><p className="font-semibold text-amber-200">Chamadas registradas: {costUsage.length}</p>{costAuditError ? <p className="mt-2 text-amber-300">{costAuditError}</p> : null}{costUsage.map((item) => <div key={item.id} className="mt-2 rounded-lg border border-white/10 p-3"><div className="flex flex-wrap justify-between gap-2"><strong>{item.operation}</strong><span>{item.status}</span></div><p className="mt-1">Modelo: {item.model}</p><p>Entrada: {item.inputTokens.toLocaleString("pt-BR")} tokens · Saída: {item.outputTokens.toLocaleString("pt-BR")} tokens</p><p className="font-semibold text-white">US$ {Number(item.costActualUsd ?? item.costEstimatedUsd ?? 0).toFixed(6)} {item.costActualUsd ? "(real informado)" : "(estimado)"}</p></div>)}</div></div> : null}
             {error && <div role="alert" className="mt-3 w-full rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-3 text-sm text-red-100">{error}</div>}
             {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
