@@ -11,6 +11,20 @@ function crmUpstream() {
   return process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\/+$/, "") || "";
 }
 
+async function publishedOverlay(slug: string, page: string) {
+  try {
+    const admin = adminClient();
+    const { data, error } = await admin.storage.from(BUCKET).download(`overlays/${slug}.json`);
+    if (error || !data) return "";
+    const raw = await data.text();
+    if (raw.length > 18 * 1024 * 1024) return "";
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (parsed.version !== 1) return "";
+    const config = JSON.stringify({ ...parsed, page }).replace(/</g, "\\u003c");
+    return `<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=${config};</script><script src="/pagenova-published-overlay.js" defer></script>`;
+  } catch { return ""; }
+}
+
 async function railwayPublishedSite(slug: string, path: string[] | undefined) {
   const upstream = crmUpstream();
   if (!upstream) return null;
@@ -38,6 +52,17 @@ async function railwayPublishedSite(slug: string, path: string[] | undefined) {
     headers.set("cache-control", cacheControl || "public, max-age=0, must-revalidate");
     headers.set("x-robots-tag", robots || "noindex, nofollow, noarchive");
 
+    if (response.ok && (contentType || "").includes("text/html")) {
+      const overlay = await publishedOverlay(slug, path?.[0] || "home");
+      if (overlay) {
+        const html = await response.text();
+        const output = /<\\/body>/i.test(html)
+          ? html.replace(/<\\/body>/i, overlay + "</body>")
+          : html + overlay;
+        headers.delete("content-length");
+        return new NextResponse(output, { status: response.status, headers });
+      }
+    }
     return new NextResponse(response.body, { status: response.status, headers });
   } catch {
     // Railway temporarily unavailable: legacy sites must keep working.
