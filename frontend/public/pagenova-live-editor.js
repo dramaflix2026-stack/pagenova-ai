@@ -15,6 +15,7 @@
   let resizing = null;
   let toolbarOpen = false;
   let lastTap = { el: null, at: 0 };
+  let textSaveTimer = null;
 
   function px(v) { return Math.round(v) + "px"; }
   function uid() { return "pn-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 8); }
@@ -119,6 +120,7 @@
   }
 
   function closeToolbar() {
+    clearTimeout(textSaveTimer);
     toolbarOpen = false;
     const bar = document.getElementById("pn-edit-bar");
     if (bar) { bar.dataset.open = "false"; bar.setAttribute("aria-hidden", "true"); }
@@ -339,7 +341,14 @@
     // Keep the editing session entirely inside the iframe while the user types.
     // Persisting on every keystroke makes React rebuild srcDoc and destroys
     // contentEditable/focus, which feels like the editor is kicking the user out.
-    if (selected && e.target === selected && selected.isContentEditable) syncUi();
+    if (selected && e.target === selected && selected.isContentEditable) {
+      syncUi();
+      // Persist while typing without replacing the iframe or losing the caret.
+      clearTimeout(textSaveTimer);
+      textSaveTimer = setTimeout(function() {
+        if (selected && selected.isContentEditable) save();
+      }, 650);
+    }
   }, true);
 
   document.addEventListener("keydown", function(e) {
