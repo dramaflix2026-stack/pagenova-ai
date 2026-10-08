@@ -55,3 +55,36 @@ export function generationMeterForAction(action: PageNovaGenerationAction): Page
       return null;
   }
 }
+
+/**
+ * Canonical billing-cycle identity shared by all generation entry points.
+ * Never infer a subscriber's renewal from the current calendar month.
+ */
+export interface PageNovaBillingCycle {
+  subscriberId: string;
+  startsAt: Date;
+  endsAt: Date;
+}
+
+export function billingCycleKey(cycle: PageNovaBillingCycle, now: Date): string {
+  const subscriberId = cycle.subscriberId.trim();
+  if (!subscriberId || subscriberId.length > 128 || !/^[a-zA-Z0-9_:-]+$/.test(subscriberId)) {
+    throw new Error('Invalid subscriber identifier.');
+  }
+  if (!billingCycleContains(now, cycle.startsAt, cycle.endsAt)) {
+    throw new RangeError('Subscription billing cycle is not active.');
+  }
+  return subscriberId + ':' + cycle.startsAt.toISOString() + ':' + cycle.endsAt.toISOString();
+}
+
+/**
+ * Stable debit identity: retries and duplicate clicks for the same generation
+ * must reference the same key, regardless of which interface originated it.
+ */
+export function siteGenerationDebitKey(cycle: PageNovaBillingCycle, now: Date, generationId: string): string {
+  const id = generationId.trim();
+  if (!id || id.length > 128 || !/^[a-zA-Z0-9_:-]+$/.test(id)) {
+    throw new Error('Invalid generation identifier.');
+  }
+  return billingCycleKey(cycle, now) + ':generatedSites:' + id;
+}
