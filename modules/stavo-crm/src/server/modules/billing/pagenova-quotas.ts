@@ -33,3 +33,25 @@ export function quotaDecision(meter: PageNovaMeter, used: number, requested = 1)
 export function isMeteredPageNovaOperation(operation: string): operation is PageNovaMeter {
   return operation === "googleSearchPages" || operation === "generatedSites";
 }
+
+/**
+ * Both full-generation entry points debit the SAME subscriber meter.
+ * AI revisions and manual edits never debit this meter.
+ * The caller must still enforce atomic reservation and idempotency.
+ */
+export type PageNovaGenerationAction =
+  | 'crmFullGeneration'
+  | 'builderNewFullSite'
+  | 'aiRevision'
+  | 'manualEdit';
+
+export function generationMeterForAction(action: PageNovaGenerationAction): PageNovaMeter | null {
+  switch (action) {
+    case 'crmFullGeneration':
+    case 'builderNewFullSite':
+      return 'generatedSites';
+    case 'aiRevision':
+    case 'manualEdit':
+      return null;
+  }
+}
