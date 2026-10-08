@@ -897,6 +897,20 @@ export const importRows = mysqlTable(
 // Google
 // ---------------------------------------------------------------------------
 
+/** Monthly usage per customer workspace. Separate from the global Google safety counter. */
+export const pagenovaWorkspaceUsage = mysqlTable(
+  'pagenova_workspace_usage',
+  {
+    id: id().primaryKey(),
+    workspaceId: varchar('workspace_id', { length: 26 }).notNull().references(() => workspaces.id, { onDelete: 'cascade' }),
+    billingMonth: varchar('billing_month', { length: 7 }).notNull(),
+    meter: varchar('meter', { length: 32 }).notNull(),
+    requestCount: int('request_count').notNull().default(0),
+    updatedAt: ts('updated_at').notNull(),
+  },
+  (table) => [uniqueIndex('pagenova_workspace_usage_unique').on(table.workspaceId, table.billingMonth, table.meter)],
+);
+
 export const googleApiUsage = mysqlTable(
   'google_api_usage',
   {
