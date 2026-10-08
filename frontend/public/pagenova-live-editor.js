@@ -435,7 +435,7 @@
       { name: "Foto do negócio", src: images.businessPhoto || images.workPhoto }
     ];
     mappings.forEach(function(item) {
-      if (!item.src || !/^data:image\\/(?:png|jpeg|webp);base64,/.test(item.src)) return;
+      if (!item.src || !item.src.startsWith("data:image/")) return;
       document.querySelectorAll("div,button,span").forEach(function(node) {
         if (node.children.length > 3 || !node.textContent || node.textContent.trim() !== item.name) return;
         const holder = node.closest("[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder") || node.parentElement;
