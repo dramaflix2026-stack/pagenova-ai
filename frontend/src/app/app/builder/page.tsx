@@ -473,9 +473,24 @@ export default function BuilderPage() {
     }
   }
 
-async function revise(event: FormEvent<HTMLFormElement>) {
+/** Local-only fast path: intentionally narrow, never guesses ambiguous instructions. */
+  function localThemeInstruction(raw: string): PreviewTheme | null {
+    const normalized = raw.trim().toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    const match = normalized.match(/^(?:mude|mudar|troque|trocar|altere|alterar|coloque|usar|use|aplique) (?:o |a )?(?:tema|aparencia)(?: (?:do site|da pagina))? (?:para |pra |por )?(original|claro|escuro|areia)$/);
+    return match ? match[1] as PreviewTheme : null;
+  }
+
+  async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
+    // A mudanca de tema ja e implementada pelo editor; nao precisa de IA.
+    // Nunca aplicar este atalho quando ha print: ele pode conter outras instrucoes.
+    const localTheme = revisionImage ? null : localThemeInstruction(instruction);
+    if (localTheme) {
+      await changeTheme(localTheme);
+      setInstruction("");
+      return;
+    }
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
       const result = await requestPage(
