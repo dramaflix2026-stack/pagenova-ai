@@ -115,7 +115,8 @@
       if (!h || !selected) return;
       e.preventDefault(); e.stopPropagation(); clearNativeSelection();
       const r = selected.getBoundingClientRect();
-      resizing = { h: h, x: e.clientX, y: e.clientY, left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height, section: selected.matches(sectionSel) };
+      resizing = { h: h, pointerId: e.pointerId, x: e.clientX, y: e.clientY, left: r.left + scrollX, top: r.top + scrollY, width: r.width, height: r.height, section: selected.matches(sectionSel) };
+      try { e.target.setPointerCapture(e.pointerId); } catch (_) {}
     }, true);
   }
 
@@ -295,28 +296,11 @@
     }
   }
 
+  // Guides are visual-only. Scanning every editable node on every pointer
+  // movement caused frame drops and magnetic jumps on mobile.
   function guidesFor(el, left, top) {
-    const gx = document.getElementById("pn-align-x");
-    const gy = document.getElementById("pn-align-y");
-    if (!gx || !gy) return { left: left, top: top };
-    gx.dataset.open = "false"; gy.dataset.open = "false";
-    const r = el.getBoundingClientRect();
-    const pointsX = [left, left + r.width / 2, left + r.width];
-    const pointsY = [top, top + r.height / 2, top + r.height];
-    let bestX = null, bestY = null;
-    document.querySelectorAll(editSel).forEach(function(other) {
-      if (other === el || other.dataset.pnSourceHidden === "true" || closest(other, "#pn-edit-bar,#pn-edit-box")) return;
-      const o = other.getBoundingClientRect();
-      const ox = [o.left + scrollX, o.left + scrollX + o.width / 2, o.left + scrollX + o.width];
-      const oy = [o.top + scrollY, o.top + scrollY + o.height / 2, o.top + scrollY + o.height];
-      pointsX.forEach(function(p) { ox.forEach(function(q) { if (Math.abs(p-q) <= 6) bestX = { delta:q-p, at:q }; }); });
-      pointsY.forEach(function(p) { oy.forEach(function(q) { if (Math.abs(p-q) <= 6) bestY = { delta:q-p, at:q }; }); });
-    });
-    if (bestX) { left += bestX.delta; gy.style.left = px(bestX.at-scrollX); gy.dataset.open = "true"; }
-    if (bestY) { top += bestY.delta; gx.style.top = px(bestY.at-scrollY); gx.dataset.open = "true"; }
-    return { left:left, top:top };
+    return { left: left, top: top };
   }
-
   function hideGuides() {
     const gx=document.getElementById("pn-align-x"), gy=document.getElementById("pn-align-y");
     if(gx) gx.dataset.open="false"; if(gy) gy.dataset.open="false";
@@ -404,6 +388,7 @@
 
   document.addEventListener("pointermove", function(e) {
     if (resizing && selected) {
+      if (resizing.pointerId !== e.pointerId) return;
       e.preventDefault(); clearNativeSelection();
       const dx=e.clientX-resizing.x, dy=e.clientY-resizing.y;
       if (selected.matches(textSel)) {
