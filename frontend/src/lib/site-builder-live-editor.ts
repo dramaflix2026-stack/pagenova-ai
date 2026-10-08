@@ -25,6 +25,7 @@ type SiteLike = {
   theme?: PreviewTheme;
   liveEdits?: LiveEdit[] | Partial<Record<string, LiveEdit[]>>;
   edits?: LiveEdit[] | Partial<Record<string, LiveEdit[]>>;
+  institutional?: { portrait?: string; businessPhoto?: string; workPhoto?: string };
 };
 
 function resolveState(siteOrKey: string | SiteLike, pageKeyOrState?: string | LiveEditorState): { key: string; edits: LiveEdit[] } {
@@ -50,7 +51,8 @@ export function renderEditablePreview(
   if (!enabled) return html;
 
   const { key, edits } = resolveState(siteOrKey, pageKeyOrState);
-  const safeConfig = JSON.stringify({ key, edits }).replace(/</g, "\\u003c");
+  const images = typeof siteOrKey === "string" ? undefined : siteOrKey.institutional;
+  const safeConfig = JSON.stringify({ key, edits, images }).replace(/</g, "\\u003c");
 
   const css = `
 <style>
