@@ -26,6 +26,7 @@ import { findInstagramOnWebsite } from './instagram';
 import { fetchLiveDetails, searchPlaces } from './service';
 import { placePhotoMedia } from './client';
 import { getUsageSummary } from './usage';
+import { getWorkspaceQuotaSummary, workspaceQuotasEnabled } from '../billing/workspace-usage';
 
 /** Protecao adicional contra cliques repetidos que gastariam quota. */
 const googleRateLimit = rateLimit({
@@ -39,6 +40,18 @@ const googleRateLimit = rateLimit({
 export const googleRouter: Router = Router();
 
 googleRouter.use(requireAuth);
+
+googleRouter.get(
+  '/google/workspace-quotas',
+  asyncHandler(async (req, res) => {
+    if (!workspaceQuotasEnabled()) {
+      res.json({ enabled: false, quotas: [] });
+      return;
+    }
+    const quotas = await getWorkspaceQuotaSummary(getDb(), req.session!.workspaceId);
+    res.json({ enabled: true, quotas });
+  }),
+);
 
 googleRouter.get(
   '/google/usage',
