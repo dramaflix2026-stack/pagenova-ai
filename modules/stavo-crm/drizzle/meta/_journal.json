@@ -71,6 +71,13 @@
       "when": 1791218489231,
       "tag": "0009_multi_tenant_core",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1791496020000,
+      "tag": "0010_pagenova_workspace_usage",
+      "breakpoints": true
     }
   ]
 }
