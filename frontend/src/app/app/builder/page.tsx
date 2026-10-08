@@ -200,6 +200,10 @@ export default function BuilderPage() {
       };
       await savePageNovaProject(updated.id, updated);
       setProject(updated);
+      // Update the current CRM preview immediately without regenerating HTML.
+      previewRef.current?.contentWindow?.postMessage({
+        type: "pagenova-user-images", images: updated.institutional
+      }, "*");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Falha ao carregar imagem.");
     } finally {
