@@ -458,21 +458,34 @@
   function updateUploadedImages(images) {
     if (!images) return;
     const mappings = [
-      { name: "Foto principal", src: images.portrait },
-      { name: "Foto do negócio", src: images.businessPhoto || images.workPhoto }
+      { kind: "hero", name: "Foto principal", src: images.portrait },
+      { kind: "work", name: "Foto do negócio", src: images.businessPhoto || images.workPhoto }
     ];
     mappings.forEach(function(item) {
       if (!item.src || !item.src.startsWith("data:image/")) return;
-      document.querySelectorAll("div,button,span").forEach(function(node) {
-        if (node.children.length > 3 || !node.textContent || node.textContent.trim() !== item.name) return;
-        const holder = node.closest("[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder") || node.parentElement;
-        if (!holder || holder.querySelector("img[data-pn-uploaded]")) return;
-        const picture = document.createElement("img");
+      const nodes = Array.from(document.querySelectorAll("div,button,span"));
+      nodes.forEach(function(node) {
+        const ownText = Array.from(node.childNodes).filter(function(child) {
+          return child.nodeType === Node.TEXT_NODE;
+        }).map(function(child) { return child.textContent; }).join("").trim();
+        const label = ownText || (node.children.length === 0 ? node.textContent.trim() : "");
+        if (label !== item.name) return;
+        const holder = imagePlaceholder(node) || node.parentElement;
+        if (!holder) return;
+        let picture = holder.querySelector('img[data-pn-uploaded="' + item.kind + '"]');
+        if (!picture) {
+          picture = document.createElement("img");
+          picture.dataset.pnUploaded = item.kind;
+          picture.alt = item.name;
+          picture.style.cssText = "display:block;width:100%;min-height:220px;max-height:520px;object-fit:cover;border-radius:inherit";
+          holder.replaceChildren(picture);
+        }
         picture.src = item.src;
-        picture.alt = item.name;
-        picture.dataset.pnUploaded = "true";
-        picture.style.cssText = "display:block;width:100%;height:100%;min-height:220px;object-fit:cover;border-radius:inherit";
-        holder.replaceChildren(picture);
+      });
+      // Replacing the first placeholder removes its caption. Keep the target
+      // identifiable on subsequent uploads through its stable data attribute.
+      document.querySelectorAll('img[data-pn-uploaded="' + item.kind + '"]').forEach(function(img) {
+        img.src = item.src;
       });
     });
   }
