@@ -6881,4 +6881,8 @@ export function renderTemplate001Preview(
           600
         );
       })();
-    </script>\n  </body>\n</html>\n  `;\n}
+    </script>
+  </body>
+</html>
+  `;
+}
