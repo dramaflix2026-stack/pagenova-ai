@@ -707,8 +707,9 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         if (!overlayResponse.ok) {
           throw new Error(typeof overlayResult.error === "string" ? overlayResult.error : overlayResult.error?.message || "Site publicado, mas as edições visuais não foram sincronizadas.");
         }
-        setPublishedUrl(data.url);
-        window.open(data.url, "_blank", "noopener,noreferrer");
+        const publicUrl = overlayResult.url || data.url;
+        setPublishedUrl(publicUrl);
+        window.open(publicUrl, "_blank", "noopener,noreferrer");
         return;
       }
 
