@@ -13,6 +13,8 @@ export type LiveEdit = {
   movable?: boolean;
   kind?: "text" | "image" | "card" | "divider" | "section";
   ghostId?: string;
+  offsetX?: number;
+  offsetY?: number;
   headerLayout?: "left" | "center" | "right";
   textAlign?: "left" | "center" | "right";
   fontWeight?: number;
@@ -105,7 +107,7 @@ export function renderEditablePreview(
   #pn-edit-box[data-open=true]{display:block!important}
   #pn-edit-box i{
     position:absolute!important;
-    width:9px!important;height:9px!important;
+    width:16px!important;height:16px!important;
     border-radius:50%!important;
     background:#10b981!important;
     border:1.5px solid #fff!important;
@@ -146,8 +148,7 @@ export function renderEditablePreview(
 
   @media(max-width:640px){
     #pn-edit-bar{max-width:calc(100vw - 12px)!important;border-radius:12px!important}
-    #pn-edit-box [data-h=n],#pn-edit-box [data-h=e],#pn-edit-box [data-h=s],#pn-edit-box [data-h=w]{display:none!important}
-    #pn-edit-box i{width:11px!important;height:11px!important}
+    #pn-edit-box i{width:22px!important;height:22px!important}
   }
 </style>`;
 
