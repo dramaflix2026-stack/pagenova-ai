@@ -628,6 +628,18 @@ async function revise(event: FormEvent<HTMLFormElement>) {
         });
         const data = await response.json() as { url?: string; error?: { message?: string } };
         if (!response.ok || !data.url) throw new Error(data.error?.message || "Nao foi possivel publicar o site.");
+        // The Railway publication contains the original generated HTML.
+        // Persist the visual editor overlay before reporting publication success.
+        const overlayResponse = await fetch("/api/builder/published-overlay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({ project, url: data.url }),
+        });
+        const overlayResult = await overlayResponse.json() as { error?: string };
+        if (!overlayResponse.ok) {
+          throw new Error(overlayResult.error || "Site publicado, mas as edições visuais não foram sincronizadas. Tente publicar novamente.");
+        }
         setPublishedUrl(data.url);
         window.open(data.url, "_blank", "noopener,noreferrer");
         return;
