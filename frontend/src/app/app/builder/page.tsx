@@ -28,7 +28,7 @@ export default function BuilderPage() {
 
   const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
   const [style, setStyle] = useState("moderno");
-  const [refreshingImages, setRefreshingImages] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState("institucional");
   const selectedPreset = getSitePreset(selectedPresetId);
   const [project, setProject] = useState<SiteProject | null>(null);
@@ -166,16 +166,38 @@ export default function BuilderPage() {
   useEffect(() => () => abortRef.current?.abort(), []);
 
 
-  async function requestImage(site: SiteProject, kind: "hero" | "work"): Promise<string> {
-    const controller = new AbortController();
-    abortRef.current = controller;
-    const response = await fetch("/api/builder/image", {
-      method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-      body: JSON.stringify({ name: site.name, brief: site.brief, kind }),
-    });
-    const data = await response.json() as { image?: string; error?: string };
-    if (!response.ok || !data.image?.startsWith("data:image/jpeg;base64,")) throw new Error(data.error || "Falha ao criar a imagem.");
-    return data.image;
+  async function uploadSiteImage(file: File, kind: "hero" | "work") {
+    if (!project) return;
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      setError("Envie uma imagem PNG, JPG ou WebP."); return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("A imagem deve ter até 5 MB."); return;
+    }
+    setUploadingImage(true); setError("");
+    try {
+      const image = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => typeof reader.result === "string"
+          ? resolve(reader.result) : reject(new Error("Imagem inválida."));
+        reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
+        reader.readAsDataURL(file);
+      });
+      const updated: SiteProject = {
+        ...project,
+        institutional: {
+          role: "", audience: "", offer: "", process: "", proof: "",
+          ...project.institutional,
+          ...(kind === "hero" ? { portrait: image } : { businessPhoto: image, workPhoto: image }),
+        },
+      };
+      await savePageNovaProject(updated.id, updated);
+      setProject(updated);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Falha ao carregar imagem.");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
@@ -231,24 +253,6 @@ export default function BuilderPage() {
         };
         await savePageNovaProject(current.id, current);
         setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
-        if (key === "home" || key === "sobre") {
-          try {
-            const image = await requestImage(current, key === "home" ? "hero" : "work");
-            current = { ...current, institutional: {
-              role: current.institutional?.role || "", audience: current.institutional?.audience || "",
-              offer: current.institutional?.offer || "", process: current.institutional?.process || "",
-              proof: current.institutional?.proof || "",
-              ...current.institutional,
-              [key === "home" ? "portrait" : "businessPhoto"]: image,
-            } };
-            await savePageNovaProject(current.id, current);
-            setProject(current);
-          } catch (imageError) {
-            if ((imageError as Error).name === "AbortError") return;
-            console.warn("[Builder] Imagem indisponível; conteúdo preservado", imageError);
-            setError(`A página foi criada, mas a imagem ${key === "home" ? "principal" : "do negócio"} não carregou. Use "Gerar novamente os dois banners" para tentar novamente.`);
-          }
-        }
       } catch (cause) {
         if ((cause as Error).name === "AbortError") return;
         setError(cause instanceof Error ? cause.message : "Falha na geração.");
@@ -729,44 +733,22 @@ async function revise(event: FormEvent<HTMLFormElement>) {
                   className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 p-2.5 text-sm text-white" />
               </label>
             ))}
-          </fieldset>          {project.presetId === "institucional" && <button type="button" disabled={refreshingImages}
-            onClick={async () => {
-              setRefreshingImages(true);
-              setError("");
-              try {
-                // Persist each successful image independently. A failure in the
-                // second request must not discard the first generated image.
-                let current = project;
-                const failures: string[] = [];
-                for (const kind of ["hero", "work"] as const) {
-                  try {
-                    const image = await requestImage(current, kind);
-                    current = {
-                      ...current,
-                      institutional: {
-                        role: "", audience: "", offer: "", process: "", proof: "",
-                        ...current.institutional,
-                        ...(kind === "hero"
-                          ? { portrait: image }
-                          : { workPhoto: image, businessPhoto: image }),
-                      },
-                    };
-                    await savePageNovaProject(current.id, current);
-                    setProject(current);
-                  } catch (cause) {
-                    failures.push(`${kind === "hero" ? "Imagem principal" : "Foto do negócio"}: ${cause instanceof Error ? cause.message : "falha desconhecida"}`);
-                  }
-                }
-                if (failures.length) setError(failures.join(" | "));
-              } catch (cause) {
-                setError(cause instanceof Error ? cause.message : "Falha ao gerar as imagens.");
-              } finally {
-                setRefreshingImages(false);
-              }
-            }}
-            className="w-full rounded-xl border border-emerald-400/35 px-4 py-3 text-sm font-semibold text-emerald-200 disabled:opacity-50">
-            {refreshingImages ? "Gerando dois banners…" : "Gerar novamente os dois banners"}
-          </button>}          <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
+          </fieldset>          {project.presetId === "institucional" && <div className="space-y-3 rounded-xl border border-white/10 p-3">
+            <p className="text-xs font-semibold text-emerald-200">Imagens do site — envio gratuito</p>
+            {([["hero", "Foto principal"], ["work", "Foto do negócio"]] as const).map(([kind, label]) => (
+              <label key={kind} className="block cursor-pointer rounded-lg border border-dashed border-white/20 p-3 text-xs text-white/75 hover:border-emerald-400/50">
+                {label} · PNG, JPG ou WebP (até 5 MB)
+                <input type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingImage}
+                  className="mt-2 block w-full text-xs" onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void uploadSiteImage(file, kind);
+                    event.target.value = "";
+                  }} />
+              </label>
+            ))}
+            {uploadingImage && <p className="text-xs text-emerald-300">Carregando imagem…</p>}
+          </div>}
+          <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           {phase === "error" && pendingKeys.length > 0 && <button onClick={() => void generatePages(project, pendingKeys)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Tentar novamente</button>}
           {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&
