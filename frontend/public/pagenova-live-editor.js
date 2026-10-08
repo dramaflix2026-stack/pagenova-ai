@@ -305,34 +305,39 @@
     return "";
   }
   function imagePlaceholder(target) {
-    const direct=closest(target,"[data-pn-photo-slot],[data-pn-upload-kind],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
-    if(direct)return direct;
-    let node=target;
-    for(let depth=0;node&&depth<10;depth++,node=node.parentElement) {
-      if(node.id==="pn-edit-bar"||node.id==="pn-edit-box")return null;
-      const label=(node.textContent||"").trim();
-      if(label.length<800&&photoKindFromText(label))return node;
-    }
-    return null;
+    // Only the actual photo slot may open the picker. Never climb through
+    // unrelated text blocks or assign upload markers to their ancestors.
+    return closest(target, "[data-pn-photo-slot],[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
   }
   function uploadKind(holder) {
-    return holder.dataset.pnUploadKind||photoKindFromText(holder.textContent||holder.getAttribute("aria-label"))||"hero";
+    return holder.dataset.pnUploadKind || holder.dataset.pnPhotoSlot ||
+      photoKindFromText(holder.textContent || holder.getAttribute("aria-label")) || "hero";
   }
   function imageCard(target) {
-    const holder=imagePlaceholder(target);
-    if(!holder)return null;
-    let card=holder;
-    while(card.parentElement&&card.parentElement!==document.body) {
-      const parent=card.parentElement;
-      const text=(parent.textContent||"").trim();
-      if(text.length>1000||parent.querySelectorAll("section,article").length>1)break;
-      if(parent.querySelectorAll("[data-pn-upload-kind]").length>1)break;
-      if(parent.getBoundingClientRect().height>620)break;
-      card=parent;
-      if(card.matches("article,[class*=card],[class*=Card]"))break;
+    const direct=imagePlaceholder(target);
+    if(direct)return direct;
+    // Before the first upload the generated HTML has no slot marker. Locate
+    // the label itself, then restrict its clickable area to its small frame.
+    let node=target;
+    for(let depth=0;node&&depth<3;depth++,node=node.parentElement) {
+      if(node.nodeType!==1||node.matches("section,article,main,body"))break;
+      const label=(node.textContent||"").trim();
+      if(label.length>90||!photoKindFromText(label))continue;
+      let frame=node;
+      for(let i=0;i<4&&frame.parentElement;i++) {
+        const parent=frame.parentElement;
+        if(parent.matches("section,article,main,body"))break;
+        const rect=parent.getBoundingClientRect();
+        if(rect.height>560||rect.width<120)break;
+        frame=parent;
+        const style=getComputedStyle(frame);
+        if(style.borderTopStyle!=="none"||style.borderBottomStyle!=="none")break;
+      }
+      frame.dataset.pnPhotoSlot=photoKindFromText(label);
+      frame.dataset.pnUploadKind=photoKindFromText(label);
+      return frame;
     }
-    card.dataset.pnUploadKind=uploadKind(holder);
-    return card;
+    return null;
   }
   // The picker must open inside the original user click. A postMessage to
   // the parent loses transient user activation on mobile Chrome.
@@ -360,7 +365,7 @@
   });
   function requestUpload(e) {
     if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
-    const holder=imagePlaceholder(e.target);
+    const holder=imageCard(e.target);
     if(!holder)return false;
     e.preventDefault();e.stopPropagation();
     requestedPhotoKind=uploadKind(holder);
