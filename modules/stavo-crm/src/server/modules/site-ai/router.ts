@@ -199,6 +199,25 @@ siteAiRouter.get(
   }),
 );
 
+/** Diagnostico financeiro restrito ao dono da conta e ao workspace do projeto. */
+siteAiRouter.get(
+  '/site-projects/:id/cost-audit',
+  ...guards,
+  asyncHandler(async (req, res) => {
+    if (req.session!.user.role !== 'OWNER') {
+      res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Diagnostico reservado ao administrador.' } });
+      return;
+    }
+    const project = await getProjectOrThrow(req.params.id!);
+    if (project.workspaceId !== req.session!.workspaceId) {
+      throw notFound('Projeto de site nao encontrado.', 'SITE_PROJECT_NOT_FOUND');
+    }
+    const usage = await repo.listProjectUsage(project.id);
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({ projectId: project.id, costAccumulatedUsd: project.costAccumulatedUsd, usage });
+  }),
+);
+
 siteAiRouter.patch(
   '/site-projects/:id',
   ...guards,
