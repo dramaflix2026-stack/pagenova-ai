@@ -193,6 +193,7 @@
     document.querySelectorAll("[data-pn-selected=true]").forEach(function(x) { x.removeAttribute("data-pn-selected"); });
     selected = el;
     selected.dataset.pnSelected = "true";
+    if (!selected.dataset.pnSource && selected.dataset.pnGhost !== "true") selected.dataset.pnSource = path(selected);
     if (!selected.dataset.pnId) selected.dataset.pnId = uid();
     syncUi();
   }
@@ -319,6 +320,13 @@
 
   document.addEventListener("click", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
+    const placeholder = closest(e.target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder");
+    const label = (placeholder || e.target.closest("div") || e.target).textContent?.trim() || "";
+    if (placeholder || /^(?:\\+\\s*)?Foto (?:principal|do negócio)$/i.test(label)) {
+      e.preventDefault(); e.stopPropagation();
+      parent.postMessage({ type: "pagenova-image-upload-request", kind: /negócio/i.test(label) ? "work" : "hero" }, "*");
+      return;
+    }
     const el = candidate(e.target);
     if (!el) { deselect(); return; }
     e.preventDefault(); e.stopPropagation();
