@@ -611,10 +611,10 @@ async function revise(event: FormEvent<HTMLFormElement>) {
       },
     }).replace(/</g, "\\u003c");
     const overlay = '<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=' + config +
-      ';<\\/script><script src="' + window.location.origin +
-      '/pagenova-published-overlay.js" defer><\\/script>';
-    const withEdits = /<\\/body>/i.test(html)
-      ? html.replace(/<\\/body>/i, overlay + "</body>")
+      ';</' + 'script><script src="' + window.location.origin +
+      '/pagenova-published-overlay.js" defer></' + 'script>';
+    const withEdits = /<\/body>/i.test(html)
+      ? html.replace(/<\/body>/i, overlay + "</body>")
       : html + overlay;
     const blob = new Blob([withEdits], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
