@@ -310,10 +310,10 @@
     const direct = closest(target, "[data-pn-image-placeholder],.pn-image-placeholder,.image-placeholder,[data-pn-upload-kind]");
     if (direct) return direct;
     let node = target;
-    for (let depth = 0; node && depth < 7; depth++, node = node.parentElement) {
+    for (let depth = 0; node && depth < 8; depth++, node = node.parentElement) {
       if (node.id === "pn-edit-bar" || node.id === "pn-edit-box") return null;
-      const text = (node.innerText || "").replace(/\s+/g, " ").trim();
-      if (/Foto\s+(?:principal|do\s+neg[oó]cio)/i.test(text) && text.length < 180) return node;
+      const text = (node.textContent || "").replace(/\\s+/g, " ").trim();
+      if (/Foto\\s+(?:principal|do\\s+neg[oó]cio)/i.test(text) && text.length < 240) return node;
     }
     return null;
   }
@@ -383,7 +383,8 @@
     if (!wasSelected) select(el);
     if (!wasSelected || el.matches(sectionSel) || el.isContentEditable || isResponsiveStructure(el)) return;
     pending = { el: el, pointerId:e.pointerId, x:e.clientX, y:e.clientY, started:false };
-    try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    // Do not capture on the source: ensureMovable hides it and creates a ghost.
+    // Pointer capture on a hidden source can cancel the gesture on Android.
   }, true);
 
   document.addEventListener("pointermove", function(e) {
