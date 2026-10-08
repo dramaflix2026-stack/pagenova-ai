@@ -78,6 +78,13 @@
       "when": 1791496020000,
       "tag": "0010_pagenova_workspace_usage",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1791500000000,
+      "tag": "0011_pagenova_subscriber_quotas",
+      "breakpoints": true
     }
   ]
 }
