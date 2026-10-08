@@ -57,3 +57,14 @@ export async function reserveSubscriberSite(input: SubscriberDebit): Promise<{ a
     connection.release();
   }
 }
+
+export async function subscriberSiteBalance(subscriberId: string, cycleStart: Date): Promise<{ used: number; limit: number; remaining: number }> {
+  if (!/^[a-zA-Z0-9_:-]{1,128}$/.test(subscriberId) || !Number.isFinite(cycleStart.getTime())) throw new Error('Invalid subscriber or cycle');
+  const [rows] = await getPool().execute(
+    'SELECT request_count FROM pagenova_subscriber_usage WHERE subscriber_id=? AND cycle_start=? AND meter=? LIMIT 1',
+    [subscriberId, cycleStart, 'generatedSites'],
+  );
+  const used = Number((rows as Array<{request_count:number}>)[0]?.request_count ?? 0);
+  const limit = PAGENOVA_MONTHLY_QUOTAS.generatedSites;
+  return { used, limit, remaining: Math.max(0, limit - used) };
+}
