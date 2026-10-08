@@ -956,7 +956,23 @@ export default function BuilderPage() {
         <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{getSitePreset(project.presetId || "institucional").title}</span><h1 className="mt-2 text-2xl font-bold">{project.name}</h1><p className="mt-2 text-sm text-white/45">{phase === "generating" ? "Criando seu site…" : phase === "ready" ? "Site criado. Você pode pedir alterações." : "A criação foi interrompida."}</p></div>
           <button type="button" aria-expanded={revisionPanelOpen} aria-controls="pagenova-revision-form" onClick={() => setRevisionPanelOpen((open) => !open)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-extrabold text-[#08130e] shadow-[0_8px_28px_rgba(52,211,153,.18)] transition hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300">✨ {revisionPanelOpen ? "Fechar alterações" : "Alterar com IA"}</button>
-          {revisionPanelOpen && <p className="text-xs leading-5 text-emerald-100/65">Desça até o painel de alteração para escrever seu pedido e anexar um print.</p>
+          {revisionPanelOpen && <form onSubmit={revise} id="pagenova-revision-form" className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
+            <label className="text-sm font-semibold" htmlFor="builder-change">✨ Alterar com IA</label>
+            <p className="mt-1 text-xs leading-5 text-white/45">Descreva a alteração. Mudanças simples são aplicadas sem custo de IA sempre que possível. Você também pode anexar um print.</p>
+            <textarea id="builder-change" value={instruction} onChange={(event) => setInstruction(event.target.value)} onPaste={pasteRevisionImage} maxLength={700} rows={4} placeholder="Ex.: use este print como referência para melhorar a seção de apresentação, mantendo minhas informações reais." className="mt-3 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
+            <label className="mt-3 block cursor-pointer rounded-xl border border-dashed border-white/20 px-3 py-3 text-xs text-white/65 hover:border-emerald-400/50">
+              Anexar print da tela
+              <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-2 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-emerald-400 file:px-2 file:py-1 file:text-black" onChange={(event) => { const file = event.target.files?.[0]; if (file) void prepareRevisionImage(file); event.target.value = ""; }} />
+            </label>
+            {revisionImage && <div className="mt-3 rounded-xl border border-emerald-400/30 p-2">
+              <img src={revisionImage} alt="Print anexado para a IA analisar" className="max-h-44 w-full rounded-lg object-contain" />
+              <button type="button" onClick={() => setRevisionImage("")} className="mt-2 text-xs text-emerald-300">Remover print</button>
+            </div>}
+            {revisionImageError && <p role="alert" className="mt-2 text-xs text-red-300">{revisionImageError}</p>}
+            <button disabled={!project.pages[activePage] || phase === "generating" || (!instruction.trim() && !revisionImage)} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">{phase === "generating" ? "Aplicando alteração..." : "Aplicar alteração"}</button>
+          </form>
+          }
+
           {project.presetId === "institucional" && <label className="block text-xs font-medium text-white/75">Serviços e produtos reais<textarea value={project.institutional?.offer || ""} onChange={(event) => { const updated = { ...project, institutional: { role: "", audience: "", process: "", proof: "", ...project.institutional, offer: event.target.value } }; setProject(updated); void savePageNovaProject(updated.id, updated).catch(() => setError("Falha ao salvar os serviços.")); }} rows={3} maxLength={400} placeholder="Ex.: lavagem de roupas, passadoria, coleta e entrega (somente o que você realmente oferece)" className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white" /></label>}
           <fieldset className="space-y-2 rounded-xl border border-white/10 p-3">
             <legend className="px-1 text-xs font-semibold text-emerald-200">Contatos e redes do site</legend>
@@ -998,22 +1014,6 @@ export default function BuilderPage() {
           {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&
             <button onClick={() => void generatePages(project, SITE_PAGES.filter(({ key }) => !project.pages[key]).map(({ key }) => key))} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Continuar criação</button>}
           {phase === "ready" && project.presetId === "institucional" && <button type="button" onClick={() => void regenerateCopy()} className="w-full rounded-xl border border-emerald-400/35 px-4 py-3 text-sm font-semibold text-emerald-200">Refazer textos com as novas diretrizes</button>}
-          {revisionPanelOpen && <form onSubmit={revise} id="pagenova-revision-form" className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
-            <label className="text-sm font-semibold" htmlFor="builder-change">✨ Alterar com IA</label>
-            <p className="mt-1 text-xs leading-5 text-white/45">Descreva a alteração. Mudanças simples são aplicadas sem custo de IA sempre que possível. Você também pode anexar um print.</p>
-            <textarea id="builder-change" value={instruction} onChange={(event) => setInstruction(event.target.value)} onPaste={pasteRevisionImage} maxLength={700} rows={4} placeholder="Ex.: use este print como referência para melhorar a seção de apresentação, mantendo minhas informações reais." className="mt-3 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
-            <label className="mt-3 block cursor-pointer rounded-xl border border-dashed border-white/20 px-3 py-3 text-xs text-white/65 hover:border-emerald-400/50">
-              Anexar print da tela
-              <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-2 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-emerald-400 file:px-2 file:py-1 file:text-black" onChange={(event) => { const file = event.target.files?.[0]; if (file) void prepareRevisionImage(file); event.target.value = ""; }} />
-            </label>
-            {revisionImage && <div className="mt-3 rounded-xl border border-emerald-400/30 p-2">
-              <img src={revisionImage} alt="Print anexado para a IA analisar" className="max-h-44 w-full rounded-lg object-contain" />
-              <button type="button" onClick={() => setRevisionImage("")} className="mt-2 text-xs text-emerald-300">Remover print</button>
-            </div>}
-            {revisionImageError && <p role="alert" className="mt-2 text-xs text-red-300">{revisionImageError}</p>}
-            <button disabled={!project.pages[activePage] || phase === "generating" || (!instruction.trim() && !revisionImage)} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">{phase === "generating" ? "Aplicando alteração..." : "Aplicar alteração"}</button>
-          </form>
-          }
           <p className="text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
