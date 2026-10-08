@@ -114,7 +114,7 @@ export default function BuilderPage() {
       if (event.data?.type === "pagenova-image-upload-file") {
         const dataUrl = event.data.dataUrl;
         if (typeof dataUrl !== "string" || dataUrl.length > 7_500_000 ||
-          !/^data:image\\/(png|jpeg|webp);base64,/.test(dataUrl)) {
+          !["data:image/png;base64,", "data:image/jpeg;base64,", "data:image/webp;base64,"].some((prefix) => dataUrl.startsWith(prefix))) {
           setError("Arquivo de imagem inválido ou muito grande.");
           return;
         }
