@@ -306,12 +306,37 @@
   function uploadKind(holder) {
     return holder.dataset.pnUploadKind || photoKindFromText(holder.textContent||holder.getAttribute("aria-label")) || "hero";
   }
+  // The picker must open inside the original user click. A postMessage to
+  // the parent loses transient user activation on mobile Chrome.
+  const photoInput=document.createElement("input");
+  photoInput.type="file";
+  photoInput.accept="image/png,image/jpeg,image/webp";
+  photoInput.setAttribute("aria-label","Enviar foto");
+  photoInput.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0";
+  document.body.appendChild(photoInput);
+  let requestedPhotoKind="hero";
+  photoInput.addEventListener("change",function() {
+    const file=photoInput.files&&photoInput.files[0];
+    if(!file)return;
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>5*1024*1024) {
+      parent.postMessage({type:"pagenova-image-upload-error",message:"Envie PNG, JPG ou WebP de até 5 MB."},"*");
+      photoInput.value="";return;
+    }
+    const reader=new FileReader();
+    reader.onload=function() {
+      if(typeof reader.result==="string")parent.postMessage({type:"pagenova-image-upload-file",kind:requestedPhotoKind,dataUrl:reader.result},"*");
+      photoInput.value="";
+    };
+    reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Não foi possível ler a imagem."},"*");photoInput.value="";};
+    reader.readAsDataURL(file);
+  });
   function requestUpload(e) {
     if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
     const holder=imagePlaceholder(e.target);
     if(!holder)return false;
     e.preventDefault();e.stopPropagation();
-    parent.postMessage({type:"pagenova-image-upload-request",kind:uploadKind(holder)},"*");
+    requestedPhotoKind=uploadKind(holder);
+    photoInput.click();
     return true;
   }
 
