@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   try { url = new URL(body.url); }
   catch { return NextResponse.json({ error: "Endereço inválido." }, { status: 400 }); }
   // Railway may return its own host; the public site is proxied on PageNova.
-  const upstream = process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\\/+$/, "");
+  const upstream = process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\/+$/, "");
   let upstreamOrigin = "";
   try { if (upstream) upstreamOrigin = new URL(upstream).origin; } catch { /* configuration */ }
   const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
