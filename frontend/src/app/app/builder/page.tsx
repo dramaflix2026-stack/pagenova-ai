@@ -89,6 +89,8 @@ export default function BuilderPage() {
   const [pendingKeys, setPendingKeys] = useState<SitePageKey[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
+  const inlineImageInputRef = useRef<HTMLInputElement | null>(null);
+  const inlineImageKindRef = useRef<"hero" | "work">("hero");
   const previewStageRef = useRef<HTMLDivElement | null>(null);
   const [previewStageWidth, setPreviewStageWidth] = useState(0);
 
@@ -105,6 +107,11 @@ export default function BuilderPage() {
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
       if (event.source !== previewRef.current?.contentWindow) return;
+      if (event.data?.type === "pagenova-image-upload-request") {
+        inlineImageKindRef.current = event.data.kind === "work" ? "work" : "hero";
+        inlineImageInputRef.current?.click();
+        return;
+      }
       if (event.data?.type === "pagenova-live-edit") {
         const key = event.data.key as SitePageKey;
         const edit = event.data.edit as LiveEdit;
@@ -616,6 +623,13 @@ async function revise(event: FormEvent<HTMLFormElement>) {
   return <>
     <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
     <main className="mx-auto max-w-[1800px] px-3 py-5 sm:px-5 lg:px-8">
+      <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
+        className="hidden" aria-label="Selecionar imagem do site"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          if (file) void uploadSiteImage(file, inlineImageKindRef.current);
+          event.target.value = "";
+        }} />
       {!project && <div className="mx-auto max-w-5xl">
         <div className="mb-8"><span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova Builder · {selectedPreset.title}</span>
           <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
