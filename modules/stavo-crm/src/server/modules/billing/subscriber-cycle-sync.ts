@@ -48,6 +48,16 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   const conn = await getPool().getConnection();
   try {
     await conn.beginTransaction();
+    // A provider subscription must never grant credits to different users.
+    const [owners] = await conn.execute(
+      'SELECT subscriber_id FROM pagenova_subscription_cycles WHERE provider=? AND provider_reference=? AND subscriber_id<>? LIMIT 1 FOR UPDATE',
+      ['kiwify', subscriptionId, subscriberId],
+    );
+    if ((owners as Array<{ subscriber_id: string }>).length) {
+      await conn.rollback();
+      res.status(409).json({ error: 'Subscription already belongs to another subscriber' });
+      return;
+    }
     const [existing] = await conn.execute(
       'SELECT provider_reference, cycle_end FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start=? FOR UPDATE',
       [subscriberId, start],
