@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 import { kiwifyRecurringEvidence } from "@/lib/kiwify-subscription";
 
@@ -105,7 +106,9 @@ export async function POST(request: NextRequest) {
   const signature =
     request.nextUrl.searchParams.get("signature");
 
-  if (!signature || signature !== webhookToken) {
+  const provided = Buffer.from(signature ?? "", "utf8");
+  const expected = Buffer.from(webhookToken, "utf8");
+  if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) {
     return NextResponse.json(
       {
         ok: false,
