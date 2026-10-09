@@ -46,7 +46,13 @@ subscriberCycleRevokeRouter.post('/internal/pagenova/revoke-subscription-order',
       );
     }
     await conn.commit();
-    res.json({ ok: true, found: Boolean(cycle), revoked: cycle?.status === 'ACTIVE' });
+    // An unknown payment cannot be treated as a completed revocation.
+    // The provider webhook must retry or an operator must reconcile it.
+    if (!cycle) {
+      res.status(409).json({ error: 'Payment cycle not found; reconciliation required' });
+      return;
+    }
+    res.json({ ok: true, found: true, revoked: cycle.status === 'ACTIVE' });
   } catch (error) {
     await conn.rollback();
     throw error;
