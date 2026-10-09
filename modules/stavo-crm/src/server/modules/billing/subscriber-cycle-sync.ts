@@ -18,8 +18,8 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     return;
   }
   if (typeof cycleStart !== 'string' || typeof cycleEnd !== 'string' ||
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\\.\d{1,3})?Z$/.test(cycleStart) ||
-      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\\.\d{1,3})?Z$/.test(cycleEnd)) {
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[.]\d{1,3})?Z$/.test(cycleStart) ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[.]\d{1,3})?Z$/.test(cycleEnd)) {
     res.status(400).json({ error: 'Invalid billing interval' });
     return;
   }
