@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { kiwifyRecurringEvidence } from "./kiwify-subscription";
+import { kiwifyRecurringEvidence, verifiedPaidBillingPeriod } from "./kiwify-subscription";
 
 const paid = {
   order_id: "order-1",
@@ -38,5 +38,23 @@ describe("Kiwify recurring evidence", () => {
   });
   it("rejects invalid dates", () => {
     expect(kiwifyRecurringEvidence({ ...paid, Subscription: { ...paid.Subscription, next_payment: "invalid" } })).toBeNull();
+  });
+});
+
+
+describe("paid billing period fail-closed gate", () => {
+  it("does not treat the next scheduled payment as a paid cycle boundary", () => {
+    expect(kiwifyRecurringEvidence(paid)).not.toBeNull();
+    expect(verifiedPaidBillingPeriod(paid)).toBeNull();
+  });
+  it("does not infer billing periods from a completed charge timestamp", () => {
+    const withChargeDate = {
+      ...paid,
+      Subscription: {
+        ...paid.Subscription,
+        charges: { completed: [{ order_id: "order-1", status: "paid", created_at: "2026-10-08T00:00:00Z" }] },
+      },
+    };
+    expect(verifiedPaidBillingPeriod(withChargeDate)).toBeNull();
   });
 });
