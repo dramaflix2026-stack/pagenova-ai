@@ -49,6 +49,7 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   const lockNames = [
     'pn:billing:' + createHash('sha256').update('subscriber:' + subscriberId).digest('hex').slice(0, 48),
     'pn:billing:' + createHash('sha256').update('subscription:' + subscriptionId).digest('hex').slice(0, 48),
+    'pn:billing:' + createHash('sha256').update('order:' + orderId).digest('hex').slice(0, 48),
   ].sort();
   const acquired: string[] = [];
   let transactionStarted = false;
@@ -65,6 +66,16 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     }
     await conn.beginTransaction();
     transactionStarted = true;
+    const [revokedOrders] = await conn.execute(
+      'SELECT provider_order_id FROM pagenova_revoked_orders WHERE provider=? AND provider_order_id=? LIMIT 1 FOR UPDATE',
+      ['kiwify', orderId],
+    );
+    if ((revokedOrders as Array<{ provider_order_id: string }>).length) {
+      await conn.rollback();
+      transactionStarted = false;
+      res.status(409).json({ error: 'Payment was revoked and cannot activate a cycle' });
+      return;
+    }
     // A provider subscription must never grant credits to different users.
     const [owners] = await conn.execute(
       'SELECT subscriber_id FROM pagenova_subscription_cycles WHERE provider=? AND provider_reference=? AND subscriber_id<>? LIMIT 1 FOR UPDATE',
