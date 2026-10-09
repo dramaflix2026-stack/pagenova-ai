@@ -53,6 +53,7 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   ].sort();
   const acquired: string[] = [];
   let transactionStarted = false;
+  let releaseFailed = false;
   try {
     // Row locks cannot serialize concurrent first inserts when no row exists.
     // MySQL advisory locks serialize subscriber and subscription ownership checks.
@@ -138,8 +139,9 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   } finally {
     for (const name of acquired.reverse()) {
       try { await conn.execute('SELECT RELEASE_LOCK(?)', [name]); }
-      catch (error) { console.error('[BILLING] Failed to release advisory lock', error); }
+      catch (error) { releaseFailed = true; console.error('[BILLING] Failed to release advisory lock', error); }
     }
-    conn.release();
+    if (releaseFailed) conn.destroy();
+    else conn.release();
   }
 });
