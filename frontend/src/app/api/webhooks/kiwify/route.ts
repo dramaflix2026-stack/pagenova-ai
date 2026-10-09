@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -94,16 +95,11 @@ export async function POST(request: NextRequest) {
   const signature =
     request.nextUrl.searchParams.get("signature");
 
-  if (!signature) {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "signature_missing",
-      },
-      {
-        status: 401,
-      }
-    );
+  const supplied = Buffer.from(signature ?? "", "utf8");
+  const configured = Buffer.from(webhookToken, "utf8");
+  if (supplied.length !== configured.length || !timingSafeEqual(supplied, configured)) {
+    console.warn("[KIWIFY] Authentication failed", { reason: signature ? "invalid" : "missing" });
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
 
