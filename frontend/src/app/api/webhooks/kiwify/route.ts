@@ -15,6 +15,16 @@ type KiwifyPayload = {
   order_status?: string;
   approved_date?: string | null;
   webhook_event_type?: string;
+  subscription_id?: string;
+  Subscription?: {
+    id?: string;
+    start_date?: string;
+    next_payment?: string;
+    status?: string;
+    plan?: { frequency?: string };
+    customer_access?: { has_access?: boolean; active_period?: boolean; access_until?: string };
+    charges?: { completed?: Array<{ order_id?: string; status?: string }> };
+  };
 
   Product?: {
     product_id?: string;
