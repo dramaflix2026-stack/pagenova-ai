@@ -27,6 +27,7 @@ import { newId } from '../../lib/ids';
 import { mapBusinessStatus, placeDetails, textSearch, type GooglePlaceRaw } from './client';
 import { reserveUsage } from './usage';
 import { releaseWorkspaceQuota, reserveWorkspaceQuota, workspaceQuotasEnabled } from '../billing/workspace-usage';
+import { changeSubscriberGooglePage, type GoogleCycleQuota } from '../billing/subscriber-google-ledger';
 
 export interface SearchResultItem {
   placeId: string;
@@ -86,18 +87,23 @@ export async function searchPlaces(
   db: Database,
   workspaceId: string,
   input: GoogleSearchInput,
-  options: { pageNumber: number; signal?: AbortSignal } = { pageNumber: 1 },
+  options: { pageNumber: number; signal?: AbortSignal; subscriberCycle?: GoogleCycleQuota } = { pageNumber: 1 },
 ): Promise<SearchResponse> {
   // Cada pagina realmente solicitada consome uma unidade da SKU TEXT_SEARCH.
   // Customer quota is reserved first; if the global Google budget refuses the call,
   // compensate the customer reservation before any paid provider request.
   const quotaNow = new Date();
-  const customerReserved = workspaceQuotasEnabled();
+  const customerReserved = !options.subscriberCycle && workspaceQuotasEnabled();
+  if (options.subscriberCycle) await changeSubscriberGooglePage(options.subscriberCycle, 1);
   if (customerReserved) await reserveWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
   let usage: Awaited<ReturnType<typeof reserveUsage>>;
   try {
     usage = await reserveUsage(db, workspaceId, 'TEXT_SEARCH');
   } catch (error) {
+    if (options.subscriberCycle) {
+      try { await changeSubscriberGooglePage(options.subscriberCycle, -1); }
+      catch (refundError) { console.error('[PageNova] Google subscriber refund failed', refundError); }
+    }
     if (customerReserved) {
       try {
         await releaseWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
