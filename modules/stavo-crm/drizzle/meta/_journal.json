@@ -120,6 +120,13 @@
       "when": 1791500001000,
       "tag": "0014_pagenova_subscription_order_ids",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1791500002000,
+      "tag": "0015_pagenova_revoked_orders",
+      "breakpoints": true
     }
   ]
 }
