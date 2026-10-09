@@ -26,7 +26,6 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   const start = new Date(cycleStart);
   const end = new Date(cycleEnd);
   if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) ||
-      start.toISOString() !== new Date(start.getTime()).toISOString() ||
       end.getTime() <= start.getTime() || end.getTime() - start.getTime() > 35 * 86400000) {
     res.status(400).json({ error: 'Invalid cycle duration' });
     return;
@@ -61,6 +60,15 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       return;
     }
     if (!rows.length) {
+      const [overlap] = await conn.execute(
+        'SELECT id FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start < ? AND cycle_end > ? LIMIT 1 FOR UPDATE',
+        [subscriberId, end, start],
+      );
+      if ((overlap as Array<{ id: string }>).length) {
+        await conn.rollback();
+        res.status(409).json({ error: 'Overlapping subscription cycle' });
+        return;
+      }
       await conn.execute(
         'INSERT INTO pagenova_subscription_cycles (id,subscriber_id,cycle_start,cycle_end,status,provider,provider_reference,updated_at) VALUES (?,?,?,?,?,?,?,?)',
         [newId(), subscriberId, start, end, 'ACTIVE', 'kiwify', subscriptionId, new Date()],
