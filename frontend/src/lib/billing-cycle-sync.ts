@@ -58,6 +58,7 @@ export async function syncVerifiedBillingCycle(input: VerifiedCycleSync): Promis
     },
     body: JSON.stringify(input),
     cache: "no-store",
+    redirect: "manual",
     signal: AbortSignal.timeout(10000),
   });
   if (!response.ok) {
