@@ -93,6 +93,8 @@ async function proxy(request: NextRequest, context: RouteContext) {
   const contentType = request.headers.get("content-type");
   const accept = request.headers.get("accept");
   const csrf = request.headers.get("x-csrf-token");
+  const origin = request.headers.get("x-pagenova-generation-origin");
+  if (origin === "builder") headers.set("x-pagenova-generation-origin", "builder");
   if (contentType) headers.set("content-type", contentType);
   if (accept) headers.set("accept", accept);
   if (csrf) headers.set("x-csrf-token", csrf);
