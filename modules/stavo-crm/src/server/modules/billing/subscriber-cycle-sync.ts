@@ -18,8 +18,8 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     return;
   }
   if (typeof cycleStart !== 'string' || typeof cycleEnd !== 'string' ||
-      !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(cycleStart) ||
-      !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(cycleEnd)) {
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\\.\d{1,3})?Z$/.test(cycleStart) ||
+      !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\\.\d{1,3})?Z$/.test(cycleEnd)) {
     res.status(400).json({ error: 'Invalid billing interval' });
     return;
   }
@@ -34,11 +34,11 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
   const timestamp = req.get('x-pagenova-billing-timestamp') ?? '';
   const signature = req.get('x-pagenova-billing-signature') ?? '';
   const sent = Number(timestamp);
-  if (!/^\\d{13}$/.test(timestamp) || !Number.isSafeInteger(sent) || Math.abs(Date.now() - sent) > 60000) {
+  if (!/^\d{13}$/.test(timestamp) || !Number.isSafeInteger(sent) || Math.abs(Date.now() - sent) > 60000) {
     res.status(401).json({ error: 'Expired billing signature' });
     return;
   }
-  const canonical = [subscriberId, subscriptionId, orderId, cycleStart, cycleEnd, timestamp].join('\\n');
+  const canonical = [subscriberId, subscriptionId, orderId, cycleStart, cycleEnd, timestamp].join('\n');
   const expected = createHmac('sha256', secret).update(canonical).digest('hex');
   const left = Buffer.from(expected, 'utf8');
   const right = Buffer.from(signature, 'utf8');
