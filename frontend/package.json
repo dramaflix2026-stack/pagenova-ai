@@ -7,7 +7,7 @@
     "build": "node scripts/build-stavo-crm.mjs && next build",
     "start": "next start -p 8000",
     "lint": "eslint",
-    "test:billing": "vitest run src/lib/kiwify-subscription.test.ts src/lib/billing-cycle-revoke.test.ts src/lib/billing-cycle-sync.test.ts src/lib/billing-subscriber-identity.test.ts"
+    "test:billing": "npx --yes --package vitest@3.2.4 vitest run src/lib/kiwify-subscription.test.ts src/lib/billing-cycle-revoke.test.ts src/lib/billing-cycle-sync.test.ts src/lib/billing-subscriber-identity.test.ts"
   },
   "dependencies": {
     "@sparticuz/chromium": "^153.0.0",
@@ -28,7 +28,6 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "vitest": "^3.2.4"
+    "typescript": "^5"
   }
 }
