@@ -236,6 +236,19 @@ export async function POST(request: NextRequest) {
   };
 
   if (status === "active") {
+    // A delayed/replayed approval must never restore a revoked order.
+    const { data: priorOrder, error: priorError } = await admin
+      .from("entitlements")
+      .select("status")
+      .eq("provider", "kiwify")
+      .eq("provider_order_id", orderId)
+      .maybeSingle();
+    if (priorError) {
+      return NextResponse.json({ ok: false, error: "entitlement_lookup_failed" }, { status: 500 });
+    }
+    if (priorOrder?.status === "refunded" || priorOrder?.status === "chargeback") {
+      return NextResponse.json({ ok: true, processed: false, reason: "order_already_revoked" });
+    }
     const purchasedAt =
       payload.approved_date || now;
 
