@@ -5,6 +5,7 @@
 import { Router } from 'express';
 
 import { authRouter } from './modules/auth/router';
+import { subscriberCycleSyncRouter } from './modules/billing/subscriber-cycle-sync';
 import { dashboardRouter } from './modules/dashboard/router';
 import { duplicatesRouter } from './modules/duplicates/router';
 import { exportsRouter } from './modules/exports/router';
@@ -27,6 +28,7 @@ export const apiRouter: Router = Router();
 // Publicas
 apiRouter.use(healthRouter);
 apiRouter.use(jobsRouter);
+apiRouter.use(subscriberCycleSyncRouter);
 
 // Autenticacao (login publico, demais exigem sessao internamente)
 apiRouter.use(authRouter);
