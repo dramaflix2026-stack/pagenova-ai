@@ -18,6 +18,10 @@ export async function syncVerifiedBillingCycle(input: VerifiedCycleSync): Promis
   if (![input.subscriberId, input.subscriptionId, input.orderId].every(validId)) {
     throw new Error("Invalid billing cycle identity");
   }
+  const isoUtc = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[.]\d{1,3})?Z$/;
+  if (!isoUtc.test(input.cycleStart) || !isoUtc.test(input.cycleEnd)) {
+    throw new Error("Invalid verified billing cycle timestamp format");
+  }
   const start = Date.parse(input.cycleStart);
   const end = Date.parse(input.cycleEnd);
   if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || end - start > 35 * 86400000) {
