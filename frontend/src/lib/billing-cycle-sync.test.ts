@@ -42,6 +42,23 @@ describe("billing cycle sync transport", () => {
     expect(options.headers["x-pagenova-billing-timestamp"]).toMatch(/^[0-9]{13}$/);
   });
 
+  it("rejects invalid cycles without network calls", async () => {
+    process.env.PAGENOVA_BILLING_SYNC_SECRET = "a".repeat(40);
+    process.env.PAGENOVA_CRM_API_URL = "https://crm.example.test";
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    await expect(syncVerifiedBillingCycle({
+      ...input, cycleEnd: input.cycleStart,
+    })).rejects.toThrow("Invalid verified billing cycle interval");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
+  it("rejects untrusted subscriber IDs", async () => {
+    await expect(syncVerifiedBillingCycle({
+      ...input, subscriberId: "other user",
+    })).rejects.toThrow("Invalid billing cycle identity");
+  });
+
   it("propagates CRM rejection", async () => {
     process.env.PAGENOVA_BILLING_SYNC_SECRET = "a".repeat(40);
     process.env.PAGENOVA_CRM_API_URL = "https://crm.example.test";
