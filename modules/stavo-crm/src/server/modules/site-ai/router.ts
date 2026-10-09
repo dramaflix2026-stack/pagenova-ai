@@ -319,11 +319,20 @@ siteAiRouter.post(
       if (!debit.duplicate) quotaDebit = { subscriberId, generationId: 'site:' + project.id, cycleStart: cycle.cycleStart };
     }
 
-    const { jobId, created } = await requestGeneration(
-      project,
-      { userId: session.user.id, canSeeEveryProject: true },
-      input.idempotencyKey,
-    );
+    let generationResult: { jobId: string; created: boolean };
+    try {
+      generationResult = await requestGeneration(
+        project,
+        { userId: session.user.id, canSeeEveryProject: true },
+        input.idempotencyKey,
+      );
+    } catch (error) {
+      if (quotaDebit) {
+        await refundSiteGeneration(quotaDebit.subscriberId, quotaDebit.generationId, quotaDebit.cycleStart);
+      }
+      throw error;
+    }
+    const { jobId, created } = generationResult;
 
     // 202: o trabalho foi aceito, nao concluido. O cliente acompanha por job.
     res.status(created ? 202 : 200).json({ jobId, created });
