@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
+import { SubscriberSiteQuota } from "@/components/subscriber-site-quota";
 import { listPageNovaProjects } from "@/lib/pagenova-project-store";
 
 type Stage = "novo" | "contato" | "proposta" | "fechado";
@@ -117,6 +118,7 @@ export default function DashboardPage() {
   return <>
     <AppHeader title="Dashboard de Vendas" description="Indicadores calculados a partir dos leads do CRM." />
     <main className="mx-auto max-w-[1600px] px-5 py-8 lg:px-9">
+      <SubscriberSiteQuota />
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <Link href="/app/builder" className="text-sm text-emerald-300 hover:underline">
