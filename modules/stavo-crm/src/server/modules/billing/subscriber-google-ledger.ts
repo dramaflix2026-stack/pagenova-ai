@@ -1,4 +1,5 @@
 import { getPool } from '../../db/client';
+import { tooManyRequests } from '../../lib/errors';
 import { newId } from '../../lib/ids';
 import { billingCycleContains, PAGENOVA_MONTHLY_QUOTAS } from './pagenova-quotas';
 
@@ -25,7 +26,7 @@ export async function changeSubscriberGooglePage(input: GoogleCycleQuota, delta:
     );
     const used = Number((rows as Array<{ request_count: number }>)[0]?.request_count ?? 0);
     if (delta === 1 && used >= PAGENOVA_MONTHLY_QUOTAS.googleSearchPages) {
-      throw new Error('Limite de 150 paginas Google atingido neste ciclo.');
+      throw tooManyRequests('Limite de 150 paginas Google atingido neste ciclo.', 'SUBSCRIBER_GOOGLE_QUOTA_EXHAUSTED');
     }
     if (delta === -1 && used === 0) throw new Error('Google quota cannot be negative');
     await conn.execute(
