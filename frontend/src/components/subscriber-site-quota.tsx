@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Balance = { used: number; limit: number; remaining: number; cycleEnd: string };
+type Balance = { used: number; limit: number; remaining: number; cycleEnd: string; google?: { used: number; limit: number; remaining: number } };
 
 export function SubscriberSiteQuota() {
   const [balance, setBalance] = useState<Balance | null>(null);
