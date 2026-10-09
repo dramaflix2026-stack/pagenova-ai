@@ -77,11 +77,11 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       return;
     }
     const [existing] = await conn.execute(
-      'SELECT provider_reference, cycle_end FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start=? FOR UPDATE',
+      'SELECT provider_reference, cycle_end, status FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start=? FOR UPDATE',
       [subscriberId, start],
     );
-    const rows = existing as Array<{ provider_reference: string; cycle_end: Date }>;
-    if (rows.length && (rows[0]!.provider_reference !== subscriptionId ||
+    const rows = existing as Array<{ provider_reference: string; cycle_end: Date; status: string }>;
+    if (rows.length && (rows[0]!.status !== 'ACTIVE' || rows[0]!.provider_reference !== subscriptionId ||
         new Date(rows[0]!.cycle_end).getTime() !== end.getTime())) {
       await conn.rollback();
       res.status(409).json({ error: 'Conflicting subscription cycle' });
