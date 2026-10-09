@@ -112,6 +112,9 @@ export async function POST(request: NextRequest) {
   const provided = Buffer.from(signature ?? "", "utf8");
   const expected = Buffer.from(webhookToken, "utf8");
   if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) {
+    console.warn("[KIWIFY] Webhook authentication rejected.", {
+      reason: signature ? "invalid_signature" : "missing_signature",
+    });
     return NextResponse.json(
       {
         ok: false,
