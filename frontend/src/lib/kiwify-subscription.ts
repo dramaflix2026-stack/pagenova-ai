@@ -37,6 +37,8 @@ export function kiwifyRecurringEvidence(payload: KiwifyRecurringPayload): Recurr
   const next = subscription.next_payment;
   if (!start || !next || !Number.isFinite(Date.parse(start)) || !Number.isFinite(Date.parse(next))) return null;
   if (Date.parse(next) <= Date.parse(start)) return null;
+  // A future charge schedule is not a paid-cycle boundary. Do not activate quotas here.
+  if (charge.created_at && !Number.isFinite(Date.parse(charge.created_at))) return null;
   return {
     subscriptionId: subscription.id,
     orderId,
