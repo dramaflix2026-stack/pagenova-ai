@@ -37,6 +37,7 @@ export function SubscriberSiteQuota() {
             <div className="h-full rounded-full bg-emerald-400" style={{ width: `${Math.min(100, Math.max(0, balance.used / Math.max(1, balance.limit) * 100))}%` }} />
           </div>
           <p className="mt-2 text-xs opacity-70">Saldo compartilhado entre o CRM e o gerador de sites.</p>
+          {balance.google && <p className="mt-4 text-sm">Google: {balance.google.remaining} de {balance.google.limit} paginas restantes.</p>}
         </>
       ) : <p className="mt-2 text-sm opacity-70">{unavailable ? "Saldo indisponível: aguardando confirmação do ciclo de assinatura." : "Consultando saldo..."}</p>}
     </section>
