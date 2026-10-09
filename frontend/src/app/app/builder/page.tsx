@@ -439,7 +439,7 @@ export default function BuilderPage() {
 
       const generateResponse = await fetch(`/api/crm/site-projects/${projectId}/generate`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-pagenova-generation-origin": "builder" },
         credentials: "same-origin",
         body: JSON.stringify({ idempotencyKey: `pagenova_${crypto.randomUUID()}` }),
       });
