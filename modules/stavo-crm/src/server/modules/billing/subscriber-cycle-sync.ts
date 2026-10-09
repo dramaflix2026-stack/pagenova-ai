@@ -104,17 +104,8 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       await conn.execute('UPDATE pagenova_subscription_cycles SET provider_order_id=? WHERE subscriber_id=? AND cycle_start=? AND provider_order_id IS NULL', [orderId, subscriberId, start]);
     }
     if (!rows.length) {
-      // A subscription must not create a new cycle after a recorded revocation.
-      const [revocations] = await conn.execute(
-        'SELECT id FROM pagenova_subscription_cycles WHERE provider=? AND provider_reference=? AND status<>? LIMIT 1 FOR UPDATE',
-        ['kiwify', subscriptionId, 'ACTIVE'],
-      );
-      if ((revocations as Array<{ id: string }>).length) {
-        await conn.rollback();
-        transactionStarted = false;
-        res.status(409).json({ error: 'Subscription has revoked cycles; manual reconciliation required' });
-        return;
-      }
+      // Revocation tombstones are scoped to the individual payment order.
+      // A later, independently verified paid renewal may be accepted.
       const [overlap] = await conn.execute(
         'SELECT id FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start < ? AND cycle_end > ? LIMIT 1 FOR UPDATE',
         [subscriberId, end, start],
