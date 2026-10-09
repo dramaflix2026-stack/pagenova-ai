@@ -311,7 +311,7 @@ siteAiRouter.post(
         res.status(409).json({ error: 'Ciclo de assinatura nao confirmado.' });
         return;
       }
-      const debit = await reserveSubscriberSite({ ...cycle, generationId: 'site:' + project.id, source: 'builder' });
+      const debit = await reserveSubscriberSite({ ...cycle, generationId: 'site:' + project.id, source: 'crm' });
       if (!debit.accepted) {
         res.status(429).json({ error: 'Limite de sites atingido.' });
         return;
