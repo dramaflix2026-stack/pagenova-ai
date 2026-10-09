@@ -46,7 +46,29 @@ import {
   validateAndLintConfig,
 } from './service';
 
+import { verifiedSubscriberCycle } from '../billing/subscriber-cycle';
+import { subscriberSiteBalance } from '../billing/subscriber-ledger';
+
 export const siteAiRouter: Router = Router();
+
+/** Quota is resolved from the signed PageNova identity, never from client-supplied IDs. */
+siteAiRouter.get('/pagenova/subscriber-site-usage', requireAuth, asyncHandler(async (req, res) => {
+  const sessionId = req.session!.sessionId;
+  if (!sessionId.startsWith('pagenova:')) {
+    res.status(403).json({ error: 'PageNova identity required' });
+    return;
+  }
+  const subscriberId = sessionId.slice('pagenova:'.length);
+  const cycle = await verifiedSubscriberCycle(subscriberId);
+  if (!cycle) {
+    res.status(409).json({ error: 'No verified active subscription billing cycle' });
+    return;
+  }
+  const balance = await subscriberSiteBalance(subscriberId, cycle.cycleStart);
+  res.json({ ...balance, cycleStart: cycle.cycleStart.toISOString(), cycleEnd: cycle.cycleEnd.toISOString() });
+}));
+
+
 
 /**
  * Executa uma chamada paga e, se ela falhar DEPOIS de cobrada, grava o gasto.
