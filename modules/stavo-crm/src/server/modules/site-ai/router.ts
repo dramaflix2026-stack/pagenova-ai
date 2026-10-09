@@ -302,6 +302,20 @@ siteAiRouter.post(
     const project = await getProjectOrThrow(req.params.id!);
     const session = req.session!;
 
+    if (process.env.PAGENOVA_SUBSCRIBER_SITE_QUOTAS_ENABLED === 'true' && session.sessionId.startsWith('pagenova:')) {
+      const subscriberId = session.sessionId.slice('pagenova:'.length);
+      const cycle = await verifiedSubscriberCycle(subscriberId);
+      if (!cycle) {
+        res.status(409).json({ error: 'Ciclo de assinatura nao confirmado.' });
+        return;
+      }
+      const debit = await reserveSubscriberSite({ ...cycle, generationId: 'site:' + project.id, source: 'crm' });
+      if (!debit.accepted) {
+        res.status(429).json({ error: 'Limite de sites atingido.' });
+        return;
+      }
+    }
+
     const { jobId, created } = await requestGeneration(
       project,
       { userId: session.user.id, canSeeEveryProject: true },
