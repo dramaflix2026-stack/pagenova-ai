@@ -933,8 +933,10 @@ export const pagenovaSubscriptionCycles = mysqlTable('pagenova_subscription_cycl
   status: varchar('status', { length: 16 }).notNull(),
   provider: varchar('provider', { length: 32 }).notNull(),
   providerReference: varchar('provider_reference', { length: 128 }).notNull(),
+  providerOrderId: varchar('provider_order_id', { length: 128 }),
   updatedAt: ts('updated_at').notNull(),
 }, (t) => [
+  uniqueIndex('pagenova_subscription_cycles_provider_order_unique').on(t.provider, t.providerOrderId),
   uniqueIndex('pagenova_subscription_cycles_unique').on(t.subscriberId, t.cycleStart),
   index('pagenova_subscription_cycles_lookup').on(t.subscriberId, t.status, t.cycleEnd),
 ]);
