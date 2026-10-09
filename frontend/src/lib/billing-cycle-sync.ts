@@ -14,12 +14,24 @@ export interface VerifiedCycleSync {
  * Never invoke without independently verified paid period boundaries.
  */
 export async function syncVerifiedBillingCycle(input: VerifiedCycleSync): Promise<void> {
+  const validId = (value: string) => /^[a-zA-Z0-9_:-]{1,128}$/.test(value);
+  if (![input.subscriberId, input.subscriptionId, input.orderId].every(validId)) {
+    throw new Error("Invalid billing cycle identity");
+  }
+  const start = Date.parse(input.cycleStart);
+  const end = Date.parse(input.cycleEnd);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start || end - start > 35 * 86400000) {
+    throw new Error("Invalid verified billing cycle interval");
+  }
   const secret = process.env.PAGENOVA_BILLING_SYNC_SECRET;
   const origin = process.env.PAGENOVA_CRM_API_URL;
   if (!secret || secret.length < 32 || !origin) {
     throw new Error("Billing cycle sync is not configured");
   }
   const target = new URL("/api/internal/pagenova/subscription-cycle", origin);
+  if (target.username || target.password || target.search || target.hash) {
+    throw new Error("Invalid billing sync destination");
+  }
   if (target.protocol !== "https:" && process.env.NODE_ENV === "production") {
     throw new Error("Billing sync requires HTTPS in production");
   }
