@@ -95,7 +95,17 @@ export async function searchPlaces(
   const quotaNow = new Date();
   const customerReserved = !options.subscriberCycle && workspaceQuotasEnabled();
   if (options.subscriberCycle) await changeSubscriberGooglePage(options.subscriberCycle, 1);
-  if (customerReserved) await reserveWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
+  if (customerReserved) {
+    try {
+      await reserveWorkspaceQuota(db, workspaceId, 'googleSearchPages', quotaNow);
+    } catch (error) {
+      if (options.subscriberCycle) {
+        try { await changeSubscriberGooglePage(options.subscriberCycle, -1); }
+        catch (refundError) { console.error('[PageNova] Google subscriber compensation failed', refundError); }
+      }
+      throw error;
+    }
+  }
   let usage: Awaited<ReturnType<typeof reserveUsage>>;
   try {
     usage = await reserveUsage(db, workspaceId, 'TEXT_SEARCH');
