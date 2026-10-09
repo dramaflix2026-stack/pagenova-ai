@@ -311,7 +311,7 @@ siteAiRouter.post(
         res.status(409).json({ error: 'Ciclo de assinatura nao confirmado.' });
         return;
       }
-      const debit = await reserveSubscriberSite({ ...cycle, generationId: 'site:' + project.id, source: 'crm' });
+      const debit = await reserveSubscriberSite({ ...cycle, generationId: 'site:' + project.id, source: req.get('x-pagenova-generation-origin') === 'builder' && session.sessionId.startsWith('pagenova:') ? 'builder' : 'crm' });
       if (!debit.accepted) {
         res.status(429).json({ error: 'Limite de sites atingido.' });
         return;
