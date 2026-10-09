@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
-import { kiwifyRecurringEvidence } from "@/lib/kiwify-subscription";
+import { kiwifyRecurringEvidence, verifiedPaidBillingPeriod } from "@/lib/kiwify-subscription";
+import { resolveBillingSubscriberId } from "@/lib/billing-subscriber-identity";
+import { syncVerifiedBillingCycle } from "@/lib/billing-cycle-sync";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -400,6 +402,38 @@ export async function POST(request: NextRequest) {
           {
             status: 500,
           }
+        );
+      }
+    }
+  }
+
+  // Activate quotas only with explicit provider-verified cycle boundaries and
+  // an unambiguous Supabase Auth subscriber ID. Never guess from next_payment.
+  if (status === "active" && recurringEvidence) {
+    const paidPeriod = verifiedPaidBillingPeriod(payload);
+    if (paidPeriod) {
+      try {
+        const subscriberId = await resolveBillingSubscriberId(
+          email,
+          (args) => admin.auth.admin.listUsers(args),
+        );
+        if (!subscriberId) {
+          console.warn("[KIWIFY] Paid cycle sync deferred: buyer has no Auth account.");
+        } else {
+          await syncVerifiedBillingCycle({
+            subscriberId,
+            subscriptionId: recurringEvidence.subscriptionId,
+            orderId,
+            ...paidPeriod,
+          });
+        }
+      } catch (error) {
+        console.error("[KIWIFY] Paid cycle sync deferred.", {
+          reason: error instanceof Error ? error.message : "unknown",
+        });
+        return NextResponse.json(
+          { ok: false, error: "billing_cycle_sync_failed" },
+          { status: 503 },
         );
       }
     }
