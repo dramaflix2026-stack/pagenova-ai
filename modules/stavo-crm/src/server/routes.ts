@@ -6,6 +6,7 @@ import { Router } from 'express';
 
 import { authRouter } from './modules/auth/router';
 import { subscriberCycleSyncRouter } from './modules/billing/subscriber-cycle-sync';
+import { subscriberCycleRevokeRouter } from './modules/billing/subscriber-cycle-revoke';
 import { dashboardRouter } from './modules/dashboard/router';
 import { duplicatesRouter } from './modules/duplicates/router';
 import { exportsRouter } from './modules/exports/router';
@@ -29,6 +30,7 @@ export const apiRouter: Router = Router();
 apiRouter.use(healthRouter);
 apiRouter.use(jobsRouter);
 apiRouter.use(subscriberCycleSyncRouter);
+apiRouter.use(subscriberCycleRevokeRouter);
 
 // Autenticacao (login publico, demais exigem sessao internamente)
 apiRouter.use(authRouter);
