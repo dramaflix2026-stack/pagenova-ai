@@ -95,6 +95,7 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       );
       if ((overlap as Array<{ id: string }>).length) {
         await conn.rollback();
+        transactionStarted = false;
         res.status(409).json({ error: 'Overlapping subscription cycle' });
         return;
       }
