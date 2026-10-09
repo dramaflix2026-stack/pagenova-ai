@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import { kiwifyRecurringEvidence, verifiedPaidBillingPeriod } from "@/lib/kiwify-subscription";
 import { resolveBillingSubscriberId } from "@/lib/billing-subscriber-identity";
 import { syncVerifiedBillingCycle } from "@/lib/billing-cycle-sync";
+import { revokeBillingOrder } from "@/lib/billing-cycle-revoke";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -404,6 +405,22 @@ export async function POST(request: NextRequest) {
           }
         );
       }
+    }
+  }
+
+  // Refunds and chargebacks must also revoke the CRM quota cycle.
+  // Return a retryable error if the second store cannot be synchronized.
+  if (status === "refunded" || status === "chargeback") {
+    try {
+      await revokeBillingOrder(orderId, status);
+    } catch (error) {
+      console.error("[KIWIFY] CRM cycle revocation pending.", {
+        reason: error instanceof Error ? error.message : "unknown",
+      });
+      return NextResponse.json(
+        { ok: false, error: "billing_cycle_revocation_failed" },
+        { status: 503 },
+      );
     }
   }
 
