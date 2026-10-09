@@ -49,6 +49,7 @@ import {
 import { verifiedSubscriberCycle } from '../billing/subscriber-cycle';
 import { reserveSubscriberSite, subscriberSiteBalance } from '../billing/subscriber-ledger';
 import { refundSiteGeneration } from '../billing/subscriber-ledger-refund';
+import { subscriberGoogleBalance } from '../billing/subscriber-google-ledger';
 
 export const siteAiRouter: Router = Router();
 
@@ -66,7 +67,8 @@ siteAiRouter.get('/pagenova/subscriber-site-usage', requireAuth, asyncHandler(as
     return;
   }
   const balance = await subscriberSiteBalance(subscriberId, cycle.cycleStart);
-  res.json({ ...balance, cycleStart: cycle.cycleStart.toISOString(), cycleEnd: cycle.cycleEnd.toISOString() });
+  const google = await subscriberGoogleBalance(subscriberId, cycle.cycleStart);
+  res.json({ ...balance, google, cycleStart: cycle.cycleStart.toISOString(), cycleEnd: cycle.cycleEnd.toISOString() });
 }));
 
 
