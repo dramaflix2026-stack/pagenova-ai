@@ -59,6 +59,15 @@ describe("billing cycle sync transport", () => {
     })).rejects.toThrow("Invalid billing cycle identity");
   });
 
+  it("never follows redirects with signed billing headers", async () => {
+    process.env.PAGENOVA_BILLING_SYNC_SECRET = "a".repeat(40);
+    process.env.PAGENOVA_CRM_API_URL = "https://crm.example.test";
+    const fetcher = vi.fn().mockResolvedValue({ ok: false, status: 302 });
+    vi.stubGlobal("fetch", fetcher);
+    await expect(syncVerifiedBillingCycle(input)).rejects.toThrow("HTTP 302");
+    expect(fetcher.mock.calls[0][1].redirect).toBe("manual");
+  });
+
   it("propagates CRM rejection", async () => {
     process.env.PAGENOVA_BILLING_SYNC_SECRET = "a".repeat(40);
     process.env.PAGENOVA_CRM_API_URL = "https://crm.example.test";
