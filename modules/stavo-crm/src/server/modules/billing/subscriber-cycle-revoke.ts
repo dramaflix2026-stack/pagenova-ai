@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { Router } from 'express';
 import { getPool } from '../../db/client';
 
@@ -32,8 +32,20 @@ subscriberCycleRevokeRouter.post('/internal/pagenova/revoke-subscription-order',
     return;
   }
   const conn = await getPool().getConnection();
+  const lockName = 'pn:billing:' + createHash('sha256').update('order:' + orderId).digest('hex').slice(0, 48);
+  let acquired = false;
   try {
+    const [lock] = await conn.execute('SELECT GET_LOCK(?, 5) AS acquired', [lockName]);
+    if (Number((lock as Array<{ acquired: number | null }>)[0]?.acquired) !== 1) {
+      res.status(503).json({ error: 'Payment revocation busy; retry later' });
+      return;
+    }
+    acquired = true;
     await conn.beginTransaction();
+    await conn.execute(
+      'INSERT INTO pagenova_revoked_orders (provider,provider_order_id,reason,revoked_at) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE provider_order_id=provider_order_id',
+      ['kiwify', orderId, reason, new Date()],
+    );
     const [rows] = await conn.execute(
       'SELECT id,status FROM pagenova_subscription_cycles WHERE provider=? AND provider_order_id=? FOR UPDATE',
       ['kiwify', orderId],
@@ -46,17 +58,16 @@ subscriberCycleRevokeRouter.post('/internal/pagenova/revoke-subscription-order',
       );
     }
     await conn.commit();
-    // An unknown payment cannot be treated as a completed revocation.
-    // The provider webhook must retry or an operator must reconcile it.
-    if (!cycle) {
-      res.status(409).json({ error: 'Payment cycle not found; reconciliation required' });
-      return;
-    }
-    res.json({ ok: true, found: true, revoked: cycle.status === 'ACTIVE' });
+    // Tombstone is durable even when the refund arrives before cycle creation.
+    res.json({ ok: true, found: Boolean(cycle), revoked: cycle?.status === 'ACTIVE', blockedFutureActivation: true });
   } catch (error) {
     await conn.rollback();
     throw error;
   } finally {
+    if (acquired) {
+      try { await conn.execute('SELECT RELEASE_LOCK(?)', [lockName]); }
+      catch (error) { console.error('[BILLING] Revocation lock release failed', error); }
+    }
     conn.release();
   }
 });
