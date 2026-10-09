@@ -84,6 +84,7 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     if (rows.length && (rows[0]!.status !== 'ACTIVE' || rows[0]!.provider_reference !== subscriptionId ||
         new Date(rows[0]!.cycle_end).getTime() !== end.getTime())) {
       await conn.rollback();
+      transactionStarted = false;
       res.status(409).json({ error: 'Conflicting subscription cycle' });
       return;
     }
