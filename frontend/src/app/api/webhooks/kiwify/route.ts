@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
   const signature =
     request.nextUrl.searchParams.get("signature");
 
-  if (!signature) {
+  if (!signature || signature !== webhookToken) {
     return NextResponse.json(
       {
         ok: false,
