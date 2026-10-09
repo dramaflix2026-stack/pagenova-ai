@@ -47,3 +47,14 @@ export function kiwifyRecurringEvidence(payload: KiwifyRecurringPayload): Recurr
     chargeCreatedAt: charge.created_at ?? null,
   };
 }
+
+/**
+ * A payment confirmation is not sufficient to identify an exact monthly
+ * billing interval. Return null until the provider supplies the paid
+ * period's explicit start and end timestamps.
+ */
+export function verifiedPaidBillingPeriod(
+  _payload: KiwifyRecurringPayload,
+): { cycleStart: string; cycleEnd: string } | null {
+  return null;
+}
