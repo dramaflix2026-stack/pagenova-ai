@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 import { Router } from 'express';
 import { getPool } from '../../db/client';
 import { newId } from '../../lib/ids';
@@ -46,8 +46,25 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     return;
   }
   const conn = await getPool().getConnection();
+  const lockNames = [
+    'pn:billing:' + createHash('sha256').update('subscriber:' + subscriberId).digest('hex').slice(0, 48),
+    'pn:billing:' + createHash('sha256').update('subscription:' + subscriptionId).digest('hex').slice(0, 48),
+  ].sort();
+  const acquired: string[] = [];
+  let transactionStarted = false;
   try {
+    // Row locks cannot serialize concurrent first inserts when no row exists.
+    // MySQL advisory locks serialize subscriber and subscription ownership checks.
+    for (const name of lockNames) {
+      const [result] = await conn.execute('SELECT GET_LOCK(?, 5) AS acquired', [name]);
+      if (Number((result as Array<{ acquired: number | null }>)[0]?.acquired) !== 1) {
+        res.status(503).json({ error: 'Billing synchronization busy; retry later' });
+        return;
+      }
+      acquired.push(name);
+    }
     await conn.beginTransaction();
+    transactionStarted = true;
     // A provider subscription must never grant credits to different users.
     const [owners] = await conn.execute(
       'SELECT subscriber_id FROM pagenova_subscription_cycles WHERE provider=? AND provider_reference=? AND subscriber_id<>? LIMIT 1 FOR UPDATE',
@@ -55,6 +72,7 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
     );
     if ((owners as Array<{ subscriber_id: string }>).length) {
       await conn.rollback();
+      transactionStarted = false;
       res.status(409).json({ error: 'Subscription already belongs to another subscriber' });
       return;
     }
@@ -85,11 +103,16 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       );
     }
     await conn.commit();
+    transactionStarted = false;
     res.json({ ok: true, duplicate: rows.length > 0 });
   } catch (error) {
-    await conn.rollback();
+    if (transactionStarted) await conn.rollback();
     throw error;
   } finally {
+    for (const name of acquired.reverse()) {
+      try { await conn.execute('SELECT RELEASE_LOCK(?)', [name]); }
+      catch (error) { console.error('[BILLING] Failed to release advisory lock', error); }
+    }
     conn.release();
   }
 });
