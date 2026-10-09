@@ -77,16 +77,19 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
       return;
     }
     const [existing] = await conn.execute(
-      'SELECT provider_reference, cycle_end, status FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start=? FOR UPDATE',
+      'SELECT provider_reference, provider_order_id, cycle_end, status FROM pagenova_subscription_cycles WHERE subscriber_id=? AND cycle_start=? FOR UPDATE',
       [subscriberId, start],
     );
-    const rows = existing as Array<{ provider_reference: string; cycle_end: Date; status: string }>;
-    if (rows.length && (rows[0]!.status !== 'ACTIVE' || rows[0]!.provider_reference !== subscriptionId ||
+    const rows = existing as Array<{ provider_reference: string; cycle_end: Date; status: string; provider_order_id: string | null }>;
+    if (rows.length && (rows[0]!.status !== 'ACTIVE' || rows[0]!.provider_reference !== subscriptionId || (rows[0]!.provider_order_id !== null && rows[0]!.provider_order_id !== orderId) ||
         new Date(rows[0]!.cycle_end).getTime() !== end.getTime())) {
       await conn.rollback();
       transactionStarted = false;
       res.status(409).json({ error: 'Conflicting subscription cycle' });
       return;
+    }
+    if (rows.length && rows[0]!.provider_order_id === null) {
+      await conn.execute('UPDATE pagenova_subscription_cycles SET provider_order_id=? WHERE subscriber_id=? AND cycle_start=? AND provider_order_id IS NULL', [orderId, subscriberId, start]);
     }
     if (!rows.length) {
       // A subscription must not create a new cycle after a recorded revocation.
@@ -111,8 +114,8 @@ subscriberCycleSyncRouter.post('/internal/pagenova/subscription-cycle', async (r
         return;
       }
       await conn.execute(
-        'INSERT INTO pagenova_subscription_cycles (id,subscriber_id,cycle_start,cycle_end,status,provider,provider_reference,updated_at) VALUES (?,?,?,?,?,?,?,?)',
-        [newId(), subscriberId, start, end, 'ACTIVE', 'kiwify', subscriptionId, new Date()],
+        'INSERT INTO pagenova_subscription_cycles (id,subscriber_id,cycle_start,cycle_end,status,provider,provider_reference,provider_order_id,updated_at) VALUES (?,?,?,?,?,?,?,?,?)',
+        [newId(), subscriberId, start, end, 'ACTIVE', 'kiwify', subscriptionId, orderId, new Date()],
       );
     }
     await conn.commit();
