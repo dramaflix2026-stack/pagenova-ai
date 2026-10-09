@@ -34,6 +34,7 @@ subscriberCycleRevokeRouter.post('/internal/pagenova/revoke-subscription-order',
   const conn = await getPool().getConnection();
   const lockName = 'pn:billing:' + createHash('sha256').update('order:' + orderId).digest('hex').slice(0, 48);
   let acquired = false;
+  let releaseFailed = false;
   try {
     const [lock] = await conn.execute('SELECT GET_LOCK(?, 5) AS acquired', [lockName]);
     if (Number((lock as Array<{ acquired: number | null }>)[0]?.acquired) !== 1) {
@@ -66,8 +67,12 @@ subscriberCycleRevokeRouter.post('/internal/pagenova/revoke-subscription-order',
   } finally {
     if (acquired) {
       try { await conn.execute('SELECT RELEASE_LOCK(?)', [lockName]); }
-      catch (error) { console.error('[BILLING] Revocation lock release failed', error); }
+      catch (error) {
+        releaseFailed = true;
+        console.error('[BILLING] Revocation lock release failed', error);
+      }
     }
-    conn.release();
+    if (releaseFailed) conn.destroy();
+    else conn.release();
   }
 });
