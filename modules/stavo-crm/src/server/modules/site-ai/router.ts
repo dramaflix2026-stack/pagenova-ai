@@ -47,7 +47,7 @@ import {
 } from './service';
 
 import { verifiedSubscriberCycle } from '../billing/subscriber-cycle';
-import { subscriberSiteBalance } from '../billing/subscriber-ledger';
+import { reserveSubscriberSite, subscriberSiteBalance } from '../billing/subscriber-ledger';
 
 export const siteAiRouter: Router = Router();
 
