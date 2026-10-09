@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { kiwifyRecurringEvidence } from "@/lib/kiwify-subscription";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -210,7 +211,8 @@ export async function POST(request: NextRequest) {
   // Never infer a subscription renewal date from order approval alone.
   // A verified billing interval must be provided by the payment provider
   // before the CRM may activate cycle-based usage quotas.
-  const billingCycleStatus = "awaiting_provider_verified_period";
+  const recurringEvidence = kiwifyRecurringEvidence(payload);
+  const billingCycleStatus = recurringEvidence ? "paid_charge_verified_cycle_pending" : "awaiting_provider_verified_period";
 
   const purchaseData = {
     order_ref:
@@ -221,6 +223,7 @@ export async function POST(request: NextRequest) {
 
     event,
     billing_cycle_status: billingCycleStatus,
+    recurring_evidence: recurringEvidence,
 
     product_id:
       payload.Product?.product_id ?? null,
