@@ -6,6 +6,7 @@
  *  POST /api/google/instagram        analise manual do site do lead
  *  GET  /api/google/usage            consumo do mes
  */
+import { verifiedSubscriberCycle } from '../billing/subscriber-cycle';
 import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 
@@ -75,9 +76,19 @@ googleRouter.post(
       if (!res.writableEnded) controller.abort();
     });
 
+    let subscriberCycle;
+    if (process.env.PAGENOVA_SUBSCRIBER_GOOGLE_QUOTAS_ENABLED === 'true' && req.session!.sessionId.startsWith('pagenova:')) {
+      subscriberCycle = await verifiedSubscriberCycle(req.session!.sessionId.slice('pagenova:'.length));
+      if (!subscriberCycle) {
+        res.status(409).json({ error: 'Ciclo de assinatura nao confirmado.' });
+        return;
+      }
+    }
+
     const result = await searchPlaces(getDb(), req.session!.workspaceId, input, {
       pageNumber: Number.isFinite(pageNumber) ? pageNumber : 1,
       signal: controller.signal,
+      subscriberCycle,
     });
 
     res.json(result);
