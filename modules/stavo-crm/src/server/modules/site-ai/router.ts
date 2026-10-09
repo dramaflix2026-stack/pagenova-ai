@@ -48,6 +48,7 @@ import {
 
 import { verifiedSubscriberCycle } from '../billing/subscriber-cycle';
 import { reserveSubscriberSite, subscriberSiteBalance } from '../billing/subscriber-ledger';
+import { refundSiteGeneration } from '../billing/subscriber-ledger-refund';
 
 export const siteAiRouter: Router = Router();
 
@@ -302,6 +303,7 @@ siteAiRouter.post(
     const project = await getProjectOrThrow(req.params.id!);
     const session = req.session!;
 
+    let quotaDebit: { subscriberId: string; generationId: string; cycleStart: Date } | null = null;
     if (process.env.PAGENOVA_SUBSCRIBER_SITE_QUOTAS_ENABLED === 'true' && session.sessionId.startsWith('pagenova:')) {
       const subscriberId = session.sessionId.slice('pagenova:'.length);
       const cycle = await verifiedSubscriberCycle(subscriberId);
@@ -314,6 +316,7 @@ siteAiRouter.post(
         res.status(429).json({ error: 'Limite de sites atingido.' });
         return;
       }
+      if (!debit.duplicate) quotaDebit = { subscriberId, generationId: 'site:' + project.id, cycleStart: cycle.cycleStart };
     }
 
     const { jobId, created } = await requestGeneration(
