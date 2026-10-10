@@ -101,8 +101,8 @@ const questions = [
     answer: "Você escolhe entre mensal, trimestral, semestral e anual. Os ciclos maiores reduzem o custo mensal equivalente e o pagamento é concluído no checkout seguro da Kiwify.",
   },
   {
-    question: "Já tenho cadastro. Como acesso minha conta?",
-    answer: "Toque em Entrar no topo da página e use os dados da sua conta para acessar a plataforma e seus projetos.",
+    question: "Quando vou receber acesso à plataforma?",
+    answer: "Esta é uma pré-venda. Após a compra, você receberá as orientações de acesso na data de liberação anunciada.",
   },
 ];
 
@@ -144,20 +144,9 @@ export default function Home() {
             <a href="#planos" className="hover:text-white">Planos</a>
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <Link
-              href="/app"
-              prefetch
-              className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-white/30 hover:bg-white/[.05] hover:text-white sm:border-0 sm:px-1 sm:text-sm"
-            >
-              Entrar
-            </Link>
-            <a
-              href="#planos"
-              className="rounded-lg bg-[#36d9a1] px-3 py-2 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] sm:px-4 sm:py-2.5 sm:text-sm"
-            >
-              <span className="sm:hidden">Criar conta</span>
-              <span className="hidden sm:inline">Criar minha conta <span aria-hidden="true">→</span></span>
+          <div className="flex shrink-0 items-center">
+            <a href="#planos" className="rounded-lg bg-[#36d9a1] px-4 py-2.5 text-xs font-bold text-[#062018] transition hover:bg-[#7debc0] sm:text-sm">
+              Garantir minha vaga <span aria-hidden="true">→</span>
             </a>
           </div>
         </div>
@@ -238,9 +227,7 @@ export default function Home() {
               O briefing já traz uma base para o nicho escolhido. Você personaliza
               a direção do projeto, gera as páginas e navega pela prévia para revisar o resultado.
             </p>
-            <a href="/app" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">
-              Entrar na plataforma →
-            </a>
+            <a href="#planos" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">Garantir acesso na pré-venda →</a>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-[#0e261b] p-5 sm:p-8">
             {[
@@ -539,7 +526,6 @@ export default function Home() {
                 <a href="#criacao" className="transition hover:text-white">Criação</a>
                 <a href="#planos" className="transition hover:text-white">Planos</a>
                 <a href="#duvidas" className="transition hover:text-white">Dúvidas</a>
-                <Link href="/app" className="font-semibold text-white/80 transition hover:text-white">Entrar</Link>
               </nav>
             </div>
 
