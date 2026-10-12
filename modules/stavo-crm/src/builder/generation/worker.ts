@@ -77,9 +77,9 @@ async function ensureAiHeroAsset(project: SiteProject): Promise<string | null> {
       checksum: processed.image.checksum,
       altText: `Imagem editorial gerada por IA para ${project.businessName}`,
       rightsStatus: 'LICENSED',
-      createdBy: project.createdBy,
+      createdBy: project.ownerUserId,
     });
-    return asset.id;
+    return asset;
   } finally {
     clearTimeout(timeout);
   }
@@ -252,6 +252,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
+    // Orcamento deve ser verificado antes de qualquer chamada paga de imagem.
+    await assertBudgetAvailable(project);
     // Imagem principal gerada por IA; as fotos reais continuam disponiveis para as secoes internas.
     const aiHeroAssetId = await ensureAiHeroAsset(project).catch((error) => {
       logger.warn({ err: error, projectId: project.id }, 'Nao foi possivel gerar imagem IA do hero; usando fallback.');
