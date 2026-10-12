@@ -105,7 +105,7 @@ export function validateUniversalSiteData(value: UniversalSiteData): string[] {
   exactArray(value.services?.items, 4, "services items", ["title", "description"]);
   exactArray(value.about?.paragraphs, 2, "about paragraphs");
   exactArray(value.about?.benefits, 3, "about benefits");
-  if (!record(value.palette) || ["primary", "accent", "background", "foreground"].some(k => typeof value.palette[k] !== "string" || !/^#[0-9a-fA-F]{6}$/.test(value.palette[k]))) errors.push("Invalid palette");
+  if (!record(value.palette) || Object.values(value.palette).some(color => typeof color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(color))) errors.push("Invalid palette");
   if (typeof value.contact?.ctaUrl !== "string" || !/^(https:\/\/|\/|#)/.test(value.contact.ctaUrl)) errors.push("Invalid CTA destination");
   return errors;
 }
