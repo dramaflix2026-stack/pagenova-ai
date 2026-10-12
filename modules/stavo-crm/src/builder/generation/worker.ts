@@ -20,6 +20,73 @@
  */
 import { randomUUID } from 'node:crypto';
 
+/**
+ * Gera uma imagem editorial para o hero e a armazena como asset do projeto.
+ * Opt-in: a chave e o flag de imagem devem estar configurados no backend.
+ * Em caso de falha, o fluxo continua com imagens reais, sem inventar resultados.
+ */
+async function ensureAiHeroAsset(project: SiteProject): Promise<string | null> {
+  const env = getEnv();
+  if (!env.SITE_IMAGE_GENERATION_ENABLED || env.SITE_IMAGE_PROVIDER !== 'openai' || !env.OPENAI_API_KEY?.trim()) return null;
+
+  const existing = (await repo.listAssets(project.id)).find(
+    (asset) => asset.source === 'GENERATED' && asset.provider === 'OpenAI' && !asset.deletedAt,
+  );
+  const { createLocalStorage } = await import('@builder/publishing/storage');
+  const { siteAssetsDirAbsolute } = await import('@server/config/env');
+  const storage = createLocalStorage(siteAssetsDirAbsolute());
+  if (existing && await storage.read(existing.storageKey).then(() => true).catch(() => false)) return existing.id;
+
+  const { processUploadedImage } = await import('@builder/publishing/image-processing');
+  const { newId } = await import('@server/lib/ids');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), env.OPENAI_IMAGE_TIMEOUT_MS);
+  try {
+    const description = [
+      'High-end photorealistic editorial website hero photograph, landscape 3:2.',
+      'Business:', project.businessName, '. Industry:', project.niche || project.siteType, '.',
+      'Show a refined authentic environment strongly associated with this business.',
+      'Architectural photography, warm natural light, premium restrained palette, editorial composition.',
+      'Keep the left third uncluttered for headline overlay, key subject on the right.',
+      'No text, no logos, no watermark, no UI, no collage, no stock-photo aesthetic.',
+    ].join(' ');
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY.trim()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: env.OPENAI_IMAGE_PRIMARY_MODEL, prompt: description, size: '1536x1024', n: 1 }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`OpenAI image HTTP ${response.status}`);
+    const result = await response.json() as { data?: Array<{ b64_json?: string }> };
+    const base64 = result.data?.[0]?.b64_json;
+    if (!base64) throw new Error('OpenAI nao retornou imagem.');
+    const processed = await processUploadedImage(Buffer.from(base64, 'base64'));
+    if (!processed.ok) throw new Error(processed.reason);
+    const storageKey = `${project.id}/${newId()}.webp`;
+    await storage.write(storageKey, processed.image.optimized.buffer);
+    const asset = await repo.insertAsset({
+      projectId: project.id,
+      source: 'GENERATED',
+      provider: 'OpenAI',
+      storageKey,
+      originalFilename: null,
+      mimeType: 'image/webp',
+      width: processed.image.optimized.width,
+      height: processed.image.optimized.height,
+      sizeBytes: processed.image.optimized.sizeBytes,
+      checksum: processed.image.checksum,
+      altText: `Imagem editorial gerada por IA para ${project.businessName}`,
+      rightsStatus: 'LICENSED',
+      createdBy: project.createdBy,
+    });
+    return asset.id;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+
+
 import type { SiteJobStage } from '@site-kit/types/site-ai';
 import { getEnv, isSiteAiEnabled } from '@server/config/env';
 import type { SiteGenerationJob, SiteProject } from '@server/db/schema';
@@ -185,6 +252,11 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
+    // Imagem principal gerada por IA; as fotos reais continuam disponiveis para as secoes internas.
+    const aiHeroAssetId = await ensureAiHeroAsset(project).catch((error) => {
+      logger.warn({ err: error, projectId: project.id }, 'Nao foi possivel gerar imagem IA do hero; usando fallback.');
+      return null;
+    });
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
@@ -205,7 +277,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
 
     // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
     // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
-    if (imageCandidates.length >= 2 && Array.isArray(plan.sections) && plan.sections.length > 0) {
+    if (imageCandidates.length >= 1 && Array.isArray(plan.sections) && plan.sections.length > 0) {
       const toRef = (candidate: (typeof imageCandidates)[number]) => ({
         assetId: candidate.assetId,
         alt: candidate.description.slice(0, 200),
@@ -233,6 +305,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         );
       }
       const heroCandidate =
+        (aiHeroAssetId ? imageCandidates.find((item) => item.assetId === aiHeroAssetId) : undefined) ??
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
         imageCandidates.at(0);
       const secondaryCandidate = heroCandidate
