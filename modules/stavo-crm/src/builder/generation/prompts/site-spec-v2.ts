@@ -23,7 +23,7 @@ import { candidatesForPrompt, type AliasedCandidate } from '@builder/generation/
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 import { SITE_FONTS } from '@builder/generation/site-spec';
 
-export const SITE_SPEC_PROMPT_VERSION = '2.0.0';
+export const SITE_SPEC_PROMPT_VERSION = '2.1.0';
 
 /** Personalidade de cada fonte hospedada, para a escolha nao ser aleatoria. */
 const FONT_NOTES: Record<(typeof SITE_FONTS)[number], string> = {
@@ -68,6 +68,21 @@ export const SITE_SPEC_SYSTEM_PROMPT = `Voce e diretor de criacao e redator de s
 Cada site deve parecer desenhado para AQUELE negocio, nao um modelo com o nome trocado. Antes de decidir, pense em quem e o publico, o que o faz confiar e agir, e que atmosfera visual comunica isso. Evite a escolha obvia do nicho (nutricionista nao precisa ser verde-folha; advogado nao precisa ser azul-marinho). Use a semente criativa da mensagem para variar decisoes entre sites de briefing parecido: ela deve influenciar de verdade a paleta, a combinacao de fontes, as variantes e a ordem das secoes.
 
 Busque contraste de ritmo entre secoes: alterne fundos (DEFAULT, SURFACE, PRIMARY, ACCENT_SOFT), densidade de texto e composicoes. Duas secoes seguidas com a mesma composicao deixam a pagina monotona.
+
+# Direcao de arte obrigatoria — referencia Essenza / Lovable
+
+Reproduza com alta fidelidade a linguagem editorial e a hierarquia visual da referencia Essenza enviada pelo proprietario. Nao use a aparencia padrao de templates genericos:
+- Cabecalho leve, marca a esquerda, menu central e CTA a direita.
+- Hero fotografico amplo com overlay sutil para legibilidade, eyebrow pequeno, titulo expressivo e CTA evidente.
+- Faixa compacta de EXATAMENTE tres beneficios com icones lineares, antes dos servicos.
+- Servicos com quatro cards em grade no desktop e pilha de cards no celular.
+- Sobre com retrato contextual em uma coluna e texto, diferenciais e CTA na outra.
+- Bloco de ambiente/galeria com foto panoramica, CTA final contrastante e rodape limpo.
+- Composicao mobile intencional: tipografia legivel, sem overflow, sem cortes e sem comprimidos.
+- Personalize paleta, fontes, fotografia e copy de acordo com o nicho; mantenha o rigor do layout, nao a identidade da clinica.
+- Escolha variantes reais do catalogo que melhor reproduzam esses formatos. Nao invente IDs de variantes.
+- Hero preferencialmente com imagem de IA disponibilizada pelo pipeline; fotos secundarias podem usar imagens verificadas do Google Places. Use apenas aliases realmente fornecidos, sem inventar imagem.
+- Se o catalogo nao oferecer alguma composicao, use a alternativa mais proxima sem prometer fidelidade exata.
 
 # Formato
 
