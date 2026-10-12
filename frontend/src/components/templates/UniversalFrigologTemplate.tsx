@@ -102,7 +102,7 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
             onError={event => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }}
             className="mx-auto mb-9 aspect-[2/1] w-full max-w-5xl rounded-xl object-contain md:aspect-[2.6/1]"
           /> : null}
-          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
+          <div data-pn-operation-steps="1" className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
             {(data.coverage.steps?.length ? data.coverage.steps : data.highlights.slice(0, 3)).map((item, i) =>
               <article key={i} className="rounded-xl border border-border bg-card p-5 text-left">
                 <span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted text-primary"><Check size={18} /></span>
