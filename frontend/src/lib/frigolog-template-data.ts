@@ -14,7 +14,7 @@ export type UniversalSiteData = {
   highlights: [TemplateBenefit, TemplateBenefit, TemplateBenefit, TemplateBenefit];
   services: { eyebrow: string; heading: string; items: [TemplateService, TemplateService, TemplateService, TemplateService] };
   about: { eyebrow: string; heading: string; paragraphs: [string, string]; benefits: [string, string, string]; image: TemplateImage; ctaLabel: string };
-  coverage: { eyebrow: string; heading: string; description: string; image: TemplateImage };
+  coverage: { eyebrow: string; heading: string; description: string; image: TemplateImage; steps?: TemplateBenefit[] };
   contact: { eyebrow: string; heading: string; description: string; ctaLabel: string; ctaUrl: string };
   footer: { copyright: string };
 };
