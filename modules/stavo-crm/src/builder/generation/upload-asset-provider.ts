@@ -19,6 +19,7 @@ export class UploadAssetProvider implements SiteAssetProvider {
     return assets
       .filter(
         (asset) =>
+          !asset.deletedAt &&
           asset.mimeType.startsWith('image/') &&
           USABLE_RIGHTS.has(asset.rightsStatus) &&
           (!asset.expiresAt || asset.expiresAt > now),
