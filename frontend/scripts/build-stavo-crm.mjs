@@ -33,6 +33,13 @@ run("npm", ["ci", "--no-audit", "--no-fund"], crm);
 console.log("[PageNova] Validating CRM backend publishing renderer...");
 run("npm", ["run", "build:server"], crm);
 
+// A canonical template must pass its actual React SSR tests before being
+// merged to main. Only preview builds run this additional diagnostic gate.
+// Execute the actual React SSR and the canonical adapter. This gate does not
+// depend on the CI Vitest worker (unavailable in the Vercel build sandbox).
+console.log("[PageNova] Smoke-testing exact FRIGOLOG React/CSS from CRM...");
+run(process.execPath, ["--import", "tsx", "scripts/smoke-frigolog-master.ts"], crm);
+
 console.log("[PageNova] Building current CRM client source...");
 run("npm", ["run", "build:client"], crm);
 

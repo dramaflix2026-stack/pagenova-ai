@@ -92,7 +92,13 @@ export function validateUniversalSiteData(value: UniversalSiteData): string[] {
   fields(value.contact, ["eyebrow", "heading", "description", "ctaLabel", "ctaUrl"], "contact");
   fields(value.footer, ["copyright"], "footer");
   for (const [label, image] of [["hero", value.hero?.image], ["about", value.about?.image], ["coverage", value.coverage?.image]] as const) {
-    fields(image, ["src", "alt"], label + " image");
+    // Source may be empty when the CRM lead has no licensed/verified photo.
+    // Never invent or reuse a refrigeration photo for another niche.
+    if (!record(image) || !nonempty(image.alt) ||
+        typeof image.src !== "string" ||
+        (image.src.length > 0 && !/^(https:\/\/|\/)/.test(image.src))) {
+      errors.push("Invalid " + label + " image");
+    }
   }
   const exactArray = (v: unknown, length: number, label: string, keys?: string[]) => {
     if (!Array.isArray(v) || v.length !== length) { errors.push("Invalid " + label + " count"); return; }
@@ -106,6 +112,6 @@ export function validateUniversalSiteData(value: UniversalSiteData): string[] {
   exactArray(value.about?.paragraphs, 2, "about paragraphs");
   exactArray(value.about?.benefits, 3, "about benefits");
   if (!record(value.palette) || Object.values(value.palette).some(color => typeof color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(color))) errors.push("Invalid palette");
-  if (typeof value.contact?.ctaUrl !== "string" || !/^(https:\/\/|\/|#)/.test(value.contact.ctaUrl)) errors.push("Invalid CTA destination");
+  if (typeof value.contact?.ctaUrl !== "string" || !/^(https:\/\/|\/|#|tel:|mailto:)/.test(value.contact.ctaUrl)) errors.push("Invalid CTA destination");
   return errors;
 }
