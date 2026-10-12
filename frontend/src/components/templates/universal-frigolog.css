@@ -170,3 +170,10 @@
 .frigolog-template #servicos .service-card{box-shadow:0 16px 28px rgba(20,45,52,.13)!important}
 }
 @media(prefers-reduced-motion:reduce){.frigolog-template #servicos .service-card{transition:none!important}}
+
+/* Portrait-safe mobile photo framing: preserve the upper part of a subject. */
+.frigolog-template #sobre .about-image{object-position:center 18%!important}
+@media(max-width:767px){
+.frigolog-template #sobre .about-image{aspect-ratio:4/5!important;object-fit:contain!important;object-position:center top!important;background:transparent!important;max-height:none!important}
+.frigolog-template #operacao img[data-pn-photo="operation"]{object-position:center 30%!important}
+}
