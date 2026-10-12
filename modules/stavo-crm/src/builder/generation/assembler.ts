@@ -316,7 +316,9 @@ function buildSection(
 
   switch (plan.type) {
     case 'hero': {
-      // A fotografia real e parte da composicao, nao um card lateral.\n      // Sem asset valido, mantemos o layout editorial com slot editavel.\n      const variant = binding.image ? 'overlay-full' : 'editorial-split';
+      // A fotografia real e parte da composicao, nao um card lateral.
+      // Sem asset valido, mantemos o layout editorial com slot editavel.
+      const variant = binding.image ? 'overlay-full' : 'editorial-split';
       return {
         ...base,
         type: 'hero',
