@@ -82,7 +82,7 @@ export default function UniversalTemplatePreview() {
     const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = "pagenova-" + draft.brand.name.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").slice(0, 50) + ".json";
+    anchor.download = "pagenova-" + draft.brand.name.toLowerCase().normalize("NFD").replace(/[^\x00-\x7F]/g, "").replace(/[^a-z0-9]+/g, "-").slice(0, 50) + ".json";
     anchor.click();
     URL.revokeObjectURL(url);
     setNotice("Rascunho exportado. Este arquivo não publica o site.");
