@@ -298,6 +298,16 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
           ...existing,
           itemImages: [toRef(thirdCandidate)],
         };
+      } else if (thirdCandidate) {
+        // Preserve a third distinct image on a gallery when the plan has no process.
+        const galleryIndex = plan.sections.findIndex((section) => section.type === 'gallery');
+        if (galleryIndex >= 0) {
+          const existing = imageBindings[galleryIndex] ?? {};
+          imageBindings[galleryIndex] = {
+            ...existing,
+            gallery: [...(existing.gallery ?? []), toRef(thirdCandidate)],
+          };
+        }
       }
     }
 
