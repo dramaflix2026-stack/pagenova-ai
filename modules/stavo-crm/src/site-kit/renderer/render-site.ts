@@ -201,6 +201,29 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags([model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${renderStyles(model.theme)}
+/* PageNova institutional editorial composition: Essenza reference. */
+@media screen and (min-width:900px){
+.hero--split .hero__inner{width:100%;max-width:none;padding:0}
+.hero--split .hero-split{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);align-items:stretch;min-height:610px;gap:0}
+.hero--split .hero-split>div:first-child{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(48px,5vw,100px);position:relative;z-index:1}
+.hero--split .hero-media{height:100%;min-height:610px;overflow:hidden}
+.hero--split .hero-media img{width:100%;height:100%;object-fit:cover}
+.benefits--icons{padding-top:26px!important;padding-bottom:26px!important}
+.benefits--icons .icon-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.benefits--icons .icon-block{display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:16px;align-content:center}
+.benefits--icons .icon-block svg{grid-row:span 2}
+.benefits--icons .icon-block h3{margin:0;font-size:1rem}
+.benefits--icons .icon-block p{margin:4px 0 0}
+.services--cards .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.services--cards .card{min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:28px 24px}
+}
+@media screen and (max-width:899px){
+.hero--split .hero-split>div:first-child{padding:clamp(24px,6vw,48px)}
+.hero--split .hero-media{min-height:280px}
+.hero--split .hero-media img{width:100%;height:100%;object-fit:cover}
+.benefits--icons .icon-grid{gap:20px}
+.services--cards .card{min-width:0}
+}
 /* Critical responsive guard: emitted by the document renderer itself. */
 @media screen and (max-width:899px){
 html,body{width:100%;max-width:100%;overflow-x:hidden}
