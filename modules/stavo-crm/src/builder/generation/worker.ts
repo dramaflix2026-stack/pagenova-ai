@@ -196,7 +196,19 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     await assertNotCanceled(job.id);
 
     const provider = createSiteIntelligenceProvider();
-    const result = await provider.generateSitePlan(input);
+    const planningStartedAt = Date.now();
+    logger.info({ jobId: job.id, projectId: project.id, provider: provider.name }, 'Iniciando planejamento do site com IA.');
+    let result: Awaited<ReturnType<typeof provider.generateSitePlan>>;
+    try {
+      result = await provider.generateSitePlan(input);
+    } catch (error) {
+      const code = error instanceof ProviderError ? error.code : 'UNKNOWN';
+      const seconds = Math.round((Date.now() - planningStartedAt) / 1000);
+      logger.error({ err: error, jobId: job.id, projectId: project.id, provider: provider.name, seconds }, 'Falha no planejamento do site.');
+      await repo.appendEvent(job.id, 'WARNING', `Planejamento falhou (${code}) apos ${seconds}s.`, 'PLANNING').catch(() => undefined);
+      throw error;
+    }
+    logger.info({ jobId: job.id, projectId: project.id, provider: provider.name, seconds: Math.round((Date.now() - planningStartedAt) / 1000) }, 'Planejamento do site concluido.');
     const { plan, usage, adjustments, promptVersion } = result;
     // Providers podem nao devolver bindings de imagem. O worker precisa de um
     // array mutavel porque a rede de seguranca visual injeta fotos reais por
