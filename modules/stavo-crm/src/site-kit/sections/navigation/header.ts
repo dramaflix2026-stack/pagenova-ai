@@ -35,8 +35,21 @@ export function renderHeader(model: SiteSchemaModel, ctx: RenderContext): string
     ? renderImage(navigation.logo, ctx, { className: 'brand-logo', loading: 'eager' })
     : escapeHtml(navigation.wordmark || model.business.name);
 
+  // Resolve labels from the actual section type for both new AND saved sites.
+  // Legacy models stored full headlines as navigation labels, which overflow.
+  const sectionLabels: Record<string, string> = {
+    about: 'Sobre', authority: 'Quem somos', benefits: 'Benefícios',
+    audience: 'Para quem', services: 'Serviços', gallery: 'Galeria',
+    process: 'Como funciona', stats: 'Resultados', testimonials: 'Depoimentos',
+    faq: 'Dúvidas', offer: 'Oferta', contactMap: 'Contato', contact: 'Contato',
+  };
   const links = navigation.items
-    .map((item) => `<a href="#${escapeHtml(item.anchor)}">${escapeHtml(item.label)}</a>`)
+    .map((item) => {
+      const target = model.sections.find((section) => section.anchor === item.anchor);
+      const label = target ? sectionLabels[target.type] : undefined;
+      const fallback = item.label.length > 26 ? item.label.slice(0, 23).trimEnd() + '…' : item.label;
+      return `<a href="#${escapeHtml(item.anchor)}">${escapeHtml(label ?? fallback)}</a>`;
+    })
     .join('');
 
   const cta = navigation.headerCta ? renderButton(navigation.headerCta, 'primary') : '';
