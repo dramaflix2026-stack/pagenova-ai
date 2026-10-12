@@ -29,6 +29,7 @@ import { assemblePlan, newCreativeSeed, ProviderError } from '@builder/generatio
 import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/provider';
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
+import { ensureIllustrativeHero } from '@builder/generation/generated-image-provider';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
 
@@ -185,6 +186,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
+    // Create a distinct illustrative hero without replacing real staff portraits.
+    await ensureIllustrativeHero(project).catch(() => false);
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
@@ -253,7 +256,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const secondaryCandidate = secondaryIndex >= 0
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
-      const heroCandidate = imageCandidates.find(
+      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED') ?? imageCandidates.find(
         (item) => item.assetId !== secondaryCandidate?.assetId &&
           (!item.width || !item.height || item.width / item.height >= 1.1),
       ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
