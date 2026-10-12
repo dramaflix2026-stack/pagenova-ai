@@ -235,6 +235,59 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .process .timeline{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 .contact-grid,.cta-inline,.site-footer .footer-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 }
+/* PageNova visual QA v2: protect editorial composition at real preview widths.
+   Applied after theme CSS so it also fixes legacy generated projects. */
+.site-header .container{width:100%;max-width:1320px;min-width:0;gap:clamp(16px,2.5vw,36px)}
+.site-header .brand{display:block;flex:0 1 auto;min-width:0;max-width:260px;font-size:clamp(.94rem,1.2vw,1.12rem);line-height:1.2;overflow-wrap:normal;word-break:normal;text-wrap:balance}
+.site-header .nav{min-width:0;flex:1 1 auto;justify-content:flex-end;gap:clamp(10px,1.35vw,22px)}
+.site-header .nav>a:not(.btn){display:inline-block;flex:0 1 auto;min-width:0;max-width:165px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(.77rem,.95vw,.9rem)}
+.hero--split .hero-split{min-width:0}
+.hero--split .hero-split>div:first-child{min-width:0;max-width:100%;box-sizing:border-box}
+.hero--split h1{font-size:clamp(2.35rem,3.6vw,4.4rem);line-height:1.075;max-width:100%;overflow-wrap:normal;word-break:normal;hyphens:auto;text-wrap:balance}
+.hero--split .lead{max-width:42ch;font-size:clamp(1.03rem,1.5vw,1.27rem);line-height:1.65}
+.hero--split .hero-media{min-width:0;isolation:isolate}
+.hero--split .hero-media::before{display:none}
+.hero--split .hero-media img{display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center;box-shadow:none}
+.hero--split .actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero--split .actions .btn{max-width:100%;white-space:normal;text-align:center}
+.services--cards .card{min-width:0;overflow-wrap:break-word}
+.services--cards .card h3{font-size:clamp(1.12rem,1.6vw,1.5rem);line-height:1.2}
+@media screen and (min-width:1200px){
+  .hero--split .hero-split{grid-template-columns:minmax(0,48%) minmax(0,52%);min-height:600px}
+  .hero--split .hero-split>div:first-child{padding:clamp(40px,4.5vw,76px)}
+  .hero--split .hero-media{min-height:600px}
+}
+@media screen and (min-width:900px) and (max-width:1199px){
+  .hero--split .hero-split{grid-template-columns:minmax(0,52%) minmax(0,48%);min-height:510px}
+  .hero--split .hero-split>div:first-child{padding:clamp(26px,3.5vw,48px)}
+  .hero--split .hero-media{min-height:510px}
+  .hero--split h1{font-size:clamp(2.1rem,3.6vw,3.1rem)}
+}
+@media screen and (max-width:1199px){
+  .site-header:not(.site-header--minimal) .nav{display:none;position:absolute;top:100%;left:0;right:0;width:100%;max-height:calc(100dvh - 70px);overflow-y:auto;padding:20px clamp(20px,5vw,52px);background:var(--bg);box-shadow:0 18px 36px rgba(0,0,0,.12);flex-direction:column;align-items:stretch;gap:0;z-index:100}
+  .site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex}
+  .site-header:not(.site-header--minimal) .nav>a:not(.btn){display:block;flex:none;max-width:none;white-space:normal;overflow:visible;text-overflow:clip;font-size:1rem;padding:12px 0}
+  .site-header:not(.site-header--minimal) .nav-toggle{display:block;flex:0 0 48px}
+  .site-header .container{position:relative;min-height:70px}
+  .site-header .brand{max-width:min(290px,calc(100% - 70px));font-size:1.05rem}
+  .site-header--centered .container{display:flex;justify-content:space-between}
+  .site-header--centered .brand--center{order:-1;margin-right:auto}
+  .site-header--centered .header-tail{display:none}
+}
+@media screen and (max-width:899px){
+  .hero--split .hero-split{display:flex;flex-direction:column;min-height:0}
+  .hero--split .hero-split>div:first-child{width:100%;padding:clamp(30px,6vw,56px);text-align:left}
+  .hero--split h1{font-size:clamp(2.2rem,7vw,3.7rem);line-height:1.1}
+  .hero--split .hero-media{width:100%;min-height:0;height:auto}
+  .hero--split .hero-media img{height:auto;aspect-ratio:4/3;object-fit:cover}
+}
+@media screen and (max-width:480px){
+  .hero--split h1{font-size:clamp(2rem,9vw,2.75rem)}
+  .hero--split .hero-split>div:first-child{padding:32px 22px}
+  .hero--split .hero-media img{aspect-ratio:4/3}
+  .site-header .brand{font-size:.98rem;max-width:calc(100% - 65px)}
+}
+
 </style>
 ${renderJsonLd(model)}
 </head>
