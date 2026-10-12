@@ -15,6 +15,19 @@ const action = (link?: ActionLink, variant = ''): string => {
     '>' + esc(link.label) + '<span aria-hidden="true"> ↗</span></a>';
 };
 const idFor = (section: SiteSection): string => esc(section.anchor || section.id);
+
+/** O CRM pode acrescentar uma categoria entre parenteses ao nome interno do lead.
+ * Mostramos somente o nome comercial quando esse sufixo e uma classificacao
+ * de pesquisa; nao alteramos os dados salvos no banco.
+ */
+export function displayBusinessName(raw: string, niche?: string): string {
+  const found = /^(.*?)\s+\(([^)]{3,80})\)\s*$/.exec(raw.trim());
+  if (!found) return raw.trim();
+  const suffix = found[2]!.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const category = (niche ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const isCategory = Boolean(category && (category === suffix || category.includes(suffix) || suffix.includes(category))) || suffix.includes('/');
+  return isCategory ? found[1]!.trim() : raw.trim();
+}
 const text = (value?: string): string => value ? esc(value) : '';
 const sectionTitle = (value: string, eyebrow?: string): string =>
   '<div class="pn-master-heading">' +
@@ -60,12 +73,15 @@ export function renderUniversalMaster(
   const visible = model.sections.filter((item) => item.visible);
   const anchors = new Set(visible.map((item) => item.anchor).filter(Boolean));
   const nav = model.navigation.items.filter((item) => anchors.has(item.anchor)).slice(0, 5);
-  const brand = esc(model.business.name);
+  const brandName = displayBusinessName(model.business.name, model.business.niche);
+  const brand = esc(brandName);
+  const logo = renderImage(model.navigation.logo, ctx, { className: 'pn-brand-logo', loading: 'eager' });
+  const brandMark = logo || '<span class="pn-master-brand-icon" aria-hidden="true">' + esc(brandName.charAt(0).toUpperCase()) + '</span>';
   const headerCta = model.navigation.headerCta ?? model.objective.primaryCta;
   const menuItems = nav.map((item) => '<a href="#' + esc(item.anchor) + '">' + esc(item.label) + '</a>').join('');
 
   const header = '<header class="pn-master-header"><div class="pn-container pn-master-nav-row">' +
-    '<a class="pn-master-brand" href="#conteudo"><span class="pn-master-brand-icon" aria-hidden="true">✳</span><span>' + brand + '</span></a>' +
+    '<a class="pn-master-brand" href="#conteudo">' + brandMark + '<span>' + brand + '</span></a>' +
     '<nav class="pn-master-nav" aria-label="Menu principal">' + menuItems + '</nav>' +
     action(headerCta) + '<details class="pn-master-menu"><summary aria-label="Abrir menu">☰</summary>' +
     '<nav class="pn-master-menu-links" aria-label="Menu para celular">' + menuItems + action(headerCta) + '</nav></details></div></header>';
@@ -74,20 +90,23 @@ export function renderUniversalMaster(
     const id = idFor(section);
     let html = '';
     switch (section.type) {
-      case 'hero':
-        html = '<section class="pn-master-hero" id="' + id + '">' +
-          '<div class="pn-master-hero-media">' + renderImage(section.image, ctx, { className: 'pn-hero-photo', loading: 'eager' }) + '</div>' +
+      case 'hero': {
+        const heroImage = renderImage(section.image, ctx, { className: 'pn-hero-photo', loading: 'eager' });
+        html = '<section class="pn-master-hero' + (heroImage ? '' : ' pn-master-hero--no-image') + '" id="' + id + '">' +
+          (heroImage ? '<div class="pn-master-hero-media">' + heroImage + '</div>' : '') +
           '<div class="pn-container"><div class="pn-master-hero-copy">' +
           (section.eyebrow ? '<p class="pn-master-eyebrow">' + text(section.eyebrow) + '</p>' : '') +
-          '<h1>' + text(section.headline) + '</h1>' +
+          '<h1' + (section.headline.length >= 60 ? ' class="pn-master-long-title"' : '') + '>' + text(section.headline) + '</h1>' +
           (section.subheadline ? '<p class="pn-lead">' + text(section.subheadline) + '</p>' : '') +
           '<div class="pn-master-actions">' + action(section.primaryCta) + action(section.secondaryCta, 'pn-master-button--light') +
           '</div></div></div></section>';
         break;
+      }
       case 'benefits':
         html = '<section class="pn-master-kpis" id="' + id + '" aria-label="' + text(section.headline) + '"><div class="pn-container pn-master-kpi-grid">' +
-          section.items.map((item) => '<div class="pn-master-kpi"><strong>' + text(item.title) + '</strong>' +
-            (item.body ? '<p>' + text(item.body) + '</p>' : '') + '</div>').join('') + '</div></section>';
+          section.items.map((item, i) => '<div class="pn-master-kpi"><span class="pn-master-kpi-icon" aria-hidden="true">' +
+            String(i + 1).padStart(2, '0') + '</span><div><strong>' + text(item.title) + '</strong>' +
+            (item.body ? '<p>' + text(item.body) + '</p>' : '') + '</div></div>').join('') + '</div></section>';
         break;
       case 'services':
         html = '<section class="pn-master-services pn-master-section" id="' + id + '"><div class="pn-container">' +
@@ -98,12 +117,15 @@ export function renderUniversalMaster(
             (item.body ? '<p>' + text(item.body) + '</p>' : '') + '</article>').join('') + '</div>' +
           (section.cta ? '<div class="pn-master-actions" style="justify-content:center;margin-top:32px">' + action(section.cta) + '</div>' : '') + '</div></section>';
         break;
-      case 'about':
-        html = '<section class="pn-master-about pn-master-section" id="' + id + '"><div class="pn-container pn-master-about-grid">' +
-          '<div class="pn-master-about-photo">' + renderImage(section.image, ctx, { className: 'pn-about-photo' }) + '</div>' +
+      case 'about': {
+        const aboutImage = renderImage(section.image, ctx, { className: 'pn-about-photo' });
+        html = '<section class="pn-master-about pn-master-section' + (aboutImage ? '' : ' pn-master-about--no-image') +
+          '" id="' + id + '"><div class="pn-container pn-master-about-grid">' +
+          (aboutImage ? '<div class="pn-master-about-photo">' + aboutImage + '</div>' : '') +
           '<div class="pn-master-about-copy"><p class="pn-master-eyebrow">Quem somos</p><h2>' + text(section.headline) + '</h2>' +
           section.body.map((p) => '<p>' + text(p) + '</p>').join('') + action(section.cta) + '</div></div></section>';
         break;
+      }
       case 'process':
         html = '<section class="pn-master-steps pn-master-section" id="' + id + '"><div class="pn-container">' +
           sectionTitle(section.headline, 'Como trabalhamos') +
@@ -127,7 +149,7 @@ export function renderUniversalMaster(
         break;
       case 'footer':
         html = '<footer class="pn-master-footer"><section id="' + id + '"><div class="pn-container">' +
-          '<strong>' + text(section.businessName) + '</strong><p>' +
+          '<strong>' + text(displayBusinessName(section.businessName, model.business.niche)) + '</strong><p>' +
           (section.tagline ? text(section.tagline) : 'Todos os direitos reservados.') +
           '</p></div></section></footer>';
         break;
