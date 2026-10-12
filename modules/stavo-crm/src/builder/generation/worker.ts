@@ -417,7 +417,7 @@ async function handleJobFailure(job: SiteGenerationJob, project: SiteProject, er
         usageRecord({
           projectId: project.id,
           jobId: job.id,
-          provider: 'anthropic',
+          provider: getEnv().SITE_AI_PROVIDER,
           operation: 'GENERATE_PLAN',
           usage: error.usage,
           status: 'FAILED',
