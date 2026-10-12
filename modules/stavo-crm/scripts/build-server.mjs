@@ -6,6 +6,7 @@
 import { build } from 'esbuild';
 import { rm, mkdir, readFile } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Carimba a versao no binario para que /api/health informe exatamente qual
@@ -30,6 +31,17 @@ const result = await build({
   target: 'node22',
   format: 'cjs',
   packages: 'external',
+  // lucide-react is ESM-only. An externalized import becomes require() in
+  // the CommonJS worker and crashes when generating a site (around 60%).
+  // Bundle its icon exports while keeping the other node_modules external.
+  plugins: [{
+    name: 'bundle-lucide-react-esm',
+    setup(build) {
+      build.onResolve({ filter: /^lucide-react$/ }, () => ({
+        path: fileURLToPath(import.meta.resolve('lucide-react')),
+      }));
+    },
+  }],
   sourcemap: false,
   minify: false,
   logLevel: 'info',
