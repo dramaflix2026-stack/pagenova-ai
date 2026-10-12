@@ -202,7 +202,7 @@ export function adjustForContrast(
  * Funcao pura compartilhada pelo editor e pelas novas geracoes.
  * A cor original so e alterada quando o linter detectaria contraste insuficiente.
  */
-export function repairThemeContrast<T extends ThemeColors>(input: T): T {
+export function repairThemeContrast(input: ThemeColors): ThemeColors {
   const colors = { ...input };
   for (let round = 0; round < 3; round += 1) {
     for (const pair of themeContrastPairs(colors)) {
