@@ -80,7 +80,7 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
         })}</div>
       </div></section>
       <section id="sobre" className={"bg-muted py-20" + (!data.about.image.src ? " pn-photo-missing" : "")}><div className="site-container grid items-center gap-12 md:grid-cols-2 md:gap-20">
-        {data.about.image.src ? <img className="about-image w-full" data-pn-photo="about" src={data.about.image.src} alt={data.about.image.alt} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }} /> : null}
+        {data.about.image.src ? <img className="about-image w-full h-auto object-contain object-top" style={{ aspectRatio: "auto", maxHeight: "none" }} data-pn-photo="about" src={data.about.image.src} alt={data.about.image.alt} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }} /> : null}
         <div><p className="eyebrow mb-4 text-center">{data.about.eyebrow}</p><h2 className="section-heading text-center">{data.about.heading}</h2>
           {data.about.paragraphs.map((paragraph,i) => <p key={i} className="mt-5 text-sm leading-7 text-muted-foreground">{paragraph}</p>)}
           <div className="mt-7 space-y-3">{data.about.benefits.map((benefit,i) => <p key={i} className="flex items-center gap-3 text-[13px]"><Check className="h-4 w-4 shrink-0 text-primary" />{benefit}</p>)}</div>
