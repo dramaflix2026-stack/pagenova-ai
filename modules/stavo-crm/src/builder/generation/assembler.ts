@@ -630,11 +630,28 @@ function reresolveAnchors(sections: SiteSection[], fallbackAnchor: string): void
 function buildNavigation(sections: SiteSection[], plan: SitePlanOutput, business: BusinessFacts) {
   const EXCLUDED = new Set(['hero', 'footer', 'cta', 'whatsappForm']);
 
+  // Navigation is wayfinding, not a duplicate of editorial headlines.
+  // Long AI headlines overflow the header and truncate into meaningless text.
+  // Prefer stable, short labels that remain readable on desktop and mobile.
+  const menuLabels: Partial<Record<SiteSection['type'], string>> = {
+    about: 'Sobre',
+    authority: 'Quem somos',
+    benefits: 'Benefícios',
+    audience: 'Para quem',
+    services: 'Serviços',
+    gallery: 'Galeria',
+    process: 'Como funciona',
+    stats: 'Resultados',
+    testimonials: 'Depoimentos',
+    faq: 'Dúvidas',
+    offer: 'Oferta',
+    contactMap: 'Contato',
+  };
   const items = sections
     .filter((section) => !EXCLUDED.has(section.type) && section.anchor)
     .slice(0, 5)
     .map((section) => ({
-      label: sanitizeLine(('headline' in section && section.headline) || section.type, 30),
+      label: menuLabels[section.type] ?? 'Saiba mais',
       anchor: section.anchor!,
     }));
 
