@@ -133,3 +133,8 @@ const contactButtonCss = `
 `;
 const contactButtonCurrent = readFileSync(cssPath, 'utf8');
 if (!contactButtonCurrent.includes('FRIGOLOG_CONTACT_BUTTON_CENTER_V13')) writeFileSync(cssPath, contactButtonCurrent + '\n' + contactButtonCss);
+
+// FRIGOLOG_ABOUT_CONTENT_CENTER_V14
+const aboutCss = "\n/* FRIGOLOG_ABOUT_CONTENT_CENTER_V14 */\n@media(max-width:767px){.frigolog-template #sobre>.site-container>div{text-align:center!important}.frigolog-template #sobre>.site-container>div>p:not(.eyebrow){text-align:center!important;max-width:640px;margin-left:auto!important;margin-right:auto!important}.frigolog-template #sobre>.site-container>div>div{width:fit-content;max-width:100%;margin-left:auto!important;margin-right:auto!important;text-align:left!important}.frigolog-template #sobre>.site-container>div>div>p{text-align:left!important}.frigolog-template #sobre>.site-container>div>a{display:flex!important;width:max-content!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;justify-content:center!important}}";
+const aboutCurrent = readFileSync(cssPath,'utf8');
+if(!aboutCurrent.includes('FRIGOLOG_ABOUT_CONTENT_CENTER_V14')) writeFileSync(cssPath,aboutCurrent+'\n'+aboutCss);
