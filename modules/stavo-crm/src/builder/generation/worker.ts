@@ -247,9 +247,18 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const heroCandidate =
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
         imageCandidates.at(0);
-      const secondaryCandidate = heroCandidate
-        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates.at(1)
-        : undefined;
+      // Portraits belong in the editorial/about section, not in a wide banner.
+      // Prefer the most portrait-like remaining photo, keeping each slot unique.
+      const secondaryCandidate = imageCandidates
+        .filter((item) => item.assetId !== heroCandidate?.assetId)
+        .sort((left, right) =>
+          (left.width && left.height ? left.width / left.height : 1) -
+          (right.width && right.height ? right.width / right.height : 1),
+        )[0];
+      const processIndex = plan.sections.findIndex((section) => section.type === 'process');
+      const thirdCandidate = imageCandidates.find(
+        (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== secondaryCandidate?.assetId,
+      );
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
@@ -257,6 +266,15 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         imageBindings[secondaryIndex] = {
           ...(imageBindings[secondaryIndex] ?? {}),
           image: toRef(secondaryCandidate),
+        };
+      }
+      // The third photograph is reserved for the first step of the operation
+      // section; it must not duplicate either the hero or the portrait.
+      if (processIndex >= 0 && thirdCandidate) {
+        const existing = imageBindings[processIndex] ?? {};
+        imageBindings[processIndex] = {
+          ...existing,
+          itemImages: [toRef(thirdCandidate)],
         };
       }
     }
