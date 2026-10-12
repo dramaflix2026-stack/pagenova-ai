@@ -27,3 +27,61 @@
 .frigolog-template #sobre>div>div>div{width:fit-content;margin-left:auto;margin-right:auto;text-align:left}
 .frigolog-template .section-heading{font-size:clamp(28px,7.5vw,36px)}
 }
+
+
+/* PN_MEDIA_RESILIENCE_V1
+ * These rules are intentionally no-ops for an intact FRIGOLOG template.
+ * They apply only when a lead has no verified picture or a stored picture
+ * becomes unavailable (e.g. ephemeral Railway storage after redeploy).
+ * Do not reserve the empty image column or show broken alt text to clients.
+ */
+.frigolog-template img[hidden]{display:none!important}
+.frigolog-template .hero.pn-photo-missing{
+  min-height:0!important;
+  background:linear-gradient(117deg,#edf5f9 0%,#e2edf5 54%,#d7e5ef 100%);
+}
+.frigolog-template .hero.pn-photo-missing .hero-content{
+  position:relative;
+  min-height:0!important;
+  padding-top:clamp(58px,8vw,100px);
+  padding-bottom:clamp(62px,8vw,110px);
+}
+.frigolog-template #sobre.pn-photo-missing{
+  min-height:0!important;
+  padding-top:clamp(50px,7vw,78px);
+  padding-bottom:clamp(50px,7vw,78px);
+}
+.frigolog-template #sobre.pn-photo-missing>.site-container{
+  display:block!important;
+  max-width:920px!important;
+}
+.frigolog-template #sobre.pn-photo-missing>.site-container>div{
+  width:100%!important;
+  max-width:800px;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+.frigolog-template #operacao.pn-photo-missing{
+  min-height:0!important;
+  padding-top:clamp(48px,6vw,72px);
+  padding-bottom:clamp(48px,6vw,72px);
+}
+.frigolog-template #operacao.pn-photo-missing .site-container>img{
+  display:none!important;
+}
+@media(max-width:767px){
+  .frigolog-template .hero.pn-photo-missing{min-height:0!important}
+  .frigolog-template .hero.pn-photo-missing .hero-content{
+    min-height:0!important;
+    padding-top:48px!important;
+    padding-bottom:56px!important;
+  }
+  .frigolog-template #sobre.pn-photo-missing{
+    padding-top:48px!important;
+    padding-bottom:48px!important;
+  }
+  .frigolog-template #operacao.pn-photo-missing{
+    padding-top:48px!important;
+    padding-bottom:48px!important;
+  }
+}
