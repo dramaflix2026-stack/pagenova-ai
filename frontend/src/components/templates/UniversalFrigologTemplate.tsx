@@ -84,7 +84,7 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
         <div><p className="eyebrow mb-4 text-center">{data.about.eyebrow}</p><h2 className="section-heading text-center">{data.about.heading}</h2>
           {data.about.paragraphs.map((paragraph,i) => <p key={i} className="mt-5 text-sm leading-7 text-muted-foreground">{paragraph}</p>)}
           <div className="mt-7 space-y-3">{data.about.benefits.map((benefit,i) => <p key={i} className="flex items-center gap-3 text-[13px]"><Check className="h-4 w-4 shrink-0 text-primary" />{benefit}</p>)}</div>
-          <a href="#operacao" className="frigolog-button mt-8 inline-flex">{data.about.ctaLabel} <ArrowRight size={17} /></a>
+          <a href={data.contact.ctaUrl} className="frigolog-button mt-8 inline-flex" onClick={e => { if (data.contact.ctaUrl.startsWith("#")) { e.preventDefault(); showContact(); } }}>{data.about.ctaLabel} <ArrowRight size={17} /></a>
         </div>
       </div></section>
       <section id="operacao" className={"py-20" + (!data.coverage.image.src ? " pn-photo-missing" : "")}><div className="site-container"><div className="mb-9 text-center"><p className="eyebrow mb-3">{data.coverage.eyebrow}</p><h2 className="section-heading">{data.coverage.heading}</h2><p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{data.coverage.description}</p></div>{data.coverage.image.src ? <img data-pn-photo="operation" src={data.coverage.image.src} alt={data.coverage.image.alt} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }} className="aspect-[2/1] w-full rounded-md object-cover md:aspect-[2.6/1]" /> : null}</div></section>
