@@ -100,5 +100,11 @@ export const UNIVERSAL_MASTER_REFINEMENTS = [
   '.pn-universal .pn-master-footer strong{font-size:14px}.pn-universal .pn-master-footer p{margin-top:8px;font-size:11px}',
   '}',
   '@media(max-width:350px){.pn-universal .pn-master-kpi-grid{grid-template-columns:minmax(0,1fr)}.pn-universal .pn-master-kpi:nth-child(odd){border-right:0}.pn-universal .pn-master-kpi:nth-last-child(2){border-bottom:1px solid #d0ddd8}}',
-  '@media(prefers-reduced-motion:reduce){.pn-universal .pn-master-card{transition:none}.pn-universal .pn-master-button{transition:none}}'
+  '@keyframes pn-master-arrive{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:translate3d(0,0,0)}}',
+  '.pn-universal .pn-master-hero-copy{animation:pn-master-arrive .7s both cubic-bezier(.2,.7,.2,1)}',
+  '.pn-universal .pn-master-card,.pn-universal .pn-master-step{animation:pn-master-arrive .5s both ease-out}',
+  '.pn-universal .pn-master-card:nth-child(2),.pn-universal .pn-master-step:nth-child(2){animation-delay:.08s}',
+  '.pn-universal .pn-master-card:nth-child(3),.pn-universal .pn-master-step:nth-child(3){animation-delay:.16s}',
+  '.pn-universal .pn-master-card:nth-child(4),.pn-universal .pn-master-step:nth-child(4){animation-delay:.24s}',
+  '@media(prefers-reduced-motion:reduce){.pn-universal .pn-master-card,.pn-universal .pn-master-step,.pn-universal .pn-master-hero-copy{animation:none;transition:none}.pn-universal .pn-master-button{transition:none}}'
 ].join('\n');
