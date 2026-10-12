@@ -87,7 +87,32 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
           <a href={data.contact.ctaUrl} className="frigolog-button mt-8 inline-flex" onClick={e => { if (data.contact.ctaUrl.startsWith("#")) { e.preventDefault(); showContact(); } }}>{data.about.ctaLabel} <ArrowRight size={17} /></a>
         </div>
       </div></section>
-      <section id="operacao" className={(data.coverage.image.src ? "py-20" : "py-10 md:py-14") + (!data.coverage.image.src ? " pn-photo-missing" : "")}><div className="site-container"><div className="mb-9 text-center"><p className="eyebrow mb-3">{data.coverage.eyebrow}</p><h2 className="section-heading">{data.coverage.heading}</h2><p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{data.coverage.description}</p></div>{data.coverage.image.src ? <img data-pn-photo="operation" src={data.coverage.image.src} alt={data.coverage.image.alt} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }} className="aspect-[2/1] w-full rounded-md object-cover md:aspect-[2.6/1]" /> : <div className="mx-auto mt-6 grid max-w-4xl gap-4 sm:grid-cols-3">{data.highlights.slice(0, 3).map((item, i) => <article key={i} className="rounded-xl border border-border bg-card p-5 text-left"><span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted text-primary"><Check size={18} /></span><h3 className="text-base font-semibold">{item.title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p></article>)}</div>}</div></section>
+      <section id="operacao" className={(data.coverage.image.src ? "py-16 md:py-20" : "py-12 md:py-16") + (!data.coverage.image.src ? " pn-photo-missing" : "")}>
+        <div className="site-container">
+          <div className="mb-9 text-center">
+            <p className="eyebrow mb-3">{data.coverage.eyebrow}</p>
+            <h2 className="section-heading">{data.coverage.heading}</h2>
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-muted-foreground">{data.coverage.description}</p>
+          </div>
+          {data.coverage.image.src ? <img
+            data-pn-photo="operation"
+            src={data.coverage.image.src}
+            alt={data.coverage.image.alt}
+            loading="lazy"
+            onError={event => { event.currentTarget.hidden = true; event.currentTarget.closest("section")?.classList.add("pn-photo-missing"); }}
+            className="mx-auto mb-9 aspect-[2/1] w-full max-w-5xl rounded-xl object-contain md:aspect-[2.6/1]"
+          /> : null}
+          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
+            {(data.coverage.steps?.length ? data.coverage.steps : data.highlights.slice(0, 3)).map((item, i) =>
+              <article key={i} className="rounded-xl border border-border bg-card p-5 text-left">
+                <span className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-muted text-primary"><Check size={18} /></span>
+                <h3 className="text-base font-semibold">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{item.description}</p>
+              </article>
+            )}
+          </div>
+        </div>
+      </section>
       <section id="contato" className="bg-primary py-16 text-primary-foreground"><div className="site-container text-center"><p className="mb-4 text-[10px] font-semibold uppercase tracking-[2px]">{data.contact.eyebrow}</p><h2 className="section-heading">{data.contact.heading}</h2><p className="mx-auto mt-4 max-w-lg text-sm">{data.contact.description}</p><a href={data.contact.ctaUrl} onClick={e => { if (data.contact.ctaUrl.startsWith("#")) { e.preventDefault(); showContact(); } }} className="frigolog-button mt-8"><MessageCircle size={18} />{data.contact.ctaLabel}<ArrowUpRight size={16} /></a></div></section>
     </main>
     <footer className="py-9"><div className="site-container flex flex-wrap items-center justify-between gap-5"><div className="flex items-center gap-4">{data.brand.logoUrl ? <img src={data.brand.logoUrl} alt="" className="h-12 w-12 object-contain" /> : <BrandIcon className="h-12 w-12 shrink-0" aria-hidden="true" />}<div><strong className="block">{data.brand.name}</strong><span className="brand-sub block">{data.brand.tagline}</span></div></div><p className="text-xs text-muted-foreground">{data.footer.copyright}</p></div></footer>
