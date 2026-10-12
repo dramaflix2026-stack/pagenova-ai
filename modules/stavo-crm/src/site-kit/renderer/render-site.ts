@@ -288,6 +288,49 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .site-header .brand{font-size:.98rem;max-width:calc(100% - 65px)}
 }
 
+/* Editorial layout v3: enforce full-bleed hero and readable chrome for saved sites. */
+.site-header{position:sticky;top:0;z-index:100;background:var(--bg)}
+.site-header .container{display:flex!important;align-items:center;justify-content:space-between;gap:24px;max-width:1320px!important;margin-inline:auto;padding-inline:clamp(20px,3vw,48px)}
+.site-header .brand{flex:0 0 auto;max-width:300px!important;font-size:clamp(.95rem,1.1vw,1.12rem)!important;line-height:1.25;white-space:normal;overflow-wrap:normal!important;word-break:normal!important}
+.site-header .nav{flex:1 1 auto;min-width:0;justify-content:flex-end;gap:clamp(12px,1.8vw,28px)}
+.site-header .nav>a:not(.btn){font-size:.9rem;white-space:nowrap;max-width:none;overflow:visible;text-overflow:clip}
+.hero--split{padding:0!important;overflow:hidden}
+.hero--split>.container.hero__inner{max-width:none!important;width:100%!important;padding:0!important;margin:0!important}
+.hero--split .hero-split{width:100%!important;max-width:none!important;grid-template-columns:minmax(0,48%) minmax(0,52%);min-height:clamp(580px,65vh,820px)}
+.hero--split .hero-split>div:first-child{min-width:0;max-width:none;padding:clamp(38px,5vw,90px) clamp(28px,5vw,96px)!important}
+.hero--split h1{font-size:clamp(2.5rem,4vw,4.8rem)!important;line-height:1.07!important;letter-spacing:-.035em;max-width:16ch!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;text-wrap:balance}
+.hero--split .hero-media{min-height:clamp(580px,65vh,820px);height:auto;position:relative}
+.hero--split .hero-media img{width:100%;height:100%;min-height:inherit;object-fit:cover}
+.hero--split .hero-media:has(.pn-image-slot){background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 12%,var(--surface)),color-mix(in srgb,var(--primary) 30%,var(--surface)))}
+.hero--split .hero-media .pn-image-slot{height:100%;min-height:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.site-footer .container{max-width:1200px;margin-inline:auto;padding-inline:clamp(24px,5vw,80px)}
+.site-footer--centered .container,.site-footer--legal .container,.site-footer--contrast .container{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.site-footer .footer-name,.site-footer .muted{max-width:100%;margin:0;overflow-wrap:break-word}
+.site-footer .footer-name{font-size:clamp(1rem,1.35vw,1.3rem);line-height:1.4}
+.site-footer .footer-grid{align-items:start;gap:clamp(24px,4vw,60px)}
+@media(max-width:1399px){
+.site-header:not(.site-header--minimal) .nav{display:none!important;position:absolute!important;top:100%;left:0;right:0;width:100%;max-height:calc(100dvh - 70px);overflow:auto;background:var(--bg);padding:20px clamp(20px,5vw,60px);box-shadow:0 16px 35px rgba(0,0,0,.13);flex-direction:column;align-items:stretch;gap:0}
+.site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex!important}
+.site-header:not(.site-header--minimal) .nav>a:not(.btn){white-space:normal;max-width:none;padding:12px 0}
+.site-header:not(.site-header--minimal) .nav-toggle{display:block!important;flex:0 0 48px}
+.site-header .container{position:relative;min-height:72px}
+.site-header .brand{max-width:calc(100% - 72px)!important}
+.site-header--centered .brand--center{order:-1;margin-right:auto}
+.site-header--centered .header-tail{display:none}
+}
+@media(max-width:899px){
+.hero--split .hero-split{display:flex!important;flex-direction:column!important;min-height:0!important}
+.hero--split .hero-split>div:first-child{padding:clamp(38px,7vw,64px) clamp(22px,5vw,44px)!important}
+.hero--split h1{font-size:clamp(2.25rem,7vw,3.6rem)!important;max-width:20ch!important}
+.hero--split .hero-media{min-height:340px;height:auto}
+.hero--split .hero-media img{height:auto;min-height:0;aspect-ratio:4/3}
+}
+@media(max-width:480px){
+.hero--split h1{font-size:clamp(2.05rem,9vw,2.75rem)!important}
+.hero--split .hero-media{min-height:260px}
+.site-footer{padding-block:44px}
+}
+
 </style>
 ${renderJsonLd(model)}
 </head>
