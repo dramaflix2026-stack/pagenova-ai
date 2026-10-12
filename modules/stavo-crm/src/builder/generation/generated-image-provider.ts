@@ -13,7 +13,7 @@ import * as repo from '@server/modules/site-ai/repository';
 const MODEL = 'gpt-image-1-mini';
 const MAX_RESPONSE_BYTES = 12_000_000;
 
-export async function ensureIllustrativeHero(project: SiteProject): Promise<'created' | 'existing' | 'unavailable'> {
+export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' | 'supplement' = 'hero'): Promise<'created' | 'existing' | 'unavailable'> {
   const key = process.env.OPENAI_API_KEY;
   const estimatedUsd = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
   // Never perform a paid call without a positive, finite cost estimate.
@@ -21,7 +21,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
   if (!key) return 'unavailable';
   const assets = await repo.listAssets(project.id);
   const storage = createLocalStorage(siteAssetsDirAbsolute());
-  for (const asset of assets.filter((item) => item.source === 'AI_GENERATED' && !item.deletedAt && (item.width ?? 0) > (item.height ?? 0))) {
+  for (const asset of assets.filter((item) => item.source === 'AI_GENERATED' && !item.deletedAt && (item.altText ?? '').includes(`[${slot}]`) && (item.width ?? 0) > (item.height ?? 0))) {
     if (await storage.read(asset.storageKey).then(() => true).catch(() => false)) return 'existing';
   }
 
@@ -44,7 +44,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
         size: '1536x1024',
         quality: 'low',
         n: 1,
-        prompt: `Photorealistic editorial website hero background depicting ${subject}. Wide landscape composition, soft natural light, polished architecture, ample uncluttered negative space on the left for readable website copy, visual interest on the right. No people, no text, no logos, no watermarks. Illustrative scene only, not a photograph of a specific real business.`,
+        prompt: `Photorealistic editorial website ${slot === 'hero' ? 'hero background' : 'supporting section image'} depicting ${subject}. Wide landscape composition, soft natural light, polished architecture, ${slot === 'hero' ? 'ample uncluttered negative space on the left for readable website copy, visual interest on the right' : 'balanced centered composition showing a different perspective of the space'}. No people, no text, no logos, no watermarks. Illustrative scene only, not a photograph of a specific real business.`,
       }),
     });
     if (!response.ok) return 'unavailable';
@@ -69,7 +69,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
       height: processed.image.optimized.height,
       sizeBytes: processed.image.optimized.sizeBytes,
       checksum: processed.image.checksum,
-      altText: dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : 'Ambiente ilustrativo gerado por IA',
+      altText: `[${slot}] ` + (dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : 'Ambiente ilustrativo gerado por IA'),
       rightsStatus: 'AI_GENERATED',
       createdBy: project.ownerUserId,
     });
