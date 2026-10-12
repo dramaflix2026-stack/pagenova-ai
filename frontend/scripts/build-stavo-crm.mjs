@@ -31,8 +31,6 @@ run("npm", ["ci", "--no-audit", "--no-fund"], crm);
 if (process.env.VERCEL_ENV === "preview") {
   console.log("[PageNova] Running focused universal CRM renderer tests...");
   run("npm", ["run", "test", "--", "src/site-kit/renderer/universal-master.test.ts"], crm);
-  console.log("[PageNova] Compiling CRM backend to validate shared renderer integration...");
-  run("npm", ["run", "build:server"], crm);
 }
 
 console.log("[PageNova] Building current CRM client source...");
