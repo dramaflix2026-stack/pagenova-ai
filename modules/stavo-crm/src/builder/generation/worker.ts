@@ -271,7 +271,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const secondaryCandidate = secondaryIndex >= 0
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
-      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
+      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
         (item) => item.assetId !== secondaryCandidate?.assetId &&
           (!item.width || !item.height || item.width / item.height >= 1.1),
       ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
