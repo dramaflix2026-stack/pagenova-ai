@@ -41,6 +41,7 @@ import { escapeHtml, type RenderContext } from '@site-kit/primitives/render-util
 import { renderStyles } from '@site-kit/themes/styles';
 import type { DesignTokens, SiteSchemaModel, SiteSection } from '@site-kit/schemas/site-schema';
 import { fontLinkTags } from '@site-kit/themes/fonts';
+import { renderUniversalMaster, UNIVERSAL_MASTER_STYLES } from './universal-master';
 
 export { escapeHtml } from '@site-kit/primitives/render-utils';
 export type { RenderContext } from '@site-kit/primitives/render-utils';
@@ -175,7 +176,10 @@ function renderJsonLd(model: SiteSchemaModel): string {
  * bloqueante e o arquivo e pequeno. O JS vai no fim do `<body>` e e opcional.
  */
 export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
-  const sections = model.sections.map((section) => renderSection(section, ctx, model)).join('\n');
+  const isUniversal = model.project.templateId === 'frigolog-universal';
+  const sections = isUniversal
+    ? renderUniversalMaster(model, ctx, (section) => renderSection(section, ctx, model), applyVisualTextEdits)
+    : model.sections.map((section) => renderSection(section, ctx, model)).join('\n');
 
   const robots =
     ctx.profile === 'DEMO' || model.seo.noindex
@@ -201,6 +205,7 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags([model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${renderStyles(model.theme)}
+${isUniversal ? UNIVERSAL_MASTER_STYLES : ''}
 /* Critical responsive guard: emitted by the document renderer itself. */
 @media screen and (max-width:899px){
 html,body{width:100%;max-width:100%;overflow-x:hidden}
@@ -217,10 +222,7 @@ ${renderJsonLd(model)}
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteudo</a>
-${renderHeader(model, ctx)}
-<main id="conteudo">
-${sections}
-</main>
+${isUniversal ? sections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
 ${ctx.inlineRuntime ? `<script>${ctx.inlineRuntime}</script>` : ''}
 </body>
 </html>`;
