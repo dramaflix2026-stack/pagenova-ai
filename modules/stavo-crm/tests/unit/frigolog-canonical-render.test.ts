@@ -55,7 +55,8 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
   it('keeps 1:1 class geometry of the original template with lead content',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,(s)=>s);
     expect(html).toContain('class="frigolog-template"');
-    expect(html).toContain('class="hero"');
+    expect(html).toContain('class="hero pn-photo-missing"');
+    expect(html).toContain('id="conteudo"');
     expect(html).toContain('frigolog-kpi-grid');
     expect(html).toContain('frigolog-kpi-card');
     expect(html).toContain('class="service-card');

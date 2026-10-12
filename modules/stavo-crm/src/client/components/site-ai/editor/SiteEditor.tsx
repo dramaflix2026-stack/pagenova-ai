@@ -64,6 +64,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
   const editElementRef = useRef<HTMLElement | null>(null);
   const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number } | null>(null);
+  const [missingPreviewPhotos, setMissingPreviewPhotos] = useState<string[]>([]);
 
   const loadedRef = useRef(false);
 
@@ -165,6 +166,20 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       return { html: '', error: message || 'Erro desconhecido ao renderizar o site.' };
     }
   }, [config, previewCtx]);
+
+  // Keep the approved site markup intact. Only disable its sticky header
+  // inside the EDITOR iframe so scrolling the site is not obscured by two
+  // separate navigation bars (PageNova CRM + the client's website).
+  // Published HTML still has the original sticky FRIGOLOG navigation.
+  const editorPreviewHtml = useMemo(() => {
+    if (!previewResult.html || config?.project.templateId !== 'frigolog-universal') {
+      return previewResult.html;
+    }
+    const editorChrome = '<style id="pn-editor-chrome">' +
+      '.frigolog-template .site-header{position:relative!important;top:auto!important}' +
+      '</style>';
+    return previewResult.html.replace('</head>', editorChrome + '</head>');
+  }, [previewResult.html, config?.project.templateId]);
 
   const lintReport = useMemo(() => {
     if (!config) return null;
@@ -379,6 +394,35 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     toast.success('Contraste ajustado para leitura acessivel. A cor da marca foi preservada o maximo possivel.');
   };
 
+  const checkPreviewImages = () => {
+    const doc = previewFrameRef.current?.contentDocument;
+    if (!doc) return;
+    const images = Array.from(doc.querySelectorAll<HTMLImageElement>('.frigolog-template img[data-pn-photo]'));
+    const update = () => {
+      setMissingPreviewPhotos(
+        images.filter((img) => img.complete && img.naturalWidth === 0)
+          .map((img) => img.dataset.pnPhoto || 'imagem'),
+      );
+    };
+    for (const img of images) {
+      img.addEventListener('error', update, { once: true });
+      img.addEventListener('load', update, { once: true });
+    }
+    update();
+  };
+
+  const openMissingPhotoEditor = () => {
+    const sectionType = missingPreviewPhotos.includes('hero') ? 'hero'
+      : missingPreviewPhotos.includes('about') ? 'about'
+      : 'authority';
+    const target = config.sections.find((item) => item.type === sectionType)
+      ?? config.sections.find((item) => item.type === 'hero');
+    if (target) {
+      setSelectedId(target.id);
+      setShowProperties(true);
+    }
+  };
+
   const imageSlots = config.sections.filter((item) => item.visible && (item.type === 'hero' || item.type === 'about' || item.type === 'authority'));
   const emptyImages = imageSlots.filter((item) => !('image' in item) || !item.image);
 
@@ -458,6 +502,12 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           </Button>
         ) : null}
       </div>
+      {config.project.templateId === 'frigolog-universal' && missingPreviewPhotos.length > 0 ? (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-400/30 bg-amber-50 px-3 py-2 text-xs text-amber-950">
+          <span>{missingPreviewPhotos.length} foto(s) cadastrada(s) não carregaram. O CRM tenta recuperar imagens do Google Places automaticamente; se persistir, substitua a imagem.</span>
+          <Button size="sm" variant="secondary" onClick={openMissingPhotoEditor}>Substituir foto</Button>
+        </div>
+      ) : null}
       {saveState === 'conflict' ? (
         <Callout tone="danger" title="Conflito de edicao">
           <div className="flex items-center justify-between gap-3">
@@ -479,9 +529,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           ) : (
             <iframe
               ref={previewFrameRef}
-              onLoad={installInlineEditor}
+              onLoad={() => { installInlineEditor(); checkPreviewImages(); }}
               title="Previa do site"
-              srcDoc={previewResult.html}
+              srcDoc={editorPreviewHtml}
               className={'h-full rounded-md border border-border bg-white shadow-sm transition-all ' + (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-6xl')}
             />
           )}
