@@ -15,7 +15,7 @@ import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
 import type { AssetRef, SiteSchemaModel } from '@site-kit/schemas/site-schema';
 import * as repo from '@server/modules/site-ai/repository';
 import { createLocalStorage } from '@builder/publishing/storage';
-import { getEnv, siteAssetsDirAbsolute } from '@server/config/env';
+import { getEnv, siteAssetsDirAbsolute, publicSitesDirAbsolute } from '@server/config/env';
 
 export interface ArtifactFile {
   /** Caminho relativo dentro do artefato, ex.: "assets/images/x.webp". */
@@ -83,13 +83,26 @@ export async function buildSiteArtifactFiles(
     const source = await repo.findAsset(projectId, assetId);
     if (!source) continue; // asset removido depois de referenciado: some do site, nao quebra.
 
-    const buffer = await assets.read(source.storageKey).catch(() => null);
+    let buffer = await assets.read(source.storageKey).catch(() => null);
     if (!buffer) {
-      // Nunca publique silenciosamente um SiteSchema que referencia uma imagem
-      // cujo byte desapareceu do storage de trabalho. Isso produzia "sucesso"
-      // com fotos visiveis no editor e ausentes no link publico. O publisher
-      // reidrata assets Google antes de chegar aqui; se ainda faltar byte,
-      // falhar e mais seguro do que mutilar o site publicado.
+      // Prefer recovering the very same bytes from an earlier immutable
+      // publication rather than regenerating a paid AI image or replacing a
+      // real portrait. Published artifacts are scoped to this project.
+      const publicStorage = createLocalStorage(publicSitesDirAbsolute());
+      const publications = await repo.listPublications(projectId);
+      for (const publication of publications) {
+        if (!publication.artifactKey || !['ACTIVE', 'SUPERSEDED'].includes(publication.status)) continue;
+        const key = `${publication.artifactKey}/assets/images/${assetId}.webp`;
+        buffer = await publicStorage.read(key).catch(() => null);
+        if (buffer) {
+          await assets.write(source.storageKey, buffer);
+          break;
+        }
+      }
+    }
+    if (!buffer) {
+      // Refuse to publish a broken image; do not pretend an unrelated photo
+      // is the original asset or charge for another OpenAI generation.
       throw new Error(`Asset referenciado indisponivel no storage: ${assetId} (${source.source}).`);
     }
 
