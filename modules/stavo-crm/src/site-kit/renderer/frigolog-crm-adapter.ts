@@ -83,7 +83,7 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
   ].slice(0,3) as [string,string,string];
   // These are the real process steps produced by the plan assembler.
   // Previously the FRIGOLOG bridge discarded their text AND their images.
-  const processSteps=(process?.steps??[]).filter(step=>step.title.trim()).slice(0,4);
+  const processSteps=(process?.steps??[]).filter(step=>step.title.trim()).slice(0,3);
   const operationImage=processSteps.find(step=>step.image)?.image
     ?? gallery?.images[0]
     ?? authority?.image;
