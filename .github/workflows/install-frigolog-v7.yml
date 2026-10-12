@@ -5,6 +5,7 @@ on:
       - feature/lovable-fidelity-crm-generator
     paths:
       - .github/workflows/install-frigolog-v7.yml
+      - frontend/frigolog-next-integration-v7.zip
   workflow_dispatch:
 permissions:
   contents: write
@@ -21,20 +22,26 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           from zipfile import ZipFile
-          root=Path.cwd().resolve()
-          source=root/'frontend/frigolog-next-integration-v7.zip'
-          allowed_prefixes=('frontend/src/app/templates/frigolog/', 'frontend/public/lovable/frigolog/', 'scripts/verify-frigolog.mjs')
+          root = Path.cwd().resolve()
+          source = root / 'frontend/frigolog-next-integration-v7.zip'
+          allowed = ('frontend/src/app/templates/frigolog/', 'frontend/public/lovable/frigolog/', 'scripts/verify-frigolog.mjs')
           with ZipFile(source) as archive:
               for info in archive.infolist():
-                  if info.is_dir(): continue
-                  name=info.filename
-                  if not (name.startswith(allowed_prefixes[0]) or name.startswith(allowed_prefixes[1]) or name==allowed_prefixes[2]):
+                  if info.is_dir():
                       continue
-                  target=(root/name).resolve()
-                  if not target.is_relative_to(root): raise ValueError('Unsafe path')
-                  if target.exists(): raise FileExistsError(f'Refusing overwrite: {name}')
-                  target.parent.mkdir(parents=True,exist_ok=True)
-                  target.write_bytes(archive.read(info))
+                  name = info.filename
+                  if not (name.startswith(allowed[0]) or name.startswith(allowed[1]) or name == allowed[2]):
+                      continue
+                  target = (root / name).resolve()
+                  if not target.is_relative_to(root):
+                      raise ValueError(f'Unsafe archive path: {name}')
+                  data = archive.read(info)
+                  if target.exists():
+                      if target.read_bytes() != data:
+                          raise FileExistsError(f'Existing file differs: {name}')
+                      continue
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(data)
           PY
       - name: Static verification
         run: node scripts/verify-frigolog.mjs
@@ -44,5 +51,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add frontend/src/app/templates/frigolog frontend/public/lovable/frigolog scripts/verify-frigolog.mjs
           git diff --cached --check
-          git commit -m "Install FRIGOLOG V7 standalone preview route"
-          git push origin HEAD:feature/lovable-fidelity-crm-generator
+          if ! git diff --cached --quiet; then
+            git commit -m "Install FRIGOLOG V7 standalone preview route"
+            git push origin HEAD:feature/lovable-fidelity-crm-generator
+          fi
