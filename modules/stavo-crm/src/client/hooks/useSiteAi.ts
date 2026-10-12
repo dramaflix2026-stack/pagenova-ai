@@ -16,6 +16,8 @@ import { CSRF_COOKIE_NAME, CSRF_HEADER_NAME } from '../lib/constants';
 
 export interface SiteAiDiagnostics {
   enabled: boolean;
+  /** Only present once the Railway backend can save and publish the master layout. */
+  universalTemplateSupported?: boolean;
   mode: 'real' | 'mock' | 'bloqueado';
   anthropicConfigured: boolean;
   openAiConfigured: boolean;
