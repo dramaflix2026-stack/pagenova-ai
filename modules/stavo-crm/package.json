@@ -14,7 +14,7 @@
     "postinstall": "npm run build",
     "build:client": "node scripts/sync-frigolog-master.mjs && vite build",
     "build:server": "node scripts/sync-frigolog-master.mjs && node scripts/build-server.mjs",
-    "start": "node dist/server/index.js",
+    "start": "node scripts/ensure-frigolog-runtime.mjs && node dist/server/index.js",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
