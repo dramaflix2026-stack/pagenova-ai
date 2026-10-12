@@ -96,7 +96,7 @@ export function validateUniversalSiteData(value: UniversalSiteData): string[] {
     // Never invent or reuse a refrigeration photo for another niche.
     if (!record(image) || !nonempty(image.alt) ||
         typeof image.src !== "string" ||
-        (image.src.length > 0 && !/^(https:\/\/|\/)/.test(image.src))) {
+        (image.src.length > 0 && !/^(https:\/\/|\/|\.\/assets\/|assets\/)/.test(image.src))) {
       errors.push("Invalid " + label + " image");
     }
   }
