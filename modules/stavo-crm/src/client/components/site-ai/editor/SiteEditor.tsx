@@ -392,7 +392,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           <span className="text-xs font-medium">✓ Visual PageNova ativo · mesmo site para editar e publicar</span>
           <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Voltar visual anterior</Button>
         </div>
-      )}
+      ) : null}
       {showIssues && lintReport ? (
         <div className="max-h-48 overflow-y-auto border-b border-border bg-surface px-3 py-3" role="region" aria-label="Erros e avisos do site">
           {lintReport.errors.length === 0 && lintReport.warnings.length === 0 ? (
