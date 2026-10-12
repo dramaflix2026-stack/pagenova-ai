@@ -25,7 +25,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
   // Never put private lead data, addresses, names, or real people's likenesses
   // in the prompt. The sector is sufficient for an illustrative banner.
   const niche = String(project.internalName ?? '').slice(0, 100);
-  const dental = /odont|dent|sorriso|ortodont/i.test(niche + ' ' + project.businessName);
+  const dental = /odont|dent|sorriso|ortodont|implante|clinica dental/i.test(niche + ' ' + project.businessName);
   const subject = dental
     ? 'a modern, welcoming dental treatment room with an empty dental chair and clean equipment'
     : 'an elegant, contemporary small-business interior with no identifying branding';
