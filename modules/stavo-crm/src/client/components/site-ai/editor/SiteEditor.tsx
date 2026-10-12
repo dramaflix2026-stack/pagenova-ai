@@ -310,8 +310,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         if (after && after !== before) {
           const sectionNode = editable.closest('section[id]');
           const anchorId = sectionNode?.id;
+          const visualAliases: Record<string, SiteSection['type']> = {
+            inicio: 'hero', servicos: 'services', sobre: 'about',
+            operacao: 'process', contato: 'cta',
+          };
           const section = config.sections.find((item) => item.anchor === anchorId)
-            ?? config.sections.find((item) => item.id === anchorId);
+            ?? config.sections.find((item) => item.id === anchorId)
+            ?? config.sections.find((item) => item.type === visualAliases[anchorId ?? '']);
           if (section) handleSectionChange(replaceTextInSection(section, before, after));
         }
         window.setTimeout(() => setInlineEditor(null), 120);
