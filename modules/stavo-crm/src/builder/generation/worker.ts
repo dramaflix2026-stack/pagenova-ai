@@ -20,6 +20,18 @@
  */
 import { randomUUID } from 'node:crypto';
 
+import type { SiteJobStage } from '@site-kit/types/site-ai';
+import { getEnv, isSiteAiEnabled } from '@server/config/env';
+import type { SiteGenerationJob, SiteProject } from '@server/db/schema';
+import { logger } from '@server/lib/logger';
+import { createSiteIntelligenceProvider } from '@builder/generation';
+import { assemblePlan, newCreativeSeed, ProviderError } from '@builder/generation';
+import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/provider';
+import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
+import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
+import * as repo from '@server/modules/site-ai/repository';
+import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
+
 /**
  * Gera uma imagem editorial para o hero e a armazena como asset do projeto.
  * Opt-in: a chave e o flag de imagem devem estar configurados no backend.
@@ -131,20 +143,6 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
     clearTimeout(timeout);
   }
 }
-
-
-
-import type { SiteJobStage } from '@site-kit/types/site-ai';
-import { getEnv, isSiteAiEnabled } from '@server/config/env';
-import type { SiteGenerationJob, SiteProject } from '@server/db/schema';
-import { logger } from '@server/lib/logger';
-import { createSiteIntelligenceProvider } from '@builder/generation';
-import { assemblePlan, newCreativeSeed, ProviderError } from '@builder/generation';
-import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/provider';
-import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
-import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
-import * as repo from '@server/modules/site-ai/repository';
-import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
 
 /** Duracao do lease: cobre uma chamada + um reparo, com folga. */
 const LEASE_SECONDS = 300;
@@ -307,7 +305,14 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       logger.warn({ err: error, projectId: project.id }, 'Nao foi possivel gerar imagem IA do hero; usando fallback.');
       return null;
     });
-    const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
+    const allImageCandidates = await new UploadAssetProvider().listCandidates(project.id);
+    // A IA recebe no maximo oito candidatas: garante que o hero gerado
+    // esteja na lista e preserva as imagens do Google para as secoes internas.
+    const imageCandidates = [
+      ...allImageCandidates.filter((item) => item.assetId === aiHeroAssetId),
+      ...allImageCandidates.filter((item) => item.assetId !== aiHeroAssetId && item.source === 'GOOGLE_PLACES'),
+      ...allImageCandidates.filter((item) => item.assetId !== aiHeroAssetId && item.source !== 'GOOGLE_PLACES'),
+    ];
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
     // Checagem final de orcamento: o tempo entre enfileirar e comecar a
@@ -359,7 +364,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
         imageCandidates.at(0);
       const secondaryCandidate = heroCandidate
-        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates.at(1)
+        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId && item.source === 'GOOGLE_PLACES') ??
+          imageCandidates.find((item) => item.assetId !== heroCandidate.assetId && item.source !== 'GENERATED')
         : undefined;
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
