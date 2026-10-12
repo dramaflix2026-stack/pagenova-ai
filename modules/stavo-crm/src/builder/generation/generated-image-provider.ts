@@ -13,13 +13,13 @@ import * as repo from '@server/modules/site-ai/repository';
 const MODEL = 'gpt-image-1-mini';
 const MAX_RESPONSE_BYTES = 12_000_000;
 
-export async function ensureIllustrativeHero(project: SiteProject): Promise<boolean> {
+export async function ensureIllustrativeHero(project: SiteProject): Promise<'created' | 'existing' | 'unavailable'> {
   const key = process.env.OPENAI_API_KEY;
-  if (!key) return false;
+  if (!key) return 'unavailable';
   const assets = await repo.listAssets(project.id);
   const storage = createLocalStorage(siteAssetsDirAbsolute());
   for (const asset of assets.filter((item) => item.source === 'AI_GENERATED' && !item.deletedAt)) {
-    if (await storage.read(asset.storageKey).then(() => true).catch(() => false)) return true;
+    if (await storage.read(asset.storageKey).then(() => true).catch(() => false)) return 'existing';
   }
 
   // Never put private lead data, addresses, names, or real people's likenesses
@@ -44,14 +44,14 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<bool
         prompt: `Photorealistic editorial website hero background depicting ${subject}. Wide landscape composition, soft natural light, polished architecture, ample uncluttered negative space on the left for readable website copy, visual interest on the right. No people, no text, no logos, no watermarks. Illustrative scene only, not a photograph of a specific real business.`,
       }),
     });
-    if (!response.ok) return false;
+    if (!response.ok) return 'unavailable';
     const payload = await response.json() as { data?: Array<{ b64_json?: string }> };
     const encoded = payload.data?.[0]?.b64_json;
-    if (!encoded || encoded.length > MAX_RESPONSE_BYTES * 1.4) return false;
+    if (!encoded || encoded.length > MAX_RESPONSE_BYTES * 1.4) return 'unavailable';
     const bytes = Buffer.from(encoded, 'base64');
-    if (bytes.length > MAX_RESPONSE_BYTES) return false;
+    if (bytes.length > MAX_RESPONSE_BYTES) return 'unavailable';
     const processed = await processUploadedImage(bytes);
-    if (!processed.ok) return false;
+    if (!processed.ok) return 'unavailable';
     const storageKey = `${project.id}/${newId()}.webp`;
     await storage.write(storageKey, processed.image.optimized.buffer);
     await repo.insertAsset({
@@ -72,7 +72,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<bool
     });
     return true;
   } catch {
-    return false;
+    return 'unavailable';
   } finally {
     clearTimeout(timeout);
   }
