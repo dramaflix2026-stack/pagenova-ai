@@ -40,6 +40,19 @@ export function collectAssetIds(model: SiteSchemaModel): string[] {
 
     const images = record.images as AssetRef[] | undefined;
     if (Array.isArray(images)) for (const img of images) if (img?.assetId) ids.add(img.assetId);
+
+    // Process / services / benefits can carry a photo per item. The canonical
+    // FRIGOLOG adapter reads process.steps[].image, so those bytes must ship
+    // with published snapshots and ZIP exports, not just appear in preview.
+    for (const field of ['steps', 'items'] as const) {
+      const nested = record[field];
+      if (!Array.isArray(nested)) continue;
+      for (const item of nested) {
+        if (!item || typeof item !== 'object') continue;
+        const itemImage = (item as { image?: AssetRef }).image;
+        if (itemImage?.assetId) ids.add(itemImage.assetId);
+      }
+    }
   }
   if (model.navigation.logo?.assetId) ids.add(model.navigation.logo.assetId);
   if (model.seo.ogImage?.assetId) ids.add(model.seo.ogImage.assetId);
