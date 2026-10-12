@@ -1,0 +1,40 @@
+name: CRM Universal Template Validation
+
+on:
+  push:
+    branches:
+      - feature/universal-production-integration
+    paths:
+      - 'modules/stavo-crm/**'
+      - '.github/workflows/crm-universal-validation.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'modules/stavo-crm/**'
+      - '.github/workflows/crm-universal-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  crm-validation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: modules/stavo-crm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modules/stavo-crm/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Typecheck CRM frontend and backend
+        run: npm run typecheck
+      - name: Run unit tests including universal renderer
+        run: npm run test -- --passWithNoTests
+      - name: Build CRM server
+        run: npm run build:server
+      - name: Build CRM client
+        run: npm run build:client

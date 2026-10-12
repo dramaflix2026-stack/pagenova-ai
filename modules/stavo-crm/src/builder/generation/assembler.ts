@@ -159,8 +159,8 @@ function resolveVariant(
 
 const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
   'hero',
-  'services',
   'benefits',
+  'services',
   'about',
   'process',
   'testimonials',
@@ -252,7 +252,7 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
   const model: SiteSchemaModel = {
     schemaVersion: SITE_SCHEMA_VERSION,
     rendererVersion: SITE_RENDERER_VERSION,
-    project: { siteType, language: 'pt-BR', creativeSeed, promptVersion },
+    project: { siteType, language: 'pt-BR', creativeSeed, promptVersion, templateId: 'frigolog-universal' },
     business,
     objective: {
       goal: plan.objective.goal,

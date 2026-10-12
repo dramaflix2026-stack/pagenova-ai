@@ -613,6 +613,8 @@ export const siteSchema = z.object({
     language: z.literal('pt-BR').default('pt-BR'),
     creativeSeed: z.string().max(32),
     promptVersion: z.string().max(16),
+    /** Renderizacao visual escolhida; projetos antigos continuam no visual anterior. */
+    templateId: z.enum(['standard', 'frigolog-universal']).optional(),
   }),
   business: businessFactsSchema,
   objective: z.object({

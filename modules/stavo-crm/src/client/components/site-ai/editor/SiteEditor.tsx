@@ -20,6 +20,7 @@ import {
   useCreateSiteVersion,
   useRestoreSiteVersion,
   useSaveSiteConfig,
+  useSiteAiDiagnostics,
   useSiteAssets,
   useSiteDraftConfig,
   useSiteProject,
@@ -37,6 +38,7 @@ interface SiteEditorProps {
 export function SiteEditor({ projectId }: SiteEditorProps) {
   const toast = useToast();
   const draftQuery = useSiteDraftConfig(projectId);
+  const diagnosticsQuery = useSiteAiDiagnostics();
   const projectQuery = useSiteProject(projectId);
   const assetsQuery = useSiteAssets(projectId);
   const saveConfig = useSaveSiteConfig(projectId);
@@ -55,6 +57,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [aiInstruction, setAiInstruction] = useState('');
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
+  const [showIssues, setShowIssues] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
   const editElementRef = useRef<HTMLElement | null>(null);
   const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number } | null>(null);
@@ -345,6 +348,23 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     element.focus();
   };
 
+  const applyUniversalVisual = () => {
+    if (!config) return;
+    const nextTemplate = config.project.templateId === 'frigolog-universal' ? 'standard' : 'frigolog-universal';
+    const order = ['hero', 'benefits', 'services', 'about', 'process', 'testimonials', 'faq', 'contactMap', 'cta', 'footer'];
+    const sections = nextTemplate === 'frigolog-universal'
+      ? [...config.sections].sort((a, b) => {
+          const i = order.indexOf(a.type);
+          const j = order.indexOf(b.type);
+          return (i < 0 ? 90 : i) - (j < 0 ? 90 : j);
+        })
+      : config.sections;
+    history.set({ ...config, project: { ...config.project, templateId: nextTemplate }, sections });
+    toast.success(nextTemplate === 'frigolog-universal'
+      ? 'Visual PageNova aplicado! Conteudo e imagens preservados. Revise antes de publicar.'
+      : 'Visual anterior restaurado. O conteudo foi preservado.');
+  };
+
   return (
     <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
@@ -360,7 +380,44 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         onShowPublish={() => setShowPublish((v) => !v)}
         warningCount={lintReport?.warnings.length ?? 0}
         errorCount={lintReport?.errors.length ?? 0}
+        onShowIssues={() => setShowIssues((v) => !v)}
       />
+      {diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId !== 'frigolog-universal' ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary/20 bg-primary-soft px-3 py-2">
+          <span className="text-xs font-medium">Novo visual PageNova: use o layout aprovado com o seu conteudo, sem gerar novamente.</span>
+          <Button size="sm" variant="secondary" onClick={applyUniversalVisual}>Aplicar visual PageNova</Button>
+        </div>
+      ) : diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId === 'frigolog-universal' ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted px-3 py-2">
+          <span className="text-xs font-medium">✓ Visual PageNova ativo · mesmo site para editar e publicar</span>
+          <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Voltar visual anterior</Button>
+        </div>
+      ) : null}
+      {showIssues && lintReport ? (
+        <div className="max-h-48 overflow-y-auto border-b border-border bg-surface px-3 py-3" role="region" aria-label="Erros e avisos do site">
+          {lintReport.errors.length === 0 && lintReport.warnings.length === 0 ? (
+            <p className="text-sm">Nenhum problema encontrado.</p>
+          ) : (
+            <ul className="space-y-2">
+              {[...lintReport.errors, ...lintReport.warnings].map((issue, i) => (
+                <li key={issue.code + issue.path + i}>
+                  <button type="button" className="w-full rounded-lg border border-border px-3 py-2 text-left text-xs hover:bg-muted"
+                    onClick={() => {
+                      const match = /^sections\[(\d+)\]/.exec(issue.path);
+                      if (match) setSelectedId(config.sections[Number(match[1])]?.id ?? null);
+                    }}>
+                    <strong className={issue.severity === 'ERROR' ? 'text-danger' : 'text-warning'}>
+                      {issue.severity === 'ERROR' ? 'Erro que bloqueia publicacao' : 'Aviso'}
+                    </strong>
+                    <span className="ml-2">{issue.message}</span>
+                    <span className="mt-1 block text-muted-foreground">{issue.path}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      ) : null}
 
       {saveState === 'conflict' ? (
         <Callout tone="danger" title="Conflito de edicao">
@@ -458,6 +515,7 @@ function EditorTopBar({
   onShowPublish,
   warningCount,
   errorCount,
+  onShowIssues,
 }: {
   canUndo: boolean;
   canRedo: boolean;
@@ -471,6 +529,7 @@ function EditorTopBar({
   onShowPublish: () => void;
   warningCount: number;
   errorCount: number;
+  onShowIssues: () => void;
 }) {
   const saveLabel = {
     idle: '',
@@ -510,8 +569,8 @@ function EditorTopBar({
 
       <span className="shrink-0 text-xs text-muted-foreground">{saveLabel}</span>
 
-      {errorCount > 0 ? <Badge tone="danger">{errorCount} erro(s)</Badge> : null}
-      {warningCount > 0 ? <Badge tone="warning">{warningCount} aviso(s)</Badge> : null}
+      {errorCount > 0 ? <button type="button" onClick={onShowIssues} aria-label="Ver detalhes dos erros"><Badge tone="danger">{errorCount} erro(s) · detalhes</Badge></button> : null}
+      {warningCount > 0 ? <button type="button" onClick={onShowIssues} aria-label="Ver detalhes dos avisos"><Badge tone="warning">{warningCount} aviso(s) · detalhes</Badge></button> : null}
 
       <div className="ml-auto flex shrink-0 items-center gap-1 md:gap-2">
         <Button className="hidden sm:inline-flex" variant="secondary" size="sm" onClick={onCreateVersion}>
