@@ -41,6 +41,20 @@ describe('collectAssetIds', () => {
     expect(collectAssetIds(model)).toContain('A'.repeat(26));
   });
 
+  it('inclui fotos de etapas de processo no artefato, sem perde-las no ZIP', async () => {
+    const { collectAssetIds } = await import('@builder/publishing/artifact-builder');
+    const model = buildFixtureSite();
+    const photo = { assetId: 'P'.repeat(26), alt: 'Foto do atendimento', focalX: 0.5, focalY: 0.5 };
+    model.sections.push({
+      type: 'process', id: 'process-photo-1', anchor: 'operacao', visible: true,
+      headline: 'Como trabalhamos', steps: [
+        { title: 'Atendimento inicial', body: 'Conhecer a equipe', image: photo },
+        { title: 'Orientacao', body: 'Explicacao do cuidado' },
+      ],
+    } as typeof model.sections[number]);
+    expect(collectAssetIds(model)).toContain(photo.assetId);
+  });
+
   it('nao duplica quando o mesmo asset e usado em dois lugares', async () => {
     const { collectAssetIds } = await import('@builder/publishing/artifact-builder');
     const model = buildFixtureSite();
