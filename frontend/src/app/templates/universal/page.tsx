@@ -19,6 +19,10 @@ export default function UniversalTemplatePreview() {
   const [name, setName] = useState("");
   const [primary, setPrimary] = useState("");
   const [panelOpen, setPanelOpen] = useState(false);
+  const [details, setDetails] = useState("");
+  const [generated, setGenerated] = useState<UniversalSiteData | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [heroPhoto, setHeroPhoto] = useState("");
   const [teamPhoto, setTeamPhoto] = useState("");
   const [operationPhoto, setOperationPhoto] = useState("");
@@ -58,6 +62,18 @@ export default function UniversalTemplatePreview() {
     };
   }, [preset, name, primary, heroPhoto, teamPhoto, operationPhoto]);
 
+  async function generateContent() {
+    setBusy(true); setErrorMessage("");
+    try {
+      const response = await fetch("/api/templates/universal/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ niche: preset === "frigolog" ? "logística frigorífica" : preset, company: name.trim() || presets[preset].name, details }) });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Não foi possível gerar.");
+      setGenerated(payload.data);
+      setPanelOpen(false);
+    } catch (e) { setErrorMessage(e instanceof Error ? e.message : "Falha na geração."); }
+    finally { setBusy(false); }
+  }
+  const displayData = generated ? { ...generated, palette: { ...generated.palette, primary: primary || generated.palette.primary }, hero: { ...generated.hero, image: { ...generated.hero.image, src: heroPhoto || generated.hero.image.src } }, about: { ...generated.about, image: { ...generated.about.image, src: teamPhoto || generated.about.image.src } }, coverage: { ...generated.coverage, image: { ...generated.coverage.image, src: operationPhoto || generated.coverage.image.src } } } : data;
   return <div>
     <div className="sticky top-0 z-[60] border-b border-slate-200 bg-white text-slate-800 shadow-sm">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5">
@@ -68,7 +84,7 @@ export default function UniversalTemplatePreview() {
       </div>
       {panelOpen && <div id="universal-controls" className="mx-auto grid max-w-6xl gap-3 border-t border-slate-200 px-4 py-4 sm:grid-cols-2 lg:grid-cols-3">
         <label className="flex flex-col gap-1 text-xs font-semibold">Nicho
-          <select aria-label="Selecionar nicho" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm" value={preset} onChange={e => {setPreset(e.target.value as PresetKey);setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");}}>
+          <select aria-label="Selecionar nicho" className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm" value={preset} onChange={e => {setPreset(e.target.value as PresetKey);setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");setGenerated(null);}}>
             <option value="frigolog">FRIGOLOG original</option><option value="clinica">Clínica</option><option value="imobiliaria">Imobiliária</option><option value="restaurante">Restaurante</option>
           </select>
         </label>
@@ -85,12 +101,17 @@ export default function UniversalTemplatePreview() {
         ] as const).map(([label,value,setValue]) => <label key={label} className="flex flex-col gap-1 text-xs font-semibold">{label}
           <input aria-label={label} className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" type="url" placeholder="https://exemplo.com/foto.jpg" value={value} onChange={e=>setValue(e.target.value)}/>
         </label>)}
+        <label className="flex flex-col gap-1 text-xs font-semibold sm:col-span-2 lg:col-span-3">Informações sobre o negócio
+          <textarea rows={3} maxLength={1200} className="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm" placeholder="Serviços, cidade, diferenciais e público-alvo" value={details} onChange={e=>setDetails(e.target.value)}/>
+        </label>
+        <button type="button" disabled={busy} onClick={generateContent} className="rounded-lg bg-blue-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-2 lg:col-span-3">{busy ? "Gerando..." : "Gerar textos com IA"}</button>
+        {errorMessage && <p role="alert" className="text-sm text-red-700 sm:col-span-2 lg:col-span-3">{errorMessage}</p>}
         <div className="flex flex-col justify-end gap-2">
-          <button type="button" onClick={() => {setPreset("frigolog");setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");}} className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold"><RotateCcw size={15}/> Restaurar exemplo</button>
+          <button type="button" onClick={() => {setPreset("frigolog");setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");setGenerated(null);setDetails("");}} className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold"><RotateCcw size={15}/> Restaurar exemplo</button>
         </div>
-        <p className="text-xs text-amber-800 sm:col-span-2 lg:col-span-3">Prévia de personalização manual: fotos podem ser substituídas por URLs públicas. A geração automática por IA ainda não está conectada.</p>
+        <p className="text-xs text-amber-800 sm:col-span-2 lg:col-span-3">A IA gera os textos. As fotografias são personalizadas separadamente. Requer login e API configurada.</p>
       </div>}
     </div>
-    <UniversalFrigologTemplate data={data}/>
+    <UniversalFrigologTemplate data={displayData}/>
   </div>;
 }
