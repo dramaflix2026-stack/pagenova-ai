@@ -126,7 +126,7 @@ siteAiRouter.get(
   requireAuth,
   requireCapability('SITE_AI_MANAGE'),
   asyncHandler(async (_req, res) => {
-    res.json({ diagnostics: await moduleDiagnostics() });
+    res.json({ diagnostics: { ...(await moduleDiagnostics()), universalTemplateSupported: true } });
   }),
 );
 
