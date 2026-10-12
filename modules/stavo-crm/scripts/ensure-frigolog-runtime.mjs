@@ -8,7 +8,6 @@ import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
 const entry = resolve('dist/server/index.js');
-const marker = 'not-synchronized';
 function bundleIsReady() {
   if (!existsSync(entry)) return false;
   const code = readFileSync(entry, 'utf8');
@@ -16,10 +15,14 @@ function bundleIsReady() {
   // searching for it, confirm the canonical CSS payload was bundled.
   return code.includes('frigolog-kpi-grid') &&
     code.includes('FRIGOLOG canonical source') &&
-    code.includes('pn-photo-missing');
+    code.includes('pn-photo-missing') &&
+    // The previous bundled component had no operation steps, even though
+    // the adapter had already started populating them. Build must include the
+    // actual step-card JSX before serving any site or generation job.
+    code.includes('data-pn-operation-steps');
 }
 if (!bundleIsReady()) {
-  console.warn('[FRIGOLOG] Runtime bundle missing canonical CSS. Rebuilding before starting worker.');
+  console.warn('[FRIGOLOG] Runtime bundle missing the current canonical operation cards. Rebuilding before starting worker.');
   for (const args of [
     ['scripts/sync-frigolog-master.mjs'],
     ['scripts/build-server.mjs'],
