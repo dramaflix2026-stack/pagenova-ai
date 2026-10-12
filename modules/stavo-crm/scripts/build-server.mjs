@@ -4,7 +4,7 @@
  * aliases de importacao sem precisar de loader em tempo de execucao.
  */
 import { build } from 'esbuild';
-import { rm, mkdir } from 'node:fs/promises';
+import { rm, mkdir, readFile } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
 
 /**
@@ -45,4 +45,13 @@ if (result.errors.length > 0) {
   process.exit(1);
 }
 
+// Prevent a green Railway build with the placeholder source accidentally
+// embedded in the worker bundle. A deployed app must not fail at 60%.
+const output = await readFile('dist/server/index.js', 'utf8');
+for (const required of ['frigolog-kpi-grid', 'pn-photo-missing', 'FRIGOLOG canonical source']) {
+  if (!output.includes(required)) {
+    throw new Error('[FRIGOLOG] Compiled backend is missing canonical template marker: ' + required);
+  }
+}
+console.log('[FRIGOLOG] Canonical template included in server bundle.');
 console.log('Servidor compilado em dist/server/index.js');
