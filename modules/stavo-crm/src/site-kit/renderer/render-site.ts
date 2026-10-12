@@ -340,6 +340,28 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .site-footer{padding-block:44px}
 }
 
+
+/* Lovable-reference editorial overlay: full-bleed photography, left reading axis,
+   warm scrim and readable ink. This is applied in preview and publication. */
+.hero.hero--overlay{position:relative!important;padding:0!important;min-height:620px;overflow:hidden;background:var(--surface)}
+.hero.hero--overlay .hero-overlay-media{position:absolute!important;inset:0!important;min-height:100%!important;width:100%;height:100%;z-index:0}
+.hero.hero--overlay .hero-overlay-media img{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:0!important}
+.hero.hero--overlay .hero-overlay-scrim{display:block!important;position:absolute!important;inset:0;background:linear-gradient(90deg,rgba(250,244,237,.96) 0%,rgba(250,244,237,.88) 23%,rgba(250,244,237,.55) 43%,rgba(250,244,237,.12) 66%,transparent 84%)!important}
+.hero.hero--overlay .hero-overlay-body{position:relative!important;z-index:1!important;inset:auto!important;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:620px;box-sizing:border-box;width:100%;max-width:1320px!important;margin:0 auto!important;padding:clamp(60px,8vw,120px) clamp(28px,4.5vw,76px)!important;color:var(--text)!important}
+.hero.hero--overlay .hero-overlay-body h1{font-size:clamp(2.8rem,4.65vw,5.2rem)!important;line-height:1.075!important;letter-spacing:-.035em!important;font-weight:500;max-width:12.5ch!important;text-wrap:balance;color:var(--text)!important;margin:0 0 24px}
+.hero.hero--overlay .hero-overlay-body .eyebrow{color:var(--primary)!important;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:24px}
+.hero.hero--overlay .hero-overlay-body .lead{color:var(--muted)!important;max-width:42ch;font-size:clamp(1rem,1.25vw,1.15rem);line-height:1.85}
+.hero.hero--overlay .hero-overlay-body .actions{margin-top:22px;display:flex;flex-wrap:wrap;gap:14px}
+@media(min-width:900px){.hero.hero--overlay{min-height:clamp(620px,72vh,830px)}.hero.hero--overlay .hero-overlay-body{min-height:clamp(620px,72vh,830px)}}
+@media(max-width:899px){
+.hero.hero--overlay{min-height:620px!important}
+.hero.hero--overlay .hero-overlay-media{position:absolute!important;inset:0!important;min-height:100%!important}
+.hero.hero--overlay .hero-overlay-media img{position:absolute!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;object-fit:cover!important}
+.hero.hero--overlay .hero-overlay-scrim{background:linear-gradient(90deg,rgba(250,244,237,.96) 0%,rgba(250,244,237,.84) 48%,rgba(250,244,237,.48) 100%)!important}
+.hero.hero--overlay .hero-overlay-body{position:relative!important;min-height:620px;padding:72px 26px!important}
+.hero.hero--overlay .hero-overlay-body h1{font-size:clamp(2.35rem,8vw,3.7rem)!important;max-width:13ch!important}
+}
+
 </style>
 ${renderJsonLd(model)}
 </head>
