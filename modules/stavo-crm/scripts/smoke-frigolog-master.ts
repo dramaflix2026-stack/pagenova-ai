@@ -46,7 +46,9 @@ check(data.brand.name==='Galdiano Odontologia','lead classification suffix leaki
 check(data.hero.image.src==='','missing licensed photo must not be replaced with a fake one');
 const html=renderCanonicalFrigolog(site,ctx,x=>x);
 check(html.includes('class="frigolog-template"'),'canonical React template markup missing');
-check(html.includes('class="hero"'),'canonical hero missing');
+check(html.includes('class="hero pn-photo-missing"'),'no-photo hero must collapse safely');
+check(FRIGOLOG_APPROVED_CSS.includes('.hero.pn-photo-missing'),'fallback CSS missing');
+check(html.includes('id="conteudo"'),'accessible skip anchor missing');
 check(html.includes('frigolog-kpi-card'),'canonical highlight cards missing');
 check(html.includes('href="https://wa.me/5516999999999"'),'CRM WhatsApp link missing');
 check(!html.includes('frigolog/cold-storage.jpg'),'refrigeration photos used on dental lead');
