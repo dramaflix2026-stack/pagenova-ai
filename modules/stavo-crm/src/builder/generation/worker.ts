@@ -304,13 +304,16 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
           itemImages: [toRef(thirdCandidate)],
         };
       } else if (thirdCandidate) {
-        // Preserve a third distinct image on a gallery when the plan has no process.
+        // Galleries require two images; prefer real Google photos over synthetic images.
         const galleryIndex = plan.sections.findIndex((section) => section.type === 'gallery');
         if (galleryIndex >= 0) {
           const existing = imageBindings[galleryIndex] ?? {};
+          const galleryCandidates = realCandidates.length >= 2
+            ? realCandidates.slice(0, 5)
+            : [fallbackSecondary, thirdCandidate].filter((item): item is (typeof imageCandidates)[number] => Boolean(item));
           imageBindings[galleryIndex] = {
             ...existing,
-            gallery: [...(existing.gallery ?? []), toRef(thirdCandidate)],
+            gallery: galleryCandidates.map(toRef),
           };
         }
       }
