@@ -85,3 +85,53 @@
     padding-bottom:48px!important;
   }
 }
+
+
+/* PAGENOVA MASTER FIDELITY V2 — fixed FRIGOLOG visual system for every niche.
+   Palette remains customizable; geometry, typography and depth do not. */
+.frigolog-template{--pn-master-surface:#f2f6f9;--pn-master-ink:#1c2c39}
+.frigolog-template #servicos{background:var(--pn-master-surface)!important}
+.frigolog-template #servicos .service-card{
+  border:1px solid color-mix(in srgb,var(--primary) 13%,#dce5eb)!important;
+  border-radius:28px!important;
+  background:radial-gradient(ellipse at 16% 0%,color-mix(in srgb,var(--accent) 9%,#fff) 0%,#fff 66%)!important;
+  box-shadow:0 22px 38px rgba(20,45,52,.15)!important;
+  padding:clamp(24px,5vw,38px)!important;
+  min-height:275px!important;
+}
+.frigolog-template #servicos .service-card .service-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:64px;height:64px;border-radius:50%;
+  background:color-mix(in srgb,var(--primary) 12%,#e6f3f7);
+  color:var(--primary);
+}
+.frigolog-template #servicos .service-card h3{font-size:clamp(18px,2vw,22px)!important;line-height:1.35!important;font-weight:700!important;color:var(--foreground)}
+.frigolog-template #servicos .service-card p{font-size:clamp(15px,1.7vw,17px)!important;line-height:1.7!important}
+.frigolog-template #servicos .service-card a{font-size:16px!important;font-weight:700!important;justify-content:center!important;padding-top:26px!important}
+.frigolog-template #contato{background:var(--primary)!important;color:#fff!important}
+.frigolog-template #contato .frigolog-button{
+  display:inline-flex!important;align-items:center;justify-content:center;gap:12px;
+  border-radius:12px!important;background:color-mix(in srgb,var(--primary) 10%,#fff)!important;
+  color:var(--primary)!important;font-size:clamp(16px,2vw,19px)!important;
+  font-weight:700!important;padding:19px 30px!important;
+}
+.frigolog-template footer{
+  background:#101a16!important;color:#f3f5f4!important;
+  padding:clamp(50px,7vw,88px) 0!important;
+}
+.frigolog-template footer .site-container{border-top:1px solid rgba(255,255,255,.15);padding-top:30px}
+.frigolog-template footer strong{color:#f3f5f4;font-size:clamp(20px,3vw,27px);letter-spacing:.02em}
+.frigolog-template footer p{color:#b4c0bc!important;font-size:13px!important;line-height:1.7}
+.frigolog-template #sobre{background:#e7eef2!important}
+.frigolog-template #sobre .about-image{border-radius:12px;object-fit:cover;max-height:650px}
+.frigolog-template #sobre p:not(.eyebrow){line-height:1.85}
+.frigolog-template .section-heading{font-weight:750!important;letter-spacing:-.035em!important}
+.frigolog-template .eyebrow{font-weight:700!important;letter-spacing:.23em!important}
+@media(max-width:767px){
+ .frigolog-template #servicos{padding-top:58px!important;padding-bottom:62px!important}
+ .frigolog-template #servicos .service-card{min-height:245px!important;margin-bottom:5px}
+ .frigolog-template #sobre{padding-top:66px!important;padding-bottom:66px!important}
+ .frigolog-template #contato{padding-top:72px!important;padding-bottom:72px!important}
+ .frigolog-template #contato .frigolog-button{max-width:calc(100% - 24px)}
+ .frigolog-template footer .site-container{display:flex;flex-direction:column;align-items:flex-start;gap:22px}
+}
