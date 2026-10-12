@@ -205,7 +205,13 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags(isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
-${isUniversal ? '' : `/* Critical responsive guard: emitted by the document renderer itself. */
+${isUniversal ? `/* Canonical FRIGOLOG in a standalone HTML document.
+   Tailwind preflight alone does not define the shared skip-link utility. */
+html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
+.frigolog-template{min-height:100vh}
+.skip{position:absolute;left:-9999px;top:0;z-index:1000;padding:12px 16px;background:#fff;color:#173a41}
+.skip:focus{position:fixed;left:12px;top:12px;outline:3px solid #315b82}
+` : `/* Critical responsive guard: emitted by the document renderer itself. */
 @media screen and (max-width:899px){
 html,body{width:100%;max-width:100%;overflow-x:hidden}
 .container{width:100%!important;max-width:100%!important}
