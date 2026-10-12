@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Settings2, ChevronDown, ChevronUp, RotateCcw, Download, Upload, CheckCircle2 } from "lucide-react";
 import UniversalFrigologTemplate from "@/components/templates/UniversalFrigologTemplate";
 import { frigologReferenceData, validateUniversalSiteData, type UniversalSiteData } from "@/lib/frigolog-template-data";
@@ -24,9 +24,38 @@ export default function UniversalTemplatePreview() {
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [notice, setNotice] = useState("");
+  const [restored, setRestored] = useState(false);
   const [heroPhoto, setHeroPhoto] = useState("");
   const [teamPhoto, setTeamPhoto] = useState("");
   const [operationPhoto, setOperationPhoto] = useState("");
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("pagenova-universal-draft-v1");
+      if (saved) {
+        const parsed: unknown = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          const draft = parsed as Record<string, unknown>;
+          if (draft.generated && validateUniversalSiteData(draft.generated as UniversalSiteData).length === 0) {
+            setGenerated(draft.generated as UniversalSiteData);
+          }
+          if (typeof draft.name === "string") setName(draft.name.slice(0, 48));
+          if (typeof draft.details === "string") setDetails(draft.details.slice(0, 1200));
+          if (typeof draft.primary === "string" && /^#[0-9a-fA-F]{6}$/.test(draft.primary)) setPrimary(draft.primary);
+          if (typeof draft.preset === "string" && Object.prototype.hasOwnProperty.call(presets, draft.preset)) setPreset(draft.preset as PresetKey);
+          if (typeof draft.heroPhoto === "string") setHeroPhoto(draft.heroPhoto);
+          if (typeof draft.teamPhoto === "string") setTeamPhoto(draft.teamPhoto);
+          if (typeof draft.operationPhoto === "string") setOperationPhoto(draft.operationPhoto);
+        }
+      }
+    } catch { /* Browser storage may be unavailable */ }
+    setRestored(true);
+  }, []);
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      window.localStorage.setItem("pagenova-universal-draft-v1", JSON.stringify({ preset, name, details, primary, generated, heroPhoto, teamPhoto, operationPhoto }));
+    } catch { /* Browser storage may be unavailable */ }
+  }, [restored, preset, name, details, primary, generated, heroPhoto, teamPhoto, operationPhoto]);
   const data: UniversalSiteData = useMemo(() => {
     const p = presets[preset];
     const isReference = preset === "frigolog";
@@ -134,7 +163,7 @@ export default function UniversalTemplatePreview() {
         <button type="button" disabled={busy} onClick={generateContent} className="rounded-lg bg-blue-700 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-2 lg:col-span-3">{busy ? "Gerando..." : "Gerar textos com IA"}</button>
         {errorMessage && <p role="alert" className="text-sm text-red-700 sm:col-span-2 lg:col-span-3">{errorMessage}</p>}
         <div className="flex flex-col justify-end gap-2">
-          <button type="button" onClick={() => {setPreset("frigolog");setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");setGenerated(null);setDetails("");}} className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold"><RotateCcw size={15}/> Restaurar exemplo</button>
+          <button type="button" onClick={() => {setPreset("frigolog");setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");setGenerated(null);setDetails("");setNotice("Exemplo restaurado.");}} className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold"><RotateCcw size={15}/> Restaurar exemplo</button>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3">
           <button type="button" onClick={downloadDraft} className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm"><Download size={16}/> Exportar rascunho</button>
@@ -142,7 +171,7 @@ export default function UniversalTemplatePreview() {
             <input type="file" accept="application/json,.json" className="sr-only" onChange={async e => { await importDraft(e.target.files?.[0]); e.target.value = ""; }}/>
           </label>
         </div>
-        <p className="text-xs text-amber-800 sm:col-span-2 lg:col-span-3">A IA gera os textos. As fotografias são personalizadas separadamente. Requer login e API configurada.</p>
+        <p className="text-xs text-amber-800 sm:col-span-2 lg:col-span-3">Rascunho salvo automaticamente neste navegador. Não está salvo no CRM nem publicado. A IA requer login e API configurada.</p>
       </div>}
     </div>
     {notice && <div role="status" className="flex items-center justify-center gap-2 bg-emerald-50 px-4 py-2 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div>}
