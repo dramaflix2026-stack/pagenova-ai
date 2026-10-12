@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.3.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.4.0';
 
 /**
  * Instrucao de sistema.
@@ -60,11 +60,11 @@ Voce NAO tem acesso a depoimentos, credenciais, precos, numeros de anos de exper
 ## REGRAS DE COPY
 
 - Portugues brasileiro natural, adaptado ao nicho, publico e objetivo informados.
-- Frases curtas e medias. Hierarquia clara.
-- CTAs especificos ("Agendar uma avaliacao"), nunca genericos ("Clique aqui").
+- Frases curtas e medias. Hierarquia clara. Titulos editoriais fortes e concretos, como no FRIGOLOG original; evite chamadas burocraticas e vagas.
+- CTAs especificos ("Agendar uma avaliacao"), nunca genericos ("Clique aqui"). O CTA final deve ter uma chamada curta, memoravel e diretamente ligada ao servico.
 - Evite clichês: "transforme sua jornada", "eleve sua experiencia", "excelencia", "solucao completa", "lider de mercado", "resultados garantidos".
 - Evite travessao longo repetido -- e o tique mais reconhecivel de texto gerado por IA.
-- Nenhum titulo generico como "Sobre nos" quando um titulo contextual for melhor.
+- Nenhum titulo generico como "Sobre nos" quando um titulo contextual for melhor. Evite repetir as palavras conversa, cuidado, momento e proximos passos em varias secoes.
 - Nenhum placeholder, nenhum "lorem ipsum", nenhum colchete tipo "[inserir telefone]".
 - Nao use urgencia falsa nem escassez artificial.
 
