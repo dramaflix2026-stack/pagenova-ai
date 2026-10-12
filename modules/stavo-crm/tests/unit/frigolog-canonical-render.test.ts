@@ -85,6 +85,27 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('/assets/clinic-photo.webp');
     expect(html).toContain('Foto real da clínica');
   });
+  it('renders the real process photograph and step cards in the operation section',()=>{
+    const model=site();
+    model.sections.splice(4,0,{
+      type:'process',id:'process-1',visible:true,anchor:'operacao',
+      headline:'Como trabalhamos',subheadline:'Etapas para iniciar o atendimento',
+      steps:[
+        {title:'Conversa inicial',body:'Entendemos a sua necessidade',
+          image:{assetId:'0123456789ABCDEFGHJKMNPQRS',alt:'Foto Google Places da clínica',focalX:0.5,focalY:0.5}},
+        {title:'Próximos passos',body:'Apresentamos opções'},
+      ],
+    } as SiteSchemaModel['sections'][number]);
+    const withImage={profile:'DEMO' as const,resolveAsset:(id:string)=>id==='0123456789ABCDEFGHJKMNPQRS'
+      ? {url:'/assets/real-google-photo.webp'} : null};
+    const data=adaptCrmToFrigolog(model,withImage);
+    expect(data.coverage.image.src).toBe('/assets/real-google-photo.webp');
+    expect(data.coverage.steps?.map(step=>step.title)).toEqual(['Conversa inicial','Próximos passos']);
+    const html=renderCanonicalFrigolog(model,withImage,s=>s);
+    expect(html).toContain('/assets/real-google-photo.webp');
+    expect(html).toContain('Conversa inicial');
+    expect(html).toContain('Entendemos a sua necessidade');
+  });
   it('removes only CRM classification suffix, not a business trade name',()=>{
     expect(cleanLeadBrand('Galdiano Odontologia (dentista/implante dentário)',
       'dentista/implante dentário')).toBe('Galdiano Odontologia');
