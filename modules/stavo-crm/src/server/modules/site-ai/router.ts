@@ -35,6 +35,7 @@ import { asyncHandler, parseBody, parseQuery } from '../../lib/http';
 import { csrfProtection, requireAuth, requireCapability } from '../../middleware';
 import { ProviderError, usageRecord } from '@builder/generation/provider';
 import * as repo from './repository';
+import { recoverMissingGooglePlacePhotos } from './photo-recovery';
 import {
   archiveProject,
   assertBudgetAvailable,
@@ -621,8 +622,20 @@ siteAiRouter.get(
     const { siteAssetsDirAbsolute } = await import('../../config/env');
     const storage = createLocalStorage(siteAssetsDirAbsolute());
 
-    const buffer = await storage.read(asset.storageKey).catch(() => null);
-    if (!buffer) throw notFound('Arquivo nao encontrado no armazenamento.', 'SITE_ASSET_MISSING_FILE');
+    let buffer = await storage.read(asset.storageKey).catch(() => null);
+    if (!buffer && asset.source === 'GOOGLE_PLACES') {
+      // A reinicializacao do Railway pode apagar o arquivo local, sem apagar
+      // seus metadados no MySQL. Restaure no MESMO assetId/storageKey para que
+      // editor e site publicado continuem apontando para a mesma foto real.
+      // Recuperacao com single-flight e cooldown: nao cobra repetidamente
+      // o Google quando uma foto falha em carregar.
+      await recoverMissingGooglePlacePhotos(project);
+      buffer = await storage.read(asset.storageKey).catch(() => null);
+    }
+    if (!buffer) throw notFound(
+      'Esta foto nao esta mais disponivel. Substitua a imagem no editor.',
+      'SITE_ASSET_MISSING_FILE',
+    );
 
     res.setHeader('Cache-Control', 'private, max-age=3600');
     res.type(asset.mimeType).send(buffer);
