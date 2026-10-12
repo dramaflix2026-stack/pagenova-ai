@@ -58,3 +58,59 @@ if (!currentCss.includes('FRIGOLOG_MOBILE_V8')) writeFileSync(cssPath, currentCs
 const statsCss = "\n/* FRIGOLOG_STATS_V9: responsive KPI panel */\n.frigolog-template .stats-grid,\n.frigolog-template .stats-container,\n.frigolog-template .stats-list {\n  align-items:stretch;\n}\n@media (min-width: 768px) {\n .frigolog-template .stats-grid,\n .frigolog-template .stats-list {\n   display:grid!important;\n   grid-template-columns:repeat(4,minmax(0,1fr))!important;\n   gap:14px!important;\n   align-items:stretch!important;\n }\n .frigolog-template .stats-grid > *,\n .frigolog-template .stats-list > * {\n   min-width:0;\n   padding:20px 16px!important;\n   border:1px solid #cbd9e4;\n   border-radius:16px;\n   background:rgba(255,255,255,.64);\n }\n .frigolog-template .stats-grid svg,\n .frigolog-template .stats-list svg {flex-shrink:0;width:24px;height:24px;}\n}\n@media (min-width:768px) and (max-width:1100px) {\n .frigolog-template .stats-grid,\n .frigolog-template .stats-list {grid-template-columns:repeat(2,minmax(0,1fr))!important;}\n}\n@media (max-width:767px) {\n .frigolog-template .stats-grid,\n .frigolog-template .stats-list {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;}\n .frigolog-template .stats-grid > *,\n .frigolog-template .stats-list > * {padding:16px 12px!important;border:1px solid #cbd9e4;border-radius:12px;background:#ffffffb8;min-width:0;}\n .frigolog-template .stats-grid svg,\n .frigolog-template .stats-list svg {width:22px;height:22px;flex-shrink:0;}\n}\n";
 const existingStatsCss = readFileSync(cssPath, 'utf8');
 if (!existingStatsCss.includes('FRIGOLOG_STATS_V9')) writeFileSync(cssPath, existingStatsCss + '\n' + statsCss);
+
+// FRIGOLOG_KPI_V10: update the actual React markup (not guessed CSS class names).
+const templatePath = resolve(root, 'frontend/src/app/templates/frigolog/FrigologTemplate.tsx');
+let template = readFileSync(templatePath, 'utf8');
+if (!template.includes('FRIGOLOG_KPI_V10')) {
+  const originalImport = 'MessageCircle, Thermometer } from "lucide-react";';
+  const updatedImport = 'MessageCircle, Thermometer, Clock3, MapPin } from "lucide-react";';
+  const originalStats = `const stats = [
+  { value: "24/7", label: "Monitoramento de temperatura" },
+  { value: "−18 °C a +4 °C", label: "Faixa controlada em toda a operação" },
+  { value: "Frota própria", label: "Baús e carretas refrigerados" },
+  { value: "SP inteira", label: "Capital, ABC, interior e litoral" },
+];`;
+  const updatedStats = `// FRIGOLOG_KPI_V10
+const stats = [
+  { icon: Clock3, value: "24/7", label: "Monitoramento de temperatura" },
+  { icon: Thermometer, value: "−18 °C a +4 °C", label: "Faixa controlada em toda a operação" },
+  { icon: Truck, value: "Frota própria", label: "Baús e carretas refrigerados" },
+  { icon: MapPin, value: "SP inteira", label: "Capital, ABC, interior e litoral" },
+];`;
+  const originalSection = `<section className="border-b border-border bg-secondary/50 py-7" aria-label="Números da operação">
+        <div className="site-container grid gap-6 sm:grid-cols-2 lg:grid-cols-4">{stats.map(item => <div key={item.value} className="flex items-center gap-4 lg:justify-center"><Thermometer className="h-6 w-6 shrink-0 text-primary" strokeWidth={1.4} /><div className="min-w-0"><p className="text-[15px] font-bold leading-tight">{item.value}</p><p className="mt-1 text-xs text-muted-foreground">{item.label}</p></div></div>)}</div>
+      </section>`;
+  const updatedSection = `<section className="frigolog-kpi-section border-b border-border bg-secondary/50" aria-label="Números da operação">
+        <div className="site-container frigolog-kpi-grid">{stats.map(item => <div key={item.value} className="frigolog-kpi-card"><span className="frigolog-kpi-icon"><item.icon strokeWidth={1.8} aria-hidden="true" /></span><div className="frigolog-kpi-copy"><p className="frigolog-kpi-value">{item.value}</p><p className="frigolog-kpi-label">{item.label}</p></div></div>)}</div>
+      </section>`;
+  for (const [from, to] of [[originalImport, updatedImport], [originalStats, updatedStats], [originalSection, updatedSection]]) {
+    if (!template.includes(from)) throw new Error('FRIGOLOG KPI V10: expected source markup not found; aborting');
+    template = template.replace(from, to);
+  }
+  writeFileSync(templatePath, template);
+}
+const kpiCss = `
+/* FRIGOLOG_KPI_V10: actual rendered KPI cards */
+.frigolog-template .frigolog-kpi-section {padding:24px 0 28px;}
+.frigolog-template .frigolog-kpi-grid {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;}
+.frigolog-template .frigolog-kpi-card {display:flex;align-items:center;gap:13px;min-width:0;min-height:104px;padding:18px 16px;border:1px solid #d2dfe8;border-radius:14px;background:rgba(255,255,255,.78);box-shadow:0 5px 15px rgba(19,53,78,.04);}
+.frigolog-template .frigolog-kpi-icon {display:flex;flex:0 0 42px;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:#e4eef5;color:#2d597d;}
+.frigolog-template .frigolog-kpi-icon svg {width:23px;height:23px;}
+.frigolog-template .frigolog-kpi-copy {min-width:0;}
+.frigolog-template .frigolog-kpi-value {font-size:17px;font-weight:750;line-height:1.25;color:#192d3e;}
+.frigolog-template .frigolog-kpi-label {margin-top:5px;font-size:12px;line-height:1.45;color:#5b6975;}
+@media (max-width:1100px) {.frigolog-template .frigolog-kpi-grid {grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media (max-width:600px) {
+ .frigolog-template .frigolog-kpi-section {padding:15px 0 20px;}
+ .frigolog-template .frigolog-kpi-grid {gap:9px;}
+ .frigolog-template .frigolog-kpi-card {display:block;min-height:140px;padding:14px 12px;border-radius:12px;}
+ .frigolog-template .frigolog-kpi-icon {width:36px;height:36px;margin-bottom:12px;}
+ .frigolog-template .frigolog-kpi-icon svg {width:20px;height:20px;}
+ .frigolog-template .frigolog-kpi-value {font-size:15px;}
+ .frigolog-template .frigolog-kpi-label {font-size:11px;}
+}
+@media (max-width:340px) {.frigolog-template .frigolog-kpi-grid {grid-template-columns:1fr;}.frigolog-template .frigolog-kpi-card {display:flex;min-height:90px;}}
+`;
+const kpiCssCurrent = readFileSync(cssPath, 'utf8');
+if (!kpiCssCurrent.includes('FRIGOLOG_KPI_V10')) writeFileSync(cssPath, kpiCssCurrent + '\n' + kpiCss);
