@@ -8,7 +8,7 @@
 import * as repo from '@server/modules/site-ai/repository';
 import type { SiteAssetProvider, SiteImageCandidate } from '@builder/generation/image-candidates';
 
-const USABLE_RIGHTS = new Set(['OWNED', 'LICENSED']);
+const USABLE_RIGHTS = new Set(['OWNED', 'LICENSED', 'AI_GENERATED']);
 
 export class UploadAssetProvider implements SiteAssetProvider {
   readonly name = 'uploads';
