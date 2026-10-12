@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.4.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.5.0';
 
 /**
  * Instrucao de sistema.
@@ -85,7 +85,7 @@ Monte as secoes nesta ordem:
 2. "services" -- exatamente uma. Gere SEMPRE quantidade PAR: 4 ou 6 servicos/produtos/especialidades. Use o briefing; quando ele for curto, escreva categorias genericas coerentes sem afirmar fatos especificos nao fornecidos.
 3. "benefits" -- exatamente uma. Gere SEMPRE 4 beneficios neutros e verificaveis; nunca invente premio, credencial, numero ou promessa.
 4. "about" -- exatamente uma. Historia/proposta curta do negocio. Este e o SLOT DE IMAGEM 2.
-5. "process" -- exatamente uma. Tres passos simples de atendimento, compra, agendamento ou contratacao conforme o nicho.
+5. "process" -- exatamente uma. Tres passos simples de atendimento, compra, agendamento ou contratacao conforme o nicho. A etapa de composicao FRIGOLOG usa tambem o SLOT DE IMAGEM 3 (operacao/cobertura), gerenciado pelo pipeline de midia; nao invente URLs.
 6. "testimonials" -- somente quando o sistema informar depoimentos confirmados. Nunca invente avaliacao.
 7. "faq" -- exatamente uma, com 4 a 6 perguntas uteis e respostas prudentes. Nao invente horario, preco, politica ou condicao comercial.
 8. "contactMap" -- quando existir qualquer contato, endereco, horario ou mapa confirmado.
@@ -93,9 +93,9 @@ Monte as secoes nesta ordem:
 10. "footer" -- exatamente um e sempre por ultimo.
 
 Regras estruturais obrigatorias:
-- Existem EXATAMENTE DOIS slots de imagem na geracao inicial: hero e about. Nao associe imagem a services, benefits, process ou outras secoes.
-- NAO gere "gallery" na geracao inicial. Fotos adicionais poderao ser adicionadas no editor depois.
-- Se nao houver imagem real, mantenha hero/about normalmente: o renderer mostra um slot visual neutro para futura substituicao.
+- O template FRIGOLOG tem EXATAMENTE TRES slots de imagem: hero, about e operacao/cobertura. O terceiro slot e preenchido pelo pipeline de midia, nao por um campo de imagem inventado no JSON do plano. Nao associe imagem a services ou benefits.
+- NAO gere "gallery" na geracao inicial. As tres imagens do template sao independentes e nao constituem uma galeria.
+- Nao reutilize a mesma foto nos tres slots. Se faltarem imagens reais licenciadas, o pipeline de midia deve solicitar imagens ilustrativas por IA e registrar sua origem; nunca apresente imagens sinteticas como instalacoes, profissionais ou pacientes reais.
 - NAO gere "whatsappForm", "offer", "audience", "authority" ou "stats" na geracao inicial padrao, salvo se estiverem explicitamente em "Secoes obrigatorias".
 - Dado factual vem do Google/CRM/briefing confirmado. Quando faltar, omita o fato ou use copy neutra; nunca complete endereco, horario, avaliacao, nota, quantidade, preco, credencial ou experiencia por suposicao.
 - WhatsApp e CANAL DE CONVERSAO, nao tema editorial. No maximo hero, CTA final e cabecalho devem destacar o canal.
