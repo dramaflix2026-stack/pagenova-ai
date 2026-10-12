@@ -288,6 +288,15 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
   .site-header .brand{font-size:.98rem;max-width:calc(100% - 65px)}
 }
 
+/* Editorial v4: make the actual grid win over legacy flex variants. */
+@media(min-width:900px){
+.hero.hero--split .hero__inner>.hero-split{display:grid!important;grid-template-columns:minmax(0,48%) minmax(0,52%)!important;align-items:stretch!important;gap:0!important}
+.hero.hero--split .hero-split>.hero-media{width:100%;min-width:0;min-height:620px;align-self:stretch}
+.hero.hero--split .hero-split>.hero-media>img{display:block;width:100%;height:100%;min-height:620px;object-fit:cover}
+}
+.hero.hero--split .hero-split>div:first-child{box-sizing:border-box;justify-content:center}
+.hero.hero--split h1{max-width:19ch!important;font-size:clamp(2.4rem,3.7vw,4.4rem)!important;line-height:1.09!important}
+@media(max-width:899px){.hero.hero--split .hero__inner>.hero-split{display:flex!important;flex-direction:column!important}}
 /* Editorial layout v3: enforce full-bleed hero and readable chrome for saved sites. */
 .site-header{position:sticky;top:0;z-index:100;background:var(--bg)}
 .site-header .container{display:flex!important;align-items:center;justify-content:space-between;gap:24px;max-width:1320px!important;margin-inline:auto;padding-inline:clamp(20px,3vw,48px)}
