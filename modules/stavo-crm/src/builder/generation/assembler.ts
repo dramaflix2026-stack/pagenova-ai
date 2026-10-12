@@ -162,6 +162,7 @@ const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
   'benefits',
   'services',
   'about',
+  'gallery',
   'process',
   'testimonials',
   'faq',
@@ -173,7 +174,7 @@ const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
 /**
  * PageNova Master usa uma espinha dorsal unica em todos os nichos.
  * A IA escreve/adapta o conteudo, mas nao decide mais a arquitetura.
- * Hero e Sobre sao os dois unicos slots de imagem da geracao inicial.
+ * Hero e Sobre sao os slots editoriais; a galeria entra somente com pelo menos duas imagens reais.
  * Secoes factuais opcionais continuam existindo apenas quando ha fonte confirmada.
  */
 function standardizeInitialSections(
