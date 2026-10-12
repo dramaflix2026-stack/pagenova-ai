@@ -107,6 +107,16 @@ export function createApp(): Express {
     const clientDir = path.resolve(process.cwd(), 'dist/client');
 
     // Assets com hash no nome podem ter cache longo; o HTML nunca.
+    // Vite gera URLs absolutas /stavo-crm/assets/... para o CRM embutido
+    // no frontend PageNova. O servidor standalone do Railway tambem precisa
+    // atender esse prefixo, senao o HTML carrega mas JS/CSS retornam 404
+    // e o navegador mostra apenas uma tela branca.
+    app.use('/stavo-crm', express.static(clientDir, {
+      index: false,
+      maxAge: '1y',
+      immutable: true,
+    }));
+
     app.use(
       express.static(clientDir, {
         index: false,

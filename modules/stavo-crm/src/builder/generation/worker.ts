@@ -32,6 +32,118 @@ import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
 
+/**
+ * Gera uma imagem editorial para o hero e a armazena como asset do projeto.
+ * Opt-in: a chave e o flag de imagem devem estar configurados no backend.
+ * Em caso de falha, o fluxo continua com imagens reais, sem inventar resultados.
+ */
+async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<string | null> {
+  const env = getEnv();
+  if (!env.SITE_IMAGE_GENERATION_ENABLED || env.SITE_IMAGE_PROVIDER !== 'openai' || !env.OPENAI_API_KEY?.trim()) return null;
+
+  const existing = (await repo.listAssets(project.id)).find(
+    (asset) => asset.source === 'GENERATED' && asset.provider === 'OpenAI' && !asset.deletedAt,
+  );
+  const { createLocalStorage } = await import('@builder/publishing/storage');
+  const { siteAssetsDirAbsolute } = await import('@server/config/env');
+  const storage = createLocalStorage(siteAssetsDirAbsolute());
+  if (existing && await storage.read(existing.storageKey).then(() => true).catch(() => false)) return existing.id;
+
+  // Checar o custo estimado ANTES de enviar a requisicao paga.
+  // A verificacao comum so compara se o limite ja foi atingido, sem reservar
+  // o custo da proxima imagem. Evita ultrapassar o teto em um unico pedido.
+  const estimatedImageCost = env.SITE_IMAGE_ESTIMATED_COST_USD;
+  const currentProject = await repo.findProject(project.id);
+  if (!currentProject) throw new Error('Projeto nao encontrado para geracao da imagem.');
+  const projectLimit = Math.min(
+    Number(currentProject.budgetLimitUsd ?? env.SITE_AI_DEFAULT_PROJECT_BUDGET_USD),
+    25,
+  );
+  if (Number(currentProject.costAccumulatedUsd ?? 0) + estimatedImageCost > projectLimit) {
+    throw new Error('Orcamento do projeto insuficiente para gerar a imagem principal.');
+  }
+  const { startOfCurrentMonthUtc } = await import('@server/modules/site-ai/service');
+  const monthlySpend = await repo.monthlySpendUsd(startOfCurrentMonthUtc());
+  if (monthlySpend + estimatedImageCost > env.SITE_AI_MONTHLY_BUDGET_USD) {
+    throw new Error('Orcamento mensal insuficiente para gerar a imagem principal.');
+  }
+
+  const { processUploadedImage } = await import('@builder/publishing/image-processing');
+  const { newId } = await import('@server/lib/ids');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), env.OPENAI_IMAGE_TIMEOUT_MS);
+  try {
+    // O siteType e ONE_PAGE/LANDING, nao o nicho do negocio.
+    // Utilizar o briefing real para que dentista, restaurante e advogado
+    // recebam cenas distintas e apropriadas.
+    const briefing = briefingToProviderInput(project);
+    const businessContext = JSON.stringify({
+      name: project.businessName,
+      business: briefing.business,
+      style: briefing.style,
+    }).slice(0, 3500);
+    const description = [
+      'Create one premium photorealistic editorial website hero photograph in a 3:2 landscape composition.',
+      'Business briefing:', businessContext,
+      'Depict an authentic scene specific to the actual business industry and its services.',
+      'Use refined lighting, natural materials, restrained colors, and professional architectural/editorial photography.',
+      'Main visual subject toward the right; keep the left third visually quiet for a readable headline.',
+      'This is a background image only: absolutely no letters, text, signage, watermarks, logos, buttons, or collage.',
+      'Do not invent identifiable real people or claim the generated scene depicts the actual business premises.',
+    ].join(' ');
+    const imageStartedAt = Date.now();
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${env.OPENAI_API_KEY.trim()}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: env.OPENAI_IMAGE_PRIMARY_MODEL, prompt: description, size: '1536x1024', n: 1 }),
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`OpenAI image HTTP ${response.status}`);
+    const result = await response.json() as { data?: Array<{ b64_json?: string }> };
+    const base64 = result.data?.[0]?.b64_json;
+    if (!base64) throw new Error('OpenAI nao retornou imagem.');
+    const processed = await processUploadedImage(Buffer.from(base64, 'base64'));
+    if (!processed.ok) throw new Error(processed.reason);
+    const storageKey = `${project.id}/${newId()}.webp`;
+    await storage.write(storageKey, processed.image.optimized.buffer);
+    const asset = await repo.insertAsset({
+      projectId: project.id,
+      source: 'GENERATED',
+      provider: 'OpenAI',
+      providerModel: env.OPENAI_IMAGE_PRIMARY_MODEL,
+      storageKey,
+      originalFilename: null,
+      mimeType: 'image/webp',
+      width: processed.image.optimized.width,
+      height: processed.image.optimized.height,
+      sizeBytes: processed.image.optimized.sizeBytes,
+      checksum: processed.image.checksum,
+      altText: `Imagem editorial gerada por IA para ${project.businessName}`,
+      rightsStatus: 'LICENSED',
+      createdBy: project.ownerUserId,
+    });
+    // Estimated accounting: configurable because model, quality and size change pricing.
+    // Only charge for a newly generated image, never for a reused asset.
+    const estimatedUsd = env.SITE_IMAGE_ESTIMATED_COST_USD;
+    await repo.recordUsage({
+      projectId: project.id,
+      jobId,
+      provider: 'openai',
+      operation: 'GENERATE_IMAGE',
+      model: env.OPENAI_IMAGE_PRIMARY_MODEL,
+      imageCount: 1,
+      latencyMs: Date.now() - imageStartedAt,
+      costEstimatedUsd: estimatedUsd.toFixed(6),
+      pricingVersion: 'image-estimate-config-v1',
+      status: 'SUCCESS',
+    });
+    await repo.addProjectCost(project.id, estimatedUsd.toFixed(6));
+    return asset;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 /** Duracao do lease: cobre uma chamada + um reparo, com folga. */
 const LEASE_SECONDS = 300;
 /** Renovacao a meio caminho do lease, para nunca deixar ele vencer sozinho. */
@@ -185,7 +297,22 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
-    const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
+    await assertNotCanceled(job.id);
+    // Orcamento deve ser verificado antes de qualquer chamada paga de imagem.
+    await assertBudgetAvailable(project);
+    // Imagem principal gerada por IA; as fotos reais continuam disponiveis para as secoes internas.
+    const aiHeroAssetId = await ensureAiHeroAsset(project, job.id).catch((error) => {
+      logger.warn({ err: error, projectId: project.id }, 'Nao foi possivel gerar imagem IA do hero; usando fallback.');
+      return null;
+    });
+    const allImageCandidates = await new UploadAssetProvider().listCandidates(project.id);
+    // A IA recebe no maximo oito candidatas: garante que o hero gerado
+    // esteja na lista e preserva as imagens do Google para as secoes internas.
+    const imageCandidates = [
+      ...allImageCandidates.filter((item) => item.assetId === aiHeroAssetId),
+      ...allImageCandidates.filter((item) => item.assetId !== aiHeroAssetId && item.source === 'GOOGLE_PLACES'),
+      ...allImageCandidates.filter((item) => item.assetId !== aiHeroAssetId && item.source !== 'GOOGLE_PLACES'),
+    ];
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
     // Checagem final de orcamento: o tempo entre enfileirar e comecar a
@@ -205,7 +332,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
 
     // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
     // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
-    if (imageCandidates.length >= 2 && Array.isArray(plan.sections) && plan.sections.length > 0) {
+    if (imageCandidates.length >= 1 && Array.isArray(plan.sections) && plan.sections.length > 0) {
       const toRef = (candidate: (typeof imageCandidates)[number]) => ({
         assetId: candidate.assetId,
         alt: candidate.description.slice(0, 200),
@@ -233,10 +360,12 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         );
       }
       const heroCandidate =
+        (aiHeroAssetId ? imageCandidates.find((item) => item.assetId === aiHeroAssetId) : undefined) ??
         imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
         imageCandidates.at(0);
       const secondaryCandidate = heroCandidate
-        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId) ?? imageCandidates.at(1)
+        ? imageCandidates.find((item) => item.assetId !== heroCandidate.assetId && item.source === 'GOOGLE_PLACES') ??
+          imageCandidates.find((item) => item.assetId !== heroCandidate.assetId && item.source !== 'GENERATED')
         : undefined;
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };

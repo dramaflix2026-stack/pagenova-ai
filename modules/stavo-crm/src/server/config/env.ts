@@ -160,6 +160,8 @@ const envSchema = z
     OPENAI_IMAGE_TIMEOUT_MS: z.coerce.number().int().min(5000).max(600000).default(120000),
     SITE_IMAGE_GENERATION_ENABLED: booleanish.default(false),
     SITE_IMAGE_PROVIDER: z.enum(['openai', 'none']).default('openai'),
+    /** Estimativa configuravel por imagem; nao e custo real reportado pelo provider. */
+    SITE_IMAGE_ESTIMATED_COST_USD: z.coerce.number().min(0).max(10).default(0.02),
 
     /** Origem que serve o site publicado. Vazio = usa APP_URL + /p/<slug>. */
     PUBLIC_SITES_BASE_URL: z.string().optional(),

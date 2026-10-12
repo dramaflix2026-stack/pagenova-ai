@@ -35,6 +35,14 @@ function normalizeOpenAiPlan(value: unknown): unknown {
     if (out[key] === null) delete out[key];
   }
 
+  // CTA targets are resolved exclusively from verified business facts by the
+  // assembler. An empty model-supplied target is a placeholder, not a reason
+  // to reject an otherwise valid site plan.
+  if (typeof out.kind === 'string' && typeof out.label === 'string' &&
+      typeof out.target === 'string' && !out.target.trim()) {
+    out.target = '__RESOLVE_FROM_BUSINESS__';
+  }
+
   if (out.options === null) out.options = [];
   return out;
 }

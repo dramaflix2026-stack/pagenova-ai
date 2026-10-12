@@ -621,10 +621,18 @@ siteAiRouter.get(
     const { siteAssetsDirAbsolute } = await import('../../config/env');
     const storage = createLocalStorage(siteAssetsDirAbsolute());
 
-    const buffer = await storage.read(asset.storageKey).catch(() => null);
+    let buffer = await storage.read(asset.storageKey).catch(() => null);
+    // Railway deployments may replace an ephemeral filesystem while the DB
+    // still references previously imported Google Places images. Restore the
+    // original asset key on demand; never regenerate or overwrite user uploads.
+    if (!buffer && asset.source === 'GOOGLE_PLACES') {
+      const { ensureGooglePlaceAssets } = await import('@builder/generation/google-place-asset-provider');
+      await ensureGooglePlaceAssets(project).catch(() => 0);
+      buffer = await storage.read(asset.storageKey).catch(() => null);
+    }
     if (!buffer) throw notFound('Arquivo nao encontrado no armazenamento.', 'SITE_ASSET_MISSING_FILE');
 
-    res.setHeader('Cache-Control', 'private, max-age=3600');
+    res.setHeader('Cache-Control', 'private, max-age=300');
     res.type(asset.mimeType).send(buffer);
   }),
 );

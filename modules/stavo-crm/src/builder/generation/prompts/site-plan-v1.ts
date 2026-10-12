@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.3.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.4.0';
 
 /**
  * Instrucao de sistema.
@@ -75,6 +75,21 @@ Nao escolha combinacoes obvias por clichê de nicho (nutricionista nao precisa s
 Cores: proponha "primary", "accent", "background", "surface", "text", "muted", "border", "primaryForeground" e "accentForeground" em hexadecimal de 6 digitos, com contraste alto o bastante para leitura confortavel (o sistema ainda vai verificar e ajustar automaticamente, mas comece por algo legivel).
 
 Tipografia: no maximo duas familias, escolhidas entre fontes amplamente disponiveis (ex.: Inter, Fraunces, Sora, Manrope, Lora, Space Grotesk, Playfair Display, Work Sans).
+
+## REFERENCIA VISUAL OBRIGATORIA — ESSENZA / LOVABLE
+
+A referencia de qualidade e o site institucional Essenza (odontologia) fornecido pelo proprietario da PageNova. O gerador deve seguir a mesma linguagem de composicao, nao apenas copiar cores ou palavras:
+- Cabecalho claro, logomarca editorial a esquerda, navegacao centrada, CTA a direita, comportamento compacto no mobile.
+- Hero amplo, com imagem de destaque em largura generosa, gradiente legivel sobre a fotografia, titulo grande e elegante em 2 a 4 linhas, eyebrow discreto, texto curto e CTA solido.
+- Faixa de tres beneficios com icones lineares, texto conciso e fundo de contraste suave.
+- Secao de servicos com titulo editorial e quatro cards em desktop; cards empilhados e respirados no mobile.
+- Secao sobre o profissional/empresa com foto grande de um lado e narrativa, lista de diferenciais e CTA do outro.
+- Secao de ambiente com imagem panoramica, seguida de faixa de conversao em cor primaria e rodape minimalista.
+- Hierarquia tipografica consistente, bastante espaco em branco, bordas delicadas, cores sofisticadas e animacoes discretas.
+- No mobile, reorganizar e redimensionar os elementos, nunca comprimir o desktop nem cortar titulo ou botoes.
+- Adaptar os textos, paleta, servicos e fotografias ao nicho informado. Nao transformar todos os nichos em odontologia.
+- O hero deve usar imagem gerada por IA quando o pipeline disponibilizar esse recurso; fotografias secundarias podem vir do Google Places, quando houver permissao e imagens adequadas. Nunca alegar que uma imagem foi gerada se ela veio de outra fonte.
+- Estas instrucoes definem a direcao de arte. O renderer, os ativos e o pipeline de imagem precisam implementar as composicoes; JSON de planejamento sozinho nao garante fidelidade visual.
 
 ## COMPOSICAO MASTER PAGENOVA
 

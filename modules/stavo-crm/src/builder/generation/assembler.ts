@@ -159,9 +159,10 @@ function resolveVariant(
 
 const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
   'hero',
-  'services',
   'benefits',
+  'services',
   'about',
+  'gallery',
   'process',
   'testimonials',
   'faq',
@@ -173,7 +174,7 @@ const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
 /**
  * PageNova Master usa uma espinha dorsal unica em todos os nichos.
  * A IA escreve/adapta o conteudo, mas nao decide mais a arquitetura.
- * Hero e Sobre sao os dois unicos slots de imagem da geracao inicial.
+ * Hero e Sobre sao os slots editoriais; a galeria entra somente com pelo menos duas imagens reais.
  * Secoes factuais opcionais continuam existindo apenas quando ha fonte confirmada.
  */
 function standardizeInitialSections(
@@ -263,6 +264,7 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
     theme,
     navigation,
     sections: built,
+    visualTextEdits: [],
     motion: plan.motion,
     seo: {
       title: sanitizeLine(plan.seo.title, 60),
@@ -314,7 +316,9 @@ function buildSection(
 
   switch (plan.type) {
     case 'hero': {
-      const variant = resolveVariant('hero', 'editorial-split', 0, Boolean(binding.image));
+      // A fotografia real e parte da composicao, nao um card lateral.
+      // Sem asset valido, mantemos o layout editorial com slot editavel.
+      const variant = binding.image ? 'overlay-full' : 'editorial-split';
       return {
         ...base,
         type: 'hero',
@@ -351,7 +355,7 @@ function buildSection(
       // Grades de cards do Template Master precisam fechar a linha. A IA e
       // instruida a gerar quantidades pares, mas o assembler e a garantia
       // deterministica: uma resposta impar nunca deixa um buraco no layout.
-      if ((plan.type === 'services' || plan.type === 'benefits') && sourceItems.length > 2 && sourceItems.length % 2 !== 0) {
+      if (plan.type === 'services' && sourceItems.length > 2 && sourceItems.length % 2 !== 0) {
         sourceItems = sourceItems.slice(0, -1);
       }
       const items = sourceItems.map((item, itemIndex) => ({
@@ -628,11 +632,28 @@ function reresolveAnchors(sections: SiteSection[], fallbackAnchor: string): void
 function buildNavigation(sections: SiteSection[], plan: SitePlanOutput, business: BusinessFacts) {
   const EXCLUDED = new Set(['hero', 'footer', 'cta', 'whatsappForm']);
 
+  // Navigation is wayfinding, not a duplicate of editorial headlines.
+  // Long AI headlines overflow the header and truncate into meaningless text.
+  // Prefer stable, short labels that remain readable on desktop and mobile.
+  const menuLabels: Partial<Record<SiteSection['type'], string>> = {
+    about: 'Sobre',
+    authority: 'Quem somos',
+    benefits: 'Benefícios',
+    audience: 'Para quem',
+    services: 'Serviços',
+    gallery: 'Galeria',
+    process: 'Como funciona',
+    stats: 'Resultados',
+    testimonials: 'Depoimentos',
+    faq: 'Dúvidas',
+    offer: 'Oferta',
+    contactMap: 'Contato',
+  };
   const items = sections
     .filter((section) => !EXCLUDED.has(section.type) && section.anchor)
     .slice(0, 5)
     .map((section) => ({
-      label: sanitizeLine(('headline' in section && section.headline) || section.type, 30),
+      label: menuLabels[section.type] ?? 'Saiba mais',
       anchor: section.anchor!,
     }));
 

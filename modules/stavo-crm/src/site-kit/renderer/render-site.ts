@@ -57,7 +57,7 @@ function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchema
   let index = 0;
   return html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
     const key = `${sectionId}:${index++}`;
-    const edit = model.visualTextEdits.find((item) => item.key === key);
+    const edit = model.visualTextEdits?.find((item) => item.key === key);
     const styles: string[] = [];
     if (edit?.fontSizePx) styles.push(`font-size:${edit.fontSizePx}px`);
     if (edit?.fontFamily) styles.push(`font-family:${edit.fontFamily === 'Georgia' ? 'Georgia,serif' : `${edit.fontFamily},sans-serif`}`);
@@ -201,6 +201,29 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags([model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${renderStyles(model.theme)}
+/* PageNova institutional editorial composition: Essenza reference. */
+@media screen and (min-width:900px){
+.hero--split .hero__inner{width:100%;max-width:none;padding:0}
+.hero--split .hero-split{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);align-items:stretch;min-height:610px;gap:0}
+.hero--split .hero-split>div:first-child{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(48px,5vw,100px);position:relative;z-index:1}
+.hero--split .hero-media{height:100%;min-height:610px;overflow:hidden}
+.hero--split .hero-media img{width:100%;height:100%;object-fit:cover}
+.benefits--icons{padding-top:26px!important;padding-bottom:26px!important}
+.benefits--icons .icon-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.benefits--icons .icon-block{display:grid;grid-template-columns:38px minmax(0,1fr);column-gap:16px;align-content:center}
+.benefits--icons .icon-block svg{grid-row:span 2}
+.benefits--icons .icon-block h3{margin:0;font-size:1rem}
+.benefits--icons .icon-block p{margin:4px 0 0}
+.services--cards .grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.services--cards .card{min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:28px 24px}
+}
+@media screen and (max-width:899px){
+.hero--split .hero-split>div:first-child{padding:clamp(24px,6vw,48px)}
+.hero--split .hero-media{min-height:280px}
+.hero--split .hero-media img{width:100%;height:100%;object-fit:cover}
+.benefits--icons .icon-grid{gap:20px}
+.services--cards .card{min-width:0}
+}
 /* Critical responsive guard: emitted by the document renderer itself. */
 @media screen and (max-width:899px){
 html,body{width:100%;max-width:100%;overflow-x:hidden}
@@ -212,6 +235,150 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .process .timeline{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 .contact-grid,.cta-inline,.site-footer .footer-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
 }
+/* PageNova visual QA v2: protect editorial composition at real preview widths.
+   Applied after theme CSS so it also fixes legacy generated projects. */
+.site-header .container{width:100%;max-width:1320px;min-width:0;gap:clamp(16px,2.5vw,36px)}
+.site-header .brand{display:block;flex:0 1 auto;min-width:0;max-width:260px;font-size:clamp(.94rem,1.2vw,1.12rem);line-height:1.2;overflow-wrap:normal;word-break:normal;text-wrap:balance}
+.site-header .nav{min-width:0;flex:1 1 auto;justify-content:flex-end;gap:clamp(10px,1.35vw,22px)}
+.site-header .nav>a:not(.btn){display:inline-block;flex:0 1 auto;min-width:0;max-width:165px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(.77rem,.95vw,.9rem)}
+.hero--split .hero-split{min-width:0}
+.hero--split .hero-split>div:first-child{min-width:0;max-width:100%;box-sizing:border-box}
+.hero--split h1{font-size:clamp(2.35rem,3.6vw,4.4rem);line-height:1.075;max-width:100%;overflow-wrap:normal;word-break:normal;hyphens:auto;text-wrap:balance}
+.hero--split .lead{max-width:42ch;font-size:clamp(1.03rem,1.5vw,1.27rem);line-height:1.65}
+.hero--split .hero-media{min-width:0;isolation:isolate}
+.hero--split .hero-media::before{display:none}
+.hero--split .hero-media img{display:block;width:100%;height:100%;max-width:100%;object-fit:cover;object-position:center;box-shadow:none}
+.hero--split .actions{display:flex;flex-wrap:wrap;gap:12px}
+.hero--split .actions .btn{max-width:100%;white-space:normal;text-align:center}
+.services--cards .card{min-width:0;overflow-wrap:break-word}
+.services--cards .card h3{font-size:clamp(1.12rem,1.6vw,1.5rem);line-height:1.2}
+@media screen and (min-width:1200px){
+  .hero--split .hero-split{grid-template-columns:minmax(0,48%) minmax(0,52%);min-height:600px}
+  .hero--split .hero-split>div:first-child{padding:clamp(40px,4.5vw,76px)}
+  .hero--split .hero-media{min-height:600px}
+}
+@media screen and (min-width:900px) and (max-width:1199px){
+  .hero--split .hero-split{grid-template-columns:minmax(0,52%) minmax(0,48%);min-height:510px}
+  .hero--split .hero-split>div:first-child{padding:clamp(26px,3.5vw,48px)}
+  .hero--split .hero-media{min-height:510px}
+  .hero--split h1{font-size:clamp(2.1rem,3.6vw,3.1rem)}
+}
+@media screen and (max-width:1199px){
+  .site-header:not(.site-header--minimal) .nav{display:none;position:absolute;top:100%;left:0;right:0;width:100%;max-height:calc(100dvh - 70px);overflow-y:auto;padding:20px clamp(20px,5vw,52px);background:var(--bg);box-shadow:0 18px 36px rgba(0,0,0,.12);flex-direction:column;align-items:stretch;gap:0;z-index:100}
+  .site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex}
+  .site-header:not(.site-header--minimal) .nav>a:not(.btn){display:block;flex:none;max-width:none;white-space:normal;overflow:visible;text-overflow:clip;font-size:1rem;padding:12px 0}
+  .site-header:not(.site-header--minimal) .nav-toggle{display:block;flex:0 0 48px}
+  .site-header .container{position:relative;min-height:70px}
+  .site-header .brand{max-width:min(290px,calc(100% - 70px));font-size:1.05rem}
+  .site-header--centered .container{display:flex;justify-content:space-between}
+  .site-header--centered .brand--center{order:-1;margin-right:auto}
+  .site-header--centered .header-tail{display:none}
+}
+@media screen and (max-width:899px){
+  .hero--split .hero-split{display:flex;flex-direction:column;min-height:0}
+  .hero--split .hero-split>div:first-child{width:100%;padding:clamp(30px,6vw,56px);text-align:left}
+  .hero--split h1{font-size:clamp(2.2rem,7vw,3.7rem);line-height:1.1}
+  .hero--split .hero-media{width:100%;min-height:0;height:auto}
+  .hero--split .hero-media img{height:auto;aspect-ratio:4/3;object-fit:cover}
+}
+@media screen and (max-width:480px){
+  .hero--split h1{font-size:clamp(2rem,9vw,2.75rem)}
+  .hero--split .hero-split>div:first-child{padding:32px 22px}
+  .hero--split .hero-media img{aspect-ratio:4/3}
+  .site-header .brand{font-size:.98rem;max-width:calc(100% - 65px)}
+}
+
+/* Editorial v4: make the actual grid win over legacy flex variants. */
+@media(min-width:900px){
+.hero.hero--split .hero__inner>.hero-split{display:grid!important;grid-template-columns:minmax(0,48%) minmax(0,52%)!important;align-items:stretch!important;gap:0!important}
+.hero.hero--split .hero-split>.hero-media{width:100%;min-width:0;min-height:620px;align-self:stretch}
+.hero.hero--split .hero-split>.hero-media>img{display:block;width:100%;height:100%;min-height:620px;object-fit:cover}
+}
+.hero.hero--split .hero-split>div:first-child{box-sizing:border-box;justify-content:center}
+.hero.hero--split h1{max-width:19ch!important;font-size:clamp(2.4rem,3.7vw,4.4rem)!important;line-height:1.09!important}
+@media(max-width:899px){.hero.hero--split .hero__inner>.hero-split{display:flex!important;flex-direction:column!important}}
+/* Editorial layout v3: enforce full-bleed hero and readable chrome for saved sites. */
+.site-header{position:sticky;top:0;z-index:100;background:var(--bg)}
+.site-header .container{display:flex!important;align-items:center;justify-content:space-between;gap:24px;max-width:1320px!important;margin-inline:auto;padding-inline:clamp(20px,3vw,48px)}
+.site-header .brand{flex:0 0 auto;max-width:300px!important;font-size:clamp(.95rem,1.1vw,1.12rem)!important;line-height:1.25;white-space:normal;overflow-wrap:normal!important;word-break:normal!important}
+.site-header .nav{flex:1 1 auto;min-width:0;justify-content:flex-end;gap:clamp(12px,1.8vw,28px)}
+.site-header .nav>a:not(.btn){font-size:.9rem;white-space:nowrap;max-width:none;overflow:visible;text-overflow:clip}
+.hero--split{padding:0!important;overflow:hidden}
+.hero--split>.container.hero__inner{max-width:none!important;width:100%!important;padding:0!important;margin:0!important}
+.hero--split .hero-split{width:100%!important;max-width:none!important;grid-template-columns:minmax(0,48%) minmax(0,52%);min-height:clamp(580px,65vh,820px)}
+.hero--split .hero-split>div:first-child{min-width:0;max-width:none;padding:clamp(38px,5vw,90px) clamp(28px,5vw,96px)!important}
+.hero--split h1{font-size:clamp(2.5rem,4vw,4.8rem)!important;line-height:1.07!important;letter-spacing:-.035em;max-width:16ch!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;text-wrap:balance}
+.hero--split .hero-media{min-height:clamp(580px,65vh,820px);height:auto;position:relative}
+.hero--split .hero-media img{width:100%;height:100%;min-height:inherit;object-fit:cover}
+.hero--split .hero-media:has(.pn-image-slot){background:linear-gradient(135deg,color-mix(in srgb,var(--primary) 12%,var(--surface)),color-mix(in srgb,var(--primary) 30%,var(--surface)))}
+.hero--split .hero-media .pn-image-slot{height:100%;min-height:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.site-footer .container{max-width:1200px;margin-inline:auto;padding-inline:clamp(24px,5vw,80px)}
+.site-footer--centered .container,.site-footer--legal .container,.site-footer--contrast .container{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.site-footer .footer-name,.site-footer .muted{max-width:100%;margin:0;overflow-wrap:break-word}
+.site-footer .footer-name{font-size:clamp(1rem,1.35vw,1.3rem);line-height:1.4}
+.site-footer .footer-grid{align-items:start;gap:clamp(24px,4vw,60px)}
+@media(max-width:1399px){
+.site-header:not(.site-header--minimal) .nav{display:none!important;position:absolute!important;top:100%;left:0;right:0;width:100%;max-height:calc(100dvh - 70px);overflow:auto;background:var(--bg);padding:20px clamp(20px,5vw,60px);box-shadow:0 16px 35px rgba(0,0,0,.13);flex-direction:column;align-items:stretch;gap:0}
+.site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex!important}
+.site-header:not(.site-header--minimal) .nav>a:not(.btn){white-space:normal;max-width:none;padding:12px 0}
+.site-header:not(.site-header--minimal) .nav-toggle{display:block!important;flex:0 0 48px}
+.site-header .container{position:relative;min-height:72px}
+.site-header .brand{max-width:calc(100% - 72px)!important}
+.site-header--centered .brand--center{order:-1;margin-right:auto}
+.site-header--centered .header-tail{display:none}
+}
+@media(max-width:899px){
+.hero--split .hero-split{display:flex!important;flex-direction:column!important;min-height:0!important}
+.hero--split .hero-split>div:first-child{padding:clamp(38px,7vw,64px) clamp(22px,5vw,44px)!important}
+.hero--split h1{font-size:clamp(2.25rem,7vw,3.6rem)!important;max-width:20ch!important}
+.hero--split .hero-media{min-height:340px;height:auto}
+.hero--split .hero-media img{height:auto;min-height:0;aspect-ratio:4/3}
+}
+@media(max-width:480px){
+.hero--split h1{font-size:clamp(2.05rem,9vw,2.75rem)!important}
+.hero--split .hero-media{min-height:260px}
+.site-footer{padding-block:44px}
+}
+
+
+/* Lovable-reference editorial overlay: full-bleed photography, left reading axis,
+   warm scrim and readable ink. This is applied in preview and publication. */
+.hero.hero--overlay{position:relative!important;padding:0!important;min-height:620px;overflow:hidden;background:var(--surface)}
+.hero.hero--overlay .hero-overlay-media{position:absolute!important;inset:0!important;min-height:100%!important;width:100%;height:100%;z-index:0}
+.hero.hero--overlay .hero-overlay-media img{position:absolute!important;inset:0;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;border-radius:0!important}
+.hero.hero--overlay .hero-overlay-scrim{display:block!important;position:absolute!important;inset:0;background:linear-gradient(90deg,rgba(250,244,237,.96) 0%,rgba(250,244,237,.88) 23%,rgba(250,244,237,.55) 43%,rgba(250,244,237,.12) 66%,transparent 84%)!important}
+.hero.hero--overlay .hero-overlay-body{position:relative!important;z-index:1!important;inset:auto!important;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-height:620px;box-sizing:border-box;width:100%;max-width:1320px!important;margin:0 auto!important;padding:clamp(60px,8vw,120px) clamp(28px,4.5vw,76px)!important;color:var(--text)!important}
+.hero.hero--overlay .hero-overlay-body h1{font-size:clamp(2.8rem,4.65vw,5.2rem)!important;line-height:1.075!important;letter-spacing:-.035em!important;font-weight:500;max-width:12.5ch!important;text-wrap:balance;color:var(--text)!important;margin:0 0 24px}
+.hero.hero--overlay .hero-overlay-body .eyebrow{color:var(--primary)!important;font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;margin-bottom:24px}
+.hero.hero--overlay .hero-overlay-body .lead{color:var(--muted)!important;max-width:42ch;font-size:clamp(1rem,1.25vw,1.15rem);line-height:1.85}
+.hero.hero--overlay .hero-overlay-body .actions{margin-top:22px;display:flex;flex-wrap:wrap;gap:14px}
+@media(min-width:900px){.hero.hero--overlay{min-height:clamp(620px,72vh,830px)}.hero.hero--overlay .hero-overlay-body{min-height:clamp(620px,72vh,830px)}}
+@media(max-width:899px){
+.hero.hero--overlay{min-height:620px!important}
+.hero.hero--overlay .hero-overlay-media{position:absolute!important;inset:0!important;min-height:100%!important}
+.hero.hero--overlay .hero-overlay-media img{position:absolute!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;object-fit:cover!important}
+.hero.hero--overlay .hero-overlay-scrim{background:linear-gradient(90deg,rgba(250,244,237,.96) 0%,rgba(250,244,237,.84) 48%,rgba(250,244,237,.48) 100%)!important}
+.hero.hero--overlay .hero-overlay-body{position:relative!important;min-height:620px;padding:72px 26px!important}
+.hero.hero--overlay .hero-overlay-body h1{font-size:clamp(2.35rem,8vw,3.7rem)!important;max-width:13ch!important}
+}
+
+
+/* Reference-backed header repair: keep the brand intact and never let
+   section headlines become clipped navigation labels. */
+@media(min-width:900px){
+.site-header:not(.site-header--minimal) .container{min-height:94px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:28px!important;max-width:1320px!important;padding-inline:clamp(24px,4vw,64px)!important}
+.site-header:not(.site-header--minimal) .brand{flex:0 0 auto!important;max-width:300px!important;min-width:180px!important;overflow-wrap:normal!important;word-break:normal!important;white-space:normal!important;line-height:1.2!important}
+.site-header:not(.site-header--minimal) .nav{display:flex!important;flex:1 1 auto!important;align-items:center!important;justify-content:flex-end!important;gap:clamp(12px,1.65vw,28px)!important;min-width:0!important;overflow:hidden!important}
+.site-header:not(.site-header--minimal) .nav>a:not(.btn){display:inline-block!important;flex:0 1 auto!important;max-width:155px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:13px!important;line-height:1.5!important}
+.site-header:not(.site-header--minimal) .nav .btn{flex:0 0 auto!important}
+}
+@media(min-width:900px) and (max-width:1399px){
+.site-header:not(.site-header--minimal) .nav{display:none!important}
+.site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex!important;position:absolute!important;top:100%!important;left:0!important;right:0!important;flex-direction:column!important;align-items:stretch!important;max-height:calc(100dvh - 94px)!important;overflow:auto!important;background:var(--bg)!important;padding:20px 32px!important;box-shadow:0 14px 36px rgba(0,0,0,.12)!important}
+.site-header:not(.site-header--minimal) .nav[data-open='true']>a{max-width:none!important;white-space:normal!important}
+.site-header:not(.site-header--minimal) .nav-toggle{display:block!important}
+}
+
 </style>
 ${renderJsonLd(model)}
 </head>

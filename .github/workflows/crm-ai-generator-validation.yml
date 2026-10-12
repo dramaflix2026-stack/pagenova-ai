@@ -1,0 +1,32 @@
+name: CRM AI Generator Validation
+
+on:
+  push:
+    branches:
+      - feature/lovable-fidelity-crm-generator
+    paths:
+      - 'modules/stavo-crm/**'
+      - '.github/workflows/crm-ai-generator-validation.yml'
+  workflow_dispatch:
+
+jobs:
+  crm-validation:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: modules/stavo-crm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: modules/stavo-crm/package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Typecheck CRM backend and frontend
+        run: npm run typecheck
+      - name: Build CRM server
+        run: npm run build:server
+      - name: Run CRM unit tests
+        run: npm run test -- --passWithNoTests

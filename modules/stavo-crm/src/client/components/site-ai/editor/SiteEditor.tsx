@@ -237,7 +237,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const discardAndReload = () => {
     if (!conflictConfig) return;
     history.reset(conflictConfig);
-    const serverLockVersion = projectQuery.data?.lockVersion ?? draftQuery.data?.lockVersion;
+    const serverLockVersion = draftQuery.data?.lockVersion;
     if (typeof serverLockVersion === 'number') setLockVersion(serverLockVersion);
     setConflictConfig(null);
     setSaveState('saved');
@@ -273,7 +273,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     if (!doc) return;
 
     doc.addEventListener('dblclick', (event) => {
-      const target = event.target instanceof frame.contentWindow!.HTMLElement ? event.target as HTMLElement : null;
+      const target = event.target instanceof doc.defaultView!.Element ? event.target as HTMLElement : null;
       if (!target || !target.textContent?.trim()) return;
       const editable = target.closest('h1,h2,h3,h4,p,span,a,button,li') as HTMLElement | null;
       if (!editable) return;
