@@ -186,11 +186,21 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
-    // Create a distinct illustrative hero without replacing real staff portraits.
-    // Image calls remain opt-in until their billing and quota are verified.
+    // AI imagery is opt-in and metered. Keep real Google photos for internal sections.
     if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
       await assertBudgetAvailable(project);
-      await ensureIllustrativeHero(project).catch(() => false);
+      const heroResult = await ensureIllustrativeHero(project, 'hero');
+      if (heroResult === 'unavailable') {
+        throw new Error('Banner ilustrativo indisponivel: verifique a chave OpenAI, o modelo e o storage.');
+      }
+      // With fewer than two real photos, provide a distinct synthetic supporting image.
+      if (googleAssetCount < 2) {
+        await assertBudgetAvailable(project);
+        const supplementResult = await ensureIllustrativeHero(project, 'supplement');
+        if (supplementResult === 'unavailable') {
+          throw new Error('Imagem complementar indisponivel: verifique a geracao de imagens.');
+        }
+      }
     }
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
     const input = { ...briefingToProviderInput(project), imageCandidates };
@@ -253,7 +263,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       }
       // Reserve a portrait for About first, even when it is the only real
       // photograph. Never stretch the professional's portrait into a hero.
-      const byAspect = [...imageCandidates].sort((a, b) =>
+      const realCandidates = imageCandidates.filter((item) => item.source === 'GOOGLE_PLACES');
+      const byAspect = [...realCandidates].sort((a, b) =>
         (a.width && a.height ? a.width / a.height : 1) -
         (b.width && b.height ? b.width / b.height : 1),
       );
@@ -265,11 +276,11 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
           (!item.width || !item.height || item.width / item.height >= 1.1),
       ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
       const fallbackSecondary = secondaryCandidate ??
-        imageCandidates.find((item) => item.assetId !== heroCandidate?.assetId);
+        realCandidates.find((item) => item.assetId !== heroCandidate?.assetId);
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
-      const thirdCandidate = imageCandidates.find(
+      const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
-      );
+      ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
