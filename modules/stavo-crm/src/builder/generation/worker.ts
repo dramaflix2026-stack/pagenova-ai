@@ -61,13 +61,23 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), env.OPENAI_IMAGE_TIMEOUT_MS);
   try {
+    // O siteType e ONE_PAGE/LANDING, nao o nicho do negocio.
+    // Utilizar o briefing real para que dentista, restaurante e advogado
+    // recebam cenas distintas e apropriadas.
+    const briefing = briefingToProviderInput(project);
+    const businessContext = JSON.stringify({
+      name: project.businessName,
+      business: briefing.business,
+      style: briefing.style,
+    }).slice(0, 3500);
     const description = [
-      'High-end photorealistic editorial website hero photograph, landscape 3:2.',
-      'Business:', project.businessName, '. Industry:', project.siteType, '.',
-      'Show a refined authentic environment strongly associated with this business.',
-      'Architectural photography, warm natural light, premium restrained palette, editorial composition.',
-      'Keep the left third uncluttered for headline overlay, key subject on the right.',
-      'No text, no logos, no watermark, no UI, no collage, no stock-photo aesthetic.',
+      'Create one premium photorealistic editorial website hero photograph in a 3:2 landscape composition.',
+      'Business briefing:', businessContext,
+      'Depict an authentic scene specific to the actual business industry and its services.',
+      'Use refined lighting, natural materials, restrained colors, and professional architectural/editorial photography.',
+      'Main visual subject toward the right; keep the left third visually quiet for a readable headline.',
+      'This is a background image only: absolutely no letters, text, signage, watermarks, logos, buttons, or collage.',
+      'Do not invent identifiable real people or claim the generated scene depicts the actual business premises.',
     ].join(' ');
     const imageStartedAt = Date.now();
     const response = await fetch('https://api.openai.com/v1/images/generations', {
@@ -289,6 +299,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
+    await assertNotCanceled(job.id);
     // Orcamento deve ser verificado antes de qualquer chamada paga de imagem.
     await assertBudgetAvailable(project);
     // Imagem principal gerada por IA; as fotos reais continuam disponiveis para as secoes internas.
