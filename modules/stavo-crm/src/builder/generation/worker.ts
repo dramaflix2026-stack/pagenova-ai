@@ -44,7 +44,7 @@ async function ensureAiHeroAsset(project: SiteProject): Promise<string | null> {
   try {
     const description = [
       'High-end photorealistic editorial website hero photograph, landscape 3:2.',
-      'Business:', project.businessName, '. Industry:', project.niche || project.siteType, '.',
+      'Business:', project.businessName, '. Industry:', project.siteType, '.',
       'Show a refined authentic environment strongly associated with this business.',
       'Architectural photography, warm natural light, premium restrained palette, editorial composition.',
       'Keep the left third uncluttered for headline overlay, key subject on the right.',
