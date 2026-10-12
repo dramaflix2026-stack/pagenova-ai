@@ -15,6 +15,9 @@ const MAX_RESPONSE_BYTES = 12_000_000;
 
 export async function ensureIllustrativeHero(project: SiteProject): Promise<'created' | 'existing' | 'unavailable'> {
   const key = process.env.OPENAI_API_KEY;
+  const estimatedUsd = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
+  // Never perform a paid call without a positive, finite cost estimate.
+  if (!Number.isFinite(estimatedUsd) || estimatedUsd <= 0) return 'unavailable';
   if (!key) return 'unavailable';
   const assets = await repo.listAssets(project.id);
   const storage = createLocalStorage(siteAssetsDirAbsolute());
@@ -70,6 +73,18 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
       rightsStatus: 'AI_GENERATED',
       createdBy: project.ownerUserId,
     });
+    await repo.recordUsage({
+      projectId: project.id,
+      jobId: null,
+      provider: 'OpenAI',
+      operation: 'GENERATE_IMAGE',
+      model: MODEL,
+      imageCount: 1,
+      costEstimatedUsd: estimatedUsd.toFixed(6),
+      pricingVersion: 'configurable-image-estimate-v1',
+      status: 'SUCCESS',
+    });
+    await repo.addProjectCost(project.id, estimatedUsd.toFixed(6));
     return 'created';
   } catch {
     return 'unavailable';
