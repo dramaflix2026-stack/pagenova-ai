@@ -185,3 +185,33 @@
  .frigolog-template #operacao img[data-pn-photo="operation"]{aspect-ratio:4/3!important;max-height:none!important;object-position:center 35%!important}
  .frigolog-template #operacao:not(.pn-photo-missing){padding-top:64px!important;padding-bottom:64px!important}
 }
+
+/* PAGENOVA_PROCESS_SECTION_V1 */
+/* Preserve the actual Google photo, including its edges, instead of cropping
+   treatments or people's faces to fill a decorative frame. */
+.frigolog-template #operacao img[data-pn-photo="operation"]{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:auto!important;
+  max-height:560px!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  background:transparent!important;
+}
+.frigolog-template #operacao article{
+  min-height:175px;
+  box-shadow:0 10px 26px rgba(20,45,52,.09);
+  border-radius:16px;
+}
+@media(max-width:767px){
+  .frigolog-template #operacao img[data-pn-photo="operation"]{
+    height:auto!important;
+    aspect-ratio:auto!important;
+    max-height:none!important;
+    object-fit:contain!important;
+  }
+  .frigolog-template #operacao article{min-height:0}
+}
