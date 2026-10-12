@@ -37,6 +37,25 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
   const storage = createLocalStorage(siteAssetsDirAbsolute());
   if (existing && await storage.read(existing.storageKey).then(() => true).catch(() => false)) return existing.id;
 
+  // Checar o custo estimado ANTES de enviar a requisicao paga.
+  // A verificacao comum so compara se o limite ja foi atingido, sem reservar
+  // o custo da proxima imagem. Evita ultrapassar o teto em um unico pedido.
+  const estimatedImageCost = env.SITE_IMAGE_ESTIMATED_COST_USD;
+  const currentProject = await repo.findProject(project.id);
+  if (!currentProject) throw new Error('Projeto nao encontrado para geracao da imagem.');
+  const projectLimit = Math.min(
+    Number(currentProject.budgetLimitUsd ?? env.SITE_AI_DEFAULT_PROJECT_BUDGET_USD),
+    25,
+  );
+  if (Number(currentProject.costAccumulatedUsd ?? 0) + estimatedImageCost > projectLimit) {
+    throw new Error('Orcamento do projeto insuficiente para gerar a imagem principal.');
+  }
+  const { startOfCurrentMonthUtc } = await import('@server/modules/site-ai/service');
+  const monthlySpend = await repo.monthlySpendUsd(startOfCurrentMonthUtc());
+  if (monthlySpend + estimatedImageCost > env.SITE_AI_MONTHLY_BUDGET_USD) {
+    throw new Error('Orcamento mensal insuficiente para gerar a imagem principal.');
+  }
+
   const { processUploadedImage } = await import('@builder/publishing/image-processing');
   const { newId } = await import('@server/lib/ids');
   const controller = new AbortController();
