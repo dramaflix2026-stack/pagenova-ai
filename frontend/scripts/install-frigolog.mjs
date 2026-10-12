@@ -138,3 +138,8 @@ if (!contactButtonCurrent.includes('FRIGOLOG_CONTACT_BUTTON_CENTER_V13')) writeF
 const aboutCss = "\n/* FRIGOLOG_ABOUT_CONTENT_CENTER_V14 */\n@media(max-width:767px){.frigolog-template #sobre>.site-container>div{text-align:center!important}.frigolog-template #sobre>.site-container>div>p:not(.eyebrow){text-align:center!important;max-width:640px;margin-left:auto!important;margin-right:auto!important}.frigolog-template #sobre>.site-container>div>div{width:fit-content;max-width:100%;margin-left:auto!important;margin-right:auto!important;text-align:left!important}.frigolog-template #sobre>.site-container>div>div>p{text-align:left!important}.frigolog-template #sobre>.site-container>div>a{display:flex!important;width:max-content!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;justify-content:center!important}}";
 const aboutCurrent = readFileSync(cssPath,'utf8');
 if(!aboutCurrent.includes('FRIGOLOG_ABOUT_CONTENT_CENTER_V14')) writeFileSync(cssPath,aboutCurrent+'\n'+aboutCss);
+
+// FRIGOLOG_CONTACT_ALL_TEXT_CENTER_V15
+const contactTextCss="\n/* FRIGOLOG_CONTACT_ALL_TEXT_CENTER_V15 */\n.frigolog-template #contato .eyebrow,.frigolog-template #contato .section-heading,.frigolog-template #contato p{ text-align:center!important; } .frigolog-template #contato p{margin-left:auto!important;margin-right:auto!important;}";
+const contactTextCurrent=readFileSync(cssPath,'utf8');
+if(!contactTextCurrent.includes('FRIGOLOG_CONTACT_ALL_TEXT_CENTER_V15'))writeFileSync(cssPath,contactTextCurrent+'\n'+contactTextCss);
