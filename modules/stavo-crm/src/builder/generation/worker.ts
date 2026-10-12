@@ -187,7 +187,11 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Falha de foto nunca bloqueia a geracao do site.
     const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
     // Create a distinct illustrative hero without replacing real staff portraits.
-    await ensureIllustrativeHero(project).catch(() => false);
+    // Image calls remain opt-in until their billing and quota are verified.
+    if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
+      await assertBudgetAvailable(project);
+      await ensureIllustrativeHero(project).catch(() => false);
+    }
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
     const input = { ...briefingToProviderInput(project), imageCandidates };
 
