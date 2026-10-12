@@ -57,7 +57,7 @@ function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchema
   let index = 0;
   return html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
     const key = `${sectionId}:${index++}`;
-    const edit = model.visualTextEdits.find((item) => item.key === key);
+    const edit = model.visualTextEdits?.find((item) => item.key === key);
     const styles: string[] = [];
     if (edit?.fontSizePx) styles.push(`font-size:${edit.fontSizePx}px`);
     if (edit?.fontFamily) styles.push(`font-family:${edit.fontFamily === 'Georgia' ? 'Georgia,serif' : `${edit.fontFamily},sans-serif`}`);
