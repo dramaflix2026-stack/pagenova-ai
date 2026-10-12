@@ -885,6 +885,16 @@ export default function BuilderPage() {
         <div className="mb-8"><span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova Builder · {selectedPreset.title}</span>
           <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
           <p className="mt-3 text-white/50">Escolha um ponto de partida, descreva sua ideia e acompanhe a criação na tela.</p></div>
+        <section className="mx-auto mb-6 max-w-3xl rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.07] p-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-emerald-300">Novo template em teste</p>
+              <h2 className="mt-1 text-lg font-bold text-white">Site institucional universal</h2>
+              <p className="mt-1 text-sm text-white/60">Personalize o layout aprovado com informações do negócio e gere textos com IA. O vínculo automático com leads e a publicação pelo CRM ainda estão em desenvolvimento.</p>
+            </div>
+            <Link href="/templates/universal" className="shrink-0 rounded-xl bg-emerald-400 px-5 py-3 text-center text-sm font-bold text-[#08130e] hover:bg-emerald-300">Abrir template →</Link>
+          </div>
+        </section>
         <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
