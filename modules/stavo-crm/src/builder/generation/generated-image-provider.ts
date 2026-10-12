@@ -70,7 +70,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
       rightsStatus: 'AI_GENERATED',
       createdBy: project.ownerUserId,
     });
-    return true;
+    return 'created';
   } catch {
     return 'unavailable';
   } finally {
