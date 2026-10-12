@@ -47,6 +47,16 @@ export default function CrmPage() {
           src={iframeSrc}
           title="PageNova CRM"
           className="h-full w-full border-0"
+          onLoad={(event) => {
+            // The PageNova workspace already provides the primary navigation.
+            // Hide only the redundant sidebar inside the embedded CRM.
+            const doc = event.currentTarget.contentDocument;
+            if (!doc || doc.getElementById("pagenova-hide-embedded-crm-nav")) return;
+            const style = doc.createElement("style");
+            style.id = "pagenova-hide-embedded-crm-nav";
+            style.textContent = "@media (min-width: 1024px) { aside.w-60 { display: none !important; } }";
+            doc.head.appendChild(style);
+          }}
           allow="clipboard-read; clipboard-write"
         />
       </main>
