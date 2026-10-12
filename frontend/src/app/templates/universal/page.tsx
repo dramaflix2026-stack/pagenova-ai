@@ -1,8 +1,8 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Settings2, ChevronDown, ChevronUp, RotateCcw } from "lucide-react";
+import { Settings2, ChevronDown, ChevronUp, RotateCcw, Download, Upload, CheckCircle2 } from "lucide-react";
 import UniversalFrigologTemplate from "@/components/templates/UniversalFrigologTemplate";
-import { frigologReferenceData, type UniversalSiteData } from "@/lib/frigolog-template-data";
+import { frigologReferenceData, validateUniversalSiteData, type UniversalSiteData } from "@/lib/frigolog-template-data";
 import "../frigolog/frigolog.css";
 import "@/components/templates/universal-frigolog.css";
 
@@ -23,6 +23,7 @@ export default function UniversalTemplatePreview() {
   const [generated, setGenerated] = useState<UniversalSiteData | null>(null);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [notice, setNotice] = useState("");
   const [heroPhoto, setHeroPhoto] = useState("");
   const [teamPhoto, setTeamPhoto] = useState("");
   const [operationPhoto, setOperationPhoto] = useState("");
@@ -63,15 +64,41 @@ export default function UniversalTemplatePreview() {
   }, [preset, name, primary, heroPhoto, teamPhoto, operationPhoto]);
 
   async function generateContent() {
-    setBusy(true); setErrorMessage("");
+    setBusy(true); setErrorMessage(""); setNotice("");
     try {
       const response = await fetch("/api/templates/universal/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ niche: preset === "frigolog" ? "logística frigorífica" : preset, company: name.trim() || presets[preset].name, details }) });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Não foi possível gerar.");
+      if (validateUniversalSiteData(payload.data).length) throw new Error("Resposta da IA incompleta.");
       setGenerated(payload.data);
+      setNotice("Conteúdo gerado. Revise antes de publicar.");
       setPanelOpen(false);
     } catch (e) { setErrorMessage(e instanceof Error ? e.message : "Falha na geração."); }
     finally { setBusy(false); }
+  }
+  function downloadDraft() {
+    const draft = generated || data;
+    const payload = { format: "pagenova-universal-v1", data: draft };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "pagenova-" + draft.brand.name.toLowerCase().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").slice(0, 50) + ".json";
+    anchor.click();
+    URL.revokeObjectURL(url);
+    setNotice("Rascunho exportado. Este arquivo não publica o site.");
+  }
+  async function importDraft(file: File | undefined) {
+    if (!file) return;
+    setErrorMessage("");setNotice("");
+    if (file.size > 50000) { setErrorMessage("Arquivo muito grande.");return; }
+    try {
+      const parsed = JSON.parse(await file.text());
+      if (parsed?.format !== "pagenova-universal-v1" || validateUniversalSiteData(parsed.data).length) throw new Error("Arquivo incompatível ou incompleto.");
+      setGenerated(parsed.data as UniversalSiteData);
+      setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");
+      setNotice("Rascunho importado com sucesso.");
+      setPanelOpen(false);
+    } catch (e) { setErrorMessage(e instanceof Error ? e.message : "Falha na importação."); }
   }
   const displayData = generated ? { ...generated, palette: { ...generated.palette, primary: primary || generated.palette.primary }, hero: { ...generated.hero, image: { ...generated.hero.image, src: heroPhoto || generated.hero.image.src } }, about: { ...generated.about, image: { ...generated.about.image, src: teamPhoto || generated.about.image.src } }, coverage: { ...generated.coverage, image: { ...generated.coverage.image, src: operationPhoto || generated.coverage.image.src } } } : data;
   return <div>
@@ -109,9 +136,16 @@ export default function UniversalTemplatePreview() {
         <div className="flex flex-col justify-end gap-2">
           <button type="button" onClick={() => {setPreset("frigolog");setName("");setPrimary("");setHeroPhoto("");setTeamPhoto("");setOperationPhoto("");setGenerated(null);setDetails("");}} className="flex items-center justify-center gap-2 rounded-lg border border-slate-300 px-3 py-2.5 text-sm font-semibold"><RotateCcw size={15}/> Restaurar exemplo</button>
         </div>
+        <div className="flex flex-wrap items-center gap-2 sm:col-span-2 lg:col-span-3">
+          <button type="button" onClick={downloadDraft} className="flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm"><Download size={16}/> Exportar rascunho</button>
+          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm"><Upload size={16}/> Importar rascunho
+            <input type="file" accept="application/json,.json" className="sr-only" onChange={async e => { await importDraft(e.target.files?.[0]); e.target.value = ""; }}/>
+          </label>
+        </div>
         <p className="text-xs text-amber-800 sm:col-span-2 lg:col-span-3">A IA gera os textos. As fotografias são personalizadas separadamente. Requer login e API configurada.</p>
       </div>}
     </div>
+    {notice && <div role="status" className="flex items-center justify-center gap-2 bg-emerald-50 px-4 py-2 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div>}
     <UniversalFrigologTemplate data={displayData}/>
   </div>;
 }
