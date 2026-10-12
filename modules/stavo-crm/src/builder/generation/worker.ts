@@ -244,28 +244,32 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
             !['header', 'footer', 'cta', 'faq', 'contact'].includes(section.type),
         );
       }
-      const heroCandidate =
-        imageCandidates.find((item) => !item.width || !item.height || item.width / item.height >= 1.1) ??
-        imageCandidates.at(0);
-      // Portraits belong in the editorial/about section, not in a wide banner.
-      // Prefer the most portrait-like remaining photo, keeping each slot unique.
-      const secondaryCandidate = imageCandidates
-        .filter((item) => item.assetId !== heroCandidate?.assetId)
-        .sort((left, right) =>
-          (left.width && left.height ? left.width / left.height : 1) -
-          (right.width && right.height ? right.width / right.height : 1),
-        )[0];
+      // Reserve a portrait for About first, even when it is the only real
+      // photograph. Never stretch the professional's portrait into a hero.
+      const byAspect = [...imageCandidates].sort((a, b) =>
+        (a.width && a.height ? a.width / a.height : 1) -
+        (b.width && b.height ? b.width / b.height : 1),
+      );
+      const secondaryCandidate = secondaryIndex >= 0
+        ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
+        : undefined;
+      const heroCandidate = imageCandidates.find(
+        (item) => item.assetId !== secondaryCandidate?.assetId &&
+          (!item.width || !item.height || item.width / item.height >= 1.1),
+      ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
+      const fallbackSecondary = secondaryCandidate ??
+        imageCandidates.find((item) => item.assetId !== heroCandidate?.assetId);
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
       const thirdCandidate = imageCandidates.find(
-        (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== secondaryCandidate?.assetId,
+        (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       );
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
-      if (secondaryIndex >= 0 && secondaryCandidate) {
+      if (secondaryIndex >= 0 && fallbackSecondary) {
         imageBindings[secondaryIndex] = {
           ...(imageBindings[secondaryIndex] ?? {}),
-          image: toRef(secondaryCandidate),
+          image: toRef(fallbackSecondary),
         };
       }
       // The third photograph is reserved for the first step of the operation
