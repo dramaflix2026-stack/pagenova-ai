@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { frigologReferenceData, validateUniversalSiteData, type UniversalSiteData } from "@/lib/frigolog-template-data";
 
@@ -9,6 +10,16 @@ export async function POST(request: Request) {
   const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) return NextResponse.json({ error: "Entre na sua conta para gerar o site." }, { status: 401 });
+  const email = user.email?.trim().toLowerCase();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const adminKey = process.env.SUPABASE_SECRET_KEY;
+  if (!email) return NextResponse.json({ error: "Conta sem e-mail válido." }, { status: 403 });
+  if (!supabaseUrl || !adminKey) return NextResponse.json({ error: "Acesso ao produto não configurado." }, { status: 503 });
+  const admin = createAdminClient(supabaseUrl, adminKey, { auth: { persistSession: false, autoRefreshToken: false } });
+  const { data: entitlement, error: entitlementError } = await admin.from("entitlements").select("id")
+    .eq("product", "pagenova-ai").eq("status", "active").ilike("email", email).limit(1).maybeSingle();
+  if (entitlementError) return NextResponse.json({ error: "Não foi possível validar sua assinatura." }, { status: 503 });
+  if (!entitlement) return NextResponse.json({ error: "Assinatura PageNova ativa necessária." }, { status: 403 });
   if (!process.env.OPENAI_API_KEY) return NextResponse.json({ error: "Geração por IA ainda não configurada neste ambiente." }, { status: 503 });
   const raw = await request.text();
   if (raw.length > MAX_BODY) return NextResponse.json({ error: "Entrada muito longa." }, { status: 413 });
