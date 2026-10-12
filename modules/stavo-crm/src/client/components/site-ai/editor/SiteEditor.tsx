@@ -20,6 +20,7 @@ import {
   useCreateSiteVersion,
   useRestoreSiteVersion,
   useSaveSiteConfig,
+  useSiteAiDiagnostics,
   useSiteAssets,
   useSiteDraftConfig,
   useSiteProject,
@@ -37,6 +38,7 @@ interface SiteEditorProps {
 export function SiteEditor({ projectId }: SiteEditorProps) {
   const toast = useToast();
   const draftQuery = useSiteDraftConfig(projectId);
+  const diagnosticsQuery = useSiteAiDiagnostics();
   const projectQuery = useSiteProject(projectId);
   const assetsQuery = useSiteAssets(projectId);
   const saveConfig = useSaveSiteConfig(projectId);
@@ -380,12 +382,12 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         errorCount={lintReport?.errors.length ?? 0}
         onShowIssues={() => setShowIssues((v) => !v)}
       />
-      {config.project.templateId !== 'frigolog-universal' ? (
+      {diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId !== 'frigolog-universal' ? (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary/20 bg-primary-soft px-3 py-2">
           <span className="text-xs font-medium">Novo visual PageNova: use o layout aprovado com o seu conteudo, sem gerar novamente.</span>
           <Button size="sm" variant="secondary" onClick={applyUniversalVisual}>Aplicar visual PageNova</Button>
         </div>
-      ) : (
+      ) : diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId === 'frigolog-universal' ? (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted px-3 py-2">
           <span className="text-xs font-medium">✓ Visual PageNova ativo · mesmo site para editar e publicar</span>
           <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Voltar visual anterior</Button>
