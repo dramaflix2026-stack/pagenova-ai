@@ -81,6 +81,12 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
     'Tire suas dúvidas sobre o atendimento',
     'Solicite informações antes de agendar',
   ].slice(0,3) as [string,string,string];
+  // These are the real process steps produced by the plan assembler.
+  // Previously the FRIGOLOG bridge discarded their text AND their images.
+  const processSteps=(process?.steps??[]).filter(step=>step.title.trim()).slice(0,4);
+  const operationImage=processSteps.find(step=>step.image)?.image
+    ?? gallery?.images[0]
+    ?? authority?.image;
   return {
     brand:{
       name,tagline:clean([niche.toUpperCase(),region.toUpperCase()].filter(Boolean).join(' · '),niche.toUpperCase()),
@@ -112,7 +118,8 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
       eyebrow:'COMO TRABALHAMOS',heading:clean(process?.headline,'Conheça nosso atendimento.'),
       description:clean(process?.subheadline??model.business.description,
         'Entre em contato com '+name+' para entender os próximos passos.'),
-      image:image(gallery?.images[0]??authority?.image,ctx,'Imagem de '+name),
+      image:image(operationImage,ctx,'Imagem ilustrativa do atendimento de '+name),
+      steps:processSteps.map(step=>benefit(step.title,step.body??'Entre em contato para saber mais.')),
     },
     contact:{
       eyebrow:'VAMOS CONVERSAR?',heading:clean(cta?.headline,'Fale com '+name+'.'),
