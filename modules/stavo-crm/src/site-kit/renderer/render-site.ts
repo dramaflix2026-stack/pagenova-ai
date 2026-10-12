@@ -42,6 +42,7 @@ import { renderStyles } from '@site-kit/themes/styles';
 import type { DesignTokens, SiteSchemaModel, SiteSection } from '@site-kit/schemas/site-schema';
 import { fontLinkTags } from '@site-kit/themes/fonts';
 import { renderUniversalMaster, UNIVERSAL_MASTER_STYLES } from './universal-master';
+import { UNIVERSAL_MASTER_REFINEMENTS } from './universal-master-refinements';
 
 export { escapeHtml } from '@site-kit/primitives/render-utils';
 export type { RenderContext } from '@site-kit/primitives/render-utils';
@@ -205,7 +206,7 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags(isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${renderStyles(model.theme)}
-${isUniversal ? UNIVERSAL_MASTER_STYLES : ''}
+${isUniversal ? UNIVERSAL_MASTER_STYLES + '\n' + UNIVERSAL_MASTER_REFINEMENTS : ''}
 /* Critical responsive guard: emitted by the document renderer itself. */
 @media screen and (max-width:899px){
 html,body{width:100%;max-width:100%;overflow-x:hidden}
