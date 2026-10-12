@@ -263,6 +263,7 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
     theme,
     navigation,
     sections: built,
+    visualTextEdits: [],
     motion: plan.motion,
     seo: {
       title: sanitizeLine(plan.seo.title, 60),
