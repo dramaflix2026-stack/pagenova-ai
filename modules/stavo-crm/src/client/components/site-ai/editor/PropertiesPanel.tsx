@@ -403,7 +403,7 @@ function ImageField({
                 alt={value.alt}
                 onError={() => setImageBroken(true)}
                 onLoad={() => setImageBroken(false)}
-                className="h-28 w-full rounded object-cover"
+                className="max-h-64 w-full rounded object-contain object-top"
                 style={{ objectPosition: `${value.focalX * 100}% ${value.focalY * 100}%` }}
               />
               <button
@@ -492,11 +492,12 @@ function ImageField({
 function ExistingAssetsPicker({ assets, onPick }: { assets: SiteAssetSummary[]; onPick: (asset: SiteAssetSummary) => void }) {
   return (
     <details className="text-xs">
-      <summary className="cursor-pointer text-primary">Usar uma imagem ja enviada ({assets.length})</summary>
+      <summary className="cursor-pointer text-primary">Escolher imagem do Google ou da biblioteca ({assets.length})</summary>
       <div className="mt-2 grid grid-cols-3 gap-1.5">
         {assets.map((asset) => (
           <button key={asset.id} type="button" onClick={() => onPick(asset)} className="overflow-hidden rounded border border-border">
-            <img src={asset.url} alt={asset.altText ?? ''} loading="lazy" className="h-14 w-full object-cover" onError={(e) => { e.currentTarget.hidden = true; }} />
+            <img src={asset.url} alt={asset.altText ?? ''} loading="lazy" className="h-24 w-full object-contain object-top" onError={(e) => { e.currentTarget.hidden = true; }} />
+            <span className="block truncate px-1 pb-1 text-[10px] text-muted-foreground">{asset.source === 'GOOGLE_PLACES' ? 'Foto do Google' : asset.source === 'AI_GENERATED' ? 'Gerada por IA' : 'Enviada'}</span>
           </button>
         ))}
       </div>
