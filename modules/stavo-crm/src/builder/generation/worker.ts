@@ -280,7 +280,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
           (!item.width || !item.height || item.width / item.height >= 1.1),
       ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
       const fallbackSecondary = secondaryCandidate ??
-        realCandidates.find((item) => item.assetId !== heroCandidate?.assetId);
+        realCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
+        imageCandidates.find((item) => item.source === 'UPLOAD' && item.assetId !== heroCandidate?.assetId);
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
