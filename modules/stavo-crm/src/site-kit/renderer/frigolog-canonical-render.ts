@@ -55,6 +55,17 @@ export function renderCanonicalFrigolog(
  * and this small progressive enhancement to open the existing mobile menu.
  */
 export const FRIGOLOG_STATIC_RUNTIME=String.raw`(function(){
+  // Graceful fallback for images that disappeared after a cloud redeploy.
+  // No image is silently swapped for an unrelated stock/refrigeration photo.
+  document.querySelectorAll('.frigolog-template img[data-pn-photo]').forEach(function(img){
+    function unavailable(){
+      img.hidden=true;
+      var section=img.closest('section');
+      if(section)section.classList.add('pn-photo-missing');
+    }
+    img.addEventListener('error',unavailable);
+    if(img.complete && img.naturalWidth===0)unavailable();
+  });
   var button=document.querySelector('[data-pn-menu-toggle]');
   var menu=document.querySelector('[data-pn-mobile-menu]');
   if(!button||!menu)return;
