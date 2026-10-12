@@ -78,20 +78,34 @@ export const frigologReferenceData: UniversalSiteData = {
 /** Protects layout stability by requiring all content slots to be populated. */
 export function validateUniversalSiteData(value: UniversalSiteData): string[] {
   const errors: string[] = [];
-  const required = [
-    value.brand.name, value.brand.tagline, value.hero.title, value.hero.description,
-    value.hero.image.src, value.hero.ctaLabel, value.services.heading,
-    value.about.heading, value.coverage.heading, value.contact.heading,
-    value.contact.ctaLabel, value.contact.ctaUrl
-  ];
-  if (required.some(v => typeof v !== "string" || !v.trim())) errors.push("Missing required template content");
-  if (value.highlights.length !== 4 || value.services.items.length !== 4 ||
-      value.about.benefits.length !== 3 || value.about.paragraphs.length !== 2) {
-    errors.push("Template slot counts must match the approved FRIGOLOG layout");
+  const record = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
+  const nonempty = (v: unknown): v is string => typeof v === "string" && v.trim().length > 0 && v.length <= 1200;
+  const fields = (v: unknown, keys: string[], label: string) => {
+    if (!record(v) || keys.some(k => !nonempty(v[k]))) errors.push("Invalid " + label);
+  };
+  if (!record(value)) return ["Invalid template"];
+  fields(value.brand, ["name", "tagline"], "brand");
+  fields(value.hero, ["eyebrow", "title", "description", "ctaLabel"], "hero");
+  fields(value.services, ["eyebrow", "heading"], "services");
+  fields(value.about, ["eyebrow", "heading", "ctaLabel"], "about");
+  fields(value.coverage, ["eyebrow", "heading", "description"], "coverage");
+  fields(value.contact, ["eyebrow", "heading", "description", "ctaLabel", "ctaUrl"], "contact");
+  fields(value.footer, ["copyright"], "footer");
+  for (const [label, image] of [["hero", value.hero?.image], ["about", value.about?.image], ["coverage", value.coverage?.image]] as const) {
+    fields(image, ["src", "alt"], label + " image");
   }
-  for (const color of Object.values(value.palette)) {
-    if (!/^#[0-9a-fA-F]{6}$/.test(color)) errors.push("Palette colors must be six-digit hex values");
-  }
-  if (!/^(https?:\/\/|\/|#)/.test(value.contact.ctaUrl)) errors.push("Invalid CTA destination");
+  const exactArray = (v: unknown, length: number, label: string, keys?: string[]) => {
+    if (!Array.isArray(v) || v.length !== length) { errors.push("Invalid " + label + " count"); return; }
+    v.forEach((item, i) => {
+      if (keys) fields(item, keys, label + " " + i);
+      else if (!nonempty(item)) errors.push("Invalid " + label + " " + i);
+    });
+  };
+  exactArray(value.highlights, 4, "highlights", ["title", "description"]);
+  exactArray(value.services?.items, 4, "services items", ["title", "description"]);
+  exactArray(value.about?.paragraphs, 2, "about paragraphs");
+  exactArray(value.about?.benefits, 3, "about benefits");
+  if (!record(value.palette) || ["primary", "accent", "background", "foreground"].some(k => typeof value.palette[k] !== "string" || !/^#[0-9a-fA-F]{6}$/.test(value.palette[k]))) errors.push("Invalid palette");
+  if (typeof value.contact?.ctaUrl !== "string" || !/^(https:\/\/|\/|#)/.test(value.contact.ctaUrl)) errors.push("Invalid CTA destination");
   return errors;
 }
