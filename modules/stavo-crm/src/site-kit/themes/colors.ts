@@ -168,7 +168,10 @@ export function adjustForContrast(
   if (!rgb || !bg) return null;
 
   // Fundo claro pede texto mais escuro, e vice-versa.
-  const towardsBlack = relativeLuminance(bg) > 0.5;
+  // Escolhe o lado que oferece MAIS contraste. Usar somente luminancia
+  // > 0.5 falha em fundos intermediarios: o branco pode dar 3.57:1
+  // enquanto o preto passa de 4.5:1.
+  const towardsBlack = contrastRatio('#000000', background) >= contrastRatio('#ffffff', background);
   const anchor: Rgb = towardsBlack ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
 
   // Busca binaria na mistura: 30 passos dao precisao muito abaixo de 1/255.
@@ -193,4 +196,21 @@ export function adjustForContrast(
   }
 
   return best;
+}
+
+/** Ajusta os pares do tema para WCAG AA sem substituir a identidade da marca.
+ * Funcao pura compartilhada pelo editor e pelas novas geracoes.
+ * A cor original so e alterada quando o linter detectaria contraste insuficiente.
+ */
+export function repairThemeContrast<T extends ThemeColors>(input: T): T {
+  const colors = { ...input };
+  for (let round = 0; round < 3; round += 1) {
+    for (const pair of themeContrastPairs(colors)) {
+      const minimum = pair.large ? AA_LARGE : AA_NORMAL;
+      if (contrastRatio(pair.fg, pair.bg) >= minimum) continue;
+      const adjusted = adjustForContrast(pair.fg, pair.bg, minimum);
+      if (adjusted) colors[pair.fgKey] = adjusted;
+    }
+  }
+  return colors;
 }
