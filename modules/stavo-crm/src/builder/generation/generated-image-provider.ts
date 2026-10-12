@@ -24,7 +24,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<bool
 
   // Never put private lead data, addresses, names, or real people's likenesses
   // in the prompt. The sector is sufficient for an illustrative banner.
-  const niche = String(project.businessNiche ?? '').slice(0, 100);
+  const niche = String(project.internalName ?? '').slice(0, 100);
   const dental = /odont|dent|sorriso|ortodont/i.test(niche + ' ' + project.businessName);
   const subject = dental
     ? 'a modern, welcoming dental treatment room with an empty dental chair and clean equipment'
@@ -68,7 +68,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<bool
       checksum: processed.image.checksum,
       altText: dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : 'Ambiente ilustrativo gerado por IA',
       rightsStatus: 'AI_GENERATED',
-      createdBy: project.createdBy,
+      createdBy: project.ownerUserId,
     });
     return true;
   } catch {
