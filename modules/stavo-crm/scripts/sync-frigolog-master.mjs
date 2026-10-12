@@ -45,7 +45,10 @@ if (!existsSync(resolve(frontend, 'frigolog-next-integration-v7.zip'))) {
   console.log('[FRIGOLOG] Full frontend not in deployment context; downloading canonical source at', remoteCommit);
   for (const path of files) {
     const target = resolve(frontend, path);
-    if (existsSync(target)) continue;
+    // The Railway build cache can retain a component from an older commit.
+    // Always refresh mutable TSX/CSS/data sources from the pinned revision.
+    // Only the immutable V7 ZIP and installer script can be cached safely.
+    if (existsSync(target) && !path.startsWith('src/')) continue;
     const url = 'https://raw.githubusercontent.com/dramaflix2026-stack/pagenova-ai/' +
       remoteCommit + '/frontend/' + path;
     let downloaded = false;
