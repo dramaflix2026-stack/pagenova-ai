@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const CRM_ROUTES: Record<string, string> = {
   dashboard: "/",
@@ -42,11 +43,12 @@ export default function CrmPage() {
 
   if (status === "ready") {
     return (
-      <main className="h-[calc(100vh-4rem)] min-h-[640px] overflow-hidden bg-[#070b14]">
+      <main className="flex h-[calc(100vh-4rem)] min-h-[640px] flex-col overflow-hidden bg-[#070b14]">
+        {(crmView === "crm" || crmView === "sites-ia" || crmView === "buscar") && <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-400/20 bg-[#10221e] px-4 py-2 text-sm text-white"><span>Template universal disponível para testes. A importação automática do lead ainda não está ativa.</span><Link href="/templates/universal" className="rounded-lg bg-emerald-400 px-3 py-2 font-bold text-[#08130e]">Abrir gerador universal →</Link></div>}
         <iframe
           src={iframeSrc}
           title="PageNova CRM"
-          className="h-full w-full border-0"
+          className="min-h-0 w-full flex-1 border-0"
           onLoad={(event) => {
             // The PageNova workspace already provides the primary navigation.
             // Hide only the redundant sidebar inside the embedded CRM.
