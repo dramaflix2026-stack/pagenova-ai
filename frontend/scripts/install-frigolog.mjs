@@ -124,3 +124,12 @@ if (!stripCurrentCss.includes('FRIGOLOG_KPI_STRIP_V11')) writeFileSync(cssPath, 
 const alignmentCss = "\n/* FRIGOLOG_SECTION_ALIGNMENT_V12: unified centered section headings */\n.frigolog-template #servicos > .site-container > div:first-child {display:block!important;text-align:center!important;}\n.frigolog-template #servicos > .site-container > div:first-child > div {width:100%;text-align:center!important;}\n.frigolog-template #servicos > .site-container > div:first-child .eyebrow,\n.frigolog-template #servicos > .site-container > div:first-child .section-heading {text-align:center!important;}\n.frigolog-template #servicos > .site-container > div:first-child > span {display:none!important;}\n.frigolog-template #sobre .eyebrow,\n.frigolog-template #sobre .section-heading {text-align:center!important;}\n.frigolog-template #contato .eyebrow,\n.frigolog-template #contato .section-heading {text-align:center!important;}\n.frigolog-template #contato .section-heading {max-width:850px;margin-inline:auto;}\n@media (max-width:767px) {\n .frigolog-template #servicos .section-heading,\n .frigolog-template #sobre .section-heading,\n .frigolog-template #contato .section-heading {font-size:clamp(28px,7.5vw,36px)!important;line-height:1.15;}\n}\n";
 const alignmentCurrent = readFileSync(cssPath, 'utf8');
 if (!alignmentCurrent.includes('FRIGOLOG_SECTION_ALIGNMENT_V12')) writeFileSync(cssPath, alignmentCurrent + '\n' + alignmentCss);
+
+// FRIGOLOG_CONTACT_BUTTON_CENTER_V13
+const contactButtonCss = `
+/* FRIGOLOG_CONTACT_BUTTON_CENTER_V13: center contact CTA without changing its appearance */
+.frigolog-template #contato a.frigolog-button,
+.frigolog-template #contato button.frigolog-button {display:flex!important;width:max-content!important;max-width:100%!important;margin-left:auto!important;margin-right:auto!important;justify-content:center!important;}
+`;
+const contactButtonCurrent = readFileSync(cssPath, 'utf8');
+if (!contactButtonCurrent.includes('FRIGOLOG_CONTACT_BUTTON_CENTER_V13')) writeFileSync(cssPath, contactButtonCurrent + '\n' + contactButtonCss);
