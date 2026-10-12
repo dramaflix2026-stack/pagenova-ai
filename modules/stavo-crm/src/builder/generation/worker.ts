@@ -203,9 +203,9 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // indice de secao depois que o plano ja foi gerado.
     const imageBindings = result.imageBindings ? [...result.imageBindings] : [];
 
-    // Rede de seguranca visual: quando ha pelo menos duas fotos reais, o hero
-    // e uma secao editorial interna recebem imagens mesmo se o modelo escolher none.
-    if (imageCandidates.length >= 2 && Array.isArray(plan.sections) && plan.sections.length > 0) {
+    // Uma unica imagem verificada ja deve aparecer no hero. Com duas fotos,
+    // uma secao editorial recebe a segunda, sem inventar imagens.
+    if (imageCandidates.length >= 1 && Array.isArray(plan.sections) && plan.sections.length > 0) {
       const toRef = (candidate: (typeof imageCandidates)[number]) => ({
         assetId: candidate.assetId,
         alt: candidate.description.slice(0, 200),
@@ -217,7 +217,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       // "about" ou "authority". Escolhe uma secao editorial interna que exista
       // no plano, priorizando tipos com suporte visual. Como ultimo recurso,
       // usa uma secao intermediaria diferente do hero.
-      const secondaryPreferredTypes = ['about', 'authority', 'services', 'benefits', 'process'] as const;
+      const secondaryPreferredTypes = ['about', 'authority'] as const;
       let secondaryIndex = -1;
       for (const type of secondaryPreferredTypes) {
         secondaryIndex = plan.sections.findIndex((section, index) => index !== heroIndex && section.type === type);
