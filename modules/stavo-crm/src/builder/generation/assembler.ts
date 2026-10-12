@@ -428,12 +428,12 @@ function buildSection(
         title: sanitizeLine(item.title, 80),
         body: item.body ? sanitizeText(item.body, 300) : undefined,
         icon: item.icon,
-        image: undefined,
+        image: binding.itemImages?.[itemIndex] ?? undefined,
       }));
       return {
         ...base,
         type: 'process',
-        variant: resolveVariant('process', plan.variant, steps.length, false),
+        variant: resolveVariant('process', plan.variant, steps.length, steps.some((step) => Boolean(step.image))),
         headline: sanitizeLine(plan.headline, 120),
         subheadline: plan.subheadline ? sanitizeLine(plan.subheadline, 220) : undefined,
         steps,
