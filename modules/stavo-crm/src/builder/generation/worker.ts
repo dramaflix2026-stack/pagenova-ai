@@ -208,7 +208,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     if (imageCandidates.length >= 1 && Array.isArray(plan.sections) && plan.sections.length > 0) {
       const toRef = (candidate: (typeof imageCandidates)[number]) => ({
         assetId: candidate.assetId,
-        alt: candidate.description.slice(0, 200),
+        alt: candidate.description.trim().slice(0, 200) || 'Fotografia enviada para o site',
         focalX: candidate.focalX,
         focalY: candidate.focalY,
       });
