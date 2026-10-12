@@ -65,9 +65,12 @@ export function PropertiesPanel({ projectId, section, anchors, onChange }: Prope
     onChange({ ...section, [field]: value } as SiteSection);
   };
 
-  const editableKeys = Object.keys(record).filter(
-    (key) => !['id', 'type', 'anchor', 'style'].includes(key),
-  );
+  // image e opcional no schema: depois de serializar o JSON, a chave some
+  // dos sites que ainda nao tem foto. Mesmo assim o upload PRECISA aparecer.
+  const editableKeys = [...new Set([
+    ...Object.keys(record),
+    ...(['hero', 'about', 'authority'].includes(section.type) ? ['image'] : []),
+  ])].filter((key) => !['id', 'type', 'anchor', 'style'].includes(key));
 
   return (
     <div className="h-full overflow-y-auto p-4">
