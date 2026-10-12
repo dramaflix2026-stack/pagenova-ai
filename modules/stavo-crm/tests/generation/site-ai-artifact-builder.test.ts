@@ -4,7 +4,7 @@
  * HTML final referencia caminhos RELATIVOS (nao a API), e o runtime -- sem
  * ele, o site publicado nao teria menu, animacao nem formulario funcionando.
  */
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -24,7 +24,11 @@ vi.setConfig({ testTimeout: 30_000 });
 
 vi.mock('@server/config/env', async (importOriginal) => {
   const actual = (await importOriginal()) as typeof EnvModule;
-  return { ...actual, siteAssetsDirAbsolute: () => (globalThis as { __testAssetsDir?: string }).__testAssetsDir ?? '' };
+  return {
+    ...actual,
+    siteAssetsDirAbsolute: () => (globalThis as { __testAssetsDir?: string }).__testAssetsDir ?? '',
+    publicSitesDirAbsolute: () => (globalThis as { __testPublicDir?: string }).__testPublicDir ?? '',
+  };
 });
 
 describe('collectAssetIds', () => {
@@ -74,14 +78,18 @@ describe('collectAssetIds', () => {
 
 describe('buildSiteArtifactFiles', () => {
   let assetsDir: string;
+  let publicDir: string;
 
   beforeEach(async () => {
     assetsDir = await mkdtemp(path.join(os.tmpdir(), 'site-ai-artifact-'));
+    publicDir = await mkdtemp(path.join(os.tmpdir(), 'site-ai-public-'));
     (globalThis as { __testAssetsDir?: string }).__testAssetsDir = assetsDir;
+    (globalThis as { __testPublicDir?: string }).__testPublicDir = publicDir;
   });
 
   afterEach(async () => {
     await rm(assetsDir, { recursive: true, force: true });
+    await rm(publicDir, { recursive: true, force: true });
     vi.resetModules();
   });
 
@@ -124,6 +132,43 @@ describe('buildSiteArtifactFiles', () => {
     expect(artifact.html).toContain('<h1'); // o resto da pagina continua de pe.
 
     vi.doUnmock('@server/modules/site-ai/repository');
+  });
+
+  it('restaura a mesma foto do artefato publicado sem gerar outra imagem', async () => {
+    const projectId = 'project-1';
+    const assetId = 'R'.repeat(26);
+    const storageKey = `${projectId}/restored.webp`;
+    const prior = `${projectId}/pub-before`;
+    const bytes = Buffer.from('immutable-image-bytes');
+    const publishedFile = path.join(publicDir, prior, 'assets/images', `${assetId}.webp`);
+    await mkdir(path.dirname(publishedFile), { recursive: true });
+    await writeFile(publishedFile, bytes);
+
+    vi.doMock('@server/modules/site-ai/repository', async (importOriginal) => {
+      const actual = (await importOriginal()) as typeof RepositoryModule;
+      return {
+        ...actual,
+        findAsset: async () => ({
+          projectId, id: assetId, storageKey, source: 'AI_GENERATED',
+          width: 1536, height: 1024,
+        }),
+        listPublications: async () => [{
+          artifactKey: prior, status: 'ACTIVE',
+        }],
+      };
+    });
+
+    try {
+      const { buildSiteArtifactFiles } = await import('@builder/publishing/artifact-builder');
+      const model = buildFixtureSite();
+      (model.sections[0] as { image?: unknown }).image =
+        { assetId, alt: 'Banner original', focalX: 0.5, focalY: 0.5 };
+      const result = await buildSiteArtifactFiles(projectId, model, 'DEMO');
+      expect(result.files.find(file => file.path.endsWith(`${assetId}.webp`))?.buffer).toEqual(bytes);
+      expect(await readFile(path.join(assetsDir, storageKey))).toEqual(bytes);
+    } finally {
+      vi.doUnmock('@server/modules/site-ai/repository');
+    }
   });
 
   it('o perfil DEMO forca noindex mesmo se o schema pedir indexacao', async () => {
