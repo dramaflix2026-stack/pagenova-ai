@@ -187,6 +187,9 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Falha de foto nunca bloqueia a geracao do site.
     await ensureGooglePlaceAssets(project).catch(() => 0);
     const googleAssetCount = (await new UploadAssetProvider().listCandidates(project.id)).filter((item) => item.source === 'GOOGLE_PLACES').length;
+    if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && googleAssetCount === 0) {
+      logger.warn({ projectId: project.id }, 'Nenhuma foto real do Google disponivel: nao atribuir imagem sintetica a equipe ou fachada reais.');
+    }
     // AI imagery is opt-in and metered. Keep real Google photos for internal sections.
     if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
       await assertBudgetAvailable(project);
