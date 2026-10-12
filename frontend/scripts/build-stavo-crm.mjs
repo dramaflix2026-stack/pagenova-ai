@@ -33,6 +33,13 @@ run("npm", ["ci", "--no-audit", "--no-fund"], crm);
 console.log("[PageNova] Validating CRM backend publishing renderer...");
 run("npm", ["run", "build:server"], crm);
 
+// A canonical template must pass its actual React SSR tests before being
+// merged to main. Only preview builds run this additional diagnostic gate.
+if (process.env.VERCEL_ENV === "preview") {
+  console.log("[PageNova] Testing exact FRIGOLOG React/CSS + CRM adapter...");
+  run("npm", ["run", "test", "--", "tests/unit/frigolog-canonical-render.test.ts"], crm);
+}
+
 console.log("[PageNova] Building current CRM client source...");
 run("npm", ["run", "build:client"], crm);
 
