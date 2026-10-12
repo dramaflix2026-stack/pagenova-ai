@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { ArrowRight, ArrowUpRight, Check, Clock3, MapPin, Menu, MessageCircle, Snowflake, Thermometer, Truck, X } from "lucide-react";
 import type { UniversalSiteData } from "@/lib/frigolog-template-data";
 import { validateUniversalSiteData } from "@/lib/frigolog-template-data";
@@ -31,7 +31,7 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
     "--background": data.palette.background,
     "--foreground": data.palette.foreground,
     "--accent": data.palette.accent,
-  } as React.CSSProperties;
+  } as CSSProperties;
 
   const showContact = () => {
     if (data.contact.ctaUrl.startsWith("#")) setQuoteOpen(true);
