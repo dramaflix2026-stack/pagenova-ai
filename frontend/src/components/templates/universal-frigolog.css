@@ -155,3 +155,18 @@
  .frigolog-template #contato .section-heading{font-size:clamp(30px,8vw,42px)!important}
  .frigolog-template footer .brand-sub{font-size:9px!important}
 }
+
+/* Master mobile refinements: keep copy legible and prevent header overflow. */
+.frigolog-template .brand-name{overflow-wrap:anywhere;line-height:1.1}
+.frigolog-template .hero h1,.frigolog-template .section-heading{overflow-wrap:break-word;text-wrap:balance}
+.frigolog-template .hero-content p:not(.eyebrow){max-width:570px}
+.frigolog-template #servicos .service-card{transition:transform .25s ease,box-shadow .25s ease}
+@media(hover:hover){.frigolog-template #servicos .service-card:hover{transform:translateY(-5px);box-shadow:0 28px 45px rgba(20,45,52,.19)!important}}
+@media(max-width:767px){
+.frigolog-template .site-header .brand-name{font-size:clamp(15px,4.6vw,20px)!important}
+.frigolog-template .site-header .site-container>a{min-width:0;flex:1}
+.frigolog-template .site-header .site-container>a>span{min-width:0;max-width:calc(100vw - 138px)}
+.frigolog-template .hero-content p:not(.eyebrow){font-size:clamp(15px,3.9vw,17px);line-height:1.7}
+.frigolog-template #servicos .service-card{box-shadow:0 16px 28px rgba(20,45,52,.13)!important}
+}
+@media(prefers-reduced-motion:reduce){.frigolog-template #servicos .service-card{transition:none!important}}
