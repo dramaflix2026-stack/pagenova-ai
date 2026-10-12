@@ -203,7 +203,7 @@ ${model.seo.canonicalUrl ? `<link rel="canonical" href="${escapeHtml(model.seo.c
 <meta property="og:locale" content="pt_BR">
 ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : ''}
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
-${fontLinkTags([model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
+${fontLinkTags(isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${renderStyles(model.theme)}
 ${isUniversal ? UNIVERSAL_MASTER_STYLES : ''}
 /* Critical responsive guard: emitted by the document renderer itself. */
