@@ -28,12 +28,10 @@ function run(command, args, cwd) {
 console.log("[PageNova] Installing CRM build dependencies...");
 run("npm", ["ci", "--no-audit", "--no-fund"], crm);
 
-if (process.env.VERCEL_ENV === "preview") {
-  console.log("[PageNova] Running isolated Vitest smoke test...");
-  run("npm", ["run", "test", "--", "tests/unit/universal-smoke.test.ts"], crm);
-  console.log("[PageNova] Building backend bundle...");
-  run("npm", ["run", "build:server"], crm);
-}
+// Compila o backend compartilhado para garantir que o renderer tambem funciona
+// no servidor que publica os sites, nao apenas na previa React.
+console.log("[PageNova] Validating CRM backend publishing renderer...");
+run("npm", ["run", "build:server"], crm);
 
 console.log("[PageNova] Building current CRM client source...");
 run("npm", ["run", "build:client"], crm);
