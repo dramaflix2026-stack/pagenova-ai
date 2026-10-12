@@ -51,4 +51,15 @@ check(html.includes('frigolog-kpi-card'),'canonical highlight cards missing');
 check(html.includes('href="https://wa.me/5516999999999"'),'CRM WhatsApp link missing');
 check(!html.includes('frigolog/cold-storage.jpg'),'refrigeration photos used on dental lead');
 check(!html.includes('src=""'),'broken photo link rendered');
+// The publisher exports ZIPs with relative assets/images URLs. They must be
+// accepted by the same schema validator as authenticated editor URLs.
+const hero=site.sections[0]!;
+if(hero.type!=='hero')throw new Error('Smoke fixture hero missing');
+hero.image={assetId:'0123456789ABCDEFGHJKMNPQRS',alt:'Foto licenciada',focalX:0.5,focalY:0.5};
+const artifact=renderCanonicalFrigolog(site,{
+  profile:'PRODUCTION',resolveAsset:(id)=>id===hero.image?.assetId
+    ?{url:'assets/images/'+id+'.webp'}:null,
+},x=>x);
+check(artifact.includes('assets/images/0123456789ABCDEFGHJKMNPQRS.webp'),
+  'ZIP relative image path rejected or missing');
 console.log('[FRIGOLOG] Smoke test PASS. React source and CSS fingerprint: '+FRIGOLOG_SOURCE_FINGERPRINT);
