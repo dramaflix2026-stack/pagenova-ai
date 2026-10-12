@@ -122,7 +122,7 @@ export function PropertiesPanel({ projectId, section, anchors, onChange }: Prope
           }
 
           if ((key === 'items' || key === 'steps') && Array.isArray(value)) {
-            return <ItemListField key={key} label={labelFor(key)} items={value as Record<string, unknown>[]} onChange={(v) => patch(key, v)} />;
+            return <ItemListField key={key} label={labelFor(key)} items={value as Record<string, unknown>[]} onChange={(v) => patch(key, v)} projectId={key === 'steps' ? projectId : undefined} />;
           }
 
           if (key === 'image') {
@@ -290,10 +290,12 @@ function ItemListField({
   label,
   items,
   onChange,
+  projectId,
 }: {
   label: string;
   items: Record<string, unknown>[];
   onChange: (next: Record<string, unknown>[]) => void;
+  projectId?: string;
 }) {
   const [primaryKey, secondaryKey] = itemShape(items);
 
@@ -329,6 +331,18 @@ function ItemListField({
                 <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
+            {projectId && index === 0 ? (
+              <div className="mt-3 border-t border-border pt-3">
+                <p className="mb-2 text-xs font-semibold">Imagem da seção “Como trabalhamos”</p>
+                <ImageField
+                  projectId={projectId}
+                  value={item.image as AssetRef | undefined}
+                  onChange={(image) => onChange(items.map((entry, i) =>
+                    i === index ? { ...entry, image } : entry,
+                  ))}
+                />
+              </div>
+            ) : null}
           </div>
         ))}
         <button
