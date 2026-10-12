@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
-import { renderUniversalMaster } from '@site-kit/renderer/universal-master';
+import { displayBusinessName, renderUniversalMaster } from '@site-kit/renderer/universal-master';
+import { adjustForContrast, contrastRatio, repairThemeContrast } from '@site-kit/themes/colors';
 
 function fixture(): SiteSchemaModel {
   return {
@@ -65,4 +66,42 @@ describe('PageNova universal master renderer', () => {
     expect(html).toContain('/assets/real.webp');
     expect(html).not.toContain('unsplash.com');
   });
+  it('removes imported search-niche suffix from the displayed brand but preserves the lead name', () => {
+    const raw = 'Galdiano Odontologia (dentista/implante dentário)';
+    expect(displayBusinessName(raw, 'dentista/implante dentário')).toBe('Galdiano Odontologia');
+    expect(displayBusinessName('Restaurante (da Praça)', 'restaurante')).toBe('Restaurante (da Praça)');
+    const model = fixture();
+    model.business.name = raw;
+    model.business.niche = 'dentista/implante dentário';
+    const html = renderUniversalMaster(model, context, () => '', (value) => value);
+    expect(html).toContain('>Galdiano Odontologia</span>');
+    expect(html).not.toContain('>Galdiano Odontologia (dentista/implante dentário)</span>');
+  });
+  it('does not reserve a large empty photo block if About has no verified image', () => {
+    const model = fixture();
+    model.sections.splice(2, 0, {
+      id: 'about-1', type: 'about', anchor: 'sobre', visible: true, headline: 'Cuidado individual',
+      body: ['Trabalho baseado em atendimento individual'],
+    } as SiteSchemaModel['sections'][number]);
+    const html = renderUniversalMaster(model, context, () => '', (value) => value);
+    expect(html).toContain('pn-master-about--no-image');
+    expect(html).not.toContain('pn-master-about-photo');
+    expect(html).toContain('pn-master-hero--no-image');
+  });
+  it('repairs the observed intermediate-background contrast instead of choosing white text blindly', () => {
+    const background = '#267f75';
+    const proposed = '#ffffff';
+    const fixed = adjustForContrast(proposed, background);
+    expect(fixed).not.toBeNull();
+    expect(contrastRatio(fixed!, background)).toBeGreaterThanOrEqual(4.5);
+    const palette = {
+      background: '#ffffff', surface: '#ffffff', text: '#162f2f', muted: '#586c6b',
+      primary: '#17665a', primaryForeground: '#ffffff', accent: background,
+      accentForeground: proposed, border: '#dde5e3',
+    };
+    const result = repairThemeContrast(palette);
+    expect(contrastRatio(result.accentForeground, result.accent)).toBeGreaterThanOrEqual(4.5);
+    expect(result.primary).toBe(palette.primary);
+  });
+
 });

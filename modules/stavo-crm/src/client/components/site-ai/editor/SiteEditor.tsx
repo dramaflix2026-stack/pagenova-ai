@@ -14,6 +14,7 @@ import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
 import { SITE_RUNTIME_JS } from '@site-kit/interactions/runtime';
 import { siteSchema, type SiteSchemaModel, type SiteSection } from '@site-kit/schemas/site-schema';
 import { lintSite } from '@site-kit/utils/linter';
+import { repairThemeContrast } from '@site-kit/themes/colors';
 import { useHistoryState } from '../../../hooks/useHistoryState';
 import {
   useAiEditSection,
@@ -28,6 +29,7 @@ import {
 import { Badge, Button, Callout, LoadingBlock, Textarea } from '../../ui';
 import { useToast } from '../../ui/Toast';
 import { PublishPanel } from './PublishPanel';
+import { PropertiesPanel } from './PropertiesPanel';
 
 const AUTOSAVE_DELAY_MS = 1200;
 
@@ -58,6 +60,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [showIssues, setShowIssues] = useState(false);
+  const [showProperties, setShowProperties] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
   const editElementRef = useRef<HTMLElement | null>(null);
   const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number } | null>(null);
@@ -359,11 +362,20 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           return (i < 0 ? 90 : i) - (j < 0 ? 90 : j);
         })
       : config.sections;
-    history.set({ ...config, project: { ...config.project, templateId: nextTemplate }, sections });
+    history.set({ ...config, project: { ...config.project, templateId: nextTemplate }, sections,
+      theme: { ...config.theme, colors: repairThemeContrast(config.theme.colors) } });
     toast.success(nextTemplate === 'frigolog-universal'
       ? 'Visual PageNova aplicado! Conteudo e imagens preservados. Revise antes de publicar.'
       : 'Visual anterior restaurado. O conteudo foi preservado.');
   };
+
+  const correctColors = () => {
+    history.set({ ...config, theme: { ...config.theme, colors: repairThemeContrast(config.theme.colors) } });
+    toast.success('Contraste ajustado para leitura acessivel. A cor da marca foi preservada o maximo possivel.');
+  };
+
+  const imageSlots = config.sections.filter((item) => item.visible && (item.type === 'hero' || item.type === 'about' || item.type === 'authority'));
+  const emptyImages = imageSlots.filter((item) => !('image' in item) || !item.image);
 
   return (
     <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
@@ -389,12 +401,18 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId === 'frigolog-universal' ? (
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted px-3 py-2">
-          <span className="text-xs font-medium">✓ Visual PageNova ativo · mesmo site para editar e publicar</span>
-          <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Voltar visual anterior</Button>
+          <span className="text-xs font-medium">✓ Visual PageNova ativo</span>
+          <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Visual anterior</Button>
         </div>
       ) : null}
       {showIssues && lintReport ? (
         <div className="max-h-48 overflow-y-auto border-b border-border bg-surface px-3 py-3" role="region" aria-label="Erros e avisos do site">
+          {lintReport.errors.some((item) => item.code === 'A11Y_CONTRAST') ? (
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted p-3">
+              <p className="text-xs">As cores do tema nao atingem o contraste minimo para publicacao.</p>
+              <Button size="sm" onClick={correctColors}>Corrigir contraste automaticamente</Button>
+            </div>
+          ) : null}
           {lintReport.errors.length === 0 && lintReport.warnings.length === 0 ? (
             <p className="text-sm">Nenhum problema encontrado.</p>
           ) : (
@@ -419,6 +437,22 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : null}
 
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
+        <label htmlFor="pn-edit-section" className="text-xs font-semibold">Secao:</label>
+        <select id="pn-edit-section" aria-label="Escolher secao para editar"
+          value={selectedId ?? ''} onChange={(event) => setSelectedId(event.target.value)}
+          className="min-w-0 max-w-[220px] flex-1 rounded-lg border border-border bg-surface px-2 py-2 text-xs">
+          {config.sections.map((item) => <option key={item.id} value={item.id}>{item.type === 'hero' ? 'Inicio' : item.type === 'about' ? 'Sobre' : item.type === 'services' ? 'Servicos' : item.type === 'cta' ? 'Contato' : item.type} · {item.id}</option>)}
+        </select>
+        <Button size="sm" variant="secondary" onClick={() => setShowProperties((v) => !v)}>
+          {showProperties ? 'Voltar ao site' : 'Editar textos e fotos'}
+        </Button>
+        {emptyImages.length > 0 ? (
+          <Button size="sm" variant="ghost" onClick={() => { setSelectedId(emptyImages[0]!.id); setShowProperties(true); }}>
+            Adicionar foto ({emptyImages.length})
+          </Button>
+        ) : null}
+      </div>
       {saveState === 'conflict' ? (
         <Callout tone="danger" title="Conflito de edicao">
           <div className="flex items-center justify-between gap-3">
@@ -474,6 +508,17 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           </div>
         ) : null}
 
+        {showProperties && selectedSection ? (
+          <aside className="absolute inset-0 z-20 flex flex-col border-l border-border bg-surface lg:static lg:w-[360px] lg:shrink-0" aria-label="Edicao das propriedades da secao">
+            <div className="flex items-center justify-between border-b border-border px-4 py-2">
+              <strong className="text-sm">Editar {selectedSection.type}</strong>
+              <Button variant="ghost" size="sm" onClick={() => setShowProperties(false)}>Fechar</Button>
+            </div>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <PropertiesPanel projectId={projectId} section={selectedSection} anchors={anchors} onChange={handleSectionChange} />
+            </div>
+          </aside>
+        ) : null}
         {showPublish ? (
           <PublishPanel
             projectId={projectId}
