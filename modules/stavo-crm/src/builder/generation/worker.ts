@@ -25,7 +25,7 @@ import { randomUUID } from 'node:crypto';
  * Opt-in: a chave e o flag de imagem devem estar configurados no backend.
  * Em caso de falha, o fluxo continua com imagens reais, sem inventar resultados.
  */
-async function ensureAiHeroAsset(project: SiteProject): Promise<string | null> {
+async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<string | null> {
   const env = getEnv();
   if (!env.SITE_IMAGE_GENERATION_ENABLED || env.SITE_IMAGE_PROVIDER !== 'openai' || !env.OPENAI_API_KEY?.trim()) return null;
 
@@ -79,6 +79,21 @@ async function ensureAiHeroAsset(project: SiteProject): Promise<string | null> {
       rightsStatus: 'LICENSED',
       createdBy: project.ownerUserId,
     });
+    // Estimated accounting: configurable because model, quality and size change pricing.
+    // Only charge for a newly generated image, never for a reused asset.
+    const estimatedUsd = env.SITE_IMAGE_ESTIMATED_COST_USD;
+    await repo.recordUsage({
+      projectId: project.id,
+      jobId,
+      provider: 'openai',
+      operation: 'GENERATE_IMAGE',
+      model: env.OPENAI_IMAGE_PRIMARY_MODEL,
+      imageCount: 1,
+      costEstimatedUsd: estimatedUsd.toFixed(6),
+      pricingVersion: 'image-estimate-config-v1',
+      status: 'SUCCESS',
+    });
+    await repo.addProjectCost(project.id, estimatedUsd.toFixed(6));
     return asset;
   } finally {
     clearTimeout(timeout);
@@ -255,7 +270,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Orcamento deve ser verificado antes de qualquer chamada paga de imagem.
     await assertBudgetAvailable(project);
     // Imagem principal gerada por IA; as fotos reais continuam disponiveis para as secoes internas.
-    const aiHeroAssetId = await ensureAiHeroAsset(project).catch((error) => {
+    const aiHeroAssetId = await ensureAiHeroAsset(project, job.id).catch((error) => {
       logger.warn({ err: error, projectId: project.id }, 'Nao foi possivel gerar imagem IA do hero; usando fallback.');
       return null;
     });
