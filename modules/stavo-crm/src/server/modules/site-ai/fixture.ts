@@ -34,6 +34,7 @@ export function buildFixtureSite(): SiteSchemaModel {
   return {
     schemaVersion: SITE_SCHEMA_VERSION,
     rendererVersion: SITE_RENDERER_VERSION,
+    visualTextEdits: [],
     project: {
       siteType: 'ONE_PAGE',
       language: 'pt-BR',
