@@ -281,6 +281,10 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
+      if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && heroIndex >= 0 &&
+          (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
+        throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
+      }
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
