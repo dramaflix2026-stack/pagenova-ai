@@ -35,6 +35,16 @@ function normalizeOpenAiPlan(value: unknown): unknown {
     if (out[key] === null) delete out[key];
   }
 
+  // The assembler resolves every CTA against verified business contacts or
+  // a real section anchor. An empty AI target is therefore not a fatal error:
+  // use a schema-valid placeholder that will never be published as a URL.
+  if (typeof out.kind === 'string' &&
+      ['whatsapp', 'tel', 'mailto', 'anchor', 'external', 'maps'].includes(out.kind) &&
+      typeof out.label === 'string' &&
+      typeof out.target === 'string' && out.target.trim() === '') {
+    out.target = 'contact';
+  }
+
   if (out.options === null) out.options = [];
   return out;
 }
