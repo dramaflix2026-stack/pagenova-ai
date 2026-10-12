@@ -18,7 +18,7 @@ export async function ensureIllustrativeHero(project: SiteProject): Promise<'cre
   if (!key) return 'unavailable';
   const assets = await repo.listAssets(project.id);
   const storage = createLocalStorage(siteAssetsDirAbsolute());
-  for (const asset of assets.filter((item) => item.source === 'AI_GENERATED' && !item.deletedAt)) {
+  for (const asset of assets.filter((item) => item.source === 'AI_GENERATED' && !item.deletedAt && (item.width ?? 0) > (item.height ?? 0))) {
     if (await storage.read(asset.storageKey).then(() => true).catch(() => false)) return 'existing';
   }
 
