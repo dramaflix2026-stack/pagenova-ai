@@ -12,7 +12,7 @@
  * controle e datilografado para o campo que edita.
  */
 import { ImagePlus, Plus, Trash2, X } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import type { ActionLink, AssetRef, SiteSection } from '@site-kit/schemas/site-schema';
 import { fieldPolicy, READONLY_EXPLANATION } from '../../../lib/site-editor-fields';
@@ -365,6 +365,7 @@ function ImageField({
   const assets = useSiteAssets(projectId);
   const upload = useUploadSiteAsset(projectId);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [imageBroken, setImageBroken] = useState(false);
 
   const selectedAsset = assets.data?.find((asset) => asset.id === value?.assetId);
 
@@ -386,6 +387,8 @@ function ImageField({
               <img
                 src={selectedAsset.url}
                 alt={value.alt}
+                onError={() => setImageBroken(true)}
+                onLoad={() => setImageBroken(false)}
                 className="h-28 w-full rounded object-cover"
                 style={{ objectPosition: `${value.focalX * 100}% ${value.focalY * 100}%` }}
               />
@@ -398,6 +401,16 @@ function ImageField({
                 <X className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
             </div>
+            {imageBroken ? (
+              <p role="status" className="text-xs text-amber-700">
+                Esta foto não está disponível. Tente aguardar a recuperação automática ou envie outra imagem.
+              </p>
+            ) : null}
+            <button type="button" onClick={() => fileInput.current?.click()}
+              disabled={upload.isPending}
+              className="w-full rounded border border-border bg-muted px-3 py-2 text-xs font-semibold hover:bg-surface disabled:opacity-50">
+              {upload.isPending ? 'Enviando imagem...' : 'Trocar por outra imagem'}
+            </button>
             <Input
               value={value.alt}
               onChange={(e) => onChange({ ...value, alt: e.target.value })}
@@ -442,7 +455,7 @@ function ImageField({
           </button>
         )}
 
-        {!value && (assets.data?.length ?? 0) > 0 ? (
+        {(assets.data?.length ?? 0) > 0 ? (
           <ExistingAssetsPicker assets={assets.data!} onPick={(asset) => onChange({ assetId: asset.id, alt: asset.altText ?? '', focalX: 0.5, focalY: 0.5 })} />
         ) : null}
 
@@ -469,7 +482,7 @@ function ExistingAssetsPicker({ assets, onPick }: { assets: SiteAssetSummary[]; 
       <div className="mt-2 grid grid-cols-3 gap-1.5">
         {assets.map((asset) => (
           <button key={asset.id} type="button" onClick={() => onPick(asset)} className="overflow-hidden rounded border border-border">
-            <img src={asset.url} alt={asset.altText ?? ''} className="h-14 w-full object-cover" />
+            <img src={asset.url} alt={asset.altText ?? ''} loading="lazy" className="h-14 w-full object-cover" onError={(e) => { e.currentTarget.hidden = true; }} />
           </button>
         ))}
       </div>
