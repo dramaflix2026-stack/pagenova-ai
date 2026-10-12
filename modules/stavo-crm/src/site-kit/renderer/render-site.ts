@@ -362,6 +362,23 @@ html,body{width:100%;max-width:100%;overflow-x:hidden}
 .hero.hero--overlay .hero-overlay-body h1{font-size:clamp(2.35rem,8vw,3.7rem)!important;max-width:13ch!important}
 }
 
+
+/* Reference-backed header repair: keep the brand intact and never let
+   section headlines become clipped navigation labels. */
+@media(min-width:900px){
+.site-header:not(.site-header--minimal) .container{min-height:94px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:28px!important;max-width:1320px!important;padding-inline:clamp(24px,4vw,64px)!important}
+.site-header:not(.site-header--minimal) .brand{flex:0 0 auto!important;max-width:300px!important;min-width:180px!important;overflow-wrap:normal!important;word-break:normal!important;white-space:normal!important;line-height:1.2!important}
+.site-header:not(.site-header--minimal) .nav{display:flex!important;flex:1 1 auto!important;align-items:center!important;justify-content:flex-end!important;gap:clamp(12px,1.65vw,28px)!important;min-width:0!important;overflow:hidden!important}
+.site-header:not(.site-header--minimal) .nav>a:not(.btn){display:inline-block!important;flex:0 1 auto!important;max-width:155px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font-size:13px!important;line-height:1.5!important}
+.site-header:not(.site-header--minimal) .nav .btn{flex:0 0 auto!important}
+}
+@media(min-width:900px) and (max-width:1399px){
+.site-header:not(.site-header--minimal) .nav{display:none!important}
+.site-header:not(.site-header--minimal) .nav[data-open='true']{display:flex!important;position:absolute!important;top:100%!important;left:0!important;right:0!important;flex-direction:column!important;align-items:stretch!important;max-height:calc(100dvh - 94px)!important;overflow:auto!important;background:var(--bg)!important;padding:20px 32px!important;box-shadow:0 14px 36px rgba(0,0,0,.12)!important}
+.site-header:not(.site-header--minimal) .nav[data-open='true']>a{max-width:none!important;white-space:normal!important}
+.site-header:not(.site-header--minimal) .nav-toggle{display:block!important}
+}
+
 </style>
 ${renderJsonLd(model)}
 </head>
