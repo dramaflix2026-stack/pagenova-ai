@@ -185,7 +185,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
 
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
-    const googleAssetCount = await ensureGooglePlaceAssets(project).catch(() => 0);
+    await ensureGooglePlaceAssets(project).catch(() => 0);
+    const googleAssetCount = (await new UploadAssetProvider().listCandidates(project.id)).filter((item) => item.source === 'GOOGLE_PLACES').length;
     // AI imagery is opt-in and metered. Keep real Google photos for internal sections.
     if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
       await assertBudgetAvailable(project);
