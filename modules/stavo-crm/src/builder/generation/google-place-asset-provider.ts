@@ -74,6 +74,8 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
   let imported = existing.length;
 
   for (const [index, photo] of photos.entries()) {
+    // Do not duplicate the same Google photo when only one distinct photo exists.
+    if (index < existing.length) continue;
     if (imported >= MAX_GOOGLE_ASSETS) break;
     try {
       const response = await placePhotoMedia(photo.name, index === 0 ? 2000 : 1600);
