@@ -14,13 +14,8 @@ import { createHash } from 'node:crypto';
 
 const crm = resolve(dirname(new URL(import.meta.url).pathname), '..');
 const root = resolve(crm, '..', '..');
-const frontend = resolve(root, 'frontend');
-const cssFile = resolve(frontend, 'src/app/templates/frigolog/frigolog.css');
-const previewCss = resolve(frontend, 'src/components/templates/universal-frigolog.css');
-const previewComponent = resolve(frontend, 'src/components/templates/UniversalFrigologTemplate.tsx');
-const previewData = resolve(frontend, 'src/lib/frigolog-template-data.ts');
+let frontend = resolve(root, 'frontend');
 const output = resolve(crm, 'src/site-kit/renderer');
-const zip = resolve(frontend, 'frigolog-next-integration-v7.zip');
 
 function run(exe, args, cwd = crm) {
   const r = spawnSync(exe, args, { cwd, env: process.env, encoding: 'utf8',
@@ -29,7 +24,56 @@ function run(exe, args, cwd = crm) {
     ' exited ' + r.status + '\n' + String(r.stderr || r.stdout || '').slice(-3000));
 }
 
-if (!existsSync(zip)) throw new Error('[FRIGOLOG] Approved ZIP missing; refusing approximation: ' + zip);
+// Railway can build with a root directory limited to modules/stavo-crm.
+// In that case the frontend/ directory is NOT part of its build context.
+// Bootstrap the same approved files from the PUBLIC GitHub repo, pinned to
+// the exact deployment commit, rather than falling back to imitation CSS.
+if (!existsSync(resolve(frontend, 'frigolog-next-integration-v7.zip'))) {
+  const remoteCommit = [
+    process.env.RAILWAY_GIT_COMMIT_SHA,
+    process.env.VERCEL_GIT_COMMIT_SHA,
+    process.env.GITHUB_SHA,
+  ].find((value) => /^[a-f0-9]{40}$/i.test(value ?? '')) ?? 'main';
+  frontend = resolve(crm, 'node_modules/.cache/pn-frigolog-mirror/frontend');
+  const files = [
+    'frigolog-next-integration-v7.zip',
+    'scripts/install-frigolog.mjs',
+    'src/components/templates/UniversalFrigologTemplate.tsx',
+    'src/components/templates/universal-frigolog.css',
+    'src/lib/frigolog-template-data.ts',
+  ];
+  console.log('[FRIGOLOG] Full frontend not in deployment context; downloading canonical source at', remoteCommit);
+  for (const path of files) {
+    const target = resolve(frontend, path);
+    if (existsSync(target)) continue;
+    const url = 'https://raw.githubusercontent.com/dramaflix2026-stack/pagenova-ai/' +
+      remoteCommit + '/frontend/' + path;
+    let downloaded = false;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        const response = await fetch(url, { signal: AbortSignal.timeout(25000) });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        const bytes = Buffer.from(await response.arrayBuffer());
+        if (bytes.length === 0) throw new Error('empty response');
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, bytes);
+        downloaded = true;
+        break;
+      } catch (err) {
+        if (attempt === 2) throw new Error('[FRIGOLOG] Canonical source unavailable: ' +
+          path + ' (' + String(err).slice(0, 180) + '). Aborting instead of imitating template.');
+        await new Promise((resolveWait) => setTimeout(resolveWait, 800 * (attempt + 1)));
+      }
+    }
+    if (!downloaded) throw new Error('[FRIGOLOG] Failed to download ' + path);
+  }
+}
+const cssFile = resolve(frontend, 'src/app/templates/frigolog/frigolog.css');
+const previewCss = resolve(frontend, 'src/components/templates/universal-frigolog.css');
+const previewComponent = resolve(frontend, 'src/components/templates/UniversalFrigologTemplate.tsx');
+const previewData = resolve(frontend, 'src/lib/frigolog-template-data.ts');
+const zip = resolve(frontend, 'frigolog-next-integration-v7.zip');
+if (!existsSync(zip)) throw new Error('[FRIGOLOG] Approved ZIP unavailable, refusing approximation');
 if (!existsSync(cssFile)) {
   // Applies all production refinements (V8-V15) to the exact approved V7 CSS.
   run(process.execPath, ['scripts/install-frigolog.mjs'], frontend);
