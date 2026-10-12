@@ -50,6 +50,7 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
       'Keep the left third uncluttered for headline overlay, key subject on the right.',
       'No text, no logos, no watermark, no UI, no collage, no stock-photo aesthetic.',
     ].join(' ');
+    const imageStartedAt = Date.now();
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
       headers: { Authorization: `Bearer ${env.OPENAI_API_KEY.trim()}`, 'Content-Type': 'application/json' },
@@ -68,6 +69,7 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
       projectId: project.id,
       source: 'GENERATED',
       provider: 'OpenAI',
+      providerModel: env.OPENAI_IMAGE_PRIMARY_MODEL,
       storageKey,
       originalFilename: null,
       mimeType: 'image/webp',
@@ -89,6 +91,7 @@ async function ensureAiHeroAsset(project: SiteProject, jobId: string): Promise<s
       operation: 'GENERATE_IMAGE',
       model: env.OPENAI_IMAGE_PRIMARY_MODEL,
       imageCount: 1,
+      latencyMs: Date.now() - imageStartedAt,
       costEstimatedUsd: estimatedUsd.toFixed(6),
       pricingVersion: 'image-estimate-config-v1',
       status: 'SUCCESS',
