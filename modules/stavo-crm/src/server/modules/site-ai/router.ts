@@ -34,6 +34,7 @@ import { badRequest, conflict, notFound, serviceUnavailable } from '../../lib/er
 import { asyncHandler, parseBody, parseQuery } from '../../lib/http';
 import { csrfProtection, requireAuth, requireCapability } from '../../middleware';
 import { ProviderError, usageRecord } from '@builder/generation/provider';
+import { requiredIllustrationSlots, imageGenerationKeyPresent } from '@builder/generation/mandatory-image-policy';
 import * as repo from './repository';
 import { recoverMissingGooglePlacePhotos } from './photo-recovery';
 import {
@@ -562,14 +563,13 @@ siteAiRouter.get(
     }
     const each = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
     const estimated = Number.isFinite(each) && each > 0 ? each : 0;
-    const count = Number(!byKind.hero) +
-      Number(byKind.real === 0 && !byKind.about) +
-      Number(byKind.real < 2 && !byKind.supplement);
+    const count = requiredIllustrationSlots(byKind.real)
+      .filter((slot) => !byKind[slot]).length;
     res.json({
       ...byKind,
       missingIllustrations: count,
       estimatedMaxUsd: Number((count * estimated).toFixed(6)),
-      canGenerate: count === 0 || (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && Boolean(process.env.OPENAI_API_KEY) && estimated > 0),
+      canGenerate: count === 0 || (imageGenerationKeyPresent(process.env.OPENAI_API_KEY) && estimated > 0),
       message: count === 0 ? 'Ilustrações disponíveis no projeto.' :
         'As imagens anteriores podem ter sido perdidas no armazenamento. Apenas as ausentes exigem nova geração.',
     });
@@ -611,12 +611,12 @@ siteAiRouter.post(
         if (await storage.exists(asset.storageKey)) realCount += 1;
       }
       const missing: Array<'hero' | 'about' | 'supplement'> = [];
-      if (!(await availableSlot('hero'))) missing.push('hero');
-      if (realCount === 0 && !(await availableSlot('about'))) missing.push('about');
-      if (realCount < 2 && !(await availableSlot('supplement'))) missing.push('supplement');
+      for (const slot of requiredIllustrationSlots(realCount)) {
+        if (!(await availableSlot(slot))) missing.push(slot);
+      }
       const perImage = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
-      if (missing.length && (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true' || !process.env.OPENAI_API_KEY)) {
-        throw conflict('Geração de imagens não está habilitada neste ambiente.');
+      if (missing.length && !imageGenerationKeyPresent(process.env.OPENAI_API_KEY)) {
+        throw conflict('OPENAI_API_KEY ausente no Railway: recuperação de imagens indisponível. Nenhuma geração foi iniciada.');
       }
       if (!Number.isFinite(perImage) || perImage <= 0 ||
           missing.length * perImage > payload.maxEstimatedUsd + 0.000001) {

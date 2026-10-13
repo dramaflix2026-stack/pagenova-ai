@@ -30,6 +30,7 @@ import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/pro
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import { ensureIllustrativeHero } from '@builder/generation/generated-image-provider';
+import { requiredIllustrationSlots, imageGenerationKeyPresent } from '@builder/generation/mandatory-image-policy';
 import { restoreAvailableImageSlots } from '@builder/publishing/recover-image-slots';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
@@ -192,35 +193,24 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     const realAssetCount = existingCandidates.filter((item) =>
       item.source === 'GOOGLE_PLACES' || item.source === 'UPLOAD',
     ).length;
-    // Three visual slots are mandatory. About prefers a genuine Google/owner
-    // photo; otherwise a clearly labelled editorial illustration, never a
-    // synthetic photo of employees or the business's actual premises.
-    if (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true') {
-      throw new Error('PAGENOVA_MANDATORY_IMAGES_DISABLED: habilite PAGENOVA_AI_HERO_IMAGES para gerar sites com 3 imagens obrigatorias.');
+    // Three illustrations are part of a new site generation; the separate
+    // legacy PAGENOVA_AI_HERO_IMAGES switch must never block the job.
+    // Existing assets are reused, and actual new image calls honor budgets.
+    if (!imageGenerationKeyPresent(process.env.OPENAI_API_KEY)) {
+      throw new Error(
+        'PAGENOVA_IMAGES_OPENAI_KEY_MISSING: configure OPENAI_API_KEY no Railway ' +
+        'para gerar as imagens obrigatórias. Nenhuma imagem foi cobrada.',
+      );
     }
-    // AI imagery is opt-in and metered. Keep real Google photos for internal sections.
-    if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
+    for (const slot of requiredIllustrationSlots(realAssetCount)) {
       await assertBudgetAvailable(project);
-      const heroResult = await ensureIllustrativeHero(project, 'hero');
-      if (heroResult === 'unavailable') {
-        throw new Error('Banner ilustrativo indisponivel: verifique a chave OpenAI, o modelo e o storage.');
-      }
-      // With no genuine photo, a separately tagged illustrative About scene is
-      // required too. Never fabricate the owner's face or physical location.
-      if (realAssetCount === 0) {
-        await assertBudgetAvailable(project);
-        const aboutResult = await ensureIllustrativeHero(project, 'about');
-        if (aboutResult === 'unavailable') {
-          throw new Error('Imagem ilustrativa de Quem somos indisponivel; o site nao sera marcado pronto sem as imagens obrigatorias.');
-        }
-      }
-      // With fewer than two real photos, give the process its own image.
-      if (realAssetCount < 2) {
-        await assertBudgetAvailable(project);
-        const supplementResult = await ensureIllustrativeHero(project, 'supplement');
-        if (supplementResult === 'unavailable') {
-          throw new Error('Imagem complementar indisponivel: verifique a geracao de imagens.');
-        }
+      const result = await ensureIllustrativeHero(project, slot);
+      if (result === 'unavailable') {
+        throw new Error(
+          'PAGENOVA_IMAGE_' + slot.toUpperCase() + '_FAILED: ' +
+          'Não foi possível salvar a imagem obrigatória. Confira a resposta da OpenAI ' +
+          'e o armazenamento persistente antes de tentar novamente.',
+        );
       }
     }
     const imageCandidates = await new UploadAssetProvider().listCandidates(project.id);
@@ -303,7 +293,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
-      if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && heroIndex >= 0 &&
+      if (heroIndex >= 0 &&
           (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
         throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
       }
