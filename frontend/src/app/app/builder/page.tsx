@@ -308,7 +308,9 @@ export default function BuilderPage() {
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
       method: "POST", headers: { "Content-Type": "application/json" }, signal: controller.signal,
-      body: JSON.stringify({ name: site.name, brief: site.brief, style: site.style, key, presetId: site.presetId,
+      body: JSON.stringify({ name: site.name, brief: site.brief,
+        style: ["moderno","elegante","vibrante"].includes(site.style) ? site.style : "moderno",
+        key, presetId: site.presetId,
         institutional: site.institutional ? {
           role: site.institutional.role || "",
           audience: site.institutional.audience || "",
@@ -862,7 +864,7 @@ export default function BuilderPage() {
   }
 
   return <>
-    <AppHeader title="Criar Site com IA" description="Descreva sua ideia e acompanhe a criação do site." />
+    {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." />}
     <main className="mx-auto max-w-[1800px] px-3 py-5 sm:px-5 lg:px-8">
       <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar imagem do site"
