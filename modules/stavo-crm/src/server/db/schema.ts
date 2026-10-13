@@ -12,6 +12,7 @@
  */
 import {
   boolean,
+  customType,
   date,
   datetime,
   decimal,
@@ -1236,6 +1237,26 @@ export const siteGenerationEvents = mysqlTable(
     uniqueIndex('site_events_sequence_unique').on(table.jobId, table.sequence),
     index('site_events_job_idx').on(table.jobId, table.createdAt),
   ],
+);
+
+
+/** Durable MySQL fallback for private assets and immutable publications.
+ * Files can be served from the restored local cache after a Railway redeploy.
+ * For large scale, migrate the same StorageAdapter to S3-compatible storage.
+ */
+const mediumBlob = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType() { return 'mediumblob'; },
+});
+export const siteStorageBlobs = mysqlTable(
+  'site_storage_blobs',
+  {
+    scope: varchar('scope', { length: 16 }).notNull(),
+    storageKey: varchar('storage_key', { length: 255 }).notNull(),
+    data: mediumBlob('data').notNull(),
+    checksum: varchar('checksum', { length: 64 }).notNull(),
+    updatedAt: ts('updated_at').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.scope, table.storageKey] })],
 );
 
 /**
