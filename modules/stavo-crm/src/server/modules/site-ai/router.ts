@@ -536,6 +536,105 @@ siteAiRouter.post(
 );
 
 // ---------------------------------------------------------------------------
+// Reparo de imagens de projetos existentes (sem gerar texto/site novamente)
+// ---------------------------------------------------------------------------
+
+const mediaRepairLocks = new Set<string>();
+
+/** Report only actual bytes on disk/durable storage; a DB row is not a photo. */
+siteAiRouter.get(
+  '/site-projects/:id/image-recovery',
+  ...guards,
+  asyncHandler(async (req, res) => {
+    const project = await getProjectOrThrow(req.params.id!);
+    const { createLocalStorage } = await import('@builder/publishing/storage');
+    const { siteAssetsDirAbsolute } = await import('../../config/env');
+    const storage = createLocalStorage(siteAssetsDirAbsolute());
+    const existing = (await repo.listAssets(project.id)).filter((a) => !a.deletedAt && a.mimeType.startsWith('image/'));
+    const byKind = { hero: false, supplement: false, real: 0, missing: 0 };
+    for (const a of existing) {
+      const available = await storage.exists(a.storageKey);
+      if (!available) { byKind.missing += 1; continue; }
+      if (a.source === 'GOOGLE_PLACES' || a.source === 'UPLOAD') byKind.real += 1;
+      if (a.source === 'AI_GENERATED' && a.altText?.includes('[hero]')) byKind.hero = true;
+      if (a.source === 'AI_GENERATED' && a.altText?.includes('[supplement]')) byKind.supplement = true;
+    }
+    const each = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
+    const estimated = Number.isFinite(each) && each > 0 ? each : 0;
+    const count = Number(!byKind.hero) + Number(!byKind.supplement);
+    res.json({
+      ...byKind,
+      missingIllustrations: count,
+      estimatedMaxUsd: Number((count * estimated).toFixed(6)),
+      canGenerate: process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && Boolean(process.env.OPENAI_API_KEY) && estimated > 0,
+      message: count === 0 ? 'Ilustrações disponíveis no projeto.' :
+        'As imagens anteriores podem ter sido perdidas no armazenamento. Apenas as ausentes exigem nova geração.',
+    });
+  }),
+);
+
+/** Only an explicit client confirmation authorizes any paid image call. */
+siteAiRouter.post(
+  '/site-projects/:id/image-recovery',
+  ...guards,
+  generationLimiter,
+  csrfProtection,
+  asyncHandler(async (req, res) => {
+    const project = await getProjectOrThrow(req.params.id!);
+    const payload = req.body as { confirmPaid?: boolean; maxEstimatedUsd?: number };
+    if (payload?.confirmPaid !== true || typeof payload.maxEstimatedUsd !== 'number' ||
+        !Number.isFinite(payload.maxEstimatedUsd) || payload.maxEstimatedUsd < 0) {
+      throw badRequest('Confirme o limite de custo estimado das imagens antes de continuar.');
+    }
+    if (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true' || !process.env.OPENAI_API_KEY) {
+      throw conflict('Geração de imagens não está habilitada neste ambiente.');
+    }
+    if (!project.draftConfig) throw conflict('Este projeto não possui rascunho para restaurar.');
+    if (mediaRepairLocks.has(project.id)) throw conflict('Já existe uma recuperação de imagens em andamento para este projeto.');
+    mediaRepairLocks.add(project.id);
+    try {
+      const { createLocalStorage } = await import('@builder/publishing/storage');
+      const { siteAssetsDirAbsolute } = await import('../../config/env');
+      const storage = createLocalStorage(siteAssetsDirAbsolute());
+      const assets = (await repo.listAssets(project.id)).filter((a) => !a.deletedAt && a.source === 'AI_GENERATED');
+      const availableSlot = async (slot: string) => {
+        for (const a of assets) {
+          if (!a.altText?.includes(`[${slot}]`) || (a.width ?? 0) <= (a.height ?? 0)) continue;
+          if (await storage.exists(a.storageKey)) return true;
+        }
+        return false;
+      };
+      const missing: Array<'hero' | 'supplement'> = [];
+      if (!(await availableSlot('hero'))) missing.push('hero');
+      if (!(await availableSlot('supplement'))) missing.push('supplement');
+      const perImage = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
+      if (!Number.isFinite(perImage) || perImage <= 0 ||
+          missing.length * perImage > payload.maxEstimatedUsd + 0.000001) {
+        throw badRequest('A estimativa mudou. Atualize o orçamento de recuperação antes de confirmar.');
+      }
+      const { ensureIllustrativeHero } = await import('@builder/generation/generated-image-provider');
+      for (const slot of missing) {
+        await assertBudgetAvailable(project);
+        const outcome = await ensureIllustrativeHero(project, slot);
+        if (outcome === 'unavailable') {
+          throw serviceUnavailable('A imagem ' + slot + ' não pôde ser criada. Verifique a OpenAI e o storage.', 'SITE_IMAGE_RECOVERY_FAILED');
+        }
+      }
+      const { publishProject } = await import('@builder/publishing/publisher');
+      const published = await publishProject(project, req.session!.user.id, { acknowledgedWarnings: true });
+      res.json({
+        url: published.url,
+        publication: toPublicPublication(published.publication),
+        newIllustrations: missing.length,
+        costEstimatedUsd: Number((missing.length * perImage).toFixed(6)),
+      });
+    } finally {
+      mediaRepairLocks.delete(project.id);
+    }
+  }),
+);
+
+// ---------------------------------------------------------------------------
 // Assets (secao 13 da especificacao)
 // ---------------------------------------------------------------------------
 
