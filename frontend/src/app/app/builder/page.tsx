@@ -9,6 +9,7 @@ import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
+import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
 type Phase = "idle" | "generating" | "ready" | "error";
 
@@ -70,6 +71,7 @@ export default function BuilderPage() {
   const [project, setProject] = useState<SiteProject | null>(null);
   const [activePage, setActivePage] = useState<SitePageKey>("home");
   const [phase, setPhase] = useState<Phase>("idle");
+  const [generationProgress,setGenerationProgress]=useState<GenerationProgress>(INITIAL_GENERATION_PROGRESS);
   const [currentStep, setCurrentStep] = useState<SitePageKey | null>(null);
   const [error, setError] = useState("");
   const [instruction, setInstruction] = useState("");
@@ -364,6 +366,7 @@ export default function BuilderPage() {
           if (!response.ok) throw new Error("Não foi possível consultar a geração existente.");
           const detail = await response.json() as {
             project?: {status?:string;lastFailureMessage?:string|null};
+            jobs?: Array<{id:string;status:string}>;
           };
           const status = detail.project?.status;
           if (status==="FAILED") {
@@ -379,7 +382,7 @@ export default function BuilderPage() {
             setPhase("ready");
           } else {
             // Status only: do not submit another paid generation.
-            void monitorCrmGeneration(saved.id);
+            void monitorCrmGeneration(saved.id,detail.jobs?.[0]?.id);
           }
         }).catch((cause) => {
           setPhase("error");
@@ -463,11 +466,16 @@ export default function BuilderPage() {
   }
 
 
-  // Read existing CRM jobs only. Never call the paid legacy generator on retry.
-  async function monitorCrmGeneration(projectId: string): Promise<void> {
+  // Read real events from the existing CRM job. Polling is deliberately
+  // used instead of SSE so the authenticated Next.js proxy stays simple.
+  // A timer triggers reads only; it NEVER increases the percentage.
+  async function monitorCrmGeneration(projectId: string, knownJobId?: string): Promise<void> {
     setPhase("generating");
     setError("");
     setCurrentStep("home");
+    setGenerationProgress(INITIAL_GENERATION_PROGRESS);
+    let jobId=knownJobId||null;
+    let lastSequence=0;
     try {
       for (let attempt=0;attempt<120;attempt++) {
         const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}`, {
@@ -475,16 +483,48 @@ export default function BuilderPage() {
         });
         const detail=await response.json().catch(()=>({})) as {
           project?:{status?:string;lastFailureMessage?:string|null};
-          jobs?:Array<{errorMessage?:string|null}>;
+          jobs?:Array<{id?:string;status?:string;errorMessage?:string|null}>;
           error?:{message?:string};
         };
         if(!response.ok) throw new Error(detail.error?.message||`Falha HTTP ${response.status} ao acompanhar a criação.`);
+        if(!jobId) jobId=detail.jobs?.[0]?.id||null;
+        if(jobId){
+          try{
+            const stagesResponse=await fetch(`/api/crm/site-jobs/${encodeURIComponent(jobId)}/events?after=${lastSequence}`,{
+              credentials:"same-origin",cache:"no-store",
+            });
+            if(stagesResponse.ok){
+              const history=await stagesResponse.json() as {
+                events?:Array<{sequence:number;stage?:string|null;eventType?:string;message?:string}>;
+              };
+              for(const entry of history.events||[]){
+                lastSequence=Math.max(lastSequence,entry.sequence);
+                if(entry.eventType!=="STAGE_STARTED"&&entry.eventType!=="COMPLETED")continue;
+                const milestone=milestoneFor(entry.stage);
+                if(!milestone)continue;
+                // A completion event alone is insufficient: the generated
+                // HTML must be readable before this UI shows 100%.
+                const percent=Math.min(95,milestone.percent);
+                setGenerationProgress(old=>({
+                  percent:Math.max(old.percent,percent),
+                  label:milestone.id==="COMPLETED"?"Finalizando prévia...":milestone.label,
+                  stage:milestone.id,
+                  jobId,
+                }));
+              }
+            }
+          }catch{
+            // The project state remains authoritative if event history is
+            // momentarily unavailable. Don't fake progress on network errors.
+          }
+        }
         if(detail.project?.status==="READY"||detail.project?.status==="PUBLISHED") {
           const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/render`,{
             credentials:"same-origin",cache:"no-store",
           });
           if(!html.ok) throw new Error("O site ficou pronto, mas a prévia ainda não carregou. Verifique novamente.");
           setCrmPreviewHtml(await html.text());
+          setGenerationProgress({percent:100,label:"Seu site está pronto!",stage:"COMPLETED",jobId});
           void refreshCost(projectId);
           setCurrentStep(null);setPendingKeys([]);setPhase("ready");
           return;
@@ -520,6 +560,7 @@ export default function BuilderPage() {
       .slice(0, 72);
 
     setPhase("generating");
+    setGenerationProgress(INITIAL_GENERATION_PROGRESS);
     setError("");
     setCurrentStep("home");
     setPendingKeys([]);
@@ -633,7 +674,7 @@ export default function BuilderPage() {
         throw new Error(generation.error?.message || "Não foi possível iniciar a geração.");
       }
 
-      await monitorCrmGeneration(projectId);
+      await monitorCrmGeneration(projectId,generation.jobId);
     } catch (cause) {
       setCurrentStep(null);
       setPendingKeys([]);
@@ -1161,7 +1202,41 @@ export default function BuilderPage() {
         </form>
       </div>}
 
-      {project && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
+      {project && phase==="generating" && crmProjectId && !crmPreviewHtml && (
+        <section className="mx-auto max-w-3xl rounded-[28px] border border-emerald-400/25 bg-[#0e1512] px-5 py-9 shadow-[0_22px_70px_rgba(0,0,0,.25)] sm:px-10 sm:py-12"
+          role="region" aria-label="Acompanhamento da geração do site">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/[.12] text-emerald-300">
+            <LoaderCircle className="h-7 w-7 animate-spin" aria-hidden="true" />
+          </div>
+          <div className="mt-5 text-center">
+            <p className="text-xs font-bold uppercase tracking-[.19em] text-emerald-300">PageNova AI · Criando seu site</p>
+            <h2 className="mt-3 break-words text-2xl font-bold tracking-tight sm:text-3xl">{project.name}</h2>
+            <p className="mt-3 text-sm leading-6 text-white/55">As etapas abaixo vêm diretamente do servidor. Pode levar alguns minutos, especialmente ao gerar imagens.</p>
+          </div>
+          <div className="mt-8 rounded-2xl border border-white/10 bg-black/25 p-5 sm:p-6" role="status" aria-live="polite">
+            <div className="flex items-end justify-between gap-4">
+              <p className="text-sm font-semibold text-emerald-200">{generationProgress.label}</p>
+              <span className="shrink-0 text-4xl font-bold tabular-nums tracking-tight text-white">{generationProgress.percent}<span className="text-xl text-white/45">%</span></span>
+            </div>
+            <div role="progressbar" aria-label="Progresso da criação do site" aria-valuemin={0} aria-valuemax={100}
+              aria-valuenow={generationProgress.percent}
+              className="mt-4 h-3 overflow-hidden rounded-full bg-white/[.10]">
+              <div className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-300 transition-[width] duration-500"
+                style={{width:`${generationProgress.percent}%`}}/>
+            </div>
+            <div className="mt-4 grid grid-cols-10 gap-1.5" aria-hidden="true">
+              {REAL_GENERATION_STAGES.map(item=><div key={item.id} className={`h-1.5 rounded-full ${
+                generationProgress.percent>=item.percent?"bg-emerald-400":"bg-white/10"
+              }`}/>)}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-white/45">
+              O percentual representa etapas concluídas, não tempo decorrido. Se uma etapa demorar mais, a barra aguardará a confirmação do servidor.
+            </p>
+          </div>
+          <p className="mt-5 text-center text-xs text-white/40">O projeto foi salvo automaticamente. Você pode voltar depois pela guia Meus sites sem iniciar outra geração.</p>
+        </section>
+      )}
+      {project && !(phase==="generating" && crmProjectId && !crmPreviewHtml) && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
         <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
