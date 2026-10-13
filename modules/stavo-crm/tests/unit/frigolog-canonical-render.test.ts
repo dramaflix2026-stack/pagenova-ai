@@ -123,6 +123,33 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('Conversa inicial');
     expect(html).toContain('Entendemos a sua necessidade');
   });
+  it('renders all three required visual slots when the generator binds verified images',()=>{
+    const model=site();
+    const ids=['0123456789ABCDEFGHJKMNPQRS','0123456789ABCDEFGHJKMNPQRT','0123456789ABCDEFGHJKMNPQRU'];
+    const hero=model.sections.find((section)=>section.type==='hero');
+    const about=model.sections.find((section)=>section.type==='about');
+    if(hero?.type!=='hero'||about?.type!=='about')throw new Error('Fixture missing required slots');
+    hero.image={assetId:ids[0]!,alt:'[hero] Ilustração de tecnologia',focalX:0.5,focalY:0.5};
+    about.image={assetId:ids[1]!,alt:'[about] Imagem ilustrativa gerada por IA',focalX:0.5,focalY:0.5};
+    model.sections.push({
+      type:'process',id:'process-1',visible:true,anchor:'processo',
+      headline:'Como trabalhamos',subheadline:'Etapas de atendimento',
+      steps:[
+        {title:'Entendimento',body:'Conversamos',image:{
+          assetId:ids[2]!,alt:'[supplement] Imagem ilustrativa gerada por IA',focalX:0.5,focalY:0.5,
+        }},
+        {title:'Encaminhamento',body:'Indicamos opções'},
+      ],
+    } as SiteSchemaModel['sections'][number]);
+    const withImages={profile:'DEMO' as const,resolveAsset:(id:string)=>
+      ids.includes(id)?{url:'/assets/'+id+'.webp'}:null};
+    const html=renderCanonicalFrigolog(model,withImages,s=>s);
+    expect(html).toContain('data-pn-photo="hero"');
+    expect(html).toContain('data-pn-photo="about"');
+    expect(html).toContain('data-pn-photo="operation"');
+    for(const id of ids)expect(html).toContain('/assets/'+id+'.webp');
+    expect(html).toContain('não representa as instalações reais da empresa');
+  });
   it('loops mobile KPI cards without repeating content to screen readers',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,s=>s);
     expect(html).toContain('data-pn-kpi-rail="1"');
