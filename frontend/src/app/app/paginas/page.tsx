@@ -9,7 +9,8 @@ import {
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { listPageNovaProjects } from "@/lib/pagenova-project-store";
-import type { SiteProject } from "@/lib/site-builder";
+import { renderSitePreview, type SiteProject } from "@/lib/site-builder";
+import { SiteHoverPreview } from "@/components/site-hover-preview";
 
 type CloneProject = {
   id: string;
@@ -268,15 +269,53 @@ export default function PagesPage() {
       />
 
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
-        {sites.length > 0 && <section className="mb-9">
-          <h2 className="mb-4 text-xl font-semibold">Sites institucionais</h2>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{sites.map((site) =>
-            <Link key={site.id} href={`/app/builder?project=${site.id}`} className="rounded-2xl border border-emerald-400/20 bg-emerald-400/5 p-6 transition hover:border-emerald-400/50">
-              <p className="text-xs font-semibold uppercase tracking-widest text-emerald-400">Site institucional</p>
-              <h3 className="mt-3 text-xl font-bold">{site.name}</h3>
-              <p className="mt-2 text-sm text-white/45">{Object.keys(site.pages).length} de 4 páginas criadas</p>
-              <span className="mt-5 inline-block text-sm font-semibold text-emerald-300">Continuar criação →</span>
-            </Link>)}</div>
+        {sites.length > 0 && <section className="mb-10">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">Sites criados com IA</h2>
+              <p className="mt-1 text-sm text-white/45">Veja a página real e continue do ponto onde parou.</p>
+            </div>
+            <Link href="/app/builder"
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-400/30 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-400/10">
+              + Novo site
+            </Link>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+            {sites.map((site) => {
+              const pagesReady=Object.keys(site.pages||{}).filter(key=>Boolean(site.pages[key as keyof typeof site.pages])).length;
+              const isCrmSite=site.id.length===26;
+              const pagePreview=(!isCrmSite&&site.pages.home)?renderSitePreview(site,"home"):"";
+              const displayName=site.name?.trim()==="Sua marca"?"Site sem nome definido":site.name||"Meu site";
+              return <article key={site.id}
+                className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#101714] shadow-[0_12px_35px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_22px_48px_rgba(0,0,0,.28)]">
+                <SiteHoverPreview title={displayName} html={pagePreview}
+                  remoteProjectId={isCrmSite?site.id:undefined}
+                  imageUrl={site.institutional?.portrait||site.institutional?.businessPhoto||null}/>
+                <div className="space-y-3 p-5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-[.16em] text-emerald-300">Site com IA</span>
+                    <span className="rounded-full border border-emerald-400/20 bg-emerald-400/[.06] px-2.5 py-1 text-[11px] font-semibold text-emerald-200">
+                      {isCrmSite?"Em edição":pagesReady>=4?"Pronto para revisar":"Rascunho"}
+                    </span>
+                  </div>
+                  <h3 className="break-words text-lg font-bold tracking-tight text-white">{displayName}</h3>
+                  <p className="line-clamp-2 min-h-10 break-words text-sm leading-5 text-white/45">
+                    {site.brief||"Seu projeto pode ser revisado, editado e publicado."}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
+                    <span>{isCrmSite?"Geração em página única":`${pagesReady} de 4 páginas disponíveis`}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{new Date(site.createdAt).toLocaleDateString("pt-BR")}</span>
+                  </div>
+                  <Link href={`/app/builder?project=${encodeURIComponent(site.id)}`}
+                    className="flex w-full items-center justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#052217] transition hover:bg-emerald-300">
+                    Continuar / Publicar →
+                  </Link>
+                  <p className="text-center text-[11px] text-white/35">No celular, toque na prévia para percorrer o site.</p>
+                </div>
+              </article>;
+            })}
+          </div>
         </section>}
         {!loaded ? (
           <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.015]">
@@ -355,35 +394,11 @@ export default function PagesPage() {
                 return (
                   <article
                     key={project.id}
-                    className="overflow-hidden rounded-2xl border border-white/10 bg-[#111111]"
+                    className="overflow-hidden rounded-[22px] border border-white/10 bg-[#101714] transition hover:-translate-y-0.5 hover:border-emerald-400/40"
                   >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        openProject(project)
-                      }
-                      className="block h-48 w-full overflow-hidden border-b border-white/10 bg-[#0a0a0a] text-left"
-                    >
-                      {previewImage ? (
-                        <img
-                          src={previewImage}
-                          alt=""
-                          className="h-full w-full object-cover object-top opacity-80 transition hover:opacity-100"
-                        />
-                      ) : (
-                        <div className="flex h-full items-center justify-center px-6 text-center">
-                          <div>
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-400/10 text-lg font-bold text-emerald-400">
-                              LP
-                            </div>
+                    <SiteHoverPreview title={project.title||project.domain||"Landing Page"}
+                      html={project.visualHtml||""} imageUrl={previewImage}/>
 
-                            <p className="mt-3 text-xs text-neutral-600">
-                              Preview indisponível
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </button>
 
                     <div className="p-5">
                       {isRenaming ? (
