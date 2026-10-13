@@ -19,7 +19,13 @@ export type PageNovaForm = {
   publishedAt: string | null;
 };
 export type FormInput = Pick<PageNovaForm, "title" | "description" | "kind" | "intent" | "whatsapp" | "fields">;
-export type PublicForm = Pick<PageNovaForm, "id" | "title" | "description" | "kind" | "whatsapp" | "fields" | "publishedAt">;
+export type PublicForm = Pick<PageNovaForm, "id" | "title" | "description" | "kind" | "fields" | "publishedAt">;
+export type FormSubmission = {
+  id: string;
+  formId: string;
+  submittedAt: string;
+  answers: Array<{ questionId: string; label: string; value: string }>;
+};
 
 const VALID_KINDS: FormKind[] = ["leads", "quiz", "application", "survey"];
 const VALID_TYPES: FormQuestionType[] = ["text", "email", "tel", "textarea", "select"];
