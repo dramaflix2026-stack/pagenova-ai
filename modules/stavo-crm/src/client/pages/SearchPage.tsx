@@ -21,6 +21,7 @@ import {
   Star,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { ATTRIBUTION_TEXT, WEBSITE_FILTER_LABELS, WEBSITE_FILTERS } from '@shared/constants';
 import { formatNumber, formatPhone } from '@shared/format';
@@ -100,6 +101,7 @@ const EMPTY = '__nenhum__';
 export default function SearchPage() {
   const toast = useToast();
   const services = useServices();
+  const [searchParams] = useSearchParams();
 
   const [form, setForm] = useState({
     niche: '',
@@ -111,6 +113,22 @@ export default function SearchPage() {
     requirePhone: true,
     serviceId: '',
   });
+
+  // Ao reutilizar uma pesquisa antiga, apenas restaura parametros locais.
+  // A consulta ao Google acontece SOMENTE quando o usuario clica Pesquisar.
+  useEffect(() => {
+    if (!searchParams.get('niche')) return;
+    const key = (name:string,max:number) => (searchParams.get(name)||'').slice(0,max);
+    const website = key('websiteFilter',24);
+    setForm(current=>({
+      ...current,
+      niche:key('niche',120),country:key('country',80)||'Brasil',
+      state:key('state',80),city:key('city',120),region:key('region',120),
+      serviceId:key('serviceId',26),
+      websiteFilter:WEBSITE_FILTERS.includes(website as (typeof WEBSITE_FILTERS)[number])
+        ? website as (typeof WEBSITE_FILTERS)[number] : 'ALL',
+    }));
+  },[searchParams]);
 
   // As listas de estado e municipio sao brasileiras. Com outro pais no campo,
   // os dois campos voltam a ser texto livre: oferecer municipios do Brasil
