@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
-import { renderCanonicalFrigolog } from '@site-kit/renderer/frigolog-canonical-render';
+import { renderCanonicalFrigolog, FRIGOLOG_STATIC_RUNTIME } from '@site-kit/renderer/frigolog-canonical-render';
 import { adaptCrmToFrigolog, cleanLeadBrand } from '@site-kit/renderer/frigolog-crm-adapter';
 import { FRIGOLOG_APPROVED_CSS, FRIGOLOG_SOURCE_FINGERPRINT } from '@site-kit/renderer/frigolog-style.generated';
 
@@ -105,6 +105,23 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('/assets/real-google-photo.webp');
     expect(html).toContain('Conversa inicial');
     expect(html).toContain('Entendemos a sua necessidade');
+  });
+  it('loops mobile KPI cards without repeating content to screen readers',()=>{
+    const html=renderCanonicalFrigolog(site(),ctx,s=>s);
+    expect(html).toContain('data-pn-kpi-rail="1"');
+    expect(html).toContain('data-pn-kpi-count="4"');
+    expect((html.match(/class="frigolog-kpi-card/g)??[]).length).toBe(12);
+    expect((html.match(/pn-kpi-clone/g)??[]).length).toBe(8);
+    expect((html.match(/aria-hidden="true" class="frigolog-kpi-card pn-kpi-clone"/g)??[]).length).toBe(8);
+  });
+  it('keeps auto-scroll continuous in published static HTML with touch, pause and reduced motion',()=>{
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('data-pn-kpi-rail');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('requestAnimationFrame');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('pointerdown');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('pointermove');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('prefers-reduced-motion');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('pausedUntil');
+    expect(FRIGOLOG_STATIC_RUNTIME).toContain('rail.scrollLeft+=period');
   });
   it('removes only CRM classification suffix, not a business trade name',()=>{
     expect(cleanLeadBrand('Galdiano Odontologia (dentista/implante dentário)',
