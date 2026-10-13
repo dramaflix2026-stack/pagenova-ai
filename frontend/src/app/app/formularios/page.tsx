@@ -33,6 +33,10 @@ function initial():Draft {return {title:"Formulário de contato",description:"",
 function escapeHtml(input:string):string {
   return input.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
+// JSON strings inside inline JavaScript must not contain raw closing script tags.
+function safeScriptString(value:string):string {
+  return JSON.stringify(value).replace(/</g,"\\u003c").replace(/>/g,"\\u003e");
+}
 function makeHtml(d:Draft):string {
   const qs=d.fields.map((q,i)=>{
     const key="q"+i,required=q.required?" required":"";
@@ -49,7 +53,7 @@ function makeHtml(d:Draft):string {
     escapeHtml(d.title)+'</h1><p>'+escapeHtml(d.description || "Responda às perguntas abaixo.")+'</p><form id="form">'+qs+
     '<button type="submit">Enviar respostas pelo WhatsApp</button></form><small>Respostas enviadas diretamente pelo WhatsApp, sem armazenamento automático no CRM.</small></main>'+
     '<script>document.getElementById("form").addEventListener("submit",function(e){e.preventDefault();var number='+JSON.stringify(phone)+
-    ';var data=new FormData(e.currentTarget);var lines=['+JSON.stringify(d.title)+'];data.forEach(function(v,k){lines.push(k+": "+String(v));});window.open("https://wa.me/"+number+"?text="+encodeURIComponent(lines.join("\\n")),"_blank","noopener,noreferrer");});</script></body></html>';
+    ';var data=new FormData(e.currentTarget);var lines=['+safeScriptString(d.title)+'];data.forEach(function(v,k){lines.push(k+": "+String(v));});window.open("https://wa.me/"+number+"?text="+encodeURIComponent(lines.join("\\n")),"_blank","noopener,noreferrer");});</script></body></html>';
 }
 export default function FormulariosPage() {
   const [draft,setDraft]=useState<Draft>(initial);
