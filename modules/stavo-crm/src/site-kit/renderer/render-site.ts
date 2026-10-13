@@ -65,12 +65,16 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
     if (edit?.fontWeight) styles.push(`font-weight:${edit.fontWeight}!important`);
     if (edit?.fontStyle) styles.push(`font-style:${edit.fontStyle}!important`);
     if (edit?.textAlign) styles.push(`text-align:${edit.textAlign}!important`);
-    if (edit?.widthPx) {
+    // Inline spans can wrap across multiple lines, so CSS width/height and
+    // transform on a span creates a one-line bounding box and broken text.
+    // Normalize saved legacy geometry by applying it only to block content.
+    const canPosition = !/^<span\\b/i.test(tag);
+    if (canPosition && edit?.widthPx) {
       styles.push(`width:${edit.widthPx}px!important`);
       styles.push('max-width:100%!important');
       styles.push('box-sizing:border-box');
     }
-    if (edit?.heightPx) {
+    if (canPosition && edit?.heightPx) {
       if (tag.startsWith('<img')) {
         // Pixel heights are safe for media only; text must reflow freely.
         styles.push(`height:${edit.heightPx}px!important`);
@@ -80,7 +84,7 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
         styles.push('height:auto!important');
       }
     }
-    if (edit?.offsetX || edit?.offsetY) {
+    if (canPosition && (edit?.offsetX || edit?.offsetY)) {
       styles.push(`transform:translate(${edit.offsetX ?? 0}px,${edit.offsetY ?? 0}px)!important`);
       // Preserve full-bleed absolute hero media; only ordinary text/card
       // blocks need relative positioning for translations.
