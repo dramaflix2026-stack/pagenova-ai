@@ -97,8 +97,11 @@ export async function restoreAvailableImageSlots(
   const process = model.sections.find((section) => section.type === 'process');
 
   if (hero?.type === 'hero') {
-    // Hero should be editorial AI, or a legitimate wide uploaded / Google photo.
-    hero.image = choose(hero.image, [
+    // Prefer the dedicated AI hero over an older generic photo occupying that
+    // slot, freeing genuine business photos for the About section.
+    const currentHero = hero.image && byId.get(hero.image.assetId)?.asset.source === 'AI_GENERATED'
+      ? hero.image : undefined;
+    hero.image = choose(currentHero, [
       (a) => isAiSlot(a, 'hero'),
       (a) => isReal(a) && isWide(a),
     ]);
@@ -107,7 +110,9 @@ export async function restoreAvailableImageSlots(
   if (about?.type === 'about') {
     // Prefer the business's actual Google/owner photo. When none exists, show
     // a labelled illustrative business scene, NEVER an AI-made staff portrait.
-    about.image = choose(about.image, [
+    const originalAbout = about.image && byId.get(about.image.assetId);
+    const currentAbout = originalAbout && isReal(originalAbout.asset) ? about.image : undefined;
+    about.image = choose(currentAbout, [
       (a) => isReal(a),
       (a) => isAiSlot(a, 'about'),
     ]);
