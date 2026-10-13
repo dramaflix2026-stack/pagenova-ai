@@ -51,9 +51,12 @@ export async function restoreAvailableImageSlots(project: SiteProject, model: Si
     });
   }
 
+  const availableIds = new Set(available.map(({asset}) => asset.id));
+  const isAvailable = (ref: AssetRef | undefined) => Boolean(ref?.assetId && availableIds.has(ref.assetId));
   const used = new Set<string>();
   for (const section of model.sections) {
-    if ('image' in section && section.image?.assetId) used.add(section.image.assetId);
+    const existing = 'image' in section ? section.image as AssetRef | undefined : undefined;
+    if (existing?.assetId) used.add(existing.assetId);
     if (section.type === 'process') {
       for (const step of section.steps) if (step.image?.assetId) used.add(step.image.assetId);
     }
@@ -66,23 +69,34 @@ export async function restoreAvailableImageSlots(project: SiteProject, model: Si
     return found.ref;
   };
   const portrait = model.sections.find((section) => section.type === 'about');
-  if (portrait?.type === 'about' && !portrait.image?.assetId) {
-    portrait.image = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
+  if (portrait?.type === 'about' && !isAvailable(portrait.image)) {
+    const replacement = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
       assign((asset) => asset.source === 'UPLOAD');
+    // Keep the missing reference if there is no safe alternative: the
+    // artifact builder will report the missing original instead of lying.
+    if (replacement) portrait.image = replacement;
   }
   const hero = model.sections.find((section) => section.type === 'hero');
-  if (hero?.type === 'hero' && !hero.image?.assetId) {
-    hero.image = assign((asset) => asset.source === 'AI_GENERATED' &&
+  if (hero?.type === 'hero' && !isAvailable(hero.image)) {
+    const replacement = assign((asset) => asset.source === 'AI_GENERATED' &&
       (asset.altText ?? '').includes('[hero]') &&
       (asset.width ?? 0) > (asset.height ?? 0)) ??
       assign((asset) => asset.source === 'UPLOAD' && (asset.width ?? 0) > (asset.height ?? 0)) ??
       assign((asset) => asset.source === 'GOOGLE_PLACES' && (asset.width ?? 0) > (asset.height ?? 0));
+    if (replacement) hero.image = replacement;
   }
   const process = model.sections.find((section) => section.type === 'process');
-  if (process?.type === 'process' && process.steps.length && !process.steps.some((step) => step.image?.assetId)) {
-    process.steps[0]!.image = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
+  if (process?.type === 'process' && process.steps.length &&
+      !process.steps.some((step) => isAvailable(step.image))) {
+    const replacement = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
       assign((asset) => asset.source === 'UPLOAD') ??
       assign((asset) => asset.source === 'AI_GENERATED' &&
         (asset.altText ?? '').includes('[supplement]'));
+    if (replacement) {
+      for (const step of process.steps) {
+        if (step.image?.assetId && !isAvailable(step.image)) delete step.image;
+      }
+      process.steps[0]!.image = replacement;
+    }
   }
 }
