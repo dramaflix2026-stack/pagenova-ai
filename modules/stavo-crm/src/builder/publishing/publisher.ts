@@ -141,7 +141,9 @@ export async function publishProject(
   await ensureGooglePlaceAssets(project).catch(() => 0);
   // Fill absent slots using only project-owned, verified existing images.
   // Never invoke paid AI generation from a publish/re-publish request.
-  await restoreAvailableImageSlots(project, model);
+  await restoreAvailableImageSlots(project, model, {
+    required: model.project.templateId === 'frigolog-universal',
+  });
   const report = lintSite(model);
   assertPublishable(report, true);
 
