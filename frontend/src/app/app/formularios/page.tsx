@@ -105,7 +105,7 @@ export default function FormulariosPage(){
     if(!form||isSaving||isPublishing)return;
     if(!/^\d{10,15}$/.test(form.whatsapp.replace(/\D/g,""))){
       setTab("questions");setError("Para publicar, informe um WhatsApp com DDI nas opções de publicação.");
-      window.setTimeout(()=>document.getElementById("form-publication-phone")?.focus(),0);
+      window.setTimeout(()=>{const input=document.getElementById("form-publication-phone");input?.closest("details")?.setAttribute("open","");input?.focus();},0);
       return;
     }
     if(!window.confirm("Publicar este formulário para que outras pessoas possam responder pelo link? As respostas serão enviadas pelo WhatsApp configurado."))return;
@@ -213,7 +213,7 @@ export default function FormulariosPage(){
         {published&&<div className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-4 text-center">
           <p className="text-sm font-semibold text-emerald-300">Seu formulário está publicado</p>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-            <a href={publishedLink} target="_blank" rel="noopener noreferrer" className="max-w-full break-all text-sm text-white underline underline-offset-4">{typeof window==="undefined"?publishedLink:window.location.origin+publishedLink}</a>
+            <a href={publishedLink} target="_blank" rel="noopener noreferrer" className="max-w-full break-all text-sm text-white underline underline-offset-4">{publishedLink}</a>
             <button type="button" onClick={()=>void copyLink()} className="inline-flex items-center gap-1 rounded-lg bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300">
               {copied?<Check className="h-3.5 w-3.5"/>:<Copy className="h-3.5 w-3.5"/>} {copied?"Copiado":"Copiar link"}
             </button>
