@@ -207,6 +207,25 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(result).toContain('min-height:290px!important');
     expect(result).toContain('width:330px!important');
   });
+  it('keeps multiline heading height automatic and ignores obsolete inline span geometry',()=>{
+    const model=site();
+    model.visualTextEdits=[
+      {key:'hero-1:0',widthPx:210,heightPx:66},
+      {key:'hero-1:1',widthPx:90,heightPx:40,offsetX:25},
+    ];
+    const markup=applyVisualTextEdits(
+      '<h1>Tecnologia que faz sentido para voce</h1><span>titulo em duas linhas</span>',
+      'hero-1',model,
+    );
+    expect(markup).toContain('width:210px!important');
+    expect(markup).toContain('min-height:66px!important;height:auto!important');
+    // Previously a fixed 40px tall inner span clipped multiline headings.
+    const span=markup.match(/<span\b[^>]*>/)?.[0] ?? '';
+    expect(span).toContain('data-pn-edit="hero-1:1"');
+    expect(span).not.toContain('width:90px');
+    expect(span).not.toContain('height:40px');
+    expect(span).not.toContain('translate(25px');
+  });
   it('loops mobile KPI cards without repeating content to screen readers',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,s=>s);
     expect(html).toContain('data-pn-kpi-rail="1"');
