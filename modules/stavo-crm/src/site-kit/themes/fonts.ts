@@ -37,6 +37,10 @@ const SERIF_FALLBACK = "Georgia,'Times New Roman',serif";
 export const FONT_SPECS = {
   Inter: { family: 'Inter', fallback: SANS_FALLBACK, weights: '400;500;600;700' },
   Poppins: { family: 'Poppins', fallback: SANS_FALLBACK, weights: '400;500;600;700;800' },
+  // Uploaded Muse Editorial layout uses these families; keep a single
+  // central whitelist for preview, published pages and ZIP export.
+  Epilogue: { family: 'Epilogue', fallback: SANS_FALLBACK, weights: '400;500;600;700' },
+  Urbanist: { family: 'Urbanist', fallback: SANS_FALLBACK, weights: '400;500;600;700;800' },
   Manrope: { family: 'Manrope', fallback: SANS_FALLBACK, weights: '400;500;600;700;800' },
   Sora: { family: 'Sora', fallback: SANS_FALLBACK, weights: '400;500;600;700;800' },
   'Space Grotesk': { family: 'Space Grotesk', fallback: SANS_FALLBACK, weights: '400;500;600;700' },
