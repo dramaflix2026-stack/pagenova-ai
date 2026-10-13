@@ -18,6 +18,7 @@ import { queryClient } from './lib/queryClient';
 // Areas pesadas carregam sob demanda, deixando a primeira tela util mais rapida.
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
+const SearchHistoryPage = lazy(() => import('./pages/SearchHistoryPage'));
 const CrmPage = lazy(() => import('./pages/CrmPage'));
 const ImportPage = lazy(() => import('./pages/ImportPage'));
 const ServicesPage = lazy(() => import('./pages/ServicesPage'));
@@ -55,6 +56,7 @@ function AppRoutes() {
         >
           <Route index element={<DashboardPage />} />
           <Route path="buscar" element={<SearchPage />} />
+          <Route path="pesquisadas" element={<SearchHistoryPage />} />
           <Route path="crm" element={<CrmPage />} />
           <Route path="reunioes" element={<MeetingsPage />} />
           <Route path="sites-ia" element={<SiteAiPage />} />
