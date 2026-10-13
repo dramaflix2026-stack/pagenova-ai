@@ -516,8 +516,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     selectionCleanupRef.current = null;
     frame.contentWindow?.scrollTo(scrollRef.current.x,scrollRef.current.y);
     const style = doc.createElement('style');
-    style.textContent = '[data-pn-edit]:hover{outline:1px dashed #06b6a5;outline-offset:3px}' +
-      'img[data-pn-photo]{cursor:pointer}' +
+    // A single selection frame is enough. Hover outlines on every nested
+    // span previously created overlapping dashed boxes over headings.
+    style.textContent = 'img[data-pn-photo]{cursor:pointer}' +
       '[contenteditable=true]{outline:2px solid #06b6a5!important;outline-offset:3px}' +
       'article[data-pn-edit]{cursor:grab}' +
       '[data-pn-edit],img[data-pn-photo]{touch-action:manipulation}';
