@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Mic, MicOff, Paperclip, Plus, X, LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
@@ -18,10 +19,36 @@ const STARTING_POINTS = [
   { id: "restaurante", title: "Restaurante", icon: "🍽", description: "Cardápio e reservas." },
 ] as const;
 
+type TranscriptionEvent={results:ArrayLike<ArrayLike<{transcript:string}>>;resultIndex:number};
+type Transcriber={
+  lang:string;continuous:boolean;interimResults:boolean;
+  onresult:((event:TranscriptionEvent)=>void)|null;
+  onerror:((event:{error?:string})=>void)|null;
+  onend:(()=>void)|null;
+  start:()=>void;stop:()=>void;
+};
+async function compressReference(file:File):Promise<string>{
+  const url=URL.createObjectURL(file);
+  try{
+    const image=new Image();image.src=url;await image.decode();
+    const factor=Math.min(1,1150/Math.max(image.naturalWidth,image.naturalHeight));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
+    canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
+    canvas.getContext("2d")?.drawImage(image,0,0,canvas.width,canvas.height);
+    return canvas.toDataURL("image/webp",0.7);
+  }finally{URL.revokeObjectURL(url);}
+}
+
 export default function BuilderPage() {
   const router = useRouter();
 
   const [brief, setBrief] = useState("");
+  const [attachments,setAttachments]=useState<File[]>([]);
+  const attachInputRef=useRef<HTMLInputElement|null>(null);
+  const transcriberRef=useRef<Transcriber|null>(null);
+  const [isListening,setIsListening]=useState(false);
+  const [attachmentWarning,setAttachmentWarning]=useState("");
   const [style, setStyle] = useState("automatico");
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState("automatico");
@@ -117,6 +144,66 @@ export default function BuilderPage() {
       void prepareRevisionImage(file);
     }
   }
+  useEffect(()=>()=>{transcriberRef.current?.stop();},[]);
+  function attachFiles(incoming:FileList|null) {
+    if(!incoming)return;
+    const allowed=["image/png","image/jpeg","image/webp","application/pdf","text/plain"];
+    const files=Array.from(incoming);
+    if(files.some(file=>!allowed.includes(file.type)||file.size>5*1024*1024||file.size===0)){
+      setAttachmentWarning("Aceitamos fotos PNG, JPG e WebP, PDF ou TXT de até 5 MB por arquivo.");
+      return;
+    }
+    if(attachments.length+files.length>3){
+      setAttachmentWarning("Adicione até 3 arquivos por geração.");
+      return;
+    }
+    if([...attachments,...files].reduce((sum,file)=>sum+file.size,0)>9*1024*1024){
+      setAttachmentWarning("Os anexos somados devem ter até 9 MB.");
+      return;
+    }
+    setAttachmentWarning("");
+    setAttachments(existing=>[...existing,...files]);
+  }
+  function toggleDictation(){
+    if(transcriberRef.current && isListening){
+      transcriberRef.current.stop();setIsListening(false);return;
+    }
+    const win=window as Window & {
+      SpeechRecognition?:new()=>Transcriber;
+      webkitSpeechRecognition?:new()=>Transcriber;
+    };
+    const Constructor=win.SpeechRecognition||win.webkitSpeechRecognition;
+    if(!Constructor){
+      setAttachmentWarning("O microfone de transcrição não está disponível neste navegador. Use Chrome ou digite seu briefing.");
+      return;
+    }
+    try{
+      const speech=new Constructor();
+      speech.lang="pt-BR";speech.continuous=true;speech.interimResults=false;
+      speech.onresult=(event)=>{
+        const segments:string[]=[];
+        for(let index=event.resultIndex;index<event.results.length;index++){
+          const text=event.results[index]?.[0]?.transcript?.trim();
+          if(text)segments.push(text);
+        }
+        if(segments.length)setBrief(current=>(current.trim()?current.trim()+" ":"")+segments.join(" "));
+      };
+      speech.onerror=(event)=>{
+        setIsListening(false);
+        setAttachmentWarning(event.error==="not-allowed"
+          ?"Permita o uso do microfone nas configurações do navegador."
+          :"O reconhecimento de voz não foi concluído. Você pode continuar digitando.");
+      };
+      speech.onend=()=>setIsListening(false);
+      transcriberRef.current=speech;
+      setAttachmentWarning("");
+      speech.start();setIsListening(true);
+    }catch{
+      setIsListening(false);
+      setAttachmentWarning("Não foi possível ativar o microfone.");
+    }
+  }
+
   const [pendingKeys, setPendingKeys] = useState<SitePageKey[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
@@ -399,6 +486,28 @@ export default function BuilderPage() {
     setCostError("");
 
     try {
+      // Reference documents/images are interpreted BEFORE creating a paid
+      // generation job. Never silently discard attachments.
+      const attached=attachments.slice();
+      let annotatedPrompt=prompt;
+      const visualFiles=attached.filter(file=>file.type.startsWith("image/"));
+      let initialImages:string[]=[];
+      if(attached.length){
+        const payload=new FormData();
+        attached.forEach(file=>payload.append("files",file));
+        const analysisResponse=await fetch("/api/builder/analyze-attachments",{
+          method:"POST",credentials:"same-origin",body:payload,
+        });
+        const analysis=await analysisResponse.json().catch(()=>({})) as {
+          summary?:string;error?:string;
+        };
+        if(!analysisResponse.ok||!analysis.summary){
+          throw new Error(analysis.error||"Não foi possível analisar seus anexos. Nenhum site foi gerado.");
+        }
+        annotatedPrompt=(prompt+"\n\nREFERÊNCIAS ANEXADAS (interpretação da IA):\n"+
+          analysis.summary).slice(0,3900);
+        initialImages=await Promise.all(visualFiles.slice(0,2).map(compressReference));
+      }
       const createResponse = await fetch("/api/crm/site-projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -418,8 +527,8 @@ export default function BuilderPage() {
               motionLevel: "BALANCED"
             },
             freeformInstructions: selectedPresetId === "automatico"
-              ? prompt
-              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${prompt}`,
+              ? annotatedPrompt
+              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${annotatedPrompt}`,
             requiredSections: ["hero", "services", "benefits", "about", "process", "faq", "cta", "footer"],
             forbiddenSections: []
           }
@@ -439,6 +548,11 @@ export default function BuilderPage() {
         name: inferredName,
         presetId: selectedPresetId === "automatico" ? "institucional" : selectedPresetId,
         brief: prompt,
+        ...(initialImages.length ? {institutional:{
+          role:"",audience:"",offer:"",process:"",proof:"",
+          portrait:initialImages[0],
+          businessPhoto:initialImages[1]||"",
+        }} : {}),
         style,
         pages: {
           home: {
@@ -879,38 +993,55 @@ export default function BuilderPage() {
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Conte o que você quer criar</h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Descreva o que você imagina. A PageNova transforma suas palavras em um site.</p>
         </div>
-        <form onSubmit={start} className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-5 shadow-[0_16px_65px_rgba(0,0,0,.22)] sm:p-8">
-          <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
-              Converse com a IA
-            </p>
-
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">
-              Descreva o site que você quer
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-white/45">
-              Conte o que o site precisa ter. Você não precisa preencher campos de contato ou dados comerciais.
-            </p>
-          </div>
-
-          <label className="block">
-            <span className="sr-only">Descreva o site</span>
-
-            <textarea
+        <form onSubmit={start} className="mx-auto w-full max-w-3xl space-y-4">
+          <div className="relative rounded-[28px] border border-white/15 bg-[#11101b] p-4 shadow-[0_16px_65px_rgba(0,0,0,.22)] transition focus-within:border-emerald-400/50 sm:p-6">
+            <label htmlFor="pagenova-brief" className="sr-only">Descreva sua ideia de site</label>
+            <textarea id="pagenova-brief"
               value={brief}
-              onChange={(event) => {
-                setBrief(event.target.value);
-                if (error) setError("");
-              }}
-              maxLength={2800}
-              rows={6}
-              required
-              placeholder="Ex.: Crie um site premium para uma clínica odontológica moderna chamada Lumina Odontologia, especializada em implantes, lentes de contato dental e estética do sorriso. Quero transmitir sofisticação, confiança e tecnologia..."
-              className="w-full resize-y rounded-2xl border border-white/15 bg-black/30 p-5 text-base leading-7 text-white outline-none placeholder:text-white/25 focus:border-emerald-400"
+              onChange={(event)=>{setBrief(event.target.value);if(error)setError("");}}
+              maxLength={2800} rows={6} required
+              placeholder="Ex.: Crie um site premium para uma clínica odontológica chamada Lumina Odontologia, com aparência sofisticada, fotos da equipe, serviços e agendamento..."
+              className="min-h-[155px] w-full resize-y border-0 bg-transparent px-2 pt-1 pb-12 text-base leading-7 text-white outline-none placeholder:text-white/30 sm:min-h-[178px]"
             />
-          </label>
-
+            <input ref={attachInputRef} type="file" multiple
+              accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
+              className="hidden" aria-label="Selecionar arquivos de referência"
+              onChange={event=>{attachFiles(event.target.files);event.target.value="";}}/>
+            <div className="absolute bottom-4 left-4 flex items-center gap-2 sm:left-6">
+              <button type="button" title="Adicionar fotos, logo, PDF ou briefing"
+                aria-label="Anexar arquivos de referência" onClick={()=>attachInputRef.current?.click()}
+                disabled={phase==="generating"}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[.065] text-white transition hover:border-emerald-400/50 hover:bg-emerald-400/10 disabled:opacity-40">
+                <Plus className="h-5 w-5"/>
+              </button>
+              <button type="button" title={isListening?"Parar ditado":"Falar e transcrever"}
+                aria-label={isListening?"Parar transcrição por voz":"Iniciar transcrição de voz"}
+                aria-pressed={isListening} onClick={toggleDictation} disabled={phase==="generating"}
+                className={`flex h-10 w-10 items-center justify-center rounded-full border transition disabled:opacity-40 ${
+                  isListening?"border-red-400/60 bg-red-400/15 text-red-300 animate-pulse":"border-white/15 bg-white/[.065] text-white hover:border-emerald-400/50 hover:bg-emerald-400/10"
+                }`}>
+                {isListening?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
+              </button>
+              {isListening&&<span className="text-xs font-semibold text-red-300">Ouvindo...</span>}
+            </div>
+          </div>
+          {attachments.length>0&&<div className="flex flex-wrap gap-2">
+            {attachments.map((file,index)=><span key={index} className="inline-flex max-w-full items-center gap-2 rounded-lg border border-emerald-400/20 bg-emerald-400/[.055] px-3 py-2 text-xs text-emerald-200">
+              <Paperclip className="h-3.5 w-3.5 shrink-0"/>
+              <span className="max-w-[230px] truncate">{file.name}</span>
+              <button type="button" aria-label={"Remover "+file.name} onClick={()=>setAttachments(items=>items.filter((_,i)=>i!==index))}
+                className="rounded p-0.5 hover:bg-emerald-400/15"><X className="h-3.5 w-3.5"/></button>
+            </span>)}
+          </div>}
+          {attachmentWarning&&<p role="alert" className="text-sm text-amber-300">{attachmentWarning}</p>}
+          {error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
+          <button type="submit" disabled={phase==="generating"}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
+            {phase==="generating"?<><LoaderCircle className="h-5 w-5 animate-spin"/> Gerando site...</>:"Gerar site com IA →"}
+          </button>
+          <p className="text-center text-xs text-white/40">
+            Fotos e documentos anexados são interpretados antes da criação e podem usar IA. O microfone transcreve direto no campo.
+          </p>
           <fieldset>
             <legend className="mb-3 text-sm font-medium text-white/80">Ponto de partida <span className="font-normal text-white/45">(opcional)</span></legend>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -942,22 +1073,8 @@ export default function BuilderPage() {
               ))}
             </div>
           </details>
-          {error && (
-            <p role="alert" className="text-sm text-red-300">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={phase === "generating"}
-            className="w-full rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {phase === "generating" ? "Gerando site..." : "Gerar site →"}
-          </button>
-
           <p className="text-center text-xs text-white/30">
-            A geração usa IA e pode gerar custo por uso. Revise sua descrição antes de clicar em “Gerar site”.
+            Os modelos abaixo são opcionais. A descrição acima é a instrução principal.
           </p>
         </form>
       </div>}
