@@ -91,9 +91,9 @@ export function mountCanvasHandles(
   const originalCursor = target.style.cursor;
   // After one click/tap, the element itself is the drag handle. This also
   // avoids showing the mobile keyboard for mere selection.
-  target.style.touchAction = 'none';
-  target.style.userSelect = 'none';
-  target.style.cursor = 'grab';
+  target.style.touchAction = target.isContentEditable ? 'auto' : 'none';
+  target.style.userSelect = target.isContentEditable ? 'text' : 'none';
+  target.style.cursor = target.isContentEditable ? 'text' : 'grab';
 
   let gesture: Gesture | null = null;
   const drawOutline = () => {
