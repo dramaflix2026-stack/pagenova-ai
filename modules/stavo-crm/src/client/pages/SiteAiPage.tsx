@@ -5,20 +5,20 @@
  * novos sites. O painel acompanha todos os projetos do workspace.
  */
 import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, CalendarDays, FilePenLine, Globe2, LayoutTemplate, Search, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
 import {
-  SITE_CARD_ACTION_LABELS,
   SITE_PROJECT_STATUS_LABELS,
   SITE_TYPE_LABELS,
-  cardActionFor,
   type SiteProjectStatus,
 } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { api, ApiError } from '../lib/api';
+import { SITE_PROJECT_CARD_COPY } from '../lib/site-project-card-copy';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
 const STATUS_TONE: Record<SiteProjectStatus, 'neutral' | 'primary' | 'success' | 'warning' | 'danger'> = {
@@ -198,9 +198,12 @@ export default function SiteAiPage() {
     <>
       <PageHeader
         title="Sites com IA"
-        description="Crie amostras de site personalizadas para prospeccao, publique e acompanhe."
+        description="Crie, revise e gerencie os sites da sua empresa em um só lugar."
         actions={
-          <Button onClick={() => setLeadPickerOpen(true)}>Selecionar lead do CRM</Button>
+          <Button onClick={() => setLeadPickerOpen(true)}>
+            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            Criar site a partir de um lead
+          </Button>
         }
       />
       <PageBody className="space-y-4">
@@ -216,48 +219,68 @@ export default function SiteAiPage() {
           </Callout>
         ) : null}
 
-        <div className="flex flex-wrap items-center gap-3">
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome do negocio..."
-            className="max-w-xs"
-          />
-          <Select value={status || '__todos__'} onValueChange={(v) => setStatus(v === '__todos__' ? '' : (v as SiteProjectStatus))}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Todos os status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__todos__">Todos os status</SelectItem>
-              {Object.entries(SITE_PROJECT_STATUS_LABELS).map(([value, label]) => (
-                <SelectItem key={value} value={value}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <section aria-label="Seus projetos de site" className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div className="space-y-1">
+              <h2 className="text-lg font-semibold tracking-tight text-foreground">Seus sites</h2>
+              <p className="max-w-xl text-sm leading-relaxed text-muted-foreground">
+                Encontre seus projetos, acompanhe o andamento e retome a edição de onde parou.
+              </p>
+            </div>
+            {projects.data ? (
+              <span className="rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+                {projects.data.total} {projects.data.total === 1 ? 'projeto encontrado' : 'projetos encontrados'}
+              </span>
+            ) : null}
+          </div>
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface/70 p-3 sm:flex-row sm:items-center sm:p-4">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+              <Input
+                aria-label="Buscar sites pelo nome do negócio"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Buscar site pelo nome da empresa"
+                className="w-full pl-10"
+              />
+            </div>
+            <Select value={status || '__todos__'} onValueChange={(value) => setStatus(value === '__todos__' ? '' : (value as SiteProjectStatus))}>
+              <SelectTrigger aria-label="Filtrar sites por status" className="w-full shrink-0 sm:w-52">
+                <SelectValue placeholder="Todos os status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__todos__">Todos os status</SelectItem>
+                {Object.entries(SITE_PROJECT_STATUS_LABELS).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>{label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </section>
 
         {projects.isLoading ? <LoadingBlock label="Carregando projetos..." /> : null}
         {projects.isError ? <ErrorState message="Nao foi possivel carregar os projetos." /> : null}
 
         {projects.data && projects.data.projects.length === 0 ? (
           <EmptyState
-            title="Nenhum site criado ainda"
-            description="Selecione um lead cadastrado no CRM para gerar o primeiro site com IA."
+            title={search || status ? "Nenhum site corresponde aos filtros" : "Seu primeiro site começa aqui"}
+            description={search || status
+              ? "Tente outro nome ou selecione um status diferente para localizar seus projetos."
+              : "Selecione uma empresa do CRM para criar seu primeiro site com IA."}
             action={
-              <Button onClick={() => setLeadPickerOpen(true)}>Selecionar lead do CRM</Button>
+              search || status
+                ? <Button variant="secondary" onClick={() => { setSearch(''); setStatus(''); }}>Limpar filtros</Button>
+                : <Button onClick={() => setLeadPickerOpen(true)}>Selecionar empresa do CRM</Button>
             }
           />
         ) : null}
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {projects.data?.projects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               onOpen={() => navigate(`/sites-ia/${project.id}`)}
-              onGenerateAnother={() => project.leadId && setSelectedLeadId(project.leadId)}
             />
           ))}
         </div>
@@ -314,55 +337,63 @@ export default function SiteAiPage() {
   );
 }
 
-function ProjectCard({ project, onOpen, onGenerateAnother }: { project: SiteProjectSummary; onOpen: () => void; onGenerateAnother: () => void }) {
-  const action = cardActionFor(project.status);
+function ProjectCard({ project, onOpen }: { project: SiteProjectSummary; onOpen: () => void }) {
+  const copy = SITE_PROJECT_CARD_COPY[project.status];
+  const typeLabel = SITE_TYPE_LABELS[project.siteType as keyof typeof SITE_TYPE_LABELS] ?? project.siteType;
+  const isPublished = project.status === 'PUBLISHED';
 
   return (
-    <Card className="cursor-pointer transition hover:shadow-md" onClick={onOpen}>
-      <CardContent className="space-y-2 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <p className="font-medium leading-tight">{project.businessName}</p>
-          <Badge tone={STATUS_TONE[project.status]}>{SITE_PROJECT_STATUS_LABELS[project.status]}</Badge>
+    <Card className="group relative flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-lg focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/15">
+      <div aria-hidden="true" className="h-1 w-full bg-gradient-to-r from-primary via-primary/65 to-transparent" />
+      <CardContent className="flex h-full min-w-0 flex-col p-5 sm:p-6">
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/10 text-primary">
+            {isPublished ? <Globe2 className="h-6 w-6" aria-hidden="true" /> : (
+              <LayoutTemplate className="h-6 w-6" aria-hidden="true" />
+            )}
+          </div>
+          <Badge tone={STATUS_TONE[project.status]} className="max-w-[65%] shrink-0 text-center">
+            {SITE_PROJECT_STATUS_LABELS[project.status]}
+          </Badge>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {SITE_TYPE_LABELS[project.siteType as keyof typeof SITE_TYPE_LABELS] ?? project.siteType} · atualizado em{' '}
-          {formatDate(project.updatedAt)}
-        </p>
-        <div className="flex items-center justify-between pt-1">
-          <span />
+        <div className="min-w-0 flex-1">
+          <h3 className="break-words text-lg font-semibold leading-snug tracking-tight text-foreground">
+            {project.businessName}
+          </h3>
+          <p className="mt-2 min-h-[4.5rem] text-sm leading-relaxed text-muted-foreground">
+            {copy.description}
+          </p>
+          {project.status === 'FAILED' && project.lastFailureMessage ? (
+            <p className="mt-2 line-clamp-2 rounded-lg bg-destructive/10 px-3 py-2 text-xs leading-relaxed text-destructive">
+              {project.lastFailureMessage}
+            </p>
+          ) : null}
+        </div>
+        <div className="mt-5 space-y-3 border-t border-border/75 pt-4 text-xs text-muted-foreground">
+          <div className="flex min-w-0 items-center gap-2">
+            <LayoutTemplate className="h-4 w-4 shrink-0 text-primary/70" aria-hidden="true" />
+            <span className="shrink-0 font-medium text-foreground/80">Formato:</span>
+            <span className="min-w-0 truncate" title={typeLabel}>{typeLabel}</span>
+          </div>
           <div className="flex items-center gap-2">
-            {project.leadId ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  onGenerateAnother();
-                }}
-              >
-                + Gerar outro site
-              </Button>
-            ) : null}
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpen();
-              }}
-            >
-              {SITE_CARD_ACTION_LABELS[action]}
-            </Button>
+            <CalendarDays className="h-4 w-4 shrink-0 text-primary/70" aria-hidden="true" />
+            <span className="shrink-0 font-medium text-foreground/80">Atualizado em:</span>
+            <time dateTime={project.updatedAt}>{formatDate(project.updatedAt)}</time>
           </div>
         </div>
-        {project.lastFailureMessage && project.status === 'FAILED' ? (
-          <p className="truncate text-xs text-destructive">{project.lastFailureMessage}</p>
-        ) : null}
+        <Button onClick={onOpen} block className="mt-5 h-11 justify-between rounded-xl px-4">
+          <span className="flex items-center gap-2">
+            {isPublished ? <Globe2 className="h-4 w-4" aria-hidden="true" /> : (
+              <FilePenLine className="h-4 w-4" aria-hidden="true" />
+            )}
+            {copy.action}
+          </span>
+          <ArrowRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+        </Button>
       </CardContent>
     </Card>
   );
 }
-
 
 function LeadPicker({
   columns,
