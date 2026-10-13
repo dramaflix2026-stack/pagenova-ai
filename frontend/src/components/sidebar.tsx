@@ -8,6 +8,7 @@ import {
   BarChart3,
   Building2,
   CalendarDays,
+  ClipboardList,
   CircleHelp,
   Copy,
   FileSpreadsheet,
@@ -24,21 +25,28 @@ import {
   X,
 } from "lucide-react";
 
-const items = [
-  { href: "/app/crm?view=dashboard", label: "Dashboard", icon: LayoutDashboard, crmView: "dashboard" },
-  { href: "/app/crm?view=buscar", label: "Buscar empresas", icon: Building2, crmView: "buscar" },
+type MenuItem = { href: string; label: string; icon: typeof Menu; crmView?: string };
+
+// CRM is intentionally the first and most prominent part of PageNova.
+// Leave every existing route intact; this is a navigation-only reorganization.
+const crmItems: MenuItem[] = [
   { href: "/app/crm?view=crm", label: "CRM", icon: KanbanSquare, crmView: "crm" },
+  { href: "/app/crm?view=dashboard", label: "Dashboard comercial", icon: LayoutDashboard, crmView: "dashboard" },
+  { href: "/app/crm?view=buscar", label: "Buscar empresas", icon: Building2, crmView: "buscar" },
   { href: "/app/crm?view=reunioes", label: "Reuniões", icon: CalendarDays, crmView: "reunioes" },
-  { href: "/app/crm?view=sites-ia", label: "Sites com IA", icon: Globe, crmView: "sites-ia" },
-  { href: "/app/crm?view=importar", label: "Importar lead", icon: FileSpreadsheet, crmView: "importar" },
+  { href: "/app/crm?view=sites-ia", label: "Sites com IA do CRM", icon: Globe, crmView: "sites-ia" },
+  { href: "/app/crm?view=importar", label: "Importar leads", icon: FileSpreadsheet, crmView: "importar" },
   { href: "/app/crm?view=servicos", label: "Serviços", icon: BarChart3, crmView: "servicos" },
   { href: "/app/crm?view=financeiro", label: "Financeiro", icon: Wallet, crmView: "financeiro" },
   { href: "/app/crm?view=metas", label: "Metas", icon: Target, crmView: "metas" },
-  { href: "/app/crm?view=equipe", label: "Equipes", icon: Users, crmView: "equipe" },
-  { href: "/app/crm?view=configuracoes", label: "Configurações", icon: Settings, crmView: "configuracoes" },
-  { href: "/app/gerador", label: "Gerar Landing Page com IA", icon: Sparkles },
-  { href: "/app/builder", label: "Gerar Novo Site com IA", icon: Sparkles },
-  { href: "/app/cloner", label: "Clonar Site com IA", icon: Copy },
+  { href: "/app/crm?view=equipe", label: "Equipe", icon: Users, crmView: "equipe" },
+  { href: "/app/crm?view=configuracoes", label: "Configurações do CRM", icon: Settings, crmView: "configuracoes" },
+];
+
+const studioItems: MenuItem[] = [
+  { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
+  { href: "/app/cloner", label: "Clonar site com IA", icon: Copy },
+  { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
   { href: "/app/paginas", label: "Minhas páginas", icon: Files },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
 ];
@@ -48,6 +56,57 @@ function isItemActive(pathname: string, href: string, crmView: string | undefine
     return pathname === "/app/crm" && (currentCrmView ?? "dashboard") === crmView;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function NavigationGroup({ title, description, items, isCrm, pathname, currentCrmView, onNavigate, compact = false }: {
+  title: string;
+  description?: string;
+  items: MenuItem[];
+  isCrm: boolean;
+  pathname: string;
+  currentCrmView: string | null;
+  onNavigate?: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <section aria-label={title} className={isCrm
+      ? "rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.055] p-2 shadow-[inset_0_0_20px_rgba(16,185,129,0.035)]"
+      : "mt-5 rounded-2xl border border-white/[0.07] bg-white/[0.018] p-2"}>
+      <div className="px-2.5 pb-2 pt-1.5">
+        <div className="flex items-center gap-2">
+          <span aria-hidden="true" className={isCrm
+            ? "h-1.5 w-1.5 rounded-full bg-emerald-400"
+            : "h-1.5 w-1.5 rounded-full bg-white/35"} />
+          <h2 className={isCrm
+            ? "text-[11px] font-bold uppercase tracking-[.17em] text-emerald-300"
+            : "text-[11px] font-bold uppercase tracking-[.17em] text-white/55"}>{title}</h2>
+        </div>
+        {description ? <p className="mt-1 pl-3.5 text-[11px] leading-4 text-white/35">{description}</p> : null}
+      </div>
+      <div className="space-y-0.5">
+        {items.map((item) => {
+          const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
+          return (
+            <Link key={item.href} href={item.href} onClick={onNavigate}
+              aria-current={active ? "page" : undefined}
+              className={`group relative flex min-h-10 items-center gap-2.5 rounded-xl border px-2.5 py-2 text-sm font-medium transition-colors ${
+                active
+                  ? "border-emerald-400/25 bg-emerald-400/[0.14] text-white"
+                  : "border-transparent text-white/65 hover:bg-white/[0.065] hover:text-white"
+              }`}>
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                active ? "bg-emerald-400/[0.13] text-emerald-300" : "bg-white/[0.035] text-white/50"
+              }`}>
+                <item.icon className={compact ? "h-4 w-4" : "h-[15px] w-[15px]"} strokeWidth={1.9} />
+              </span>
+              <span className="min-w-0 break-words leading-5">{item.label}</span>
+              {active ? <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden="true" /> : null}
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
 }
 
 export function Sidebar() {
@@ -166,45 +225,11 @@ export function Sidebar() {
             </button>
           </div>
 
-          <nav className="relative flex-1 overflow-y-auto p-4">
-            <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/25">
-              Workspace
-            </p>
-
-            <div className="space-y-1.5">
-              {items.map((item) => {
-                const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setMobileOpen(false)}
-                    className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-4 py-3.5 text-sm font-medium transition-all duration-200 ${
-                      active
-                        ? "border border-emerald-400/20 bg-emerald-400/[0.09] text-white shadow-[inset_0_0_26px_rgba(16,185,129,0.06),0_0_24px_rgba(16,185,129,0.025)]"
-                        : "border border-transparent text-white/55 hover:border-emerald-400/10 hover:bg-emerald-400/[0.045] hover:text-white"
-                    }`}
-                  >
-                    {active && (
-                      <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.85)]" />
-                    )}
-
-                    <span
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-                        active
-                          ? "bg-emerald-400/[0.12] text-emerald-300"
-                          : "bg-white/[0.03] text-white/40 group-hover:bg-emerald-400/[0.07] group-hover:text-emerald-300"
-                      }`}
-                    >
-                      <item.icon className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+          <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
+            <NavigationGroup title="CRM & Vendas" description="Seu espaço comercial principal" items={crmItems}
+              isCrm pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+            <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
+              isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
 
           <div className="relative border-t border-white/[0.07] p-4">
@@ -258,42 +283,11 @@ export function Sidebar() {
           </Link>
         </div>
 
-        <nav className="relative flex-1 space-y-1.5 p-4">
-          <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/25">
-            Workspace
-          </p>
-
-          {items.map((item) => {
-            const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`group relative flex items-center gap-3 overflow-hidden rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                  active
-                    ? "border border-emerald-400/20 bg-emerald-400/[0.09] text-white shadow-[inset_0_0_26px_rgba(16,185,129,0.06),0_0_24px_rgba(16,185,129,0.025)]"
-                    : "border border-transparent text-white/45 hover:border-emerald-400/10 hover:bg-emerald-400/[0.045] hover:text-white"
-                }`}
-              >
-                {active && (
-                  <span className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.85)]" />
-                )}
-
-                <span
-                  className={`flex h-7 w-7 items-center justify-center rounded-lg text-base transition ${
-                    active
-                      ? "bg-emerald-400/[0.12] text-emerald-300 shadow-[0_0_18px_rgba(52,211,153,0.08)]"
-                      : "bg-white/[0.03] text-white/40 group-hover:bg-emerald-400/[0.07] group-hover:text-emerald-300"
-                  }`}
-                >
-                  <item.icon className="h-[15px] w-[15px]" strokeWidth={1.8} />
-                </span>
-
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
+          <NavigationGroup title="CRM & Vendas" description="Seu espaço comercial principal" items={crmItems}
+            isCrm pathname={pathname} currentCrmView={currentCrmView} />
+          <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
+            isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
 
         <div className="relative border-t border-white/[0.07] p-4">
