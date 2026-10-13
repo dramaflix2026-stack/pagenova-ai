@@ -30,6 +30,7 @@ import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/pro
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import { ensureIllustrativeHero } from '@builder/generation/generated-image-provider';
+import { restoreAvailableImageSlots } from '@builder/publishing/recover-image-slots';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
 
@@ -186,9 +187,16 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Traz fotos REAIS do Google Places quando o lead possui placeId.
     // Falha de foto nunca bloqueia a geracao do site.
     await ensureGooglePlaceAssets(project).catch(() => 0);
-    const googleAssetCount = (await new UploadAssetProvider().listCandidates(project.id)).filter((item) => item.source === 'GOOGLE_PLACES').length;
-    if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && googleAssetCount === 0) {
-      logger.warn({ projectId: project.id }, 'Nenhuma foto real do Google disponivel: nao atribuir imagem sintetica a equipe ou fachada reais.');
+    const existingCandidates = await new UploadAssetProvider().listCandidates(project.id);
+    const googleAssetCount = existingCandidates.filter((item) => item.source === 'GOOGLE_PLACES').length;
+    const realAssetCount = existingCandidates.filter((item) =>
+      item.source === 'GOOGLE_PLACES' || item.source === 'UPLOAD',
+    ).length;
+    // Three visual slots are mandatory. About prefers a genuine Google/owner
+    // photo; otherwise a clearly labelled editorial illustration, never a
+    // synthetic photo of employees or the business's actual premises.
+    if (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true') {
+      throw new Error('PAGENOVA_MANDATORY_IMAGES_DISABLED: habilite PAGENOVA_AI_HERO_IMAGES para gerar sites com 3 imagens obrigatorias.');
     }
     // AI imagery is opt-in and metered. Keep real Google photos for internal sections.
     if (process.env.PAGENOVA_AI_HERO_IMAGES === 'true') {
@@ -197,8 +205,17 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       if (heroResult === 'unavailable') {
         throw new Error('Banner ilustrativo indisponivel: verifique a chave OpenAI, o modelo e o storage.');
       }
-      // With fewer than two real photos, provide a distinct synthetic supporting image.
-      if (googleAssetCount < 2) {
+      // With no genuine photo, a separately tagged illustrative About scene is
+      // required too. Never fabricate the owner's face or physical location.
+      if (realAssetCount === 0) {
+        await assertBudgetAvailable(project);
+        const aboutResult = await ensureIllustrativeHero(project, 'about');
+        if (aboutResult === 'unavailable') {
+          throw new Error('Imagem ilustrativa de Quem somos indisponivel; o site nao sera marcado pronto sem as imagens obrigatorias.');
+        }
+      }
+      // With fewer than two real photos, give the process its own image.
+      if (realAssetCount < 2) {
         await assertBudgetAvailable(project);
         const supplementResult = await ensureIllustrativeHero(project, 'supplement');
         if (supplementResult === 'unavailable') {
@@ -352,6 +369,11 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       imageBindings,
     });
 
+    // Validate actual file bytes and attach all three slots AFTER the assembler
+    // (not only to the AI's optional plan bindings). No missing-image site may
+    // transition to READY, even when the layout itself rendered correctly.
+    await restoreAvailableImageSlots(project, model, { required: true });
+
     const warnings = [
       ...(adjustments ?? []),
       ...droppedSections.map((d) => `Secao "${d.type}" omitida: ${d.reason}`),
@@ -372,9 +394,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     await emitStage(
       job.id,
       'PREPARING_ASSETS',
-      imageCandidates.length === 0
-        ? 'Nenhuma imagem real disponivel: o layout foi preparado para funcionar sem foto.'
-        : `${usedImages} de ${imageCandidates.length} imagem(ns) real(is) usada(s) no site${googleAssetCount > 0 ? ', incluindo fotos do Google Places' : ''}.`,
+      `Hero, Quem somos e Como trabalhamos receberam imagens verificadas. ${usedImages} referencia(s) de planejamento; ${googleAssetCount} foto(s) do Google.`,
     );
     await assertNotCanceled(job.id);
 
