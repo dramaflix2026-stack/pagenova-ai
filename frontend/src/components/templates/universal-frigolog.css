@@ -254,3 +254,36 @@
     font-size:15px!important;
   }
 }
+
+/* PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1 */
+/* The canonical desktop remains the original four-column editorial strip.
+   Extra copies only exist on mobile for seamless, reversible touch scrolling. */
+.frigolog-template .frigolog-kpi-grid .frigolog-kpi-card.pn-kpi-clone{
+  display:none!important;
+}
+@media(max-width:767px){
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail]{
+    display:flex!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:none!important;
+    scroll-behavior:auto!important;
+    overscroll-behavior-x:contain;
+    scrollbar-width:none!important;
+    -ms-overflow-style:none;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-x pan-y;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail]::-webkit-scrollbar{
+    display:none!important;
+    width:0!important;height:0!important;
+  }
+  .frigolog-template .frigolog-kpi-grid .frigolog-kpi-card,
+  .frigolog-template .frigolog-kpi-grid .frigolog-kpi-card.pn-kpi-clone{
+    display:flex!important;
+    flex:0 0 190px!important;
+    scroll-snap-align:none!important;
+    user-select:none;
+    -webkit-user-select:none;
+  }
+}
