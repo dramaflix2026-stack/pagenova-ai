@@ -494,7 +494,15 @@ export default function BuilderPage() {
       let initialImages:string[]=[];
       if(attached.length){
         const payload=new FormData();
-        attached.forEach(file=>payload.append("files",file));
+        const prepared=await Promise.all(attached.map(async file=>{
+          if(!file.type.startsWith("image/"))return file;
+          const compressed=await compressReference(file);
+          const blob=await (await fetch(compressed)).blob();
+          return new File([blob],file.name.replace(/\.[^.]+$/,"")+".webp",{type:"image/webp"});
+        }));
+        if(prepared.reduce((sum,file)=>sum+file.size,0)>3.8*1024*1024)
+          throw new Error("Os anexos ficaram grandes demais para enviar. Reduza ou divida seu PDF (até 3 MB).");
+        prepared.forEach(file=>payload.append("files",file));
         const analysisResponse=await fetch("/api/builder/analyze-attachments",{
           method:"POST",credentials:"same-origin",body:payload,
         });
