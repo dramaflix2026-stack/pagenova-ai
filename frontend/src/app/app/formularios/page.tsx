@@ -106,7 +106,6 @@ export default function FormulariosPage(){
   }
   async function publish(){
     if(!form||isSaving||isPublishing)return;
-    if(!window.confirm("Publicar o formulário em um link próprio da PageNova? As respostas serão salvas na sua conta."))return;
     setIsPublishing(true);setNotice("");setError("");
     try{
       const savedForm=dirty||!form.id?await saveForm(form):form;
