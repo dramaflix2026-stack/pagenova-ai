@@ -265,7 +265,7 @@ export default function PagesPage() {
     <>
       <AppHeader
         title="Meus sites"
-        description="Continue seus sites e landing pages."
+        description="Visualize, edite e publique seus sites e páginas."
       />
 
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
