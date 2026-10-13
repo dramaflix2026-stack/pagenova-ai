@@ -7,6 +7,7 @@ import Link from "next/link";
 const CRM_ROUTES: Record<string, string> = {
   dashboard: "/",
   buscar: "/buscar",
+  pesquisadas: "/pesquisadas",
   crm: "/crm",
   reunioes: "/reunioes",
   "sites-ia": "/sites-ia",
