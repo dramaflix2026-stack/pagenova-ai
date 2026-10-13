@@ -939,7 +939,7 @@ export default function BuilderPage() {
   // project label as well, so the published Muse branding matches the editor.
   async function saveProjectBrand():Promise<void> {
     if(!project||!crmProjectId||savingBrand)return;
-    const name=brandDraft.trim().replace(/\\s+/g," ");
+    const name=brandDraft.trim().replace(/\s+/g," ");
     if(name.length<3||name.length>72){
       setError("Informe o nome da empresa ou profissional (3 a 72 caracteres).");return;
     }
