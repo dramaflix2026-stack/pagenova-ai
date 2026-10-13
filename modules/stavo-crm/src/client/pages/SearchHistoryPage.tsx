@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   ArrowRight, Building2, CalendarDays, CheckCircle2, ChevronDown,
-  ChevronUp, Clock3, History, MapPin, RotateCcw, Search,
+  ChevronUp, History, MapPin, RotateCcw, Search,
   Sparkles, UsersRound, X,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
