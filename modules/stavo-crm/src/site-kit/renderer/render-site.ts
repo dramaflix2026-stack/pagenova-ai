@@ -76,7 +76,10 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
     const without = existing ? tag.replace(existing[0], '') : tag;
     const merged = [originalStyles, ...styles].filter(Boolean).join(';');
     const extra = ` data-pn-edit="${escapeHtml(key)}"${merged ? ` style="${merged}"` : ''}`;
-    return without.replace(/>$/, extra + '>');
+    // React static markup serializes images as <img .../>. Append before the
+    // closing slash, never after it (which would create malformed attributes).
+    const ending = without.endsWith('/>') ? '/>' : '>';
+    return without.replace(/\/?>$/, extra + ending);
   };
   const withText = html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
     return apply(tag, `${sectionId}:${index++}`);
