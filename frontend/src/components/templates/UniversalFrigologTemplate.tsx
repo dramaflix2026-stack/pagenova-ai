@@ -10,6 +10,27 @@ import { validateUniversalSiteData } from "@/lib/frigolog-template-data";
  * Content, photography and theme are inputs; structure remains unchanged.
  * This component is isolated from the production template until QA is complete.
  */
+/** Choose readable contrast independent of the AI brand palette. */
+function pnLuminance(color: string): number {
+  const channels = [1,3,5].map((i) => {
+    const value = parseInt(color.slice(i,i+2),16)/255;
+    return value <= .04045 ? value/12.92 : ((value+.055)/1.055)**2.4;
+  });
+  return channels[0]!*.2126+channels[1]!*.7152+channels[2]!*.0722;
+}
+function pnContrast(a:string,b:string):number {
+  const x=pnLuminance(a),y=pnLuminance(b);
+  return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);
+}
+function pnTextTokens(primary:string) {
+  const ink="#172c38",white="#ffffff";
+  return {
+    primary:pnContrast(primary,ink)>=pnContrast(primary,white)?ink:white,
+    accent:pnContrast(primary,"#e7eef2")>=4.5?primary:ink,
+    button:pnContrast(primary,white)>=4.5?primary:ink,
+  };
+}
+
 /**
  * Continuous, pixel-based marquee built on native scrolling: unlike a CSS
  * transform carousel, visitors can swipe in either direction at any moment.
@@ -144,11 +165,15 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
     { href: "#operacao", label: "Nossa operação" },
     { href: "#contato", label: "Contato" },
   ];
+  const readable = pnTextTokens(data.palette.primary);
   const theme = {
     "--primary": data.palette.primary,
     "--background": data.palette.background,
     "--foreground": data.palette.foreground,
     "--accent": data.palette.accent,
+    "--pn-cta-ink": readable.primary,
+    "--pn-light-accent": readable.accent,
+    "--pn-action-ink": readable.button,
   } as CSSProperties;
 
   const showContact = () => {

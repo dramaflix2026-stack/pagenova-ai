@@ -344,3 +344,53 @@
     text-wrap:pretty;
   }
 }
+
+
+/* PAGENOVA_UNIVERSAL_CONTRAST_V1 -- surface-specific WCAG colors for any brand.
+   Palette.foreground may be very light, so never reuse it on fixed white cards. */
+.frigolog-template #servicos,.frigolog-template #sobre{color:#172c38!important}
+.frigolog-template #servicos .section-heading,.frigolog-template #sobre .section-heading,
+.frigolog-template #servicos .service-card h3{color:#172c38!important}
+.frigolog-template #servicos .service-card{color:#172c38!important}
+.frigolog-template #servicos .service-card p,.frigolog-template #sobre p:not(.eyebrow){color:#4b5f6c!important}
+.frigolog-template #sobre .space-y-3 p{color:#172c38!important}
+.frigolog-template #servicos .eyebrow,.frigolog-template #sobre .eyebrow,
+.frigolog-template .hero.pn-photo-missing .eyebrow{color:var(--pn-light-accent,#172c38)!important}
+.frigolog-template #servicos .service-card a{color:var(--pn-action-ink,#172c38)!important}
+.frigolog-template #sobre .frigolog-button{background:var(--primary)!important;color:var(--pn-cta-ink,#fff)!important}
+.frigolog-template .hero.pn-photo-missing{
+  isolation:isolate;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse at 96% 12%,color-mix(in srgb,var(--primary) 23%,transparent),transparent 49%),
+    linear-gradient(118deg,#f1f6f9,#e4edf3 65%,#dbe7ee)!important;
+}
+.frigolog-template .hero.pn-photo-missing::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.27;
+  background-image:linear-gradient(color-mix(in srgb,var(--primary) 13%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--primary) 13%,transparent) 1px,transparent 1px);
+  background-size:42px 42px;mask-image:linear-gradient(90deg,transparent 5%,#000 100%);
+}
+.frigolog-template .hero.pn-photo-missing .hero-content{position:relative;z-index:1}
+.frigolog-template .hero.pn-photo-missing h1,.frigolog-template .hero.pn-photo-missing .pn-hero-accent{
+  color:#172c38!important;text-shadow:none!important;
+}
+.frigolog-template .hero.pn-photo-missing .hero-content p:not(.eyebrow){color:#455c6b!important}
+.frigolog-template .hero.pn-photo-missing .frigolog-button{
+  background:var(--primary)!important;color:var(--pn-cta-ink,#fff)!important
+}
+.frigolog-template #operacao{background:#161b20!important;color:#f8fafb!important}
+.frigolog-template #operacao .section-heading{color:#f8fafb!important}
+.frigolog-template #operacao .eyebrow{color:#f08b80!important}
+.frigolog-template #operacao .site-container>.text-center p.text-muted-foreground{color:#c6ced5!important}
+.frigolog-template #operacao article{background:#fff!important;border-color:#e1e6e9!important;color:#172c38!important}
+.frigolog-template #operacao article h3{color:#172c38!important}
+.frigolog-template #operacao article p{color:#4d606d!important}
+.frigolog-template #operacao article span{color:var(--pn-action-ink,#172c38)!important}
+.frigolog-template #contato{color:var(--pn-cta-ink,#fff)!important}
+.frigolog-template #contato .section-heading,.frigolog-template #contato .site-container>p{
+  color:var(--pn-cta-ink,#fff)!important;
+}
+.frigolog-template #contato .frigolog-button{background:#fff!important;color:var(--pn-action-ink,#172c38)!important}
+@media(max-width:767px){
+  .frigolog-template .hero.pn-photo-missing h1{font-size:clamp(31px,8.4vw,43px)!important;line-height:1.15!important}
+  .frigolog-template #operacao article h3{font-size:17px!important;line-height:1.35!important}
+}
