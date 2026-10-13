@@ -693,9 +693,10 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     element.style.setProperty('transform','translate('+edit.offsetX+'px,'+edit.offsetY+'px)','important');
   };
 
-  const applyUniversalVisual = () => {
-    if (!config) return;
-    const nextTemplate = config.project.templateId === 'frigolog-universal' ? 'standard' : 'frigolog-universal';
+  const applyVisualTemplate = (nextTemplate: 'standard' | 'frigolog-universal' | 'muse-editorial') => {
+    if (!config || config.project.templateId === nextTemplate) return;
+    // Preserve text, images and generated business content. Only switch
+    // the deterministic HTML layout, with undo and autosave support.
     const order = ['hero', 'benefits', 'services', 'about', 'process', 'testimonials', 'faq', 'contactMap', 'cta', 'footer'];
     const sections = nextTemplate === 'frigolog-universal'
       ? [...config.sections].sort((a, b) => {
@@ -706,9 +707,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       : config.sections;
     history.set({ ...config, project: { ...config.project, templateId: nextTemplate }, sections,
       theme: { ...config.theme, colors: repairThemeContrast(config.theme.colors) } });
-    toast.success(nextTemplate === 'frigolog-universal'
-      ? 'Visual PageNova aplicado! Conteudo e imagens preservados. Revise antes de publicar.'
-      : 'Visual anterior restaurado. O conteudo foi preservado.');
+    toast.success(nextTemplate === 'muse-editorial'
+      ? 'Muse Editorial aplicado! Conteúdo preservado. Revise as seções antes de publicar.'
+      : nextTemplate === 'frigolog-universal'
+        ? 'Modelo Original aplicado! Conteúdo preservado. Revise antes de publicar.'
+        : 'Visual anterior restaurado. Conteúdo preservado.');
   };
 
   const correctColors = () => {
@@ -750,15 +753,32 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         errorCount={lintReport?.errors.length ?? 0}
         onShowIssues={() => setShowIssues((v) => !v)}
       />
-      {diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId !== 'frigolog-universal' ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-primary/20 bg-primary-soft px-3 py-2">
-          <span className="text-xs font-medium">Novo visual PageNova: use o layout aprovado com o seu conteudo, sem gerar novamente.</span>
-          <Button size="sm" variant="secondary" onClick={applyUniversalVisual}>Aplicar visual PageNova</Button>
-        </div>
-      ) : diagnosticsQuery.data?.universalTemplateSupported && config.project.templateId === 'frigolog-universal' ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted px-3 py-2">
-          <span className="text-xs font-medium">✓ Visual PageNova ativo</span>
-          <Button size="sm" variant="ghost" onClick={applyUniversalVisual}>Visual anterior</Button>
+      {diagnosticsQuery.data?.universalTemplateSupported ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-3 py-3"
+          role="group" aria-label="Alterar template visual do site">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-foreground">Template visual do site</p>
+            <p className="mt-0.5 text-[11px] text-muted-foreground">
+              Troque o layout sem gerar novamente. Textos e imagens continuam no projeto.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {([
+              ['frigolog-universal', 'Modelo 1 · Original'],
+              ['muse-editorial', 'Modelo 2 · Muse Editorial'],
+              ['standard', 'Visual anterior'],
+            ] as const).map(([id,label])=>(
+              <button key={id} type="button" aria-pressed={(config.project.templateId ?? 'standard')===id}
+                onClick={()=>applyVisualTemplate(id)}
+                className={`rounded-lg border px-3 py-2 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  (config.project.templateId ?? 'standard')===id
+                    ? 'border-primary bg-primary-soft text-primary'
+                    : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground'
+                }`}>
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
       {showIssues && lintReport ? (
