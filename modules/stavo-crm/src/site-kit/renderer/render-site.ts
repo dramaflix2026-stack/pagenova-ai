@@ -84,15 +84,12 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
   const withText = html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
     return apply(tag, `${sectionId}:${index++}`);
   });
-  // For static template text (not a direct CRM field), use a stable element-key
-  // override rather than discarding the user's edits after the next render.
+  // Persist copy edits for template-provided headings and labels that do
+  // not map to a CRM section field. Escape user content as plain text.
   let withOverrides = withText;
   for (const edit of model.visualTextEdits) {
     if (!edit.textOverride || !edit.key.startsWith(sectionId + ':')) continue;
-    const escapedKey = edit.key.replace(/[.*+?^${}()|[\]\\]/g, '\\  // Images are first-class draggable blocks and persist to the same model.
-  // Only site media with stable data-pn-photo markers is eligible.
-  return withText.replace(/<img\b[^>]*\bdata-pn-photo="(hero|about|operation)"[^>]*>/gi,
-    (tag, slot: string) => apply(tag, `${sectionId}:photo:${slot}`));');
+    const escapedKey = edit.key.replace(/[^A-Za-z0-9:_-]/g, (char) => '\\' + char);
     const pattern = new RegExp(
       '(<(h[1-4]|p|span|a|button|li)\\b[^>]*\\bdata-pn-edit="' +
       escapedKey + '"[^>]*>)[\\s\\S]*?(<\\/\\2>)', 'i',
@@ -103,7 +100,7 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
   // Images are first-class draggable blocks and persist to the same model.
   // Only site media with stable data-pn-photo markers is eligible.
   return withOverrides.replace(/<img\b[^>]*\bdata-pn-photo="(hero|about|operation)"[^>]*>/gi,
-    (tag, slot: string) => apply(tag, `${sectionId}:photo:${slot}`));
+    (tag, slot: string) => apply(tag, sectionId + ':photo:' + slot));
 }
 
 function renderSection(section: SiteSection, ctx: RenderContext, model: SiteSchemaModel): string {
