@@ -77,7 +77,9 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
     }
     if (edit?.offsetX || edit?.offsetY) {
       styles.push(`transform:translate(${edit.offsetX ?? 0}px,${edit.offsetY ?? 0}px)!important`);
-      styles.push('position:relative');
+      // Preserve full-bleed absolute hero media; only ordinary text/card
+      // blocks need relative positioning for translations.
+      if (!tag.startsWith('<img')) styles.push('position:relative');
     }
     // Preserve pre-existing React inline styles. Never output duplicate HTML
     // style attributes (the browser may ignore one of them).
