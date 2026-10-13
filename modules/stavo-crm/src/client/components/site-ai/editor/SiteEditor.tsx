@@ -61,6 +61,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const temporaryUrlsRef = useRef<string[]>([]);
   const selectionCleanupRef = useRef<(() => void) | null>(null);
   const [previewRevision,setPreviewRevision] = useState(0);
+  const previewDocumentCacheRef = useRef<{key:string; html:string}>({key:'',html:''});
   const [lockVersion, setLockVersion] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>(() =>
@@ -164,9 +165,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       if (event.key.toLowerCase() === 'z' && !event.shiftKey) {
         event.preventDefault();
         history.undo();
+        setPreviewRevision((revision) => revision + 1);
       } else if (event.key.toLowerCase() === 'z' && event.shiftKey) {
         event.preventDefault();
         history.redo();
+        setPreviewRevision((revision) => revision + 1);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -214,6 +217,26 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       '</style>';
     return previewResult.html.replace('</head>', editorChrome + '</head>');
   }, [previewResult.html, config?.project.templateId]);
+
+  // A transform/resize changes only visualTextEdits. Replacing iframe.srcDoc
+  // for those edits destroys the DOM, resets scroll, blinks the full preview
+  // and briefly steals selection. Keep the same document until page content
+  // or image assets change; the selected DOM element is updated live.
+  const layoutSignature = config
+    ? JSON.stringify({...config,visualTextEdits:[]})
+    : '';
+  const iframeDocumentKey = [
+    layoutSignature,
+    previewRevision,
+    // Image replacements do change the page's document.
+    Object.keys(previewImageUrls).sort().join(','),
+  ].join('|');
+  const currentDocument = previewDocumentCacheRef.current;
+  if (currentDocument.key !== iframeDocumentKey) {
+    currentDocument.key = iframeDocumentKey;
+    currentDocument.html = editorPreviewHtml;
+  }
+  const stableEditorPreviewHtml = currentDocument.html;
 
   const lintReport = useMemo(() => {
     if (!config) return null;
@@ -342,6 +365,20 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     }
     return section;
   };
+  /** Save geometry immediately without unloading the iframe or losing selection. */
+  const commitSelectedGeometry = () => {
+    const selected = editElementRef.current;
+    const pending = pendingStyleRef.current;
+    const latest = latestConfigRef.current;
+    if (!selected || !pending?.key || !latest) return;
+    if (JSON.stringify(pending) === originalStyleRef.current) return;
+    const visualTextEdits = [...latest.visualTextEdits.filter((item) => item.key !== pending.key),{...pending}];
+    const next = {...latest,visualTextEdits};
+    latestConfigRef.current = next;
+    originalStyleRef.current = JSON.stringify(pending);
+    history.set(next);
+  };
+
   const finishInlineEdit = (save = true) => {
     const element = editElementRef.current;
     if (!element) { setInlineEditor(null); return; }
@@ -419,7 +456,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     const iframeDoc = frame.contentDocument;
     if (iframeDoc && pendingStyleRef.current) {
       selectionCleanupRef.current = mountCanvasHandles(
-        iframeDoc,element,pendingStyleRef.current,() => finishInlineEdit(true),
+        iframeDoc,element,pendingStyleRef.current,commitSelectedGeometry,
       );
     }
     if (!openMenu) {
@@ -743,7 +780,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
               ref={previewFrameRef}
               onLoad={() => { installInlineEditor(); checkPreviewImages(); }}
               title="Previa do site"
-              srcDoc={editorPreviewHtml}
+              srcDoc={stableEditorPreviewHtml}
               className={'h-full rounded-md border border-border bg-white shadow-sm transition-all ' + (viewport === 'mobile' ? 'w-full max-w-[430px]' : 'w-full max-w-6xl')}
             />
           )}
