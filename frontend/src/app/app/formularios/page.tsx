@@ -5,10 +5,10 @@ import {
   ArrowLeft, ArrowRight, Check, CheckCircle2, ClipboardList, Copy,
   Eye, FilePenLine, Globe2, LoaderCircle, Plus, Save, Sparkles, Trash2,
 } from "lucide-react";
-import { type FormInput, type FormQuestion, type PageNovaForm, normalizeForm } from "@/lib/forms/schema";
+import { type FormInput, type FormQuestion, type PageNovaForm, type FormSubmission, normalizeForm } from "@/lib/forms/schema";
 
 type Screen = "start" | "review";
-type Tab = "questions" | "preview";
+type Tab = "questions" | "preview" | "responses";
 const KINDS: Record<string,string> = {
   leads:"Captura de leads",quiz:"Quiz interativo",application:"Formulário de aplicação",survey:"Pesquisa",
 };
@@ -42,6 +42,9 @@ export default function FormulariosPage(){
   const [error,setError]=useState("");
   const [notice,setNotice]=useState("");
   const [copied,setCopied]=useState(false);
+  const [baseUrl,setBaseUrl]=useState("");
+  const [responses,setResponses]=useState<FormSubmission[]>([]);
+  const [loadingResponses,setLoadingResponses]=useState(false);
 
   async function loadSaved() {
     try{
@@ -52,7 +55,7 @@ export default function FormulariosPage(){
     }catch(cause){setError(feedbackText(cause));}
     finally{setIsLoadingList(false);}
   }
-  useEffect(()=>{void loadSaved();},[]);
+  useEffect(()=>{void loadSaved();setBaseUrl(window.location.origin);},[]);
   const edit=(patch:Partial<PageNovaForm>)=>{
     setForm(current=>current?{...current,...patch}:current);
     setDirty(true);setNotice("");setError("");
@@ -63,7 +66,7 @@ export default function FormulariosPage(){
   };
   function openDraft(draft:PageNovaForm) {
     setForm(draft);setPrompt(draft.intent||"");setDirty(false);
-    setTab("questions");setPreviewIndex(0);setScreen("review");
+    setTab("questions");setPreviewIndex(0);setScreen("review");setResponses([]);
     setError("");setNotice("");setCopied(false);
   }
   function reset(){
@@ -103,12 +106,7 @@ export default function FormulariosPage(){
   }
   async function publish(){
     if(!form||isSaving||isPublishing)return;
-    if(!/^\d{10,15}$/.test(form.whatsapp.replace(/\D/g,""))){
-      setTab("questions");setError("Para publicar, informe um WhatsApp com DDI nas opções de publicação.");
-      window.setTimeout(()=>{const input=document.getElementById("form-publication-phone");input?.closest("details")?.setAttribute("open","");input?.focus();},0);
-      return;
-    }
-    if(!window.confirm("Publicar este formulário para que outras pessoas possam responder pelo link? As respostas serão enviadas pelo WhatsApp configurado."))return;
+    if(!window.confirm("Publicar o formulário em um link próprio da PageNova? As respostas serão salvas na sua conta."))return;
     setIsPublishing(true);setNotice("");setError("");
     try{
       const savedForm=dirty||!form.id?await saveForm(form):form;
@@ -119,6 +117,17 @@ export default function FormulariosPage(){
       setNotice("Formulário publicado! Compartilhe o link abaixo.");
     }catch(cause){setError(feedbackText(cause));}
     finally{setIsPublishing(false);}
+  }
+  async function loadResponses(){
+    if(!form?.id)return;
+    setTab("responses");setError("");setLoadingResponses(true);
+    try {
+      const response=await fetch("/api/forms/"+encodeURIComponent(form.id)+"/responses",{cache:"no-store"});
+      const body=await response.json().catch(()=>({})) as {error?:string;responses?:FormSubmission[]};
+      if(!response.ok)throw new Error(body.error||"Não foi possível carregar as respostas.");
+      setResponses(Array.isArray(body.responses)?body.responses:[]);
+    }catch(cause){setError(feedbackText(cause));}
+    finally{setLoadingResponses(false);}
   }
   async function copyLink() {
     if(!form?.id)return;
@@ -213,9 +222,12 @@ export default function FormulariosPage(){
         {published&&<div className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-4 text-center">
           <p className="text-sm font-semibold text-emerald-300">Seu formulário está publicado</p>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-            <a href={publishedLink} target="_blank" rel="noopener noreferrer" className="max-w-full break-all text-sm text-white underline underline-offset-4">{publishedLink}</a>
+            <a href={publishedLink} target="_blank" rel="noopener noreferrer" className="max-w-full break-all text-sm text-white underline underline-offset-4">{baseUrl?baseUrl+publishedLink:publishedLink}</a>
             <button type="button" onClick={()=>void copyLink()} className="inline-flex items-center gap-1 rounded-lg bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-300">
               {copied?<Check className="h-3.5 w-3.5"/>:<Copy className="h-3.5 w-3.5"/>} {copied?"Copiado":"Copiar link"}
+            </button>
+            <button type="button" onClick={()=>void loadResponses()} className="rounded-lg border border-emerald-400/30 px-3 py-2 text-xs font-semibold text-emerald-200">
+              Ver respostas
             </button>
           </div>
           {dirty&&<p className="mt-2 text-xs text-white/50">Para atualizar o link público com suas alterações, clique em Atualizar publicação.</p>}
@@ -229,6 +241,10 @@ export default function FormulariosPage(){
             className={"flex flex-1 items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-semibold "+(tab==="preview"?"bg-emerald-400/15 text-emerald-300":"text-white/50")}>
             <Eye className="h-4 w-4"/> Visualizar
           </button>
+          {published&&<button type="button" onClick={()=>void loadResponses()} aria-pressed={tab==="responses"}
+            className={"flex flex-1 items-center justify-center gap-1 rounded-lg px-2 py-3 text-sm font-semibold "+(tab==="responses"?"bg-emerald-400/15 text-emerald-300":"text-white/50")}>
+            <ClipboardList className="h-4 w-4"/> Respostas
+          </button>}
         </div>
         {tab==="questions"?
           <section className="space-y-5">
@@ -276,21 +292,27 @@ export default function FormulariosPage(){
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-400/35 p-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/[.05] disabled:opacity-40">
               <Plus className="h-4 w-4"/> Adicionar pergunta
             </button>
-            <details className="rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-6">
-              <summary className="cursor-pointer text-center text-sm font-semibold text-white/75">Configurações de publicação</summary>
-              <div className="mt-5">
-                <label htmlFor="form-publication-phone" className="block text-sm font-medium text-white/70">
-                  WhatsApp para receber respostas (com DDI)
-                </label>
-                <input id="form-publication-phone" inputMode="tel" maxLength={22}
-                  placeholder="5511999999999" value={form.whatsapp}
-                  onChange={e=>edit({whatsapp:e.target.value})} className={fieldClass+" mt-2"}/>
-                <p className="mt-2 text-xs leading-5 text-white/45">
-                  Este número só é necessário na hora de publicar. O visitante enviará as respostas pelo WhatsApp; elas não são armazenadas no CRM.
-                </p>
-              </div>
-            </details>
           </section>
+          :tab==="responses"?
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
+              <div className="text-center">
+                <h2 className="text-xl font-bold">Respostas recebidas</h2>
+                <p className="mt-2 text-sm text-white/50">Somente você, dentro da sua conta PageNova, pode consultar estas respostas.</p>
+                <button type="button" onClick={()=>void loadResponses()} className="mt-4 rounded-lg border border-white/15 px-4 py-2 text-sm text-white/75">
+                  Atualizar respostas
+                </button>
+              </div>
+              {loadingResponses?<p className="py-8 text-center text-sm text-white/50">Carregando respostas...</p>
+                :responses.length===0?<p className="py-8 text-center text-sm text-white/50">Este formulário ainda não recebeu respostas.</p>
+                :responses.map((response,index)=><article key={response.id} className="rounded-xl border border-white/10 bg-black/20 p-4">
+                  <p className="mb-4 text-sm font-semibold text-emerald-300">Resposta {index+1} · {new Date(response.submittedAt).toLocaleString("pt-BR")}</p>
+                  <div className="space-y-3">{response.answers.map(item=><div key={item.questionId}>
+                    <p className="text-xs text-white/45">{item.label}</p>
+                    <p className="mt-1 whitespace-pre-wrap break-words text-sm text-white/90">{item.value||"Não informado"}</p>
+                  </div>)}</div>
+                </article>)}
+              {responses.length===100&&<p className="text-center text-xs text-white/50">Exibindo as 100 respostas mais recentes.</p>}
+            </section>
           :<section className="rounded-3xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
             <div className="mx-auto max-w-lg rounded-2xl bg-[#f7faf9] p-6 text-[#102c25] sm:p-8">
               <div className="mb-5 text-center">
