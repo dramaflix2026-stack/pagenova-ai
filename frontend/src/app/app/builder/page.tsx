@@ -315,38 +315,41 @@ export default function BuilderPage() {
   }
 
 
-  async function generatePages(site: SiteProject, keys: SitePageKey[]) {
-    setPhase("generating"); setError(""); setPendingKeys(keys);
-    let current = site;
-    for (let index = 0; index < keys.length; index++) {
-      const key = keys[index];
-      setCurrentStep(key);
-      try {
-        const result = await requestPage(current, key);
-        const page = result.page;
-        current = {
-          ...current,
-          pages: { ...current.pages, [key]: page },
-          siteStrategy: result.siteStrategy ?? current.siteStrategy,
-          visualDirection:
-            key === "home" && result.visualDirection
-              ? result.visualDirection
-              : current.visualDirection,
-          headerDirection:
-            key === "home" && result.headerDirection
-              ? result.headerDirection
-              : current.headerDirection,
+  // Read existing CRM jobs only. Never call the paid legacy generator on retry.
+  async function monitorCrmGeneration(projectId: string): Promise<void> {
+    setPhase("generating");
+    setError("");
+    setCurrentStep("home");
+    try {
+      for (let attempt=0;attempt<120;attempt++) {
+        const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}`, {
+          credentials:"same-origin",cache:"no-store",
+        });
+        const detail=await response.json().catch(()=>({})) as {
+          project?:{status?:string;lastFailureMessage?:string|null};
+          jobs?:Array<{errorMessage?:string|null}>;
+          error?:{message?:string};
         };
-        await savePageNovaProject(current.id, current);
-        setProject(current); setActivePage(key); setPendingKeys(keys.slice(index + 1));
-      } catch (cause) {
-        if ((cause as Error).name === "AbortError") return;
-        setError(cause instanceof Error ? cause.message : "Falha na geração.");
-        setPendingKeys(keys.slice(index)); setPhase("error"); setCurrentStep(null);
-        return;
+        if(!response.ok) throw new Error(detail.error?.message||`Falha HTTP ${response.status} ao acompanhar a criação.`);
+        if(detail.project?.status==="READY"||detail.project?.status==="PUBLISHED") {
+          const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/render`,{
+            credentials:"same-origin",cache:"no-store",
+          });
+          if(!html.ok) throw new Error("O site ficou pronto, mas a prévia ainda não carregou. Verifique novamente.");
+          setCrmPreviewHtml(await html.text());
+          void refreshCost(projectId);
+          setCurrentStep(null);setPendingKeys([]);setPhase("ready");
+          return;
+        }
+        if(detail.project?.status==="FAILED")throw new Error(detail.project.lastFailureMessage||
+          detail.jobs?.[0]?.errorMessage||"A geração falhou. O projeto foi preservado.");
+        if(attempt<119)await new Promise(resolve=>window.setTimeout(resolve,1500));
       }
+      throw new Error("A geração ainda não foi confirmada. Verifique o andamento mais tarde.");
+    }catch(cause) {
+      setCurrentStep(null);setPendingKeys([]);setPhase("error");
+      setError(cause instanceof Error?cause.message:"Não foi possível consultar a geração.");
     }
-    setCurrentStep(null); setPendingKeys([]); setPhase("ready");
   }
 
   async function start(event: FormEvent<HTMLFormElement>) {
@@ -362,7 +365,7 @@ export default function BuilderPage() {
     const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
     const named = normalizedPrompt.match(/(?:chamad[ao]|nome|marca|empresa)\s*(?:[:=-]|é|e)?\s*["“”']?([^,.;:\n]{2,72})/i);
     const leading = normalizedPrompt.split(/[,;:\n]|\s+[—–-]\s+/)[0]?.trim() ?? "";
-    const inferredName = (named?.[1] || (/^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(leading) ? "" : leading) || "Sua marca")
+    const inferredName = (named?.[1] || (/^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(leading) ? "" : leading) || "Novo projeto")
       .replace(/^["“”'\`]+|["“”'\`]+$/g, "")
       .replace(/[.,;:!?]+$/g, "")
       .trim()
@@ -371,7 +374,7 @@ export default function BuilderPage() {
     setPhase("generating");
     setError("");
     setCurrentStep("home");
-    setPendingKeys(["home"]);
+    setPendingKeys([]);
     setCrmPreviewHtml("");
     setCostInfo(null);
     setCostError("");
@@ -446,40 +449,7 @@ export default function BuilderPage() {
         throw new Error(generation.error?.message || "Não foi possível iniciar a geração.");
       }
 
-      let ready = false;
-      for (let attempt = 0; attempt < 120; attempt++) {
-        await new Promise((resolve) => window.setTimeout(resolve, 1500));
-        const statusResponse = await fetch(`/api/crm/site-projects/${projectId}`, {
-          credentials: "same-origin",
-          cache: "no-store",
-        });
-        const detail = await statusResponse.json() as {
-          project?: { status?: string; lastFailureMessage?: string | null };
-          jobs?: Array<{ status?: string; progress?: number; errorMessage?: string | null }>;
-          error?: { message?: string };
-        };
-        if (!statusResponse.ok) throw new Error(detail.error?.message || "Falha ao acompanhar a geração.");
-        const status = detail.project?.status;
-        if (status === "READY" || status === "PUBLISHED") {
-          ready = true;
-          break;
-        }
-        if (status === "FAILED") {
-          throw new Error(detail.project?.lastFailureMessage || detail.jobs?.[0]?.errorMessage || "A geração falhou.");
-        }
-      }
-      if (!ready) throw new Error("A geração demorou mais que o esperado. Tente novamente.");
-
-      const renderResponse = await fetch(`/api/crm/site-projects/${projectId}/render`, {
-        credentials: "same-origin",
-        cache: "no-store",
-      });
-      if (!renderResponse.ok) throw new Error("O site foi gerado, mas a prévia não pôde ser carregada.");
-      setCrmPreviewHtml(await renderResponse.text());
-      await refreshCost(projectId);
-      setCurrentStep(null);
-      setPendingKeys([]);
-      setPhase("ready");
+      await monitorCrmGeneration(projectId);
     } catch (cause) {
       setCurrentStep(null);
       setPendingKeys([]);
@@ -870,7 +840,7 @@ export default function BuilderPage() {
   }
 
   return <>
-    <AppHeader title="Criar Site com IA" description="Descreva seu negócio e acompanhe cada página aparecer." />
+    <AppHeader title="Criar Site com IA" description="Descreva sua ideia e acompanhe a criação do site." />
     <main className="mx-auto max-w-[1800px] px-3 py-5 sm:px-5 lg:px-8">
       <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar imagem do site"
@@ -879,16 +849,16 @@ export default function BuilderPage() {
           if (file) void uploadSiteImage(file, inlineImageKindRef.current);
           event.target.value = "";
         }} />
-      {!project && <div className="mx-auto max-w-5xl">
-        <div className="mb-7">
+      {!project && <div className="mx-auto flex min-h-[calc(100svh-230px)] max-w-5xl flex-col justify-center py-6 sm:py-10">
+        <div className="mx-auto mb-8 max-w-3xl text-center">
           <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova AI · Criação inteligente</span>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Conte o que você quer criar</h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Basta descrever sua ideia. Escolher um modelo é opcional.</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Conte o que você quer criar</h1>
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Descreva o que você imagina. A PageNova transforma suas palavras em um site.</p>
         </div>
-        <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
-          <div>
+        <form onSubmit={start} className="mx-auto w-full max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-5 shadow-[0_16px_65px_rgba(0,0,0,.22)] sm:p-8">
+          <div className="text-center">
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
-              Criar site com IA
+              Converse com a IA
             </p>
 
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-white">
@@ -896,7 +866,7 @@ export default function BuilderPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-white/45">
-              Conte sobre o negócio, os serviços e quem você quer alcançar. A IA organiza a estrutura do site.
+              Conte o que o site precisa ter. Você não precisa preencher campos de contato ou dados comerciais.
             </p>
           </div>
 
@@ -912,7 +882,6 @@ export default function BuilderPage() {
               maxLength={2800}
               rows={6}
               required
-              autoFocus
               placeholder="Ex.: Crie um site premium para uma clínica odontológica moderna chamada Lumina Odontologia, especializada em implantes, lentes de contato dental e estética do sorriso. Quero transmitir sofisticação, confiança e tecnologia..."
               className="w-full resize-y rounded-2xl border border-white/15 bg-black/30 p-5 text-base leading-7 text-white outline-none placeholder:text-white/25 focus:border-emerald-400"
             />
@@ -971,65 +940,31 @@ export default function BuilderPage() {
 
       {project && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
         <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
-          <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-400">{getSitePreset(project.presetId || "institucional").title}</span><h1 className="mt-2 text-2xl font-bold">{project.name}</h1><p className="mt-2 text-sm text-white/45">{phase === "generating" ? "Criando seu site…" : phase === "ready" ? "Site criado. Você pode pedir alterações." : "A criação foi interrompida."}</p></div>
-          <button type="button" aria-expanded={revisionPanelOpen} aria-controls="pagenova-revision-form" onClick={() => setRevisionPanelOpen((open) => !open)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-extrabold text-[#08130e] shadow-[0_8px_28px_rgba(52,211,153,.18)] transition hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300">✨ {revisionPanelOpen ? "Fechar alterações" : "Alterar com IA"}</button>
-          {revisionPanelOpen && <form onSubmit={revise} id="pagenova-revision-form" className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
-            <label className="text-sm font-semibold" htmlFor="builder-change">✨ Alterar com IA</label>
-            <p className="mt-1 text-xs leading-5 text-white/45">Descreva a alteração. Mudanças simples são aplicadas sem custo de IA sempre que possível. Você também pode anexar um print.</p>
-            <textarea id="builder-change" value={instruction} onChange={(event) => setInstruction(event.target.value)} onPaste={pasteRevisionImage} maxLength={700} rows={4} placeholder="Ex.: use este print como referência para melhorar a seção de apresentação, mantendo minhas informações reais." className="mt-3 w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
-            <label className="mt-3 block cursor-pointer rounded-xl border border-dashed border-white/20 px-3 py-3 text-xs text-white/65 hover:border-emerald-400/50">
-              Anexar print da tela
-              <input type="file" accept="image/png,image/jpeg,image/webp" className="mt-2 block w-full text-xs file:mr-2 file:rounded file:border-0 file:bg-emerald-400 file:px-2 file:py-1 file:text-black" onChange={(event) => { const file = event.target.files?.[0]; if (file) void prepareRevisionImage(file); event.target.value = ""; }} />
-            </label>
-            {revisionImage && <div className="mt-3 rounded-xl border border-emerald-400/30 p-2">
-              <img src={revisionImage} alt="Print anexado para a IA analisar" className="max-h-44 w-full rounded-lg object-contain" />
-              <button type="button" onClick={() => setRevisionImage("")} className="mt-2 text-xs text-emerald-300">Remover print</button>
-            </div>}
-            {revisionImageError && <p role="alert" className="mt-2 text-xs text-red-300">{revisionImageError}</p>}
-            <button disabled={!project.pages[activePage] || phase === "generating" || (!instruction.trim() && !revisionImage)} className="mt-3 w-full rounded-xl border border-emerald-400/40 px-4 py-3 text-sm font-semibold text-emerald-300 disabled:opacity-40">{phase === "generating" ? "Aplicando alteração..." : "Aplicar alteração"}</button>
-          </form>}
-
-          {project.presetId === "institucional" && <label className="block text-xs font-medium text-white/75">Serviços e produtos reais<textarea value={project.institutional?.offer || ""} onChange={(event) => { const updated = { ...project, institutional: { role: "", audience: "", process: "", proof: "", ...project.institutional, offer: event.target.value } }; setProject(updated); void savePageNovaProject(updated.id, updated).catch(() => setError("Falha ao salvar os serviços.")); }} rows={3} maxLength={400} placeholder="Ex.: lavagem de roupas, passadoria, coleta e entrega (somente o que você realmente oferece)" className="mt-2 w-full rounded-lg border border-white/15 bg-black/30 p-3 text-sm text-white" /></label>}
-          <fieldset className="space-y-2 rounded-xl border border-white/10 p-3">
-            <legend className="px-1 text-xs font-semibold text-emerald-200">Contatos e redes do site</legend>
-            {([
-              ["contactEmail", "E-mail", "contato@suaempresa.com.br"],
-              ["contactWhatsApp", "WhatsApp", "11999999999"],
-              ["contactInstagram", "Instagram", "@suaempresa"],
-              ["contactFacebook", "Facebook", "facebook.com/suaempresa"],
-            ] as const).map(([key, label, placeholder]) => (
-              <label key={key} className="block text-xs text-white/75">{label}
-                <input type={key === "contactEmail" ? "email" : "text"} value={project[key] || ""}
-                  onChange={(event) => {
-                    const updated = { ...project, [key]: event.target.value };
-                    setProject(updated);
-                    void savePageNovaProject(updated.id, updated).catch(() => setError("Não foi possível salvar o contato."));
-                  }}
-                  placeholder={placeholder} maxLength={200}
-                  className="mt-1 w-full rounded-lg border border-white/15 bg-black/30 p-2.5 text-sm text-white" />
-              </label>
-            ))}
-          </fieldset>          {project.presetId === "institucional" && <div className="space-y-3 rounded-xl border border-white/10 p-3">
-            <p className="text-xs font-semibold text-emerald-200">Imagens do site — envio gratuito</p>
-            {([["hero", "Foto principal"], ["work", "Foto do negócio"]] as const).map(([kind, label]) => (
-              <label key={kind} className="block cursor-pointer rounded-lg border border-dashed border-white/20 p-3 text-xs text-white/75 hover:border-emerald-400/50">
-                {label} · PNG, JPG ou WebP (até 5 MB)
-                <input type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingImage}
-                  className="mt-2 block w-full text-xs" onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) void uploadSiteImage(file, kind);
-                    event.target.value = "";
-                  }} />
-              </label>
-            ))}
-            {uploadingImage && <p className="text-xs text-emerald-300">Carregando imagem…</p>}
-          </div>}
+          <div>
+            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
+            <h2 className="mt-2 break-words text-xl font-bold">{project.name}</h2>
+            <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
+          </div>
+          <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
+            <label htmlFor="builder-change" className="block text-sm font-semibold text-emerald-200">✨ Converse com a IA</label>
+            <p className="text-xs leading-5 text-white/50">Peça mudanças em textos, cores e seções. Ajustes simples podem ser feitos sem nova geração.</p>
+            <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
+              onPaste={pasteRevisionImage} rows={4} maxLength={700}
+              placeholder="Ex.: Deixe os títulos mais diretos e melhore os serviços."
+              className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
+            <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
+              className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#08130e] disabled:opacity-40">
+              {phase==="generating"?"Aguarde a geração":"Enviar instrução →"}
+            </button>
+            {revisionImage&&<button type="button" onClick={()=>setRevisionImage("")} className="text-xs text-emerald-300">Remover print anexado</button>}
+            {revisionImageError&&<p role="alert" className="text-xs text-red-300">{revisionImageError}</p>}
+          </form>
           <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
-          {phase === "error" && pendingKeys.length > 0 && <button onClick={() => void generatePages(project, pendingKeys)} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Tentar novamente</button>}
-          {phase === "ready" && SITE_PAGES.some(({ key }) => !project.pages[key]) &&
-            <button onClick={() => void generatePages(project, SITE_PAGES.filter(({ key }) => !project.pages[key]).map(({ key }) => key))} className="w-full rounded-xl bg-emerald-400 px-4 py-3 font-bold text-[#08130e]">Continuar criação</button>}
-          {phase === "ready" && project.presetId === "institucional" && <button type="button" onClick={() => void regenerateCopy()} className="w-full rounded-xl border border-emerald-400/35 px-4 py-3 text-sm font-semibold text-emerald-200">Refazer textos com as novas diretrizes</button>}
+          {phase==="error"&&crmProjectId&&<button type="button" onClick={()=>void monitorCrmGeneration(crmProjectId)}
+            className="w-full rounded-xl border border-emerald-400/40 px-4 py-3 font-semibold text-emerald-200">
+            Verificar geração existente
+          </button>}
           <p className="text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
