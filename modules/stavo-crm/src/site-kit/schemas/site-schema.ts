@@ -606,6 +606,9 @@ export const visualTextEditSchema = z.object({
   /** Offset applied to the selected text or image on the actual published page. */
   offsetX: z.number().int().min(-400).max(400).optional(),
   offsetY: z.number().int().min(-400).max(400).optional(),
+  /** Persistent resize of site elements, measured in CSS pixels. */
+  widthPx: z.number().int().min(64).max(1600).optional(),
+  heightPx: z.number().int().min(48).max(1200).optional(),
   /** Text not present as an editable field in the underlying site sections. */
   textOverride: z.string().trim().min(1).max(1000).optional(),
 });

@@ -190,6 +190,23 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('translate(22px,16px)!important');
     expect(html).toContain('Implantes');
   });
+  it('persists resizable dimensions on both media and card containers',()=>{
+    const model=site();
+    const hero=model.sections.find(section=>section.type==='hero');
+    if(hero?.type!=='hero')throw new Error('Missing hero');
+    hero.image={assetId:'0123456789ABCDEFGHJKMNPQRS',alt:'Banner',focalX:.5,focalY:.5};
+    model.visualTextEdits=[
+      {key:'hero-1:photo:hero',widthPx:240,heightPx:140},
+      {key:'services-1:block:0',widthPx:330,heightPx:290},
+    ];
+    const result=renderCanonicalFrigolog(model,{
+      profile:'DEMO',resolveAsset:()=>({url:'/assets/hero.webp'}),
+    },applyVisualTextEdits);
+    expect(result).toContain('width:240px!important');
+    expect(result).toContain('height:140px!important');
+    expect(result).toContain('min-height:290px!important');
+    expect(result).toContain('width:330px!important');
+  });
   it('loops mobile KPI cards without repeating content to screen readers',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,s=>s);
     expect(html).toContain('data-pn-kpi-rail="1"');
