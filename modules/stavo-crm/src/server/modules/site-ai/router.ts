@@ -566,7 +566,7 @@ siteAiRouter.get(
       ...byKind,
       missingIllustrations: count,
       estimatedMaxUsd: Number((count * estimated).toFixed(6)),
-      canGenerate: process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && Boolean(process.env.OPENAI_API_KEY) && estimated > 0,
+      canGenerate: count === 0 || (process.env.PAGENOVA_AI_HERO_IMAGES === 'true' && Boolean(process.env.OPENAI_API_KEY) && estimated > 0),
       message: count === 0 ? 'Ilustrações disponíveis no projeto.' :
         'As imagens anteriores podem ter sido perdidas no armazenamento. Apenas as ausentes exigem nova geração.',
     });
@@ -585,9 +585,6 @@ siteAiRouter.post(
     if (payload?.confirmPaid !== true || typeof payload.maxEstimatedUsd !== 'number' ||
         !Number.isFinite(payload.maxEstimatedUsd) || payload.maxEstimatedUsd < 0) {
       throw badRequest('Confirme o limite de custo estimado das imagens antes de continuar.');
-    }
-    if (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true' || !process.env.OPENAI_API_KEY) {
-      throw conflict('Geração de imagens não está habilitada neste ambiente.');
     }
     if (!project.draftConfig) throw conflict('Este projeto não possui rascunho para restaurar.');
     if (mediaRepairLocks.has(project.id)) throw conflict('Já existe uma recuperação de imagens em andamento para este projeto.');
@@ -608,6 +605,9 @@ siteAiRouter.post(
       if (!(await availableSlot('hero'))) missing.push('hero');
       if (!(await availableSlot('supplement'))) missing.push('supplement');
       const perImage = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
+      if (missing.length && (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true' || !process.env.OPENAI_API_KEY)) {
+        throw conflict('Geração de imagens não está habilitada neste ambiente.');
+      }
       if (!Number.isFinite(perImage) || perImage <= 0 ||
           missing.length * perImage > payload.maxEstimatedUsd + 0.000001) {
         throw badRequest('A estimativa mudou. Atualize o orçamento de recuperação antes de confirmar.');
