@@ -1081,9 +1081,6 @@ export default function BuilderPage() {
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
             {phase==="generating"?<><LoaderCircle className="h-5 w-5 animate-spin"/> Gerando site...</>:"Gerar site com IA →"}
           </button>
-          <p className="text-center text-xs text-white/40">
-            Fotos e documentos anexados são interpretados antes da criação e podem usar IA. O microfone transcreve direto no campo.
-          </p>
           <fieldset>
             <legend className="mb-3 text-sm font-medium text-white/80">Ponto de partida <span className="font-normal text-white/45">(opcional)</span></legend>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
