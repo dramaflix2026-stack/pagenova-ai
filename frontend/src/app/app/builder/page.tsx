@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
+import { inferSiteBrand } from "@/lib/infer-site-brand";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
@@ -550,14 +551,9 @@ export default function BuilderPage() {
       return;
     }
 
-    const normalizedPrompt = prompt.replace(/\s+/g, " ").trim();
-    const named = normalizedPrompt.match(/(?:chamad[ao]|nome|marca|empresa)\s*(?:[:=-]|é|e)?\s*["“”']?([^,.;:\n]{2,72})/i);
-    const leading = normalizedPrompt.split(/[,;:\n]|\s+[—–-]\s+/)[0]?.trim() ?? "";
-    const inferredName = (named?.[1] || (/^(?:crie|criar|faça|faca|quero|desenvolva|monte|gere|preciso|site|landing)\b/i.test(leading) ? "" : leading) || "Novo projeto")
-      .replace(/^["“”'\`]+|["“”'\`]+$/g, "")
-      .replace(/[.,;:!?]+$/g, "")
-      .trim()
-      .slice(0, 72);
+    // Do not submit a generic draft label when the briefing contains the
+    // person's or business's actual name. Purely local parsing: no AI call.
+    const inferredName = inferSiteBrand(prompt) || "Novo projeto";
 
     setPhase("generating");
     setGenerationProgress(INITIAL_GENERATION_PROGRESS);
