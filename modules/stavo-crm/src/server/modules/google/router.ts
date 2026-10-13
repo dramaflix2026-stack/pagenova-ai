@@ -7,6 +7,7 @@
  *  GET  /api/google/usage            consumo do mes
  */
 import { Router } from 'express';
+import { and, desc, eq, inArray } from 'drizzle-orm';
 import rateLimit from 'express-rate-limit';
 
 import { ATTRIBUTION_TEXT } from '../../../shared/constants';
@@ -17,6 +18,7 @@ import {
 } from '../../../shared/schemas';
 import { getEnv } from '../../config/env';
 import { getDb } from '../../db/client';
+import { leads, searchRuns } from '../../db/schema';
 import { mapsLinkFromPlaceId } from '../../domain/links';
 import { asyncHandler, parseBody } from '../../lib/http';
 import { serviceUnavailable } from '../../lib/errors';
@@ -39,6 +41,53 @@ const googleRateLimit = rateLimit({
 export const googleRouter: Router = Router();
 
 googleRouter.use(requireAuth);
+
+/**
+ * Historico sem custo de API: os parametros de buscas anteriores e os leads
+ * explicitamente salvos pelo usuario ja existem no banco do workspace.
+ * NUNCA persista uma copia dos resultados transitorios do Google.
+ */
+googleRouter.get(
+  '/google/history',
+  requireCapability('GOOGLE_SEARCH'),
+  asyncHandler(async (req, res) => {
+    const db = getDb();
+    const workspaceId = req.session!.workspaceId;
+    const runs = await db.select({
+      id: searchRuns.id,
+      niche: searchRuns.niche,
+      country: searchRuns.country,
+      state: searchRuns.state,
+      city: searchRuns.city,
+      region: searchRuns.regionOrNeighborhood,
+      websiteFilter: searchRuns.websiteFilter,
+      serviceId: searchRuns.selectedServiceId,
+      pagesRequested: searchRuns.pagesRequested,
+      resultCount: searchRuns.resultCount,
+      createdAt: searchRuns.createdAt,
+    }).from(searchRuns).where(eq(searchRuns.workspaceId,workspaceId))
+      .orderBy(desc(searchRuns.createdAt)).limit(60);
+    const runIds = runs.map(run=>run.id);
+    const saved = runIds.length ? await db.select({
+      searchRunId: leads.searchRunId,
+      id: leads.id,
+      name: leads.internalName,
+      placeId: leads.placeId,
+      status: leads.status,
+      createdAt: leads.createdAt,
+    }).from(leads).where(and(eq(leads.workspaceId,workspaceId),inArray(leads.searchRunId,runIds))) : [];
+    const byRun = new Map<string,typeof saved>();
+    for (const lead of saved) {
+      if (!lead.searchRunId) continue;
+      byRun.set(lead.searchRunId,[...(byRun.get(lead.searchRunId)||[]),lead]);
+    }
+    res.setHeader('Cache-Control','private, no-store');
+    res.json({ searches:runs.map(run=>({
+      ...run,
+      savedLeads:byRun.get(run.id)||[],
+    })) });
+  }),
+);
 
 googleRouter.get(
   '/google/usage',
