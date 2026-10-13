@@ -68,7 +68,7 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
     // Inline spans can wrap across multiple lines, so CSS width/height and
     // transform on a span creates a one-line bounding box and broken text.
     // Normalize saved legacy geometry by applying it only to block content.
-    const canPosition = !/^<span\\b/i.test(tag);
+    const canPosition = !/^<span\b/i.test(tag);
     if (canPosition && edit?.widthPx) {
       styles.push(`width:${edit.widthPx}px!important`);
       styles.push('max-width:100%!important');
