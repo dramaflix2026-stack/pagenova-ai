@@ -7,6 +7,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import {
   BarChart3,
   Building2,
+  History,
   CalendarDays,
   ClipboardList,
   CircleHelp,
@@ -33,6 +34,7 @@ const crmItems: MenuItem[] = [
   { href: "/app/crm?view=crm", label: "CRM", icon: KanbanSquare, crmView: "crm" },
   { href: "/app/crm?view=dashboard", label: "Dashboard comercial", icon: LayoutDashboard, crmView: "dashboard" },
   { href: "/app/crm?view=buscar", label: "Buscar empresas", icon: Building2, crmView: "buscar" },
+  { href: "/app/crm?view=pesquisadas", label: "Empresas pesquisadas", icon: History, crmView: "pesquisadas" },
   { href: "/app/crm?view=reunioes", label: "Reuniões", icon: CalendarDays, crmView: "reunioes" },
   { href: "/app/crm?view=sites-ia", label: "Sites com IA do CRM", icon: Globe, crmView: "sites-ia" },
   { href: "/app/crm?view=importar", label: "Importar leads", icon: FileSpreadsheet, crmView: "importar" },
