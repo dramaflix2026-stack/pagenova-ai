@@ -76,6 +76,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const editElementRef = useRef<HTMLElement | null>(null);
   const originalTextRef = useRef('');
   const pendingStyleRef = useRef<InlineStyle | null>(null);
+  const originalStyleRef = useRef('');
+  const toolbarDragRef = useRef<{ pointerId:number; x:number; y:number; left:number; top:number } | null>(null);
   const pendingImageRef = useRef<{ sectionId: string; slot: PhotoSlot } | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const scrollRef = useRef({ x: 0, y: 0 });
@@ -384,7 +386,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     }
     let nextStyles = config.visualTextEdits;
     const pending = pendingStyleRef.current;
-    if (save && pending?.key) {
+    if (save && pending?.key && JSON.stringify(pending) !== originalStyleRef.current) {
       nextStyles = [...nextStyles.filter((item) => item.key !== pending.key),pending];
       changed = true;
     }
@@ -396,25 +398,41 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     if (changed && save) history.set({ ...config, sections: nextSections, visualTextEdits: nextStyles });
     if (!save) setPreviewRevision((current) => current + 1);
   };
-  const showToolbar = (element: HTMLElement, x: number, y: number, kind: 'text' | 'image' | 'block') => {
-    const rect = previewFrameRef.current?.getBoundingClientRect();
-    if (!rect) return;
+  /** One tap selects and exposes resize/move handles. Only double tap edits text. */
+  const showToolbar = (
+    element: HTMLElement, x: number, y: number,
+    kind: 'text' | 'image' | 'block', openMenu = false,
+  ) => {
+    const frame = previewFrameRef.current;
+    const rect = frame?.getBoundingClientRect();
+    if (!frame || !rect) return;
+    if (editElementRef.current === element && !openMenu) return;
+    selectionCleanupRef.current?.();
+    selectionCleanupRef.current = null;
     editElementRef.current = element;
+    originalTextRef.current = element.innerText?.trim() ?? '';
     const key = element.dataset.pnEdit;
     pendingStyleRef.current = key
-      ? { ...(config.visualTextEdits.find((e) => e.key === key) ?? { key }) }
+      ? { ...(config.visualTextEdits.find((item) => item.key === key) ?? { key }) }
       : null;
-    const width = Math.min(420,window.innerWidth - 16);
-    selectionCleanupRef.current?.();
-    const iframeDoc = previewFrameRef.current?.contentDocument;
+    originalStyleRef.current = JSON.stringify(pendingStyleRef.current);
+    const iframeDoc = frame.contentDocument;
     if (iframeDoc && pendingStyleRef.current) {
       selectionCleanupRef.current = mountCanvasHandles(
         iframeDoc,element,pendingStyleRef.current,() => finishInlineEdit(true),
       );
     }
+    if (!openMenu) {
+      setInlineEditor(null);
+      return;
+    }
+    const width = Math.min(420,window.innerWidth - 16);
+    const view = window.visualViewport;
+    const viewportTop = view?.offsetTop ?? 0;
+    const visibleHeight = view?.height ?? window.innerHeight;
     setInlineEditor({
       x: Math.max(8,Math.min(rect.left+x-width/2,window.innerWidth-width-8)),
-      y: Math.max(54,Math.min(rect.top+y-100,window.innerHeight-165)),
+      y: Math.max(viewportTop+8,Math.min(rect.top+y-140,viewportTop+visibleHeight-110)),
       kind,
     });
   };
@@ -434,26 +452,33 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     doc.head.appendChild(style);
     doc.addEventListener('click',(event) => {
       const target = event.target as HTMLElement;
+      if (target.closest('[data-pn-canvas-control]')) return;
       if (target.closest('a[href]')) event.preventDefault();
-      const img = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
-      if (!img) {
-        const card = target.closest('article[data-pn-edit]') as HTMLElement | null;
-        if (card && card !== editElementRef.current) {
-          if (editElementRef.current) finishInlineEdit();
-          showToolbar(card,event.clientX,event.clientY,'block');
-        }
+      if (target.closest('.pn-kpi-clone,[aria-hidden="true"]')) return;
+      const image = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
+      if (image) {
+        const section = selectedSource(image);
+        const slot = image.dataset.pnPhoto as PhotoSlot | undefined;
+        if (!section || !slot || !['hero','about','operation'].includes(slot)) return;
+        event.preventDefault();
+        if (editElementRef.current && editElementRef.current !== image) finishInlineEdit();
+        pendingImageRef.current = { sectionId:section.id,slot };
+        showToolbar(image,event.clientX,event.clientY,'image');
         return;
       }
-      event.preventDefault();
-      const section = selectedSource(img);
-      const slot = img.dataset.pnPhoto as PhotoSlot | undefined;
-      if (!section || !slot || !['hero','about','operation'].includes(slot)) return;
-      if (editElementRef.current && editElementRef.current !== img) finishInlineEdit();
-      pendingImageRef.current = { sectionId:section.id,slot };
-      showToolbar(img,event.clientX,event.clientY,'image');
+      const selectable = target.closest('[data-pn-edit]') as HTMLElement | null;
+      if (!selectable) {
+        if (editElementRef.current) finishInlineEdit();
+        return;
+      }
+      if (selectable === editElementRef.current) return;
+      if (editElementRef.current) finishInlineEdit();
+      showToolbar(selectable,event.clientX,event.clientY,
+        selectable.tagName === 'ARTICLE' ? 'block' : 'text');
     });
     doc.addEventListener('dblclick',(event) => {
       const target = event.target as HTMLElement;
+      if (target.closest('[data-pn-canvas-control]')) return;
       const img = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
       if (img) {
         event.preventDefault();
@@ -467,15 +492,15 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         return;
       }
       const text = target.closest('[data-pn-edit]') as HTMLElement | null;
-      if (!text || text.tagName === 'IMG' || !text.innerText?.trim() ||
-          text.closest('.pn-kpi-clone,[aria-hidden="true"]')) return;
+      if (!text || text.tagName === 'IMG' || text.tagName === 'ARTICLE' ||
+          !text.innerText?.trim() || text.closest('.pn-kpi-clone,[aria-hidden="true"]')) return;
       event.preventDefault();
       event.stopPropagation();
       if (editElementRef.current && editElementRef.current !== text) finishInlineEdit();
       originalTextRef.current = text.innerText.trim();
       text.contentEditable = 'true';
       text.focus();
-      showToolbar(text,event.clientX,event.clientY,'text');
+      showToolbar(text,event.clientX,event.clientY,'text',true);
     });
     doc.addEventListener('keydown',(event) => {
       if (!editElementRef.current || editElementRef.current.tagName === 'IMG') return;
@@ -486,9 +511,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     });
     doc.addEventListener('pointerdown',(event) => {
       const el = editElementRef.current;
-      if (!el || el.tagName === 'IMG') return;
-      if (!(event.target as HTMLElement).closest('[data-pn-canvas-control]') &&
-          !el.contains(event.target as Node)) finishInlineEdit();
+      if (!el || (event.target as HTMLElement).closest('[data-pn-canvas-control]')) return;
+      if (!el.contains(event.target as Node)) finishInlineEdit();
     });
   };
   const uploadInlinePhoto = async (file: File) => {
@@ -687,8 +711,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
-        <span>Duplo clique no texto para escrever e formatar.</span>
-        <span>Duplo clique na imagem para trocar. Selecione um bloco e arraste pelo ícone de mover.</span>
+        <span>Um toque seleciona o bloco: use as alças verdes para mover ou redimensionar.</span>
+        <span>Duplo clique no texto para editar. Duplo clique na imagem para trocar.</span>
       </div>
       {config.project.templateId === 'frigolog-universal' && missingPreviewPhotos.length > 0 ? (
         <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-400/30 bg-amber-50 px-3 py-2 text-xs text-amber-950">
@@ -744,6 +768,51 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
             className="fixed z-[100] flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-1 rounded-xl border border-border bg-surface p-2 text-foreground shadow-2xl"
             style={{ left:inlineEditor.x,top:inlineEditor.y,width:'min(420px, calc(100vw - 16px))' }}
           >
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="Arrastar menu de edição"
+              title="Segure aqui para mover o menu"
+              className="mb-1 flex h-9 w-full touch-none select-none items-center justify-between rounded-lg border border-border/40 bg-muted/60 px-3 text-xs font-medium text-muted-foreground"
+              style={{ cursor:'grab' }}
+              onPointerDown={(event) => {
+                if (!inlineEditor) return;
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                toolbarDragRef.current = {
+                  pointerId:event.pointerId,x:event.clientX,y:event.clientY,
+                  left:inlineEditor.x,top:inlineEditor.y,
+                };
+              }}
+              onPointerMove={(event) => {
+                const drag = toolbarDragRef.current;
+                if (!drag || drag.pointerId !== event.pointerId) return;
+                event.preventDefault();
+                const view = window.visualViewport;
+                const top = view?.offsetTop ?? 0;
+                const height = view?.height ?? window.innerHeight;
+                const width = Math.min(420,window.innerWidth-16);
+                setInlineEditor((current) => current ? {
+                  ...current,
+                  x:Math.max(8,Math.min(window.innerWidth-width-8,drag.left+event.clientX-drag.x)),
+                  y:Math.max(top+8,Math.min(top+height-52,drag.top+event.clientY-drag.y)),
+                } : current);
+              }}
+              onPointerUp={(event) => {
+                if (toolbarDragRef.current?.pointerId === event.pointerId) toolbarDragRef.current = null;
+              }}
+              onPointerCancel={() => { toolbarDragRef.current = null; }}
+              onKeyDown={(event) => {
+                if (!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)) return;
+                event.preventDefault();
+                const dx = event.key === 'ArrowLeft' ? -12 : event.key === 'ArrowRight' ? 12 : 0;
+                const dy = event.key === 'ArrowUp' ? -12 : event.key === 'ArrowDown' ? 12 : 0;
+                setInlineEditor((current) => current ? {...current,x:Math.max(8,current.x+dx),y:Math.max(8,current.y+dy)}:current);
+              }}
+            >
+              <span className="flex items-center gap-2"><Grip className="h-4 w-4" aria-hidden="true" /> Arrastar menu</span>
+              <span className="text-[10px]">Segure e mova</span>
+            </div>
             {inlineEditor.kind === 'text' ? (
               <>
                 <select aria-label="Tamanho da fonte" className="h-8 rounded border border-border bg-surface px-1 text-xs"
