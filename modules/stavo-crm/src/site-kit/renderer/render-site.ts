@@ -54,7 +54,7 @@ export { renderStyles } from '@site-kit/themes/styles';
  * escrever o renderer vira erro de compilacao, e nao um buraco silencioso na
  * pagina publicada.
  */
-function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchemaModel): string {
+export function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchemaModel): string {
   let index = 0;
   const apply = (tag: string, key: string): string => {
     const edit = model.visualTextEdits.find((item) => item.key === key);

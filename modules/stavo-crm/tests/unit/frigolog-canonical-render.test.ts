@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { SiteSchemaModel } from '@site-kit/schemas/site-schema';
 import { renderCanonicalFrigolog, FRIGOLOG_STATIC_RUNTIME } from '@site-kit/renderer/frigolog-canonical-render';
+import { applyVisualTextEdits } from '@site-kit/renderer/render-site';
 import { adaptCrmToFrigolog, cleanLeadBrand } from '@site-kit/renderer/frigolog-crm-adapter';
 import { FRIGOLOG_APPROVED_CSS, FRIGOLOG_SOURCE_FINGERPRINT } from '@site-kit/renderer/frigolog-style.generated';
 
@@ -148,7 +149,31 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('data-pn-photo="about"');
     expect(html).toContain('data-pn-photo="operation"');
     for(const id of ids)expect(html).toContain('/assets/'+id+'.webp');
-    expect(html).toContain('não representa as instalações reais da empresa');
+    expect(html).not.toContain('não representa as instalações reais da empresa');
+    // The alt text still identifies a generated illustration to assistive technology.
+    expect(html).toContain('[about] Imagem ilustrativa gerada por IA');
+  });
+  it('persists draggable text and image offsets in the published markup without duplicate style attributes',()=>{
+    const model=site();
+    model.visualTextEdits=[
+      {key:'hero-1:0',fontFamily:'Poppins',fontSizePx:42,color:'#18324a',offsetX:27,offsetY:-6},
+      {key:'hero-1:photo:hero',offsetX:35,offsetY:12},
+    ];
+    const hero=model.sections.find(section=>section.type==='hero');
+    if(hero?.type!=='hero')throw new Error('Fixture mismatch');
+    hero.image={assetId:'0123456789ABCDEFGHJKMNPQRS',alt:'Uploaded',focalX:.5,focalY:.5};
+    const ctx={profile:'DEMO' as const,resolveAsset:(id:string)=>
+      id===hero.image?.assetId?{url:'/assets/hero.webp'}:null};
+    const html=renderCanonicalFrigolog(model,ctx,applyVisualTextEdits);
+    expect(html).toContain('data-pn-edit="hero-1:0"');
+    expect(html).toContain('translate(27px,-6px)!important');
+    expect(html).toContain('data-pn-edit="hero-1:photo:hero"');
+    expect(html).toContain('translate(35px,12px)!important');
+    expect(html).toContain('font-family:Poppins,sans-serif!important');
+    // Every element receives a single merged style attribute.
+    const imageTag=html.match(/<img[^>]+data-pn-photo="hero"[^>]+>/)?.[0];
+    expect(imageTag).toBeTruthy();
+    expect((imageTag?.match(/ style="/g)??[]).length).toBe(1);
   });
   it('loops mobile KPI cards without repeating content to screen readers',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,s=>s);
