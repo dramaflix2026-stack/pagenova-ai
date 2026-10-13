@@ -23,6 +23,7 @@ type TranscriptionEvent={results:ArrayLike<ArrayLike<{transcript:string}>>;resul
 type Transcriber={
   lang:string;continuous:boolean;interimResults:boolean;
   onresult:((event:TranscriptionEvent)=>void)|null;
+  onstart:(()=>void)|null;
   onerror:((event:{error?:string})=>void)|null;
   onend:(()=>void)|null;
   start:()=>void;stop:()=>void;
@@ -47,7 +48,10 @@ export default function BuilderPage() {
   const [attachments,setAttachments]=useState<File[]>([]);
   const attachInputRef=useRef<HTMLInputElement|null>(null);
   const transcriberRef=useRef<Transcriber|null>(null);
-  const [isListening,setIsListening]=useState(false);
+  // SpeechRecognition.start() only requests permission. Real listening starts on onstart.
+  const [speechStatus,setSpeechStatus]=useState<"idle"|"requesting"|"listening">("idle");
+  const isListening=speechStatus==="listening";
+  const isRequestingMicrophone=speechStatus==="requesting";
   const [attachmentWarning,setAttachmentWarning]=useState("");
   const [style, setStyle] = useState("automatico");
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -165,8 +169,12 @@ export default function BuilderPage() {
     setAttachments(existing=>[...existing,...files]);
   }
   function toggleDictation(){
-    if(transcriberRef.current && isListening){
-      transcriberRef.current.stop();setIsListening(false);return;
+    // Allow cancelling a pending Android permission dialog or an active session.
+    if(transcriberRef.current && speechStatus!=="idle"){
+      try{transcriberRef.current.stop();}catch{/* recognition may not have started */}
+      transcriberRef.current=null;
+      setSpeechStatus("idle");
+      return;
     }
     const win=window as Window & {
       SpeechRecognition?:new()=>Transcriber;
@@ -174,12 +182,15 @@ export default function BuilderPage() {
     };
     const Constructor=win.SpeechRecognition||win.webkitSpeechRecognition;
     if(!Constructor){
-      setAttachmentWarning("O microfone de transcrição não está disponível neste navegador. Use Chrome ou digite seu briefing.");
+      setAttachmentWarning("Este navegador não suporta transcrição por voz. Você também pode usar o microfone do teclado do celular para ditar o briefing.");
       return;
     }
     try{
       const speech=new Constructor();
       speech.lang="pt-BR";speech.continuous=true;speech.interimResults=false;
+      speech.onstart=()=>{
+        if(transcriberRef.current===speech)setSpeechStatus("listening");
+      };
       speech.onresult=(event)=>{
         const segments:string[]=[];
         for(let index=event.resultIndex;index<event.results.length;index++){
@@ -189,18 +200,39 @@ export default function BuilderPage() {
         if(segments.length)setBrief(current=>(current.trim()?current.trim()+" ":"")+segments.join(" "));
       };
       speech.onerror=(event)=>{
-        setIsListening(false);
-        setAttachmentWarning(event.error==="not-allowed"
-          ?"Permita o uso do microfone nas configurações do navegador."
-          :"O reconhecimento de voz não foi concluído. Você pode continuar digitando.");
+        if(transcriberRef.current!==speech)return;
+        transcriberRef.current=null;
+        setSpeechStatus("idle");
+        const reason=event.error||"";
+        if(reason==="not-allowed"||reason==="service-not-allowed"||reason==="permission-denied"){
+          setAttachmentWarning(
+            "O Android bloqueou o acesso ao microfone. Feche botões flutuantes, balões de conversa e sobreposições de outros apps; depois tente novamente. Se continuar, confira a permissão do microfone para o Chrome."
+          );
+        }else if(reason==="audio-capture"){
+          setAttachmentWarning("O microfone não está disponível. Verifique se outro app está usando o áudio e tente novamente.");
+        }else if(reason==="network"){
+          setAttachmentWarning("A transcrição precisa de conexão com a internet neste navegador. Verifique a rede ou use o microfone do teclado.");
+        }else if(reason==="no-speech"){
+          setAttachmentWarning("Não foi detectada nenhuma fala. Toque no microfone e tente novamente.");
+        }else if(reason!=="aborted"){
+          setAttachmentWarning("Não foi possível transcrever sua fala. Você pode tentar novamente ou usar o microfone do teclado.");
+        }
       };
-      speech.onend=()=>setIsListening(false);
+      speech.onend=()=>{
+        if(transcriberRef.current===speech){
+          transcriberRef.current=null;
+          setSpeechStatus("idle");
+        }
+      };
       transcriberRef.current=speech;
       setAttachmentWarning("");
-      speech.start();setIsListening(true);
+      setSpeechStatus("requesting");
+      // Browsers show an OS-level permission dialog; only onstart confirms capture.
+      speech.start();
     }catch{
-      setIsListening(false);
-      setAttachmentWarning("Não foi possível ativar o microfone.");
+      transcriberRef.current=null;
+      setSpeechStatus("idle");
+      setAttachmentWarning("Não foi possível solicitar o microfone. Feche sobreposições de outros aplicativos e tente novamente, ou use o microfone do teclado.");
     }
   }
 
@@ -1022,15 +1054,17 @@ export default function BuilderPage() {
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[.065] text-white transition hover:border-emerald-400/50 hover:bg-emerald-400/10 disabled:opacity-40">
                 <Plus className="h-5 w-5"/>
               </button>
-              <button type="button" title={isListening?"Parar ditado":"Falar e transcrever"}
-                aria-label={isListening?"Parar transcrição por voz":"Iniciar transcrição de voz"}
-                aria-pressed={isListening} onClick={toggleDictation} disabled={phase==="generating"}
+              <button type="button"
+                title={isListening?"Parar ditado":isRequestingMicrophone?"Cancelar solicitação do microfone":"Falar e transcrever"}
+                aria-label={isListening?"Parar transcrição por voz":isRequestingMicrophone?"Cancelar solicitação do microfone":"Iniciar transcrição de voz"}
+                aria-pressed={speechStatus!=="idle"} onClick={toggleDictation} disabled={phase==="generating"}
                 className={`flex h-10 w-10 items-center justify-center rounded-full border transition disabled:opacity-40 ${
-                  isListening?"border-red-400/60 bg-red-400/15 text-red-300 animate-pulse":"border-white/15 bg-white/[.065] text-white hover:border-emerald-400/50 hover:bg-emerald-400/10"
+                  speechStatus!=="idle"?"border-red-400/60 bg-red-400/15 text-red-300 animate-pulse":"border-white/15 bg-white/[.065] text-white hover:border-emerald-400/50 hover:bg-emerald-400/10"
                 }`}>
-                {isListening?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
+                {speechStatus!=="idle"?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
               </button>
-              {isListening&&<span className="text-xs font-semibold text-red-300">Ouvindo...</span>}
+              {isRequestingMicrophone&&<span role="status" className="text-xs font-semibold text-amber-300">Aguardando permissão...</span>}
+              {isListening&&<span role="status" className="text-xs font-semibold text-red-300">Ouvindo...</span>}
             </div>
           </div>
           {attachments.length>0&&<div className="flex flex-wrap gap-2">
