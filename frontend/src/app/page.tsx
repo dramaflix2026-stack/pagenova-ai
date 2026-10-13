@@ -136,7 +136,7 @@ export default function Home() {
     <main className="pn-mobile-centered min-h-screen bg-[#07110e] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
       <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#07110e]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between gap-5 px-5 md:px-8">
-          <Link href="/" aria-label="PageNova AI, início"><Brand /></Link>
+          <Link href="/" aria-label="PageNova AI, início" className="min-w-0 shrink [&_img]:h-9 [&_img]:max-w-[112px] sm:shrink-0 sm:[&_img]:h-11 sm:[&_img]:max-w-[165px]"><Brand /></Link>
           <nav aria-label="Menu principal" className="hidden items-center gap-7 text-[13px] text-white/60 lg:flex">
             <a href="#plataforma" className="hover:text-white">Plataforma</a>
             <a href="#criacao" className="hover:text-white">Criação</a>
@@ -144,10 +144,13 @@ export default function Home() {
             <a href="#planos" className="hover:text-white">Planos</a>
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
-          <div className="flex shrink-0 items-center">
-            <a href="#planos" className="rounded-lg bg-[#36d9a1] px-4 py-2.5 text-xs font-bold text-[#062018] transition hover:bg-[#7debc0] sm:text-sm">
-              Garantir minha vaga <span aria-hidden="true">→</span>
-            </a>
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <Link href="/cadastro" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-3 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+              Cadastre-se
+            </Link>
+            <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-3 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#75e8b7] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+              Login
+            </Link>
           </div>
         </div>
       </header>
