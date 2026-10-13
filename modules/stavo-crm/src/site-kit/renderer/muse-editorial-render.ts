@@ -37,6 +37,7 @@ const MUSE_CSS = String.raw`
 .muse-site .opening-title{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0 20px}
 .muse-site .opening-title h1{font-size:clamp(58px,12.5vw,200px);line-height:.95;font-weight:800;letter-spacing:-.065em;max-width:62%;overflow-wrap:anywhere}
 .muse-site .opening-title h1 i{color:var(--m-red);font-style:normal}
+.muse-site .opening-title h1.long-brand{font-size:clamp(48px,8.2vw,126px);letter-spacing:-.055em}
 .muse-site .opening-title p{font-family:'Urbanist',Arial,sans-serif;font-size:clamp(22px,3.55vw,55px);font-weight:550;line-height:1.1;max-width:36%;overflow-wrap:break-word}
 .muse-site .opening-title strong{color:var(--m-red);font-weight:600}
 .muse-site .opening-foot{display:flex;align-items:end;justify-content:space-between;gap:20px;font-size:12px}
@@ -109,6 +110,7 @@ const MUSE_CSS = String.raw`
 .muse-site .meta{font-size:8px}.muse-site .meta>span:last-child{font-size:7px}
 .muse-site .opening-title{display:block;padding:18px 0 22px}
 .muse-site .opening-title h1{font-size:clamp(55px,15vw,112px);max-width:100%;letter-spacing:-.06em}
+.muse-site .opening-title h1.long-brand{font-size:clamp(37px,10vw,72px);letter-spacing:-.045em}
 .muse-site .opening-title p{font-size:clamp(27px,8vw,42px);max-width:100%;margin-top:14px}
 .muse-site .opening-foot{font-size:10px}.muse-site .arrow-link{max-width:120px;white-space:normal;gap:10px;font-size:9px}
 .muse-site .feature{margin:0;height:350px}
@@ -175,6 +177,19 @@ export function renderMuseEditorial(
 ):string {
   const data=adaptCrmToFrigolog(model,ctx);
   const name=data.brand.name;
+  // Muse originated as an architecture portfolio; for health, legal and
+  // other service businesses the generated page must speak about services,
+  // not pretend that the client sells design projects.
+  const portfolioNiche=/arquitet|engenhar|design|portf[oó]lio|fotograf|decorac|interior/i.test(
+    [model.business.niche,model.business.description].filter(Boolean).join(' ')
+  );
+  const worksLabel=portfolioNiche?'Projetos':'Serviços';
+  const worksIntro=portfolioNiche?'Explore nosso trabalho':'Conheça nossos serviços';
+  const worksCaption=portfolioNiche?'Projetos e soluções':'Atendimentos e serviços';
+  const worksEyebrow=portfolioNiche?'NOSSO TRABALHO':'NOSSOS SERVIÇOS';
+  // A long personal/professional name must not become a giant 5-line heading
+  // on narrow mobile screens. Keep the editorial typography, shrink safely.
+  const longBrand=name.length>18;
   const region=[model.business.city,model.business.state].filter(Boolean).join(', ');
   const picture=data.hero.image.src;
   const second=data.about.image.src;
@@ -189,7 +204,7 @@ export function renderMuseEditorial(
   const steps=(data.coverage.steps.length
     ? data.coverage.steps
     : data.highlights.slice(0,3)).slice(0,3);
-  const nav=`<a href="#portfolio">Projetos</a><a href="#estudio">Sobre</a><a href="#abordagem">Como trabalhamos</a>`;
+  const nav=`<a href="#portfolio">${worksLabel}</a><a href="#estudio">Sobre</a><a href="#abordagem">Como trabalhamos</a>`;
   const html=`<div class="muse-site">
 <header class="header gutter">
   <a class="brand" href="#inicio" aria-label="Voltar ao início">${esc(name)}<i>.</i></a>
@@ -200,8 +215,8 @@ export function renderMuseEditorial(
 <main id="conteudo">
   <section id="inicio" data-muse-anchor="inicio" class="opening gutter">
     <div class="meta"><span><i class="red-dot"></i>${esc(data.hero.eyebrow)}</span><span>${esc(region)}</span></div>
-    <div class="opening-title"><h1>${esc(name.toLowerCase())}<i>.</i></h1><p>${esc(editorialHeading(data.hero.title))}</p></div>
-    <div class="opening-foot"><p>${esc(data.hero.description)}</p><a class="arrow-link" href="#portfolio">Explore nosso trabalho <span aria-hidden="true">↓</span></a></div>
+    <div class="opening-title"><h1${longBrand?' class="long-brand"':''}>${esc(name.toLowerCase())}<i>.</i></h1><p>${esc(editorialHeading(data.hero.title))}</p></div>
+    <div class="opening-foot"><p>${esc(data.hero.description)}</p><a class="arrow-link" href="#portfolio">${worksIntro} <span aria-hidden="true">↓</span></a></div>
   </section>
   <div class="feature" role="group" aria-label="Imagem em destaque">
     ${imageHtml(picture,data.hero.image.alt)}
@@ -211,9 +226,9 @@ export function renderMuseEditorial(
     </div>
   </div>
   <section id="portfolio" data-muse-anchor="portfolio" class="portfolio gutter">
-    <div class="section-heading"><div><span class="eyebrow">01 — NOSSO TRABALHO</span><h2>${esc(data.services.heading)}</h2></div>
+    <div class="section-heading"><div><span class="eyebrow">01 — ${worksEyebrow}</span><h2>${esc(data.services.heading)}</h2></div>
       <p>${esc(data.hero.description)}</p></div>
-    <div class="line-meta"><span>Projetos e soluções</span><span>01 / 03</span></div>
+    <div class="line-meta"><span>${worksCaption}</span><span>01 / 03</span></div>
     <div class="grid">${cards.join('')}
       <div class="statement"><span class="plus" aria-hidden="true">+</span>
         <p>${esc(data.highlights[0].title)}.<br><em>${esc(data.highlights[1].title)}.</em></p>
