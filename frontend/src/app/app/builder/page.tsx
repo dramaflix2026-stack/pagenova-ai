@@ -6,31 +6,27 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
-import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
+import { getSitePreset } from "@/lib/site-builder-presets";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
 
 type Phase = "idle" | "generating" | "ready" | "error";
 
-const projectOptions = [
-  { title: "Landing Page", description: "Uma página para apresentar e vender uma oferta.", icon: "🚀", kind: "link", href: "/app/gerador" },
-  { title: "Clonar Página", description: "Comece a partir de uma URL existente.", icon: "◇", kind: "link", href: "/app/cloner" },
-  { title: "Loja Online", description: "Catálogo, carrinho e pedidos.", icon: "🛍", kind: "future" },
-  { title: "Dashboard / Painel", description: "Indicadores reais dos projetos de CRM.", icon: "▤", kind: "link", href: "/app/dashboard" },
-  { title: "CRM de Vendas", description: "Funil, leads, responsáveis e indicadores.", icon: "◎", kind: "link", href: "/app/crm" },
-  { title: "Agendamento", description: "Serviços, disponibilidade e reservas.", icon: "◷", kind: "link", href: "/app/agendamento" },
-  { title: "Área de Membros", description: "Conteúdo e acesso para assinantes.", icon: "♧", kind: "future" },
-  { title: "Quiz e Formulário", description: "Perguntas, respostas e captação.", icon: "☷", kind: "future" },
+const STARTING_POINTS = [
+  { id: "automatico", title: "Automático", icon: "✨", description: "A IA escolhe a estrutura." },
+  { id: "institucional", title: "Institucional", icon: "🏢", description: "Empresa, serviços e contato." },
+  { id: "imobiliaria", title: "Imobiliária", icon: "🏠", description: "Imóveis e atendimento." },
+  { id: "restaurante", title: "Restaurante", icon: "🍽", description: "Cardápio e reservas." },
 ] as const;
 
 export default function BuilderPage() {
   const router = useRouter();
 
-  const [brief, setBrief] = useState(SITE_PRESETS[0].brief);
-  const [style, setStyle] = useState("moderno");
+  const [brief, setBrief] = useState("");
+  const [style, setStyle] = useState("automatico");
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [selectedPresetId, setSelectedPresetId] = useState("institucional");
-  const selectedPreset = getSitePreset(selectedPresetId);
+  const [selectedPresetId, setSelectedPresetId] = useState("automatico");
+  const selectedPreset = STARTING_POINTS.find((item) => item.id === selectedPresetId) ?? STARTING_POINTS[0];
   const [project, setProject] = useState<SiteProject | null>(null);
   const [activePage, setActivePage] = useState<SitePageKey>("home");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -395,11 +391,13 @@ export default function BuilderPage() {
             objective: { goal: "QUOTE_REQUESTS" },
             style: {
               theme: "AI_DECIDES",
-              keywords: [style, "premium", "responsivo"],
+              keywords: style === "automatico" ? ["responsivo"] : [style, "responsivo"],
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: prompt,
+            freeformInstructions: selectedPresetId === "automatico"
+              ? prompt
+              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${prompt}`,
             requiredSections: ["hero", "services", "benefits", "about", "process", "faq", "cta", "footer"],
             forbiddenSections: []
           }
@@ -417,7 +415,7 @@ export default function BuilderPage() {
         kind: "institutional-site",
         id: projectId,
         name: inferredName,
-        presetId: "institucional",
+        presetId: selectedPresetId === "automatico" ? "institucional" : selectedPresetId,
         brief: prompt,
         style,
         pages: {
@@ -882,10 +880,11 @@ export default function BuilderPage() {
           event.target.value = "";
         }} />
       {!project && <div className="mx-auto max-w-5xl">
-        <div className="mb-8"><span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova Builder · {selectedPreset.title}</span>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight">O que vamos criar hoje?</h1>
-          <p className="mt-3 text-white/50">Escolha um ponto de partida, descreva sua ideia e acompanhe a criação na tela.</p></div>
-        <section className="mx-auto mb-6 max-w-3xl rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.07] p-5"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-widest text-emerald-300">Novo template</p><h2 className="mt-1 text-lg font-bold text-white">Site institucional universal</h2><p className="mt-1 text-sm text-white/60">Personalize o layout com IA. A importação automática de leads ainda está em desenvolvimento.</p></div><Link href="/templates/universal" className="shrink-0 rounded-xl bg-emerald-400 px-5 py-3 text-center text-sm font-bold text-[#08130e]">Abrir template →</Link></div></section>
+        <div className="mb-7">
+          <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova AI · Criação inteligente</span>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Conte o que você quer criar</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Basta descrever sua ideia. Escolher um modelo é opcional.</p>
+        </div>
         <form onSubmit={start} className="mx-auto max-w-3xl space-y-5 rounded-3xl border border-white/10 bg-[#11101b] p-6 md:p-8">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-emerald-300">
@@ -897,7 +896,7 @@ export default function BuilderPage() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-white/45">
-              Conte sobre o negócio, serviços, público, estilo ou qualquer detalhe importante. A IA cuida da estrutura e do conteúdo.
+              Conte sobre o negócio, os serviços e quem você quer alcançar. A IA organiza a estrutura do site.
             </p>
           </div>
 
@@ -911,7 +910,7 @@ export default function BuilderPage() {
                 if (error) setError("");
               }}
               maxLength={2800}
-              rows={9}
+              rows={6}
               required
               autoFocus
               placeholder="Ex.: Crie um site premium para uma clínica odontológica moderna chamada Lumina Odontologia, especializada em implantes, lentes de contato dental e estética do sorriso. Quero transmitir sofisticação, confiança e tecnologia..."
@@ -920,34 +919,36 @@ export default function BuilderPage() {
           </label>
 
           <fieldset>
-            <legend className="mb-3 text-sm font-medium text-white/70">
-              Estilo visual
-            </legend>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {["moderno", "elegante", "vibrante"].map((item) => (
-                <label
-                  key={item}
-                  className={`cursor-pointer rounded-xl border p-4 text-center capitalize transition ${
-                    style === item
-                      ? "border-emerald-400 bg-emerald-400/10 text-white"
-                      : "border-white/10 text-white/55 hover:border-white/20"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="style"
-                    value={item}
-                    checked={style === item}
-                    onChange={() => setStyle(item)}
-                    className="sr-only"
-                  />
-                  {item}
+            <legend className="mb-3 text-sm font-medium text-white/80">Ponto de partida <span className="font-normal text-white/45">(opcional)</span></legend>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {STARTING_POINTS.map((option) => (
+                <button type="button" key={option.id} aria-pressed={selectedPresetId === option.id}
+                  onClick={() => setSelectedPresetId(option.id)}
+                  className={`flex min-h-[108px] flex-col items-start rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-emerald-400 ${
+                    selectedPresetId === option.id ? "border-emerald-400 bg-emerald-400/[.09]" : "border-white/10 bg-black/20 hover:border-white/30"
+                  }`}>
+                  <span className="text-xl" aria-hidden="true">{option.icon}</span>
+                  <span className="mt-2 text-sm font-semibold">{option.title}</span>
+                  <span className="mt-1 text-[11px] leading-4 text-white/50">{option.description}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-3 text-xs text-white/45">A sua descrição é a instrução principal. O modelo só orienta o conteúdo.</p>
+          </fieldset>
+          <details className="rounded-xl border border-white/10 px-4 py-3">
+            <summary className="cursor-pointer text-sm font-medium text-white/75">Estilo visual (opcional)</summary>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {["automatico", "moderno", "elegante", "vibrante"].map((item) => (
+                <label key={item} className={`cursor-pointer rounded-xl border px-2 py-3 text-center text-sm capitalize ${
+                  style === item ? "border-emerald-400 bg-emerald-400/10" : "border-white/10 text-white/65"
+                }`}>
+                  <input type="radio" name="style" value={item} checked={style === item}
+                    onChange={() => setStyle(item)} className="sr-only" />
+                  {item === "automatico" ? "IA decide" : item}
                 </label>
               ))}
             </div>
-          </fieldset>
-
+          </details>
           {error && (
             <p role="alert" className="text-sm text-red-300">
               {error}
@@ -963,19 +964,9 @@ export default function BuilderPage() {
           </button>
 
           <p className="text-center text-xs text-white/30">
-            A IA interpreta seu pedido e cria o site diretamente.
+            A geração usa IA e pode gerar custo por uso. Revise sua descrição antes de clicar em “Gerar site”.
           </p>
         </form>
-        <section className="mt-12" aria-labelledby="builder-options-title">
-          <div className="mb-5"><h2 id="builder-options-title" className="text-2xl font-bold">Explore o que você pode criar</h2><p className="mt-2 text-sm text-white/45">Escolha uma opção para começar. As próximas funções aparecem com seu status real.</p></div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{SITE_PRESETS.map((option) => <button type="button" key={option.id} onClick={() => { setSelectedPresetId(option.id); setBrief(option.brief); window.scrollTo({ top: 0, behavior: "smooth" }); }} aria-pressed={selectedPresetId === option.id} className={`block min-h-48 rounded-2xl border p-5 text-left transition hover:border-emerald-400/45 ${selectedPresetId === option.id ? "border-emerald-400/70 bg-emerald-400/10" : "border-white/10 bg-[#11101b]"}`}><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className="mt-5 block text-xs font-semibold text-emerald-300">Carregar briefing →</span></button>)}{projectOptions.map((option) => {
-            const content = <><span className="text-2xl" aria-hidden="true">{option.icon}</span><span className="mt-4 block text-lg font-semibold text-white">{option.title}</span><span className="mt-2 block text-sm leading-6 text-white/45">{option.description}</span><span className={`mt-5 block text-xs font-semibold ${option.kind === "future" ? "text-white/30" : "text-emerald-300"}`}>{option.kind === "future" ? "Em desenvolvimento" : option.kind === "link" ? "Abrir ferramenta →" : "Criar agora →"}</span></>;
-            const className = `block min-h-48 rounded-2xl border p-5 text-left transition border-white/10 bg-[#11101b] ${option.kind === "future" ? "opacity-65" : "hover:border-emerald-400/45"}`;
-            if (option.kind === "link") return <Link key={option.title} href={option.href} className={className}>{content}</Link>;
-            if (option.kind === "future") return <div key={option.title} className={className}>{content}</div>;
-            return null;
-          })}</div>
-        </section>
       </div>}
 
       {project && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
