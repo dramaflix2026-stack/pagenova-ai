@@ -1,102 +1,150 @@
 /**
- * Recover existing media before a site is republished. This never invokes
- * paid image generation. Use verified assets already belonging to this project
- * and recover previous published copies after Railway replaces its filesystem.
+ * Canonical media binding for all PageNova/FRIGOLOG sites.
+ * Bind only bytes that can actually be read. Avoid references to deleted
+ * Railway ephemeral files, repeated images, and missing sections.
+ *
+ * This function NEVER calls an image API. Image creation (and its cost) is
+ * handled beforehand, explicitly, by the generation / recovery workflow.
  */
-import type { SiteSchemaModel, AssetRef } from '@site-kit/schemas/site-schema';
+import type { AssetRef, SiteSchemaModel } from '@site-kit/schemas/site-schema';
 import type { SiteProject } from '@server/db/schema';
 import * as repo from '@server/modules/site-ai/repository';
 import { createLocalStorage } from '@builder/publishing/storage';
 import { publicSitesDirAbsolute, siteAssetsDirAbsolute } from '@server/config/env';
 
 type ImageAsset = Awaited<ReturnType<typeof repo.listAssets>>[number];
-type AvailableAsset = { asset: ImageAsset; ref: AssetRef };
+type Available = { asset: ImageAsset; ref: AssetRef };
 
-export async function restoreAvailableImageSlots(project: SiteProject, model: SiteSchemaModel): Promise<void> {
-  const assets = createLocalStorage(siteAssetsDirAbsolute());
-  const published = createLocalStorage(publicSitesDirAbsolute());
+export interface MediaSlotStatus {
+  hero: boolean;
+  about: boolean;
+  process: boolean;
+}
+
+export async function restoreAvailableImageSlots(
+  project: SiteProject,
+  model: SiteSchemaModel,
+  options: { required?: boolean } = {},
+): Promise<MediaSlotStatus> {
+  const storage = createLocalStorage(siteAssetsDirAbsolute());
+  const publicStorage = createLocalStorage(publicSitesDirAbsolute());
   const candidates = (await repo.listAssets(project.id)).filter((a) =>
-    !a.deletedAt &&
-    a.mimeType.startsWith('image/') &&
+    !a.deletedAt && a.mimeType.startsWith('image/') &&
     ['OWNED', 'LICENSED', 'AI_GENERATED'].includes(a.rightsStatus) &&
     (!a.expiresAt || a.expiresAt > new Date()),
   );
-  if (!candidates.length) return;
-
   const publications = await repo.listPublications(project.id);
-  const available: AvailableAsset[] = [];
+  const available: Available[] = [];
+
   for (const asset of candidates) {
-    let buffer = await assets.read(asset.storageKey).catch(() => null);
-    if (!buffer) {
+    let bytes = await storage.read(asset.storageKey).catch(() => null);
+    if (!bytes) {
+      // Published copies are immutable. Prefer original bytes over re-fetching
+      // a Google image or making a new (paid) image generation call.
       for (const publication of publications) {
-        if (!publication.artifactKey || !['ACTIVE','SUPERSEDED'].includes(publication.status)) continue;
-        const saved = await published.read(
+        if (!publication.artifactKey || !['ACTIVE', 'SUPERSEDED'].includes(publication.status)) continue;
+        bytes = await publicStorage.read(
           `${publication.artifactKey}/assets/images/${asset.id}.webp`,
         ).catch(() => null);
-        if (!saved) continue;
-        buffer = saved;
-        await assets.write(asset.storageKey, saved);
-        break;
+        if (bytes) {
+          await storage.write(asset.storageKey, bytes);
+          break;
+        }
       }
     }
-    if (!buffer) continue;
+    if (!bytes) continue;
     available.push({
       asset,
       ref: {
         assetId: asset.id,
-        alt: (asset.altText || 'Imagem do projeto').slice(0, 200),
+        alt: (asset.altText || (asset.source === 'AI_GENERATED' ? 'Imagem ilustrativa gerada por IA' : 'Fotografia do projeto')).slice(0, 200),
         focalX: asset.focalX === null ? 0.5 : Number(asset.focalX),
         focalY: asset.focalY === null ? 0.5 : Number(asset.focalY),
       },
     });
   }
 
-  const availableIds = new Set(available.map(({asset}) => asset.id));
-  const isAvailable = (ref: AssetRef | undefined) => Boolean(ref?.assetId && availableIds.has(ref.assetId));
+  const byId = new Map(available.map((item) => [item.asset.id, item]));
   const used = new Set<string>();
-  for (const section of model.sections) {
-    const existing = 'image' in section ? section.image as AssetRef | undefined : undefined;
-    if (existing?.assetId) used.add(existing.assetId);
-    if (section.type === 'process') {
-      for (const step of section.steps) if (step.image?.assetId) used.add(step.image.assetId);
+  const isAiSlot = (a: ImageAsset, slot: 'hero' | 'about' | 'supplement') =>
+    a.source === 'AI_GENERATED' && (a.altText ?? '').includes(`[${slot}]`);
+
+  const choose = (
+    current: AssetRef | undefined,
+    kinds: ReadonlyArray<(a: ImageAsset) => boolean>,
+  ): AssetRef | undefined => {
+    // A verified current selection is authoritative unless already used by a
+    // previous section; gallery/hero/process must not repeat the same image.
+    if (current?.assetId && byId.has(current.assetId) && !used.has(current.assetId)) {
+      used.add(current.assetId);
+      return current;
+    }
+    for (const kind of kinds) {
+      const match = available.find(({ asset }) => !used.has(asset.id) && kind(asset));
+      if (match) {
+        used.add(match.asset.id);
+        return match.ref;
+      }
+    }
+    return undefined;
+  };
+
+  const isReal = (a: ImageAsset) => a.source === 'GOOGLE_PLACES' || a.source === 'UPLOAD';
+  const isWide = (a: ImageAsset) => !a.width || !a.height || a.width >= a.height;
+
+  const hero = model.sections.find((section) => section.type === 'hero');
+  const about = model.sections.find((section) => section.type === 'about');
+  const process = model.sections.find((section) => section.type === 'process');
+
+  if (hero?.type === 'hero') {
+    // Hero should be editorial AI, or a legitimate wide uploaded / Google photo.
+    hero.image = choose(hero.image, [
+      (a) => isAiSlot(a, 'hero'),
+      (a) => isReal(a) && isWide(a),
+    ]);
+  }
+
+  if (about?.type === 'about') {
+    // Prefer the business's actual Google/owner photo. When none exists, show
+    // a labelled illustrative business scene, NEVER an AI-made staff portrait.
+    about.image = choose(about.image, [
+      (a) => isReal(a),
+      (a) => isAiSlot(a, 'about'),
+    ]);
+  }
+
+  if (process?.type === 'process') {
+    // Keep existing usable step references; prefer the first step visually,
+    // and avoid reusing the Hero/About asset. A unique supplement is mandatory
+    // when Google has fewer distinct photos than the required image sections.
+    const first = process.steps[0];
+    let bound: AssetRef | undefined;
+    if (first) {
+      const existing = process.steps.find((step) => step.image && byId.has(step.image.assetId) &&
+        !used.has(step.image.assetId))?.image;
+      bound = choose(existing, [
+        (a) => isReal(a),
+        (a) => isAiSlot(a, 'supplement'),
+      ]);
+      process.steps.forEach((step, i) => {
+        step.image = i === 0 ? bound : undefined;
+      });
     }
   }
 
-  const assign = (predicate: (candidate: ImageAsset) => boolean): AssetRef | undefined => {
-    const found = available.find(({asset}) => !used.has(asset.id) && predicate(asset));
-    if (!found) return;
-    used.add(found.asset.id);
-    return found.ref;
+  const status: MediaSlotStatus = {
+    hero: Boolean(hero?.type === 'hero' && hero.image),
+    about: Boolean(about?.type === 'about' && about.image),
+    process: Boolean(process?.type === 'process' && process.steps[0]?.image),
   };
-  const portrait = model.sections.find((section) => section.type === 'about');
-  if (portrait?.type === 'about' && !isAvailable(portrait.image)) {
-    const replacement = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
-      assign((asset) => asset.source === 'UPLOAD');
-    // Keep the missing reference if there is no safe alternative: the
-    // artifact builder will report the missing original instead of lying.
-    if (replacement) portrait.image = replacement;
+  if (options.required && (!status.hero || !status.about || !status.process)) {
+    const missing = (Object.entries(status) as Array<[keyof MediaSlotStatus, boolean]>)
+      .filter(([, present]) => !present).map(([slot]) => slot);
+    throw new Error(
+      'PAGENOVA_MANDATORY_IMAGES_MISSING: ' + missing.join(', ') +
+      '. Imagens obrigatórias ausentes ou arquivos não recuperáveis; ' +
+      'não liberar nem publicar site sem imagens.',
+    );
   }
-  const hero = model.sections.find((section) => section.type === 'hero');
-  if (hero?.type === 'hero' && !isAvailable(hero.image)) {
-    const replacement = assign((asset) => asset.source === 'AI_GENERATED' &&
-      (asset.altText ?? '').includes('[hero]') &&
-      (asset.width ?? 0) > (asset.height ?? 0)) ??
-      assign((asset) => asset.source === 'UPLOAD' && (asset.width ?? 0) > (asset.height ?? 0)) ??
-      assign((asset) => asset.source === 'GOOGLE_PLACES' && (asset.width ?? 0) > (asset.height ?? 0));
-    if (replacement) hero.image = replacement;
-  }
-  const process = model.sections.find((section) => section.type === 'process');
-  if (process?.type === 'process' && process.steps.length &&
-      !process.steps.some((step) => isAvailable(step.image))) {
-    const replacement = assign((asset) => asset.source === 'GOOGLE_PLACES') ??
-      assign((asset) => asset.source === 'UPLOAD') ??
-      assign((asset) => asset.source === 'AI_GENERATED' &&
-        (asset.altText ?? '').includes('[supplement]'));
-    if (replacement) {
-      for (const step of process.steps) {
-        if (step.image?.assetId && !isAvailable(step.image)) delete step.image;
-      }
-      process.steps[0]!.image = replacement;
-    }
-  }
+  return status;
 }
