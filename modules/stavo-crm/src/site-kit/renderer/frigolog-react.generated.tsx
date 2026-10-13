@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { ArrowRight, ArrowUpRight, BadgeCheck, Check, Clock3, HeartHandshake, MapPin, Menu, MessageCircle, ShieldCheck, Snowflake, Sparkles, Thermometer, Truck, X } from "lucide-react";
 import type { UniversalSiteData } from './frigolog-template-data.generated';
 import { validateUniversalSiteData } from './frigolog-template-data.generated';
@@ -8,10 +8,123 @@ import { validateUniversalSiteData } from './frigolog-template-data.generated';
  * Content, photography and theme are inputs; structure remains unchanged.
  * This component is isolated from the production template until QA is complete.
  */
+/**
+ * Continuous, pixel-based marquee built on native scrolling: unlike a CSS
+ * transform carousel, visitors can swipe in either direction at any moment.
+ * Three identical sets let us silently recenter the scroll position forever.
+ * Runs in the Next preview; published static sites use the equivalent runtime.
+ */
+function startKpiAutoscroll(rail: HTMLDivElement): () => void {
+  const mobile = window.matchMedia("(max-width: 767px)");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const hoverCapable = window.matchMedia("(hover: hover)");
+  const copies = Number(rail.dataset.pnKpiCount || 4);
+  const speedPxPerSecond = 22;
+  let period = 0;
+  let positioned = false;
+  let lastFrame = 0;
+  let pausedUntil = 0;
+  let pointerDown = false;
+  let hovering = false;
+  let focused = false;
+  let visible = true;
+  let mouseDragX: number | null = null;
+  let mouseDragScroll = 0;
+  let frameId = 0;
+
+  function measure() {
+    const first = rail.children.item(0) as HTMLElement | null;
+    const repeat = rail.children.item(copies) as HTMLElement | null;
+    period = first && repeat ? repeat.offsetLeft - first.offsetLeft : 0;
+    if (!mobile.matches || period <= 0) {
+      positioned = false;
+      return;
+    }
+    if (!positioned) {
+      rail.scrollLeft = period;
+      positioned = true;
+    }
+  }
+  function recenter() {
+    if (period <= 0) return;
+    while (rail.scrollLeft < period) rail.scrollLeft += period;
+    while (rail.scrollLeft >= period * 2) rail.scrollLeft -= period;
+  }
+  function pause() { pausedUntil = window.performance.now() + 4000; }
+  function onDown(event: PointerEvent) {
+    pointerDown = true;
+    pause();
+    if (event.pointerType === "mouse" && mobile.matches) {
+      mouseDragX = event.clientX;
+      mouseDragScroll = rail.scrollLeft;
+    }
+  }
+  function onMove(event: PointerEvent) {
+    if (mouseDragX === null || !pointerDown) return;
+    rail.scrollLeft = mouseDragScroll - (event.clientX - mouseDragX);
+    event.preventDefault();
+  }
+  function onUp() {
+    pointerDown = false;
+    mouseDragX = null;
+    pause();
+  }
+  function onEnter() { if (hoverCapable.matches) hovering = true; }
+  function onLeave() { hovering = false; onUp(); }
+  function onFocus() { focused = true; }
+  function onBlur() { focused = false; pause(); }
+  function tick(time: number) {
+    const elapsed = lastFrame ? Math.min(time - lastFrame, 48) : 0;
+    lastFrame = time;
+    if (mobile.matches && !reduceMotion.matches && visible && !document.hidden && positioned &&
+        !pointerDown && !hovering && !focused && time >= pausedUntil) {
+      recenter();
+      rail.scrollLeft += speedPxPerSecond * elapsed / 1000;
+      recenter();
+    }
+    frameId = window.requestAnimationFrame(tick);
+  }
+  const observer = typeof IntersectionObserver !== "undefined"
+    ? new IntersectionObserver((entries) => { visible = Boolean(entries[0]?.isIntersecting); }, { threshold: 0 })
+    : null;
+  observer?.observe(rail);
+  rail.addEventListener("pointerdown", onDown);
+  rail.addEventListener("pointermove", onMove);
+  rail.addEventListener("pointerup", onUp);
+  rail.addEventListener("pointercancel", onUp);
+  rail.addEventListener("pointerenter", onEnter);
+  rail.addEventListener("pointerleave", onLeave);
+  rail.addEventListener("focusin", onFocus);
+  rail.addEventListener("focusout", onBlur);
+  rail.addEventListener("wheel", pause, { passive: true });
+  window.addEventListener("resize", measure);
+  measure();
+  frameId = window.requestAnimationFrame(tick);
+  return () => {
+    window.cancelAnimationFrame(frameId);
+    observer?.disconnect();
+    rail.removeEventListener("pointerdown", onDown);
+    rail.removeEventListener("pointermove", onMove);
+    rail.removeEventListener("pointerup", onUp);
+    rail.removeEventListener("pointercancel", onUp);
+    rail.removeEventListener("pointerenter", onEnter);
+    rail.removeEventListener("pointerleave", onLeave);
+    rail.removeEventListener("focusin", onFocus);
+    rail.removeEventListener("focusout", onBlur);
+    rail.removeEventListener("wheel", pause);
+    window.removeEventListener("resize", measure);
+  };
+}
+
 export default function UniversalFrigologTemplate({ data }: { data: UniversalSiteData }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeService, setActiveService] = useState<number | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false);
+  const kpiRail = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!kpiRail.current) return;
+    return startKpiAutoscroll(kpiRail.current);
+  }, []);
   const errors = validateUniversalSiteData(data);
   if (errors.length) return <div role="alert">Dados inválidos para este modelo: {errors.join("; ")}</div>;
 
@@ -65,10 +178,16 @@ export default function UniversalFrigologTemplate({ data }: { data: UniversalSit
         </div>
       </section>
       <section className="frigolog-kpi-section" aria-label="Diferenciais">
-        <div className="site-container frigolog-kpi-grid">{data.highlights.map((item, i) => {
-          const Icon = icons[i];
-          return <div key={i} className="frigolog-kpi-card"><span className="frigolog-kpi-icon"><Icon aria-hidden="true" /></span><div className="frigolog-kpi-copy"><p className="frigolog-kpi-value">{item.title}</p><p className="frigolog-kpi-label">{item.description}</p></div></div>;
-        })}</div>
+        <div ref={kpiRail} data-pn-kpi-rail="1" data-pn-kpi-count={data.highlights.length} className="site-container frigolog-kpi-grid">
+          {data.highlights.map((item, i) => {
+            const Icon = icons[i];
+            return <div key={i} className="frigolog-kpi-card"><span className="frigolog-kpi-icon"><Icon aria-hidden="true" /></span><div className="frigolog-kpi-copy"><p className="frigolog-kpi-value">{item.title}</p><p className="frigolog-kpi-label">{item.description}</p></div></div>;
+          })}
+          {[1, 2].flatMap(copy => data.highlights.map((item, i) => {
+            const Icon = icons[i];
+            return <div key={`repeat-${copy}-${i}`} aria-hidden="true" className="frigolog-kpi-card pn-kpi-clone"><span className="frigolog-kpi-icon"><Icon aria-hidden="true" /></span><div className="frigolog-kpi-copy"><p className="frigolog-kpi-value">{item.title}</p><p className="frigolog-kpi-label">{item.description}</p></div></div>;
+          }))}
+        </div>
       </section>
       <section id="servicos" className="py-20"><div className="site-container">
         <div className="text-center"><p className="eyebrow mb-3">{data.services.eyebrow}</p><h2 className="section-heading">{data.services.heading}</h2></div>
