@@ -8,6 +8,7 @@
 import {
   BarChart3,
   Building2,
+  History,
   CalendarDays,
   FileSpreadsheet,
   Globe,
@@ -37,6 +38,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, primary: true },
   { to: '/buscar', label: 'Buscar empresas', icon: Building2, primary: true },
+  { to: '/pesquisadas', label: 'Empresas pesquisadas', icon: History },
   { to: '/crm', label: 'CRM', icon: KanbanSquare, primary: true },
   { to: '/reunioes', label: 'Reunioes', icon: CalendarDays, primary: true },
   { to: '/sites-ia', label: 'Sites com IA', icon: Globe, primary: true },
