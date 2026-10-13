@@ -88,6 +88,7 @@ interface FormState {
   instagramUrl: string;
   websiteUrl: string;
   siteType: SiteType;
+  templateId: SiteBriefingInput['templateId'];
   theme: SiteBriefingInput['style']['theme'];
   keywords: string[];
   primaryColor: string;
@@ -110,6 +111,7 @@ function initialState(props: SiteWizardDialogProps): FormState {
     instagramUrl: props.initialInstagram ?? '',
     websiteUrl: props.initialWebsite ?? '',
     siteType: 'ONE_PAGE',
+    templateId: 'frigolog-universal',
     theme: 'AI_DECIDES',
     keywords: [],
     primaryColor: '',
@@ -172,6 +174,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
 
   const briefing: SiteBriefingInput = useMemo(
     () => ({
+      templateId: form.templateId,
       business: {
         name: form.businessName.trim(),
         niche: form.niche.trim() || undefined,
@@ -384,6 +387,38 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
                       {SITE_TYPE_LABELS[type]}
                     </button>
                   ))}
+                </div>
+              </Field>
+              <Field label="Template visual" hint="Mesmo motor de IA, dois layouts diferentes. O segundo modelo foi adaptado do Muse/FORMA.">
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" aria-pressed={form.templateId==='frigolog-universal'}
+                    onClick={() => patch({templateId:'frigolog-universal'})}
+                    className={`min-w-0 rounded-xl border p-3 text-left transition hover:border-primary ${
+                      form.templateId==='frigolog-universal'
+                        ? 'border-primary bg-primary-soft'
+                        : 'border-border bg-card'
+                    }`}>
+                    <div aria-hidden="true" className="flex h-[80px] flex-col rounded-md bg-[#f2f5f2] p-2">
+                      <div className="flex justify-between"><span className="h-2 w-10 rounded bg-[#166354]"/><span className="h-1 w-6 rounded bg-[#97a69a]"/></div>
+                      <div className="mt-2 flex flex-1 gap-2"><div className="flex w-3/5 flex-col gap-1"><span className="h-2 rounded bg-[#166354]"/><span className="h-2 w-4/5 rounded bg-[#166354]"/><span className="mt-1 h-2 w-1/2 rounded bg-[#16b08b]"/></div><span className="flex-1 rounded bg-gradient-to-br from-[#35685a] to-[#abbdae]"/></div>
+                    </div>
+                    <span className="mt-2 block text-sm font-semibold">1 · Original</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">Moderno e comercial</span>
+                  </button>
+                  <button type="button" aria-pressed={form.templateId==='muse-editorial'}
+                    onClick={() => patch({templateId:'muse-editorial'})}
+                    className={`min-w-0 rounded-xl border p-3 text-left transition hover:border-primary ${
+                      form.templateId==='muse-editorial'
+                        ? 'border-primary bg-primary-soft'
+                        : 'border-border bg-card'
+                    }`}>
+                    <div aria-hidden="true" className="flex h-[80px] flex-col rounded-md bg-[#f8f7f5] p-2">
+                      <span className="text-[22px] font-black leading-none tracking-[-.08em] text-[#222]">forma<span className="text-[#db321e]">.</span></span>
+                      <span className="mt-2 min-h-0 flex-1 rounded bg-gradient-to-br from-[#687a72] via-[#abafa2] to-[#e1d7bd]"/>
+                    </div>
+                    <span className="mt-2 block text-sm font-semibold">2 · Muse Editorial</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">Arquitetura e portfólio</span>
+                  </button>
                 </div>
               </Field>
               <Field label="Tema">
