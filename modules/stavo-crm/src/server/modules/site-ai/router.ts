@@ -551,17 +551,20 @@ siteAiRouter.get(
     const { siteAssetsDirAbsolute } = await import('../../config/env');
     const storage = createLocalStorage(siteAssetsDirAbsolute());
     const existing = (await repo.listAssets(project.id)).filter((a) => !a.deletedAt && a.mimeType.startsWith('image/'));
-    const byKind = { hero: false, supplement: false, real: 0, missing: 0 };
+    const byKind = { hero: false, about: false, supplement: false, real: 0, missing: 0 };
     for (const a of existing) {
       const available = await storage.exists(a.storageKey);
       if (!available) { byKind.missing += 1; continue; }
       if (a.source === 'GOOGLE_PLACES' || a.source === 'UPLOAD') byKind.real += 1;
       if (a.source === 'AI_GENERATED' && a.altText?.includes('[hero]')) byKind.hero = true;
+      if (a.source === 'AI_GENERATED' && a.altText?.includes('[about]')) byKind.about = true;
       if (a.source === 'AI_GENERATED' && a.altText?.includes('[supplement]')) byKind.supplement = true;
     }
     const each = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
     const estimated = Number.isFinite(each) && each > 0 ? each : 0;
-    const count = Number(!byKind.hero) + Number(!byKind.supplement);
+    const count = Number(!byKind.hero) +
+      Number(byKind.real === 0 && !byKind.about) +
+      Number(byKind.real < 2 && !byKind.supplement);
     res.json({
       ...byKind,
       missingIllustrations: count,
@@ -601,9 +604,16 @@ siteAiRouter.post(
         }
         return false;
       };
-      const missing: Array<'hero' | 'supplement'> = [];
+      const allAssets = await repo.listAssets(project.id);
+      let realCount = 0;
+      for (const asset of allAssets) {
+        if (asset.deletedAt || !['GOOGLE_PLACES', 'UPLOAD'].includes(asset.source)) continue;
+        if (await storage.exists(asset.storageKey)) realCount += 1;
+      }
+      const missing: Array<'hero' | 'about' | 'supplement'> = [];
       if (!(await availableSlot('hero'))) missing.push('hero');
-      if (!(await availableSlot('supplement'))) missing.push('supplement');
+      if (realCount === 0 && !(await availableSlot('about'))) missing.push('about');
+      if (realCount < 2 && !(await availableSlot('supplement'))) missing.push('supplement');
       const perImage = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
       if (missing.length && (process.env.PAGENOVA_AI_HERO_IMAGES !== 'true' || !process.env.OPENAI_API_KEY)) {
         throw conflict('Geração de imagens não está habilitada neste ambiente.');
@@ -620,13 +630,29 @@ siteAiRouter.post(
           throw serviceUnavailable('A imagem ' + slot + ' não pôde ser criada. Verifique a OpenAI e o storage.', 'SITE_IMAGE_RECOVERY_FAILED');
         }
       }
+      // Persist image bindings in the same draft the editor reads. Merely
+      // publishing a one-off clone left the editor blank on the next visit.
+      const latest = await getProjectOrThrow(project.id);
+      const { siteSchema } = await import('@site-kit/schemas/site-schema');
+      const parsed = siteSchema.safeParse(latest.draftConfig);
+      if (!parsed.success) throw conflict('O rascunho mudou ou esta invalido; salve e tente novamente.');
+      const { restoreAvailableImageSlots } = await import('@builder/publishing/recover-image-slots');
+      const repaired = parsed.data;
+      await restoreAvailableImageSlots(latest, repaired, {
+        required: repaired.project.templateId === 'frigolog-universal',
+      });
+      const saved = await repo.updateProject(latest.id, latest.lockVersion, { draftConfig: repaired });
+      if (!saved) throw conflict('Outra edição foi salva durante a recuperação. Atualize o editor.');
+      const updated = await getProjectOrThrow(project.id);
       const { publishProject } = await import('@builder/publishing/publisher');
-      const published = await publishProject(project, req.session!.user.id, { acknowledgedWarnings: true });
+      const published = await publishProject(updated, req.session!.user.id, { acknowledgedWarnings: true });
       res.json({
         url: published.url,
         publication: toPublicPublication(published.publication),
         newIllustrations: missing.length,
         costEstimatedUsd: Number((missing.length * perImage).toFixed(6)),
+        config: repaired,
+        lockVersion: updated.lockVersion,
       });
     } finally {
       mediaRepairLocks.delete(project.id);
