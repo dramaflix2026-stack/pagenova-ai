@@ -3,9 +3,13 @@ name: CRM Universal Template Validation
 on:
   push:
     branches:
+      - main
       - feature/universal-production-integration
     paths:
       - 'modules/stavo-crm/**'
+      - 'frontend/src/components/templates/UniversalFrigologTemplate.tsx'
+      - 'frontend/src/components/templates/universal-frigolog.css'
+      - 'frontend/src/lib/frigolog-template-data.ts'
       - '.github/workflows/crm-universal-validation.yml'
   pull_request:
     branches:
