@@ -60,7 +60,11 @@ if (result.errors.length > 0) {
 // Prevent a green Railway build with the placeholder source accidentally
 // embedded in the worker bundle. A deployed app must not fail at 60%.
 const output = await readFile('dist/server/index.js', 'utf8');
-for (const required of ['frigolog-kpi-grid', 'pn-photo-missing', 'FRIGOLOG canonical source', 'data-pn-operation-steps']) {
+for (const required of [
+  'frigolog-kpi-grid', 'pn-photo-missing', 'FRIGOLOG canonical source',
+  'data-pn-operation-steps', 'data-pn-kpi-rail',
+  'PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1', 'pausedUntil',
+]) {
   if (!output.includes(required)) {
     throw new Error('[FRIGOLOG] Compiled backend is missing canonical template marker: ' + required);
   }

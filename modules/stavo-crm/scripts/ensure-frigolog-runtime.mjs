@@ -19,10 +19,15 @@ function bundleIsReady() {
     // The previous bundled component had no operation steps, even though
     // the adapter had already started populating them. Build must include the
     // actual step-card JSX before serving any site or generation job.
-    code.includes('data-pn-operation-steps');
+    code.includes('data-pn-operation-steps') &&
+    // A successful previous deploy is insufficient when Railway resumes a
+    // server compiled before the infinite mobile carousel was introduced.
+    code.includes('data-pn-kpi-rail') &&
+    code.includes('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1') &&
+    code.includes('pausedUntil');
 }
 if (!bundleIsReady()) {
-  console.warn('[FRIGOLOG] Runtime bundle missing the current canonical operation cards. Rebuilding before starting worker.');
+  console.warn('[FRIGOLOG] Runtime bundle missing canonical operation cards or continuous KPI carousel. Rebuilding before starting worker.');
   for (const args of [
     ['scripts/sync-frigolog-master.mjs'],
     ['scripts/build-server.mjs'],
