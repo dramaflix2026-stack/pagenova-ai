@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 
 const CRM_ROUTES: Record<string, string> = {
   dashboard: "/",
@@ -45,7 +44,6 @@ export default function CrmPage() {
   if (status === "ready") {
     return (
       <main className="flex h-[calc(100vh-4rem)] min-h-[640px] flex-col overflow-hidden bg-[#070b14]">
-        {(crmView === "crm" || crmView === "sites-ia" || crmView === "buscar") && <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-400/20 bg-[#10221e] px-4 py-2 text-sm text-white"><span>Template universal disponível. Importação automática do lead em desenvolvimento.</span><Link href="/templates/universal" className="rounded-lg bg-emerald-400 px-3 py-2 font-bold text-[#08130e]">Abrir gerador universal →</Link></div>}
         <iframe
           src={iframeSrc}
           title="PageNova CRM"
