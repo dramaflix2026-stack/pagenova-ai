@@ -263,12 +263,10 @@ function LeadDrawerContent({
 
       <Tabs defaultValue="overview" className="w-full">
         <div className="border-b border-border px-4 pt-3">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="overview">Visao geral</TabsTrigger>
-            <TabsTrigger value="activities">Atividades</TabsTrigger>
-            <TabsTrigger value="finance">Financeiro</TabsTrigger>
-            <TabsTrigger value="history">Historico</TabsTrigger>
-            {isGoogleLead ? <TabsTrigger value="google">Google</TabsTrigger> : null}
+          <TabsList className="!grid w-full grid-cols-3 gap-1" aria-label="Abas do lead">
+            <TabsTrigger value="overview" className="min-w-0">Visão geral</TabsTrigger>
+            <TabsTrigger value="finance" className="min-w-0">Financeiro</TabsTrigger>
+            <TabsTrigger value="google" className="min-w-0">Google</TabsTrigger>
           </TabsList>
         </div>
 
@@ -372,11 +370,11 @@ function LeadDrawerContent({
           </section>
 
           <LeadSiteAiSection leadId={lead.id} detail={detail} onNavigateAway={() => onOpenChange(false)} />
-        </TabsContent>
-
-        {/* --- Atividades e follow-ups ------------------------------------ */}
-        <TabsContent value="activities" className="space-y-5 p-4">
-          <ActivityForm
+          {/* Conteudos avancados continuam disponiveis sem ocupar novas abas. */}
+          <details className="rounded-lg border border-border bg-surface">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">Atividades e acompanhamento</summary>
+            <div className="space-y-5 border-t border-border p-4">
+<ActivityForm
             leadId={lead.id}
             onDone={() => {
               invalidate();
@@ -465,6 +463,61 @@ function LeadDrawerContent({
               </ul>
             )}
           </section>
+            </div>
+          </details>
+          <details className="rounded-lg border border-border bg-surface">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-semibold">Histórico do lead</summary>
+            <div className="space-y-5 border-t border-border p-4">
+{historyLoading ? (
+            <LoadingBlock />
+          ) : (
+            <>
+              <Callout tone="info" title="Historico preservado">
+                Mover o card nao apaga passagens anteriores. Tentativas registradas:{' '}
+                <strong>{history?.attemptCount ?? 0}</strong>.
+              </Callout>
+
+              <section>
+                <h3 className="text-sm font-semibold">Passagens por etapa</h3>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {(history?.stageHistory ?? []).map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex items-center justify-between gap-2 rounded border border-border px-2 py-1.5"
+                    >
+                      <span className="font-medium">{entry.stageName}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateTime(entry.enteredAt)}
+                        {entry.exitedAt ? ` → ${formatDateTime(entry.exitedAt)}` : ' (atual)'}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-sm font-semibold">Eventos</h3>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {(history?.events ?? []).map((event) => (
+                    <li
+                      key={event.id}
+                      className="flex items-center justify-between gap-2 rounded border border-border px-2 py-1.5"
+                    >
+                      <span>
+                        {LEAD_EVENT_LABELS[event.eventType as keyof typeof LEAD_EVENT_LABELS] ??
+                          event.eventType}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateTime(event.occurredAt)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </>
+          )}
+            </div>
+          </details>
         </TabsContent>
 
         {/* --- Financeiro -------------------------------------------------- */}
@@ -547,68 +600,21 @@ function LeadDrawerContent({
           </p>
         </TabsContent>
 
-        {/* --- Historico --------------------------------------------------- */}
-        <TabsContent value="history" className="space-y-5 p-4">
-          {historyLoading ? (
-            <LoadingBlock />
-          ) : (
-            <>
-              <Callout tone="info" title="Historico preservado">
-                Mover o card nao apaga passagens anteriores. Tentativas registradas:{' '}
-                <strong>{history?.attemptCount ?? 0}</strong>.
-              </Callout>
-
-              <section>
-                <h3 className="text-sm font-semibold">Passagens por etapa</h3>
-                <ul className="mt-2 space-y-1 text-sm">
-                  {(history?.stageHistory ?? []).map((entry) => (
-                    <li
-                      key={entry.id}
-                      className="flex items-center justify-between gap-2 rounded border border-border px-2 py-1.5"
-                    >
-                      <span className="font-medium">{entry.stageName}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateTime(entry.enteredAt)}
-                        {entry.exitedAt ? ` → ${formatDateTime(entry.exitedAt)}` : ' (atual)'}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-
-              <section>
-                <h3 className="text-sm font-semibold">Eventos</h3>
-                <ul className="mt-2 space-y-1 text-sm">
-                  {(history?.events ?? []).map((event) => (
-                    <li
-                      key={event.id}
-                      className="flex items-center justify-between gap-2 rounded border border-border px-2 py-1.5"
-                    >
-                      <span>
-                        {LEAD_EVENT_LABELS[event.eventType as keyof typeof LEAD_EVENT_LABELS] ??
-                          event.eventType}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateTime(event.occurredAt)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </>
-          )}
-        </TabsContent>
-
         {/* --- Dados ao vivo do Google ------------------------------------- */}
-        {isGoogleLead ? (
-          <TabsContent value="google" className="p-4">
+        <TabsContent value="google" className="p-4">
+          {isGoogleLead ? (
             <GooglePanel
               leadId={lead.id}
               placeId={detail.google!.placeId}
               mapsUrl={detail.google!.mapsUrl}
             />
-          </TabsContent>
-        ) : null}
+          ) : (
+            <EmptyState
+              title="Lead sem vínculo com o Google"
+              description="Este lead não possui um local do Google vinculado. Os dados do CRM continuam disponíveis na Visão geral."
+            />
+          )}
+        </TabsContent>
       </Tabs>
 
       <DeleteLeadDialog

@@ -116,6 +116,8 @@ function UserArea({ compact }: { compact?: boolean }) {
 export function AppLayout({ children }: { children?: ReactNode }) {
   const { app } = useAuth();
   const location = useLocation();
+  // O aplicativo principal ja fornece navegacao fora do iframe do CRM.
+  const isEmbedded = typeof window !== 'undefined' && window.self !== window.top;
 
   const appName = app?.name?.replace(/Stavo Digital/gi, 'PageNova CRM') ?? 'PageNova CRM';
   const currentTitle =
@@ -155,12 +157,12 @@ export function AppLayout({ children }: { children?: ReactNode }) {
 
 
       {/* --- Conteudo ------------------------------------------------------ */}
-      <main id="conteudo" className="min-w-0 flex-1 pb-16 lg:pb-0">
+      <main id="conteudo" className={cn("min-w-0 flex-1 lg:pb-0", !isEmbedded && "pb-16")}>
         {children ?? <Outlet />}
       </main>
 
-      {/* --- Navegacao inferior (celular) ---------------------------------- */}
-      <nav
+      {/* Barra inferior somente no CRM independente; nunca no iframe da PageNova. */}
+      {!isEmbedded ? <nav
         className="fixed inset-x-0 bottom-0 z-30 flex border-t border-border bg-surface lg:hidden"
         aria-label="Navegacao rapida"
       >
@@ -180,7 +182,7 @@ export function AppLayout({ children }: { children?: ReactNode }) {
             <span className="block w-full truncate px-0.5 text-center">{item.label.split(' ')[0]}</span>
           </NavLink>
         ))}
-      </nav>
+      </nav> : null}
     </div>
   );
 }
