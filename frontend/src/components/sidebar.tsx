@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import {
   BarChart3,
+  Blocks,
   Building2,
   History,
   CalendarDays,
@@ -19,6 +20,7 @@ import {
   LayoutDashboard,
   Menu,
   Settings,
+  Smartphone,
   Sparkles,
   Target,
   Users,
@@ -51,6 +53,11 @@ const studioItems: MenuItem[] = [
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
+];
+
+const developmentItems: MenuItem[] = [
+  { href: "/app/aplicativos", label: "Desenvolver Aplicativos", icon: Smartphone },
+  { href: "/app/sistemas", label: "Desenvolver Sistemas", icon: Blocks },
 ];
 
 function isItemActive(pathname: string, href: string, crmView: string | undefined, currentCrmView: string | null) {
@@ -232,6 +239,8 @@ export function Sidebar() {
               isCrm pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
               isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+            <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
+              isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
 
           <div className="relative border-t border-white/[0.07] p-4">
@@ -289,6 +298,8 @@ export function Sidebar() {
           <NavigationGroup title="CRM & Vendas" description="Seu espaço comercial principal" items={crmItems}
             isCrm pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
+            isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
+          <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
             isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
 
