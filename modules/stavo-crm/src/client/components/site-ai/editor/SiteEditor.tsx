@@ -605,16 +605,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
-        <label htmlFor="pn-edit-section" className="text-xs font-semibold">Secao:</label>
-        <select id="pn-edit-section" aria-label="Escolher secao para editar"
-          value={selectedId ?? ''} onChange={(event) => setSelectedId(event.target.value)}
-          className="min-w-0 max-w-[220px] flex-1 rounded-lg border border-border bg-surface px-2 py-2 text-xs">
-          {config.sections.map((item) => <option key={item.id} value={item.id}>{item.type === 'hero' ? 'Inicio' : item.type === 'about' ? 'Sobre' : item.type === 'services' ? 'Servicos' : item.type === 'cta' ? 'Contato' : item.type} · {item.id}</option>)}
-        </select>
-        <Button size="sm" variant="secondary" onClick={() => setShowProperties((v) => !v)}>
-          {showProperties ? 'Voltar ao site' : 'Editar textos e fotos'}
-        </Button>
+      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
+        <span>Duplo clique no texto para escrever e formatar.</span>
+        <span>Duplo clique na imagem para trocar. Selecione um bloco e arraste pelo ícone de mover.</span>
       </div>
       {config.project.templateId === 'frigolog-universal' && missingPreviewPhotos.length > 0 ? (
         <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-400/30 bg-amber-50 px-3 py-2 text-xs text-amber-950">
@@ -650,42 +643,83 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           )}
         </div>
 
+        <input
+          ref={imageInputRef}
+          className="hidden"
+          type="file"
+          accept={PHOTO_ACCEPT}
+          aria-label="Trocar imagem da página"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void uploadInlinePhoto(file);
+            event.target.value = '';
+          }}
+        />
         {inlineEditor ? (
           <div
-            className="fixed z-[100] flex items-center gap-1 rounded-lg border border-border bg-surface p-1.5 shadow-xl"
-            style={{ left: inlineEditor.x, top: inlineEditor.y }}
-            onMouseDown={(event) => event.preventDefault()}
+            role="toolbar"
+            aria-label={inlineEditor.kind === 'text' ? 'Editar texto selecionado' : 'Editar imagem selecionada'}
+            className="fixed z-[100] flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-1 rounded-xl border border-border bg-surface p-2 text-foreground shadow-2xl"
+            style={{ left:inlineEditor.x,top:inlineEditor.y,width:'min(420px, calc(100vw - 16px))' }}
           >
-            <select className="h-8 rounded border border-border bg-surface px-2 text-xs" defaultValue="" onChange={(e) => styleInlineElement('fontSize', e.target.value)}>
-              <option value="" disabled>Tamanho</option>
-              <option value="14px">14</option><option value="16px">16</option><option value="20px">20</option><option value="28px">28</option><option value="36px">36</option><option value="48px">48</option>
-            </select>
-            <button type="button" className="h-8 w-8 rounded font-bold hover:bg-muted" onClick={() => styleInlineElement('fontWeight', editElementRef.current?.style.fontWeight === '700' ? '400' : '700')}>B</button>
-            <button type="button" className="h-8 w-8 rounded italic hover:bg-muted" onClick={() => styleInlineElement('fontStyle', editElementRef.current?.style.fontStyle === 'italic' ? 'normal' : 'italic')}>I</button>
-            <select className="h-8 max-w-28 rounded border border-border bg-surface px-2 text-xs" defaultValue="" onChange={(e) => styleInlineElement('fontFamily', e.target.value)}>
-              <option value="" disabled>Fonte</option>
-              <option value="Inter, sans-serif">Inter</option>
-              <option value="Poppins, sans-serif">Poppins</option>
-              <option value="Montserrat, sans-serif">Montserrat</option>
-              <option value="Georgia, serif">Georgia</option>
-            </select>
-            <input aria-label="Cor do texto" type="color" className="h-8 w-9 cursor-pointer bg-transparent" onChange={(e) => styleInlineElement('color', e.target.value)} />
-            <button type="button" title="Alinhar a esquerda" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'left')}>L</button>
-            <button type="button" title="Centralizar" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'center')}>C</button>
-            <button type="button" title="Alinhar a direita" className="h-8 w-8 rounded text-xs hover:bg-muted" onClick={() => styleInlineElement('textAlign', 'right')}>R</button>
+            {inlineEditor.kind === 'text' ? (
+              <>
+                <select aria-label="Tamanho da fonte" className="h-8 rounded border border-border bg-surface px-1 text-xs"
+                  defaultValue="" onChange={(event) => styleInlineElement('fontSize',event.target.value)}>
+                  <option value="" disabled>Tam.</option>
+                  {[12,14,16,18,20,24,28,32,36,42,48,56,64,72].map((n) =>
+                    <option key={n} value={n+'px'}>{n}</option>)}
+                </select>
+                <select aria-label="Fonte" className="h-8 max-w-32 rounded border border-border bg-surface px-1 text-xs"
+                  defaultValue="" onChange={(event) => styleInlineElement('fontFamily',event.target.value)}>
+                  <option value="" disabled>Fonte</option>
+                  <option value="Inter,sans-serif">Inter</option>
+                  <option value="Poppins,sans-serif">Poppins</option>
+                  <option value="Montserrat,sans-serif">Montserrat</option>
+                  <option value="Georgia,serif">Georgia</option>
+                </select>
+                <input aria-label="Cor do texto" type="color" className="h-8 w-9 cursor-pointer"
+                  onChange={(event) => styleInlineElement('color',event.target.value)} />
+                <button type="button" aria-label="Negrito" className="h-8 w-8 rounded font-bold hover:bg-muted"
+                  onClick={() => styleInlineElement('fontWeight',pendingStyleRef.current?.fontWeight === '700' ? '400':'700')}>B</button>
+                <button type="button" aria-label="Itálico" className="h-8 w-8 rounded italic hover:bg-muted"
+                  onClick={() => styleInlineElement('fontStyle',pendingStyleRef.current?.fontStyle === 'italic' ? 'normal':'italic')}>I</button>
+                <button type="button" aria-label="Alinhar à esquerda" className="h-8 w-7 rounded hover:bg-muted"
+                  onClick={() => styleInlineElement('textAlign','left')}>L</button>
+                <button type="button" aria-label="Centralizar" className="h-8 w-7 rounded hover:bg-muted"
+                  onClick={() => styleInlineElement('textAlign','center')}>C</button>
+                <button type="button" aria-label="Alinhar à direita" className="h-8 w-7 rounded hover:bg-muted"
+                  onClick={() => styleInlineElement('textAlign','right')}>R</button>
+              </>
+            ) : (
+              <button type="button" className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-muted"
+                onClick={() => imageInputRef.current?.click()}>
+                <ImagePlus className="h-4 w-4" aria-hidden="true" />
+                {uploadAsset.isPending ? 'Enviando...' : 'Trocar imagem'}
+              </button>
+            )}
+            <button type="button" aria-label="Arrastar bloco" title="Segure e arraste para mover o bloco"
+              className="flex h-8 touch-none items-center gap-1 rounded-lg border border-border px-2 text-xs font-semibold hover:bg-muted"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+                startMove(event.clientX,event.clientY);
+              }}
+              onPointerMove={(event) => { if (dragRef.current) move(event.clientX,event.clientY); }}
+              onPointerUp={(event) => {
+                if (!dragRef.current) return;
+                move(event.clientX,event.clientY);
+                dragRef.current = null;
+                finishInlineEdit(true);
+              }}
+              onPointerCancel={() => { dragRef.current = null; finishInlineEdit(true); }}>
+              <Grip className="h-4 w-4" aria-hidden="true" /> Mover
+            </button>
+            <button type="button" className="h-8 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground"
+              onClick={() => finishInlineEdit(true)}>Concluir</button>
+            <button type="button" className="h-8 rounded-lg px-2 text-xs hover:bg-muted"
+              onClick={() => finishInlineEdit(false)}>Cancelar</button>
           </div>
-        ) : null}
-
-        {showProperties && selectedSection ? (
-          <aside className="absolute inset-0 z-20 flex flex-col border-l border-border bg-surface lg:static lg:w-[360px] lg:shrink-0" aria-label="Edicao das propriedades da secao">
-            <div className="flex items-center justify-between border-b border-border px-4 py-2">
-              <strong className="text-sm">Editar {selectedSection.type}</strong>
-              <Button variant="ghost" size="sm" onClick={() => setShowProperties(false)}>Fechar</Button>
-            </div>
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <PropertiesPanel projectId={projectId} section={selectedSection} anchors={anchors} onChange={handleSectionChange} />
-            </div>
-          </aside>
         ) : null}
         {showPublish ? (
           <PublishPanel
@@ -701,7 +735,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
               skipNextAutosaveRef.current = true;
               history.reset(parsed.data);
               setLockVersion(latestLockVersion);
-              setShowProperties(false);
+              setInlineEditor(null);
               setMissingPreviewPhotos([]);
               void assetsQuery.refetch();
               void draftQuery.refetch();
