@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 
 import { buildWhatsAppUrl } from '@site-kit/utils/sanitize';
 
-import { ApiError } from '../../../lib/api';
+import { ApiError, api } from '../../../lib/api';
 import {
   useConfirmOutreachSent,
   useEditOutreach,
@@ -36,6 +36,16 @@ interface LintFindingLike {
   code: string;
   message: string;
 }
+interface ImageRecoveryStatus {
+  hero: boolean;
+  supplement: boolean;
+  real: number;
+  missing: number;
+  missingIllustrations: number;
+  estimatedMaxUsd: number;
+  canGenerate: boolean;
+  message: string;
+}
 
 export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelProps) {
   const toast = useToast();
@@ -56,6 +66,46 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
   const [copied, setCopied] = useState(false);
   const [draftText, setDraftText] = useState('');
   const [publishError, setPublishError] = useState<string | null>(null);
+  const [imageStatus, setImageStatus] = useState<ImageRecoveryStatus | null>(null);
+  const [imageStatusError, setImageStatusError] = useState<string | null>(null);
+  const [repairingImages, setRepairingImages] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    void api.get<ImageRecoveryStatus>(`/site-projects/${projectId}/image-recovery`)
+      .then((status) => { if (active) { setImageStatus(status); setImageStatusError(null); } })
+      .catch(() => { if (active) setImageStatusError('Não foi possível verificar os arquivos agora.'); });
+    return () => { active = false; };
+  }, [projectId]);
+
+  const recoverImages = async () => {
+    if (!imageStatus || !imageStatus.canGenerate || repairingImages) return;
+    const amount = imageStatus.estimatedMaxUsd;
+    const approved = window.confirm(
+      `Recriar apenas as ${imageStatus.missingIllustrations} ilustrações ausentes?\n\n` +
+      `Custo estimado máximo: US$ ${amount.toFixed(2)}.\n` +
+      'O texto do site não será gerado novamente. As imagens poderão ser incluídas na publicação existente.',
+    );
+    if (!approved) return;
+    setRepairingImages(true);
+    setImageStatusError(null);
+    try {
+      const result = await api.post<{ url: string; newIllustrations: number; costEstimatedUsd: number }>(
+        `/site-projects/${projectId}/image-recovery`,
+        { confirmPaid: true, maxEstimatedUsd: amount },
+      );
+      setPublishedUrl(result.url);
+      const fresh = await api.get<ImageRecoveryStatus>(`/site-projects/${projectId}/image-recovery`);
+      setImageStatus(fresh);
+      toast.success(`Imagens recuperadas e site republicado. Custo estimado: US$ ${result.costEstimatedUsd.toFixed(2)}.`);
+    } catch (error) {
+      const message = error instanceof ApiError ? error.message : 'Não foi possível recuperar as imagens.';
+      setImageStatusError(message);
+      toast.error(message);
+    } finally {
+      setRepairingImages(false);
+    }
+  };
 
   const active = publications.data?.find((p) => p.status === 'ACTIVE');
   const latestOutreach = outreach.data?.[0] ?? null;
@@ -154,6 +204,36 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
           </Button>
         </div>
       ) : null}
+
+      <div className="mb-4 rounded-md border border-border bg-muted/40 p-3">
+        <p className="mb-2 text-sm font-semibold">Imagens do site</p>
+        {imageStatus ? (
+          <div className="space-y-2 text-xs">
+            <p>Banner IA: {imageStatus.hero ? 'disponível' : 'ausente'} · Imagem complementar: {imageStatus.supplement ? 'disponível' : 'ausente'}</p>
+            <p>Fotos reais disponíveis: {imageStatus.real}. Arquivos perdidos: {imageStatus.missing}.</p>
+            {!imageStatus.real ? (
+              <p className="text-muted-foreground">Sem foto real do Google ou upload: “Quem somos” ficará sem fotografia até existir uma foto real autorizada.</p>
+            ) : null}
+            {imageStatus.missingIllustrations > 0 ? (
+              imageStatus.canGenerate ? (
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="w-full"
+                  disabled={repairingImages || publish.isPending}
+                  onClick={() => void recoverImages()}
+                >
+                  {repairingImages ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
+                  Recriar imagens e republicar (até US$ {imageStatus.estimatedMaxUsd.toFixed(2)})
+                </Button>
+              ) : (
+                <p className="text-amber-600">Geração de ilustrações desativada no servidor. Envie fotos próprias para preencher o site.</p>
+              )
+            ) : <p>As ilustrações já estão armazenadas. Se não aparecem, verifique os vínculos na edição de fotos.</p>}
+          </div>
+        ) : <p className="text-xs text-muted-foreground">Verificando a disponibilidade das imagens...</p>}
+        {imageStatusError ? <p className="mt-2 text-xs text-red-600">{imageStatusError}</p> : null}
+      </div>
 
       {publishError ? (
         <div className="mb-4 rounded-md border border-red-500/50 bg-red-950/40 p-3 text-left">
