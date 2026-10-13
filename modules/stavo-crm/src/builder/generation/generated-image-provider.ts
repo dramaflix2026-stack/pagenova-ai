@@ -1,5 +1,5 @@
 /**
- * Optional image generation for the PageNova hero. Never generates a person's
+ * Niche-specific illustrations for mandatory PageNova image slots. Never generates a person's
  * likeness or claims that a synthetic room is the actual business premises.
  * Generated assets are stored under the project, not reused across tenants.
  */
@@ -13,7 +13,7 @@ import * as repo from '@server/modules/site-ai/repository';
 const MODEL = 'gpt-image-1-mini';
 const MAX_RESPONSE_BYTES = 12_000_000;
 
-export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' | 'supplement' = 'hero'): Promise<'created' | 'existing' | 'unavailable'> {
+export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' | 'about' | 'supplement' = 'hero'): Promise<'created' | 'existing' | 'unavailable'> {
   const key = process.env.OPENAI_API_KEY;
   const estimatedUsd = Number(process.env.PAGENOVA_AI_HERO_ESTIMATED_USD ?? '0.05');
   // Never perform a paid call without a positive, finite cost estimate.
@@ -48,7 +48,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
         size: '1536x1024',
         quality: 'low',
         n: 1,
-        prompt: `Photorealistic editorial website ${slot === 'hero' ? 'hero background' : 'supporting section image'} depicting ${subject}. Wide landscape composition, soft natural light, polished architecture, ${slot === 'hero' ? 'ample uncluttered negative space on the left for readable website copy, visual interest on the right' : 'balanced centered composition showing a different perspective of the space'}. No people, no text, no logos, no watermarks. Illustrative scene only, not a photograph of a specific real business.`,
+        prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slot === 'hero' ? 'Open negative space on the left for overlaid website copy, important details on the right.' : slot === 'about' ? 'Warm editorial details with a sophisticated close-up perspective, suitable for a company introduction.' : 'A practical process-oriented work scene from an alternate angle, visually distinct from the hero and about sections.'} Soft natural light, realistic materials. NO PEOPLE, NO FACES, no people-like photographs, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
       }),
     });
     if (!response.ok) return 'unavailable';
