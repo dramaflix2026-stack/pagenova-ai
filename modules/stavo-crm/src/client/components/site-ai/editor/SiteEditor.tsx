@@ -7,7 +7,7 @@
  * de preview" e um "renderer de producao" com implementacoes que podem
  * divergir (secao 5.5).
  */
-import { Loader2, Monitor, Redo2, Smartphone, Undo2 } from 'lucide-react';
+import { Grip, ImagePlus, Loader2, Monitor, Redo2, Smartphone, Undo2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
@@ -25,13 +25,16 @@ import {
   useSiteAssets,
   useSiteDraftConfig,
   useSiteProject,
+  useUploadSiteAsset,
 } from '../../../hooks/useSiteAi';
 import { Badge, Button, Callout, LoadingBlock, Textarea } from '../../ui';
 import { useToast } from '../../ui/Toast';
 import { PublishPanel } from './PublishPanel';
-import { PropertiesPanel } from './PropertiesPanel';
 
 const AUTOSAVE_DELAY_MS = 1200;
+type InlineStyle = SiteSchemaModel['visualTextEdits'][number];
+type PhotoSlot = 'hero' | 'about' | 'operation';
+const PHOTO_ACCEPT = 'image/*,.heic,.heif,.avif,.tif,.tiff,.bmp';
 
 interface SiteEditorProps {
   projectId: string;
@@ -43,6 +46,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const diagnosticsQuery = useSiteAiDiagnostics();
   const projectQuery = useSiteProject(projectId);
   const assetsQuery = useSiteAssets(projectId);
+  const uploadAsset = useUploadSiteAsset(projectId);
   const saveConfig = useSaveSiteConfig(projectId);
   const createVersion = useCreateSiteVersion(projectId);
   const restoreVersion = useRestoreSiteVersion(projectId);
@@ -60,10 +64,15 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [showIssues, setShowIssues] = useState(false);
-  const [showProperties, setShowProperties] = useState(false);
   const previewFrameRef = useRef<HTMLIFrameElement | null>(null);
   const editElementRef = useRef<HTMLElement | null>(null);
-  const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number } | null>(null);
+  const originalTextRef = useRef('');
+  const pendingStyleRef = useRef<InlineStyle | null>(null);
+  const pendingImageRef = useRef<{ sectionId: string; slot: PhotoSlot } | null>(null);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const scrollRef = useRef({ x: 0, y: 0 });
+  const dragRef = useRef<{ startX: number; startY: number; x: number; y: number } | null>(null);
+  const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number; kind: 'text' | 'image' } | null>(null);
   const [missingPreviewPhotos, setMissingPreviewPhotos] = useState<string[]>([]);
 
   const loadedRef = useRef(false);
@@ -197,7 +206,6 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   }, [config]);
 
   const selectedSection = config?.sections.find((s) => s.id === selectedId) ?? null;
-  const anchors = config?.sections.map((s) => s.anchor).filter((a): a is string => Boolean(a)) ?? [];
 
   if (draftQuery.isLoading) return <LoadingBlock label="Carregando o rascunho..." />;
   if (draftQuery.isError || !config) {
@@ -274,107 +282,227 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     toast.error('Suas alteracoes locais foram descartadas: a versao mais recente do servidor foi carregada.');
   };
 
-  const replaceTextInSection = (section: SiteSection, before: string, after: string): SiteSection => {
-    let replaced = false;
-    const walk = (value: unknown): unknown => {
-      if (!replaced && typeof value === 'string' && value.trim() === before.trim()) {
-        replaced = true;
-        return after;
-      }
-      if (Array.isArray(value)) return value.map(walk);
-      if (value && typeof value === 'object') {
-        const out: Record<string, unknown> = {};
-        for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-          out[key] = ['id', 'type', 'variant', 'anchor'].includes(key) ? child : walk(child);
-        }
-        return out;
-      }
-      return value;
-    };
-    return walk(section) as SiteSection;
+  const rememberScroll = () => {
+    const win = previewFrameRef.current?.contentWindow;
+    if (win) scrollRef.current = { x: win.scrollX, y: win.scrollY };
   };
-
+  const selectedSource = (element: HTMLElement): SiteSection | undefined => {
+    const anchor = element.closest('section[id]')?.id;
+    const aliases: Record<string,SiteSection['type']> = {
+      inicio:'hero',servicos:'services',sobre:'about',operacao:'process',contato:'cta',
+    };
+    return config.sections.find((s) => s.id === anchor || s.anchor === anchor) ??
+      config.sections.find((s) => s.type === aliases[anchor ?? '']);
+  };
+  const replaceSectionText = (section: SiteSection, oldText: string, newText: string): SiteSection => {
+    // First try exact field matching. Headline fragments can require a substring
+    // match (for example the Frigolog heading's accented nested span).
+    const blocked = new Set(['id','type','variant','anchor','assetId','alt','icon','url',
+      'kind','source','target','focalX','focalY']);
+    for (const partial of [false,true]) {
+      let changed = false;
+      const walk = (value: unknown): unknown => {
+        if (typeof value === 'string') {
+          if (changed) return value;
+          if (value.trim() === oldText.trim()) { changed = true; return newText; }
+          if (partial && oldText.length >= 6 && value.includes(oldText)) {
+            changed = true;
+            return value.replace(oldText,newText);
+          }
+          return value;
+        }
+        if (Array.isArray(value)) return value.map(walk);
+        if (value && typeof value === 'object') {
+          return Object.fromEntries(Object.entries(value as Record<string,unknown>)
+            .map(([key,child]) => [key,blocked.has(key)?child:walk(child)]));
+        }
+        return value;
+      };
+      const result = walk(section) as SiteSection;
+      if (changed) return result;
+    }
+    return section;
+  };
+  const finishInlineEdit = (save = true) => {
+    const element = editElementRef.current;
+    if (!element) { setInlineEditor(null); return; }
+    const before = originalTextRef.current;
+    const after = element.innerText.trim();
+    const isPhoto = element.tagName === 'IMG';
+    element.contentEditable = 'false';
+    element.style.outline = '';
+    element.style.outlineOffset = '';
+    let nextSections = config.sections;
+    let changed = false;
+    if (save && !isPhoto && after && after !== before) {
+      const preferred = selectedSource(element);
+      const candidates = preferred
+        ? [preferred,...config.sections.filter((s) => s.id !== preferred.id)]
+        : config.sections;
+      for (const item of candidates) {
+        const updated = replaceSectionText(item,before,after);
+        if (JSON.stringify(updated) !== JSON.stringify(item)) {
+          nextSections = config.sections.map((s) => s.id === item.id ? updated : s);
+          changed = true;
+          break;
+        }
+      }
+      if (!changed) {
+        toast.error('Este texto do template ainda não tem campo editável.');
+        element.innerText = before;
+      }
+    } else if (!save && !isPhoto) {
+      element.innerText = before;
+    }
+    let nextStyles = config.visualTextEdits;
+    const pending = pendingStyleRef.current;
+    if (save && pending?.key) {
+      nextStyles = [...nextStyles.filter((item) => item.key !== pending.key),pending];
+      changed = true;
+    }
+    rememberScroll();
+    editElementRef.current = null;
+    pendingStyleRef.current = null;
+    dragRef.current = null;
+    setInlineEditor(null);
+    if (changed && save) history.set({ ...config, sections: nextSections, visualTextEdits: nextStyles });
+  };
+  const showToolbar = (element: HTMLElement, x: number, y: number, kind: 'text' | 'image') => {
+    const rect = previewFrameRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    editElementRef.current = element;
+    const key = element.dataset.pnEdit;
+    pendingStyleRef.current = key
+      ? { ...(config.visualTextEdits.find((e) => e.key === key) ?? { key }) }
+      : null;
+    const width = Math.min(420,window.innerWidth - 16);
+    setInlineEditor({
+      x: Math.max(8,Math.min(rect.left+x-width/2,window.innerWidth-width-8)),
+      y: Math.max(54,Math.min(rect.top+y-100,window.innerHeight-165)),
+      kind,
+    });
+  };
   const installInlineEditor = () => {
     const frame = previewFrameRef.current;
     const doc = frame?.contentDocument;
-    if (!doc) return;
-
-    doc.addEventListener('dblclick', (event) => {
-      const target = event.target instanceof frame.contentWindow!.HTMLElement ? event.target as HTMLElement : null;
-      if (!target || !target.textContent?.trim()) return;
-      const editable = target.closest('h1,h2,h3,h4,p,span,a,button,li') as HTMLElement | null;
-      if (!editable) return;
-
+    if (!frame || !doc) return;
+    frame.contentWindow?.scrollTo(scrollRef.current.x,scrollRef.current.y);
+    const style = doc.createElement('style');
+    style.textContent = '[data-pn-edit]:hover{outline:1px dashed #06b6a5;outline-offset:3px}' +
+      'img[data-pn-photo]{cursor:pointer}' +
+      '[contenteditable=true]{outline:2px solid #06b6a5!important;outline-offset:3px}';
+    doc.head.appendChild(style);
+    doc.addEventListener('click',(event) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('a[href]')) event.preventDefault();
+      const img = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
+      if (!img) return;
+      event.preventDefault();
+      const section = selectedSource(img);
+      const slot = img.dataset.pnPhoto as PhotoSlot | undefined;
+      if (!section || !slot || !['hero','about','operation'].includes(slot)) return;
+      if (editElementRef.current && editElementRef.current !== img) finishInlineEdit();
+      pendingImageRef.current = { sectionId:section.id,slot };
+      showToolbar(img,event.clientX,event.clientY,'image');
+    });
+    doc.addEventListener('dblclick',(event) => {
+      const target = event.target as HTMLElement;
+      const img = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
+      if (img) {
+        event.preventDefault();
+        event.stopPropagation();
+        const section = selectedSource(img);
+        const slot = img.dataset.pnPhoto as PhotoSlot | undefined;
+        if (section && slot && ['hero','about','operation'].includes(slot)) {
+          pendingImageRef.current = { sectionId:section.id,slot };
+          imageInputRef.current?.click();
+        }
+        return;
+      }
+      const text = target.closest('[data-pn-edit]') as HTMLElement | null;
+      if (!text || text.tagName === 'IMG' || !text.innerText?.trim() ||
+          text.closest('.pn-kpi-clone,[aria-hidden="true"]')) return;
       event.preventDefault();
       event.stopPropagation();
-      editElementRef.current = editable;
-      const original = editable.innerText;
-      editable.contentEditable = 'true';
-      editable.dataset.pnOriginalText = original;
-      editable.style.outline = '2px solid #31d6a1';
-      editable.style.outlineOffset = '3px';
-      editable.focus();
-
-      const rect = editable.getBoundingClientRect();
-      const frameRect = frame.getBoundingClientRect();
-      setInlineEditor({
-        x: Math.max(12, Math.min(frameRect.left + rect.left, window.innerWidth - 330)),
-        y: Math.max(8, frameRect.top + rect.top - 52),
-      });
-
-      editable.onblur = () => {
-        const before = editable.dataset.pnOriginalText ?? original;
-        const after = editable.innerText.trim();
-        editable.contentEditable = 'false';
-        editable.style.outline = '';
-        editable.style.outlineOffset = '';
-        if (after && after !== before) {
-          const sectionNode = editable.closest('section[id]');
-          const anchorId = sectionNode?.id;
-          const visualAliases: Record<string, SiteSection['type']> = {
-            inicio: 'hero', servicos: 'services', sobre: 'about',
-            operacao: 'process', contato: 'cta',
-          };
-          const section = config.sections.find((item) => item.anchor === anchorId)
-            ?? config.sections.find((item) => item.id === anchorId)
-            ?? config.sections.find((item) => item.type === visualAliases[anchorId ?? '']);
-          if (section) handleSectionChange(replaceTextInSection(section, before, after));
-        }
-        window.setTimeout(() => setInlineEditor(null), 120);
-      };
+      if (editElementRef.current && editElementRef.current !== text) finishInlineEdit();
+      originalTextRef.current = text.innerText.trim();
+      text.contentEditable = 'true';
+      text.focus();
+      showToolbar(text,event.clientX,event.clientY,'text');
+    });
+    doc.addEventListener('keydown',(event) => {
+      if (!editElementRef.current || editElementRef.current.tagName === 'IMG') return;
+      if (event.key === 'Escape') { event.preventDefault(); finishInlineEdit(false); }
+      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();finishInlineEdit(true);
+      }
+    });
+    doc.addEventListener('pointerdown',(event) => {
+      const el = editElementRef.current;
+      if (!el || el.tagName === 'IMG') return;
+      if (!el.contains(event.target as Node)) finishInlineEdit();
     });
   };
-
+  const uploadInlinePhoto = async (file: File) => {
+    const target = pendingImageRef.current;
+    if (!target) return;
+    try {
+      const { asset } = await uploadAsset.mutateAsync(file);
+      if (!asset) throw new Error('Arquivo não retornado pelo servidor.');
+      const ref = {
+        assetId:asset.id,alt:('Imagem enviada: '+file.name).slice(0,180),
+        focalX:0.5,focalY:0.5,
+      };
+      const sections = config.sections.map((section) => {
+        if (section.id !== target.sectionId) return section;
+        if (section.type === 'hero' && target.slot === 'hero') return { ...section,image:ref };
+        if (section.type === 'about' && target.slot === 'about') return { ...section,image:ref };
+        if (section.type === 'process' && target.slot === 'operation') return {
+          ...section,steps:section.steps.map((step,i) => i === 0 ? {...step,image:ref} : step),
+        };
+        return section;
+      });
+      rememberScroll();
+      await assetsQuery.refetch();
+      editElementRef.current = null;
+      setInlineEditor(null);
+      history.set({...config,sections});
+      toast.success('Imagem atualizada. Salvando automaticamente.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message :
+        'Não foi possível converter a imagem. Escolha uma foto suportada.');
+    } finally {
+      pendingImageRef.current = null;
+    }
+  };
   const styleInlineElement = (
-    property: 'fontSize' | 'fontFamily' | 'color' | 'fontWeight' | 'fontStyle' | 'textAlign',
-    value: string,
+    property: 'fontSize'|'fontFamily'|'color'|'fontWeight'|'fontStyle'|'textAlign',value: string,
   ) => {
     const element = editElementRef.current;
-    if (!element) return;
+    const edit = pendingStyleRef.current;
+    if (!element || !edit || element.tagName === 'IMG') return;
     element.style[property] = value;
-
-    const key = element.dataset.pnEdit;
-    if (key) {
-      const previous = config.visualTextEdits.find((item) => item.key === key) ?? { key };
-      const patch =
-        property === 'fontSize'
-          ? { fontSizePx: Number.parseInt(value, 10) }
-          : property === 'fontFamily'
-            ? { fontFamily: value.split(',')[0]!.trim() as 'Inter' | 'Poppins' | 'Montserrat' | 'Georgia' }
-            : property === 'color'
-              ? { color: value }
-              : property === 'fontWeight'
-                ? { fontWeight: value as '400' | '500' | '600' | '700' | '800' | '900' }
-                : property === 'fontStyle'
-                  ? { fontStyle: value as 'normal' | 'italic' }
-                  : { textAlign: value as 'left' | 'center' | 'right' };
-      const nextEdit = { ...previous, ...patch };
-      history.set({
-        ...config,
-        visualTextEdits: [...config.visualTextEdits.filter((item) => item.key !== key), nextEdit],
-      });
-    }
-    element.focus();
+    if (property === 'fontSize') edit.fontSizePx = Math.min(120,Math.max(10,parseInt(value,10)||16));
+    else if (property === 'fontFamily') edit.fontFamily = value.split(',')[0]!.trim() as InlineStyle['fontFamily'];
+    else if (property === 'color') edit.color = value;
+    else if (property === 'fontWeight') edit.fontWeight = value as InlineStyle['fontWeight'];
+    else if (property === 'fontStyle') edit.fontStyle = value as InlineStyle['fontStyle'];
+    else edit.textAlign = value as InlineStyle['textAlign'];
+  };
+  const startMove = (clientX:number,clientY:number) => {
+    const edit = pendingStyleRef.current;
+    const element = editElementRef.current;
+    if (!edit || !element) return;
+    if (element.contentEditable === 'true') element.contentEditable = 'false';
+    dragRef.current = { startX:clientX,startY:clientY,x:edit.offsetX??0,y:edit.offsetY??0 };
+  };
+  const move = (clientX:number,clientY:number) => {
+    const drag = dragRef.current,edit = pendingStyleRef.current,element = editElementRef.current;
+    if (!drag || !edit || !element) return;
+    edit.offsetX = Math.max(-400,Math.min(400,Math.round(drag.x+clientX-drag.startX)));
+    edit.offsetY = Math.max(-400,Math.min(400,Math.round(drag.y+clientY-drag.startY)));
+    element.style.position = 'relative';
+    element.style.transform = 'translate('+edit.offsetX+'px,'+edit.offsetY+'px)';
   };
 
   const applyUniversalVisual = () => {
