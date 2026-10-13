@@ -49,7 +49,7 @@ const studioItems: MenuItem[] = [
   { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
   { href: "/app/cloner", label: "Clonar site com IA", icon: Copy },
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
-  { href: "/app/paginas", label: "Minhas páginas", icon: Files },
+  { href: "/app/paginas", label: "Meus sites", icon: Files },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
 ];
 
