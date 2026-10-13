@@ -280,7 +280,7 @@ export default function ClonerPage() {
                         setUrl(event.target.value)
                       }
                       placeholder="https://exemplo.com/sua-pagina"
-                      className="min-w-0 flex-1 bg-transparent px-3 py-3 text-center text-sm text-white outline-none placeholder:text-white/35 sm:text-left"
+                      className="min-w-0 flex-1 bg-transparent px-3 py-3 text-center text-sm text-white outline-none placeholder:text-white/35 sm:text-center"
                     />
                   </div>
 
@@ -426,7 +426,7 @@ export default function ClonerPage() {
               <div className="border-b border-white/[.08] p-6 sm:p-8">
                 <div className="flex flex-col items-center justify-center gap-6">
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#50dca9]/10 text-xs font-bold text-[#50dca9]">
                         ✓
                       </span>
@@ -439,7 +439,7 @@ export default function ClonerPage() {
                       {result.project.title || result.project.domain}
                     </h2>
 
-                    <p className="mt-2 break-all text-sm text-white/45">
+                    <p className="mx-auto mt-2 break-all text-center text-sm text-white/45">
                       {result.project.finalUrl}
                     </p>
                   </div>
@@ -488,7 +488,7 @@ export default function ClonerPage() {
                   <p className="text-sm font-semibold text-white/80">
                     Projeto pronto para personalização
                   </p>
-                  <p className="mt-1.5 max-w-2xl text-sm leading-6 text-white/35">
+                  <p className="mx-auto mt-1.5 max-w-2xl text-sm leading-6 text-white/45">
                     Continue no editor para alterar textos, imagens, elementos e
                     organização visual da página importada.
                   </p>
