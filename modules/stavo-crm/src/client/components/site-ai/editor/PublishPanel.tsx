@@ -82,9 +82,11 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
     if (!imageStatus || !imageStatus.canGenerate || repairingImages) return;
     const amount = imageStatus.estimatedMaxUsd;
     const approved = window.confirm(
-      `Recriar apenas as ${imageStatus.missingIllustrations} ilustrações ausentes?\n\n` +
-      `Custo estimado máximo: US$ ${amount.toFixed(2)}.\n` +
-      'O texto do site não será gerado novamente. As imagens poderão ser incluídas na publicação existente.',
+      imageStatus.missingIllustrations === 0
+        ? 'Reassociar as imagens existentes e republicar o site sem custo de IA?'
+        : `Recriar apenas as ${imageStatus.missingIllustrations} ilustrações ausentes?\n\n` +
+          `Custo estimado máximo: US$ ${amount.toFixed(2)}.\n` +
+          'O texto do site não será gerado novamente. As imagens poderão ser incluídas na publicação existente.',
     );
     if (!approved) return;
     setRepairingImages(true);
@@ -214,8 +216,7 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
             {!imageStatus.real ? (
               <p className="text-muted-foreground">Sem foto real do Google ou upload: “Quem somos” ficará sem fotografia até existir uma foto real autorizada.</p>
             ) : null}
-            {imageStatus.missingIllustrations > 0 ? (
-              imageStatus.canGenerate ? (
+            {imageStatus.canGenerate ? (
                 <Button
                   size="sm"
                   variant="secondary"
@@ -224,12 +225,13 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
                   onClick={() => void recoverImages()}
                 >
                   {repairingImages ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : null}
-                  Recriar imagens e republicar (até US$ {imageStatus.estimatedMaxUsd.toFixed(2)})
+                  {imageStatus.missingIllustrations
+                    ? `Recriar imagens e republicar (até US$ ${imageStatus.estimatedMaxUsd.toFixed(2)})`
+                    : 'Reassociar imagens e republicar (sem custo)'}
                 </Button>
-              ) : (
-                <p className="text-amber-600">Geração de ilustrações desativada no servidor. Envie fotos próprias para preencher o site.</p>
-              )
-            ) : <p>As ilustrações já estão armazenadas. Se não aparecem, verifique os vínculos na edição de fotos.</p>}
+            ) : (
+              <p className="text-amber-600">Geração de ilustrações desativada no servidor. Envie fotos próprias para preencher o site.</p>
+            )}
           </div>
         ) : <p className="text-xs text-muted-foreground">Verificando a disponibilidade das imagens...</p>}
         {imageStatusError ? <p className="mt-2 text-xs text-red-600">{imageStatusError}</p> : null}
