@@ -67,6 +67,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [missingPreviewPhotos, setMissingPreviewPhotos] = useState<string[]>([]);
 
   const loadedRef = useRef(false);
+  const skipNextAutosaveRef = useRef(false);
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)');
@@ -99,6 +100,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   // e sempre a fonte persistente, mesmo que o navegador feche no meio.
   useEffect(() => {
     if (!config || !loadedRef.current) return;
+    if (skipNextAutosaveRef.current) {
+      skipNextAutosaveRef.current = false;
+      setSaveState('saved');
+      return;
+    }
 
     setSaveState('saving');
     const timer = setTimeout(() => {
@@ -558,6 +564,21 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
             projectId={projectId}
             currentSlug={projectQuery.data?.project.desiredSlug ?? null}
             onClose={() => setShowPublish(false)}
+            onImagesRecovered={(restored, latestLockVersion) => {
+              const parsed = siteSchema.safeParse(restored);
+              if (!parsed.success) {
+                toast.error('As imagens foram publicadas, mas o editor precisa recarregar o novo rascunho.');
+                return;
+              }
+              skipNextAutosaveRef.current = true;
+              history.reset(parsed.data);
+              setLockVersion(latestLockVersion);
+              setShowProperties(false);
+              setMissingPreviewPhotos([]);
+              void assetsQuery.refetch();
+              void draftQuery.refetch();
+              void projectQuery.refetch();
+            }}
           />
         ) : null}
       </div>
