@@ -513,7 +513,7 @@ export default function BuilderPage() {
           throw new Error(analysis.error||"Não foi possível analisar seus anexos. Nenhum site foi gerado.");
         }
         annotatedPrompt=(prompt+"\n\nREFERÊNCIAS ANEXADAS (interpretação da IA):\n"+
-          analysis.summary).slice(0,3900);
+          analysis.summary).slice(0,3700);
         initialImages=await Promise.all(visualFiles.slice(0,2).map(compressReference));
       }
       const createResponse = await fetch("/api/crm/site-projects", {
