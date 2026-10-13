@@ -1,6 +1,6 @@
 import { createClient as createAdminClient, type SupabaseClient } from "@supabase/supabase-js";
 import { createClient as createSessionClient } from "@/lib/supabase/server";
-import { isFormId, normalizeForm, type PageNovaForm, type PublicForm } from "./schema";
+import { isFormId, normalizeForm, type PageNovaForm, type PublicForm, type FormSubmission } from "./schema";
 
 const BUCKET = "pagenova-forms-private";
 let bucketReady = false;
@@ -87,13 +87,10 @@ export async function saveOwnedForm(admin:SupabaseClient,userId:string,input:unk
 export async function publishOwnedForm(admin:SupabaseClient,userId:string,id:string):Promise<PageNovaForm> {
   const form=await getOwnedForm(admin,userId,id);
   const parsed=normalizeForm(form);
-  if(!/^\d{10,15}$/.test(parsed.whatsapp)) {
-    throw new FormServiceError("Antes de publicar, informe um WhatsApp com DDI para receber as respostas.");
-  }
   const publishedAt=new Date().toISOString();
   const result:PageNovaForm={...form,...parsed,publishedAt,updatedAt:publishedAt};
   const publicVersion:PublicForm={id:result.id,title:result.title,description:result.description,
-    kind:result.kind,whatsapp:result.whatsapp,fields:result.fields,publishedAt};
+    kind:result.kind,fields:result.fields,publishedAt};
   // Public snapshot stays fixed until the owner chooses to publish again.
   await uploadJson(admin,publishedPath(id),publicVersion);
   await uploadJson(admin,ownedPath(userId,id),result);
@@ -106,4 +103,51 @@ export async function getPublishedForm(id:string):Promise<PublicForm|null> {
   const result=await downloadJson<PublicForm>(admin,publishedPath(id));
   if(!result||result.id!==id||!result.publishedAt)return null;
   return result;
+}
+
+/** Store responses privately, without exposing the service-role key or requiring WhatsApp.
+ * Each response is an immutable object. The author reads submissions through an owner-only route.
+ */
+export async function recordPublicSubmission(id:string,raw:unknown):Promise<FormSubmission> {
+  const form=await getPublishedForm(id);
+  if(!form) throw new FormServiceError("Formulário não encontrado.",404);
+  if(!raw || typeof raw!=="object" || Array.isArray(raw))throw new FormServiceError("Respostas inválidas.");
+  const answerMap=raw as Record<string,unknown>;
+  const allowed=new Set(form.fields.map(f=>f.id));
+  if(Object.keys(answerMap).some(k=>!allowed.has(k)))throw new FormServiceError("As perguntas do formulário foram atualizadas. Recarregue a página.");
+  const answers=form.fields.map(field=>{
+    const value=answerMap[field.id];
+    if(value!==undefined && typeof value!=="string")throw new FormServiceError("Resposta inválida.");
+    const text=String(value||"").trim();
+    if(field.required && !text)throw new FormServiceError("Responda: "+field.label);
+    if(text.length>2000)throw new FormServiceError("A resposta excede o limite de 2.000 caracteres.");
+    if(field.type==="email" && text && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(text))throw new FormServiceError("Informe um e-mail válido.");
+    if(field.type==="select" && text && !field.options.includes(text))throw new FormServiceError("Selecione uma opção válida.");
+    return {questionId:field.id,label:field.label,value:text};
+  });
+  const submission:FormSubmission={
+    id:crypto.randomUUID(),formId:id,submittedAt:new Date().toISOString(),answers,
+  };
+  const admin=adminClient();
+  await ensureBucket(admin);
+  const bytes=JSON.stringify(submission);
+  const {error}=await admin.storage.from(BUCKET).upload(
+    "responses/"+id+"/"+submission.id+".json",
+    new Blob([bytes],{type:"application/json"}),
+    {upsert:false,contentType:"application/json",cacheControl:"0"},
+  );
+  if(error)throw new FormServiceError("Não foi possível enviar suas respostas. Tente novamente.",503);
+  return submission;
+}
+export async function listOwnedSubmissions(admin:SupabaseClient,userId:string,id:string):Promise<FormSubmission[]> {
+  await getOwnedForm(admin,userId,id);
+  await ensureBucket(admin);
+  const {data,error}=await admin.storage.from(BUCKET).list("responses/"+id,{
+    limit:100,sortBy:{column:"created_at",order:"desc"},
+  });
+  if(error)throw new FormServiceError("Não foi possível carregar as respostas.",503);
+  const entries=(data||[]).filter(f=>f.name.endsWith(".json")).slice(0,100);
+  const items=await Promise.all(entries.map(item=>downloadJson<FormSubmission>(admin,"responses/"+id+"/"+item.name)));
+  return items.filter((f):f is FormSubmission=>Boolean(f && f.formId===id && Array.isArray(f.answers)))
+    .sort((a,b)=>b.submittedAt.localeCompare(a.submittedAt));
 }
