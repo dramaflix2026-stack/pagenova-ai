@@ -26,10 +26,12 @@ import {
   useSiteDraftConfig,
   useSiteProject,
   useUploadSiteAsset,
+  type SiteAssetSummary,
 } from '../../../hooks/useSiteAi';
 import { Badge, Button, Callout, LoadingBlock, Textarea } from '../../ui';
 import { useToast } from '../../ui/Toast';
 import { PublishPanel } from './PublishPanel';
+import { mountCanvasHandles } from './inlineCanvasHandles';
 
 const AUTOSAVE_DELAY_MS = 1200;
 type InlineStyle = SiteSchemaModel['visualTextEdits'][number];
@@ -53,6 +55,12 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const aiEdit = useAiEditSection(projectId);
 
   const history = useHistoryState<SiteSchemaModel | null>(null);
+  const latestConfigRef = useRef<SiteSchemaModel | null>(null);
+  const [newAssets, setNewAssets] = useState<Record<string,SiteAssetSummary>>({});
+  const [previewImageUrls, setPreviewImageUrls] = useState<Record<string,string>>({});
+  const temporaryUrlsRef = useRef<string[]>([]);
+  const selectionCleanupRef = useRef<(() => void) | null>(null);
+  const [previewRevision,setPreviewRevision] = useState(0);
   const [lockVersion, setLockVersion] = useState(0);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>(() =>
@@ -104,6 +112,12 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   }, [draftQuery.data]);
 
   const config = history.value;
+  latestConfigRef.current = config;
+  useEffect(() => () => {
+    selectionCleanupRef.current?.();
+    for (const url of temporaryUrlsRef.current) URL.revokeObjectURL(url);
+    temporaryUrlsRef.current = [];
+  }, []);
 
   // Autosave debounced. Nunca salva so no localStorage (secao 15.8): o banco
   // e sempre a fonte persistente, mesmo que o navegador feche no meio.
@@ -161,16 +175,19 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   // real -- e assim que o preview deixa de ser uma aproximacao e passa a ser
   // literalmente o que sera publicado (secao 5.5).
   const previewCtx = useMemo<RenderContext>(() => {
-    const byId = new Map((assetsQuery.data ?? []).map((asset) => [asset.id, asset]));
+    const byId = new Map([...((assetsQuery.data ?? []).map((asset) => [asset.id, asset] as const)),...Object.entries(newAssets)]);
     return {
       profile: 'DEMO',
       inlineRuntime: SITE_RUNTIME_JS,
       resolveAsset: (assetId) => {
         const asset = byId.get(assetId);
-        return asset ? { url: asset.url, width: asset.width ?? undefined, height: asset.height ?? undefined } : null;
+        return asset ? {
+          url: previewImageUrls[assetId] ?? new URL(asset.url,window.location.origin).href,
+          width: asset.width ?? undefined,height: asset.height ?? undefined,
+        } : null;
       },
     };
-  }, [assetsQuery.data]);
+  }, [assetsQuery.data,newAssets,previewImageUrls]);
 
   const previewResult = useMemo(() => {
     if (!config) return { html: '', error: null as string | null };
@@ -326,6 +343,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const finishInlineEdit = (save = true) => {
     const element = editElementRef.current;
     if (!element) { setInlineEditor(null); return; }
+    selectionCleanupRef.current?.();
+    selectionCleanupRef.current = null;
     const before = originalTextRef.current;
     const after = element.innerText.trim();
     const isPhoto = element.tagName === 'IMG';
@@ -375,6 +394,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     dragRef.current = null;
     setInlineEditor(null);
     if (changed && save) history.set({ ...config, sections: nextSections, visualTextEdits: nextStyles });
+    if (!save) setPreviewRevision((current) => current + 1);
   };
   const showToolbar = (element: HTMLElement, x: number, y: number, kind: 'text' | 'image' | 'block') => {
     const rect = previewFrameRef.current?.getBoundingClientRect();
@@ -385,6 +405,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       ? { ...(config.visualTextEdits.find((e) => e.key === key) ?? { key }) }
       : null;
     const width = Math.min(420,window.innerWidth - 16);
+    selectionCleanupRef.current?.();
+    const iframeDoc = previewFrameRef.current?.contentDocument;
+    if (iframeDoc && pendingStyleRef.current) {
+      selectionCleanupRef.current = mountCanvasHandles(
+        iframeDoc,element,pendingStyleRef.current,() => finishInlineEdit(true),
+      );
+    }
     setInlineEditor({
       x: Math.max(8,Math.min(rect.left+x-width/2,window.innerWidth-width-8)),
       y: Math.max(54,Math.min(rect.top+y-100,window.innerHeight-165)),
@@ -395,6 +422,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     const frame = previewFrameRef.current;
     const doc = frame?.contentDocument;
     if (!frame || !doc) return;
+    selectionCleanupRef.current?.();
+    selectionCleanupRef.current = null;
     frame.contentWindow?.scrollTo(scrollRef.current.x,scrollRef.current.y);
     const style = doc.createElement('style');
     style.textContent = '[data-pn-edit]:hover{outline:1px dashed #06b6a5;outline-offset:3px}' +
@@ -458,37 +487,69 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     doc.addEventListener('pointerdown',(event) => {
       const el = editElementRef.current;
       if (!el || el.tagName === 'IMG') return;
-      if (!el.contains(event.target as Node)) finishInlineEdit();
+      if (!(event.target as HTMLElement).closest('[data-pn-canvas-control]') &&
+          !el.contains(event.target as Node)) finishInlineEdit();
     });
   };
   const uploadInlinePhoto = async (file: File) => {
-    const target = pendingImageRef.current;
-    if (!target) return;
+    const selected = pendingImageRef.current;
+    if (!selected) return;
     try {
       const { asset } = await uploadAsset.mutateAsync(file);
-      if (!asset) throw new Error('Arquivo não retornado pelo servidor.');
+      if (!asset?.id || !asset.url) throw new Error('O upload não retornou uma imagem válida.');
+      // Verify actual image bytes at the CRM proxy endpoint before claiming
+      // success. This catches 404/session/path failures that were invisible
+      // when only the asset metadata was checked.
+      const publicUrl = new URL(asset.url, window.location.origin).href;
+      const response = await fetch(publicUrl,{credentials:'include',cache:'no-store'});
+      if (!response.ok || !(response.headers.get('content-type') ?? '').startsWith('image/')) {
+        throw new Error('A imagem foi recebida, mas não pôde ser aberta no editor. Confira o armazenamento do Railway.');
+      }
+      const media = await response.blob();
+      if (!media.size) throw new Error('O servidor retornou a imagem vazia.');
+      // A same-origin object URL removes cross-frame authentication and
+      // asynchronous React Query races from immediate canvas preview. Only
+      // its validated assetId is persisted to the server-side site schema.
+      const localUrl = URL.createObjectURL(media);
+      temporaryUrlsRef.current.push(localUrl);
+      const current = latestConfigRef.current;
+      if (!current) throw new Error('O rascunho ainda não está pronto para edição.');
       const ref = {
-        assetId:asset.id,alt:('Imagem enviada: '+file.name).slice(0,180),
+        assetId:asset.id,
+        alt:('Imagem enviada: '+file.name).slice(0,180),
         focalX:0.5,focalY:0.5,
       };
-      const sections = config.sections.map((section) => {
-        if (section.id !== target.sectionId) return section;
-        if (section.type === 'hero' && target.slot === 'hero') return { ...section,image:ref };
-        if (section.type === 'about' && target.slot === 'about') return { ...section,image:ref };
-        if (section.type === 'process' && target.slot === 'operation') return {
-          ...section,steps:section.steps.map((step,i) => i === 0 ? {...step,image:ref} : step),
-        };
+      const sections = current.sections.map((section) => {
+        if (section.id !== selected.sectionId) return section;
+        if (section.type === 'hero' && selected.slot === 'hero') {
+          return { ...section,image:ref };
+        }
+        if (section.type === 'about' && selected.slot === 'about') {
+          return { ...section,image:ref };
+        }
+        if (section.type === 'process' && selected.slot === 'operation') {
+          return {
+            ...section,
+            steps:section.steps.map((step,i) => i === 0 ? {...step,image:ref} : step),
+          };
+        }
         return section;
       });
+      const parsed = siteSchema.safeParse({...current,sections});
+      if (!parsed.success) throw new Error('O site recusou a referência da foto. Nenhuma alteração foi salva.');
       rememberScroll();
-      await assetsQuery.refetch();
+      selectionCleanupRef.current?.();
+      selectionCleanupRef.current = null;
       editElementRef.current = null;
       setInlineEditor(null);
-      history.set({...config,sections});
-      toast.success('Imagem atualizada. Salvando automaticamente.');
+      setNewAssets((previous) => ({...previous,[asset.id]:asset}));
+      setPreviewImageUrls((previous) => ({...previous,[asset.id]:localUrl}));
+      history.set(parsed.data);
+      // Refresh in the background; rendering no longer depends on this race.
+      void assetsQuery.refetch();
+      toast.success('Nova imagem carregada no site. Salvando...');
     } catch (error) {
-      toast.error(error instanceof Error ? error.message :
-        'Não foi possível converter a imagem. Escolha uma foto suportada.');
+      toast.error(error instanceof Error ? error.message : 'Não foi possível abrir a imagem enviada.');
     } finally {
       pendingImageRef.current = null;
     }
@@ -519,8 +580,10 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     if (!drag || !edit || !element) return;
     edit.offsetX = Math.max(-400,Math.min(400,Math.round(drag.x+clientX-drag.startX)));
     edit.offsetY = Math.max(-400,Math.min(400,Math.round(drag.y+clientY-drag.startY)));
-    element.style.position = 'relative';
-    element.style.transform = 'translate('+edit.offsetX+'px,'+edit.offsetY+'px)';
+    if (element.ownerDocument.defaultView?.getComputedStyle(element).position === 'static') {
+      element.style.setProperty('position','relative','important');
+    }
+    element.style.setProperty('transform','translate('+edit.offsetX+'px,'+edit.offsetY+'px)','important');
   };
 
   const applyUniversalVisual = () => {
@@ -652,6 +715,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
             </div>
           ) : (
             <iframe
+              key={previewRevision}
               ref={previewFrameRef}
               onLoad={() => { installInlineEditor(); checkPreviewImages(); }}
               title="Previa do site"
