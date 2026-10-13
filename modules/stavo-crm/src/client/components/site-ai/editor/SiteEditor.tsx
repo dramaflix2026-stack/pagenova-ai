@@ -411,21 +411,6 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     update();
   };
 
-  const openMissingPhotoEditor = () => {
-    const sectionType = missingPreviewPhotos.includes('hero') ? 'hero'
-      : missingPreviewPhotos.includes('about') ? 'about'
-      : 'authority';
-    const target = config.sections.find((item) => item.type === sectionType)
-      ?? config.sections.find((item) => item.type === 'hero');
-    if (target) {
-      setSelectedId(target.id);
-      setShowProperties(true);
-    }
-  };
-
-  const imageSlots = config.sections.filter((item) => item.visible && (item.type === 'hero' || item.type === 'about' || item.type === 'authority'));
-  const emptyImages = imageSlots.filter((item) => !('image' in item) || !item.image);
-
   return (
     <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
@@ -496,16 +481,10 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         <Button size="sm" variant="secondary" onClick={() => setShowProperties((v) => !v)}>
           {showProperties ? 'Voltar ao site' : 'Editar textos e fotos'}
         </Button>
-        {emptyImages.length > 0 ? (
-          <Button size="sm" variant="ghost" onClick={() => { setSelectedId(emptyImages[0]!.id); setShowProperties(true); }}>
-            Adicionar foto ({emptyImages.length})
-          </Button>
-        ) : null}
       </div>
       {config.project.templateId === 'frigolog-universal' && missingPreviewPhotos.length > 0 ? (
         <div role="status" className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-400/30 bg-amber-50 px-3 py-2 text-xs text-amber-950">
-          <span>{missingPreviewPhotos.length} foto(s) cadastrada(s) não carregaram. O CRM tenta recuperar imagens do Google Places automaticamente; se persistir, substitua a imagem.</span>
-          <Button size="sm" variant="secondary" onClick={openMissingPhotoEditor}>Substituir foto</Button>
+          <span>{missingPreviewPhotos.length} imagem(ns) não carregaram. Abra Publicar para executar o diagnóstico e a recuperação das imagens. Nenhuma nova geração do site é necessária.</span>
         </div>
       ) : null}
       {saveState === 'conflict' ? (
