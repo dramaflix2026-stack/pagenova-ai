@@ -45,6 +45,14 @@ export default function BuilderPage() {
   const router = useRouter();
 
   const [brief, setBrief] = useState("");
+  const briefTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  // Starts compact and expands as the user types or dictates a longer prompt.
+  useEffect(() => {
+    const textarea=briefTextareaRef.current;
+    if(!textarea)return;
+    textarea.style.height="0px";
+    textarea.style.height=Math.min(290,Math.max(138,textarea.scrollHeight))+"px";
+  },[brief]);
   const [attachments,setAttachments]=useState<File[]>([]);
   const attachInputRef=useRef<HTMLInputElement|null>(null);
   const transcriberRef=useRef<Transcriber|null>(null);
@@ -1019,7 +1027,7 @@ export default function BuilderPage() {
 
   return <>
     {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." />}
-    <main className="mx-auto max-w-[1800px] px-3 py-5 sm:px-5 lg:px-8">
+    <main className="mx-auto max-w-[1800px] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
       <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar imagem do site"
         onChange={(event) => {
@@ -1027,31 +1035,31 @@ export default function BuilderPage() {
           if (file) void uploadSiteImage(file, inlineImageKindRef.current);
           event.target.value = "";
         }} />
-      {!project && <div className="mx-auto flex min-h-[calc(100svh-230px)] max-w-5xl flex-col justify-center py-6 sm:py-10">
-        <div className="mx-auto mb-8 max-w-3xl text-center">
-          <span className="text-xs font-bold uppercase tracking-[.18em] text-emerald-400">PageNova AI · Criação inteligente</span>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">Conte o que você quer criar</h1>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-white/60 sm:text-base">Descreva o que você imagina. A PageNova transforma suas palavras em um site.</p>
+      {!project && <div className="mx-auto flex min-h-[calc(100svh-215px)] max-w-5xl flex-col justify-center py-3 sm:py-10">
+        <div className="mx-auto mb-6 max-w-3xl text-center sm:mb-8">
+          <span className="text-[10px] font-bold uppercase tracking-[.14em] text-emerald-400 sm:text-xs sm:tracking-[.18em]">PageNova AI · Criação inteligente</span>
+          <h1 className="mx-auto mt-3 max-w-2xl text-[30px] font-bold leading-[1.12] tracking-tight sm:text-5xl">Conte o que você quer criar</h1>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/65 sm:mt-4 sm:max-w-2xl sm:text-base">Descreva o que você imagina. A PageNova transforma suas palavras em um site.</p>
         </div>
-        <form onSubmit={start} className="mx-auto w-full max-w-3xl space-y-4">
-          <div className="relative rounded-[28px] border border-white/15 bg-[#11101b] p-4 shadow-[0_16px_65px_rgba(0,0,0,.22)] transition focus-within:border-emerald-400/50 sm:p-6">
+        <form onSubmit={start} className="mx-auto w-full max-w-3xl space-y-3 sm:space-y-4">
+          <div className="relative rounded-[24px] border border-white/15 bg-[#11101b] p-3.5 shadow-[0_16px_65px_rgba(0,0,0,.22)] transition-all focus-within:border-emerald-400/60 focus-within:shadow-[0_12px_48px_rgba(16,185,129,.08)] sm:rounded-[28px] sm:p-6">
             <label htmlFor="pagenova-brief" className="sr-only">Descreva sua ideia de site</label>
-            <textarea id="pagenova-brief"
+            <textarea id="pagenova-brief" ref={briefTextareaRef}
               value={brief}
               onChange={(event)=>{setBrief(event.target.value);if(error)setError("");}}
-              maxLength={2800} rows={6} required
-              placeholder="Ex.: Crie um site premium para uma clínica odontológica chamada Lumina Odontologia, com aparência sofisticada, fotos da equipe, serviços e agendamento..."
-              className="min-h-[155px] w-full resize-y border-0 bg-transparent px-2 pt-1 pb-12 text-base leading-7 text-white outline-none placeholder:text-white/30 sm:min-h-[178px]"
+              maxLength={2800} rows={3} required
+              placeholder="Ex.: Quero um site moderno para minha clínica, com serviços, fotos da equipe e agendamento..."
+              className="block min-h-[138px] max-h-[290px] w-full resize-none overflow-y-auto border-0 bg-transparent px-2 pt-1 pb-14 text-base leading-7 text-white outline-none placeholder:text-white/45 sm:min-h-[155px] sm:pb-16"
             />
             <input ref={attachInputRef} type="file" multiple
               accept="image/png,image/jpeg,image/webp,application/pdf,text/plain"
               className="hidden" aria-label="Selecionar arquivos de referência"
               onChange={event=>{attachFiles(event.target.files);event.target.value="";}}/>
-            <div className="absolute bottom-4 left-4 flex items-center gap-2 sm:left-6">
+            <div className="absolute bottom-3.5 left-3.5 flex items-center gap-2 sm:bottom-4 sm:left-6">
               <button type="button" title="Adicionar fotos, logo, PDF ou briefing"
                 aria-label="Anexar arquivos de referência" onClick={()=>attachInputRef.current?.click()}
                 disabled={phase==="generating"}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[.065] text-white transition hover:border-emerald-400/50 hover:bg-emerald-400/10 disabled:opacity-40">
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/[.08] text-white transition hover:border-emerald-400/50 hover:bg-emerald-400/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400 disabled:opacity-40">
                 <Plus className="h-5 w-5"/>
               </button>
               <button type="button"
@@ -1059,7 +1067,7 @@ export default function BuilderPage() {
                 aria-label={isListening?"Parar transcrição por voz":isRequestingMicrophone?"Cancelar solicitação do microfone":"Iniciar transcrição de voz"}
                 aria-pressed={speechStatus!=="idle"} onClick={toggleDictation} disabled={phase==="generating"}
                 className={`flex h-10 w-10 items-center justify-center rounded-full border transition disabled:opacity-40 ${
-                  speechStatus!=="idle"?"border-red-400/60 bg-red-400/15 text-red-300 animate-pulse":"border-white/15 bg-white/[.065] text-white hover:border-emerald-400/50 hover:bg-emerald-400/10"
+                  speechStatus!=="idle"?"border-red-400/60 bg-red-400/15 text-red-300 animate-pulse":"border-white/20 bg-white/[.08] text-white hover:border-emerald-400/50 hover:bg-emerald-400/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-400"
                 }`}>
                 {speechStatus!=="idle"?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
               </button>
@@ -1078,25 +1086,24 @@ export default function BuilderPage() {
           {attachmentWarning&&<p role="alert" className="text-sm text-amber-300">{attachmentWarning}</p>}
           {error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
           <button type="submit" disabled={phase==="generating"}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
+            className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3.5 text-base font-bold text-[#08130e] shadow-[0_8px_28px_rgba(16,185,129,.11)] transition hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
             {phase==="generating"?<><LoaderCircle className="h-5 w-5 animate-spin"/> Gerando site...</>:"Gerar site com IA →"}
           </button>
           <fieldset>
-            <legend className="mb-3 text-sm font-medium text-white/80">Ponto de partida <span className="font-normal text-white/45">(opcional)</span></legend>
+            <legend className="mb-3 text-sm font-semibold text-white/85">Ponto de partida <span className="font-normal text-white/45">(opcional)</span></legend>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {STARTING_POINTS.map((option) => (
                 <button type="button" key={option.id} aria-pressed={selectedPresetId === option.id}
                   onClick={() => setSelectedPresetId(option.id)}
-                  className={`flex min-h-[108px] flex-col items-start rounded-xl border p-3 text-left transition focus-visible:outline-2 focus-visible:outline-emerald-400 ${
-                    selectedPresetId === option.id ? "border-emerald-400 bg-emerald-400/[.09]" : "border-white/10 bg-black/20 hover:border-white/30"
+                  className={`flex min-h-[96px] flex-col items-start rounded-xl border p-3 text-left transition hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-emerald-400 sm:min-h-[108px] ${
+                    selectedPresetId === option.id ? "border-emerald-400 bg-emerald-400/[.09] shadow-[0_0_0_1px_rgba(16,185,129,.1)]" : "border-white/15 bg-white/[.018] hover:border-emerald-400/30 hover:bg-white/[.045]"
                   }`}>
-                  <span className="text-xl" aria-hidden="true">{option.icon}</span>
-                  <span className="mt-2 text-sm font-semibold">{option.title}</span>
+                  <span className="text-lg sm:text-xl" aria-hidden="true">{option.icon}</span>
+                  <span className="mt-1.5 text-sm font-semibold sm:mt-2">{option.title}</span>
                   <span className="mt-1 text-[11px] leading-4 text-white/50">{option.description}</span>
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-xs text-white/45">A sua descrição é a instrução principal. O modelo só orienta o conteúdo.</p>
           </fieldset>
           <details className="rounded-xl border border-white/10 px-4 py-3">
             <summary className="cursor-pointer text-sm font-medium text-white/75">Estilo visual (opcional)</summary>
@@ -1112,9 +1119,6 @@ export default function BuilderPage() {
               ))}
             </div>
           </details>
-          <p className="text-center text-xs text-white/30">
-            Os modelos abaixo são opcionais. A descrição acima é a instrução principal.
-          </p>
         </form>
       </div>}
 
