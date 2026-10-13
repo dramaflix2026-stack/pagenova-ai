@@ -53,6 +53,9 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(FRIGOLOG_APPROVED_CSS).toContain('.frigolog-kpi-grid');
     expect(FRIGOLOG_APPROVED_CSS).toContain('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1');
     expect(FRIGOLOG_APPROVED_CSS).toContain('scroll-snap-type:none!important');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('PAGENOVA_KPI_BALANCED_CARDS_V2');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('flex:0 0 232px!important');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('align-items:center!important');
   });
   it('keeps 1:1 class geometry of the original template with lead content',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,(s)=>s);

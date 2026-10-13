@@ -287,3 +287,60 @@
     -webkit-user-select:none;
   }
 }
+
+
+/* PAGENOVA_KPI_BALANCED_CARDS_V2 */
+/* Uniform, centered mobile highlights with enough width to avoid the very
+   narrow text columns. Content remains readable without clipping or ellipses.
+   Equal-width cards preserve the three-copy infinite scrolling period. */
+@media (max-width:767px){
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail]{
+    align-items:stretch!important;
+    padding:14px 0!important;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail] .frigolog-kpi-card{
+    box-sizing:border-box;
+    flex:0 0 232px!important;
+    width:232px;
+    min-width:232px!important;
+    min-height:184px;
+    padding:17px 16px!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:9px!important;
+    text-align:center;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail] .frigolog-kpi-icon{
+    display:grid;
+    place-items:center;
+    flex:0 0 auto;
+    width:34px;
+    height:34px;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail] .frigolog-kpi-copy{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    min-width:0;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail] .frigolog-kpi-value{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:2.65em;
+    margin:0!important;
+    font-size:14px;
+    line-height:1.325;
+    text-wrap:balance;
+  }
+  .frigolog-template .frigolog-kpi-grid[data-pn-kpi-rail] .frigolog-kpi-label{
+    max-width:205px;
+    margin:5px 0 0!important;
+    font-size:12px;
+    line-height:1.45;
+    text-wrap:pretty;
+  }
+}

@@ -24,6 +24,7 @@ function bundleIsReady() {
     // server compiled before the infinite mobile carousel was introduced.
     code.includes('data-pn-kpi-rail') &&
     code.includes('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1') &&
+    code.includes('PAGENOVA_KPI_BALANCED_CARDS_V2') &&
     code.includes('pausedUntil');
 }
 if (!bundleIsReady()) {

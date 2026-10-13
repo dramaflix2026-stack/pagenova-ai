@@ -100,7 +100,8 @@ const sourceRailCss = readFileSync(previewCss, 'utf8');
 if (!sourceComponent.includes('data-pn-kpi-rail') ||
     !sourceComponent.includes('startKpiAutoscroll') ||
     !sourceRailCss.includes('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1') ||
-    !sourceRailCss.includes('scroll-snap-type:none!important')) {
+    !sourceRailCss.includes('scroll-snap-type:none!important') ||
+    !sourceRailCss.includes('PAGENOVA_KPI_BALANCED_CARDS_V2')) {
   throw new Error('[FRIGOLOG] Cached frontend source is missing the continuous KPI carousel. Refusing outdated build.');
 }
 const copiedComponent = sourceComponent
