@@ -30,6 +30,7 @@ import { AppError, conflict, notFound, serviceUnavailable, unprocessable } from 
 import { logger } from '@server/lib/logger';
 import { buildSiteArtifactFiles } from '@builder/publishing/artifact-builder';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
+import { restoreAvailableImageSlots } from '@builder/publishing/recover-image-slots';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertPublishable, resolveAvailableSlug, validateAndLintConfig } from '@server/modules/site-ai/service';
 import { createLocalStorage } from '@builder/publishing/storage';
@@ -131,8 +132,6 @@ export async function publishProject(
   // Corrigimos apenas bloqueios mecanicos e removemos prova social nao confirmada;
   // nunca inventamos credenciais, numeros ou depoimentos.
   const model = makeGeneratedDraftPublishSafe(parsed.data);
-  const report = lintSite(model);
-  assertPublishable(report, true);
 
   // Garante que fotos reais importadas do Google continuem publicaveis mesmo
   // se o container tiver sido reimplantado desde a geracao do site. Publicar
@@ -140,6 +139,11 @@ export async function publishProject(
   // se a reidratacao falhar, o builder abaixo ainda publica normalmente
   // quando os bytes locais ja existem e devolve um erro preciso quando nao.
   await ensureGooglePlaceAssets(project).catch(() => 0);
+  // Fill absent slots using only project-owned, verified existing images.
+  // Never invoke paid AI generation from a publish/re-publish request.
+  await restoreAvailableImageSlots(project, model);
+  const report = lintSite(model);
+  assertPublishable(report, true);
 
   // Passo 2: versao congelada especificamente para esta publicacao.
   let versionId: string;
