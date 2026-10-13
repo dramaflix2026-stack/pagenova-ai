@@ -87,6 +87,13 @@ for (const path of [cssFile, previewCss, previewComponent, previewData]) {
 mkdirSync(output, { recursive: true });
 
 const sourceComponent = readFileSync(previewComponent, 'utf8');
+const sourceData = readFileSync(previewData, 'utf8');
+// Reject a stale mirror from a prior Railway deployment before it can be
+// bundled into production, even if the underlying V7 template exists.
+if (!sourceComponent.includes('data-pn-operation-steps') ||
+    !sourceData.includes('steps?: TemplateBenefit[]')) {
+  throw new Error('[FRIGOLOG] Cached frontend source is missing the operation steps. Refusing outdated build.');
+}
 const copiedComponent = sourceComponent
   .replace(/from ["']@\/lib\/frigolog-template-data["']/g, "from './frigolog-template-data.generated'")
   .replace(/^["']use client["'];?\s*/m, '');
@@ -94,7 +101,7 @@ if (copiedComponent.includes('@/lib/frigolog-template-data')) {
   throw new Error('[FRIGOLOG] The component still references an unavailable frontend alias');
 }
 writeFileSync(resolve(output, 'frigolog-react.generated.tsx'), copiedComponent);
-writeFileSync(resolve(output, 'frigolog-template-data.generated.ts'), readFileSync(previewData, 'utf8'));
+writeFileSync(resolve(output, 'frigolog-template-data.generated.ts'), sourceData);
 
 // Tailwind utility rules used by the canonical component (not a reinterpretation).
 // The final original CSS overrides utilities just like on the Next preview.
