@@ -328,14 +328,40 @@ siteAiRouter.get(
     const { renderSite } = await import('@site-kit/renderer/render-site');
     const { SITE_RUNTIME_JS } = await import('@site-kit/interactions/runtime');
 
+    // The Studio and CRM editors display this HTML inside sandboxed srcDoc
+    // iframes. Relative authenticated image URLs can lose SameSite cookies in
+    // that opaque-origin frame, producing broken icons even though the bytes
+    // exist. Embed only assets already authorized for this project; neither
+    // expose a public file route nor allow the iframe to escape its sandbox.
+    // Use the durable backing store so images survive Railway restarts.
+    const { createLocalStorage } = await import('@builder/publishing/storage');
+    const { siteAssetsDirAbsolute } = await import('../../config/env');
+    const storage = createLocalStorage(siteAssetsDirAbsolute());
+    const inlineImages = new Map<string, string>();
+    let totalInlineBytes = 0;
+    for (const asset of assets) {
+      if (!/^image\/(webp|png|jpeg)$/i.test(asset.mimeType)) continue;
+      try {
+        const bytes = await storage.read(asset.storageKey);
+        // Don't turn a preview into an unbounded base64 response.
+        if (bytes.length < 1 || bytes.length > 4_000_000
+            || totalInlineBytes + bytes.length > 12_000_000) continue;
+        totalInlineBytes += bytes.length;
+        inlineImages.set(asset.id, `data:${asset.mimeType};base64,${bytes.toString('base64')}`);
+      } catch {
+        // Missing bytes must render a proper placeholder, not a broken <img>.
+        // The existing asset metadata remains available for later recovery.
+      }
+    }
     const html = renderSite(model, {
       profile: 'DEMO',
       inlineRuntime: SITE_RUNTIME_JS,
       resolveAsset: (assetId: string) => {
         const asset = byId.get(assetId);
-        return asset
+        const inlineUrl = inlineImages.get(assetId);
+        return asset && inlineUrl
           ? {
-              url: `/api/crm/site-projects/${project.id}/assets/${asset.id}/file`,
+              url: inlineUrl,
               width: asset.width ?? undefined,
               height: asset.height ?? undefined,
             }
