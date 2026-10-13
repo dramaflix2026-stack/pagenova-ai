@@ -71,9 +71,14 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
       styles.push('box-sizing:border-box');
     }
     if (edit?.heightPx) {
-      if (tag.startsWith('<article')) styles.push(`min-height:${edit.heightPx}px!important`);
-      else styles.push(`height:${edit.heightPx}px!important`);
-      if (tag.startsWith('<img')) styles.push('object-fit:contain!important');
+      if (tag.startsWith('<img')) {
+        // Pixel heights are safe for media only; text must reflow freely.
+        styles.push(`height:${edit.heightPx}px!important`);
+        styles.push('object-fit:contain!important');
+      } else {
+        styles.push(`min-height:${edit.heightPx}px!important`);
+        styles.push('height:auto!important');
+      }
     }
     if (edit?.offsetX || edit?.offsetY) {
       styles.push(`transform:translate(${edit.offsetX ?? 0}px,${edit.offsetY ?? 0}px)!important`);
