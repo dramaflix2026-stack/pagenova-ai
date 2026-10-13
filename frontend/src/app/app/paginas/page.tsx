@@ -264,7 +264,7 @@ export default function PagesPage() {
   return (
     <>
       <AppHeader
-        title="Minhas páginas"
+        title="Meus sites"
         description="Continue seus sites e landing pages."
       />
 
