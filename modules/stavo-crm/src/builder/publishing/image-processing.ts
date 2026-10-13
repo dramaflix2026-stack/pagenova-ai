@@ -23,7 +23,11 @@ import sharp from 'sharp';
 const SIGNATURES: Array<{ mime: string; bytes: number[]; offset?: number }> = [
   { mime: 'image/png', bytes: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] },
   { mime: 'image/jpeg', bytes: [0xff, 0xd8, 0xff] },
-  { mime: 'image/webp', bytes: [0x52, 0x49, 0x46, 0x46] }, // RIFF....WEBP, checado com cuidado abaixo
+  { mime: 'image/webp', bytes: [0x52, 0x49, 0x46, 0x46] }, // RIFF....WEBP
+  { mime: 'image/gif', bytes: [0x47, 0x49, 0x46, 0x38] }, // GIF87a / GIF89a
+  { mime: 'image/bmp', bytes: [0x42, 0x4d] },
+  { mime: 'image/tiff', bytes: [0x49, 0x49, 0x2a, 0x00] },
+  { mime: 'image/tiff', bytes: [0x4d, 0x4d, 0x00, 0x2a] },
 ];
 
 export const MAX_DIMENSION_PX = 6000;
@@ -47,10 +51,18 @@ export function detectMime(buffer: Buffer): MimeDetectionResult {
     }
     return { ok: true, mime: sig.mime };
   }
-
+  // HEIC/HEIF and AVIF are ISO-BMFF containers, differentiated by their
+  // ftyp brands. sharp/libvips must still decode them successfully.
+  if (buffer.subarray(4, 8).toString('ascii') === 'ftyp') {
+    const brand = buffer.subarray(8, 12).toString('ascii');
+    if (['avif', 'avis'].includes(brand)) return { ok: true, mime: 'image/avif' };
+    if (['heic', 'heix', 'hevc', 'hevx', 'mif1', 'msf1'].includes(brand)) {
+      return { ok: true, mime: 'image/heic' };
+    }
+  }
   return {
     ok: false,
-    reason: 'Formato nao reconhecido. Envie PNG, JPEG ou WebP.',
+    reason: 'Formato não suportado. Use PNG, JPG, WebP, GIF, BMP, TIFF, AVIF ou HEIC/HEIF (quando disponível no servidor). SVG não é aceito por segurança.',
   };
 }
 

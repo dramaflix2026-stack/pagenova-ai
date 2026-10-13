@@ -603,6 +603,9 @@ export const visualTextEditSchema = z.object({
   fontWeight: z.enum(['400', '500', '600', '700', '800', '900']).optional(),
   fontStyle: z.enum(['normal', 'italic']).optional(),
   textAlign: z.enum(['left', 'center', 'right']).optional(),
+  /** Offset applied to the selected text or image on the actual published page. */
+  offsetX: z.number().int().min(-400).max(400).optional(),
+  offsetY: z.number().int().min(-400).max(400).optional(),
 });
 
 export const siteSchema = z.object({

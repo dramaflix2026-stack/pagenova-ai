@@ -56,19 +56,35 @@ export { renderStyles } from '@site-kit/themes/styles';
  */
 function applyVisualTextEdits(html: string, sectionId: string, model: SiteSchemaModel): string {
   let index = 0;
-  return html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
-    const key = `${sectionId}:${index++}`;
+  const apply = (tag: string, key: string): string => {
     const edit = model.visualTextEdits.find((item) => item.key === key);
     const styles: string[] = [];
-    if (edit?.fontSizePx) styles.push(`font-size:${edit.fontSizePx}px`);
-    if (edit?.fontFamily) styles.push(`font-family:${edit.fontFamily === 'Georgia' ? 'Georgia,serif' : `${edit.fontFamily},sans-serif`}`);
-    if (edit?.color) styles.push(`color:${edit.color}`);
-    if (edit?.fontWeight) styles.push(`font-weight:${edit.fontWeight}`);
-    if (edit?.fontStyle) styles.push(`font-style:${edit.fontStyle}`);
-    if (edit?.textAlign) styles.push(`text-align:${edit.textAlign}`);
-    const attrs = ` data-pn-edit="${escapeHtml(key)}"${styles.length ? ` style="${styles.join(';')}"` : ''}`;
-    return tag.replace(/>$/, `${attrs}>`);
+    if (edit?.fontSizePx) styles.push(`font-size:${edit.fontSizePx}px!important`);
+    if (edit?.fontFamily) styles.push(`font-family:${edit.fontFamily === 'Georgia' ? 'Georgia,serif' : `${edit.fontFamily},sans-serif`}!important`);
+    if (edit?.color) styles.push(`color:${edit.color}!important`);
+    if (edit?.fontWeight) styles.push(`font-weight:${edit.fontWeight}!important`);
+    if (edit?.fontStyle) styles.push(`font-style:${edit.fontStyle}!important`);
+    if (edit?.textAlign) styles.push(`text-align:${edit.textAlign}!important`);
+    if (edit?.offsetX || edit?.offsetY) {
+      styles.push(`transform:translate(${edit.offsetX ?? 0}px,${edit.offsetY ?? 0}px)!important`);
+      styles.push('position:relative');
+    }
+    // Preserve pre-existing React inline styles. Never output duplicate HTML
+    // style attributes (the browser may ignore one of them).
+    const existing = /\sstyle="([^"]*)"/i.exec(tag);
+    const originalStyles = existing?.[1] ?? '';
+    const without = existing ? tag.replace(existing[0], '') : tag;
+    const merged = [originalStyles, ...styles].filter(Boolean).join(';');
+    const extra = ` data-pn-edit="${escapeHtml(key)}"${merged ? ` style="${merged}"` : ''}`;
+    return without.replace(/>$/, extra + '>');
+  };
+  const withText = html.replace(/<(h[1-4]|p|span|a|button|li)(\s[^>]*)?>/gi, (tag) => {
+    return apply(tag, `${sectionId}:${index++}`);
   });
+  // Images are first-class draggable blocks and persist to the same model.
+  // Only site media with stable data-pn-photo markers is eligible.
+  return withText.replace(/<img\b[^>]*\bdata-pn-photo="(hero|about|operation)"[^>]*>/gi,
+    (tag, slot: string) => apply(tag, `${sectionId}:photo:${slot}`));
 }
 
 function renderSection(section: SiteSection, ctx: RenderContext, model: SiteSchemaModel): string {

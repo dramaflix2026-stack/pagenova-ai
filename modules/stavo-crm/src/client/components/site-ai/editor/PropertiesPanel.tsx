@@ -388,12 +388,12 @@ function ImageField({
       const { asset } = await upload.mutateAsync(file);
       onChange({ assetId: asset.id, alt: asset.altText ?? '', focalX: 0.5, focalY: 0.5 });
     } catch {
-      toast.error('Nao foi possivel enviar a imagem. Verifique o formato (PNG, JPEG ou WebP).');
+      toast.error('Não foi possível converter a imagem. Use JPG, PNG, GIF, WebP, AVIF ou HEIC; SVG não é aceito por segurança.');
     }
   };
 
   return (
-    <Field label="Imagem" hint="PNG, JPEG ou WebP. A imagem original nunca fica salva -- so uma versao otimizada.">
+    <Field label="Imagem" hint="JPG, PNG, GIF, WebP, AVIF, HEIC/HEIF, BMP ou TIFF compatíveis. O servidor converte para WebP; SVG e outros arquivos executáveis são bloqueados.">
       <div className="space-y-2">
         {value && selectedAsset ? (
           <div className="space-y-2 rounded-md border border-border p-2">
@@ -476,7 +476,7 @@ function ImageField({
         <input
           ref={fileInput}
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept="image/*,.heic,.heif,.avif,.tif,.tiff,.bmp"
           className="hidden"
           onChange={(e) => {
             const file = e.target.files?.[0];
