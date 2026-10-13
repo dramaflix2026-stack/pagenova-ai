@@ -61,28 +61,37 @@ export function mountCanvasHandles(
   overlay.style.cssText = 'position:fixed;z-index:2147483000;pointer-events:none;' +
     'border:1.5px solid #00a88c;border-radius:3px;box-sizing:border-box;';
   overlay.setAttribute('aria-label', 'Elemento selecionado: arraste-o para mover e use o canto para redimensionar');
+  // The resize touch zones are outside the content. Only the corner is
+  // visibly green: previous middle controls covered important text lines.
   const grips: HTMLButtonElement[] = [];
-  const addGrip = (mode: ResizeDirection, position: string, symbol: string, label: string) => {
+  const addGrip = (mode: ResizeDirection, styles: string, label: string) => {
     const button = doc.createElement('button');
     button.type = 'button';
-    button.textContent = symbol;
     button.dataset.pnResize = mode;
-    button.setAttribute('aria-label', label);
+    button.setAttribute('aria-label',label);
     button.title = label;
     button.style.cssText = 'position:absolute;pointer-events:auto;touch-action:none;' +
-      'width:34px;height:34px;display:flex;align-items:center;justify-content:center;' +
-      'border:1.5px solid #fff;border-radius:10px;background:#008e7d;color:white;' +
-      'font:700 20px/1 sans-serif;box-shadow:0 2px 7px #0004;' +
-      'user-select:none;-webkit-user-select:none;cursor:nwse-resize;' + position;
+      'user-select:none;-webkit-user-select:none;cursor:nwse-resize;' + styles;
     overlay.appendChild(button);
     grips.push(button);
     return button;
   };
-  const corner = addGrip('se','right:-17px;bottom:-17px;','↘','Arraste este canto para alterar a largura e a altura');
-  const right = addGrip('e','right:-17px;top:calc(50% - 17px);','↔','Arraste para ajustar a largura');
-  const bottom = addGrip('s','left:calc(50% - 17px);bottom:-17px;','↕','Arraste para ajustar a altura');
-  right.style.cursor = 'ew-resize';
-  bottom.style.cursor = 'ns-resize';
+  const corner = addGrip('se',
+    'right:-14px;bottom:-14px;width:28px;height:28px;border:2px solid #fff;' +
+    'border-radius:8px;background:#008e7d;color:white;font:700 16px/1 sans-serif;' +
+    'box-shadow:0 2px 5px #0003;', 
+    'Arraste o canto para redimensionar');
+  corner.textContent = '↘';
+  const right = addGrip('e',
+    'right:-12px;top:18px;bottom:18px;width:24px;background:transparent;' +
+    'border:none;cursor:ew-resize;',
+    'Arraste a borda direita para ajustar a largura');
+  const bottom = addGrip('s',
+    'left:18px;right:18px;bottom:-12px;height:24px;background:transparent;' +
+    'border:none;cursor:ns-resize;',
+    'Arraste a borda inferior para ajustar a altura');
+  // Keep the corners above edge hit zones for reliable single-pointer resize.
+  corner.style.zIndex = '2';
   overlay.style.touchAction = 'none';
   doc.body.appendChild(overlay);
 
@@ -151,15 +160,19 @@ export function mountCanvasHandles(
         current.widthPx = next.widthPx;
         target.style.setProperty('width',current.widthPx+'px','important');
         target.style.setProperty('max-width','100%','important');
+        if (target.tagName !== 'IMG') target.style.setProperty('height','auto','important');
       }
       if (next.heightPx !== undefined && active.mode !== 'e') {
         current.heightPx = next.heightPx;
-        if (target.tagName === 'ARTICLE') {
-          target.style.setProperty('min-height',current.heightPx+'px','important');
-        } else {
+        if (target.tagName === 'IMG') {
           target.style.setProperty('height',current.heightPx+'px','important');
+          target.style.setProperty('object-fit','contain','important');
+        } else {
+          // Multiline headings need natural line wrapping. A fixed height
+          // clipped text and misaligned the selection frame on mobile.
+          target.style.setProperty('height','auto','important');
+          target.style.setProperty('min-height',current.heightPx+'px','important');
         }
-        if (target.tagName === 'IMG') target.style.setProperty('object-fit','contain','important');
       }
     }
     drawOutline();
