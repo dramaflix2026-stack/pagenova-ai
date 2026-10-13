@@ -215,3 +215,42 @@
   }
   .frigolog-template #operacao article{min-height:0}
 }
+
+/* PAGENOVA_MOBILE_POLISH_V4 */
+/* A compact, touch-scrollable benefits rail without the intrusive
+   horizontal scrollbar; the partial next item still signals swiping. */
+@media(max-width:767px){
+  .frigolog-template .frigolog-kpi-grid{
+    scrollbar-width:none;
+    -ms-overflow-style:none;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+  }
+  .frigolog-template .frigolog-kpi-grid::-webkit-scrollbar{display:none}
+
+  /* Keep the approved four-card layout while reducing unnecessary
+     vertical travel on small phones. Desktop geometry is untouched. */
+  .frigolog-template #servicos .site-container>.grid{gap:14px!important}
+  .frigolog-template #servicos .service-card{
+    min-height:218px!important;
+    padding:22px 24px!important;
+    border-radius:22px!important;
+    margin-bottom:0!important;
+  }
+  .frigolog-template #servicos .service-card .service-icon{
+    width:52px!important;height:52px!important;
+  }
+  .frigolog-template #servicos .service-card h3{
+    margin-top:16px!important;
+    font-size:18px!important;
+  }
+  .frigolog-template #servicos .service-card p{
+    margin-top:9px!important;
+    font-size:15px!important;
+    line-height:1.55!important;
+  }
+  .frigolog-template #servicos .service-card a{
+    padding-top:16px!important;
+    font-size:15px!important;
+  }
+}
