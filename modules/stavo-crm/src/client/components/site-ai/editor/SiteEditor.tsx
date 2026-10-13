@@ -72,7 +72,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const scrollRef = useRef({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; x: number; y: number } | null>(null);
-  const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number; kind: 'text' | 'image' } | null>(null);
+  const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number; kind: 'text' | 'image' | 'block' } | null>(null);
   const [missingPreviewPhotos, setMissingPreviewPhotos] = useState<string[]>([]);
 
   const loadedRef = useRef(false);
@@ -329,12 +329,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     const before = originalTextRef.current;
     const after = element.innerText.trim();
     const isPhoto = element.tagName === 'IMG';
+    const isBlock = element.tagName === 'ARTICLE';
     element.contentEditable = 'false';
     element.style.outline = '';
     element.style.outlineOffset = '';
     let nextSections = config.sections;
     let changed = false;
-    if (save && !isPhoto && after && after !== before) {
+    if (save && !isPhoto && !isBlock && after && after !== before) {
       const preferred = selectedSource(element);
       const candidates = preferred
         ? [preferred,...config.sections.filter((s) => s.id !== preferred.id)]
@@ -359,7 +360,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           element.innerText = before;
         }
       }
-    } else if (!save && !isPhoto) {
+    } else if (!save && !isPhoto && !isBlock) {
       element.innerText = before;
     }
     let nextStyles = config.visualTextEdits;
@@ -375,7 +376,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     setInlineEditor(null);
     if (changed && save) history.set({ ...config, sections: nextSections, visualTextEdits: nextStyles });
   };
-  const showToolbar = (element: HTMLElement, x: number, y: number, kind: 'text' | 'image') => {
+  const showToolbar = (element: HTMLElement, x: number, y: number, kind: 'text' | 'image' | 'block') => {
     const rect = previewFrameRef.current?.getBoundingClientRect();
     if (!rect) return;
     editElementRef.current = element;
@@ -398,13 +399,22 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     const style = doc.createElement('style');
     style.textContent = '[data-pn-edit]:hover{outline:1px dashed #06b6a5;outline-offset:3px}' +
       'img[data-pn-photo]{cursor:pointer}' +
-      '[contenteditable=true]{outline:2px solid #06b6a5!important;outline-offset:3px}';
+      '[contenteditable=true]{outline:2px solid #06b6a5!important;outline-offset:3px}' +
+      'article[data-pn-edit]{cursor:grab}' +
+      '[data-pn-edit],img[data-pn-photo]{touch-action:manipulation}';
     doc.head.appendChild(style);
     doc.addEventListener('click',(event) => {
       const target = event.target as HTMLElement;
       if (target.closest('a[href]')) event.preventDefault();
       const img = target.closest('img[data-pn-photo]') as HTMLImageElement | null;
-      if (!img) return;
+      if (!img) {
+        const card = target.closest('article[data-pn-edit]') as HTMLElement | null;
+        if (card && card !== editElementRef.current) {
+          if (editElementRef.current) finishInlineEdit();
+          showToolbar(card,event.clientX,event.clientY,'block');
+        }
+        return;
+      }
       event.preventDefault();
       const section = selectedSource(img);
       const slot = img.dataset.pnPhoto as PhotoSlot | undefined;
@@ -666,7 +676,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         {inlineEditor ? (
           <div
             role="toolbar"
-            aria-label={inlineEditor.kind === 'text' ? 'Editar texto selecionado' : 'Editar imagem selecionada'}
+            aria-label={inlineEditor.kind === 'text' ? 'Editar texto selecionado' : inlineEditor.kind === 'image' ? 'Editar imagem selecionada' : 'Mover cartão selecionado'}
             className="fixed z-[100] flex max-w-[calc(100vw-16px)] flex-wrap items-center gap-1 rounded-xl border border-border bg-surface p-2 text-foreground shadow-2xl"
             style={{ left:inlineEditor.x,top:inlineEditor.y,width:'min(420px, calc(100vw - 16px))' }}
           >
@@ -699,13 +709,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
                 <button type="button" aria-label="Alinhar à direita" className="h-8 w-7 rounded hover:bg-muted"
                   onClick={() => styleInlineElement('textAlign','right')}>R</button>
               </>
-            ) : (
+            ) : inlineEditor.kind === 'image' ? (
               <button type="button" className="flex h-8 items-center gap-1 rounded-lg px-2 text-xs font-semibold hover:bg-muted"
                 onClick={() => imageInputRef.current?.click()}>
                 <ImagePlus className="h-4 w-4" aria-hidden="true" />
                 {uploadAsset.isPending ? 'Enviando...' : 'Trocar imagem'}
               </button>
-            )}
+            ) : <span className="px-1 text-xs font-semibold">Card selecionado</span>}
             <button type="button" aria-label="Arrastar bloco" title="Segure e arraste para mover o bloco"
               className="flex h-8 touch-none items-center gap-1 rounded-lg border border-border px-2 text-xs font-semibold hover:bg-muted"
               onPointerDown={(event) => {

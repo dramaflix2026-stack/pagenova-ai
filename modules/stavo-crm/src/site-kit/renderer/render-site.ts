@@ -97,9 +97,13 @@ export function applyVisualTextEdits(html: string, sectionId: string, model: Sit
     withOverrides = withOverrides.replace(pattern, (_match, start: string, _tag: string, end: string) =>
       start + escapeHtml(edit.textOverride!) + end);
   }
-  // Images are first-class draggable blocks and persist to the same model.
-  // Only site media with stable data-pn-photo markers is eligible.
-  return withOverrides.replace(/<img\b[^>]*\bdata-pn-photo="(hero|about|operation)"[^>]*>/gi,
+  // Cards are independent draggable blocks, not merely their child text.
+  // No DOM markup is modified on the public page until the editor saves it.
+  let blockIndex = 0;
+  const withBlocks = withOverrides.replace(/<article\b[^>]*>/gi,
+    (tag) => apply(tag, sectionId + ':block:' + blockIndex++));
+  // Image positioning is stored independently of the card positioning.
+  return withBlocks.replace(/<img\b[^>]*\bdata-pn-photo="(hero|about|operation)"[^>]*>/gi,
     (tag, slot: string) => apply(tag, sectionId + ':photo:' + slot));
 }
 
