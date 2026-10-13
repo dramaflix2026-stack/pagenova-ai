@@ -88,6 +88,10 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
 
   const loadedRef = useRef(false);
   const skipNextAutosaveRef = useRef(false);
+  const persistedDraftFingerprintRef = useRef<string | null>(null);
+  const queuedDraftRef = useRef<SiteSchemaModel | null>(null);
+  const serializedSaveRunningRef = useRef(false);
+  const saveLockVersionRef = useRef(0);
 
   useEffect(() => {
     const media = window.matchMedia('(max-width: 767px)');
@@ -108,6 +112,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     if (parsed.success) {
       history.reset(parsed.data);
       setLockVersion(draftQuery.data.lockVersion);
+      saveLockVersionRef.current = draftQuery.data.lockVersion;
+      persistedDraftFingerprintRef.current = JSON.stringify(parsed.data);
+      queuedDraftRef.current = null;
       setSelectedId(parsed.data.sections[0]?.id ?? null);
       loadedRef.current = true;
     }
@@ -122,39 +129,63 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     temporaryUrlsRef.current = [];
   }, []);
 
-  // Autosave debounced. Nunca salva so no localStorage (secao 15.8): o banco
-  // e sempre a fonte persistente, mesmo que o navegador feche no meio.
+  // Serialize saves: never send two PATCH /config calls using an obsolete
+  // optimistic lockVersion. Drag/resize can commit many times in one second.
+  // The latest complete draft always wins without discarding prior edits.
+  const saveMutateAsyncRef = useRef(saveConfig.mutateAsync);
+  saveMutateAsyncRef.current = saveConfig.mutateAsync;
+
+  const flushQueuedDraft = async () => {
+    if (serializedSaveRunningRef.current) return;
+    serializedSaveRunningRef.current = true;
+    try {
+      while (queuedDraftRef.current) {
+        const draft = queuedDraftRef.current;
+        const fingerprint = JSON.stringify(draft);
+        if (fingerprint === persistedDraftFingerprintRef.current) break;
+        const result = await saveMutateAsyncRef.current({
+          config:draft,expectedLockVersion:saveLockVersionRef.current,
+        });
+        const version = result.project.lockVersion;
+        saveLockVersionRef.current = version;
+        persistedDraftFingerprintRef.current = fingerprint;
+        setLockVersion(version);
+      }
+      setSaveState('saved');
+    } catch (error: unknown) {
+      const details = (error as {
+        details?: { config?: unknown; project?: {lockVersion:number} };
+      })?.details;
+      if (details?.config) {
+        setConflictConfig(details.config as SiteSchemaModel);
+        setSaveState('conflict');
+      } else {
+        setSaveState('error');
+      }
+    } finally {
+      serializedSaveRunningRef.current = false;
+    }
+  };
+
   useEffect(() => {
     if (!config || !loadedRef.current) return;
+    queuedDraftRef.current = config;
     if (skipNextAutosaveRef.current) {
       skipNextAutosaveRef.current = false;
+      persistedDraftFingerprintRef.current = JSON.stringify(config);
+      saveLockVersionRef.current = lockVersion;
       setSaveState('saved');
       return;
     }
-
+    if (JSON.stringify(config) === persistedDraftFingerprintRef.current) {
+      setSaveState('saved');
+      return;
+    }
     setSaveState('saving');
-    const timer = setTimeout(() => {
-      saveConfig.mutate(
-        { config, expectedLockVersion: lockVersion },
-        {
-          onSuccess: (result) => {
-            setLockVersion(result.project.lockVersion);
-            setSaveState('saved');
-          },
-          onError: (error: unknown) => {
-            const details = (error as { details?: { config?: unknown; project?: { lockVersion: number } } })?.details;
-            if (details?.config) {
-              setConflictConfig(details.config as SiteSchemaModel);
-              setSaveState('conflict');
-            } else {
-              setSaveState('error');
-            }
-          },
-        },
-      );
-    }, AUTOSAVE_DELAY_MS);
-
+    const timer = setTimeout(() => { void flushQueuedDraft(); }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timer);
+    // Configuration fingerprint is the only auto-save trigger; the serialized
+    // worker reads the newest queued draft and current server lockVersion.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config]);
 
@@ -315,7 +346,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     if (!conflictConfig) return;
     history.reset(conflictConfig);
     const serverLockVersion = projectQuery.data?.lockVersion ?? draftQuery.data?.lockVersion;
-    if (typeof serverLockVersion === 'number') setLockVersion(serverLockVersion);
+    if (typeof serverLockVersion === 'number') {
+      setLockVersion(serverLockVersion);
+      saveLockVersionRef.current = serverLockVersion;
+      persistedDraftFingerprintRef.current = JSON.stringify(conflictConfig);
+    }
     setConflictConfig(null);
     setSaveState('saved');
     void draftQuery.refetch().then((result) => {
@@ -503,7 +538,13 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         showToolbar(image,event.clientX,event.clientY,'image');
         return;
       }
-      const selectable = target.closest('[data-pn-edit]') as HTMLElement | null;
+      const nearest = target.closest('[data-pn-edit]') as HTMLElement | null;
+      // Select the entire heading/paragraph rather than an inner inline span.
+      // A span's first-line box produced cropped selection borders on mobile.
+      const fullTextBlock = nearest?.closest(
+        'h1[data-pn-edit],h2[data-pn-edit],h3[data-pn-edit],h4[data-pn-edit],p[data-pn-edit],li[data-pn-edit]',
+      ) as HTMLElement | null;
+      const selectable = fullTextBlock ?? nearest;
       if (!selectable) {
         if (editElementRef.current) finishInlineEdit();
         return;
@@ -528,7 +569,11 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         }
         return;
       }
-      const text = target.closest('[data-pn-edit]') as HTMLElement | null;
+      const nearestText = target.closest('[data-pn-edit]') as HTMLElement | null;
+      const parentText = nearestText?.closest(
+        'h1[data-pn-edit],h2[data-pn-edit],h3[data-pn-edit],h4[data-pn-edit],p[data-pn-edit],li[data-pn-edit]',
+      ) as HTMLElement | null;
+      const text = parentText ?? nearestText;
       if (!text || text.tagName === 'IMG' || text.tagName === 'ARTICLE' ||
           !text.innerText?.trim() || text.closest('.pn-kpi-clone,[aria-hidden="true"]')) return;
       event.preventDefault();
@@ -748,7 +793,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       ) : null}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
-        <span>Um toque seleciona o bloco: use as alças verdes para mover ou redimensionar.</span>
+        <span>Toque para selecionar; arraste o próprio bloco para mover. O canto redimensiona sem cortar o texto.</span>
         <span>Duplo clique no texto para editar. Duplo clique na imagem para trocar.</span>
       </div>
       {config.project.templateId === 'frigolog-universal' && missingPreviewPhotos.length > 0 ? (
@@ -923,6 +968,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
               skipNextAutosaveRef.current = true;
               history.reset(parsed.data);
               setLockVersion(latestLockVersion);
+              saveLockVersionRef.current = latestLockVersion;
+              persistedDraftFingerprintRef.current = JSON.stringify(parsed.data);
               setInlineEditor(null);
               setMissingPreviewPhotos([]);
               void assetsQuery.refetch();
