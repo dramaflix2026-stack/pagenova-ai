@@ -7,6 +7,7 @@ import { processUploadedImage } from '@builder/publishing/image-processing';
 import { createLocalStorage } from '@builder/publishing/storage';
 import { siteAssetsDirAbsolute } from '@server/config/env';
 import { newId } from '@server/lib/ids';
+import { logger } from '@server/lib/logger';
 import type { SiteProject } from '@server/db/schema';
 import * as repo from '@server/modules/site-ai/repository';
 
@@ -51,14 +52,29 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
         prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slot === 'hero' ? 'Open negative space on the left for overlaid website copy, important details on the right.' : slot === 'about' ? 'Warm editorial details with a sophisticated close-up perspective, suitable for a company introduction.' : 'A practical process-oriented work scene from an alternate angle, visually distinct from the hero and about sections.'} Soft natural light, realistic materials. NO PEOPLE, NO FACES, no people-like photographs, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
       }),
     });
-    if (!response.ok) return 'unavailable';
+    if (!response.ok) {
+      // Never log API keys, prompts or the response body; the HTTP status is
+      // enough to distinguish auth/quota/model errors in Railway logs.
+      logger.warn({ projectId: project.id, slot, model: MODEL, httpStatus: response.status },
+        'PAGENOVA_IMAGE_OPENAI_HTTP_FAILURE');
+      return 'unavailable';
+    }
     const payload = await response.json() as { data?: Array<{ b64_json?: string }> };
     const encoded = payload.data?.[0]?.b64_json;
-    if (!encoded || encoded.length > MAX_RESPONSE_BYTES * 1.4) return 'unavailable';
+    if (!encoded || encoded.length > MAX_RESPONSE_BYTES * 1.4) {
+      logger.warn({ projectId: project.id, slot, model: MODEL }, 'PAGENOVA_IMAGE_INVALID_RESPONSE');
+      return 'unavailable';
+    }
     const bytes = Buffer.from(encoded, 'base64');
-    if (bytes.length > MAX_RESPONSE_BYTES) return 'unavailable';
+    if (bytes.length > MAX_RESPONSE_BYTES) {
+      logger.warn({ projectId: project.id, slot, size: bytes.length }, 'PAGENOVA_IMAGE_OVERSIZE');
+      return 'unavailable';
+    }
     const processed = await processUploadedImage(bytes);
-    if (!processed.ok) return 'unavailable';
+    if (!processed.ok) {
+      logger.warn({ projectId: project.id, slot }, 'PAGENOVA_IMAGE_PROCESSING_FAILED');
+      return 'unavailable';
+    }
     const storageKey = `${project.id}/${newId()}.webp`;
     await storage.write(storageKey, processed.image.optimized.buffer);
     await repo.insertAsset({
@@ -90,7 +106,8 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     });
     await repo.addProjectCost(project.id, estimatedUsd.toFixed(6));
     return 'created';
-  } catch {
+  } catch (error) {
+    logger.error({ err: error, projectId: project.id, slot }, 'PAGENOVA_IMAGE_STORAGE_OR_NETWORK_FAILED');
     return 'unavailable';
   } finally {
     clearTimeout(timeout);
