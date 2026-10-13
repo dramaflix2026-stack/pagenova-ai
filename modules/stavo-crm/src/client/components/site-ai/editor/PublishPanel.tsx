@@ -30,6 +30,7 @@ interface PublishPanelProps {
   projectId: string;
   currentSlug: string | null;
   onClose: () => void;
+  onImagesRecovered?: (config: unknown, lockVersion: number) => void;
 }
 
 interface LintFindingLike {
@@ -38,6 +39,7 @@ interface LintFindingLike {
 }
 interface ImageRecoveryStatus {
   hero: boolean;
+  about: boolean;
   supplement: boolean;
   real: number;
   missing: number;
@@ -47,7 +49,7 @@ interface ImageRecoveryStatus {
   message: string;
 }
 
-export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelProps) {
+export function PublishPanel({ projectId, currentSlug, onClose, onImagesRecovered }: PublishPanelProps) {
   const toast = useToast();
   const publications = useSitePublications(projectId);
   const publish = usePublishSite(projectId);
@@ -86,17 +88,18 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
         ? 'Reassociar as imagens existentes e republicar o site sem custo de IA?'
         : `Recriar apenas as ${imageStatus.missingIllustrations} ilustrações ausentes?\n\n` +
           `Custo estimado máximo: US$ ${amount.toFixed(2)}.\n` +
-          'O texto do site não será gerado novamente. As imagens poderão ser incluídas na publicação existente.',
+          'O texto do site não será gerado novamente. As imagens serão incluídas no projeto existente.',
     );
     if (!approved) return;
     setRepairingImages(true);
     setImageStatusError(null);
     try {
-      const result = await api.post<{ url: string; newIllustrations: number; costEstimatedUsd: number }>(
+      const result = await api.post<{ url: string; newIllustrations: number; costEstimatedUsd: number; config: unknown; lockVersion: number }>(
         `/site-projects/${projectId}/image-recovery`,
         { confirmPaid: true, maxEstimatedUsd: amount },
       );
       setPublishedUrl(result.url);
+      onImagesRecovered?.(result.config, result.lockVersion);
       const fresh = await api.get<ImageRecoveryStatus>(`/site-projects/${projectId}/image-recovery`);
       setImageStatus(fresh);
       toast.success(`Imagens recuperadas e site republicado. Custo estimado: US$ ${result.costEstimatedUsd.toFixed(2)}.`);
@@ -211,10 +214,10 @@ export function PublishPanel({ projectId, currentSlug, onClose }: PublishPanelPr
         <p className="mb-2 text-sm font-semibold">Imagens do site</p>
         {imageStatus ? (
           <div className="space-y-2 text-xs">
-            <p>Banner IA: {imageStatus.hero ? 'disponível' : 'ausente'} · Imagem complementar: {imageStatus.supplement ? 'disponível' : 'ausente'}</p>
+            <p>Banner: {imageStatus.hero ? 'disponível' : 'ausente'} · Quem somos: {imageStatus.real > 0 || imageStatus.about ? 'disponível' : 'ausente'} · Processo: {imageStatus.real > 1 || imageStatus.supplement ? 'disponível' : 'ausente'}</p>
             <p>Fotos reais disponíveis: {imageStatus.real}. Arquivos perdidos: {imageStatus.missing}.</p>
             {!imageStatus.real ? (
-              <p className="text-muted-foreground">Sem foto real do Google ou upload: “Quem somos” ficará sem fotografia até existir uma foto real autorizada.</p>
+              <p className="text-muted-foreground">Sem foto real do Google ou upload: será usada uma ilustração claramente identificada, sem representar funcionários ou instalações reais.</p>
             ) : null}
             {imageStatus.canGenerate ? (
                 <Button
