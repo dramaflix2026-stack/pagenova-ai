@@ -235,10 +235,10 @@ export function Sidebar() {
           </div>
 
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-            <NavigationGroup title="CRM & Vendas" description="Seu espaço comercial principal" items={crmItems}
-              isCrm pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
               isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+            <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
+              isCrm pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
               isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
@@ -295,10 +295,10 @@ export function Sidebar() {
         </div>
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-          <NavigationGroup title="CRM & Vendas" description="Seu espaço comercial principal" items={crmItems}
-            isCrm pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
             isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
+          <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
+            isCrm pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
             isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
