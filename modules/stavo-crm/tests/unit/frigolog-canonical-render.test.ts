@@ -54,6 +54,9 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(FRIGOLOG_APPROVED_CSS).toContain('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1');
     expect(FRIGOLOG_APPROVED_CSS).toContain('scroll-snap-type:none!important');
     expect(FRIGOLOG_APPROVED_CSS).toContain('PAGENOVA_KPI_BALANCED_CARDS_V2');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('PAGENOVA_UNIVERSAL_CONTRAST_V1');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('#operacao article h3');
+    expect(FRIGOLOG_APPROVED_CSS).toContain('.hero.pn-photo-missing h1');
     expect(FRIGOLOG_APPROVED_CSS).toContain('flex:0 0 232px!important');
     expect(FRIGOLOG_APPROVED_CSS).toContain('align-items:center!important');
   });
@@ -69,6 +72,15 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(html).toContain('href="https://wa.me/5516999999999"');
     expect(html).not.toContain('A temperatura certa');
     expect(html).not.toContain('frigolog/cold-storage.jpg');
+  });
+  it('emits accessible ink tokens even when a brand specifies light foreground',()=>{
+    const model=site();
+    model.theme.colors.primary='#f26b60';
+    model.theme.colors.text='#fff5e9';
+    const html=renderCanonicalFrigolog(model,ctx,s=>s);
+    expect(html).toContain('--pn-cta-ink');
+    expect(html).toContain('--pn-light-accent');
+    expect(html).toContain('--pn-action-ink');
   });
   it('never renders the refrigeration reference picture for an unrelated lead',()=>{
     const data=adaptCrmToFrigolog(site(),ctx);

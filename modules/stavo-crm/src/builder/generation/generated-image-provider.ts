@@ -28,10 +28,14 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   // Never put private lead data, addresses, names, or real people's likenesses
   // in the prompt. The sector is sufficient for an illustrative banner.
   const niche = String(project.internalName ?? '').slice(0, 100);
-  const dental = /odont|dent|sorriso|ortodont|implante|clinica dental/i.test(niche + ' ' + project.businessName);
+  const context = niche + ' ' + project.businessName;
+  const dental = /odont|dent|sorriso|ortodont|implante|clinica dental/i.test(context);
+  const technology = /tecnolog|tech|inform[aá]tic|sistemas|digital|software|comput|infraestrutura|conectividade|cloud/i.test(context);
   const subject = dental
     ? 'a modern, welcoming dental treatment room with an empty dental chair and clean equipment'
-    : 'an elegant, contemporary small-business interior with no identifying branding';
+    : technology
+      ? 'an elegant technology workspace featuring contemporary computers and thoughtfully designed network equipment, without any company branding'
+      : 'an elegant, contemporary small-business interior with no identifying branding';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);
   try {
@@ -69,7 +73,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
       height: processed.image.optimized.height,
       sizeBytes: processed.image.optimized.sizeBytes,
       checksum: processed.image.checksum,
-      altText: `[${slot}] ` + (dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : 'Ambiente ilustrativo gerado por IA'),
+      altText: `[${slot}] ` + (dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : technology ? 'Ambiente ilustrativo de tecnologia gerado por IA' : 'Ambiente ilustrativo gerado por IA'),
       rightsStatus: 'AI_GENERATED',
       createdBy: project.ownerUserId,
     });

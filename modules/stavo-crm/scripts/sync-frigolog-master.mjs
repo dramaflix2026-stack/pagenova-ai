@@ -101,7 +101,9 @@ if (!sourceComponent.includes('data-pn-kpi-rail') ||
     !sourceComponent.includes('startKpiAutoscroll') ||
     !sourceRailCss.includes('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1') ||
     !sourceRailCss.includes('scroll-snap-type:none!important') ||
-    !sourceRailCss.includes('PAGENOVA_KPI_BALANCED_CARDS_V2')) {
+    !sourceRailCss.includes('PAGENOVA_KPI_BALANCED_CARDS_V2') ||
+    !sourceRailCss.includes('PAGENOVA_UNIVERSAL_CONTRAST_V1') ||
+    !sourceComponent.includes('--pn-cta-ink')) {
   throw new Error('[FRIGOLOG] Cached frontend source is missing the continuous KPI carousel. Refusing outdated build.');
 }
 const copiedComponent = sourceComponent

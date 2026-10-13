@@ -63,7 +63,7 @@ const output = await readFile('dist/server/index.js', 'utf8');
 for (const required of [
   'frigolog-kpi-grid', 'pn-photo-missing', 'FRIGOLOG canonical source',
   'data-pn-operation-steps', 'data-pn-kpi-rail',
-  'PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1', 'PAGENOVA_KPI_BALANCED_CARDS_V2', 'pausedUntil',
+  'PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1', 'PAGENOVA_KPI_BALANCED_CARDS_V2', 'PAGENOVA_UNIVERSAL_CONTRAST_V1', 'pausedUntil',
 ]) {
   if (!output.includes(required)) {
     throw new Error('[FRIGOLOG] Compiled backend is missing canonical template marker: ' + required);

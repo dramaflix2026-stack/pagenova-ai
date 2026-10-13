@@ -25,6 +25,7 @@ function bundleIsReady() {
     code.includes('data-pn-kpi-rail') &&
     code.includes('PAGENOVA_KPI_CONTINUOUS_MARQUEE_V1') &&
     code.includes('PAGENOVA_KPI_BALANCED_CARDS_V2') &&
+    code.includes('PAGENOVA_UNIVERSAL_CONTRAST_V1') &&
     code.includes('pausedUntil');
 }
 if (!bundleIsReady()) {
