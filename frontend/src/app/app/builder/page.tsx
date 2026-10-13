@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
-import { getSitePreset } from "@/lib/site-builder-presets";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
 
@@ -120,7 +119,6 @@ export default function BuilderPage() {
   }
   const [pendingKeys, setPendingKeys] = useState<SitePageKey[]>([]);
   const abortRef = useRef<AbortController | null>(null);
-  const [revisionPanelOpen, setRevisionPanelOpen] = useState(false);
   const previewRef = useRef<HTMLIFrameElement | null>(null);
   const inlineImageInputRef = useRef<HTMLInputElement | null>(null);
   const inlineImageKindRef = useRef<"hero" | "work">("hero");
@@ -226,21 +224,40 @@ export default function BuilderPage() {
       setProject(saved); setBrief(saved.brief); setStyle(saved.style);
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
-      setPhase("ready");
-
-      // Projetos novos do Institucional sao projetos reais do motor Sites com IA.
-      // Ao recarregar a pagina, restaura a mesma renderizacao vinda do Railway.
+      // CRM projects may still be generating, or may have failed. Never
+      // interpret the placeholder home page as a completed generation.
       if (saved.id.length === 26) {
         setCrmProjectId(saved.id);
-        void refreshCost(saved.id);
-        void fetch(`/api/crm/site-projects/${saved.id}/render`, {
-          credentials: "same-origin",
-          cache: "no-store",
-        })
-          .then(async (response) => {
-            if (response.ok) setCrmPreviewHtml(await response.text());
-          })
-          .catch(() => undefined);
+        setPhase("generating");
+        void fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}`, {
+          credentials: "same-origin", cache: "no-store",
+        }).then(async (response) => {
+          if (!response.ok) throw new Error("Não foi possível consultar a geração existente.");
+          const detail = await response.json() as {
+            project?: {status?:string;lastFailureMessage?:string|null};
+          };
+          const status = detail.project?.status;
+          if (status==="FAILED") {
+            setPhase("error");
+            setError(detail.project?.lastFailureMessage || "A geração anterior falhou. O projeto foi preservado.");
+          } else if (status==="READY"||status==="PUBLISHED") {
+            const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/render`, {
+              credentials:"same-origin",cache:"no-store",
+            });
+            if (!html.ok) throw new Error("O site existe, mas a prévia está indisponível.");
+            setCrmPreviewHtml(await html.text());
+            void refreshCost(saved.id);
+            setPhase("ready");
+          } else {
+            // Status only: do not submit another paid generation.
+            void monitorCrmGeneration(saved.id);
+          }
+        }).catch((cause) => {
+          setPhase("error");
+          setError(cause instanceof Error ? cause.message : "Não foi possível consultar a geração.");
+        });
+      } else {
+        setPhase("ready");
       }
     }).catch(() => setError("Não foi possível abrir o projeto salvo."));
   }, []);
@@ -680,13 +697,18 @@ export default function BuilderPage() {
     setCurrentStep(null); setPhase("ready");
   }
 
-  const preview = useMemo(() => project
-    ? renderEditablePreview(crmPreviewHtml || renderSitePreview(project, activePage), project, activePage)
-    : "",
+  const preview = useMemo(() => {
+    if (!project) return "";
+    // A CRM draft starts with an empty placeholder home page. Rendering it
+    // made the UI claim "Inicio pronta" even if the real job had failed.
+    if (crmProjectId && !crmPreviewHtml) return "";
+    return renderEditablePreview(crmPreviewHtml || renderSitePreview(project, activePage), project, activePage);
+  },
     // Text edits already update the current iframe; regenerate only on page or theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
         [
       crmPreviewHtml,
+      crmProjectId,
       project?.pages[activePage],
       project?.previewTheme,
       project?.visualDirection,
@@ -959,7 +981,20 @@ export default function BuilderPage() {
             {revisionImage&&<button type="button" onClick={()=>setRevisionImage("")} className="text-xs text-emerald-300">Remover print anexado</button>}
             {revisionImageError&&<p role="alert" className="text-xs text-red-300">{revisionImageError}</p>}
           </form>
-          <ol className="space-y-2" aria-label="Progresso da criação">{SITE_PAGES.map(({ key, label }) => <li key={key} className={`rounded-xl border p-3 text-sm ${currentStep === key ? "border-emerald-400/50 bg-emerald-400/10" : project.pages[key] ? "border-white/10" : "border-white/5 text-white/40"}`}><span className="mr-2">{project.pages[key] ? "✓" : currentStep === key ? "◌" : "○"}</span>{label}<span className="float-right text-xs">{project.pages[key] ? "Pronta" : currentStep === key ? "Criando" : "Aguardando"}</span></li>)}</ol>
+          {crmProjectId ? (
+            <div role="status" className="rounded-xl border border-white/10 bg-white/[.03] p-4 text-sm text-white/70">
+              <p className="font-semibold text-white">Status da criação</p>
+              <p className="mt-2">{phase==="ready" ? "Site gerado e pronto para revisão." :
+                phase==="error" ? "A geração precisa de atenção. O projeto foi mantido." :
+                "Acompanhando as etapas no servidor. Aguarde a confirmação."}</p>
+            </div>
+          ) : (
+            <ol className="space-y-2" aria-label="Páginas do projeto">{SITE_PAGES.map(({key,label})=>(
+              <li key={key} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
+                {label} · {project.pages[key]?"Disponível":"Pendente"}
+              </li>
+            ))}</ol>
+          )}
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           {phase==="error"&&crmProjectId&&<button type="button" onClick={()=>void monitorCrmGeneration(crmProjectId)}
             className="w-full rounded-xl border border-emerald-400/40 px-4 py-3 font-semibold text-emerald-200">
@@ -998,7 +1033,7 @@ export default function BuilderPage() {
               </div>
               <div className="pointer-events-none mt-3 text-center text-[10px] font-semibold uppercase tracking-[.16em] text-white/30">{viewport} · {virtualWidth}px · {Math.round(scale * 100)}%</div>
             </div>;
-          })() : <div ref={previewStageRef} className="flex h-[720px] items-center justify-center bg-[#090d0c] text-white/40">A primeira página aparecerá aqui assim que ficar pronta.</div>}
+          })() : <div ref={previewStageRef} className="flex h-[720px] items-center justify-center bg-[#090d0c] text-white/40">Seu site aparecerá aqui quando a geração estiver concluída.</div>}
         </section>
       </div>}
     </main>
