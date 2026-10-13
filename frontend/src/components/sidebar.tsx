@@ -30,8 +30,8 @@ import {
 
 type MenuItem = { href: string; label: string; icon: typeof Menu; crmView?: string };
 
-// CRM is intentionally the first and most prominent part of PageNova.
-// Leave every existing route intact; this is a navigation-only reorganization.
+// Studio is the PageNova entry point; CRM and Development remain separate.
+ // Keep routes intact and change only the navigation presentation.
 const crmItems: MenuItem[] = [
   { href: "/app/crm?view=crm", label: "CRM", icon: KanbanSquare, crmView: "crm" },
   { href: "/app/crm?view=dashboard", label: "Dashboard comercial", icon: LayoutDashboard, crmView: "dashboard" },
@@ -67,30 +67,65 @@ function isItemActive(pathname: string, href: string, crmView: string | undefine
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function NavigationGroup({ title, description, items, isCrm, pathname, currentCrmView, onNavigate, compact = false }: {
+type NavigationTheme = "studio" | "crm" | "development";
+
+const navigationTheme: Record<NavigationTheme, {
+  container: string;
+  indicator: string;
+  heading: string;
+  activeLink: string;
+  activeIcon: string;
+  activeDot: string;
+  inactiveHover: string;
+}> = {
+  studio: {
+    container: "border-cyan-400/30 bg-cyan-400/[0.045] shadow-[inset_0_0_22px_rgba(34,211,238,0.035)]",
+    indicator: "bg-cyan-400 shadow-[0_0_9px_rgba(34,211,238,0.35)]",
+    heading: "text-cyan-200",
+    activeLink: "border-cyan-400/30 bg-cyan-400/[0.11] text-white",
+    activeIcon: "bg-cyan-400/[0.14] text-cyan-200",
+    activeDot: "bg-cyan-400",
+    inactiveHover: "hover:bg-cyan-400/[0.055] hover:text-white",
+  },
+  crm: {
+    container: "border-emerald-400/30 bg-emerald-400/[0.055] shadow-[inset_0_0_20px_rgba(16,185,129,0.035)]",
+    indicator: "bg-emerald-400 shadow-[0_0_9px_rgba(52,211,153,0.35)]",
+    heading: "text-emerald-300",
+    activeLink: "border-emerald-400/25 bg-emerald-400/[0.14] text-white",
+    activeIcon: "bg-emerald-400/[0.13] text-emerald-300",
+    activeDot: "bg-emerald-400",
+    inactiveHover: "hover:bg-emerald-400/[0.055] hover:text-white",
+  },
+  development: {
+    container: "border-violet-400/30 bg-violet-400/[0.045] shadow-[inset_0_0_22px_rgba(139,92,246,0.035)]",
+    indicator: "bg-violet-400 shadow-[0_0_9px_rgba(167,139,250,0.35)]",
+    heading: "text-violet-200",
+    activeLink: "border-violet-400/30 bg-violet-400/[0.12] text-white",
+    activeIcon: "bg-violet-400/[0.14] text-violet-200",
+    activeDot: "bg-violet-400",
+    inactiveHover: "hover:bg-violet-400/[0.055] hover:text-white",
+  },
+};
+
+function NavigationGroup({ title, description, items, theme, pathname, currentCrmView, onNavigate, compact = false }: {
   title: string;
   description?: string;
   items: MenuItem[];
-  isCrm: boolean;
+  theme: NavigationTheme;
   pathname: string;
   currentCrmView: string | null;
   onNavigate?: () => void;
   compact?: boolean;
 }) {
+  const palette = navigationTheme[theme];
   return (
-    <section aria-label={title} className={isCrm
-      ? "rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.055] p-2 shadow-[inset_0_0_20px_rgba(16,185,129,0.035)]"
-      : "mt-5 rounded-2xl border border-white/[0.07] bg-white/[0.018] p-2"}>
+    <section aria-label={title} className={`mt-4 first:mt-0 rounded-2xl border p-2 ${palette.container}`}>
       <div className="px-2.5 pb-2 pt-1.5">
         <div className="flex items-center gap-2">
-          <span aria-hidden="true" className={isCrm
-            ? "h-1.5 w-1.5 rounded-full bg-emerald-400"
-            : "h-1.5 w-1.5 rounded-full bg-white/35"} />
-          <h2 className={isCrm
-            ? "text-[11px] font-bold uppercase tracking-[.17em] text-emerald-300"
-            : "text-[11px] font-bold uppercase tracking-[.17em] text-white/55"}>{title}</h2>
+          <span aria-hidden="true" className={`h-1.5 w-1.5 rounded-full ${palette.indicator}`} />
+          <h2 className={`text-[11px] font-bold uppercase tracking-[.17em] ${palette.heading}`}>{title}</h2>
         </div>
-        {description ? <p className="mt-1 pl-3.5 text-[11px] leading-4 text-white/35">{description}</p> : null}
+        {description ? <p className="mt-1 pl-3.5 text-[11px] leading-4 text-white/45">{description}</p> : null}
       </div>
       <div className="space-y-0.5">
         {items.map((item) => {
@@ -99,17 +134,15 @@ function NavigationGroup({ title, description, items, isCrm, pathname, currentCr
             <Link key={item.href} href={item.href} onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={`group relative flex min-h-10 items-center gap-2.5 rounded-xl border px-2.5 py-2 text-sm font-medium transition-colors ${
-                active
-                  ? "border-emerald-400/25 bg-emerald-400/[0.14] text-white"
-                  : "border-transparent text-white/65 hover:bg-white/[0.065] hover:text-white"
+                active ? palette.activeLink : `border-transparent text-white/65 ${palette.inactiveHover}`
               }`}>
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                active ? "bg-emerald-400/[0.13] text-emerald-300" : "bg-white/[0.035] text-white/50"
+                active ? palette.activeIcon : "bg-white/[0.035] text-white/50"
               }`}>
                 <item.icon className={compact ? "h-4 w-4" : "h-[15px] w-[15px]"} strokeWidth={1.9} />
               </span>
               <span className="min-w-0 break-words leading-5">{item.label}</span>
-              {active ? <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden="true" /> : null}
+              {active ? <span className={`ml-auto h-1.5 w-1.5 shrink-0 rounded-full ${palette.activeDot}`} aria-hidden="true" /> : null}
             </Link>
           );
         })}
@@ -236,11 +269,11 @@ export function Sidebar() {
 
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
             <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
-              isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+              theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
-              isCrm pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+              theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
-              isCrm={false} pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+              theme="development" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
 
           <div className="relative border-t border-white/[0.07] p-4">
@@ -296,11 +329,11 @@ export function Sidebar() {
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
           <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
-            isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
+            theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
-            isCrm pathname={pathname} currentCrmView={currentCrmView} />
+            theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
-            isCrm={false} pathname={pathname} currentCrmView={currentCrmView} />
+            theme="development" pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
 
         <div className="relative border-t border-white/[0.07] p-4">
