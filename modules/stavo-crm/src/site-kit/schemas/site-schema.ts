@@ -606,6 +606,8 @@ export const visualTextEditSchema = z.object({
   /** Offset applied to the selected text or image on the actual published page. */
   offsetX: z.number().int().min(-400).max(400).optional(),
   offsetY: z.number().int().min(-400).max(400).optional(),
+  /** Text not present as an editable field in the underlying site sections. */
+  textOverride: z.string().trim().min(1).max(1000).optional(),
 });
 
 export const siteSchema = z.object({

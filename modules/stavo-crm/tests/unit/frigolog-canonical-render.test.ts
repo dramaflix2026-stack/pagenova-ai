@@ -175,6 +175,13 @@ describe('FRIGOLOG canonical React layout wired into CRM',()=>{
     expect(imageTag).toBeTruthy();
     expect((imageTag?.match(/ style="/g)??[]).length).toBe(1);
   });
+  it('keeps explicitly edited template text and escapes markup in published HTML',()=>{
+    const model=site();
+    model.visualTextEdits=[{key:'hero-1:0',textOverride:'Título livre <script>alert(1)</script>'}];
+    const html=renderCanonicalFrigolog(model,ctx,applyVisualTextEdits);
+    expect(html).toContain('Título livre &lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).not.toContain('<script>alert(1)</script>');
+  });
   it('loops mobile KPI cards without repeating content to screen readers',()=>{
     const html=renderCanonicalFrigolog(site(),ctx,s=>s);
     expect(html).toContain('data-pn-kpi-rail="1"');

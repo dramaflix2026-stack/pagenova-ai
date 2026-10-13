@@ -348,8 +348,16 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         }
       }
       if (!changed) {
-        toast.error('Este texto do template ainda não tem campo editável.');
-        element.innerText = before;
+        // Fixed template labels are not necessarily fields of SiteSchema.
+        // Persist them by stable rendered element key, including after publish.
+        const pending = pendingStyleRef.current;
+        if (pending?.key) {
+          pending.textOverride = after.slice(0,1000);
+          changed = true;
+        } else {
+          toast.error('Não foi possível identificar este bloco de texto.');
+          element.innerText = before;
+        }
       }
     } else if (!save && !isPhoto) {
       element.innerText = before;
