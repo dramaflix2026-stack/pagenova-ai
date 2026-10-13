@@ -1,9 +1,53 @@
-/** Pointer/touch handles placed inside the same-origin preview iframe only. */
+/**
+ * A small selection outline inside the same-origin preview. The whole selected
+ * element can be dragged directly; only edge/corner grips resize it. Nothing
+ * from this overlay reaches the published HTML.
+ */
 export interface CanvasSizing {
   offsetX?: number;
   offsetY?: number;
   widthPx?: number;
   heightPx?: number;
+}
+type ResizeDirection = 'se' | 'e' | 's';
+type GestureMode = 'move' | ResizeDirection;
+interface Gesture {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  initialX: number;
+  initialY: number;
+  initialWidth: number;
+  initialHeight: number;
+  mode: GestureMode;
+  moved: boolean;
+}
+const clamp = (value: number, min: number, max: number) =>
+  Math.round(Math.max(min, Math.min(max, value)));
+
+/** Pure sizing logic also used by touch and mouse, with equal movement ranges. */
+export function calculateCanvasSizing(
+  initial: CanvasSizing,
+  startWidth: number,
+  startHeight: number,
+  dx: number,
+  dy: number,
+  mode: GestureMode,
+): CanvasSizing {
+  if (mode === 'move') {
+    return {
+      ...initial,
+      offsetX: clamp((initial.offsetX ?? 0) + dx, -400, 400),
+      offsetY: clamp((initial.offsetY ?? 0) + dy, -400, 400),
+    };
+  }
+  return {
+    ...initial,
+    widthPx: mode === 'e' || mode === 'se'
+      ? clamp(startWidth + dx, 64, 1600) : initial.widthPx,
+    heightPx: mode === 's' || mode === 'se'
+      ? clamp(startHeight + dy, 48, 1200) : initial.heightPx,
+  };
 }
 export function mountCanvasHandles(
   doc: Document,
@@ -11,123 +55,173 @@ export function mountCanvasHandles(
   current: CanvasSizing,
   onCommit: () => void,
 ): () => void {
+  const win = doc.defaultView;
   const overlay = doc.createElement('div');
   overlay.dataset.pnCanvasControl = '1';
-  overlay.setAttribute('aria-label', 'Controles para mover e redimensionar');
   overlay.style.cssText = 'position:fixed;z-index:2147483000;pointer-events:none;' +
-    'border:2px solid #06bd9f;border-radius:4px;box-sizing:border-box;' +
-    'box-shadow:0 0 0 2px rgba(255,255,255,.65);';
-  const moveButton = doc.createElement('button');
-  const resizeButton = doc.createElement('button');
-  const styling = 'position:absolute;display:flex;align-items:center;justify-content:center;' +
-    'width:40px;height:40px;touch-action:none;user-select:none;-webkit-user-select:none;' +
-    'border:2px solid white;border-radius:12px;color:white;background:#0c927e;' +
-    'font:700 25px/1 sans-serif;pointer-events:auto;cursor:grab;' +
-    'box-shadow:0 2px 10px rgba(0,0,0,.27);';
-  moveButton.type = resizeButton.type = 'button';
-  moveButton.textContent = '✥';
-  moveButton.title = 'Segure e arraste para mover o bloco';
-  moveButton.setAttribute('aria-label',moveButton.title);
-  moveButton.style.cssText = styling + 'top:-20px;left:-20px;';
-  resizeButton.textContent = '↘';
-  resizeButton.title = 'Segure e arraste para aumentar ou diminuir o bloco';
-  resizeButton.setAttribute('aria-label',resizeButton.title);
-  resizeButton.style.cssText = styling + 'bottom:-20px;right:-20px;cursor:nwse-resize;';
-  overlay.append(moveButton, resizeButton);
+    'border:1.5px solid #00a88c;border-radius:3px;box-sizing:border-box;';
+  overlay.setAttribute('aria-label', 'Elemento selecionado: arraste-o para mover e use o canto para redimensionar');
+  const grips: HTMLButtonElement[] = [];
+  const addGrip = (mode: ResizeDirection, position: string, symbol: string, label: string) => {
+    const button = doc.createElement('button');
+    button.type = 'button';
+    button.textContent = symbol;
+    button.dataset.pnResize = mode;
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    button.style.cssText = 'position:absolute;pointer-events:auto;touch-action:none;' +
+      'width:34px;height:34px;display:flex;align-items:center;justify-content:center;' +
+      'border:1.5px solid #fff;border-radius:10px;background:#008e7d;color:white;' +
+      'font:700 20px/1 sans-serif;box-shadow:0 2px 7px #0004;' +
+      'user-select:none;-webkit-user-select:none;cursor:nwse-resize;' + position;
+    overlay.appendChild(button);
+    grips.push(button);
+    return button;
+  };
+  const corner = addGrip('se','right:-17px;bottom:-17px;','↘','Arraste este canto para alterar a largura e a altura');
+  const right = addGrip('e','right:-17px;top:calc(50% - 17px);','↔','Arraste para ajustar a largura');
+  const bottom = addGrip('s','left:calc(50% - 17px);bottom:-17px;','↕','Arraste para ajustar a altura');
+  right.style.cursor = 'ew-resize';
+  bottom.style.cursor = 'ns-resize';
+  overlay.style.touchAction = 'none';
   doc.body.appendChild(overlay);
 
-  const limit = (n: number, min: number, max: number) =>
-    Math.round(Math.max(min, Math.min(max, n)));
-  const refresh = () => {
+  const originalTouchAction = target.style.touchAction;
+  const originalUserSelect = target.style.userSelect;
+  const originalCursor = target.style.cursor;
+  // After one click/tap, the element itself is the drag handle. This also
+  // avoids showing the mobile keyboard for mere selection.
+  target.style.touchAction = 'none';
+  target.style.userSelect = 'none';
+  target.style.cursor = 'grab';
+
+  let gesture: Gesture | null = null;
+  const drawOutline = () => {
     if (!target.isConnected) return;
     const rect = target.getBoundingClientRect();
     overlay.style.left = rect.left + 'px';
     overlay.style.top = rect.top + 'px';
-    overlay.style.width = Math.max(1,rect.width) + 'px';
-    overlay.style.height = Math.max(1,rect.height) + 'px';
+    overlay.style.width = Math.max(1, rect.width) + 'px';
+    overlay.style.height = Math.max(1, rect.height) + 'px';
   };
-  type Gesture = {
-    startX: number; startY: number;
-    initialX: number; initialY: number;
-    initialWidth: number; initialHeight: number;
-    mode: 'move' | 'resize';
-  };
-  let gesture: Gesture | null = null;
-  let activePointer: number | null = null;
-  const press = (mode: Gesture['mode'], event: PointerEvent) => {
-    if (activePointer !== null) return;
-    event.preventDefault();
-    event.stopPropagation();
-    const rect = target.getBoundingClientRect();
-    activePointer = event.pointerId;
+  const begin = (mode: GestureMode, event: PointerEvent) => {
+    if (gesture || (event.pointerType === 'mouse' && event.button !== 0)) return;
+    if (mode === 'move' && target.isContentEditable) return;
+    // Do not hijack ordinary native input/select controls.
+    if (mode === 'move' && (event.target as HTMLElement).closest('input,textarea,select')) return;
+    const box = target.getBoundingClientRect();
     gesture = {
-      startX:event.clientX,startY:event.clientY,
-      initialX:current.offsetX ?? 0,initialY:current.offsetY ?? 0,
-      initialWidth:current.widthPx ?? rect.width,initialHeight:current.heightPx ?? rect.height,
-      mode,
+      pointerId:event.pointerId, mode,
+      startX:event.clientX, startY:event.clientY,
+      initialX:current.offsetX ?? 0, initialY:current.offsetY ?? 0,
+      initialWidth:current.widthPx ?? box.width,
+      initialHeight:current.heightPx ?? box.height,
+      moved:false,
     };
-    (event.currentTarget as HTMLButtonElement).setPointerCapture(event.pointerId);
+    if (mode !== 'move') {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   };
   const update = (event: PointerEvent) => {
-    if (activePointer !== event.pointerId || !gesture) return;
+    const active = gesture;
+    if (!active || active.pointerId !== event.pointerId) return;
+    const dx = event.clientX-active.startX;
+    const dy = event.clientY-active.startY;
+    if (!active.moved && Math.hypot(dx,dy) < 4) return;
+    active.moved = true;
     event.preventDefault();
     event.stopPropagation();
-    const dx = event.clientX - gesture.startX;
-    const dy = event.clientY - gesture.startY;
-    if (gesture.mode === 'move') {
-      current.offsetX = limit(gesture.initialX + dx,-400,400);
-      current.offsetY = limit(gesture.initialY + dy,-400,400);
+    const next = calculateCanvasSizing(
+      {offsetX:active.initialX,offsetY:active.initialY,
+        widthPx:active.initialWidth,heightPx:active.initialHeight},
+      active.initialWidth,active.initialHeight,dx,dy,active.mode,
+    );
+    if (active.mode === 'move') {
+      current.offsetX = next.offsetX;
+      current.offsetY = next.offsetY;
       target.style.setProperty('transform',
         'translate('+current.offsetX+'px,'+current.offsetY+'px)','important');
-      // Existing absolute images must stay absolute, never force relative.
-      if (doc.defaultView?.getComputedStyle(target).position === 'static') {
+      if (win?.getComputedStyle(target).position === 'static') {
         target.style.setProperty('position','relative','important');
       }
     } else {
-      current.widthPx = limit(gesture.initialWidth + dx,64,1600);
-      current.heightPx = limit(gesture.initialHeight + dy,48,1200);
-      target.style.setProperty('width',current.widthPx+'px','important');
-      target.style.setProperty('max-width','100%','important');
-      if (target.tagName === 'ARTICLE') {
-        target.style.setProperty('min-height',current.heightPx+'px','important');
-      } else {
-        target.style.setProperty('height',current.heightPx+'px','important');
+      if (next.widthPx !== undefined && active.mode !== 's') {
+        current.widthPx = next.widthPx;
+        target.style.setProperty('width',current.widthPx+'px','important');
+        target.style.setProperty('max-width','100%','important');
+      }
+      if (next.heightPx !== undefined && active.mode !== 'e') {
+        current.heightPx = next.heightPx;
+        if (target.tagName === 'ARTICLE') {
+          target.style.setProperty('min-height',current.heightPx+'px','important');
+        } else {
+          target.style.setProperty('height',current.heightPx+'px','important');
+        }
         if (target.tagName === 'IMG') target.style.setProperty('object-fit','contain','important');
       }
     }
-    refresh();
+    drawOutline();
   };
-  const complete = (event: PointerEvent) => {
-    if (activePointer !== event.pointerId) return;
-    update(event);
-    activePointer = null;
+  const finish = (event: PointerEvent) => {
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+    const changed = gesture.moved;
+    if (changed) update(event);
     gesture = null;
-    onCommit();
+    if (changed) {
+      event.preventDefault();
+      event.stopPropagation();
+      onCommit();
+    }
   };
-  const hook = (button: HTMLButtonElement,mode: Gesture['mode']) => {
-    const down = (event: PointerEvent) => press(mode,event);
-    button.addEventListener('pointerdown',down);
-    button.addEventListener('pointermove',update);
-    button.addEventListener('pointerup',complete);
-    button.addEventListener('pointercancel',complete);
-    return () => {
-      button.removeEventListener('pointerdown',down);
-      button.removeEventListener('pointermove',update);
-      button.removeEventListener('pointerup',complete);
-      button.removeEventListener('pointercancel',complete);
-    };
+  // Suppress the post-drag click so it cannot select an adjacent text element.
+  let lastDraggedAt = 0;
+  const pointerUp = (event: PointerEvent) => {
+    const changed = Boolean(gesture?.moved);
+    finish(event);
+    if (changed) lastDraggedAt = Date.now();
   };
-  const stopMove = hook(moveButton,'move'),stopResize = hook(resizeButton,'resize');
-  const frame = doc.defaultView;
-  frame?.addEventListener('scroll',refresh,{passive:true});
-  frame?.addEventListener('resize',refresh);
-  const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(refresh) : null;
-  observer?.observe(target);
-  refresh();
+  const suppressClick = (event: MouseEvent) => {
+    if (Date.now()-lastDraggedAt < 300) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  };
+  target.addEventListener('click',suppressClick,true);
+  const hooks: Array<() => void> = [];
+  const attach = (element: HTMLElement, mode: GestureMode) => {
+    const down = (event: PointerEvent) => begin(mode,event);
+    element.addEventListener('pointerdown',down);
+    element.addEventListener('pointermove',update);
+    element.addEventListener('pointerup',pointerUp);
+    element.addEventListener('pointercancel',finish);
+    hooks.push(() => {
+      element.removeEventListener('pointerdown',down);
+      element.removeEventListener('pointermove',update);
+      element.removeEventListener('pointerup',pointerUp);
+      element.removeEventListener('pointercancel',finish);
+    });
+  };
+  attach(target,'move');
+  attach(corner,'se');
+  attach(right,'e');
+  attach(bottom,'s');
+  const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(drawOutline) : null;
+  resizeObserver?.observe(target);
+  win?.addEventListener('scroll',drawOutline,{passive:true});
+  win?.addEventListener('resize',drawOutline);
+  drawOutline();
   return () => {
-    stopMove();stopResize();observer?.disconnect();
-    frame?.removeEventListener('scroll',refresh);
-    frame?.removeEventListener('resize',refresh);
+    gesture = null;
+    for (const remove of hooks) remove();
+    target.removeEventListener('click',suppressClick,true);
+    target.style.touchAction = originalTouchAction;
+    target.style.userSelect = originalUserSelect;
+    target.style.cursor = originalCursor;
+    resizeObserver?.disconnect();
+    win?.removeEventListener('scroll',drawOutline);
+    win?.removeEventListener('resize',drawOutline);
     overlay.remove();
   };
 }
