@@ -83,6 +83,9 @@ export default function BuilderPage() {
   const [publishedUrl, setPublishedUrl] = useState("");
   const [crmProjectId, setCrmProjectId] = useState<string | null>(null);
   const [crmPreviewHtml, setCrmPreviewHtml] = useState("");
+  const [editingBrand,setEditingBrand]=useState(false);
+  const [brandDraft,setBrandDraft]=useState("");
+  const [savingBrand,setSavingBrand]=useState(false);
   const [costDebugEnabled, setCostDebugEnabled] = useState(false);
   const [costPanelOpen, setCostPanelOpen] = useState(false);
   const [costInfo, setCostInfo] = useState<{ costAccumulatedUsd: string; status: string } | null>(null);
@@ -931,6 +934,55 @@ export default function BuilderPage() {
     catch { setError("Não foi possível salvar o tema."); }
   }
 
+  // Free, non-generative correction for projects created with a placeholder
+  // brand. Uses the existing optimistic-lock config route and saves the local
+  // project label as well, so the published Muse branding matches the editor.
+  async function saveProjectBrand():Promise<void> {
+    if(!project||!crmProjectId||savingBrand)return;
+    const name=brandDraft.trim().replace(/\\s+/g," ");
+    if(name.length<3||name.length>72){
+      setError("Informe o nome da empresa ou profissional (3 a 72 caracteres).");return;
+    }
+    setSavingBrand(true);setError("");
+    try{
+      const configResponse=await fetch(`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}/config`,{
+        credentials:"same-origin",cache:"no-store",
+      });
+      const data=await configResponse.json().catch(()=>({})) as {
+        config?:{business?:{name?:string};seo?:{title?:string}};
+        lockVersion?:number;error?:{message?:string};
+      };
+      if(!configResponse.ok||!data.config||typeof data.lockVersion!=="number")
+        throw new Error(data.error?.message||"Não foi possível consultar a versão atual do projeto.");
+      const oldName=data.config.business?.name||"";
+      const nextConfig={
+        ...data.config,
+        business:{...data.config.business,name},
+        seo:data.config.seo?.title?.toLowerCase().includes(oldName.toLowerCase()) && oldName.length>2
+          ? {...data.config.seo,title:data.config.seo.title.replace(oldName,name).slice(0,60)}
+          : data.config.seo,
+      };
+      const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}/config`,{
+        method:"PATCH",headers:{"Content-Type":"application/json"},credentials:"same-origin",
+        body:JSON.stringify({config:nextConfig,expectedLockVersion:data.lockVersion}),
+      });
+      const result=await response.json().catch(()=>({})) as {error?:{message?:string}};
+      if(!response.ok)throw new Error(result.error?.message||
+        "O projeto pode ter sido alterado em outra guia. Atualize a página e tente novamente.");
+      const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}/render`,{
+        credentials:"same-origin",cache:"no-store",
+      });
+      if(!html.ok)throw new Error("Nome salvo, mas não foi possível atualizar a prévia. Recarregue a página.");
+      setCrmPreviewHtml(await html.text());
+      const saved={...project,name};
+      setProject(saved);
+      await savePageNovaProject(saved.id,saved);
+      setEditingBrand(false);
+    }catch(cause){
+      setError(cause instanceof Error?cause.message:"Falha ao corrigir nome do site.");
+    }finally{setSavingBrand(false);}
+  }
+
   function openPreviewInNewTab() {
     if (!project?.pages[activePage]) return;
 
@@ -1236,7 +1288,27 @@ export default function BuilderPage() {
         <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
-            <h2 className="mt-2 break-words text-xl font-bold">{project.name}</h2>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <h2 className="min-w-0 flex-1 break-words text-xl font-bold">{project.name}</h2>
+              {crmProjectId&&phase!=="generating"&&<button type="button"
+                onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
+                className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
+                aria-label="Alterar o nome exibido no site">Alterar nome</button>}
+            </div>
+            {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
+              className="mt-3 flex flex-wrap gap-2 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
+              <label htmlFor="pagenova-edit-brand" className="w-full text-xs text-white/70">
+                Nome da empresa ou profissional (atualiza o site sem gerar novamente)
+              </label>
+              <input id="pagenova-edit-brand" type="text" required minLength={3} maxLength={72}
+                value={brandDraft} onChange={event=>setBrandDraft(event.target.value)}
+                placeholder="Ex.: Nathalia Ferreira Psicóloga"
+                className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-sm text-white outline-none focus:border-emerald-400"/>
+              <button type="submit" disabled={savingBrand}
+                className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] disabled:opacity-50">
+                {savingBrand?"Salvando...":"Salvar nome"}
+              </button>
+            </form>}
             <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
           </div>
           <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
