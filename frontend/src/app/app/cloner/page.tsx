@@ -9,10 +9,6 @@ import {
   useRouter,
 } from "next/navigation";
 
-import {
-  AppHeader,
-} from "@/components/app-header";
-
 type CloneSection = {
   id: string;
   type: string;
@@ -185,10 +181,10 @@ export default function ClonerPage() {
 
   return (
     <>
-      <AppHeader
-        title="Clonador"
-        description="Transforme uma página existente em um projeto editável na PageNova."
-      />
+      <header className="border-b border-white/10 bg-[#0b0b0b]/90 px-5 py-5 text-center backdrop-blur">
+        <h1 className="text-xl font-bold tracking-tight text-white">Clonar página com IA</h1>
+        <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Transforme uma página existente em um projeto editável na PageNova.</p>
+      </header>
 
       <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-[#07110e] text-[#f2f6f1]">
         {/* Ambient background */}
@@ -202,26 +198,26 @@ export default function ClonerPage() {
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.018)_1px,transparent_1px)] bg-[size:52px_52px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
         </div>
 
-        <div className="relative mx-auto w-full max-w-7xl px-5 py-10 md:px-8 md:py-14 lg:px-10 lg:py-16">
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-10 text-center sm:px-6 md:py-14 lg:py-16">
           {/* Hero */}
-          <section className="grid items-end gap-8 border-b border-white/[.08] pb-10 lg:grid-cols-[1fr_auto] lg:pb-12">
-            <div className="max-w-3xl">
+          <section className="flex flex-col items-center justify-center gap-7 border-b border-white/[.08] pb-10 lg:pb-12">
+            <div className="mx-auto max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#50dca9]/20 bg-[#50dca9]/[.07] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#79e4b6]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#50dca9] shadow-[0_0_12px_rgba(80,220,169,.8)]" />
                 PageNova Cloner
               </div>
 
-              <h1 className="mt-5 max-w-2xl text-4xl font-semibold tracking-[-.045em] text-white sm:text-5xl lg:text-[58px] lg:leading-[1.02]">
+              <h1 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold tracking-[-.045em] text-white sm:text-5xl lg:text-[58px] lg:leading-[1.02]">
                 Transforme uma página em um projeto editável.
               </h1>
 
-              <p className="mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
                 Cole a URL de uma Landing Page. A PageNova analisa a estrutura,
                 importa o conteúdo e prepara a página para você continuar no editor.
               </p>
             </div>
 
-            <div className="hidden items-center gap-3 pb-1 text-xs text-white/35 lg:flex">
+            <div className="flex flex-wrap items-center justify-center gap-3 pb-1 text-xs text-white/45">
               <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#50dca9]">
                 01
               </span>
@@ -240,10 +236,10 @@ export default function ClonerPage() {
           </section>
 
           {/* Main workspace */}
-          <section className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(290px,.55fr)]">
+          <section className="mx-auto mt-8 flex max-w-3xl flex-col gap-6">
             <div className="overflow-hidden rounded-[28px] border border-white/[.09] bg-[#0b1712]/95 shadow-[0_30px_90px_rgba(0,0,0,.24)]">
               <div className="border-b border-white/[.08] px-6 py-5 sm:px-8">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col items-center justify-center gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#50dca9]/20 bg-[#50dca9]/[.08] text-lg text-[#79e4b6]">
                     ↗
                   </div>
@@ -265,7 +261,7 @@ export default function ClonerPage() {
               >
                 <label
                   htmlFor="clone-url"
-                  className="text-xs font-bold uppercase tracking-[.14em] text-white/45"
+                  className="block text-center text-xs font-bold uppercase tracking-[.14em] text-white/45"
                 >
                   URL da página
                 </label>
@@ -284,7 +280,7 @@ export default function ClonerPage() {
                         setUrl(event.target.value)
                       }
                       placeholder="https://exemplo.com/sua-pagina"
-                      className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-white/25"
+                      className="min-w-0 flex-1 bg-transparent px-3 py-3 text-center text-sm text-white outline-none placeholder:text-white/35 sm:text-left"
                     />
                   </div>
 
@@ -307,7 +303,7 @@ export default function ClonerPage() {
                   </button>
                 </div>
 
-                <div className="mt-4 flex flex-col gap-2 text-xs text-white/30 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-4 flex flex-col items-center justify-center gap-2 text-xs text-white/40 sm:flex-row sm:flex-wrap sm:gap-8">
                   <span>
                     Use uma URL pública iniciada em http:// ou https://
                   </span>
@@ -321,7 +317,7 @@ export default function ClonerPage() {
 
               {error && (
                 <div className="mx-6 mb-6 rounded-2xl border border-red-400/15 bg-red-400/[.06] p-5 sm:mx-8 sm:mb-8">
-                  <div className="flex gap-3">
+                  <div className="flex flex-col items-center gap-3">
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-400/10 text-sm text-red-300">
                       !
                     </span>
@@ -345,7 +341,7 @@ export default function ClonerPage() {
                 Como funciona
               </p>
 
-              <div className="mt-6 space-y-6">
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 {[
                   [
                     "01",
@@ -362,16 +358,12 @@ export default function ClonerPage() {
                     "Continue no editor",
                     "O projeto importado fica pronto para personalização.",
                   ],
-                ].map(([number, title, description], index) => (
+                ].map(([number, title, description]) => (
                   <div
                     key={number}
-                    className="relative flex gap-4"
+                    className="flex flex-col items-center gap-3 rounded-2xl border border-white/[.06] bg-black/[.12] p-4"
                   >
-                    {index < 2 && (
-                      <span className="absolute left-[17px] top-9 h-[calc(100%+8px)] w-px bg-white/[.08]" />
-                    )}
-
-                    <span className="relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#50dca9]/20 bg-[#0d1c16] text-[10px] font-bold text-[#79e4b6]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#50dca9]/20 bg-[#0d1c16] text-[10px] font-bold text-[#79e4b6]">
                       {number}
                     </span>
 
@@ -398,14 +390,14 @@ export default function ClonerPage() {
           {/* Loading */}
           {loading && (
             <section className="mt-6 overflow-hidden rounded-[28px] border border-[#50dca9]/15 bg-[#0b1712] p-6 sm:p-8">
-              <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
+              <div className="flex flex-col items-center gap-6">
                 <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
                   <span className="absolute inset-0 animate-ping rounded-full bg-[#50dca9]/10" />
                   <span className="relative h-7 w-7 animate-spin rounded-full border-2 border-white/10 border-t-[#50dca9]" />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-col items-center justify-center gap-2">
                     <div>
                       <p className="font-semibold text-white">
                         Analisando a página
@@ -432,7 +424,7 @@ export default function ClonerPage() {
           {result?.project && (
             <section className="mt-6 overflow-hidden rounded-[28px] border border-[#50dca9]/20 bg-[#0b1712] shadow-[0_30px_100px_rgba(0,0,0,.24)]">
               <div className="border-b border-white/[.08] p-6 sm:p-8">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col items-center justify-center gap-6">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#50dca9]/10 text-xs font-bold text-[#50dca9]">
@@ -447,7 +439,7 @@ export default function ClonerPage() {
                       {result.project.title || result.project.domain}
                     </h2>
 
-                    <p className="mt-2 break-all text-sm text-white/35">
+                    <p className="mt-2 break-all text-sm text-white/45">
                       {result.project.finalUrl}
                     </p>
                   </div>
@@ -474,7 +466,7 @@ export default function ClonerPage() {
                   ].map(([label, value], index) => (
                     <div
                       key={String(label)}
-                      className={`p-5 sm:p-6 ${
+                      className={`p-5 text-center sm:p-6 ${
                         index !== 4
                           ? "border-r border-white/[.07]"
                           : ""
@@ -491,7 +483,7 @@ export default function ClonerPage() {
                 </div>
               )}
 
-              <div className="grid gap-5 p-6 sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div className="flex flex-col items-center justify-center gap-5 p-6 sm:p-8">
                 <div>
                   <p className="text-sm font-semibold text-white/80">
                     Projeto pronto para personalização
