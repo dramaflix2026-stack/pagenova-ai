@@ -18,6 +18,44 @@ const CRM_ROUTES: Record<string, string> = {
   configuracoes: "/configuracoes",
 };
 
+/**
+ * Compatibility guard for stale CRM frontend bundles that still display an
+ * internal "universal template" development banner above the Sites with AI
+ * screen. Do not hide other banners or change the site's generator routes.
+ *
+ * The current CRM source has removed this old announcement, but a cached
+ * compiled frontend may still render it. The guard stops watching shortly
+ * after the embedded application mounts.
+ */
+function hideLegacyUniversalAnnouncement(doc: Document): void {
+  const hide = () => {
+    const actions = doc.querySelectorAll<HTMLElement>("a,button");
+    for (const action of actions) {
+      if (!action.textContent?.includes("Abrir gerador universal")) continue;
+      let panel: HTMLElement | null = action.parentElement;
+      while (panel && panel !== doc.body) {
+        const label = panel.textContent ?? "";
+        if (label.includes("Template universal disponível") && label.length < 360) {
+          // Hiding (not removing) avoids interfering with React's DOM reconciliation.
+          panel.style.setProperty("display", "none", "important");
+          return true;
+        }
+        panel = panel.parentElement;
+      }
+    }
+    return false;
+  };
+
+  if (hide() || !doc.body) return;
+  const view = doc.defaultView;
+  if (!view) return;
+  const observer = new MutationObserver(() => {
+    if (hide()) observer.disconnect();
+  });
+  observer.observe(doc.body, { childList: true, subtree: true });
+  view.setTimeout(() => observer.disconnect(), 12_000);
+}
+
 export default function CrmPage() {
   const searchParams = useSearchParams();
   const crmView = searchParams.get("view") ?? "dashboard";
@@ -52,11 +90,18 @@ export default function CrmPage() {
             // The PageNova workspace already provides the primary navigation.
             // Hide only the redundant sidebar inside the embedded CRM.
             const doc = event.currentTarget.contentDocument;
-            if (!doc || doc.getElementById("pagenova-hide-embedded-crm-nav")) return;
-            const style = doc.createElement("style");
-            style.id = "pagenova-hide-embedded-crm-nav";
-            style.textContent = "@media (min-width: 1024px) { aside.w-60 { display: none !important; } }";
-            doc.head.appendChild(style);
+            if (!doc) return;
+            if (!doc.getElementById("pagenova-hide-embedded-crm-nav")) {
+              const style = doc.createElement("style");
+              style.id = "pagenova-hide-embedded-crm-nav";
+              style.textContent = "@media (min-width: 1024px) { aside.w-60 { display: none !important; } }";
+              doc.head.appendChild(style);
+            }
+            // Only the Sites with AI view needs the legacy-banner safeguard.
+            if (crmView === "sites-ia") {
+              hideLegacyUniversalAnnouncement(doc);
+              hideLegacyUniversalAnnouncement(document);
+            }
           }}
           allow="clipboard-read; clipboard-write"
         />
