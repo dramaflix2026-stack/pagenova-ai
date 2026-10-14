@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1122" height="1402" viewBox="0 0 1122 1402" role="img" aria-labelledby="title desc">
+<title id="title">Garantia de 7 dias PageNova AI</title>
+<desc id="desc">7 dias para conhecer a PageNova com tranquilidade. Pagamento seguro pela Kiwify, dados protegidos e suporte PageNova. Ver planos agora.</desc>
+<defs>
+<radialGradient id="paper" cx="50%" cy="30%" r="80%"><stop stop-color="#fffef9"/><stop offset="1" stop-color="#f4f9f4"/></radialGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7b3b0b"/><stop offset=".19" stop-color="#e4a93b"/><stop offset=".4" stop-color="#ffeaa1"/><stop offset=".6" stop-color="#e1a42f"/><stop offset=".79" stop-color="#a96816"/><stop offset="1" stop-color="#ffdc67"/></linearGradient>
+<linearGradient id="ribbon" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#ffe28c"/><stop offset=".52" stop-color="#d99824"/><stop offset="1" stop-color="#916018"/></linearGradient>
+<linearGradient id="mint" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2faef"/><stop offset="1" stop-color="#d8f4e8"/></linearGradient>
+<linearGradient id="cta" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#087c53"/><stop offset="1" stop-color="#005638"/></linearGradient>
+<filter id="badgeShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="13" stdDeviation="17" flood-color="#50310c" flood-opacity=".21"/></filter>
+<filter id="buttonShadow" x="-20%" y="-40%" width="140%" height="200%"><feDropShadow dx="0" dy="7" stdDeviation="12" flood-color="#076749" flood-opacity=".14"/></filter>
+<path id="upperArc" d="M 459,156 A 112,112 0 0 1 663,156"/>
+</defs>
+<rect width="1122" height="1402" fill="url(#paper)"/>
+<g fill="none" stroke="#abdac4" stroke-width="2" opacity=".65"><path d="M-45 1220C60 1220 104 1300 185 1375S310 1450 400 1450"/><path d="M1164 1202C1065 1200 1004 1269 935 1341S792 1450 710 1468"/></g>
+<g filter="url(#badgeShadow)">
+<polygon points="561.0,32.0 574.0,52.6 590.3,34.6 599.6,57.1 618.8,42.2 624.0,66.0 645.5,54.6 646.5,78.9 669.6,71.5 666.4,95.6 690.5,92.4 683.1,115.5 707.4,116.5 696.0,138.0 719.8,143.2 704.9,162.4 727.4,171.7 709.4,188.0 730.0,201.0 709.4,214.0 727.4,230.3 704.9,239.6 719.8,258.8 696.0,264.0 707.4,285.5 683.1,286.5 690.5,309.6 666.4,306.4 669.6,330.5 646.5,323.1 645.5,347.4 624.0,336.0 618.8,359.8 599.6,344.9 590.3,367.4 574.0,349.4 561.0,370.0 548.0,349.4 531.7,367.4 522.4,344.9 503.2,359.8 498.0,336.0 476.5,347.4 475.5,323.1 452.4,330.5 455.6,306.4 431.5,309.6 438.9,286.5 414.6,285.5 426.0,264.0 402.2,258.8 417.1,239.6 394.6,230.3 412.6,214.0 392.0,201.0 412.6,188.0 394.6,171.7 417.1,162.4 402.2,143.2 426.0,138.0 414.6,116.5 438.9,115.5 431.5,92.4 455.6,95.6 452.4,71.5 475.5,78.9 476.5,54.6 498.0,66.0 503.2,42.2 522.4,57.1 531.7,34.6 548.0,52.6" fill="url(#gold)" stroke="#9c661a" stroke-width="3"/>
+<circle cx="561" cy="201" r="148" fill="url(#gold)" stroke="#6e430d" stroke-width="5"/>
+<circle cx="561" cy="201" r="128" fill="#151413" stroke="#ffe68b" stroke-width="5"/>
+<circle cx="561" cy="201" r="120" fill="#1b1a19" stroke="#a76f24" stroke-width="2"/>
+<text font-family="Arial,sans-serif" font-size="23" font-weight="900" letter-spacing="4" fill="#f9cb51"><textPath href="#upperArc" startOffset="50%" text-anchor="middle">GARANTIA</textPath></text>
+<text x="561" y="226" fill="url(#gold)" font-family="Arial,sans-serif" font-size="131" font-weight="900" text-anchor="middle">7</text>
+<text x="561" y="262" fill="#ffd363" font-family="Arial,sans-serif" font-size="39" font-weight="900" text-anchor="middle" letter-spacing="2">DIAS</text>
+<path d="M377 270L454 248Q563 264 663 247L742 269 712 314 666 299Q566 320 453 301L408 314Z" fill="url(#ribbon)" stroke="#87501b" stroke-width="4"/>
+<path d="M377 270L412 264 396 305 362 313Z M742 269L709 261 727 306 763 313Z" fill="#b47420" stroke="#87501b" stroke-width="3"/>
+<text x="561" y="282" font-family="Arial,sans-serif" font-size="22" font-weight="900" fill="#251b0c" text-anchor="middle">SEU DINHEIRO DE VOLTA</text>
+<text x="561" y="298" font-family="Arial,sans-serif" font-size="12" letter-spacing="4" font-weight="900" fill="#251b0c" text-anchor="middle">SEM BUROCRACIA</text>
+</g>
+<text x="561" y="420" font-family="Arial,sans-serif" font-size="23" font-weight="800" letter-spacing="9" fill="#007047" text-anchor="middle">COMPRA COM TRANQUILIDADE</text>
+<g font-family="Arial,sans-serif" font-size="66" font-weight="800" text-anchor="middle" fill="#09291e" letter-spacing="-2">
+<text x="561" y="525">7 dias para conhecer</text>
+<text x="561" y="600">a PageNova com</text>
+<text x="561" y="675">tranquilidade.</text>
+</g>
+<g fill="#61766d" text-anchor="middle" font-family="Arial,sans-serif" font-size="29">
+<text x="561" y="755">Se a plataforma não fizer sentido para você, solicite o</text>
+<text x="561" y="800">cancelamento dentro do prazo de 7 dias após a compra.</text>
+</g>
+<g font-family="Arial,sans-serif">
+<!-- benefit 1 -->
+<rect x="115" y="884" width="102" height="102" rx="27" fill="url(#mint)"/>
+<g fill="none" stroke="#08794f" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><rect x="143" y="911" width="47" height="46" rx="8"/><path d="M144 927h46M150 944h17"/></g>
+<text x="264" y="927" font-size="27" font-weight="700" fill="#13372b">Pagamento seguro</text>
+<text x="264" y="970" font-size="25" fill="#66776e">Checkout protegido</text>
+<text x="264" y="1007" font-size="25" fill="#66776e">pela Kiwify</text>
+<!-- benefit 2 -->
+<rect x="592" y="884" width="102" height="102" rx="27" fill="url(#mint)"/>
+<path d="M643 910l30 12v22c0 18-12 30-30 36-18-6-30-18-30-36v-22z" fill="none" stroke="#08794f" stroke-width="6" stroke-linejoin="round"/>
+<path d="M631 945l9 10 19-22" fill="none" stroke="#08794f" stroke-width="6" stroke-linecap="round"/>
+<text x="735" y="927" font-size="27" font-weight="700" fill="#13372b">7 dias protegidos</text>
+<text x="735" y="970" font-size="25" fill="#66776e">Conheça com</text>
+<text x="735" y="1007" font-size="25" fill="#66776e">tranquilidade</text>
+<!-- benefit 3 -->
+<rect x="115" y="1084" width="102" height="102" rx="27" fill="url(#mint)"/>
+<rect x="141" y="1126" width="50" height="42" rx="7" fill="none" stroke="#08794f" stroke-width="6"/>
+<path d="M151 1126v-15a15 15 0 0130 0v15" fill="none" stroke="#08794f" stroke-width="6" stroke-linecap="round"/>
+<circle cx="166" cy="1148" r="4" fill="#08794f"/>
+<text x="264" y="1127" font-size="27" font-weight="700" fill="#13372b">Dados protegidos</text>
+<text x="264" y="1170" font-size="25" fill="#66776e">Cuidado com</text>
+<text x="264" y="1207" font-size="25" fill="#66776e">seus dados</text>
+<!-- benefit 4 -->
+<rect x="592" y="1084" width="102" height="102" rx="27" fill="url(#mint)"/>
+<path d="M616 1140v-6a27 27 0 0154 0v6M618 1140h9v30h-9a10 10 0 01-10-10v-10a10 10 0 0110-10zm52 0h-9v30h9a10 10 0 0010-10v-10a10 10 0 00-10-10z" fill="none" stroke="#08794f" stroke-width="5"/>
+<text x="735" y="1127" font-size="27" font-weight="700" fill="#13372b">Suporte PageNova</text>
+<text x="735" y="1170" font-size="25" fill="#66776e">Conte com</text>
+<text x="735" y="1207" font-size="25" fill="#66776e">nosso time</text>
+</g>
+<rect x="341" y="1270" width="440" height="91" rx="45" fill="url(#cta)" filter="url(#buttonShadow)"/>
+<text x="561" y="1326" font-family="Arial,sans-serif" font-size="32" fill="white" font-weight="800" text-anchor="middle">Ver planos agora →</text>
+</svg>
