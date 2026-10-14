@@ -380,7 +380,7 @@ export default function BuilderPage() {
             const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/render`, {
               credentials:"same-origin",cache:"no-store",
             });
-            if (!html.ok) throw new Error("O site existe, mas a prévia está indisponível.");
+            if (!html.ok) throw new Error(`O site existe, mas a prévia está indisponível (HTTP ${html.status}). O projeto foi preservado.`);
             setCrmPreviewHtml(await html.text());
             void refreshCost(saved.id);
             setPhase("ready");
@@ -526,7 +526,7 @@ export default function BuilderPage() {
           const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/render`,{
             credentials:"same-origin",cache:"no-store",
           });
-          if(!html.ok) throw new Error("O site ficou pronto, mas a prévia ainda não carregou. Verifique novamente.");
+          if(!html.ok) throw new Error(`O site ficou pronto, mas a prévia não carregou (HTTP ${html.status}). O projeto foi preservado. Toque em Verificar geração existente para tentar novamente.`);
           setCrmPreviewHtml(await html.text());
           setGenerationProgress({percent:100,label:"Seu site está pronto!",stage:"COMPLETED",jobId});
           void refreshCost(projectId);
@@ -972,7 +972,7 @@ export default function BuilderPage() {
       const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}/render`,{
         credentials:"same-origin",cache:"no-store",
       });
-      if(!html.ok)throw new Error("Nome salvo, mas não foi possível atualizar a prévia. Recarregue a página.");
+      if(!html.ok)throw new Error(`Nome salvo, mas a prévia não carregou (HTTP ${html.status}). Verifique a geração existente.`);
       setCrmPreviewHtml(await html.text());
       const saved={...project,name};
       setProject(saved);
