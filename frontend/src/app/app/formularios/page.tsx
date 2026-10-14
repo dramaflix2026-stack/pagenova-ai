@@ -145,7 +145,7 @@ export default function FormulariosPage(){
   const publishedLink=form?.id?"/f/"+form.id:"";
   return <main className="min-h-[calc(100svh-120px)] bg-[#090c11] px-4 py-8 text-white sm:px-6 sm:py-12">
     {screen==="start"?
-      <div className="mx-auto flex min-h-[calc(100svh-225px)] max-w-4xl flex-col items-center justify-center">
+      <div className="mx-auto flex w-full max-w-5xl flex-col items-center pt-3 pb-12 sm:pt-8">
         <div className="mx-auto max-w-2xl text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[.06] px-4 py-2 text-xs font-bold uppercase tracking-[.17em] text-emerald-300">
             <Sparkles className="h-4 w-4"/> PageNova AI
@@ -155,39 +155,78 @@ export default function FormulariosPage(){
             Conte sua ideia com suas palavras. A IA cria as perguntas, organiza a sequência e prepara o formulário para você revisar.
           </p>
         </div>
-        <form onSubmit={generate} className="mt-9 w-full max-w-2xl rounded-3xl border border-white/[.09] bg-[#12151e] p-5 shadow-[0_28px_75px_rgba(0,0,0,.26)] sm:p-8">
-          <label htmlFor="form-idea" className="mb-3 block text-center text-sm font-semibold text-white/80">
-            Converse com a IA
-          </label>
+        <form onSubmit={generate} className="mt-8 w-full max-w-2xl rounded-[24px] border border-emerald-400/[.16] bg-gradient-to-b from-[#121b1b] to-[#11151b] p-4 shadow-[0_22px_60px_rgba(0,0,0,.2)] sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-400/20 bg-emerald-400/[.1] text-emerald-300" aria-hidden="true">
+              <Sparkles className="h-5 w-5"/>
+            </span>
+            <div className="min-w-0 flex-1">
+              <label htmlFor="form-idea" className="block text-sm font-bold text-white/90">
+                Converse com a IA
+              </label>
+              <p className="mt-0.5 text-xs text-white/45">Descreva sua ideia para começar</p>
+            </div>
+            <span className="rounded-full border border-emerald-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">IA</span>
+          </div>
           <textarea id="form-idea" value={prompt} maxLength={1500} rows={5}
             disabled={isGenerating} onChange={e=>setPrompt(e.target.value)}
             placeholder="Ex.: Quero um formulário para uma imobiliária descobrir se o cliente deseja comprar ou alugar, a região, o orçamento e como prefere ser atendido."
-            className={fieldClass+" min-h-[156px] resize-y text-base leading-7 placeholder:text-white/30"}/>
+            className={fieldClass+" min-h-[132px] resize-y rounded-[18px] border-white/10 bg-[#090e12] text-base leading-7 placeholder:text-white/30"}/>
           <button disabled={isGenerating||prompt.trim().length<20} type="submit"
-            className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-4 text-base font-bold text-[#07271e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45">
+            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-3.5 text-sm font-bold text-[#07271e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45 sm:text-base">
             {isGenerating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Criando perguntas com IA...</>:<>
               <Sparkles className="h-5 w-5"/> Gerar meu formulário <ArrowRight className="h-4 w-4"/></>}
           </button>
-          <p className="mt-4 text-center text-xs leading-5 text-white/40">
-            A geração usa OpenAI e pode ter custo por utilização. Nenhum formulário será publicado automaticamente.
+          <p className="mt-3 text-center text-[11px] leading-5 text-white/45">
+            A IA gera um rascunho para revisão. Nada é publicado automaticamente.
           </p>
           {error&&<p role="alert" className="mt-4 rounded-xl border border-red-400/25 bg-red-400/10 p-3 text-center text-sm text-red-200">{error}</p>}
         </form>
-        <div className="mt-10 w-full max-w-2xl">
-          <h2 className="text-center text-sm font-semibold text-white/60">Seus formulários salvos</h2>
-          {isLoadingList?<p className="mt-3 text-center text-xs text-white/40">Carregando seus rascunhos...</p>
-          :saved.length===0?<p className="mt-3 text-center text-xs text-white/40">Ainda não há formulários salvos.</p>
-          :<div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section aria-labelledby="saved-forms-title" className="mt-12 w-full max-w-3xl border-t border-white/[.08] pt-8 sm:mt-14">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-x-4 gap-y-2 px-1">
+            <div>
+              <h2 id="saved-forms-title" className="text-lg font-bold tracking-tight text-white sm:text-xl">Seus formulários</h2>
+              <p className="mt-1 text-xs text-white/45">Acesse seus rascunhos e formulários publicados.</p>
+            </div>
+            {!isLoadingList&&<span className="rounded-full border border-white/10 bg-white/[.035] px-3 py-1.5 text-xs font-medium text-white/55">
+              {saved.length} {saved.length===1?"formulário":"formulários"}
+            </span>}
+          </div>
+          {isLoadingList?<div role="status" className="rounded-2xl border border-white/10 bg-white/[.025] px-5 py-8 text-center text-sm text-white/45">Carregando seus formulários...</div>
+          :saved.length===0?<div className="rounded-2xl border border-dashed border-white/10 bg-white/[.025] px-5 py-9 text-center">
+            <ClipboardList className="mx-auto h-7 w-7 text-emerald-300/60" aria-hidden="true"/>
+            <p className="mt-3 text-sm font-semibold text-white/75">Seu primeiro formulário começa aqui</p>
+            <p className="mt-1 text-xs text-white/45">Gere um formulário com a IA e salve para continuar depois.</p>
+          </div>
+          :<div className="grid gap-3 sm:grid-cols-2">
             {saved.map(item=><button key={item.id} type="button" onClick={()=>openDraft(item)}
-              className="flex flex-col gap-1 rounded-xl border border-white/10 bg-white/[.025] p-4 text-left transition hover:border-emerald-400/40 hover:bg-emerald-400/[.05]">
-              <span className="line-clamp-2 font-semibold text-white">{item.title}</span>
-              <span className="text-xs text-white/45">{KINDS[item.kind]||"Formulário"} · {formatDate(item.updatedAt)}</span>
-              <span className={item.publishedAt?"text-xs text-emerald-300":"text-xs text-white/40"}>
-                {item.publishedAt?"Publicado · continuar editando":"Rascunho · continuar editando"} →
+              aria-label={`Editar formulário: ${item.title}`}
+              className="group relative flex min-h-[178px] w-full flex-col overflow-hidden rounded-[20px] border border-white/[.1] bg-gradient-to-br from-[#14231f] via-[#101b1a] to-[#0d1417] p-4 text-left shadow-[0_12px_34px_rgba(0,0,0,.13)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_16px_38px_rgba(0,0,0,.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:min-h-[188px] sm:p-5">
+              <span className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-emerald-400/[.045] blur-2xl" aria-hidden="true"/>
+              <span className="relative flex w-full items-start justify-between gap-3">
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-400/20 bg-emerald-400/[.09] text-emerald-300">
+                  <ClipboardList className="h-5 w-5" aria-hidden="true"/>
+                </span>
+                <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-[.06em] ${item.publishedAt
+                  ?"border-emerald-400/25 bg-emerald-400/[.1] text-emerald-300"
+                  :"border-white/10 bg-white/[.045] text-white/55"}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${item.publishedAt?"bg-emerald-400":"bg-white/35"}`} aria-hidden="true"/>
+                  {item.publishedAt?"Publicado":"Rascunho"}
+                </span>
+              </span>
+              <span className="relative mt-3 block w-full">
+                <span className="line-clamp-2 break-words text-[15px] font-bold leading-[1.45] text-white/95 sm:text-base">{item.title}</span>
+                <span className="mt-1.5 block text-xs text-white/45">{KINDS[item.kind]||"Formulário"} · {formatDate(item.updatedAt)}</span>
+              </span>
+              <span className="relative mt-auto flex w-full items-center justify-between gap-2 border-t border-white/[.09] pt-3.5 text-xs">
+                <span className="text-white/45">{item.fields.length} {item.fields.length===1?"pergunta":"perguntas"}</span>
+                <span className="inline-flex items-center gap-1.5 font-semibold text-emerald-300 transition group-hover:text-emerald-200">
+                  Continuar edição <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true"/>
+                </span>
               </span>
             </button>)}
           </div>}
-        </div>
+        </section>
       </div>
       :form&&<div className="mx-auto w-full max-w-3xl space-y-6">
         <header className="space-y-5 text-center">
