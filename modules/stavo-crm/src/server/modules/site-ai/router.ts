@@ -337,23 +337,42 @@ siteAiRouter.get(
     const { createLocalStorage } = await import('@builder/publishing/storage');
     const { siteAssetsDirAbsolute } = await import('../../config/env');
     const storage = createLocalStorage(siteAssetsDirAbsolute());
+    // The Next.js proxy on Vercel has a 4.5 MB response limit. Inlining
+    // original image bytes (up to 12 MB BEFORE base64 expansion) caused an
+    // otherwise READY site to fail preview with an oversized response.
+    // Optimize preview copies only; original assets stay untouched for publish.
+    const { default: sharp } = await import('sharp');
+    const MAX_PREVIEW_RESPONSE_BYTES = 3_500_000;
     const inlineImages = new Map<string, string>();
-    let totalInlineBytes = 0;
-    for (const asset of assets) {
-      if (!/^image\/(webp|png|jpeg)$/i.test(asset.mimeType)) continue;
+    const modelJson = JSON.stringify(model);
+    // Only load assets actually referenced by this saved version. In particular,
+    // archived uploads must never make the preview expensive or oversized.
+    const referencedAssets = assets
+      .filter((asset) => /^image\/(?:webp|png|jpeg)$/i.test(asset.mimeType)
+        && modelJson.includes(`"assetId":"${asset.id}"`))
+      .sort((a, b) => modelJson.indexOf(`"assetId":"${a.id}"`)
+        - modelJson.indexOf(`"assetId":"${b.id}"`));
+
+    for (const asset of referencedAssets) {
       try {
-        const bytes = await storage.read(asset.storageKey);
-        // Don't turn a preview into an unbounded base64 response.
-        if (bytes.length < 1 || bytes.length > 4_000_000
-            || totalInlineBytes + bytes.length > 12_000_000) continue;
-        totalInlineBytes += bytes.length;
-        inlineImages.set(asset.id, `data:${asset.mimeType};base64,${bytes.toString('base64')}`);
+        const source = await storage.read(asset.storageKey);
+        if (source.length < 1 || source.length > 15_000_000) continue;
+        // WebP drastically reduces the response without modifying the stored
+        // original. Keep enough detail for the desktop preview.
+        const optimized = await sharp(source, { limitInputPixels: 32_000_000 })
+          .rotate()
+          .resize({ width: 1440, height: 1440, fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 70, effort: 3 })
+          .toBuffer();
+        if (optimized.length < 1 || optimized.length > 1_500_000) continue;
+        inlineImages.set(asset.id, `data:image/webp;base64,${optimized.toString('base64')}`);
       } catch {
-        // Missing bytes must render a proper placeholder, not a broken <img>.
-        // The existing asset metadata remains available for later recovery.
+        // An asset with missing bytes or invalid content gets a placeholder;
+        // a single damaged image must not make the whole preview unavailable.
       }
     }
-    const html = renderSite(model, {
+
+    const renderPreview = () => renderSite(model, {
       profile: 'DEMO',
       inlineRuntime: SITE_RUNTIME_JS,
       resolveAsset: (assetId: string) => {
@@ -368,6 +387,22 @@ siteAiRouter.get(
           : null;
       },
     });
+
+    // A template can reuse the same image in multiple elements, so checking
+    // only the sum of image files is insufficient. Measure the FINAL HTML.
+    // Discard lower-priority preview copies if needed, never the site itself.
+    let html = renderPreview();
+    while (Buffer.byteLength(html, 'utf8') > MAX_PREVIEW_RESPONSE_BYTES && inlineImages.size) {
+      const last = Array.from(inlineImages.keys()).pop()!;
+      inlineImages.delete(last);
+      html = renderPreview();
+    }
+    if (Buffer.byteLength(html, 'utf8') > MAX_PREVIEW_RESPONSE_BYTES) {
+      throw serviceUnavailable(
+        'A previa excedeu o limite de tamanho. O site foi preservado; contate o suporte.',
+        'SITE_PREVIEW_TOO_LARGE',
+      );
+    }
 
     res.setHeader('Cache-Control', 'no-store');
     res.type('text/html').send(html);
