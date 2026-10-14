@@ -18,7 +18,7 @@
  *    enfileirar e executar pode ser longo o bastante para outro job consumir
  *    o orcamento primeiro.
  */
-import { randomUUID } from 'node:crypto';
+import { createHmac, randomUUID } from 'node:crypto';
 
 import type { SiteJobStage } from '@site-kit/types/site-ai';
 import { getEnv, isSiteAiEnabled } from '@server/config/env';
@@ -131,6 +131,41 @@ export function startSiteAiWorker(
 // Execucao de um job
 // ---------------------------------------------------------------------------
 
+/**
+ * Notify PageNova's individual credit ledger whenever a site job reaches
+ * its actual terminal status. This runs in the same Railway process as the
+ * AI worker: no external cron, queue or vendor is required.
+ *
+ * Set PAGENOVA_CREDIT_CALLBACK_URL after applying the PageNova Supabase
+ * migration. Callback HMAC uses the SSO secret already shared by services.
+ */
+async function notifyPageNovaCreditLedger(
+  jobId:string,status:'SUCCEEDED'|'FAILED'|'CANCELED'
+):Promise<void>{
+  const callback=process.env.PAGENOVA_CREDIT_CALLBACK_URL?.trim();
+  const secret=process.env.PAGENOVA_SSO_SECRET?.trim();
+  if(!callback||!secret||secret.length<32)return;
+  let parsed:URL;
+  try{parsed=new URL(callback);}catch{return;}
+  if(parsed.protocol!=='https:')return;
+  for(let attempt=0;attempt<4;attempt++){
+    const timestamp=Date.now();
+    const payload=JSON.stringify({jobId,status,timestamp});
+    const signature=createHmac('sha256',secret)
+      .update([jobId,status,timestamp].join('\n')).digest('hex');
+    try{
+      const response=await fetch(parsed.toString(),{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-pagenova-credit-signature':signature},
+        body:payload,signal:AbortSignal.timeout(8000),
+      });
+      if(response.ok)return;
+    }catch{/* retry transient connection and gateway failures */}
+    await new Promise(resolve=>setTimeout(resolve,(attempt+1)*1200));
+  }
+  logger.error({jobId,status},'Nao foi possivel reconciliar credito da geracao. Consulta posterior ainda pode fazer o estorno.');
+}
+
 async function runJob(job: SiteGenerationJob, leaseOwner: string, leaseSeconds: number): Promise<void> {
   const heartbeat = setInterval(() => {
     void repo.renewLease(job.id, leaseOwner, leaseSeconds).catch((error) => {
@@ -153,6 +188,12 @@ async function runJob(job: SiteGenerationJob, leaseOwner: string, leaseSeconds: 
     }
   } finally {
     clearInterval(heartbeat);
+    // The CRM job remains authoritative even when the browser is closed.
+    // A failed or cancelled job refunds the original credit idempotently.
+    const completed=await repo.findJob(job.id).catch(()=>null);
+    if(completed?.status==='SUCCEEDED'||completed?.status==='FAILED'||completed?.status==='CANCELED'){
+      await notifyPageNovaCreditLedger(job.id,completed.status);
+    }
   }
 }
 
