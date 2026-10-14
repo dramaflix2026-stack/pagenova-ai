@@ -261,45 +261,129 @@ export default function EbooksPage(){
       void saveEbook(data.ebook);
     }catch(err){setError(errorMessage(err));}
   }
-  async function imageRequest(page:EbookPage,source:EbookImageMode):Promise<{url:string;credit:string}|null>{
+  async function embedInternetPhoto(url:string):Promise<string>{
+    // Download through our authenticated Commons proxy and embed the compact
+    // JPEG in the document. Preview, cloud autosave, and PDF all use the same
+    // durable photo rather than a browser-dependent hotlink.
+    const res=await fetch("/api/ebooks/images/asset?url="+encodeURIComponent(url),{
+      credentials:"same-origin",cache:"force-cache",
+    });
+    if(!res.ok)throw new Error("O arquivo de imagem não está disponível.");
+    const blob=await res.blob();
+    if(!blob.type.startsWith("image/"))throw new Error("O banco retornou um arquivo inválido.");
+    const objectUrl=URL.createObjectURL(blob);
+    try{
+      const img=new Image();
+      img.src=objectUrl;
+      await img.decode();
+      const maxEdge=960;
+      const scale=Math.min(1,maxEdge/Math.max(img.naturalWidth,img.naturalHeight));
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+      const ctx=canvas.getContext("2d");
+      if(!ctx)throw new Error("Não foi possível processar esta foto.");
+      ctx.drawImage(img,0,0,canvas.width,canvas.height);
+      let output=canvas.toDataURL("image/jpeg",0.68);
+      if(output.length>250_000)output=canvas.toDataURL("image/jpeg",0.48);
+      if(output.length>400_000)throw new Error("Foto grande demais para este ebook.");
+      return output;
+    }finally{URL.revokeObjectURL(objectUrl);}
+  }
+  async function imageRequest(
+    page:EbookPage,source:EbookImageMode,topic="",usedPhotos?:Set<string>,
+  ):Promise<{url:string;credit:string}|null>{
     if(source==="none")return null;
-    const text=page.imagePrompt||page.title;
-    const url=source==="ai"?"/api/ebooks/images/generate":"/api/ebooks/images/search?q="+encodeURIComponent(text);
-    const res=await fetch(url,source==="ai"?{
-      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:text}),cache:"no-store"
-    }:{cache:"no-store"});
-    const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
-    return data.image||null;
+    const description=page.imagePrompt||page.title;
+    if(source==="ai"){
+      const res=await fetch("/api/ebooks/images/generate",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({prompt:description}),cache:"no-store",
+      });
+      const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
+      if(!data.image)throw new Error("A IA não retornou a imagem.");
+      return data.image;
+    }
+    const params=new URLSearchParams({
+      q:description,title:page.title,topic,
+    });
+    const res=await fetch("/api/ebooks/images/search?"+params.toString(),{cache:"no-store"});
+    const data=await responseJson<{
+      image?:{url:string;credit:string}|null;
+      candidates?:Array<{url:string;credit:string}>;
+      notice?:string;
+    }>(res);
+    const candidates=data.candidates?.length?data.candidates:(data.image?[data.image]:[]);
+    if(!candidates.length)throw new Error(data.notice||"Não foram encontradas fotos livres.");
+    for(const candidate of candidates){
+      if(!candidate.url||usedPhotos?.has(candidate.url))continue;
+      try{
+        const embedded=await embedInternetPhoto(candidate.url);
+        // A photo may have been used by another worker during the download.
+        if(usedPhotos?.has(candidate.url))continue;
+        usedPhotos?.add(candidate.url);
+        return {url:embedded,credit:candidate.credit};
+      }catch{
+        // Bad photo URLs must not abort the entire ebook. Try next candidate.
+      }
+    }
+    throw new Error("As fotos encontradas não puderam ser baixadas. Tente novamente.");
   }
   async function populateImages(created:EbookProject){
-    if(created.imageMode==="none")return;
-    setImagesBusy(true);setImageProgress("Buscando imagens para o ebook...");
+    if(created.imageMode==="none"||imagesBusy)return;
+    setImagesBusy(true);
+    setError("");
+    setImageProgress(created.imageMode==="web"?"Procurando fotos reais com licença aberta...":"Gerando ilustrações com IA...");
     const indices=created.pages.map((p,i)=>({p,i}))
-      .filter(item=>!item.p.imageUrl && (item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter"))
-      .slice(0,created.imageMode==="ai"?3:5);
-    let completed=0;
-    // Two independent jobs: one failed image never loses the generated book.
-    let position=0;
-    async function worker(){
+      .filter(item=>!item.p.imageUrl &&
+        (item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter"))
+      .slice(0,created.imageMode==="ai"?3:12);
+    if(!indices.length){
+      setImagesBusy(false);
+      setImageProgress("Todas as páginas visuais já possuem imagem.");
+      return;
+    }
+    let completed=0,added=0,position=0;
+    const usedPhotos=new Set<string>();
+    const failures:string[]=[];
+    const worker=async()=>{
       while(position<indices.length){
         const current=indices[position++];
         if(!current)break;
         try{
-          const result=await imageRequest(current.p,created.imageMode);
+          const result=await imageRequest(current.p,created.imageMode,created.title,usedPhotos);
           if(result){
-            setBook(prev=>prev?.id===created.id?{
-              ...prev,pages:prev.pages.map((p,i)=>i===current.i?{...p,imageUrl:result.url,imageCredit:result.credit}:p),
+            added++;
+            setBook(previous=>previous?.id===created.id?{
+              ...previous,
+              pages:previous.pages.map((p,i)=>i===current.i&&!p.imageUrl
+                ?{...p,imageUrl:result.url,imageCredit:result.credit}:p),
               updatedAt:new Date().toISOString(),
-            }:prev);
-          }
-        }catch{ /* keep designed placeholder if a provider cannot find an image */ }
+            }:previous);
+          }else{failures.push(current.p.title);}
+        }catch(err){
+          failures.push(current.p.title);
+          console.warn("[Ebook photos] Image unavailable",{
+            page:current.i+1,reason:err instanceof Error?err.message:"unknown",
+          });
+        }
         completed++;
-        setImageProgress(String(completed)+" de "+indices.length+" imagens processadas");
+        setImageProgress(String(completed)+" de "+indices.length+" páginas verificadas · "+added+" fotos incluídas");
       }
-    }
-    await Promise.all([worker(),worker()]);
-    setImagesBusy(false);
-    setImageProgress("Imagens processadas. Você pode substituir qualquer uma.");
+    };
+    try{
+      await Promise.all([worker(),worker()]);
+      if(!failures.length){
+        setImageProgress(added+" foto(s) adicionada(s) ao ebook. Salvamento automático ativado.");
+      }else if(added){
+        setImageProgress(added+" de "+indices.length+" fotos incluídas. "+
+          failures.length+" páginas sem foto licenciada; toque em Fotos para tentar novamente.");
+      }else{
+        setImageProgress("Nenhuma foto foi encontrada ou carregada. "+
+          "Verifique a conexão e toque em Fotos para tentar novamente. "+
+          "O ebook e seus textos continuam salvos.");
+      }
+    }finally{setImagesBusy(false);}
   }
 
   async function transcribeAudio(file: File) {
@@ -519,6 +603,8 @@ export default function EbooksPage(){
     setActive(current=>Math.max(0,Math.min(book.pages.length-1,current+(dx<0?1:-1))));
   }
   const current=book?.pages[active];
+  const photosMissing=Boolean(book?.imageMode==="web" && book.pages.some(p=>
+    (p.kind==="cover"||p.kind==="feature"||p.kind==="chapter")&&!p.imageUrl));
   return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
     {!book&&<AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>}
     {!book?<div className="mx-auto max-w-[1240px] px-4 py-9 sm:px-7 sm:py-12">
@@ -669,6 +755,12 @@ export default function EbooksPage(){
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          {photosMissing&&<button type="button" onClick={()=>{if(book)void populateImages(book);}}
+            disabled={imagesBusy} title="Buscar fotos gratuitas para as páginas sem imagem"
+            className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-emerald-400/25 px-2.5 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10 disabled:opacity-50">
+            {imagesBusy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ImagePlus className="h-4 w-4"/>}
+            <span className="hidden min-[385px]:inline">Fotos</span>
+          </button>}
           <button type="button" onClick={()=>setEditorOpen(value=>!value)}
             aria-expanded={editorOpen} aria-controls="ebook-page-editor"
             className={"inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold "+
