@@ -43,6 +43,7 @@ import type { DesignTokens, SiteSchemaModel, SiteSection } from '@site-kit/schem
 import { fontLinkTags } from '@site-kit/themes/fonts';
 import { renderCanonicalFrigolog, FRIGOLOG_APPROVED_CSS, FRIGOLOG_STATIC_RUNTIME } from './frigolog-canonical-render';
 import { renderMuseEditorial, MUSE_EDITORIAL_CSS } from './muse-editorial-render';
+import { renderAtelierNorte, ATELIER_NORTE_CSS, ATELIER_NORTE_RUNTIME } from './atelier-norte-render';
 
 export { escapeHtml } from '@site-kit/primitives/render-utils';
 export type { RenderContext } from '@site-kit/primitives/render-utils';
@@ -236,8 +237,11 @@ function renderJsonLd(model: SiteSchemaModel): string {
 export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
   const isUniversal = model.project.templateId === 'frigolog-universal';
   const isMuse = model.project.templateId === 'muse-editorial';
-  const sections = isMuse
-    ? renderMuseEditorial(model, ctx, applyVisualTextEdits)
+  const isAtelier = model.project.templateId === 'atelier-norte';
+  const sections = isAtelier
+    ? renderAtelierNorte(model, ctx, applyVisualTextEdits)
+    : isMuse
+      ? renderMuseEditorial(model, ctx, applyVisualTextEdits)
     : isUniversal
       ? renderCanonicalFrigolog(model, ctx, applyVisualTextEdits)
       : model.sections.map((section) => renderSection(section, ctx, model)).join('\n');
@@ -264,9 +268,11 @@ ${model.seo.canonicalUrl ? `<link rel="canonical" href="${escapeHtml(model.seo.c
 <meta property="og:locale" content="pt_BR">
 ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : ''}
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
-${fontLinkTags(isMuse ? ['Urbanist','Epilogue'] : isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
-<style>${isMuse ? MUSE_EDITORIAL_CSS : isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
-${isMuse ? `/* Muse editorial uses self-contained scoped styles. */
+${fontLinkTags(isAtelier ? ['Instrument Serif','Work Sans'] : isMuse ? ['Urbanist','Epilogue'] : isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
+<style>${isAtelier ? ATELIER_NORTE_CSS : isMuse ? MUSE_EDITORIAL_CSS : isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
+${isAtelier ? `html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
+.skip{position:absolute;left:-9999px;top:0;z-index:1000;padding:12px;background:white;color:#252525}.skip:focus{position:fixed;left:12px;top:12px}
+` : isMuse ? `/* Muse editorial uses self-contained scoped styles. */
 html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
 .skip{position:absolute;left:-9999px;top:0;z-index:1000;padding:12px 16px;background:#fff;color:#252525}
 .skip:focus{position:fixed;left:12px;top:12px;outline:3px solid #df321e}
@@ -292,8 +298,9 @@ ${renderJsonLd(model)}
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteudo</a>
-${isUniversal || isMuse ? sections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
+${isUniversal || isMuse || isAtelier ? sections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
 ${isUniversal ? `<script>${FRIGOLOG_STATIC_RUNTIME}</script>` : ''}
+${isAtelier ? `<script>${ATELIER_NORTE_RUNTIME}</script>` : ''}
 ${ctx.inlineRuntime ? `<script>${ctx.inlineRuntime}</script>` : ''}
 </body>
 </html>`;
