@@ -83,7 +83,7 @@ end;$$;
 create or replace function public.pagenova_credits_revoke(
   p_order_id text,p_status text,p_email text
 ) returns jsonb language plpgsql security definer
-set search_path=public,pg_temp as $
+set search_path=public,pg_temp as $$
 declare v_cycle public.pagenova_credit_cycles%rowtype;
         v_email text:=lower(btrim(p_email));
 begin
@@ -103,7 +103,7 @@ begin
   update public.pagenova_credit_cycles set status=p_status,updated_at=now()
     where id=v_cycle.id and status in ('active','superseded');
   return jsonb_build_object('found',true,'cycleId',v_cycle.id);
-end;$;
+end;$$;
 
 -- Bootstrap legacy subscribers who purchased before the migration.
 -- Only entitlement rows already marked active can seed a new cycle.
@@ -237,7 +237,7 @@ end;$$;
 create or replace function public.pagenova_credits_backfill(
   p_email text,p_order_id text,p_sites_used integer,p_google_used integer
 ) returns jsonb language plpgsql security definer
-set search_path=public,pg_temp as $
+set search_path=public,pg_temp as $$
 declare v_cycle public.pagenova_credit_cycles%rowtype;
 begin
   if p_sites_used not between 0 and 40 or p_google_used not between 0 and 150
@@ -254,7 +254,7 @@ begin
     where id=v_cycle.id;
   return jsonb_build_object('ok',true,'cycleId',v_cycle.id,
     'sitesUsed',p_sites_used,'googleUsed',p_google_used);
-end;$;
+end;$$;
 
 -- Dedicated server-to-server terminal callback from Railway's worker.
 -- The public HTTP endpoint checks an HMAC before invoking this service-role
@@ -262,14 +262,14 @@ end;$;
 create or replace function public.pagenova_credits_settle_job_callback(
   p_job_id text,p_success boolean
 ) returns jsonb language plpgsql security definer
-set search_path=public,pg_temp as $
+set search_path=public,pg_temp as $$
 declare v_op public.pagenova_credit_operations%rowtype;
 begin
   select * into v_op from public.pagenova_credit_operations
     where job_id=p_job_id and kind='site_generation';
   if not found then return jsonb_build_object('found',false);end if;
   return public.pagenova_credits_settle(v_op.owner_id,v_op.id,p_success,p_job_id);
-end;$;
+end;$$;
 
 revoke all on function public.pagenova_credits_activate(text,text,timestamptz) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_revoke(text,text,text) from public,anon,authenticated;
