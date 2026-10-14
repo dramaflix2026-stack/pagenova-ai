@@ -423,21 +423,21 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mx-auto mt-11 grid max-w-5xl grid-cols-2 gap-x-6 gap-y-9 border-t border-[#d4dfd4] pt-9 text-left sm:gap-x-10 lg:grid-cols-4 lg:gap-y-0">
+          <div className="mx-auto mt-11 grid max-w-5xl grid-cols-2 justify-items-center gap-x-4 gap-y-9 border-t border-[#d4dfd4] pt-9 text-center sm:gap-x-10 lg:grid-cols-4 lg:gap-y-0">
             {[
               { icon: "card", title: "Pagamento seguro", text: "Checkout protegido pela Kiwify" },
               { icon: "shield", title: "7 dias protegidos", text: "Conheça com tranquilidade" },
               { icon: "lock", title: "Dados protegidos", text: "Cuidado com seus dados" },
               { icon: "support", title: "Suporte PageNova", text: "Conte com nosso time" },
             ].map((item) => (
-              <div key={item.title} className="flex min-w-0 flex-col items-start gap-3">
+              <div key={item.title} className="flex w-full min-w-0 max-w-[235px] flex-col items-center gap-3 text-center">
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e1f1e7] text-[#0d8054]">
                   {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
                   {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
                   {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
                   {item.icon === "support" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2ZM17 18c-1 2-3 3-5 3"/></svg>}
                 </span>
-                <div>
+                <div className="w-full text-center">
                   <h3 className="text-[13px] font-semibold leading-5 tracking-[-.02em] text-[#173a2b] sm:text-base">{item.title}</h3>
                   <p className="mt-1 text-xs leading-5 text-[#6a786e] sm:text-sm">{item.text}</p>
                 </div>
