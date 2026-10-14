@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -54,9 +56,14 @@
     -webkit-text-size-adjust: 100%;
   }
 
+  /* Match the PageNova Studio UI without changing customer-site typography. */
+  body, button, input, textarea, select, option {
+    font-family: "Poppins", Arial, Helvetica, sans-serif;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-feature-settings: normal;
   }
 
   /* Foco sempre visivel: requisito de acessibilidade. */
