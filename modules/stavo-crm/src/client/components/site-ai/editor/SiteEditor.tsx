@@ -81,6 +81,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const toolbarDragRef = useRef<{ pointerId:number; x:number; y:number; left:number; top:number } | null>(null);
   const pendingImageRef = useRef<{ sectionId: string; slot: PhotoSlot } | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingLogo,setUploadingLogo] = useState(false);
   const scrollRef = useRef({ x: 0, y: 0 });
   const dragRef = useRef<{ startX: number; startY: number; x: number; y: number } | null>(null);
   const [inlineEditor, setInlineEditor] = useState<{ x: number; y: number; kind: 'text' | 'image' | 'block' } | null>(null);
@@ -661,6 +663,40 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       pendingImageRef.current = null;
     }
   };
+  /** Brand logo belongs to navigation, not to any photograph section. */
+  const uploadBrandLogo=async(file:File)=>{
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type) || file.size>5*1024*1024){
+      toast.error('Escolha uma logo PNG, JPG ou WebP de até 5 MB.');return;
+    }
+    setUploadingLogo(true);
+    try{
+      const {asset}=await uploadAsset.mutateAsync(file);
+      if(!asset?.id||!asset.url)throw new Error('O upload não retornou uma logo válida.');
+      const publicUrl=new URL(asset.url,window.location.origin).href;
+      const response=await fetch(publicUrl,{credentials:'include',cache:'no-store'});
+      if(!response.ok||!(response.headers.get('content-type')??'').startsWith('image/'))
+        throw new Error('A logo foi enviada, mas o servidor não conseguiu abrir sua imagem.');
+      const blob=await response.blob();
+      if(!blob.size)throw new Error('O servidor retornou uma imagem vazia.');
+      const localUrl=URL.createObjectURL(blob);
+      temporaryUrlsRef.current.push(localUrl);
+      const current=latestConfigRef.current;
+      if(!current)throw new Error('O projeto não está pronto para edição.');
+      const navigation={
+        ...current.navigation,
+        logo:{assetId:asset.id,alt:('Logo da empresa: '+file.name).slice(0,180),focalX:0.5,focalY:0.5},
+      };
+      const parsed=siteSchema.safeParse({...current,navigation});
+      if(!parsed.success)throw new Error('Não foi possível salvar a logo no projeto.');
+      setNewAssets(previous=>({...previous,[asset.id]:asset}));
+      setPreviewImageUrls(previous=>({...previous,[asset.id]:localUrl}));
+      history.set(parsed.data);
+      void assetsQuery.refetch();
+      toast.success('Logo atualizada! Salvando no site...');
+    }catch(error){
+      toast.error(error instanceof Error?error.message:'Falha ao trocar a logo.');
+    }finally{setUploadingLogo(false);}
+  };
   const styleInlineElement = (
     property: 'fontSize'|'fontFamily'|'color'|'fontWeight'|'fontStyle'|'textAlign',value: string,
   ) => {
@@ -753,6 +789,29 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         errorCount={lintReport?.errors.length ?? 0}
         onShowIssues={() => setShowIssues((v) => !v)}
       />
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-3 py-2"
+        role="group" aria-label="Identidade visual da empresa">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-foreground">Logo do site</p>
+          <p className="text-[11px] text-muted-foreground">Troque ou remova sem nova geração de IA. Funciona em todos os modelos.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {config.navigation.logo&&<button type="button"
+            onClick={()=>history.set({...config,navigation:{...config.navigation,logo:null}})}
+            className="rounded-lg border border-border px-3 py-2 text-xs font-semibold hover:bg-muted">
+            Remover logo
+          </button>}
+          <button type="button" disabled={uploadingLogo||uploadAsset.isPending}
+            onClick={()=>logoInputRef.current?.click()}
+            className="inline-flex items-center gap-2 rounded-lg border border-primary bg-primary-soft px-3 py-2 text-xs font-semibold text-primary disabled:opacity-50">
+            <ImagePlus className="h-4 w-4" />
+            {uploadingLogo?'Enviando logo...':config.navigation.logo?'Trocar logo':'Adicionar logo'}
+          </button>
+          <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/webp"
+            className="hidden" aria-label="Selecionar nova logo do site"
+            onChange={event=>{const file=event.target.files?.[0];if(file)void uploadBrandLogo(file);event.target.value='';}}/>
+        </div>
+      </div>
       {diagnosticsQuery.data?.universalTemplateSupported ? (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-3 py-3"
           role="group" aria-label="Alterar template visual do site">
@@ -766,6 +825,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
             {([
               ['frigolog-universal', 'Modelo 1 · Original'],
               ['muse-editorial', 'Modelo 2 · Muse Editorial'],
+              ['atelier-norte','Modelo 3 · Atelier Norte'],
               ['standard', 'Visual anterior'],
             ] as const).map(([id,label])=>(
               <button key={id} type="button" aria-pressed={(config.project.templateId ?? 'standard')===id}
