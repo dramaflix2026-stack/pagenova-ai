@@ -55,7 +55,7 @@ export function renderAtelierNorte(model:SiteSchemaModel,ctx:RenderContext,
   const highlights=d.highlights.slice(0,3).map(item=>
     '<div><strong>'+esc(item.title)+'</strong><small>'+esc(item.description)+'</small></div>'
   ).join('');
-  const steps=(d.coverage.steps.length?d.coverage.steps:d.highlights.slice(0,3))
+  const steps=(d.coverage.steps?.length?d.coverage.steps:d.highlights.slice(0,3))
     .slice(0,4).map((item,i)=>'<li><span>0'+(i+1)+'</span><p>'+esc(item.title)+(item.description?' — '+esc(item.description):'')+'</p></li>').join('');
   const values=d.about.benefits.slice(0,4).map((value,i)=>
     '<article class="at-value"><span class="at-number">0'+(i+1)+'</span><p>'+esc(value)+'</p></article>'
