@@ -212,7 +212,11 @@ export default function EbooksPage(){
   useEffect(()=>{
     if(!book||!previewArea.current)return;
     const target=previewArea.current;
-    const measure=()=>setScale(Math.max(.18,Math.min(1,(target.clientWidth-8)/794)));
+    const measure=()=>{
+      const style=window.getComputedStyle(target);
+      const innerWidth=target.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);
+      setScale(Math.max(.18,Math.min(1,Math.max(1,innerWidth)/794)));
+    };
     measure();
     const observer=new ResizeObserver(measure);
     observer.observe(target);
