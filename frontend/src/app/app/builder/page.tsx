@@ -88,6 +88,8 @@ export default function BuilderPage() {
   const [editingBrand,setEditingBrand]=useState(false);
   const [brandDraft,setBrandDraft]=useState("");
   const [savingBrand,setSavingBrand]=useState(false);
+  const [uploadingLogo,setUploadingLogo]=useState(false);
+  const logoInputRef=useRef<HTMLInputElement|null>(null);
   const [costDebugEnabled, setCostDebugEnabled] = useState(false);
   const [costPanelOpen, setCostPanelOpen] = useState(false);
   const [costInfo, setCostInfo] = useState<{ costAccumulatedUsd: string; status: string } | null>(null);
@@ -1063,6 +1065,51 @@ export default function BuilderPage() {
     }finally{setSavingBrand(false);}
   }
 
+  async function changeBrandLogo(file:File):Promise<void>{
+    if(!project||!crmProjectId||uploadingLogo)return;
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024){
+      setError('Envie uma logo PNG, JPG ou WebP de até 5 MB.');return;
+    }
+    setUploadingLogo(true);setError('');
+    try{
+      const path=`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}`;
+      const form=new FormData();
+      form.append('file',file);
+      form.append('altText','Logo de '+project.name);
+      const uploaded=await fetch(path+'/assets',{method:'POST',credentials:'same-origin',body:form});
+      const media=await uploaded.json().catch(()=>({})) as {
+        asset?:{id:string;url?:string};error?:{message?:string};
+      };
+      if(!uploaded.ok||!media.asset?.id){
+        throw new Error(media.error?.message||'Falha ao enviar a logo.');
+      }
+      const stored=await fetch(path+'/config',{credentials:'same-origin',cache:'no-store'});
+      const data=await stored.json().catch(()=>({})) as {
+        config?:{navigation?:{logo?:unknown};[key:string]:unknown};
+        lockVersion?:number;error?:{message?:string};
+      };
+      if(!stored.ok||!data.config||typeof data.lockVersion!=='number'){
+        throw new Error(data.error?.message||'Não foi possível carregar a versão do site.');
+      }
+      const nextConfig={...data.config,navigation:{
+        ...data.config.navigation,
+        logo:{assetId:media.asset.id,alt:'Logo de '+project.name,focalX:0.5,focalY:0.5},
+      }};
+      const saved=await fetch(path+'/config',{
+        method:'PATCH',credentials:'same-origin',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({config:nextConfig,expectedLockVersion:data.lockVersion}),
+      });
+      const reply=await saved.json().catch(()=>({})) as {error?:{message?:string}};
+      if(!saved.ok)throw new Error(reply.error?.message||
+        'O site foi alterado em outra guia. Atualize antes de reenviar a logo.');
+      const preview=await fetch(path+'/render',{credentials:'same-origin',cache:'no-store'});
+      if(!preview.ok)throw new Error(`Logo salva, mas a prévia não abriu (HTTP ${preview.status}). Reabra o projeto.`);
+      setCrmPreviewHtml(await preview.text());
+    }catch(cause){setError(cause instanceof Error?cause.message:'Falha ao atualizar a logo.');}
+    finally{setUploadingLogo(false);}
+  }
+
   function openPreviewInNewTab() {
     if (!project?.pages[activePage]) return;
 
@@ -1200,6 +1247,9 @@ export default function BuilderPage() {
   return <>
     {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." align="center" />}
     <main className="mx-auto max-w-[1800px] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
+      <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/webp"
+        className="hidden" aria-label="Selecionar logo do site"
+        onChange={event=>{const file=event.target.files?.[0];if(file)void changeBrandLogo(file);event.target.value='';}} />
       <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar imagem do site"
         onChange={(event) => {
@@ -1382,6 +1432,13 @@ export default function BuilderPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
             <div className="mt-3 flex flex-col items-center justify-center gap-3">
               <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
+              {crmProjectId&&phase!=="generating"&&<button type="button"
+                onClick={()=>logoInputRef.current?.click()}
+                disabled={uploadingLogo||publishing||switchingTemplate}
+                className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/20 disabled:opacity-50"
+                aria-label="Trocar logo da empresa no site">
+                {uploadingLogo?'Enviando logo...':'Trocar logo'}
+              </button>}
               {crmProjectId&&phase!=="generating"&&<button type="button"
                 onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
                 className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
