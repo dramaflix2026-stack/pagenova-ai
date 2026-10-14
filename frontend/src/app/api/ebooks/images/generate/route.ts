@@ -17,7 +17,7 @@ export async function POST(req:NextRequest) {
       method:"POST",headers:{"Authorization":"Bearer "+apiKey,"Content-Type":"application/json"},
       body:JSON.stringify({
         model:process.env.PAGENOVA_EBOOK_IMAGE_MODEL||"gpt-image-1-mini",
-        prompt:"Create an original high-quality editorial ebook illustration. No lettering, logos, watermarks, UI, typography or visible writing. "+prompt.slice(0,2500),
+        prompt:"Produce an original, polished, photorealistic editorial photograph or accurate technical visual for a premium nonfiction ebook. Show the SPECIFIC real-world subject, tools, materials and actions described here. Professional lighting, distinct composition, correct object proportions, realistic details and natural environment. Do not make empty abstract art, placeholder graphics, generic geometric blocks, diagrams with fake labels, charts, lettering, logos, watermarks, UI or typography. Subject: "+prompt.slice(0,2400),
         size:"1024x1024",quality:"low",output_format:"webp",n:1,
       }),
       signal:AbortSignal.timeout(80000),
