@@ -15,6 +15,7 @@ import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteEditor } from '../components/site-ai/editor/SiteEditor';
 import { SiteProgressView } from '../components/site-ai/SiteProgressView';
 import { useArchiveSiteProject, useGenerateSite, useSiteProject } from '../hooks/useSiteAi';
+import { SiteCreditsNotice, siteCreditsExhausted, usePageNovaSiteCredits } from '../components/site-ai/SiteCreditsNotice';
 import { Badge, Button, Callout, ErrorState, LoadingBlock } from '../components/ui';
 import { useToast } from '../components/ui/Toast';
 
@@ -25,6 +26,8 @@ export default function SiteProjectPage() {
   const query = useSiteProject(projectId ?? null);
   const generate = useGenerateSite(projectId ?? '');
   const archive = useArchiveSiteProject();
+  const credits = usePageNovaSiteCredits();
+  const noSiteCredits = siteCreditsExhausted(credits.data);
 
   const project = query.data?.project;
   const jobs = query.data?.jobs ?? [];
@@ -101,11 +104,12 @@ export default function SiteProjectPage() {
     <>
       {header}
       <PageBody className="mx-auto max-w-3xl space-y-4">
+        {(project.status === 'BRIEFING' || project.status === 'FAILED') && <SiteCreditsNotice compact />}
         {project.status === 'BRIEFING' ? (
           <Callout tone="neutral" title="Este projeto ainda nao foi gerado">
             <div className="flex items-center justify-between gap-3">
               <span>O briefing esta salvo. Inicie a geracao quando estiver pronto.</span>
-              <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+              <Button onClick={() => generate.mutate(undefined, { onSuccess: () => void credits.refetch() })} disabled={generate.isPending || noSiteCredits}>
                 {generate.isPending ? 'Enviando...' : 'Gerar agora'}
               </Button>
             </div>
@@ -116,7 +120,7 @@ export default function SiteProjectPage() {
           <Callout tone="neutral" title="A ultima geracao falhou">
             <div className="flex items-center justify-between gap-3">
               <span>O lead e o briefing continuam salvos. Inicie uma nova geracao com os dados deste projeto.</span>
-              <Button onClick={() => generate.mutate()} disabled={generate.isPending}>
+              <Button onClick={() => generate.mutate(undefined, { onSuccess: () => void credits.refetch() })} disabled={generate.isPending || noSiteCredits}>
                 {generate.isPending ? 'Enviando...' : 'Gerar novamente'}
               </Button>
             </div>
