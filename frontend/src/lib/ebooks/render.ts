@@ -41,7 +41,7 @@ function renderPage(book:EbookProject,page:EbookPage,index:number):string{
   const img=photo(page);
   const n=String(index+1).padStart(2,"0");
   const body=para(page.body),head=title(page),intro=top(page,index);
-  const chunks=page.body.split(/\n{2,}/).filter(Boolean);
+
   let section="";
   switch(page.kind){
     case "cover":
