@@ -595,7 +595,7 @@ export default function BuilderPage() {
           throw new Error(analysis.error||"Não foi possível analisar seus anexos. Nenhum site foi gerado.");
         }
         annotatedPrompt=(prompt+"\n\nREFERÊNCIAS ANEXADAS (interpretação da IA):\n"+
-          analysis.summary).slice(0,3700);
+          analysis.summary);
         initialImages=await Promise.all(visualFiles.slice(0,2).map(compressReference));
       }
       const createResponse = await fetch("/api/crm/site-projects", {
@@ -1139,7 +1139,7 @@ export default function BuilderPage() {
             <textarea id="pagenova-brief" ref={briefTextareaRef}
               value={brief}
               onChange={(event)=>{setBrief(event.target.value);if(error)setError("");}}
-              maxLength={2800} rows={3} required
+              rows={3} required
               placeholder="Ex.: Quero um site moderno para minha clínica, com serviços, fotos da equipe e agendamento..."
               className="block min-h-[138px] max-h-[290px] w-full resize-none overflow-y-auto border-0 bg-transparent px-2 pt-1 pb-14 text-base leading-7 text-white outline-none placeholder:text-white/45 sm:min-h-[155px] sm:pb-16"
             />
@@ -1315,7 +1315,7 @@ export default function BuilderPage() {
             <label htmlFor="builder-change" className="block text-sm font-semibold text-emerald-200">✨ Converse com a IA</label>
             <p className="text-xs leading-5 text-white/50">Peça mudanças em textos, cores e seções. Ajustes simples podem ser feitos sem nova geração.</p>
             <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
-              onPaste={pasteRevisionImage} rows={4} maxLength={700}
+              onPaste={pasteRevisionImage} rows={4}
               placeholder="Ex.: Deixe os títulos mais diretos e melhore os serviços."
               className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
             <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
