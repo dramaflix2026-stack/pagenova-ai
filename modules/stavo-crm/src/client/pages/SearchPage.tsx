@@ -179,7 +179,48 @@ export default function SearchPage() {
     staleTime: 30_000,
   });
 
-  const textSearchUsage = usage.data?.usage.find((entry) => entry.sku === 'TEXT_SEARCH');
+  // The CRM's /google/usage describes an internal, calendar-month Google Cloud
+  // budget. It is NOT the customer's contracted PageNova search allowance.
+  // The subscriber's authoritative balance comes from the PageNova Supabase
+  // ledger through the same-origin endpoint (never from the shared CRM database).
+  const subscriberCredits = useQuery({
+    queryKey: ['pagenova-subscriber-search-credits'],
+    queryFn: async () => {
+      const response = await fetch('/api/credits', {
+        credentials: 'same-origin',
+        headers: { Accept: 'application/json' },
+        cache: 'no-store',
+      });
+      if (!response.ok) throw new Error('Saldo de créditos indisponível');
+      return (await response.json()) as {
+        configured: boolean;
+        contract?: { sites: number; google: number };
+        balance?: {
+          active: boolean;
+          googleUsed?: number;
+          googleLimit?: number;
+          googleRemaining: number;
+          startedAt?: string;
+        };
+      };
+    },
+    staleTime: 30_000,
+    retry: 1,
+  });
+  const technicalSearchUsage = usage.data?.usage.find((entry) => entry.sku === 'TEXT_SEARCH');
+  const balance = subscriberCredits.data?.configured ? subscriberCredits.data.balance : undefined;
+  const hasConfirmedBalance = Boolean(
+    balance?.active && Number.isFinite(balance.googleRemaining) && balance.googleRemaining >= 0,
+  );
+  const contractedSearchLimit = 150;
+  const cycleLimit = hasConfirmedBalance && Number.isFinite(balance?.googleLimit)
+    ? balance!.googleLimit! : contractedSearchLimit;
+  const cycleRemaining = hasConfirmedBalance ? Math.max(0, balance!.googleRemaining) : null;
+  const cycleUsed = cycleRemaining === null
+    ? null
+    : typeof balance?.googleUsed === 'number' && Number.isFinite(balance.googleUsed)
+      ? Math.max(0, balance.googleUsed)
+      : Math.max(0, cycleLimit - cycleRemaining);
 
   const search = useMutation({
     mutationFn: (input: { pageToken: string | null; page: number }) =>
@@ -196,6 +237,7 @@ export default function SearchPage() {
       setSearchRunId(data.searchRunId);
       setError(null);
       void usage.refetch();
+      void subscriberCredits.refetch();
     },
     onError: (caught) => {
       setError(
@@ -231,14 +273,23 @@ export default function SearchPage() {
       />
 
       <PageBody className="space-y-4">
-        {textSearchUsage ? (
-          <Callout
-            tone={textSearchUsage.blocked ? 'danger' : textSearchUsage.warning ? 'warning' : 'info'}
-            title={`Consumo do mes: ${textSearchUsage.used} de ${textSearchUsage.limit} pesquisas`}
-          >
-            {textSearchUsage.blocked
-              ? 'O limite interno foi atingido. Ele protege o orcamento da conta do Google. Ajuste em Configuracoes ou aguarde o proximo mes.'
-              : `Restam ${textSearchUsage.remaining} chamadas. Cada pagina de resultados consome uma chamada.`}
+        <Callout
+          tone={hasConfirmedBalance && cycleRemaining === 0 ? 'warning' : 'info'}
+          title={hasConfirmedBalance && cycleUsed !== null
+            ? `Pesquisas do seu ciclo: ${cycleUsed} de ${cycleLimit} utilizadas`
+            : `Seu plano: até ${contractedSearchLimit} páginas de pesquisa por ciclo`}
+        >
+          {hasConfirmedBalance && cycleRemaining !== null
+            ? `Restam ${cycleRemaining} páginas de pesquisa neste ciclo da assinatura. Cada página solicitada corresponde a uma consulta ao Google, com até 20 resultados.`
+            : subscriberCredits.isLoading
+              ? 'Verificando seus créditos individuais...'
+              : subscriberCredits.data?.configured === false
+                ? 'O saldo individual está em migração. A franquia é por ciclo da assinatura, não por mês do calendário. O consumo técnico da API não representa seus créditos.'
+                : 'Não foi possível confirmar seu saldo individual agora. A franquia informada é contratual, não um saldo disponível verificado.'}
+        </Callout>
+        {technicalSearchUsage?.blocked ? (
+          <Callout tone="warning" title="Busca temporariamente limitada pelo Google">
+            O limite técnico do provedor foi atingido. Ele é diferente dos créditos da sua assinatura. Entre em contato com o suporte para verificar a liberação.
           </Callout>
         ) : null}
 
@@ -404,7 +455,7 @@ export default function SearchPage() {
                 Pesquisar
               </Button>
               <p className="text-xs text-muted-foreground">
-                Esta pesquisa consome 1 chamada e traz ate 20 resultados.
+                Cada página solicitada consulta o Google e traz até 20 resultados.
               </p>
             </div>
 
