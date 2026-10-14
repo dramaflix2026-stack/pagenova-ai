@@ -45,6 +45,24 @@ const aliases: Record<string,string> = {
   "fitness":"fitness","livro":"book","negócios":"business","beleza":"beauty",
   "pele":"skin","cabelos":"hair","natureza":"nature","viagem":"travel",
   "flores":"flowers","educação":"education","marketing":"marketing",
+  "serralheria":"metalworking","serralheiro":"welder","metalurgia":"metalworking",
+  "soldagem":"welding","solda":"welding","soldar":"welding","soldador":"welder",
+  "ferro":"steel","aço":"steel","aco":"steel","inox":"stainless steel",
+  "banco":"bench","jardim":"garden","portão":"gate","portoes":"gate",
+  "portões":"gate","grades":"railings","corrimão":"handrail","corrimao":"handrail",
+  "lixadeira":"grinder","esmerilhadeira":"grinder","corte":"cutting",
+  "sustentabilidade":"sustainability","segurança":"safety","seguranca":"safety",
+  "máscara":"mask","mascara":"mask","capacete":"helmet","luvas":"gloves",
+  "oficina":"workshop","ferramentas":"tools","equipamentos":"equipment",
+  "madeira":"woodworking","marcenaria":"carpentry","carpinteiro":"carpenter",
+  "construção":"construction","construcao":"construction","cimento":"concrete",
+  "jardim":"garden","arquitetura":"architecture","decoração":"interior",
+  "automóveis":"automotive","automovel":"automotive","mecânica":"mechanic",
+  "culinária":"cooking","cozinha":"kitchen","moda":"fashion","roupas":"clothing",
+  "fotografia":"photography","maquiagem":"makeup","artesanato":"craft",
+  "computação":"computer","programação":"programming","eletrônica":"electronics",
+  "placa":"circuit board","circuito":"circuit board","robo":"robot",
+  "projeto":"design","projetos":"design",
 };
 function clean(value:string):string {
   return value.replace(/<[^>]*>/g," ").replace(/&(?:amp|quot|lt|gt|nbsp);/g," ")
@@ -63,6 +81,11 @@ const visualSubjects=new Set([
   "pancakes","pasta","quinoa","potato","meal","snack","dessert",
   "flowers","forest","mountain","ocean","architecture","interior","office",
   "business","computer","education","books","fitness","nature",
+  "metalworking","welding","welder","steel","bench","garden","gate",
+  "railings","grinder","workshop","tools","equipment","woodworking",
+  "carpentry","carpenter","construction","concrete","safety","mask",
+  "helmet","gloves","mechanic","automotive","fashion","clothing",
+  "photography","makeup","craft","electronics","robot","kitchen","cooking",
 ]);
 function queries(prompt:string,title:string,topic:string):string[]{
   const prompts=words(prompt);
@@ -74,13 +97,14 @@ function queries(prompt:string,title:string,topic:string):string[]{
     // Commons indexes filenames/categories. Short, concrete nouns are more
     // reliable than an entire AI art prompt or marketing phrase.
     subject?[subject,...context].slice(0,2).join(" "):"",
-    prompts.slice(0,3).join(" "),
-    titles.slice(0,3).join(" "),
+    subject?[subject,...prompts.filter(w=>w!==subject)].slice(0,2).join(" "):"",
+    titles.slice(0,2).join(" "),
+    prompts.slice(0,2).join(" "),
     subject||"",
-    topicWords.slice(0,2).join(" "),
+    topicWords.find(w=>visualSubjects.has(w))||topicWords.slice(0,2).join(" "),
     prompts.find(w=>w.length>4)||"",
   ].filter(Boolean);
-  return [...new Set(strategies.map(q=>q.slice(0,80).trim()))].slice(0,6);
+  return [...new Set(strategies.map(q=>q.slice(0,65).trim()))].slice(0,6);
 }
 function licenseAllowed(name:string):boolean {
   const value=clean(name).trim().toUpperCase();
