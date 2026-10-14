@@ -10,7 +10,8 @@ export async function POST(request:NextRequest,context:{params:Promise<{id:strin
     if(!type.includes("application/json"))throw new FormServiceError("Envie respostas em JSON.",415);
     const text=await request.text();
     if(text.length>12000)throw new FormServiceError("Respostas grandes demais.",413);
-    const body=JSON.parse(text) as unknown;
+    let body:unknown;
+    try{body=JSON.parse(text);}catch{throw new FormServiceError("Respostas inválidas.",400);}
     const {id}=await context.params;
     const result=await submitPublicQuiz(quizAdmin(),id,body);
     return Response.json(result,{headers:{"Cache-Control":"no-store"}});
