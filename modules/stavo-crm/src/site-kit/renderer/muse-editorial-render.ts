@@ -26,6 +26,7 @@ const MUSE_CSS = String.raw`
 .muse-site .header{min-height:100px;display:flex;justify-content:space-between;align-items:center;gap:24px;border-bottom:1px solid var(--m-border)}
 .muse-site .brand{font-family:'Urbanist',Arial,sans-serif;font-size:clamp(24px,2.5vw,42px);font-weight:800;max-width:35%;line-height:1.05;overflow-wrap:anywhere}
 .muse-site .brand i{color:var(--m-red);font-style:normal}
+.muse-site .brand .brand-logo{display:block;max-height:72px;max-width:min(240px,100%);width:auto;height:auto;object-fit:contain}
 .muse-site .links{display:flex;gap:clamp(15px,2.2vw,38px);align-items:center;font-size:12px;font-weight:600}
 .muse-site .links a:hover{color:var(--m-red)}
 .muse-site .nav-cta{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--m-ink);padding:13px 17px;font-size:11px;font-weight:600}
@@ -207,7 +208,7 @@ export function renderMuseEditorial(
   const nav=`<a href="#portfolio">${worksLabel}</a><a href="#estudio">Sobre</a><a href="#abordagem">Como trabalhamos</a>`;
   const html=`<div class="muse-site">
 <header class="header gutter">
-  <a class="brand" href="#inicio" aria-label="Voltar ao início">${esc(name)}<i>.</i></a>
+  <a class="brand" href="#inicio" aria-label="Voltar ao início">${data.brand.logoUrl?`<img class="brand-logo" src="${esc(data.brand.logoUrl)}" alt="${esc(name)}" loading="eager">`:`${esc(name)}<i>.</i>`}</a>
   <nav class="links" aria-label="Menu principal">${nav}</nav>
   <a class="nav-cta" href="${esc(contactUrl)}">${esc(data.contact.ctaLabel)} <span aria-hidden="true">↗</span></a>
   <details class="mobile-links"><summary>Menu ☰</summary><nav aria-label="Menu celular">${nav}<a href="${esc(contactUrl)}">${esc(data.contact.ctaLabel)}</a></nav></details>
