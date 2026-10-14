@@ -297,7 +297,7 @@ export default function EbooksPage(){
   }
 
   async function transcribeAudio(file: File) {
-    if (file.size > 24 * 1024 * 1024) throw new Error("O áudio deve ter até 24 MB.");
+    if (file.size > 3.5 * 1024 * 1024) throw new Error("O áudio deve ter até 3,5 MB. Para gravações longas, envie em partes.");
     setAttachmentBusy(true);
     setAudioNote("Transcrevendo áudio...");
     try {
@@ -339,6 +339,7 @@ export default function EbooksPage(){
   }
   async function toggleRecording() {
     if (recorder.current?.state === "recording") {
+      setAttachmentBusy(true);
       recorder.current.stop();
       setRecording(false);
       return;
@@ -383,7 +384,7 @@ export default function EbooksPage(){
 
   async function generate(ev:FormEvent<HTMLFormElement>){
     ev.preventDefault();if(generating||attachmentBusy||recording)return;
-    if(prompt.trim().length<15){setError("Descreva melhor o tema do ebook.");return;}
+    if(prompt.trim().length<15&&!references.length){setError("Descreva o tema ou anexe uma imagem ou vídeo.");return;}
     setGenerating(true);setError("");setNotice("");
     try{
       const result=await responseJson<{ebook:EbookProject}>(await fetch("/api/ebooks/generate",{
@@ -597,7 +598,7 @@ export default function EbooksPage(){
             </button>)}</div>
           </div>
           {error&&<p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
-          <button type="submit" disabled={generating||attachmentBusy||recording||prompt.trim().length<15}
+          <button type="submit" disabled={generating||attachmentBusy||recording||(prompt.trim().length<15&&!references.length)}
             className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#06120d] transition hover:bg-emerald-300 disabled:opacity-40">
             {generating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Escrevendo e diagramando o ebook...</>:<><Sparkles className="h-5 w-5"/> Gerar meu ebook <ArrowRight className="h-5 w-5"/></>}
           </button>
