@@ -383,21 +383,26 @@ export default function BuilderPage() {
             // The CRM draft is authoritative for the selected visual template.
             // A project created before the dropdown upgrade may have no local
             // templateId; fetch it without creating a new paid generation.
-            const templateResponse=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/config`, {
-              credentials:"same-origin",cache:"no-store",
-            });
-            if(templateResponse.ok){
-              const templateData=await templateResponse.json().catch(()=>({})) as {
-                config?:{project?:{templateId?:string}};
-              };
-              const serverTemplate=templateData.config?.project?.templateId;
-              if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"){
-                setTemplateId(serverTemplate);
-                setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
-                if(saved.templateId!==serverTemplate){
-                  void savePageNovaProject(saved.id,{...saved,templateId:serverTemplate}).catch(()=>undefined);
+            try {
+              const templateResponse=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/config`, {
+                credentials:"same-origin",cache:"no-store",
+              });
+              if(templateResponse.ok){
+                const templateData=await templateResponse.json().catch(()=>({})) as {
+                  config?:{project?:{templateId?:string}};
+                };
+                const serverTemplate=templateData.config?.project?.templateId;
+                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"){
+                  setTemplateId(serverTemplate);
+                  setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
+                  if(saved.templateId!==serverTemplate){
+                    void savePageNovaProject(saved.id,{...saved,templateId:serverTemplate}).catch(()=>undefined);
+                  }
                 }
               }
+            } catch {
+              // A temporary failure reading template metadata must not block
+              // the existing generated HTML from loading successfully.
             }
             const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/render`, {
               credentials:"same-origin",cache:"no-store",
@@ -994,7 +999,8 @@ export default function BuilderPage() {
       const updated:SiteProject={...project,templateId:nextTemplate,previewTheme:"original"};
       setProject(updated);
       setTemplateId(nextTemplate);
-      await savePageNovaProject(updated.id,updated);
+      // Local cache failure must not interrupt a successful CRM template swap.
+      await savePageNovaProject(updated.id,updated).catch(()=>undefined);
       const html=await fetch(path+"/render",{credentials:"same-origin",cache:"no-store"});
       if(!html.ok){
         throw new Error(`Modelo salvo, mas a prévia não carregou (HTTP ${html.status}). Verifique a geração existente.`);
