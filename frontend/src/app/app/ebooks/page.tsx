@@ -635,8 +635,8 @@ export default function EbooksPage(){
     setActive(current=>Math.max(0,Math.min(book.pages.length-1,current+(dx<0?1:-1))));
   }
   const current=book?.pages[active];
-  const photosMissing=Boolean(book?.imageMode==="web" && book.pages.some(p=>
-    (p.kind==="cover"||p.kind==="feature"||p.kind==="chapter")&&!p.imageUrl));
+  const photosMissing=Boolean(book?.imageMode!=="none" && book.pages.some(p=>
+    isPhotoPage(p.kind)&&!p.imageUrl));
   return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
     {!book&&<AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>}
     {!book?<div className="mx-auto max-w-[1240px] px-4 py-9 sm:px-7 sm:py-12">
@@ -796,10 +796,10 @@ export default function EbooksPage(){
             <Palette className="h-4 w-4"/><span className="hidden sm:inline">Variar layouts</span>
           </button>
           {photosMissing&&<button type="button" onClick={()=>{if(book)void populateImages(book);}}
-            disabled={imagesBusy} title="Buscar fotos gratuitas para as páginas sem imagem"
+            disabled={imagesBusy} title="Preencher com imagens as páginas ilustradas que ainda não possuem foto"
             className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-emerald-400/25 px-2.5 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10 disabled:opacity-50">
             {imagesBusy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ImagePlus className="h-4 w-4"/>}
-            <span className="hidden min-[385px]:inline">Fotos</span>
+            <span className="hidden min-[385px]:inline">Imagens</span>
           </button>}
           <button type="button" onClick={()=>setEditorOpen(value=>!value)}
             aria-expanded={editorOpen} aria-controls="ebook-page-editor"
