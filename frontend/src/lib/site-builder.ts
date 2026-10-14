@@ -136,6 +136,8 @@ export type SiteProject = {
   name: string;
   brief: string;
   style: string;
+  /** Rendering family saved with the CRM draft, not a visual color filter. */
+  templateId?: "frigolog-universal" | "muse-editorial";
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
   visualDirection?: VisualDirection;
   siteStrategy?: import("@/lib/site-builder-universal").UniversalSiteStrategy;
