@@ -26,14 +26,14 @@ export function PageNovaCreationDemo() {
       <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-[#31d9a4]/10 blur-[85px]" />
       <div className="flex h-12 items-center gap-2 border-b border-white/10 bg-[#0b1713] px-4">
         <span className="h-2.5 w-2.5 rounded-full bg-white/20" /><span className="h-2.5 w-2.5 rounded-full bg-white/15" /><span className="h-2.5 w-2.5 rounded-full bg-white/10" />
-        <span className="ml-2 truncate text-[10px] text-white/40">PageNova AI / criação em tempo real</span>
-        <span className={"ml-auto rounded-full px-2.5 py-1 text-[9px] font-bold "+(ready?"bg-[#31d9a4] text-[#062018]":"bg-[#153b2d] text-[#7ceac2]")}>{ready?"SITE PRONTO ✓":"IA ATIVA"}</span>
+        <span className="ml-2 truncate text-[10px] text-white/40">PageNova AI / exemplo do fluxo de criação</span>
+        <span className={"ml-auto rounded-full px-2.5 py-1 text-[9px] font-bold "+(ready?"bg-[#31d9a4] text-[#062018]":"bg-[#153b2d] text-[#7ceac2]")}>{ready?"PRÉVIA CONCLUÍDA ✓":"FLUXO ILUSTRATIVO"}</span>
       </div>
 
       <div className="relative p-4 sm:p-6">
         <div className="mb-4 flex items-end justify-between gap-3">
           <div><p className="text-[9px] font-bold uppercase tracking-[.18em] text-[#5fe0b5]">Novo site</p><h3 className="mt-1.5 text-base font-semibold text-white sm:text-lg">Clínica Sorriso · São Bernardo do Campo</h3></div>
-          <span className="hidden text-[9px] text-white/40 sm:block">{ready?"Pronto para editar":"Gerando agora..."}</span>
+          <span className="hidden text-[9px] text-white/40 sm:block">{ready?"Exemplo finalizado":"Etapas da criação"}</span>
         </div>
 
         <div className="mb-4 rounded-xl border border-white/10 bg-white/[.035] p-3.5">
@@ -67,11 +67,11 @@ export function PageNovaCreationDemo() {
               {["Avaliação","Tratamentos","WhatsApp"].map(x=><div key={x} className="rounded-xl border border-black/[.05] bg-white p-2 text-center text-[7px] font-semibold shadow-sm">{x}</div>)}
             </div>
 
-            {ready && <div className="absolute inset-0 z-30 grid place-items-center bg-[#0c281d]/88 p-6 backdrop-blur-[2px]"><div className="text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#46dda7] text-2xl font-black text-[#082219] shadow-[0_0_35px_rgba(70,221,167,.35)]">✓</div><p className="mt-4 text-lg font-bold text-white">Seu site está pronto</p><p className="mt-1 text-[10px] text-white/55">Abra a prévia e continue editando.</p><div className="mx-auto mt-4 inline-flex rounded-lg bg-[#46dda7] px-4 py-2 text-[9px] font-bold text-[#082219]">Abrir site →</div></div></div>}
+            {ready && <div className="absolute inset-0 z-30 grid place-items-center bg-[#0c281d]/88 p-6 backdrop-blur-[2px]"><div className="text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#46dda7] text-2xl font-black text-[#082219] shadow-[0_0_35px_rgba(70,221,167,.35)]">✓</div><p className="mt-4 text-lg font-bold text-white">Exemplo de site pronto</p><p className="mt-1 text-[10px] text-white/65">No seu projeto, revise e personalize a primeira versão.</p><div className="mx-auto mt-4 inline-flex rounded-lg bg-[#46dda7] px-4 py-2 text-[9px] font-bold text-[#082219]">Abrir site →</div></div></div>}
           </div>
         </div>
 
-        <div className="mt-4 flex items-center justify-between gap-3"><p className="text-[9px] text-white/35">Briefing → estrutura → copy → visual → revisão</p><span className={"shrink-0 text-[9px] font-semibold "+(ready?"text-[#66e4b5]":"text-white/35")}>{ready?"Concluído":"Construindo..."}</span></div>
+        <div className="mt-4 flex items-center justify-between gap-3"><p className="text-[9px] text-white/35">Briefing → estrutura → copy → visual → revisão</p><span className={"shrink-0 text-[9px] font-semibold "+(ready?"text-[#66e4b5]":"text-white/35")}>{ready?"Pronto para revisar":"Demonstração visual"}</span></div>
       </div>
     </div>
   );
