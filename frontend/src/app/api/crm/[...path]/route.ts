@@ -120,7 +120,8 @@ async function proxy(request: NextRequest, context: RouteContext) {
         const incoming=typeof payload.idempotencyKey==="string"?payload.idempotencyKey.trim():"";
         const idempotencyKey=incoming||"pagenova_"+randomUUID();
         payload.idempotencyKey=idempotencyKey;
-        body=Buffer.from(JSON.stringify(payload));
+        const jsonBytes=Buffer.from(JSON.stringify(payload));
+        body=jsonBytes.buffer.slice(jsonBytes.byteOffset,jsonBytes.byteOffset+jsonBytes.byteLength) as ArrayBuffer;
         headers.set("content-type","application/json");
         key="site:"+siteMatch[1]+":"+idempotencyKey;
       }else{
