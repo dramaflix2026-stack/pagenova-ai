@@ -60,7 +60,7 @@ export async function POST(request:NextRequest) {
     const allowed=[6,8,10,12,16];
     const requested=Number(input.pageCount);
     const count=allowed.includes(requested)?requested:8;
-    const theme: EbookTheme=input.theme==="midnight"||input.theme==="forest"?input.theme:"editorial";
+    const theme: EbookTheme=["editorial","midnight","forest","corporate","modern","premium"].includes(String(input.theme))?input.theme as EbookTheme:"editorial";
     const imageMode:EbookImageMode=input.imageMode==="ai"||input.imageMode==="none"?input.imageMode:"web";
     const blueprint=planEbookPages(effectivePrompt,count,imageMode);
     const artDirection=blueprint.map(page=>
