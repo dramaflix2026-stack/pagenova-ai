@@ -400,56 +400,23 @@ export default function Home() {
         `}</style>
       </section>
 
-      <section aria-labelledby="garantia-title" className="bg-[#f3f5f0] px-5 py-16 text-[#14251d] sm:px-6 md:py-24">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid items-center gap-7 text-center lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:text-left">
-            <div className="flex items-center justify-center lg:justify-end">
-              <img
-                src="/guarantees/guarantee-7.png"
-                alt="Garantia de 7 dias"
-                className="h-44 w-44 object-contain drop-shadow-[0_16px_24px_rgba(80,60,15,.13)] sm:h-56 sm:w-56 lg:h-64 lg:w-64"
-              />
-            </div>
-            <div>
-              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
-                Compra com tranquilidade
-              </span>
-              <h2 id="garantia-title" className="mx-auto mt-4 max-w-2xl text-[clamp(1.9rem,4.3vw,3.35rem)] font-semibold leading-[1.12] tracking-[-.045em] lg:mx-0">
-                7 dias para conhecer a PageNova com tranquilidade.
-              </h2>
-              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#607165] sm:text-base lg:mx-0">
-                Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.
-              </p>
-            </div>
-          </div>
-
-          <div className="mx-auto mt-11 grid max-w-5xl grid-cols-2 justify-items-center gap-x-4 gap-y-9 border-t border-[#d4dfd4] pt-9 text-center sm:gap-x-10 lg:grid-cols-4 lg:gap-y-0">
-            {[
-              { icon: "card", title: "Pagamento seguro", text: "Checkout protegido pela Kiwify" },
-              { icon: "shield", title: "7 dias protegidos", text: "Conheça com tranquilidade" },
-              { icon: "lock", title: "Dados protegidos", text: "Cuidado com seus dados" },
-              { icon: "support", title: "Suporte PageNova", text: "Conte com nosso time" },
-            ].map((item) => (
-              <div key={item.title} className="flex w-full min-w-0 max-w-[235px] flex-col items-center gap-3 text-center">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e1f1e7] text-[#0d8054]">
-                  {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
-                  {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
-                  {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
-                  {item.icon === "support" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2ZM17 18c-1 2-3 3-5 3"/></svg>}
-                </span>
-                <div className="w-full text-center">
-                  <h3 className="text-[13px] font-semibold leading-5 tracking-[-.02em] text-[#173a2b] sm:text-base">{item.title}</h3>
-                  <p className="mt-1 text-xs leading-5 text-[#6a786e] sm:text-sm">{item.text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <a href="#planos" className="inline-flex min-h-12 w-full max-w-[330px] items-center justify-center gap-2 rounded-xl bg-[#0d3527] px-6 py-3.5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(13,53,39,.12)] transition hover:bg-[#16533c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#148453] sm:w-auto">
-              Ver planos agora <span aria-hidden="true">→</span>
-            </a>
-          </div>
+      <section id="garantia" aria-label="Garantia de satisfação de 7 dias" className="bg-[#f5f8f3] py-10 md:py-16">
+        <div className="mx-auto w-full max-w-[920px] px-3 sm:px-6">
+          <a
+            href="#planos"
+            aria-label="Garantia PageNova de 7 dias. Ver opções de planos."
+            className="group block cursor-pointer rounded-2xl outline-offset-4 transition-transform duration-200 hover:scale-[1.006] focus-visible:outline-2 focus-visible:outline-[#148453] motion-reduce:transform-none"
+          >
+            <img
+              src="/guarantees/garantia-pagenova-interativa.svg"
+              alt="Garantia de 7 dias: dinheiro de volta sem burocracia. Pagamento seguro, dados protegidos e suporte PageNova. Ver planos agora."
+              width="1122"
+              height="1402"
+              loading="lazy"
+              decoding="async"
+              className="block h-auto w-full select-none"
+            />
+          </a>
         </div>
       </section>
 
