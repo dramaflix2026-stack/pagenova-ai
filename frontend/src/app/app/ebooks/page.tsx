@@ -646,7 +646,7 @@ export default function EbooksPage(){
     setActive(current=>Math.max(0,Math.min(book.pages.length-1,current+(dx<0?1:-1))));
   }
   const current=book?.pages[active];
-  const photosMissing=Boolean(book?.imageMode!=="none" && book.pages.some(p=>
+  const photosMissing=Boolean(book && book.imageMode!=="none" && book.pages.some(p=>
     isPhotoPage(p.kind)&&!p.imageUrl));
   return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
     {!book&&<AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>}
