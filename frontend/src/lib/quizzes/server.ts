@@ -3,6 +3,15 @@ import {FormServiceError} from "@/lib/forms/server";
 import {evaluateQuiz,normalizeQuiz,publicQuiz,validQuizId,
   type QuizProject,type PublicQuiz,type QuizEntry,type QuizOutcome} from "./schema";
 
+import {createClient as createAdminClient} from "@supabase/supabase-js";
+
+export function quizAdmin():SupabaseClient{
+  const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key=process.env.SUPABASE_SECRET_KEY;
+  if(!url||!key)throw new FormServiceError("Armazenamento de quizzes indisponível.",503);
+  return createAdminClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+}
+
 const BUCKET="pagenova-quizzes-private";
 let ready=false;
 export type QuizSummary={id:string;title:string;updatedAt:string;publishedAt:string|null;questions:number;responses?:number};
