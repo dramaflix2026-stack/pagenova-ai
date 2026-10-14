@@ -12,6 +12,7 @@ import {
   CalendarDays,
   ClipboardList,
   BookOpen,
+  ListChecks,
   CircleHelp,
   Copy,
   FileSpreadsheet,
@@ -52,6 +53,7 @@ const studioItems: MenuItem[] = [
   { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
   { href: "/app/cloner", label: "Clonar site com IA", icon: Copy },
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
+  { href: "/app/quizzes", label: "Gerar Quiz", icon: ListChecks },
   { href: "/app/ebooks", label: "Gerar Ebooks", icon: BookOpen },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
   { href: "/app/creditos", label: "Meus créditos", icon: Wallet },
@@ -271,7 +273,7 @@ export function Sidebar() {
           </div>
 
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-            <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
+            <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={studioItems}
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
@@ -331,7 +333,7 @@ export function Sidebar() {
         </div>
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-          <NavigationGroup title="PageNova Studio" description="Sites e formulários com IA" items={studioItems}
+          <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={studioItems}
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
             theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
