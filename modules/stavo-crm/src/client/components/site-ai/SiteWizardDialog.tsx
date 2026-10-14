@@ -18,8 +18,9 @@ import {
   type MotionLevel,
   type SiteType,
 } from '@site-kit/types/site-ai';
-import { ApiError } from '../../lib/api';
-import { useCreateSiteProject, useGenerateSite } from '../../hooks/useSiteAi';
+import { ApiError, api, newIdempotencyKey } from '../../lib/api';
+import { useCreateSiteProject } from '../../hooks/useSiteAi';
+import { SiteCreditsNotice, usePageNovaSiteCredits, siteCreditsExhausted } from './SiteCreditsNotice';
 import { Badge, Button, Callout, Field, Input, Textarea } from '../ui';
 
 import { useToast } from '../ui/Toast';
@@ -126,6 +127,8 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
   const { open, onOpenChange, onCreated } = props;
   const toast = useToast();
   const createProject = useCreateSiteProject();
+  const credits = usePageNovaSiteCredits();
+  const noSiteCredits = siteCreditsExhausted(credits.data);
 
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<FormState>(() => initialState(props));
@@ -139,7 +142,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
     setForm(initialState(props));
     setStep(1);
     setError(null);
-    setPendingProjectId(null);
+    
   }, [
     open,
     props.leadId,
@@ -151,11 +154,6 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
     props.initialInstagram,
     props.initialWebsite,
   ]);
-
-  // Precisa de um projectId antes de poder gerar; guarda a mutacao aqui para
-  // reutilizar o mesmo hook depois que o projeto existir.
-  const [pendingProjectId, setPendingProjectId] = useState<string | null>(null);
-  const generate = useGenerateSite(pendingProjectId ?? '');
 
   const patch = (values: Partial<FormState>) => setForm((prev) => ({ ...prev, ...values }));
 
@@ -211,12 +209,16 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
       setStep(1);
       setForm(initialState(props));
       setError(null);
-      setPendingProjectId(null);
+      
     }
     onOpenChange(next);
   }
 
   async function handleSubmit() {
+    if (noSiteCredits) {
+      setError('Seus créditos de geração acabaram neste ciclo. Aguarde a renovação.');
+      return;
+    }
     setError(null);
     setSubmitting(true);
     try {
@@ -226,9 +228,11 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
         siteType: form.siteType,
         briefing,
       })).project;
-      setPendingProjectId(project.id);
-
-      await generate.mutateAsync();
+      // Use the newly created project ID rather than asynchronously updated state.
+      await api.post(`/site-projects/${project.id}/generate`, {
+        idempotencyKey: newIdempotencyKey('sitegen'),
+      });
+      void credits.refetch();
 
       toast.success('Site em geracao. Acompanhe o andamento na tela do projeto.');
       onCreated(project.id);
@@ -528,12 +532,10 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
                   placeholder="Ex.: tom acolhedor, publico de primeira viagem, nao mencionar preco."
                 />
               </Field>
-              <Callout tone="neutral" title="Antes de gerar">
-                <ul className="list-disc space-y-1 pl-4 text-sm">
-                  <li>Uma chamada principal a IA sera feita para montar o site.</li>
-                  <li>Nenhuma imagem sera gerada nesta versao (upload chega em breve).</li>
-                  <li>Custo estimado depende do modelo configurado; sem chave, o modo de teste e usado.</li>
-                </ul>
+              <SiteCreditsNotice />
+              <Callout tone="neutral" title="Como funcionam os créditos">
+                A geração inicial concluída consome 1 crédito, compartilhado com o Studio.
+                Edição, prévia e publicação de sites existentes não consomem créditos de geração.
               </Callout>
               <div className="flex flex-wrap gap-2">
                 <Badge tone="outline">{form.businessName || 'Sem nome'}</Badge>
@@ -544,6 +546,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
           ) : null}
         </div>
 
+        {props.leadId && <div className="shrink-0 px-4 pb-2 sm:px-5"><SiteCreditsNotice compact /></div>}
         <div className="shrink-0 flex flex-col-reverse gap-2 border-t border-border p-4 sm:flex-row sm:justify-end sm:p-5">
           {step > 1 ? (
             <Button variant="secondary" onClick={() => setStep((step - 1) as Step)} disabled={submitting}>
@@ -556,7 +559,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
           )}
 
           {props.leadId ? (
-            <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting}>
+            <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting || noSiteCredits}>
               {submitting ? 'Gerando...' : 'Gerar site com IA'}
             </Button>
           ) : step < 3 ? (
@@ -564,7 +567,7 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
               Continuar
             </Button>
           ) : (
-            <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting}>
+            <Button onClick={() => void handleSubmit()} disabled={!canSubmit || submitting || noSiteCredits}>
               {submitting ? 'Criando...' : 'Criar site'}
             </Button>
           )}
