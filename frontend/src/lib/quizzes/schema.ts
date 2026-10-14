@@ -60,7 +60,9 @@ export function normalizeQuiz(value:unknown):QuizInput{
       if(!label)throw new Error("Uma opção da pergunta "+(i+1)+" está vazia.");
       return {id:optionId(a.id,index),label,outcomeId};
     });
-    if(new Set(parsed.map(o=>o.id)).size!==parsed.length)throw new Error("Opções duplicadas na pergunta "+(i+1)+".");
+    if(new Set(parsed.map(o=>o.id)).size!==parsed.length ||
+      new Set(parsed.map(o=>o.label.toLocaleLowerCase("pt-BR"))).size!==parsed.length)
+      throw new Error("Há opções repetidas na pergunta "+(i+1)+".");
     return {id:optionId(item.id,i),title,options:parsed};
   });
   if(new Set(questions.map(q=>q.id)).size!==questions.length)throw new Error("Perguntas duplicadas.");
