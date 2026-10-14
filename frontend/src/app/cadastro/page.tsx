@@ -67,7 +67,7 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-5 py-12 text-white">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(54,217,161,0.12),transparent_40%)]" />
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-emerald-400/[.06] blur-[110px]" />
 
@@ -77,7 +77,7 @@ export default function CadastroPage() {
             className="h-[65px] w-auto max-w-[240px] object-contain" />
         </Link>
 
-        <section className="rounded-[28px] border border-white/[.10] bg-white/[.035] p-6 shadow-[0_20px_80px_rgba(0,0,0,.25)] backdrop-blur-xl sm:p-9">
+        <section className="rounded-[28px] border border-white/[.10] bg-[#10241c]/90 p-6 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
           <div className="text-center">
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-xl text-emerald-300" aria-hidden="true">
               ✦
@@ -108,7 +108,7 @@ export default function CadastroPage() {
                 <input id="signup-email" type="email" autoComplete="email" required maxLength={254}
                   value={email} onChange={(event) => setEmail(event.target.value)}
                   placeholder="voce@email.com"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#091b14] px-4 text-sm text-white outline-none placeholder:text-white/55 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
               </div>
               <div>
                 <label htmlFor="signup-password" className="mb-2 block text-xs font-semibold text-white/65">
@@ -117,7 +117,7 @@ export default function CadastroPage() {
                 <input id="signup-password" type="password" autoComplete="new-password" required minLength={8}
                   value={password} onChange={(event) => setPassword(event.target.value)}
                   placeholder="Pelo menos 8 caracteres"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
+                  className="h-12 w-full rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none placeholder:text-white/55 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
               </div>
               <div>
                 <label htmlFor="signup-confirmation" className="mb-2 block text-xs font-semibold text-white/65">
@@ -126,7 +126,7 @@ export default function CadastroPage() {
                 <input id="signup-confirmation" type="password" autoComplete="new-password" required minLength={8}
                   value={confirmation} onChange={(event) => setConfirmation(event.target.value)}
                   placeholder="Repita sua senha"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
+                  className="h-12 w-full rounded-xl border border-white/10 bg-black/25 px-4 text-sm text-white outline-none placeholder:text-white/55 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
               </div>
 
               {error && <p role="alert" className="rounded-xl border border-red-400/25 bg-red-400/[.08] px-4 py-3 text-sm text-red-200">{error}</p>}
