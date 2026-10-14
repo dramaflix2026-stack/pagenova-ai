@@ -471,7 +471,7 @@ export default function Home() {
               </p>
               <div className="mt-4 border-t border-white/[.08] pt-4">
                 <p className="text-[9px] font-bold uppercase tracking-[.17em] text-white/40">Pagamento seguro</p>
-                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 lg:justify-start" aria-label="Formas de pagamento aceitas">
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-2 lg:justify-start" aria-label="Formas de pagamento aceitas">
                   {PAYMENT_BRANDS.map((brand) => <PaymentBrand key={brand} brand={brand} />)}
                 </div>
                 <p className="mt-2 text-[10px] leading-4 text-white/30">Checkout processado pela Kiwify.</p>
@@ -515,12 +515,12 @@ export default function Home() {
             <p className="text-white/25">Landing Page Studio</p>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:ml-auto sm:max-w-[360px]" aria-label="Selos de confiança">
-            <div className="flex h-[68px] items-center justify-center rounded-2xl border border-white/10 bg-white px-4 shadow-[0_10px_28px_rgba(0,0,0,.16)]" title="Norton">
-              <img src="/trust/norton.svg" alt="Norton" className="h-[42px] w-full object-contain" />
+          <div className="mt-6 grid w-full grid-cols-2 gap-3 sm:ml-auto sm:max-w-[410px]" aria-label="Selos de confiança">
+            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#7ad3ae]/20 bg-[#10251c] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Norton">
+              <img src="/trust/norton.svg" alt="Norton" width="383" height="88" loading="lazy" className="block h-auto max-h-11 w-full object-contain" />
             </div>
-            <div className="flex h-[68px] items-center justify-center rounded-2xl border border-white/10 bg-white px-4 shadow-[0_10px_28px_rgba(0,0,0,.16)]" title="Reclame Aqui">
-              <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" className="h-[52px] w-full object-contain" />
+            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#7ad3ae]/20 bg-[#10251c] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Reclame Aqui">
+              <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" width="620" height="112" loading="lazy" className="block h-auto max-h-10 w-full object-contain" />
             </div>
           </div>
         </div>
