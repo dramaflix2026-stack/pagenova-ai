@@ -20,16 +20,16 @@ export async function POST(request: NextRequest) {
     await authorizedForms();
 
     const contentLength = Number(request.headers.get("content-length") || 0);
-    if (contentLength > 25 * 1024 * 1024) {
-      throw new FormServiceError("O áudio deve ter até 24 MB.", 413);
+    if (contentLength > 3.75 * 1024 * 1024) {
+      throw new FormServiceError("O áudio deve ter até 3,5 MB. Divida arquivos longos em partes.", 413);
     }
     const form = await request.formData();
     const file = form.get("file");
     if (!(file instanceof File)) {
       throw new FormServiceError("Selecione um áudio ou grave sua mensagem.");
     }
-    if (file.size === 0 || file.size > 24 * 1024 * 1024) {
-      throw new FormServiceError("O áudio deve ter entre 1 byte e 24 MB.", 413);
+    if (file.size === 0 || file.size > 3.5 * 1024 * 1024) {
+      throw new FormServiceError("O áudio deve ter até 3,5 MB.", 413);
     }
     const name = file.name || "gravacao.webm";
     if (!allowedExtension.test(name) ||
