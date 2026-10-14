@@ -362,7 +362,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Generation must honor it deterministically, not let the LLM improvise
     // or quietly fall back to the first visual template.
     const selectedTemplate=(project.draftConfig as {templateId?:string}|null)?.templateId;
-    model.project.templateId=selectedTemplate==='muse-editorial'?'muse-editorial':'frigolog-universal';
+    model.project.templateId=selectedTemplate==='muse-editorial'||selectedTemplate==='atelier-norte' ? selectedTemplate : 'frigolog-universal';
 
     // Validate actual file bytes and attach all three slots AFTER the assembler
     // (not only to the AI's optional plan bindings). No missing-image site may
