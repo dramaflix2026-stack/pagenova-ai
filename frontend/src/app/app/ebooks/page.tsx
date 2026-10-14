@@ -152,6 +152,7 @@ export default function EbooksPage(){
   const [saved,setSaved]=useState<EbookProject[]>([]);
   const [cloudSaved,setCloudSaved]=useState<EbookSummary[]>([]);
   const [active,setActive]=useState(0);
+  const [editorOpen,setEditorOpen]=useState(false);
   const [generating,setGenerating]=useState(false);
   const [imagesBusy,setImagesBusy]=useState(false);
   const [imageIndex,setImageIndex]=useState<number|null>(null);
@@ -164,6 +165,7 @@ export default function EbooksPage(){
   const [notice,setNotice]=useState("");
   const [scale,setScale]=useState(0.65);
   const previewArea=useRef<HTMLDivElement|null>(null);
+  const gestureStart=useRef<{x:number;y:number}|null>(null);
   const uploadInput=useRef<HTMLInputElement|null>(null);
   const cloudWriteQueue=useRef<Promise<void>>(Promise.resolve());
   const activeRef=useRef(0);
@@ -210,7 +212,7 @@ export default function EbooksPage(){
   useEffect(()=>{
     if(!book||!previewArea.current)return;
     const target=previewArea.current;
-    const measure=()=>setScale(Math.max(.28,Math.min(.87,(target.clientWidth-24)/794)));
+    const measure=()=>setScale(Math.max(.18,Math.min(1,(target.clientWidth-8)/794)));
     measure();
     const observer=new ResizeObserver(measure);
     observer.observe(target);
@@ -231,7 +233,7 @@ export default function EbooksPage(){
   function openDraft(raw:EbookProject) {
     try{
       const selected=normalizeEbook(raw);
-      setBook(selected);setActive(0);setError("");setNotice("");
+      setBook(selected);setActive(0);setEditorOpen(false);setError("");setNotice("");
     }catch(err){setError(errorMessage(err));}
   }
   async function removeDraft(item:EbookProject|EbookSummary){
@@ -409,7 +411,7 @@ export default function EbooksPage(){
           }
         }
       }
-      setBook(created);setActive(0);setSavedStatus("Salvando...");
+      setBook(created);setActive(0);setEditorOpen(false);setSavedStatus("Salvando...");
       setGenerating(false);
       void populateImages(created);
     }catch(err){setGenerating(false);setError(errorMessage(err));}
@@ -501,9 +503,20 @@ export default function EbooksPage(){
     }catch(err){setError(errorMessage(err));}
     finally{setExporting(false);}
   }
+  function beginPageGesture(x:number,y:number){
+    gestureStart.current={x,y};
+  }
+  function finishPageGesture(x:number,y:number){
+    const start=gestureStart.current;
+    gestureStart.current=null;
+    if(!start||!book||editorOpen)return;
+    const dx=x-start.x,dy=y-start.y;
+    if(Math.abs(dx)<45||Math.abs(dx)<Math.abs(dy)*1.25)return;
+    setActive(current=>Math.max(0,Math.min(book.pages.length-1,current+(dx<0?1:-1))));
+  }
   const current=book?.pages[active];
-  return <main className="min-h-screen bg-[#090d12] pb-16 text-white">
-    <AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>
+  return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
+    {!book&&<AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>}
     {!book?<div className="mx-auto max-w-[1240px] px-4 py-9 sm:px-7 sm:py-12">
       <div className="mx-auto max-w-3xl text-center">
         <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/[.06] px-4 py-2 text-xs font-semibold uppercase tracking-[.15em] text-emerald-300">
@@ -639,17 +652,30 @@ export default function EbooksPage(){
         </div>)}</div>
       </section>}
       {notice&&<p role="status" className="mt-4 text-center text-sm text-emerald-300">{notice}</p>}
-    </div>:<div className="mx-auto max-w-[1850px] px-3 py-5 sm:px-5">
-      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#101720] p-3 sm:p-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <button type="button" onClick={()=>{setBook(null);setActive(0);void listEbooks().then(setSaved);}} className="rounded-lg p-2 text-white/70 hover:bg-white/10" aria-label="Voltar para meus ebooks"><ArrowLeft className="h-5 w-5"/></button>
-          <div className="min-w-0"><h2 className="max-w-[340px] truncate text-base font-bold">{book.title}</h2><p className="text-xs text-white/40">{book.pages.length} páginas · {savedStatus}</p></div>
+    </div>:<div className="mx-auto w-full min-w-0 max-w-[1350px] px-2 py-3 sm:px-5 sm:py-5">
+      <div className="mb-3 flex min-w-0 items-center justify-between gap-2 rounded-xl border border-white/10 bg-[#101720] px-2 py-2 sm:px-4 sm:py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <button type="button" onClick={()=>{setBook(null);setActive(0);setEditorOpen(false);void listEbooks().then(setSaved);}}
+            className="shrink-0 rounded-lg p-2 text-white/75 hover:bg-white/10" aria-label="Voltar para meus ebooks">
+            <ArrowLeft className="h-5 w-5"/>
+          </button>
+          <div className="min-w-0">
+            <h2 className="max-w-[270px] truncate text-sm font-semibold sm:max-w-[460px]">{book.title}</h2>
+            <p className="truncate text-[11px] text-white/45">{book.pages.length} páginas · {savedStatus}</p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button onClick={openPrint} className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/5"><Printer className="h-4 w-4"/> Imprimir / salvar PDF</button>
-          <button onClick={downloadHtml} className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/5"><Download className="h-4 w-4"/> HTML</button>
-          <button onClick={()=>void downloadPdf()} disabled={exporting} className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-4 py-2.5 text-xs font-bold text-[#071610] disabled:opacity-50">
-            {exporting?<LoaderCircle className="h-4 w-4 animate-spin"/>:<FileDown className="h-4 w-4"/>} {exporting?"Exportando...":"Baixar PDF"}</button>
+        <div className="flex shrink-0 items-center gap-2">
+          <button type="button" onClick={()=>setEditorOpen(value=>!value)}
+            aria-expanded={editorOpen} aria-controls="ebook-page-editor"
+            className={"inline-flex min-h-10 items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold "+
+              (editorOpen?"border-emerald-400/40 bg-emerald-400/15 text-emerald-200":"border-white/15 text-white/85 hover:bg-white/10")}>
+            <PenLine className="h-4 w-4"/>{editorOpen?"Concluir":"Editar"}
+          </button>
+          <button type="button" onClick={()=>void downloadPdf()} disabled={exporting}
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#071610] disabled:opacity-50">
+            {exporting?<LoaderCircle className="h-4 w-4 animate-spin"/>:<FileDown className="h-4 w-4"/>}
+            <span className="hidden min-[380px]:inline">{exporting?"Exportando...":"PDF"}</span>
+          </button>
         </div>
       </div>
       {(notice||error||imagesBusy||imageProgress)&&<div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-[#101720] px-4 py-3 text-sm">
@@ -658,41 +684,50 @@ export default function EbooksPage(){
         {notice&&<span className="text-emerald-200">{notice}</span>}
         {error&&<span role="alert" className="text-red-300">{error}</span>}
       </div>}
-      <div className="grid gap-4 xl:grid-cols-[205px_minmax(0,1fr)_315px]">
-        <aside className="rounded-2xl border border-white/10 bg-[#111923] p-3">
-          <div className="flex items-center justify-between gap-2 px-1 pb-3"><span className="text-xs font-bold uppercase tracking-[.13em] text-white/50">Páginas</span><button onClick={addPage} disabled={book.pages.length>=24} className="rounded-md bg-emerald-400/10 p-2 text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-40" title="Adicionar página"><Plus className="h-4 w-4"/></button></div>
-          <div className="flex gap-2 overflow-x-auto pb-2 xl:max-h-[72vh] xl:flex-col xl:overflow-y-auto">
-            {book.pages.map((page,index)=><button key={page.id} type="button" onClick={()=>setActive(index)}
-              className={"flex min-w-[170px] items-center gap-3 rounded-xl border p-2 text-left transition xl:min-w-0 "+(active===index?"border-emerald-400/75 bg-emerald-400/[.08]":"border-white/[.07] hover:border-white/25")}>
-              <span className="flex h-14 w-10 shrink-0 flex-col justify-between overflow-hidden rounded-sm p-2" style={{background:ebookThemes[book.theme].paper,color:ebookThemes[book.theme].ink}}>
-                <span className="h-1 w-3/4 rounded-sm" style={{background:ebookThemes[book.theme].accent}}/>
-                <span className="font-serif text-xs">{String(index+1).padStart(2,"0")}</span>
-                <span className="h-1 w-full rounded-sm opacity-30" style={{background:ebookThemes[book.theme].ink}}/>
-              </span>
-              <span className="min-w-0 flex-1"><small className="block text-[10px] font-bold uppercase tracking-wider text-white/35">{PAGE_KINDS.find(x=>x.value===page.kind)?.label}</small><strong className="mt-1 block line-clamp-2 text-xs leading-4">{page.title}</strong></span>
-            </button>)}
-          </div>
-          <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
-            <button onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0} className="p-2 text-white/70 disabled:opacity-30"><ChevronLeft className="h-4 w-4"/></button>
-            <span className="text-xs text-white/45">{active+1} de {book.pages.length}</span>
-            <button onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))} disabled={active===book.pages.length-1} className="p-2 text-white/70 disabled:opacity-30"><ChevronRight className="h-4 w-4"/></button>
-          </div>
-        </aside>
-        <section ref={previewArea} className="min-w-0 rounded-2xl border border-white/10 bg-[#141b24] p-3 sm:p-5">
-          <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Prévia do ebook</h3><p className="text-xs text-white/35">Página A4 · alterações em tempo real</p></div><span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/50">{Math.round(scale*100)}%</span></div>
-          <div className="mx-auto" style={{width:794*scale,height:1123*scale,maxWidth:"100%"}}>
-            <iframe title={"Prévia página "+(active+1)} srcDoc={renderEbookHtml(book,active)} sandbox="allow-same-origin"
+      <div className={editorOpen?"grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_355px]":"mx-auto w-full max-w-[950px]"}>
+        <section ref={previewArea} aria-label="Leitor de ebook" className="relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#141b24] px-1 py-3 sm:px-4 sm:py-5">
+          <div className="relative mx-auto overflow-hidden shadow-[0_20px_55px_rgba(0,0,0,.35)]"
+            style={{width:794*scale,height:1123*scale,maxWidth:"100%",background:ebookThemes[book.theme].paper}}>
+            <iframe title={"Página "+(active+1)+" do ebook"} srcDoc={renderEbookHtml(book,active)}
+              sandbox="allow-same-origin" tabIndex={-1} aria-hidden="true"
+              className="pointer-events-none absolute left-0 top-0 block"
               style={{width:794,height:1123,border:0,background:ebookThemes[book.theme].paper,
                 transform:"scale("+scale+")",transformOrigin:"top left"}}/>
+            <div tabIndex={0} role="region"
+              aria-label={"Página "+(active+1)+" de "+book.pages.length+". Deslize lateralmente ou use as setas do teclado para mudar de página."}
+              className="absolute inset-0 z-10 touch-pan-y cursor-grab outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+              onTouchStart={event=>{const t=event.touches[0];if(t)beginPageGesture(t.clientX,t.clientY);}}
+              onTouchEnd={event=>{const t=event.changedTouches[0];if(t)finishPageGesture(t.clientX,t.clientY);}}
+              onTouchCancel={()=>{gestureStart.current=null;}}
+              onPointerDown={event=>{if(event.pointerType==="mouse")beginPageGesture(event.clientX,event.clientY);}}
+              onPointerUp={event=>{if(event.pointerType==="mouse")finishPageGesture(event.clientX,event.clientY);}}
+              onKeyDown={event=>{
+                if(event.key==="ArrowRight"){event.preventDefault();setActive(v=>Math.min(book.pages.length-1,v+1));}
+                if(event.key==="ArrowLeft"){event.preventDefault();setActive(v=>Math.max(0,v-1));}
+              }}/>
           </div>
-          <div className="mt-4 flex items-center justify-center gap-3">
-            <button onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0} className="rounded-full border border-white/10 p-2 disabled:opacity-25"><ChevronLeft className="h-4 w-4"/></button>
-            <p className="text-xs text-white/55">Página {active+1} / {book.pages.length}</p>
-            <button onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))} disabled={active===book.pages.length-1} className="rounded-full border border-white/10 p-2 disabled:opacity-25"><ChevronRight className="h-4 w-4"/></button>
+          <div className="mx-auto mt-3 flex w-full max-w-[794px] items-center justify-center gap-3 text-center">
+            <button type="button" onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0}
+              aria-label="Página anterior" className="rounded-full p-1.5 text-white/55 hover:bg-white/10 disabled:opacity-20">
+              <ChevronLeft className="h-4 w-4"/>
+            </button>
+            <span role="status" aria-live="polite" className="text-xs font-medium text-white/60">{active+1} / {book.pages.length}</span>
+            <button type="button" onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))}
+              disabled={active===book.pages.length-1} aria-label="Próxima página"
+              className="rounded-full p-1.5 text-white/55 hover:bg-white/10 disabled:opacity-20">
+              <ChevronRight className="h-4 w-4"/>
+            </button>
           </div>
         </section>
-        <aside className="rounded-2xl border border-white/10 bg-[#111923] p-4 xl:max-h-[calc(100vh-125px)] xl:overflow-y-auto">
-          <div className="flex items-center gap-2 border-b border-white/10 pb-4"><PenLine className="h-4 w-4 text-emerald-300"/><h3 className="text-sm font-bold">Editor de páginas</h3></div>
+        {editorOpen&&<aside id="ebook-page-editor" role="dialog" aria-modal={false} aria-label="Editar página do ebook"
+          className="fixed inset-0 z-[60] overflow-y-auto overscroll-contain border border-white/10 bg-[#111923] p-4 pt-5 shadow-2xl lg:static lg:z-auto lg:max-h-[calc(100vh-160px)] lg:rounded-2xl lg:shadow-none">
+          <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-2"><PenLine className="h-4 w-4 text-emerald-300"/><h3 className="text-sm font-bold">Editar página {active+1}</h3></div>
+            <button type="button" onClick={()=>setEditorOpen(false)}
+              className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/85 hover:bg-white/10">
+              <Check className="h-4 w-4"/> Concluir
+            </button>
+          </div>
           <div className="mt-5 space-y-4">
             <label className="block text-xs font-semibold text-white/60">Título do ebook<input className={field+" mt-2"} value={book.title} onChange={e=>updateBook({title:e.target.value})}/></label>
             <label className="block text-xs font-semibold text-white/60">Subtítulo<input className={field+" mt-2"} value={book.subtitle} onChange={e=>updateBook({subtitle:e.target.value})}/></label>
@@ -740,7 +775,7 @@ export default function EbooksPage(){
             </form>
             <button onClick={addPage} disabled={book.pages.length>=24} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 px-4 py-3 text-xs font-semibold text-white/70 hover:border-emerald-400/50 disabled:opacity-30"><Plus className="h-4 w-4"/> Adicionar página</button>
           </div>
-        </aside>
+        </aside>}
       </div>
       <p className="mt-6 text-center text-xs leading-5 text-white/40">Conteúdo assistido por IA: revise informações, direitos de imagem e alegações antes de distribuir ou comercializar o ebook.</p>
     </div>}
