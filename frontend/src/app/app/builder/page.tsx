@@ -1325,16 +1325,16 @@ export default function BuilderPage() {
             className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3.5 text-base font-bold text-[#08130e] shadow-[0_8px_28px_rgba(16,185,129,.11)] transition hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
             {phase==="generating"?<><LoaderCircle className="h-5 w-5 animate-spin"/> Gerando site...</>:"Gerar site com IA →"}
           </button>
-          <fieldset className="rounded-2xl border border-white/10 bg-white/[0.018] p-4 sm:p-5">
-            <legend className="px-2 text-sm font-semibold text-white/85">Visual do site</legend>
-            <p className="mb-4 text-xs leading-5 text-white/55">Escolha um estilo de layout. A IA adapta textos e imagens ao seu negócio.</p>
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          <fieldset className="rounded-2xl border border-white/10 bg-white/[0.018] p-3.5 sm:p-5">
+            <legend className="px-2 text-sm font-semibold text-white/85">Escolha o modelo</legend>
+            <p className="mb-3 text-xs leading-5 text-white/50">A IA adapta o modelo ao seu negócio.</p>
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
               <button type="button" aria-pressed={templateId==="frigolog-universal"}
                 onClick={()=>setTemplateId("frigolog-universal")}
-                className={`min-w-0 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
+                className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
                   templateId==="frigolog-universal"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"
                 }`}>
-                <div aria-hidden="true" className="flex h-[76px] flex-col overflow-hidden rounded-md bg-[#f4f7f5] p-2 sm:h-[100px]">
+                <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f4f7f5] p-2 sm:h-[100px] sm:w-full">
                   <div className="flex items-center justify-between"><span className="h-1.5 w-9 rounded bg-[#0e5e50]"/><span className="h-1 w-4 rounded bg-[#889a90]"/></div>
                   <div className="mt-2 flex flex-1 gap-2">
                     <div className="flex w-[55%] flex-col gap-1"><span className="h-2 w-full rounded bg-[#0e5e50]"/><span className="h-2 w-4/5 rounded bg-[#0e5e50]"/><span className="mt-1 h-1 w-[95%] rounded bg-[#8ca49d]"/><span className="mt-1 h-2 w-1/2 rounded bg-[#17af86]"/></div>
@@ -1342,34 +1342,40 @@ export default function BuilderPage() {
                   </div>
                   <div className="mt-1 flex gap-1">{[0,1,2].map(x=><span key={x} className="h-2.5 flex-1 rounded-sm bg-[#d4ddd7]"/>)}</div>
                 </div>
-                <span className="mt-2 block text-sm font-semibold">Modelo 1 · Original</span>
-                <span className="mt-1 block text-[11px] leading-4 text-white/50">Moderno, estrutura comercial e conversão.</span>
+                <span className="min-w-0 flex-1 sm:mt-2">
+                  <span className="block text-sm font-semibold">Modelo 1 · Original</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Moderno, estrutura comercial e conversão.</span>
+                </span>
               </button>
               <button type="button" aria-pressed={templateId==="muse-editorial"}
                 onClick={()=>setTemplateId("muse-editorial")}
-                className={`min-w-0 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
+                className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
                   templateId==="muse-editorial"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"
                 }`}>
-                <div aria-hidden="true" className="flex h-[76px] flex-col overflow-hidden rounded-md bg-[#faf9f6] p-2 sm:h-[100px]">
+                <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#faf9f6] p-2 sm:h-[100px] sm:w-full">
                   <div className="flex items-center justify-between"><span className="text-[11px] font-black tracking-tighter text-[#272522]">muse<span className="text-[#df321e]">.</span></span><span className="h-1 w-4 rounded bg-[#777]"/></div>
-                  <div className="mt-1 flex items-end justify-between gap-1"><span className="text-[21px] font-black leading-none tracking-tighter text-[#242424] sm:text-[27px]">forma<span className="text-[#df321e]">.</span></span><span className="mb-0.5 h-3 w-[38%] rounded-sm bg-[#c7c4bd]"/></div>
+                  <div className="mt-1 flex items-end justify-between gap-1"><span className="text-[15px] font-black leading-none tracking-tighter text-[#242424] sm:text-[27px]">forma<span className="text-[#df321e]">.</span></span><span className="mb-0.5 h-3 w-[38%] rounded-sm bg-[#c7c4bd]"/></div>
                   <div className="mt-1 flex-1 rounded-sm bg-gradient-to-br from-[#6b756c] via-[#b5ae99] to-[#e3dac4]"/>
                   <div className="mt-1 flex gap-1"><span className="h-2 w-1/2 bg-[#d7d2c8]"/><span className="h-2 w-1/3 bg-[#c2b6a5]"/></div>
                 </div>
-                <span className="mt-2 block text-sm font-semibold">Modelo 2 · Editorial</span>
-                <span className="mt-1 block text-[11px] leading-4 text-white/50">Muse: tipografia marcante e portfólio visual.</span>
+                <span className="min-w-0 flex-1 sm:mt-2">
+                  <span className="block text-sm font-semibold">Modelo 2 · Editorial</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Muse: tipografia marcante e portfólio visual.</span>
+                </span>
               </button>
               <button type="button" aria-pressed={templateId==="atelier-norte"}
                 onClick={()=>setTemplateId("atelier-norte")}
-                className={`min-w-0 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="atelier-norte"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
-                <div aria-hidden="true" className="flex h-[76px] flex-col overflow-hidden rounded-md bg-[#f5f0e7] p-2 sm:h-[100px]">
+                className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="atelier-norte"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
+                <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f5f0e7] p-2 sm:h-[100px] sm:w-full">
                   <span className="text-[10px] font-semibold tracking-tight text-[#38302a]">atelier <i className="font-serif font-normal text-[#ba684e]">norte</i></span>
-                  <span className="mt-2 font-serif text-xl leading-none text-[#38302a] sm:text-[26px]">Design <i className="text-[#ba684e]">com alma.</i></span>
+                  <span className="mt-1 font-serif text-[13px] leading-none text-[#38302a] sm:mt-2 sm:text-[26px]">Design <i className="text-[#ba684e]">com alma.</i></span>
                   <div className="mt-1 flex flex-1 gap-1"><span className="w-3/5 rounded-sm bg-[#c0ad99]"/><span className="flex-1 rounded-sm bg-[#e2d3c0]"/></div>
                   <div className="mt-1 h-1.5 rounded bg-[#d0bdab]"/>
                 </div>
-                <span className="mt-2 block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
-                <span className="mt-1 block text-[11px] leading-4 text-white/50">Institucional sofisticado, fundo claro e terracota.</span>
+                <span className="min-w-0 flex-1 sm:mt-2">
+                  <span className="block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Institucional sofisticado, fundo claro e terracota.</span>
+                </span>
               </button>
             </div>
           </fieldset>
