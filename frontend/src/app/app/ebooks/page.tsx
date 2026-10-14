@@ -521,7 +521,7 @@ export default function EbooksPage(){
           <div className="flex items-center gap-2 text-sm font-bold"><WandSparkles className="h-5 w-5 text-emerald-300"/> O que vamos criar?</div>
           <div className="mt-5 overflow-visible rounded-2xl border border-white/15 bg-[#080e16] focus-within:border-emerald-400/60">
             <label htmlFor="ebook-prompt" className="sr-only">Descreva seu ebook</label>
-            <textarea id="ebook-prompt" required rows={8} value={prompt} onChange={e=>setPrompt(e.target.value)}
+            <textarea id="ebook-prompt" rows={8} value={prompt} onChange={e=>setPrompt(e.target.value)}
               placeholder="Ex.: Crie um ebook sobre como montar um negócio online do zero para iniciantes. Quero um guia prático, com exemplos, etapas, erros comuns, estratégias e um plano de ação..."
               className="min-h-[205px] w-full resize-y rounded-t-2xl bg-transparent px-4 pt-4 pb-3 text-base leading-7 text-white outline-none placeholder:text-white/30"/>
             {references.length>0&&<div aria-label="Anexos visuais" className="flex flex-wrap gap-2 px-3 pb-3">
