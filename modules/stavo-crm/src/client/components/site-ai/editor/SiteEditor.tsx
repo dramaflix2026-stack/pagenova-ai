@@ -729,7 +729,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     element.style.setProperty('transform','translate('+edit.offsetX+'px,'+edit.offsetY+'px)','important');
   };
 
-  const applyVisualTemplate = (nextTemplate: 'standard' | 'frigolog-universal' | 'muse-editorial') => {
+  const applyVisualTemplate = (nextTemplate: 'standard' | 'frigolog-universal' | 'muse-editorial' | 'atelier-norte') => {
     if (!config || config.project.templateId === nextTemplate) return;
     // Preserve text, images and generated business content. Only switch
     // the deterministic HTML layout, with undo and autosave support.
@@ -743,7 +743,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       : config.sections;
     history.set({ ...config, project: { ...config.project, templateId: nextTemplate }, sections,
       theme: { ...config.theme, colors: repairThemeContrast(config.theme.colors) } });
-    toast.success(nextTemplate === 'muse-editorial'
+    toast.success(nextTemplate === 'atelier-norte'
+      ? 'Atelier Norte aplicado! Conteúdo e logo preservados. Revise antes de publicar.'
+      : nextTemplate === 'muse-editorial'
       ? 'Muse Editorial aplicado! Conteúdo preservado. Revise as seções antes de publicar.'
       : nextTemplate === 'frigolog-universal'
         ? 'Modelo Original aplicado! Conteúdo preservado. Revise antes de publicar.'
