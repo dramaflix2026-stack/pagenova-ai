@@ -324,7 +324,7 @@ export default function SiteAiPage() {
                       Escolha um dos modelos. A IA vai adaptar o conteúdo deste lead ao visual selecionado.
                     </p>
                   </div>
-                  <div role="group" aria-label="Escolher template visual" className="grid grid-cols-2 gap-3">
+                  <div role="group" aria-label="Escolher template visual" className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                     <button type="button" aria-pressed={selectedTemplateId==='frigolog-universal'}
                       onClick={()=>setSelectedTemplateId('frigolog-universal')} disabled={creatingFromLead}
                       className={`rounded-xl border p-3 text-left transition-colors ${
@@ -355,6 +355,17 @@ export default function SiteAiPage() {
                       </div>
                       <span className="block text-sm font-semibold">Modelo 2 · Muse Editorial</span>
                       <span className="mt-1 block text-xs text-muted-foreground">Tipografia e portfólio visual</span>
+                    </button>
+                    <button type="button" aria-pressed={selectedTemplateId==='atelier-norte'}
+                      onClick={()=>setSelectedTemplateId('atelier-norte')} disabled={creatingFromLead}
+                      className={`rounded-xl border p-3 text-left transition-colors ${selectedTemplateId==='atelier-norte'?'border-primary bg-primary-soft text-foreground':'border-border bg-card text-foreground hover:border-primary/40'}`}>
+                      <div aria-hidden="true" className="mb-3 flex h-20 flex-col rounded-lg bg-[#f5f0e7] p-2">
+                        <span className="font-serif text-base text-[#393028]">atelier <em className="text-[#b96e51]">norte</em></span>
+                        <span className="mt-1 font-serif text-xl leading-none text-[#393028]">Design com <em className="text-[#b96e51]">alma.</em></span>
+                        <span className="mt-2 min-h-0 flex-1 rounded bg-gradient-to-br from-[#ae9a87] to-[#e6d9ca]"/>
+                      </div>
+                      <span className="block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">Institucional sofisticado</span>
                     </button>
                   </div>
                   <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-3">
