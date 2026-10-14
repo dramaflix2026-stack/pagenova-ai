@@ -66,7 +66,7 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [selectedTemplateId,setSelectedTemplateId] = useState<'frigolog-universal'|'muse-editorial'>('frigolog-universal');
+  const [selectedTemplateId,setSelectedTemplateId] = useState<'frigolog-universal'|'muse-editorial'|'atelier-norte'>('frigolog-universal');
   const [creatingFromLead, setCreatingFromLead] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
