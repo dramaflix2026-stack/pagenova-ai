@@ -373,12 +373,24 @@ export async function POST(request: NextRequest) {
     if (status === "active") {
       const approvedAt=payload.approved_date ? new Date(payload.approved_date) : new Date();
       const safeDate=Number.isNaN(approvedAt.getTime()) ? now : approvedAt.toISOString();
-      const {error:creditsError}=await admin.rpc("pagenova_credits_activate",{
+      const {data:cycle,error:creditsError}=await admin.rpc("pagenova_credits_activate",{
         p_email:email,p_order_id:orderId,p_started_at:safeDate,
       });
       if(creditsError){
         console.error("[KIWIFY] Credit-cycle activation failed",{code:creditsError.code});
         return NextResponse.json({ok:false,error:"credit_cycle_failed"},{status:500});
+      }
+      const state=(cycle as {status?:string}|null)?.status;
+      if(state==="refunded"||state==="chargeback"){
+        // A delayed approval cannot resurrect a purchase already reversed.
+        const {error:rollbackError}=await admin.from("entitlements").update({
+          status:state,revoked_at:now,updated_at:now,
+        }).eq("provider","kiwify").eq("provider_order_id",orderId);
+        if(rollbackError){
+          console.error("[KIWIFY] Failed to restore revoked entitlement",{code:rollbackError.code});
+          return NextResponse.json({ok:false,error:"revocation_persistence_failed"},{status:500});
+        }
+        return NextResponse.json({ok:true,processed:false,reason:"order_already_revoked"});
       }
     } else {
       const {error:creditsError}=await admin.rpc("pagenova_credits_revoke",{
