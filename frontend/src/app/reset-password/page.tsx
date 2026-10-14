@@ -68,8 +68,8 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#080510] px-5 py-12 text-white">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(108,59,255,0.20),transparent_38%)]" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(37,216,157,0.12),transparent_38%)]" />
 
       <div className="relative w-full max-w-[430px]">
         <Link
@@ -80,21 +80,21 @@ export default function ResetPasswordPage() {
           <img
             src="/brand/pagenova-logo.png"
             alt="PageNova AI"
-            className="h-[72px] w-auto max-w-[250px] object-contain transition duration-200 hover:brightness-110"
+            className="h-[65px] w-auto max-w-[240px] object-contain transition duration-200 hover:brightness-105"
           />
         </Link>
 
-        <section className="rounded-[28px] border border-white/[0.09] bg-white/[0.035] p-7 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-9">
+        <section className="rounded-[28px] border border-white/[0.12] bg-[#10241c]/90 p-7 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/10 text-xl text-violet-300">
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#5ce1af]/25 bg-[#36d9a1]/10 text-xl text-[#82efc2]">
               🔒
             </div>
 
-            <h1 className="text-2xl font-bold tracking-[-0.04em]">
+            <h1 className="text-[clamp(1.55rem,5vw,2rem)] font-bold tracking-[-0.04em]">
               Defina sua nova senha
             </h1>
 
-            <p className="mt-2 text-sm leading-6 text-white/40">
+            <p className="mt-2 text-sm leading-6 text-white/60">
               Escolha uma nova senha para sua conta PageNova AI.
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function ResetPasswordPage() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Mínimo de 8 caracteres"
-                  className="h-12 w-full rounded-xl border border-white/[0.09] bg-black/20 px-4 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-violet-400/50 focus:ring-4 focus:ring-violet-500/10"
+                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
                 />
               </div>
 
@@ -141,7 +141,7 @@ export default function ResetPasswordPage() {
                     setConfirmPassword(event.target.value)
                   }
                   placeholder="Repita a nova senha"
-                  className="h-12 w-full rounded-xl border border-white/[0.09] bg-black/20 px-4 text-sm text-white outline-none transition placeholder:text-white/20 focus:border-violet-400/50 focus:ring-4 focus:ring-violet-500/10"
+                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
                 />
               </div>
 
@@ -154,7 +154,7 @@ export default function ResetPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-[#845FFF] to-[#6438F4] text-sm font-bold shadow-[0_12px_35px_rgba(108,59,255,0.28)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Salvando..." : "Definir nova senha"}
               </button>
@@ -169,7 +169,7 @@ export default function ResetPasswordPage() {
                 Senha alterada
               </p>
 
-              <p className="mt-2 text-xs text-white/40">
+              <p className="mt-2 text-xs text-white/60">
                 Redirecionando para o PageNova...
               </p>
             </div>
