@@ -861,8 +861,8 @@ export const siteBriefingBusinessSchema = z.object({
   city: z.string().trim().max(120).optional(),
   state: z.string().trim().max(80).optional(),
   serviceArea: z.string().trim().max(200).optional(),
-  audience: z.string().trim().max(600).optional(),
-  description: z.string().trim().max(600).optional(),
+  audience: z.string().trim().optional(),
+  description: z.string().trim().optional(),
   services: z
     .array(
       z.object({
@@ -915,7 +915,7 @@ export const siteBriefingSchema = z.object({
     density: z.enum(['AIRY', 'BALANCED', 'COMPACT']),
     motionLevel: z.enum(MOTION_LEVELS),
   }),
-  freeformInstructions: z.string().trim().max(4000).optional(),
+  freeformInstructions: z.string().trim().optional(),
   requiredSections: z.array(z.string().trim().max(30)).max(10).default([]),
   forbiddenSections: z.array(z.string().trim().max(30)).max(10).default([]),
 });
