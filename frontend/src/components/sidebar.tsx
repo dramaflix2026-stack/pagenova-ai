@@ -11,6 +11,7 @@ import {
   History,
   CalendarDays,
   ClipboardList,
+  BookOpen,
   CircleHelp,
   Copy,
   FileSpreadsheet,
@@ -51,6 +52,7 @@ const studioItems: MenuItem[] = [
   { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
   { href: "/app/cloner", label: "Clonar site com IA", icon: Copy },
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
+  { href: "/app/ebooks", label: "Gerar Ebooks", icon: BookOpen },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
 ];
