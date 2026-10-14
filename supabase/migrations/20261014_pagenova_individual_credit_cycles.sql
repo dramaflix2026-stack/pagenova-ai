@@ -81,19 +81,29 @@ begin
 end;$$;
 
 create or replace function public.pagenova_credits_revoke(
-  p_order_id text,p_status text
+  p_order_id text,p_status text,p_email text
 ) returns jsonb language plpgsql security definer
-set search_path=public,pg_temp as $$
+set search_path=public,pg_temp as $
 declare v_cycle public.pagenova_credit_cycles%rowtype;
+        v_email text:=lower(btrim(p_email));
 begin
-  if p_status not in ('refunded','chargeback') then raise exception 'invalid revocation status';end if;
-  select * into v_cycle from public.pagenova_credit_cycles where provider_order_id=p_order_id;
-  if not found then return jsonb_build_object('found',false);end if;
-  perform pg_advisory_xact_lock(hashtextextended('pagenova_credit:'||v_cycle.email,0));
+  if p_status not in ('refunded','chargeback') or v_email is null or v_email=''
+    then raise exception 'invalid revocation';end if;
+  perform pg_advisory_xact_lock(hashtextextended('pagenova_credit:'||v_email,0));
+  select * into v_cycle from public.pagenova_credit_cycles
+    where provider_order_id=p_order_id for update;
+  if not found then
+    -- Preserve a refund that arrives before an order_approved callback.
+    -- A late approval for the same order must NEVER grant fresh credits.
+    insert into public.pagenova_credit_cycles(email,provider_order_id,status)
+      values(v_email,p_order_id,p_status) returning * into v_cycle;
+    return jsonb_build_object('found',false,'tombstone',true,'cycleId',v_cycle.id);
+  end if;
+  if v_cycle.email<>v_email then raise exception 'order owner mismatch';end if;
   update public.pagenova_credit_cycles set status=p_status,updated_at=now()
     where id=v_cycle.id and status in ('active','superseded');
   return jsonb_build_object('found',true,'cycleId',v_cycle.id);
-end;$$;
+end;$;
 
 -- Bootstrap legacy subscribers who purchased before the migration.
 -- Only entitlement rows already marked active can seed a new cycle.
@@ -262,14 +272,14 @@ begin
 end;$;
 
 revoke all on function public.pagenova_credits_activate(text,text,timestamptz) from public,anon,authenticated;
-revoke all on function public.pagenova_credits_revoke(text,text) from public,anon,authenticated;
+revoke all on function public.pagenova_credits_revoke(text,text,text) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_bootstrap(text) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_balance(text,uuid) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_reserve(text,uuid,text,text) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_settle(uuid,uuid,boolean,text) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_settle_job(uuid,text,boolean) from public,anon,authenticated;
 grant execute on function public.pagenova_credits_activate(text,text,timestamptz) to service_role;
-grant execute on function public.pagenova_credits_revoke(text,text) to service_role;
+grant execute on function public.pagenova_credits_revoke(text,text,text) to service_role;
 grant execute on function public.pagenova_credits_bootstrap(text) to service_role;
 grant execute on function public.pagenova_credits_balance(text,uuid) to service_role;
 grant execute on function public.pagenova_credits_reserve(text,uuid,text,text) to service_role;
