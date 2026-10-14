@@ -274,7 +274,7 @@ export default function EbooksPage(){
     const popup=window.open("about:blank","_blank");
     if(!popup){setError("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");return;}
     popup.document.open();popup.document.write(renderEbookHtml(book));popup.document.close();
-    popup.onload=()=>{void popup.document.fonts.ready.then(()=>popup.print());};
+    void popup.document.fonts.ready.then(()=>window.setTimeout(()=>popup.print(),400));
     setNotice("Na janela de impressão, escolha Salvar como PDF.");
   }
   function downloadHtml(){
