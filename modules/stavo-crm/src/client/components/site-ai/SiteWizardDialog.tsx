@@ -419,6 +419,17 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
                     <span className="mt-2 block text-sm font-semibold">2 · Muse Editorial</span>
                     <span className="mt-1 block text-xs text-muted-foreground">Arquitetura e portfólio</span>
                   </button>
+                  <button type="button" aria-pressed={form.templateId==='atelier-norte'}
+                    onClick={() => patch({templateId:'atelier-norte'})}
+                    className={`min-w-0 rounded-xl border p-3 text-left transition hover:border-primary ${form.templateId==='atelier-norte'?'border-primary bg-primary-soft':'border-border bg-card'}`}>
+                    <div aria-hidden="true" className="flex h-[80px] flex-col rounded-md bg-[#f6f0e7] p-2">
+                      <span className="font-serif text-base text-[#393028]">atelier <em className="text-[#b96e51]">norte</em></span>
+                      <span className="mt-1 font-serif text-xl leading-none text-[#393028]">Design com <em className="text-[#b96e51]">alma.</em></span>
+                      <span className="mt-2 min-h-0 flex-1 rounded-sm bg-gradient-to-br from-[#ab9887] to-[#e8dac8]"/>
+                    </div>
+                    <span className="mt-2 block text-sm font-semibold">3 · Atelier Norte</span>
+                    <span className="mt-1 block text-xs text-muted-foreground">Institucional em quatro páginas</span>
+                  </button>
                 </div>
               </Field>
               <Field label="Tema">
