@@ -389,8 +389,8 @@ export function SiteWizardDialog(props: SiteWizardDialogProps) {
                   ))}
                 </div>
               </Field>
-              <Field label="Template visual" hint="Mesmo motor de IA, dois layouts diferentes. O segundo modelo foi adaptado do Muse/FORMA.">
-                <div className="grid grid-cols-2 gap-3">
+              <Field label="Template visual" hint="Escolha entre três estruturas visuais. Conteúdo e imagens são personalizados pela IA.">
+                <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
                   <button type="button" aria-pressed={form.templateId==='frigolog-universal'}
                     onClick={() => patch({templateId:'frigolog-universal'})}
                     className={`min-w-0 rounded-xl border p-3 text-left transition hover:border-primary ${
