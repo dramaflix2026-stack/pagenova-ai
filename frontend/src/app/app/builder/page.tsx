@@ -1198,7 +1198,7 @@ export default function BuilderPage() {
   }
 
   return <>
-    {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." />}
+    {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." align="center" />}
     <main className="mx-auto max-w-[1800px] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
       <input ref={inlineImageInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar imagem do site"
@@ -1365,25 +1365,25 @@ export default function BuilderPage() {
         </section>
       )}
       {project && !(phase==="generating" && crmProjectId && !crmPreviewHtml) && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
-        <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
+        <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 text-center shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <h2 className="min-w-0 flex-1 break-words text-xl font-bold">{project.name}</h2>
+            <div className="mt-3 flex flex-col items-center justify-center gap-3">
+              <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
               {crmProjectId&&phase!=="generating"&&<button type="button"
                 onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
                 className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
                 aria-label="Alterar o nome exibido no site">Alterar nome</button>}
             </div>
             {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
-              className="mt-3 flex flex-wrap gap-2 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
+              className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
               <label htmlFor="pagenova-edit-brand" className="w-full text-xs text-white/70">
                 Nome da empresa ou profissional (atualiza o site sem gerar novamente)
               </label>
               <input id="pagenova-edit-brand" type="text" required minLength={3} maxLength={72}
                 value={brandDraft} onChange={event=>setBrandDraft(event.target.value)}
                 placeholder="Ex.: Nathalia Ferreira Psicóloga"
-                className="min-w-0 flex-1 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-sm text-white outline-none focus:border-emerald-400"/>
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-center text-sm text-white outline-none focus:border-emerald-400"/>
               <button type="submit" disabled={savingBrand}
                 className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] disabled:opacity-50">
                 {savingBrand?"Salvando...":"Salvar nome"}
@@ -1393,11 +1393,11 @@ export default function BuilderPage() {
           </div>
           <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
             <label htmlFor="builder-change" className="block text-sm font-semibold text-emerald-200">✨ Converse com a IA</label>
-            <p className="text-xs leading-5 text-white/50">Peça mudanças em textos, cores e seções. Ajustes simples podem ser feitos sem nova geração.</p>
+            <p className="mx-auto max-w-[40ch] text-xs leading-5 text-white/50">Peça mudanças em textos, cores e seções. Ajustes simples podem ser feitos sem nova geração.</p>
             <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
               onPaste={pasteRevisionImage} rows={4}
               placeholder="Ex.: Deixe os títulos mais diretos e melhore os serviços."
-              className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-sm outline-none focus:border-emerald-400" />
+              className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-left text-sm outline-none focus:border-emerald-400" />
             <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
               className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#08130e] disabled:opacity-40">
               {phase==="generating"?"Aguarde a geração":"Enviar instrução →"}
@@ -1424,7 +1424,7 @@ export default function BuilderPage() {
             className="w-full rounded-xl border border-emerald-400/40 px-4 py-3 font-semibold text-emerald-200">
             Verificar geração existente
           </button>}
-          <p className="text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
+          <p className="mx-auto max-w-[46ch] text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
