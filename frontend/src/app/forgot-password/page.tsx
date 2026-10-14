@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Enviando..." : "Enviar link de recuperação"}
               </button>
