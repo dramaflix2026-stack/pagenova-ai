@@ -18,6 +18,7 @@ import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { useBoard, useGoogleDetails, useLeadDetail, type BoardColumnData } from '../hooks/useCrm';
 import { useCreateSiteProject, useSiteAiDiagnostics, useSiteProjects, type SiteProjectSummary } from '../hooks/useSiteAi';
 import { api, ApiError } from '../lib/api';
+import { SiteCreditsNotice, siteCreditsExhausted, usePageNovaSiteCredits } from '../components/site-ai/SiteCreditsNotice';
 import { SITE_PROJECT_CARD_COPY } from '../lib/site-project-card-copy';
 import { Badge, Button, Callout, Card, CardContent, EmptyState, ErrorState, Input, LoadingBlock, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui';
 
@@ -61,6 +62,8 @@ function describeApiError(error: ApiError): string {
 export default function SiteAiPage() {
   const navigate = useNavigate();
   const diagnostics = useSiteAiDiagnostics();
+  const siteCredits = usePageNovaSiteCredits();
+  const noSiteCredits = siteCreditsExhausted(siteCredits.data);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<SiteProjectStatus | ''>('');
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
@@ -104,6 +107,10 @@ export default function SiteAiPage() {
 
   async function createSiteDirectlyFromLead() {
     if (!selectedLeadId || !selectedLead.data || creatingFromLead) return;
+    if (noSiteCredits) {
+      setCreateError('Você utilizou seus créditos de geração deste ciclo. Aguarde a renovação.');
+      return;
+    }
 
     const lead = selectedLead.data;
     const businessName = optionalText(lead.lead.internalName) ?? '';
@@ -157,6 +164,7 @@ export default function SiteAiPage() {
       // Usa o cliente oficial do CRM para manter /api/crm, CSRF e sessao.
       // O endpoint devolve 202 quando a geracao entra na fila.
       await api.post(`/site-projects/${project.id}/generate`, {});
+      void siteCredits.refetch();
 
       setSelectedLeadId(null);
       navigate(`/sites-ia/${project.id}`);
@@ -195,6 +203,7 @@ export default function SiteAiPage() {
         }
       />
       <PageBody className="space-y-4">
+        <SiteCreditsNotice />
         {diagnostics.data && diagnostics.data.mode === 'bloqueado' ? (
           <Callout tone="warning" title="Geracao por IA nao configurada">
             A interface funciona normalmente, mas gerar um site exige configurar a OPENAI_API_KEY no
@@ -308,7 +317,7 @@ export default function SiteAiPage() {
                   <ErrorState message={createError} />
                   <div className="flex gap-2">
                     <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Cancelar</Button>
-                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead}>
+                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead || noSiteCredits}>
                       {creatingFromLead ? 'Gerando...' : 'Tentar novamente'}
                     </Button>
                   </div>
@@ -368,10 +377,11 @@ export default function SiteAiPage() {
                       <span className="mt-1 block text-xs text-muted-foreground">Institucional sofisticado</span>
                     </button>
                   </div>
+                  <SiteCreditsNotice compact />
                   <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-3">
                     <Button type="button" variant="secondary" disabled={creatingFromLead}
                       onClick={()=>setSelectedLeadId(null)}>Cancelar</Button>
-                    <Button type="button" disabled={creatingFromLead}
+                    <Button type="button" disabled={creatingFromLead || noSiteCredits}
                       onClick={()=>void createSiteDirectlyFromLead()}>
                       <Sparkles className="h-4 w-4" aria-hidden="true"/>
                       {creatingFromLead?'Gerando...':'Gerar com este template'}
