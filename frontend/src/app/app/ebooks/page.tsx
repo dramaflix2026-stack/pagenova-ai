@@ -303,7 +303,7 @@ export default function EbooksPage(){
     if(source==="ai"){
       const res=await fetch("/api/ebooks/images/generate",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt:description}),cache:"no-store",
+        body:JSON.stringify({prompt:description,orientation:page.kind==="cover"||page.kind==="gallery"?"landscape":"portrait"}),cache:"no-store",
       });
       const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
       if(!data.image)throw new Error("A IA não retornou a imagem.");
