@@ -724,7 +724,7 @@ export default function EbooksPage(){
               className={"rounded-xl border px-5 py-3 text-sm font-semibold transition "+(pageCount===n?"border-emerald-400 bg-emerald-400/10 text-emerald-200":"border-white/10 bg-white/[.025] text-white/60 hover:border-white/30")}>{n}</button>)}</div>
           </div>
           <div className="mt-7"><span className="text-sm font-semibold">Estilo editorial</span>
-            <div className="mt-3 grid grid-cols-3 gap-3">{(Object.keys(ebookThemes) as EbookTheme[]).map(id=>{
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{(Object.keys(ebookThemes) as EbookTheme[]).map(id=>{
               const item=ebookThemes[id];return <button type="button" key={id} onClick={()=>setTheme(id)} aria-pressed={theme===id}
                 className={"rounded-xl border p-2 text-left transition "+(theme===id?"border-emerald-400":"border-white/10 hover:border-white/30")}>
                 <span className="flex h-16 flex-col justify-center gap-1.5 rounded-lg px-3" style={{background:item.paper}}>
