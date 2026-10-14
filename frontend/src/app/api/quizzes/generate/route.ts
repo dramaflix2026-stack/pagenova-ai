@@ -84,7 +84,7 @@ export async function POST(req:NextRequest){
     try{parsed=JSON.parse(getText(output));}
     catch{throw new FormServiceError("A IA não retornou o quiz completo. Tente novamente.",502);}
     let quiz;
-    try{quiz=normalizeQuiz({...parsed as object,prompt:existing?.prompt||prompt});}
+    try{quiz=normalizeQuiz({...(parsed as Record<string,unknown>),prompt:existing?.prompt||prompt});}
     catch(e){throw new FormServiceError("O quiz gerado precisa de ajustes: "+(e instanceof Error?e.message:"resposta inválida"),502);}
     return Response.json({quiz,usage:output.usage||null},{headers:{"Cache-Control":"no-store"}});
   }catch(e){return errorsAsResponse(e);}
