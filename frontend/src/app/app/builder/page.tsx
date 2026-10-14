@@ -13,7 +13,7 @@ import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
 type Phase = "idle" | "generating" | "ready" | "error";
-type SiteTemplateId = "frigolog-universal" | "muse-editorial";
+type SiteTemplateId = "frigolog-universal" | "muse-editorial" | "atelier-norte";
 
 const STARTING_POINTS = [
   { id: "automatico", title: "Automático", icon: "✨", description: "A IA escolhe a estrutura." },
@@ -392,7 +392,7 @@ export default function BuilderPage() {
                   config?:{project?:{templateId?:string}};
                 };
                 const serverTemplate=templateData.config?.project?.templateId;
-                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"){
+                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"||serverTemplate==="atelier-norte"){
                   setTemplateId(serverTemplate);
                   setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
                   if(saved.templateId!==serverTemplate){
@@ -1264,7 +1264,7 @@ export default function BuilderPage() {
           <fieldset className="rounded-2xl border border-white/10 bg-white/[0.018] p-4 sm:p-5">
             <legend className="px-2 text-sm font-semibold text-white/85">Visual do site</legend>
             <p className="mb-4 text-xs leading-5 text-white/55">Escolha um estilo de layout. A IA adapta textos e imagens ao seu negócio.</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
               <button type="button" aria-pressed={templateId==="frigolog-universal"}
                 onClick={()=>setTemplateId("frigolog-universal")}
                 className={`min-w-0 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
@@ -1428,7 +1428,7 @@ export default function BuilderPage() {
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
-            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
+            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
