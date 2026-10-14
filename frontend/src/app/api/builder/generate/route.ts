@@ -88,8 +88,8 @@ export async function POST(request: NextRequest) {
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
-  if (brief.length < 20 || brief.length > 3000 || name.length < 2 || name.length > 100 ||
-      !keys.has(key) || !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) || !["moderno", "elegante", "vibrante"].includes(style) || instruction.length > 700 || existingPage.length > 6000) {
+  if (brief.length < 20 || name.length < 2 || name.length > 100 ||
+      !keys.has(key) || !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) || !["moderno", "elegante", "vibrante"].includes(style) || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
   }
   const apiKey = process.env.OPENAI_API_KEY;
