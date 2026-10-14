@@ -3,7 +3,7 @@
  * Keep output independent from any AI vendor so users can edit and export it.
  */
 export type EbookPageKind = "cover" | "chapter" | "feature" | "quote" | "summary" | "back" | "checklist" | "steps" | "comparison" | "timeline" | "caseStudy" | "gallery" | "infographic" | "insight";
-export type EbookTheme = "editorial" | "midnight" | "forest";
+export type EbookTheme = "editorial" | "midnight" | "forest" | "corporate" | "modern" | "premium";
 export type EbookImageMode = "web" | "ai" | "none";
 
 export type EbookPage = {
@@ -33,7 +33,7 @@ export type EbookProject = {
 };
 
 const KINDS = new Set<EbookPageKind>(["cover", "chapter", "feature", "quote", "summary", "back", "checklist", "steps", "comparison", "timeline", "caseStudy", "gallery", "infographic", "insight"]);
-const THEMES = new Set<EbookTheme>(["editorial", "midnight", "forest"]);
+const THEMES = new Set<EbookTheme>(["editorial", "midnight", "forest", "corporate", "modern", "premium"]);
 const IMAGE_MODES = new Set<EbookImageMode>(["web", "ai", "none"]);
 const asString = (input: unknown): string => typeof input === "string" ? input : "";
 export function newEbookId(): string {
@@ -99,4 +99,7 @@ export const ebookThemes: Record<EbookTheme,{name:string;paper:string;ink:string
   editorial: {name:"Editorial",paper:"#F7F2E9",ink:"#292922",accent:"#B37A54",soft:"#E9DED0"},
   midnight: {name:"Noturno",paper:"#121B2D",ink:"#F4F1E9",accent:"#E1B765",soft:"#24354B"},
   forest: {name:"Natureza",paper:"#EDF1E9",ink:"#17372E",accent:"#678D64",soft:"#D5E2D5"},
+  corporate: {name:"Corporativo",paper:"#F4F6F8",ink:"#172839",accent:"#2A6D9A",soft:"#E1EAF1"},
+  modern: {name:"Moderno",paper:"#FFFFFF",ink:"#192021",accent:"#6B52D4",soft:"#EBE8F9"},
+  premium: {name:"Premium",paper:"#121A16",ink:"#F7F0E3",accent:"#C6A96D",soft:"#27362D"},
 };
