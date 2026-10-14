@@ -81,29 +81,18 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-xs font-semibold text-white/55"
-              >
-                E-mail
-              </label>
-
+              <label htmlFor="email" className="mb-2 block text-xs font-semibold text-white/70">E-mail</label>
               <input
                 id="email"
                 type="email"
                 autoComplete="email"
                 required
+                maxLength={254}
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="voce@email.com"
-                className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] pl-4 pr-12 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
+                className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
               />
-              <button type="button" onClick={() => setPasswordVisible((value) => !value)}
-                aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
-                className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#36d9a1]">
-                {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-              </div>
             </div>
 
             <div>
@@ -124,16 +113,22 @@ function LoginForm() {
               </div>
 
               <div className="relative">
-              <input
-                id="password"
-                type={passwordVisible ? "text" : "password"}
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Sua senha"
-                className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
-              />
+                <input
+                  id="password"
+                  type={passwordVisible ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  placeholder="Sua senha"
+                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] pl-4 pr-12 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
+                />
+                <button type="button" onClick={() => setPasswordVisible((value) => !value)}
+                  aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#36d9a1]">
+                  {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -145,7 +140,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
