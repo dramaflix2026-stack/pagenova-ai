@@ -13,6 +13,7 @@ import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
 type Phase = "idle" | "generating" | "ready" | "error";
+type SiteTemplateId = "frigolog-universal" | "muse-editorial";
 
 const STARTING_POINTS = [
   { id: "automatico", title: "Automático", icon: "✨", description: "A IA escolhe a estrutura." },
@@ -67,7 +68,8 @@ export default function BuilderPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedPresetId, setSelectedPresetId] = useState("automatico");
   // Rendering family, independent from the site's niche/type.
-  const [templateId,setTemplateId]=useState<"frigolog-universal"|"muse-editorial">("frigolog-universal");
+  const [templateId,setTemplateId]=useState<SiteTemplateId>("frigolog-universal");
+  const [switchingTemplate,setSwitchingTemplate]=useState(false);
   const selectedPreset = STARTING_POINTS.find((item) => item.id === selectedPresetId) ?? STARTING_POINTS[0];
   const [project, setProject] = useState<SiteProject | null>(null);
   const [activePage, setActivePage] = useState<SitePageKey>("home");
@@ -357,6 +359,7 @@ export default function BuilderPage() {
     readPageNovaProject<SiteProject>(id).then((saved) => {
       if (!saved || saved.kind !== "institutional-site") return;
       setProject(saved); setBrief(saved.brief); setStyle(saved.style);
+      if(saved.templateId)setTemplateId(saved.templateId);
       setSelectedPresetId(saved.presetId || "institucional");
       setActivePage(SITE_PAGES.find(({ key }) => saved.pages[key])?.key ?? "home");
       // CRM projects may still be generating, or may have failed. Never
@@ -377,6 +380,25 @@ export default function BuilderPage() {
             setPhase("error");
             setError(detail.project?.lastFailureMessage || "A geração anterior falhou. O projeto foi preservado.");
           } else if (status==="READY"||status==="PUBLISHED") {
+            // The CRM draft is authoritative for the selected visual template.
+            // A project created before the dropdown upgrade may have no local
+            // templateId; fetch it without creating a new paid generation.
+            const templateResponse=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/config`, {
+              credentials:"same-origin",cache:"no-store",
+            });
+            if(templateResponse.ok){
+              const templateData=await templateResponse.json().catch(()=>({})) as {
+                config?:{project?:{templateId?:string}};
+              };
+              const serverTemplate=templateData.config?.project?.templateId;
+              if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"){
+                setTemplateId(serverTemplate);
+                setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
+                if(saved.templateId!==serverTemplate){
+                  void savePageNovaProject(saved.id,{...saved,templateId:serverTemplate}).catch(()=>undefined);
+                }
+              }
+            }
             const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(saved.id)}/render`, {
               credentials:"same-origin",cache:"no-store",
             });
@@ -637,6 +659,7 @@ export default function BuilderPage() {
         kind: "institutional-site",
         id: projectId,
         name: inferredName,
+        templateId,
         presetId: selectedPresetId === "automatico" ? "institucional" : selectedPresetId,
         brief: prompt,
         ...(initialImages.length ? {institutional:{
@@ -932,6 +955,57 @@ export default function BuilderPage() {
     setProject(updated);
     try { await savePageNovaProject(updated.id, updated); }
     catch { setError("Não foi possível salvar o tema."); }
+  }
+
+  // The dropdown selects the ACTUAL CRM rendering family, not a CSS color
+  // filter. Re-render the saved schema without invoking any AI endpoint.
+  async function changeSiteTemplate(nextTemplate: SiteTemplateId): Promise<void> {
+    if(!project||!crmProjectId||phase==="generating"||switchingTemplate)return;
+    if((project.templateId||"frigolog-universal")===nextTemplate)return;
+    setSwitchingTemplate(true);
+    setError("");
+    try{
+      const path=`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}`;
+      const configResponse=await fetch(path+"/config",{credentials:"same-origin",cache:"no-store"});
+      const data=await configResponse.json().catch(()=>({})) as {
+        config?:{project?:{templateId?:string};[key:string]:unknown};
+        lockVersion?:number;
+        error?:{message?:string};
+      };
+      if(!configResponse.ok||!data.config?.project||typeof data.lockVersion!=="number"){
+        throw new Error(data.error?.message||"Não foi possível carregar o modelo atual do site.");
+      }
+      const nextConfig={
+        ...data.config,
+        project:{...data.config.project,templateId:nextTemplate},
+      };
+      const savedResponse=await fetch(path+"/config",{
+        method:"PATCH",
+        headers:{"Content-Type":"application/json"},
+        credentials:"same-origin",
+        body:JSON.stringify({config:nextConfig,expectedLockVersion:data.lockVersion}),
+      });
+      const savedResult=await savedResponse.json().catch(()=>({})) as {error?:{message?:string}};
+      if(!savedResponse.ok){
+        throw new Error(savedResult.error?.message||"Não foi possível salvar o modelo. Atualize a página e tente novamente.");
+      }
+      // Once the CRM accepted the change, persist the actual selection even if
+      // a temporary preview failure prevents rendering immediately.
+      const updated:SiteProject={...project,templateId:nextTemplate,previewTheme:"original"};
+      setProject(updated);
+      setTemplateId(nextTemplate);
+      await savePageNovaProject(updated.id,updated);
+      const html=await fetch(path+"/render",{credentials:"same-origin",cache:"no-store"});
+      if(!html.ok){
+        throw new Error(`Modelo salvo, mas a prévia não carregou (HTTP ${html.status}). Verifique a geração existente.`);
+      }
+      setCrmPreviewHtml(await html.text());
+      setPhase("ready");
+    }catch(cause){
+      setError(cause instanceof Error?cause.message:"Não foi possível trocar o modelo do site.");
+    }finally{
+      setSwitchingTemplate(false);
+    }
   }
 
   // Free, non-generative correction for projects created with a placeholder
@@ -1348,13 +1422,13 @@ export default function BuilderPage() {
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
-            <label className="text-xs text-white/70">Tema <select aria-label="Tema do site" value={project.previewTheme || "original"} onChange={(e) => void changeTheme(e.target.value as PreviewTheme)} className="ml-2 rounded-lg bg-white/10 p-2 text-white"><option className="text-black" value="original">Original</option><option className="text-black" value="claro">Claro</option><option className="text-black" value="escuro">Escuro</option><option className="text-black" value="areia">Areia</option></select></label>
+            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
                 Abrir prévia em nova aba ↗
               </button>
-              <button type="button" disabled={!project.pages.home || publishing || phase === "generating"} onClick={() => void publishSite()} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:opacity-40">
+              <button type="button" disabled={!project.pages.home || publishing || phase === "generating" || switchingTemplate} onClick={() => void publishSite()} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:opacity-40">
                 {publishing ? "Publicando..." : publishedUrl ? "Atualizar publicação" : "Publicar site"}
               </button>
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
@@ -1371,7 +1445,7 @@ export default function BuilderPage() {
             const visibleHeight = Math.round(900 * scale);
             return <div ref={previewStageRef} className="relative overflow-hidden bg-[#090d0c] p-4 sm:p-6">
               <div className="mx-auto overflow-hidden rounded-[22px] border border-white/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,.42)]" style={{ width: virtualWidth * scale, height: visibleHeight }}>
-                <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts allow-forms allow-downloads" srcDoc={preview}
+                <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + (project.templateId || "frigolog-universal") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts allow-forms allow-downloads" srcDoc={preview}
                   style={{ width: virtualWidth, height: 900, transform: `scale(${scale})`, transformOrigin: "top left", border: 0 }}
                   className="block bg-white" />
               </div>
