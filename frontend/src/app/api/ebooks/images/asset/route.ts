@@ -35,13 +35,18 @@ export async function GET(req:NextRequest){
     const chunks:Uint8Array[]=[];
     let bytes=0;
     if(!upstream.body)throw new FormServiceError("A imagem veio vazia.",502);
-    for await(const chunk of upstream.body){
-      bytes+=chunk.length;
-      if(bytes>4*1024*1024){
-        await upstream.body.cancel().catch(()=>undefined);
-        throw new FormServiceError("Foto muito grande para um ebook.",413);
+    const reader=upstream.body.getReader();
+    try{
+      while(true){
+        const {value,done}=await reader.read();
+        if(done)break;
+        if(!value)continue;
+        bytes+=value.byteLength;
+        if(bytes>4*1024*1024)throw new FormServiceError("Foto muito grande para um ebook.",413);
+        chunks.push(value);
       }
-      chunks.push(chunk);
+    }finally{
+      reader.releaseLock();
     }
     if(bytes<100)throw new FormServiceError("A foto não pôde ser lida.",502);
     const data=new Uint8Array(bytes);
