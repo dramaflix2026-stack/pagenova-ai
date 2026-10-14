@@ -1295,6 +1295,18 @@ export default function BuilderPage() {
                 <span className="mt-2 block text-sm font-semibold">Modelo 2 · Editorial</span>
                 <span className="mt-1 block text-[11px] leading-4 text-white/50">Muse: tipografia marcante e portfólio visual.</span>
               </button>
+              <button type="button" aria-pressed={templateId==="atelier-norte"}
+                onClick={()=>setTemplateId("atelier-norte")}
+                className={`min-w-0 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="atelier-norte"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
+                <div aria-hidden="true" className="flex h-[76px] flex-col overflow-hidden rounded-md bg-[#f5f0e7] p-2 sm:h-[100px]">
+                  <span className="text-[10px] font-semibold tracking-tight text-[#38302a]">atelier <i className="font-serif font-normal text-[#ba684e]">norte</i></span>
+                  <span className="mt-2 font-serif text-xl leading-none text-[#38302a] sm:text-[26px]">Design <i className="text-[#ba684e]">com alma.</i></span>
+                  <div className="mt-1 flex flex-1 gap-1"><span className="w-3/5 rounded-sm bg-[#c0ad99]"/><span className="flex-1 rounded-sm bg-[#e2d3c0]"/></div>
+                  <div className="mt-1 h-1.5 rounded bg-[#d0bdab]"/>
+                </div>
+                <span className="mt-2 block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
+                <span className="mt-1 block text-[11px] leading-4 text-white/50">Institucional sofisticado, fundo claro e terracota.</span>
+              </button>
             </div>
           </fieldset>
           <fieldset>
