@@ -105,6 +105,7 @@ export function renderEbookHtml(project: EbookProject, onlyPage?: number): strin
     : project.pages.map((page,index)=>({page,index}));
   const pages=selected.map(item=>renderPage(project,item.page,item.index)).join("\n");
   return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
-    '<meta name="color-scheme" content="light"><title>'+escape(project.title)+'</title><style>'+STYLES+'</style></head>'+
+    '<meta name="color-scheme" content="light"><title>'+escape(project.title)+'</title><style>'+STYLES+'</style>'+ 
+    (typeof onlyPage==='number' ? '<style>@media screen{body{padding:0!important}.sheet{box-shadow:none!important;margin:0!important}}</style>' : '')+'</head>'+
     '<body>'+pages+'</body></html>';
 }
