@@ -46,6 +46,7 @@ export const FONT_SPECS = {
   'Space Grotesk': { family: 'Space Grotesk', fallback: SANS_FALLBACK, weights: '400;500;600;700' },
   'DM Sans': { family: 'DM Sans', fallback: SANS_FALLBACK, weights: '400;500;600;700' },
   'Work Sans': { family: 'Work Sans', fallback: SANS_FALLBACK, weights: '400;500;600;700;800' },
+  'Instrument Serif': { family: 'Instrument Serif', fallback: SERIF_FALLBACK, weights: '400' },
   Fraunces: { family: 'Fraunces', fallback: SERIF_FALLBACK, weights: '400;500;600;700;800' },
   'Playfair Display': { family: 'Playfair Display', fallback: SERIF_FALLBACK, weights: '400;500;600;700;800' },
   Lora: { family: 'Lora', fallback: SERIF_FALLBACK, weights: '400;500;600;700' },
