@@ -5,7 +5,7 @@ import {
   ArrowLeft, ArrowRight, BookOpen, Check, ChevronLeft, ChevronRight,
   Download, FileDown, Image as ImageIcon, ImagePlus, LoaderCircle, MoveDown,
   MoveUp, Palette, PenLine, Plus, Printer, RefreshCw, Save, Sparkles,
-  Trash2, Upload, WandSparkles, X,
+  Trash2, Upload, WandSparkles, X, Mic, MicOff, Video, AudioLines, Paperclip,
 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { ebookThemes, makeEmptyPage, normalizeEbook, type EbookImageMode,
@@ -55,8 +55,94 @@ async function imageFromFile(file:File):Promise<string>{
   }finally{URL.revokeObjectURL(url);}
 }
 
+
+type EbookReference = {
+  id: string;
+  name: string;
+  kind: "image" | "video";
+  frames: string[];
+};
+
+/** Attach visuals as compact, low-cost vision inputs, never as raw video uploads. */
+function canvasFrame(source: CanvasImageSource, width: number, height: number): string {
+  const scale = Math.min(1, 1152 / Math.max(width, height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.floor(width * scale));
+  canvas.height = Math.max(1, Math.floor(height * scale));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Não foi possível ler o anexo visual.");
+  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.68);
+}
+async function imageReference(file: File): Promise<string> {
+  if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
+    throw new Error("Use imagens JPG, PNG ou WebP.");
+  }
+  if (file.size > 15_000_000) throw new Error("A imagem deve ter até 15 MB.");
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    img.src = url;
+    await img.decode();
+    return canvasFrame(img, img.naturalWidth, img.naturalHeight);
+  } finally { URL.revokeObjectURL(url); }
+}
+async function videoReferences(file: File): Promise<string[]> {
+  if (!["video/mp4", "video/webm", "video/quicktime"].includes(file.type)) {
+    throw new Error("Use um vídeo MP4, WebM ou MOV compatível com seu navegador.");
+  }
+  if (file.size > 100_000_000) throw new Error("O vídeo deve ter até 100 MB.");
+  const url = URL.createObjectURL(file);
+  const video = document.createElement("video");
+  video.muted = true;
+  video.playsInline = true;
+  video.preload = "auto";
+  video.style.cssText = "position:fixed;left:-9999px;top:-9999px;width:1px;height:1px";
+  document.body.appendChild(video);
+  try {
+    video.src = url;
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error("O navegador não conseguiu abrir o vídeo.")), 12000);
+      const ok = () => { clearTimeout(timeout); resolve(); };
+      const fail = () => { clearTimeout(timeout); reject(new Error("Vídeo não suportado. Prefira MP4 (H.264).")); };
+      video.addEventListener("loadeddata", ok, { once: true });
+      video.addEventListener("error", fail, { once: true });
+      video.load();
+    });
+    const result = [canvasFrame(video, video.videoWidth, video.videoHeight)];
+    if (Number.isFinite(video.duration) && video.duration > 3) {
+      try {
+        await new Promise<void>((resolve,reject) => {
+          const timeout = setTimeout(() => reject(new Error("seek")), 5000);
+          const ok = () => { clearTimeout(timeout); resolve(); };
+          video.addEventListener("seeked", ok, { once: true });
+          video.currentTime = Math.min(video.duration - 0.5, video.duration * 0.55);
+        });
+        result.push(canvasFrame(video,video.videoWidth,video.videoHeight));
+      } catch { /* first frame still usable */ }
+    }
+    return result;
+  } finally {
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    video.remove();
+    URL.revokeObjectURL(url);
+  }
+}
+
 export default function EbooksPage(){
   const [prompt,setPrompt]=useState("");
+  const [references,setReferences]=useState<EbookReference[]>([]);
+  const [attachmentMenu,setAttachmentMenu]=useState(false);
+  const [attachmentBusy,setAttachmentBusy]=useState(false);
+  const [recording,setRecording]=useState(false);
+  const [audioNote,setAudioNote]=useState("");
+  const mediaImageInput=useRef<HTMLInputElement|null>(null);
+  const mediaVideoInput=useRef<HTMLInputElement|null>(null);
+  const mediaAudioInput=useRef<HTMLInputElement|null>(null);
+  const recorder=useRef<MediaRecorder|null>(null);
+  const recordingStream=useRef<MediaStream|null>(null);
   const [pageCount,setPageCount]=useState(8);
   const [theme,setTheme]=useState<EbookTheme>("editorial");
   const [tone,setTone]=useState("Didático e envolvente");
@@ -83,6 +169,12 @@ export default function EbooksPage(){
   const activeRef=useRef(0);
   activeRef.current=active;
 
+  useEffect(()=>{
+    return () => {
+      if (recorder.current?.state === "recording") recorder.current.stop();
+      recordingStream.current?.getTracks().forEach(track => track.stop());
+    };
+  },[]);
   useEffect(()=>{
     listEbooks().then(setSaved).catch(()=>setNotice("O armazenamento local está indisponível."));
     void fetch("/api/ebooks",{cache:"no-store"})
@@ -177,7 +269,7 @@ export default function EbooksPage(){
     if(created.imageMode==="none")return;
     setImagesBusy(true);setImageProgress("Buscando imagens para o ebook...");
     const indices=created.pages.map((p,i)=>({p,i}))
-      .filter(item=>item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter")
+      .filter(item=>!item.p.imageUrl && (item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter"))
       .slice(0,created.imageMode==="ai"?3:5);
     let completed=0;
     // Two independent jobs: one failed image never loses the generated book.
@@ -203,16 +295,119 @@ export default function EbooksPage(){
     setImagesBusy(false);
     setImageProgress("Imagens processadas. Você pode substituir qualquer uma.");
   }
+
+  async function transcribeAudio(file: File) {
+    if (file.size > 24 * 1024 * 1024) throw new Error("O áudio deve ter até 24 MB.");
+    setAttachmentBusy(true);
+    setAudioNote("Transcrevendo áudio...");
+    try {
+      const body = new FormData();
+      body.append("file", file, file.name);
+      const res = await fetch("/api/ebooks/transcribe", { method: "POST", body, cache: "no-store" });
+      const result = await responseJson<{text:string}>(res);
+      setPrompt(previous => previous.trim() ? previous + "\n\n" + result.text : result.text);
+      setAudioNote("Áudio transcrito e incluído no briefing.");
+      setError("");
+    } catch (err) {
+      setAudioNote("");
+      setError(errorMessage(err));
+    } finally { setAttachmentBusy(false); }
+  }
+  async function addReferenceFiles(files: FileList | null, kind: "image" | "video") {
+    if (!files?.length) return;
+    setAttachmentMenu(false);
+    setAttachmentBusy(true);
+    setError("");
+    try {
+      // Total visual references: four attachments, with two video frames each.
+      const pending = Array.from(files).slice(0, Math.max(0, 4 - references.length));
+      if (!pending.length) throw new Error("Você pode usar até 4 anexos visuais por ebook.");
+      for (const file of pending) {
+        const frames = kind === "image" ? [await imageReference(file)] : await videoReferences(file);
+        setReferences(previous => [...previous, {
+          id: crypto.randomUUID(), name: file.name, kind, frames,
+        }].slice(0, 4));
+      }
+    } catch (err) { setError(errorMessage(err)); }
+    finally { setAttachmentBusy(false); }
+  }
+  async function selectAudio(files: FileList | null) {
+    const file = files?.[0];
+    if (!file) return;
+    setAttachmentMenu(false);
+    await transcribeAudio(file);
+  }
+  async function toggleRecording() {
+    if (recorder.current?.state === "recording") {
+      recorder.current.stop();
+      setRecording(false);
+      return;
+    }
+    if (attachmentBusy) return;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setError("Seu navegador não permite gravação. Use + > Áudio para enviar um arquivo.");
+      return;
+    }
+    setAttachmentMenu(false);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      recordingStream.current = stream;
+      const format = ["audio/webm;codecs=opus", "audio/mp4", "audio/webm"]
+        .find(mime => MediaRecorder.isTypeSupported(mime));
+      const media = new MediaRecorder(stream, format ? {mimeType:format} : undefined);
+      const chunks: BlobPart[] = [];
+      media.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
+      media.onstop = () => {
+        stream.getTracks().forEach(track=>track.stop());
+        recordingStream.current = null;
+        recorder.current = null;
+        setRecording(false);
+        if (!chunks.length) { setError("O microfone não capturou nenhum áudio."); return; }
+        const type = media.mimeType || "audio/webm";
+        const ext = type.startsWith("audio/mp4") ? "m4a" : "webm";
+        const recordingFile = new File(chunks, "gravacao." + ext, {type});
+        void transcribeAudio(recordingFile);
+      };
+      media.start();
+      recorder.current=media;
+      setRecording(true);
+      setAudioNote("Gravando... toque no microfone para terminar.");
+      setError("");
+    } catch {
+      recordingStream.current?.getTracks().forEach(track=>track.stop());
+      recordingStream.current=null;
+      setRecording(false);
+      setError("Acesso ao microfone negado ou indisponível. Você pode anexar um áudio pelo botão +.");
+    }
+  }
+
   async function generate(ev:FormEvent<HTMLFormElement>){
-    ev.preventDefault();if(generating)return;
+    ev.preventDefault();if(generating||attachmentBusy||recording)return;
     if(prompt.trim().length<15){setError("Descreva melhor o tema do ebook.");return;}
     setGenerating(true);setError("");setNotice("");
     try{
       const result=await responseJson<{ebook:EbookProject}>(await fetch("/api/ebooks/generate",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt,pageCount,author,theme,tone,imageMode:mode}),cache:"no-store"
+        body:JSON.stringify({prompt,pageCount,author,theme,tone,imageMode:mode,
+          references:references.flatMap(item=>item.frames.map((imageUrl,index)=>({
+            kind:item.kind,name:item.name,frame:index+1,imageUrl,
+          }))),
+        }),cache:"no-store"
       }));
       const created=normalizeEbook(result.ebook);
+      // Uploaded still images become book images as well as vision references.
+      const originals=references.filter(item=>item.kind==="image");
+      if(originals.length){
+        let image=0;
+        for(const page of created.pages){
+          if(image>=originals.length)break;
+          if(page.kind==="cover"||page.kind==="feature"||page.kind==="chapter"){
+            page.imageUrl=originals[image].frames[0];
+            page.imageCredit="Imagem enviada pelo autor: "+originals[image].name;
+            image++;
+          }
+        }
+      }
       setBook(created);setActive(0);setSavedStatus("Salvando...");
       setGenerating(false);
       void populateImages(created);
@@ -323,11 +518,54 @@ export default function EbooksPage(){
       <div className="mt-11 grid gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
         <form onSubmit={generate} className="rounded-[28px] border border-white/10 bg-[#101720] p-5 shadow-[0_24px_80px_rgba(0,0,0,.2)] sm:p-7">
           <div className="flex items-center gap-2 text-sm font-bold"><WandSparkles className="h-5 w-5 text-emerald-300"/> O que vamos criar?</div>
-          <label htmlFor="ebook-prompt" className="sr-only">Descreva seu ebook</label>
-          <textarea id="ebook-prompt" required rows={8} value={prompt} onChange={e=>setPrompt(e.target.value)}
-            placeholder="Ex.: Crie um ebook sobre como montar um negócio online do zero para iniciantes. Quero um guia prático, com exemplos, etapas, erros comuns, estratégias e um plano de ação..."
-            className="mt-5 min-h-[200px] w-full resize-y rounded-2xl border border-white/15 bg-[#080e16] p-4 text-base leading-7 text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60"/>
-          <p className="mt-2 text-xs text-white/35">Descreva livremente. Sem limite de caracteres no campo de prompt.</p>
+          <div className="mt-5 overflow-visible rounded-2xl border border-white/15 bg-[#080e16] focus-within:border-emerald-400/60">
+            <label htmlFor="ebook-prompt" className="sr-only">Descreva seu ebook</label>
+            <textarea id="ebook-prompt" required rows={8} value={prompt} onChange={e=>setPrompt(e.target.value)}
+              placeholder="Ex.: Crie um ebook sobre como montar um negócio online do zero para iniciantes. Quero um guia prático, com exemplos, etapas, erros comuns, estratégias e um plano de ação..."
+              className="min-h-[205px] w-full resize-y rounded-t-2xl bg-transparent px-4 pt-4 pb-3 text-base leading-7 text-white outline-none placeholder:text-white/30"/>
+            {references.length>0&&<div aria-label="Anexos visuais" className="flex flex-wrap gap-2 px-3 pb-3">
+              {references.map(item=><div key={item.id} className="flex max-w-full items-center gap-2 rounded-lg border border-emerald-400/25 bg-emerald-400/[.06] p-1.5 pr-2 text-xs text-emerald-100">
+                <img src={item.frames[0]} alt="" className="h-10 w-11 rounded object-cover"/>
+                <span className="max-w-[125px] truncate">{item.kind==="video"?"Vídeo: ":"Imagem: "}{item.name}</span>
+                <button type="button" aria-label={"Remover "+item.name} onClick={()=>setReferences(prev=>prev.filter(x=>x.id!==item.id))} className="rounded-md p-1 hover:bg-white/10"><X className="h-4 w-4"/></button>
+              </div>)}
+            </div>}
+            <div className="flex min-h-14 flex-wrap items-center justify-between gap-2 border-t border-white/10 px-3 py-2">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <button type="button" aria-label="Adicionar imagens, vídeos ou áudios" aria-expanded={attachmentMenu}
+                    onClick={()=>setAttachmentMenu(value=>!value)} disabled={generating||attachmentBusy||recording}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/35 bg-emerald-400/10 text-emerald-200 hover:bg-emerald-400/20 disabled:opacity-40">
+                    {attachmentBusy?<LoaderCircle className="h-5 w-5 animate-spin"/>:<Plus className="h-6 w-6"/>}
+                  </button>
+                  {attachmentMenu&&<div className="absolute bottom-full left-0 z-30 mb-2 w-56 rounded-xl border border-white/15 bg-[#202936] p-2 shadow-2xl">
+                    <button type="button" onClick={()=>mediaImageInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><ImagePlus className="h-4 w-4 text-emerald-300"/> Enviar imagem</button>
+                    <button type="button" onClick={()=>mediaVideoInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><Video className="h-4 w-4 text-emerald-300"/> Enviar vídeo</button>
+                    <button type="button" onClick={()=>mediaAudioInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><AudioLines className="h-4 w-4 text-emerald-300"/> Enviar áudio</button>
+                  </div>}
+                </div>
+                <button type="button" onClick={()=>void toggleRecording()}
+                  disabled={generating||attachmentBusy}
+                  aria-label={recording?"Parar gravação de áudio":"Gravar briefing por voz"}
+                  aria-pressed={recording}
+                  className={"flex h-10 w-10 items-center justify-center rounded-xl border transition disabled:opacity-40 "+(recording?"border-red-400 bg-red-500/20 text-red-300 animate-pulse":"border-white/15 bg-white/[.04] text-white/70 hover:border-emerald-400/50 hover:text-emerald-200")}>
+                  {recording?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
+                </button>
+                <span className="text-xs text-white/35">{recording?"Gravando...":"Imagens · vídeos · voz"}</span>
+              </div>
+              <span className="text-[11px] text-white/30">{references.length}/4 anexos visuais</span>
+            </div>
+            <input ref={mediaImageInput} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden"
+              onChange={e=>{void addReferenceFiles(e.target.files,"image");e.target.value="";}}/>
+            <input ref={mediaVideoInput} type="file" accept="video/mp4,video/webm,video/quicktime" className="hidden"
+              onChange={e=>{void addReferenceFiles(e.target.files,"video");e.target.value="";}}/>
+            <input ref={mediaAudioInput} type="file" accept="audio/*,.m4a,.mp3,.wav,.webm,.ogg,.flac" className="hidden"
+              onChange={e=>{void selectAudio(e.target.files);e.target.value="";}}/>
+          </div>
+          {audioNote&&<p role="status" className="mt-2 text-xs text-emerald-300">{audioNote}</p>}
+          <p className="mt-2 text-xs leading-5 text-white/35">
+            Sem limite de caracteres no briefing. A IA analisa imagens e quadros de vídeo; áudios e gravações são transcritos em texto.
+          </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-semibold text-white/60">Nome do autor ou marca<input value={author} onChange={e=>setAuthor(e.target.value)} placeholder="Ex.: Sua marca" className={field+" mt-2"}/></label>
             <label className="text-xs font-semibold text-white/60">Tom de escrita<select value={tone} onChange={e=>setTone(e.target.value)} className={field+" mt-2"}>
@@ -359,7 +597,7 @@ export default function EbooksPage(){
             </button>)}</div>
           </div>
           {error&&<p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
-          <button type="submit" disabled={generating||prompt.trim().length<15}
+          <button type="submit" disabled={generating||attachmentBusy||recording||prompt.trim().length<15}
             className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#06120d] transition hover:bg-emerald-300 disabled:opacity-40">
             {generating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Escrevendo e diagramando o ebook...</>:<><Sparkles className="h-5 w-5"/> Gerar meu ebook <ArrowRight className="h-5 w-5"/></>}
           </button>
