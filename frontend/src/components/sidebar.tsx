@@ -54,6 +54,7 @@ const studioItems: MenuItem[] = [
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
   { href: "/app/ebooks", label: "Gerar Ebooks", icon: BookOpen },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
+  { href: "/app/creditos", label: "Meus créditos", icon: Wallet },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
 ];
 
