@@ -710,18 +710,10 @@ export default function EbooksPage(){
                 if(event.key==="ArrowLeft"){event.preventDefault();setActive(v=>Math.max(0,v-1));}
               }}/>
           </div>
-          <div className="mx-auto mt-3 flex w-full max-w-[794px] items-center justify-center gap-3 text-center">
-            <button type="button" onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0}
-              aria-label="Página anterior" className="rounded-full p-1.5 text-white/55 hover:bg-white/10 disabled:opacity-20">
-              <ChevronLeft className="h-4 w-4"/>
-            </button>
-            <span role="status" aria-live="polite" className="text-xs font-medium text-white/60">{active+1} / {book.pages.length}</span>
-            <button type="button" onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))}
-              disabled={active===book.pages.length-1} aria-label="Próxima página"
-              className="rounded-full p-1.5 text-white/55 hover:bg-white/10 disabled:opacity-20">
-              <ChevronRight className="h-4 w-4"/>
-            </button>
-          </div>
+          <span role="status" aria-live="polite"
+            className="pointer-events-none absolute right-2 top-3 z-20 rounded-md bg-black/65 px-2 py-1 text-[11px] font-medium text-white/85 sm:right-4 sm:top-5">
+            {active+1} / {book.pages.length}
+          </span>
         </section>
         {editorOpen&&<aside id="ebook-page-editor" role="dialog" aria-modal={false} aria-label="Editar página do ebook"
           className="fixed inset-0 z-[60] overflow-y-auto overscroll-contain border border-white/10 bg-[#111923] p-4 pt-5 shadow-2xl lg:static lg:z-auto lg:max-h-[calc(100vh-160px)] lg:rounded-2xl lg:shadow-none">
