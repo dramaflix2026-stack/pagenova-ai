@@ -11,6 +11,7 @@ import { AppHeader } from "@/components/app-header";
 import { ebookThemes, makeEmptyPage, normalizeEbook, type EbookImageMode,
   type EbookPage, type EbookPageKind, type EbookProject, type EbookTheme } from "@/lib/ebooks/schema";
 import { renderEbookHtml } from "@/lib/ebooks/render";
+import {planEbookPages,layoutQuality,isPhotoPage} from "@/lib/ebooks/blueprint";
 import { deleteEbook, listEbooks, saveEbook } from "@/lib/ebooks/storage";
 import type { EbookSummary } from "@/lib/ebooks/cloud";
 
@@ -24,12 +25,16 @@ const PAGE_COUNTS=[6,8,10,12,16];
 const PAGE_KINDS:{value:EbookPageKind;label:string}[]=[
   {value:"cover",label:"Capa"},{value:"chapter",label:"Capítulo"},
   {value:"feature",label:"Imagem + texto"},{value:"quote",label:"Destaque"},
+  {value:"checklist",label:"Checklist visual"},{value:"steps",label:"Passo a passo"},
+  {value:"comparison",label:"Comparativo"},{value:"timeline",label:"Linha do tempo"},
+  {value:"caseStudy",label:"Estudo de caso"},{value:"gallery",label:"Galeria de ideias"},
+  {value:"infographic",label:"Infográfico"},{value:"insight",label:"Dica profissional"},
   {value:"summary",label:"Resumo"},{value:"back",label:"Encerramento"}
 ];
 const IMG_MODES:{value:EbookImageMode;label:string;description:string}[]=[
-  {value:"web",label:"Fotos da internet",description:"Banco de imagens abertas, com atribuição"},
-  {value:"ai",label:"Imagens com IA",description:"Criação original — consome API por imagem"},
-  {value:"none",label:"Arte editorial",description:"Formas geométricas, sem busca ou custo adicional"},
+  {value:"ai",label:"Imagens com IA · recomendado",description:"Fotos temáticas originais (até 8 por ebook). Cada imagem consome uma chamada paga da API."},
+  {value:"web",label:"Fotos gratuitas",description:"Fotografias licenciadas do Wikimedia Commons; se não houver foto, os infográficos permanecem."},
+  {value:"none",label:"Infográficos, sem fotos",description:"Checklists, etapas, comparativos e arte editorial sem chamadas à API de imagens."},
 ];
 const field="w-full rounded-xl border border-white/10 bg-[#0a111a] px-3 py-3 text-sm text-white outline-none transition focus:border-emerald-400/70 focus:ring-2 focus:ring-emerald-400/10";
 function errorMessage(err:unknown):string{return err instanceof Error?err.message:"Não foi possível completar esta operação.";}
@@ -147,7 +152,7 @@ export default function EbooksPage(){
   const [theme,setTheme]=useState<EbookTheme>("editorial");
   const [tone,setTone]=useState("Didático e envolvente");
   const [author,setAuthor]=useState("");
-  const [mode,setMode]=useState<EbookImageMode>("web");
+  const [mode,setMode]=useState<EbookImageMode>("ai");
   const [book,setBook]=useState<EbookProject|null>(null);
   const [saved,setSaved]=useState<EbookProject[]>([]);
   const [cloudSaved,setCloudSaved]=useState<EbookSummary[]>([]);
@@ -302,7 +307,23 @@ export default function EbooksPage(){
       });
       const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
       if(!data.image)throw new Error("A IA não retornou a imagem.");
-      return data.image;
+      const asset=data.image;
+      // Compact images before autosave and PDF export.
+      if(asset.url.startsWith("data:image/")){
+        const img=new Image();
+        img.src=asset.url;
+        await img.decode();
+        const canvas=document.createElement("canvas");
+        const scale=Math.min(1,880/Math.max(img.naturalWidth,img.naturalHeight));
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext("2d");
+        if(ctx){
+          ctx.drawImage(img,0,0,canvas.width,canvas.height);
+          return {url:canvas.toDataURL("image/jpeg",0.68),credit:asset.credit};
+        }
+      }
+      return asset;
     }
     const params=new URLSearchParams({
       q:description,title:page.title,topic,
@@ -334,10 +355,11 @@ export default function EbooksPage(){
     setImagesBusy(true);
     setError("");
     setImageProgress(created.imageMode==="web"?"Procurando fotos reais com licença aberta...":"Gerando ilustrações com IA...");
+    const budget=created.imageMode==="ai"
+      ?Math.min(8,Math.max(3,Math.ceil(created.pages.length*.44))):Math.min(12,created.pages.length);
     const indices=created.pages.map((p,i)=>({p,i}))
-      .filter(item=>!item.p.imageUrl &&
-        (item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter"))
-      .slice(0,created.imageMode==="ai"?3:12);
+      .filter(item=>!item.p.imageUrl && isPhotoPage(item.p.kind))
+      .slice(0,budget);
     if(!indices.length){
       setImagesBusy(false);
       setImageProgress("Todas as páginas visuais já possuem imagem.");
@@ -379,9 +401,9 @@ export default function EbooksPage(){
         setImageProgress(added+" de "+indices.length+" fotos incluídas. "+
           failures.length+" páginas sem foto licenciada; toque em Fotos para tentar novamente.");
       }else{
-        setImageProgress("Nenhuma foto foi encontrada ou carregada. "+
-          "Verifique a conexão e toque em Fotos para tentar novamente. "+
-          "O ebook e seus textos continuam salvos.");
+        setImageProgress("As fotos não puderam ser incluídas nesta tentativa. "+
+          "O ebook segue com infográficos úteis, sem espaços visuais vazios. "+
+          "Use o editor para enviar sua própria foto ou gerar com IA.");
       }
     }finally{setImagesBusy(false);}
   }
@@ -503,6 +525,16 @@ export default function EbooksPage(){
       setGenerating(false);
       void populateImages(created);
     }catch(err){setGenerating(false);setError(errorMessage(err));}
+  }
+  function improvePageComposition(){
+    if(!book)return;
+    const plan=planEbookPages(book.prompt||book.title,book.pages.length,book.imageMode);
+    const pages=book.pages.map((page,index)=>({
+      ...page,kind:plan[index]?.kind||page.kind,
+    }));
+    updateBook({pages});
+    setNotice("Layouts variados aplicados sem apagar textos, fotos ou edições. Revise as páginas e exporte novamente.");
+    setActive(0);
   }
   async function changeImage(source:EbookImageMode){
     if(!book||imageIndex!==null)return;
@@ -705,7 +737,10 @@ export default function EbooksPage(){
             className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#06120d] transition hover:bg-emerald-300 disabled:opacity-40">
             {generating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Escrevendo e diagramando o ebook...</>:<><Sparkles className="h-5 w-5"/> Gerar meu ebook <ArrowRight className="h-5 w-5"/></>}
           </button>
-          <p className="mt-3 text-center text-xs text-white/40">A criação usa a API de IA. Imagens por IA são chamadas adicionais; escolha fotos livres ou arte editorial para reduzir o custo.</p>
+          <p className="mt-3 text-center text-xs leading-5 text-white/45">
+            A IA planeja e diagrama cada página. Imagens com IA são chamadas pagas adicionais (até 8 por ebook).
+            Você pode optar por fotos gratuitas ou somente infográficos.
+          </p>
         </form>
         <div className="space-y-6">
           <div className="rounded-[28px] border border-white/10 bg-[#111923] p-6 sm:p-7">
@@ -716,7 +751,7 @@ export default function EbooksPage(){
                 <p className="mt-4 text-xs leading-5 text-[#6b675f]">Conteúdo bem escrito, imagens e design em harmonia.</p></div>
               <div className="h-0.5 w-16 bg-[#b37a54]"></div>
             </div>
-            <p className="mt-5 text-sm leading-6 text-white/50">Capa, capítulos, páginas visuais, edição de textos, imagens e PDF A4. Sem precisar de software de diagramação.</p>
+            <p className="mt-5 text-sm leading-6 text-white/50">Planejamento editorial automático, 14 layouts, páginas com fotos, comparativos, checklists, processos e PDF A4.</p>
           </div>
           <div className="rounded-[28px] border border-white/10 bg-[#101720] p-5">
             <h2 className="text-sm font-bold">Precisa de uma ideia? Comece por aqui.</h2>
@@ -755,6 +790,11 @@ export default function EbooksPage(){
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
+          <button type="button" onClick={improvePageComposition}
+            title="Reorganizar os layouts de todas as páginas sem apagar o conteúdo"
+            className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-white/15 px-2.5 py-2 text-xs font-semibold text-white/80 hover:border-emerald-400/35 hover:bg-emerald-400/[.06]">
+            <Palette className="h-4 w-4"/><span className="hidden sm:inline">Variar layouts</span>
+          </button>
           {photosMissing&&<button type="button" onClick={()=>{if(book)void populateImages(book);}}
             disabled={imagesBusy} title="Buscar fotos gratuitas para as páginas sem imagem"
             className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-emerald-400/25 px-2.5 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10 disabled:opacity-50">
@@ -865,7 +905,8 @@ export default function EbooksPage(){
           </div>
         </aside>}
       </div>
-      <p className="mt-6 text-center text-xs leading-5 text-white/40">Conteúdo assistido por IA: revise informações, direitos de imagem e alegações antes de distribuir ou comercializar o ebook.</p>
+      <p className="mt-4 text-center text-xs text-emerald-200/70">{layoutQuality(book.pages).families} composições editoriais · {book.pages.filter(p=>Boolean(p.imageUrl)).length} imagens inseridas · PDF A4</p>
+      <p className="mt-3 text-center text-xs leading-5 text-white/40">Conteúdo assistido por IA: revise informações, direitos de imagem e alegações antes de distribuir ou comercializar o ebook.</p>
     </div>}
   </main>;
 }
