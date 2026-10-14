@@ -2,7 +2,7 @@
  * Shared data contract for the PageNova Ebook Studio.
  * Keep output independent from any AI vendor so users can edit and export it.
  */
-export type EbookPageKind = "cover" | "chapter" | "feature" | "quote" | "summary" | "back";
+export type EbookPageKind = "cover" | "chapter" | "feature" | "quote" | "summary" | "back" | "checklist" | "steps" | "comparison" | "timeline" | "caseStudy" | "gallery" | "infographic" | "insight";
 export type EbookTheme = "editorial" | "midnight" | "forest";
 export type EbookImageMode = "web" | "ai" | "none";
 
@@ -32,7 +32,7 @@ export type EbookProject = {
   updatedAt: string;
 };
 
-const KINDS = new Set<EbookPageKind>(["cover", "chapter", "feature", "quote", "summary", "back"]);
+const KINDS = new Set<EbookPageKind>(["cover", "chapter", "feature", "quote", "summary", "back", "checklist", "steps", "comparison", "timeline", "caseStudy", "gallery", "infographic", "insight"]);
 const THEMES = new Set<EbookTheme>(["editorial", "midnight", "forest"]);
 const IMAGE_MODES = new Set<EbookImageMode>(["web", "ai", "none"]);
 const asString = (input: unknown): string => typeof input === "string" ? input : "";
