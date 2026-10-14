@@ -45,6 +45,9 @@ create table if not exists public.pagenova_credit_operations (
 create index if not exists pagenova_credit_operations_job
   on public.pagenova_credit_operations(owner_id,job_id)
   where job_id is not null;
+create unique index if not exists pagenova_credit_unique_job
+  on public.pagenova_credit_operations(job_id)
+  where job_id is not null;
 
 alter table public.pagenova_credit_cycles enable row level security;
 alter table public.pagenova_credit_operations enable row level security;
@@ -104,10 +107,9 @@ begin
   if exists(select 1 from public.pagenova_credit_cycles where email=v_email and status='active') then
     return jsonb_build_object('existing',true);
   end if;
-  select provider_order_id,coalesce(purchased_at,now()) into v_order,v_started
+  select coalesce(provider_order_id,'manual:'||id::text),coalesce(purchased_at,now()) into v_order,v_started
     from public.entitlements
     where lower(email)=v_email and product='pagenova-ai' and status='active'
-    and provider_order_id is not null
     order by purchased_at desc nulls last,updated_at desc
     limit 1;
   if v_order is null then return jsonb_build_object('existing',false,'error','no_active_order');end if;
@@ -220,6 +222,45 @@ begin
   return public.pagenova_credits_settle(p_owner_id,v_op.id,p_success,p_job_id);
 end;$$;
 
+-- Backfill from verified prior CRM activity BEFORE enabling the gate.
+-- One-time only: refuses to overwrite an account with ledger operations.
+create or replace function public.pagenova_credits_backfill(
+  p_email text,p_order_id text,p_sites_used integer,p_google_used integer
+) returns jsonb language plpgsql security definer
+set search_path=public,pg_temp as $
+declare v_cycle public.pagenova_credit_cycles%rowtype;
+begin
+  if p_sites_used not between 0 and 40 or p_google_used not between 0 and 150
+    then raise exception 'invalid historical usage';end if;
+  perform pg_advisory_xact_lock(hashtextextended('pagenova_credit:'||lower(btrim(p_email)),0));
+  select * into v_cycle from public.pagenova_credit_cycles
+    where email=lower(btrim(p_email)) and provider_order_id=p_order_id for update;
+  if not found then raise exception 'subscription cycle missing';end if;
+  if exists(select 1 from public.pagenova_credit_operations where cycle_id=v_cycle.id) then
+    raise exception 'cannot backfill a cycle with recorded operations';
+  end if;
+  update public.pagenova_credit_cycles
+    set sites_used=p_sites_used,google_used=p_google_used,updated_at=now()
+    where id=v_cycle.id;
+  return jsonb_build_object('ok',true,'cycleId',v_cycle.id,
+    'sitesUsed',p_sites_used,'googleUsed',p_google_used);
+end;$;
+
+-- Dedicated server-to-server terminal callback from Railway's worker.
+-- The public HTTP endpoint checks an HMAC before invoking this service-role
+-- function; clients can never call it using their browser Supabase token.
+create or replace function public.pagenova_credits_settle_job_callback(
+  p_job_id text,p_success boolean
+) returns jsonb language plpgsql security definer
+set search_path=public,pg_temp as $
+declare v_op public.pagenova_credit_operations%rowtype;
+begin
+  select * into v_op from public.pagenova_credit_operations
+    where job_id=p_job_id and kind='site_generation';
+  if not found then return jsonb_build_object('found',false);end if;
+  return public.pagenova_credits_settle(v_op.owner_id,v_op.id,p_success,p_job_id);
+end;$;
+
 revoke all on function public.pagenova_credits_activate(text,text,timestamptz) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_revoke(text,text) from public,anon,authenticated;
 revoke all on function public.pagenova_credits_bootstrap(text) from public,anon,authenticated;
@@ -234,3 +275,8 @@ grant execute on function public.pagenova_credits_balance(text,uuid) to service_
 grant execute on function public.pagenova_credits_reserve(text,uuid,text,text) to service_role;
 grant execute on function public.pagenova_credits_settle(uuid,uuid,boolean,text) to service_role;
 grant execute on function public.pagenova_credits_settle_job(uuid,text,boolean) to service_role;
+revoke all on function public.pagenova_credits_backfill(text,text,integer,integer) from public,anon,authenticated;
+revoke all on function public.pagenova_credits_settle_job_callback(text,boolean) from public,anon,authenticated;
+grant execute on function public.pagenova_credits_backfill(text,text,integer,integer) to service_role;
+grant execute on function public.pagenova_credits_settle_job_callback(text,boolean) to service_role;
+grant select,insert,update,delete on public.pagenova_credit_cycles,public.pagenova_credit_operations to service_role;
