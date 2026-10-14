@@ -366,6 +366,31 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Subscription credits are tied to the actual paid Kiwify order. Repeated
+  // deliveries never refill a cycle; refund/chargeback revoke that order only.
+  // Enable only after the PageNova Supabase migration and usage backfill.
+  if (process.env.PAGENOVA_CREDITS_ENFORCE === "1") {
+    if (status === "active") {
+      const approvedAt=payload.approved_date ? new Date(payload.approved_date) : new Date();
+      const safeDate=Number.isNaN(approvedAt.getTime()) ? now : approvedAt.toISOString();
+      const {error:creditsError}=await admin.rpc("pagenova_credits_activate",{
+        p_email:email,p_order_id:orderId,p_started_at:safeDate,
+      });
+      if(creditsError){
+        console.error("[KIWIFY] Credit-cycle activation failed",{code:creditsError.code});
+        return NextResponse.json({ok:false,error:"credit_cycle_failed"},{status:500});
+      }
+    } else {
+      const {error:creditsError}=await admin.rpc("pagenova_credits_revoke",{
+        p_order_id:orderId,p_status:status,
+      });
+      if(creditsError){
+        console.error("[KIWIFY] Credit-cycle revocation failed",{code:creditsError.code});
+        return NextResponse.json({ok:false,error:"credit_cycle_failed"},{status:500});
+      }
+    }
+  }
+
   if (status === "active") {
     let authUserExists = false;
     let buyerLookupFailed = false;
