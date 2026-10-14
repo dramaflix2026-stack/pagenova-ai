@@ -12,6 +12,7 @@ import { ebookThemes, makeEmptyPage, normalizeEbook, type EbookImageMode,
   type EbookPage, type EbookPageKind, type EbookProject, type EbookTheme } from "@/lib/ebooks/schema";
 import { renderEbookHtml } from "@/lib/ebooks/render";
 import { deleteEbook, listEbooks, saveEbook } from "@/lib/ebooks/storage";
+import type { EbookSummary } from "@/lib/ebooks/cloud";
 
 const IDEAS = [
   { icon:"✦", title:"Guia prático", prompt:"Crie um guia completo e didático com etapas práticas para quem está começando a empreender no marketing digital, com exemplos e checklists." },
@@ -63,6 +64,7 @@ export default function EbooksPage(){
   const [mode,setMode]=useState<EbookImageMode>("web");
   const [book,setBook]=useState<EbookProject|null>(null);
   const [saved,setSaved]=useState<EbookProject[]>([]);
+  const [cloudSaved,setCloudSaved]=useState<EbookSummary[]>([]);
   const [active,setActive]=useState(0);
   const [generating,setGenerating]=useState(false);
   const [imagesBusy,setImagesBusy]=useState(false);
@@ -77,19 +79,40 @@ export default function EbooksPage(){
   const [scale,setScale]=useState(0.65);
   const previewArea=useRef<HTMLDivElement|null>(null);
   const uploadInput=useRef<HTMLInputElement|null>(null);
+  const cloudWriteQueue=useRef<Promise<void>>(Promise.resolve());
   const activeRef=useRef(0);
   activeRef.current=active;
 
   useEffect(()=>{
-    listEbooks().then(setSaved).catch(()=>setNotice("Seus ebooks serão salvos neste navegador quando o armazenamento estiver disponível."));
+    listEbooks().then(setSaved).catch(()=>setNotice("O armazenamento local está indisponível."));
+    void fetch("/api/ebooks",{cache:"no-store"})
+      .then(responseJson<{ebooks:EbookSummary[]}>)
+      .then(data=>setCloudSaved(data.ebooks||[])).catch(()=>undefined);
   },[]);
   useEffect(()=>{
     if(!book)return;
     setSavedStatus("Salvando...");
     const timer=window.setTimeout(()=>{
-      saveEbook(book).then(()=>setSavedStatus("Salvo neste dispositivo"))
-        .catch(()=>setSavedStatus("Não foi possível salvar no navegador"));
+      saveEbook(book).then(()=>setSavedStatus("Salvo no dispositivo"))
+        .catch(()=>setSavedStatus("Não foi possível salvar no dispositivo"));
     },650);
+    return ()=>window.clearTimeout(timer);
+  },[book]);
+  useEffect(()=>{
+    if(!book)return;
+    const snapshot=book;
+    const timer=window.setTimeout(()=>{
+      // Serialize writes so slow responses cannot overwrite a newer draft.
+      cloudWriteQueue.current=cloudWriteQueue.current.then(async()=>{
+        const response=await fetch("/api/ebooks",{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({ebook:snapshot}),cache:"no-store",
+        });
+        const data=await responseJson<{ebook:EbookSummary}>(response);
+        setCloudSaved(list=>[data.ebook,...list.filter(item=>item.id!==data.ebook.id)]);
+        setSavedStatus("Salvo na sua conta");
+      }).catch(()=>{setSavedStatus("Salvo no dispositivo · nuvem indisponível");});
+    },2600);
     return ()=>window.clearTimeout(timer);
   },[book]);
   useEffect(()=>{
@@ -119,12 +142,25 @@ export default function EbooksPage(){
       setBook(selected);setActive(0);setError("");setNotice("");
     }catch(err){setError(errorMessage(err));}
   }
-  async function removeDraft(item:EbookProject){
-    if(!window.confirm("Excluir o ebook \""+item.title+"\" deste dispositivo?"))return;
+  async function removeDraft(item:EbookProject|EbookSummary){
+    if(!window.confirm("Excluir o ebook \""+item.title+"\" deste dispositivo e da sua conta?"))return;
     try{
       await deleteEbook(item.id);
+      const response=await fetch("/api/ebooks/"+encodeURIComponent(item.id),{method:"DELETE"});
+      if(!response.ok&&response.status!==404){
+        setNotice("Projeto local excluído; não foi possível excluir a cópia na nuvem.");
+      }
       setSaved(list=>list.filter(book=>book.id!==item.id));
+      setCloudSaved(list=>list.filter(book=>book.id!==item.id));
       if(book?.id===item.id)setBook(null);
+    }catch(err){setError(errorMessage(err));}
+  }
+  async function openCloudDraft(item:EbookSummary){
+    try{
+      const response=await fetch("/api/ebooks/"+encodeURIComponent(item.id),{cache:"no-store"});
+      const data=await responseJson<{ebook:EbookProject}>(response);
+      openDraft(data.ebook);
+      void saveEbook(data.ebook);
     }catch(err){setError(errorMessage(err));}
   }
   async function imageRequest(page:EbookPage,source:EbookImageMode):Promise<{url:string;credit:string}|null>{
@@ -349,10 +385,17 @@ export default function EbooksPage(){
           </div>
         </div>
       </div>
-      {saved.length>0&&<section className="mt-11">
-        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-bold">Seus ebooks neste dispositivo</h2><span className="text-xs text-white/40">{saved.length} projeto(s)</span></div>
+      {(saved.length>0||cloudSaved.length>0)&&<section className="mt-11">
+        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-bold">Seus ebooks</h2><span className="text-xs text-white/40">Rascunhos no dispositivo e na sua conta</span></div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{saved.map(item=><div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#121923] p-4">
           <button type="button" onClick={()=>openDraft(item)} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{item.title}</strong><span className="mt-1 block text-xs text-white/40">{item.pages.length} páginas · {ebookThemes[item.theme]?.name||"Editorial"}</span></button>
+          <button type="button" aria-label={"Excluir "+item.title} onClick={()=>void removeDraft(item)} className="rounded-lg p-2 text-white/45 hover:bg-red-400/10 hover:text-red-300"><Trash2 className="h-4 w-4"/></button>
+        </div>)}
+        {cloudSaved.filter(item=>!saved.some(local=>local.id===item.id)).map(item=><div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-[#121923] p-4">
+          <button type="button" onClick={()=>void openCloudDraft(item)} className="min-w-0 flex-1 text-left">
+            <strong className="block truncate text-sm">{item.title}</strong>
+            <span className="mt-1 block text-xs text-white/40">{item.pageCount} páginas · salvo na sua conta</span>
+          </button>
           <button type="button" aria-label={"Excluir "+item.title} onClick={()=>void removeDraft(item)} className="rounded-lg p-2 text-white/45 hover:bg-red-400/10 hover:text-red-300"><Trash2 className="h-4 w-4"/></button>
         </div>)}</div>
       </section>}
