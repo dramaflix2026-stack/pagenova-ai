@@ -1,0 +1,466 @@
+"use client";
+
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  ArrowLeft, ArrowRight, BookOpen, Check, ChevronLeft, ChevronRight,
+  Download, FileDown, Image as ImageIcon, ImagePlus, LoaderCircle, MoveDown,
+  MoveUp, Palette, PenLine, Plus, Printer, RefreshCw, Save, Sparkles,
+  Trash2, Upload, WandSparkles, X,
+} from "lucide-react";
+import { AppHeader } from "@/components/app-header";
+import { ebookThemes, makeEmptyPage, normalizeEbook, type EbookImageMode,
+  type EbookPage, type EbookPageKind, type EbookProject, type EbookTheme } from "@/lib/ebooks/schema";
+import { renderEbookHtml } from "@/lib/ebooks/render";
+import { deleteEbook, listEbooks, saveEbook } from "@/lib/ebooks/storage";
+
+const IDEAS = [
+  { icon:"✦", title:"Guia prático", prompt:"Crie um guia completo e didático com etapas práticas para quem está começando a empreender no marketing digital, com exemplos e checklists." },
+  { icon:"◈", title:"Educação e cursos", prompt:"Escreva um ebook educativo sobre como aprender inteligência artificial do zero, com ferramentas acessíveis, exercícios e aplicações no cotidiano." },
+  { icon:"◉", title:"Saúde e bem-estar", prompt:"Crie um ebook sobre hábitos de bem-estar e organização da rotina, com sugestões realistas, sem prometer resultados médicos e sem inventar estudos." },
+  { icon:"▧", title:"Negócios e vendas", prompt:"Crie um ebook estratégico para pequenas empresas aprenderem a atrair clientes e melhorar o atendimento, com passos, exemplos e exercícios." },
+];
+const PAGE_COUNTS=[6,8,10,12,16];
+const PAGE_KINDS:{value:EbookPageKind;label:string}[]=[
+  {value:"cover",label:"Capa"},{value:"chapter",label:"Capítulo"},
+  {value:"feature",label:"Imagem + texto"},{value:"quote",label:"Destaque"},
+  {value:"summary",label:"Resumo"},{value:"back",label:"Encerramento"}
+];
+const IMG_MODES:{value:EbookImageMode;label:string;description:string}[]=[
+  {value:"web",label:"Fotos da internet",description:"Banco de imagens abertas, com atribuição"},
+  {value:"ai",label:"Imagens com IA",description:"Criação original — consome API por imagem"},
+  {value:"none",label:"Arte editorial",description:"Formas geométricas, sem busca ou custo adicional"},
+];
+const field="w-full rounded-xl border border-white/10 bg-[#0a111a] px-3 py-3 text-sm text-white outline-none transition focus:border-emerald-400/70 focus:ring-2 focus:ring-emerald-400/10";
+function errorMessage(err:unknown):string{return err instanceof Error?err.message:"Não foi possível completar esta operação.";}
+function slug(value:string):string{return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,70)||"ebook";}
+async function responseJson<T>(res:Response):Promise<T>{
+  const data=await res.json().catch(()=>({})) as {error?:string}&T;
+  if(!res.ok)throw new Error(data.error||"O servidor não concluiu a solicitação.");
+  return data;
+}
+async function imageFromFile(file:File):Promise<string>{
+  if(!["image/png","image/jpeg","image/webp"].includes(file.type))throw new Error("Selecione uma imagem PNG, JPG ou WebP.");
+  if(file.size>8*1024*1024)throw new Error("A imagem deve ter até 8 MB.");
+  const url=URL.createObjectURL(file);
+  try{
+    const img=new Image();img.src=url;await img.decode();
+    const scale=Math.min(1,1500/Math.max(img.naturalWidth,img.naturalHeight));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+    canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+    const context=canvas.getContext("2d");if(!context)throw new Error("Falha ao processar a imagem.");
+    context.drawImage(img,0,0,canvas.width,canvas.height);
+    return canvas.toDataURL("image/webp",0.75);
+  }finally{URL.revokeObjectURL(url);}
+}
+
+export default function EbooksPage(){
+  const [prompt,setPrompt]=useState("");
+  const [pageCount,setPageCount]=useState(8);
+  const [theme,setTheme]=useState<EbookTheme>("editorial");
+  const [tone,setTone]=useState("Didático e envolvente");
+  const [author,setAuthor]=useState("");
+  const [mode,setMode]=useState<EbookImageMode>("web");
+  const [book,setBook]=useState<EbookProject|null>(null);
+  const [saved,setSaved]=useState<EbookProject[]>([]);
+  const [active,setActive]=useState(0);
+  const [generating,setGenerating]=useState(false);
+  const [imagesBusy,setImagesBusy]=useState(false);
+  const [imageIndex,setImageIndex]=useState<number|null>(null);
+  const [exporting,setExporting]=useState(false);
+  const [savedStatus,setSavedStatus]=useState("");
+  const [imageProgress,setImageProgress]=useState("");
+  const [revision,setRevision]=useState("");
+  const [revising,setRevising]=useState(false);
+  const [error,setError]=useState("");
+  const [notice,setNotice]=useState("");
+  const [scale,setScale]=useState(0.65);
+  const previewArea=useRef<HTMLDivElement|null>(null);
+  const uploadInput=useRef<HTMLInputElement|null>(null);
+  const activeRef=useRef(0);
+  activeRef.current=active;
+
+  useEffect(()=>{
+    listEbooks().then(setSaved).catch(()=>setNotice("Seus ebooks serão salvos neste navegador quando o armazenamento estiver disponível."));
+  },[]);
+  useEffect(()=>{
+    if(!book)return;
+    setSavedStatus("Salvando...");
+    const timer=window.setTimeout(()=>{
+      saveEbook(book).then(()=>setSavedStatus("Salvo neste dispositivo"))
+        .catch(()=>setSavedStatus("Não foi possível salvar no navegador"));
+    },650);
+    return ()=>window.clearTimeout(timer);
+  },[book]);
+  useEffect(()=>{
+    if(!book||!previewArea.current)return;
+    const target=previewArea.current;
+    const measure=()=>setScale(Math.max(.28,Math.min(.87,(target.clientWidth-24)/794)));
+    measure();
+    const observer=new ResizeObserver(measure);
+    observer.observe(target);
+    return ()=>observer.disconnect();
+  },[book]);
+  const updateBook=(patch:Partial<EbookProject>)=>{
+    setBook(previous=>previous?{...previous,...patch,updatedAt:new Date().toISOString()}:previous);
+    setNotice("");setError("");
+  };
+  const updatePage=(patch:Partial<EbookPage>)=>{
+    setBook(previous=>{
+      if(!previous)return previous;
+      const pages=previous.pages.map((page,index)=>index===activeRef.current?{...page,...patch}:page);
+      return {...previous,pages,updatedAt:new Date().toISOString()};
+    });
+    setError("");
+  };
+  function openDraft(raw:EbookProject) {
+    try{
+      const selected=normalizeEbook(raw);
+      setBook(selected);setActive(0);setError("");setNotice("");
+    }catch(err){setError(errorMessage(err));}
+  }
+  async function removeDraft(item:EbookProject){
+    if(!window.confirm("Excluir o ebook \""+item.title+"\" deste dispositivo?"))return;
+    try{
+      await deleteEbook(item.id);
+      setSaved(list=>list.filter(book=>book.id!==item.id));
+      if(book?.id===item.id)setBook(null);
+    }catch(err){setError(errorMessage(err));}
+  }
+  async function imageRequest(page:EbookPage,source:EbookImageMode):Promise<{url:string;credit:string}|null>{
+    if(source==="none")return null;
+    const text=page.imagePrompt||page.title;
+    const url=source==="ai"?"/api/ebooks/images/generate":"/api/ebooks/images/search?q="+encodeURIComponent(text);
+    const res=await fetch(url,source==="ai"?{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({prompt:text}),cache:"no-store"
+    }:{cache:"no-store"});
+    const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
+    return data.image||null;
+  }
+  async function populateImages(created:EbookProject){
+    if(created.imageMode==="none")return;
+    setImagesBusy(true);setImageProgress("Buscando imagens para o ebook...");
+    const indices=created.pages.map((p,i)=>({p,i}))
+      .filter(item=>item.p.kind==="cover"||item.p.kind==="feature"||item.p.kind==="chapter")
+      .slice(0,created.imageMode==="ai"?3:5);
+    let completed=0;
+    // Two independent jobs: one failed image never loses the generated book.
+    let position=0;
+    async function worker(){
+      while(position<indices.length){
+        const current=indices[position++];
+        if(!current)break;
+        try{
+          const result=await imageRequest(current.p,created.imageMode);
+          if(result){
+            setBook(prev=>prev?.id===created.id?{
+              ...prev,pages:prev.pages.map((p,i)=>i===current.i?{...p,imageUrl:result.url,imageCredit:result.credit}:p),
+              updatedAt:new Date().toISOString(),
+            }:prev);
+          }
+        }catch{ /* keep designed placeholder if a provider cannot find an image */ }
+        completed++;
+        setImageProgress(String(completed)+" de "+indices.length+" imagens processadas");
+      }
+    }
+    await Promise.all([worker(),worker()]);
+    setImagesBusy(false);
+    setImageProgress("Imagens processadas. Você pode substituir qualquer uma.");
+  }
+  async function generate(ev:FormEvent<HTMLFormElement>){
+    ev.preventDefault();if(generating)return;
+    if(prompt.trim().length<15){setError("Descreva melhor o tema do ebook.");return;}
+    setGenerating(true);setError("");setNotice("");
+    try{
+      const result=await responseJson<{ebook:EbookProject}>(await fetch("/api/ebooks/generate",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({prompt,pageCount,author,theme,tone,imageMode:mode}),cache:"no-store"
+      }));
+      const created=normalizeEbook(result.ebook);
+      setBook(created);setActive(0);setSavedStatus("Salvando...");
+      setGenerating(false);
+      void populateImages(created);
+    }catch(err){setGenerating(false);setError(errorMessage(err));}
+  }
+  async function changeImage(source:EbookImageMode){
+    if(!book||imageIndex!==null)return;
+    const index=active;
+    const page=book.pages[index];
+    if(!page)return;
+    if(source==="none"){updatePage({imageUrl:"",imageCredit:""});return;}
+    setImageIndex(index);setError("");
+    try{
+      const found=await imageRequest(page,source);
+      if(!found)throw new Error("Não encontrei uma imagem disponível. Tente outra descrição ou envie a sua própria foto.");
+      updatePage({imageUrl:found.url,imageCredit:found.credit});
+    }catch(err){setError(errorMessage(err));}
+    finally{setImageIndex(null);}
+  }
+  async function uploadImage(event:React.ChangeEvent<HTMLInputElement>){
+    const file=event.target.files?.[0];event.target.value="";if(!file)return;
+    try{const imageUrl=await imageFromFile(file);updatePage({imageUrl,imageCredit:"Imagem enviada pelo autor"});}
+    catch(err){setError(errorMessage(err));}
+  }
+  async function revisePage(ev:FormEvent<HTMLFormElement>){
+    ev.preventDefault();if(!book||!revision.trim()||revising)return;
+    setRevising(true);setError("");
+    try{
+      const page=book.pages[active];
+      const result=await responseJson<{page:Partial<EbookPage>}>(await fetch("/api/ebooks/revise",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({page,bookTitle:book.title,instruction:revision}),cache:"no-store"
+      }));
+      updatePage({...result.page,id:page.id,imageUrl:page.imageUrl,imageCredit:page.imageCredit});
+      setRevision("");setNotice("Página revisada com IA. A imagem foi mantida.");
+    }catch(err){setError(errorMessage(err));}
+    finally{setRevising(false);}
+  }
+  function movePage(direction:-1|1){
+    if(!book)return;
+    const target=active+direction;
+    if(target<0||target>=book.pages.length)return;
+    const pages=[...book.pages];const temp=pages[active];pages[active]=pages[target];pages[target]=temp;
+    updateBook({pages});setActive(target);
+  }
+  function deletePage(){
+    if(!book||book.pages.length<=2)return;
+    if(!window.confirm("Excluir esta página do ebook?"))return;
+    updateBook({pages:book.pages.filter((_,i)=>i!==active)});
+    setActive(i=>Math.max(0,Math.min(i,book.pages.length-2)));
+  }
+  function addPage(){
+    if(!book||book.pages.length>=24)return;
+    const pages=[...book.pages];pages.splice(active+1,0,makeEmptyPage(active+2));
+    updateBook({pages});setActive(active+1);
+  }
+  function openPrint(){
+    if(!book)return;
+    const popup=window.open("about:blank","_blank");
+    if(!popup){setError("O navegador bloqueou a nova aba. Permita pop-ups para imprimir.");return;}
+    popup.document.open();popup.document.write(renderEbookHtml(book));popup.document.close();
+    popup.onload=()=>{void popup.document.fonts.ready.then(()=>popup.print());};
+    setNotice("Na janela de impressão, escolha Salvar como PDF.");
+  }
+  function downloadHtml(){
+    if(!book)return;
+    const file=new Blob([renderEbookHtml(book)],{type:"text/html;charset=utf-8"});
+    const url=URL.createObjectURL(file);
+    const link=document.createElement("a");link.href=url;link.download=slug(book.title)+".html";
+    link.click();window.setTimeout(()=>URL.revokeObjectURL(url),3000);
+  }
+  async function downloadPdf(){
+    if(!book||exporting)return;
+    setExporting(true);setError("");
+    try{
+      const response=await fetch("/api/ebooks/pdf",{
+        method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ebook:book}),
+        cache:"no-store",
+      });
+      if(!response.ok){
+        const data=await response.json().catch(()=>({})) as {error?:string};
+        throw new Error(data.error||"O PDF não pôde ser exportado. Use Imprimir / Salvar como PDF.");
+      }
+      const blob=await response.blob();
+      const url=URL.createObjectURL(blob);
+      const link=document.createElement("a");
+      link.href=url;link.download=slug(book.title)+".pdf";link.click();
+      window.setTimeout(()=>URL.revokeObjectURL(url),15000);
+      setNotice("Seu PDF está pronto para baixar.");
+    }catch(err){setError(errorMessage(err));}
+    finally{setExporting(false);}
+  }
+  const current=book?.pages[active];
+  return <main className="min-h-screen bg-[#090d12] pb-16 text-white">
+    <AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>
+    {!book?<div className="mx-auto max-w-[1240px] px-4 py-9 sm:px-7 sm:py-12">
+      <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/[.06] px-4 py-2 text-xs font-semibold uppercase tracking-[.15em] text-emerald-300">
+          <BookOpen className="h-4 w-4"/> PAGENOVA · EBOOK STUDIO
+        </div>
+        <h1 className="mt-7 text-[38px] font-bold leading-[1.08] tracking-tight sm:text-6xl">
+          De uma ideia a um <span className="bg-gradient-to-r from-emerald-300 to-teal-500 bg-clip-text text-transparent">ebook completo.</span>
+        </h1>
+        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/55">
+          Escreva o tema. A IA transforma sua ideia em capítulos, imagens e páginas profissionais — tudo editável, pronto para exportar.
+        </p>
+      </div>
+      <div className="mt-11 grid gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
+        <form onSubmit={generate} className="rounded-[28px] border border-white/10 bg-[#101720] p-5 shadow-[0_24px_80px_rgba(0,0,0,.2)] sm:p-7">
+          <div className="flex items-center gap-2 text-sm font-bold"><WandSparkles className="h-5 w-5 text-emerald-300"/> O que vamos criar?</div>
+          <label htmlFor="ebook-prompt" className="sr-only">Descreva seu ebook</label>
+          <textarea id="ebook-prompt" required rows={8} value={prompt} onChange={e=>setPrompt(e.target.value)}
+            placeholder="Ex.: Crie um ebook sobre como montar um negócio online do zero para iniciantes. Quero um guia prático, com exemplos, etapas, erros comuns, estratégias e um plano de ação..."
+            className="mt-5 min-h-[200px] w-full resize-y rounded-2xl border border-white/15 bg-[#080e16] p-4 text-base leading-7 text-white outline-none placeholder:text-white/30 focus:border-emerald-400/60"/>
+          <p className="mt-2 text-xs text-white/35">Descreva livremente. Sem limite de caracteres no campo de prompt.</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <label className="text-xs font-semibold text-white/60">Nome do autor ou marca<input value={author} onChange={e=>setAuthor(e.target.value)} placeholder="Ex.: Sua marca" className={field+" mt-2"}/></label>
+            <label className="text-xs font-semibold text-white/60">Tom de escrita<select value={tone} onChange={e=>setTone(e.target.value)} className={field+" mt-2"}>
+              <option>Didático e envolvente</option><option>Profissional e estratégico</option><option>Inspirador e acolhedor</option><option>Simples e objetivo</option>
+            </select></label>
+          </div>
+          <div className="mt-7"><span className="text-sm font-semibold">Quantidade de páginas</span>
+            <div className="mt-3 flex flex-wrap gap-2">{PAGE_COUNTS.map(n=><button key={n} type="button" onClick={()=>setPageCount(n)} aria-pressed={pageCount===n}
+              className={"rounded-xl border px-5 py-3 text-sm font-semibold transition "+(pageCount===n?"border-emerald-400 bg-emerald-400/10 text-emerald-200":"border-white/10 bg-white/[.025] text-white/60 hover:border-white/30")}>{n}</button>)}</div>
+          </div>
+          <div className="mt-7"><span className="text-sm font-semibold">Estilo editorial</span>
+            <div className="mt-3 grid grid-cols-3 gap-3">{(Object.keys(ebookThemes) as EbookTheme[]).map(id=>{
+              const item=ebookThemes[id];return <button type="button" key={id} onClick={()=>setTheme(id)} aria-pressed={theme===id}
+                className={"rounded-xl border p-2 text-left transition "+(theme===id?"border-emerald-400":"border-white/10 hover:border-white/30")}>
+                <span className="flex h-16 flex-col justify-center gap-1.5 rounded-lg px-3" style={{background:item.paper}}>
+                  <span className="h-2 w-2/3 rounded-sm" style={{background:item.ink}}></span>
+                  <span className="h-1 w-1/2 rounded-sm" style={{background:item.accent}}></span>
+                  <span className="h-1 w-4/5 rounded-sm opacity-30" style={{background:item.ink}}></span>
+                </span>
+                <span className="mt-2 block text-xs font-semibold">{item.name}</span>
+              </button>;
+            })}</div>
+          </div>
+          <div className="mt-7"><span className="text-sm font-semibold">Imagens e ilustrações</span>
+            <div className="mt-3 grid gap-2">{IMG_MODES.map(item=><button type="button" key={item.value} onClick={()=>setMode(item.value)}
+              className={"flex items-center justify-between rounded-xl border p-3 text-left transition "+(mode===item.value?"border-emerald-400/70 bg-emerald-400/[.07]":"border-white/10 bg-white/[.02] hover:border-white/25")}>
+              <span><strong className="block text-sm">{item.label}</strong><small className="mt-1 block text-xs text-white/45">{item.description}</small></span>
+              <span className={"ml-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border "+(mode===item.value?"border-emerald-400 bg-emerald-400 text-black":"border-white/30")}>{mode===item.value&&<Check className="h-3 w-3"/>}</span>
+            </button>)}</div>
+          </div>
+          {error&&<p role="alert" className="mt-5 rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
+          <button type="submit" disabled={generating||prompt.trim().length<15}
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-4 text-base font-bold text-[#06120d] transition hover:bg-emerald-300 disabled:opacity-40">
+            {generating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Escrevendo e diagramando o ebook...</>:<><Sparkles className="h-5 w-5"/> Gerar meu ebook <ArrowRight className="h-5 w-5"/></>}
+          </button>
+          <p className="mt-3 text-center text-xs text-white/40">A criação usa a API de IA. Imagens por IA são chamadas adicionais; escolha fotos livres ou arte editorial para reduzir o custo.</p>
+        </form>
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-white/10 bg-[#111923] p-6 sm:p-7">
+            <div className="flex items-center gap-2"><Palette className="h-5 w-5 text-emerald-300"/><h2 className="text-lg font-bold">Seu ebook, seu estilo</h2></div>
+            <div className="mt-5 flex h-64 flex-col justify-between overflow-hidden rounded-2xl border border-[#d6c6ad] bg-[#f7f2e9] p-6 text-[#292922]">
+              <p className="text-[10px] font-bold tracking-[.22em] text-[#b37a54]">EBOOK · EDIÇÃO DIGITAL</p>
+              <div><p className="font-serif text-5xl leading-none">Ideias que viram <span className="italic text-[#b37a54]">conhecimento.</span></p>
+                <p className="mt-4 text-xs leading-5 text-[#6b675f]">Conteúdo bem escrito, imagens e design em harmonia.</p></div>
+              <div className="h-0.5 w-16 bg-[#b37a54]"></div>
+            </div>
+            <p className="mt-5 text-sm leading-6 text-white/50">Capa, capítulos, páginas visuais, edição de textos, imagens e PDF A4. Sem precisar de software de diagramação.</p>
+          </div>
+          <div className="rounded-[28px] border border-white/10 bg-[#101720] p-5">
+            <h2 className="text-sm font-bold">Precisa de uma ideia? Comece por aqui.</h2>
+            <div className="mt-3 grid gap-2">{IDEAS.map(idea=><button type="button" key={idea.title}
+              onClick={()=>{setPrompt(idea.prompt);document.getElementById("ebook-prompt")?.focus();}}
+              className="flex items-center gap-3 rounded-xl border border-white/[.08] bg-white/[.02] px-4 py-3 text-left text-sm text-white/70 hover:border-emerald-400/25 hover:text-white">
+              <span className="text-xl text-emerald-300">{idea.icon}</span><span className="flex-1">{idea.title}</span><ArrowRight className="h-4 w-4"/></button>)}</div>
+          </div>
+        </div>
+      </div>
+      {saved.length>0&&<section className="mt-11">
+        <div className="mb-4 flex items-center justify-between gap-3"><h2 className="text-xl font-bold">Seus ebooks neste dispositivo</h2><span className="text-xs text-white/40">{saved.length} projeto(s)</span></div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{saved.map(item=><div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#121923] p-4">
+          <button type="button" onClick={()=>openDraft(item)} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{item.title}</strong><span className="mt-1 block text-xs text-white/40">{item.pages.length} páginas · {ebookThemes[item.theme]?.name||"Editorial"}</span></button>
+          <button type="button" aria-label={"Excluir "+item.title} onClick={()=>void removeDraft(item)} className="rounded-lg p-2 text-white/45 hover:bg-red-400/10 hover:text-red-300"><Trash2 className="h-4 w-4"/></button>
+        </div>)}</div>
+      </section>}
+      {notice&&<p role="status" className="mt-4 text-center text-sm text-emerald-300">{notice}</p>}
+    </div>:<div className="mx-auto max-w-[1850px] px-3 py-5 sm:px-5">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#101720] p-3 sm:p-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <button type="button" onClick={()=>{setBook(null);setActive(0);void listEbooks().then(setSaved);}} className="rounded-lg p-2 text-white/70 hover:bg-white/10" aria-label="Voltar para meus ebooks"><ArrowLeft className="h-5 w-5"/></button>
+          <div className="min-w-0"><h2 className="max-w-[340px] truncate text-base font-bold">{book.title}</h2><p className="text-xs text-white/40">{book.pages.length} páginas · {savedStatus}</p></div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={openPrint} className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/5"><Printer className="h-4 w-4"/> Imprimir / salvar PDF</button>
+          <button onClick={downloadHtml} className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2.5 text-xs font-semibold text-white/80 hover:bg-white/5"><Download className="h-4 w-4"/> HTML</button>
+          <button onClick={()=>void downloadPdf()} disabled={exporting} className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-4 py-2.5 text-xs font-bold text-[#071610] disabled:opacity-50">
+            {exporting?<LoaderCircle className="h-4 w-4 animate-spin"/>:<FileDown className="h-4 w-4"/>} {exporting?"Exportando...":"Baixar PDF"}</button>
+        </div>
+      </div>
+      {(notice||error||imagesBusy||imageProgress)&&<div className="mb-4 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-[#101720] px-4 py-3 text-sm">
+        {imagesBusy&&<LoaderCircle className="h-4 w-4 animate-spin text-emerald-300"/>}
+        {imagesBusy||imageProgress?<span className="text-white/60">{imageProgress}</span>:null}
+        {notice&&<span className="text-emerald-200">{notice}</span>}
+        {error&&<span role="alert" className="text-red-300">{error}</span>}
+      </div>}
+      <div className="grid gap-4 xl:grid-cols-[205px_minmax(0,1fr)_315px]">
+        <aside className="rounded-2xl border border-white/10 bg-[#111923] p-3">
+          <div className="flex items-center justify-between gap-2 px-1 pb-3"><span className="text-xs font-bold uppercase tracking-[.13em] text-white/50">Páginas</span><button onClick={addPage} disabled={book.pages.length>=24} className="rounded-md bg-emerald-400/10 p-2 text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-40" title="Adicionar página"><Plus className="h-4 w-4"/></button></div>
+          <div className="flex gap-2 overflow-x-auto pb-2 xl:max-h-[72vh] xl:flex-col xl:overflow-y-auto">
+            {book.pages.map((page,index)=><button key={page.id} type="button" onClick={()=>setActive(index)}
+              className={"flex min-w-[170px] items-center gap-3 rounded-xl border p-2 text-left transition xl:min-w-0 "+(active===index?"border-emerald-400/75 bg-emerald-400/[.08]":"border-white/[.07] hover:border-white/25")}>
+              <span className="flex h-14 w-10 shrink-0 flex-col justify-between overflow-hidden rounded-sm p-2" style={{background:ebookThemes[book.theme].paper,color:ebookThemes[book.theme].ink}}>
+                <span className="h-1 w-3/4 rounded-sm" style={{background:ebookThemes[book.theme].accent}}/>
+                <span className="font-serif text-xs">{String(index+1).padStart(2,"0")}</span>
+                <span className="h-1 w-full rounded-sm opacity-30" style={{background:ebookThemes[book.theme].ink}}/>
+              </span>
+              <span className="min-w-0 flex-1"><small className="block text-[10px] font-bold uppercase tracking-wider text-white/35">{PAGE_KINDS.find(x=>x.value===page.kind)?.label}</small><strong className="mt-1 block line-clamp-2 text-xs leading-4">{page.title}</strong></span>
+            </button>)}
+          </div>
+          <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-3">
+            <button onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0} className="p-2 text-white/70 disabled:opacity-30"><ChevronLeft className="h-4 w-4"/></button>
+            <span className="text-xs text-white/45">{active+1} de {book.pages.length}</span>
+            <button onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))} disabled={active===book.pages.length-1} className="p-2 text-white/70 disabled:opacity-30"><ChevronRight className="h-4 w-4"/></button>
+          </div>
+        </aside>
+        <section ref={previewArea} className="min-w-0 rounded-2xl border border-white/10 bg-[#141b24] p-3 sm:p-5">
+          <div className="mb-4 flex items-center justify-between gap-3"><div><h3 className="text-sm font-semibold">Prévia do ebook</h3><p className="text-xs text-white/35">Página A4 · alterações em tempo real</p></div><span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/50">{Math.round(scale*100)}%</span></div>
+          <div className="mx-auto" style={{width:794*scale,height:1123*scale,maxWidth:"100%"}}>
+            <iframe title={"Prévia página "+(active+1)} srcDoc={renderEbookHtml(book,active)} sandbox="allow-same-origin"
+              style={{width:794,height:1123,border:0,background:ebookThemes[book.theme].paper,
+                transform:"scale("+scale+")",transformOrigin:"top left"}}/>
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button onClick={()=>setActive(v=>Math.max(0,v-1))} disabled={active===0} className="rounded-full border border-white/10 p-2 disabled:opacity-25"><ChevronLeft className="h-4 w-4"/></button>
+            <p className="text-xs text-white/55">Página {active+1} / {book.pages.length}</p>
+            <button onClick={()=>setActive(v=>Math.min(book.pages.length-1,v+1))} disabled={active===book.pages.length-1} className="rounded-full border border-white/10 p-2 disabled:opacity-25"><ChevronRight className="h-4 w-4"/></button>
+          </div>
+        </section>
+        <aside className="rounded-2xl border border-white/10 bg-[#111923] p-4 xl:max-h-[calc(100vh-125px)] xl:overflow-y-auto">
+          <div className="flex items-center gap-2 border-b border-white/10 pb-4"><PenLine className="h-4 w-4 text-emerald-300"/><h3 className="text-sm font-bold">Editor de páginas</h3></div>
+          <div className="mt-5 space-y-4">
+            <label className="block text-xs font-semibold text-white/60">Título do ebook<input className={field+" mt-2"} value={book.title} onChange={e=>updateBook({title:e.target.value})}/></label>
+            <label className="block text-xs font-semibold text-white/60">Subtítulo<input className={field+" mt-2"} value={book.subtitle} onChange={e=>updateBook({subtitle:e.target.value})}/></label>
+            <label className="block text-xs font-semibold text-white/60">Autor<input className={field+" mt-2"} value={book.author} onChange={e=>updateBook({author:e.target.value})}/></label>
+            <label className="block text-xs font-semibold text-white/60">Visual<select value={book.theme} onChange={e=>updateBook({theme:e.target.value as EbookTheme})} className={field+" mt-2"}>
+              {(Object.keys(ebookThemes) as EbookTheme[]).map(id=><option key={id} value={id}>{ebookThemes[id].name}</option>)}</select></label>
+            <div className="border-t border-white/10 pt-5">
+              <div className="mb-4 flex items-center justify-between"><h4 className="text-sm font-bold">Página {active+1}</h4><div className="flex gap-1">
+                <button onClick={()=>movePage(-1)} disabled={active===0} className="rounded-lg p-2 text-white/60 hover:bg-white/10 disabled:opacity-30" aria-label="Mover página para cima"><MoveUp className="h-4 w-4"/></button>
+                <button onClick={()=>movePage(1)} disabled={active===book.pages.length-1} className="rounded-lg p-2 text-white/60 hover:bg-white/10 disabled:opacity-30" aria-label="Mover página para baixo"><MoveDown className="h-4 w-4"/></button>
+                <button onClick={deletePage} disabled={book.pages.length<=2} className="rounded-lg p-2 text-red-300 hover:bg-red-400/10 disabled:opacity-30" aria-label="Excluir página"><Trash2 className="h-4 w-4"/></button>
+              </div></div>
+              <div className="space-y-3">
+                <label className="block text-xs font-semibold text-white/60">Composição<select value={current?.kind||"chapter"} onChange={e=>updatePage({kind:e.target.value as EbookPageKind})} className={field+" mt-2"}>
+                  {PAGE_KINDS.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
+                <label className="block text-xs font-semibold text-white/60">Marcador da página<input className={field+" mt-2"} value={current?.eyebrow||""} onChange={e=>updatePage({eyebrow:e.target.value})}/></label>
+                <label className="block text-xs font-semibold text-white/60">Título<input className={field+" mt-2"} value={current?.title||""} onChange={e=>updatePage({title:e.target.value})}/></label>
+                <label className="block text-xs font-semibold text-white/60">Texto de destaque<textarea rows={3} className={field+" mt-2 resize-y"} value={current?.lead||""} onChange={e=>updatePage({lead:e.target.value})}/></label>
+                <label className="block text-xs font-semibold text-white/60">Conteúdo<textarea rows={9} className={field+" mt-2 resize-y"} value={current?.body||""} onChange={e=>updatePage({body:e.target.value})}/></label>
+                <label className="block text-xs font-semibold text-white/60">Tópicos (um por linha)<textarea rows={4} className={field+" mt-2 resize-y"} value={current?.bullets.join("\n")||""} onChange={e=>updatePage({bullets:e.target.value.split("\n")})}/></label>
+              </div>
+            </div>
+            <div className="border-t border-white/10 pt-5">
+              <h4 className="flex items-center gap-2 text-sm font-bold"><ImageIcon className="h-4 w-4 text-emerald-300"/> Imagem da página</h4>
+              <label className="mt-4 block text-xs font-semibold text-white/60">Descrição da imagem<textarea rows={3} className={field+" mt-2 resize-y"} value={current?.imagePrompt||""} onChange={e=>updatePage({imagePrompt:e.target.value})}/></label>
+              {current?.imageUrl&&<div className="mt-3 overflow-hidden rounded-xl border border-white/10"><img src={current.imageUrl} alt={current.title} className="h-32 w-full object-cover"/><p className="px-2 py-2 text-[10px] text-white/50">{current.imageCredit}</p></div>}
+              <input ref={uploadInput} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e=>void uploadImage(e)}/>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                <button onClick={()=>uploadInput.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 px-2 py-2.5 text-xs font-semibold hover:bg-white/5"><Upload className="h-4 w-4"/> Enviar foto</button>
+                <button disabled={imageIndex!==null} onClick={()=>void changeImage("web")} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 px-2 py-2.5 text-xs font-semibold hover:bg-white/5 disabled:opacity-40"><ImagePlus className="h-4 w-4"/> Fotos livres</button>
+                <button disabled={imageIndex!==null} onClick={()=>void changeImage("ai")} className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2 py-2.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/15 disabled:opacity-40">
+                  {imageIndex!==null?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Gerar imagem com IA
+                </button>
+                {current?.imageUrl&&<button onClick={()=>changeImage("none")} className="col-span-2 text-xs text-white/45 hover:text-white">Remover imagem</button>}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/40">Fotos da Wikimedia Commons incluem créditos. Imagens criadas por IA consomem chamadas da API.</p>
+            </div>
+            <form onSubmit={revisePage} className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-3">
+              <label className="text-xs font-bold text-emerald-200">✨ Converse com a IA sobre esta página</label>
+              <textarea rows={3} value={revision} onChange={e=>setRevision(e.target.value)}
+                placeholder="Ex.: Torne a explicação mais profunda, com exemplos práticos e linguagem simples."
+                className={field+" mt-3 resize-y"}/>
+              <button type="submit" disabled={revising||!revision.trim()} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-400 px-3 py-3 text-xs font-bold text-[#0b1e15] disabled:opacity-40">
+                {revising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{revising?"Reescrevendo...":"Aplicar alteração com IA"}</button>
+            </form>
+            <button onClick={addPage} disabled={book.pages.length>=24} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 px-4 py-3 text-xs font-semibold text-white/70 hover:border-emerald-400/50 disabled:opacity-30"><Plus className="h-4 w-4"/> Adicionar página</button>
+          </div>
+        </aside>
+      </div>
+      <p className="mt-6 text-center text-xs leading-5 text-white/40">Conteúdo assistido por IA: revise informações, direitos de imagem e alegações antes de distribuir ou comercializar o ebook.</p>
+    </div>}
+  </main>;
+}
