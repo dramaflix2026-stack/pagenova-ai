@@ -42,43 +42,21 @@ const plans = [
   },
 ] as const;
 
-const testimonialMocks = [
-  ["Mariana Oliveira","São Paulo — SP","A PageNova deixou muito mais simples tirar uma landing page do papel e continuar os ajustes no mesmo lugar.","https://i.pravatar.cc/160?img=47"],
-  ["Carlos Mendes","Belo Horizonte — MG","Consegui organizar meus projetos, páginas e contatos sem ficar alternando entre várias ferramentas.","https://i.pravatar.cc/160?img=12"],
-  ["Juliana Costa","Curitiba — PR","O fluxo de criação é direto. Começo pelo briefing, gero a base e depois consigo refinar o conteúdo.","https://i.pravatar.cc/160?img=44"],
-  ["Rafael Almeida","Campinas — SP","A parte de sites com IA acelerou bastante a primeira versão e me deu uma base boa para editar.","https://i.pravatar.cc/160?img=13"],
-  ["Camila Ferreira","Florianópolis — SC","Gostei de concentrar criação e organização comercial no mesmo painel. Ficou muito mais prático.","https://i.pravatar.cc/160?img=32"],
-  ["Bruno Martins","Rio de Janeiro — RJ","Eu precisava ganhar velocidade para testar páginas e a PageNova tornou esse processo bem mais organizado.","https://i.pravatar.cc/160?img=11"],
-  ["Larissa Souza","Goiânia — GO","A interface é simples de entender e consigo voltar aos projetos para continuar trabalhando quando preciso.","https://i.pravatar.cc/160?img=45"],
-  ["Felipe Rocha","Porto Alegre — RS","O CRM junto com as páginas facilita muito acompanhar o que estou criando para cada oportunidade.","https://i.pravatar.cc/160?img=14"],
-  ["Amanda Ribeiro","Recife — PE","O que mais gostei foi poder partir de uma estrutura pronta e personalizar sem precisar começar tudo do zero.","https://i.pravatar.cc/160?img=48"],
-  ["Diego Carvalho","Salvador — BA","A PageNova reuniu etapas que antes eu fazia separadas. Hoje meu processo de criação está bem mais enxuto.","https://i.pravatar.cc/160?img=8"],
-  ["Beatriz Lima","Fortaleza — CE","Criar a primeira versão ficou rápido e depois consigo revisar textos e seções com muito mais tranquilidade.","https://i.pravatar.cc/160?img=36"],
-  ["Lucas Nogueira","Brasília — DF","Uso para organizar ideias e transformar briefing em página. Economiza bastante tempo no começo do projeto.","https://i.pravatar.cc/160?img=3"],
-  ["Isabela Moreira","Vitória — ES","A experiência ficou muito mais fluida do que montar cada parte manualmente em ferramentas diferentes.","https://i.pravatar.cc/160?img=49"],
-  ["Gustavo Barros","Santos — SP","Gostei principalmente da continuidade: crio, salvo e depois volto para editar o mesmo projeto.","https://i.pravatar.cc/160?img=15"],
-  ["Natália Correia","Niterói — RJ","A plataforma me ajuda a manter páginas, contatos e tarefas mais organizados em um único ambiente.","https://i.pravatar.cc/160?img=47"],
-  ["Henrique Duarte","Londrina — PR","Para validar novas páginas, ter uma primeira versão rapidamente faz muita diferença no meu dia a dia.","https://i.pravatar.cc/160?img=12"],
-  ["Renata Castro","Joinville — SC","Achei o fluxo bem intuitivo. Mesmo sem programar consigo entender o que fazer em cada etapa.","https://i.pravatar.cc/160?img=44"],
-  ["Thiago Freitas","Uberlândia — MG","A criação por briefing me ajuda a estruturar melhor a oferta antes de entrar nos detalhes da página.","https://i.pravatar.cc/160?img=13"],
-  ["Paula Azevedo","Ribeirão Preto — SP","O editor e a organização dos projetos deixaram meu processo menos improvisado e muito mais consistente.","https://i.pravatar.cc/160?img=32"],
-  ["Eduardo Monteiro","Maringá — PR","Consigo centralizar o trabalho e acompanhar melhor cada projeto sem perder o histórico do que já fiz.","https://i.pravatar.cc/160?img=11"],
-  ["Carolina Teixeira","João Pessoa — PB","A PageNova tornou a criação mais acessível para mim e ainda deixa espaço para personalizar depois.","https://i.pravatar.cc/160?img=45"],
-  ["André Cardoso","Sorocaba — SP","Ter criação e CRM próximos ajuda muito quando estou trabalhando páginas para diferentes negócios.","https://i.pravatar.cc/160?img=14"],
-  ["Letícia Moraes","Campo Grande — MS","A primeira versão sai rápido e eu consigo focar meu tempo no que realmente precisa de ajuste.","https://i.pravatar.cc/160?img=48"],
-  ["Marcelo Pires","São José dos Campos — SP","O processo ficou mais previsível: briefing, geração, revisão e edição, tudo seguindo uma sequência clara.","https://i.pravatar.cc/160?img=8"],
-  ["Gabriela Farias","Natal — RN","Gostei de conseguir visualizar o projeto e continuar refinando sem precisar reconstruir a página.","https://i.pravatar.cc/160?img=36"],
-  ["Vinícius Lopes","Cuiabá — MT","Para quem trabalha com várias ideias ao mesmo tempo, ter os projetos organizados ajuda bastante.","https://i.pravatar.cc/160?img=3"],
-  ["Priscila Andrade","Belém — PA","A plataforma facilitou meu fluxo e reduziu o tempo que eu gastava montando estruturas repetitivas.","https://i.pravatar.cc/160?img=49"],
-  ["Rodrigo Vieira","São Luís — MA","Uso a PageNova para acelerar páginas e manter as oportunidades organizadas no CRM.","https://i.pravatar.cc/160?img=15"],
-  ["Fernanda Campos","Aracaju — SE","Foi fácil entender a proposta e começar. O fato de poder editar depois me dá bastante liberdade.","https://i.pravatar.cc/160?img=47"],
-  ["Matheus Gonçalves","São Bernardo do Campo — SP","A PageNova me ajuda a transformar uma ideia em algo visual rapidamente e continuar evoluindo o projeto.","https://i.pravatar.cc/160?img=12"],
-].map(([name, location, quote, avatar]) => ({ name, location, quote, avatar }));
+const showcaseFlows = [
+  { number:"01", label:"CRIAÇÃO COM IA", title:"Do briefing à primeira versão", description:"Escolha o tipo de página e descreva seu negócio. A IA organiza a estrutura para você revisar." },
+  { number:"02", label:"EDIÇÃO VISUAL", title:"Refine sem recomeçar", description:"Altere textos, imagens, seções e a identidade visual do projeto depois de gerar." },
+  { number:"03", label:"SITES PROFISSIONAIS", title:"Publique a sua presença digital", description:"Transforme uma ideia em um site editável e acompanhe suas versões no mesmo espaço." },
+  { number:"04", label:"LANDING PAGES", title:"Páginas orientadas à conversão", description:"Estruture ofertas, benefícios e chamadas para ação com uma apresentação clara." },
+  { number:"05", label:"QUIZZES E FORMULÁRIOS", title:"Colete informações com facilidade", description:"Crie jornadas de perguntas e formulários que fazem parte da sua operação." },
+  { number:"06", label:"EBOOKS COM IA", title:"Conteúdo com identidade própria", description:"Monte ebooks, revise capítulos e personalize o visual antes de exportar." },
+  { number:"07", label:"CRM DE VENDAS", title:"Organize os próximos contatos", description:"Mantenha leads e oportunidades por etapa, com contexto para continuar o atendimento." },
+  { number:"08", label:"AGENDA", title:"Mais clareza na rotina", description:"Visualize compromissos, serviços e horários sem alternar de ferramenta." },
+] as const;
 
 const questions = [
   {
     question: "O que posso criar na PageNova?",
-    answer: "Você pode criar landing pages e sites com IA, clonar páginas para edição e organizar sua operação com CRM, agenda e projetos em um só lugar.",
+    answer: "Você pode criar sites institucionais, landing pages, quizzes, formulários e ebooks com IA, além de clonar páginas para edição e organizar sua operação com CRM, agenda e projetos.",
   },
   {
     question: "Preciso saber programar?",
@@ -94,7 +72,7 @@ const questions = [
   },
   {
     question: "A PageNova serve apenas para landing pages?",
-    answer: "Não. Além de landing pages, a plataforma reúne criação de sites, clonagem e edição de páginas, CRM, agenda e organização de projetos.",
+    answer: "Não. Você também encontra sites institucionais, quizzes, formulários, ebooks, clonagem e edição visual, CRM e agenda.",
   },
   {
     question: "Como funcionam os planos?",
@@ -102,7 +80,7 @@ const questions = [
   },
   {
     question: "Quando vou receber acesso à plataforma?",
-    answer: "Esta é uma pré-venda. Após a compra, você receberá as orientações de acesso na data de liberação anunciada.",
+    answer: "Após a confirmação do pagamento, faça seu cadastro com o mesmo e-mail da compra. O acesso é vinculado à assinatura ativa.",
   },
 ];
 
@@ -133,10 +111,10 @@ function ProductFrame() {
 
 export default function Home() {
   return (
-    <main className="pn-mobile-centered min-h-screen bg-[#07110e] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
+    <main className="pn-mobile-centered pn-landing-v2 min-h-screen overflow-x-clip bg-[#07110e] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
       <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#07110e]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between gap-5 px-5 md:px-8">
-          <Link href="/" aria-label="PageNova AI, início" className="min-w-0 shrink [&_img]:h-9 [&_img]:max-w-[112px] sm:shrink-0 sm:[&_img]:h-11 sm:[&_img]:max-w-[165px]"><Brand /></Link>
+        <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-2.5 px-4 sm:gap-5 sm:px-6 md:px-8">
+          <Link href="/" aria-label="PageNova AI, início" className="min-w-0 shrink [&_img]:h-10 [&_img]:max-w-[135px] sm:shrink-0 sm:[&_img]:h-11 sm:[&_img]:max-w-[165px]"><Brand /></Link>
           <nav aria-label="Menu principal" className="hidden items-center gap-7 text-[13px] text-white/60 lg:flex">
             <a href="#plataforma" className="hover:text-white">Plataforma</a>
             <a href="#criacao" className="hover:text-white">Criação</a>
@@ -144,11 +122,11 @@ export default function Home() {
             <a href="#planos" className="hover:text-white">Planos</a>
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            <Link href="/cadastro" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-3 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+            <Link href="/cadastro" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-2.5 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
               Cadastre-se
             </Link>
-            <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-3 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#75e8b7] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+            <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-2.5 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#75e8b7] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
               Login
             </Link>
           </div>
@@ -166,8 +144,7 @@ export default function Home() {
               <span className="text-[#68e6b6]">Seu trabalho ganha ritmo.</span>
             </h1>
             <p className="mt-5 max-w-lg text-[15px] leading-7 text-white/58 sm:text-base sm:leading-8">
-              Crie páginas e sites, edite o resultado e organize leads e agendamentos
-              em um mesmo espaço de trabalho.
+              Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#criacao" className="rounded-xl bg-[#36d9a1] px-6 py-3.5 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
@@ -178,7 +155,7 @@ export default function Home() {
               </a>
             </div>
             <p className="mt-6 text-xs text-white/40">
-              Landing pages · Sites por nicho · CRM · Agenda
+              Sites com IA · Landing pages · Ebooks · CRM · Agenda
             </p>
           </div>
           <ProductFrame />
@@ -204,8 +181,8 @@ export default function Home() {
 
           <div className="mt-8 grid overflow-hidden rounded-[22px] border border-[#d7e1d7] bg-white lg:mt-12 lg:grid-cols-3">
             {[
-              ["Sites por nicho", "Comece com um briefing voltado ao seu segmento. Imobiliária e SaaS já têm experiências próprias.", "Briefing → páginas → prévia"],
-              ["Landing pages", "Gere uma página de oferta a partir das informações do produto ou serviço e refine o conteúdo.", "Oferta → estrutura → edição"],
+              ["Sites e landing pages", "Crie sites institucionais e páginas de oferta com um briefing direcionado ao seu negócio.", "Briefing → estrutura → prévia"],
+              ["Quizzes, formulários e ebooks", "Produza conteúdos, colete respostas e prepare materiais editáveis com o auxílio da IA.", "Ideia → conteúdo → personalização"],
               ["Clonar e editar", "Use uma URL como ponto de partida para um projeto editável e ajuste textos, imagens e links.", "URL → projeto → editor"],
             ].map(([title, description, path], index) => (
               <article key={title} className={`p-6 md:p-9 ${index < 2 ? "border-b border-[#e4e9e2] lg:border-b-0 lg:border-r" : ""}`}>
@@ -230,7 +207,7 @@ export default function Home() {
               O briefing já traz uma base para o nicho escolhido. Você personaliza
               a direção do projeto, gera as páginas e navega pela prévia para revisar o resultado.
             </p>
-            <a href="#planos" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">Garantir acesso na pré-venda →</a>
+            <a href="#planos" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">Conhecer os planos →</a>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-[#0e261b] p-5 sm:p-8">
             {[
@@ -261,8 +238,7 @@ export default function Home() {
               Depois de publicar a ideia, organize o trabalho.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#586a5e]">
-              Criação e rotina comercial se encontram no mesmo produto. Comece com
-              o que precisa agora e avance no seu ritmo.
+              Criação e operação comercial se encontram no mesmo produto. Comece com o que precisa agora e evolua no seu ritmo.
             </p>
           </div>
           <div className="overflow-hidden rounded-[24px] border border-[#d7e1d7] bg-white">
@@ -349,12 +325,12 @@ export default function Home() {
 
       <section className="overflow-hidden border-t border-white/[.07] bg-[#0b1c15] py-12 md:py-20">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
-          <SectionLabel>Experiência de quem usa</SectionLabel>
+          <SectionLabel>Tudo em um só lugar</SectionLabel>
           <h2 className="mt-4 max-w-2xl text-[2.15rem] font-semibold leading-[1.08] tracking-[-.045em] md:text-5xl">
-            Histórias de quem constrói com a PageNova.
+            Cada ideia encontra seu próprio caminho.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-6 text-white/50">
-            Demonstração visual temporária do carrossel. Os relatos serão substituídos pelas avaliações reais dos clientes.
+            Da criação ao relacionamento com seus clientes: conheça os fluxos que você pode reunir na PageNova.
           </p>
         </div>
 
@@ -362,20 +338,15 @@ export default function Home() {
           <div className="pn-testimonials-track">
             {[0, 1].map((copy) => (
               <div key={copy} className="pn-testimonials-set" aria-hidden={copy > 0}>
-                {testimonialMocks.map((item, index) => (
-                  <article key={`${copy}-${item.name}`} className="pn-testimonial-card">
-                    <div className="flex items-center gap-3">
-                      <img src={item.avatar} alt="" className="h-16 w-16 shrink-0 rounded-full border-2 border-[#50dca9]/35 object-cover shadow-[0_8px_24px_rgba(0,0,0,.30)]" />
-                      <div className="min-w-0 text-left">
-                        <p className="truncate text-base font-semibold text-white">{item.name}</p>
-                        <p className="mt-0.5 text-xs text-white/70">{item.location}</p>
-                        <span className="mt-1 inline-flex rounded-full border border-[#50dca9]/20 bg-[#50dca9]/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[.12em] text-[#7ceac2]">
-                          Demonstração
-                        </span>
-                      </div>
+                {showcaseFlows.map((item) => (
+                  <article key={`${copy}-${item.number}`} className="pn-testimonial-card">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#67e4b3]/25 bg-[#49dba5]/10 text-lg font-bold text-[#7ceac2]">{item.number}</span>
+                      <span className="rounded-full border border-[#50dca9]/20 bg-[#50dca9]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.12em] text-[#9cf3cf]">{item.label}</span>
                     </div>
-                    <div className="mt-4 text-left text-[15px] tracking-[.12em] text-[#50dca9]" aria-label="5 estrelas">★★★★★</div>
-                    <p className="mt-3 text-left text-sm leading-6 text-white/90">“{item.quote}”</p>
+                    <h3 className="mt-6 text-left text-[19px] font-semibold leading-snug tracking-[-.03em] text-white">{item.title}</h3>
+                    <p className="mt-3 text-left text-sm leading-6 text-white/70">{item.description}</p>
+                    <div className="mt-5 border-t border-white/10 pt-3 text-left text-[11px] font-semibold text-[#7ceac2]">Funcionalidade da PageNova <span aria-hidden="true">↗</span></div>
                   </article>
                 ))}
               </div>
@@ -393,7 +364,7 @@ export default function Home() {
           .pn-testimonials-track {
             display: flex;
             width: max-content;
-            animation: pnTestimonialsMarquee 150s linear infinite;
+            animation: pnTestimonialsMarquee 52s linear infinite;
             will-change: transform;
           }
           .pn-testimonials-set {
@@ -404,7 +375,7 @@ export default function Home() {
           }
           .pn-testimonial-card {
             width: min(86vw, 390px);
-            min-height: 286px;
+            min-height: 280px;
             flex: 0 0 auto;
             border: 1px solid rgba(80,220,169,.34);
             border-radius: 24px;
@@ -420,11 +391,11 @@ export default function Home() {
             to { transform: translate3d(-50%,0,0); }
           }
           @media (max-width: 767px) {
-            .pn-testimonials-track { animation-duration: 125s; }
-            .pn-testimonial-card { width: 86vw; min-height: 292px; padding: 22px; }
+            .pn-testimonials-track { animation-duration: 48s; }
+            .pn-testimonial-card { width: min(84vw,340px); min-height: 285px; padding: 22px; }
           }
           @media (prefers-reduced-motion: reduce) {
-            .pn-testimonials-track { animation-play-state: paused; }
+            .pn-testimonials-track { animation: none; max-width: 100vw; }
           }
         `}</style>
       </section>
