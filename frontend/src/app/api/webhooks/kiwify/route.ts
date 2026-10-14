@@ -382,7 +382,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       const {error:creditsError}=await admin.rpc("pagenova_credits_revoke",{
-        p_order_id:orderId,p_status:status,
+        p_order_id:orderId,p_status:status,p_email:email,
       });
       if(creditsError){
         console.error("[KIWIFY] Credit-cycle revocation failed",{code:creditsError.code});
