@@ -604,6 +604,17 @@ export default function EbooksPage(){
   }
   async function downloadPdf(){
     if(!book||exporting)return;
+    if(imagesBusy){
+      setError("Aguarde o carregamento das imagens antes de exportar o PDF.");
+      return;
+    }
+    const pendingVisuals=book.imageMode==="none"?0:book.pages.filter(
+      page=>isPhotoPage(page.kind)&&!page.imageUrl,
+    ).length;
+    if(pendingVisuals>0&&!window.confirm(
+      pendingVisuals+" página(s) ainda não têm foto. Elas serão exportadas com os "+
+      "componentes visuais editoriais, sem placeholders vazios. Deseja continuar?"
+    ))return;
     setExporting(true);setError("");
     try{
       const response=await fetch("/api/ebooks/pdf",{
@@ -807,7 +818,8 @@ export default function EbooksPage(){
               (editorOpen?"border-emerald-400/40 bg-emerald-400/15 text-emerald-200":"border-white/15 text-white/85 hover:bg-white/10")}>
             <PenLine className="h-4 w-4"/>{editorOpen?"Concluir":"Editar"}
           </button>
-          <button type="button" onClick={()=>void downloadPdf()} disabled={exporting}
+          <button type="button" onClick={()=>void downloadPdf()} disabled={exporting||imagesBusy}
+            title={imagesBusy?"Aguarde a inclusão das imagens antes de exportar":"Exportar PDF A4"}
             className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#071610] disabled:opacity-50">
             {exporting?<LoaderCircle className="h-4 w-4 animate-spin"/>:<FileDown className="h-4 w-4"/>}
             <span className="hidden min-[380px]:inline">{exporting?"Exportando...":"PDF"}</span>
