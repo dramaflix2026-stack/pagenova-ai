@@ -23,6 +23,8 @@ type WikiPage = {
 type ImageCandidate = {url:string;credit:string;source:string;score:number};
 const commonWords = new Set([
   "professional","photograph","photo","editorial","style","image","illustration","realistic",
+  "vertical","horizontal","portrait","landscape","overhead","vibrant","colorful",
+  "rustic","wooden","detailed","texture","depth","field","studio","focus","conceptual",
   "high","quality","light","lighting","natural","background","minimalist","beautiful",
   "composition","with","from","above","close","up","shot","closeup","isolated","a",
   "an","the","and","of","in","on","for","to","fresh","healthy","clean","food",
@@ -54,18 +56,31 @@ function words(value:string):string[]{
   return basic.map(w=>aliases[w]||w).flatMap(w=>w.split(" "))
     .filter(w=>w.length>2&&!commonWords.has(w));
 }
+const visualSubjects=new Set([
+  "smoothie","banana","oatmeal","breakfast","salad","chicken","omelette","eggs",
+  "yogurt","granola","soup","coffee","vegetables","fruits","fruit","rice",
+  "avocado","apple","strawberry","blueberry","fish","salmon","bread",
+  "pancakes","pasta","quinoa","potato","meal","snack","dessert",
+  "flowers","forest","mountain","ocean","architecture","interior","office",
+  "business","computer","education","books","fitness","nature",
+]);
 function queries(prompt:string,title:string,topic:string):string[]{
-  const pool=[prompt,title,topic];
+  const prompts=words(prompt);
+  const titles=words(title);
+  const topicWords=words(topic);
+  const subject=[...titles,...prompts].find(term=>visualSubjects.has(term));
+  const context=[...titles,...prompts].filter(term=>term!==subject).slice(0,3);
   const strategies=[
-    // WikiMedia file titles respond much better to short nouns than a 200-character
-    // DALL-E prompt containing lighting/composition, especially for food ebooks.
-    words(prompt).slice(0,4).join(" "),
-    words(title).slice(0,4).join(" "),
-    words(topic).slice(0,3).join(" "),
-    words(prompt).slice(0,2).join(" "),
+    // Commons indexes filenames/categories. Short, concrete nouns are more
+    // reliable than an entire AI art prompt or marketing phrase.
+    subject?[subject,...context].slice(0,2).join(" "):"",
+    prompts.slice(0,3).join(" "),
+    titles.slice(0,3).join(" "),
+    subject||"",
+    topicWords.slice(0,2).join(" "),
+    prompts.find(w=>w.length>4)||"",
   ].filter(Boolean);
-  const distinct=[...new Set(strategies.map(q=>q.slice(0,80).trim()))];
-  return distinct.slice(0,4);
+  return [...new Set(strategies.map(q=>q.slice(0,80).trim()))].slice(0,6);
 }
 function licenseAllowed(name:string):boolean {
   const value=clean(name).trim().toUpperCase();
@@ -163,6 +178,7 @@ export async function GET(req:NextRequest){
         searched:terms,
       },{headers:{"Cache-Control":"no-store"}});
     }
+    // Rank by relevance first; CC attribution and original source are retained.
     const selected=choices[0];
     return Response.json({
       image:{url:selected.url,credit:selected.credit,source:selected.source},
