@@ -1065,23 +1065,27 @@ export default function BuilderPage() {
     }finally{setSavingBrand(false);}
   }
 
-  async function changeBrandLogo(file:File):Promise<void>{
+  async function changeBrandLogo(file:File|null):Promise<void>{
     if(!project||!crmProjectId||uploadingLogo)return;
-    if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024){
+    if(file&&(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>5*1024*1024)){
       setError('Envie uma logo PNG, JPG ou WebP de até 5 MB.');return;
     }
     setUploadingLogo(true);setError('');
     try{
       const path=`/api/crm/site-projects/${encodeURIComponent(crmProjectId)}`;
-      const form=new FormData();
-      form.append('file',file);
-      form.append('altText','Logo de '+project.name);
-      const uploaded=await fetch(path+'/assets',{method:'POST',credentials:'same-origin',body:form});
-      const media=await uploaded.json().catch(()=>({})) as {
-        asset?:{id:string;url?:string};error?:{message?:string};
-      };
-      if(!uploaded.ok||!media.asset?.id){
-        throw new Error(media.error?.message||'Falha ao enviar a logo.');
+      let logoRef:{assetId:string;alt:string;focalX:number;focalY:number}|null=null;
+      if(file){
+        const form=new FormData();
+        form.append('file',file);
+        form.append('altText','Logo de '+project.name);
+        const uploaded=await fetch(path+'/assets',{method:'POST',credentials:'same-origin',body:form});
+        const media=await uploaded.json().catch(()=>({})) as {
+          asset?:{id:string;url?:string};error?:{message?:string};
+        };
+        if(!uploaded.ok||!media.asset?.id){
+          throw new Error(media.error?.message||'Falha ao enviar a logo.');
+        }
+        logoRef={assetId:media.asset.id,alt:'Logo de '+project.name,focalX:0.5,focalY:0.5};
       }
       const stored=await fetch(path+'/config',{credentials:'same-origin',cache:'no-store'});
       const data=await stored.json().catch(()=>({})) as {
@@ -1093,7 +1097,7 @@ export default function BuilderPage() {
       }
       const nextConfig={...data.config,navigation:{
         ...data.config.navigation,
-        logo:{assetId:media.asset.id,alt:'Logo de '+project.name,focalX:0.5,focalY:0.5},
+        logo:logoRef,
       }};
       const saved=await fetch(path+'/config',{
         method:'PATCH',credentials:'same-origin',
@@ -1439,6 +1443,11 @@ export default function BuilderPage() {
                 aria-label="Trocar logo da empresa no site">
                 {uploadingLogo?'Enviando logo...':'Trocar logo'}
               </button>}
+              {crmProjectId&&phase!=="generating"&&<button type="button"
+                onClick={()=>{if(window.confirm('Remover a logo personalizada e exibir o nome da empresa?'))void changeBrandLogo(null);}}
+                disabled={uploadingLogo||publishing||switchingTemplate}
+                className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 hover:bg-white/10 disabled:opacity-40"
+                aria-label="Remover logo personalizada do site">Remover logo</button>}
               {crmProjectId&&phase!=="generating"&&<button type="button"
                 onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
                 className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
