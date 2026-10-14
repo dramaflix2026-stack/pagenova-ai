@@ -536,6 +536,19 @@ export default function EbooksPage(){
     setNotice("Layouts variados aplicados sem apagar textos, fotos ou edições. Revise as páginas e exporte novamente.");
     setActive(0);
   }
+  async function fillBookWithAiPhotos(){
+    if(!book||imagesBusy)return;
+    const missing=book.pages.filter(page=>isPhotoPage(page.kind)&&!page.imageUrl).length;
+    if(!missing)return;
+    const budget=Math.min(missing,Math.min(8,Math.max(3,Math.ceil(book.pages.length*.44))));
+    if(!window.confirm(
+      "A PageNova vai gerar até "+budget+" fotografias originais com IA. "+
+      "Cada imagem consome uma chamada paga da API. Deseja continuar?"
+    ))return;
+    const updated={...book,imageMode:"ai" as EbookImageMode};
+    updateBook({imageMode:"ai"});
+    await populateImages(updated);
+  }
   async function changeImage(source:EbookImageMode){
     if(!book||imageIndex!==null)return;
     const index=active;
@@ -831,6 +844,15 @@ export default function EbooksPage(){
         {imagesBusy||imageProgress?<span className="text-white/60">{imageProgress}</span>:null}
         {notice&&<span className="text-emerald-200">{notice}</span>}
         {error&&<span role="alert" className="text-red-300">{error}</span>}
+      </div>}
+      {photosMissing&&!imagesBusy&&book.imageMode!=="ai"&&<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/[.045] px-4 py-3">
+        <p className="text-xs leading-5 text-white/70">
+          Este ebook ainda tem páginas sem foto. Os layouts usam infográficos no lugar dos espaços vazios.
+        </p>
+        <button type="button" onClick={()=>void fillBookWithAiPhotos()}
+          className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08291c] hover:bg-emerald-300">
+          <ImagePlus className="h-4 w-4"/> Completar fotos com IA
+        </button>
       </div>}
       <div className={editorOpen?"grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_355px]":"mx-auto w-full max-w-[950px]"}>
         <section ref={previewArea} aria-label="Leitor de ebook" className="relative min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#141b24] px-1 py-3 sm:px-4 sm:py-5">
