@@ -91,12 +91,18 @@ export function validateUniversalSiteData(value: UniversalSiteData): string[] {
   fields(value.coverage, ["eyebrow", "heading", "description"], "coverage");
   fields(value.contact, ["eyebrow", "heading", "description", "ctaLabel", "ctaUrl"], "contact");
   fields(value.footer, ["copyright"], "footer");
+  // Preview embeds project-owned photos as WebP/PNG/JPEG data URLs to work
+  // inside sandboxed iframes. Only these raster MIME types may be inlined;
+  // SVG, scripts and other data URLs must remain rejected.
+  const validImageSource = (src: string): boolean =>
+    !src || /^(https:\/\/|\/|\.\/assets\/|assets\/)/.test(src) ||
+    /^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(src);
   for (const [label, image] of [["hero", value.hero?.image], ["about", value.about?.image], ["coverage", value.coverage?.image]] as const) {
     // Source may be empty when the CRM lead has no licensed/verified photo.
     // Never invent or reuse a refrigeration photo for another niche.
     if (!record(image) || !nonempty(image.alt) ||
         typeof image.src !== "string" ||
-        (image.src.length > 0 && !/^(https:\/\/|\/|\.\/assets\/|assets\/)/.test(image.src))) {
+        !validImageSource(image.src)) {
       errors.push("Invalid " + label + " image");
     }
   }
