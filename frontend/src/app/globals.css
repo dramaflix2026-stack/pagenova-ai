@@ -1562,3 +1562,134 @@ body footer.pn-landing-footer > div:first-child {
     grid-template-columns: none !important;
   }
 }
+
+
+/* PAGENOVA BRAND SYSTEM FINAL — public landing and authentication refinements.
+   Scoped rules deliberately avoid the CRM and customer-generated sites. */
+.pn-landing-v2{
+  width:100%;
+  overflow-x:clip;
+  font-family:"Poppins",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.pn-landing-v2 :is(a,button,summary):focus-visible{
+  outline:3px solid #83f0c3;
+  outline-offset:4px;
+}
+.pn-landing-v2 :is(h1,h2,h3){
+  text-wrap:balance;
+}
+.pn-landing-v2 > section{
+  scroll-margin-top:88px;
+}
+.pn-landing-v2 #plataforma h1{
+  text-wrap:balance;
+}
+.pn-landing-v2 #plataforma a,
+.pn-landing-v2 #planos a{
+  transition:transform .22s ease,box-shadow .22s ease,background-color .22s ease,border-color .22s ease;
+}
+.pn-landing-v2 #plataforma a:hover,
+.pn-landing-v2 #planos a:hover{
+  transform:translateY(-2px);
+}
+.pn-landing-v2 #criacao article,
+.pn-landing-v2 #operacao article{
+  transition:background-color .2s ease, box-shadow .25s ease;
+}
+.pn-landing-v2 #criacao article:hover{
+  background:#f7fbf8;
+}
+.pn-landing-v2 #duvidas details{
+  transition:border-color .22s ease,box-shadow .22s ease,background-color .22s ease;
+}
+.pn-landing-v2 #duvidas details:hover{
+  border-color:#b1d7c4;
+  box-shadow:0 8px 24px rgba(17,67,44,.05);
+}
+.pn-landing-v2 #duvidas details summary::-webkit-details-marker{
+  display:none;
+}
+.pn-landing-v2 #duvidas details[open] summary{
+  color:#0e6244;
+}
+.pn-landing-v2 footer.pn-landing-footer{
+  padding:0!important;
+  background:#0b1511!important;
+}
+.pn-landing-v2 footer.pn-landing-footer > div:first-child{
+  padding-block:42px 28px!important;
+}
+.pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"]{
+  gap:10px;
+}
+.pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"] > div{
+  height:58px;
+  padding:10px 14px;
+  border-radius:16px;
+}
+.pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"] img{
+  max-height:37px;
+}
+@media(max-width:767px){
+  .pn-landing-v2 > section{
+    scroll-margin-top:76px;
+  }
+  .pn-landing-v2 #plataforma > div:last-child{
+    padding-top:48px;
+    padding-bottom:56px;
+  }
+  .pn-landing-v2 #plataforma h1{
+    max-width:590px;
+    margin-left:auto;
+    margin-right:auto;
+    font-size:clamp(2.25rem,9.2vw,3.5rem);
+    line-height:1.09;
+    letter-spacing:-.055em;
+  }
+  .pn-landing-v2 #plataforma p{
+    max-width:35rem;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .pn-landing-v2 :is(#criacao,#operacao,#duvidas) h2{
+    line-height:1.12;
+    letter-spacing:-.042em;
+  }
+  .pn-landing-v2 #criacao article{
+    text-align:left;
+    padding:24px;
+  }
+  .pn-landing-v2 #criacao article :is(p,h3),
+  .pn-landing-v2 #operacao article :is(p,h3),
+  .pn-landing-v2 #operacao :is(h3,p){
+    text-align:left;
+    margin-left:0;
+    margin-right:0;
+  }
+  .pn-landing-v2 #duvidas details summary,
+  .pn-landing-v2 #duvidas details > p{
+    text-align:left;
+  }
+  .pn-landing-v2 #duvidas details summary{
+    font-size:14px;
+    line-height:1.45;
+  }
+  .pn-landing-v2 footer.pn-landing-footer > div:first-child{
+    padding:32px 20px 24px!important;
+  }
+  .pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"]{
+    margin-inline:auto;
+    width:100%;
+    max-width:380px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .pn-landing-v2 :is(a,button,article,details){
+    transition:none!important;
+  }
+  .pn-landing-v2 .pn-testimonials-viewport{
+    overflow-x:auto!important;
+  }
+}
