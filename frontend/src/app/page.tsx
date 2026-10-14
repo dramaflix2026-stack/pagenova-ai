@@ -400,47 +400,55 @@ export default function Home() {
         `}</style>
       </section>
 
-      <section className="bg-[#f3f5f0] py-10 text-[#14251d] md:py-16">
-        <div className="mx-auto max-w-5xl px-5 md:px-8">
-          <div className="overflow-hidden rounded-[30px] border border-[#e1d5ad] bg-white shadow-[0_24px_70px_rgba(20,37,29,.10)]">
-            <div className="relative grid place-items-center overflow-hidden bg-[radial-gradient(circle_at_50%_38%,#fffdf4_0,#fff5d2_35%,#edf5ec_100%)] px-6 py-10">
-              <div className="absolute inset-x-10 top-1/2 h-px bg-gradient-to-r from-transparent via-[#d9a82f]/45 to-transparent" />
-              <div className="relative grid h-52 w-52 place-items-center rounded-full bg-white/70 p-3 shadow-[0_24px_60px_rgba(132,92,0,.18)] ring-1 ring-[#d7ad42]/25 sm:h-56 sm:w-56">
-                <img src="/guarantees/guarantee-7.png" alt="Selo de garantia de 7 dias" className="h-full w-full rounded-full object-contain" />
-              </div>
+      <section aria-labelledby="garantia-title" className="bg-[#f3f5f0] px-5 py-16 text-[#14251d] sm:px-6 md:py-24">
+        <div className="mx-auto max-w-6xl">
+          <div className="grid items-center gap-7 text-center lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:text-left">
+            <div className="flex items-center justify-center lg:justify-end">
+              <img
+                src="/guarantees/guarantee-7.png"
+                alt="Garantia de 7 dias"
+                className="h-44 w-44 object-contain drop-shadow-[0_16px_24px_rgba(80,60,15,.13)] sm:h-56 sm:w-56 lg:h-64 lg:w-64"
+              />
             </div>
-            <div className="px-6 py-7 text-center sm:px-10 sm:py-9">
-              <span className="inline-flex rounded-full border border-[#e4c86d] bg-[#fff9e7] px-4 py-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#80621b]">Garantia de satisfação</span>
-              <h2 className="mx-auto mt-5 max-w-2xl text-[1.8rem] font-semibold leading-[1.12] tracking-[-.04em] sm:text-4xl">7 dias para conhecer a PageNova com tranquilidade.</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#647369] sm:text-base">Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.</p>
-              <div className="mx-auto mt-7 grid max-w-2xl grid-cols-2 gap-3 text-left sm:gap-4">
-                {[
-                  { icon: "card", eyebrow: "PAGAMENTO", title: "Pagamento seguro", text: "Checkout protegido pela Kiwify" },
-                  { icon: "shield", eyebrow: "GARANTIA", title: "7 dias protegidos", text: "Compre com tranquilidade" },
-                  { icon: "lock", eyebrow: "PRIVACIDADE", title: "Dados protegidos", text: "Segurança em cada etapa" },
-                  { icon: "support", eyebrow: "ATENDIMENTO", title: "Suporte PageNova", text: "Conte com nosso time" },
-                ].map((item) => (
-                  <div key={item.title} className="group relative min-h-[144px] overflow-hidden rounded-[24px] border border-[#d9d1b7]/80 bg-white p-4 shadow-[0_14px_34px_rgba(18,55,42,.08),inset_0_1px_0_rgba(255,255,255,1)] transition duration-300 hover:-translate-y-1 hover:border-[#c8b15e] hover:shadow-[0_20px_42px_rgba(18,55,42,.13)] sm:min-h-[150px] sm:p-5">
-                    <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_100%_0%,rgba(217,185,82,.14),transparent_43%),radial-gradient(circle_at_0%_100%,rgba(64,199,151,.09),transparent_42%)]" />
-                    <div className="pointer-events-none absolute left-4 right-4 top-0 h-px bg-gradient-to-r from-transparent via-[#c9ad4c]/70 to-transparent" />
-                    <div className="relative">
-                      <div className="mb-4 flex items-center justify-between gap-2">
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[#d7c474]/60 bg-[#f8f6ea] text-[#0c6848] shadow-[0_8px_20px_rgba(24,82,59,.10),inset_0_1px_0_rgba(255,255,255,1)] transition duration-300 group-hover:scale-105 group-hover:bg-[#f4f1df]">
-                          {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
-                          {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
-                          {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
-                          {item.icon === "support" && <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2ZM17 18c-1 2-3 3-5 3"/></svg>}
-                        </span>
-                        <span className="text-[8px] font-extrabold tracking-[.16em] text-[#a2832c] sm:text-[9px]">{item.eyebrow}</span>
-                      </div>
-                      <p className="text-[12px] font-extrabold leading-[1.25] tracking-[-.01em] text-[#21382d] sm:text-[14px]">{item.title}</p>
-                      <p className="mt-1.5 text-[10px] leading-[1.45] text-[#708078] sm:text-[11px]">{item.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <a href="#planos" className="mt-7 inline-flex w-full max-w-sm items-center justify-center rounded-2xl bg-[#0d3527] px-6 py-4 text-sm font-bold text-white shadow-[0_12px_28px_rgba(13,53,39,.18)] transition hover:bg-[#164c39]">Ver planos agora <span className="ml-2">→</span></a>
+            <div>
+              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
+                Compra com tranquilidade
+              </span>
+              <h2 id="garantia-title" className="mx-auto mt-4 max-w-2xl text-[clamp(1.9rem,4.3vw,3.35rem)] font-semibold leading-[1.12] tracking-[-.045em] lg:mx-0">
+                7 dias para conhecer a PageNova com tranquilidade.
+              </h2>
+              <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-[#607165] sm:text-base lg:mx-0">
+                Se a plataforma não fizer sentido para você, solicite o cancelamento dentro do prazo de 7 dias após a compra.
+              </p>
             </div>
+          </div>
+
+          <div className="mx-auto mt-11 grid max-w-5xl grid-cols-2 gap-x-6 gap-y-9 border-t border-[#d4dfd4] pt-9 text-left sm:gap-x-10 lg:grid-cols-4 lg:gap-y-0">
+            {[
+              { icon: "card", title: "Pagamento seguro", text: "Checkout protegido pela Kiwify" },
+              { icon: "shield", title: "7 dias protegidos", text: "Conheça com tranquilidade" },
+              { icon: "lock", title: "Dados protegidos", text: "Cuidado com seus dados" },
+              { icon: "support", title: "Suporte PageNova", text: "Conte com nosso time" },
+            ].map((item) => (
+              <div key={item.title} className="flex min-w-0 flex-col items-start gap-3">
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-[#e1f1e7] text-[#0d8054]">
+                  {item.icon === "card" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>}
+                  {item.icon === "shield" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3 20 6v5c0 5.2-3.4 8.6-8 10-4.6-1.4-8-4.8-8-10V6l8-3Z"/><path d="m9 12 2 2 4-4"/></svg>}
+                  {item.icon === "lock" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="10" width="14" height="10" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v2"/></svg>}
+                  {item.icon === "support" && <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 13v-2a8 8 0 0 1 16 0v2"/><path d="M4 13a2 2 0 0 1 2-2h1v6H6a2 2 0 0 1-2-2v-2ZM20 13a2 2 0 0 0-2-2h-1v6h1a2 2 0 0 0 2-2v-2ZM17 18c-1 2-3 3-5 3"/></svg>}
+                </span>
+                <div>
+                  <h3 className="text-[13px] font-semibold leading-5 tracking-[-.02em] text-[#173a2b] sm:text-base">{item.title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-[#6a786e] sm:text-sm">{item.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-10 text-center">
+            <a href="#planos" className="inline-flex min-h-12 w-full max-w-[330px] items-center justify-center gap-2 rounded-xl bg-[#0d3527] px-6 py-3.5 text-sm font-bold text-white shadow-[0_12px_24px_rgba(13,53,39,.12)] transition hover:bg-[#16533c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#148453] sm:w-auto">
+              Ver planos agora <span aria-hidden="true">→</span>
+            </a>
           </div>
         </div>
       </section>
