@@ -1,13 +1,15 @@
 export function AppHeader({
   title,
   description,
+  align = "left",
 }: {
   title: string;
   description?: string;
+  align?: "left" | "center";
 }) {
   return (
     <header className="border-b border-white/10 bg-[#0b0b0b]/90 px-6 py-5 backdrop-blur lg:px-10">
-      <div className="mx-auto max-w-7xl">
+      <div className={`mx-auto max-w-7xl ${align === "center" ? "text-center" : ""}`}>
         <h1 className="text-xl font-bold tracking-tight text-white">
           {title}
         </h1>
