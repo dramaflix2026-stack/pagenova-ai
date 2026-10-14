@@ -5,6 +5,7 @@ import { Mic, MicOff, Paperclip, Plus, X, LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
+import { SiteGenerationCreditsNotice, useSiteGenerationCredits } from "@/components/site-generation-credits";
 import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { inferSiteBrand } from "@/lib/infer-site-brand";
@@ -46,6 +47,7 @@ async function compressReference(file:File):Promise<string>{
 
 export default function BuilderPage() {
   const router = useRouter();
+  const siteCredits = useSiteGenerationCredits();
 
   const [brief, setBrief] = useState("");
   const briefTextareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -582,6 +584,11 @@ export default function BuilderPage() {
       setError("Descreva o site que você quer criar com pelo menos 20 caracteres.");
       return;
     }
+    // Do not create an empty CRM project when the authoritative wallet has no credits.
+    if (siteCredits.exhausted) {
+      setError("Você utilizou as gerações de sites deste ciclo. Aguarde a renovação.");
+      return;
+    }
 
     // Do not submit a generic draft label when the briefing contains the
     // person's or business's actual name. Purely local parsing: no AI call.
@@ -702,6 +709,8 @@ export default function BuilderPage() {
       if (!generateResponse.ok || !generation.jobId) {
         throw new Error(generation.error?.message || "Não foi possível iniciar a geração.");
       }
+      // The same Supabase wallet is charged by the CRM proxy.
+      void siteCredits.refresh();
 
       await monitorCrmGeneration(projectId,generation.jobId);
     } catch (cause) {
@@ -1310,8 +1319,9 @@ export default function BuilderPage() {
             </span>)}
           </div>}
           {attachmentWarning&&<p role="alert" className="text-sm text-amber-300">{attachmentWarning}</p>}
+          <SiteGenerationCreditsNotice credits={siteCredits} />
           {error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
-          <button type="submit" disabled={phase==="generating"}
+          <button type="submit" disabled={phase==="generating" || siteCredits.exhausted}
             className="flex min-h-[54px] w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3.5 text-base font-bold text-[#08130e] shadow-[0_8px_28px_rgba(16,185,129,.11)] transition hover:bg-emerald-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-300 disabled:cursor-not-allowed disabled:opacity-60">
             {phase==="generating"?<><LoaderCircle className="h-5 w-5 animate-spin"/> Gerando site...</>:"Gerar site com IA →"}
           </button>
