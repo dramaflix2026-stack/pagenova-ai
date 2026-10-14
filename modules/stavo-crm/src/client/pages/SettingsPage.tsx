@@ -556,9 +556,9 @@ function GoogleSettings({ data, onSaved }: { data: SettingsResponse; onSaved: ()
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Uso da API do Google</CardTitle>
+        <CardTitle>Proteção técnica da API do Google</CardTitle>
         <p className="text-sm text-muted-foreground">
-          O limite interno bloqueia a chamada antes de sair do servidor, protegendo o orcamento.
+          Estes tetos protegem a conta Google da plataforma. Eles não são créditos do assinante: o plano PageNova inclui até 150 páginas de pesquisa por ciclo de assinatura.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -610,14 +610,14 @@ function GoogleSettings({ data, onSaved }: { data: SettingsResponse; onSaved: ()
                 label={`Consumo de ${entry.sku}`}
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Restam {formatNumber(entry.remaining)} chamadas neste mes.
+                Restam {formatNumber(entry.remaining)} chamadas no teto técnico do Google neste mês (não é seu saldo do plano).
               </p>
             </div>
           ))}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="Limite de pesquisas/mes" htmlFor="google-text-limit">
+          <Field label="Teto técnico de pesquisas no mês" htmlFor="google-text-limit">
             <Input
               id="google-text-limit"
               type="number"
@@ -626,7 +626,7 @@ function GoogleSettings({ data, onSaved }: { data: SettingsResponse; onSaved: ()
               onChange={(event) => setTextLimit(event.target.value)}
             />
           </Field>
-          <Field label="Limite de detalhes/mes" htmlFor="google-details-limit">
+          <Field label="Teto técnico de detalhes no mês" htmlFor="google-details-limit">
             <Input
               id="google-details-limit"
               type="number"
