@@ -1625,12 +1625,17 @@ body footer.pn-landing-footer > div:first-child {
   gap:10px;
 }
 .pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"] > div{
-  height:58px;
-  padding:10px 14px;
+  height:68px;
+  padding:10px 12px;
   border-radius:16px;
+  background:#10251c;
+  border-color:rgba(122,211,174,.2);
 }
 .pn-landing-v2 footer.pn-landing-footer [aria-label="Selos de confiança"] img{
-  max-height:37px;
+  max-height:44px;
+  display:block;
+  width:100%;
+  object-fit:contain;
 }
 @media(max-width:767px){
   .pn-landing-v2 > section{
