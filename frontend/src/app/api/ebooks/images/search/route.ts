@@ -56,7 +56,7 @@ const aliases: Record<string,string> = {
   "oficina":"workshop","ferramentas":"tools","equipamentos":"equipment",
   "madeira":"woodworking","marcenaria":"carpentry","carpinteiro":"carpenter",
   "construção":"construction","construcao":"construction","cimento":"concrete",
-  "jardim":"garden","arquitetura":"architecture","decoração":"interior",
+  "arquitetura":"architecture","decoração":"interior",
   "automóveis":"automotive","automovel":"automotive","mecânica":"mechanic",
   "culinária":"cooking","cozinha":"kitchen","moda":"fashion","roupas":"clothing",
   "fotografia":"photography","maquiagem":"makeup","artesanato":"craft",
