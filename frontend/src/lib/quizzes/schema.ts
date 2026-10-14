@@ -1,0 +1,86 @@
+export type QuizTheme="emerald"|"midnight"|"cream";
+export type QuizOption={id:string;label:string;outcomeId:string};
+export type QuizQuestion={id:string;title:string;options:QuizOption[]};
+export type QuizOutcome={id:string;title:string;description:string;ctaLabel:string;ctaUrl:string};
+export type QuizInput={
+  title:string;subtitle:string;prompt:string;theme:QuizTheme;
+  questions:QuizQuestion[];outcomes:QuizOutcome[];
+  collectLeads:boolean;
+};
+export type QuizProject=QuizInput&{id:string;updatedAt:string;publishedAt:string|null};
+export type PublicQuiz=Pick<QuizProject,"id"|"title"|"subtitle"|"theme"|"collectLeads"|"publishedAt">&{
+  questions:Array<{id:string;title:string;options:Array<{id:string;label:string}>}>;
+};
+export type QuizEntry={id:string;quizId:string;submittedAt:string;outcomeId:string;
+  answers:Array<{questionId:string;optionId:string}>;
+  lead?:{name:string;email:string;consent:true};
+};
+export const validQuizId=(id:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+const safe=(v:unknown,max:number)=>typeof v==="string"?v.trim().slice(0,max):"";
+const optionId=(id:unknown,index:number)=>typeof id==="string"&&/^[\w-]{1,50}$/.test(id)?id:"opt-"+index;
+export function normalizeQuiz(value:unknown):QuizInput{
+  if(!value||typeof value!=="object"||Array.isArray(value))throw new Error("Quiz inválido.");
+  const v=value as Record<string,unknown>;
+  const title=safe(v.title,130),subtitle=safe(v.subtitle,350);
+  if(title.length<4)throw new Error("Informe um título para o quiz.");
+  const theme:QuizTheme=v.theme==="midnight"||v.theme==="cream"?v.theme:"emerald";
+  if(!Array.isArray(v.outcomes)||v.outcomes.length<2||v.outcomes.length>5)
+    throw new Error("Adicione de 2 a 5 resultados possíveis.");
+  const outcomes:QuizOutcome[]=v.outcomes.map((o,i)=>{
+    const item=o&&typeof o==="object"?o as Record<string,unknown>:{};
+    const id=optionId(item.id,i),name=safe(item.title,110);
+    if(name.length<3)throw new Error("Revise o título do resultado "+(i+1)+".");
+    const rawUrl=safe(item.ctaUrl,500);
+    let ctaUrl="";
+    if(rawUrl){
+      try {const url=new URL(rawUrl);
+        if(url.protocol!=="https:"&&url.protocol!=="http:")throw new Error("URL inválida");
+        if(url.username||url.password)throw new Error("URL inválida");
+        ctaUrl=url.toString();
+      }catch{throw new Error("O link do resultado "+(i+1)+" precisa ser HTTP ou HTTPS válido.");}
+    }
+    return {id,title:name,description:safe(item.description,1600),
+      ctaLabel:safe(item.ctaLabel,65)||"Saiba mais",ctaUrl};
+  });
+  if(new Set(outcomes.map(o=>o.id)).size!==outcomes.length)throw new Error("IDs de resultados repetidos.");
+  if(!Array.isArray(v.questions)||v.questions.length<3||v.questions.length>15)
+    throw new Error("O quiz precisa de 3 a 15 perguntas.");
+  const outcomeIds=new Set(outcomes.map(o=>o.id));
+  const questions:QuizQuestion[]=v.questions.map((q,i)=>{
+    const item=q&&typeof q==="object"?q as Record<string,unknown>:{};
+    const title=safe(item.title,260);
+    if(title.length<5)throw new Error("Revise a pergunta "+(i+1)+".");
+    const options=Array.isArray(item.options)?item.options:[];
+    if(options.length<2||options.length>6)throw new Error("A pergunta "+(i+1)+" precisa de 2 a 6 respostas.");
+    const parsed:QuizOption[]=options.map((o,index)=>{
+      const a=o&&typeof o==="object"?o as Record<string,unknown>:{};
+      const outcomeId=safe(a.outcomeId,50);
+      if(!outcomeIds.has(outcomeId))throw new Error("Uma opção da pergunta "+(i+1)+" aponta para resultado inexistente.");
+      const label=safe(a.label,160);
+      if(!label)throw new Error("Uma opção da pergunta "+(i+1)+" está vazia.");
+      return {id:optionId(a.id,index),label,outcomeId};
+    });
+    if(new Set(parsed.map(o=>o.id)).size!==parsed.length)throw new Error("Opções duplicadas na pergunta "+(i+1)+".");
+    return {id:optionId(item.id,i),title,options:parsed};
+  });
+  if(new Set(questions.map(q=>q.id)).size!==questions.length)throw new Error("Perguntas duplicadas.");
+  return {title,subtitle,prompt:safe(v.prompt,10000),theme,questions,outcomes,collectLeads:v.collectLeads===true};
+}
+export function publicQuiz(project:QuizProject):PublicQuiz{
+  return {id:project.id,title:project.title,subtitle:project.subtitle,theme:project.theme,
+    collectLeads:project.collectLeads,publishedAt:project.publishedAt,
+    questions:project.questions.map(q=>({id:q.id,title:q.title,
+      options:q.options.map(o=>({id:o.id,label:o.label}))}))};
+}
+export function evaluateQuiz(quiz:QuizProject,answers:Record<string,string>):QuizOutcome{
+  if(Object.keys(answers).length!==quiz.questions.length)throw new Error("Responda todas as perguntas.");
+  const points=new Map(quiz.outcomes.map(o=>[o.id,0]));
+  for(const question of quiz.questions){
+    const selected=question.options.find(o=>o.id===answers[question.id]);
+    if(!selected)throw new Error("Uma resposta não pertence ao quiz. Atualize a página.");
+    points.set(selected.outcomeId,(points.get(selected.outcomeId)||0)+1);
+  }
+  // Stable tie breaking based on author-defined outcome order.
+  return quiz.outcomes.reduce((best,next)=>
+    (points.get(next.id)||0)>(points.get(best.id)||0)?next:best,quiz.outcomes[0]);
+}
