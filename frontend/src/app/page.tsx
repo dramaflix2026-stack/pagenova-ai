@@ -405,16 +405,26 @@ export default function Home() {
           <a
             href="#planos"
             aria-label="Garantia PageNova de 7 dias. Ver opções de planos."
-            className="group block cursor-pointer rounded-2xl outline-offset-4 transition-transform duration-200 hover:scale-[1.006] focus-visible:outline-2 focus-visible:outline-[#148453] motion-reduce:transform-none"
+            className="group relative block cursor-pointer rounded-2xl outline-offset-4 transition-transform duration-200 hover:scale-[1.006] focus-visible:outline-2 focus-visible:outline-[#148453] motion-reduce:transform-none"
           >
             <img
               src="/guarantees/garantia-pagenova-interativa.svg"
-              alt="Garantia de 7 dias: dinheiro de volta sem burocracia. Pagamento seguro, dados protegidos e suporte PageNova. Ver planos agora."
+              alt="7 dias para conhecer a PageNova com tranquilidade. Pagamento seguro, dados protegidos, suporte e garantia. Ver planos agora."
               width="1122"
               height="1402"
               loading="lazy"
               decoding="async"
               className="block h-auto w-full select-none"
+            />
+            <img
+              src="/guarantees/guarantee-7.png"
+              alt=""
+              aria-hidden="true"
+              width="380"
+              height="380"
+              loading="lazy"
+              decoding="async"
+              className="pointer-events-none absolute left-1/2 top-[1.8%] w-[33%] -translate-x-1/2 object-contain drop-shadow-[0_14px_24px_rgba(56,39,9,0.16)]"
             />
           </a>
         </div>
