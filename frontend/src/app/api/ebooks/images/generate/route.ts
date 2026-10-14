@@ -8,9 +8,11 @@ export async function POST(req:NextRequest) {
     const origin=req.headers.get("origin");
     if(origin&&origin!==req.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
     await authorizedForms();
-    const body=await req.json().catch(()=>({})) as {prompt?:unknown};
+    const body=await req.json().catch(()=>({})) as {prompt?:unknown;orientation?:unknown};
     const prompt=typeof body.prompt==="string"?body.prompt.trim():"";
     if(prompt.length<10)throw new FormServiceError("Informe como deve ser a imagem.");
+    const orientation=body.orientation==="landscape"?"landscape":body.orientation==="portrait"?"portrait":"square";
+    const size=orientation==="landscape"?"1536x1024":orientation==="portrait"?"1024x1536":"1024x1024";
     const apiKey=process.env.OPENAI_API_KEY;
     if(!apiKey)throw new FormServiceError("A API de imagens não está configurada.",503);
     const response=await fetch("https://api.openai.com/v1/images/generations",{
@@ -18,7 +20,7 @@ export async function POST(req:NextRequest) {
       body:JSON.stringify({
         model:process.env.PAGENOVA_EBOOK_IMAGE_MODEL||"gpt-image-1-mini",
         prompt:"Produce an original, polished, photorealistic editorial photograph or accurate technical visual for a premium nonfiction ebook. Show the SPECIFIC real-world subject, tools, materials and actions described here. Professional lighting, distinct composition, correct object proportions, realistic details and natural environment. Do not make empty abstract art, placeholder graphics, generic geometric blocks, diagrams with fake labels, charts, lettering, logos, watermarks, UI or typography. Subject: "+prompt.slice(0,2400),
-        size:"1024x1024",quality:"low",output_format:"webp",n:1,
+        size,quality:"low",output_format:"webp",n:1,
       }),
       signal:AbortSignal.timeout(80000),
     });
