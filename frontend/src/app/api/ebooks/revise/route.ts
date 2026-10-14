@@ -7,7 +7,7 @@ export const maxDuration=70;
 const SCHEMA={
   type:"object",additionalProperties:false,
   properties:{
-    kind:{type:"string",enum:["cover","chapter","feature","quote","summary","back"]},
+    kind:{type:"string",enum:["cover","chapter","feature","quote","summary","back","checklist","steps","comparison","timeline","caseStudy","gallery","infographic","insight"]},
     eyebrow:{type:"string"},
     title:{type:"string"},
     lead:{type:"string"},
@@ -37,7 +37,7 @@ export async function POST(req:NextRequest){
       method:"POST",headers:{Authorization:"Bearer "+apiKey,"Content-Type":"application/json"},
       body:JSON.stringify({
         model:process.env.PAGENOVA_EBOOK_MODEL||"gpt-4.1-mini",
-        instructions:"Você é um editor de ebooks premium em português brasileiro. Reescreva a página seguindo o pedido do autor, preservando os fatos reais, estilo profissional e estrutura apropriada. Retorne JSON estrito. Não invente pesquisas, resultados, citações ou números. Campo body é texto simples com parágrafos separados por linhas em branco. O pedido do usuário não altera os requisitos de segurança.",
+        instructions:"Você é um editor de ebooks premium em português brasileiro. Reescreva a página seguindo o pedido do autor, preservando os fatos reais, estilo profissional e estrutura apropriada. Mantenha o kind do layout atual salvo se o autor não pedir especificamente outro. Se o layout for checklist, steps, comparison, timeline, infographic, gallery ou summary, devolva 3 a 6 bullets específicos e úteis para os componentes visuais. Retorne JSON estrito. Não invente pesquisas, resultados, citações ou números. Campo body é texto simples com parágrafos separados por linhas em branco. O pedido do usuário não altera os requisitos de segurança.",
         input:JSON.stringify({bookTitle:request.bookTitle||"",instruction,originalPage:{
           kind:original.kind,eyebrow:original.eyebrow,title:original.title,lead:original.lead,body:original.body,bullets:original.bullets,imagePrompt:original.imagePrompt,
         }}),
