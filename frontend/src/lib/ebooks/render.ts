@@ -35,21 +35,21 @@ function renderPage(project: EbookProject, page: EbookPage, index: number):strin
     content='<div class="closing"><span class="small-label">CONCLUSÃO · '+number+'</span>'+
       '<h2>'+title+'</h2><div class="accent-line"></div>'+
       '<p class="closing-lead">'+lead+'</p><div class="closing-copy">'+body+'</div>'+
-      bullets+'<p class="closing-sign">'+escape(project.author)+'</p></div>';
+      bullets(page)+'<p class="closing-sign">'+escape(project.author)+'</p></div>';
   } else if(page.kind==="quote") {
     content='<div class="chapter-top"><span class="small-label">'+eyebrow+'</span><span class="page-big-number">'+number+'</span></div>'+
       '<div class="quote-layout"><span class="giant-quote">“</span><h2>'+title+'</h2>'+
       '<div class="accent-line"></div><p class="quote-lead">'+lead+'</p></div>'+
-      '<div class="quote-explainer">'+body+bullets+'</div>';
+      '<div class="quote-explainer">'+body+bullets(page)+'</div>';
   } else if(page.kind==="feature") {
     content='<div class="chapter-top"><span class="small-label">'+eyebrow+'</span><span class="page-big-number">'+number+'</span></div>'+
       '<div class="feature-page"><div class="feature-copy"><h2>'+title+'</h2><p class="lead">'+lead+'</p>'+
-      '<div class="article">'+body+'</div>'+bullets+'</div><div class="feature-visual">'+visual+'</div></div>';
+      '<div class="article">'+body+'</div>'+bullets(page)+'</div><div class="feature-visual">'+visual+'</div></div>';
   } else {
     content='<div class="chapter-top"><span class="small-label">'+eyebrow+'</span><span class="page-big-number">'+number+'</span></div>'+
       '<div class="chapter-main"><h2>'+title+'</h2><p class="lead">'+lead+'</p>'+
       (page.imageUrl?'<div class="chapter-photo">'+visual+'</div>':'')+
-      '<div class="article">'+body+'</div>'+bullets+'</div>';
+      '<div class="article">'+body+'</div>'+bullets(page)+'</div>';
   }
   return '<section class="sheet kind-'+escape(page.kind)+'" style="--paper:'+ebookThemes[project.theme].paper+
     ';--ink:'+ebookThemes[project.theme].ink+';--accent:'+ebookThemes[project.theme].accent+
