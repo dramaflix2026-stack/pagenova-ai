@@ -32,7 +32,6 @@ const PAGE_KINDS:{value:EbookPageKind;label:string}[]=[
   {value:"summary",label:"Resumo"},{value:"back",label:"Encerramento"}
 ];
 const IMG_MODES:{value:EbookImageMode;label:string;description:string}[]=[
-  {value:"ai",label:"Imagens com IA · recomendado",description:"Fotos temáticas originais (até 8 por ebook). Cada imagem consome uma chamada paga da API."},
   {value:"web",label:"Fotos gratuitas",description:"Fotografias licenciadas do Wikimedia Commons; se não houver foto, os infográficos permanecem."},
   {value:"none",label:"Infográficos, sem fotos",description:"Checklists, etapas, comparativos e arte editorial sem chamadas à API de imagens."},
 ];
@@ -152,7 +151,7 @@ export default function EbooksPage(){
   const [theme,setTheme]=useState<EbookTheme>("editorial");
   const [tone,setTone]=useState("Didático e envolvente");
   const [author,setAuthor]=useState("");
-  const [mode,setMode]=useState<EbookImageMode>("ai");
+  const [mode,setMode]=useState<EbookImageMode>("web");
   const [book,setBook]=useState<EbookProject|null>(null);
   const [saved,setSaved]=useState<EbookProject[]>([]);
   const [cloudSaved,setCloudSaved]=useState<EbookSummary[]>([]);
@@ -300,31 +299,7 @@ export default function EbooksPage(){
   ):Promise<{url:string;credit:string}|null>{
     if(source==="none")return null;
     const description=page.imagePrompt||page.title;
-    if(source==="ai"){
-      const res=await fetch("/api/ebooks/images/generate",{
-        method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt:description,orientation:page.kind==="cover"||page.kind==="gallery"?"landscape":"portrait"}),cache:"no-store",
-      });
-      const data=await responseJson<{image?:{url:string;credit:string}|null}>(res);
-      if(!data.image)throw new Error("A IA não retornou a imagem.");
-      const asset=data.image;
-      // Compact images before autosave and PDF export.
-      if(asset.url.startsWith("data:image/")){
-        const img=new Image();
-        img.src=asset.url;
-        await img.decode();
-        const canvas=document.createElement("canvas");
-        const scale=Math.min(1,880/Math.max(img.naturalWidth,img.naturalHeight));
-        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
-        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
-        const ctx=canvas.getContext("2d");
-        if(ctx){
-          ctx.drawImage(img,0,0,canvas.width,canvas.height);
-          return {url:canvas.toDataURL("image/jpeg",0.68),credit:asset.credit};
-        }
-      }
-      return asset;
-    }
+    // Paid image generation disabled for eBooks; older projects also use licensed photographs.
     const params=new URLSearchParams({
       q:description,title:page.title,topic,
     });
@@ -354,9 +329,8 @@ export default function EbooksPage(){
     if(created.imageMode==="none"||imagesBusy)return;
     setImagesBusy(true);
     setError("");
-    setImageProgress(created.imageMode==="web"?"Procurando fotos reais com licença aberta...":"Gerando ilustrações com IA...");
-    const budget=created.imageMode==="ai"
-      ?Math.min(8,Math.max(3,Math.ceil(created.pages.length*.44))):Math.min(12,created.pages.length);
+    setImageProgress("Procurando fotos de uso permitido no Wikimedia Commons...");
+    const budget=Math.min(12,created.pages.length);
     const indices=created.pages.map((p,i)=>({p,i}))
       .filter(item=>!item.p.imageUrl && isPhotoPage(item.p.kind))
       .slice(0,budget);
@@ -373,7 +347,7 @@ export default function EbooksPage(){
         const current=indices[position++];
         if(!current)break;
         try{
-          const result=await imageRequest(current.p,created.imageMode,created.title,usedPhotos);
+          const result=await imageRequest(current.p,"web",created.title,usedPhotos);
           if(result){
             added++;
             setBook(previous=>previous?.id===created.id?{
@@ -403,7 +377,7 @@ export default function EbooksPage(){
       }else{
         setImageProgress("As fotos não puderam ser incluídas nesta tentativa. "+
           "O ebook segue com infográficos úteis, sem espaços visuais vazios. "+
-          "Use o editor para enviar sua própria foto ou gerar com IA.");
+          "Use o editor para enviar sua foto ou procurar imagens com licença aberta.");
       }
     }finally{setImagesBusy(false);}
   }
@@ -538,16 +512,7 @@ export default function EbooksPage(){
   }
   async function fillBookWithAiPhotos(){
     if(!book||imagesBusy)return;
-    const missing=book.pages.filter(page=>isPhotoPage(page.kind)&&!page.imageUrl).length;
-    if(!missing)return;
-    const budget=Math.min(missing,Math.min(8,Math.max(3,Math.ceil(book.pages.length*.44))));
-    if(!window.confirm(
-      "A PageNova vai gerar até "+budget+" fotografias originais com IA. "+
-      "Cada imagem consome uma chamada paga da API. Deseja continuar?"
-    ))return;
-    const updated={...book,imageMode:"ai" as EbookImageMode};
-    updateBook({imageMode:"ai"});
-    await populateImages(updated);
+    await populateImages({...book,imageMode:"web"});
   }
   async function changeImage(source:EbookImageMode){
     if(!book||imageIndex!==null)return;
@@ -578,7 +543,7 @@ export default function EbooksPage(){
         body:JSON.stringify({page,bookTitle:book.title,instruction:revision}),cache:"no-store"
       }));
       updatePage({...result.page,id:page.id,imageUrl:page.imageUrl,imageCredit:page.imageCredit});
-      setRevision("");setNotice("Página revisada com IA. A imagem foi mantida.");
+      setRevision("");setNotice("Edição por regras locais aplicada. A imagem foi mantida.");
     }catch(err){setError(errorMessage(err));}
     finally{setRevising(false);}
   }
@@ -662,7 +627,7 @@ export default function EbooksPage(){
   const photosMissing=Boolean(book && book.imageMode!=="none" && book.pages.some(p=>
     isPhotoPage(p.kind)&&!p.imageUrl));
   return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
-    {!book&&<AppHeader title="Gerar Ebooks" description="Seu estúdio editorial com inteligência artificial." align="center"/>}
+    {!book&&<AppHeader title="Gerar Ebooks" description="Crie e personalize eBooks com modelos editoriais locais." align="center"/>}
     {!book?<div className="mx-auto max-w-[1240px] px-4 py-9 sm:px-7 sm:py-12">
       <div className="mx-auto max-w-3xl text-center">
         <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/[.06] px-4 py-2 text-xs font-semibold uppercase tracking-[.15em] text-emerald-300">
@@ -672,7 +637,7 @@ export default function EbooksPage(){
           De uma ideia a um <span className="bg-gradient-to-r from-emerald-300 to-teal-500 bg-clip-text text-transparent">ebook completo.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/55">
-          Escreva o tema. A IA transforma sua ideia em capítulos, imagens e páginas profissionais — tudo editável, pronto para exportar.
+          Escreva o tema. Os modelos organizam sua ideia em capítulos e páginas editáveis. Complete os textos com suas informações antes de exportar.
         </p>
       </div>
       <div className="mt-11 grid gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
@@ -724,7 +689,7 @@ export default function EbooksPage(){
           </div>
           {audioNote&&<p role="status" className="mt-2 text-xs text-emerald-300">{audioNote}</p>}
           <p className="mt-2 text-xs leading-5 text-white/35">
-            Sem limite de caracteres no briefing. A IA analisa imagens e quadros de vídeo; áudios e gravações são transcritos em texto.
+            Sem cobranças de IA: imagens enviadas são referências visuais, sem interpretação automática. Use o microfone para ditar no navegador.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             <label className="text-xs font-semibold text-white/60">Nome do autor ou marca<input value={author} onChange={e=>setAuthor(e.target.value)} placeholder="Ex.: Sua marca" className={field+" mt-2"}/></label>
@@ -762,7 +727,7 @@ export default function EbooksPage(){
             {generating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Escrevendo e diagramando o ebook...</>:<><Sparkles className="h-5 w-5"/> Gerar meu ebook <ArrowRight className="h-5 w-5"/></>}
           </button>
           <p className="mt-3 text-center text-xs leading-5 text-white/45">
-            A IA planeja e diagrama cada página. Imagens com IA são chamadas pagas adicionais (até 8 por ebook).
+            Diagramação baseada em modelos locais. Verifique os textos antes de publicar; não há geração paga de imagens.
             Você pode optar por fotos gratuitas ou somente infográficos.
           </p>
         </form>
@@ -845,13 +810,13 @@ export default function EbooksPage(){
         {notice&&<span className="text-emerald-200">{notice}</span>}
         {error&&<span role="alert" className="text-red-300">{error}</span>}
       </div>}
-      {photosMissing&&!imagesBusy&&book.imageMode!=="ai"&&<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/[.045] px-4 py-3">
+      {photosMissing&&!imagesBusy&&<div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-400/[.045] px-4 py-3">
         <p className="text-xs leading-5 text-white/70">
           Este ebook ainda tem páginas sem foto. Os layouts usam infográficos no lugar dos espaços vazios.
         </p>
         <button type="button" onClick={()=>void fillBookWithAiPhotos()}
           className="inline-flex items-center gap-2 rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08291c] hover:bg-emerald-300">
-          <ImagePlus className="h-4 w-4"/> Completar fotos com IA
+          <ImagePlus className="h-4 w-4"/> Buscar fotos gratuitas
         </button>
       </div>}
       <div className={editorOpen?"grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_355px]":"mx-auto w-full max-w-[950px]"}>
@@ -920,27 +885,27 @@ export default function EbooksPage(){
               <div className="mt-3 grid grid-cols-2 gap-2">
                 <button onClick={()=>uploadInput.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 px-2 py-2.5 text-xs font-semibold hover:bg-white/5"><Upload className="h-4 w-4"/> Enviar foto</button>
                 <button disabled={imageIndex!==null} onClick={()=>void changeImage("web")} className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/15 px-2 py-2.5 text-xs font-semibold hover:bg-white/5 disabled:opacity-40"><ImagePlus className="h-4 w-4"/> Fotos livres</button>
-                <button disabled={imageIndex!==null} onClick={()=>void changeImage("ai")} className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2 py-2.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/15 disabled:opacity-40">
-                  {imageIndex!==null?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Gerar imagem com IA
+                <button disabled={imageIndex!==null} onClick={()=>void changeImage("web")} className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2 py-2.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/15 disabled:opacity-40">
+                  {imageIndex!==null?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Procurar foto gratuita
                 </button>
                 {current?.imageUrl&&<button onClick={()=>changeImage("none")} className="col-span-2 text-xs text-white/45 hover:text-white">Remover imagem</button>}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/40">Fotos da Wikimedia Commons incluem créditos. Imagens criadas por IA consomem chamadas da API.</p>
+              <p className="mt-3 text-[11px] leading-5 text-white/40">Fotos da Wikimedia Commons incluem créditos. Nenhuma imagem é gerada por IA nesta modalidade.</p>
             </div>
             <form onSubmit={revisePage} className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-3">
-              <label className="text-xs font-bold text-emerald-200">✨ Converse com a IA sobre esta página</label>
+              <label className="text-xs font-bold text-emerald-200">Editar página por comandos locais</label>
               <textarea rows={3} value={revision} onChange={e=>setRevision(e.target.value)}
-                placeholder="Ex.: Torne a explicação mais profunda, com exemplos práticos e linguagem simples."
+                placeholder="Comandos disponíveis: alterar título para ...; adicionar tópico ..."
                 className={field+" mt-3 resize-y"}/>
               <button type="submit" disabled={revising||!revision.trim()} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-400 px-3 py-3 text-xs font-bold text-[#0b1e15] disabled:opacity-40">
-                {revising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{revising?"Reescrevendo...":"Aplicar alteração com IA"}</button>
+                {revising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{revising?"Reescrevendo...":"Aplicar comando local"}</button>
             </form>
             <button onClick={addPage} disabled={book.pages.length>=24} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 px-4 py-3 text-xs font-semibold text-white/70 hover:border-emerald-400/50 disabled:opacity-30"><Plus className="h-4 w-4"/> Adicionar página</button>
           </div>
         </aside>}
       </div>
       <p className="mt-4 text-center text-xs text-emerald-200/70">{layoutQuality(book.pages).families} composições editoriais · {book.pages.filter(p=>Boolean(p.imageUrl)).length} imagens inseridas · PDF A4</p>
-      <p className="mt-3 text-center text-xs leading-5 text-white/40">Conteúdo assistido por IA: revise informações, direitos de imagem e alegações antes de distribuir ou comercializar o ebook.</p>
+      <p className="mt-3 text-center text-xs leading-5 text-white/40">Conteúdo estruturado por modelos locais: acrescente suas informações, confira fontes e direitos de imagem antes de publicar.</p>
     </div>}
   </main>;
 }
