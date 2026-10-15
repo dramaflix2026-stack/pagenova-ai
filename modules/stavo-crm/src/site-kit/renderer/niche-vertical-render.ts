@@ -52,7 +52,7 @@ export function renderNicheSite(model:SiteSchemaModel,ctx:RenderContext,kind:'re
  photo(d.about.image.src,d.about.image.alt,'n-photo'),
  '<div><p class="n-kicker">Sobre nós</p><h2>'+e(d.about.heading)+'</h2><p class="n-lead">'+e(d.about.paragraphs.join(' '))+'</p></div></div></section>'
  ].join('');
- return [
+ const html = [
  '<div class="pn-niche '+(restaurant?'pn-restaurant':'pn-estate')+'">',
  '<header><div class="n-wrap n-head"><a href="#inicio" class="n-brand">'+logo+'</a><nav aria-label="Navegação principal">'+nav+'</nav></div></header>',
  '<main><section id="inicio" class="n-hero" data-n-slot="hero">',
