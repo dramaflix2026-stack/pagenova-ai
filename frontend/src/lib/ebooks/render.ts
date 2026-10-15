@@ -64,7 +64,7 @@ function renderPage(book:EbookProject,page:EbookPage,index:number):string{
     case "recipe": {
       const method=page.body.split(/\n+/).map(line=>line.trim()).filter(Boolean)
         .map(line=>line.replace(/^\d+[.)]\s*/, ""));
-      section=intro+'<div class="recipe-heading"><span class="recipe-tag">RECEITA TESTÁVEL · INGREDIENTES E PREPARO</span>'+
+      section=intro+'<div class="recipe-heading"><span class="recipe-tag">RECEITA COMPLETA · INGREDIENTES E PREPARO</span>'+
         '<h2>'+esc(page.title)+'</h2><p class="recipe-meta">'+esc(page.lead)+'</p></div>'+
         (img?'<div class="recipe-photo">'+img+'</div>':"")+
         '<div class="recipe-columns"><section class="recipe-ingredients">'+
