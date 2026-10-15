@@ -24,6 +24,7 @@ const PURPOSE:Record<EbookPageKind,string>={
   gallery:"Galeria de três aplicações/casos concretos com legendas explicativas",
   infographic:"Painel de conceitos, números apenas verificáveis e relações visuais",
   insight:"Página de dica profissional com alertas, erros comuns e solução",
+  recipe:"Ficha culinária com ingredientes medidos, rendimento e modo de preparo",
 };
 const SEQUENCES:EbookPageKind[][]=[
   ["chapter","checklist","feature","steps","comparison","timeline","caseStudy","gallery","insight","infographic","summary","quote"],
