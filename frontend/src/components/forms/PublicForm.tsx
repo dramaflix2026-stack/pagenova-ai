@@ -10,6 +10,7 @@ export default function PublicForm({form}:{form:FormDataType}) {
   const [sending,setSending]=useState(false);
   const [success,setSuccess]=useState(false);
   const [website,setWebsite]=useState("");
+  const [consent,setConsent]=useState(false);
   const fields=form.fields;
   const theme=form.visualTheme==="rose"
     ?{bg:"bg-[#fff4f1]",accent:"bg-[#f29a84]",text:"text-[#432e35]"}
@@ -22,7 +23,7 @@ export default function PublicForm({form}:{form:FormDataType}) {
       const response=await fetch("/api/forms/"+encodeURIComponent(form.id)+"/submit",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({answers:values,companyWebsite:website}),
+        body:JSON.stringify({answers:values,companyWebsite:website,consent}),
       });
       const data=await response.json().catch(()=>({})) as {error?:string};
       if(!response.ok)throw new Error(data.error||"Não foi possível enviar as respostas.");
@@ -37,6 +38,7 @@ export default function PublicForm({form}:{form:FormDataType}) {
       setError("Responda esta pergunta antes de continuar.");return;
     }
     if(step<fields.length-1)setStep(x=>x+1);
+    else if(!consent)setError("Confirme a autorização para armazenar e encaminhar suas respostas.");
     else void submitAnswers();
   }
   const inputClass="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10";
@@ -71,7 +73,12 @@ export default function PublicForm({form}:{form:FormDataType}) {
           : <input id="response-field" key={field.id} type={field.type==="email"?"email":field.type==="tel"?"tel":"text"}
             maxLength={300} required={field.required} value={values[field.id]||""}
             onChange={e=>setValues(v=>({...v,[field.id]:e.target.value}))} className={inputClass}/>}
-        {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
+        {step===fields.length-1&&<label className="mt-6 flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 text-xs leading-5 text-slate-700">
+          <input type="checkbox" className="mt-1 h-4 w-4 shrink-0 accent-emerald-600" checked={consent}
+            onChange={e=>setConsent(e.target.checked)} required/>
+          <span>Autorizo o armazenamento das minhas respostas e seu acesso pelo responsável por este formulário, para atender a finalidade informada.</span>
+        </label>}
+        {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>
         <div aria-hidden="true" className="absolute h-px w-px overflow-hidden opacity-0" style={{left:"-9999px"}}>
           <label htmlFor="company-website">Site da empresa</label>
           <input id="company-website" type="text" autoComplete="off" tabIndex={-1} value={website}
