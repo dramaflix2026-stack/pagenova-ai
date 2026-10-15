@@ -43,6 +43,16 @@ export async function POST(request:NextRequest){
     const slug="c-"+crypto.randomUUID().replaceAll("-","");
     const data=JSON.stringify({ownerId:userId,projectId:input.projectId,title,content,
       publishedAt:new Date().toISOString()});
+    const existingBucket=await admin.storage.getBucket(BUCKET);
+    if(!existingBucket.data){
+      const created=await admin.storage.createBucket(BUCKET,{
+        public:false,fileSizeLimit:20*1024*1024,allowedMimeTypes:["application/json"],
+      });
+      if(created.error){
+        const check=await admin.storage.getBucket(BUCKET);
+        if(!check.data)throw new FormServiceError("Armazenamento de publicação indisponível.",503);
+      }
+    }
     const {error}=await admin.storage.from(BUCKET).upload("published-clones/"+slug+".json",
       new Blob([data],{type:"application/json"}),{
         upsert:false,contentType:"application/json",cacheControl:"0"
