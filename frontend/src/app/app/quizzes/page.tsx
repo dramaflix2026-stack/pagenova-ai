@@ -11,6 +11,8 @@ import {
   type QuizQuestion,type QuizEntry,type QuizTheme,
 } from "@/lib/quizzes/schema";
 import {PublicQuizPlayer} from "@/components/quizzes/PublicQuizPlayer";
+import {MediaImageField} from "@/components/studio/MediaImageField";
+import {VoiceButton} from "@/components/studio/VoiceButton";
 
 type QuizSummary={id:string;title:string;updatedAt:string;publishedAt:string|null;questions:number};
 type Screen="start"|"editor";
@@ -211,6 +213,7 @@ export default function QuizStudioPage(){
           <textarea className={input+" mt-2 min-h-20 resize-y"} value={quiz.subtitle}
             onChange={e=>change({subtitle:e.target.value})} maxLength={350}/>
         </label>
+        <MediaImageField label="Imagem de capa" hint="A imagem aparece no topo do quiz publicado." value={quiz.coverImageUrl} onChange={url=>change({coverImageUrl:url})}/>
         <p className="mt-4 text-xs font-semibold text-white/65">Estilo visual</p>
         <div className="mt-3 flex flex-wrap gap-2">
           {themes.map(theme=><button key={theme.id} type="button"
@@ -220,6 +223,7 @@ export default function QuizStudioPage(){
             <span className={"h-3.5 w-3.5 rounded-full "+theme.swatch}/>{theme.name}
           </button>)}
         </div>
+        <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6"><input type="checkbox" className="mt-1 accent-emerald-400" checked={quiz.motion!==false} onChange={e=>change({motion:e.target.checked})}/><span><strong className="block text-sm">Animações suaves</strong><span className="block text-xs text-white/55">Transições entre perguntas, respeitando movimento reduzido.</span></span></label>
         <label className="mt-5 flex items-start gap-3 rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6">
           <input type="checkbox" className="mt-1 accent-emerald-400" checked={quiz.collectLeads}
             onChange={e=>change({collectLeads:e.target.checked})}/>
@@ -243,6 +247,8 @@ export default function QuizStudioPage(){
           </div>
           <textarea className={input+" min-h-20 resize-y text-base font-semibold"} value={question.title}
             maxLength={260} onChange={e=>changeQuestion(question.id,{title:e.target.value})}/>
+          <div className="mt-2 flex flex-wrap gap-1.5">{["✨","❤️","🔥","🎯","🍽️","🏡","🚀","💡"].map(emoji=><button key={emoji} type="button" title={"Adicionar "+emoji+" à pergunta"} className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-base" onClick={()=>changeQuestion(question.id,{title:question.title+" "+emoji})}>{emoji}</button>)}</div>
+          <MediaImageField label={"Imagem da pergunta "+(index+1)} value={question.imageUrl} onChange={imageUrl=>changeQuestion(question.id,{imageUrl})}/>
           <div className="mt-4 space-y-3">
             {question.options.map((opt,i)=><div key={opt.id} className="grid grid-cols-[22px_1fr] gap-2 sm:grid-cols-[22px_1fr_160px_32px] sm:items-center">
               <span className="pt-3 text-xs text-white/50">{String.fromCharCode(65+i)}</span>
@@ -250,6 +256,7 @@ export default function QuizStudioPage(){
                 value={opt.label} onChange={e=>changeQuestion(question.id,{
                   options:question.options.map(o=>o.id===opt.id?{...o,label:e.target.value}:o),
                 })}/>
+              <div className="col-start-2 sm:col-span-3"><MediaImageField label={"Imagem da opção "+String.fromCharCode(65+i)} value={opt.imageUrl} onChange={imageUrl=>changeQuestion(question.id,{options:question.options.map(o=>o.id===opt.id?{...o,imageUrl}:o)})}/></div>
               <select className={input+" col-start-2 sm:col-auto"} aria-label={"Perfil associado à resposta "+(i+1)}
                 value={opt.outcomeId} onChange={e=>changeQuestion(question.id,{
                   options:question.options.map(o=>o.id===opt.id?{...o,outcomeId:e.target.value}:o),
@@ -289,6 +296,7 @@ export default function QuizStudioPage(){
           <button disabled={quiz.outcomes.length<=2} onClick={()=>removeOutcome(o.id)}
             title="Excluir resultado" className="rounded-lg p-2 text-white/45 hover:text-red-300 disabled:opacity-25"><Trash2 className="h-4 w-4"/></button>
         </div>
+        <MediaImageField label="Imagem do resultado" value={o.imageUrl} onChange={imageUrl=>changeOutcome(o.id,{imageUrl})}/>
         <label className="mt-4 block text-xs font-semibold text-white/65">Nome do perfil
           <input className={input+" mt-2"} value={o.title} maxLength={110}
             onChange={e=>changeOutcome(o.id,{title:e.target.value})}/>
@@ -366,6 +374,7 @@ export default function QuizStudioPage(){
           placeholder={quiz?"Peça uma mudança: mais divertido, menos perguntas, novo público...":"Descreva o quiz que deseja criar..."}
           className="block min-h-28 w-full resize-y rounded-2xl border border-white/15 bg-[#061810] px-4 pb-14 pt-3 text-sm leading-6 text-white outline-none placeholder:text-white/35 focus:border-emerald-400/50"
           onKeyDown={e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();void askAI();}}}/>
+        <div className="absolute bottom-3 left-3"><VoiceButton disabled={busy} onText={text=>setPrompt(current=>(current?current+" ":"")+text)}/></div>
         <button type="submit" disabled={busy||prompt.trim().length<12}
           className="absolute bottom-3 right-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#38dba3] px-4 text-xs font-bold text-[#062b20] transition hover:bg-[#65ebba] disabled:opacity-40">
           {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}
