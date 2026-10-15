@@ -465,7 +465,7 @@ export async function POST(request: NextRequest) {
           email,
           {
             redirectTo:
-              "https://www.pagenovaai.com.br/auth/callback?next=/reset-password",
+              "https://pagenovaai.com.br/auth/callback?next=/reset-password",
             data: {
               source: "kiwify",
               product: "pagenova-ai",
