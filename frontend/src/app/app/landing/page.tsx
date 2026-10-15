@@ -1,4 +1,3 @@
-// @ts-nocheck
 "use client";
 
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
@@ -181,12 +180,11 @@ export default function LandingStudioPage(){
  }
  const field=(key:keyof LandingProject,label:string,rows=0,placeholder="",hint="")=><Field label={label}
   value={String(project?.[key]??"")} onChange={value=>patch({[key]:value} as Partial<LandingProject>)} rows={rows} placeholder={placeholder} hint={hint}/>;
- const opened=!!project;
 
  return <div className="min-h-screen bg-[#0d1017] text-white">
   <AppHeader/>
   <div className="mx-auto max-w-[1700px] px-4 py-7 sm:px-6 lg:px-9">
-   {!opened?<>
+   {!project?<>
     <div className="mx-auto max-w-4xl text-center">
      <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-amber-200">
       <WandSparkles className="h-4 w-4"/> PAGENOVA LANDING ENGINE
