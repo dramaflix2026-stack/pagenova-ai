@@ -114,8 +114,18 @@ async function main(): Promise<void> {
         .catch(() => process.exit(1));
     });
 
-    // Rede de seguranca: nao deixa o processo pendurado indefinidamente.
-    setTimeout(() => process.exit(1), 15_000).unref();
+    // A geração de site executa imagens + planejamento de IA por vários
+    // minutos. O antigo limite de 15s matava trabalhos aceitos sempre que
+    // Railway trocava o container durante um deploy (SIGTERM), forçando
+    // recuperação por lease e exibindo falso erro ao cliente.
+    //
+    // Railway mantém o container antigo durante a janela de drain configurada.
+    // Aguarde os jobs em andamento com um teto ligeiramente menor que o drain;
+    // não derrube o banco nem finalize o processo enquanto houver gravação.
+    setTimeout(() => {
+      logger.error('Tempo limite de encerramento atingido; jobs pendentes serao recuperados pelo lease.');
+      process.exit(1);
+    }, 270_000).unref();
   };
 
   process.on('SIGTERM', () => shutdown('SIGTERM'));
