@@ -33,6 +33,7 @@ const commonWords = new Set([
   "sem","com","uma","umas","para","sobre","mais","menos","como","que","por",
   "dos","das","de","da","do","no","na","os","as","um","uma","seu","sua","e",
   "receita","receitas","dicas","prático","guia","capítulo","introdução","passos",
+  "ebook","e-book","livro","book","books","chapter","guide",
 ]);
 const aliases: Record<string,string> = {
   "aveia":"oatmeal","banana":"banana","barrinha":"granola bar","caseira":"homemade",
@@ -151,6 +152,8 @@ async function lookup(query:string,signal:AbortSignal):Promise<ImageCandidate[]>
     const title=clean(page.title||"").replace(/^File:/i,"");
     const lower=title.toLowerCase();
     const relevant=terms.reduce((total,term)=>total+(lower.includes(term.toLowerCase())?3:0),0);
+    // A licensed but unrelated picture is worse than leaving the image empty.
+    if(relevant===0)return [];
     const nonPhoto=/icon|logo|diagram|symbol|screenshot|map|clip.?art|cartoon|illustration/i.test(title)?-10:0;
     const quality=(photo.width||1200)>=1200?2:0;
     const creditName=clean(photo.extmetadata?.Artist?.value||
@@ -193,7 +196,7 @@ export async function GET(req:NextRequest){
         });
       }
     }
-    choices=choices.sort((a,b)=>b.score-a.score);
+    choices=choices.filter(candidate=>candidate.score>=3).sort((a,b)=>b.score-a.score);
     if(!choices.length){
       return Response.json({image:null,
         notice:providerErrors&&!checked
