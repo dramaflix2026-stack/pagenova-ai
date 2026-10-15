@@ -11,7 +11,7 @@ export async function POST(request:NextRequest){
   const {admin,userId}=await authorizedForms();
   const raw=await request.json() as {type?:string,size?:number};
   const ext=TYPES[raw.type||""];
-  if(!ext||!Number.isSafeInteger(raw.size)||raw.size!<=0||raw.size!>5*1024*1024)
+  if(!ext||!Number.isSafeInteger(raw.size)||typeof raw.size!=="number"||raw.size<=0||raw.size>5*1024*1024)
     throw new FormServiceError("Use uma imagem JPG, PNG, WebP ou GIF com até 5 MB.");
   const existing=await admin.storage.getBucket(BUCKET);
   if(!existing.data){
