@@ -71,7 +71,7 @@ export function buildCookbook(input:{
     "Sugestões culinárias para compor refeições variadas.",[],
     "Comida caseira saudável, ingredientes frescos, pratos brasileiros");
   const intro=numberedPage(1,"feature","ANTES DE COZINHAR","Como usar este livro",
-    "50 receitas significam 50 preparos diferentes — não 50 tópicos genéricos.",
+    input.count+" receitas significam "+input.count+" preparos diferentes — não "+input.count+" tópicos genéricos.",
     "Escolha a refeição pelo momento do dia. Em cada receita, confira a lista de ingredientes, separe os utensílios e siga as etapas na ordem indicada.\n\n"+
     "Os tempos são aproximados e podem variar conforme os equipamentos e o tamanho dos ingredientes. Higienize frutas, verduras e utensílios, mantenha alimentos perecíveis refrigerados e cozinhe carnes e ovos completamente.\n\n"+
     "As receitas não têm cálculo nutricional individual nem prometem emagrecimento. Ajustes para alergias e condições de saúde exigem orientação apropriada.",
