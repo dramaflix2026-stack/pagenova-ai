@@ -14,7 +14,7 @@ import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
 type Phase = "idle" | "generating" | "ready" | "error";
-type SiteTemplateId = "frigolog-universal" | "muse-editorial" | "atelier-norte";
+type SiteTemplateId = "frigolog-universal" | "muse-editorial" | "atelier-norte" | "vertice-corporate";
 
 const STARTING_POINTS = [
   { id: "automatico", title: "Automático", icon: "✨", description: "A IA escolhe a estrutura." },
@@ -396,7 +396,7 @@ export default function BuilderPage() {
                   config?:{project?:{templateId?:string}};
                 };
                 const serverTemplate=templateData.config?.project?.templateId;
-                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"||serverTemplate==="atelier-norte"){
+                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"||serverTemplate==="atelier-norte"||serverTemplate==="vertice-corporate"){
                   setTemplateId(serverTemplate);
                   setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
                   if(saved.templateId!==serverTemplate){
@@ -1328,7 +1328,7 @@ export default function BuilderPage() {
           <fieldset className="rounded-2xl border border-white/10 bg-white/[0.018] p-3.5 sm:p-5">
             <legend className="px-2 text-sm font-semibold text-white/85">Escolha o modelo</legend>
             <p className="mb-3 text-xs leading-5 text-white/50">A IA adapta o modelo ao seu negócio.</p>
-            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-4 sm:gap-3">
               <button type="button" aria-pressed={templateId==="frigolog-universal"}
                 onClick={()=>setTemplateId("frigolog-universal")}
                 className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${
@@ -1375,6 +1375,19 @@ export default function BuilderPage() {
                 <span className="min-w-0 flex-1 sm:mt-2">
                   <span className="block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
                   <span className="mt-1 block text-[11px] leading-4 text-white/50">Institucional sofisticado, fundo claro e terracota.</span>
+                </span>
+              </button>
+              <button type="button" aria-pressed={templateId==="vertice-corporate"}
+                onClick={()=>setTemplateId("vertice-corporate")}
+                className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="vertice-corporate"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
+                <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f4f7f2] p-2 sm:h-[100px] sm:w-full">
+                  <div className="flex items-center justify-between"><span className="text-[10px] font-black tracking-tight text-[#214734]">✦ vértice.</span><span className="h-1 w-5 rounded bg-[#9fb7a5]"/></div>
+                  <div className="mt-2 flex flex-1 items-center gap-1.5"><div className="w-[63%] space-y-1"><span className="block h-2 w-4/5 rounded-sm bg-[#27573e]"/><span className="block h-2 w-full rounded-sm bg-[#27573e]"/><span className="block h-1 w-2/3 rounded-sm bg-[#9aae9e]"/><span className="block h-2 w-1/2 rounded-sm bg-[#27573e]"/></div><div className="h-full flex-1 rounded-sm bg-gradient-to-br from-[#d9e2db] to-[#648c74]"/></div>
+                  <div className="mt-1 flex gap-1">{[0,1,2].map(n=><span key={n} className="h-2 flex-1 rounded-sm bg-[#d2ddd4]"/>)}</div>
+                </div>
+                <span className="min-w-0 flex-1 sm:mt-2">
+                  <span className="block text-sm font-semibold">Modelo 4 · Vértice</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Corporativo claro, verde institucional e fotografia ampla.</span>
                 </span>
               </button>
             </div>
@@ -1522,7 +1535,7 @@ export default function BuilderPage() {
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
-            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
+            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option><option className="text-black" value="vertice-corporate">Modelo 4 · Vértice Corporativo</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
