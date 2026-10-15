@@ -90,7 +90,8 @@ export async function publishOwnedForm(admin:SupabaseClient,userId:string,id:str
   const publishedAt=new Date().toISOString();
   const result:PageNovaForm={...form,...parsed,publishedAt,updatedAt:publishedAt};
   const publicVersion:PublicForm={id:result.id,title:result.title,description:result.description,
-    kind:result.kind,fields:result.fields,publishedAt};
+    kind:result.kind,fields:result.fields,publishedAt,coverImageUrl:result.coverImageUrl,
+    backgroundImageUrl:result.backgroundImageUrl,visualTheme:result.visualTheme,motion:result.motion};
   // Public snapshot stays fixed until the owner chooses to publish again.
   await uploadJson(admin,publishedPath(id),publicVersion);
   await uploadJson(admin,ownedPath(userId,id),result);
