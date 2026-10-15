@@ -99,8 +99,10 @@ export async function POST(request: NextRequest) {
   const supabaseSecret =
     process.env.SUPABASE_SECRET_KEY;
 
-  const webhookToken =
-    process.env.KIWIFY_WEBHOOK_TOKEN;
+  // A Kiwify can issue a distinct signature token for each webhook.
+  // Existing monthly installations continue using the legacy global token
+  // until their per-plan secret is configured in Vercel.
+  const webhookToken = process.env.KIWIFY_WEBHOOK_TOKEN;
 
   if (
     !supabaseUrl ||
@@ -151,11 +153,30 @@ export async function POST(request: NextRequest) {
     const b = Buffer.from(right, "utf8");
     return a.length === b.length && timingSafeEqual(a, b);
   };
+  // Prefer the dedicated secret for the exact commercial product. A global
+  // secret remains a backward-compatible fallback only for products not yet
+  // migrated, preventing a monthly token from authenticating annual events.
+  const purchasedPlan = String(payload.Product?.product_name ?? "")
+    .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase()
+    .replace(/[–—]/g, "-").trim();
+  let planSecret: string | undefined;
+  if (/\\b(trimestral|397(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+    planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_QUARTERLY;
+  } else if (/\\b(semestral|747(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+    planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_SEMIANNUAL;
+  } else if (/\\b(anual|1297(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+    planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_ANNUAL;
+  } else if (/pre\\s*-?\\s*venda/.test(purchasedPlan)) {
+    planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_PRESALE;
+  } else if (/assinatura|147/.test(purchasedPlan)) {
+    planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_MONTHLY;
+  }
+  const signingToken = planSecret?.trim() || webhookToken;
   const signatureIsHex = /^[0-9a-f]{40}$/i.test(signature);
   const signedJson = JSON.stringify(payload);
-  const expectedCanonical = createHmac("sha1", webhookToken)
+  const expectedCanonical = createHmac("sha1", signingToken)
     .update(signedJson, "utf8").digest("hex");
-  const expectedRaw = createHmac("sha1", webhookToken)
+  const expectedRaw = createHmac("sha1", signingToken)
     .update(rawBody, "utf8").digest("hex");
   const validSignature =
     (signatureIsHex && (
@@ -163,7 +184,7 @@ export async function POST(request: NextRequest) {
       safeEquals(signature.toLowerCase(), expectedRaw)
     )) ||
     // Legacy fixed-token URLs remain authenticated during migration.
-    safeEquals(signature, webhookToken);
+    safeEquals(signature, signingToken);
 
   if (!validSignature) {
     console.warn("[KIWIFY] Authentication failed", {
