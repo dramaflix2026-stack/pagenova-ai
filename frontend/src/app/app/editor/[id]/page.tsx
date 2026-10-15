@@ -5,7 +5,7 @@ import {
   installEditorDomBridge,
   type EditorSelectedElement,
 } from "@/lib/editor-dom-bridge";
-import { readPageNovaProject } from "@/lib/pagenova-project-store";
+import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
 import { useMemo, useState, useCallback, useRef,
   useEffect,
 } from "react";
