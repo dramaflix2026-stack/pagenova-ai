@@ -15,35 +15,78 @@ function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
+
+  async function resendConfirmation() {
+    if (resending || !email.trim()) return;
+    setResending(true);
+    setError("");
+    setConfirmationSent(false);
+    try {
+      const supabase = createClient();
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim().toLowerCase(),
+        options: {
+          emailRedirectTo: window.location.origin + "/auth/callback?next=/app",
+        },
+      });
+      if (resendError) {
+        setError(resendError.code === "over_request_rate_limit"
+          ? "Aguarde alguns instantes antes de solicitar outro e-mail."
+          : "Não foi possível solicitar o novo link. Aguarde e tente novamente.");
+        return;
+      }
+      setConfirmationSent(true);
+    } catch {
+      setError("Não foi possível reenviar a confirmação agora. Tente novamente.");
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
+    if (loading) return;
     setLoading(true);
     setError("");
+    setNeedsConfirmation(false);
+    setConfirmationSent(false);
 
-    const supabase = createClient();
-
-    const { error: loginError } =
-      await supabase.auth.signInWithPassword({
-        email: email.trim(),
+    try {
+      const supabase = createClient();
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
         password,
       });
 
-    if (loginError) {
-      setError("E-mail ou senha inválidos.");
+      if (loginError) {
+        const code = loginError.code || "";
+        const message = loginError.message.toLowerCase();
+        const unconfirmed = code === "email_not_confirmed" || message.includes("email not confirmed");
+        setNeedsConfirmation(unconfirmed);
+        setError(unconfirmed
+          ? "Seu e-mail ainda não foi confirmado. Abra o link enviado após o cadastro ou solicite um novo abaixo."
+          : code === "over_request_rate_limit" || code === "too_many_requests"
+            ? "Muitas tentativas de acesso. Aguarde alguns minutos e tente novamente."
+            : code === "invalid_credentials"
+              ? "Não foi possível entrar com este e-mail e senha. Se acabou de comprar, confirme o e-mail primeiro. Você também pode redefinir a senha."
+              : "Não foi possível autenticar agora. Tente novamente em alguns instantes.");
+        return;
+      }
+
+      const requestedNext = searchParams.get("next");
+      const destination = requestedNext?.startsWith("/app") && !requestedNext.startsWith("//")
+        ? requestedNext : "/app";
+      router.replace(destination);
+      router.refresh();
+    } catch {
+      setError("Não foi possível conectar ao serviço de login. Verifique sua conexão e tente novamente.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const requestedNext = searchParams.get("next");
-
-    const destination =
-      requestedNext?.startsWith("/app")
-        ? requestedNext
-        : "/app";
-
-    router.replace(destination);
   }
 
   return (
@@ -131,10 +174,27 @@ function LoginForm() {
               </div>
             </div>
 
+            {searchParams.get("error") === "invalid_auth_link" && (
+              <div role="alert" className="rounded-xl border border-amber-400/20 bg-amber-400/[0.07] px-4 py-3 text-xs leading-5 text-amber-100">
+                O link de ativação ou recuperação não é válido ou expirou. Solicite um novo link de confirmação
+                ou utilize “Esqueci minha senha”.
+              </div>
+            )}
             {error && (
-              <div className="rounded-xl border border-red-400/15 bg-red-500/[0.07] px-4 py-3 text-xs text-red-200">
+              <div role="alert" className="rounded-xl border border-red-400/15 bg-red-500/[0.07] px-4 py-3 text-xs leading-5 text-red-200">
                 {error}
               </div>
+            )}
+            {needsConfirmation && (
+              <button type="button" onClick={() => void resendConfirmation()} disabled={resending || loading}
+                className="w-full rounded-xl border border-emerald-400/30 bg-emerald-400/[.08] px-4 py-3 text-xs font-bold text-emerald-200 hover:bg-emerald-400/[.14] disabled:opacity-50">
+                {resending ? "Solicitando confirmação..." : "Reenviar e-mail de confirmação"}
+              </button>
+            )}
+            {confirmationSent && (
+              <p role="status" className="rounded-xl border border-emerald-400/20 bg-emerald-400/[.07] px-4 py-3 text-xs leading-5 text-emerald-200">
+                Se este e-mail estiver aguardando confirmação, enviaremos um novo link. Confira também a pasta de spam.
+              </p>
             )}
 
             <button
