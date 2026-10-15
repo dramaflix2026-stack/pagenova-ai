@@ -269,23 +269,23 @@ export default function LandingStudioPage(){
         <p className="text-xs leading-6 text-white/55">Escolha as seções que aparecerão e arraste a ordem usando as setas. A primeira dobra fica sempre no topo.</p>
         <div className="rounded-xl border border-amber-300/25 bg-amber-300/[.06] px-4 py-3 text-xs font-bold text-amber-200">Primeira dobra / Hero · Fixo</div>
         {LANDING_SECTIONS.map(s=>{
-         const index=project.sections.indexOf(s.id),enabled=index>=0;
+         const index=editorProject.sections.indexOf(s.id),enabled=index>=0;
          return <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#10151e] px-3 py-3" key={s.id}>
-          <input aria-label={"Exibir "+s.label} type="checkbox" checked={enabled} onChange={e=>patch({sections:e.target.checked?[...project.sections,s.id]:project.sections.filter(v=>v!==s.id)})} className="h-4 w-4 accent-amber-300"/>
+          <input aria-label={"Exibir "+s.label} type="checkbox" checked={enabled} onChange={e=>patch({sections:e.target.checked?[...editorProject.sections,s.id]:editorProject.sections.filter(v=>v!==s.id)})} className="h-4 w-4 accent-amber-300"/>
           <span className="min-w-0 flex-1 text-xs font-semibold">{s.label}</span>
           <button aria-label={"Mover "+s.label+" para cima"} disabled={!enabled||index===0} onClick={()=>reorder(s.id,-1)} className="rounded p-1 text-white/60 disabled:opacity-20"><ArrowUp className="h-4 w-4"/></button>
-          <button aria-label={"Mover "+s.label+" para baixo"} disabled={!enabled||index===project.sections.length-1} onClick={()=>reorder(s.id,1)} className="rounded p-1 text-white/60 disabled:opacity-20"><ArrowDown className="h-4 w-4"/></button>
+          <button aria-label={"Mover "+s.label+" para baixo"} disabled={!enabled||index===editorProject.sections.length-1} onClick={()=>reorder(s.id,1)} className="rounded p-1 text-white/60 disabled:opacity-20"><ArrowDown className="h-4 w-4"/></button>
          </div>})}
         <p className="text-xs leading-6 text-white/40">As seções sem conteúdo, como depoimentos ou FAQ, permanecem ocultas até você preenchê-las.</p>
        </>}
        {tab==="design"&&<>
         <p className="text-xs font-semibold text-white/65">Direção de arte</p>
         <div className="grid grid-cols-2 gap-2">{LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>changeKind(p.id)}
-         className={"overflow-hidden rounded-xl border text-left "+(p.id===project.kind?"border-amber-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
-        <label className="flex items-center gap-4"><input type="color" value={project.accent} onChange={e=>patch({accent:e.target.value})} className="h-11 w-16 rounded border-0 bg-transparent"/><span className="text-xs font-semibold">Cor de destaque</span></label>
-        <Field label="URL de fotografia própria ou licenciada (HTTPS)" value={project.heroImage.startsWith("data:")?"":project.heroImage} onChange={v=>patch({heroImage:v})} placeholder="https://..."/>
+         className={"overflow-hidden rounded-xl border text-left "+(p.id===editorProject.kind?"border-amber-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
+        <label className="flex items-center gap-4"><input type="color" value={editorProject.accent} onChange={e=>patch({accent:e.target.value})} className="h-11 w-16 rounded border-0 bg-transparent"/><span className="text-xs font-semibold">Cor de destaque</span></label>
+        <Field label="URL de fotografia própria ou licenciada (HTTPS)" value={editorProject.heroImage.startsWith("data:")?"":editorProject.heroImage} onChange={v=>patch({heroImage:v})} placeholder="https://..."/>
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-4 text-xs font-semibold text-white/75 hover:border-amber-300/60"><ImagePlus className="h-4 w-4"/> Enviar imagem de capa (até 1,5 MB)<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void uploadHero(e)}/></label>
-        {project.heroImage&&<button className="text-xs text-red-300" onClick={()=>patch({heroImage:""})}>Remover imagem</button>}
+        {editorProject.heroImage&&<button className="text-xs text-red-300" onClick={()=>patch({heroImage:""})}>Remover imagem</button>}
         <p className="text-xs leading-6 text-white/40">O layout funciona sem imagem externa, graças à composição gráfica interna. Não utilizamos geração paga de imagens.</p>
        </>}
       </div>
@@ -298,7 +298,7 @@ export default function LandingStudioPage(){
          <button title="Visualização desktop" onClick={()=>setViewport("desktop")} className={"rounded-md p-2 "+(viewport==="desktop"?"bg-white/15 text-amber-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
          <button title="Visualização celular" onClick={()=>setViewport("mobile")} className={"rounded-md p-2 "+(viewport==="mobile"?"bg-white/15 text-amber-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
         </div>
-        <button onClick={()=>void loadLeads()} disabled={!project.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
+        <button onClick={()=>void loadLeads()} disabled={!editorProject.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
        </div>
       </div>
       <div className="relative flex min-h-[820px] justify-center overflow-hidden bg-[#252a36] p-2 sm:p-5">
