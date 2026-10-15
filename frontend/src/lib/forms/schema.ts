@@ -29,6 +29,7 @@ export type FormSubmission = {
   id: string;
   formId: string;
   submittedAt: string;
+  consentedAt?: string;
   answers: Array<{ questionId: string; label: string; value: string }>;
 };
 
