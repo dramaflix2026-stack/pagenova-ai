@@ -533,6 +533,7 @@ siteAiRouter.post(
 siteAiRouter.post(
   '/site-projects/:id/sections/:sectionId/ai-edit',
   ...guards,
+  generationLimiter,
   csrfProtection,
   asyncHandler(async (req, res) => {
     const project = await getProjectOrThrow(req.params.id!);
