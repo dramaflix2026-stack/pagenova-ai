@@ -46,6 +46,7 @@ import { renderMuseEditorial, MUSE_EDITORIAL_CSS } from './muse-editorial-render
 import { renderAtelierNorte, ATELIER_NORTE_CSS, ATELIER_NORTE_RUNTIME } from './atelier-norte-render';
 import { renderVertice, VERTICE_CSS } from './vertice-render';
 import { renderNicheSite, NICHE_CSS } from './niche-vertical-render';
+import { renderCasaMesa, CASA_CSS, CASA_JS } from './casa-mesa-render';
 
 export { escapeHtml } from '@site-kit/primitives/render-utils';
 export type { RenderContext } from '@site-kit/primitives/render-utils';
@@ -245,7 +246,7 @@ export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
   const isEstate = model.project.templateId === 'real-estate-premium';
   const isNiche = isRestaurant || isEstate;
   const sections = isNiche
-    ? renderNicheSite(model, ctx, isRestaurant ? 'restaurant' : 'estate', applyVisualTextEdits)
+    ? (isRestaurant ? renderCasaMesa(model, ctx, applyVisualTextEdits) : renderNicheSite(model, ctx, 'estate', applyVisualTextEdits))
     : isVertice
     ? renderVertice(model, ctx, applyVisualTextEdits)
     : isAtelier
@@ -278,8 +279,8 @@ ${model.seo.canonicalUrl ? `<link rel="canonical" href="${escapeHtml(model.seo.c
 <meta property="og:locale" content="pt_BR">
 ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : ''}
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
-${fontLinkTags(isNiche ? ['Manrope'] : isVertice ? ['Manrope'] : isAtelier ? ['Instrument Serif','Work Sans'] : isMuse ? ['Urbanist','Epilogue'] : isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
-<style>${isNiche ? NICHE_CSS : isVertice ? VERTICE_CSS : isAtelier ? ATELIER_NORTE_CSS : isMuse ? MUSE_EDITORIAL_CSS : isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
+${fontLinkTags(isRestaurant ? ['DM Sans','DM Serif Display'] : isNiche ? ['Manrope'] : isVertice ? ['Manrope'] : isAtelier ? ['Instrument Serif','Work Sans'] : isMuse ? ['Urbanist','Epilogue'] : isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
+<style>${isRestaurant ? CASA_CSS : isNiche ? NICHE_CSS : isVertice ? VERTICE_CSS : isAtelier ? ATELIER_NORTE_CSS : isMuse ? MUSE_EDITORIAL_CSS : isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
 ${isNiche ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isVertice ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isAtelier ? `html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
 .skip{position:absolute;left:-9999px;top:0;z-index:1000;padding:12px;background:white;color:#252525}.skip:focus{position:fixed;left:12px;top:12px}
 ` : isMuse ? `/* Muse editorial uses self-contained scoped styles. */
@@ -311,6 +312,7 @@ ${renderJsonLd(model)}
 ${isUniversal || isMuse || isAtelier || isVertice || isNiche ? sections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
 ${isUniversal ? `<script>${FRIGOLOG_STATIC_RUNTIME}</script>` : ''}
 ${isAtelier ? `<script>${ATELIER_NORTE_RUNTIME}</script>` : ''}
+${isRestaurant ? `<script>${CASA_JS}</script>` : ''}
 ${ctx.inlineRuntime ? `<script>${ctx.inlineRuntime}</script>` : ''}
 </body>
 </html>`;
