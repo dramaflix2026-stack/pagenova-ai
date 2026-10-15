@@ -34,7 +34,7 @@ function LoginForm() {
         },
       });
       if (resendError) {
-        setError(resendError.code === "over_request_rate_limit"
+        setError(["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(resendError.code || "")
           ? "Aguarde alguns instantes antes de solicitar outro e-mail."
           : "Não foi possível solicitar o novo link. Aguarde e tente novamente.");
         return;
@@ -69,7 +69,7 @@ function LoginForm() {
         setNeedsConfirmation(unconfirmed);
         setError(unconfirmed
           ? "Seu e-mail ainda não foi confirmado. Abra o link enviado após o cadastro ou solicite um novo abaixo."
-          : code === "over_request_rate_limit" || code === "too_many_requests"
+          : ["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(code)
             ? "Muitas tentativas de acesso. Aguarde alguns minutos e tente novamente."
             : code === "invalid_credentials"
               ? "Não foi possível entrar com este e-mail e senha. Se acabou de comprar, confirme o e-mail primeiro. Você também pode redefinir a senha."
