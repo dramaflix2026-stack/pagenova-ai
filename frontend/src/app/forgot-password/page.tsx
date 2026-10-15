@@ -30,9 +30,9 @@ export default function ForgotPasswordPage() {
       );
 
     if (recoveryError) {
-      setError(
-        "Não foi possível enviar o link agora. Tente novamente em alguns instantes.",
-      );
+      setError(["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(recoveryError.code || "")
+        ? "Muitas solicitações de e-mail. Aguarde alguns minutos antes de pedir outro link."
+        : "Não foi possível enviar o link agora. Tente novamente em alguns instantes.");
       setLoading(false);
       return;
     }
