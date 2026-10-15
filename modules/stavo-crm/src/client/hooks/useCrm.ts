@@ -275,9 +275,11 @@ export function useGoogleDetails(placeId: string | null, enabled: boolean) {
     queryFn: () => api.get<{ details: Record<string, unknown> }>(`/google/places/${placeId}`),
     enabled: Boolean(placeId) && enabled,
     retry: false,
-    // Nao persistimos nada: cada abertura consulta e descarta.
-    gcTime: 0,
-    staleTime: 0,
+    // A consulta PLACE_DETAILS tem custo no Google. Reuse detalhes por 5 min
+    // ao navegar entre leads/abas; uma nova busca real continua possivel apos o TTL.
+    gcTime: 10 * 60_000,
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 }
 
