@@ -1422,6 +1422,11 @@ export default function BuilderPage() {
               ))}
             </div>
           </fieldset>
+          {templateId === "frigolog-universal" && (effectivePresetId === "restaurante" || effectivePresetId === "imobiliaria") && (
+            <p role="status" className="rounded-xl border border-emerald-400/20 bg-emerald-400/[.045] px-3 py-2 text-xs leading-5 text-emerald-100/80">
+              ✦ Estrutura especializada selecionada automaticamente: {effectivePresetId === "restaurante" ? "Restaurante" : "Imobiliária"}. Para usar outro visual, escolha um dos modelos acima.
+            </p>
+          )}
           <details className="rounded-xl border border-white/10 px-4 py-3">
             <summary className="cursor-pointer text-sm font-medium text-white/75">Estilo visual (opcional)</summary>
             <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
