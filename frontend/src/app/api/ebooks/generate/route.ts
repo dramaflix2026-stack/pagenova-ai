@@ -2,6 +2,7 @@ import {NextRequest} from "next/server";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 import type {EbookTheme} from "@/lib/ebooks/schema";
 import {localEbook,LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {detectEbookIntent,buildCookbook} from "@/lib/ebooks/cookbook-engine";
 export const runtime="nodejs";
 export async function POST(request:NextRequest){
  try{
@@ -20,8 +21,15 @@ export async function POST(request:NextRequest){
   const pageCount=[6,8,10,12,16].includes(Number(input.pageCount))?Number(input.pageCount):8;
   const imageMode=input.imageMode==="none"?"none":"web";
   const author=typeof input.author==="string"?input.author.trim().slice(0,140):"";
-  const ebook=localEbook({prompt:prompt||"Referências visuais fornecidas pelo autor; complete o briefing textual.",pageCount,author,theme,
-    tone:typeof input.tone==="string"?input.tone.slice(0,150):"",imageMode});
-  return Response.json({ebook,usage:null,engine:LOCAL_ENGINE_MODE,paidApiCalls:0},{headers:{"Cache-Control":"no-store"}});
+  const intent=detectEbookIntent(prompt);
+  const ebook=intent.kind==="cookbook"
+    ?buildCookbook({prompt,count:intent.requestedItems,author,theme,imageMode})
+    :localEbook({prompt:prompt||"Referências visuais fornecidas pelo autor; complete o briefing textual.",pageCount,author,theme,
+      tone:typeof input.tone==="string"?input.tone.slice(0,150):"",imageMode});
+  const delivered=intent.kind==="cookbook"?ebook.pages.filter(page=>page.kind==="recipe").length:null;
+  return Response.json({ebook,usage:null,engine:intent.kind==="cookbook"?"curated-cookbook-v1":LOCAL_ENGINE_MODE,
+    paidApiCalls:0,editorialPlan:{kind:intent.kind,requestedItems:intent.requestedItems,deliveredItems:delivered,
+    pages:ebook.pages.length,validated:intent.kind==="cookbook"?delivered===intent.requestedItems:true}},
+    {headers:{"Cache-Control":"no-store"}});
  }catch(error){return errorsAsResponse(error);}
 }
