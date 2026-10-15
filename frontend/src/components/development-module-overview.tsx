@@ -82,14 +82,14 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
    <header className="flex flex-wrap items-center justify-between gap-4">
     <div><Link href="/app/builder" className="inline-flex items-center gap-2 text-xs text-white/50 hover:text-white"><ArrowLeft className="h-4 w-4"/> Voltar ao Studio</Link>
      <div className="mt-5 flex items-center gap-3 text-emerald-300">{isApp?<Smartphone className="h-8 w-8"/>:<Blocks className="h-8 w-8"/>}<p className="text-xs font-bold uppercase tracking-[.16em]">PageNova · Desenvolvimento</p></div>
-     <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Desenvolver {name}</h1>
+     <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Protótipos de {name}</h1>
      <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Descreva sua ideia e gere um modelo de projeto {isApp?"Expo / React Native":"Next.js / React"} com arquivos reais. Sem API paga: o criador oferece estruturas funcionais pré-definidas, não código novo para qualquer instrução.</p>
     </div>
     {project&&<button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#073023]"><Download className="h-4 w-4"/> Exportar projeto ZIP</button>}
    </header>
    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.9fr)]">
     <section className="flex min-h-[550px] flex-col rounded-3xl border border-emerald-400/20 bg-[#10221a] p-5">
-     <div className="flex items-center gap-3 border-b border-white/10 pb-4"><div className="rounded-xl bg-emerald-400/10 p-3 text-emerald-300"><Sparkles className="h-5 w-5"/></div><div><h2 className="font-bold">Assistente de desenvolvimento</h2><p className="text-xs text-white/50">Templates locais, sem APIs pagas</p></div></div>
+     <div className="flex items-center gap-3 border-b border-white/10 pb-4"><div className="rounded-xl bg-emerald-400/10 p-3 text-emerald-300"><Sparkles className="h-5 w-5"/></div><div><h2 className="font-bold">Construtor de modelos iniciais</h2><p className="text-xs text-white/50">Templates locais, sem APIs pagas</p></div></div>
      <div className="my-5 max-h-[500px] min-h-[170px] flex-1 space-y-3 overflow-y-auto">
       {!(project?.conversation.length)&&<p className="rounded-xl border border-white/10 bg-white/[.035] p-4 text-sm leading-7 text-white/65">Escolha seu objetivo (tarefas, agendamentos ou produtos). O modelo local gera um projeto inicial; novas funcionalidades precisam de desenvolvimento no código.</p>}
       {project?.conversation.map((item,i)=><p key={i} className={"max-w-[95%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-7 "+(item.role==="user"?"ml-auto bg-emerald-400/15 text-emerald-100":"mr-auto border border-white/10 bg-white/[.04] text-white/70")}>{item.text}</p>)}
