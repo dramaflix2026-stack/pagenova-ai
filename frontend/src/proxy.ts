@@ -2,15 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
-  // The invited user's PKCE code must be exchanged on the SAME hostname
-  // where the subsequent password update and login run. Otherwise browser
-  // auth cookies can be bound to www while the app runs on the apex domain.
-  // Keep the full path and verification query intact.
-  if (request.nextUrl.hostname.toLowerCase() === "www.pagenovaai.com.br") {
-    const canonical = request.nextUrl.clone();
-    canonical.hostname = "pagenovaai.com.br";
-    return NextResponse.redirect(canonical, 307);
-  }
+  // Hostname canonicalization belongs in Vercel's domain configuration.
+  // Never redirect www to apex here: when Vercel redirects apex to www,
+  // an application-level reverse redirect produces ERR_TOO_MANY_REDIRECTS.
+  // Keep auth callback parameters and cookies on the hostname selected by Vercel.
   let response = NextResponse.next({
     request,
   });
