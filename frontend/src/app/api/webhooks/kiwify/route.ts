@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { timingSafeEqual } from "node:crypto";
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -94,32 +94,55 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const signature =
-    request.nextUrl.searchParams.get("signature");
-
-  const supplied = Buffer.from(signature ?? "", "utf8");
-  const configured = Buffer.from(webhookToken, "utf8");
-  if (supplied.length !== configured.length || !timingSafeEqual(supplied, configured)) {
-    console.warn("[KIWIFY] Authentication failed", { reason: signature ? "invalid" : "missing" });
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  // Kiwify's product-sales webhooks add a signature query parameter with
+  // HMAC-SHA1(JSON.stringify(payload), webhook token). The configured URL
+  // itself normally does not include the signature. Older integrations used
+  // an exact static token; keep that legacy format during migration.
+  const signature = request.nextUrl.searchParams.get("signature") ?? "";
+  let rawBody: string;
+  let payload: KiwifyPayload;
+  try {
+    const length = Number(request.headers.get("content-length") || "0");
+    if (length > 1_048_576) {
+      return NextResponse.json({ ok: false, error: "payload_too_large" }, { status: 413 });
+    }
+    rawBody = await request.text();
+    if (rawBody.length > 1_048_576) {
+      return NextResponse.json({ ok: false, error: "payload_too_large" }, { status: 413 });
+    }
+    payload = JSON.parse(rawBody) as KiwifyPayload;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+      throw new Error("Invalid payload shape");
+    }
+  } catch {
+    return NextResponse.json({ ok: false, error: "invalid_json" }, { status: 400 });
   }
 
+  const safeEquals = (left: string, right: string) => {
+    const a = Buffer.from(left, "utf8");
+    const b = Buffer.from(right, "utf8");
+    return a.length === b.length && timingSafeEqual(a, b);
+  };
+  const signatureIsHex = /^[0-9a-f]{40}$/i.test(signature);
+  const signedJson = JSON.stringify(payload);
+  const expectedCanonical = createHmac("sha1", webhookToken)
+    .update(signedJson, "utf8").digest("hex");
+  const expectedRaw = createHmac("sha1", webhookToken)
+    .update(rawBody, "utf8").digest("hex");
+  const validSignature =
+    (signatureIsHex && (
+      safeEquals(signature.toLowerCase(), expectedCanonical) ||
+      safeEquals(signature.toLowerCase(), expectedRaw)
+    )) ||
+    // Legacy fixed-token URLs remain authenticated during migration.
+    safeEquals(signature, webhookToken);
 
-  let payload: KiwifyPayload;
-
-  try {
-    payload =
-      (await request.json()) as KiwifyPayload;
-  } catch {
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "invalid_json",
-      },
-      {
-        status: 400,
-      }
-    );
+  if (!validSignature) {
+    console.warn("[KIWIFY] Authentication failed", {
+      reason: signature ? "invalid" : "missing",
+      format: signatureIsHex ? "hmac" : "other",
+    });
+    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
   }
 
   const event =
