@@ -49,6 +49,8 @@ export default function FormulariosPage(){
   const [responses,setResponses]=useState<FormSubmission[]>([]);
   const [loadingResponses,setLoadingResponses]=useState(false);
   const [attachments,setAttachments]=useState<File[]>([]);
+  const [revisionPrompt,setRevisionPrompt]=useState("");
+  const [isRevising,setIsRevising]=useState(false);
 
   async function loadSaved() {
     try{
@@ -130,6 +132,21 @@ export default function FormulariosPage(){
       setNotice("A IA montou as perguntas. Você pode alterar tudo antes de salvar.");
     }catch(cause){setError(feedbackText(cause));}
     finally{setIsGenerating(false);}
+  }
+  async function reviseWithAi(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    if(!form||isRevising||isSaving||isPublishing||revisionPrompt.trim().length<8)return;
+    setIsRevising(true);setError("");setNotice("");
+    try{
+      const generated=await jsonRequest<{form:FormInput}>("/api/forms/generate",{
+        prompt:revisionPrompt.trim(),existing:normalizeForm(form),
+      });
+      const next=normalizeForm(generated.form);
+      setForm({...form,...next,fields:next.fields.map((field,i)=>({...field,imageUrl:field.imageUrl||form.fields[i]?.imageUrl}))});
+      setDirty(true);setTab("questions");setPreviewIndex(0);setRevisionPrompt("");
+      setNotice("Alterações aplicadas ao rascunho. Salve e publique novamente para atualizar o link.");
+    }catch(cause){setError(feedbackText(cause));}
+    finally{setIsRevising(false);}
   }
   async function saveForm(current:PageNovaForm):Promise<PageNovaForm>{
     const payload=normalizeForm(current);
@@ -308,7 +325,20 @@ export default function FormulariosPage(){
         </header>
         {error&&<p role="alert" className="rounded-xl border border-red-400/25 bg-red-400/[.07] px-4 py-3 text-center text-sm text-red-200">{error}</p>}
         {notice&&<p role="status" className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.07] px-4 py-3 text-center text-sm text-emerald-200">{notice}</p>}
-        {published&&<div className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-4 text-center">
+        <form onSubmit={reviseWithAi} className="rounded-2xl border border-emerald-400/20 bg-[#10211a] p-4 sm:p-5">
+           <div className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-200"><Sparkles className="h-4 w-4"/> Conversar com a IA sobre este formulário</div>
+           <textarea rows={3} value={revisionPrompt} onChange={event=>setRevisionPrompt(event.target.value)}
+             placeholder="Peça mudanças: troque as perguntas, coloque emojis, acrescente uma pergunta de satisfação..."
+             className={fieldClass+" resize-y text-sm leading-6"} />
+           <div className="mt-3 flex flex-wrap items-center gap-2">
+             <VoiceButton disabled={isRevising} onText={text=>setRevisionPrompt(v=>(v?v+" ":"")+text)}/>
+             <span className="min-w-0 flex-1 text-xs text-white/40">Escreva ou dite sua alteração. Suas imagens são preservadas.</span>
+             <button type="submit" disabled={isRevising||revisionPrompt.trim().length<8} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-bold text-[#032d1c] disabled:opacity-40">
+               {isRevising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Alterar com IA
+             </button>
+           </div>
+         </form>
+         {published&&<div className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-4 text-center">
           <p className="text-sm font-semibold text-emerald-300">Seu formulário está publicado</p>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
             <a href={publishedLink} target="_blank" rel="noopener noreferrer" className="max-w-full break-all text-sm text-white underline underline-offset-4">{baseUrl?baseUrl+publishedLink:publishedLink}</a>
