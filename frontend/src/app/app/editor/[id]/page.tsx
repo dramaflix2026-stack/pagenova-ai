@@ -1049,6 +1049,8 @@ setEditingText(fullText);
   // V4C_2_REAL_SAVE
   const [saveStatus, setSaveStatus] =
     useState<string | null>(null);
+  const [publishingClone,setPublishingClone]=useState(false);
+  const [publishedCloneUrl,setPublishedCloneUrl]=useState("");
 
   const saveEditedProject =
     useCallback(() => {
@@ -1149,6 +1151,32 @@ if (!project) {
         );
       }
     }, [project]);
+  async function publishImportedProject(){
+    if(!project||publishingClone)return;
+    setPublishingClone(true);setSaveStatus(null);
+    try{
+      const doc=editorIframeRef.current?.contentDocument;
+      if(!doc?.documentElement)throw new Error("A prévia ainda não está pronta.");
+      const html="<!doctype html>"+doc.documentElement.outerHTML;
+      const current={...project,visualHtml:html,visualHeadHtml:doc.head?.innerHTML||"",
+        visualBodyHtml:doc.body?.innerHTML||""};
+      // The user can return to the editor even after reloading the tab.
+      await savePageNovaProject(project.id,current);
+      sessionStorage.setItem("lp-clone-project:"+project.id,JSON.stringify(current));
+      setProject(current);
+      const response=await fetch("/api/cloner/publish",{
+        method:"POST",credentials:"same-origin",cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({projectId:project.id,title:project.title,html})
+      });
+      const data=await response.json().catch(()=>({})) as {url?:string;error?:string};
+      if(!response.ok||!data.url)throw new Error(data.error||"Não foi possível publicar.");
+      setPublishedCloneUrl(data.url);
+      setSaveStatus("Página publicada com sucesso.");
+    }catch(error){
+      setSaveStatus(error instanceof Error?error.message:"Erro ao publicar.");
+    }finally{setPublishingClone(false);}
+  }
   // PAGENOVA_EDITOR_TEXT_COMMANDS_START
   const sendEditorCommand =
     useCallback((command: Record<string, unknown>) => {
@@ -1341,6 +1369,12 @@ if (!project) {
             >
               Salvar
             </button>
+            <button type="button" disabled={publishingClone} onClick={()=>void publishImportedProject()}
+              className="rounded-lg border border-emerald-300/50 px-3 py-2 text-sm font-bold text-emerald-300 hover:bg-emerald-300/10 disabled:opacity-50">
+              {publishingClone?"Publicando...":"Publicar"}
+            </button>
+            {publishedCloneUrl&&<a href={publishedCloneUrl} target="_blank" rel="noopener noreferrer"
+               className="rounded-lg bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20">Ver publicado</a>}
           </div>
         </div>
       </header>
