@@ -75,7 +75,7 @@ function compact(raw:string,max=800):string{return raw.replace(/\s+/g," ").trim(
 type TextLink={text:string;href:string};
 type SiteImage={src:string;alt:string};
 function normalizeHtml(html:string,base:URL){
-  const $=cheerio.load(html,{decodeEntities:true});
+  const $=cheerio.load(html);
   $("script,noscript,iframe,object,embed,form,input,button,textarea,select,video,audio,meta[http-equiv],base,svg").remove();
   $("[style]").removeAttr("style");
   $("[onclick],[onload],[onerror],[onmouseover],[onfocus]").each((_,el)=>{
