@@ -13,6 +13,7 @@ import {
 import {PublicQuizPlayer} from "@/components/quizzes/PublicQuizPlayer";
 import {MediaImageField} from "@/components/studio/MediaImageField";
 import {VoiceButton} from "@/components/studio/VoiceButton";
+import {downloadStudioCsv} from "@/lib/studio-response-export";
 
 type QuizSummary={id:string;title:string;updatedAt:string;publishedAt:string|null;questions:number};
 type Screen="start"|"editor";
@@ -350,14 +351,17 @@ export default function QuizStudioPage(){
     return <div className="space-y-4">
       {!quiz.id?<p className="rounded-xl border border-white/10 p-6 text-sm text-white/55">Salve e publique o quiz para receber participações.</p>:
         loadingResponses?<p className="text-sm text-white/60">Carregando participações...</p>:
-        <><div className="grid gap-3 sm:grid-cols-3">
+        <><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-white/50">Resultados finais das participações recentes</span><button type="button" onClick={()=>downloadStudioCsv("respostas-quiz-"+quiz.id+".csv",["Data","Resultado","Nome","Email",...quiz.questions.map(q=>q.title)],responses.map(entry=>[
+          entry.submittedAt,quiz.outcomes.find(o=>o.id===entry.outcomeId)?.title||"Resultado",entry.lead?.name||"",entry.lead?.email||"",
+          ...quiz.questions.map(question=>question.options.find(option=>option.id===entry.answers.find(answer=>answer.questionId===question.id)?.optionId)?.label||"")
+        ]))} disabled={responses.length===0} className="rounded-xl border border-emerald-400/30 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Exportar CSV</button></div><div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-white/10 bg-[#10211a] p-5">
             <p className="text-xs text-white/50">Participações recentes</p>
             <p className="mt-2 text-3xl font-bold">{responses.length}</p>
           </div>
-          {counts.slice(0,2).map(o=><div key={o.id} className="rounded-xl border border-white/10 bg-[#10211a] p-5">
+          {counts.map(o=><div key={o.id} className="rounded-xl border border-white/10 bg-[#10211a] p-5">
             <p className="truncate text-xs text-white/55" title={o.name}>{o.name}</p>
-            <p className="mt-2 text-3xl font-bold">{o.count}</p>
+            <p className="mt-2 text-3xl font-bold">{o.count}</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-emerald-400" style={{width:(responses.length?Math.round(o.count/responses.length*100):0)+"%"}}/></div>
           </div>)}
         </div>
         {responses.length===0?<p className="rounded-xl border border-white/10 p-7 text-center text-sm text-white/55">Ainda não há respostas. Compartilhe o link publicado para receber participações.</p>:
@@ -367,7 +371,7 @@ export default function QuizStudioPage(){
             <span className="text-xs text-white/45">{prettyDate(entry.submittedAt)}</span>
           </div>
           {entry.lead&&<p className="mt-2 break-words text-xs text-emerald-200">{entry.lead.name} · {entry.lead.email}</p>}
-          <p className="mt-1 text-xs text-white/40">{entry.answers.length} respostas</p>
+          <details className="mt-3 rounded-xl border border-white/10 bg-black/15 p-3"><summary className="cursor-pointer text-xs font-semibold text-emerald-200">Ver {entry.answers.length} respostas desta participação</summary><div className="mt-3 space-y-3">{quiz.questions.map((question,i)=><div key={question.id}><p className="text-xs font-semibold text-white/65">{i+1}. {question.title}</p><p className="mt-1 text-xs text-white/85">{question.options.find(option=>option.id===entry.answers.find(a=>a.questionId===question.id)?.optionId)?.label||"Não informado"}</p></div>)}</div></details>
         </div>)}
         </>}
       <p className="text-xs leading-6 text-white/40">Exibindo até 100 participações recentes. Os dados são privados e acessíveis apenas ao responsável pelo projeto.</p>
