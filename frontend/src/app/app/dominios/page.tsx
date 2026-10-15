@@ -1,0 +1,20 @@
+import Link from "next/link";
+import { ArrowLeft, ArrowRight, CircleHelp, Globe, ShieldCheck, ExternalLink } from "lucide-react";
+export const metadata={title:"Domínio profissional | PageNova AI",description:"Como conectar um endereço profissional ao seu site publicado."};
+export default function DominiosPage(){
+ const steps=[
+  {title:"Publique seu site",body:"No editor, escolha Publicar e confirme que a prévia pública funciona. Guarde o endereço temporário."},
+  {title:"Compre ou escolha um domínio",body:"Registre um domínio em um provedor de sua preferência. Você continua proprietário do domínio e pode manter a gestão de DNS onde quiser."},
+  {title:"Solicite o vínculo seguro",body:"O domínio precisa ser associado ao projeto certo no serviço de hospedagem antes de apontar os registros DNS. Não copie IPs de outro site nem mude seus registros sem essa confirmação."},
+  {title:"Configure e verifique o DNS",body:"Depois de receber os registros específicos do seu projeto, adicione-os na zona DNS do domínio. Aguarde a propagação e verifique HTTPS e redirecionamento de www."},
+ ];
+ return <main className="min-h-screen bg-[#09120e] px-4 py-10 text-white sm:px-8"><div className="mx-auto max-w-4xl">
+  <Link href="/app/paginas" className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white"><ArrowLeft className="h-4 w-4"/> Meus sites</Link>
+  <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-2 text-xs font-bold text-emerald-200"><Globe className="h-4 w-4"/> ENDEREÇO PROFISSIONAL</div>
+  <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-5xl">Como usar seu próprio domínio</h1>
+  <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Transforme o endereço público temporário do site em algo como <strong className="text-white">www.suaempresa.com.br</strong>. O domínio pertence a você; a publicação do site e o vínculo DNS são etapas diferentes.</p>
+  <div className="mt-10 grid gap-4 sm:grid-cols-2">{steps.map((step,i)=><section key={step.title} className="rounded-2xl border border-white/10 bg-[#102219] p-6"><span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/15 font-bold text-emerald-300">{i+1}</span><h2 className="mt-5 text-lg font-bold">{step.title}</h2><p className="mt-3 text-sm leading-7 text-white/60">{step.body}</p></section>)}</div>
+  <section className="mt-8 rounded-2xl border border-amber-300/20 bg-amber-300/5 p-6"><div className="flex items-center gap-2 font-semibold text-amber-200"><CircleHelp className="h-5 w-5"/> Importante antes de alterar o DNS</div><p className="mt-3 text-sm leading-7 text-white/70">Esta página ensina as etapas. A associação automática de domínio ao projeto e a verificação de DNS <strong>ainda não estão disponíveis como fluxo de autoatendimento</strong> na PageNova. Não apontaremos um domínio para outro cliente nem exibiremos registros DNS genéricos como se fossem específicos do seu site.</p></section>
+  <section className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-400/20 bg-[#11291e] p-6"><ShieldCheck className="h-7 w-7 text-emerald-300"/><div className="min-w-0 flex-1"><h2 className="font-bold">Pronto para conectar?</h2><p className="mt-1 text-sm text-white/60">Tenha em mãos o endereço do site publicado e o domínio que deseja usar.</p></div><Link href="/app/paginas" className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062c1c]">Ver meus sites <ArrowRight className="h-4 w-4"/></Link></section>
+ </div></main>;
+}
