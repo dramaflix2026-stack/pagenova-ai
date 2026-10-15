@@ -21,7 +21,7 @@ export async function GET(_req:NextRequest,context:Context){
  if(!html)return new Response("Publicação indisponível.",{status:503});
  return new Response(html,{status:200,headers:{
    "Content-Type":"text/html; charset=utf-8",
-   "Cache-Control":"public, max-age=60, stale-while-revalidate=180",
+   "Cache-Control":"public, max-age=0, must-revalidate",
    "X-Content-Type-Options":"nosniff",
    "Referrer-Policy":"no-referrer",
    "X-Frame-Options":"DENY",
