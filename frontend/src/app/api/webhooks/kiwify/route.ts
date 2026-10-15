@@ -40,7 +40,9 @@ function normalizeEmail(value: unknown) {
 function getStatus(
   event: string
 ): EntitlementStatus | null {
-  if (event === "order_approved") {
+  // Renewals are paid subscription orders just like initial approvals.
+  // Both routes must activate the same entitlement/credit cycle by order_id.
+  if (event === "order_approved" || event === "subscription_renewed") {
     return "active";
   }
 
@@ -145,11 +147,11 @@ export async function POST(request: NextRequest) {
   }
 
   if (
-    event === "order_approved" &&
+    status === "active" &&
     payload.order_status !== "paid"
   ) {
     console.log(
-      "[KIWIFY] Approved event ignored because order is not paid."
+      "[KIWIFY] Activation ignored because order is not marked paid."
     );
 
     return NextResponse.json({
@@ -234,6 +236,27 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Prevent older approval/renewal deliveries from resurrecting an already
+  // refunded or charged-back order. This must work even if credits are disabled.
+  if (status === "active") {
+    const { data: existingOrder, error: existingOrderError } = await admin
+      .from("entitlements")
+      .select("status,email")
+      .eq("provider", "kiwify")
+      .eq("provider_order_id", effectiveOrderId)
+      .maybeSingle();
+    if (existingOrderError) {
+      console.error("[KIWIFY] Prior order lookup failed.", { code: existingOrderError.code });
+      return NextResponse.json({ ok: false, error: "order_lookup_failed" }, { status: 500 });
+    }
+    if (existingOrder && existingOrder.email.trim().toLowerCase() !== email) {
+      return NextResponse.json({ ok: false, error: "order_email_conflict" }, { status: 409 });
+    }
+    if (existingOrder && ["refunded","chargeback","revoked"].includes(existingOrder.status)) {
+      return NextResponse.json({ ok: true, processed: false, reason: "order_already_revoked" });
+    }
+  }
+
   const purchaseData = {
     order_ref:
       payload.order_ref ?? null,
@@ -246,6 +269,7 @@ export async function POST(request: NextRequest) {
       payload.order_status ?? null,
 
     event,
+    subscription_event: event === "subscription_renewed" ? "renewed" : null,
 
     product_id:
       payload.Product?.product_id ?? null,
