@@ -7,7 +7,7 @@
  * de preview" e um "renderer de producao" com implementacoes que podem
  * divergir (secao 5.5).
  */
-import { Grip, ImagePlus, Loader2, Monitor, Redo2, Smartphone, Undo2 } from 'lucide-react';
+import { Grip, ImagePlus, Loader2, Monitor, Redo2, Smartphone, Undo2, Mic, Paperclip, Send } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
@@ -70,6 +70,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error' | 'conflict'>('idle');
   const [conflictConfig, setConflictConfig] = useState<SiteSchemaModel | null>(null);
   const [aiInstruction, setAiInstruction] = useState('');
+  const [aiAnalyzing,setAiAnalyzing]=useState(false);
+  const [aiListening,setAiListening]=useState(false);
+  const aiDictation=useRef<{stop():void}|null>(null);
   const [showVersions, setShowVersions] = useState(false);
   const [showPublish, setShowPublish] = useState(false);
   const [showIssues, setShowIssues] = useState(false);
@@ -344,6 +347,32 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     );
   };
 
+  async function analyzeAiReference(file:File){
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>3*1024*1024){toast.error("Use print JPG/PNG/WebP até 3 MB.");return;}
+    setAiAnalyzing(true);
+    try{
+      const body=new FormData();body.append("files",file);
+      const result=await fetch("/api/builder/analyze-attachments",{method:"POST",body,credentials:"same-origin"});
+      const payload=await result.json().catch(()=>({})) as {summary?:string;error?:string};
+      if(!result.ok||!payload.summary)throw new Error(payload.error||"Falha na análise do print.");
+      setAiInstruction(old=>old+"\n\nREFERÊNCIA VISUAL:\n"+payload.summary);
+      toast.success("Print interpretado. Revise o pedido e clique em Aplicar.");
+    }catch(error){toast.error(error instanceof Error?error.message:"Não foi possível analisar o print.");}
+    finally{setAiAnalyzing(false);}
+  }
+  function toggleAiDictation(){
+    if(aiListening){aiDictation.current?.stop();setAiListening(false);return;}
+    type SResult={resultIndex:number;results:ArrayLike<ArrayLike<{transcript:string}>>};
+    type Speech={lang:string;continuous:boolean;interimResults:boolean;onresult:((event:SResult)=>void)|null;onend:(()=>void)|null;onerror:(()=>void)|null;start():void;stop():void};
+    const w=window as unknown as {SpeechRecognition?:new()=>Speech;webkitSpeechRecognition?:new()=>Speech};
+    const C=w.SpeechRecognition||w.webkitSpeechRecognition;
+    if(!C){toast.error("Microfone indisponível neste navegador. Tente Chrome.");return;}
+    const r=new C();r.lang="pt-BR";r.continuous=true;r.interimResults=false;
+    r.onresult=event=>{for(let i=event.resultIndex;i<event.results.length;i++){const said=event.results[i]?.[0]?.transcript?.trim();if(said)setAiInstruction(old=>(old?old+" ":"")+said);}};
+    r.onend=()=>setAiListening(false);r.onerror=()=>setAiListening(false);
+    aiDictation.current=r;
+    try{r.start();setAiListening(true);}catch{setAiListening(false);}
+  }
   const discardAndReload = () => {
     if (!conflictConfig) return;
     history.reset(conflictConfig);
@@ -749,7 +778,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
       ? 'Muse Editorial aplicado! Conteúdo preservado. Revise as seções antes de publicar.'
       : nextTemplate === 'frigolog-universal'
         ? 'Modelo Original aplicado! Conteúdo preservado. Revise antes de publicar.'
-        : 'Visual anterior restaurado. Conteúdo preservado.');
+        : 'Template alterado. Conteúdo preservado; revise a prévia antes de publicar.');
   };
 
   const correctColors = () => {
@@ -828,6 +857,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
               ['frigolog-universal', 'Modelo 1 · Original'],
               ['muse-editorial', 'Modelo 2 · Muse Editorial'],
               ['atelier-norte','Modelo 3 · Atelier Norte'],
+              ['vertice-corporate','Modelo 4 · Vértice'],
+              ['restaurant-premium','Restaurante · Casa da Mesa'],
+              ['real-estate-premium','Imobiliária · Especializado'],
               ['standard', 'Visual anterior'],
             ] as const).map(([id,label])=>(
               <button key={id} type="button" aria-pressed={(config.project.templateId ?? 'standard')===id}
@@ -875,6 +907,33 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : null}
 
+      <section className="border-b border-primary/20 bg-surface px-3 py-3" aria-label="Alterar site com IA">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <div><p className="text-sm font-semibold text-foreground">✨ Alterar site com IA</p>
+            <p className="text-[11px] text-muted-foreground">Peça mudanças na seção selecionada por texto, voz ou print.</p></div>
+          <select aria-label="Seção para alterar com IA" value={selectedSection?.id||""}
+            onChange={event=>setSelectedId(event.target.value)} className="max-w-[280px] rounded-lg border border-border bg-card px-3 py-2 text-xs">
+            <option value="">Selecione uma seção</option>
+            {config.sections.filter(section=>section.visible).map((section,index)=><option key={section.id} value={section.id}>Seção {index+1} · {section.type}</option>)}
+          </select>
+        </div>
+        <div className="flex flex-wrap items-end gap-2">
+          <textarea rows={2} value={aiInstruction} onChange={event=>setAiInstruction(event.target.value)}
+            placeholder="Ex.: troque o texto do botão, diminua a seção e destaque o benefício principal..."
+            className="min-w-[220px] flex-1 resize-y rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary"/>
+          <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border bg-muted" title="Adicionar print como referência">
+            {aiAnalyzing?<Loader2 className="h-4 w-4 animate-spin"/>:<Paperclip className="h-4 w-4"/>}
+            <input type="file" accept="image/jpeg,image/png,image/webp" disabled={aiAnalyzing} className="sr-only"
+              onChange={event=>{const file=event.target.files?.[0];if(file)void analyzeAiReference(file);event.target.value="";}}/>
+          </label>
+          <button type="button" onClick={toggleAiDictation} title={aiListening?"Parar ditado":"Ditar alteração"} aria-pressed={aiListening}
+            className={"h-10 w-10 rounded-lg border "+(aiListening?"border-red-400 bg-red-100 text-red-600":"border-border bg-muted")}><Mic className="mx-auto h-4 w-4"/></button>
+          <button type="button" onClick={handleAiEdit} disabled={!selectedSection||!aiInstruction.trim()||aiEdit.isPending||aiAnalyzing}
+            className="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-xs font-semibold text-primary-foreground disabled:opacity-40">
+            {aiEdit.isPending?<Loader2 className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Aplicar
+          </button>
+        </div>
+      </section>
       <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
         <span>Toque para selecionar; arraste o próprio bloco para mover. O canto redimensiona sem cortar o texto.</span>
         <span>Duplo clique no texto para editar. Duplo clique na imagem para trocar.</span>
