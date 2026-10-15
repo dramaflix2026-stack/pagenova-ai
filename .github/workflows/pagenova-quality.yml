@@ -1,0 +1,25 @@
+name: PageNova Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static-quality:
+    name: Local generators and commercial safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate curated eBook recipes
+        run: node frontend/scripts/validate-ebooks.mjs
+      - name: Validate payment, limits and module wiring
+        run: node frontend/scripts/validate-platform.mjs
