@@ -72,6 +72,17 @@ export default function FormulariosPage(){
     setTab("questions");setPreviewIndex(0);setScreen("review");setResponses([]);
     setError("");setNotice("");setCopied(false);
   }
+  async function openPublishedResponses(draft:PageNovaForm){
+    openDraft(draft);
+    setTab("responses");setLoadingResponses(true);
+    try{
+      const response=await fetch("/api/forms/"+encodeURIComponent(draft.id)+"/responses",{cache:"no-store"});
+      const body=await response.json().catch(()=>({})) as {responses?:FormSubmission[];error?:string};
+      if(!response.ok)throw new Error(body.error||"Não foi possível carregar as respostas.");
+      setResponses(body.responses||[]);
+    }catch(err){setError(feedbackText(err));}
+    finally{setLoadingResponses(false);}
+  }
   function reset(){
     if(dirty&&!window.confirm("Existem alterações não salvas. Deseja voltar mesmo assim?"))return;
     setScreen("start");setForm(null);setError("");setNotice("");setCopied(false);
@@ -90,7 +101,7 @@ export default function FormulariosPage(){
           return await new Promise<File>((resolve,reject)=>{
             const element=document.createElement("video");
             const uri=URL.createObjectURL(file);
-            element.preload="metadata";element.muted=true;
+            element.preload="auto";element.muted=true;
             const fail=()=>{URL.revokeObjectURL(uri);reject(new Error("Não foi possível extrair um quadro deste vídeo."));};
             element.onerror=fail;
             element.onloadeddata=()=>{
@@ -236,7 +247,7 @@ export default function FormulariosPage(){
             <p className="mt-1 text-xs text-white/45">Gere um formulário com a IA e salve para continuar depois.</p>
           </div>
           :<div className="grid gap-3 sm:grid-cols-2">
-            {saved.map(item=><button key={item.id} type="button" onClick={()=>openDraft(item)}
+            {saved.map(item=><div key={item.id} className="min-w-0"><button type="button" onClick={()=>openDraft(item)}
               aria-label={`Editar formulário: ${item.title}`}
               className="group relative flex min-h-[178px] w-full flex-col overflow-hidden rounded-[20px] border border-white/[.1] bg-gradient-to-br from-[#14231f] via-[#101b1a] to-[#0d1417] p-4 text-left shadow-[0_12px_34px_rgba(0,0,0,.13)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_16px_38px_rgba(0,0,0,.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:min-h-[188px] sm:p-5">
               <span className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-emerald-400/[.045] blur-2xl" aria-hidden="true"/>
@@ -261,7 +272,9 @@ export default function FormulariosPage(){
                   Continuar edição <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true"/>
                 </span>
               </span>
-            </button>)}
+            </button>
+            {item.publishedAt&&<button type="button" className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/30 px-4 py-3 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10" onClick={()=>void openPublishedResponses(item)}><BarChart3 className="h-4 w-4"/> Ver respostas</button>}
+            </div>)}
           </div>}
         </section>
       </div>
