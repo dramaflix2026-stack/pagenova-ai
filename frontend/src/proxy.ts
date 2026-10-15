@@ -2,6 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // The invited user's PKCE code must be exchanged on the SAME hostname
+  // where the subsequent password update and login run. Otherwise browser
+  // auth cookies can be bound to www while the app runs on the apex domain.
+  // Keep the full path and verification query intact.
+  if (request.nextUrl.hostname.toLowerCase() === "www.pagenovaai.com.br") {
+    const canonical = request.nextUrl.clone();
+    canonical.hostname = "pagenovaai.com.br";
+    return NextResponse.redirect(canonical, 307);
+  }
   let response = NextResponse.next({
     request,
   });
@@ -58,6 +67,7 @@ export const config = {
   matcher: [
     "/app/:path*",
     "/login",
+    "/cadastro",
     "/forgot-password",
     "/reset-password",
     "/auth/callback",
