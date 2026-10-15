@@ -193,9 +193,54 @@ export async function POST(request: NextRequest) {
   const now =
     new Date().toISOString();
 
+  // An approved pre-sale order may have been reconciled manually before
+  // its webhook was configured. Kiwify's short order_ref is the only ID
+  // available on the sales receipt; keep that alias for entitlement and
+  // credit-cycle idempotency when the later webhook supplies the full order_id.
+  const orderRef = typeof payload.order_ref === "string"
+    ? payload.order_ref.trim()
+    : "";
+  let effectiveOrderId = orderId;
+  let manuallyReconciled = false;
+  if (orderRef && orderRef !== orderId) {
+    const { data: alias, error: aliasError } = await admin
+      .from("entitlements")
+      .select("provider_order_id,status,email,purchase_data")
+      .eq("provider", "kiwify")
+      .eq("provider_order_id", orderRef)
+      .maybeSingle();
+    if (aliasError) {
+      console.error("[KIWIFY] Order reference reconciliation lookup failed", {
+        code: aliasError.code,
+      });
+      return NextResponse.json({ ok: false, error: "order_ref_lookup_failed" }, { status: 500 });
+    }
+    if (alias) {
+      const raw = alias.purchase_data as Record<string,unknown> | null;
+      const previousCanonical = typeof raw?.canonical_order_id === "string"
+        ? raw.canonical_order_id : "";
+      // Never join different buyers or orders, even for a valid webhook.
+      if (alias.email.trim().toLowerCase() !== email ||
+          (previousCanonical && previousCanonical !== orderId)) {
+        return NextResponse.json({ ok: false, error: "order_ref_conflict" }, { status: 409 });
+      }
+      if (raw?.source === "owner_verified_manual_reconciliation") {
+        effectiveOrderId = orderRef;
+        manuallyReconciled = true;
+        if (status === "active" && (alias.status === "refunded" || alias.status === "chargeback")) {
+          return NextResponse.json({ ok: true, processed: false, reason: "order_already_revoked" });
+        }
+      }
+    }
+  }
+
   const purchaseData = {
     order_ref:
       payload.order_ref ?? null,
+    ...(manuallyReconciled ? {
+      source: "owner_verified_manual_reconciliation",
+      canonical_order_id: orderId,
+    } : {}),
 
     order_status:
       payload.order_status ?? null,
@@ -223,7 +268,7 @@ export async function POST(request: NextRequest) {
           product: "pagenova-ai",
           status: "active",
           provider: "kiwify",
-          provider_order_id: orderId,
+          provider_order_id: effectiveOrderId,
           provider_customer_id: null,
           purchase_data: purchaseData,
           purchased_at: purchasedAt,
@@ -269,7 +314,7 @@ export async function POST(request: NextRequest) {
       )
       .eq(
         "provider_order_id",
-        orderId
+        effectiveOrderId
       )
       .maybeSingle();
 
@@ -337,7 +382,7 @@ export async function POST(request: NextRequest) {
           product: "pagenova-ai",
           status,
           provider: "kiwify",
-          provider_order_id: orderId,
+          provider_order_id: effectiveOrderId,
           provider_customer_id: null,
           purchase_data: purchaseData,
           purchased_at: null,
@@ -374,7 +419,7 @@ export async function POST(request: NextRequest) {
       const approvedAt=payload.approved_date ? new Date(payload.approved_date) : new Date();
       const safeDate=Number.isNaN(approvedAt.getTime()) ? now : approvedAt.toISOString();
       const {data:cycle,error:creditsError}=await admin.rpc("pagenova_credits_activate",{
-        p_email:email,p_order_id:orderId,p_started_at:safeDate,
+        p_email:email,p_order_id:effectiveOrderId,p_started_at:safeDate,
       });
       if(creditsError){
         console.error("[KIWIFY] Credit-cycle activation failed",{code:creditsError.code});
@@ -385,7 +430,7 @@ export async function POST(request: NextRequest) {
         // A delayed approval cannot resurrect a purchase already reversed.
         const {error:rollbackError}=await admin.from("entitlements").update({
           status:state,revoked_at:now,updated_at:now,
-        }).eq("provider","kiwify").eq("provider_order_id",orderId);
+        }).eq("provider","kiwify").eq("provider_order_id",effectiveOrderId);
         if(rollbackError){
           console.error("[KIWIFY] Failed to restore revoked entitlement",{code:rollbackError.code});
           return NextResponse.json({ok:false,error:"revocation_persistence_failed"},{status:500});
@@ -394,7 +439,7 @@ export async function POST(request: NextRequest) {
       }
     } else {
       const {error:creditsError}=await admin.rpc("pagenova_credits_revoke",{
-        p_order_id:orderId,p_status:status,p_email:email,
+        p_order_id:effectiveOrderId,p_status:status,p_email:email,
       });
       if(creditsError){
         console.error("[KIWIFY] Credit-cycle revocation failed",{code:creditsError.code});
