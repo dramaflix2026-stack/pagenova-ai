@@ -88,7 +88,9 @@ export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
      const title=capitalize(clean(add[1]||"um aspecto do tema",160))+"?";
      questions.push({id,title,options:optionSet(id,existing.outcomes)});
    }
-   return normalizeQuiz({...existing,questions,prompt:existing.prompt});
+   const titleChange=/\b(?:alterar|mudar|trocar)\s+(?:o\s+)?t[ií]tulo\s+(?:para|por|:)\s*([^.!?\n]+)/i.exec(prompt);
+   const wantedTitle=titleChange?capitalize(clean(titleChange[1],125)):existing.title;
+   return normalizeQuiz({...existing,title:wantedTitle,questions,prompt:existing.prompt});
  }
  const outcomes=[
    outcome("perfil-a","Explorador ✨","Você está conhecendo possibilidades em "+subject+". Comece por um objetivo simples, experimente e registre o que funciona."),
@@ -112,10 +114,9 @@ export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
   theme:/premium|luxo|escuro|dark/i.test(prompt)?"midnight":"emerald",
   collectLeads:/captar|captura|leads|coletar\s+(?:nome|e-?mail)|contatos/i.test(prompt),outcomes,questions,motion:true});
 }
-function optionSet(id:string,outcomes:QuizOutcome[]){
+function optionSet(_id:string,outcomes:QuizOutcome[]){
  const labels=["✨ Prefiro explorar as possibilidades","🚀 Gosto de aprender enquanto faço","🎯 Quero planejar e medir os resultados"];
- const index=Number(id.match(/\d+/)?.[0]||"1")-1;
- return labels.map((label,i)=>({id:"o"+(i+1),label,outcomeId:outcomes[(i+index)%outcomes.length].id}));
+ return labels.map((label,i)=>({id:"o"+(i+1),label,outcomeId:outcomes[i%outcomes.length].id}));
 }
 function ebookSections(prompt:string){
  const sentences=prompt.split(/[\n.;]+/).map(x=>clean(x,210)).filter(x=>x.length>12);
