@@ -62,8 +62,8 @@ function renderPage(book:EbookProject,page:EbookPage,index:number):string{
         '<div class="back-sign">'+esc(book.author)+'</div></div>';
       break;
     case "recipe": {
-      const method=page.body.split(/\\n+/).map(line=>line.trim()).filter(Boolean)
-        .map(line=>line.replace(/^\\d+[.)]\\s*/, ""));
+      const method=page.body.split(/\n+/).map(line=>line.trim()).filter(Boolean)
+        .map(line=>line.replace(/^\d+[.)]\s*/, ""));
       section=intro+'<div class="recipe-heading"><span class="recipe-tag">RECEITA TESTÁVEL · INGREDIENTES E PREPARO</span>'+
         '<h2>'+esc(page.title)+'</h2><p class="recipe-meta">'+esc(page.lead)+'</p></div>'+
         (img?'<div class="recipe-photo">'+img+'</div>':"")+
