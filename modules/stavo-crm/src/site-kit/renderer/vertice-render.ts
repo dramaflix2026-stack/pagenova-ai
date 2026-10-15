@@ -45,31 +45,25 @@ export function renderVertice(model:SiteSchemaModel, ctx:RenderContext, apply:(h
  '<header class="v-header"><div class="v-width v-header-inner"><a class="v-brand" href="#inicio">',
  d.brand.logoUrl?'<img src="'+e(d.brand.logoUrl)+'" alt="'+e(brand)+'">':'<span class="v-symbol" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>'+e(brand)+'</span>',
  '</a><nav class="v-nav" aria-label="Navegação"><a href="#inicio">Início</a><a href="#solucoes">Soluções</a><a href="#sobre">Sobre</a><a href="#contato">Contato</a></nav><a class="v-btn" href="#contato">Vamos conversar ↗</a></div></header>',
- '<main id="conteudo"><section id="inicio" class="v-hero">',
+ '<main id="conteudo"><section id="inicio" class="v-hero" data-v-slot="hero">',
  picture?'<img class="v-hero-photo" src="'+e(picture)+'" alt="'+e(d.hero.image.alt||brand)+'">':'',
  '<div class="v-width v-hero-inner"><p class="v-eyebrow">'+e(model.business.niche||'Novas perspectivas')+'</p>',
  '<h1>'+e(d.hero.title)+'</h1><p class="v-hero-description">'+e(d.hero.description)+'</p>',
  '<a class="v-btn" href="#solucoes">'+e(d.hero.ctaLabel||'Conheça nossas soluções')+' ↗</a></div></section>',
  '<section class="v-value-strip"><div class="v-width v-value-grid">'+benefits+'</div></section>',
- '<section id="solucoes" class="v-section"><div class="v-width"><p class="v-eyebrow">O que fazemos</p><h2 class="v-section-title">'+e(d.services.heading)+'</h2><p class="v-section-description">'+e(d.hero.description)+'</p><div class="v-service-grid">'+services+'</div></div></section>',
- '<section id="sobre" class="v-section v-about"><div class="v-width v-about-grid">',
+ '<section id="solucoes" class="v-section" data-v-slot="services"><div class="v-width"><p class="v-eyebrow">O que fazemos</p><h2 class="v-section-title">'+e(d.services.heading)+'</h2><p class="v-section-description">'+e(d.hero.description)+'</p><div class="v-service-grid">'+services+'</div></div></section>',
+ '<section id="sobre" class="v-section v-about" data-v-slot="about"><div class="v-width v-about-grid">',
  d.about.image.src?'<img class="v-about-photo" src="'+e(d.about.image.src)+'" alt="'+e(d.about.image.alt)+'">':'<div class="v-about-photo" role="img" aria-label="Imagem institucional indisponível"></div>',
  '<div><p class="v-eyebrow">Sobre nós</p><h2 class="v-section-title">'+e(d.about.heading)+'</h2><p class="v-section-description">'+e(about)+'</p><div class="v-checks">'+d.about.benefits.slice(0,3).map(s=>'<p>'+e(s)+'</p>').join('')+'</div></div></div></section>',
- '<section id="contato" class="v-section v-contact"><div class="v-width v-contact-grid"><div><p class="v-eyebrow">O próximo passo</p><h2 class="v-section-title">'+e(d.contact.heading)+'</h2><p class="v-section-description">'+e(d.contact.description)+'</p></div><a class="v-btn" href="'+safeHref(contact)+'">'+e(d.contact.ctaLabel||'Vamos conversar')+' ↗</a></div></section></main>',
+ '<section id="contato" class="v-section v-contact" data-v-slot="cta"><div class="v-width v-contact-grid"><div><p class="v-eyebrow">O próximo passo</p><h2 class="v-section-title">'+e(d.contact.heading)+'</h2><p class="v-section-description">'+e(d.contact.description)+'</p></div><a class="v-btn" href="'+safeHref(contact)+'">'+e(d.contact.ctaLabel||'Vamos conversar')+' ↗</a></div></section></main>',
  '<footer class="v-footer"><div class="v-width v-footer-inner"><strong>'+e(brand)+'</strong><span>'+e(model.business.city||'')+'</span></div></footer>',
  '</div>'
  ].join('');
- // Preserve the CRM text-edit mapping for visible content.
- const slots:[string,string][]=[['v-hero','hero'],['v-service-grid','services'],['v-about','about'],['v-contact','cta']];
- let decorated=html;
- for(const [cls,type] of slots){
-   const section=model.sections.find(s=>s.visible&&s.type===type);
-   if(!section)continue;
-   // Tag a wrapper; standard renderer's editor can persist text changes there.
-   const start='<section';
-   if(cls==='v-service-grid')continue;
-   const ix=decorated.indexOf('class="'+cls);
-   if(ix<0)continue;
- }
- return decorated;
+ // Expose the same persisted text-edit and draggable-block selectors as other CRM renderers.
+ const slots:Record<string,string>={hero:'hero',services:'services',about:'about',cta:'cta'};
+ return html.replace(/(<section\b[^>]*\bdata-v-slot="([^"]+)"[^>]*>)([\s\S]*?)(<\/section>)/g,
+   (match:string,open:string,slot:string,inner:string,close:string)=>{
+     const section=model.sections.find(x=>x.visible&&x.type===slots[slot]);
+     return section?open+apply(inner,section.id,model)+close:match;
+   });
 }
