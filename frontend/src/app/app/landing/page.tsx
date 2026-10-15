@@ -254,7 +254,7 @@ export default function LandingStudioPage(){
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
         {section==="process"&&<Field label="Etapas — uma por linha" value={project.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
         {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}<p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção fica invisível.</p></div>}
-        {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição","0","Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação","0","https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)","0","https://...")}</div>}
+        {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
         {section==="faq"&&<div className="space-y-4">
          {project.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
           <Field label={"Pergunta "+(i+1)} value={f.question} onChange={v=>changeFaq(i,"question",v)}/>
@@ -263,7 +263,7 @@ export default function LandingStudioPage(){
          </div>)}
          <button disabled={project.faqs.length>=8} onClick={()=>patch({faqs:[...project.faqs,{question:"",answer:""}]})} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-xs disabled:opacity-40"><Plus className="h-4 w-4"/> Nova pergunta</button>
         </div>}
-        {section==="contact"&&<div className="space-y-4">{field("whatsapp","WhatsApp com DDD","0","5511999999999")}{field("email","E-mail da empresa")}{field("ctaLabel","Texto do botão principal")}<p className="text-xs leading-6 text-white/45">O formulário da landing page publicada salva nome, e-mail e mensagem com acesso exclusivo ao dono da página.</p></div>}
+        {section==="contact"&&<div className="space-y-4">{field("whatsapp","WhatsApp com DDD",0,"5511999999999")}{field("email","E-mail da empresa")}{field("ctaLabel","Texto do botão principal")}<p className="text-xs leading-6 text-white/45">O formulário da landing page publicada salva nome, e-mail e mensagem com acesso exclusivo ao dono da página.</p></div>}
        </>}
        {tab==="structure"&&<>
         <p className="text-xs leading-6 text-white/55">Escolha as seções que aparecerão e arraste a ordem usando as setas. A primeira dobra fica sempre no topo.</p>
