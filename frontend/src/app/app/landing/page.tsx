@@ -209,7 +209,7 @@ export default function LandingStudioPage(){
       </button>)}
      </div>
      <div className="mt-7 grid gap-4 rounded-2xl border border-white/10 bg-[#151b25] p-5 sm:grid-cols-[1fr_1.6fr] sm:p-7">
-      <Field label="2. Nome da marca, produto ou negócio" value={brand} onChange={setBrand} placeholder="Ex.: Acme Studio"/>
+      <Field label="2. Nome da marca, produto ou negócio" value={brand} onChange={setBrand} placeholder="Ex.: Nome da sua marca ou produto"/>
       <Field label="3. Descrição do negócio / oferta" value={brief} onChange={setBrief} rows={3} placeholder="O que você oferece? Para quem? O que é importante comunicar?"/>
       <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-4">
        <p className="max-w-lg text-xs leading-5 text-white/45">A composição é automática, mas textos e afirmações precisam refletir sua oferta real. Nenhuma prova social é inventada.</p>
