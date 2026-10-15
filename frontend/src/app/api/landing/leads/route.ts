@@ -29,6 +29,12 @@ export async function POST(req:NextRequest){
   if(!pattern.test(slug)||name.length<2||!/^.+@.+\..+$/.test(email))return NextResponse.json({error:"Preencha nome e e-mail corretamente."},{status:400});
   const storage=admin().storage.from(BUCKET);
   if(!await ownerFor(storage,slug))return NextResponse.json({error:"Página indisponível."},{status:404});
+  // Bound public submissions to avoid unmetered storage abuse.
+  const {data:currentDay,error:listingError}=await storage.list("landing-leads/"+slug,{limit:250});
+  if(listingError&&listingError.statusCode!=="404")throw listingError;
+  const today=new Date().toISOString().slice(0,10);
+  if((currentDay||[]).filter(item=>item.name.startsWith(today+"-")).length>=100)
+   return NextResponse.json({error:"Este formulário atingiu o limite diário de mensagens."},{status:429});
   const record={name,email,message,slug,submittedAt:new Date().toISOString()};
   const key="landing-leads/"+slug+"/"+new Date().toISOString().slice(0,10)+"-"+crypto.randomUUID()+".json";
   const {error}=await storage.upload(key,new Blob([JSON.stringify(record)],{type:"application/json"}),{contentType:"application/json",upsert:false});
