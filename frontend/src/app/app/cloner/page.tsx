@@ -8,6 +8,7 @@ import {
 import {
   useRouter,
 } from "next/navigation";
+import {savePageNovaProject} from "@/lib/pagenova-project-store";
 
 type CloneSection = {
   id: string;
@@ -108,15 +109,10 @@ export default function ClonerPage() {
     setError("");
     setResult(null);
 
-    const apiUrl =
-      process.env
-        .NEXT_PUBLIC_API_URL ||
-      "";
-
     try {
       const response =
         await fetch(
-          `${apiUrl}/api/cloner/analyze`,
+          "/api/cloner/analyze",
           {
             method: "POST",
 
@@ -156,7 +152,7 @@ export default function ClonerPage() {
     }
   }
 
-  function openEditor() {
+  async function openEditor() {
     if (!result?.project) {
       return;
     }
@@ -173,7 +169,12 @@ export default function ClonerPage() {
       "lp-clone-current-project",
       project.id
     );
-
+    try {
+      await savePageNovaProject(project.id,project);
+    } catch (cause) {
+      console.warn("[PageNova] Cloner IndexedDB save unavailable",cause);
+      // Temporary session copy remains readable by the editor.
+    }
     router.push(
       `/app/editor/${project.id}`
     );
@@ -182,7 +183,7 @@ export default function ClonerPage() {
   return (
     <>
       <header className="border-b border-white/10 bg-[#0b0b0b]/90 px-5 py-5 text-center backdrop-blur">
-        <h1 className="text-xl font-bold tracking-tight text-white">Clonar página com IA</h1>
+        <h1 className="text-xl font-bold tracking-tight text-white">Importar página editável</h1>
         <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Transforme uma página existente em um projeto editável na PageNova.</p>
       </header>
 
@@ -212,7 +213,7 @@ export default function ClonerPage() {
               </h1>
 
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
-                Cole a URL de uma Landing Page. A PageNova analisa a estrutura,
+                Cole a URL de uma Landing Page. A PageNova importa os elementos públicos,
                 importa o conteúdo e prepara a página para você continuar no editor.
               </p>
             </div>
