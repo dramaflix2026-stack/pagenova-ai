@@ -245,7 +245,7 @@ export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
   const isEstate = model.project.templateId === 'real-estate-premium';
   const isNiche = isRestaurant || isEstate;
   const sections = isNiche
-    ? renderNicheSite(model, ctx, isRestaurant ? 'restaurant' : 'estate')
+    ? renderNicheSite(model, ctx, isRestaurant ? 'restaurant' : 'estate', applyVisualTextEdits)
     : isVertice
     ? renderVertice(model, ctx, applyVisualTextEdits)
     : isAtelier
