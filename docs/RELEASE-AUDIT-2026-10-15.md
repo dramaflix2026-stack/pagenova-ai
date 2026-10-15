@@ -14,7 +14,7 @@ Este documento registra a rodada de estabilização, as alterações confirmadas
 
 - O Site AI do CRM já dispõe de validação de plano, renderer compartilhado, recuperação de imagens, histórico de versões e publicação.
 - Edição por seção no CRM **ainda utiliza OpenAI** e tem custo estimado. Foi adicionado `generationLimiter` à rota de edição; isso reduz abuso, mas não elimina o custo.
-- O editor do importador agora salva no IndexedDB além de usar sessionStorage como fallback.
+- O editor do importador agora salva no IndexedDB além de usar sessionStorage como fallback. Publicação gera HTML saneado com CSP sandbox, rota pública `/c/[slug]` e link de visualização.
 - Pendente: medir geração e edição, preservar imagens em preview e publicação, testar upload, drag/resize, desktop/mobile, acessibilidade, custom domain e regressão por template.
 
 ## 3. Gerador de eBooks
@@ -29,7 +29,7 @@ Este documento registra a rodada de estabilização, as alterações confirmadas
 - Frontend agora usa rota autenticada da própria PageNova e grava projeto no IndexedDB.
 - Editor recebeu publicação e link de visualização; `/api/cloner/publish` envia HTML saneado ao storage privado; `/c/[slug]` serve a versão publicada com CSP de sandbox e scripts bloqueados.
 - Esse MVP importa estrutura e conteúdo, **não** reproduz pixel a pixel o design de qualquer site.
-- Pendente: teste E2E com URLs públicas autorizadas; redirecionamentos, imagens, edição, publicação e prova de resistência contra SSRF/DNS rebinding antes de exposição de alto volume.
+- Foi adicionada a conexão HTTPS ao IP público previamente validado para mitigar rebinding DNS. Pendente: teste E2E com URLs públicas autorizadas; redirecionamentos, imagens, edição, publicação e validação de segurança sob volume.
 
 ## 5. Landing Pages, Formulários e Quizzes
 
@@ -54,7 +54,7 @@ Este documento registra a rodada de estabilização, as alterações confirmadas
 
 - Código contém reserva e liquidação de créditos para geração de sites e páginas de busca; PDFs, histórico e edição visual não entram no mesmo medidor.
 - A edição por IA no CRM e a análise de anexos de sites podem usar OpenAI e precisam de **limite financeiro separado**. `PAGENOVA_CREDITS_ENFORCE` deve ser validado em Production, pois o fallback no código é desativado quando a variável está ausente.
-- O script `scripts/validate-platform.mjs` foi criado para regressão estática, mas **não está no build obrigatório** após provocar uma falha de build; requer diagnóstico de CI antes de reativação.
+- O script `scripts/validate-platform.mjs` foi criado para regressão estática e separado do build obrigatório após uma falha inicial. O workflow `.github/workflows/pagenova-quality.yml` executa esse script e o teste de eBooks isoladamente; acompanhar o resultado da ação antes de declarar esse teste aprovado.
 - A conexão Vercel usada nesta auditoria não autorizou leitura direta de deployments ou segredos (403). Validar por status GitHub/Railway e testes no painel autorizado.
 
 ## 9. Esteira comercial — PROPOSTA, NÃO IMPLEMENTADA
