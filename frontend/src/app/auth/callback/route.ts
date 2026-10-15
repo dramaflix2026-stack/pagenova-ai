@@ -34,8 +34,17 @@ export async function GET(request: Request) {
   const requestedNext =
     url.searchParams.get("next");
 
-  const next =
-    getSafeNext(requestedNext);
+  // Invitation and recovery links must open the password setup screen, even
+  // if the email template did not include an explicit next parameter.
+  const next = requestedNext
+    ? getSafeNext(requestedNext)
+    : type === "invite" || type === "recovery"
+      ? "/reset-password"
+      : "/app";
+
+  if (url.searchParams.get("error")) {
+    return NextResponse.redirect(new URL("/login?error=invalid_auth_link", url.origin));
+  }
 
   const supabase =
     await createClient();
@@ -61,15 +70,14 @@ export async function GET(request: Request) {
   }
 
   if (tokenHash && type) {
+    const allowedTypes = ["invite", "recovery", "email", "email_change", "signup"] as const;
+    if (!allowedTypes.some((value) => value === type)) {
+      return NextResponse.redirect(new URL("/login?error=invalid_auth_link", url.origin));
+    }
     const { error } =
       await supabase.auth.verifyOtp({
         token_hash: tokenHash,
-        type: type as
-          | "invite"
-          | "recovery"
-          | "email"
-          | "email_change"
-          | "signup",
+        type: type as (typeof allowedTypes)[number],
       });
 
     if (error) {
