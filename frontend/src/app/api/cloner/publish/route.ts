@@ -1,4 +1,5 @@
 import {NextRequest,NextResponse} from "next/server";
+import {createHash} from "node:crypto";
 import * as cheerio from "cheerio";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 
@@ -40,7 +41,9 @@ export async function POST(request:NextRequest){
       throw new FormServiceError("O projeto ainda não tem HTML válido.",422);
     const content=cleanHtml(input.html);
     const title=typeof input.title==="string"?input.title.trim().slice(0,160):"Projeto editável";
-    const slug="c-"+crypto.randomUUID().replaceAll("-","");
+    // Deterministic per owner+project: publishing again updates the SAME public
+    // URL instead of creating orphan copies on every edit/republish.
+    const slug="c-"+createHash("sha256").update(userId+":"+input.projectId).digest("hex").slice(0,32);
     const data=JSON.stringify({ownerId:userId,projectId:input.projectId,title,content,
       publishedAt:new Date().toISOString()});
     const existingBucket=await admin.storage.getBucket(BUCKET);
@@ -55,7 +58,7 @@ export async function POST(request:NextRequest){
     }
     const {error}=await admin.storage.from(BUCKET).upload("published-clones/"+slug+".json",
       new Blob([data],{type:"application/json"}),{
-        upsert:false,contentType:"application/json",cacheControl:"0"
+        upsert:true,contentType:"application/json",cacheControl:"0"
       });
     if(error)throw new FormServiceError("Não foi possível publicar a página. Tente novamente.",503);
     return NextResponse.json({ok:true,url:request.nextUrl.origin+"/c/"+slug,slug},
