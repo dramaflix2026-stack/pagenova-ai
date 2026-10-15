@@ -89,13 +89,22 @@ export default function QuizStudioPage(){
     setConversation([greeting,{role:"assistant",text:"Seu quiz está carregado! Pode editar os campos ao lado ou me pedir mudanças no chat."}]);
     setPrompt("");setError("");setNotice("");setResponses([]);
   }
-  async function openSaved(id:string){
+  async function openSaved(id:string,viewResults=false){
     setBusy(true);setError("");
     try{
       const response=await fetch("/api/quizzes/"+encodeURIComponent(id),{cache:"no-store"});
       const body=await response.json().catch(()=>({})) as {quiz?:QuizProject;error?:string};
       if(!response.ok||!body.quiz)throw new Error(body.error||"O projeto não foi encontrado.");
       openQuiz(body.quiz);
+      if(viewResults){
+        setTab("responses");setLoadingResponses(true);
+        try{
+          const response=await fetch("/api/quizzes/"+encodeURIComponent(id)+"/responses",{cache:"no-store"});
+          const data=await response.json().catch(()=>({})) as {responses?:QuizEntry[];error?:string};
+          if(!response.ok)throw new Error(data.error||"Falha ao carregar participações.");
+          setResponses(data.responses||[]);
+        }finally{setLoadingResponses(false);}
+      }
     }catch(e){setError(errText(e));}
     finally{setBusy(false);}
   }
@@ -116,6 +125,18 @@ export default function QuizStudioPage(){
         prompt:instruction,existing:quiz?normalizeQuiz(quiz):undefined,
       });
       const result=normalizeQuiz(generated.quiz);
+      // Keep manually selected imagery when AI rewrites copy or questions.
+      if(quiz){
+        result.coverImageUrl=result.coverImageUrl||quiz.coverImageUrl;
+        result.motion=quiz.motion;
+        result.questions=result.questions.map((q,i)=>({
+          ...q,imageUrl:q.imageUrl||quiz.questions.find(old=>old.id===q.id)?.imageUrl||quiz.questions[i]?.imageUrl,
+          options:q.options.map((o,j)=>({...o,imageUrl:o.imageUrl||
+            quiz.questions.find(old=>old.id===q.id)?.options.find(old=>old.id===o.id)?.imageUrl||
+            quiz.questions[i]?.options[j]?.imageUrl})),
+        }));
+        result.outcomes=result.outcomes.map((o,i)=>({...o,imageUrl:o.imageUrl||quiz.outcomes.find(old=>old.id===o.id)?.imageUrl||quiz.outcomes[i]?.imageUrl}));
+      }
       const project:QuizProject={
         ...result,id:quiz?.id||"",updatedAt:quiz?.updatedAt||"",publishedAt:quiz?.publishedAt||null,
       };
@@ -417,7 +438,7 @@ export default function QuizStudioPage(){
             Seus quizzes aparecerão aqui depois de salvar o primeiro.
           </div>:
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {saved.map(item=><button key={item.id} type="button" onClick={()=>void openSaved(item.id)} disabled={busy}
+            {saved.map(item=><div key={item.id} className="relative"><button key={item.id} type="button" onClick={()=>void openSaved(item.id)} disabled={busy}
               className="group rounded-2xl border border-white/10 bg-[#10211a] p-5 text-left transition hover:-translate-y-0.5 hover:border-emerald-400/35 disabled:opacity-50">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><FileQuestion className="h-5 w-5"/></span>
               <h3 className="mt-4 line-clamp-2 text-base font-semibold">{item.title}</h3>
@@ -428,7 +449,9 @@ export default function QuizStudioPage(){
                 </span>
                 <ArrowRight className="h-4 w-4 text-white/50 group-hover:text-emerald-300"/>
               </div>
-            </button>)}
+            </button>
+            {item.publishedAt&&<button type="button" onClick={()=>void openSaved(item.id,true)} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/30 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10"><BarChart3 className="h-4 w-4"/> Ver resultados e respostas</button>}
+            </div>)}
           </div>}
       </div>
     </div>:quiz?<div className="mx-auto max-w-[1500px]">
