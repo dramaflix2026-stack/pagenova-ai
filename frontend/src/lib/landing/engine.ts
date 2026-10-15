@@ -48,7 +48,7 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
   const now=new Date().toISOString(),n=tidy(name,100),briefText=tidy(brief,2500);
   // Deterministic context: only describe the topic provided by the buyer.
   // Never assert a cure, promised outcome, course curriculum, or credentials.
-  const focus=kind==="course" && /\\b(acne|acnes|espinha|espinhas|pele acneica)\\b/i.test(briefText)
+  const focus=kind==="course" && /\b(acne|acnes|espinha|espinhas|pele acneica)\b/i.test(briefText)
     ? "cuidados com a pele e a acne"
     : "";
   const d=focus?{
