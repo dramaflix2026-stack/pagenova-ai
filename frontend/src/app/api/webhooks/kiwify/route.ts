@@ -157,16 +157,16 @@ export async function POST(request: NextRequest) {
   // secret remains a backward-compatible fallback only for products not yet
   // migrated, preventing a monthly token from authenticating annual events.
   const purchasedPlan = String(payload.Product?.product_name ?? "")
-    .normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
     .replace(/[–—]/g, "-").trim();
   let planSecret: string | undefined;
-  if (/\\b(trimestral|397(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+  if (/\b(trimestral|397(?:[,.]00)?)\b/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_QUARTERLY;
-  } else if (/\\b(semestral|747(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+  } else if (/\b(semestral|747(?:[,.]00)?)\b/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_SEMIANNUAL;
-  } else if (/\\b(anual|1297(?:[,.]00)?)\\b/.test(purchasedPlan)) {
+  } else if (/\b(anual|1297(?:[,.]00)?)\b/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_ANNUAL;
-  } else if (/pre\\s*-?\\s*venda/.test(purchasedPlan)) {
+  } else if (/pre\s*-?\s*venda/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_PRESALE;
   } else if (/assinatura|147/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_MONTHLY;
