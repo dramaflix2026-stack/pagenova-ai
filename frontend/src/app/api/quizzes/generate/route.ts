@@ -40,10 +40,10 @@ export async function POST(req:NextRequest){
     if(origin&&origin!==req.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
     await authorizedForms();
     const text=await req.text();
-    if(text.length>85000)throw new FormServiceError("Pedido de quiz muito extenso.",413);
+    if(text.length>220000)throw new FormServiceError("Pedido de quiz muito extenso.",413);
     const body=JSON.parse(text) as {prompt?:unknown;existing?:unknown};
     const prompt=typeof body.prompt==="string"?body.prompt.trim():"";
-    if(prompt.length<12||prompt.length>10000)throw new FormServiceError("Descreva o quiz com pelo menos 12 caracteres.");
+    if(prompt.length<12||prompt.length>50000)throw new FormServiceError("Descreva o quiz com pelo menos 12 caracteres.");
     const existing=body.existing?normalizeQuiz(body.existing):null;
     const apiKey=process.env.OPENAI_API_KEY;
     if(!apiKey)throw new FormServiceError("A IA de geração de quizzes ainda não está configurada.",503);
