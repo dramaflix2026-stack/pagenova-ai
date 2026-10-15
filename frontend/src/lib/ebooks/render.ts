@@ -61,6 +61,19 @@ function renderPage(book:EbookProject,page:EbookPage,index:number):string{
         '<div class="article">'+body+'</div>'+makeCards(page,3,'back-tasks')+
         '<div class="back-sign">'+esc(book.author)+'</div></div>';
       break;
+    case "recipe": {
+      const method=page.body.split(/\\n+/).map(line=>line.trim()).filter(Boolean)
+        .map(line=>line.replace(/^\\d+[.)]\\s*/, ""));
+      section=intro+'<div class="recipe-heading"><span class="recipe-tag">RECEITA TESTÁVEL · INGREDIENTES E PREPARO</span>'+
+        '<h2>'+esc(page.title)+'</h2><p class="recipe-meta">'+esc(page.lead)+'</p></div>'+
+        (img?'<div class="recipe-photo">'+img+'</div>':"")+
+        '<div class="recipe-columns"><section class="recipe-ingredients">'+
+        '<h3>Ingredientes</h3><ul>'+page.bullets.filter(Boolean).map(item=>'<li>'+esc(item)+'</li>').join("")+
+        '</ul></section><section class="recipe-method"><h3>Modo de preparo</h3><ol>'+
+        method.map(step=>'<li>'+esc(step)+'</li>').join("")+'</ol></section></div>'+
+        '<div class="recipe-advice">Dica: organize os ingredientes antes de começar. Os tempos são aproximados.</div>';
+      break;
+    }
     case "chapter":
       section=intro+'<div class="chapter-title">'+head+'</div><div class="chapter-body">'+
         '<div class="article">'+body+'</div>'+
@@ -250,6 +263,15 @@ const CSS=[
 '.insight-layout .small-label{color:var(--accent)}.insight-layout h2{font-size:51px;line-height:1.13;margin-top:4mm}',
 '.insight-layout .lead{font-size:18px}.insight-bottom{display:grid;grid-template-columns:1fr 1fr;gap:9mm;margin-top:14mm}',
 '.insight-bottom .article{font-size:12.6px;line-height:1.8}.insight-bottom .fact{padding:4mm;background:var(--soft)}',
+'.recipe-heading{margin-top:10mm;max-width:100%}.recipe-tag{font-size:10px;font-weight:800;letter-spacing:.14em;color:var(--accent)}',
+'.recipe-heading h2{margin-top:5mm;font-size:42px;line-height:1.12}.recipe-meta{font-size:14px;line-height:1.45;margin-top:5mm!important;opacity:.78}',
+'.recipe-columns{display:grid;grid-template-columns:.84fr 1.16fr;gap:9mm;margin-top:14mm;align-items:start;flex:1}',
+'.recipe-columns h3{font:25px/1.2 "DM Serif Display",Georgia,serif;border-bottom:2px solid var(--accent);padding-bottom:5mm;margin-bottom:5mm}',
+'.recipe-ingredients{background:var(--soft);padding:7mm 6mm;border-radius:4mm}.recipe-ingredients ul{padding-left:5mm;margin:0;display:grid;gap:4mm}',
+'.recipe-ingredients li{font-size:13px;line-height:1.5;padding-left:1mm}.recipe-method ol{margin:0;padding-left:7mm;display:grid;gap:6mm}',
+'.recipe-method li{padding-left:2mm;font-size:13.5px;line-height:1.65}.recipe-method li::marker{color:var(--accent);font-weight:800}',
+'.recipe-advice{font-size:11px;line-height:1.5;opacity:.7;border-top:1px solid var(--accent);padding-top:4mm;margin-bottom:11mm}',
+'.recipe-photo{height:62mm;margin:8mm 0 0}.recipe-photo .photo{height:100%}',
 '.back-pattern{position:absolute;right:-35mm;top:-35mm;width:115mm;height:115mm;border-radius:50%;border:15mm solid var(--soft);opacity:.5}',
 '.back-copy{margin:auto 0;position:relative}.back-copy h2{font-size:59px;line-height:1.1;margin-top:12mm}',
 '.back-copy>.article{max-width:120mm;margin-top:8mm;font-size:14px;line-height:1.8}',
