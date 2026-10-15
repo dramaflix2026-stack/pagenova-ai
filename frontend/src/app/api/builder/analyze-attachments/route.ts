@@ -34,6 +34,9 @@ export async function POST(request:NextRequest){
       return Response.json({summary:refs.join("\\n").slice(0,12000),files:files.map(f=>f.name),engine:"local-file-descriptor",paidApiCalls:0},
         {headers:{"Cache-Control":"no-store"}});
     }
+    if(data.get("mode")!=="site"){
+      throw new FormServiceError("Modo de análise de anexos não autorizado.",400);
+    }
     let total=0;
     const content:Array<{type:string;[key:string]:unknown}>=[{
       type:"input_text",
