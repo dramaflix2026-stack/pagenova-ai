@@ -181,6 +181,7 @@ export default function LandingStudioPage(){
  const field=(key:keyof LandingProject,label:string,rows=0,placeholder="",hint="")=><Field label={label}
   value={String(project?.[key]??"")} onChange={value=>patch({[key]:value} as Partial<LandingProject>)} rows={rows} placeholder={placeholder} hint={hint}/>;
 
+ const editorProject = project as LandingProject;
  return <div className="min-h-screen bg-[#0d1017] text-white">
   <AppHeader/>
   <div className="mx-auto max-w-[1700px] px-4 py-7 sm:px-6 lg:px-9">
@@ -227,13 +228,13 @@ export default function LandingStudioPage(){
     <header className="flex flex-wrap items-center justify-between gap-4">
      <div className="flex min-w-0 items-center gap-3">
       <button className="rounded-lg border border-white/10 p-2 text-white/60 hover:text-white" onClick={()=>{setProject(null);setLeads(null);void cloudRefresh();}} aria-label="Voltar à lista"><ArrowLeft className="h-5 w-5"/></button>
-      <div className="min-w-0"><span className="block text-[10px] font-bold tracking-[.15em] text-amber-300">EDITOR LANDING PAGE</span><h1 className="truncate text-xl font-bold sm:text-2xl">{project.name}</h1>
+      <div className="min-w-0"><span className="block text-[10px] font-bold tracking-[.15em] text-amber-300">EDITOR LANDING PAGE</span><h1 className="truncate text-xl font-bold sm:text-2xl">{editorProject.name}</h1>
       </div>
      </div>
      <div className="flex flex-wrap items-center gap-2">
       <span className="hidden max-w-44 truncate text-[11px] text-white/40 lg:block">{status}</span>
       <button disabled={!!busy} onClick={()=>void save(false)} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-xs font-bold hover:bg-white/10 disabled:opacity-50">{busy==="save"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>} Salvar</button>
-      {project.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+project.publishedSlug} className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/25 px-3 py-2.5 text-xs font-bold text-amber-200"><ExternalLink className="h-4 w-4"/> Ver online</a>}
+      {editorProject.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+editorProject.publishedSlug} className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/25 px-3 py-2.5 text-xs font-bold text-amber-200"><ExternalLink className="h-4 w-4"/> Ver online</a>}
       <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-amber-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
      </div>
     </header>
@@ -249,18 +250,18 @@ export default function LandingStudioPage(){
          <option value="hero">Primeira dobra / Hero</option>{LANDING_SECTIONS.map(s=><option value={s.id} key={s.id}>{s.label}</option>)}
         </select></label>
         {section==="hero"&&<div className="space-y-5">{field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}</div>}
-        {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={project.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
+        {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
-        {section==="process"&&<Field label="Etapas — uma por linha" value={project.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
+        {section==="process"&&<Field label="Etapas — uma por linha" value={editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
         {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}<p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção fica invisível.</p></div>}
         {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
         {section==="faq"&&<div className="space-y-4">
-         {project.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
+         {editorProject.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
           <Field label={"Pergunta "+(i+1)} value={f.question} onChange={v=>changeFaq(i,"question",v)}/>
           <Field label="Resposta" value={f.answer} onChange={v=>changeFaq(i,"answer",v)} rows={3}/>
-          <button className="inline-flex items-center gap-1 text-xs text-red-300" onClick={()=>patch({faqs:project.faqs.filter((_,j)=>j!==i)})}><Trash2 className="h-3.5 w-3.5"/> Remover</button>
+          <button className="inline-flex items-center gap-1 text-xs text-red-300" onClick={()=>patch({faqs:editorProject.faqs.filter((_,j)=>j!==i)})}><Trash2 className="h-3.5 w-3.5"/> Remover</button>
          </div>)}
-         <button disabled={project.faqs.length>=8} onClick={()=>patch({faqs:[...project.faqs,{question:"",answer:""}]})} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-xs disabled:opacity-40"><Plus className="h-4 w-4"/> Nova pergunta</button>
+         <button disabled={editorProject.faqs.length>=8} onClick={()=>patch({faqs:[...editorProject.faqs,{question:"",answer:""}]})} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-3 text-xs disabled:opacity-40"><Plus className="h-4 w-4"/> Nova pergunta</button>
         </div>}
         {section==="contact"&&<div className="space-y-4">{field("whatsapp","WhatsApp com DDD",0,"5511999999999")}{field("email","E-mail da empresa")}{field("ctaLabel","Texto do botão principal")}<p className="text-xs leading-6 text-white/45">O formulário da landing page publicada salva nome, e-mail e mensagem com acesso exclusivo ao dono da página.</p></div>}
        </>}
