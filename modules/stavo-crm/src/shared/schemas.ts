@@ -886,7 +886,7 @@ export type SiteBriefingBusiness = z.infer<typeof siteBriefingBusinessSchema>;
 /** Etapa 2 (secao 7.2): tipo e direcao visual. Etapa 3 (secao 7.3): instrucoes. */
 export const siteBriefingSchema = z.object({
   /** Deterministic visual template; retained in the project's saved briefing. */
-  templateId: z.enum(['frigolog-universal','muse-editorial','atelier-norte']).default('frigolog-universal'),
+  templateId: z.enum(['frigolog-universal','muse-editorial','atelier-norte','vertice-corporate']).default('frigolog-universal'),
   business: siteBriefingBusinessSchema,
   objective: z.object({
     goal: z.enum([
