@@ -11,6 +11,10 @@ export default function PublicForm({form}:{form:FormDataType}) {
   const [success,setSuccess]=useState(false);
   const [website,setWebsite]=useState("");
   const fields=form.fields;
+  const theme=form.visualTheme==="rose"
+    ?{bg:"bg-[#fff4f1]",accent:"bg-[#f29a84]",text:"text-[#432e35]"}
+    :form.visualTheme==="midnight"?{bg:"bg-[#091527]",accent:"bg-[#8c9afa]",text:"text-[#1a2742]"}
+    :{bg:"bg-[#eef6f2]",accent:"bg-emerald-500",text:"text-[#102c25]"};
   const field=fields[step];
   async function submitAnswers() {
     setSending(true);
@@ -36,8 +40,9 @@ export default function PublicForm({form}:{form:FormDataType}) {
     else void submitAnswers();
   }
   const inputClass="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/10";
-  return <main className="flex min-h-screen items-center justify-center bg-[#eef6f2] px-4 py-10 text-[#102c25]">
-    <article className="w-full max-w-xl rounded-3xl border border-emerald-900/10 bg-white p-6 shadow-[0_18px_70px_rgba(13,56,39,.09)] sm:p-10">
+  return <main className={"relative flex min-h-screen items-center justify-center px-4 py-10 "+theme.bg+" "+theme.text} style={form.backgroundImageUrl?{backgroundImage:"linear-gradient(rgba(7,20,15,.72),rgba(7,20,15,.72)),url("+JSON.stringify(form.backgroundImageUrl)+")",backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:"fixed"}:undefined}>
+    <article className={"w-full max-w-xl overflow-hidden rounded-3xl border border-emerald-900/10 bg-white p-6 shadow-[0_18px_70px_rgba(13,56,39,.09)] sm:p-10 "+(form.motion!==false?"motion-safe:animate-in motion-safe:fade-in motion-safe:duration-500":"")}>
+      {form.coverImageUrl&&<img src={form.coverImageUrl} alt={"Imagem de capa do formulário "+form.title} loading="lazy" className="-mx-6 -mt-6 mb-7 h-44 w-[calc(100%+3rem)] object-cover sm:-mx-10 sm:-mt-10 sm:h-56 sm:w-[calc(100%+5rem)]"/>}
       <div className="mx-auto mb-7 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-xl text-emerald-800" aria-hidden="true">✦</div>
       <h1 className="text-center text-2xl font-bold tracking-tight sm:text-3xl">{form.title}</h1>
       {form.description && <p className="mx-auto mt-3 max-w-md text-center text-sm leading-6 text-slate-600">{form.description}</p>}
@@ -45,11 +50,12 @@ export default function PublicForm({form}:{form:FormDataType}) {
         <div className="text-3xl" aria-hidden="true">✓</div>
         <h2 className="mt-3 text-xl font-bold">Respostas enviadas!</h2>
         <p className="mt-2 text-sm text-slate-600">Obrigado por participar. Você já pode fechar esta página.</p>
-      </div> : field && <form onSubmit={next} className="mt-8">
+      </div> : field && <form key={field.id} onSubmit={next} className={"mt-8 "+(form.motion!==false?"motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"")}>
         <div className="mb-4 flex items-center justify-between text-xs font-semibold text-slate-500">
           <span>Pergunta {step+1} de {fields.length}</span><span>{Math.round(((step+1)/fields.length)*100)}%</span>
         </div>
         <div className="mb-6 h-1.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{width:((step+1)/fields.length)*100+"%"}} /></div>
+        {field.imageUrl&&<img src={field.imageUrl} alt={"Imagem de "+field.label} loading="lazy" className="mb-6 h-52 w-full rounded-2xl object-cover"/>}
         <label htmlFor="response-field" className="block text-base font-semibold leading-6">
           {field.label} {field.required && <span className="text-emerald-600">*</span>}
         </label>
