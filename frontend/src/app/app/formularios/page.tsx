@@ -98,7 +98,7 @@ export default function FormulariosPage(){
     try{
       let enriched=request;
       if(attachments.length){
-        const payload=new FormData();
+        const payload=new FormData();payload.append("mode","local");
         const prepared=await Promise.all(attachments.map(async file=>{
           if(!file.type.startsWith("video/"))return file;
           return await new Promise<File>((resolve,reject)=>{
