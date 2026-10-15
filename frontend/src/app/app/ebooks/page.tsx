@@ -562,7 +562,7 @@ export default function EbooksPage(){
     setActive(i=>Math.max(0,Math.min(i,book.pages.length-2)));
   }
   function addPage(){
-    if(!book||book.pages.length>=24)return;
+    if(!book||book.pages.length>=80)return;
     const pages=[...book.pages];pages.splice(active+1,0,makeEmptyPage(active+2));
     updateBook({pages});setActive(active+1);
   }
