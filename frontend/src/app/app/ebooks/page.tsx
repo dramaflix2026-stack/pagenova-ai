@@ -901,7 +901,7 @@ export default function EbooksPage(){
               <button type="submit" disabled={revising||!revision.trim()} className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-400 px-3 py-3 text-xs font-bold text-[#0b1e15] disabled:opacity-40">
                 {revising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{revising?"Reescrevendo...":"Aplicar comando local"}</button>
             </form>
-            <button onClick={addPage} disabled={book.pages.length>=24} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 px-4 py-3 text-xs font-semibold text-white/70 hover:border-emerald-400/50 disabled:opacity-30"><Plus className="h-4 w-4"/> Adicionar página</button>
+            <button onClick={addPage} disabled={book.pages.length>=80} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/25 px-4 py-3 text-xs font-semibold text-white/70 hover:border-emerald-400/50 disabled:opacity-30"><Plus className="h-4 w-4"/> Adicionar página</button>
           </div>
         </aside>}
       </div>
