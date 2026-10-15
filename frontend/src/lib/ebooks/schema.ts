@@ -2,7 +2,7 @@
  * Shared data contract for the PageNova Ebook Studio.
  * Keep output independent from any AI vendor so users can edit and export it.
  */
-export type EbookPageKind = "cover" | "chapter" | "feature" | "quote" | "summary" | "back" | "checklist" | "steps" | "comparison" | "timeline" | "caseStudy" | "gallery" | "infographic" | "insight";
+export type EbookPageKind = "cover" | "chapter" | "feature" | "quote" | "summary" | "back" | "checklist" | "steps" | "comparison" | "timeline" | "caseStudy" | "gallery" | "infographic" | "insight" | "recipe";
 export type EbookTheme = "editorial" | "midnight" | "forest" | "corporate" | "modern" | "premium";
 export type EbookImageMode = "web" | "ai" | "none";
 
@@ -32,7 +32,7 @@ export type EbookProject = {
   updatedAt: string;
 };
 
-const KINDS = new Set<EbookPageKind>(["cover", "chapter", "feature", "quote", "summary", "back", "checklist", "steps", "comparison", "timeline", "caseStudy", "gallery", "infographic", "insight"]);
+const KINDS = new Set<EbookPageKind>(["cover", "chapter", "feature", "quote", "summary", "back", "checklist", "steps", "comparison", "timeline", "caseStudy", "gallery", "infographic", "insight", "recipe"]);
 const THEMES = new Set<EbookTheme>(["editorial", "midnight", "forest", "corporate", "modern", "premium"]);
 const IMAGE_MODES = new Set<EbookImageMode>(["web", "ai", "none"]);
 const asString = (input: unknown): string => typeof input === "string" ? input : "";
@@ -44,7 +44,7 @@ export function normalizeEbook(raw: unknown): EbookProject {
   if (!raw || typeof raw !== "object") throw new Error("Ebook inválido.");
   const obj = raw as Record<string, unknown>;
   const rawPages = Array.isArray(obj.pages) ? obj.pages : [];
-  if (rawPages.length < 2 || rawPages.length > 24) throw new Error("O ebook precisa de 2 a 24 páginas.");
+  if (rawPages.length < 2 || rawPages.length > 80) throw new Error("O ebook precisa de 2 a 80 páginas.");
   const pages = rawPages.map((value, index): EbookPage => {
     if (!value || typeof value !== "object") throw new Error("Página inválida.");
     const p = value as Record<string, unknown>;
@@ -57,7 +57,7 @@ export function normalizeEbook(raw: unknown): EbookProject {
       title: asString(p.title),
       lead: asString(p.lead),
       body: asString(p.body),
-      bullets: bullets.slice(0,8),
+      bullets: bullets.slice(0,12),
       imagePrompt: asString(p.imagePrompt),
       imageUrl: asString(p.imageUrl),
       imageCredit: asString(p.imageCredit),
