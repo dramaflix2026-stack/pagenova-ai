@@ -80,6 +80,40 @@ function requestedFormFields(prompt:string):FormQuestion[]{
  }
  return out;
 }
+
+/** Recognize an explicitly numbered list of requested lead fields.
+ * Deliver exactly the listed questions rather than adding generic fillers.
+ */
+function preciseFormFields(prompt:string):FormQuestion[]|null{
+ const match=/\b(\d{1,2})\s+(?:perguntas|campos)\b/i.exec(prompt);
+ if(!match)return null;
+ const count=Number(match[1]);
+ if(count<1||count>20)return null;
+ const tail=prompt.slice(match.index+match[0].length);
+ const separator=tail.search(/[:\n]/);
+ if(separator<0)return null;
+ const raw=tail.slice(separator+1).replace(/^\s*[-–]\s*/,"");
+ const parts=raw.split(/[,;\n]+/).map(t=>t.replace(/^\s*(?:\d+[.)-]\s*)/,"").trim()).filter(Boolean);
+ if(parts.length!==count)return null;
+ const specs:FormQuestion[]=parts.map((fieldName,index)=>{
+   const normalized=fieldName.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+   const id="q-"+String(index+1),required=true;
+   if(/\b(nome|name)\b/.test(normalized))return field(id,"Qual é seu nome completo?","text",required);
+   if(/e-?mail/.test(normalized))return field(id,"Qual é seu melhor e-mail?","email",required);
+   if(/whatsapp|telefone|celular/.test(normalized))return field(id,"Qual é seu WhatsApp?","tel",required);
+   if(/instagram|perfil social/.test(normalized))return field(id,"Qual é seu Instagram?","text",required);
+   if(/faturamento|receita mensal/.test(normalized))return field(id,"Qual é seu faturamento mensal?","select",required,
+     ["Ainda não faturo","Até R$5 mil","R$5 mil a R$20 mil","R$20 mil a R$100 mil","Acima de R$100 mil"]);
+   if(/caixa|capital|orcamento|investimento/.test(normalized))return field(id,"Qual valor você tem disponível para investir?","select",required,
+     ["Até R$1 mil","R$1 mil a R$5 mil","R$5 mil a R$20 mil","Acima de R$20 mil"]);
+   if(/texto aberto|pergunta aberta|mensagem|observa|conte sobre|experiencia/.test(normalized))return field(id,"Conte mais sobre seu objetivo:","textarea",required);
+   if(/cidade|municipio|estado/.test(normalized))return field(id,"Em qual cidade ou região você está?","text",required);
+   const label=capitalize(clean(fieldName,150)).replace(/[.?!:]+$/,"")+"?";
+   return field(id,label,"text",required);
+ });
+ return specs;
+}
+
 export function localForm(prompt:string,existing?:FormInput|null):FormInput{
  const subject=topic(prompt,64);
  if(existing){
@@ -97,6 +131,8 @@ export function localForm(prompt:string,existing?:FormInput|null):FormInput{
  return normalizeForm({title:(kind==="survey"?"Pesquisa: ":kind==="application"?"Inscrição: ":kind==="quiz"?"Questionário: ":"Contato: ")+subject,
   description:"Responda às perguntas a seguir sobre "+subject+". Suas respostas serão encaminhadas ao responsável por este formulário.",
   kind,fields:(()=>{
+    const specified=preciseFormFields(prompt);
+    if(specified)return specified;
     const baseline=formFields(kind,subject);
     const extra=requestedFormFields(prompt).filter(item=>!baseline.some(base=>
       base.label.toLowerCase().includes(item.label.toLowerCase().replace(/^qual e (seu|sua) /,""))));
@@ -150,7 +186,25 @@ export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
   collectLeads:/captar|captura|leads|coletar\s+(?:nome|e-?mail)|contatos/i.test(prompt),outcomes,questions,motion:true});
 }
 function optionSet(_id:string,outcomes:QuizOutcome[]){
- const labels=["✨ Prefiro explorar as possibilidades","🚀 Gosto de aprender enquanto faço","🎯 Quero planejar e medir os resultados"];
+ const bank=[
+  ["Quero descobrir possibilidades","Já estou colocando em prática","Quero otimizar o que faço"],
+  ["Pesquiso e comparo opções","Testo pequenas mudanças","Defino metas antes de agir"],
+  ["Estou começando do zero","Já tenho alguma prática","Tenho experiência e processos"],
+  ["Entender o básico primeiro","Aprender com exemplos concretos","Medir a evolução com clareza"],
+  ["Procuro novas orientações","Divido em etapas menores","Analiso as causas e ajusto o plano"],
+  ["Conhecer as alternativas","Construir uma rotina","Avançar em um resultado mensurável"],
+  ["Uma introdução simples","Um passo a passo prático","Dados e critérios para decidir"],
+  ["Textos curtos e objetivos","Tutoriais e demonstrações","Resumos e planos comparáveis"],
+  ["Até uma hora","Algumas horas","Tenho uma rotina definida"],
+  ["Ainda estou pesquisando","Já comecei a experimentar","Quero melhorar algo existente"],
+  ["Descobrir o primeiro passo","Preparar uma execução simples","Definir indicadores claros"],
+  ["Faltam informações","Preciso de orientação prática","Preciso avaliar o retorno"],
+  ["Ainda não acompanho","Anoto meus avanços","Uso métricas e revisões"],
+  ["Encontrar um motivo para começar","Ter um plano fácil de seguir","Acompanhar metas e prazos"],
+  ["Entender por onde começar","Aprender uma técnica","Comparar métodos e resultados"]
+ ] as const;
+ const position=Number((/^q(\d+)$/.exec(_id)||[])[1]||1)-1;
+ const labels=bank[((position%bank.length)+bank.length)%bank.length];
  return labels.map((label,i)=>({id:"o"+(i+1),label,outcomeId:outcomes[i%outcomes.length].id}));
 }
 function ebookSections(prompt:string){
