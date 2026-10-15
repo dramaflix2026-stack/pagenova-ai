@@ -3,9 +3,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
   ArrowLeft, ArrowRight, Check, CheckCircle2, ClipboardList, Copy,
-  Eye, FilePenLine, Globe2, LoaderCircle, Plus, Save, Sparkles, Trash2,
+  Eye, FilePenLine, Globe2, LoaderCircle, Plus, Save, Sparkles, Trash2, Paperclip, Video, X, BarChart3,
 } from "lucide-react";
 import { type FormInput, type FormQuestion, type PageNovaForm, type FormSubmission, normalizeForm } from "@/lib/forms/schema";
+import {MediaImageField} from "@/components/studio/MediaImageField";
+import {VoiceButton} from "@/components/studio/VoiceButton";
 
 type Screen = "start" | "review";
 type Tab = "questions" | "preview" | "responses";
@@ -45,6 +47,7 @@ export default function FormulariosPage(){
   const [baseUrl,setBaseUrl]=useState("");
   const [responses,setResponses]=useState<FormSubmission[]>([]);
   const [loadingResponses,setLoadingResponses]=useState(false);
+  const [attachments,setAttachments]=useState<File[]>([]);
 
   async function loadSaved() {
     try{
@@ -79,7 +82,35 @@ export default function FormulariosPage(){
     if(request.length<20){setError("Conte um pouco mais sobre a ideia do formulário (pelo menos 20 caracteres).");return;}
     setError("");setNotice("");setIsGenerating(true);
     try{
-      const result=await jsonRequest<{form:FormInput}>("/api/forms/generate",{prompt:request});
+      let enriched=request;
+      if(attachments.length){
+        const payload=new FormData();
+        const prepared=await Promise.all(attachments.map(async file=>{
+          if(!file.type.startsWith("video/"))return file;
+          return await new Promise<File>((resolve,reject)=>{
+            const element=document.createElement("video");
+            const uri=URL.createObjectURL(file);
+            element.preload="metadata";element.muted=true;
+            const fail=()=>{URL.revokeObjectURL(uri);reject(new Error("Não foi possível extrair um quadro deste vídeo."));};
+            element.onerror=fail;
+            element.onloadeddata=()=>{
+              const canvas=document.createElement("canvas");
+              const ratio=Math.min(1,1024/Math.max(element.videoWidth,element.videoHeight));
+              canvas.width=Math.max(1,Math.round(element.videoWidth*ratio));
+              canvas.height=Math.max(1,Math.round(element.videoHeight*ratio));
+              canvas.getContext("2d")?.drawImage(element,0,0,canvas.width,canvas.height);
+              canvas.toBlob(blob=>{URL.revokeObjectURL(uri);if(blob)resolve(new File([blob],file.name+".jpg",{type:"image/jpeg"}));else fail();},"image/jpeg",.78);
+            };
+            element.src=uri;
+          });
+        }));
+        prepared.forEach(file=>payload.append("files",file));
+        const response=await fetch("/api/builder/analyze-attachments",{method:"POST",body:payload,credentials:"same-origin"});
+        const data=await response.json().catch(()=>({})) as {summary?:string;error?:string};
+        if(!response.ok||!data.summary)throw new Error(data.error||"Não foi possível analisar os anexos.");
+        enriched+="\n\nREFERÊNCIAS ENVIADAS (visuais ou documentos):\n"+data.summary;
+      }
+      const result=await jsonRequest<{form:FormInput}>("/api/forms/generate",{prompt:enriched});
       // Validate the model output again at the UI boundary.
       const data=normalizeForm(result.form);
       setForm({...data,id:"",updatedAt:"",publishedAt:null});
@@ -168,10 +199,16 @@ export default function FormulariosPage(){
             </div>
             <span className="rounded-full border border-emerald-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">IA</span>
           </div>
-          <textarea id="form-idea" value={prompt} maxLength={1500} rows={5}
+          <textarea id="form-idea" value={prompt} rows={5}
             disabled={isGenerating} onChange={e=>setPrompt(e.target.value)}
             placeholder="Ex.: Quero um formulário para uma imobiliária descobrir se o cliente deseja comprar ou alugar, a região, o orçamento e como prefere ser atendido."
             className={fieldClass+" min-h-[132px] resize-y rounded-[18px] border-white/10 bg-[#090e12] text-base leading-7 placeholder:text-white/30"}/>
+          {attachments.length>0&&<div className="mt-3 flex flex-wrap gap-2">{attachments.map((file,i)=><span key={i} className="inline-flex max-w-full items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/65"><Paperclip className="h-3.5 w-3.5"/><span className="max-w-40 truncate">{file.name}</span><button type="button" aria-label={"Remover "+file.name} onClick={()=>setAttachments(a=>a.filter((_,index)=>index!==i))}><X className="h-3.5 w-3.5"/></button></span>)}</div>}
+          <div className="mt-3 flex items-center gap-2">
+            <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-white/5 text-emerald-200" title="Adicionar imagens, PDF, TXT ou vídeo"><Plus className="h-5 w-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm" onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/></label>
+            <VoiceButton disabled={isGenerating} onText={text=>setPrompt(current=>(current?current+" ":"")+text)}/>
+            <span className="text-xs text-white/45">+ anexos e vídeo · microfone para ditar</span>
+          </div>
           <button disabled={isGenerating||prompt.trim().length<20} type="submit"
             className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-3.5 text-sm font-bold text-[#07271e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45 sm:text-base">
             {isGenerating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Criando perguntas com IA...</>:<>
