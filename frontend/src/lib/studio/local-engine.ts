@@ -59,6 +59,27 @@ function formFields(kind:FormKind,subject:string):FormQuestion[]{
   ];
  }
 }
+/** Extract common requested lead fields without a paid model call. */
+function requestedFormFields(prompt:string):FormQuestion[]{
+ const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const specs:Array<{test:RegExp;label:string;type:FormQuestion["type"]}>=[
+  {test:/\b(instagram|@instagram|perfil social)\b/,label:"Qual é seu Instagram?",type:"text"},
+  {test:/\b(faturamento|receita mensal)\b/,label:"Qual é seu faturamento mensal?",type:"select"},
+  {test:/\b(caixa disponivel|capital disponivel|investimento disponivel|orcamento)\b/,label:"Quanto você tem disponível para investir?",type:"select"},
+  {test:/\b(site|website|url do site)\b/,label:"Qual é o site da sua empresa?",type:"text"},
+  {test:/\b(cidade|municipio)\b/,label:"Em qual cidade você está?",type:"text"},
+  {test:/\b(profissao|cargo|ocupacao)\b/,label:"Qual é sua profissão ou cargo?",type:"text"},
+ ];
+ const out:FormQuestion[]=[];
+ for(const spec of specs){
+  if(!spec.test.test(normalized))continue;
+  const index=out.length+1;
+  const options=spec.label.includes("faturamento")?["Ainda não faturo","Até R$5 mil","R$5 mil a R$20 mil","R$20 mil a R$100 mil","Acima de R$100 mil"]:
+    spec.label.includes("investir")?["Até R$1 mil","R$1 mil a R$5 mil","R$5 mil a R$20 mil","Acima de R$20 mil"]:[];
+  out.push(field("extra-"+index,spec.label,spec.type,true,options));
+ }
+ return out;
+}
 export function localForm(prompt:string,existing?:FormInput|null):FormInput{
  const subject=topic(prompt,64);
  if(existing){
@@ -75,7 +96,12 @@ export function localForm(prompt:string,existing?:FormInput|null):FormInput{
  const kind=inferKind(prompt);
  return normalizeForm({title:(kind==="survey"?"Pesquisa: ":kind==="application"?"Inscrição: ":kind==="quiz"?"Questionário: ":"Contato: ")+subject,
   description:"Responda às perguntas a seguir sobre "+subject+". Suas respostas serão encaminhadas ao responsável por este formulário.",
-  kind,fields:formFields(kind,subject),intent:prompt,whatsapp:"",visualTheme:kind==="survey"?"rose":"emerald",motion:true});
+  kind,fields:(()=>{
+    const baseline=formFields(kind,subject);
+    const extra=requestedFormFields(prompt).filter(item=>!baseline.some(base=>
+      base.label.toLowerCase().includes(item.label.toLowerCase().replace(/^qual e (seu|sua) /,""))));
+    return [...baseline,...extra].slice(0,20);
+  })(),intent:prompt,whatsapp:"",visualTheme:kind==="survey"?"rose":"emerald",motion:true});
 }
 const outcome=(id:string,title:string,description:string):QuizOutcome=>({id,title,description,ctaLabel:"Conhecer próximos passos",ctaUrl:""});
 export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
@@ -103,7 +129,16 @@ export function localQuiz(prompt:string,existing?:QuizInput|null):QuizInput{
   "Qual é o seu nível de experiência com "+subject+"?",
   "O que você considera mais importante ao começar?",
   "Quando encontra uma dificuldade, como prefere agir?",
-  "Qual resultado você deseja priorizar nos próximos dias?"
+  "Qual resultado você deseja priorizar nos próximos dias?",
+  "Que tipo de apoio faria mais diferença para você?",
+  "Como você prefere receber orientações e informações?",
+  "Quanto tempo você consegue dedicar a esse objetivo por semana?",
+  "Qual destas situações melhor descreve seu momento atual?",
+  "Qual seria seu primeiro passo para colocar uma ideia em prática?",
+  "O que mais influencia sua decisão de começar agora?",
+  "Como você costuma acompanhar seus próprios resultados?",
+  "O que ajudaria você a manter a consistência?",
+  "Qual aspecto você gostaria de compreender melhor antes de decidir?"
  ];
  const count=Math.max(3,Math.min(15,Number(/\b(\d{1,2})\s+perguntas?\b/i.exec(prompt)?.[1]||"6")));
  const questions:QuizQuestion[]=Array.from({length:count},(_,i)=>{
