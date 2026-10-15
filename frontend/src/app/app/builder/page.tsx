@@ -525,25 +525,46 @@ export default function BuilderPage() {
     setGenerationProgress(INITIAL_GENERATION_PROGRESS);
     let jobId=knownJobId||null;
     let lastSequence=0;
+    let consecutiveFailures=0;
+    const wait=()=>new Promise<void>(resolve=>window.setTimeout(resolve,2000));
     try {
-      for (let attempt=0;attempt<120;attempt++) {
-        const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}`, {
-          credentials:"same-origin",cache:"no-store",
-        });
-        const detail=await response.json().catch(()=>({})) as {
+      // Multiple production deployments can temporarily interrupt the CRM API.
+      // Never mark a running paid job failed just because one poll returned 502.
+      for(let attempt=0;attempt<360;attempt++){
+        let detail:{
           project?:{status?:string;lastFailureMessage?:string|null};
           jobs?:Array<{id?:string;status?:string;errorMessage?:string|null}>;
           error?:{message?:string};
         };
-        if(!response.ok) throw new Error(detail.error?.message||`Falha HTTP ${response.status} ao acompanhar a criação.`);
-        if(!jobId) jobId=detail.jobs?.[0]?.id||null;
+        try{
+          const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}`,{
+            credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(12000),
+          });
+          if(response.status===401||response.status===403)
+            throw new Error("Sua sessão expirou. Faça login novamente; o trabalho em andamento foi preservado.");
+          if(!response.ok)throw new Error(`O motor de geração está temporariamente indisponível (HTTP ${response.status}).`);
+          detail=await response.json();
+          if(!detail.project)throw new Error("O estado do projeto não foi recebido.");
+          consecutiveFailures=0;
+        }catch(error){
+          const message=error instanceof Error?error.message:"Falha de rede.";
+          if(/sessão expirou/.test(message))throw error;
+          consecutiveFailures++;
+          if(consecutiveFailures>=30){
+            throw new Error("A conexão com o motor de sites está instável. O projeto foi preservado e pode continuar sendo processado. Use 'Verificar geração existente' para consultar, sem criar outro site ou consumir outro crédito.");
+          }
+          setGenerationProgress(current=>({...current,label:"Reconectando ao motor de sites..."}));
+          await wait();
+          continue;
+        }
+        if(!jobId)jobId=detail.jobs?.[0]?.id||null;
         if(jobId){
           try{
-            const stagesResponse=await fetch(`/api/crm/site-jobs/${encodeURIComponent(jobId)}/events?after=${lastSequence}`,{
-              credentials:"same-origin",cache:"no-store",
+            const response=await fetch(`/api/crm/site-jobs/${encodeURIComponent(jobId)}/events?after=${lastSequence}`,{
+              credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(12000),
             });
-            if(stagesResponse.ok){
-              const history=await stagesResponse.json() as {
+            if(response.ok){
+              const history=await response.json() as {
                 events?:Array<{sequence:number;stage?:string|null;eventType?:string;message?:string}>;
               };
               for(const entry of history.events||[]){
@@ -551,39 +572,44 @@ export default function BuilderPage() {
                 if(entry.eventType!=="STAGE_STARTED"&&entry.eventType!=="COMPLETED")continue;
                 const milestone=milestoneFor(entry.stage);
                 if(!milestone)continue;
-                // A completion event alone is insufficient: the generated
-                // HTML must be readable before this UI shows 100%.
-                const percent=Math.min(95,milestone.percent);
                 setGenerationProgress(old=>({
-                  percent:Math.max(old.percent,percent),
+                  percent:Math.max(old.percent,Math.min(95,milestone.percent)),
                   label:milestone.id==="COMPLETED"?"Finalizando prévia...":milestone.label,
-                  stage:milestone.id,
-                  jobId,
+                  stage:milestone.id,jobId,
                 }));
               }
             }
+          }catch{/* The project state remains authoritative if events cannot be read. */}
+        }
+        if(detail.project.status==="READY"||detail.project.status==="PUBLISHED"){
+          // The project is already saved. Rendering may briefly be unavailable
+          // while the server starts: retry instead of charging another generation.
+          try{
+            const response=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/render`,{
+              credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(15000),
+            });
+            if(!response.ok)throw new Error(`Prévia indisponível (HTTP ${response.status}).`);
+            const html=await response.text();
+            if(!html.trim())throw new Error("A prévia retornou vazia.");
+            setCrmPreviewHtml(html);
+            setGenerationProgress({percent:100,label:"Seu site está pronto!",stage:"COMPLETED",jobId});
+            void refreshCost(projectId);
+            setCurrentStep(null);setPendingKeys([]);setPhase("ready");
+            return;
           }catch{
-            // The project state remains authoritative if event history is
-            // momentarily unavailable. Don't fake progress on network errors.
+            consecutiveFailures++;
+            setGenerationProgress(current=>({...current,label:"Site salvo. Reabrindo prévia..."}));
+            if(consecutiveFailures>=30)throw new Error("O site foi criado e salvo, mas a prévia está temporariamente indisponível. Clique em 'Verificar geração existente' para carregá-la sem custo.");
           }
+        }else if(detail.project.status==="FAILED"){
+          throw new Error(detail.project.lastFailureMessage||
+            detail.jobs?.find(job=>job.id===jobId)?.errorMessage||
+            "A geração falhou. O projeto foi preservado para diagnóstico.");
         }
-        if(detail.project?.status==="READY"||detail.project?.status==="PUBLISHED") {
-          const html=await fetch(`/api/crm/site-projects/${encodeURIComponent(projectId)}/render`,{
-            credentials:"same-origin",cache:"no-store",
-          });
-          if(!html.ok) throw new Error(`O site ficou pronto, mas a prévia não carregou (HTTP ${html.status}). O projeto foi preservado. Toque em Verificar geração existente para tentar novamente.`);
-          setCrmPreviewHtml(await html.text());
-          setGenerationProgress({percent:100,label:"Seu site está pronto!",stage:"COMPLETED",jobId});
-          void refreshCost(projectId);
-          setCurrentStep(null);setPendingKeys([]);setPhase("ready");
-          return;
-        }
-        if(detail.project?.status==="FAILED")throw new Error(detail.project.lastFailureMessage||
-          detail.jobs?.[0]?.errorMessage||"A geração falhou. O projeto foi preservado.");
-        if(attempt<119)await new Promise(resolve=>window.setTimeout(resolve,1500));
+        if(attempt<359)await wait();
       }
-      throw new Error("A geração ainda não foi confirmada. Verifique o andamento mais tarde.");
-    }catch(cause) {
+      throw new Error("A geração ainda não foi confirmada. O projeto continua salvo. Consulte em 'Verificar geração existente' sem criar outro pedido.");
+    }catch(cause){
       setCurrentStep(null);setPendingKeys([]);setPhase("error");
       setError(cause instanceof Error?cause.message:"Não foi possível consultar a geração.");
     }
