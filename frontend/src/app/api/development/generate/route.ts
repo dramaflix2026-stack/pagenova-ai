@@ -18,7 +18,7 @@ function outputText(raw:unknown):string{
 function safePath(path:string):boolean{
  return path.length<=140&&!path.includes("\\")&&!path.includes("..")&&!path.startsWith("/")&&
   /^[a-zA-Z0-9._/-]+$/.test(path)&&!/(?:^|\/)\.env|(?:^|\/)\.git|(?:^|\/)node_modules|(?:^|\/)package-lock\.json/i.test(path)&&
-  /^(?:app\/|src\/|components\/|lib\/|public\/|assets\/|scripts\/|README\.md$|package\.json$|app\.json$|tsconfig\.json$|babel\.config\.js$|next\.config\.(?:ts|js)$|expo-env\.d\.ts$|metro\.config\.js$|tailwind\.config\.(?:js|ts)$|postcss\.config\.(?:js|mjs)$)/.test(path);
+  /^(?:app\/|src\/|components\/|lib\/|public\/|assets\/|scripts\/|README\.md$|package\.json$|app\.json$|App\.tsx$|app\.config\.ts$|tsconfig\.json$|babel\.config\.js$|next\.config\.(?:ts|js)$|expo-env\.d\.ts$|metro\.config\.js$|tailwind\.config\.(?:js|ts)$|postcss\.config\.(?:js|mjs)$)/.test(path);
 }
 export async function POST(request:NextRequest){
  try{
