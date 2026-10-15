@@ -45,7 +45,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
    let requestText=request;
    if(attachments.length){
     const prepared=await Promise.all(attachments.map(imageFrame));
-    const form=new FormData();prepared.forEach(file=>form.append("files",file));
+    const form=new FormData();form.append("mode","local");prepared.forEach(file=>form.append("files",file));
     const response=await fetch("/api/builder/analyze-attachments",{method:"POST",credentials:"same-origin",body:form});
     const info=await response.json().catch(()=>({})) as {summary?:string;error?:string};
     if(!response.ok||!info.summary)throw new Error(info.error||"Não foi possível interpretar anexos.");
