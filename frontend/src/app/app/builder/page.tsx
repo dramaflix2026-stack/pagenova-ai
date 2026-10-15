@@ -652,6 +652,7 @@ export default function BuilderPage() {
       let initialImages:string[]=[];
       if(attached.length){
         const payload=new FormData();
+        payload.append("mode","site");
         const prepared=await Promise.all(attached.map(async file=>{
           if(!file.type.startsWith("image/"))return file;
           const compressed=await compressReference(file);
