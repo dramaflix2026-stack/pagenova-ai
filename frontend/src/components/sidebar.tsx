@@ -64,8 +64,8 @@ const studioItems: MenuItem[] = [
 ];
 
 const developmentItems: MenuItem[] = [
-  { href: "/app/aplicativos", label: "Desenvolver Aplicativos", icon: Smartphone },
-  { href: "/app/sistemas", label: "Desenvolver Sistemas", icon: Blocks },
+  { href: "/app/aplicativos", label: "Protótipos de Aplicativos", icon: Smartphone },
+  { href: "/app/sistemas", label: "Protótipos de Sistemas", icon: Blocks },
 ];
 
 function isItemActive(pathname: string, href: string, crmView: string | undefined, currentCrmView: string | null) {
@@ -288,7 +288,7 @@ export function Sidebar() {
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
-            <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
+            <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
               theme="development" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
 
@@ -348,7 +348,7 @@ export function Sidebar() {
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
             theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
-          <NavigationGroup title="Desenvolvimento" description="Aplicativos e sistemas com IA" items={developmentItems}
+          <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
             theme="development" pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
 
