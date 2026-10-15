@@ -622,7 +622,7 @@ export const siteSchema = z.object({
     creativeSeed: z.string().max(32),
     promptVersion: z.string().max(16),
     /** Renderizacao visual escolhida; projetos antigos continuam no visual anterior. */
-    templateId: z.enum(['standard', 'frigolog-universal', 'muse-editorial', 'atelier-norte', 'vertice-corporate']).optional(),
+    templateId: z.enum(['standard', 'frigolog-universal', 'muse-editorial', 'atelier-norte', 'vertice-corporate', 'restaurant-premium', 'real-estate-premium']).optional(),
   }),
   business: businessFactsSchema,
   objective: z.object({
