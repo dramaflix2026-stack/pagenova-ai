@@ -1053,7 +1053,7 @@ setEditingText(fullText);
   const [publishedCloneUrl,setPublishedCloneUrl]=useState("");
 
   const saveEditedProject =
-    useCallback(() => {
+    useCallback(async () => {
 if (!project) {
         setSaveStatus(
           "Projeto não encontrado."
@@ -1141,13 +1141,14 @@ if (!project) {
         );
 
         setProject(nextProject);
-        // Session storage is a short-lived fallback, not durable project data.
-        void savePageNovaProject(project.id,nextProject).catch(()=>{
+        // Only report success after IndexedDB actually commits the write.
+        // Session storage remains the recovery fallback if IndexedDB is blocked.
+        try {
+          await savePageNovaProject(project.id,nextProject);
+          setSaveStatus("Alterações salvas no dispositivo.");
+        } catch {
           setSaveStatus("Salvo apenas nesta sessão. Exporte ou publique para preservar o projeto.");
-        });
-        setSaveStatus(
-          "Alterações salvas com sucesso."
-        );
+        }
       } catch {
         setSaveStatus(
           "Não foi possível salvar as alterações."
