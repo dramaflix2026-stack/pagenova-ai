@@ -8,7 +8,7 @@ export type QuizInput={
   collectLeads:boolean;
 };
 export type QuizProject=QuizInput&{id:string;updatedAt:string;publishedAt:string|null};
-export type PublicQuiz=Pick<QuizProject,"id"|"title"|"subtitle"|"theme"|"collectLeads"|"publishedAt">&{
+export type PublicQuiz=Pick<QuizProject,"id"|"title"|"subtitle"|"theme"|"collectLeads"|"publishedAt"|"coverImageUrl"|"motion">&{
   questions:Array<{id:string;title:string;imageUrl?:string;options:Array<{id:string;label:string;imageUrl?:string}>}>;
 };
 export type QuizEntry={id:string;quizId:string;submittedAt:string;outcomeId:string;
