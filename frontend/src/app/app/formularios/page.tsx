@@ -8,6 +8,7 @@ import {
 import { type FormInput, type FormQuestion, type PageNovaForm, type FormSubmission, normalizeForm } from "@/lib/forms/schema";
 import {MediaImageField} from "@/components/studio/MediaImageField";
 import {VoiceButton} from "@/components/studio/VoiceButton";
+import {downloadStudioCsv} from "@/lib/studio-response-export";
 
 type Screen = "start" | "review";
 type Tab = "questions" | "preview" | "responses";
@@ -391,10 +392,12 @@ export default function FormulariosPage(){
             <section className="space-y-4 rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
               <div className="text-center">
                 <h2 className="text-xl font-bold">Respostas recebidas</h2>
+                <p className="mt-2 text-3xl font-bold text-emerald-300">{responses.length}</p>
                 <p className="mt-2 text-sm text-white/50">Somente você, dentro da sua conta PageNova, pode consultar estas respostas.</p>
                 <button type="button" onClick={()=>void loadResponses()} className="mt-4 rounded-lg border border-white/15 px-4 py-2 text-sm text-white/75">
                   Atualizar respostas
                 </button>
+                <button type="button" disabled={!responses.length} onClick={()=>downloadStudioCsv("respostas-formulario-"+form.id+".csv",["Data",...form.fields.map(field=>field.label)],responses.map(entry=>[entry.submittedAt,...form.fields.map(field=>entry.answers.find(answer=>answer.questionId===field.id)?.value||"")]))} className="ml-2 mt-4 rounded-lg border border-emerald-400/35 px-4 py-2 text-sm font-semibold text-emerald-200 disabled:opacity-30">Exportar CSV</button>
               </div>
               {loadingResponses?<p className="py-8 text-center text-sm text-white/50">Carregando respostas...</p>
                 :responses.length===0?<p className="py-8 text-center text-sm text-white/50">Este formulário ainda não recebeu respostas.</p>
