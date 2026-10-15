@@ -1299,8 +1299,8 @@ if (!project) {
   }
 
   return (
-    <main className="flex h-screen flex-col overflow-hidden bg-[#090909] text-white">
-      <header className="flex min-h-16 items-center justify-between gap-4 border-b border-white/10 bg-[#101010] px-4 lg:px-6">
+    <main className="flex h-[100dvh] min-h-[520px] flex-col overflow-hidden bg-[#090909] text-white">
+      <header className="flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#101010] px-3 py-2 sm:gap-4 sm:px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-4">
           <button
             type="button"
@@ -1354,9 +1354,9 @@ if (!project) {
           ))}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="hidden rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-xs text-amber-300 lg:inline">
-            Preview V1
+            Editor visual
           </span>
 
                     <div className="flex items-center gap-2">
@@ -1383,6 +1383,7 @@ if (!project) {
         </div>
       </header>
 
+      {saveStatus&&<p role="status" aria-live="polite" className="border-b border-white/10 bg-[#101010] px-4 py-2 text-xs text-emerald-200 xl:hidden">{saveStatus}</p>}
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 border-r border-white/10 bg-[#101010] p-5 lg:block">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-neutral-500">
@@ -1395,10 +1396,7 @@ if (!project) {
             </p>
 
             <p className="mt-2 text-xs leading-5 text-neutral-500">
-              Esta etapa valida a fidelidade
-              visual antes de habilitarmos
-              edição de textos, imagens e
-              botões.
+              Selecione elementos na prévia para editar textos, imagens e links. Salve as alterações antes de sair ou publique para compartilhar.
             </p>
           </div>
 
@@ -1541,7 +1539,7 @@ if (!project) {
             }}
           >
           <div className="mb-3 rounded-xl border border-zinc-800 bg-zinc-950 p-3">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4">
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
                   Elemento selecionado
@@ -1566,7 +1564,7 @@ if (!project) {
                   </div>
                 ) : (
                   <p className="mt-2 text-sm text-zinc-400">
-                    Passe o mouse pela página e clique em um elemento para selecioná-lo.
+                    Toque ou clique em um elemento na prévia para selecioná-lo.
                   </p>
                 )}
               </div>
@@ -1733,7 +1731,7 @@ if (!project) {
               srcDoc={previewHtml}
               sandbox="allow-same-origin"
               referrerPolicy="no-referrer"
-              className="h-full min-h-[calc(100vh-7rem)] w-full rounded-xl border border-white/10 bg-white shadow-2xl"
+              className="h-full min-h-[450px] w-full rounded-xl border border-white/10 bg-white shadow-2xl md:min-h-[calc(100dvh-7rem)]"
             />
           </div>
         </section>
