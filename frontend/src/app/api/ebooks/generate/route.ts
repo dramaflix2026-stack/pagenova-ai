@@ -21,7 +21,9 @@ export async function POST(request:NextRequest){
   const pageCount=[6,8,10,12,16].includes(Number(input.pageCount))?Number(input.pageCount):8;
   const imageMode=input.imageMode==="none"?"none":"web";
   const author=typeof input.author==="string"?input.author.trim().slice(0,140):"";
-  const intent=detectEbookIntent(prompt);
+  let intent:ReturnType<typeof detectEbookIntent>;
+  try { intent=detectEbookIntent(prompt); }
+  catch(error) { throw new FormServiceError(error instanceof Error?error.message:"Pedido de receitas inválido.",422); }
   const ebook=intent.kind==="cookbook"
     ?buildCookbook({prompt,count:intent.requestedItems,author,theme,imageMode})
     :localEbook({prompt:prompt||"Referências visuais fornecidas pelo autor; complete o briefing textual.",pageCount,author,theme,
