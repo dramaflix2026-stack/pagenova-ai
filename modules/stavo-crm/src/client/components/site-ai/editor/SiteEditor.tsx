@@ -729,7 +729,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
     element.style.setProperty('transform','translate('+edit.offsetX+'px,'+edit.offsetY+'px)','important');
   };
 
-  const applyVisualTemplate = (nextTemplate: 'standard' | 'frigolog-universal' | 'muse-editorial' | 'atelier-norte' | 'vertice-corporate') => {
+  const applyVisualTemplate = (nextTemplate: 'standard' | 'frigolog-universal' | 'muse-editorial' | 'atelier-norte' | 'vertice-corporate' | 'restaurant-premium' | 'real-estate-premium') => {
     if (!config || config.project.templateId === nextTemplate) return;
     // Preserve text, images and generated business content. Only switch
     // the deterministic HTML layout, with undo and autosave support.
