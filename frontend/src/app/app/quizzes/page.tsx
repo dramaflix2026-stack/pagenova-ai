@@ -42,7 +42,7 @@ async function post<T>(url:string,payload:unknown):Promise<T>{
   if(!response.ok)throw new Error(body.error||"Não foi possível concluir a solicitação.");
   return body;
 }
-const greeting:Message={role:"assistant",text:"Olá! Sou a IA da PageNova. Conte o tema, o público e o objetivo do seu quiz. Vou criar as perguntas, os perfis de resultado e um visual pronto para publicar."};
+const greeting:Message={role:"assistant",text:"Olá! Monte seu quiz sem gastar API. Informe tema e objetivo; usaremos perguntas e perfis de modelos locais, que você poderá editar antes de publicar."};
 
 export default function QuizStudioPage(){
   const [screen,setScreen]=useState<Screen>("start");
@@ -143,8 +143,8 @@ export default function QuizStudioPage(){
       };
       setQuiz(project);setScreen("editor");setDirty(true);setTab("questions");
       setConversation(items=>[...items,{role:"assistant",text:quiz
-        ?"Pronto! Apliquei sua solicitação. Confira as perguntas e resultados, depois salve e publique a nova versão."
-        :"Pronto! Criei seu quiz com perguntas, três perfis de resultado e um design responsivo. Você pode editar tudo antes de publicar."}]);
+        ?"Pronto! A alteração suportada pelo modelo local foi aplicada. Revise antes de publicar."
+        :"Seu quiz foi montado com modelos locais e três perfis. Personalize perguntas, lógica e imagens antes de publicar."}]);
     }catch(e){
       setError(errText(e));
       setConversation(items=>[...items,{role:"assistant",text:"Não consegui finalizar esta alteração. Seu trabalho anterior foi preservado. Revise a mensagem de erro e tente novamente."}]);
@@ -390,7 +390,7 @@ export default function QuizStudioPage(){
           (message.role==="assistant"?"self-start border border-white/10 bg-white/[.055] text-white/80":"self-end bg-emerald-400/15 text-emerald-100")}>
           {message.text}
         </div>)}
-        {busy&&<div role="status" className="flex items-center gap-2 text-xs text-emerald-300"><LoaderCircle className="h-4 w-4 animate-spin"/> A IA está criando o conteúdo...</div>}
+        {busy&&<div role="status" className="flex items-center gap-2 text-xs text-emerald-300"><LoaderCircle className="h-4 w-4 animate-spin"/> Montando o quiz com modelos locais...</div>}
       </div>
       <form onSubmit={askAI} className="relative">
         <label htmlFor={compact?"quiz-prompt-mobile":"quiz-prompt"} className="sr-only">Mensagem para a IA</label>
@@ -403,7 +403,7 @@ export default function QuizStudioPage(){
         <button type="submit" disabled={busy||prompt.trim().length<12}
           className="absolute bottom-3 right-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#38dba3] px-4 text-xs font-bold text-[#062b20] transition hover:bg-[#65ebba] disabled:opacity-40">
           {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}
-          {quiz?"Alterar com IA":"Gerar Quiz"}
+          {quiz?"Aplicar comando":"Gerar Quiz"}
         </button>
       </form>
       <p className="mt-3 text-[11px] leading-5 text-white/40">Ctrl + Enter para enviar. Revisões não publicam automaticamente.</p>
@@ -419,7 +419,7 @@ export default function QuizStudioPage(){
           Qual quiz vamos <span className="text-[#5ce7b1]">criar hoje?</span>
         </h1>
         <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/60 sm:text-base">
-          Descreva sua ideia em linguagem natural. A IA cria perguntas, perfis de resultado e a experiência completa para você editar e publicar.
+          Descreva o tema: usamos estruturas locais editáveis. Para revisões, use comandos como 'adicionar pergunta sobre ...'.
         </p>
       </div>
       <div className="mx-auto mt-9 max-w-[850px]">
@@ -494,7 +494,7 @@ export default function QuizStudioPage(){
       </div>}
       <button type="button" className="mb-4 flex w-full items-center justify-between rounded-xl border border-emerald-400/20 bg-[#0a2118] p-4 text-left text-sm font-semibold lg:hidden"
         onClick={()=>setChatExpanded(v=>!v)}>
-        <span className="flex items-center gap-2"><MessageSquareText className="h-5 w-5 text-emerald-300"/> Conversar com a IA</span>
+        <span className="flex items-center gap-2"><MessageSquareText className="h-5 w-5 text-emerald-300"/> Configurar quiz</span>
         <ChevronDown className={"h-4 w-4 transition "+(chatExpanded?"rotate-180":"")}/>
       </button>
       {chatExpanded&&<div className="mb-5 lg:hidden">{chatPanel(true)}</div>}
