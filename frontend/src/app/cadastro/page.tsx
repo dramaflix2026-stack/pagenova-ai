@@ -12,7 +12,35 @@ export default function CadastroPage() {
   const [confirmation, setConfirmation] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
   const [error, setError] = useState("");
+
+  async function resendConfirmation() {
+    if (resending || !email.trim()) return;
+    setResending(true);
+    setResent(false);
+    setError("");
+    try {
+      const supabase = createClient();
+      const { error: resendError } = await supabase.auth.resend({
+        type: "signup",
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin + "/auth/callback?next=/app" },
+      });
+      if (resendError) {
+        setError(resendError.code === "over_request_rate_limit"
+          ? "Aguarde alguns instantes antes de solicitar outro link."
+          : "Não foi possível solicitar o link de confirmação. Tente novamente mais tarde.");
+        return;
+      }
+      setResent(true);
+    } catch {
+      setError("Falha ao solicitar o link. Tente novamente mais tarde.");
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function register(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -40,10 +68,13 @@ export default function CadastroPage() {
       });
 
       if (signupError) {
-        if (signupError.message.toLowerCase().includes("already registered")) {
-          setError("Já existe uma conta para este e-mail. Entre com sua senha na página de login.");
+        const code = signupError.code || "";
+        if (code === "user_already_exists" || signupError.message.toLowerCase().includes("already registered")) {
+          setError("Este e-mail pode já ter uma conta. Acesse o login ou utilize 'Esqueci minha senha' para ativar seu acesso.");
+        } else if (code === "over_request_rate_limit") {
+          setError("Muitas solicitações. Aguarde alguns minutos para tentar novamente.");
         } else {
-          setError("Não foi possível concluir o cadastro. Confira os dados e tente novamente.");
+          setError("Não foi possível concluir o cadastro. Verifique os dados e tente novamente.");
         }
         return;
       }
@@ -54,8 +85,9 @@ export default function CadastroPage() {
         return;
       }
 
-      // Email confirmation is controlled by Supabase. Do not claim that
-      // access is active until an entitlement from a purchase is verified.
+      // A signup without a session cannot sign in until email verification.
+      // Supabase can also return a non-session response for already-registered
+      // addresses, so explain the safe recovery path without enumerating users.
       setSent(true);
       setPassword("");
       setConfirmation("");
@@ -90,14 +122,30 @@ export default function CadastroPage() {
 
           {sent ? (
             <div role="status" className="mt-7 rounded-2xl border border-emerald-400/20 bg-emerald-400/[.07] p-5 text-center">
-              <p className="font-semibold text-emerald-200">Confira seu e-mail</p>
+              <p className="font-semibold text-emerald-200">Confirme seu e-mail antes de entrar</p>
               <p className="mt-2 text-sm leading-6 text-white/65">
-                Caso seja necessária confirmação, você receberá um link no endereço informado.
-                Depois, entre com sua conta.
+                Enviamos as instruções de ativação, quando aplicável, para <strong className="break-all text-white">{email.trim().toLowerCase()}</strong>.
+                Abra o link recebido para confirmar sua conta antes de fazer login.
+                Confira também spam e promoções.
               </p>
-              <Link href="/login" className="mt-5 inline-flex rounded-xl bg-[#36d9a1] px-5 py-3 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
-                Ir para o login
-              </Link>
+              <p className="mt-3 text-xs leading-5 text-white/50">
+                Comprou pela Kiwify? Use o mesmo e-mail da compra. Se você já recebeu um convite
+                ou já tem cadastro, utilize o link original ou recupere sua senha.
+              </p>
+              {error && <p role="alert" className="mt-4 rounded-xl border border-red-400/20 bg-red-400/[.07] px-4 py-3 text-xs text-red-200">{error}</p>}
+              {resent && <p role="status" className="mt-4 text-xs leading-5 text-emerald-200">Se a conta estiver aguardando confirmação, um novo link será enviado.</p>}
+              <div className="mt-5 flex flex-col gap-2">
+                <button type="button" onClick={() => void resendConfirmation()} disabled={resending}
+                  className="rounded-xl border border-emerald-400/35 px-5 py-3 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10 disabled:opacity-50">
+                  {resending ? "Enviando..." : "Reenviar confirmação"}
+                </button>
+                <Link href="/forgot-password" className="rounded-xl border border-white/15 px-5 py-3 text-xs font-semibold text-white/70 hover:bg-white/[.05]">
+                  Já tenho conta · redefinir senha
+                </Link>
+                <Link href="/login" className="rounded-xl bg-[#36d9a1] px-5 py-3 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
+                  Já confirmei · ir para login
+                </Link>
+              </div>
             </div>
           ) : (
             <form onSubmit={register} className="mt-7 space-y-4">
