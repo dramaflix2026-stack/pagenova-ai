@@ -592,7 +592,7 @@ export default function EbooksPage(){
       setError("Aguarde o carregamento das imagens antes de exportar o PDF.");
       return;
     }
-    const pendingVisuals=book.imageMode==="none"?0:book.pages.filter(
+    const pendingVisuals=book.imageMode==="none"||book.pages.some(page=>page.kind==="recipe")?0:book.pages.filter(
       page=>isPhotoPage(page.kind)&&!page.imageUrl,
     ).length;
     if(pendingVisuals>0&&!window.confirm(
