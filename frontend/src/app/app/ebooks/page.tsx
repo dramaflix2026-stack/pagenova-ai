@@ -327,6 +327,8 @@ export default function EbooksPage(){
     throw new Error("As fotos encontradas não puderam ser baixadas. Tente novamente.");
   }
   async function populateImages(created:EbookProject){
+    // A cookbook intentionally avoids free-image false matches.
+    if(created.pages.some(page=>page.kind==="recipe"))return;
     if(created.imageMode==="none"||imagesBusy)return;
     setImagesBusy(true);
     setError("");
@@ -474,7 +476,7 @@ export default function EbooksPage(){
     if(prompt.trim().length<15&&!references.length){setError("Descreva o tema ou anexe uma imagem ou vídeo.");return;}
     setGenerating(true);setError("");setNotice("");
     try{
-      const result=await responseJson<{ebook:EbookProject}>(await fetch("/api/ebooks/generate",{
+      const result=await responseJson<{ebook:EbookProject;editorialPlan?:{kind:string;requestedItems:number|null;deliveredItems:number|null;pages:number;validated:boolean}}>(await fetch("/api/ebooks/generate",{
         method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({prompt,pageCount,author,theme,tone,imageMode:mode,
           references:references.flatMap(item=>item.frames.map((imageUrl,index)=>({
@@ -497,6 +499,9 @@ export default function EbooksPage(){
         }
       }
       setBook(created);setActive(0);setEditorOpen(false);setSavedStatus("Salvando...");
+      if(result.editorialPlan?.kind==="cookbook")
+        setNotice(String(result.editorialPlan.deliveredItems)+" receitas completas validadas em "+created.pages.length+
+          " páginas. Sem API paga; fotos automáticas desativadas para evitar imagens fora do tema.");
       setGenerating(false);
       void populateImages(created);
     }catch(err){setGenerating(false);setError(errorMessage(err));}
@@ -505,7 +510,7 @@ export default function EbooksPage(){
     if(!book)return;
     const plan=planEbookPages(book.prompt||book.title,book.pages.length,book.imageMode);
     const pages=book.pages.map((page,index)=>({
-      ...page,kind:plan[index]?.kind||page.kind,
+      ...page,kind:page.kind==="recipe"?page.kind:(plan[index]?.kind||page.kind),
     }));
     updateBook({pages});
     setNotice("Layouts variados aplicados sem apagar textos, fotos ou edições. Revise as páginas e exporte novamente.");
@@ -625,7 +630,7 @@ export default function EbooksPage(){
     setActive(current=>Math.max(0,Math.min(book.pages.length-1,current+(dx<0?1:-1))));
   }
   const current=book?.pages[active];
-  const photosMissing=Boolean(book && book.imageMode!=="none" && book.pages.some(p=>
+  const photosMissing=Boolean(book && !book.pages.some(p=>p.kind==="recipe") && book.imageMode!=="none" && book.pages.some(p=>
     isPhotoPage(p.kind)&&!p.imageUrl));
   return <main className="min-h-screen w-full min-w-0 overflow-x-clip bg-[#090d12] pb-16 text-white">
     {!book&&<AppHeader title="Gerar Ebooks" description="Crie e personalize eBooks com modelos editoriais locais." align="center"/>}
@@ -693,6 +698,7 @@ export default function EbooksPage(){
             </select></label>
           </div>
           <div className="mt-7"><span className="text-sm font-semibold">Quantidade de páginas</span>
+<p className="mt-1 text-xs leading-5 text-emerald-200/80">Em livros de receitas, a quantidade mencionada no pedido prevalece: 50 receitas geram 50 fichas completas e as páginas de abertura. Este seletor vale para guias gerais.</p>
             <div className="mt-3 flex flex-wrap gap-2">{PAGE_COUNTS.map(n=><button key={n} type="button" onClick={()=>setPageCount(n)} aria-pressed={pageCount===n}
               className={"rounded-xl border px-5 py-3 text-sm font-semibold transition "+(pageCount===n?"border-emerald-400 bg-emerald-400/10 text-emerald-200":"border-white/10 bg-white/[.025] text-white/60 hover:border-white/30")}>{n}</button>)}</div>
           </div>
