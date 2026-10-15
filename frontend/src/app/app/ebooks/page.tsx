@@ -8,6 +8,7 @@ import {
   Trash2, Upload, WandSparkles, X, Mic, MicOff, Video, AudioLines, Paperclip,
 } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { VoiceButton } from "@/components/studio/VoiceButton";
 import { ebookThemes, makeEmptyPage, normalizeEbook, type EbookImageMode,
   type EbookPage, type EbookPageKind, type EbookProject, type EbookTheme } from "@/lib/ebooks/schema";
 import { renderEbookHtml } from "@/lib/ebooks/render";
@@ -666,17 +667,11 @@ export default function EbooksPage(){
                   {attachmentMenu&&<div className="absolute bottom-full left-0 z-30 mb-2 w-56 rounded-xl border border-white/15 bg-[#202936] p-2 shadow-2xl">
                     <button type="button" onClick={()=>mediaImageInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><ImagePlus className="h-4 w-4 text-emerald-300"/> Enviar imagem</button>
                     <button type="button" onClick={()=>mediaVideoInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><Video className="h-4 w-4 text-emerald-300"/> Enviar vídeo</button>
-                    <button type="button" onClick={()=>mediaAudioInput.current?.click()} className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10"><AudioLines className="h-4 w-4 text-emerald-300"/> Enviar áudio</button>
+                    <p className="px-3 py-2 text-xs text-white/50">Áudio por arquivo exige transcrição externa e está desativado. Use o microfone para ditar no navegador.</p>
                   </div>}
                 </div>
-                <button type="button" onClick={()=>void toggleRecording()}
-                  disabled={generating||attachmentBusy}
-                  aria-label={recording?"Parar gravação de áudio":"Gravar briefing por voz"}
-                  aria-pressed={recording}
-                  className={"flex h-10 w-10 items-center justify-center rounded-xl border transition disabled:opacity-40 "+(recording?"border-red-400 bg-red-500/20 text-red-300 animate-pulse":"border-white/15 bg-white/[.04] text-white/70 hover:border-emerald-400/50 hover:text-emerald-200")}>
-                  {recording?<MicOff className="h-5 w-5"/>:<Mic className="h-5 w-5"/>}
-                </button>
-                <span className="text-xs text-white/35">{recording?"Gravando...":"Imagens · vídeos · voz"}</span>
+                <VoiceButton disabled={generating||attachmentBusy} onText={text=>setPrompt(current=>(current?current+" ":"")+text)}/>
+                <span className="text-xs text-white/35">Imagens · vídeos · ditado</span>
               </div>
               <span className="text-[11px] text-white/30">{references.length}/4 anexos visuais</span>
             </div>
