@@ -14,7 +14,7 @@ import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
 type Phase = "idle" | "generating" | "ready" | "error";
-type SiteTemplateId = "frigolog-universal" | "muse-editorial" | "atelier-norte" | "vertice-corporate";
+type SiteTemplateId = "frigolog-universal" | "muse-editorial" | "atelier-norte" | "vertice-corporate" | "restaurant-premium" | "real-estate-premium";
 
 const STARTING_POINTS = [
   { id: "automatico", title: "Automático", icon: "✨", description: "A IA escolhe a estrutura." },
@@ -72,7 +72,21 @@ export default function BuilderPage() {
   // Rendering family, independent from the site's niche/type.
   const [templateId,setTemplateId]=useState<SiteTemplateId>("frigolog-universal");
   const [switchingTemplate,setSwitchingTemplate]=useState(false);
-  const selectedPreset = STARTING_POINTS.find((item) => item.id === selectedPresetId) ?? STARTING_POINTS[0];
+  // Auto-detect the industry from the actual brief; explicit user selection wins.
+  const normalizedBrief = brief.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const detectedPresetId = /\b(restaurante|restaurantes|pizzaria|hamburgueria|bistro|cafeteria|churrascaria|lanchonete|sushi|gastronomia)\b/.test(normalizedBrief)
+    ? "restaurante"
+    : /\b(imobiliaria|imobiliarias|imoveis|corretor(?:a|es)? de imoveis|corretora de imoveis|empreendimentos imobiliarios)\b/.test(normalizedBrief)
+      ? "imobiliaria"
+      : null;
+  const effectivePresetId = selectedPresetId === "automatico" ? (detectedPresetId ?? "institucional") : selectedPresetId;
+  // Keep hand-picked visual families; specialized layouts are defaults only.
+  const effectiveTemplateId:SiteTemplateId = templateId === "frigolog-universal"
+    ? effectivePresetId === "restaurante" ? "restaurant-premium"
+      : effectivePresetId === "imobiliaria" ? "real-estate-premium"
+      : templateId
+    : templateId;
+  const selectedPreset = STARTING_POINTS.find((item) => item.id === effectivePresetId) ?? STARTING_POINTS[0];
   const [project, setProject] = useState<SiteProject | null>(null);
   const [activePage, setActivePage] = useState<SitePageKey>("home");
   const [phase, setPhase] = useState<Phase>("idle");
@@ -396,7 +410,7 @@ export default function BuilderPage() {
                   config?:{project?:{templateId?:string}};
                 };
                 const serverTemplate=templateData.config?.project?.templateId;
-                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"||serverTemplate==="atelier-norte"||serverTemplate==="vertice-corporate"){
+                if(serverTemplate==="frigolog-universal"||serverTemplate==="muse-editorial"||serverTemplate==="atelier-norte"||serverTemplate==="vertice-corporate"||serverTemplate==="restaurant-premium"||serverTemplate==="real-estate-premium"){
                   setTemplateId(serverTemplate);
                   setProject(previous=>previous?.id===saved.id?{...previous,templateId:serverTemplate}:previous);
                   if(saved.templateId!==serverTemplate){
@@ -644,7 +658,7 @@ export default function BuilderPage() {
           internalName: inferredName,
           siteType: "ONE_PAGE",
           briefing: {
-            templateId,
+            templateId: effectiveTemplateId,
             business: { name: inferredName, services: [], differentials: [] },
             objective: { goal: "QUOTE_REQUESTS" },
             style: {
@@ -653,7 +667,7 @@ export default function BuilderPage() {
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: selectedPresetId === "automatico"
+            freeformInstructions: effectivePresetId === "institucional" && selectedPresetId === "automatico"
               ? annotatedPrompt
               : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${annotatedPrompt}`,
             requiredSections: ["hero", "services", "benefits", "about", "process", "faq", "cta", "footer"],
@@ -673,8 +687,8 @@ export default function BuilderPage() {
         kind: "institutional-site",
         id: projectId,
         name: inferredName,
-        templateId,
-        presetId: selectedPresetId === "automatico" ? "institucional" : selectedPresetId,
+        templateId: effectiveTemplateId,
+        presetId: effectivePresetId,
         brief: prompt,
         ...(initialImages.length ? {institutional:{
           role:"",audience:"",offer:"",process:"",proof:"",
@@ -1535,7 +1549,7 @@ export default function BuilderPage() {
         </aside>
         <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
-            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option><option className="text-black" value="vertice-corporate">Modelo 4 · Vértice Corporativo</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
+            <label className="text-xs text-white/70">Tema <select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="ml-2 max-w-[245px] rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option><option className="text-black" value="vertice-corporate">Modelo 4 · Vértice Corporativo</option><option className="text-black" value="restaurant-premium">Restaurante · Especializado</option><option className="text-black" value="real-estate-premium">Imobiliária · Especializado</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
