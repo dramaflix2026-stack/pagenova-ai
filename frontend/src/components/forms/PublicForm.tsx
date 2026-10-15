@@ -78,7 +78,7 @@ export default function PublicForm({form}:{form:FormDataType}) {
             onChange={e=>setConsent(e.target.checked)} required/>
           <span>Autorizo o armazenamento das minhas respostas e seu acesso pelo responsável por este formulário, para atender a finalidade informada.</span>
         </label>}
-        {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>
+        {error&&<p role="alert" className="mt-3 text-sm text-red-700">{error}</p>}
         <div aria-hidden="true" className="absolute h-px w-px overflow-hidden opacity-0" style={{left:"-9999px"}}>
           <label htmlFor="company-website">Site da empresa</label>
           <input id="company-website" type="text" autoComplete="off" tabIndex={-1} value={website}
