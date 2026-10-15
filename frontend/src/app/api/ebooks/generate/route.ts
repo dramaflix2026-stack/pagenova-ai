@@ -1,7 +1,8 @@
 import {NextRequest} from "next/server";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 import type {EbookTheme} from "@/lib/ebooks/schema";
-import {localEbook,LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {editorialEbook} from "@/lib/ebooks/editorial-engine";
 import {detectEbookIntent,buildCookbook} from "@/lib/ebooks/cookbook-engine";
 export const runtime="nodejs";
 export async function POST(request:NextRequest){
@@ -26,10 +27,9 @@ export async function POST(request:NextRequest){
   catch(error) { throw new FormServiceError(error instanceof Error?error.message:"Pedido de receitas inválido.",422); }
   const ebook=intent.kind==="cookbook"
     ?buildCookbook({prompt,count:intent.requestedItems,author,theme,imageMode})
-    :localEbook({prompt:prompt||"Referências visuais fornecidas pelo autor; complete o briefing textual.",pageCount,author,theme,
-      tone:typeof input.tone==="string"?input.tone.slice(0,150):"",imageMode});
+    :editorialEbook({prompt:prompt||"Referências visuais fornecidas pelo autor; complete o briefing textual.",pageCount,author,theme,imageMode});
   const delivered=intent.kind==="cookbook"?ebook.pages.filter(page=>page.kind==="recipe").length:null;
-  return Response.json({ebook,usage:null,engine:intent.kind==="cookbook"?"curated-cookbook-v1":LOCAL_ENGINE_MODE,
+  return Response.json({ebook,usage:null,engine:intent.kind==="cookbook"?"curated-cookbook-v1":"editorial-planner-local-v2",
     paidApiCalls:0,editorialPlan:{kind:intent.kind,requestedItems:intent.requestedItems,deliveredItems:delivered,
     pages:ebook.pages.length,validated:intent.kind==="cookbook"?delivered===intent.requestedItems:true}},
     {headers:{"Cache-Control":"no-store"}});
