@@ -127,7 +127,7 @@ export async function recordPublicSubmission(id:string,raw:unknown):Promise<Form
     return {questionId:field.id,label:field.label,value:text};
   });
   const submission:FormSubmission={
-    id:crypto.randomUUID(),formId:id,submittedAt:new Date().toISOString(),answers,
+    id:crypto.randomUUID(),formId:id,submittedAt:new Date().toISOString(),consentedAt:new Date().toISOString(),answers,
   };
   const admin=adminClient();
   await ensureBucket(admin);
