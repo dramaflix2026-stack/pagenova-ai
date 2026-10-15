@@ -52,7 +52,7 @@ const crmItems: MenuItem[] = [
 
 const studioItems: MenuItem[] = [
   { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
-  { href: "/app/landing", label: "Gerar Landing Page com IA", icon: Files },
+  { href: "/app/landing", label: "Criar Landing Page", icon: Files },
   { href: "/app/cloner", label: "Clonar site com IA", icon: Copy },
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
   { href: "/app/quizzes", label: "Gerar Quiz", icon: ListChecks },
