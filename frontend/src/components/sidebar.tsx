@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { createClient } from "@/lib/supabase/client";
 import {
   BarChart3,
   Blocks,
@@ -58,6 +59,7 @@ const studioItems: MenuItem[] = [
   { href: "/app/paginas", label: "Meus sites", icon: Files },
   { href: "/app/creditos", label: "Meus créditos", icon: Wallet },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
+  { href: "/app/dominios", label: "Domínio profissional", icon: Globe },
 ];
 
 const developmentItems: MenuItem[] = [
@@ -161,6 +163,14 @@ export function Sidebar() {
   const searchParams = useSearchParams();
   const currentCrmView = searchParams.get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [accountEmail, setAccountEmail] = useState<string>("");
+  useEffect(() => {
+    let current = true;
+    void createClient().auth.getUser().then(({data}) => {
+      if (current && data.user?.email) setAccountEmail(data.user.email);
+    }).catch(() => undefined);
+    return () => { current = false; };
+  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -295,8 +305,8 @@ export function Sidebar() {
                 Acesso completo
               </p>
 
-              <p className="mt-1 text-xs text-white/35">
-                PageNova AI
+              <p className="mt-1 break-all text-xs text-emerald-200/70" title={accountEmail}>
+                {accountEmail || "PageNova AI"}
               </p>
 
               <div className="mt-4 h-px bg-gradient-to-r from-emerald-400/30 via-white/5 to-transparent" />
@@ -355,9 +365,9 @@ export function Sidebar() {
               Acesso completo
             </p>
 
-            <p className="mt-1 text-xs text-white/35">
-              PageNova AI
-            </p>
+            <p className="mt-1 break-all text-xs text-emerald-200/70" title={accountEmail}>
+                {accountEmail || "PageNova AI"}
+              </p>
 
             <div className="mt-4 h-px bg-gradient-to-r from-emerald-400/30 via-white/5 to-transparent" />
 
