@@ -331,6 +331,10 @@ export default function FormulariosPage(){
               <label htmlFor="form-description" className="mt-5 block text-sm font-medium text-white/70">Descrição</label>
               <textarea id="form-description" rows={3} maxLength={350} className={fieldClass+" mt-2"}
                 value={form.description} onChange={e=>edit({description:e.target.value})}/>
+              <MediaImageField label="Imagem da capa" value={form.coverImageUrl} onChange={coverImageUrl=>edit({coverImageUrl})}/>
+              <MediaImageField label="Imagem de fundo" value={form.backgroundImageUrl} onChange={backgroundImageUrl=>edit({backgroundImageUrl})}/>
+              <p className="mt-5 text-xs font-semibold text-white/65">Tema visual</p><div className="mt-2 flex flex-wrap gap-2">{(["emerald","rose","midnight"] as const).map((theme,i)=><button key={theme} type="button" aria-pressed={(form.visualTheme||"emerald")===theme} onClick={()=>edit({visualTheme:theme})} className={"rounded-lg border px-4 py-2 text-xs font-bold "+((form.visualTheme||"emerald")===theme?"border-emerald-400 bg-emerald-400/10":"border-white/10")}>{["Verde","Rosé","Noturno"][i]}</button>)}</div>
+              <label className="mt-5 flex items-center gap-3 text-xs text-white/65"><input type="checkbox" checked={form.motion!==false} onChange={e=>edit({motion:e.target.checked})} className="accent-emerald-400"/> Animações suaves entre perguntas</label>
             </div>
             <h2 className="text-center text-lg font-bold">Perguntas ({form.fields.length})</h2>
             {form.fields.map((q,i)=><article key={q.id} className="rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-6">
@@ -345,6 +349,8 @@ export default function FormulariosPage(){
               <label htmlFor={"question-"+q.id} className="sr-only">Texto da pergunta {i+1}</label>
               <textarea rows={2} id={"question-"+q.id} maxLength={180} className={fieldClass+" resize-y"} value={q.label}
                 onChange={e=>editQuestion(q.id,{label:e.target.value})}/>
+              <div className="mt-2 flex flex-wrap gap-2">{["✨","❤️","🔥","🎯","🍽️","🏡","🚀"].map(emoji=><button type="button" key={emoji} onClick={()=>editQuestion(q.id,{label:q.label+" "+emoji})} className="rounded-lg border border-white/10 px-2 py-1 text-base">{emoji}</button>)}</div>
+              <MediaImageField label={"Imagem da pergunta "+(i+1)} value={q.imageUrl} onChange={imageUrl=>editQuestion(q.id,{imageUrl})}/>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <label className="flex-1 text-xs text-white/50">Resposta
                   <select className={fieldClass+" mt-1"} value={q.type}
@@ -389,7 +395,8 @@ export default function FormulariosPage(){
               {responses.length===100&&<p className="text-center text-xs text-white/50">Exibindo as 100 respostas mais recentes.</p>}
             </section>
           :<section className="rounded-3xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
-            <div className="mx-auto max-w-lg rounded-2xl bg-[#f7faf9] p-6 text-[#102c25] sm:p-8">
+            <div className="mx-auto max-w-lg overflow-hidden rounded-2xl bg-[#f7faf9] p-6 text-[#102c25] sm:p-8">
+              {form.coverImageUrl&&<img src={form.coverImageUrl} alt="" className="mb-5 h-40 w-full rounded-xl object-cover"/>}
               <div className="mb-5 text-center">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"><ClipboardList className="h-6 w-6"/></span>
                 <h2 className="mt-3 break-words text-xl font-bold">{form.title}</h2>
@@ -399,6 +406,7 @@ export default function FormulariosPage(){
                 const current=form.fields[Math.min(previewIndex,form.fields.length-1)];
                 return <div>
                   <p className="mb-3 text-xs font-semibold text-slate-500">Pergunta {Math.min(previewIndex+1,form.fields.length)} de {form.fields.length}</p>
+                  {current.imageUrl&&<img src={current.imageUrl} alt="" className="mb-4 h-40 w-full rounded-xl object-cover"/>}
                   <p className="text-base font-semibold">{current.label}{current.required?" *":""}</p>
                   <div className="mt-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-400">
                     {current.type==="select"?(current.options.join(" · ")||"Selecione uma opção"):current.type==="textarea"?"Sua resposta em detalhes...":"Sua resposta..."}
