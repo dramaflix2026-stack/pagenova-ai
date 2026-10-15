@@ -7,7 +7,7 @@
  * de preview" e um "renderer de producao" com implementacoes que podem
  * divergir (secao 5.5).
  */
-import { Grip, ImagePlus, Loader2, Monitor, Redo2, Smartphone, Undo2, Mic, Paperclip, Send } from 'lucide-react';
+import { Grip, ImagePlus, Loader2, Monitor, Redo2, Smartphone, Undo2, Mic, Paperclip, Send, Settings2, ChevronDown, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { renderSite, type RenderContext } from '@site-kit/renderer/render-site';
@@ -70,6 +70,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error' | 'conflict'>('idle');
   const [conflictConfig, setConflictConfig] = useState<SiteSchemaModel | null>(null);
   const [aiInstruction, setAiInstruction] = useState('');
+  const [showBrandSettings,setShowBrandSettings]=useState(false);
+  const [showAiTools,setShowAiTools]=useState(false);
   const [aiAnalyzing,setAiAnalyzing]=useState(false);
   const [aiListening,setAiListening]=useState(false);
   const aiDictation=useRef<{stop():void}|null>(null);
@@ -804,7 +806,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
   };
 
   return (
-    <div className="flex h-[72dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
+    <div className="flex h-[80dvh] min-h-[28rem] w-full min-w-0 flex-col overflow-hidden md:h-[calc(100vh-8rem)] md:min-h-[32rem]">
       <EditorTopBar
         canUndo={history.canUndo}
         canRedo={history.canRedo}
@@ -820,6 +822,24 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         errorCount={lintReport?.errors.length ?? 0}
         onShowIssues={() => setShowIssues((v) => !v)}
       />
+      {/* The canvas must remain visible on mobile: settings are optional drawers,
+          not permanently mounted rows that consume all 72dvh of the editor. */}
+      <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2">
+        <button type="button" aria-expanded={showBrandSettings} aria-controls="pagenova-editor-brand-settings"
+          onClick={()=>{setShowBrandSettings(value=>!value);setShowAiTools(false);}}
+          className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${showBrandSettings?'border-primary bg-primary-soft text-primary':'border-border bg-muted text-foreground hover:border-primary/40'}`}>
+          <Settings2 className="h-4 w-4" aria-hidden="true"/> Logo e templates
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showBrandSettings?'rotate-180':''}`} aria-hidden="true"/>
+        </button>
+        <button type="button" aria-expanded={showAiTools} aria-controls="pagenova-editor-ai-tools"
+          onClick={()=>{setShowAiTools(value=>!value);setShowBrandSettings(false);}}
+          className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${showAiTools?'border-primary bg-primary-soft text-primary':'border-border bg-muted text-foreground hover:border-primary/40'}`}>
+          <Sparkles className="h-4 w-4" aria-hidden="true"/> Alterar com IA
+          <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showAiTools?'rotate-180':''}`} aria-hidden="true"/>
+        </button>
+        <span className="hidden text-[11px] text-muted-foreground sm:inline">Prévia do site em tempo real</span>
+      </div>
+      {showBrandSettings&&<div id="pagenova-editor-brand-settings" className="max-h-[44dvh] shrink-0 overflow-y-auto overscroll-contain border-b border-border bg-surface md:max-h-[40vh]">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-3 py-2"
         role="group" aria-label="Identidade visual da empresa">
         <div className="min-w-0">
@@ -875,6 +895,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           </div>
         </div>
       ) : null}
+      </div>}
       {showIssues && lintReport ? (
         <div className="max-h-48 overflow-y-auto border-b border-border bg-surface px-3 py-3" role="region" aria-label="Erros e avisos do site">
           {lintReport.errors.some((item) => item.code === 'A11Y_CONTRAST') ? (
@@ -907,12 +928,12 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : null}
 
-      <section className="border-b border-primary/20 bg-surface px-3 py-3" aria-label="Alterar site com IA">
+      {showAiTools&&<section id="pagenova-editor-ai-tools" className="max-h-[44dvh] shrink-0 overflow-y-auto overscroll-contain border-b border-primary/20 bg-surface px-3 py-3 md:max-h-[40vh]" aria-label="Alterar site com IA">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div><p className="text-sm font-semibold text-foreground">✨ Alterar site com IA</p>
             <p className="text-[11px] text-muted-foreground">Peça mudanças na seção selecionada por texto, voz ou print.</p></div>
           <select aria-label="Seção para alterar com IA" value={selectedSection?.id||""}
-            onChange={event=>setSelectedId(event.target.value)} className="max-w-[280px] rounded-lg border border-border bg-card px-3 py-2 text-xs">
+            onChange={event=>setSelectedId(event.target.value)} className="w-full min-w-0 rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none focus:border-primary sm:w-auto sm:max-w-[280px]">
             <option value="">Selecione uma seção</option>
             {config.sections.filter(section=>section.visible).map((section,index)=><option key={section.id} value={section.id}>Seção {index+1} · {section.type}</option>)}
           </select>
@@ -920,7 +941,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         <div className="flex flex-wrap items-end gap-2">
           <textarea rows={2} value={aiInstruction} onChange={event=>setAiInstruction(event.target.value)}
             placeholder="Ex.: troque o texto do botão, diminua a seção e destaque o benefício principal..."
-            className="min-w-[220px] flex-1 resize-y rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground outline-none focus:border-primary"/>
+            className="w-full min-w-0 flex-1 resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"/>
           <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border bg-muted" title="Adicionar print como referência">
             {aiAnalyzing?<Loader2 className="h-4 w-4 animate-spin"/>:<Paperclip className="h-4 w-4"/>}
             <input type="file" accept="image/jpeg,image/png,image/webp" disabled={aiAnalyzing} className="sr-only"
@@ -933,8 +954,8 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
             {aiEdit.isPending?<Loader2 className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Aplicar
           </button>
         </div>
-      </section>
-      <div className="flex flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground">
+      </section>}
+      <div className="hidden shrink-0 flex-wrap items-center gap-2 border-b border-border bg-surface px-3 py-2 text-xs text-muted-foreground lg:flex">
         <span>Toque para selecionar; arraste o próprio bloco para mover. O canto redimensiona sem cortar o texto.</span>
         <span>Duplo clique no texto para editar. Duplo clique na imagem para trocar.</span>
       </div>
