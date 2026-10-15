@@ -29,7 +29,7 @@ export default function CadastroPage() {
         options: { emailRedirectTo: window.location.origin + "/auth/callback?next=/app" },
       });
       if (resendError) {
-        setError(resendError.code === "over_request_rate_limit"
+        setError(["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(resendError.code || "")
           ? "Aguarde alguns instantes antes de solicitar outro link."
           : "Não foi possível solicitar o link de confirmação. Tente novamente mais tarde.");
         return;
@@ -71,7 +71,7 @@ export default function CadastroPage() {
         const code = signupError.code || "";
         if (code === "user_already_exists" || signupError.message.toLowerCase().includes("already registered")) {
           setError("Este e-mail pode já ter uma conta. Acesse o login ou utilize 'Esqueci minha senha' para ativar seu acesso.");
-        } else if (code === "over_request_rate_limit") {
+        } else if (["over_request_rate_limit", "over_email_send_rate_limit", "too_many_requests"].includes(code)) {
           setError("Muitas solicitações. Aguarde alguns minutos para tentar novamente.");
         } else {
           setError("Não foi possível concluir o cadastro. Verifique os dados e tente novamente.");
