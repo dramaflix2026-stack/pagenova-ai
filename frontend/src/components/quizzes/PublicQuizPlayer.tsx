@@ -64,12 +64,14 @@ export function PublicQuizPlayer({quiz,preview}:Props){
     else void finish(answers);
   }
   const labelClasses="rounded-2xl border px-4 py-4 text-left text-sm font-medium leading-6 transition-all";
+  const animate=quiz.motion!==false?" motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"";
   return <main className={"flex min-h-[100svh] items-center justify-center px-4 py-10 font-sans sm:py-14 "+palette.page+" "+palette.text}>
     <div className="w-full max-w-[670px]">
       {preview&&<div className="mb-4 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-center text-xs font-semibold text-amber-200">
         Prévia interativa · suas respostas não serão registradas
       </div>}
       <article className={"overflow-hidden rounded-[30px] border p-5 shadow-[0_28px_90px_rgba(0,0,0,.19)] sm:p-10 "+palette.card}>
+        {quiz.coverImageUrl&&<img src={quiz.coverImageUrl} alt={"Capa do quiz: "+quiz.title} loading="lazy" className="-mx-5 -mt-5 mb-8 h-44 w-[calc(100%+2.5rem)] object-cover sm:-mx-10 sm:-mt-10 sm:h-56 sm:w-[calc(100%+5rem)]"/>}
         <div className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em]">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-400/15"><Sparkles className="h-4 w-4"/></span>
@@ -81,7 +83,8 @@ export function PublicQuizPlayer({quiz,preview}:Props){
           aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso">
           <div className="h-full rounded-full bg-[#48dfa9] transition-all duration-300" style={{width:progress+"%"}}/>
         </div>
-        {result? <div className="py-9 text-center">
+        {result? <div className={"py-9 text-center"+animate}>
+          {result.imageUrl&&<img src={result.imageUrl} alt={"Resultado: "+result.title} className="mx-auto mb-6 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#48dfa9]/15 text-[#57e9b1]">
             <Check className="h-8 w-8"/>
           </span>
@@ -121,11 +124,12 @@ export function PublicQuizPlayer({quiz,preview}:Props){
               {working?<LoaderCircle className="h-4 w-4 animate-spin"/>:"Ver meu resultado →"}
             </button>
           </div>
-        </form> : question? <div className="pt-8">
+        </form> : question? <div key={question.id} className={"pt-8"+animate}>
           {index===0&&<div className="mb-7">
             <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{quiz.title}</h1>
             <p className={"mt-2 text-sm leading-6 "+palette.faded}>{quiz.subtitle}</p>
           </div>}
+          {question.imageUrl&&<img src={question.imageUrl} alt={"Imagem da pergunta "+(index+1)} className="mb-5 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
           <h2 className="text-[clamp(1.35rem,4vw,1.9rem)] font-bold leading-snug tracking-[-.035em]">{question.title}</h2>
           <div className="mt-7 space-y-3" role="radiogroup" aria-label={question.title}>
             {question.options.map((option,i)=>{
@@ -136,6 +140,7 @@ export function PublicQuizPlayer({quiz,preview}:Props){
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
                   {chosen?<Check className="h-4 w-4"/>:String.fromCharCode(65+i)}
                 </span>
+                {option.imageUrl&&<img src={option.imageUrl} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl object-cover"/>}
                 <span>{option.label}</span>
               </button>;
             })}
