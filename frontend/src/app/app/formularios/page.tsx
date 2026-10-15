@@ -129,7 +129,7 @@ export default function FormulariosPage(){
       const data=normalizeForm(result.form);
       setForm({...data,id:"",updatedAt:"",publishedAt:null});
       setDirty(true);setScreen("review");setTab("questions");setPreviewIndex(0);
-      setNotice("A IA montou as perguntas. Você pode alterar tudo antes de salvar.");
+      setNotice("O modelo local preparou as perguntas. Revise e personalize antes de salvar.");
     }catch(cause){setError(feedbackText(cause));}
     finally{setIsGenerating(false);}
   }
@@ -212,7 +212,7 @@ export default function FormulariosPage(){
           </span>
           <h1 className="mt-6 text-3xl font-bold tracking-tight sm:text-5xl">Que formulário vamos criar?</h1>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/55 sm:text-base">
-            Conte sua ideia com suas palavras. A IA cria as perguntas, organiza a sequência e prepara o formulário para você revisar.
+            Descreva sua necessidade. A PageNova seleciona perguntas de modelos locais e abre tudo para edição.
           </p>
         </div>
         <form onSubmit={generate} className="mt-8 w-full max-w-2xl rounded-[24px] border border-emerald-400/[.16] bg-gradient-to-b from-[#121b1b] to-[#11151b] p-4 shadow-[0_22px_60px_rgba(0,0,0,.2)] sm:p-6">
@@ -222,11 +222,11 @@ export default function FormulariosPage(){
             </span>
             <div className="min-w-0 flex-1">
               <label htmlFor="form-idea" className="block text-sm font-bold text-white/90">
-                Converse com a IA
+                Descreva seu formulário
               </label>
               <p className="mt-0.5 text-xs text-white/45">Descreva sua ideia para começar</p>
             </div>
-            <span className="rounded-full border border-emerald-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">IA</span>
+            <span className="rounded-full border border-emerald-400/20 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300/80">SEM API PAGA</span>
           </div>
           <textarea id="form-idea" value={prompt} rows={5}
             disabled={isGenerating} onChange={e=>setPrompt(e.target.value)}
@@ -240,11 +240,11 @@ export default function FormulariosPage(){
           </div>
           <button disabled={isGenerating||prompt.trim().length<20} type="submit"
             className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-3.5 text-sm font-bold text-[#07271e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45 sm:text-base">
-            {isGenerating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Criando perguntas com IA...</>:<>
+            {isGenerating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Montando formulário...</>:<>
               <Sparkles className="h-5 w-5"/> Gerar meu formulário <ArrowRight className="h-4 w-4"/></>}
           </button>
           <p className="mt-3 text-center text-[11px] leading-5 text-white/45">
-            A IA gera um rascunho para revisão. Nada é publicado automaticamente.
+            Geração por modelos locais, sem chamadas pagas. Nada é publicado automaticamente.
           </p>
           {error&&<p role="alert" className="mt-4 rounded-xl border border-red-400/25 bg-red-400/10 p-3 text-center text-sm text-red-200">{error}</p>}
         </form>
@@ -262,7 +262,7 @@ export default function FormulariosPage(){
           :saved.length===0?<div className="rounded-2xl border border-dashed border-white/10 bg-white/[.025] px-5 py-9 text-center">
             <ClipboardList className="mx-auto h-7 w-7 text-emerald-300/60" aria-hidden="true"/>
             <p className="mt-3 text-sm font-semibold text-white/75">Seu primeiro formulário começa aqui</p>
-            <p className="mt-1 text-xs text-white/45">Gere um formulário com a IA e salve para continuar depois.</p>
+            <p className="mt-1 text-xs text-white/45">Monte um formulário a partir dos modelos e salve para continuar depois.</p>
           </div>
           :<div className="grid gap-3 sm:grid-cols-2">
             {saved.map(item=><div key={item.id} className="min-w-0"><button type="button" onClick={()=>openDraft(item)}
@@ -326,15 +326,15 @@ export default function FormulariosPage(){
         {error&&<p role="alert" className="rounded-xl border border-red-400/25 bg-red-400/[.07] px-4 py-3 text-center text-sm text-red-200">{error}</p>}
         {notice&&<p role="status" className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.07] px-4 py-3 text-center text-sm text-emerald-200">{notice}</p>}
         <form onSubmit={reviseWithAi} className="rounded-2xl border border-emerald-400/20 bg-[#10211a] p-4 sm:p-5">
-           <div className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-200"><Sparkles className="h-4 w-4"/> Conversar com a IA sobre este formulário</div>
+           <div className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-200"><Sparkles className="h-4 w-4"/> Alterar formulário com comandos locais</div>
            <textarea rows={3} value={revisionPrompt} onChange={event=>setRevisionPrompt(event.target.value)}
              placeholder="Peça mudanças: troque as perguntas, coloque emojis, acrescente uma pergunta de satisfação..."
              className={fieldClass+" resize-y text-sm leading-6"} />
            <div className="mt-3 flex flex-wrap items-center gap-2">
              <VoiceButton disabled={isRevising} onText={text=>setRevisionPrompt(v=>(v?v+" ":"")+text)}/>
-             <span className="min-w-0 flex-1 text-xs text-white/40">Escreva ou dite sua alteração. Suas imagens são preservadas.</span>
+             <span className="min-w-0 flex-1 text-xs text-white/40">Escreva ou dite sua alteração. Comandos locais aceitos: adicionar pergunta ...; alterar título para ...</span>
              <button type="submit" disabled={isRevising||revisionPrompt.trim().length<8} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-bold text-[#032d1c] disabled:opacity-40">
-               {isRevising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Alterar com IA
+               {isRevising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Aplicar comando local
              </button>
            </div>
          </form>
