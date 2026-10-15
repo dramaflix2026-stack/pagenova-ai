@@ -56,7 +56,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
     body:JSON.stringify({kind,prompt:requestText,existing:project?.files||[]})
    });
    const data=await response.json().catch(()=>({})) as {name?:string;summary?:string;nextSteps?:string[];files?:FileItem[];error?:string};
-   if(!response.ok||!data.files?.length)throw new Error(data.error||"A IA não conseguiu gerar arquivos.");
+   if(!response.ok||!data.files?.length)throw new Error(data.error||"Não foi possível montar os arquivos do projeto.");
    setProject({
     name:data.name||project?.name||"Projeto sem nome",summary:data.summary||"",nextSteps:data.nextSteps||[],files:data.files,
     conversation:[...(project?.conversation||[]),{role:"user",text:request},{role:"assistant",text:data.summary||"Arquivos atualizados."}],
@@ -83,32 +83,32 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
     <div><Link href="/app/builder" className="inline-flex items-center gap-2 text-xs text-white/50 hover:text-white"><ArrowLeft className="h-4 w-4"/> Voltar ao Studio</Link>
      <div className="mt-5 flex items-center gap-3 text-emerald-300">{isApp?<Smartphone className="h-8 w-8"/>:<Blocks className="h-8 w-8"/>}<p className="text-xs font-bold uppercase tracking-[.16em]">PageNova · Desenvolvimento</p></div>
      <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Desenvolver {name}</h1>
-     <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Converse com a IA, envie referências e gere um projeto {isApp?"Expo / React Native":"Next.js / React"} com arquivos reais. Revise o código e exporte o ZIP para compilar ou publicar em sua própria infraestrutura.</p>
+     <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Descreva sua ideia e gere um modelo de projeto {isApp?"Expo / React Native":"Next.js / React"} com arquivos reais. Sem API paga: o criador oferece estruturas funcionais pré-definidas, não código novo para qualquer instrução.</p>
     </div>
     {project&&<button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#073023]"><Download className="h-4 w-4"/> Exportar projeto ZIP</button>}
    </header>
    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.9fr)]">
     <section className="flex min-h-[550px] flex-col rounded-3xl border border-emerald-400/20 bg-[#10221a] p-5">
-     <div className="flex items-center gap-3 border-b border-white/10 pb-4"><div className="rounded-xl bg-emerald-400/10 p-3 text-emerald-300"><Sparkles className="h-5 w-5"/></div><div><h2 className="font-bold">Assistente de desenvolvimento</h2><p className="text-xs text-white/50">Da ideia ao código exportável</p></div></div>
+     <div className="flex items-center gap-3 border-b border-white/10 pb-4"><div className="rounded-xl bg-emerald-400/10 p-3 text-emerald-300"><Sparkles className="h-5 w-5"/></div><div><h2 className="font-bold">Assistente de desenvolvimento</h2><p className="text-xs text-white/50">Templates locais, sem APIs pagas</p></div></div>
      <div className="my-5 max-h-[500px] min-h-[170px] flex-1 space-y-3 overflow-y-auto">
-      {!(project?.conversation.length)&&<p className="rounded-xl border border-white/10 bg-white/[.035] p-4 text-sm leading-7 text-white/65">Descreva o que deseja criar, o público, telas, ações e funcionalidades. Podemos começar com algo simples e evoluir a cada mensagem.</p>}
+      {!(project?.conversation.length)&&<p className="rounded-xl border border-white/10 bg-white/[.035] p-4 text-sm leading-7 text-white/65">Escolha seu objetivo (tarefas, agendamentos ou produtos). O modelo local gera um projeto inicial; novas funcionalidades precisam de desenvolvimento no código.</p>}
       {project?.conversation.map((item,i)=><p key={i} className={"max-w-[95%] whitespace-pre-line rounded-2xl px-4 py-3 text-sm leading-7 "+(item.role==="user"?"ml-auto bg-emerald-400/15 text-emerald-100":"mr-auto border border-white/10 bg-white/[.04] text-white/70")}>{item.text}</p>)}
       {busy&&<p role="status" className="flex items-center gap-2 text-xs text-emerald-300"><LoaderCircle className="h-4 w-4 animate-spin"/> Preparando arquivos do projeto...</p>}
      </div>
      <form onSubmit={generate} className="rounded-2xl border border-white/15 bg-[#07160e] p-3">
       <textarea rows={5} value={prompt} onChange={e=>setPrompt(e.target.value)} disabled={busy}
-       placeholder={project?"Peça uma modificação: nova tela, cor, formulário, lógica...":"Descreva seu aplicativo ou sistema em detalhes..."}
+       placeholder={project?"O modo local preserva o código atual. Exporte o ZIP para alterações estruturais.":"Descreva seu aplicativo ou sistema em detalhes..."}
        className="w-full resize-y bg-transparent px-2 py-2 text-sm leading-7 text-white outline-none placeholder:text-white/35"/>
       {attachments.length>0&&<div className="my-2 flex flex-wrap gap-2">{attachments.map((f,i)=><span key={i} className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs text-white/70"><Paperclip className="h-3.5 w-3.5"/><span className="max-w-32 truncate">{f.name}</span><button type="button" onClick={()=>setAttachments(a=>a.filter((_,j)=>j!==i))}><X className="h-3.5 w-3.5"/></button></span>)}</div>}
       <div className="flex items-center gap-2 border-t border-white/10 pt-3">
        <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-white/5 text-emerald-200" title="Adicionar imagens, PDF, texto ou vídeo"><Plus className="h-5 w-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm" onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/></label>
        <VoiceButton disabled={busy} onText={text=>setPrompt(v=>(v?v+" ":"")+text)}/>
        <span className="min-w-0 flex-1 text-xs text-white/35">Anexos e voz</span>
-       <button type="submit" disabled={busy||prompt.trim().length<12} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">{busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}{project?"Alterar código":"Criar projeto"}</button>
+       <button type="submit" disabled={busy||prompt.trim().length<12} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">{busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}{project?"Preservar projeto":"Criar projeto"}</button>
       </div>
      </form>
      {error&&<p role="alert" className="mt-3 rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-xs text-red-200">{error}</p>}
-     <p className="mt-3 text-[11px] leading-5 text-white/40">Referências de vídeo são analisadas por quadro visual, não por áudio ou sequência completa. Seu código não é executado nesta tela.</p>
+     <p className="mt-3 text-[11px] leading-5 text-white/40">Sem interpretação visual por IA: arquivos são identificados pelo nome; arquivos de texto são lidos. Seu código não é compilado ou executado nesta tela.</p>
     </section>
     <section className="min-w-0 rounded-3xl border border-white/10 bg-[#111b16] p-5">
      {!project?<><div className="flex items-center gap-2 font-bold text-white/85"><Code2 className="h-5 w-5 text-emerald-300"/> Ideias para começar</div><div className="mt-5 space-y-3">{examples[kind].map(example=><button type="button" key={example} onClick={()=>setPrompt(example)} className="flex w-full items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[.035] p-4 text-left text-sm leading-6 text-white/65 hover:border-emerald-400/30">{example}<ArrowRight className="h-4 w-4 shrink-0"/></button>)}</div></>:
