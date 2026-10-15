@@ -1,6 +1,7 @@
 import {NextRequest,NextResponse} from "next/server";
 import {lookup} from "node:dns/promises";
 import {isIP} from "node:net";
+import {request as httpsRequest} from "node:https";
 import * as cheerio from "cheerio";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 
@@ -24,7 +25,7 @@ function publicAddress(ip:string):boolean{
   }
   return false;
 }
-async function validateRemote(raw:string):Promise<URL>{
+async function validateRemote(raw:string):Promise<{url:URL;ip:string}>{
   let url:URL;
   try{url=new URL(raw)}catch{throw new FormServiceError("Digite uma URL HTTPS válida.",422)}
   if(url.protocol!=="https:"||url.username||url.password||url.port&&url.port!=="443"||
@@ -34,37 +35,71 @@ async function validateRemote(raw:string):Promise<URL>{
   const addresses=await lookup(url.hostname,{all:true,verbatim:true}).catch(()=>[]);
   if(!addresses.length||addresses.some(record=>!publicAddress(record.address)))
     throw new FormServiceError("O domínio não resolve para um endereço público permitido.",422);
-  return url;
+  const selected=addresses.find(record=>record.family===4)||addresses[0];
+  return {url,ip:selected.address};
+}
+function fetchPinnedHtml(url:URL,ip:string):Promise<{
+  status:number;contentType:string;location:string;html:string;
+}>{
+  return new Promise((resolve,reject)=>{
+    const request=httpsRequest({
+      protocol:"https:",hostname:ip,port:443,servername:url.hostname,
+      path:url.pathname+url.search,method:"GET",
+      headers:{Host:url.host,Accept:"text/html","User-Agent":"PageNova-HTML-Importer/1.1"},
+      timeout:13000,rejectUnauthorized:true,
+    },response=>{
+      const status=response.statusCode||0;
+      const contentType=String(response.headers["content-type"]||"");
+      const location=String(response.headers.location||"");
+      if([301,302,303,307,308].includes(status)){
+        response.resume();resolve({status,contentType,location,html:""});return;
+      }
+      if(Number(response.headers["content-length"]||0)>MAX_HTML_BYTES){
+        response.resume();reject(new FormServiceError("Página grande demais para importar.",413));return;
+      }
+      let total=0;
+      const parts:Buffer[]=[];
+      response.on("data",(chunk:Buffer)=>{
+        total+=chunk.length;
+        if(total>MAX_HTML_BYTES){
+          request.destroy(new Error("oversized_html"));
+          return;
+        }
+        parts.push(chunk);
+      });
+      response.on("end",()=>resolve({status,contentType,location,html:Buffer.concat(parts).toString("utf8")}));
+      response.on("error",reject);
+    });
+    request.on("timeout",()=>request.destroy(new Error("timeout")));
+    request.on("error",error=>{
+      reject(error.message==="oversized_html"?
+        new FormServiceError("Página grande demais para importar.",413):error);
+    });
+    request.end();
+  });
 }
 async function getPublicHtml(raw:string):Promise<{url:URL;html:string}>{
   let next=raw;
   for(let i=0;i<3;i++){
-    const url=await validateRemote(next);
-    const response=await fetch(url,{method:"GET",redirect:"manual",cache:"no-store",
-      headers:{"Accept":"text/html","User-Agent":"PageNova-HTML-Importer/1.0"},
-      signal:AbortSignal.timeout(13000)});
-    if([301,302,303,307,308].includes(response.status)){
-      const location=response.headers.get("location");
-      if(!location||i===2)throw new FormServiceError("A página possui redirecionamentos não suportados.",422);
-      next=new URL(location,url).toString();continue;
+    const {url,ip}=await validateRemote(next);
+    // Connect directly to the IP we verified, while retaining the public
+    // domain for TLS SNI/certificate checks. Prevent DNS-rebinding between
+    // validation and HTTP transport, not just private IP literals.
+    let result:Awaited<ReturnType<typeof fetchPinnedHtml>>;
+    try { result=await fetchPinnedHtml(url,ip); }
+    catch(error){
+      if(error instanceof FormServiceError)throw error;
+      throw new FormServiceError("A página pública não pôde ser acessada com segurança.",502);
     }
-    if(!response.ok)throw new FormServiceError("A página de origem não respondeu com sucesso (HTTP "+response.status+").",422);
-    if(!(response.headers.get("content-type")||"").toLowerCase().includes("text/html"))
+    if([301,302,303,307,308].includes(result.status)){
+      if(!result.location||i===2)throw new FormServiceError("A página possui redirecionamentos não suportados.",422);
+      next=new URL(result.location,url).toString();continue;
+    }
+    if(result.status<200||result.status>=300)
+      throw new FormServiceError("A página de origem não respondeu com sucesso (HTTP "+result.status+").",422);
+    if(!result.contentType.toLowerCase().includes("text/html"))
       throw new FormServiceError("A URL não retornou uma página HTML.",422);
-    const size=Number(response.headers.get("content-length")||"0");
-    if(size>MAX_HTML_BYTES)throw new FormServiceError("A página é grande demais para importação simples.",413);
-    const reader=response.body?.getReader();
-    if(!reader)throw new FormServiceError("A página não enviou conteúdo.",422);
-    const chunks:Uint8Array[]=[];let bytes=0;
-    while(true){
-      const part=await reader.read();
-      if(part.done)break;
-      bytes+=part.value.byteLength;
-      if(bytes>MAX_HTML_BYTES){await reader.cancel();throw new FormServiceError("HTML muito grande para importação.",413)}
-      chunks.push(part.value);
-    }
-    const html=Buffer.concat(chunks).toString("utf8");
-    return {url,html};
+    return {url,html:result.html};
   }
   throw new FormServiceError("Não foi possível acessar a URL.",422);
 }
