@@ -216,6 +216,20 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  if (!status && (event === "subscription_canceled" || event === "subscription_late")) {
+    // Cancellation is not a refund; it only disables future renewals.
+    // Never revoke a fully paid period without a validated paid-through date.
+    // Keep this operational warning visible until expiry reconciliation exists.
+    console.warn("[KIWIFY] Subscription lifecycle needs paid-through reconciliation.", {
+      event,
+      nextStep: "validate_expiration_before_revocation",
+    });
+    return NextResponse.json({
+      ok: true, processed: false,
+      reason: "subscription_expiration_reconciliation_required",
+    });
+  }
+
   if (!status) {
     console.log(
       "[KIWIFY] Event ignored.",
