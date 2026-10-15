@@ -72,6 +72,8 @@ export default function SiteAiPage() {
   const [selectedTemplateId,setSelectedTemplateId] = useState<'frigolog-universal'|'muse-editorial'|'atelier-norte'>('frigolog-universal');
   const [creatingFromLead, setCreatingFromLead] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [createdProjectId,setCreatedProjectId]=useState<string|null>(null);
+  const [generateOperationKey,setGenerateOperationKey]=useState<string|null>(null);
   const board = useBoard({ search: leadSearch || undefined, archived: 'EXCLUDE' });
   const selectedLead = useLeadDetail(selectedLeadId);
   const createProject = useCreateSiteProject();
@@ -107,6 +109,24 @@ export default function SiteAiPage() {
 
   async function createSiteDirectlyFromLead() {
     if (!selectedLeadId || !selectedLead.data || creatingFromLead) return;
+    // After a deploy outage retry the original project. Never create another
+    // project for the same failed click (and never duplicate a paid operation).
+    if(createdProjectId){
+      setCreatingFromLead(true);setCreateError(null);
+      try{
+        const detail=await api.get<{project?:{status?:string};jobs?:Array<{id?:string}>}>(`/site-projects/${createdProjectId}`);
+        if(detail.project?.status==='BRIEFING'&&!detail.jobs?.length){
+          await api.post(`/site-projects/${createdProjectId}/generate`,{
+            idempotencyKey:generateOperationKey||`pagenova_${crypto.randomUUID()}`,
+          });
+        }
+        setSelectedLeadId(null);
+        navigate(`/sites-ia/${createdProjectId}`);
+      }catch(error){
+        setCreateError(error instanceof Error?error.message:'Não foi possível consultar o projeto criado.');
+      }finally{setCreatingFromLead(false);}
+      return;
+    }
     if (noSiteCredits) {
       setCreateError('Você utilizou seus créditos de geração deste ciclo. Aguarde a renovação.');
       return;
@@ -161,9 +181,11 @@ export default function SiteAiPage() {
         briefing,
       });
 
-      // Usa o cliente oficial do CRM para manter /api/crm, CSRF e sessao.
-      // O endpoint devolve 202 quando a geracao entra na fila.
-      await api.post(`/site-projects/${project.id}/generate`, {});
+      // Stable idempotency key survives network uncertainty after accepting the job.
+      const requestKey=`pagenova_${crypto.randomUUID()}`;
+      setCreatedProjectId(project.id);
+      setGenerateOperationKey(requestKey);
+      await api.post(`/site-projects/${project.id}/generate`,{idempotencyKey:requestKey});
       void siteCredits.refetch();
 
       setSelectedLeadId(null);
@@ -296,6 +318,8 @@ export default function SiteAiPage() {
             setLeadPickerOpen(false);
             setSelectedTemplateId('frigolog-universal');
             setCreateError(null);
+            setCreatedProjectId(null);
+            setGenerateOperationKey(null);
             window.requestAnimationFrame(() => setSelectedLeadId(leadId));
           }}
         />
@@ -317,8 +341,9 @@ export default function SiteAiPage() {
                   <ErrorState message={createError} />
                   <div className="flex gap-2">
                     <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Cancelar</Button>
-                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead || noSiteCredits}>
-                      {creatingFromLead ? 'Gerando...' : 'Tentar novamente'}
+                    {createdProjectId&&<Button variant="secondary" onClick={()=>{setSelectedLeadId(null);navigate(`/sites-ia/${createdProjectId}`);}}>Abrir projeto salvo</Button>}
+                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead || (!createdProjectId&&noSiteCredits)}>
+                      {creatingFromLead ? 'Verificando...' : createdProjectId ? 'Retomar este projeto' : 'Tentar novamente'}
                     </Button>
                   </div>
                 </>
