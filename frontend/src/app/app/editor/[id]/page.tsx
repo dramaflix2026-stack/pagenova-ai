@@ -1141,7 +1141,10 @@ if (!project) {
         );
 
         setProject(nextProject);
-
+        // Session storage is a short-lived fallback, not durable project data.
+        void savePageNovaProject(project.id,nextProject).catch(()=>{
+          setSaveStatus("Salvo apenas nesta sessão. Exporte ou publique para preservar o projeto.");
+        });
         setSaveStatus(
           "Alterações salvas com sucesso."
         );
