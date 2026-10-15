@@ -17,6 +17,23 @@ export async function POST(request:NextRequest){
     const files=data.getAll("files").filter((item):item is File=>item instanceof File);
     if(!files.length||files.length>3)throw new FormServiceError("Anexe de 1 a 3 arquivos.");
     const supported=new Set(["image/png","image/jpeg","image/webp","application/pdf","text/plain"]);
+    if(data.get("mode")==="local"){
+      // Studio no-API modules send this explicit mode. It never reaches
+      // OpenAI. Text files are read locally; images/video frames/PDF have
+      // their names and MIME types recorded, not falsely "vision analyzed".
+      let bytes=0;
+      const refs:string[]=[];
+      for(const file of files){
+        bytes+=file.size;
+        if(!supported.has(file.type)||file.size<1||file.size>5*1024*1024||bytes>9*1024*1024)
+          throw new FormServiceError("Arquivo não suportado ou maior que o limite de 5 MB.",413);
+        refs.push(file.type==="text/plain"?
+          "Arquivo de texto "+file.name+": "+(await file.text()).slice(0,7000):
+          "Referência anexada "+file.name+" ("+file.type+"). O conteúdo visual não foi interpretado no modo sem IA; peça ao usuário para descrever seus detalhes.");
+      }
+      return Response.json({summary:refs.join("\\n").slice(0,12000),files:files.map(f=>f.name),engine:"local-file-descriptor",paidApiCalls:0},
+        {headers:{"Cache-Control":"no-store"}});
+    }
     let total=0;
     const content:Array<{type:string;[key:string]:unknown}>=[{
       type:"input_text",
