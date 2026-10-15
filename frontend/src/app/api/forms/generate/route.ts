@@ -34,9 +34,10 @@ export async function POST(request:NextRequest) {
     await authorizedForms();
     const origin=request.headers.get("origin");
     if(origin&&origin!==request.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
-    const body=await request.json().catch(()=>({})) as {prompt?:unknown};
+    const body=await request.json().catch(()=>({})) as {prompt?:unknown;existing?:unknown};
     const prompt=typeof body.prompt==="string"?body.prompt.trim():"";
     if(prompt.length<20||prompt.length>50000)throw new FormServiceError("Descreva seu formulário em pelo menos 20 caracteres (máximo técnico de 50 mil para processamento).");
+    const existing=body.existing?normalizeForm(body.existing):null;
     const apiKey=process.env.OPENAI_API_KEY;
     if(!apiKey)throw new FormServiceError("A geração por IA ainda não está configurada.",503);
     const model=process.env.PAGENOVA_FORMS_MODEL?.trim() || "gpt-4.1-mini";
@@ -53,8 +54,9 @@ export async function POST(request:NextRequest) {
           "Não faça perguntas de senha, cartão, dados sensíveis de saúde, religião, etnia ou outros dados especiais.",
           "Títulos e descrições curtos, claros e voltados ao propósito solicitado; sem marketing enganoso.",
           "Não inclua código HTML nem instruções fora do JSON.",
+          existing?"O usuário está ALTERANDO um formulário existente. Preserve as perguntas, tipo, sentido e ordem que não foram mencionados na revisão.":"Crie um formulário novo.",
         ].join("\n"),
-        input:prompt,
+        input:existing?"FORMULÁRIO ATUAL:\n"+JSON.stringify(existing)+"\n\nPEDIDO DE ALTERAÇÃO:\n"+prompt:"BRIEFING:\n"+prompt,
         text:{format:{type:"json_schema",name:"pagenova_form",strict:true,schema:SCHEMA}},
         max_output_tokens:1700,
         store:false,
@@ -71,7 +73,10 @@ export async function POST(request:NextRequest) {
     if(!Array.isArray(raw.fields))throw new FormServiceError("A IA não retornou perguntas.",502);
     const fields=raw.fields.slice(0,12).map((field,i)=>({...field,id:"q-"+(i+1)}));
     const form=normalizeForm({title:raw.title,description:raw.description,kind:raw.kind,
-      fields,intent:prompt,whatsapp:""});
+      fields:fields.map((field,i)=>({...field,imageUrl:existing?.fields[i]?.imageUrl||""})),
+      intent:existing?.intent||prompt,whatsapp:existing?.whatsapp||"",
+      coverImageUrl:existing?.coverImageUrl,backgroundImageUrl:existing?.backgroundImageUrl,
+      visualTheme:existing?.visualTheme,motion:existing?.motion});
     return Response.json({form,usage:json.usage||null},{headers:{"Cache-Control":"no-store"}});
   }catch(error){return errorsAsResponse(error);}
 }
