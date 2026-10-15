@@ -27,6 +27,34 @@ type KiwifyPayload = {
   };
 };
 
+/**
+ * The webhook endpoint is shared by PageNova plans, and a valid Kiwify HMAC
+ * authenticates the sender—not the product purchased. Kiwify's "test" action
+ * sends fictional, paid "Example product" events with valid HMAC signatures.
+ * Do not grant subscriptions or credits for arbitrary signed Kiwify products.
+ */
+function isSupportedPageNovaProduct(value: unknown): boolean {
+  if (typeof value !== "string") return false;
+  const product = value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[–—]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+  const root = /^page\s*nova\s*ai\s*-\s*/;
+  if (!root.test(product)) return false;
+  const plan = product.replace(root, "").trim();
+  return (
+    /^(?:assinatura\s*)?r?\$?\s*147(?:[,.]00)?$/.test(plan) ||
+    /^pre\s*-?\s*venda$/.test(plan) ||
+    /^(?:assinatura\s*)?trimestral\s*r?\$?\s*397(?:[,.]00)?$/.test(plan) ||
+    /^(?:assinatura\s*)?semestral\s*r?\$?\s*747(?:[,.]00)?$/.test(plan) ||
+    /^(?:assinatura\s*)?anual\s*r?\$?\s*1297(?:[,.]00)?$/.test(plan) ||
+    /^acesso a plataforma$/.test(plan)
+  );
+}
+
 function normalizeEmail(value: unknown) {
   if (typeof value !== "string") {
     return null;
@@ -153,6 +181,19 @@ export async function POST(request: NextRequest) {
       : "";
 
   const status = getStatus(event);
+
+  // Reject demo sales even when Kiwify signs them correctly. Return 200 so
+  // the test sender does not retry an intentionally ignored event.
+  if (!isSupportedPageNovaProduct(payload.Product?.product_name)) {
+    console.warn("[KIWIFY] Signed event ignored: product is not a PageNova plan.", {
+      event: event || "unknown",
+    });
+    return NextResponse.json({
+      ok: true,
+      processed: false,
+      reason: "unsupported_product",
+    });
+  }
 
   if (!status) {
     console.log(
