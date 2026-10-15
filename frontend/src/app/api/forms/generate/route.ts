@@ -36,7 +36,7 @@ export async function POST(request:NextRequest) {
     if(origin&&origin!==request.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
     const body=await request.json().catch(()=>({})) as {prompt?:unknown};
     const prompt=typeof body.prompt==="string"?body.prompt.trim():"";
-    if(prompt.length<20||prompt.length>1500)throw new FormServiceError("Descreva seu formulário em 20 a 1.500 caracteres.");
+    if(prompt.length<20||prompt.length>50000)throw new FormServiceError("Descreva seu formulário em pelo menos 20 caracteres (máximo técnico de 50 mil para processamento).");
     const apiKey=process.env.OPENAI_API_KEY;
     if(!apiKey)throw new FormServiceError("A geração por IA ainda não está configurada.",503);
     const model=process.env.PAGENOVA_FORMS_MODEL?.trim() || "gpt-4.1-mini";
