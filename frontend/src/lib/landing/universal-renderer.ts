@@ -1,5 +1,5 @@
 import {UNIVERSAL_TEMPLATE_HTML,UNIVERSAL_TEMPLATE_CSS} from "./universal-template";
-import {UNIVERSAL_TEMPLATE_UTILITIES_CSS} from "./universal-generated.css";
+import {UNIVERSAL_TEMPLATE_UTILITIES_CSS} from "./universal-generated-css";
 import type {LandingProject} from "./engine";
 
 /**
