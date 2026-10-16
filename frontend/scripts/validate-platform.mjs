@@ -27,7 +27,16 @@ must("frontend/src/app/api/crm/[...path]/route.ts",[
 ]);
 must("frontend/src/app/api/cloner/analyze/route.ts",[
  [/authorizedForms/,"Cloner must verify entitlement"],[/validateRemote/,"Cloner SSRF protection required"],
- [/MAX_HTML_BYTES/,"HTML fetch budget required"],[/visualBodyHtml/,"Cloner must return editable HTML"]
+ [/MAX_HTML_BYTES/,"HTML fetch budget required"],[/createFaithfulVisual/,"Cloner must preserve source HTML rather than rebuilding generic blocks"]
+]);
+must("frontend/src/server/services/faithful-cloner.ts",[
+ [/visualBodyHtml/,"Cloned source layout must remain editable"],
+ [/absolutizeCss/,"Imported CSS must be safely rebased"],
+ [/data-cfemail/,"Cloudflare public email recovery required"]
+]);
+must("frontend/src/app/api/cloner/media/route.ts",[
+ [/verifyClonerMedia/,"Public images must require signed URLs"],
+ [/pinnedAddress/,"Media proxy must pin public network addresses"]
 ]);
 must("frontend/src/app/app/cloner/page.tsx",[
  [/fetch\(\s*"\/api\/cloner\/analyze"/,"Cloner must call same-origin route"],
