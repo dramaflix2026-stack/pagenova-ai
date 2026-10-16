@@ -39,9 +39,10 @@ async function settleDynamicPage(
 
       let previousHeight = 0;
 
+      const startedAt = Date.now();
       for (
         let pass = 0;
-        pass < 3;
+        pass < 3 && Date.now() - startedAt < 18000;
         pass += 1
       ) {
         const height = Math.max(
@@ -69,7 +70,7 @@ async function settleDynamicPage(
 
         for (
           let position = 0;
-          position <= height;
+          position <= Math.min(height, 28000) && Date.now() - startedAt < 18000;
           position += step
         ) {
           window.scrollTo(
@@ -127,8 +128,21 @@ async function settleDynamicPage(
 export async function fetchPageWithBrowser(
   sourceUrl: string
 ): Promise<BrowserFetchedPage> {
+  // Executing a foreign website in headless Chromium requires stricter
+  // network boundaries than the legacy browser extractor originally used.
+  // The saved clone never carries these scripts into the editor or publication.
+  const allowRemote=async(input:string)=>{
+    const candidate=new URL(input);
+    if(candidate.protocol!=="https:"||candidate.username||candidate.password||
+       candidate.port&&candidate.port!=="443"||
+       candidate.hostname.endsWith(".local")||candidate.hostname==="localhost"||
+       candidate.hostname.endsWith(".internal")||candidate.hostname.endsWith(".test"))
+      throw new Error("UNSAFE_BROWSER_ORIGIN");
+    const parsed=await assertPublicUrl(input);
+    return parsed;
+  };
   const requestedUrl =
-    await assertPublicUrl(sourceUrl);
+    await allowRemote(sourceUrl);
 
   let browser:
     import("playwright-core").Browser |
@@ -197,9 +211,11 @@ export async function fetchPageWithBrowser(
 
     const context =
       await browser.newContext({
+        serviceWorkers:"block",
+        acceptDownloads:false,
         viewport: {
-          width: 1440,
-          height: 1000,
+          width: 390,
+          height: 844,
         },
 
         locale: "pt-BR",
@@ -232,18 +248,12 @@ export async function fetchPageWithBrowser(
           return;
         }
 
-        if (
-          parsed.protocol !== "http:" &&
-          parsed.protocol !== "https:"
-        ) {
-          await route.continue();
+        if(parsed.protocol!=="https:"){
+          await route.abort("blockedbyclient");
           return;
         }
-
         try {
-          await assertPublicUrl(
-            requestUrl
-          );
+          await allowRemote(requestUrl);
 
           await route.continue();
         } catch {
@@ -289,10 +299,12 @@ export async function fetchPageWithBrowser(
     }
 
     const finalUrl =
-      await assertPublicUrl(page.url());
+      await allowRemote(page.url());
 
     await settleDynamicPage(page);
 
+    // Capture the DOM *after* the site's JS hydration and scroll-triggered
+    // lazy images/styles have completed. The later sanitizer strips scripts.
     const html =
       await page.content();
 
