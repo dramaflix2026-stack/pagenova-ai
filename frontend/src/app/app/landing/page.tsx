@@ -505,14 +505,23 @@ export default function LandingStudioPage(){
         <p className="text-xs leading-6 text-white/40">As seções sem conteúdo, como depoimentos ou FAQ, permanecem ocultas até você preenchê-las.</p>
        </>}
        {tab==="design"&&<>
-        <p className="text-xs font-semibold text-white/65">Direção de arte</p>
-        <div className="grid grid-cols-2 gap-2">{LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>changeKind(p.id)}
-         className={"overflow-hidden rounded-xl border text-left "+(p.id===editorProject.kind?"border-emerald-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
-        <label className="flex items-center gap-4"><input type="color" value={editorProject.accent} onChange={e=>patch({accent:e.target.value})} className="h-11 w-16 rounded border-0 bg-transparent"/><span className="text-xs font-semibold">Cor de destaque</span></label>
+        {editorProject.templateVersion==="universal-v1"
+         ?<div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.06] p-4 text-xs leading-6 text-white/70">
+           <strong className="block text-sm text-emerald-200">Template universal original</strong>
+           <p>As cores, fontes e a estrutura responsiva são preservadas exatamente do template de referência. Você pode substituir a imagem principal abaixo.</p>
+          </div>
+         :<>
+          <p className="text-xs font-semibold text-white/65">Direção de arte</p>
+          <div className="grid grid-cols-2 gap-2">{LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>changeKind(p.id)}
+           className={"overflow-hidden rounded-xl border text-left "+(p.id===editorProject.kind?"border-emerald-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
+          <label className="flex items-center gap-4"><input type="color" value={editorProject.accent} onChange={e=>patch({accent:e.target.value})} className="h-11 w-16 rounded border-0 bg-transparent"/><span className="text-xs font-semibold">Cor de destaque</span></label>
+         </>}
         <Field label="URL de fotografia própria ou licenciada (HTTPS)" value={editorProject.heroImage.startsWith("data:")?"":editorProject.heroImage} onChange={v=>patch({heroImage:v})} placeholder="https://..."/>
         <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-4 text-xs font-semibold text-white/75 hover:border-emerald-300/60"><ImagePlus className="h-4 w-4"/> Enviar imagem de capa (até 1,5 MB)<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void uploadHero(e)}/></label>
         {editorProject.heroImage&&<button className="text-xs text-red-300" onClick={()=>patch({heroImage:""})}>Remover imagem</button>}
-        <p className="text-xs leading-6 text-white/40">O layout funciona sem imagem externa, graças à composição gráfica interna. Não utilizamos geração paga de imagens.</p>
+        <p className="text-xs leading-6 text-white/40">{editorProject.templateVersion==="universal-v1"
+         ?"A imagem original do template está preservada. Substitua por um mockup real do produto, se quiser personalizar a oferta."
+         :"O layout funciona sem imagem externa, graças à composição gráfica interna."}</p>
        </>}
       </div>
      </aside>
