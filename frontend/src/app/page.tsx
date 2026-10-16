@@ -79,8 +79,16 @@ const questions = [
     answer: "Você escolhe entre mensal, trimestral, semestral e anual. Os ciclos maiores reduzem o custo mensal equivalente e o pagamento é concluído no checkout seguro da Kiwify.",
   },
   {
-    question: "Quando vou receber acesso à plataforma?",
-    answer: "Após a confirmação do pagamento, faça seu cadastro com o mesmo e-mail da compra. O acesso é vinculado à assinatura ativa.",
+    question: "Como funciona o teste grátis de 5 dias?",
+    answer: "Crie uma conta, confirme o e-mail e acesse o painel. O teste começa no primeiro acesso, dura 120 horas e oferece 2 gerações de sites pelo CRM e 5 páginas de pesquisa Google Places, além das ferramentas locais.",
+  },
+  {
+    question: "Preciso de cartão ou serei cobrado após 5 dias?",
+    answer: "Não. O teste não pede cartão e termina automaticamente, sem cobranças. Seus projetos ficam preservados para quando decidir assinar.",
+  },
+  {
+    question: "Quando recebo acesso à assinatura paga?",
+    answer: "Após a confirmação do pagamento na Kiwify, entre com o mesmo e-mail que usou na PageNova. A assinatura paga substitui os limites do teste, sem apagar seus projetos.",
   },
 ];
 
