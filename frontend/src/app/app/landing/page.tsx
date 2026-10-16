@@ -5,13 +5,14 @@
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
-import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,normalizeLanding,renderLandingHtml,
+import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
  type LandingKind,type LandingProject,type LandingSection,type LandingFaq } from "@/lib/landing/engine";
 import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,Copy,
  ExternalLink,ImagePlus,LayoutTemplate,LoaderCircle,Monitor,Plus,Save,Send,Settings2,
  Smartphone,Trash2,Users,WandSparkles } from "lucide-react";
 
 type Tab="content"|"structure"|"design";
+type EditorSection=LandingSection|"hero"|"comparison"|"bonuses"|"guarantee";
 type Draft={id:string;updatedAt:string};
 type Lead={name:string;email:string;message?:string;submittedAt:string};
 const sectionLabels:Record<LandingSection|"hero",string>={
@@ -19,7 +20,7 @@ const sectionLabels:Record<LandingSection|"hero",string>={
  proof:"Depoimento",offer:"Oferta e CTA",faq:"Dúvidas frequentes",contact:"Formulário e contato"
 };
 function errorText(error:unknown){return error instanceof Error?error.message:"Não foi possível concluir.";}
-const inputClass="w-full rounded-xl border border-white/10 bg-[#181e2a] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-amber-300/70";
+const inputClass="w-full rounded-xl border border-white/10 bg-[#181e2a] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70";
 function Field({label,value,onChange,placeholder="",rows=0,hint}:{
  label:string;value:string;onChange:(v:string)=>void;placeholder?:string;rows?:number;hint?:string;
 }){
@@ -55,9 +56,11 @@ export default function LandingStudioPage(){
  const [loadingDrafts,setLoadingDrafts]=useState(true);
  const [opening,setOpening]=useState("");
  const [tab,setTab]=useState<Tab>("content");
- const [section,setSection]=useState<LandingSection|"hero">("hero");
+ const [section,setSection]=useState<EditorSection>("hero");
  const [viewport,setViewport]=useState<"desktop"|"mobile">("desktop");
  const [busy,setBusy]=useState<""|"save"|"publish"|"leads">("");
+ const [creatingStep,setCreatingStep]=useState("");
+ const [briefInsights,setBriefInsights]=useState<string[]>([]);
  const [status,setStatus]=useState("");
  const [error,setError]=useState("");
  const [leads,setLeads]=useState<Lead[]|null>(null);
@@ -79,11 +82,28 @@ export default function LandingStudioPage(){
   setError("");
   setLeads(null);
  },[]);
- function create(){
+ async function create(){
+  if(creatingStep)return;
   if(!brand.trim()){setError("Informe o nome da marca ou produto.");return;}
-  const fresh=newLanding(kind,brand.trim(),brief);
-  setProject(fresh);setTab("content");setSection("hero");setViewport("desktop");
-  lastSaved.current="";setError("");setStatus("Projeto criado. Preencha as informações e veja a prévia ao vivo.");
+  if(!brief.trim()||brief.trim().length<20){
+   setError("Descreva o produto com pelo menos 20 caracteres para criar uma página personalizada.");return;
+  }
+  setError("");
+  const pause=(ms:number)=>new Promise<void>(resolve=>window.setTimeout(resolve,ms));
+  try{
+   setCreatingStep("1/3 · Identificando o produto e as informações do briefing");
+   const facts=kind==="course"?analyzeLandingBrief(brand,brief).facts:[];
+   const fresh=newLanding(kind,brand.trim(),brief);
+   await pause(330);
+   setCreatingStep("2/3 · Montando as seções com textos relacionados à oferta");
+   await pause(360);
+   setCreatingStep("3/3 · Preparando a visualização responsiva");
+   await pause(360);
+   setBriefInsights(facts);
+   setProject(fresh);setTab("content");setSection("hero");setViewport("mobile");
+   lastSaved.current="";setError("");
+   setStatus("Página estruturada localmente a partir do briefing. Revise a oferta, bônus, mockup, depoimentos e garantia antes de publicar.");
+  }finally{setCreatingStep("");}
  }
  async function openDraft(id:string){
   setOpening(id);setError("");
@@ -93,6 +113,7 @@ export default function LandingStudioPage(){
    if(!res.ok||!body.project)throw Error(body.error||"Projeto indisponível.");
    const selected=normalizeLanding(body.project);
    setProject(selected);setSection("hero");setTab("content");setLeads(null);
+   setBriefInsights(selected.salesPage?analyzeLandingBrief(selected.name,selected.brief).facts:[]);
    lastSaved.current=JSON.stringify(selected);
    setStatus("Projeto reaberto da sua conta.");
   }catch(e){setError(errorText(e));}
@@ -172,7 +193,16 @@ export default function LandingStudioPage(){
  }
  function changeKind(value:LandingKind){
   if(!project)return;
-  patch({kind:value,accent:LANDING_PRESETS.find(p=>p.id===value)?.color||project.accent});
+  const newCourse=value==="course"&&project.kind!=="course";
+  const draft=newCourse?newLanding("course",project.name,project.brief):null;
+  patch({kind:value,accent:LANDING_PRESETS.find(p=>p.id===value)?.color||project.accent,
+    salesPage:value==="course",
+    ...(draft?{headline:draft.headline,subtitle:draft.subtitle,eyebrow:draft.eyebrow,
+      price:draft.price,benefits:draft.benefits,before:draft.before,after:draft.after,
+      guaranteeDays:draft.guaranteeDays,faqs:draft.faqs,ribbon:draft.ribbon}:{}),
+  });
+  if(value==="course")setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
+  setSection("hero");
  }
  function listValues(key:"benefits"|"steps",value:string){
   patch({[key]:value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,6)} as Partial<LandingProject>);
@@ -189,10 +219,10 @@ export default function LandingStudioPage(){
   <div className="mx-auto max-w-[1700px] px-4 py-7 sm:px-6 lg:px-9">
    {!project?<>
     <div className="mx-auto max-w-4xl text-center">
-     <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-amber-300/25 bg-amber-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-amber-200">
+     <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-emerald-200">
       <WandSparkles className="h-4 w-4"/> PAGENOVA LANDING ENGINE
      </div>
-     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#f6ca60]">alto padrão.</span></h1>
+     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#00d6a1]">alto padrão.</span></h1>
      <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">
       Seis direções criativas, construção visual, formulários, salvamento e publicação. Sem chamadas de IA paga.
      </p>
@@ -202,9 +232,9 @@ export default function LandingStudioPage(){
       <span className="text-xs text-white/35">6 estilos profissionais</span></div>
      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>setKind(p.id)}
-       className={"overflow-hidden rounded-2xl border text-left transition hover:-translate-y-1 "+(kind===p.id?"border-amber-300/80 bg-amber-300/[.08] shadow-[0_0_0_2px_#f9ca5e18]":"border-white/10 bg-[#141822] hover:border-white/35")}>
+       className={"overflow-hidden rounded-2xl border text-left transition hover:-translate-y-1 "+(kind===p.id?"border-emerald-300/80 bg-emerald-300/[.08] shadow-[0_0_0_2px_#00d6a126]":"border-white/10 bg-[#141822] hover:border-white/35")}>
        <FeaturePreview kind={p.id}/>
-       <span className="flex items-start gap-3 px-4 py-4"><span className={"mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border "+(kind===p.id?"border-amber-300 bg-amber-300 text-black":"border-white/30")}>{kind===p.id&&<Check className="h-3 w-3"/>}</span>
+       <span className="flex items-start gap-3 px-4 py-4"><span className={"mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border "+(kind===p.id?"border-emerald-300 bg-emerald-300 text-black":"border-white/30")}>{kind===p.id&&<Check className="h-3 w-3"/>}</span>
        <span><strong className="block text-sm">{p.label}</strong><span className="mt-1 block text-xs leading-5 text-white/50">{p.detail}</span></span></span>
       </button>)}
      </div>
@@ -213,16 +243,16 @@ export default function LandingStudioPage(){
       <Field label="3. Descrição do negócio / oferta" value={brief} onChange={setBrief} rows={3} placeholder="O que você oferece? Para quem? O que é importante comunicar?"/>
       <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-4">
        <p className="max-w-lg text-xs leading-5 text-white/45">A composição é automática, mas textos e afirmações precisam refletir sua oferta real. Nenhuma prova social é inventada.</p>
-       <button onClick={create} className="inline-flex items-center gap-2 rounded-xl bg-[#f6ca60] px-6 py-3.5 text-sm font-extrabold text-[#191308] hover:bg-[#ffdb80]">Criar minha landing page <ArrowRight className="h-4 w-4"/></button>
+       <button onClick={create} className="inline-flex items-center gap-2 rounded-xl bg-[#00d6a1] px-6 py-3.5 text-sm font-extrabold text-[#042019] hover:bg-[#43eab9]">Criar minha landing page <ArrowRight className="h-4 w-4"/></button>
       </div>
      </div>
      <div className="mt-8">
       <h2 className="mb-4 text-lg font-bold">Meus projetos salvos</h2>
       {loadingDrafts?<p className="text-sm text-white/45">Carregando...</p>:drafts.length===0?<p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-white/45">Seu primeiro projeto aparecerá aqui depois de criado e salvo.</p>:
        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{drafts.map(d=><button key={d.id} onClick={()=>void openDraft(d.id)} disabled={!!opening}
-        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#171d28] p-4 text-left hover:border-amber-300/50">
+        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#171d28] p-4 text-left hover:border-emerald-300/50">
         <span><strong className="block text-sm">Projeto {d.id.slice(0,8)}</strong><small className="mt-1 block text-white/40">Atualizado {d.updatedAt?new Date(d.updatedAt).toLocaleDateString("pt-BR"):"recentemente"}</small></span>
-        {opening===d.id?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ArrowRight className="h-4 w-4 text-amber-300"/>}
+        {opening===d.id?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ArrowRight className="h-4 w-4 text-emerald-300"/>}
        </button>)}</div>}
      </div>
     </section>
@@ -230,21 +260,21 @@ export default function LandingStudioPage(){
     <header className="flex flex-wrap items-center justify-between gap-4">
      <div className="flex min-w-0 items-center gap-3">
       <button className="rounded-lg border border-white/10 p-2 text-white/60 hover:text-white" onClick={()=>{setProject(null);setLeads(null);void cloudRefresh();}} aria-label="Voltar à lista"><ArrowLeft className="h-5 w-5"/></button>
-      <div className="min-w-0"><span className="block text-[10px] font-bold tracking-[.15em] text-amber-300">EDITOR LANDING PAGE</span><h1 className="truncate text-xl font-bold sm:text-2xl">{editorProject.name}</h1>
+      <div className="min-w-0"><span className="block text-[10px] font-bold tracking-[.15em] text-emerald-300">EDITOR LANDING PAGE</span><h1 className="truncate text-xl font-bold sm:text-2xl">{editorProject.name}</h1>
       </div>
      </div>
      <div className="flex flex-wrap items-center gap-2">
       <span className="hidden max-w-44 truncate text-[11px] text-white/40 lg:block">{status}</span>
       <button disabled={!!busy} onClick={()=>void save(false)} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-xs font-bold hover:bg-white/10 disabled:opacity-50">{busy==="save"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>} Salvar</button>
-      {editorProject.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+editorProject.publishedSlug} className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300/25 px-3 py-2.5 text-xs font-bold text-amber-200"><ExternalLink className="h-4 w-4"/> Ver online</a>}
-      <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-amber-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-amber-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
+      {editorProject.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+editorProject.publishedSlug} className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/25 px-3 py-2.5 text-xs font-bold text-emerald-200"><ExternalLink className="h-4 w-4"/> Ver online</a>}
+      <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
      </div>
     </header>
     <div className="mt-5 grid gap-5 xl:grid-cols-[385px_minmax(0,1fr)]">
      <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
       <div className="flex border-b border-white/10">
        {([{id:"content",label:"Conteúdo",icon:WandSparkles},{id:"structure",label:"Seções",icon:LayoutTemplate},{id:"design",label:"Design",icon:Settings2}] as const).map(x=><button key={x.id} onClick={()=>setTab(x.id)}
-        className={"flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-4 text-xs font-bold "+(tab===x.id?"border-amber-300 text-amber-200":"border-transparent text-white/50 hover:text-white")}><x.icon className="h-4 w-4"/>{x.label}</button>)}
+        className={"flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-4 text-xs font-bold "+(tab===x.id?"border-emerald-300 text-emerald-200":"border-transparent text-white/50 hover:text-white")}><x.icon className="h-4 w-4"/>{x.label}</button>)}
       </div>
       <div className="max-h-[820px] space-y-5 overflow-y-auto p-5">
        {tab==="content"&&<>
@@ -269,11 +299,11 @@ export default function LandingStudioPage(){
        </>}
        {tab==="structure"&&<>
         <p className="text-xs leading-6 text-white/55">Escolha as seções que aparecerão e arraste a ordem usando as setas. A primeira dobra fica sempre no topo.</p>
-        <div className="rounded-xl border border-amber-300/25 bg-amber-300/[.06] px-4 py-3 text-xs font-bold text-amber-200">Primeira dobra / Hero · Fixo</div>
+        <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/[.06] px-4 py-3 text-xs font-bold text-emerald-200">Primeira dobra / Hero · Fixo</div>
         {LANDING_SECTIONS.map(s=>{
          const index=editorProject.sections.indexOf(s.id),enabled=index>=0;
          return <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#10151e] px-3 py-3" key={s.id}>
-          <input aria-label={"Exibir "+s.label} type="checkbox" checked={enabled} onChange={e=>patch({sections:e.target.checked?[...editorProject.sections,s.id]:editorProject.sections.filter(v=>v!==s.id)})} className="h-4 w-4 accent-amber-300"/>
+          <input aria-label={"Exibir "+s.label} type="checkbox" checked={enabled} onChange={e=>patch({sections:e.target.checked?[...editorProject.sections,s.id]:editorProject.sections.filter(v=>v!==s.id)})} className="h-4 w-4 accent-emerald-300"/>
           <span className="min-w-0 flex-1 text-xs font-semibold">{s.label}</span>
           <button aria-label={"Mover "+s.label+" para cima"} disabled={!enabled||index===0} onClick={()=>reorder(s.id,-1)} className="rounded p-1 text-white/60 disabled:opacity-20"><ArrowUp className="h-4 w-4"/></button>
           <button aria-label={"Mover "+s.label+" para baixo"} disabled={!enabled||index===editorProject.sections.length-1} onClick={()=>reorder(s.id,1)} className="rounded p-1 text-white/60 disabled:opacity-20"><ArrowDown className="h-4 w-4"/></button>
@@ -283,10 +313,10 @@ export default function LandingStudioPage(){
        {tab==="design"&&<>
         <p className="text-xs font-semibold text-white/65">Direção de arte</p>
         <div className="grid grid-cols-2 gap-2">{LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>changeKind(p.id)}
-         className={"overflow-hidden rounded-xl border text-left "+(p.id===editorProject.kind?"border-amber-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
+         className={"overflow-hidden rounded-xl border text-left "+(p.id===editorProject.kind?"border-emerald-300":"border-white/10")}><div className={"h-11 bg-gradient-to-r "+kindsArtwork[p.id]}/><span className="block p-2 text-[11px] font-bold">{p.label}</span></button>)}</div>
         <label className="flex items-center gap-4"><input type="color" value={editorProject.accent} onChange={e=>patch({accent:e.target.value})} className="h-11 w-16 rounded border-0 bg-transparent"/><span className="text-xs font-semibold">Cor de destaque</span></label>
         <Field label="URL de fotografia própria ou licenciada (HTTPS)" value={editorProject.heroImage.startsWith("data:")?"":editorProject.heroImage} onChange={v=>patch({heroImage:v})} placeholder="https://..."/>
-        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-4 text-xs font-semibold text-white/75 hover:border-amber-300/60"><ImagePlus className="h-4 w-4"/> Enviar imagem de capa (até 1,5 MB)<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void uploadHero(e)}/></label>
+        <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-white/20 px-4 py-4 text-xs font-semibold text-white/75 hover:border-emerald-300/60"><ImagePlus className="h-4 w-4"/> Enviar imagem de capa (até 1,5 MB)<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>void uploadHero(e)}/></label>
         {editorProject.heroImage&&<button className="text-xs text-red-300" onClick={()=>patch({heroImage:""})}>Remover imagem</button>}
         <p className="text-xs leading-6 text-white/40">O layout funciona sem imagem externa, graças à composição gráfica interna. Não utilizamos geração paga de imagens.</p>
        </>}
@@ -297,8 +327,8 @@ export default function LandingStudioPage(){
        <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400"/><span className="text-xs font-bold text-white/70">Pré-visualização ao vivo</span></div>
        <div className="flex items-center gap-2">
         <div className="flex rounded-lg border border-white/10 p-1">
-         <button title="Visualização desktop" onClick={()=>setViewport("desktop")} className={"rounded-md p-2 "+(viewport==="desktop"?"bg-white/15 text-amber-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
-         <button title="Visualização celular" onClick={()=>setViewport("mobile")} className={"rounded-md p-2 "+(viewport==="mobile"?"bg-white/15 text-amber-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
+         <button title="Visualização desktop" onClick={()=>setViewport("desktop")} className={"rounded-md p-2 "+(viewport==="desktop"?"bg-white/15 text-emerald-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
+         <button title="Visualização celular" onClick={()=>setViewport("mobile")} className={"rounded-md p-2 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
         </div>
         <button onClick={()=>void loadLeads()} disabled={!editorProject.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
        </div>
@@ -314,7 +344,7 @@ export default function LandingStudioPage(){
      <div className="flex items-center justify-between gap-3"><h2 className="text-lg font-bold">Contatos recebidos ({leads.length})</h2><button onClick={()=>setLeads(null)} className="text-xs text-white/50">Fechar</button></div>
      {!leads.length?<p className="mt-3 text-sm text-white/45">Ainda não há contatos nesta landing page.</p>:
       <div className="mt-4 grid gap-3 lg:grid-cols-2">{leads.map((l,i)=><article key={i} className="rounded-xl border border-white/10 p-4">
-       <p className="font-semibold">{l.name}</p><p className="mt-1 text-xs text-amber-200">{l.email}</p><p className="mt-2 whitespace-pre-line text-sm text-white/65">{l.message||"Sem mensagem adicional."}</p><span className="mt-3 block text-[11px] text-white/35">{l.submittedAt?new Date(l.submittedAt).toLocaleString("pt-BR"):""}</span>
+       <p className="font-semibold">{l.name}</p><p className="mt-1 text-xs text-emerald-200">{l.email}</p><p className="mt-2 whitespace-pre-line text-sm text-white/65">{l.message||"Sem mensagem adicional."}</p><span className="mt-3 block text-[11px] text-white/35">{l.submittedAt?new Date(l.submittedAt).toLocaleString("pt-BR"):""}</span>
       </article>)}</div>}
     </section>}
    </>}
