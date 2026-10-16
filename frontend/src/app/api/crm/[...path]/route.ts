@@ -1,6 +1,7 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { creditGateEnabled, creditErrorResponse, reserveCredit, settleCredit, settleJobCredit, type CreditAccount } from "@/lib/credits/server";
 import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
+import { getPageNovaAccess, reserveTrialCredit, settleTrialCredit, settleTrialJob } from "@/lib/trial/server";
 
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
@@ -37,16 +38,8 @@ async function identity() {
   const admin = createAdminClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
-  const { data: entitlement, error } = await admin
-    .from("entitlements")
-    .select("id")
-    .eq("product", "pagenova-ai")
-    .eq("status", "active")
-    .ilike("email", email)
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !entitlement) return null;
+  const access=await getPageNovaAccess(admin,user);
+  if(access.kind==="none")return null;
   const metadata = user.user_metadata as Record<string, unknown> | undefined;
   const displayName =
     (typeof metadata?.full_name === "string" && metadata.full_name.trim()) ||
@@ -54,7 +47,7 @@ async function identity() {
     email.split("@")[0] ||
     email;
 
-  return { externalUserId: user.id, email, name: displayName, admin };
+  return { externalUserId: user.id, email, name: displayName, admin, access };
 }
 
 function signedHeaders(secret: string, who: NonNullable<Awaited<ReturnType<typeof identity>>>) {
@@ -102,60 +95,78 @@ async function proxy(request: NextRequest, context: RouteContext) {
 
   let body: ArrayBuffer | undefined=["GET","HEAD"].includes(method)
     ? undefined : await request.arrayBuffer();
-  const metered=creditGateEnabled();
+  const metered=creditGateEnabled()&&who.access.kind==="paid";
+  const isTrial=who.access.kind==="trial";
   const account:CreditAccount={userId:who.externalUserId,email:who.email};
   const siteMatch=method==="POST"&&suffix.match(/^site-projects\/([^/]+)\/generate$/);
   const googlePage=method==="POST"&&suffix==="google/search";
   const jobMatch=method==="GET"&&suffix.match(/^site-jobs\/([^/]+)(?:\/events)?$/);
 
-  // This independent, server-side daily cost ceiling stays active even when
-  // the commercial subscription-credit rollout is temporarily disabled.
+  let creditId:string|null=null;
+  let trialCreditId:string|null=null;
+  // Trial quota is enforced regardless of the commercial-credit rollout flag.
+  // Reservations happen before any billable Google/OpenAI operation.
+  if((isTrial||metered)&&(siteMatch||googlePage)){
+    let key:string;
+    if(siteMatch){
+      let payload:Record<string,unknown>;
+      try{
+        payload=JSON.parse(Buffer.from(body||new ArrayBuffer(0)).toString("utf8")) as Record<string,unknown>;
+        if(!payload||typeof payload!=="object"||Array.isArray(payload))throw Error("invalid payload");
+      }catch{return NextResponse.json({error:{code:"INVALID_REQUEST",message:"Pedido de geração inválido."}},{status:400});}
+      const incoming=typeof payload.idempotencyKey==="string"?payload.idempotencyKey.trim():"";
+      const idempotencyKey=/^[a-zA-Z0-9_-]{8,120}$/.test(incoming)?incoming:"pagenova_"+randomUUID();
+      payload.idempotencyKey=idempotencyKey;
+      const jsonBytes=Buffer.from(JSON.stringify(payload));
+      body=jsonBytes.buffer.slice(jsonBytes.byteOffset,jsonBytes.byteOffset+jsonBytes.byteLength) as ArrayBuffer;
+      headers.set("content-type","application/json");
+      key="site:"+siteMatch[1]+":"+idempotencyKey;
+    }else{
+      const supplied=request.headers.get("x-pagenova-credit-request")?.trim();
+      key="google:"+(supplied&&/^[a-zA-Z0-9_-]{12,100}$/.test(supplied)?supplied:randomUUID());
+    }
+    try{
+      const booked=isTrial
+        ?await reserveTrialCredit(who.admin,who.externalUserId,siteMatch?"site_generation":"google_page",key)
+        :await reserveCredit(who.admin,account,siteMatch?"site_generation":"google_page",key);
+      if(!booked.allowed){
+        const reason=booked.reason;
+        const message=reason==="site_limit"?"Você já utilizou as 2 gerações de sites do teste grátis.":
+          reason==="google_limit"?"Você já utilizou as 5 páginas Google Places do teste grátis.":
+          "Seu teste grátis expirou ou não está disponível. Assine para continuar.";
+        return NextResponse.json({error:{code:"TRIAL_LIMIT",message}},{status:reason==="site_limit"||reason==="google_limit"?402:403});
+      }
+      if(!booked.created){
+        if(siteMatch&&booked.jobId&&booked.state!=="refunded")
+          return NextResponse.json({jobId:booked.jobId,created:false},{status:200});
+        return NextResponse.json({error:{code:"DUPLICATE_CREDIT_OPERATION",message:"Esta operação já foi solicitada. Consulte o histórico antes de tentar outra."}},{status:409});
+      }
+      if(isTrial)trialCreditId=booked.operationId!;
+      else creditId=booked.operationId!;
+    }catch(error){
+      return isTrial?NextResponse.json({error:{code:"TRIAL_UNAVAILABLE",message:"Não foi possível validar seu teste grátis."}},{status:503}):creditErrorResponse(error);
+    }
+  }
+
+  // This independent, server-side provider cap protects both trial and paid
+  // users, even when commercial credit rollout is not yet enabled.
   if(siteMatch||googlePage){
     const budget=await reservePaidAiBudget(who.admin,who.externalUserId,
       siteMatch?"crm_site_generation":"google_places_page");
     if(!budget.ok){
+      if(trialCreditId){
+        try{await settleTrialCredit(who.admin,who.externalUserId,trialCreditId,false);}
+        catch{console.error("[PageNova trial] Failed to release cost-guard reservation");}
+      }
+      if(creditId){
+        try{await settleCredit(who.admin,account,creditId,false);}
+        catch{console.error("[PageNova credits] Failed to release cost-guard reservation");}
+      }
       return NextResponse.json({error:{
         code:budget.status===429?"PAID_PROVIDER_DAILY_LIMIT":"COST_GUARD_UNAVAILABLE",
         message:budget.message,
       }},{status:budget.status});
     }
-  }
-
-  let creditId:string|null=null;
-  if(metered&&(siteMatch||googlePage)){
-    try{
-      let key:string;
-      if(siteMatch){
-        let payload:Record<string,unknown>;
-        try{payload=JSON.parse(Buffer.from(body||new ArrayBuffer(0)).toString("utf8")) as Record<string,unknown>;}
-        catch{return NextResponse.json({error:{code:"INVALID_REQUEST",message:"Pedido de geração inválido."}},{status:400});}
-        // CRM and Studio share the same idempotent reservation. Older CRM
-        // clients may not send a key: give the upstream the SAME generated key.
-        const incoming=typeof payload.idempotencyKey==="string"?payload.idempotencyKey.trim():"";
-        const idempotencyKey=incoming||"pagenova_"+randomUUID();
-        payload.idempotencyKey=idempotencyKey;
-        const jsonBytes=Buffer.from(JSON.stringify(payload));
-        body=jsonBytes.buffer.slice(jsonBytes.byteOffset,jsonBytes.byteOffset+jsonBytes.byteLength) as ArrayBuffer;
-        headers.set("content-type","application/json");
-        key="site:"+siteMatch[1]+":"+idempotencyKey;
-      }else{
-        // New user-requested Google result pages consume exactly one credit.
-        // History, lead viewing and cached search metadata are never metered.
-        const supplied=request.headers.get("x-pagenova-credit-request")?.trim();
-        key="google:"+(supplied&&/^[a-zA-Z0-9_-]{12,100}$/.test(supplied)?supplied:randomUUID());
-      }
-      const booked=await reserveCredit(who.admin,account,siteMatch?"site_generation":"google_page",key);
-      if(!booked.created){
-        // Never forward a duplicate chargeable request; a site with a known
-        // job can safely return that same ID without another paid operation.
-        if(siteMatch&&booked.jobId&&booked.state!=="refunded"){
-          return NextResponse.json({jobId:booked.jobId,created:false},{status:200});
-        }
-        return NextResponse.json({error:{code:"DUPLICATE_CREDIT_OPERATION",
-          message:"Esta operação já foi solicitada. Consulte a geração ou tente novamente."}},{status:409});
-      }
-      creditId=booked.operationId!;
-    }catch(err){return creditErrorResponse(err);}
   }
 
   let response:Response;
@@ -165,6 +176,10 @@ async function proxy(request: NextRequest, context: RouteContext) {
     if(creditId){
       try{await settleCredit(who.admin,account,creditId,false);}
       catch(err){console.error("[PageNova Credits] Refund failed after proxy error",err instanceof Error?err.name:"unknown");}
+    }
+    if(trialCreditId){
+      try{await settleTrialCredit(who.admin,who.externalUserId,trialCreditId,false);}
+      catch{console.error("[PageNova trial] Refund failed after proxy error");}
     }
     return NextResponse.json({error:{code:"UPSTREAM_UNAVAILABLE",message:"O servidor não respondeu. Nenhum crédito deve ser cobrado por esta falha."}},{status:502});
   }
@@ -176,7 +191,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
   if(disposition)outHeaders.set("content-disposition",disposition);
   outHeaders.set("cache-control","no-store");
 
-  if(creditId){
+  if(creditId||trialCreditId){
     // Only successful upstream operations consume the reservation. Site
     // generation counts only if a NEW job was actually accepted.
     const raw=await response.arrayBuffer();
@@ -184,7 +199,9 @@ async function proxy(request: NextRequest, context: RouteContext) {
     try{parsed=JSON.parse(Buffer.from(raw).toString("utf8")) as typeof parsed;}catch{}
     const accepted=response.ok&&(!siteMatch||(parsed.created===true&&!!parsed.jobId));
     try{
-      await settleCredit(who.admin,account,creditId,accepted,
+      if(creditId)await settleCredit(who.admin,account,creditId,accepted,
+        siteMatch&&accepted?parsed.jobId:undefined);
+      if(trialCreditId)await settleTrialCredit(who.admin,who.externalUserId,trialCreditId,accepted,
         siteMatch&&accepted?parsed.jobId:undefined);
     }catch(error){
       // Fail closed on settlements: a reserved debit remains held in the ledger,
@@ -196,7 +213,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
     return new NextResponse(raw,{status:response.status,headers:outHeaders});
   }
 
-  if(metered&&jobMatch&&response.ok){
+  if((metered||isTrial)&&jobMatch&&response.ok){
     // Polling events already happens during generation. Use the upstream's
     // authoritative terminal status to refund failed/cancelled jobs once.
     const raw=await response.arrayBuffer();
@@ -204,7 +221,8 @@ async function proxy(request: NextRequest, context: RouteContext) {
       const parsed=JSON.parse(Buffer.from(raw).toString("utf8")) as {job?:{id?:string;status?:string}};
       const status=parsed.job?.status;
       if(status==="SUCCEEDED"||status==="FAILED"||status==="CANCELLED"){
-        await settleJobCredit(who.admin,account,parsed.job?.id||jobMatch[1],status==="SUCCEEDED");
+        if(metered)await settleJobCredit(who.admin,account,parsed.job?.id||jobMatch[1],status==="SUCCEEDED");
+        if(isTrial)await settleTrialJob(who.admin,parsed.job?.id||jobMatch[1],status==="SUCCEEDED");
       }
     }catch(error){
       console.warn("[PageNova Credits] Job reconciliation deferred",error instanceof Error?error.name:"unknown");
