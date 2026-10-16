@@ -6,6 +6,7 @@ import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 import { planUniversalSite } from "@/lib/site-builder-universal";
 
 import { applySectionChanges } from "@/lib/site-builder-revision-plan";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 export const runtime = "nodejs";
 export const maxDuration = 90;
 
@@ -115,6 +116,9 @@ export async function POST(request: NextRequest) {
   if (process.env.PAGENOVA_AI_PROVIDER !== "openai" || !apiKey) {
     return NextResponse.json({ error: "O gerador de sites com IA ainda não está configurado." }, { status: 503 });
   }
+
+  const aiBudget = await reservePaidAiBudget(admin, user.id, "legacy_site_copy");
+  if (!aiBudget.ok) return NextResponse.json({ error: aiBudget.message }, { status: aiBudget.status });
 
   const prompt = `Negócio: ${name}\nCategoria informada: ${getSitePreset(presetId).title}\nBriefing: ${brief}\nDados confirmados pelo cliente: ${presetId === "institucional" ? facts : "Ver briefing"}\nEstratégia universal:\n${universalDirection}\nPlano recomendado de seções:\n${universalSectionPlan}\nEstilo solicitado: ${style}\nPágina atual: ${key}\nConteúdo atual: ${existingPage || "nenhum"}\nAlteração: ${instruction || "nenhuma"}\nPrimeiro interprete semanticamente o negócio descrito, independentemente de palavras-chave ou categorias pré-cadastradas. Classifique o modelo de negócio pela forma real como a empresa entrega valor e recebe a conversão. Diferencie produto de serviço: o uso de equipamentos, software, drones, máquinas ou tecnologia para executar um serviço não transforma automaticamente o negócio em venda de produto. Determine também objetivo principal, conversão, tom e seções adequadas. A estratégia determinística fornecida abaixo é apenas uma hipótese inicial e pode ser corrigida quando o briefing demonstrar outro modelo. Nunca altere fatos do briefing para encaixá-los na classificação. Use a estratégia universal como planejamento editorial, não como autorização para inventar fatos. Adapte a página ao modelo de negócio, objetivo e conversão identificados. O plano de seções é uma recomendação: use apenas seções sustentadas pelos dados disponíveis e adequadas à página atual.
 
