@@ -3,6 +3,7 @@ import {lookup} from "node:dns/promises";
 import {isIP} from "node:net";
 import {request as httpsRequest} from "node:https";
 import * as cheerio from "cheerio";
+import {createFaithfulVisual,stylesheetLinks,absolutizeCss} from "@/server/services/faithful-cloner";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 
 export const runtime="nodejs";
@@ -123,7 +124,7 @@ function importedImage(node:unknown,base:URL):SiteImage{
   const src=candidates.map(v=>absolute(v||"",base)).find(Boolean)||"";
   return {src,alt:compact(attrs.alt||"",100)};
 }
-function normalizeHtml(html:string,base:URL){
+function normalizeHtml(html:string,base:URL,visual:ReturnType<typeof createFaithfulVisual>){
   const $=cheerio.load(html);
   // Reconstruct an accessible brand accent from public page metadata.
   // Never embed original CSS or JavaScript (they are not trusted).
@@ -166,19 +167,66 @@ function normalizeHtml(html:string,base:URL){
       links:relevantLinks,images:relevantImages};
   }).filter(section=>section.heading||section.text);
   if(sections.length===0)sections.push({id:"section-0",type:"section",tag:"section",heading:title,text:description,links:links.slice(0,2),images:images.slice(0,1)});
-  // Safe, authored HTML, not arbitrary third-party JavaScript/CSS or embedded forms.
-  const visualBodyHtml='<header class="nav"><strong>'+encode(title)+'</strong></header>'+
-    sections.map((s,i)=>'<section class="block"><div class="copy"><span class="eyebrow">SEÇÃO '+String(i+1).padStart(2,"0")+'</span>'+
-      '<h2>'+encode(s.heading||title)+'</h2><p>'+encode(s.text)+'</p>'+
-      (s.links[0]?'<a href="'+encode(s.links[0].href)+'" target="_blank" rel="noopener noreferrer">'+encode(s.links[0].text)+'</a>':"")+
-      '</div>'+(s.images[0]?'<img loading="lazy" src="'+encode(s.images[0].src)+'" alt="'+encode(s.images[0].alt)+'">':"")+'</section>').join("")+
-    '<footer>Projeto importado e editável na PageNova</footer>';
-  const visualHeadHtml='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+
-    '<style>:root{--clone-brand:'+accent+'}</style>'+
-    '<style>*{box-sizing:border-box}body{margin:0;background:#f7f8fa;color:#141b25;font:16px/1.7 Arial,sans-serif}.nav{padding:24px 6vw;background:#122c2b;color:white}.block{max-width:1240px;margin:auto;min-height:280px;padding:75px 6vw;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8%;align-items:center}.block:nth-child(odd){background:#eff4f2}.copy h2{font-size:clamp(30px,4vw,58px);line-height:1.1;margin:12px 0 23px}.copy p{white-space:pre-wrap}.block img{width:100%;max-height:400px;object-fit:contain;border-radius:20px}.eyebrow{font-size:11px;font-weight:800;letter-spacing:2px;color:var(--clone-brand)}a{display:inline-block;margin-top:15px;background:var(--clone-brand);padding:12px 23px;color:#fff;border-radius:10px;text-decoration:none}footer{padding:38px;text-align:center;background:#122c2b;color:#fff}@media(max-width:720px){.block{grid-template-columns:1fr;padding:42px 24px}.block img{max-height:260px}.copy h2{font-size:36px}}</style>';
-  return {title,description,favicon,headings,texts,links,images,sections,visualHeadHtml,visualBodyHtml,
-    visualHtml:"<!doctype html><html lang=\"pt-BR\"><head>"+visualHeadHtml+"</head><body>"+visualBodyHtml+"</body></html>"};
+  // Keep actual element hierarchy and styles. Section metadata is used only
+  // for editor navigation, never as a substitute visual template.
+  return {title,description,favicon,headings,texts,links,images,sections,
+    ...visual};
+
 }
+/**
+ * Only load public, pinned HTTPS stylesheets. No fetch() after DNS validation:
+ * hostname-to-IP is fixed for the TLS connection (prevents DNS rebinding).
+ * Failure is reported, never replaced by a fabricated theme.
+ */
+const CSS_MAX_SINGLE_BYTES=105000;
+const CSS_TOTAL_LIMIT=350000;
+async function publicCss(urlText:string):Promise<string>{
+ const {url,ip}=await validateRemote(urlText);
+ return new Promise((resolve,reject)=>{
+  const request=httpsRequest({
+   protocol:"https:",hostname:ip,port:443,servername:url.hostname,
+   path:url.pathname+url.search,method:"GET",
+   headers:{Host:url.host,Accept:"text/css,*/*;q=0.5","User-Agent":"Mozilla/5.0 (compatible; PageNova-Fidelity-Importer/2.0)"},
+   timeout:6000,rejectUnauthorized:true,
+  },response=>{
+   if(response.statusCode!==200){response.resume();reject(Error("CSS_HTTP_"+response.statusCode));return;}
+   const mime=String(response.headers["content-type"]||"").toLowerCase();
+   if(mime&&!(mime.includes("text/css")||mime.includes("text/plain")||mime.includes("application/octet-stream"))){
+    response.resume();reject(Error("CSS_MIME"));return;
+   }
+   if(Number(response.headers["content-length"]||0)>CSS_MAX_SINGLE_BYTES){
+    response.resume();reject(Error("CSS_TOO_LARGE"));return;
+   }
+   const chunks:Buffer[]=[];let bytes=0;
+   response.on("data",(chunk:Buffer)=>{
+    bytes+=chunk.length;
+    if(bytes>CSS_MAX_SINGLE_BYTES){request.destroy(Error("CSS_TOO_LARGE"));return;}
+    chunks.push(chunk);
+   });
+   response.on("end",()=>resolve(absolutizeCss(Buffer.concat(chunks).toString("utf8"),url.href)));
+   response.on("error",reject);
+  });
+  request.on("timeout",()=>request.destroy(Error("CSS_TIMEOUT")));
+  request.on("error",reject);request.end();
+ });
+}
+async function inlinedPublicCss(html:string,base:string):Promise<{
+ content:string[];total:number;failed:number;
+}>{
+ const links=stylesheetLinks(html,base);
+ // Fetch in parallel, but bound the memory, count and total bytes.
+ const settled=await Promise.allSettled(links.map(publicCss));
+ let total=0,failed=0;
+ const content:string[]=[];
+ for(const result of settled){
+  if(result.status!=="fulfilled"){failed++;continue;}
+  const text=result.value;
+  if(total+text.length>CSS_TOTAL_LIMIT){failed++;continue;}
+  total+=text.length;content.push(text);
+ }
+ return {content,total,failed};
+}
+
 export async function POST(request:NextRequest){
   try{
     await authorizedForms();
@@ -189,12 +237,18 @@ export async function POST(request:NextRequest){
     const input=JSON.parse(text) as {url?:unknown};
     if(typeof input.url!=="string"||input.url.length>1400)throw new FormServiceError("Informe a URL de uma página.",422);
     const {url,html}=await getPublicHtml(input.url.trim());
-    const parsed=normalizeHtml(html,url);
+    const styles=await inlinedPublicCss(html,url.href);
+    const visual=createFaithfulVisual(html,url.href,styles.content);
+    const parsed=normalizeHtml(html,url,visual);
     const project={id:crypto.randomUUID(),sourceUrl:input.url.trim(),finalUrl:url.href,domain:url.hostname,
       ...parsed,fetchedAt:new Date().toISOString()};
-    return NextResponse.json({ok:true,engine:"public-html-import-v1",project,
+    const warnings:string[]=[];
+    if(styles.failed)warnings.push(styles.failed+" folhas de estilo não puderam ser preservadas; o visual pode precisar de ajustes.");
+    if(visual.detectedImages===0&&parsed.images.length>0)warnings.push("As imagens originais não puderam ser recuperadas.");
+    return NextResponse.json({ok:true,engine:"faithful-html-import-v2",project,warnings,
       stats:{headings:parsed.headings.length,texts:parsed.texts.length,links:parsed.links.length,
-        images:parsed.images.length,sections:parsed.sections.length}},{headers:{"Cache-Control":"no-store"}});
+        images:parsed.images.length,sections:parsed.sections.length,
+        stylesheets:styles.content.length,recoveredImages:visual.recoveredImages}},{headers:{"Cache-Control":"no-store"}});
   }catch(error){
     if(error instanceof SyntaxError)return NextResponse.json({ok:false,error:"Dados inválidos."},{status:400});
     return errorsAsResponse(error);
