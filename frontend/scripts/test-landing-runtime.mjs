@@ -144,6 +144,18 @@ assert(universalHtml.includes("Bricolage Grotesque")&&
 assert(!universalHtml.includes("Mariana Souza")&&!universalHtml.includes("87% das vagas ocupadas")&&
  !universalHtml.includes("R$ 497"),
  "The original template's fictitious testimonials/discounts leaked into the new page");
+assert(universalHtml.includes('href="/landing-universal/complete-utilities.css"'),
+ "Universal landing must load the complete original Tailwind layout classes");
+const utilities=readFileSync(resolve(root,"public/landing-universal/complete-utilities.css"),"utf8");
+for(const selector of [".size-4 {",".size-5 {",".size-12 {",".flex {",".grid {",".gap-4 {",".px-5 {",".max-w-6xl {",".rounded-3xl {"]){
+ assert(utilities.includes(selector),"Missing compiled Tailwind utility for mobile and SVG layout: "+selector);
+}
+assert(utilities.includes('@media (width >= 40rem)')&&utilities.includes('@media (width >= 48rem)'),
+ "Original desktop/tablet responsive breakpoints not compiled");
+assert(!universalHtml.includes("Bônus a confirmar 03")&&!universalHtml.includes("Cliente ilustrativo 04"),
+ "Demo bonus and review cards must not flood the mobile preview");
+assert(universalHtml.includes("Adicione fotos e depoimentos verdadeiros autorizados"),
+ "Preview must explain why verified customer images are missing");
 assert(!renderLandingHtml(universal,false).includes("Quem aplicou, conta"),
  "Published page must not invent testimonials");
 console.log("Landing runtime PASS: 6 presets, 3 niches, truthful offer copy, checkout vs contact CTAs, layered mockup, responsive layout, verified reviews and legacy pages.");
