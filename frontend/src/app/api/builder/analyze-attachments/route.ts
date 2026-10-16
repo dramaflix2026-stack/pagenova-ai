@@ -38,6 +38,8 @@ export async function POST(request:NextRequest){
     if(data.get("mode")!=="site"){
       throw new FormServiceError("Modo de análise de anexos não autorizado.",400);
     }
+    if(access.kind!=="paid")throw new FormServiceError(
+      "Análise visual por IA está disponível na assinatura. No teste grátis, descreva os anexos ou use o modo local.",403);
     let total=0;
     const content:Array<{type:string;[key:string]:unknown}>=[{
       type:"input_text",
