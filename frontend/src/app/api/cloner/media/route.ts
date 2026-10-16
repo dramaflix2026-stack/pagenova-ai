@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {NextRequest} from "next/server";
 import {lookup} from "node:dns/promises";
 import {isIP} from "node:net";
