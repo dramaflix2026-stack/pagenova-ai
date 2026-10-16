@@ -8,7 +8,27 @@ function crc32(bytes:Uint8Array):number{
  return (crc^0xffffffff)>>>0;
 }
 export function sourceZip(files:SourceFile[]):Blob{
+ if(!Array.isArray(files)||files.length===0||files.length>100)
+   throw new Error("O projeto precisa ter de 1 a 100 arquivos.");
  const encoder=new TextEncoder();
+ const seen=new Set<string>();
+ let totalBytes=0;
+ for(const file of files){
+   if(!file||typeof file.path!=="string"||typeof file.content!=="string")
+     throw new Error("Arquivo de código inválido.");
+   const path=file.path;
+   const segments=path.split("/");
+   if(path.length>240||path.startsWith("/")||path.includes("\\")||
+      path.includes("\0")||/^[a-zA-Z]:/.test(path)||segments.some(x=>!x||x==="."||x==="..")||
+      !/^[a-zA-Z0-9._@+ -]+$/.test(segments.join("")))
+     throw new Error("O caminho de um arquivo é inválido ou inseguro.");
+   if(seen.has(path))throw new Error("O projeto possui caminhos de arquivos duplicados.");
+   seen.add(path);
+   const size=encoder.encode(file.content).byteLength;
+   totalBytes+=size;
+   if(size>5*1024*1024||totalBytes>25*1024*1024)
+     throw new Error("O código excede o limite de 25 MB para exportação.");
+ }
  const parts:Uint8Array[]=[];
  const central:Uint8Array[]=[];
  let offset=0;
