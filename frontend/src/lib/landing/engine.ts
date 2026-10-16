@@ -75,6 +75,7 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
       ctaUrl:"",secondaryUrl:"",whatsapp:"",email:"",heroImage:"",accent:"#00d6a1",
       benefits:info.benefits,steps:["Conheça o conteúdo","Confira o que está incluso","Veja as condições de compra"],
       faqs:[
+        {question:"Para quem é este material?",answer:"Conheça a proposta para "+info.niche.toLowerCase()+" e avalie a adequação às suas necessidades."},
         {question:"O que está incluído nesta oferta?",answer:briefText||"Consulte a descrição do produto antes de comprar."},
         {question:"Onde encontro as condições de compra?",answer:"Consulte preço, formato de entrega e acesso na página de pagamento."},
         {question:"Como funciona a garantia?",answer:"Verifique os termos e as condições aplicáveis à garantia antes da compra."}
@@ -188,18 +189,79 @@ export function renderLandingHtml(input:LandingProject,preview=false):string{
 
 
 /** Local content analysis: only data given by the merchant is used. */
+/**
+ * Weighted, offline niche intelligence. Matching happens on real briefing text:
+ * never fabricate a person's identity, a result, a product module or a bonus.
+ */
 export function analyzeLandingBrief(name:string,brief:string){
  const b=tidy(brief,2500).replace(/\s+/g," ").trim(),n=tidy(name,100)||"este material";
- const m=/\b(\d{1,6}(?:[.,]\d{3})?)\s+(projetos?|receitas?|aulas?|modelos?|templates?|arquivos?|planilhas?|vídeos?|videos?|apostilas?|ideias?|desenhos?|materiais?|lições?|páginas?)\b(?:\s+(?:de|do|da|para)\s+([a-zà-ÿ]+(?:\s+[a-zà-ÿ]+){0,2}))?/i.exec(b);
+ const text=(n+" "+b).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const catalog=[
+  {niche:"Serralheria",terms:["serralheria","serralheiro","soldagem","metalurgica","portoes","portao metalico","grades"],weight:3,
+   benefits:["Referências para consulta no trabalho com serralheria","Mais clareza ao explorar as opções de projetos","Um ponto de partida organizado para analisar o material"],
+   before:["Procurar referências técnicas em arquivos e fontes separadas","Comparar diferentes opções sem um acervo apresentado"],
+   after:["Consultar a proposta de um acervo de projetos de serralheria","Analisar as opções apresentadas e verificar quais atendem ao serviço"],
+   angles:["Como os projetos apresentados se encaixaram na rotina da serralheria","Se o acervo ajudou na consulta de referências","O que achou da organização e facilidade de localizar projetos"]},
+  {niche:"Marcenaria",terms:["marcenaria","marceneiro","moveis planejados","moveis em madeira","carpintaria"],weight:3,
+   benefits:["Conheça o material voltado a trabalhos com madeira","Explore referências e ideias da proposta","Confira as características e o formato do acervo"],
+   before:["Pesquisar ideias e referências em fontes diversas","Comparar modelos e materiais de forma dispersa"],
+   after:["Consultar a coleção apresentada em um só lugar","Avaliar referências conforme o seu projeto"],
+   angles:["Como utilizou as referências de marcenaria","Facilidade de localizar modelos ou ideias","O que achou da organização do conteúdo"]},
+  {niche:"Arquitetura e design",terms:["arquitetura","arquitetonico","design de interiores","decoracao","plantas baixas"],weight:3,
+   benefits:["Explore a proposta de referências para projetos","Conheça a organização dos materiais apresentados","Confira o conteúdo antes de adquirir"],
+   before:["Reunir referências de projeto em diferentes fontes","Comparar alternativas sem uma coleção organizada"],
+   after:["Conhecer o acervo apresentado pela oferta","Avaliar as referências conforme a necessidade do projeto"],
+   angles:["Usabilidade dos arquivos para consulta de projetos","Organização das referências","Aplicação dos materiais no planejamento"]},
+  {niche:"Marketing digital",terms:["marketing","anuncios","trafego pago","copywriting","vendas online","instagram","criativos","funil"],weight:2,
+   benefits:["Conheça os recursos de marketing descritos na oferta","Entenda a proposta e os materiais disponíveis","Confira como o conteúdo pode ser consultado"],
+   before:["Pesquisar técnicas e ferramentas de forma dispersa","Comparar diferentes abordagens sem conhecer a proposta"],
+   after:["Conhecer o conteúdo de marketing apresentado","Avaliar a pertinência dos materiais ao próprio negócio"],
+   angles:["Clareza da explicação dos materiais","Experiência ao consultar aulas ou recursos","Utilidade prática percebida sem prometer faturamento"]},
+  {niche:"Beleza e estética",terms:["estetica","maquiagem","cabeleireiro","manicure","unhas","sobrancelhas","skincare"],weight:2,
+   benefits:["Conheça os conteúdos voltados à beleza e estética","Confira os tópicos e o formato do material","Avalie a proposta antes de adquirir"],
+   before:["Procurar conteúdos especializados em fontes diferentes","Comparar orientações sem conhecer o material"],
+   after:["Conhecer a proposta de estudo apresentada","Avaliar quais tópicos correspondem aos seus objetivos"],
+   angles:["Clareza das orientações apresentadas","Experiência com a organização do conteúdo","Usabilidade do material no aprendizado, sem afirmar resultados"]},
+  {niche:"Gastronomia",terms:["receitas","gastronomia","culinaria","confeitaria","bolo","cozinha","doces"],weight:2,
+   benefits:["Explore as receitas ou conteúdos informados","Conheça a organização do material culinário","Confira os detalhes antes de adquirir"],
+   before:["Procurar receitas e referências em várias fontes","Comparar opções sem conhecer a coleção"],
+   after:["Conhecer o repertório apresentado na oferta","Escolher quais conteúdos deseja explorar"],
+   angles:["Organização e clareza das receitas","Facilidade de consultar o material","Experiência com a apresentação das instruções"]},
+  {niche:"Educação e treinamento",terms:["curso","ensino","educacao","treinamento","aulas","apostila","estudo","concurso"],weight:1,
+   benefits:["Conheça o formato e os temas do conteúdo","Entenda o percurso de aprendizado proposto","Consulte as condições de acesso antes de decidir"],
+   before:["Pesquisar recursos de estudo em fontes separadas","Comparar cursos sem uma visão clara da oferta"],
+   after:["Conhecer a organização do conteúdo educacional","Avaliar se a proposta combina com o objetivo de aprendizado"],
+   angles:["Clareza das aulas e explicações","Organização do conteúdo","Experiência com a plataforma ou material"]},
+  {niche:"Saúde e bem-estar",terms:["saude","bem-estar","exercicios","fitness","nutricao","alimentacao","emagrecimento","acne"],weight:2,
+   benefits:["Conheça o conteúdo educativo informado","Entenda o escopo e as condições da oferta","Avalie o material sem promessas de resultados individuais"],
+   before:["Pesquisar informações educativas em diferentes fontes","Comparar propostas sem conhecer os conteúdos"],
+   after:["Conhecer a proposta de conteúdo educativo","Conferir tópicos e condições antes de decidir"],
+   angles:["Clareza e organização do conteúdo","Experiência de leitura ou acompanhamento","Utilidade percebida sem alegações médicas"]},
+  {niche:"Finanças",terms:["financas","investimento","renda","economia domestica","controle financeiro","planilha financeira"],weight:2,
+   benefits:["Entenda os tópicos financeiros abordados","Confira o formato do material e suas limitações","Avalie a proposta antes de adquirir"],
+   before:["Pesquisar diferentes métodos de organização financeira","Comparar informações dispersas"],
+   after:["Conhecer o conteúdo e os recursos anunciados","Avaliar a adequação às próprias necessidades"],
+   angles:["Clareza das explicações financeiras","Facilidade de consultar planilhas ou materiais","Experiência de aprendizado sem prometer retorno financeiro"]}
+ ];
+ const scored=catalog.map((c,i)=>({...c,i,score:c.terms.reduce((sum,t)=>sum+(text.includes(t)?c.weight+t.length/50:0),0)}))
+   .sort((a,b)=>b.score-a.score||a.i-b.i);
+ const match=scored[0].score>0?scored[0]:null;
+ const niche=match?.niche||"Infoprodutos gerais";
+ const m=/\b(\d{1,6}(?:[.,]\d{3})?)\s+(projetos?|receitas?|aulas?|modelos?|templates?|arquivos?|planilhas?|videos?|vídeos?|apostilas?|ideias?|desenhos?|materiais?|licoes?|lições?|páginas?)\b(?:\s+(?:de|do|da|para)\s+([a-zà-ÿ]+(?:\s+[a-zà-ÿ]+){0,2}))?/i.exec(b);
  const subject=m?[m[1],m[2].toLowerCase(),m[3]&&"de "+m[3].replace(/\s+(?:por|apenas|com|que|para)\b.*$/i,"")].filter(Boolean).join(" "):n;
  const pm=/(?:R\$\s*|por\s+(?:apenas\s+)?(?:R\$\s*)?|preço\s*:?\s*(?:R\$\s*)?|valor\s*:?\s*(?:R\$\s*)?)(\d{1,6}(?:[.,]\d{2}))/i.exec(b);
  const price=pm?"R$ "+pm[1]:"";
  const format=/\b(e-?book|livro digital|pdf)\b/i.test(b)?"eBook":/\bmentoria\b/i.test(b)?"mentoria":/\b(curso|aulas|treinamento)\b/i.test(b)?"curso":/\b(kit|pacote|coleção|acervo)\b/i.test(b)?"pacote digital":"infoproduto";
- const headline=m?"Conheça "+subject+" em um só lugar":format==="curso"?"Descubra o conteúdo de "+n:"Conheça "+n+" e o que está incluído";
- const benefits=m?["Uma oferta que reúne "+subject,"Entenda o conteúdo antes de comprar","Confira as condições para adquirir"]:["Veja o que inclui "+n,"Entenda as características da oferta","Confira as condições para adquirir"];
- const before=["Pesquisar referências em lugares separados","Comparar opções e organizar o que precisa consultar"];
- const after=m?["Conhecer uma oferta que reúne "+subject,"Conferir o conteúdo e as condições em um só lugar"]:["Conhecer a proposta de "+n,"Conferir o conteúdo e as condições em um só lugar"];
- return {subject,price,format,headline,subtitle:b.slice(0,320)||"Veja o conteúdo e as condições da oferta antes de decidir.",benefits,before,after,facts:[subject,...(price?[price]:[]),format]};
+ const benefits=match?.benefits||(m?["Conheça os "+subject+" apresentados na oferta","Confira os detalhes do conteúdo antes de comprar","Veja as condições de aquisição"]:["Conheça o conteúdo de "+n,"Entenda a proposta da oferta","Avalie os materiais antes de comprar"]);
+ const before=match?.before||["Pesquisar referências em diferentes fontes","Comparar opções e organizar materiais por conta própria"];
+ const after=match?.after||(m?["Conhecer a oferta com "+subject,"Avaliar o conteúdo e as condições de aquisição"]:["Conhecer a proposta de "+n,"Avaliar o conteúdo e as condições de aquisição"]);
+ const testimonialAngles=match?.angles||["O que a pessoa achou da organização do material","Como utilizou o conteúdo na rotina","Clareza e praticidade percebidas de forma real"];
+ const headline=m?subject.charAt(0).toUpperCase()+subject.slice(1)+": conheça a coleção e o que ela oferece":
+   format==="mentoria"?"Conheça a mentoria "+n:format==="curso"?"Descubra a proposta do curso "+n:"Conheça "+n+" e o que está incluído";
+ const subtitle=m?"Explore a proposta de "+subject+". Veja o conteúdo anunciado, os detalhes do produto e como adquirir.":
+   b?b.slice(0,320):"Veja o conteúdo e as condições da oferta antes de decidir.";
+ return {subject,price,format,niche,headline,subtitle,benefits,before,after,testimonialAngles,
+    facts:[subject,...(price?[price]:[]),format,niche]};
 }
 /** New conversion-first funnel only. Old course pages retain their legacy layout. */
 function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
