@@ -3,6 +3,7 @@
  * PageNova Landing Engine. Deterministic composition: no generative or paid API.
  * Content comes from customer fields; never fabricate reviews, results or scarcity.
  */
+import {renderUniversalLanding} from "./universal-renderer";
 export const LANDING_KINDS = ["product","course","leads","services","saas","event"] as const;
 export type LandingKind = (typeof LANDING_KINDS)[number];
 export type LandingSection = "benefits"|"details"|"process"|"proof"|"offer"|"faq"|"contact";
@@ -18,6 +19,7 @@ export type LandingProject = {
   salesPage?:boolean; ribbon?:string; ribbonAnimated?:boolean; ribbonSpeed?:number; before?:string[]; after?:string[];
   bonuses?:string[]; guaranteeDays?:number; guaranteeText?:string;
   testimonials?:Array<{quote:string;author:string;city?:string;state?:string;photo?:string;confirmed?:boolean}>;
+  templateVersion?:"universal-v1";
   createdAt:string; updatedAt:string; publishedSlug?:string;
 };
 export const LANDING_SECTIONS:ReadonlyArray<{id:LandingSection;label:string}> = [
@@ -96,6 +98,14 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
     guaranteeDays:kind==="course"?7:0,guaranteeText:"",
     testimonials:[],createdAt:now,updatedAt:now};
 }
+/** New sales pages use the exact supplied visual template. Saved historical pages stay unchanged. */
+export function newUniversalLanding(name:string,description:string,price:string):LandingProject{
+ const p=newLanding("course",name,description);
+ const value=price.trim().replace(/^R\$\s*/i,"").replace(/\s+/g,"");
+ const m=/^(\d{1,6})(?:[.,](\d{2}))?$/.exec(value);
+ const formatted=m?"R$ "+Number(m[1]).toLocaleString("pt-BR")+","+(m[2]||"00"):"R$ "+value.slice(0,30);
+ return {...p,templateVersion:"universal-v1",price:formatted,ctaLabel:"Ver detalhes da oferta"};
+}
 export function normalizeLanding(raw:unknown):LandingProject{
   if(!raw||typeof raw!=="object")throw Error("Dados da landing page inválidos.");
   const p=raw as Partial<LandingProject>;
@@ -122,6 +132,7 @@ export function normalizeLanding(raw:unknown):LandingProject{
       quote:tidy(v?.quote,700),author:tidy(v?.author,120),city:tidy(v?.city,80),
       state:tidy(v?.state,2).toUpperCase(),photo:safeImage(v?.photo),confirmed:v?.confirmed===true
     })).filter(v=>v.quote||v.author):[],
+    templateVersion:p.templateVersion==="universal-v1"?"universal-v1":undefined,
     createdAt:tidy(p.createdAt,40)||fallback.createdAt,updatedAt:new Date().toISOString(),
     publishedSlug:typeof p.publishedSlug==="string"&&/^lp-[a-f0-9]{32}$/.test(p.publishedSlug)?p.publishedSlug:undefined
   };
@@ -154,6 +165,7 @@ function sectionTop(eye:string,title:string,subtitle:string){
 }
 export function renderLandingHtml(input:LandingProject,preview=false):string{
  const p=normalizeLanding(input);
+ if(p.templateVersion==="universal-v1")return renderUniversalLanding(p,preview);
  if(p.kind==="course"&&p.salesPage)return renderInfoproductHtml(p,preview);
  const a=p.accent,cta=p.ctaUrl||"#contact",phone=p.whatsapp.replace(/\D/g,"");
  const contact=phone?"https://wa.me/"+phone:p.ctaUrl||"#contact";
