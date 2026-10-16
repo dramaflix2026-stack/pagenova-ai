@@ -50,5 +50,20 @@ must("modules/stavo-crm/src/server/modules/google/router.ts",[
 must("modules/stavo-crm/src/server/modules/site-ai/router.ts",[
  [/generationLimiter/,"AI generation rate limit required"],[/assertBudgetAvailable/,"AI cost budget required"]
 ]);
+must("frontend/src/app/api/builder/published-overlay/route.ts",[
+ [/authorizedForms/,"Public overlay writes require a paid subscriber"],
+ [/crmRead/,"Published overlay must verify ownership via CRM"],
+ [/publication\.status === "ACTIVE"/,"Only the current active publication may be overwritten"]
+]);
+must("modules/stavo-crm/src/server/modules/site-ai/router.ts",[
+ [/project\.workspaceId !== req\.session!\.workspaceId/,"CRM project tenant isolation required"],
+ [/siteAiRouter\.use\('\/site-jobs\/:jobId'/,"CRM job tenant isolation required"]
+]);
+must("frontend/src/lib/pagenova-project-store.ts",[
+ [/pendingProjectWrites/,"Local editor saves must be serialized"]
+]);
+must("frontend/src/lib/credits/server.ts",[
+ [/PAGENOVA_CREDITS_ENFORCE !== "0"/,"A missing env flag must not silently disable migrated credit quotas"]
+]);
 if(!webhook.includes('unsupported_product'))throw new Error("Test orders can create entitlement.");
 console.log("PageNova static regression gate PASS: Kiwify, entitlements, credits, builder, cloner, studio, PDF, publishing and Google.");
