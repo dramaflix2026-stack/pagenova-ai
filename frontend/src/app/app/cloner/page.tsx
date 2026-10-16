@@ -65,6 +65,7 @@ type CloneResponse = {
   code?: string;
 
   project?: CloneProject;
+  engine?: "hydrated-browser-v3" | "static-html-fallback-v3";
   warnings?: string[];
 
   stats?: {
@@ -216,8 +217,8 @@ export default function ClonerPage() {
               </h1>
 
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
-                Cole a URL de uma página pública. A PageNova preserva o HTML e os estilos disponíveis,
-                recupera imagens e prepara a página para edição, sem executar os scripts do site original.
+                Cole a URL de uma página pública. A PageNova abre a página em um navegador isolado para capturar o
+                conteúdo já renderizado e suas imagens. Os scripts originais não são incluídos no site publicado.
               </p>
             </div>
 
@@ -445,6 +446,9 @@ export default function ClonerPage() {
 
                     <p className="mx-auto mt-2 break-all text-center text-sm text-white/45">
                       {result.project.finalUrl}
+                    </p>
+                    <p className={"mt-3 rounded-full border px-3 py-2 text-xs font-bold "+(result.engine==="hydrated-browser-v3"?"border-emerald-400/25 bg-emerald-400/10 text-emerald-200":"border-amber-400/25 bg-amber-400/10 text-amber-200")}>
+                      {result.engine==="hydrated-browser-v3"?"✓ Captura visual com navegador · celular":"⚠ Captura estática · fidelidade limitada"}
                     </p>
                   </div>
 
