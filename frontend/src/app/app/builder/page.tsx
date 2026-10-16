@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { SiteGenerationCreditsNotice, useSiteGenerationCredits } from "@/components/site-generation-credits";
-import { readPageNovaProject, savePageNovaProject } from "@/lib/pagenova-project-store";
+import { readPageNovaProject, savePageNovaProject, waitForPageNovaProjectSaves } from "@/lib/pagenova-project-store";
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { inferSiteBrand } from "@/lib/infer-site-brand";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
@@ -1242,8 +1242,8 @@ export default function BuilderPage() {
     setPublishing(true);
     setError("");
     try {
-      // Do not publish while a previous edit is still waiting to persist.
-      await savePageNovaProject(project.id, project);
+      // Await pending edits without re-saving a possibly older React snapshot.
+      await waitForPageNovaProjectSaves(project.id);
       if (crmProjectId) {
         const response = await fetch(`/api/crm/site-projects/${crmProjectId}/publish`, {
           method: "POST",
