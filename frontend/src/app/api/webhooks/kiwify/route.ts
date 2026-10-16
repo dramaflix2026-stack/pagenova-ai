@@ -103,11 +103,21 @@ export async function POST(request: NextRequest) {
   // Existing monthly installations continue using the legacy global token
   // until their per-plan secret is configured in Vercel.
   const webhookToken = process.env.KIWIFY_WEBHOOK_TOKEN;
-
+  // Allow each plan to use its own Kiwify signing token after the global
+  // legacy token has been retired. A partially migrated installation must
+  // never require the global fallback to remain configured.
+  const configuredTokens = [
+    webhookToken,
+    process.env.KIWIFY_WEBHOOK_TOKEN_MONTHLY,
+    process.env.KIWIFY_WEBHOOK_TOKEN_PRESALE,
+    process.env.KIWIFY_WEBHOOK_TOKEN_QUARTERLY,
+    process.env.KIWIFY_WEBHOOK_TOKEN_SEMIANNUAL,
+    process.env.KIWIFY_WEBHOOK_TOKEN_ANNUAL,
+  ];
   if (
     !supabaseUrl ||
     !supabaseSecret ||
-    !webhookToken
+    !configuredTokens.some(token => Boolean(token?.trim()))
   ) {
     console.error(
       "[KIWIFY] Server configuration missing."
@@ -171,7 +181,9 @@ export async function POST(request: NextRequest) {
   } else if (/assinatura|147/.test(purchasedPlan)) {
     planSecret = process.env.KIWIFY_WEBHOOK_TOKEN_MONTHLY;
   }
-  const signingToken = planSecret?.trim() || webhookToken;
+  // When a plan has no dedicated token and the global fallback has been
+  // retired, reject the event rather than validating an empty-key HMAC.
+  const signingToken = planSecret?.trim() || webhookToken?.trim() || "";
   const signatureIsHex = /^[0-9a-f]{40}$/i.test(signature);
   const signedJson = JSON.stringify(payload);
   const expectedCanonical = createHmac("sha1", signingToken)
@@ -179,12 +191,12 @@ export async function POST(request: NextRequest) {
   const expectedRaw = createHmac("sha1", signingToken)
     .update(rawBody, "utf8").digest("hex");
   const validSignature =
-    (signatureIsHex && (
+    Boolean(signingToken) && ((signatureIsHex && (
       safeEquals(signature.toLowerCase(), expectedCanonical) ||
       safeEquals(signature.toLowerCase(), expectedRaw)
     )) ||
     // Legacy fixed-token URLs remain authenticated during migration.
-    safeEquals(signature, signingToken);
+    safeEquals(signature, signingToken));
 
   if (!validSignature) {
     console.warn("[KIWIFY] Authentication failed", {
