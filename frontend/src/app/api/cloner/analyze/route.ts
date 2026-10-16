@@ -246,6 +246,7 @@ export async function POST(request:NextRequest){
     let browserFallback=false;
     let desktopVariants:{id:string;src:string}[]=[];
     let desktopCaptured=false,mobileImageCount=0,desktopImageCount=0;
+    let mobileBrokenImages=0,desktopBrokenImages=0;
     if(process.env.PAGENOVA_CLONER_BROWSER_DISABLED==="1"){
       const raw=await getPublicHtml(input.url.trim());
       url=raw.url;html=raw.html;
@@ -258,6 +259,8 @@ export async function POST(request:NextRequest){
         desktopCaptured=snapshot.desktopCaptured;
         mobileImageCount=snapshot.mobileImageCount;
         desktopImageCount=snapshot.desktopImageCount;
+        mobileBrokenImages=snapshot.mobileBrokenImages;
+        desktopBrokenImages=snapshot.desktopBrokenImages;
       }catch(error){
         console.warn("[PageNova cloner] Chromium snapshot unavailable; using pinned HTML fallback",{
           code:error instanceof Error?error.message.slice(0,60):"UNKNOWN"
@@ -271,10 +274,14 @@ export async function POST(request:NextRequest){
     const visual=createFaithfulVisual(html,url.href,styles.content,signedClonerMedia,desktopVariants);
     const parsed=normalizeHtml(html,url,visual);
     const project={id:crypto.randomUUID(),sourceUrl:input.url.trim(),finalUrl:url.href,domain:url.hostname,
-      ...parsed,captureEngine:engine,fetchedAt:new Date().toISOString()};
+      ...parsed,captureEngine:engine,captureDesktop:desktopCaptured,
+      captureImageReport:{mobile:mobileImageCount,desktop:desktopImageCount,
+        mobileBroken:mobileBrokenImages,desktopBroken:desktopBrokenImages},
+      fetchedAt:new Date().toISOString()};
     const warnings:string[]=[];
     if(browserFallback)warnings.push("O navegador visual não ficou disponível nesta importação. Foi usado HTML estático, que pode omitir galerias, efeitos e seções carregadas por JavaScript.");
     else if(!desktopCaptured)warnings.push("Captura mobile realizada, mas a varredura de imagens em 1440 px não foi concluída. Confira imagens no desktop antes de publicar.");
+    else if(desktopBrokenImages>0)warnings.push("O site original exibiu "+desktopBrokenImages+" imagens sem carregar na captura desktop. Confira esses recursos antes de publicar.");
     else if(desktopImageCount>mobileImageCount+4)
       warnings.push("O desktop carregou "+(desktopImageCount-mobileImageCount)+" imagens adicionais. Confira elementos que o site original troca dinamicamente por largura.");
     if(styles.failed)warnings.push(styles.failed+" folhas de estilo não puderam ser preservadas; o visual pode precisar de ajustes.");
@@ -283,7 +290,8 @@ export async function POST(request:NextRequest){
       stats:{headings:parsed.headings.length,texts:parsed.texts.length,links:parsed.links.length,
         images:parsed.images.length,sections:parsed.sections.length,
         stylesheets:styles.content.length,recoveredImages:visual.recoveredImages,
-        desktopCaptured,mobileImageCount,desktopImageCount}},{headers:{"Cache-Control":"no-store"}});
+        desktopCaptured,mobileImageCount,desktopImageCount,
+        desktopBrokenImages,mobileBrokenImages}},{headers:{"Cache-Control":"no-store"}});
   }catch(error){
     if(error instanceof SyntaxError)return NextResponse.json({ok:false,error:"Dados inválidos."},{status:400});
     return errorsAsResponse(error);
