@@ -8,6 +8,8 @@ export function safeResourceUrl(value:string,base:string):string{
  const raw=value.trim();
  if(!raw||/^(?:javascript|vbscript|file|blob):/i.test(raw))return "";
  if(raw.startsWith("#"))return raw;
+ if(/^mailto:[^\s<>"']+@[^\s<>"']+\.[^\s<>"']+$/i.test(raw))return raw;
+ if(/^tel:\+?[0-9().\s-]{4,32}$/i.test(raw))return raw;
  if(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(raw)&&raw.length<=180000)return raw;
  if(raw.startsWith("data:"))return "";
  try{const u=new URL(raw,base);return u.protocol==="https:"||u.protocol==="http:"?u.href:""}catch{return "";}
