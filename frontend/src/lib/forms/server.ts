@@ -2,6 +2,7 @@ import { createClient as createAdminClient, type SupabaseClient } from "@supabas
 import { createClient as createSessionClient } from "@/lib/supabase/server";
 import { isFormId, normalizeForm, type PageNovaForm, type PublicForm, type FormSubmission } from "./schema";
 import { reservePublicSubmission } from "@/lib/public-submission-limit";
+import { getPageNovaAccess } from "@/lib/trial/server";
 
 const BUCKET = "pagenova-forms-private";
 let bucketReady = false;
@@ -20,10 +21,9 @@ export async function authorizedForms(): Promise<{admin: SupabaseClient; userId:
   const {data:{user}} = await session.auth.getUser();
   if (!user?.email) throw new FormServiceError("Faça login para criar formulários.", 401);
   const admin=adminClient();
-  const {data:entitlement,error} = await admin.from("entitlements").select("id")
-    .eq("product","pagenova-ai").eq("status","active").ilike("email",user.email.trim())
-    .limit(1).maybeSingle();
-  if (error || !entitlement) throw new FormServiceError("Acesso PageNova necessário.",403);
+  const access=await getPageNovaAccess(admin,user);
+  if(access.kind==="none")throw new FormServiceError(
+    access.reason==="expired"?"Seu teste de 5 dias terminou. Assine para continuar usando a PageNova.":"Acesso PageNova necessário.",403);
   return {admin,userId:user.id};
 }
 export function errorsAsResponse(error: unknown): Response {
