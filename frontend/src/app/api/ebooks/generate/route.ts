@@ -12,7 +12,11 @@ export async function POST(request:NextRequest){
   await authorizedForms();
   const raw=await request.text();
   if(raw.length>3500000)throw new FormServiceError("Anexos excedem o limite.",413);
-  const input=JSON.parse(raw) as Record<string,unknown>;
+  let input:Record<string,unknown>;
+  try{input=JSON.parse(raw) as Record<string,unknown>;}
+  catch{throw new FormServiceError("Briefing inválido. Envie o pedido novamente.",400);}
+  if(!input||typeof input!=="object"||Array.isArray(input))
+    throw new FormServiceError("Briefing inválido.",400);
   const prompt=typeof input.prompt==="string"?input.prompt.trim():"";
   const references=Array.isArray(input.references)?input.references:[];
   if(!prompt&&!references.length)throw new FormServiceError("Descreva um assunto para o eBook.");
