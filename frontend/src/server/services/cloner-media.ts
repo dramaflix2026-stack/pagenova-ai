@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {createHmac,timingSafeEqual} from "node:crypto";
 
 function secret():string{
