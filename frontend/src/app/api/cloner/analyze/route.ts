@@ -265,7 +265,7 @@ export async function POST(request:NextRequest){
     const visual=createFaithfulVisual(html,url.href,styles.content,signedClonerMedia);
     const parsed=normalizeHtml(html,url,visual);
     const project={id:crypto.randomUUID(),sourceUrl:input.url.trim(),finalUrl:url.href,domain:url.hostname,
-      ...parsed,fetchedAt:new Date().toISOString()};
+      ...parsed,captureEngine:engine,fetchedAt:new Date().toISOString()};
     const warnings:string[]=[];
     if(browserFallback)warnings.push("O navegador visual não ficou disponível nesta importação. Foi usado HTML estático, que pode omitir galerias, efeitos e seções carregadas por JavaScript.");
     if(styles.failed)warnings.push(styles.failed+" folhas de estilo não puderam ser preservadas; o visual pode precisar de ajustes.");
