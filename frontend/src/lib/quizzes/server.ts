@@ -1,5 +1,6 @@
 import type {SupabaseClient} from "@supabase/supabase-js";
 import {FormServiceError} from "@/lib/forms/server";
+import { reservePublicSubmission } from "@/lib/public-submission-limit";
 import {evaluateQuiz,normalizeQuiz,publicQuiz,validQuizId,
   type QuizProject,type PublicQuiz,type QuizEntry,type QuizOutcome} from "./schema";
 
@@ -124,6 +125,10 @@ export async function submitPublicQuiz(admin:SupabaseClient,id:string,raw:unknow
       throw new FormServiceError("Informe nome, e-mail e aceite o consentimento para receber o resultado.");
     lead={name,email,consent:true};
   }
+  // Bound valid anonymous submissions on every worker, without charging
+  // site-generation or Google Places credits.
+  const budget=await reservePublicSubmission(admin,"quiz",id);
+  if(!budget.ok)throw new FormServiceError(budget.message,budget.status);
   const entry:QuizEntry={id:crypto.randomUUID(),quizId:id,submittedAt:new Date().toISOString(),
     outcomeId:outcome.id,answers:quiz.questions.map(q=>({questionId:q.id,optionId:map[q.id] as string})),
     ...(lead?{lead}:{})};
