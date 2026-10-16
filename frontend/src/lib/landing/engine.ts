@@ -4,7 +4,7 @@
  * Content comes from customer fields; never fabricate reviews, results or scarcity.
  */
 import {renderUniversalLanding} from "./universal-renderer";
-import {normalizeInlineEdits,type LandingInlineEdits} from "./inline-editor";
+import {normalizeInlineEdits,normalizeInsertedImages,type LandingInlineEdits,type LandingInsertedImage} from "./inline-editor";
 export const LANDING_KINDS = ["product","course","leads","services","saas","event"] as const;
 export type LandingKind = (typeof LANDING_KINDS)[number];
 export type LandingSection = "benefits"|"details"|"process"|"proof"|"offer"|"faq"|"contact";
@@ -22,6 +22,7 @@ export type LandingProject = {
   testimonials?:Array<{quote:string;author:string;city?:string;state?:string;photo?:string;confirmed?:boolean}>;
   templateVersion?:"universal-v1";
   inlineEdits?:LandingInlineEdits;
+  insertedImages?:LandingInsertedImage[];
   createdAt:string; updatedAt:string; publishedSlug?:string;
 };
 export const LANDING_SECTIONS:ReadonlyArray<{id:LandingSection;label:string}> = [
@@ -136,6 +137,7 @@ export function normalizeLanding(raw:unknown):LandingProject{
     })).filter(v=>v.quote||v.author):[],
     templateVersion:p.templateVersion==="universal-v1"?"universal-v1":undefined,
     inlineEdits:normalizeInlineEdits(p.inlineEdits),
+    insertedImages:normalizeInsertedImages(p.insertedImages),
     createdAt:tidy(p.createdAt,40)||fallback.createdAt,updatedAt:new Date().toISOString(),
     publishedSlug:typeof p.publishedSlug==="string"&&/^lp-[a-f0-9]{32}$/.test(p.publishedSlug)?p.publishedSlug:undefined
   };
