@@ -91,7 +91,7 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
   return {
     brand:{
       name:brandWordmark,tagline:clean([niche.toUpperCase(),region.toUpperCase()].filter(Boolean).join(' · '),niche.toUpperCase()),
-      ...(logo?{logoUrl:logo}:{})
+      ...(logo?{logoUrl:logo}:{textOnly:Boolean(model.navigation.wordmark?.trim())})
     },
     palette:{
       primary:model.theme.colors.primary,accent:model.theme.colors.accent,
