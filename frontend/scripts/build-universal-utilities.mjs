@@ -68,7 +68,7 @@ for(const selector of [".size-4", ".size-5", ".px-5", ".max-w-6xl", ".rounded-3x
 const output=path.join(root,"public/landing-universal/complete-utilities.css");
 fs.mkdirSync(path.dirname(output),{recursive:true});
 fs.writeFileSync(output,compiled+"\n@media(max-width:640px){svg{flex-shrink:0}}\n","utf8");
-const moduleFile=path.join(root,"src/lib/landing/universal-generated.css.ts");
+const moduleFile=path.join(root,"src/lib/landing/universal-generated-css.ts");
 // The iframe is sandboxed (opaque origin) and a Blob full-screen preview has
 // no normal / root. Embedding generated utility CSS makes both previews,
 // downloadable HTML and public pages pixel-consistent without remote CSS.
