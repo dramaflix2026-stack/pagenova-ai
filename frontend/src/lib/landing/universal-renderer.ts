@@ -19,11 +19,9 @@ const safeCheckout=(v:string)=>{
 function swapText(value:string,from:string,to:string){return value.replaceAll(from,esc(to));}
 function replaceSection(html:string,index:number,transform:(section:string)=>string){
  const rx=/<section\b[^>]*>[\s\S]*?<\/section>/g;
- let i=0;
- return html.replace(rx,section=>{
-   const thisIndex=i++;
-   return thisIndex===index?transform(section):section;
- });
+ return html.replace(rx,section=>
+   section.startsWith('<section data-pn-template-index="'+index+'"')?transform(section):section
+ );
 }
 export function renderUniversalLanding(input:LandingProject,preview=false){
  const p=input,checkout=safeCheckout(p.ctaUrl),hasCheckout=!!checkout;
@@ -32,7 +30,8 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  const subject=p.name||"Produto digital";
  const before=(p.before||[]).filter(Boolean);
  const after=(p.after||[]).filter(Boolean);
- let html=UNIVERSAL_TEMPLATE_HTML;
+ let index=0;
+ let html=UNIVERSAL_TEMPLATE_HTML.replace(/<section\b/g,()=>'<section data-pn-template-index="'+index+++'"');
  // First-class template text replacement (not a visually similar redraw).
  html=swapText(html,"Sua headline principal com a",p.headline||"Conheça "+subject);
  html=swapText(html,"grande promessa","oferta");
@@ -148,6 +147,7 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  html=html.replaceAll("Termos de Uso","Condições da oferta").replaceAll("Política de Privacidade","Privacidade");
  html=html.replaceAll('href="#"','href="#oferta"');
  html=html.replaceAll("Garantia incondicional","Garantia conforme condições aplicáveis");
+ html=html.replace(/ data-pn-template-index="\d+"/g,"");
  // If the merchant has not provided a checkout, keep CTA as an offer anchor.
  // Don't imply that any purchase has happened.
  const fonts='<link rel="preconnect" href="https://fonts.googleapis.com">'+
