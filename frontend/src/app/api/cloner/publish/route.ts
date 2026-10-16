@@ -2,6 +2,7 @@ import {NextRequest,NextResponse} from "next/server";
 import {createHash} from "node:crypto";
 import * as cheerio from "cheerio";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
+import {verifyClonerMedia} from "@/server/services/cloner-media";
 
 export const runtime="nodejs";
 export const maxDuration=40;
@@ -19,7 +20,17 @@ function cleanHtml(raw:string):string{
     }
     if(element.type==="tag"&&element.tagName==="img"){
       const url=$(element).attr("src")||"";
-      if(!/^https:\/\//i.test(url)&&!/^data:image\/(?:png|jpeg|webp);base64,/i.test(url))$(element).remove();
+      const isRemote=/^https:\/\//i.test(url);
+      const isInline=/^data:image\/(?:png|jpeg|webp);base64,/i.test(url)&&url.length<=180000;
+      let isSignedLocal=false;
+      if(url.startsWith("/api/cloner/media?")){
+        try{
+          const parsed=new URL(url,"https://pagenova.local");
+          isSignedLocal=parsed.pathname==="/api/cloner/media"&&verifyClonerMedia(
+            parsed.searchParams.get("u")||"",parsed.searchParams.get("sig")||"");
+        }catch{isSignedLocal=false;}
+      }
+      if(!isRemote&&!isInline&&!isSignedLocal)$(element).remove();
     }
   });
   $('meta[charset]').remove();
