@@ -113,3 +113,27 @@ O produto pago mais forte atualmente é a assinatura PageNova AI (R$147/mês). P
 
 ### Gatilho para homologação comercial
 **NÃO DECLARAR A PLATAFORMA 100% HOMOLOGADA** até concluir: compra de cada plano + login + créditos; geração/edição/publicação de site e clonagem real; PDF de receitas inteiro sem recorte; formulário/quiz com resposta recuperada; CRM com Places e importação real; ZIP instalado e compilado; custos observados e acesso multi-tenant validado.
+
+
+---
+
+## Rodada de implementação — Blocos 1 e 2 (15/10/2026)
+
+### Bloco 1: Kiwify, login, assinatura e créditos
+- Supabase PageNova verificado sem expor endereços de clientes: **3 entitlements ativos**, **3 ciclos ativos**, **0 ativos sem ciclo**, **3 ciclos com limites contratuais 40/150**, **0 operações de consumo registradas**.
+- O esquema de créditos e RPCs existem, mas **os contadores zerados não demonstram conciliação do consumo histórico**. `docs/pagenova-credit-rollout.md` exige reconciliação antes do flag. A configuração comercial mantém acionamento **explicitamente** por `PAGENOVA_CREDITS_ENFORCE=1`. Não ativar por omissão.
+- O webhook Kiwify usa a mesma decisão `creditGateEnabled()` do medidor do CRM, evitando ativação de assinatura sem ciclo quando o controle está efetivamente habilitado.
+- A leitura da configuração da Vercel permanece impedida por HTTP 403 do escopo atual. Não afirmar que o flag está ligado/desligado no ambiente sem confirmar no painel autorizado.
+- No cadastro há orientação em destaque para quem já foi convidado após a compra pela Kiwify: abrir o convite original ou usar `/forgot-password`, em vez de duplicar a conta. Supabase autentica por PKCE / confirmação; nenhuma compra ou redefinição real foi executada.
+- Pré-requisito à ativação: inventariar gerações já feitas e páginas Google já consumidas por workspace/cliente; backfill idempotente; testar na staging as 40ª/41ª, 150ª/151ª, concorrência, estorno, cancelamento, chargeback, reentrega de webhook, renovação e contas distintas.
+- Limites diários de segurança para APIs externas continuam ativos e **não** substituem as cotas comerciais.
+
+### Bloco 2: Editor Universal e publicação
+- Corrigido controle de acesso multi-tenant no CRM: toda rota com `/site-projects/:id` valida `workspaceId`; as rotas `/site-jobs/:jobId`, inclusive eventos, SSE e cancelamento, verificam o workspace dono do projeto do job.
+- O endpoint de `published-overlay` passou a exigir assinatura ativa e a confirmar via CRM autenticado que o projeto pertence ao workspace e que o slug corresponde à sua publicação `ACTIVE`. Não aceitar slug arbitrário somente por URL fornecida pelo navegador.
+- Salvos no IndexedDB foram serializados por ID do projeto, prevenindo sobrescrita por uma operação anterior concluída depois do último ajuste de texto, imagem ou posição. Leitura e exclusão aguardam escritas pendentes.
+- O editor no iframe prioriza seleção de textos comuns antes do detector heurístico de upload de foto, corrigindo cliques de texto que indevidamente abriam o seletor de imagem.
+- Visualizar em nova aba usa link com `rel=noopener noreferrer`, evitando interpretar como pop-up bloqueado o `null` legítimo que alguns navegadores retornam ao abrir nova aba com `noopener`.
+- A publicação salva o último snapshot antes de enviar e guarda a URL já emitida pelo CRM, mesmo que a sincronização do overlay falhe, informando o erro parcial em vez de ocultar a URL.
+- O build Vercel passa pelo gate `validate-platform.mjs` com regressões estáticas para crédito, publicação com proprietário, e isolamento de workspace, além dos motores de eBooks, formulários, quizzes e protótipos.
+- **Pendente:** testes interativos com dois usuários diferentes, permissões, upload sequencial de imagens, arrastar/redimensionar na página real, edição com chat, preview desktop e mobile e publicação com conferência visual no domínio final. Os deploys/checagens automáticas, por si, não provam esses fluxos.
