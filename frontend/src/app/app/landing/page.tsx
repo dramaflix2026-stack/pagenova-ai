@@ -377,10 +377,36 @@ export default function LandingStudioPage(){
         {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={listDrafts.benefits??editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
         {section==="process"&&<Field label="Etapas — uma por linha" value={listDrafts.steps??editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
-        {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}
-         {editorProject.salesPage&&<Field label="Outros depoimentos — Autor | Texto (um por linha)" value={listDrafts.testimonials??(editorProject.testimonials||[]).map(t=>t.author+" | "+t.quote).join("\n")}
-          onChange={updateTestimonials} rows={6} hint="Use apenas depoimentos reais e autorizados."/>}
-         <p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção não é publicada.</p></div>}
+        {section==="proof"&&editorProject.salesPage&&<div className="space-y-4">
+         <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/[.06] p-4">
+          <p className="text-xs font-extrabold text-emerald-200">Nicho identificado: {analyzeLandingBrief(editorProject.name,editorProject.brief).niche}</p>
+          <p className="mt-2 text-xs leading-5 text-white/65">Temas sugeridos para pedir depoimentos reais. Não geramos clientes ou avaliações fictícias.</p>
+          <div className="mt-3 space-y-2">{analyzeLandingBrief(editorProject.name,editorProject.brief).testimonialAngles.map((tip,i)=>
+           <p key={i} className="text-xs leading-5 text-white/75"><span className="mr-2 text-emerald-300">{i+1}.</span>{tip}</p>)}</div>
+         </div>
+         {(editorProject.testimonials||[]).map((t,i)=><div key={i} className="space-y-3 rounded-2xl border border-white/15 bg-[#101d24] p-4">
+          <div className="flex items-center justify-between gap-2"><strong className="text-sm">Cliente {i+1}</strong>
+           <button onClick={()=>patch({testimonials:editorProject.testimonials!.filter((_,j)=>j!==i)})} className="inline-flex items-center gap-1 text-xs text-rose-300"><Trash2 className="h-3.5 w-3.5"/> Remover</button></div>
+          <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-emerald-300/25 px-3 py-3">
+           {t.photo?<img src={t.photo} alt="Prévia da foto enviada" className="h-14 w-14 rounded-full object-cover"/>:<span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#173c36] text-emerald-300"><ImagePlus className="h-6 w-6"/></span>}
+           <span className="text-xs font-semibold text-white/75">{t.photo?"Trocar foto autorizada":"Enviar foto da pessoa"} <small className="mt-1 block text-white/45">JPG, PNG ou WebP até 2 MB; ajuste automático</small></span>
+           <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={e=>void uploadTestimonialPhoto(i,e)}/>
+          </label>
+          <Field label="Nome e sobrenome" value={t.author} onChange={v=>changeTestimonial(i,"author",v)} placeholder="Nome completo verdadeiro"/>
+          <div className="grid grid-cols-[minmax(0,1fr)_96px] gap-2">
+           <Field label="Cidade" value={t.city||""} onChange={v=>changeTestimonial(i,"city",v)} placeholder="Cidade"/>
+           <Field label="UF" value={t.state||""} onChange={v=>changeTestimonial(i,"state",v.toUpperCase().slice(0,2))} placeholder="SP"/>
+          </div>
+          <Field label="Relato verdadeiro sobre o produto" value={t.quote} onChange={v=>changeTestimonial(i,"quote",v)} rows={4} placeholder="O que a pessoa realmente relatou sobre o produto?"/>
+          <label className="flex items-start gap-2 text-xs leading-5 text-white/70">
+           <input className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-300" type="checkbox" checked={!!t.confirmed} onChange={e=>changeTestimonial(i,"confirmed",e.target.checked)}/>
+           Confirmo que este depoimento é verdadeiro e tenho autorização para publicar nome, foto, cidade, estado e relato.
+          </label>
+          <p className="text-[11px] text-white/40">Só aparecerá na página pública com todos os dados e a autorização confirmada.</p>
+         </div>)}
+         <button onClick={addTestimonial} disabled={(editorProject.testimonials||[]).length>=8} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/30 px-4 py-3 text-xs font-bold text-emerald-200 disabled:opacity-40"><Plus className="h-4 w-4"/> Adicionar depoimento real</button>
+        </div>}
+        {section==="proof"&&!editorProject.salesPage&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}</div>}
         {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
         {section==="faq"&&<div className="space-y-4">
          {editorProject.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
@@ -394,6 +420,7 @@ export default function LandingStudioPage(){
        </>}
        {tab==="structure"&&editorProject.salesPage&&<>
         <p className="text-xs leading-6 text-white/65">Para infoprodutos, a ordem de conversão é fixa. Edite o conteúdo de cada seção na aba Conteúdo.</p>
+      <p className="text-xs leading-5 text-emerald-200">Tarja animada ou estática: aba Conteúdo → Primeira dobra. Depoimentos com foto: aba Conteúdo → Depoimento.</p>
         {["Tarja superior fixa","Headline, subheadline e mockup","Benefícios","Antes e depois","Apresentação do produto","Bônus inclusos","Oferta principal + CTA","Depoimentos reais","Garantia de 7 dias","Perguntas frequentes","Rodapé e contato"].map((title,i)=>
          <div className="rounded-xl border border-emerald-300/20 bg-[#102122] p-3 text-xs" key={title}><span className="mr-3 text-emerald-300">{String(i+1).padStart(2,"0")}</span>{title}</div>)}
         <p className="text-xs leading-6 text-white/45">Bônus e depoimentos vazios não aparecem ao publicar. A garantia pode ser desligada.</p>
