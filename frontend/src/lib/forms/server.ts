@@ -27,7 +27,11 @@ export async function authorizedForms(): Promise<{admin: SupabaseClient; userId:
 }
 export function errorsAsResponse(error: unknown): Response {
   const status=error instanceof FormServiceError ? error.status : 500;
-  return Response.json({error:error instanceof Error?error.message:"Erro inesperado."},{status});
+  // Unexpected exceptions often carry DB/provider details. Never reflect
+  // their raw messages to anonymous callers or logged-in customers.
+  if(status===500)console.error("[PageNova] Unexpected API error",{kind:error instanceof Error?error.name:"unknown"});
+  const message=error instanceof FormServiceError?error.message:"Não foi possível concluir a operação. Tente novamente.";
+  return Response.json({error:message},{status,headers:{"Cache-Control":"no-store"}});
 }
 async function ensureBucket(admin:SupabaseClient):Promise<void> {
   if (bucketReady) return;
@@ -76,7 +80,9 @@ export async function getOwnedForm(admin:SupabaseClient,userId:string,id:string)
   return form;
 }
 export async function saveOwnedForm(admin:SupabaseClient,userId:string,input:unknown,id?:string):Promise<PageNovaForm> {
-  const parsed=normalizeForm(input);
+  let parsed:ReturnType<typeof normalizeForm>;
+  try{parsed=normalizeForm(input);}
+  catch(error){throw new FormServiceError(error instanceof Error?error.message:"Formulário inválido.",422);}
   let existing:PageNovaForm|null=null;
   if(id)existing=await getOwnedForm(admin,userId,id);
   const form:PageNovaForm={...parsed,id:existing?.id||crypto.randomUUID(),
