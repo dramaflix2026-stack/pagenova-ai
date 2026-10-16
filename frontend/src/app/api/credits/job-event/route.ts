@@ -24,7 +24,7 @@ export async function POST(request:NextRequest){
   const jobId=typeof payload.jobId==="string"?payload.jobId:"";
   const status=payload.status;
   const timestamp=Number(payload.timestamp);
-  if(!/^[a-zA-Z0-9_-]{8,100}$/.test(jobId)||!["SUCCEEDED","FAILED","CANCELED"].includes(status||"")
+  if(!/^[a-zA-Z0-9_-]{8,100}$/.test(jobId)||!["SUCCEEDED","FAILED","CANCELED","CANCELLED"].includes(status||"")
     ||!Number.isSafeInteger(timestamp)||Math.abs(Date.now()-timestamp)>300_000){
     return NextResponse.json({error:"invalid_event"},{status:400});
   }
