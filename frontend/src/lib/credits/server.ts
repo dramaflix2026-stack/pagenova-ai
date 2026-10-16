@@ -8,9 +8,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *   150 Google Places text-search pages
  * Editing, published previews, history, PDF and page revision are NOT debited.
  *
- * Set PAGENOVA_CREDITS_ENFORCE=1 ONLY after the corresponding SQL migration
- * has been applied and existing subscribers' usage backfilled.
- * A missing/broken RPC MUST fail closed when enabled.
+ * Credit schema has been migrated and active subscriber cycles reconciled.
+ * Enforce by default so a missing deployment flag can never grant unlimited
+ * paid generations. PAGENOVA_CREDITS_ENFORCE=0 is an explicit emergency
+ * suspension only; failed RPCs always fail closed while enforcement is on.
  */
 export const PAGENOVA_SITE_CREDITS=40;
 export const PAGENOVA_GOOGLE_CREDITS=150;
@@ -32,7 +33,7 @@ export class CreditGateError extends Error {
   }
 }
 export function creditGateEnabled():boolean {
-  return process.env.PAGENOVA_CREDITS_ENFORCE==="1";
+  return process.env.PAGENOVA_CREDITS_ENFORCE !== "0";
 }
 function must<T>(data:T|null,error:{code?:string;message:string}|null,operation:string):T {
   if(error||data==null) {
