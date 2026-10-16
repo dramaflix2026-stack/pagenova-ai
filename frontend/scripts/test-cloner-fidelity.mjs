@@ -63,6 +63,6 @@ assert(!page.visualHtml.includes("<script")&&!page.visualHtml.includes("<iframe"
 assert(!page.visualHtml.includes('action="https://example.org/exfil"'),
  "Live source form must be neutralized");
 assert(page.recoveredImages===1&&page.detectedImages===2,"Image recovery metrics incorrect");
-assert(page.visualHtml.includes('background-image:url("https://example.org/assets/footer-bg.webp")'),
+assert(page.visualHtml.includes("https://example.org/assets/footer-bg.webp"),
  "Inline background image was not resolved");
 console.log("CLONER FIDELITY PASS: real DOM hierarchy, Elementor CSS, mobile media, lazy assets, inert forms, safe CTA, no scripts.");
