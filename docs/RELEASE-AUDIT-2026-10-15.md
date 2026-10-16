@@ -204,3 +204,16 @@ O produto pago mais forte atualmente é a assinatura PageNova AI (R$147/mês). P
 8. Supabase Auth: proteção contra senhas vazadas continua exigindo configuração autorizada no painel.
 
 **Status:** robustez e testes de integração local ampliados. Homologação comercial ponta a ponta ainda **pendente**, sem alterações em dados pessoais de clientes, sem venda de teste, sem consumo de chamadas pagas e sem alterações na esteira comercial do item 9.
+
+---
+
+## Landing Pages — V3, feedback de homologação mobile (16/10/2026)
+
+- **Feedback visual registrado:** primeira versão turquesa apresentava alinhamento lateral inconsistente na prévia mobile, cards pesados, tarja estática e falta de fotos/localização nos depoimentos.
+- **Composição:** `renderInfoproductHtml` agora centraliza hero, título, subtítulo, mockup, botões, grids, comparação, oferta, garantia e contato com ajustes por breakpoint em 900px/570px e alinhamento específico para os cards de relatos.
+- **Tarja superior:** `ribbonAnimated` e `ribbonSpeed` (12, 24 ou 42 segundos, intervalos gerais limitados de 10 a 45) são normalizados, editados e persistidos. Marquee duplicado para rolagem horizontal contínua, pausa no hover e respeito a `prefers-reduced-motion` com fallback estático.
+- **Depoimentos reais:** projeto armazena `author`, `city`, `state`, `photo`, `quote`, `confirmed`. Editor otimiza upload para JPEG 192x192, apresenta formulário por depoimento e exige confirmação de autorização. A publicação só apresenta depoimentos com **nome e sobrenome, localidade, foto, texto e consentimento confirmados**. Nenhuma pessoa, imagem ou relato é criado automaticamente; textos antigos incompletos não aparecem no site público.
+- **Motor local de nicho:** classificação ponderada por termos em conteúdo real para serralheria, marcenaria, arquitetura/design, marketing digital, beleza/estética, gastronomia, educação, saúde/bem-estar e finanças; copy e temas sugeridos para **coleta de experiências reais** são ajustados sem alegar resultados financeiros, médicos ou comerciais não comprovados. Não usa API paga.
+- **Regressão automatizada:** `frontend/scripts/test-landing-runtime.mjs` valida preço/quantidade serralheria, outros nichos, centralização, configuração de animação, redução de movimento, cards com perfil real, proibição de relatos sem autorização, HTML/XSS, compatibilidade com páginas antigas. Executado dentro do build Vercel.
+- **Deploy:** `d605b326` com **SUCCESS na Vercel e na Railway**, verificado via status do commit e deploy Railway.
+- **Teste manual restante:** criar uma nova landing de infoproduto, experimentar tarja ligada/desligada e as três velocidades; validar a composição em mobile e desktop; incluir foto + nome + cidade/UF + relato e confirmar autorização; salvar, dar F5, publicar e verificar URL real. Conferir que depoimentos incompletos não são publicados. Estes passos exigem cliente autenticado e não foram simulados como sucesso real.
