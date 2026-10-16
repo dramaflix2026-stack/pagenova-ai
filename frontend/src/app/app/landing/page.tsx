@@ -31,7 +31,7 @@ function Field({label,value,onChange,placeholder="",rows=0,hint}:{
 }
 const kindsArtwork:Record<LandingKind,string>={
  product:"from-[#ecd8bd] via-[#b98a70] to-[#42302b]",
- course:"from-[#171c2a] via-[#ae5832] to-[#edb24d]",
+ course:"from-[#07191d] via-[#0b7970] to-[#00d6a1]",
  leads:"from-[#b6ddff] via-[#629dea] to-[#153d9e]",
  services:"from-[#182a24] via-[#597364] to-[#a0a387]",
  saas:"from-[#222441] via-[#473a8d] to-[#a092ef]",
@@ -220,12 +220,40 @@ export default function LandingStudioPage(){
   setListDrafts(current=>({...current,[key]:value}));
   patch({[key]:value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,key==="bonuses"?8:key==="before"||key==="after"?5:6)} as Partial<LandingProject>);
  }
- function updateTestimonials(value:string){
-  setListDrafts(current=>({...current,testimonials:value}));
-  patch({testimonials:value.split("\n").map(line=>{
-    const i=line.indexOf("|");
-    return i<0?{author:"",quote:""}:{author:line.slice(0,i).trim(),quote:line.slice(i+1).trim()};
-  }).filter(item=>item.author&&item.quote).slice(0,8)});
+ function changeTestimonial(index:number,key:"author"|"city"|"state"|"quote"|"photo"|"confirmed",value:string|boolean){
+  if(!project)return;
+  patch({testimonials:(project.testimonials||[]).map((t,i)=>i===index?{...t,[key]:value,confirmed:key==="confirmed"?value:false}:t)});
+ }
+ async function uploadTestimonialPhoto(index:number,event:ChangeEvent<HTMLInputElement>){
+  const file=event.target.files?.[0];event.target.value="";if(!file)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>2_000_000){
+   setError("A foto deve ser JPG, PNG ou WebP com até 2 MB.");return;
+  }
+  try{
+   // Optimize real portraits to protect the existing published-site payload cap.
+   const photo=await new Promise<string>((resolve,reject)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{
+     try{
+      const canvas=document.createElement("canvas");canvas.width=192;canvas.height=192;
+      const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas indisponível");
+      const side=Math.min(img.naturalWidth,img.naturalHeight);
+      ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,192,192);
+      const data=canvas.toDataURL("image/jpeg",.82);
+      if(data.length>160_000)throw Error("Foto muito grande após conversão");
+      resolve(data);
+     }catch(error){reject(error);}finally{URL.revokeObjectURL(url);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(Error("Não foi possível ler a foto."));};
+    img.src=url;
+   });
+   changeTestimonial(index,"photo",photo);
+   setStatus("Foto pronta para o card. Confirme a autorização do cliente antes de publicar.");
+  }catch(e){setError(errorText(e));}
+ }
+ function addTestimonial(){
+  if(!project||(project.testimonials||[]).length>=8)return;
+  patch({testimonials:[...(project.testimonials||[]),{author:"",city:"",state:"",photo:"",quote:"",confirmed:false}]});
  }
  function upgradeCourse(){
   if(!project||project.kind!=="course"||project.salesPage)return;
@@ -322,7 +350,16 @@ export default function LandingStudioPage(){
         </select></label>
         {section==="hero"&&<div className="space-y-5">
          {editorProject.salesPage&&<div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.05] p-3 text-xs leading-5 text-emerald-100">Funil de vendas: tarja fixa, headline, mockup, benefícios, comparação, bônus, oferta, depoimentos, garantia e FAQ.</div>}
-         {editorProject.salesPage&&field("ribbon","Tarja fixa superior")}
+         {editorProject.salesPage&&<div className="space-y-3 rounded-xl border border-emerald-300/20 bg-[#102623] p-4">
+          {field("ribbon","Texto da tarja superior")}
+          <label className="flex items-center gap-3 text-xs font-semibold"><input type="checkbox" checked={!!editorProject.ribbonAnimated} onChange={e=>patch({ribbonAnimated:e.target.checked})} className="h-4 w-4 accent-emerald-300"/> Tarja em movimento contínuo</label>
+          {editorProject.ribbonAnimated&&<label className="block space-y-2 text-xs font-semibold">Velocidade do movimento
+           <select className={inputClass} value={editorProject.ribbonSpeed||24} onChange={e=>patch({ribbonSpeed:Number(e.target.value)})}>
+            <option value={42}>Devagar — 42 segundos</option><option value={24}>Normal — 24 segundos</option><option value={12}>Rápido — 12 segundos</option>
+           </select>
+          </label>}
+          <p className="text-[11px] leading-5 text-white/50">Tarja fixa no topo. O sistema respeita a preferência de reduzir animações.</p>
+         </div>}
          {field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}
         </div>}
         {section==="comparison"&&editorProject.salesPage&&<div className="space-y-5">
