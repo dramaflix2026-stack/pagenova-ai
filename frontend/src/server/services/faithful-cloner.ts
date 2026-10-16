@@ -70,7 +70,20 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
  $("style").each((_i,node)=>{$(node).html(proxyCss(absolutizeCss($(node).html()||"",base)));});
  // WordPress/Elementor lazy blocks are often initially invisible until the
  // original JS runs. Static snapshot must not keep those JS-only hidden states.
- $("[data-aos],[data-sr-id]").each((_i,node)=>{$(node).removeAttr("data-aos").removeAttr("data-sr-id");});
+ // Force reveal animations into their final static state. Imported pages
+ // deliberately cannot run source JS, which normally adds the reveal class;
+ // otherwise large Elementor sections render as apparently empty whitespace.
+ $("[data-aos],[data-sr-id],.elementor-invisible,.wow,.aos-init,.elementor-widget[data-settings*='animation'],[data-animate]").each((_i,node)=>{
+  const element=$(node);
+  element.removeAttr("data-aos").removeAttr("data-sr-id").removeAttr("data-animate");
+  element.removeClass("elementor-invisible wow aos-init");
+  const style=element.attr("style")||"";
+  if(style){
+    element.attr("style",style
+      .replace(/(?:^|;)\s*(?:opacity\s*:\s*0(?:\.0+)?|visibility\s*:\s*hidden|transform\s*:\s*(?:translate3d?\([^;]+|matrix(?:3d)?\([^;]+))\s*(?:!important)?\s*(?=;|$)/gi,"")
+      .replace(/^;+|;+$/g,""));
+  }
+ });
  $("*").each((_i,node)=>{
   if(!("attribs" in node))return;
   const el=$(node);
@@ -157,9 +170,20 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
  if(css)$("head").append('<style data-pagenova-cloned-css="true">'+css.replace(/<\/style/gi,"<\\/style")+"</style>");
  $("head").append('<style data-pagenova-clone-safety="true">'+
   'html{scroll-behavior:auto!important}body{min-height:100vh}'+
-  '.elementor-invisible,[data-aos]{opacity:1!important;visibility:visible!important;transform:none!important}'+
+  '.elementor-invisible,.wow,.aos-init,[data-aos],[data-sr-id]{opacity:1!important;visibility:visible!important;transform:none!important;animation:none!important}'+
+  '.elementor-widget.elementor-invisible,.elementor-element.elementor-invisible{display:revert-layer!important;opacity:1!important;visibility:visible!important}'+
   '.pn-cloned-form input,.pn-cloned-form button,.pn-cloned-form textarea,.pn-cloned-form select{pointer-events:none!important}'+
   '.pn-cloned-form{pointer-events:none!important}'+
+  // WordPress/Elementor sections with forced fullscreen height become giant
+  // blank gaps on mobile after scripts/embeds are safely removed. Preserve
+  // desktop structure and responsive breakpoints while bounding only mobile.
+  '@media (max-width:767px){html,body{max-width:100%;overflow-x:clip!important}'+
+  'img,video,picture,svg{max-width:100%!important}'+
+  '.elementor-section,.elementor-section-height-min-height,.e-con,.e-con-inner{min-height:0!important}'+
+  '.elementor-section,.e-con{height:auto!important}'+
+  '.elementor-column,.elementor-widget-wrap,.e-con-inner{min-width:0!important}'+
+  '.elementor-container,.e-con-inner{max-width:100%!important}'+
+  '}'+
   '</style>');
  if(!$("head meta[name=viewport]").length)$("head").prepend('<meta name="viewport" content="width=device-width,initial-scale=1">');
  const headHtml=$("head").html()||"",bodyHtml=$("body").html()||"";
