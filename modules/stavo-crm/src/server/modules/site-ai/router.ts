@@ -95,6 +95,28 @@ const requireModuleEnabled = asyncHandler(async (_req, _res, next) => {
 const guards = [requireAuth, requireCapability('SITE_AI_MANAGE'), requireModuleEnabled] as const;
 
 /**
+ * Tenant boundary for *all* project and job operations, including view,
+ * version history, edits, publishing, assets, cancellation and SSE.
+ * Authentication/capability alone does not authorize accessing another
+ * workspace's resource by a known ID.
+ */
+siteAiRouter.use('/site-projects/:id', requireAuth, asyncHandler(async (req, _res, next) => {
+  const project = await repo.findProject(req.params.id!);
+  if (!project || project.workspaceId !== req.session!.workspaceId)
+    throw notFound('Projeto de site nao encontrado.', 'SITE_PROJECT_NOT_FOUND');
+  next();
+}));
+
+siteAiRouter.use('/site-jobs/:jobId', requireAuth, asyncHandler(async (req, _res, next) => {
+  const job = await repo.findJob(req.params.jobId!);
+  if (!job) throw notFound('Geracao nao encontrada.', 'SITE_JOB_NOT_FOUND');
+  const project = await repo.findProject(job.projectId);
+  if (!project || project.workspaceId !== req.session!.workspaceId)
+    throw notFound('Geracao nao encontrada.', 'SITE_JOB_NOT_FOUND');
+  next();
+}));
+
+/**
  * Limite das operacoes que custam dinheiro.
  *
  * Separado do limite geral da API de proposito: listar projetos e barato,
