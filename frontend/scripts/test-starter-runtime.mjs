@@ -31,4 +31,17 @@ for(const kind of ["apps","systems"]){
   const first=new DataView(await zip.arrayBuffer()).getUint32(0,true);
   assert(first===0x04034b50,"ZIP file header missing for "+kind);
 }
-console.log("Local starters PASS: Expo and Next TSX parsed, tricky titles escaped, ZIP headers validated.");
+// A downloaded ZIP must never write outside its chosen extraction folder.
+const hostile=[
+  [{path:"../outside.txt",content:"bad"}],
+  [{path:"C:\\\\outside.txt",content:"bad"}],
+  [{path:"dir/../../evil",content:"bad"}],
+  [{path:"dir//invalid",content:"bad"}],
+  [{path:"same.txt",content:"one"},{path:"same.txt",content:"two"}],
+];
+for(const files of hostile){
+  let rejected=false;
+  try{sourceZip(files);}catch{rejected=true;}
+  assert(rejected,"ZIP exporter accepted unsafe or duplicate source path: "+files[0].path);
+}
+console.log("Local starters PASS: Expo and Next TSX parsed; ZIP generated and unsafe paths rejected.");
