@@ -159,7 +159,7 @@ function NavigationGroup({ title, description, items, theme, pathname, currentCr
   );
 }
 
-export function Sidebar() {
+export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentCrmView = searchParams.get("view");
@@ -303,7 +303,7 @@ export function Sidebar() {
               </div>
 
               <p className="mt-2 text-sm font-semibold text-white">
-                Acesso completo
+                {accessKind==="trial"?"Teste grátis · 5 dias":"Acesso completo"}
               </p>
 
               <p className="mt-1 break-all text-xs text-emerald-200/70" title={accountEmail}>
@@ -363,7 +363,7 @@ export function Sidebar() {
             </div>
 
             <p className="mt-2 text-sm font-semibold text-white">
-              Acesso completo
+              {accessKind==="trial"?"Teste grátis · 5 dias":"Acesso completo"}
             </p>
 
             <p className="mt-1 break-all text-xs text-emerald-200/70" title={accountEmail}>
