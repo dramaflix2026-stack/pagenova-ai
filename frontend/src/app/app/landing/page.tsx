@@ -266,6 +266,20 @@ export default function LandingStudioPage(){
   patch(merged);loadEditableLists(merged);setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
   setSection("hero");setStatus("Nova estrutura aplicada ao rascunho. Revise e clique em Publicar quando estiver pronto.");
  }
+ function refreshSalesCopy(){
+  if(!project||!project.salesPage)return;
+  if(!window.confirm("Recriar headline, subtítulo, benefícios, comparação e título da oferta a partir do briefing? Seus textos atuais nesses campos serão substituídos. Mockup, checkout, bônus e depoimentos serão preservados."))return;
+  const fresh=newLanding("course",project.name,project.brief);
+  const changes={
+    eyebrow:fresh.eyebrow,headline:fresh.headline,subtitle:fresh.subtitle,offer:fresh.offer,
+    benefits:fresh.benefits,before:fresh.before,after:fresh.after,
+    price:project.price||fresh.price
+  };
+  patch(changes);loadEditableLists({...project,...changes});
+  setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
+  setSection("hero");setTab("content");
+  setStatus("Novos textos aplicados ao rascunho. Revise, salve e publique para atualizar o link.");
+ }
  function changeFaq(index:number,key:keyof LandingFaq,value:string){
   if(!project)return;patch({faqs:project.faqs.map((item,i)=>index===i?{...item,[key]:value}:item)});
  }
@@ -334,7 +348,19 @@ export default function LandingStudioPage(){
       <div><p className="text-sm font-bold text-emerald-300">Existe um novo funil para infoprodutos</p><p className="mt-1 text-xs text-white/60">Converta este projeto antigo preservando seu mockup e checkout.</p></div>
       <button type="button" onClick={upgradeCourse} className="rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-[#042019]">Usar novo funil →</button>
      </div>}
-    {editorProject.salesPage&&briefInsights.length>0&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-300/15 bg-[#102423] px-4 py-3 text-xs text-white/75"><span className="font-bold text-emerald-300">Extraído do briefing</span>{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/20 px-3 py-1">{v}</span>)}<span className="text-white/45">Motor local · sem API paga</span></div>}
+    {editorProject.salesPage&&<div className="mt-4 space-y-3 rounded-xl border border-emerald-300/15 bg-[#102423] p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+       <div><p className="text-xs font-extrabold text-emerald-200">Conteúdo da oferta · {analyzeLandingBrief(editorProject.name,editorProject.brief).niche}</p>
+        <p className="mt-1 text-xs leading-5 text-white/60">Melhore os textos usando as informações reais do briefing, sem chamadas de IA paga.</p></div>
+       <button type="button" onClick={refreshSalesCopy} className="rounded-xl border border-emerald-300/35 px-4 py-2.5 text-xs font-extrabold text-emerald-200 hover:bg-emerald-300/10">Refazer textos pelo briefing ↗</button>
+      </div>
+      {briefInsights.length>0&&<div className="flex flex-wrap items-center gap-2">{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/20 px-3 py-1 text-xs text-white/75">{v}</span>)}</div>}
+      <div className="grid gap-2 text-xs sm:grid-cols-3">
+       <span className={editorProject.ctaUrl?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-amber-400/30 bg-amber-300/5 p-2.5 text-amber-200"}>{editorProject.ctaUrl?"✓ Checkout vinculado":"! Sem checkout: CTA leva ao contato"}</span>
+       <span className={editorProject.heroImage?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-white/10 p-2.5 text-white/55"}>{editorProject.heroImage?"✓ Imagem real enviada":"○ Mockup ilustrativo do briefing"}</span>
+       <span className={(editorProject.testimonials||[]).some(t=>t.confirmed)?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-white/10 p-2.5 text-white/55"}>{(editorProject.testimonials||[]).some(t=>t.confirmed)?"✓ Depoimentos cadastrados":"○ Adicione relatos reais"}</span>
+      </div>
+     </div>}
     <div className="mt-5 grid gap-5 xl:grid-cols-[385px_minmax(0,1fr)]">
      <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
       <div className="flex border-b border-white/10">
@@ -407,7 +433,13 @@ export default function LandingStudioPage(){
          <button onClick={addTestimonial} disabled={(editorProject.testimonials||[]).length>=8} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300/30 px-4 py-3 text-xs font-bold text-emerald-200 disabled:opacity-40"><Plus className="h-4 w-4"/> Adicionar depoimento real</button>
         </div>}
         {section==="proof"&&!editorProject.salesPage&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}</div>}
-        {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
+        {section==="offer"&&<div className="space-y-4">
+          {editorProject.salesPage&&!editorProject.ctaUrl&&<div role="status" className="rounded-xl border border-amber-300/25 bg-amber-300/5 p-3 text-xs leading-5 text-amber-100">O link de pagamento ainda não foi configurado. Na página publicada, os botões principais serão identificados como pedido de informações e levarão ao formulário — não a um checkout.</div>}
+          {field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}
+          {field("ctaLabel","Texto do botão de compra (quando houver checkout)")}
+          {field("ctaUrl","URL real do checkout (HTTPS)",0,"https://...","Configure o checkout para ativar os botões de compra. Sem URL, a página direciona para contato.")}
+          {field("secondaryUrl","Link secundário (opcional)",0,"https://...")}
+         </div>}
         {section==="faq"&&<div className="space-y-4">
          {editorProject.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
           <Field label={"Pergunta "+(i+1)} value={f.question} onChange={v=>changeFaq(i,"question",v)}/>
