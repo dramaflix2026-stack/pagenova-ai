@@ -1242,6 +1242,8 @@ export default function BuilderPage() {
     setPublishing(true);
     setError("");
     try {
+      // Do not publish while a previous edit is still waiting to persist.
+      await savePageNovaProject(project.id, project);
       if (crmProjectId) {
         const response = await fetch(`/api/crm/site-projects/${crmProjectId}/publish`, {
           method: "POST",
@@ -1251,6 +1253,9 @@ export default function BuilderPage() {
         });
         const data = await readPublicationResponse(response, "Publicação no Railway");
         if (!data.url) throw new Error("O Railway não retornou o endereço do site publicado.");
+        // Publication already exists upstream. Keep its address visible even
+        // if the subsequent overlay sync fails; do not report a false total failure.
+        setPublishedUrl(data.url);
         // The Railway publication contains the original generated HTML.
         // Persist the visual editor overlay before reporting publication success.
         const overlayResponse = await fetch("/api/builder/published-overlay", {
@@ -1270,7 +1275,7 @@ export default function BuilderPage() {
             },
           }),
         });
-        const overlayResult = await readPublicationResponse(overlayResponse, "Sincronização das imagens e edições");
+        const overlayResult = await readPublicationResponse(overlayResponse, "Site publicado, mas a sincronização das imagens e edições");
         if (!overlayResponse.ok) {
           throw new Error(typeof overlayResult.error === "string" ? overlayResult.error : overlayResult.error?.message || "Site publicado, mas as edições visuais não foram sincronizadas.");
         }
