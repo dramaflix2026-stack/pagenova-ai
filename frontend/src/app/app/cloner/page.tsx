@@ -76,6 +76,11 @@ type CloneResponse = {
     sections: number;
     stylesheets?: number;
     recoveredImages?: number;
+    desktopCaptured?: boolean;
+    desktopImageCount?: number;
+    mobileImageCount?: number;
+    desktopBrokenImages?: number;
+    mobileBrokenImages?: number;
   };
 };
 
@@ -448,7 +453,11 @@ export default function ClonerPage() {
                       {result.project.finalUrl}
                     </p>
                     <p className={"mt-3 rounded-full border px-3 py-2 text-xs font-bold "+(result.engine==="hydrated-browser-v3"?"border-emerald-400/25 bg-emerald-400/10 text-emerald-200":"border-amber-400/25 bg-amber-400/10 text-amber-200")}>
-                      {result.engine==="hydrated-browser-v3"?"✓ Captura visual com navegador · celular":"⚠ Captura estática · fidelidade limitada"}
+                      {result.engine==="hydrated-browser-v3"
+                        ?result.stats?.desktopCaptured
+                          ?"✓ Captura visual · celular 390 px + desktop 1440 px"
+                          :"⚠ Captura mobile feita, desktop pendente"
+                        :"⚠ Captura estática · fidelidade limitada"}
                     </p>
                   </div>
 
@@ -463,6 +472,11 @@ export default function ClonerPage() {
                 </div>
               </div>
 
+              {result.stats?.desktopCaptured&&<div className="mx-6 mt-4 flex flex-wrap justify-center gap-3 text-xs text-white/70 sm:mx-8">
+                <span className="rounded-xl border border-white/10 px-3 py-2">Mobile: {result.stats.mobileImageCount??0} imagens</span>
+                <span className="rounded-xl border border-white/10 px-3 py-2">Desktop: {result.stats.desktopImageCount??0} imagens</span>
+                {(result.stats.desktopBrokenImages??0)>0&&<span className="rounded-xl border border-amber-400/30 px-3 py-2 text-amber-200">Desktop: {result.stats.desktopBrokenImages} imagens da origem não carregaram</span>}
+              </div>}
               {result.warnings?.length ? <div className="mx-6 mt-5 space-y-2 rounded-2xl border border-amber-400/30 bg-amber-400/[.07] px-5 py-4 text-left text-xs leading-6 text-amber-100 sm:mx-8">
                 <strong className="block text-sm">Fidelidade visual parcial</strong>
                 {result.warnings.map((message,index)=><p key={index}>• {message}</p>)}
