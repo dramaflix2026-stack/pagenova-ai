@@ -12,6 +12,14 @@ export const maxDuration = 90;
 const keys = new Set<SitePageKey>(SITE_PAGES.map((page) => page.key));
 
 export async function POST(request: NextRequest) {
+  const origin = request.headers.get("origin");
+  if (origin && origin !== request.nextUrl.origin) {
+    return NextResponse.json({ error: "Origem não autorizada." }, { status: 403 });
+  }
+  const declaredLength = Number(request.headers.get("content-length") || "0");
+  if (declaredLength > 1_300_000) {
+    return NextResponse.json({ error: "Briefing ou anexo muito grande." }, { status: 413 });
+  }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user?.email) return NextResponse.json({ error: "Faça login para criar um site." }, { status: 401 });
@@ -26,7 +34,17 @@ export async function POST(request: NextRequest) {
   if (accessError || !entitlement) return NextResponse.json({ error: "Acesso indisponível." }, { status: 403 });
 
   let body: Record<string, unknown>;
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
+  try {
+    const raw = await request.text();
+    if (raw.length > 1_300_000) {
+      return NextResponse.json({ error: "Briefing ou anexo muito grande." }, { status: 413 });
+    }
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return NextResponse.json({ error: "Pedido inválido." }, { status: 400 });
+    }
+    body = parsed as Record<string, unknown>;
+  } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
   const brief = typeof body.brief === "string" ? body.brief.trim() : "";
   const name = typeof body.name === "string" ? body.name.trim() : "";
   const style = typeof body.style === "string" ? body.style.trim() : "";
@@ -88,7 +106,8 @@ export async function POST(request: NextRequest) {
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
-  if (brief.length < 20 || name.length < 2 || name.length > 100 ||
+  if (brief.length < 20 || brief.length > 6000 || name.length < 2 || name.length > 100 ||
+      instruction.length > 3000 ||
       !keys.has(key) || !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) || !["moderno", "elegante", "vibrante"].includes(style) || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
   }
