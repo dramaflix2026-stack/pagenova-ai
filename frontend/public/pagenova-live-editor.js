@@ -318,7 +318,8 @@
     // fallback photo detector climbed its ancestors and opened file upload on
     // double-clicking an ordinary heading or paragraph.
     const textNode=closest(target, textSel);
-    if(textNode && !imagePlaceholder(target))return null;
+    const visualNode=closest(target, "img,picture,video,canvas");
+    if(textNode && !visualNode && !imagePlaceholder(target))return null;
     const direct=imagePlaceholder(target);
     if(direct)return direct;
     // Before the first upload the generated HTML has no slot marker. Locate
