@@ -97,6 +97,17 @@ async function proxy(request: NextRequest, context: RouteContext) {
     ? undefined : await request.arrayBuffer();
   const metered=creditGateEnabled()&&who.access.kind==="paid";
   const isTrial=who.access.kind==="trial";
+  // Additional AI / recovery / export actions can consume real provider resources.
+  // Trial includes only two initial CRM generations and five Google search pages.
+  const expensiveExtra=method==="POST"&&(
+    /^site-projects\/[^/]+\/sections\/[^/]+\/ai-edit$/.test(suffix)||
+    /^site-projects\/[^/]+\/(image-recovery|outreach\/generate|exports)$/.test(suffix)||
+    /^site-jobs\/[^/]+\/retry$/.test(suffix)||
+    suffix==="google/instagram"
+  );
+  if(isTrial&&expensiveExtra)return NextResponse.json({error:{
+    code:"TRIAL_PAID_FEATURE",message:"Esta operação com custo adicional de IA está disponível na assinatura. No teste você pode usar as ferramentas locais e 2 gerações de sites pelo CRM.",
+  }},{status:403});
   const account:CreditAccount={userId:who.externalUserId,email:who.email};
   const siteMatch=method==="POST"&&suffix.match(/^site-projects\/([^/]+)\/generate$/);
   const googlePage=method==="POST"&&suffix==="google/search";
