@@ -69,7 +69,7 @@ export function buildCookbook(input:{
   const cover=numberedPage(0,"cover","LIVRO DE RECEITAS",title,
     "Receitas completas, com medidas, rendimento, tempo e modo de preparo.",
     "Sugestões culinárias para compor refeições variadas.",[],
-    "Comida caseira saudável, ingredientes frescos, pratos brasileiros");
+    "healthy homemade meal plate fresh vegetables");
   const intro=numberedPage(1,"feature","ANTES DE COZINHAR","Como usar este livro",
     input.count+" receitas significam "+input.count+" preparos diferentes — não "+input.count+" tópicos genéricos.",
     "Escolha a refeição pelo momento do dia. Em cada receita, confira a lista de ingredientes, separe os utensílios e siga as etapas na ordem indicada.\n\n"+
