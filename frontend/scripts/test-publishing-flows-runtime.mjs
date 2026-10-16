@@ -89,6 +89,14 @@ async function rejects(action,message){
 }
 try{
   const forms=load(resolve(root,"src/lib/forms/server"));
+  await rejects(()=>forms.authorizedForms(),"Unauthenticated browser session got creation rights");
+  let validationError=null;
+  try{await forms.saveOwnedForm(admin,"account-one",{title:"X",fields:[]});}
+  catch(error){validationError=error;}
+  assert(validationError?.status===422,"Invalid form must return validation status 422");
+  const unexpected=await forms.errorsAsResponse(new Error("DATABASE_SECRET_INTERNAL")).json();
+  assert(!JSON.stringify(unexpected).includes("DATABASE_SECRET_INTERNAL"),
+    "Unhandled server exception leaked provider internals to API caller");
   const form=await forms.saveOwnedForm(admin,"account-one",{
     title:"Contato e interesse comercial",description:"Entre em contato",
     kind:"leads",fields:[
