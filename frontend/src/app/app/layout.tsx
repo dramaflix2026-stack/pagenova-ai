@@ -59,7 +59,7 @@ export default async function ProductLayout({
 
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white">
-      <Sidebar />
+      <Sidebar accessKind={access.kind} />
 
       <div className="min-h-screen lg:pl-64">
         {trial&&<div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-emerald-400/20 bg-[#123126] px-4 py-3 text-center text-xs text-white/85">
