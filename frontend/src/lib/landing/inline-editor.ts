@@ -38,7 +38,8 @@ export function withLandingInlineEditor(html:string,edits:LandingInlineEdits|und
  const normalized=normalizeInlineEdits(edits);
  if(!preview&&!Object.keys(normalized).length)return html;
  const payload=JSON.stringify(normalized).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026");
- const js=inlineRuntime.replace("__PN_EDITS__",payload).replace("__PN_PREVIEW__",String(preview));
+ const runtime=preview?inlineRuntime:inlineRuntime.slice(0,inlineRuntime.indexOf("if(!editing)return;"))+"\n})();";
+ const js=runtime.replace("__PN_EDITS__",payload).replace("__PN_PREVIEW__",String(preview));
  return html.replace("</body>",'<script>'+js+'</script></body>');
 }
 
