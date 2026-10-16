@@ -1081,7 +1081,7 @@ export default function BuilderPage() {
         credentials:"same-origin",cache:"no-store",
       });
       const data=await configResponse.json().catch(()=>({})) as {
-        config?:{business?:{name?:string};seo?:{title?:string}};
+        config?:{business?:{name?:string};seo?:{title?:string};navigation?:{logo?:unknown;wordmark?:string}};
         lockVersion?:number;error?:{message?:string};
       };
       if(!configResponse.ok||!data.config||typeof data.lockVersion!=="number")
@@ -1090,6 +1090,7 @@ export default function BuilderPage() {
       const nextConfig={
         ...data.config,
         business:{...data.config.business,name},
+        navigation:{...data.config.navigation,logo:null,wordmark:name.slice(0,60)},
         seo:data.config.seo?.title?.toLowerCase().includes(oldName.toLowerCase()) && oldName.length>2
           ? {...data.config.seo,title:data.config.seo.title.replace(oldName,name).slice(0,60)}
           : data.config.seo,
@@ -1529,12 +1530,12 @@ export default function BuilderPage() {
               {crmProjectId&&phase!=="generating"&&<button type="button"
                 onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
                 className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
-                aria-label="Alterar o nome exibido no site">Alterar nome</button>}
+                aria-label="Escrever nome no lugar da logo">Escrever logo</button>}
             </div>
             {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
               className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
               <label htmlFor="pagenova-edit-brand" className="w-full text-xs text-white/70">
-                Nome da empresa ou profissional (atualiza o site sem gerar novamente)
+                Nome que substituirá a logo no site (sem gerar novamente)
               </label>
               <input id="pagenova-edit-brand" type="text" required minLength={3} maxLength={72}
                 value={brandDraft} onChange={event=>setBrandDraft(event.target.value)}
@@ -1542,7 +1543,7 @@ export default function BuilderPage() {
                 className="w-full min-w-0 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-center text-sm text-white outline-none focus:border-emerald-400"/>
               <button type="submit" disabled={savingBrand}
                 className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] disabled:opacity-50">
-                {savingBrand?"Salvando...":"Salvar nome"}
+                {savingBrand?"Salvando...":"Aplicar texto na logo"}
               </button>
             </form>}
             <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
