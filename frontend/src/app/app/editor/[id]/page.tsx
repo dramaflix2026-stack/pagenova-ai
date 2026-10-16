@@ -42,7 +42,7 @@ type CloneProject = {
   visualHtml: string;
   visualBodyHtml: string;
   visualHeadHtml: string;
-
+  captureEngine?: "hydrated-browser-v3" | "static-html-fallback-v3";
   fetchedAt: string;
 };
 
