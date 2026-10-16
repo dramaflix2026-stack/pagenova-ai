@@ -74,5 +74,26 @@ must("frontend/src/lib/pagenova-project-store.ts",[
 must("frontend/src/lib/credits/server.ts",[
  [/PAGENOVA_CREDITS_ENFORCE === "1"/,"Credits require explicit rollout after historical usage reconciliation"]
 ]);
+must("frontend/src/lib/trial/server.ts",[
+ [/email_confirmed_at/,"Trials must require verified email"],
+ [/pagenova_trial_access/,"One-time trial activation RPC required"],
+ [/pagenova_trial_reserve/,"Atomic trial quota required"],
+ [/pagenova_trial_settle/,"Free trial credit refund required"]
+]);
+must("frontend/src/app/api/crm/[...path]/route.ts",[
+ [/reserveTrialCredit/,"Trial provider costs must be metered"],
+ [/settleTrialJob/,"Failed trial generation must be refunded"],
+ [/expensiveExtra/,"Unmetered paid CRM actions must be blocked in trial"]
+]);
+must("frontend/src/app/api/builder/analyze-attachments/route.ts",[
+ [/access\.kind!=="paid"/,"Extra OpenAI vision unavailable on free trial"]
+]);
+must("frontend/src/app/api/[...path]/route.ts",[
+ [/access\.kind!=="paid"/,"Legacy paid OpenAI endpoints must require paid access"]
+]);
+must("frontend/src/app/app/layout.tsx",[
+ [/getPageNovaAccess\(admin,user,true\)/,"Dashboard must start one verified trial"],
+ [/trial-expired/,"Expired trial must be blocked from dashboard"]
+]);
 if(!webhook.includes('unsupported_product'))throw new Error("Test orders can create entitlement.");
 console.log("PageNova static regression gate PASS: Kiwify, entitlements, credits, builder, cloner, studio, PDF, publishing and Google.");
