@@ -280,6 +280,16 @@ export default function LandingStudioPage(){
   setSection("hero");setTab("content");
   setStatus("Novos textos aplicados ao rascunho. Revise, salve e publique para atualizar o link.");
  }
+ function openFullPreview(){
+  if(!project)return;
+  const html=renderLandingHtml(project,true);
+  const url=URL.createObjectURL(new Blob([html],{type:"text/html;charset=utf-8"}));
+  // A real browser-sized tab is more faithful than the 820px internal iframe.
+  // A noopener anchor avoids browsers treating a successful new tab as blocked.
+  const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";
+  document.body.appendChild(link);link.click();link.remove();
+  window.setTimeout(()=>URL.revokeObjectURL(url),120000);
+ }
  function changeFaq(index:number,key:keyof LandingFaq,value:string){
   if(!project)return;patch({faqs:project.faqs.map((item,i)=>index===i?{...item,[key]:value}:item)});
  }
@@ -490,7 +500,8 @@ export default function LandingStudioPage(){
          <button title="Visualização desktop" onClick={()=>setViewport("desktop")} className={"rounded-md p-2 "+(viewport==="desktop"?"bg-white/15 text-emerald-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
          <button title="Visualização celular" onClick={()=>setViewport("mobile")} className={"rounded-md p-2 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
         </div>
-        <button onClick={()=>void loadLeads()} disabled={!editorProject.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
+        <button type="button" onClick={openFullPreview} className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/25 px-3 py-2.5 text-xs font-bold text-emerald-200" title="Abrir a prévia responsiva em uma aba inteira"><ExternalLink className="h-3.5 w-3.5"/> Prévia completa</button>
+                <button onClick={()=>void loadLeads()} disabled={!editorProject.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
        </div>
       </div>
       <div className="relative flex min-h-[820px] justify-center overflow-hidden bg-[#252a36] p-2 sm:p-5">
