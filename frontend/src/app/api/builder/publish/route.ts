@@ -78,11 +78,15 @@ export async function POST(request: NextRequest) {
     const { data: existing, error: readError } = await storage.download(`${slug}.json`);
     if (existing) {
       let existingOwner = "";
+      let existingProjectId = "";
       try {
-        const stored = JSON.parse(await existing.text()) as { ownerId?: unknown };
+        const stored = JSON.parse(await existing.text()) as { ownerId?: unknown; projectId?: unknown };
         if (typeof stored.ownerId === "string") existingOwner = stored.ownerId;
+        if (typeof stored.projectId === "string") existingProjectId = stored.projectId;
       } catch { /* Malformed publication is never safe to overwrite. */ }
-      if (existingOwner === userId) {
+      // Same account is not enough: two different projects must not replace
+      // one another when their first eight ID characters happen to match.
+      if (existingOwner === userId && existingProjectId === project.id) {
         upsert = true;
         break;
       }
