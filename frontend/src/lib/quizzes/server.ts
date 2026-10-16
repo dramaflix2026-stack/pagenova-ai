@@ -124,15 +124,6 @@ export async function submitPublicQuiz(admin:SupabaseClient,id:string,raw:unknow
       throw new FormServiceError("Informe nome, e-mail e aceite o consentimento para receber o resultado.");
     lead={name,email,consent:true};
   }
-  // Quizzes can be submitted without login. Keep storage writes bounded
-  // across all serverless workers; never charge the customer's site/Google wallet.
-  const {data:allowed,error:limitError}=await admin.rpc("pagenova_public_submission_reserve",{
-    p_kind:"quiz",p_resource_id:id,
-  });
-  if(limitError||typeof allowed!=="boolean")throw new FormServiceError(
-    "O envio do quiz está temporariamente indisponível. Tente novamente.",503);
-  if(!allowed)throw new FormServiceError(
-    "Este quiz atingiu o limite diário de participações.",429);
   const entry:QuizEntry={id:crypto.randomUUID(),quizId:id,submittedAt:new Date().toISOString(),
     outcomeId:outcome.id,answers:quiz.questions.map(q=>({questionId:q.id,optionId:map[q.id] as string})),
     ...(lead?{lead}:{})};
