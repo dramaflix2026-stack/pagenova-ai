@@ -46,6 +46,7 @@ type CloneProject = {
   captureDesktop?: boolean;
   captureImageReport?: {mobile:number;desktop:number;mobileBroken:number;desktopBroken:number};
   fetchedAt: string;
+  updatedAt?: string;
 };
 
 type Viewport =
@@ -1125,6 +1126,7 @@ if (!project) {
         visualHtml: nextVisualHtml,
         visualHeadHtml: nextVisualHeadHtml,
         visualBodyHtml: nextVisualBodyHtml,
+        updatedAt: new Date().toISOString(),
       };
 
       try {
