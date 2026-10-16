@@ -4,6 +4,7 @@
 
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+import {normalizeInlineEdits} from "@/lib/landing/inline-editor";
 import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,newUniversalLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
  type LandingKind,type LandingProject,type LandingSection,type LandingFaq } from "@/lib/landing/engine";
 import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,Copy,
@@ -66,9 +67,31 @@ export default function LandingStudioPage(){
  const [error,setError]=useState("");
  const [leads,setLeads]=useState<Lead[]|null>(null);
  const lastSaved=useRef<string>("");
+ const previewFrame=useRef<HTMLIFrameElement|null>(null);
  const latestProject=useRef<LandingProject|null>(null);
  latestProject.current=project;
- const preview=useMemo(()=>project?renderLandingHtml(project,true):"",[project]);
+ // Content edits stay live in the frame without resetting its scroll position.
+ const previewBase=project?JSON.stringify({...project,inlineEdits:undefined}):"";
+ const preview=useMemo(()=>project?renderLandingHtml(project,true):"",[previewBase]);
+ useEffect(()=>{
+  function onInlineMessage(event:MessageEvent){
+   if(!previewFrame.current||event.source!==previewFrame.current.contentWindow)return;
+   const data=event.data;
+   if(!data||data.type!=="pagenova:landing-inline-edit"||typeof data.id!=="string"||!/^e\d{1,5}$/.test(data.id))return;
+   if(!data.patch||typeof data.patch!=="object"||Array.isArray(data.patch))return;
+   const update=Object.fromEntries(Object.entries(data.patch).filter(([key,value])=>
+    ["text","color","fontSize","fontFamily","href","image"].includes(key)&&typeof value==="string"));
+   if(!Object.keys(update).length)return;
+   setProject(current=>{
+    if(!current||current.templateVersion!=="universal-v1")return current;
+    const inlineEdits=normalizeInlineEdits({...current.inlineEdits,[data.id]:{...current.inlineEdits?.[data.id],...update}});
+    return {...current,inlineEdits,updatedAt:new Date().toISOString()};
+   });
+   setError("");
+  }
+  window.addEventListener("message",onInlineMessage);
+  return ()=>window.removeEventListener("message",onInlineMessage);
+ },[]);
  const cloudRefresh=useCallback(async()=>{
   try{
    const res=await fetch("/api/landing",{credentials:"same-origin",cache:"no-store"});
@@ -383,7 +406,7 @@ export default function LandingStudioPage(){
       <div><p className="text-sm font-bold text-emerald-300">Existe um novo funil para infoprodutos</p><p className="mt-1 text-xs text-white/60">Converta este projeto antigo preservando seu mockup e checkout.</p></div>
       <button type="button" onClick={upgradeCourse} className="rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-[#042019]">Usar novo funil →</button>
      </div>}
-    {editorProject.salesPage&&<details className="group mt-3 rounded-xl border border-emerald-300/15 bg-[#102423]">
+    {editorProject.salesPage&&editorProject.templateVersion!=="universal-v1"&&<details className="group mt-3 rounded-xl border border-emerald-300/15 bg-[#102423]">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-xs text-emerald-100 marker:hidden [&::-webkit-details-marker]:hidden sm:px-4">
        <span className="flex min-w-0 items-center gap-2">
         <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300"/>
@@ -404,8 +427,8 @@ export default function LandingStudioPage(){
        </div>
       </div>
      </details>}
-     <div className="mt-3 grid gap-3 xl:grid-cols-[350px_minmax(0,1fr)] xl:gap-4">
-     <aside id="landing-editor-controls" className="order-2 overflow-hidden rounded-xl border border-white/10 bg-[#151a24] scroll-mt-20 xl:order-1">
+     <div className={editorProject.templateVersion==="universal-v1"?"mt-3":"mt-3 grid gap-3 xl:grid-cols-[350px_minmax(0,1fr)] xl:gap-4"}>
+     {editorProject.templateVersion!=="universal-v1"&&<aside id="landing-editor-controls" className="order-2 overflow-hidden rounded-xl border border-white/10 bg-[#151a24] scroll-mt-20 xl:order-1">
       <div className="flex border-b border-white/10">
        {([{id:"content",label:"Conteúdo",icon:WandSparkles},{id:"structure",label:"Seções",icon:LayoutTemplate},{id:"design",label:"Design",icon:Settings2}] as const).map(x=><button key={x.id} onClick={()=>setTab(x.id)}
         className={"flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-3 text-xs font-bold "+(tab===x.id?"border-emerald-300 text-emerald-200":"border-transparent text-white/50 hover:text-white")}><x.icon className="h-4 w-4"/>{x.label}</button>)}
@@ -533,23 +556,23 @@ export default function LandingStudioPage(){
          :"O layout funciona sem imagem externa, graças à composição gráfica interna."}</p>
        </>}
       </div>
-     </aside>
+     </aside>}
      <section id="landing-preview" className="order-1 min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#151a24] xl:order-2">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-2.5 py-2 sm:px-3">
-        <div className="flex min-w-0 items-center gap-1.5"><span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400"/><span className="text-[11px] font-semibold text-white/70">Prévia</span></div>
+        <div className="flex min-w-0 items-center gap-1.5"><span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400"/><span className="text-[11px] font-semibold text-white/70">{editorProject.templateVersion==="universal-v1"?"Toque para editar · 2 toques para escrever":"Prévia"}</span></div>
         <div className="flex items-center gap-1.5">
          <div className="flex rounded-lg border border-white/10 p-0.5" role="group" aria-label="Dispositivo da prévia">
           <button type="button" title="Desktop" aria-label="Visualização desktop" aria-pressed={viewport==="desktop"} onClick={()=>setViewport("desktop")} className={"rounded-md p-1.5 "+(viewport==="desktop"?"bg-white/15 text-emerald-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
           <button type="button" title="Celular" aria-label="Visualização celular" aria-pressed={viewport==="mobile"} onClick={()=>setViewport("mobile")} className={"rounded-md p-1.5 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
          </div>
          <button type="button" onClick={openFullPreview} className="inline-flex items-center gap-1 rounded-lg border border-emerald-300/25 px-2.5 py-2 text-[11px] font-bold text-emerald-200" title="Abrir prévia em tela cheia"><ExternalLink className="h-3.5 w-3.5"/><span className="hidden sm:inline">Tela cheia</span></button>
-         <a href="#landing-editor-controls" className="inline-flex items-center rounded-lg border border-white/15 px-2.5 py-2 text-[11px] font-bold text-white/85 xl:hidden">Editar</a>
+         {editorProject.templateVersion!=="universal-v1"&&<a href="#landing-editor-controls" className="inline-flex items-center rounded-lg border border-white/15 px-2.5 py-2 text-[11px] font-bold text-white/85 xl:hidden">Editar</a>}
          {editorProject.publishedSlug&&<button type="button" onClick={()=>void loadLeads()} disabled={!!busy} title="Contatos recebidos" aria-label="Ver leads" className="inline-flex items-center rounded-lg border border-white/10 p-2 text-white/65 disabled:opacity-35"><Users className="h-4 w-4"/></button>}
         </div>
        </div>
        <div className="relative flex justify-center overflow-hidden bg-[#252a36] p-1.5 sm:p-3">
        <div className={"overflow-hidden rounded-xl bg-white shadow-[0_25px_70px_#0004] transition-[width] duration-300 "+(viewport==="mobile"?"w-full max-w-[390px]":"w-full")}>
-        <iframe key={viewport} title="Landing page ao vivo" srcDoc={preview} sandbox="allow-scripts allow-forms" className="h-[calc(100dvh-192px)] min-h-[560px] w-full border-0 xl:h-[820px]" />
+        <iframe ref={previewFrame} key={viewport} title="Landing page ao vivo" srcDoc={preview} sandbox="allow-scripts allow-forms" className="h-[calc(100dvh-192px)] min-h-[560px] w-full border-0 xl:h-[820px]" />
        </div>
       </div>
      </section>
