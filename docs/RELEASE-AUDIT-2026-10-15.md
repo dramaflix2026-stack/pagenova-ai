@@ -137,3 +137,41 @@ O produto pago mais forte atualmente é a assinatura PageNova AI (R$147/mês). P
 - A publicação salva o último snapshot antes de enviar e guarda a URL já emitida pelo CRM, mesmo que a sincronização do overlay falhe, informando o erro parcial em vez de ocultar a URL.
 - O build Vercel passa pelo gate `validate-platform.mjs` com regressões estáticas para crédito, publicação com proprietário, e isolamento de workspace, além dos motores de eBooks, formulários, quizzes e protótipos.
 - **Pendente:** testes interativos com dois usuários diferentes, permissões, upload sequencial de imagens, arrastar/redimensionar na página real, edição com chat, preview desktop e mobile e publicação com conferência visual no domínio final. Os deploys/checagens automáticas, por si, não provam esses fluxos.
+
+---
+
+## Rodada de homologação — Blocos 3 e 4 (16/10/2026)
+
+### Bloco 3 — módulos existentes
+
+| Módulo | Intervenção / evidência | Pendente para homologar |
+| --- | --- | --- |
+| eBooks | Motores locais de livro culinário e editorial já têm testes de build; agora fotos licenciadas podem ser buscadas para **a capa** do livro de receitas sem forçar imagens genéricas em receitas diferentes | PDF real completo e inspeção de quebras, imagens/licenças em diferentes assuntos |
+| Clonador | Importação com DNS público/HTTPS fixado, limites e sanitização; publicação em URL por dono e projeto, sem scripts executáveis | Testar importação, editor e URL publicada em três sites públicos autorizados; não prometer cópia pixel a pixel |
+| Landing Pages | Consentimento explícito no HTML e no servidor; snapshots publicados antigos podem ser renderizados com formulário atualizado; atualização de URL pública só após checagem do proprietário e upload create-only para slug novo | Publicar/reabrir, enviar lead com consentimento e conferir leitura pelo autor em navegador real |
+| Formulários | Rotas com consentimento e validação de tipos/obrigatoriedade, respostas privadas e visualização por autor | Testar submissão e recuperação com duas contas |
+| Quizzes | Motor local de 15 perguntas e pontuação testado no build; respostas privadas, consentimento exigido na coleta de leads | Testar quiz publicado, resultados e leads por autor |
+| CRM / Google Places | Pesquisa com rate limit, histórico sem chamadas Google e freio de custo diário do proxy | Conferir requisições reais, atribuição a workspace, custos e medidor comercial após backfill |
+| Aplicativos e Sistemas | Exportação ZIP agora rejeita caminhos absolutos, traversal, duplicatas e arquivos excessivos. Pedido com arquivos inválidos é recusado sem excluir arquivos existentes. Validador de TSX e ZIP em build | Instalar dependências/compilar exportações Expo e Next em ambiente de teste |
+
+### Proteção de leads (produção)
+
+- Migração `pagenova_landing_daily_consent_rate_guard` aplicada ao projeto Supabase PageNova e versionada em `supabase/migrations/20261016_pagenova_landing_daily_guard.sql`.
+- `pagenova_private.landing_daily_submissions`: contador transacional por slug e dia UTC, teto de **100** envios/dia já existente no produto, agora sem condição de corrida entre instâncias serverless.
+- `pagenova_landing_lead_reserve(text)` executável apenas por `service_role`, grants públicos/anon/authenticated verificados como **zero**. Sem infraestrutura paga adicional.
+- Rejeitar consentimento ausente (`422`), recusar submissões acima do teto (`429`), falhar fechado em indisponibilidade do contador (`503`). Reserva de proteção não é cobrança de crédito da assinatura; uma falha após reserva pode consumir uma tentativa diária, não um crédito comercial.
+- Novas publicações respeitam proprietário e não fazem `upsert` sobre slug ainda não confirmado como pertencente à sessão.
+
+### Bloco 4 — verificações e limitações
+
+- O build Vercel executa, além das checagens estáticas anteriores, testes locais de editoriais e receitas, 6 presets de Landing Page, escaping de conteúdo, consentimento, links seguros, formulários/quizzes e ZIP de protótipos. O commit `0a8a20ad` teve Vercel **SUCCESS**; commits posteriores devem ser conferidos individualmente.
+- GitHub Actions continua falhando **antes de executar qualquer passo** (`runner_id=0`, `steps=[]`; observado também no run 38888409920). Requer resolver runner/elegibilidade/conta GitHub, não interpretar como falha de testes que não começaram.
+- Supabase Security Advisor: apenas 4 avisos INFO de RLS sem políticas públicas e 1 WARN de **leaked password protection** desabilitada. Esta opção precisa ser habilitada em Auth pelo painel com acesso autorizado.
+- Supabase Performance Advisor: 2 INFO de índices não utilizados, sem justificativa atual para remoção.
+- A conexão Vercel deste assistente ainda não autoriza ler env vars (403). `PAGENOVA_CREDITS_ENFORCE` continua ativação **explícita** por causa de possível consumo histórico não conciliado. Não mexer em contadores de clientes reais para simular sucesso.
+- O login real Kiwify, backfill comercial, chamadas Google ao vivo, PDF completo, fidelidade visual do Clonador e publicação com leads reais **não** foram homologados nesta execução.
+- Nenhum componente do item 9 comercial foi criado ou ativado.
+
+### Status de lançamento
+
+**Não declarar 100% homologado** até realizar teste controlado com conta e projeto autorizados, com resultados documentados de cada rota pública e do fluxo comercial. Construir/passar não prova submissão real ou imagem/PDF corretos; executar os próximos testes em staging ou com recursos de teste designados.
