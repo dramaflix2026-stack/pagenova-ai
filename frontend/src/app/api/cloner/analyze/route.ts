@@ -179,8 +179,8 @@ function normalizeHtml(html:string,base:URL,visual:ReturnType<typeof createFaith
  * hostname-to-IP is fixed for the TLS connection (prevents DNS rebinding).
  * Failure is reported, never replaced by a fabricated theme.
  */
-const CSS_MAX_SINGLE_BYTES=105000;
-const CSS_TOTAL_LIMIT=350000;
+const CSS_MAX_SINGLE_BYTES=250000;
+const CSS_TOTAL_LIMIT=500000;
 async function publicCss(urlText:string):Promise<string>{
  const {url,ip}=await validateRemote(urlText);
  return new Promise((resolve,reject)=>{
