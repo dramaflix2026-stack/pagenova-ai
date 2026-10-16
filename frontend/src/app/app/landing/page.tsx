@@ -4,7 +4,6 @@
 
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { AppHeader } from "@/components/app-header";
 import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,newUniversalLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
  type LandingKind,type LandingProject,type LandingSection,type LandingFaq } from "@/lib/landing/engine";
 import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,Copy,
@@ -323,7 +322,6 @@ export default function LandingStudioPage(){
 
  const editorProject = project as LandingProject;
  return <div className="min-h-screen bg-[#0d1017] text-white">
-  <AppHeader/>
   <div className="mx-auto max-w-[1700px] px-3 py-3 sm:px-5 sm:py-5 lg:px-7">
    {!project?<>
     <div className="mx-auto max-w-4xl text-center">
