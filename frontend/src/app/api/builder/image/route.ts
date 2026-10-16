@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 
@@ -31,6 +32,8 @@ export async function POST(request: NextRequest) {
   if (process.env.PAGENOVA_AI_PROVIDER !== "openai" || !apiKey) {
     return NextResponse.json({ error: "Geração de imagem indisponível." }, { status: 503 });
   }
+  const aiBudget = await reservePaidAiBudget(admin, user.id, "legacy_site_image");
+  if (!aiBudget.ok) return NextResponse.json({ error: aiBudget.message }, { status: aiBudget.status });
   const visualRole =
     kind === "hero"
       ? `
