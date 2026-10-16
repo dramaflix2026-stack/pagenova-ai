@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
+import { creditGateEnabled } from "@/lib/credits/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -548,8 +549,9 @@ export async function POST(request: NextRequest) {
 
   // Subscription credits are tied to the actual paid Kiwify order. Repeated
   // deliveries never refill a cycle; refund/chargeback revoke that order only.
-  // Enable only after the PageNova Supabase migration and usage backfill.
-  if (process.env.PAGENOVA_CREDITS_ENFORCE === "1") {
+  // Share the SAME credit-enforcement decision used by CRM generation.
+  // Otherwise a paid Kiwify webhook could grant access without a usable wallet.
+  if (creditGateEnabled()) {
     if (status === "active") {
       const approvedAt=payload.approved_date ? new Date(payload.approved_date) : new Date();
       const safeDate=Number.isNaN(approvedAt.getTime()) ? now : approvedAt.toISOString();
