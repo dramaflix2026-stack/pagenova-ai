@@ -33,7 +33,7 @@ export function stylesheetLinks(html:string,base:string):string[]{
   const u=safeResourceUrl(href,base);
   if(u&&u.startsWith("https:")&&!links.includes(u))links.push(u);
  });
- return links.slice(0,16);
+ return links.slice(0,24);
 }
 function decodeCfEmail(value:string):string{
  if(!/^[0-9a-f]{8,512}$/i.test(value)||value.length%2)return "";
@@ -166,7 +166,7 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
   const url=safeResourceUrl(value,base);
   if(url)el.attr("style",(el.attr("style")||"")+";background-image:url('"+proxyImage(url).replace(/'/g,"%27")+"')");
  });
- const css=proxyCss(inlineCss.join("\n")).slice(0,360000);
+ const css=proxyCss(inlineCss.join("\n")).slice(0,500000);
  if(css)$("head").append('<style data-pagenova-cloned-css="true">'+css.replace(/<\/style/gi,"<\\/style")+"</style>");
  $("head").append('<style data-pagenova-clone-safety="true">'+
   'html{scroll-behavior:auto!important}body{min-height:100vh}'+
