@@ -54,7 +54,11 @@ export async function POST(request:NextRequest){
   const ctx=await authorized();if(!ctx)return NextResponse.json({error:"Acesso PageNova necessário."},{status:401});
   const raw=await request.text();
   if(raw.length>3_500_000)return NextResponse.json({error:"Projeto muito grande. Reduza o tamanho das imagens."},{status:413});
-  const body=JSON.parse(raw) as {project?:unknown;publish?:boolean};
+  let body:{project?:unknown;publish?:boolean};
+  try{body=JSON.parse(raw) as {project?:unknown;publish?:boolean};}
+  catch{return NextResponse.json({error:"Dados inválidos."},{status:400});}
+  if(!body||typeof body!=="object"||Array.isArray(body))
+    return NextResponse.json({error:"Projeto inválido."},{status:400});
   if(!body.project)return NextResponse.json({error:"Projeto ausente."},{status:400});
   const submitted=body.project as Record<string,unknown>;
   if(typeof submitted.id!=="string"||!idPattern.test(submitted.id))return NextResponse.json({error:"Identificador inválido."},{status:400});
