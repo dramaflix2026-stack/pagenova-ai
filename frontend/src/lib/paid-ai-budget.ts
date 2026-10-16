@@ -12,6 +12,8 @@ export const PAID_AI_DAILY_LIMITS = {
   legacy_site_brief: 40,
   site_attachment_analysis: 30,
   universal_template_copy: 40,
+  crm_site_generation: 80,
+  google_places_page: 100,
 } as const;
 
 export type PaidAiAction = keyof typeof PAID_AI_DAILY_LIMITS;
