@@ -10,7 +10,7 @@ export function validThreadId(value:unknown):value is string{return typeof value
 export function validLine(value:unknown):value is ChatLine{
  if(!value||typeof value!=="object")return false;
  const m=value as Partial<ChatLine>;
- return (m.role==="user"||m.role==="assistant")&&typeof m.content==="string"&&m.content.length<=4000;
+ return (m.role==="user"||m.role==="assistant")&&typeof m.content==="string"&&m.content.length<=12000;
 }
 export function cleanLines(value:unknown):ChatLine[]{
  return Array.isArray(value)?value.filter(validLine).slice(-60):[];
