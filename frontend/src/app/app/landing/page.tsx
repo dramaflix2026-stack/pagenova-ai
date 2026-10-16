@@ -72,7 +72,7 @@ export default function LandingStudioPage(){
  latestProject.current=project;
  // Content edits stay live in the frame without resetting its scroll position.
  const previewBase=project?JSON.stringify({...project,inlineEdits:undefined}):"";
- const preview=useMemo(()=>project?renderLandingHtml(project,true):"",[previewBase]);
+ const preview=useMemo(()=>project?renderLandingHtml(project,true):"",[previewBase,viewport]);
  useEffect(()=>{
   function onInlineMessage(event:MessageEvent){
    if(!previewFrame.current||event.source!==previewFrame.current.contentWindow)return;
