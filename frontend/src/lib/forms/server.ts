@@ -16,7 +16,7 @@ function adminClient(): SupabaseClient {
   if (!url || !key) throw new FormServiceError("Armazenamento da PageNova não configurado.", 503);
   return createAdminClient(url, key, {auth: {persistSession:false, autoRefreshToken:false}});
 }
-export async function authorizedForms(): Promise<{admin: SupabaseClient; userId: string}> {
+export async function authorizedForms(): Promise<{admin: SupabaseClient; userId: string; kind: "paid" | "trial"}> {
   const session = await createSessionClient();
   const {data:{user}} = await session.auth.getUser();
   if (!user?.email) throw new FormServiceError("Faça login para criar formulários.", 401);
@@ -24,7 +24,7 @@ export async function authorizedForms(): Promise<{admin: SupabaseClient; userId:
   const access=await getPageNovaAccess(admin,user);
   if(access.kind==="none")throw new FormServiceError(
     access.reason==="expired"?"Seu teste de 5 dias terminou. Assine para continuar usando a PageNova.":"Acesso PageNova necessário.",403);
-  return {admin,userId:user.id};
+  return {admin,userId:user.id,kind:access.kind};
 }
 export function errorsAsResponse(error: unknown): Response {
   const status=error instanceof FormServiceError ? error.status : 500;
