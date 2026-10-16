@@ -49,7 +49,22 @@ must("frontend/src/app/api/cloner/media/route.ts",[
 ]);
 must("frontend/src/app/app/cloner/page.tsx",[
  [/fetch\(\s*"\/api\/cloner\/analyze"/,"Cloner must call same-origin route"],
- [/savePageNovaProject/,"Editor handoff requires persistent project storage"]
+ [/savePageNovaProject/,"Editor handoff requires persistent project storage"],
+ [/listPageNovaProjects/,"Previously cloned projects must appear in the Cloner"],
+ [/deletePageNovaProject/,"Saved clones must be removable"],
+ [/Abrir e editar/,"Saved clone reopen action missing"]
+]);
+must("modules/stavo-crm/src/client/components/site-ai/editor/SiteEditor.tsx",[
+ [/pagenova-site-wordmark/,"CRM editor must expose text-only logo editing"],
+ [/uploadBrandLogo/,"CRM editor must allow logo image upload"],
+ [/logo:null,wordmark:/,"CRM text-only logo must clear the old image"]
+]);
+must("modules/stavo-crm/src/site-kit/renderer/frigolog-crm-adapter.ts",[
+ [/brandWordmark/,"CRM canonical site template must render the entered brand"]
+]);
+must("frontend/src/app/app/builder/page.tsx",[
+ [/Escrever logo/,"Standalone site generator must offer direct logo text entry"],
+ [/navigation:\{\.\.\.data.config.navigation,logo:null,wordmark:/,"Standalone text logo must replace the old image"]
 ]);
 must("frontend/src/lib/studio/local-engine.ts",[
  [/forms:false,\s*quizzes:false,\s*ebooks:false,\s*apps:false,\s*systems:false/,"local modules cannot silently use paid APIs"]
