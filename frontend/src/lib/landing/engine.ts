@@ -13,6 +13,10 @@ export type LandingProject = {
   whatsapp:string; email:string; heroImage:string; accent:string;
   benefits:string[]; steps:string[]; faqs:LandingFaq[];
   proof:string; proofAuthor:string; sections:LandingSection[];
+  /** Conversion-first infoproduct layout; older course pages stay unchanged. */
+  salesPage?:boolean; ribbon?:string; before?:string[]; after?:string[];
+  bonuses?:string[]; guaranteeDays?:number; guaranteeText?:string;
+  testimonials?:Array<{quote:string;author:string}>;
   createdAt:string; updatedAt:string; publishedSlug?:string;
 };
 export const LANDING_SECTIONS:ReadonlyArray<{id:LandingSection;label:string}> = [
@@ -23,7 +27,7 @@ export const LANDING_SECTIONS:ReadonlyArray<{id:LandingSection;label:string}> = 
 ];
 export const LANDING_PRESETS:ReadonlyArray<{id:LandingKind;label:string;detail:string;color:string}> = [
   {id:"product",label:"Produto físico",detail:"Editorial de produto, benefício e compra",color:"#bb6b4a"},
-  {id:"course",label:"Infoproduto",detail:"Venda de conhecimento, curso ou mentoria",color:"#faaa45"},
+  {id:"course",label:"Infoproduto",detail:"Página de vendas completa: mockup, oferta e conversão",color:"#00d6a1"},
   {id:"leads",label:"Captação de leads",detail:"Proposta de valor e formulário integrado",color:"#2867db"},
   {id:"services",label:"Serviços premium",detail:"Presença sofisticada e agendamento",color:"#468a72"},
   {id:"saas",label:"SaaS / tecnologia",detail:"Produto digital e demonstração",color:"#a99bff"},
@@ -67,7 +71,10 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
     offer:d.offer,price:"",ctaLabel:d.cta,ctaUrl:"",secondaryUrl:"",whatsapp:"",email:"",
     heroImage:"",accent:LANDING_PRESETS.find(p=>p.id===kind)?.color||"#60a5fa",
     benefits:[...d.benefits],steps:[...d.steps],faqs:[],proof:"",proofAuthor:"",
-    sections:["benefits","details","process","proof","offer","faq","contact"],createdAt:now,updatedAt:now};
+    sections:["benefits","details","process","proof","offer","faq","contact"],
+    salesPage:kind==="course",ribbon:"",before:[],after:[],bonuses:[],
+    guaranteeDays:kind==="course"?7:0,guaranteeText:"",
+    testimonials:[],createdAt:now,updatedAt:now};
 }
 export function normalizeLanding(raw:unknown):LandingProject{
   if(!raw||typeof raw!=="object")throw Error("Dados da landing page inválidos.");
@@ -87,6 +94,12 @@ export function normalizeLanding(raw:unknown):LandingProject{
     email:tidy(p.email,160),heroImage:safeImage(p.heroImage),
     accent:rgb(p.accent,fallback.accent),benefits:list(p.benefits,6),steps:list(p.steps,6),
     faqs,proof:tidy(p.proof,600),proofAuthor:tidy(p.proofAuthor,120),sections,
+    salesPage:p.salesPage===true,ribbon:tidy(p.ribbon,140),
+    before:list(p.before,5),after:list(p.after,5),bonuses:list(p.bonuses,8),
+    guaranteeDays:p.guaranteeDays===7?7:0,guaranteeText:tidy(p.guaranteeText,500),
+    testimonials:Array.isArray(p.testimonials)?p.testimonials.slice(0,8).map(v=>({
+      quote:tidy(v?.quote,700),author:tidy(v?.author,120)
+    })).filter(v=>v.quote&&v.author):[],
     createdAt:tidy(p.createdAt,40)||fallback.createdAt,updatedAt:new Date().toISOString(),
     publishedSlug:typeof p.publishedSlug==="string"&&/^lp-[a-f0-9]{32}$/.test(p.publishedSlug)?p.publishedSlug:undefined
   };
@@ -119,6 +132,7 @@ function sectionTop(eye:string,title:string,subtitle:string){
 }
 export function renderLandingHtml(input:LandingProject,preview=false):string{
  const p=normalizeLanding(input);
+ if(p.kind==="course"&&p.salesPage)return renderInfoproductHtml(p,preview);
  const a=p.accent,cta=p.ctaUrl||"#contact",phone=p.whatsapp.replace(/\D/g,"");
  const contact=phone?"https://wa.me/"+phone:p.ctaUrl||"#contact";
  const artwork:Record<LandingKind,string>={
