@@ -32,6 +32,9 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  const after=(p.after||[]).filter(Boolean);
  let index=0;
  let html=UNIVERSAL_TEMPLATE_HTML.replace(/<section\b/g,()=>'<section data-pn-template-index="'+index+++'"');
+ if(p.heroImage&&(/^(?:https:\/\/|data:image\/(?:png|jpe?g|webp);base64,)/i).test(p.heroImage)){
+  html=html.replace('src="/landing-universal/hero.webp"','src="'+esc(p.heroImage)+'"');
+ }
  // First-class template text replacement (not a visually similar redraw).
  // Preserve the original heading node and highlighted underline instead
  // of concatenating the sample headline with the product-specific headline.
