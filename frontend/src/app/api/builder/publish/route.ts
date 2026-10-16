@@ -1,23 +1,13 @@
-import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
-
+import { createHash } from "node:crypto";
 import { renderSitePreview, SITE_PAGES, type SiteProject } from "@/lib/site-builder";
-import { createClient } from "@/lib/supabase/server";
+import { authorizedForms, errorsAsResponse } from "@/lib/forms/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 const BUCKET = "pagenova-published-sites";
-
-function adminClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!url || !key) throw new Error("Supabase admin configuration is missing.");
-  return createAdminClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-}
 
 function slugify(value: string) {
   return value
@@ -29,7 +19,7 @@ function slugify(value: string) {
     .slice(0, 54) || "site";
 }
 
-async function ensureBucket(admin: ReturnType<typeof adminClient>) {
+async function ensureBucket(admin: Awaited<ReturnType<typeof authorizedForms>>["admin"]) {
   const { data } = await admin.storage.getBucket(BUCKET);
   if (data) return;
   const { error } = await admin.storage.createBucket(BUCKET, {
@@ -46,13 +36,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Origem nao autorizada." }, { status: 403 });
   }
 
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Acesso PageNova necessario." }, { status: 401 });
+  // Publishing is a paid PageNova capability, not an operation available to
+  // any signed-up Supabase user. Reuse the central entitlement check.
+  let access: Awaited<ReturnType<typeof authorizedForms>>;
+  try { access = await authorizedForms(); }
+  catch (error) { return errorsAsResponse(error); }
+  const { admin, userId } = access;
 
-  const body = await request.json() as { project?: SiteProject };
+  let body: { project?: SiteProject };
+  try { body = await request.json() as { project?: SiteProject }; }
+  catch { return NextResponse.json({ error: "Projeto inválido." }, { status: 400 }); }
   const project = body.project;
-  if (!project || project.kind !== "institutional-site" || !project.id || !project.name) {
+  if (!project || project.kind !== "institutional-site" ||
+      typeof project.id !== "string" || project.id.length < 8 || project.id.length > 128 ||
+      typeof project.name !== "string" || project.name.length > 160 ||
+      !project.pages || typeof project.pages !== "object") {
     return NextResponse.json({ error: "Projeto invalido." }, { status: 400 });
   }
 
@@ -66,24 +64,54 @@ export async function POST(request: NextRequest) {
   }
 
   const stableSuffix = project.id.replace(/[^a-zA-Z0-9]/g, "").slice(0, 8).toLowerCase();
-  const slug = `${slugify(project.name)}-${stableSuffix}`;
+  await ensureBucket(admin);
+  const storage = admin.storage.from(BUCKET);
+  const baseSlug = `${slugify(project.name)}-${stableSuffix}`;
+  const ownerSuffix = createHash("sha256").update(userId + ":" + project.id).digest("hex").slice(0, 12);
+
+  // Preserve existing legacy URLs for their real owner. If the public slug
+  // belongs to someone else, use an owner-scoped address instead of replacing
+  // another customer's publication.
+  let slug = baseSlug;
+  let upsert = false;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { data: existing, error: readError } = await storage.download(`${slug}.json`);
+    if (existing) {
+      let existingOwner = "";
+      try {
+        const stored = JSON.parse(await existing.text()) as { ownerId?: unknown };
+        if (typeof stored.ownerId === "string") existingOwner = stored.ownerId;
+      } catch { /* Malformed publication is never safe to overwrite. */ }
+      if (existingOwner === userId) {
+        upsert = true;
+        break;
+      }
+      if (attempt === 0) {
+        slug = `${baseSlug}-${ownerSuffix}`;
+        continue;
+      }
+      return NextResponse.json({ error: "Conflito de endereço de publicação." }, { status: 409 });
+    }
+    if (readError && !/not found|object not found|404/i.test(readError.message)) {
+      return NextResponse.json({ error: "Não foi possível validar o endereço público." }, { status: 503 });
+    }
+    break;
+  }
   const payload = JSON.stringify({
     version: 1,
     slug,
     projectId: project.id,
-    ownerId: user.id,
+    ownerId: userId,
     name: project.name,
     pages,
     publishedAt: new Date().toISOString(),
   });
-
-  const admin = adminClient();
-  await ensureBucket(admin);
-  const { error } = await admin.storage
-    .from(BUCKET)
+  const { error } = await storage
     .upload(`${slug}.json`, new Blob([payload], { type: "application/json" }), {
       contentType: "application/json",
-      upsert: true,
+      // New slugs are create-only, avoiding a race that overwrites someone
+      // else's publication. Existing owner-scoped slugs remain editable.
+      upsert,
       cacheControl: "0",
     });
   if (error) {
