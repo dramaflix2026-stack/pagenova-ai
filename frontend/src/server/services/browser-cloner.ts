@@ -14,6 +14,8 @@ export type BrowserFetchedPage = {
   desktopImages: {id:string;src:string}[];
   desktopImageCount: number;
   mobileImageCount: number;
+  mobileBrokenImages: number;
+  desktopBrokenImages: number;
   desktopCaptured: boolean;
 };
 
@@ -318,15 +320,24 @@ export async function fetchPageWithBrowser(
       images.forEach((image,index)=>image.setAttribute("data-pagenova-capture-img",String(index)));
       return images.length;
     });
+    const mobileBrokenImages=await page.evaluate(()=>
+      [...document.querySelectorAll("img")].filter(img=>
+        img.currentSrc&&img.complete&&img.naturalWidth===0&&
+        img.getBoundingClientRect().width>8
+      ).length
+    );
     const html=await page.content();
     let desktopImages:{id:string;src:string}[]=[];
-    let desktopImageCount=0,desktopCaptured=false;
+    let desktopImageCount=0,desktopBrokenImages=0,desktopCaptured=false;
     try{
       await page.setViewportSize({width:1440,height:900});
       await settleDynamicPage(page);
       const desktop=await page.evaluate(()=>{
         const images=[...document.querySelectorAll("img")];
-        return {count:images.length,variants:images
+        return {count:images.length,broken:images.filter(image=>
+          image.currentSrc&&image.complete&&image.naturalWidth===0&&
+          image.getBoundingClientRect().width>8
+        ).length,variants:images
           .filter(image=>image.hasAttribute("data-pagenova-capture-img"))
           .map(image=>({
             id:image.getAttribute("data-pagenova-capture-img")||"",
@@ -335,6 +346,7 @@ export async function fetchPageWithBrowser(
       });
       desktopImages=desktop.variants;
       desktopImageCount=desktop.count;
+      desktopBrokenImages=desktop.broken;
       desktopCaptured=true;
     }catch(error){
       // Never regress a successful mobile capture because a desktop-only
@@ -361,7 +373,8 @@ export async function fetchPageWithBrowser(
     return {
       html,
       finalUrl,
-      desktopImages,desktopImageCount,mobileImageCount,desktopCaptured,
+      desktopImages,desktopImageCount,mobileImageCount,
+      desktopBrokenImages,mobileBrokenImages,desktopCaptured,
     };
   } finally {
     if (browser) {
