@@ -828,7 +828,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         <button type="button" aria-expanded={showBrandSettings} aria-controls="pagenova-editor-brand-settings"
           onClick={()=>{setShowBrandSettings(value=>!value);setShowAiTools(false);}}
           className={`inline-flex min-h-10 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-colors ${showBrandSettings?'border-primary bg-primary-soft text-primary':'border-border bg-muted text-foreground hover:border-primary/40'}`}>
-          <Settings2 className="h-4 w-4" aria-hidden="true"/> Logo e templates
+          <Settings2 className="h-4 w-4" aria-hidden="true"/> Editar logo / nome
           <ChevronDown className={`h-3.5 w-3.5 transition-transform ${showBrandSettings?'rotate-180':''}`} aria-hidden="true"/>
         </button>
         <button type="button" aria-expanded={showAiTools} aria-controls="pagenova-editor-ai-tools"
@@ -840,11 +840,29 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         <span className="hidden text-[11px] text-muted-foreground sm:inline">Prévia do site em tempo real</span>
       </div>
       {showBrandSettings&&<div id="pagenova-editor-brand-settings" className="max-h-[44dvh] shrink-0 overflow-y-auto overscroll-contain border-b border-border bg-surface md:max-h-[40vh]">
+      <div className="border-b border-border bg-surface px-3 py-3" role="group" aria-label="Editar texto da marca no cabeçalho">
+        <label htmlFor="pagenova-site-wordmark" className="block text-xs font-semibold text-foreground">Texto da logo / nome que aparece no cabeçalho</label>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <input id="pagenova-site-wordmark" type="text" maxLength={60}
+            value={config.navigation.wordmark||''}
+            onChange={event=>history.set({...config,navigation:{...config.navigation,logo:null,wordmark:event.target.value.slice(0,60)}})}
+            placeholder={config.business.name||"Digite o nome da marca"}
+            className="min-h-10 min-w-0 flex-1 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+            aria-describedby="pagenova-site-wordmark-hint"/>
+          <button type="button" onClick={()=>history.set({...config,navigation:{...config.navigation,logo:null,wordmark:config.navigation.wordmark||config.business.name.slice(0,60)}})}
+            className="min-h-10 rounded-lg border border-primary bg-primary-soft px-3 py-2 text-xs font-semibold text-primary">
+            Usar somente texto
+          </button>
+        </div>
+        <p id="pagenova-site-wordmark-hint" className="mt-1.5 text-[11px] text-muted-foreground">
+          Ao digitar, a imagem da logo é removida e o nome aparece imediatamente. As mudanças são salvas automaticamente.
+        </p>
+      </div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-surface px-3 py-2"
         role="group" aria-label="Identidade visual da empresa">
         <div className="min-w-0">
           <p className="text-xs font-semibold text-foreground">Logo do site</p>
-          <p className="text-[11px] text-muted-foreground">Troque ou remova sem nova geração de IA. Funciona em todos os modelos.</p>
+          <p className="text-[11px] text-muted-foreground">Envie uma imagem, remova-a ou escreva o nome acima — sem gerar o site novamente.</p>
         </div>
         <div className="flex items-center gap-2">
           {config.navigation.logo&&<button type="button"
