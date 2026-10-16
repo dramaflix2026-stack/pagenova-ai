@@ -75,7 +75,7 @@
       '<select data-field="font" title="Fonte"><option value="Poppins">Poppins</option><option value="Inter">Inter</option><option value="Montserrat">Montserrat</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option><option value="Nunito">Nunito</option><option value="Raleway">Raleway</option><option value="DM Sans">DM Sans</option><option value="Manrope">Manrope</option><option value="Playfair Display">Playfair Display</option><option value="Merriweather">Merriweather</option><option value="Oswald">Oswald</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option></select>' +
       '<input data-field="size" type="number" min="10" max="120" inputmode="numeric" aria-label="Tamanho">' +
       '<input data-field="color" type="color" value="#111111" aria-label="Cor">' +
-      '<button type="button" data-act="close" title="Fechar">×</button>';
+      '<button type="button" data-act="close" title="Salvar texto e concluir">✓ Salvar</button>';
     document.body.appendChild(bar);
 
     const box = document.createElement("div");
@@ -408,18 +408,24 @@
   }, true);
 
   document.addEventListener("input", function(e) {
-    // Keep the editing session entirely inside the iframe while the user types.
-    // Persisting on every keystroke makes React rebuild srcDoc and destroys
-    // contentEditable/focus, which feels like the editor is kicking the user out.
+    // Keep the caret stable while typing. An autosave postMessage updates the
+    // parent's React srcDoc and would reload this iframe halfway through a word.
+    // Persist on explicit Save, Escape, change of selection or focus leaving.
     if (selected && e.target === selected && selected.isContentEditable) {
+      selected.dataset.pnDirty = "true";
       syncUi();
-      // Persist while typing without replacing the iframe or losing the caret.
-      clearTimeout(textSaveTimer);
-      textSaveTimer = setTimeout(function() {
-        if (selected && selected.isContentEditable) save();
-      }, 650);
     }
   }, true);
+
+  document.addEventListener("focusout", function(e) {
+    if (!selected || e.target !== selected || !selected.isContentEditable) return;
+    // Focus moving to the formatting toolbar is still part of the edit session.
+    if (closest(e.relatedTarget, "#pn-edit-bar")) return;
+    closeToolbar();
+  }, true);
+  document.addEventListener("visibilitychange", function() {
+    if (document.hidden && selected?.isContentEditable) closeToolbar();
+  });
 
   document.addEventListener("keydown", function(e) {
     if (!selected || e.target !== selected || !selected.isContentEditable) return;
