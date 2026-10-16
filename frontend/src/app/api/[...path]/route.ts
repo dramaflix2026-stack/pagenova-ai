@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { authorizedForms } from "@/lib/forms/server";
 
 import { cloneLandingPage } from "@/server/services/cloner-service";
 import { generatePageNovaCopy } from "@/server/services/pagenova-copy-engine";
@@ -61,6 +62,16 @@ export async function POST(
   context: RouteContext,
 ) {
   const path = await getPath(context);
+  // Legacy compatibility routes can call paid OpenAI providers. Never leave
+  // them public or usable by a free trial outside its two-site CRM quota.
+  try{
+    const access=await authorizedForms();
+    if(access.kind!=="paid")return json({
+      ok:false,error:"Use a geração limitada do CRM durante o teste grátis. Este serviço de IA exige assinatura."
+    },403);
+  }catch{return json({ok:false,error:"Acesso PageNova necessário."},401);}
+  const origin=request.headers.get("origin");
+  if(origin&&origin!==request.nextUrl.origin)return json({ok:false,error:"Origem não autorizada."},403);
 
   let body: Record<string, unknown>;
 
