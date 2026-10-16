@@ -80,3 +80,36 @@ O produto pago mais forte atualmente é a assinatura PageNova AI (R$147/mês). P
 - [ ] CRM: Google Places (uma pesquisa controlada), importação de CSV, geração de site vinculada ao lead.
 - [ ] Apps/Sistemas: exportar ZIP -> instalar dependências -> compilar protótipos.
 - [ ] Validação de custos e chamada de API por usuário/ação; regressão automática e logs de erro.
+
+---
+
+## Rodada complementar de estabilização — 15/10/2026 (horário de Brasília)
+
+### Controles de custos de provedores externos
+- Migrações Supabase `pagenova_paid_ai_daily_budget` e `pagenova_cost_guard_crm_google` aplicadas: contador diário atômico por usuário (dia UTC), em tabela do esquema privado `pagenova_private`.
+- RPC `pagenova_paid_ai_reserve` é `SECURITY DEFINER`, com EXECUTE apenas para `service_role`; grants para PUBLIC/anon/authenticated verificados como **zero**.
+- Tetos **internos** de chamadas por dia, separados das cotas comerciais: geração textual antiga 80, imagens 20, briefing 40, anexos com visão 30, personalização universal 40, nova geração CRM 80, pesquisa Google Places 100.
+- O limite é aplicado antes da chamada externa e falha fechado se não puder ser validado. Chamadas locais de eBooks, formulários, quizzes, protótipos de aplicativos e sistemas não recebem cobrança de IA.
+- **Importante:** as contagens diárias são freios contra abuso; não representam medição em dólares e não substituem as 40 gerações/150 páginas por ciclo. Operações repetidas ou com erro podem consumir o freio diário, mas não são cobrança de crédito de assinatura.
+- **Ainda pendente:** verificar na Vercel o valor real de `PAGENOVA_CREDITS_ENFORCE`, confirmar ciclos por todos os planos, medir custos reais de OpenAI/Google e provar débito/estorno com contas de teste autorizadas.
+
+### Editor, clonador, publicações e eBooks
+- Proteção adicional dos endpoints antigos de geração por usuário; o sistema deve rejeitar excesso antes de consumir OpenAI.
+- Importador de HTML reconhece imagens lazy-load (`data-src`, `data-original`, `data-lazy-src`, `srcset`) quando presentes no HTML público. Fidelidade pixel a pixel **não** prometida.
+- Exportador PDF tenta diagramação compacta para páginas A4 cujo conteúdo exceda a folha; se ainda houver excesso, retorna erro editorial com os números das páginas, em vez de cortar texto silenciosamente.
+- Sem autenticação real de usuário não foi possível certificar arrastar/redimensionar, mídia reaberta, domínios, publicação visual ou um PDF real de 54 folhas.
+
+### Motor local e testes
+- Testes de execução adicionados para: livro culinário de 50 receitas e 54 páginas HTML, protótipos Expo/Next com TSX parseável e cabeçalhos ZIP, Formulários e Quiz de 15 perguntas com pontuação.
+- Esses testes são invocados no build Vercel, ao lado do validador editorial anterior; aprovação do build **não** substitui teste de PDF no navegador nem instalação das dependências dos starters.
+- Títulos fornecidos pelo usuário agora são inseridos nos arquivos TSX gerados como literais seguros, preservando nomes com aspas e chaves.
+- GitHub Actions do repositório apresenta falhas pré-execução em diferentes commits anteriores e novos: jobs com `runner_id=0` e `steps=[]`. Esse sintoma aponta para problema na alocação/execução do runner, não para resultado dos testes; é necessário verificar as configurações e a elegibilidade de Actions no GitHub.
+
+### Segurança e decisões preservadas
+- `rls_auto_enable()`: permissão pública revogada e ausência de EXECUTE para anon/authenticated confirmada.
+- O Supabase ainda indica a proteção de senhas comprometidas desabilitada (recomendação: habilitar em Auth).
+- Nenhum checkout, produto ou permissão comercial referente ao **item 9** foi implementado nesta rodada.
+- Não excluir tabelas, ciclos, leads ou projetos reais para executar testes; usar usuários/URLs de teste autorizados.
+
+### Gatilho para homologação comercial
+**NÃO DECLARAR A PLATAFORMA 100% HOMOLOGADA** até concluir: compra de cada plano + login + créditos; geração/edição/publicação de site e clonagem real; PDF de receitas inteiro sem recorte; formulário/quiz com resposta recuperada; CRM com Places e importação real; ZIP instalado e compilado; custos observados e acesso multi-tenant validado.
