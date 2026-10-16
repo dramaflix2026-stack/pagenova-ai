@@ -5,10 +5,11 @@ import {request as httpsRequest} from "node:https";
 import * as cheerio from "cheerio";
 import {createFaithfulVisual,stylesheetLinks,absolutizeCss} from "@/server/services/faithful-cloner";
 import {signedClonerMedia} from "@/server/services/cloner-media";
+import {fetchPageWithBrowser} from "@/server/services/browser-cloner";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 
 export const runtime="nodejs";
-export const maxDuration=35;
+export const maxDuration=90;
 const MAX_HTML_BYTES=1_500_000;
 const encode=(text:string)=>text.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 function publicAddress(ip:string):boolean{
@@ -237,16 +238,39 @@ export async function POST(request:NextRequest){
     if(text.length>2000)throw new FormServiceError("Pedido muito grande.",413);
     const input=JSON.parse(text) as {url?:unknown};
     if(typeof input.url!=="string"||input.url.length>1400)throw new FormServiceError("Informe a URL de uma página.",422);
-    const {url,html}=await getPublicHtml(input.url.trim());
+    // Prefer hydrated mobile browser DOM: static GET misses client-rendered
+    // cards, text, images and Tailwind runtime styles. Retain pinned HTML
+    // fetch only when Chromium is unavailable; disclose degraded fidelity.
+    let url:URL,html:string;
+    let engine:"hydrated-browser-v3"|"static-html-fallback-v3"="hydrated-browser-v3";
+    let browserFallback=false;
+    if(process.env.PAGENOVA_CLONER_BROWSER_DISABLED==="1"){
+      const raw=await getPublicHtml(input.url.trim());
+      url=raw.url;html=raw.html;
+      engine="static-html-fallback-v3";browserFallback=true;
+    }else{
+      try{
+        const snapshot=await fetchPageWithBrowser(input.url.trim());
+        url=snapshot.finalUrl;html=snapshot.html;
+      }catch(error){
+        console.warn("[PageNova cloner] Chromium snapshot unavailable; using pinned HTML fallback",{
+          code:error instanceof Error?error.message.slice(0,60):"UNKNOWN"
+        });
+        const raw=await getPublicHtml(input.url.trim());
+        url=raw.url;html=raw.html;
+        engine="static-html-fallback-v3";browserFallback=true;
+      }
+    }
     const styles=await inlinedPublicCss(html,url.href);
     const visual=createFaithfulVisual(html,url.href,styles.content,signedClonerMedia);
     const parsed=normalizeHtml(html,url,visual);
     const project={id:crypto.randomUUID(),sourceUrl:input.url.trim(),finalUrl:url.href,domain:url.hostname,
       ...parsed,fetchedAt:new Date().toISOString()};
     const warnings:string[]=[];
+    if(browserFallback)warnings.push("O navegador visual não ficou disponível nesta importação. Foi usado HTML estático, que pode omitir galerias, efeitos e seções carregadas por JavaScript.");
     if(styles.failed)warnings.push(styles.failed+" folhas de estilo não puderam ser preservadas; o visual pode precisar de ajustes.");
     if(visual.detectedImages===0&&parsed.images.length>0)warnings.push("As imagens originais não puderam ser recuperadas.");
-    return NextResponse.json({ok:true,engine:"faithful-html-import-v2",project,warnings,
+    return NextResponse.json({ok:true,engine,project,warnings,
       stats:{headings:parsed.headings.length,texts:parsed.texts.length,links:parsed.links.length,
         images:parsed.images.length,sections:parsed.sections.length,
         stylesheets:styles.content.length,recoveredImages:visual.recoveredImages}},{headers:{"Cache-Control":"no-store"}});
