@@ -4,7 +4,7 @@
 
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import {normalizeInlineEdits} from "@/lib/landing/inline-editor";
+import {normalizeInlineEdits,normalizeInsertedImages} from "@/lib/landing/inline-editor";
 import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,newUniversalLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
  type LandingKind,type LandingProject,type LandingSection,type LandingFaq } from "@/lib/landing/engine";
 import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,Copy,
@@ -68,15 +68,35 @@ export default function LandingStudioPage(){
  const [leads,setLeads]=useState<Lead[]|null>(null);
  const lastSaved=useRef<string>("");
  const previewFrame=useRef<HTMLIFrameElement|null>(null);
+ const addImageInput=useRef<HTMLInputElement|null>(null);
  const latestProject=useRef<LandingProject|null>(null);
  latestProject.current=project;
  // Content edits stay live in the frame without resetting its scroll position.
- const previewBase=project?JSON.stringify({...project,inlineEdits:undefined}):"";
+ const previewBase=project?JSON.stringify({...project,inlineEdits:undefined,insertedImages:undefined,updatedAt:undefined,publishedSlug:undefined}):"";
  const preview=useMemo(()=>project?renderLandingHtml(project,true):"",[previewBase,viewport]);
  useEffect(()=>{
   function onInlineMessage(event:MessageEvent){
    if(!previewFrame.current||event.source!==previewFrame.current.contentWindow)return;
    const data=event.data;
+   if(data?.type==="pagenova:landing-image-added"){
+    if(!data.image||typeof data.image!=="object")return;
+    setProject(current=>{
+     if(!current||current.templateVersion!=="universal-v1")return current;
+     const updated=normalizeInsertedImages([...(current.insertedImages||[]),data.image]);
+     if(updated.length<=(current.insertedImages||[]).length)return current;
+     return {...current,insertedImages:updated,updatedAt:new Date().toISOString()};
+    });
+    setStatus("Imagem adicionada. Alteração pronta para salvar e publicar.");return;
+   }
+   if(data?.type==="pagenova:landing-image-updated"){
+    if(typeof data.id!=="string"||typeof data.src!=="string")return;
+    setProject(current=>{
+     if(!current)return current;
+     const updated=normalizeInsertedImages((current.insertedImages||[]).map(item=>item.id===data.id?{...item,src:data.src}:item));
+     return {...current,insertedImages:updated,updatedAt:new Date().toISOString()};
+    });
+    return;
+   }
    if(!data||data.type!=="pagenova:landing-inline-edit"||typeof data.id!=="string"||!/^e\d{1,5}$/.test(data.id))return;
    if(!data.patch||typeof data.patch!=="object"||Array.isArray(data.patch))return;
    const update=Object.fromEntries(Object.entries(data.patch).filter(([key,value])=>
@@ -223,6 +243,48 @@ export default function LandingStudioPage(){
    setLeads(body.leads||[]);
   }catch(e){setError(errorText(e));}
   finally{setBusy("");}
+ }
+ async function addInlineImage(event:ChangeEvent<HTMLInputElement>){
+  const file=event.target.files?.[0];event.target.value="";if(!file)return;
+  if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>8_000_000){
+   setError("Use JPG, PNG ou WebP de até 8 MB.");return;
+  }
+  if(!previewFrame.current?.contentWindow){setError("Abra a prévia para adicionar a imagem.");return;}
+  if((project?.insertedImages||[]).length>=8){
+   setError("Limite de imagens extras atingido nesta página.");return;
+  }
+  try{
+   const src=await new Promise<string>((resolve,reject)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{
+     try{
+      const max=1200,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+      canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+      const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas indisponível");
+      let output="";
+      for(let n=0;n<5;n++){
+       ctx.clearRect(0,0,canvas.width,canvas.height);
+       ctx.drawImage(img,0,0,canvas.width,canvas.height);
+       output=canvas.toDataURL("image/webp",Math.max(.4,.8-n*.1));
+       if(output.length<=460_000)break;
+       canvas.width=Math.max(1,Math.round(canvas.width*.78));
+       canvas.height=Math.max(1,Math.round(canvas.height*.78));
+      }
+      if(!/^data:image\/(?:webp|png|jpeg);base64,/.test(output)||output.length>460_000)throw Error("Imagem muito grande. Tente outra resolução.");
+      resolve(output);
+     }catch(e){reject(e);}finally{URL.revokeObjectURL(url);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(Error("Não foi possível carregar a imagem."));};
+    img.src=url;
+   });
+   const currentImages=project?.insertedImages||[];
+   if(normalizeInsertedImages([...currentImages,{id:"i"+crypto.randomUUID().replaceAll("-",""),afterId:"e0",src}]).length<=currentImages.length)
+    throw Error("Espaço reservado a imagens atingido. Use uma imagem menor ou substitua uma existente.");
+   previewFrame.current.contentWindow.postMessage({type:"pagenova:landing-add-image",
+    image:{id:"i"+crypto.randomUUID().replaceAll("-",""),src}},"*");
+  }catch(e){setError(errorText(e));}
  }
  async function uploadHero(event:ChangeEvent<HTMLInputElement>){
   const file=event.target.files?.[0];event.target.value="";if(!file)return;
@@ -566,7 +628,11 @@ export default function LandingStudioPage(){
           <button type="button" title="Celular" aria-label="Visualização celular" aria-pressed={viewport==="mobile"} onClick={()=>setViewport("mobile")} className={"rounded-md p-1.5 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
          </div>
          <button type="button" onClick={openFullPreview} className="inline-flex items-center gap-1 rounded-lg border border-emerald-300/25 px-2.5 py-2 text-[11px] font-bold text-emerald-200" title="Abrir prévia em tela cheia"><ExternalLink className="h-3.5 w-3.5"/><span className="hidden sm:inline">Tela cheia</span></button>
-         {editorProject.templateVersion!=="universal-v1"&&<a href="#landing-editor-controls" className="inline-flex items-center rounded-lg border border-white/15 px-2.5 py-2 text-[11px] font-bold text-white/85 xl:hidden">Editar</a>}
+         {editorProject.templateVersion==="universal-v1"&&<>
+           <input ref={addImageInput} type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" aria-label="Escolher imagem para adicionar" onChange={e=>void addInlineImage(e)}/>
+           <button type="button" onClick={()=>addImageInput.current?.click()} title="Adicionar imagem à landing page" className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/30 px-2.5 py-2 text-[11px] font-bold text-emerald-200"><ImagePlus className="size-4"/><span className="hidden min-[440px]:inline">Adicionar imagem</span></button>
+          </>}
+          {editorProject.templateVersion!=="universal-v1"&&<a href="#landing-editor-controls" className="inline-flex items-center rounded-lg border border-white/15 px-2.5 py-2 text-[11px] font-bold text-white/85 xl:hidden">Editar</a>}
          {editorProject.publishedSlug&&<button type="button" onClick={()=>void loadLeads()} disabled={!!busy} title="Contatos recebidos" aria-label="Ver leads" className="inline-flex items-center rounded-lg border border-white/10 p-2 text-white/65 disabled:opacity-35"><Users className="h-4 w-4"/></button>}
         </div>
        </div>
