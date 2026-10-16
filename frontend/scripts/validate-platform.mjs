@@ -63,7 +63,7 @@ must("frontend/src/lib/pagenova-project-store.ts",[
  [/pendingProjectWrites/,"Local editor saves must be serialized"]
 ]);
 must("frontend/src/lib/credits/server.ts",[
- [/PAGENOVA_CREDITS_ENFORCE !== "0"/,"A missing env flag must not silently disable migrated credit quotas"]
+ [/PAGENOVA_CREDITS_ENFORCE === "1"/,"Credits require explicit rollout after historical usage reconciliation"]
 ]);
 if(!webhook.includes('unsupported_product'))throw new Error("Test orders can create entitlement.");
 console.log("PageNova static regression gate PASS: Kiwify, entitlements, credits, builder, cloner, studio, PDF, publishing and Google.");
