@@ -20,6 +20,7 @@ export function PageNovaSupportChat(){
   role:"assistant",content:"Oi! 👋 Sou a PageNova IA. Posso te ajudar com sites, Landing Pages, clonagem, eBooks, CRM, créditos e qualquer funcionalidade da plataforma. O que você quer fazer?"
  }]);
  const path=usePathname()||"/app";
+ const landingPreview=path.startsWith("/app/landing");
  const abort=useRef<AbortController|null>(null);
  const end=useRef<HTMLDivElement|null>(null);
  const inputRef=useRef<HTMLTextAreaElement|null>(null);
@@ -78,7 +79,7 @@ export function PageNovaSupportChat(){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send();}
  }
  return <div className="pointer-events-none fixed inset-0 z-[150]">
-  {open&&<div className="pointer-events-auto fixed bottom-[82px] right-3 flex h-[min(580px,calc(100dvh-100px))] w-[min(420px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0c1716] text-white shadow-[0_20px_90px_rgba(0,0,0,.6)] sm:bottom-[92px] sm:right-6" role="dialog" aria-modal="false" aria-label="Conversa com a PageNova IA">
+  {open&&<div className={"pointer-events-auto fixed right-3 flex w-[min(420px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0c1716] text-white shadow-[0_20px_90px_rgba(0,0,0,.6)] sm:right-6 "+(landingPreview?"bottom-[184px] h-[min(540px,calc(100dvh-205px))]":"bottom-[82px] h-[min(580px,calc(100dvh-100px))] sm:bottom-[92px]")} role="dialog" aria-modal="false" aria-label="Conversa com a PageNova IA">
     <header className="flex items-center gap-3 border-b border-white/10 bg-[#102821] p-4">
      <div className="grid size-10 place-items-center rounded-xl bg-emerald-300 text-[#09251a]"><Bot className="size-6"/></div>
      <div className="min-w-0 flex-1">
@@ -111,7 +112,7 @@ export function PageNovaSupportChat(){
     </div>
    </div>}
    <button type="button" aria-label={open?"Fechar PageNova IA":"Conversar com a PageNova IA"} aria-expanded={open} onClick={()=>setOpen(v=>!v)}
-    className="pointer-events-auto fixed bottom-4 right-4 flex size-14 items-center justify-center rounded-full border border-white/15 bg-emerald-300 text-[#05251b] shadow-[0_7px_35px_rgba(16,185,129,.35)] transition hover:scale-[1.05] hover:bg-emerald-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white sm:bottom-6 sm:right-6">
+    className={"pointer-events-auto fixed right-3 flex items-center justify-center rounded-full border border-white/15 bg-emerald-300 text-[#05251b] shadow-[0_7px_35px_rgba(16,185,129,.35)] transition hover:scale-[1.05] hover:bg-emerald-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white "+(landingPreview?"bottom-[116px] size-12 sm:right-6":"bottom-4 right-4 size-14 sm:bottom-6 sm:right-6")}>
     {open?<X className="size-7"/>:<MessageCircle className="size-7"/>}
    </button>
   </div>;
