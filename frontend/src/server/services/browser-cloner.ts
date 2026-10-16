@@ -1,4 +1,5 @@
 import { assertPublicUrl } from "./public-url-security";
+import {isIP} from "node:net";
 import chromium from "@sparticuz/chromium";
 import { chromium as playwrightChromium } from "playwright-core";
 
@@ -135,7 +136,7 @@ export async function fetchPageWithBrowser(
     const candidate=new URL(input);
     if(candidate.protocol!=="https:"||candidate.username||candidate.password||
        candidate.port&&candidate.port!=="443"||
-       candidate.hostname.endsWith(".local")||candidate.hostname==="localhost"||
+       isIP(candidate.hostname)!==0||candidate.hostname.endsWith(".local")||candidate.hostname==="localhost"||
        candidate.hostname.endsWith(".internal")||candidate.hostname.endsWith(".test"))
       throw new Error("UNSAFE_BROWSER_ORIGIN");
     const parsed=await assertPublicUrl(input);
@@ -264,6 +265,9 @@ export async function fetchPageWithBrowser(
       }
     );
 
+    // No source WebSocket connections: they are unnecessary to capture the
+    // rendered landing page and are not covered by ordinary HTTP routing.
+    await page.routeWebSocket("**/*",socket=>socket.close());
     page.setDefaultTimeout(
       BROWSER_TIMEOUT_MS
     );
