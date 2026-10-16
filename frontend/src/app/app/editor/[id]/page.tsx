@@ -1383,6 +1383,11 @@ if (!project) {
         </div>
       </header>
 
+      {project.captureEngine&&<p className={"border-b px-4 py-2 text-center text-xs font-semibold "+(project.captureEngine==="hydrated-browser-v3"?"border-emerald-300/20 bg-[#09271e] text-emerald-200":"border-amber-300/20 bg-[#34251a] text-amber-100")}>
+        {project.captureEngine==="hydrated-browser-v3"
+          ?"Clonagem visual: página capturada em navegador mobile após carregar o conteúdo."
+          :"Clonagem parcial: captura estática porque o navegador visual não respondeu. Alguns blocos podem faltar."}
+      </p>}
       {saveStatus&&<p role="status" aria-live="polite" className="border-b border-white/10 bg-[#101010] px-4 py-2 text-xs text-emerald-200 xl:hidden">{saveStatus}</p>}
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 border-r border-white/10 bg-[#101010] p-5 lg:block">
