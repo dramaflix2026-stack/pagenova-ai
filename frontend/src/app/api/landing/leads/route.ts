@@ -28,18 +28,18 @@ export async function POST(req:NextRequest){
   if(b.website)return NextResponse.json({ok:true});
   if(!pattern.test(slug)||name.length<2||!/^.+@.+\..+$/.test(email))return NextResponse.json({error:"Preencha nome e e-mail corretamente."},{status:400});
   if(b.consent!==true)return NextResponse.json({error:"Autorize o armazenamento dos seus dados para continuar."},{status:422});
-  const storage=admin().storage.from(BUCKET);
+  const service=admin();
+  const storage=service.storage.from(BUCKET);
   if(!await ownerFor(storage,slug))return NextResponse.json({error:"Página indisponível."},{status:404});
-  // Bound public submissions to avoid unmetered storage abuse.
-  // Latest first is essential: the default storage listing can return old
-  // submissions and stop enforcing the daily ceiling after 250 lifetime leads.
-  const {data:currentDay,error:listingError}=await storage.list("landing-leads/"+slug,{
-    limit:250,sortBy:{column:"created_at",order:"desc"},
-  });
-  if(listingError&&listingError.statusCode!=="404")throw listingError;
-  const today=new Date().toISOString().slice(0,10);
-  if((currentDay||[]).filter(item=>item.name.startsWith(today+"-")).length>=100)
-   return NextResponse.json({error:"Este formulário atingiu o limite diário de mensagens."},{status:429});
+  // A single atomic counter in Postgres protects this public endpoint even
+  // when many serverless instances submit concurrently. Listing only the
+  // first 250 Storage objects was neither exhaustive nor race-safe.
+  const {data:allowed,error:limitError}=await service.rpc("pagenova_landing_lead_reserve",{p_slug:slug});
+  if(limitError||typeof allowed!=="boolean"){
+    console.error("[Landing leads] Private submission limiter unavailable",{code:limitError?.code||"INVALID_RESULT"});
+    return NextResponse.json({error:"Envio temporariamente indisponível. Tente novamente."},{status:503});
+  }
+  if(!allowed)return NextResponse.json({error:"Este formulário atingiu o limite diário de mensagens."},{status:429});
   const record={name,email,message,slug,submittedAt:new Date().toISOString(),
     consent:true,consentedAt:new Date().toISOString()};
   const key="landing-leads/"+slug+"/"+new Date().toISOString().slice(0,10)+"-"+crypto.randomUUID()+".json";
