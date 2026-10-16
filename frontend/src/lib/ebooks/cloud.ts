@@ -37,7 +37,9 @@ async function read<T>(admin:SupabaseClient,path:string):Promise<T|null>{
   try{return JSON.parse(await data.text()) as T;}catch{return null;}
 }
 export async function saveCloudEbook(admin:SupabaseClient,userId:string,input:unknown):Promise<EbookSummary>{
-  const book=normalizeEbook(input);
+  let book:ReturnType<typeof normalizeEbook>;
+  try{book=normalizeEbook(input);}
+  catch(error){throw new FormServiceError(error instanceof Error?error.message:"Ebook inválido.",422);}
   if(!validId(book.id))throw new FormServiceError("ID de ebook inválido.");
   await ensureBucket(admin);
   await upload(admin,fullPath(userId,book.id),book);
