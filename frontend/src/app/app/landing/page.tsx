@@ -5,7 +5,7 @@
 import { useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
-import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
+import { LANDING_KINDS,LANDING_PRESETS,LANDING_SECTIONS,newLanding,newUniversalLanding,normalizeLanding,renderLandingHtml,analyzeLandingBrief,
  type LandingKind,type LandingProject,type LandingSection,type LandingFaq } from "@/lib/landing/engine";
 import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,Copy,
  ExternalLink,ImagePlus,LayoutTemplate,LoaderCircle,Monitor,Plus,Save,Send,Settings2,
@@ -51,6 +51,7 @@ export default function LandingStudioPage(){
  const [kind,setKind]=useState<LandingKind>("product");
  const [brand,setBrand]=useState("");
  const [brief,setBrief]=useState("");
+ const [price,setPrice]=useState("");
  const [project,setProject]=useState<LandingProject|null>(null);
  const [drafts,setDrafts]=useState<Draft[]>([]);
  const [loadingDrafts,setLoadingDrafts]=useState(true);
@@ -93,26 +94,45 @@ export default function LandingStudioPage(){
  },[]);
  async function create(){
   if(creatingStep)return;
-  if(!brand.trim()){setError("Informe o nome da marca ou produto.");return;}
-  if(!brief.trim()||brief.trim().length<20){
-   setError("Descreva o produto com pelo menos 20 caracteres para criar uma página personalizada.");return;
+  if(brand.trim().length<2){setError("Informe o nome do produto.");return;}
+  if(brief.trim().length<12){setError("Descreva o produto com pelo menos 12 caracteres.");return;}
+  if(!/^(?:R\$\s*)?\d{1,6}(?:[.,]\d{2})?$/.test(price.trim())){
+   setError("Informe o preço do produto. Ex.: 19,90");return;
   }
-  setError("");
-  const pause=(ms:number)=>new Promise<void>(resolve=>window.setTimeout(resolve,ms));
+  setError("");setCreatingStep("Analisando o nicho e preparando os textos da oferta...");
+  let fresh=newUniversalLanding(brand.trim(),brief.trim(),price.trim());
+  let generated=false;
   try{
-   setCreatingStep("1/3 · Identificando o produto e as informações do briefing");
-   const facts=kind==="course"?analyzeLandingBrief(brand,brief).facts:[];
-   const fresh=newLanding(kind,brand.trim(),brief);
-   await pause(330);
-   setCreatingStep("2/3 · Montando as seções com textos relacionados à oferta");
-   await pause(360);
-   setCreatingStep("3/3 · Preparando a visualização responsiva");
-   await pause(360);
-   setBriefInsights(facts);loadEditableLists(fresh);
-   setProject(fresh);setTab("content");setSection("hero");setViewport("mobile");
-   lastSaved.current="";setError("");
-   setStatus("Página estruturada localmente a partir do briefing. Revise a oferta, bônus, mockup, depoimentos e garantia antes de publicar.");
-  }finally{setCreatingStep("");}
+   const response=await fetch("/api/landing/generate-copy",{
+    method:"POST",credentials:"same-origin",cache:"no-store",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({name:brand.trim(),description:brief.trim(),price:price.trim()})
+   });
+   const result=await response.json().catch(()=>({})) as {
+    copy?:Partial<LandingProject>;configured?:boolean;error?:string
+   };
+   if(response.ok&&result.copy){
+    const c=result.copy;
+    fresh={...fresh,
+      eyebrow:c.eyebrow||fresh.eyebrow,headline:c.headline||fresh.headline,
+      subtitle:c.subtitle||fresh.subtitle,offer:c.offer||fresh.offer,
+      benefits:c.benefits?.length?c.benefits:fresh.benefits,
+      before:c.before?.length?c.before:fresh.before,
+      after:c.after?.length?c.after:fresh.after,
+      steps:c.steps?.length?c.steps:fresh.steps,
+      faqs:c.faqs?.length?c.faqs:fresh.faqs
+    };
+    generated=true;
+   }
+  }catch{/* Safe local fallback if provider is unavailable. */}
+  finally{setCreatingStep("");}
+  setBriefInsights(analyzeLandingBrief(fresh.name,fresh.brief).facts);
+  loadEditableLists(fresh);setProject(fresh);
+  setTab("content");setSection("hero");setViewport("mobile");
+  lastSaved.current="";setError("");
+  setStatus(generated
+    ?"Template original aplicado com textos da IA. Revise bônus, depoimentos reais, checkout e a oferta antes de publicar."
+    :"Template original aplicado. A IA não respondeu e foram usados textos contextuais locais. Você pode revisar tudo no editor.");
  }
  async function openDraft(id:string){
   setOpening(id);setError("");
@@ -307,28 +327,32 @@ export default function LandingStudioPage(){
      </div>
      <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#00d6a1]">alto padrão.</span></h1>
      <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">
-      Seis direções criativas, construção visual, formulários, salvamento e publicação. Sem chamadas de IA paga.
+      Template original responsivo, textos contextualizados por IA, edição, salvamento e publicação.
      </p>
     </div>
-    <section className="mx-auto mt-10 max-w-[1180px]">
-     <div className="mb-4 flex items-center justify-between gap-4"><h2 className="text-lg font-bold">1. Escolha o tipo de landing page</h2>
-      <span className="text-xs text-white/35">6 estilos profissionais</span></div>
-     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {LANDING_PRESETS.map(p=><button type="button" key={p.id} onClick={()=>setKind(p.id)}
-       className={"overflow-hidden rounded-2xl border text-left transition hover:-translate-y-1 "+(kind===p.id?"border-emerald-300/80 bg-emerald-300/[.08] shadow-[0_0_0_2px_#00d6a126]":"border-white/10 bg-[#141822] hover:border-white/35")}>
-       <FeaturePreview kind={p.id}/>
-       <span className="flex items-start gap-3 px-4 py-4"><span className={"mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border "+(kind===p.id?"border-emerald-300 bg-emerald-300 text-black":"border-white/30")}>{kind===p.id&&<Check className="h-3 w-3"/>}</span>
-       <span><strong className="block text-sm">{p.label}</strong><span className="mt-1 block text-xs leading-5 text-white/50">{p.detail}</span></span></span>
-      </button>)}
-     </div>
-     <div className="mt-7 grid gap-4 rounded-2xl border border-white/10 bg-[#151b25] p-5 sm:grid-cols-[1fr_1.6fr] sm:p-7">
-      <Field label="2. Nome da marca, produto ou negócio" value={brand} onChange={setBrand} placeholder="Ex.: Nome da sua marca ou produto"/>
-      <Field label="3. Descrição do negócio / oferta" value={brief} onChange={setBrief} rows={3} placeholder="O que você oferece? Para quem? O que é importante comunicar?"/>
-      <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-4">
-       <p className="max-w-lg text-xs leading-5 text-white/55">O motor local identifica assunto, quantidade e preço presentes no briefing. Nada de depoimentos ou bônus inventados. Zero API paga.</p>
-       <button disabled={!!creatingStep} onClick={()=>void create()} className="inline-flex items-center gap-2 rounded-xl bg-[#00d6a1] px-6 py-3.5 text-sm font-extrabold text-[#042019] hover:bg-[#43eab9] disabled:opacity-60">{creatingStep?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{creatingStep?" Preparando página...":" Criar minha landing page"} {!creatingStep&&<ArrowRight className="h-4 w-4"/>}</button>
+    <section className="mx-auto mt-10 max-w-4xl">
+      <div className="rounded-2xl border border-emerald-400/25 bg-[#151b25] p-5 shadow-2xl sm:p-8">
+       <div className="mb-6 flex items-center gap-3">
+        <span className="grid size-11 place-items-center rounded-xl bg-emerald-300/10 text-emerald-300"><LayoutTemplate className="size-6"/></span>
+        <div><h2 className="text-lg font-extrabold">Template universal de infoproduto</h2>
+         <p className="mt-1 text-xs leading-5 text-white/55">Layout original: tarja, headline, mockup, antes/depois, bônus, oferta, depoimentos, garantia e CTA fixo no celular.</p>
+        </div>
+       </div>
+       <div className="grid gap-5 sm:grid-cols-2">
+        <div className="sm:col-span-2"><Field label="1. Nome do produto" value={brand} onChange={setBrand} placeholder="Ex.: 5000 Projetos de Serralheria"/></div>
+        <div className="sm:col-span-2"><Field label="2. Pequena descrição do produto" value={brief} onChange={setBrief} rows={4}
+         placeholder="O que é o produto, para quem serve e o que a pessoa recebe?"/></div>
+        <div className="sm:col-span-2"><Field label="3. Preço do produto" value={price} onChange={setPrice} placeholder="Ex.: 19,90"
+         hint="Informe o valor real, sem preço anterior ou desconto inventado."/></div>
+       </div>
+       <p className="mt-6 text-xs leading-6 text-white/55">O restante da página é estruturado automaticamente. A IA ajuda com textos contextualizados e não cria depoimentos, bônus ou resultados falsos.</p>
+       <button type="button" disabled={!!creatingStep} onClick={()=>void create()}
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-300 px-6 py-4 text-sm font-extrabold text-[#042019] hover:bg-emerald-200 disabled:opacity-60">
+        {creatingStep?<LoaderCircle className="size-5 animate-spin"/>:<WandSparkles className="size-5"/>}
+        {creatingStep?"Preparando sua landing...":"Criar Landing Page com IA"}
+        {!creatingStep&&<ArrowRight className="size-5"/>}
+       </button>
       </div>
-     </div>
      {creatingStep&&<div role="status" aria-live="polite" className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-300/30 bg-emerald-300/[.06] px-5 py-4 text-sm font-semibold text-emerald-200"><LoaderCircle className="h-4 w-4 animate-spin"/>{creatingStep}</div>}
      <div className="mt-8">
       <h2 className="mb-4 text-lg font-bold">Meus projetos salvos</h2>
