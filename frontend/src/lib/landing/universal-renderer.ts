@@ -185,5 +185,5 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  '<meta name="description" content="'+meta+'"><title>'+esc(subject)+'</title>'+fonts+
  '<style>'+css.replace(/<\/style/gi,"<\\/style")+'</style>'+ 
  '</head>'+
- '<body class="bg-background text-foreground">'+html+'</body></html>',p.inlineEdits,preview);
+ '<body class="bg-background text-foreground">'+html+'</body></html>',p.inlineEdits,preview,p.insertedImages);
 }
