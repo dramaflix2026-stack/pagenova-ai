@@ -55,6 +55,7 @@ const storage={
   }
 };
 const reservations={form:0,quiz:0};
+let activeClonerAccount="account-one";
 const admin={storage,async rpc(name,args){
   if(name!=="pagenova_public_submission_reserve"||!["form","quiz"].includes(args?.p_kind))
     return {data:null,error:{code:"UNKNOWN_TEST_RPC"}};
@@ -74,6 +75,12 @@ function load(path){
   const mod={exports:{}};
   cache.set(filename,mod);
   const localRequire=(specifier)=>{
+    if(specifier==="node:crypto")return createRequire(resolve(root,"package.json"))("node:crypto");
+    if(specifier==="cheerio")return createRequire(resolve(root,"package.json"))("cheerio");
+    if(specifier==="next/server")return {NextResponse:{json:(data,init)=>Response.json(data,init)}};
+    if(specifier==="@/lib/forms/server"&&filename.includes("/app/api/cloner/publish/"))
+      return {...load(resolve(root,"src/lib/forms/server")),
+        authorizedForms:async()=>({admin,userId:activeClonerAccount})};
     if(specifier==="@supabase/supabase-js")return {createClient:()=>admin};
     if(specifier==="@/lib/supabase/server")return {createClient:async()=>({
       auth:{getUser:async()=>({data:{user:null}})}
@@ -196,6 +203,45 @@ try{
   await rejects(()=>cloud.getCloudEbook(admin,"account-one",book.id),
     "Deleted ebook remains readable");
   console.log("EBOOK CLOUD PASS: save, list, reopen, tenant isolation, delete.");
+
+  // Exercise the real Cloner POST sanitizer and the public GET route without
+  // a database, an external URL or a real authenticated account.
+  const clonePublish=load(resolve(root,"src/app/api/cloner/publish/route"));
+  const clonePublic=load(resolve(root,"src/app/c/[slug]/route"));
+  const projectId="739014c5-2873-4d83-beb2-7740a26ba854";
+  const dirtyHtml='<html><head><script>alert(1)</script></head><body>'+
+    '<h1>Site copiado de teste</h1><a href="javascript:alert(1)">Clique</a>'+
+    '<img src="http://unsafe.test/img.png"><img src="https://example.org/safe.jpg">'+
+    '<form><input name="password"></form><iframe src="https://bad.test"></iframe>'+
+    '<p onclick="alert(2)">Texto seguro</p></body></html>';
+  const publishAs=async (who,html)=>{
+    activeClonerAccount=who;
+    const request={
+      nextUrl:new URL("https://pagenova-test.invalid/api/cloner/publish"),
+      headers:new Headers({origin:"https://pagenova-test.invalid"}),
+      text:async()=>JSON.stringify({projectId,title:"Teste de clonagem",html})
+    };
+    const response=await clonePublish.POST(request);
+    assert(response.status===200,"Cloner publication failed with status "+response.status);
+    return response.json();
+  };
+  const first=await publishAs("account-one",dirtyHtml);
+  assert(/^c-[a-f0-9]{32}$/.test(first.slug),"Cloner slug invalid");
+  const page=await clonePublic.GET(null,{params:Promise.resolve({slug:first.slug})});
+  const pageHtml=await page.text();
+  assert(page.status===200,"Published clone GET failed");
+  assert(pageHtml.includes("Site copiado de teste"),"Published clone lost text");
+  assert(!pageHtml.includes("<script")&&!pageHtml.includes("<iframe")&&
+      !pageHtml.includes("<form")&&!pageHtml.includes("onclick=")&&
+      !pageHtml.includes("javascript:")&&!pageHtml.includes("http://unsafe.test"),
+    "Cloner allowed potentially executable imported HTML");
+  assert(page.headers.get("Content-Security-Policy")?.includes("script-src 'none'"),
+    "Published clone must disable scripts with CSP");
+  const next=await publishAs("account-one",dirtyHtml.replace("Site copiado de teste","Revisão segura do site"));
+  assert(first.slug===next.slug,"Republishing clone changed public URL");
+  const foreign=await publishAs("account-two",dirtyHtml);
+  assert(foreign.slug!==first.slug,"Cloner URL was not owner-scoped");
+  console.log("CLONER PASS: sanitized HTML, CSP, owner isolation, stable republish URL.");
 
   assert([...objects.keys()].every(key=>!key.includes("real_customer")),"Unexpected test data");
   console.log("PRIVATE STORAGE INTEGRATION PASS: all test data stayed in memory.");
