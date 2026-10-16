@@ -37,8 +37,8 @@ function cleanHtml(raw:string):string{
   $("picture source,img[srcset]").each((_,node)=>{
     const el=$(node),srcset=cleanSrcset(el.attr("srcset")||"");
     if(srcset)el.attr("srcset",srcset);else el.removeAttr("srcset");
-    el.removeAttr("data-srcset").removeAttr("src");
-    if(node.tagName==="source"&&!srcset)el.remove();
+    el.removeAttr("data-srcset");
+    if(node.tagName==="source"){el.removeAttr("src");if(!srcset)el.remove();}
   });
   $("form").each((_,node)=>{$(node).replaceWith('<div class="pn-cloned-form">'+$(node).html()+'</div>');});
   $("input,textarea,select").each((_,node)=>{
