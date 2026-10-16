@@ -1,5 +1,6 @@
 import { createHmac, randomUUID } from "node:crypto";
 import { creditGateEnabled, creditErrorResponse, reserveCredit, settleCredit, settleJobCredit, type CreditAccount } from "@/lib/credits/server";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
@@ -106,6 +107,19 @@ async function proxy(request: NextRequest, context: RouteContext) {
   const siteMatch=method==="POST"&&suffix.match(/^site-projects\/([^/]+)\/generate$/);
   const googlePage=method==="POST"&&suffix==="google/search";
   const jobMatch=method==="GET"&&suffix.match(/^site-jobs\/([^/]+)(?:\/events)?$/);
+
+  // This independent, server-side daily cost ceiling stays active even when
+  // the commercial subscription-credit rollout is temporarily disabled.
+  if(siteMatch||googlePage){
+    const budget=await reservePaidAiBudget(who.admin,who.externalUserId,
+      siteMatch?"crm_site_generation":"google_places_page");
+    if(!budget.ok){
+      return NextResponse.json({error:{
+        code:budget.status===429?"PAID_PROVIDER_DAILY_LIMIT":"COST_GUARD_UNAVAILABLE",
+        message:budget.message,
+      }},{status:budget.status});
+    }
+  }
 
   let creditId:string|null=null;
   if(metered&&(siteMatch||googlePage)){
