@@ -33,9 +33,14 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  let index=0;
  let html=UNIVERSAL_TEMPLATE_HTML.replace(/<section\b/g,()=>'<section data-pn-template-index="'+index+++'"');
  // First-class template text replacement (not a visually similar redraw).
- html=swapText(html,"Sua headline principal com a",p.headline||"Conheça "+subject);
- html=swapText(html,"grande promessa","oferta");
- html=html.replace(" aqui</h1>","</h1>");
+ // Preserve the original heading node and highlighted underline instead
+ // of concatenating the sample headline with the product-specific headline.
+ const headline=p.headline||"Conheça "+subject;
+ const words=headline.split(/\s+/);
+ const headStart=words.length>5?words.slice(0,-3).join(" "):headline;
+ const headMark=words.length>5?words.slice(-3).join(" "):"";
+ html=html.replace(/(<h1\b[^>]*>)[\s\S]*?(<\/h1>)/,
+  (_all,start,end)=>start+esc(headStart)+(headMark?' <span class="mark">'+esc(headMark)+'</span>':"")+end);
  html=swapText(html,
   "Sub-headline explicando como seu infoproduto resolve o problema do cliente de forma simples, rápida e sem enrolação.",
   p.subtitle||p.description);
@@ -97,10 +102,24 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  // Unverified bonuses or invented social proof are never published.
  html=replaceSection(html,3,section=>{
   const bonuses=(p.bonuses||[]).filter(Boolean);
-  if(!bonuses.length)return preview?
-    '<section class="border-y bg-muted/70 px-5 py-16"><div class="mx-auto max-w-5xl text-center">'+
-    '<p class="kicker kicker-center">Bônus</p><h2 class="mt-4 text-3xl font-extrabold">Bônus a confirmar</h2>'+
-    '<p class="mt-3 text-muted-foreground">Cadastre bônus reais no editor; eles não aparecerão na versão publicada enquanto estiverem vazios.</p></div></section>':"";
+  if(!bonuses.length){
+    if(!preview)return "";
+    // Maintain the template's complete three-column visual composition in
+    // preview, while displaying obvious, non-publishable placeholders.
+    return section
+      .replaceAll("Comprando hoje você leva também","Espaços para bônus da oferta")
+      .replaceAll("Três entregas que aceleram o resultado e não custam nada a mais.",
+       "Exemplos visuais do template. Inclua somente bônus reais para publicar.")
+      .replaceAll("Guia Rápido de Implantação","Bônus a confirmar 01")
+      .replaceAll("Planilhas e Modelos Prontos","Bônus a confirmar 02")
+      .replaceAll("Comunidade VIP de Alunos","Bônus a confirmar 03")
+      .replaceAll("Comece em menos de 1 hora, mesmo partindo do zero absoluto.","Descrição a ser confirmada.")
+      .replaceAll("Organize sua rotina e acompanhe seus números sem esforço.","Descrição a ser confirmada.")
+      .replaceAll("Tire dúvidas direto com quem já passou pelo mesmo caminho.","Descrição a ser confirmada.")
+      .replace(/R\$ (?:97|67|147|311)/g,"—")
+      .replaceAll("GRÁTIS","EXEMPLO")
+      .replaceAll("todos inclusos sem custo extra","ainda não foram informados bônus reais");
+  }
   const article=/\<article\b[^>]*\>[\s\S]*?<\/article>/g;let i=0;
   section=section.replace(article,original=>{
    const value=bonuses[i++];
@@ -118,9 +137,24 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  html=replaceSection(html,5,section=>{
   const reviews=(p.testimonials||[]).filter(t=>t.confirmed&&t.photo&&t.quote&&t.city&&
     /^[A-Z]{2}$/.test(t.state||"")&&/^\S+\s+\S+/.test(t.author));
-  if(!reviews.length)return preview?
-   '<section class="px-5 py-16"><div class="mx-auto max-w-5xl text-center"><h2 class="text-3xl font-extrabold">Depoimentos reais</h2>'+
-   '<p class="mt-4 text-muted-foreground">Inclua nome, foto e relato autorizado para mostrar a prova social.</p></div></section>':"";
+  if(!reviews.length){
+    if(!preview)return "";
+    return section.replaceAll("Quem aplicou, conta","Espaços para depoimentos reais")
+      .replaceAll("Histórias reais de alunos que estavam exatamente onde você está agora.",
+        "Estes cards são demonstrativos. Adicione apenas relatos autorizados para publicação.")
+      .replaceAll("Mariana Souza","Cliente ilustrativo 01")
+      .replaceAll("Carlos Oliveira","Cliente ilustrativo 02")
+      .replaceAll("Ana Lima","Cliente ilustrativo 03")
+      .replaceAll("Rafael Santos","Cliente ilustrativo 04")
+      .replaceAll("Belo Horizonte · MG","Foto ilustrativa")
+      .replaceAll("Curitiba · PR","Foto ilustrativa")
+      .replaceAll("Recife · PE","Foto ilustrativa")
+      .replaceAll("São Paulo · SP","Foto ilustrativa")
+      .replaceAll("Em 30 dias eu já tinha resultados que não tive em anos seguindo meu próprio jeito. Recomendo demais.","Depoimento verdadeiro a preencher no editor.")
+      .replaceAll("Conteúdo direto ao ponto, sem enrolação. Foi o primeiro material que eu terminei de assistir.","Depoimento verdadeiro a preencher no editor.")
+      .replaceAll("Finalmente entendi o que eu estava fazendo de errado. Mudou a forma como eu trabalho todos os dias.","Depoimento verdadeiro a preencher no editor.")
+      .replaceAll("Didática excelente e um suporte que responde de verdade. Superou tudo que eu esperava.","Depoimento verdadeiro a preencher no editor.");
+  }
   let n=0;return section.replace(/<article\b[^>]*>[\s\S]*?<\/article>/g,()=>{
    const t=reviews[n++];if(!t)return "";
    return '<article class="surface lift flex flex-col rounded-3xl p-8">'+
