@@ -55,7 +55,11 @@ function srcsetAbsolute(srcset:string,base:string,mediaProxy?:(url:string)=>stri
   return (mediaProxy?mediaProxy(src):src)+(descriptor?" "+descriptor:"");
  }).filter(Boolean).join(", ");
 }
-export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=[],mediaProxy?:(url:string)=>string){
+export function createFaithfulVisual(
+ html:string,base:string,inlineCss:string[]=[],mediaProxy?:(url:string)=>string,
+ desktopImages:{id:string;src:string}[]=[]
+){
+ const desktopVariants=new Map(desktopImages.map(image=>[image.id,image.src]));
  // SVG and vector assets remain direct HTTPS rather than being routed
  // through the raster-only proxy, where they would always return HTTP 502.
  const proxyImage=(src:string)=>{
@@ -164,6 +168,17 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
   if(srcset){
    const safe=srcsetAbsolute(srcset,base,proxyImage);
    if(safe)el.attr("srcset",safe);else el.removeAttr("srcset");
+  }
+  const index=el.attr("data-pagenova-capture-img")||"";
+  const desktopSrc=safeResourceUrl(desktopVariants.get(index)||"",base);
+  el.removeAttr("data-pagenova-capture-img");
+  // Only synthesize a desktop <source> when JS actually chose a different
+  // asset, and native srcset/picture did not already solve art direction.
+  if(desktopSrc&&desktopSrc!==recovered&&desktopSrc.startsWith("https:")&&
+      !el.attr("srcset")&&!el.parent().is("picture")){
+    el.wrap('<picture data-pagenova-responsive-image="1"></picture>');
+    el.before('<source media="(min-width: 768px)" srcset="'+
+      proxyImage(desktopSrc).replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'">');
   }
   el.removeAttr("loading").removeAttr("decoding");
   el.removeClass("lazyload lazyloaded ls-is-cached");
