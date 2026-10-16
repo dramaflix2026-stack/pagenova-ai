@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { creditGateEnabled } from "@/lib/credits/server";
+import { settleTrialJob } from "@/lib/trial/server";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -10,7 +11,6 @@ export const dynamic="force-dynamic";
 // Authentication is an HMAC over job ID, terminal state and timestamp.
 // No browser may settle another subscriber's credit.
 export async function POST(request:NextRequest){
-  if(!creditGateEnabled())return NextResponse.json({ok:true,ignored:"meter_inactive"});
   const secret=process.env.PAGENOVA_SSO_SECRET?.trim();
   const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key=process.env.SUPABASE_SECRET_KEY;
@@ -38,17 +38,27 @@ export async function POST(request:NextRequest){
   const admin=createClient(url,key,{
     auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},
   });
-  const {data,error}=await admin.rpc("pagenova_credits_settle_job_callback",{
-    p_job_id:jobId,p_success:status==="SUCCEEDED",
-  });
-  if(error){
-    console.error("[PageNova Credits] worker settlement RPC failed",{code:error.code});
+  let found=false;
+  try{
+    // The signed Railway callback handles both paid and trial job refunds.
+    // Commercial credits remain subject to their existing rollout flag.
+    const trial=await settleTrialJob(admin,jobId,status==="SUCCEEDED");
+    found=trial.found===true;
+    if(creditGateEnabled()){
+      const {data,error}=await admin.rpc("pagenova_credits_settle_job_callback",{
+        p_job_id:jobId,p_success:status==="SUCCEEDED",
+      });
+      if(error)throw Error("paid_settlement_unavailable");
+      found=found||(data as {found?:boolean})?.found===true;
+    }
+  }catch{
+    console.error("[PageNova credits] Signed worker settlement failed");
     return NextResponse.json({error:"settlement_failed"},{status:503});
   }
-  const result=data as {found?:boolean};
-  if(result?.found===false){
-    // The worker may finish before the initial enqueue proxy attaches the
-    // job ID to the reservation. Railway retries this signed notification.
+  if(!found){
+    // The worker may finish before the proxy attaches the job ID.
+    // When commercial metering is disabled, non-metered paid jobs need no retry.
+    if(!creditGateEnabled())return NextResponse.json({ok:true,ignored:"unmetered_job"});
     return NextResponse.json({error:"reservation_not_attached_yet"},{status:503});
   }
   return NextResponse.json({ok:true},{headers:{"Cache-Control":"no-store"}});
