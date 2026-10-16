@@ -114,9 +114,9 @@ export default function CadastroPage() {
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-xl text-emerald-300" aria-hidden="true">
               ✦
             </div>
-            <h1 className="text-2xl font-bold tracking-tight">Crie sua conta PageNova</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Comece seu teste grátis de 5 dias</h1>
             <p className="mt-2 text-sm leading-6 text-white/55">
-              Cadastre seu e-mail para acessar sua área de trabalho.
+              Sem cartão e sem compromisso. Confirme seu e-mail, entre na plataforma e experimente as ferramentas com limites gratuitos.
             </p>
           </div>
 
@@ -191,14 +191,13 @@ export default function CadastroPage() {
 
               <button type="submit" disabled={loading}
                 className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] transition hover:bg-[#7debc0] disabled:cursor-not-allowed disabled:opacity-55">
-                {loading ? "Criando conta..." : "Cadastre-se"}
+                {loading ? "Criando conta..." : "Iniciar teste grátis de 5 dias"}
               </button>
             </form>
           )}
 
           <p className="mt-5 text-center text-xs leading-5 text-white/45">
-            O cadastro não ativa uma assinatura. Para usar a plataforma, é preciso ter um plano ativo
-            vinculado ao mesmo e-mail.
+            A avaliação começa no primeiro acesso ao painel após a confirmação do e-mail. São 5 dias, 2 gerações de sites pelo CRM e 5 páginas Google Places. Sem cobrança automática.
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 border-t border-white/10 pt-5 text-center text-sm">
             <span className="text-white/45">Já tem uma conta?</span>
