@@ -212,10 +212,13 @@ try{
   // a database, an external URL or a real authenticated account.
   const clonePublish=load(resolve(root,"src/app/api/cloner/publish/route"));
   const clonePublic=load(resolve(root,"src/app/c/[slug]/route"));
+  const signedImage=load(resolve(root,"src/server/services/cloner-media")).signedClonerMedia("https://example.org/wp-content/uploads/amigurumi.webp");
+  assert(signedImage.startsWith("/api/cloner/media?u="),"Cloner must sign original images");
   const projectId="739014c5-2873-4d83-beb2-7740a26ba854";
   const dirtyHtml='<html><head><script>alert(1)</script></head><body>'+
     '<h1>Site copiado de teste</h1><a href="javascript:alert(1)">Clique</a>'+
     '<img src="http://unsafe.test/img.png"><img src="https://example.org/safe.jpg">'+
+    '<img src="'+signedImage+'"><img src="/api/cloner/media?u=https://example.org/img.webp&amp;sig=invalid">'+
     '<form><input name="password"></form><iframe src="https://bad.test"></iframe>'+
     '<p onclick="alert(2)">Texto seguro</p></body></html>';
   const publishAs=async (who,html)=>{
@@ -235,6 +238,10 @@ try{
   const pageHtml=await page.text();
   assert(page.status===200,"Published clone GET failed");
   assert(pageHtml.includes("Site copiado de teste"),"Published clone lost text");
+  assert(pageHtml.includes("/api/cloner/media?u="),
+    "Published clone removed signed local images, creating large blank sections");
+  assert(!pageHtml.includes("sig=invalid"),
+    "Published clone accepted a forged image proxy URL");
   assert(!pageHtml.includes("<script")&&!pageHtml.includes("<iframe")&&
       !pageHtml.includes("<form")&&!pageHtml.includes("onclick=")&&
       !pageHtml.includes("javascript:")&&!pageHtml.includes("http://unsafe.test"),
