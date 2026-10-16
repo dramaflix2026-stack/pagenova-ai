@@ -27,15 +27,21 @@ export async function POST(req:NextRequest){
   const slug=text(b.slug,40),name=text(b.name,100),email=text(b.email,160),message=text(b.message,1000);
   if(b.website)return NextResponse.json({ok:true});
   if(!pattern.test(slug)||name.length<2||!/^.+@.+\..+$/.test(email))return NextResponse.json({error:"Preencha nome e e-mail corretamente."},{status:400});
+  if(b.consent!==true)return NextResponse.json({error:"Autorize o armazenamento dos seus dados para continuar."},{status:422});
   const storage=admin().storage.from(BUCKET);
   if(!await ownerFor(storage,slug))return NextResponse.json({error:"Página indisponível."},{status:404});
   // Bound public submissions to avoid unmetered storage abuse.
-  const {data:currentDay,error:listingError}=await storage.list("landing-leads/"+slug,{limit:250});
+  // Latest first is essential: the default storage listing can return old
+  // submissions and stop enforcing the daily ceiling after 250 lifetime leads.
+  const {data:currentDay,error:listingError}=await storage.list("landing-leads/"+slug,{
+    limit:250,sortBy:{column:"created_at",order:"desc"},
+  });
   if(listingError&&listingError.statusCode!=="404")throw listingError;
   const today=new Date().toISOString().slice(0,10);
   if((currentDay||[]).filter(item=>item.name.startsWith(today+"-")).length>=100)
    return NextResponse.json({error:"Este formulário atingiu o limite diário de mensagens."},{status:429});
-  const record={name,email,message,slug,submittedAt:new Date().toISOString()};
+  const record={name,email,message,slug,submittedAt:new Date().toISOString(),
+    consent:true,consentedAt:new Date().toISOString()};
   const key="landing-leads/"+slug+"/"+new Date().toISOString().slice(0,10)+"-"+crypto.randomUUID()+".json";
   const {error}=await storage.upload(key,new Blob([JSON.stringify(record)],{type:"application/json"}),{contentType:"application/json",upsert:false});
   if(error)throw error;
