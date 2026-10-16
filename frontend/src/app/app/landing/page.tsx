@@ -242,10 +242,11 @@ export default function LandingStudioPage(){
       <Field label="2. Nome da marca, produto ou negócio" value={brand} onChange={setBrand} placeholder="Ex.: Nome da sua marca ou produto"/>
       <Field label="3. Descrição do negócio / oferta" value={brief} onChange={setBrief} rows={3} placeholder="O que você oferece? Para quem? O que é importante comunicar?"/>
       <div className="sm:col-span-2 flex flex-wrap items-center justify-between gap-4">
-       <p className="max-w-lg text-xs leading-5 text-white/45">A composição é automática, mas textos e afirmações precisam refletir sua oferta real. Nenhuma prova social é inventada.</p>
-       <button onClick={create} className="inline-flex items-center gap-2 rounded-xl bg-[#00d6a1] px-6 py-3.5 text-sm font-extrabold text-[#042019] hover:bg-[#43eab9]">Criar minha landing page <ArrowRight className="h-4 w-4"/></button>
+       <p className="max-w-lg text-xs leading-5 text-white/55">O motor local identifica assunto, quantidade e preço presentes no briefing. Nada de depoimentos ou bônus inventados. Zero API paga.</p>
+       <button disabled={!!creatingStep} onClick={()=>void create()} className="inline-flex items-center gap-2 rounded-xl bg-[#00d6a1] px-6 py-3.5 text-sm font-extrabold text-[#042019] hover:bg-[#43eab9] disabled:opacity-60">{creatingStep?<LoaderCircle className="h-4 w-4 animate-spin"/>:<WandSparkles className="h-4 w-4"/>}{creatingStep?" Preparando página...":" Criar minha landing page"} {!creatingStep&&<ArrowRight className="h-4 w-4"/>}</button>
       </div>
      </div>
+     {creatingStep&&<div role="status" aria-live="polite" className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-300/30 bg-emerald-300/[.06] px-5 py-4 text-sm font-semibold text-emerald-200"><LoaderCircle className="h-4 w-4 animate-spin"/>{creatingStep}</div>}
      <div className="mt-8">
       <h2 className="mb-4 text-lg font-bold">Meus projetos salvos</h2>
       {loadingDrafts?<p className="text-sm text-white/45">Carregando...</p>:drafts.length===0?<p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-white/45">Seu primeiro projeto aparecerá aqui depois de criado e salvo.</p>:
@@ -278,10 +279,16 @@ export default function LandingStudioPage(){
       </div>
       <div className="max-h-[820px] space-y-5 overflow-y-auto p-5">
        {tab==="content"&&<>
-        <label className="block space-y-2"><span className="text-xs font-bold text-white/60">Editar seção</span><select className={inputClass} value={section} onChange={e=>setSection(e.target.value as LandingSection|"hero")}>
-         <option value="hero">Primeira dobra / Hero</option>{LANDING_SECTIONS.map(s=><option value={s.id} key={s.id}>{s.label}</option>)}
+        <label className="block space-y-2"><span className="text-xs font-bold text-white/60">Editar seção</span><select className={inputClass} value={section} onChange={e=>setSection(e.target.value as EditorSection)}>
+         <option value="hero">Primeira dobra / Hero</option>
+         {editorProject.salesPage&&<><option value="comparison">Antes e depois</option><option value="bonuses">Bônus inclusos</option><option value="guarantee">Garantia de 7 dias</option></>}
+         {LANDING_SECTIONS.map(s=><option value={s.id} key={s.id}>{s.label}</option>)}
         </select></label>
-        {section==="hero"&&<div className="space-y-5">{field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}</div>}
+        {section==="hero"&&<div className="space-y-5">
+         {editorProject.salesPage&&<div className="rounded-xl border border-emerald-300/20 bg-emerald-300/[.05] p-3 text-xs leading-5 text-emerald-100">Funil de vendas: tarja fixa, headline, mockup, benefícios, comparação, bônus, oferta, depoimentos, garantia e FAQ.</div>}
+         {editorProject.salesPage&&field("ribbon","Tarja fixa superior")}
+         {field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}
+        </div>}
         {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
         {section==="process"&&<Field label="Etapas — uma por linha" value={editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
