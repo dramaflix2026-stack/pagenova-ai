@@ -123,8 +123,8 @@ export default function Home() {
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-            <Link href="/cadastro" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-2.5 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
-              Cadastre-se
+            <Link href="/cadastro?trial=1" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-2.5 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+              Testar 5 dias grátis
             </Link>
             <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-2.5 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#75e8b7] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
               Login
@@ -147,15 +147,15 @@ export default function Home() {
               Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <a href="#criacao" className="rounded-xl bg-[#36d9a1] px-6 py-3.5 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
-                Explorar a plataforma →
-              </a>
+              <Link href="/cadastro?trial=1" className="rounded-xl bg-[#36d9a1] px-6 py-3.5 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
+                Começar meus 5 dias grátis →
+              </Link>
               <a href="#planos" className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-semibold text-white/80 transition hover:border-[#75e8b7] hover:text-white">
                 Ver os planos
               </a>
             </div>
             <p className="mt-6 text-xs text-white/40">
-              Sites com IA · Landing pages · Ebooks · CRM · Agenda
+              Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
           <ProductFrame />
