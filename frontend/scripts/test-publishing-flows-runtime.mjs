@@ -219,7 +219,9 @@ try{
     '<h1>Site copiado de teste</h1><a href="javascript:alert(1)">Clique</a>'+
     '<img src="http://unsafe.test/img.png"><img src="https://example.org/safe.jpg">'+
     '<img src="'+signedImage+'"><img src="/api/cloner/media?u=https://example.org/img.webp&amp;sig=invalid">'+
-    '<form><input name="password"></form><iframe src="https://bad.test"></iframe>'+
+    '<form><input name="password"></form><iframe src="https://bad.test"></iframe>'+ 
+    '<button class="faq-toggle" onclick="steal()">FAQ original?</button>'+
+    '<svg class="decor" viewBox="0 0 24 24"><path d="M0 0L12 12"/></svg>'+
     '<p onclick="alert(2)">Texto seguro</p></body></html>';
   const publishAs=async (who,html)=>{
     activeClonerAccount=who;
@@ -238,6 +240,12 @@ try{
   const pageHtml=await page.text();
   assert(page.status===200,"Published clone GET failed");
   assert(pageHtml.includes("Site copiado de teste"),"Published clone lost text");
+  assert(pageHtml.includes('class="faq-toggle"')&&pageHtml.includes("FAQ original?"),
+    "Publishing must preserve the visual content of FAQ buttons");
+  assert(pageHtml.includes('class="decor"')&&pageHtml.includes('<path'),
+    "Publishing must preserve safely sanitized SVG icon paths");
+  assert(!pageHtml.includes('onclick=')&&pageHtml.includes('aria-disabled="true"'),
+    "Original button must be inert, without source JavaScript handlers");
   assert(pageHtml.includes("/api/cloner/media?u="),
     "Published clone removed signed local images, creating large blank sections");
   assert(!pageHtml.includes("sig=invalid"),
