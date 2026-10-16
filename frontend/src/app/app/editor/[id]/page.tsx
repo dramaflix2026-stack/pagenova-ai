@@ -1050,6 +1050,7 @@ setEditingText(fullText);
   const [saveStatus, setSaveStatus] =
     useState<string | null>(null);
   const [publishingClone,setPublishingClone]=useState(false);
+  const [refreshingClone,setRefreshingClone]=useState(false);
   const [publishedCloneUrl,setPublishedCloneUrl]=useState("");
 
   const saveEditedProject =
@@ -1155,6 +1156,32 @@ if (!project) {
         );
       }
     }, [project]);
+  async function refreshOriginalClone(){
+    if(!project?.sourceUrl||refreshingClone||publishingClone)return;
+    if(!window.confirm("Atualizar a clonagem com uma nova captura visual do site original? Isso substituirá os textos, imagens e estilos editados neste projeto. O link já publicado só muda quando você clicar em Publicar."))return;
+    setRefreshingClone(true);setSaveStatus("Reabrindo a página original no navegador visual...");
+    try{
+      const response=await fetch("/api/cloner/analyze",{
+        method:"POST",credentials:"same-origin",cache:"no-store",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({url:project.sourceUrl})
+      });
+      const data=await response.json().catch(()=>({})) as {
+        project?:CloneProject;error?:string;warnings?:string[];engine?:string;
+      };
+      if(!response.ok||!data.project)throw new Error(data.error||"Não foi possível recapturar a página original.");
+      const updated:CloneProject={...data.project,id:project.id};
+      await savePageNovaProject(project.id,updated);
+      sessionStorage.setItem("lp-clone-project:"+project.id,JSON.stringify(updated));
+      sessionStorage.setItem("lp-clone-current-project",project.id);
+      setProject(updated);
+      setSaveStatus(data.engine==="hydrated-browser-v3"
+        ?"Nova captura visual aplicada. Confira o mobile e publique para atualizar o mesmo link."
+        :"Apenas HTML estático foi recuperado. A página de origem depende de recursos dinâmicos; não publique sem revisar.");
+    }catch(error){
+      setSaveStatus(error instanceof Error?error.message:"A captura visual falhou.");
+    }finally{setRefreshingClone(false);}
+  }
   async function publishImportedProject(){
     if(!project||publishingClone)return;
     setPublishingClone(true);setSaveStatus(null);
@@ -1366,6 +1393,11 @@ if (!project) {
               </span>
             ) : null}
 
+            <button type="button" onClick={()=>void refreshOriginalClone()}
+              disabled={refreshingClone||publishingClone}
+              className="rounded-lg border border-white/20 px-3 py-2 text-xs font-bold text-white/80 transition hover:bg-white/10 disabled:opacity-50">
+              {refreshingClone?"Reclonando...":"Atualizar do original"}
+            </button>
             <button
               type="button"
               onClick={saveEditedProject}
