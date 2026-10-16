@@ -58,7 +58,7 @@ export default function LandingStudioPage(){
  const [opening,setOpening]=useState("");
  const [tab,setTab]=useState<Tab>("content");
  const [section,setSection]=useState<EditorSection>("hero");
- const [viewport,setViewport]=useState<"desktop"|"mobile">("desktop");
+ const [viewport,setViewport]=useState<"desktop"|"mobile">("mobile");
  const [busy,setBusy]=useState<""|"save"|"publish"|"leads">("");
  const [creatingStep,setCreatingStep]=useState("");
  const [briefInsights,setBriefInsights]=useState<string[]>([]);
@@ -79,6 +79,7 @@ export default function LandingStudioPage(){
   finally{setLoadingDrafts(false);}
  },[]);
  useEffect(()=>{void cloudRefresh();},[cloudRefresh]);
+ useEffect(()=>{if(window.matchMedia("(min-width: 1024px)").matches)setViewport("desktop");},[]);
  function loadEditableLists(value:LandingProject){
   setListDrafts({
     benefits:value.benefits.join("\n"),steps:value.steps.join("\n"),
@@ -323,7 +324,7 @@ export default function LandingStudioPage(){
  const editorProject = project as LandingProject;
  return <div className="min-h-screen bg-[#0d1017] text-white">
   <AppHeader/>
-  <div className="mx-auto max-w-[1700px] px-4 py-7 sm:px-6 lg:px-9">
+  <div className="mx-auto max-w-[1700px] px-3 py-3 sm:px-5 sm:py-5 lg:px-7">
    {!project?<>
     <div className="mx-auto max-w-4xl text-center">
      <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-emerald-200">
@@ -369,43 +370,49 @@ export default function LandingStudioPage(){
      </div>
     </section>
    </>:<>
-    <header className="flex flex-wrap items-center justify-between gap-4">
-     <div className="flex min-w-0 items-center gap-3">
-      <button className="rounded-lg border border-white/10 p-2 text-white/60 hover:text-white" onClick={()=>{setProject(null);setLeads(null);void cloudRefresh();}} aria-label="Voltar à lista"><ArrowLeft className="h-5 w-5"/></button>
-      <div className="min-w-0"><span className="block text-[10px] font-bold tracking-[.15em] text-emerald-300">EDITOR LANDING PAGE</span><h1 className="truncate text-xl font-bold sm:text-2xl">{editorProject.name}</h1>
+    <header className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+       <button type="button" className="shrink-0 rounded-lg border border-white/10 p-2 text-white/65 hover:text-white" onClick={()=>{setProject(null);setLeads(null);void cloudRefresh();}} aria-label="Voltar aos projetos"><ArrowLeft className="h-4 w-4"/></button>
+       <div className="min-w-0"><h1 className="truncate text-sm font-extrabold sm:text-lg">{editorProject.name}</h1><p className="text-[10px] text-white/45">Editor de Landing Page</p></div>
       </div>
-     </div>
-     <div className="flex flex-wrap items-center gap-2">
-      <span className="hidden max-w-44 truncate text-[11px] text-white/40 lg:block">{status}</span>
-      <button disabled={!!busy} onClick={()=>void save(false)} className="inline-flex items-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-xs font-bold hover:bg-white/10 disabled:opacity-50">{busy==="save"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>} Salvar</button>
-      {editorProject.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+editorProject.publishedSlug} className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/25 px-3 py-2.5 text-xs font-bold text-emerald-200"><ExternalLink className="h-4 w-4"/> Ver online</a>}
-      <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
-     </div>
-    </header>
-    {editorProject.kind==="course"&&!editorProject.salesPage&&<div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/25 bg-[#102320] p-4">
+      <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+       <button type="button" disabled={!!busy} onClick={()=>void save(false)} aria-label="Salvar projeto" className="inline-flex items-center gap-1.5 rounded-lg border border-white/15 px-2.5 py-2 text-xs font-bold hover:bg-white/10 disabled:opacity-50 sm:px-3">{busy==="save"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>}<span className="hidden min-[420px]:inline">Salvar</span></button>
+       {editorProject.publishedSlug&&<a target="_blank" rel="noopener noreferrer" href={"/lp/"+editorProject.publishedSlug} aria-label="Abrir página publicada" title="Ver online" className="inline-flex items-center rounded-lg border border-emerald-300/25 px-2.5 py-2 text-xs font-bold text-emerald-200 hover:bg-emerald-300/10"><ExternalLink className="h-4 w-4"/></a>}
+       <button type="button" disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-300 px-3 py-2 text-xs font-extrabold text-black hover:bg-emerald-200 disabled:opacity-50 sm:px-4">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
+      </div>
+     </header>
+     {editorProject.kind==="course"&&!editorProject.salesPage&&<div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/25 bg-[#102320] p-4">
       <div><p className="text-sm font-bold text-emerald-300">Existe um novo funil para infoprodutos</p><p className="mt-1 text-xs text-white/60">Converta este projeto antigo preservando seu mockup e checkout.</p></div>
       <button type="button" onClick={upgradeCourse} className="rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-[#042019]">Usar novo funil →</button>
      </div>}
-    {editorProject.salesPage&&<div className="mt-4 space-y-3 rounded-xl border border-emerald-300/15 bg-[#102423] p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-       <div><p className="text-xs font-extrabold text-emerald-200">Conteúdo da oferta · {analyzeLandingBrief(editorProject.name,editorProject.brief).niche}</p>
-        <p className="mt-1 text-xs leading-5 text-white/60">Melhore os textos usando as informações reais do briefing, sem chamadas de IA paga.</p></div>
-       <button type="button" onClick={refreshSalesCopy} className="rounded-xl border border-emerald-300/35 px-4 py-2.5 text-xs font-extrabold text-emerald-200 hover:bg-emerald-300/10">Refazer textos pelo briefing ↗</button>
+    {editorProject.salesPage&&<details className="group mt-3 rounded-xl border border-emerald-300/15 bg-[#102423]">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-xs text-emerald-100 marker:hidden [&::-webkit-details-marker]:hidden sm:px-4">
+       <span className="flex min-w-0 items-center gap-2">
+        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-300"/>
+        <span className="truncate font-semibold">Oferta · {analyzeLandingBrief(editorProject.name,editorProject.brief).niche}</span>
+       </span>
+       <span className="flex shrink-0 items-center gap-1 text-[11px] text-white/55">Detalhes <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180"/></span>
+      </summary>
+      <div className="space-y-3 border-t border-white/10 px-3 pb-3 pt-3 sm:px-4">
+       <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs text-white/60">Dados do briefing e ajustes opcionais da oferta.</p>
+        <button type="button" onClick={refreshSalesCopy} className="rounded-lg border border-emerald-300/30 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-300/10">Refazer textos pelo briefing ↗</button>
+       </div>
+       {briefInsights.length>0&&<div className="flex flex-wrap gap-1.5">{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/15 px-2.5 py-1 text-[11px] text-white/65">{v}</span>)}</div>}
+       <div className="flex flex-wrap gap-2 text-[11px]">
+        <span className={editorProject.ctaUrl?"rounded-md border border-emerald-400/25 px-2.5 py-2 text-emerald-200":"rounded-md border border-amber-400/25 px-2.5 py-2 text-amber-200"}>{editorProject.ctaUrl?"✓ Checkout vinculado":"! Sem checkout: CTA de contato"}</span>
+        <span className="rounded-md border border-white/10 px-2.5 py-2 text-white/65">{editorProject.heroImage?"✓ Imagem enviada":"○ Mockup ilustrativo"}</span>
+        <span className="rounded-md border border-white/10 px-2.5 py-2 text-white/65">{(editorProject.testimonials||[]).some(t=>t.confirmed)?"✓ Depoimentos cadastrados":"○ Sem depoimentos reais"}</span>
+       </div>
       </div>
-      {briefInsights.length>0&&<div className="flex flex-wrap items-center gap-2">{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/20 px-3 py-1 text-xs text-white/75">{v}</span>)}</div>}
-      <div className="grid gap-2 text-xs sm:grid-cols-3">
-       <span className={editorProject.ctaUrl?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-amber-400/30 bg-amber-300/5 p-2.5 text-amber-200"}>{editorProject.ctaUrl?"✓ Checkout vinculado":"! Sem checkout: CTA leva ao contato"}</span>
-       <span className={editorProject.heroImage?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-white/10 p-2.5 text-white/55"}>{editorProject.heroImage?"✓ Imagem real enviada":"○ Mockup ilustrativo do briefing"}</span>
-       <span className={(editorProject.testimonials||[]).some(t=>t.confirmed)?"rounded-lg border border-emerald-400/30 p-2.5 text-emerald-200":"rounded-lg border border-white/10 p-2.5 text-white/55"}>{(editorProject.testimonials||[]).some(t=>t.confirmed)?"✓ Depoimentos cadastrados":"○ Adicione relatos reais"}</span>
-      </div>
-     </div>}
-    <div className="mt-5 grid gap-5 xl:grid-cols-[385px_minmax(0,1fr)]">
-     <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
+     </details>}
+     <div className="mt-3 grid gap-3 xl:grid-cols-[350px_minmax(0,1fr)] xl:gap-4">
+     <aside id="landing-editor-controls" className="order-2 overflow-hidden rounded-xl border border-white/10 bg-[#151a24] scroll-mt-20 xl:order-1">
       <div className="flex border-b border-white/10">
        {([{id:"content",label:"Conteúdo",icon:WandSparkles},{id:"structure",label:"Seções",icon:LayoutTemplate},{id:"design",label:"Design",icon:Settings2}] as const).map(x=><button key={x.id} onClick={()=>setTab(x.id)}
-        className={"flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-4 text-xs font-bold "+(tab===x.id?"border-emerald-300 text-emerald-200":"border-transparent text-white/50 hover:text-white")}><x.icon className="h-4 w-4"/>{x.label}</button>)}
+        className={"flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-3 text-xs font-bold "+(tab===x.id?"border-emerald-300 text-emerald-200":"border-transparent text-white/50 hover:text-white")}><x.icon className="h-4 w-4"/>{x.label}</button>)}
       </div>
-      <div className="max-h-[820px] space-y-5 overflow-y-auto p-5">
+      <div className="space-y-4 p-3 sm:p-4 xl:max-h-[820px] xl:overflow-y-auto">
        {tab==="content"&&<>
         <label className="block space-y-2"><span className="text-xs font-bold text-white/60">Editar seção</span><select className={inputClass} value={section} onChange={e=>setSection(e.target.value as EditorSection)}>
          <option value="hero">Primeira dobra / Hero</option>
@@ -529,21 +536,22 @@ export default function LandingStudioPage(){
        </>}
       </div>
      </aside>
-     <section className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
-       <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400"/><span className="text-xs font-bold text-white/70">Pré-visualização ao vivo</span></div>
-       <div className="flex items-center gap-2">
-        <div className="flex rounded-lg border border-white/10 p-1">
-         <button title="Visualização desktop" onClick={()=>setViewport("desktop")} className={"rounded-md p-2 "+(viewport==="desktop"?"bg-white/15 text-emerald-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
-         <button title="Visualização celular" onClick={()=>setViewport("mobile")} className={"rounded-md p-2 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
+     <section id="landing-preview" className="order-1 min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#151a24] xl:order-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 px-2.5 py-2 sm:px-3">
+        <div className="flex min-w-0 items-center gap-1.5"><span className="h-2 w-2 shrink-0 rounded-full bg-emerald-400"/><span className="text-[11px] font-semibold text-white/70">Prévia</span></div>
+        <div className="flex items-center gap-1.5">
+         <div className="flex rounded-lg border border-white/10 p-0.5" role="group" aria-label="Dispositivo da prévia">
+          <button type="button" title="Desktop" aria-label="Visualização desktop" aria-pressed={viewport==="desktop"} onClick={()=>setViewport("desktop")} className={"rounded-md p-1.5 "+(viewport==="desktop"?"bg-white/15 text-emerald-200":"text-white/45")}><Monitor className="h-4 w-4"/></button>
+          <button type="button" title="Celular" aria-label="Visualização celular" aria-pressed={viewport==="mobile"} onClick={()=>setViewport("mobile")} className={"rounded-md p-1.5 "+(viewport==="mobile"?"bg-white/15 text-emerald-200":"text-white/45")}><Smartphone className="h-4 w-4"/></button>
+         </div>
+         <button type="button" onClick={openFullPreview} className="inline-flex items-center gap-1 rounded-lg border border-emerald-300/25 px-2.5 py-2 text-[11px] font-bold text-emerald-200" title="Abrir prévia em tela cheia"><ExternalLink className="h-3.5 w-3.5"/><span className="hidden sm:inline">Tela cheia</span></button>
+         <a href="#landing-editor-controls" className="inline-flex items-center rounded-lg border border-white/15 px-2.5 py-2 text-[11px] font-bold text-white/85 xl:hidden">Editar</a>
+         {editorProject.publishedSlug&&<button type="button" onClick={()=>void loadLeads()} disabled={!!busy} title="Contatos recebidos" aria-label="Ver leads" className="inline-flex items-center rounded-lg border border-white/10 p-2 text-white/65 disabled:opacity-35"><Users className="h-4 w-4"/></button>}
         </div>
-        <button type="button" onClick={openFullPreview} className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-300/25 px-3 py-2.5 text-xs font-bold text-emerald-200" title="Abrir a prévia responsiva em uma aba inteira"><ExternalLink className="h-3.5 w-3.5"/> Prévia completa</button>
-                <button onClick={()=>void loadLeads()} disabled={!editorProject.publishedSlug||!!busy} className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-2.5 text-xs font-bold text-white/70 disabled:opacity-35"><Users className="h-4 w-4"/> Leads</button>
        </div>
-      </div>
-      <div className="relative flex min-h-[820px] justify-center overflow-hidden bg-[#252a36] p-2 sm:p-5">
+       <div className="relative flex justify-center overflow-hidden bg-[#252a36] p-1.5 sm:p-3">
        <div className={"overflow-hidden rounded-xl bg-white shadow-[0_25px_70px_#0004] transition-[width] duration-300 "+(viewport==="mobile"?"w-full max-w-[390px]":"w-full")}>
-        <iframe key={viewport} title="Landing page ao vivo" srcDoc={preview} sandbox="allow-scripts allow-forms" className="h-[820px] w-full border-0" />
+        <iframe key={viewport} title="Landing page ao vivo" srcDoc={preview} sandbox="allow-scripts allow-forms" className="h-[calc(100dvh-192px)] min-h-[560px] w-full border-0 xl:h-[820px]" />
        </div>
       </div>
      </section>
