@@ -43,7 +43,16 @@ must("frontend/src/app/api/ebooks/generate/route.ts",[[/buildCookbook/,"Cookbook
 must("frontend/src/app/api/ebooks/pdf/route.ts",[[/normalizeEbook/,"PDF input validation missing"],[/renderEbookHtml/,"PDF renderer missing"]]);
 must("frontend/src/app/api/forms/[id]/publish/route.ts",[[/publishOwnedForm/,"Form publishing missing"]]);
 must("frontend/src/app/api/quizzes/[id]/publish/route.ts",[[/publishOwnedQuiz/,"Quiz publishing missing"]]);
-must("frontend/src/app/api/landing/route.ts",[[/renderLandingHtml/,"Landing page publishing missing"]]);
+must("frontend/src/app/api/landing/route.ts",[[/renderLandingHtml/,"Landing page publishing missing"],
+  [/upsert:Boolean\(prior\)/,"New published landing slugs must not overwrite unknown owners"]]);
+must("frontend/src/app/api/landing/leads/route.ts",[
+  [/b\.consent!==true/,"Landing leads must require informed consent"],
+  [/pagenova_landing_lead_reserve/,"Landing public submissions require atomic budget"]
+]);
+must("frontend/src/lib/development/zip.ts",[
+  [/segments\.some/,"ZIP export must reject path traversal"],
+  [/seen\.has\(path\)/,"ZIP export must reject duplicate filenames"]
+]);
 must("modules/stavo-crm/src/server/modules/google/router.ts",[
  [/googleRateLimit/,"Google Places rate limit required"],[/google\/history/,"No-API history required"]
 ]);
