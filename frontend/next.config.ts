@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
       "./node_modules/playwright-core/browsers.json",
       "./node_modules/@sparticuz/chromium/bin/**/*",
     ],
+    "/api/cloner/analyze": [
+      "./node_modules/playwright-core/browsers.json",
+      "./node_modules/@sparticuz/chromium/bin/**/*",
+    ],
   },
 };
 
