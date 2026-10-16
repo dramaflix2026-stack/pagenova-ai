@@ -161,4 +161,29 @@ assert(universalHtml.includes("Adicione fotos e depoimentos verdadeiros autoriza
  "Preview must explain why verified customer images are missing");
 assert(!renderLandingHtml(universal,false).includes("Quem aplicou, conta"),
  "Published page must not invent testimonials");
+// Inline editing is opt-in to preview and must persist through normalization.
+const inlineDraft=normalizeLanding({...universal,inlineEdits:{
+ e7:{text:'Título editado pelo cliente',fontSize:'56px',color:'#121212',fontFamily:'Poppins'},
+ e21:{href:'https://checkout.example.org/seguro'},
+ e23:{image:'data:image/webp;base64,AAAA'},
+ e24:{href:'javascript:alert(1)',color:'red',fontSize:'1000px'}
+}});
+assert(inlineDraft.inlineEdits.e7.text==='Título editado pelo cliente'&&
+ inlineDraft.inlineEdits.e7.fontFamily==='Poppins'&&
+ inlineDraft.inlineEdits.e21.href==='https://checkout.example.org/seguro',
+ 'Inline text formatting and safe button URL must survive save/reopen.');
+assert(!inlineDraft.inlineEdits.e24,
+ 'Unsafe inline styling or javascript URL must be rejected.');
+const editedPreview=renderLandingHtml(inlineDraft,true);
+const editedPublished=renderLandingHtml(inlineDraft,false);
+assert(editedPreview.includes('pagenova:landing-inline-edit')&&
+ editedPreview.includes('contenteditable')&&editedPreview.includes('type=\'file\'')&&
+ editedPreview.includes('Editar link do botão'),
+ 'Preview must support text double tap, button link and image replacement.');
+assert(editedPublished.includes('Título editado pelo cliente')&&
+ editedPublished.includes('https://checkout.example.org/seguro')&&
+ !editedPublished.includes('pagenova:landing-inline-edit'),
+ 'Published page must apply edits but never expose editor interactions.');
+assert(!renderLandingHtml(universal,false).includes('pagenova:landing-inline-edit'),
+ 'Normal published pages must not contain editor machinery.');
 console.log("Landing runtime PASS: 6 presets, 3 niches, truthful offer copy, checkout vs contact CTAs, layered mockup, responsive layout, verified reviews and legacy pages.");
