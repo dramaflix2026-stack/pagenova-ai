@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { authorizedForms, FormServiceError, errorsAsResponse } from "@/lib/forms/server";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 
 export const runtime="nodejs";
 export const maxDuration=60;
@@ -10,7 +11,7 @@ export const maxDuration=60;
  */
 export async function POST(request:NextRequest){
   try{
-    await authorizedForms();
+    const access = await authorizedForms();
     const origin=request.headers.get("origin");
     if(origin&&origin!==request.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
     const data=await request.formData();
@@ -64,6 +65,8 @@ export async function POST(request:NextRequest){
     }
     const key=process.env.OPENAI_API_KEY;
     if(!key)throw new FormServiceError("Análise de anexos por IA não configurada.",503);
+    const aiBudget = await reservePaidAiBudget(access.admin, access.userId, "site_attachment_analysis");
+    if (!aiBudget.ok) throw new FormServiceError(aiBudget.message, aiBudget.status);
     const response=await fetch("https://api.openai.com/v1/responses",{
       method:"POST",
       headers:{"Content-Type":"application/json",Authorization:"Bearer "+key},
