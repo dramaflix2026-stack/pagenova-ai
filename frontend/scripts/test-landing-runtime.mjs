@@ -49,12 +49,41 @@ assert(!funnelHtml.includes("Depoimentos reais e autorizados")&&
 assert(!funnelHtml.includes("id=\"bonus\""),"Should not invent bonuses");
 assert(funnelHtml.includes("max-width:570px"),"Responsive smartphone layout missing");
 assert(funnelHtml.includes("position:sticky"),"Fixed top offer ribbon missing");
-const updated=normalizeLanding({...funnel,bonuses:["Arquivo de referências adicionais"],
- testimonials:[{author:"Pessoa autorizada",quote:"Material fácil de consultar."}]});
+const photo="https://example.org/portrait-with-permission.jpg";
+const updated=normalizeLanding({...funnel,ribbonAnimated:true,ribbonSpeed:24,bonuses:["Arquivo de referências adicionais"],
+ testimonials:[{author:"Pessoa de Teste",city:"Campinas",state:"SP",photo,quote:"Relato autorizado sobre o material.",confirmed:true}]});
 const filledHtml=renderLandingHtml(updated,false);
-assert(filledHtml.includes("id=\"bonus\"")&&filledHtml.includes("id=\"depoimentos\""),
+assert(filledHtml.includes('id="bonus"')&&filledHtml.includes('id="depoimentos"'),
  "Real bonuses and testimonials must be editable and visible");
+assert(filledHtml.includes("Pessoa de Teste")&&filledHtml.includes("Campinas, SP")&&
+ filledHtml.includes("portrait-with-permission.jpg"),"Full reviewer photo, name, location or quote missing");
+assert(filledHtml.includes("ip-top-motion")&&filledHtml.includes("ip-ticker-track")&&
+ filledHtml.includes("animation:ip-marquee")&&filledHtml.includes("prefers-reduced-motion:reduce"),
+ "Configurable accessible animated marquee is missing");
+assert(filledHtml.includes("grid-template-columns:minmax(0,1fr)")&&
+ filledHtml.includes("ip-hero-grid>div:first-child")&&filledHtml.includes("text-align:center"),
+ "Central hero axis must work on desktop and mobile");
+const staticHtml=renderLandingHtml(normalizeLanding({...updated,ribbonAnimated:false}),false);
+assert(!staticHtml.includes('class="ip-top ip-top-motion"'),"Static marquee option ignored");
+for(const fragment of [
+ {confirmed:false},{author:"Pessoa"},{city:""},{state:""},{photo:""}
+]){
+ const tampered=normalizeLanding({...updated,testimonials:[{...updated.testimonials[0],...fragment}]});
+ assert(!renderLandingHtml(tampered,false).includes('id="depoimentos"'),
+  "Published page disclosed unconfirmed or incomplete fake social proof");
+}
+const nicheInfo=loaded.exports.analyzeLandingBrief("Projetos para Serralheria",
+ "Pacote com 5000 projetos de serralheria por 19,90");
+assert(nicheInfo.niche==="Serralheria"&&nicheInfo.testimonialAngles.some(x=>/serralheria/.test(x)),
+ "Niche intelligence failed to identify metalwork-specific review themes");
+const marketing=loaded.exports.analyzeLandingBrief("Treinamento Meta Ads",
+ "Curso de marketing digital e tráfego pago para lojas online");
+assert(marketing.niche==="Marketing digital"&&marketing.benefits.join().toLowerCase().includes("marketing"),
+ "Marketing niche must produce different content than metalwork niche");
+const gastronomy=loaded.exports.analyzeLandingBrief("Receitas da Semana","Coleção de 50 receitas de confeitaria");
+assert(gastronomy.niche==="Gastronomia"&&gastronomy.testimonialAngles.join().includes("receitas"),
+ "Culinary niche needs cooking-specific testimonial prompts");
 const legacy=normalizeLanding({...funnel,salesPage:false});
 assert(renderLandingHtml(legacy).includes('data-kind="course"'),
  "Old course landing layout must remain backward compatible");
-console.log("Landing runtime PASS: all six styles, real infoproduct briefing, full funnel, mobile CSS, historical compatibility.");
+console.log("Landing runtime PASS: 6 presets, 3 niches, mobile centering, animated/static ribbon, verified portrait reviews, XSS and legacy compatibility.");
