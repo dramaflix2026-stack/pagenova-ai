@@ -21,7 +21,7 @@ const raw='<!doctype html><html><head><title>Amigurumi</title>'+
  '<link rel="stylesheet" href="/wp-content/themes/theme.css">'+
  '<style>.hero{color:#bc8995;background-image:url("../assets/hero.webp")}</style>'+
  '<script>window.evil=true</script></head><body>'+
- '<main class="landing-original"><section class="hero">'+
+ '<main class="landing-original"><section class="hero elementor-invisible" data-aos="fade-up" style="opacity:0;visibility:hidden;min-height:950px">'+
  '<h1>Mais que Artesanato. Um Novo Propósito de Vida.</h1>'+
  '<p>Aprenda amigurumi com um método completo.</p>'+
  '<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" data-src="/wp-content/uploads/samara-real.jpg" alt="Samara Souza">'+
@@ -46,6 +46,12 @@ assert(safeCss.includes("https://example.org/wp-content/uploads/elementor/images
 assert(!safeCss.includes("malicious.test"),"CSS remote imports must be dropped");
 const page=createFaithfulVisual(raw,source,[safeCss]);
 assert(page.visualHtml.includes('class="landing-original"'),"Original main wrapper was replaced");
+assert(page.visualHtml.includes('class="hero"')&&!page.visualHtml.includes('class="hero elementor-invisible"'),
+ "Static clone did not reveal animation-hidden content");
+assert(!page.visualHtml.includes('style="opacity:0;visibility:hidden'),
+ "Inline animation visibility was left hidden");
+assert(page.visualHtml.includes("@media (max-width:767px)")&&page.visualHtml.includes("min-height:0!important"),
+ "Mobile Elementor height/overflow recovery is missing");
 assert(page.visualHtml.includes('class="hero"')&&page.visualHtml.includes('class="cards"'),
  "Original section hierarchy was lost");
 assert(page.visualHtml.includes("Um Novo Propósito de Vida."),"Original headline lost");
