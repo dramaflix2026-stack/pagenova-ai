@@ -219,6 +219,8 @@ try{
     '<h1>Site copiado de teste</h1><a href="javascript:alert(1)">Clique</a>'+
     '<img src="http://unsafe.test/img.png"><img src="https://example.org/safe.jpg">'+
     '<img src="'+signedImage+'"><img src="/api/cloner/media?u=https://example.org/img.webp&amp;sig=invalid">'+
+    '<picture><source media="(min-width: 1024px)" srcset="'+signedImage+' 1x, https://example.org/desktop-2x.jpg 2x"><img src="'+signedImage+'" srcset="'+signedImage+' 640w, https://example.org/desktop.jpg 1440w" alt="Foto responsiva"></picture>'+
+    '<picture><source srcset="javascript:alert(7) 1x, /api/cloner/media?u=x&amp;sig=invalid 2x"><img src="'+signedImage+'"></picture>'+
     '<form><input name="password"></form><iframe src="https://bad.test"></iframe>'+ 
     '<button class="faq-toggle" onclick="steal()">FAQ original?</button>'+
     '<svg class="decor" viewBox="0 0 24 24"><path d="M0 0L12 12"/></svg>'+
@@ -250,6 +252,12 @@ try{
     "Published clone removed signed local images, creating large blank sections");
   assert(!pageHtml.includes("sig=invalid"),
     "Published clone accepted a forged image proxy URL");
+  assert(pageHtml.includes('media="(min-width: 1024px)"')&&
+    pageHtml.includes('srcset="/api/cloner/media?u=')&&
+    pageHtml.includes('1440w'),
+    "Desktop picture/srcset variants were lost after publication");
+  assert(!pageHtml.includes("javascript:alert(7)"),
+    "Unsafe picture source was accepted in published site");
   assert(!pageHtml.includes("<script")&&!pageHtml.includes("<iframe")&&
       !pageHtml.includes("<form")&&!pageHtml.includes("onclick=")&&
       !pageHtml.includes("javascript:")&&!pageHtml.includes("http://unsafe.test"),
