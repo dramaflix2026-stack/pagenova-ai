@@ -178,12 +178,23 @@ const editedPreview=renderLandingHtml(inlineDraft,true);
 const editedPublished=renderLandingHtml(inlineDraft,false);
 assert(editedPreview.includes('pagenova:landing-inline-edit')&&
  editedPreview.includes('contenteditable')&&editedPreview.includes('type=\'file\'')&&
- editedPreview.includes('Editar link do botão'),
+ editedPreview.includes('URL de destino do botão'),
  'Preview must support text double tap, button link and image replacement.');
 assert(editedPublished.includes('Título editado pelo cliente')&&
  editedPublished.includes('https://checkout.example.org/seguro')&&
  !editedPublished.includes('pagenova:landing-inline-edit'),
  'Published page must apply edits but never expose editor interactions.');
+const insertedImage=normalizeLanding({...universal,insertedImages:[
+ {id:'ipreview123456789',afterId:'e1',src:'data:image/webp;base64,AAAA'}
+]});
+assert(insertedImage.insertedImages.length===1,'Uploaded image must be saved in landing project.');
+const insertedPublic=renderLandingHtml(insertedImage,false);
+assert(insertedPublic.includes('data-pn-added-image')&&
+ insertedPublic.includes('data:image/webp;base64,AAAA')&&
+ !insertedPublic.includes('pagenova:landing-add-image'),
+ 'Published landing must display inserted photos without editor controls.');
+assert(!normalizeLanding({...universal,insertedImages:[{id:'i123456789',afterId:'e2',src:'javascript:alert(1)'}]}).insertedImages.length,
+ 'Image sanitizer must reject unsafe payloads.');
 assert(!renderLandingHtml(universal,false).includes('pagenova:landing-inline-edit'),
  'Normal published pages must not contain editor machinery.');
 console.log("Landing runtime PASS: 6 presets, 3 niches, truthful offer copy, checkout vs contact CTAs, layered mockup, responsive layout, verified reviews and legacy pages.");
