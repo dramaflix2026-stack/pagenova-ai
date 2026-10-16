@@ -19,7 +19,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install frontend dependencies
+        run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
       - name: Validate curated eBook recipes
         run: node frontend/scripts/validate-ebooks.mjs
+      - name: Execute cookbook and print HTML without paid APIs
+        run: node frontend/scripts/test-cookbook-runtime.mjs
       - name: Validate payment, limits and module wiring
         run: node frontend/scripts/validate-platform.mjs
