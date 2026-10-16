@@ -61,6 +61,7 @@ export default function LandingStudioPage(){
  const [busy,setBusy]=useState<""|"save"|"publish"|"leads">("");
  const [creatingStep,setCreatingStep]=useState("");
  const [briefInsights,setBriefInsights]=useState<string[]>([]);
+ const [listDrafts,setListDrafts]=useState<Record<string,string>>({});
  const [status,setStatus]=useState("");
  const [error,setError]=useState("");
  const [leads,setLeads]=useState<Lead[]|null>(null);
@@ -77,6 +78,14 @@ export default function LandingStudioPage(){
   finally{setLoadingDrafts(false);}
  },[]);
  useEffect(()=>{void cloudRefresh();},[cloudRefresh]);
+ function loadEditableLists(value:LandingProject){
+  setListDrafts({
+    benefits:value.benefits.join("\n"),steps:value.steps.join("\n"),
+    before:(value.before||[]).join("\n"),after:(value.after||[]).join("\n"),
+    bonuses:(value.bonuses||[]).join("\n"),
+    testimonials:(value.testimonials||[]).map(v=>v.author+" | "+v.quote).join("\n"),
+  });
+ }
  const patch=useCallback((values:Partial<LandingProject>)=>{
   setProject(current=>current?{...current,...values,updatedAt:new Date().toISOString()}:current);
   setError("");
@@ -99,7 +108,7 @@ export default function LandingStudioPage(){
    await pause(360);
    setCreatingStep("3/3 · Preparando a visualização responsiva");
    await pause(360);
-   setBriefInsights(facts);
+   setBriefInsights(facts);loadEditableLists(fresh);
    setProject(fresh);setTab("content");setSection("hero");setViewport("mobile");
    lastSaved.current="";setError("");
    setStatus("Página estruturada localmente a partir do briefing. Revise a oferta, bônus, mockup, depoimentos e garantia antes de publicar.");
@@ -112,7 +121,7 @@ export default function LandingStudioPage(){
    const body=await res.json() as {project?:LandingProject;error?:string};
    if(!res.ok||!body.project)throw Error(body.error||"Projeto indisponível.");
    const selected=normalizeLanding(body.project);
-   setProject(selected);setSection("hero");setTab("content");setLeads(null);
+   setProject(selected);loadEditableLists(selected);setSection("hero");setTab("content");setLeads(null);
    setBriefInsights(selected.salesPage?analyzeLandingBrief(selected.name,selected.brief).facts:[]);
    lastSaved.current=JSON.stringify(selected);
    setStatus("Projeto reaberto da sua conta.");
@@ -201,11 +210,33 @@ export default function LandingStudioPage(){
       price:draft.price,benefits:draft.benefits,before:draft.before,after:draft.after,
       guaranteeDays:draft.guaranteeDays,faqs:draft.faqs,ribbon:draft.ribbon}:{}),
   });
-  if(value==="course")setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
+  if(value==="course"){
+   setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
+   if(draft)loadEditableLists({...project,...draft});
+  }
   setSection("hero");
  }
- function listValues(key:"benefits"|"steps",value:string){
-  patch({[key]:value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,6)} as Partial<LandingProject>);
+ function listValues(key:"benefits"|"steps"|"before"|"after"|"bonuses",value:string){
+  setListDrafts(current=>({...current,[key]:value}));
+  patch({[key]:value.split("\n").map(x=>x.trim()).filter(Boolean).slice(0,key==="bonuses"?8:key==="before"||key==="after"?5:6)} as Partial<LandingProject>);
+ }
+ function updateTestimonials(value:string){
+  setListDrafts(current=>({...current,testimonials:value}));
+  patch({testimonials:value.split("\n").map(line=>{
+    const i=line.indexOf("|");
+    return i<0?{author:"",quote:""}:{author:line.slice(0,i).trim(),quote:line.slice(i+1).trim()};
+  }).filter(item=>item.author&&item.quote).slice(0,8)});
+ }
+ function upgradeCourse(){
+  if(!project||project.kind!=="course"||project.salesPage)return;
+  if(!window.confirm("Atualizar este projeto para o funil de infoprodutos? O título e os benefícios serão recriados usando o briefing, mas as imagens e o link de checkout serão preservados."))return;
+  const fresh=newLanding("course",project.name,project.brief);
+  const merged={...project,salesPage:true,ribbon:fresh.ribbon,headline:fresh.headline,subtitle:fresh.subtitle,
+    accent:"#00d6a1",benefits:fresh.benefits,before:fresh.before,after:fresh.after,
+    bonuses:project.bonuses||[],guaranteeDays:7,guaranteeText:fresh.guaranteeText,
+    price:project.price||fresh.price,faqs:project.faqs.length?project.faqs:fresh.faqs};
+  patch(merged);loadEditableLists(merged);setBriefInsights(analyzeLandingBrief(project.name,project.brief).facts);
+  setSection("hero");setStatus("Nova estrutura aplicada ao rascunho. Revise e clique em Publicar quando estiver pronto.");
  }
  function changeFaq(index:number,key:keyof LandingFaq,value:string){
   if(!project)return;patch({faqs:project.faqs.map((item,i)=>index===i?{...item,[key]:value}:item)});
@@ -271,6 +302,10 @@ export default function LandingStudioPage(){
       <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
      </div>
     </header>
+    {editorProject.kind==="course"&&!editorProject.salesPage&&<div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/25 bg-[#102320] p-4">
+      <div><p className="text-sm font-bold text-emerald-300">Existe um novo funil para infoprodutos</p><p className="mt-1 text-xs text-white/60">Converta este projeto antigo preservando seu mockup e checkout.</p></div>
+      <button type="button" onClick={upgradeCourse} className="rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-[#042019]">Usar novo funil →</button>
+     </div>}
     {editorProject.salesPage&&briefInsights.length>0&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-300/15 bg-[#102423] px-4 py-3 text-xs text-white/75"><span className="font-bold text-emerald-300">Extraído do briefing</span>{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/20 px-3 py-1">{v}</span>)}<span className="text-white/45">Motor local · sem API paga</span></div>}
     <div className="mt-5 grid gap-5 xl:grid-cols-[385px_minmax(0,1fr)]">
      <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
@@ -291,23 +326,23 @@ export default function LandingStudioPage(){
          {field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}
         </div>}
         {section==="comparison"&&editorProject.salesPage&&<div className="space-y-5">
-         <Field label="Antes da compra — um por linha" value={(editorProject.before||[]).join("\n")} rows={5} onChange={v=>patch({before:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,5)})} hint="Descreva situações relevantes, sem prometer resultados não comprovados."/>
-         <Field label="Depois da compra — um por linha" value={(editorProject.after||[]).join("\n")} rows={5} onChange={v=>patch({after:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,5)})} hint="Mencione apenas entregáveis e características reais do produto."/>
+         <Field label="Antes da compra — um por linha" value={listDrafts.before??(editorProject.before||[]).join("\n")} rows={5} onChange={v=>listValues("before",v)} hint="Descreva situações relevantes, sem prometer resultados não comprovados."/>
+         <Field label="Depois da compra — um por linha" value={listDrafts.after??(editorProject.after||[]).join("\n")} rows={5} onChange={v=>listValues("after",v)} hint="Mencione apenas entregáveis e características reais do produto."/>
         </div>}
         {section==="bonuses"&&editorProject.salesPage&&<div className="space-y-4">
-         <Field label="Bônus reais — um por linha" value={(editorProject.bonuses||[]).join("\n")} rows={7} onChange={v=>patch({bonuses:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,8)})} hint="Sem bônus informados, esta seção fica oculta após publicar."/>
+         <Field label="Bônus reais — um por linha" value={listDrafts.bonuses??(editorProject.bonuses||[]).join("\n")} rows={7} onChange={v=>listValues("bonuses",v)} hint="Sem bônus informados, esta seção fica oculta após publicar."/>
         </div>}
         {section==="guarantee"&&editorProject.salesPage&&<div className="space-y-4">
          <label className="flex items-center gap-3 text-xs font-semibold"><input type="checkbox" className="h-4 w-4 accent-emerald-300" checked={editorProject.guaranteeDays===7} onChange={e=>patch({guaranteeDays:e.target.checked?7:0})}/> Exibir garantia de 7 dias</label>
          {field("guaranteeText","Termos da garantia",5,"Explique os termos reais da garantia.")}
          <p className="text-xs leading-5 text-white/50">Confirme a aplicação das condições antes de publicar.</p>
         </div>}
-        {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
+        {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={listDrafts.benefits??editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
-        {section==="process"&&<Field label="Etapas — uma por linha" value={editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
+        {section==="process"&&<Field label="Etapas — uma por linha" value={listDrafts.steps??editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
         {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}
-         {editorProject.salesPage&&<Field label="Outros depoimentos — Autor | Texto (um por linha)" value={(editorProject.testimonials||[]).map(t=>t.author+" | "+t.quote).join("\n")}
-          onChange={v=>patch({testimonials:v.split("\n").map(line=>{const i=line.indexOf("|");return i<0?{author:"",quote:""}:{author:line.slice(0,i).trim(),quote:line.slice(i+1).trim()};}).filter(t=>t.author&&t.quote).slice(0,8)})} rows={6} hint="Use apenas depoimentos reais e autorizados."/>}
+         {editorProject.salesPage&&<Field label="Outros depoimentos — Autor | Texto (um por linha)" value={listDrafts.testimonials??(editorProject.testimonials||[]).map(t=>t.author+" | "+t.quote).join("\n")}
+          onChange={updateTestimonials} rows={6} hint="Use apenas depoimentos reais e autorizados."/>}
          <p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção não é publicada.</p></div>}
         {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
         {section==="faq"&&<div className="space-y-4">
