@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { frigologReferenceData, validateUniversalSiteData, type UniversalSiteData } from "@/lib/frigolog-template-data";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 
 export const runtime = "nodejs";
 const MAX_BODY = 4096;
@@ -31,6 +32,8 @@ export async function POST(request: Request) {
   const company = typeof params.company === "string" ? params.company.trim().slice(0, 100) : "";
   const details = typeof params.details === "string" ? params.details.trim().slice(0, 1200) : "";
   if (!niche || !company) return NextResponse.json({ error: "Informe nicho e nome da empresa." }, { status: 400 });
+  const aiBudget = await reservePaidAiBudget(admin, user.id, "universal_template_copy");
+  if (!aiBudget.ok) return NextResponse.json({ error: aiBudget.message }, { status: aiBudget.status });
   const reference = frigologReferenceData;
   const prompt = `Você é redator de sites profissionais brasileiros. Personalize SOMENTE o conteúdo textual do template fixo PageNova para um negócio. Não invente anos de experiência, prêmios, avaliações, números, certificações ou garantias. Não use textos genéricos; escreva para o nicho. Responda APENAS com um objeto JSON com as seguintes chaves:
 brand:{name,tagline};hero:{eyebrow,title,description,ctaLabel};highlights:array de EXATAMENTE 4 objetos {title,description};services:{eyebrow,heading,items:array de EXATAMENTE 4 objetos {title,description}};about:{eyebrow,heading,paragraphs:array de EXATAMENTE 2 strings,benefits:array de EXATAMENTE 3 strings,ctaLabel};coverage:{eyebrow,heading,description};contact:{eyebrow,heading,description,ctaLabel}.
