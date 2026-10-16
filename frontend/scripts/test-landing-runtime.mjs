@@ -144,8 +144,11 @@ assert(universalHtml.includes("Bricolage Grotesque")&&
 assert(!universalHtml.includes("Mariana Souza")&&!universalHtml.includes("87% das vagas ocupadas")&&
  !universalHtml.includes("R$ 497"),
  "The original template's fictitious testimonials/discounts leaked into the new page");
-assert(universalHtml.includes('href="/landing-universal/complete-utilities.css"'),
- "Universal landing must load the complete original Tailwind layout classes");
+assert(universalHtml.includes(".size-4 {")&&universalHtml.includes(".px-5 {")&&
+ universalHtml.includes(".max-w-6xl {")&&universalHtml.includes(".rounded-3xl {"),
+ "Universal landing HTML must inline complete Tailwind layout and SVG size classes");
+assert(!universalHtml.includes('href="/landing-universal/complete-utilities.css"'),
+ "Landing preview must remain styled in isolated iframes and Blob full-screen previews");
 const utilities=readFileSync(resolve(root,"public/landing-universal/complete-utilities.css"),"utf8");
 for(const selector of [".size-4 {",".size-5 {",".size-12 {",".flex {",".grid {",".gap-4 {",".px-5 {",".max-w-6xl {",".rounded-3xl {"]){
  assert(utilities.includes(selector),"Missing compiled Tailwind utility for mobile and SVG layout: "+selector);
