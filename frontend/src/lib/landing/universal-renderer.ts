@@ -107,21 +107,15 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
   const bonuses=(p.bonuses||[]).filter(Boolean);
   if(!bonuses.length){
     if(!preview)return "";
-    // Maintain the template's complete three-column visual composition in
-    // preview, while displaying obvious, non-publishable placeholders.
-    return section
-      .replaceAll("Comprando hoje você leva também","Espaços para bônus da oferta")
-      .replaceAll("Três entregas que aceleram o resultado e não custam nada a mais.",
-       "Exemplos visuais do template. Inclua somente bônus reais para publicar.")
-      .replaceAll("Guia Rápido de Implantação","Bônus a confirmar 01")
-      .replaceAll("Planilhas e Modelos Prontos","Bônus a confirmar 02")
-      .replaceAll("Comunidade VIP de Alunos","Bônus a confirmar 03")
-      .replaceAll("Comece em menos de 1 hora, mesmo partindo do zero absoluto.","Descrição a ser confirmada.")
-      .replaceAll("Organize sua rotina e acompanhe seus números sem esforço.","Descrição a ser confirmada.")
-      .replaceAll("Tire dúvidas direto com quem já passou pelo mesmo caminho.","Descrição a ser confirmada.")
-      .replace(/R\$ (?:97|67|147|311)/g,"—")
-      .replaceAll("GRÁTIS","EXEMPLO")
-      .replaceAll("todos inclusos sem custo extra","ainda não foram informados bônus reais");
+    // The original example gifts must never be mistaken for a real offer.
+    // A compact empty state preserves the section position without four
+    // screens of giant demo icons before merchant content is supplied.
+    return '<section class="border-y bg-muted/70 px-5 py-12">'+
+      '<div class="mx-auto max-w-2xl text-center">'+
+      '<span class="kicker kicker-center">BÔNUS EXCLUSIVOS</span>'+
+      '<h2 class="mt-4 text-3xl font-extrabold">Bônus da sua oferta</h2>'+
+      '<p class="mt-4 text-base leading-relaxed text-muted-foreground">Adicione bônus reais no editor para exibir os cards originais do template.</p>'+
+      '</div></section>';
   }
   const article=/\<article\b[^>]*\>[\s\S]*?<\/article>/g;let i=0;
   section=section.replace(article,original=>{
@@ -142,21 +136,11 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
     /^[A-Z]{2}$/.test(t.state||"")&&/^\S+\s+\S+/.test(t.author));
   if(!reviews.length){
     if(!preview)return "";
-    return section.replaceAll("Quem aplicou, conta","Espaços para depoimentos reais")
-      .replaceAll("Histórias reais de alunos que estavam exatamente onde você está agora.",
-        "Estes cards são demonstrativos. Adicione apenas relatos autorizados para publicação.")
-      .replaceAll("Mariana Souza","Cliente ilustrativo 01")
-      .replaceAll("Carlos Oliveira","Cliente ilustrativo 02")
-      .replaceAll("Ana Lima","Cliente ilustrativo 03")
-      .replaceAll("Rafael Santos","Cliente ilustrativo 04")
-      .replaceAll("Belo Horizonte · MG","Foto ilustrativa")
-      .replaceAll("Curitiba · PR","Foto ilustrativa")
-      .replaceAll("Recife · PE","Foto ilustrativa")
-      .replaceAll("São Paulo · SP","Foto ilustrativa")
-      .replaceAll("Em 30 dias eu já tinha resultados que não tive em anos seguindo meu próprio jeito. Recomendo demais.","Depoimento verdadeiro a preencher no editor.")
-      .replaceAll("Conteúdo direto ao ponto, sem enrolação. Foi o primeiro material que eu terminei de assistir.","Depoimento verdadeiro a preencher no editor.")
-      .replaceAll("Finalmente entendi o que eu estava fazendo de errado. Mudou a forma como eu trabalho todos os dias.","Depoimento verdadeiro a preencher no editor.")
-      .replaceAll("Didática excelente e um suporte que responde de verdade. Superou tudo que eu esperava.","Depoimento verdadeiro a preencher no editor.");
+    return '<section class="px-5 py-12"><div class="mx-auto max-w-2xl text-center">'+
+      '<span class="kicker kicker-center">DEPOIMENTOS</span>'+
+      '<h2 class="mt-4 text-3xl font-extrabold">Experiências dos clientes</h2>'+
+      '<p class="mt-4 text-base leading-relaxed text-muted-foreground">Adicione fotos e depoimentos verdadeiros autorizados no editor para preencher os cards de avaliações do template.</p>'+
+      '</div></section>';
   }
   let n=0;return section.replace(/<article\b[^>]*>[\s\S]*?<\/article>/g,()=>{
    const t=reviews[n++];if(!t)return "";
@@ -197,6 +181,7 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'+
  '<meta name="viewport" content="width=device-width,initial-scale=1">'+
  '<meta name="description" content="'+meta+'"><title>'+esc(subject)+'</title>'+fonts+
- '<style>'+css.replace(/<\/style/gi,"<\\/style")+'</style></head>'+
+ '<style>'+css.replace(/<\/style/gi,"<\\/style")+'</style>'+ 
+ '<link rel="stylesheet" href="/landing-universal/complete-utilities.css"></head>'+
  '<body class="bg-background text-foreground">'+html+'</body></html>';
 }
