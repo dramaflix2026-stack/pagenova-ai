@@ -22,7 +22,6 @@ const IDEAS = [
   { icon:"◉", title:"Saúde e bem-estar", prompt:"Crie um ebook sobre hábitos de bem-estar e organização da rotina, com sugestões realistas, sem prometer resultados médicos e sem inventar estudos." },
   { icon:"▧", title:"Negócios e vendas", prompt:"Crie um ebook estratégico para pequenas empresas aprenderem a atrair clientes e melhorar o atendimento, com passos, exemplos e exercícios." },
 ];
-const PAGE_COUNTS=[6,8,10,12,16];
 const PAGE_KINDS:{value:EbookPageKind;label:string}[]=[
   {value:"cover",label:"Capa"},{value:"chapter",label:"Capítulo"},
   {value:"feature",label:"Imagem + texto"},{value:"quote",label:"Destaque"},
@@ -148,7 +147,6 @@ export default function EbooksPage(){
   const mediaAudioInput=useRef<HTMLInputElement|null>(null);
   const recorder=useRef<MediaRecorder|null>(null);
   const recordingStream=useRef<MediaStream|null>(null);
-  const [pageCount,setPageCount]=useState(8);
   const [theme,setTheme]=useState<EbookTheme>("editorial");
   const [tone,setTone]=useState("Didático e envolvente");
   const [author,setAuthor]=useState("");
@@ -481,7 +479,7 @@ export default function EbooksPage(){
     try{
       const result=await responseJson<{ebook:EbookProject;editorialPlan?:{kind:string;requestedItems:number|null;deliveredItems:number|null;pages:number;validated:boolean}}>(await fetch("/api/ebooks/generate",{
         method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({prompt,pageCount,author,theme,tone,imageMode:mode,
+        body:JSON.stringify({prompt,author,theme,tone,imageMode:mode,
           references:references.flatMap(item=>item.frames.map((imageUrl,index)=>({
             kind:item.kind,name:item.name,frame:index+1,imageUrl,
           }))),
@@ -646,7 +644,7 @@ export default function EbooksPage(){
           De uma ideia a um <span className="bg-gradient-to-r from-emerald-300 to-teal-500 bg-clip-text text-transparent">ebook completo.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-white/55">
-          Escreva o tema. Os modelos organizam sua ideia em capítulos e páginas editáveis. Complete os textos com suas informações antes de exportar.
+          Escreva o tema e o que deseja incluir. A PageNova organiza as páginas automaticamente conforme o conteúdo, sem precisar escolher uma quantidade. Revise antes de exportar.
         </p>
       </div>
       <div className="mt-11 grid gap-7 lg:grid-cols-[minmax(0,1.5fr)_minmax(320px,1fr)]">
@@ -699,11 +697,6 @@ export default function EbooksPage(){
             <label className="text-xs font-semibold text-white/60">Tom de escrita<select value={tone} onChange={e=>setTone(e.target.value)} className={field+" mt-2"}>
               <option>Didático e envolvente</option><option>Profissional e estratégico</option><option>Inspirador e acolhedor</option><option>Simples e objetivo</option>
             </select></label>
-          </div>
-          <div className="mt-7"><span className="text-sm font-semibold">Quantidade de páginas</span>
-<p className="mt-1 text-xs leading-5 text-emerald-200/80">Em livros de receitas, a quantidade mencionada no pedido prevalece: 50 receitas geram 50 fichas completas e as páginas de abertura. Este seletor vale para guias gerais.</p>
-            <div className="mt-3 flex flex-wrap gap-2">{PAGE_COUNTS.map(n=><button key={n} type="button" onClick={()=>setPageCount(n)} aria-pressed={pageCount===n}
-              className={"rounded-xl border px-5 py-3 text-sm font-semibold transition "+(pageCount===n?"border-emerald-400 bg-emerald-400/10 text-emerald-200":"border-white/10 bg-white/[.025] text-white/60 hover:border-white/30")}>{n}</button>)}</div>
           </div>
           <div className="mt-7"><span className="text-sm font-semibold">Estilo editorial</span>
             <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">{(Object.keys(ebookThemes) as EbookTheme[]).map(id=>{
