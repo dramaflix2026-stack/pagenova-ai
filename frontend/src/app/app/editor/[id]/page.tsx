@@ -43,6 +43,8 @@ type CloneProject = {
   visualBodyHtml: string;
   visualHeadHtml: string;
   captureEngine?: "hydrated-browser-v3" | "static-html-fallback-v3";
+  captureDesktop?: boolean;
+  captureImageReport?: {mobile:number;desktop:number;mobileBroken:number;desktopBroken:number};
   fetchedAt: string;
 };
 
@@ -1417,7 +1419,12 @@ if (!project) {
 
       {project.captureEngine&&<p className={"border-b px-4 py-2 text-center text-xs font-semibold "+(project.captureEngine==="hydrated-browser-v3"?"border-emerald-300/20 bg-[#09271e] text-emerald-200":"border-amber-300/20 bg-[#34251a] text-amber-100")}>
         {project.captureEngine==="hydrated-browser-v3"
-          ?"Clonagem visual: página capturada em navegador mobile após carregar o conteúdo."
+          ?project.captureDesktop
+            ?"Clonagem visual: capturas mobile (390 px) e desktop (1440 px) concluídas. "+
+              (project.captureImageReport?.desktopBroken
+                ?project.captureImageReport.desktopBroken+" imagens falharam ao carregar no desktop de origem."
+                :"Imagens responsivas importadas.")
+            :"Clonagem visual mobile concluída; revisão desktop não concluída."
           :"Clonagem parcial: captura estática porque o navegador visual não respondeu. Alguns blocos podem faltar."}
       </p>}
       {saveStatus&&<p role="status" aria-live="polite" className="border-b border-white/10 bg-[#101010] px-4 py-2 text-xs text-emerald-200 xl:hidden">{saveStatus}</p>}
