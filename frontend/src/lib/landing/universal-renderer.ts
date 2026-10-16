@@ -1,4 +1,5 @@
 import {UNIVERSAL_TEMPLATE_HTML,UNIVERSAL_TEMPLATE_CSS} from "./universal-template";
+import {UNIVERSAL_TEMPLATE_UTILITIES_CSS} from "./universal-generated.css";
 import type {LandingProject} from "./engine";
 
 /**
@@ -174,7 +175,7 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  const fonts='<link rel="preconnect" href="https://fonts.googleapis.com">'+
   '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'+
   '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=DM+Sans:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">';
- const css=UNIVERSAL_TEMPLATE_CSS+
+ const css=UNIVERSAL_TEMPLATE_CSS+'\n'+UNIVERSAL_TEMPLATE_UTILITIES_CSS+
   '\nhtml{scroll-behavior:smooth}body{overflow-x:clip} .reveal{opacity:1!important;transform:none!important}'+
   '\n@media(max-width:640px){.btn-cta{max-width:100%;text-align:center;white-space:normal}}';
  const meta=esc(p.subtitle||p.description||subject);
@@ -182,6 +183,6 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  '<meta name="viewport" content="width=device-width,initial-scale=1">'+
  '<meta name="description" content="'+meta+'"><title>'+esc(subject)+'</title>'+fonts+
  '<style>'+css.replace(/<\/style/gi,"<\\/style")+'</style>'+ 
- '<link rel="stylesheet" href="/landing-universal/complete-utilities.css"></head>'+
+ '</head>'+
  '<body class="bg-background text-foreground">'+html+'</body></html>';
 }
