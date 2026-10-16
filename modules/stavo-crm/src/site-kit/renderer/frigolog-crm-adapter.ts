@@ -50,6 +50,7 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
   const footer=pick(sections,'footer');
   const niche=clean(model.business.niche,'Serviços e atendimento');
   const name=cleanLeadBrand(model.business.name,model.business.niche);
+  const brandWordmark=clean(model.navigation.wordmark,name);
   const region=[model.business.city,model.business.state].filter(Boolean).join(', ');
   const logo=image(model.navigation.logo,ctx,name).src;
   const benefitItems=(benefits?.items??[]).map(item=>benefit(item.title,item.body??''));
@@ -89,7 +90,7 @@ export function adaptCrmToFrigolog(model:SiteSchemaModel,ctx:RenderContext):Univ
     ?? authority?.image;
   return {
     brand:{
-      name,tagline:clean([niche.toUpperCase(),region.toUpperCase()].filter(Boolean).join(' · '),niche.toUpperCase()),
+      name:brandWordmark,tagline:clean([niche.toUpperCase(),region.toUpperCase()].filter(Boolean).join(' · '),niche.toUpperCase()),
       ...(logo?{logoUrl:logo}:{})
     },
     palette:{
