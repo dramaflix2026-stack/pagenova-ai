@@ -9,14 +9,33 @@ export const maxDuration=40;
 const BUCKET="pagenova-published-sites";
 function cleanHtml(raw:string):string{
   const $=cheerio.load(raw);
-  $("script,iframe,object,embed,form,input,button,textarea,select,video,audio,svg,base,meta[http-equiv],link").remove();
+  // Preserve the visual shape of original FAQ actions, CTA buttons and
+  // SVG icons. Removing them made whole interactive sections look empty.
+  // Executable JS, source forms and external embeds remain disallowed.
+  $("script,iframe,object,embed,video,audio,base,meta[http-equiv],link").remove();
+  $("svg script,svg foreignObject,svg image,svg use,svg animate,svg animateTransform,svg set,svg discard,svg feImage").remove();
+  $("form").each((_,node)=>{$(node).replaceWith('<div class="pn-cloned-form">'+$(node).html()+'</div>');});
+  $("input,textarea,select").each((_,node)=>{
+    $(node).removeAttr("name").removeAttr("form").removeAttr("autofocus")
+      .attr("readonly","").attr("tabindex","-1").attr("aria-disabled","true");
+  });
+  $("button").each((_,node)=>{
+    $(node).removeAttr("formaction").removeAttr("formmethod").removeAttr("name")
+      .attr("type","button").attr("tabindex","-1").attr("aria-disabled","true");
+  });
   $("*").each((_,element)=>{
     const attrs=Object.keys((element as unknown as {attribs?:Record<string,string>}).attribs||{});
     for(const name of attrs)if(/^on/i.test(name))$(element).removeAttr(name);
+    if(element.type==="tag"&&element.tagName==="svg"){
+      // Decorative SVG paths may render but never be clickable or fetch an
+      // external resource. The CSP separately enforces script-src 'none'.
+      $(element).removeAttr("onload").removeAttr("href").removeAttr("xlink:href");
+    }
     if(element.type==="tag"&&element.tagName==="a"){
       const url=$(element).attr("href")||"";
-      if(!/^https?:\/\//i.test(url))$(element).removeAttr("href");
-      $(element).attr("rel","noopener noreferrer").attr("target","_blank");
+      if(!/^https?:\/\//i.test(url)&&!/^#[a-zA-Z0-9_-]+$/.test(url)
+          &&!/^mailto:[^\s<>]+@[^\s<>]+$/i.test(url))$(element).removeAttr("href");
+      else if(/^https?:\/\//i.test(url))$(element).attr("rel","noopener noreferrer").attr("target","_blank");
     }
     if(element.type==="tag"&&element.tagName==="img"){
       const url=$(element).attr("src")||"";
