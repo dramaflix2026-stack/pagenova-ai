@@ -42,16 +42,27 @@ function decodeCfEmail(value:string):string{
  const email=Buffer.from(chars).toString("utf8");
  return /^[^\s@<>"']+@[^\s@<>"']+\.[^\s@<>"']+$/.test(email)?email:"";
 }
-function srcsetAbsolute(srcset:string,base:string):string{
- // Preserve 1x/2x and width candidates while rebasing relative references.
+function srcsetAbsolute(srcset:string,base:string,mediaProxy?:(url:string)=>string):string{
+ // srcset defines desktop/mobile art direction and HD variants. Every URL is
+ // rebased and signed individually instead of discarding the entire set.
+ // Deliberately exclude data URI srcsets (commas have a different grammar).
  return srcset.split(",").map(entry=>{
-  const pieces=entry.trim().split(/\s+/);
-  const src=safeResourceUrl(pieces.shift()||"",base);
-  return src?[src,...pieces.filter(x=>/^\d+(?:w|x)$/.test(x))].join(" "):"";
+  const parts=entry.trim().split(/\s+/).filter(Boolean);
+  const candidate=parts.shift()||"";
+  const src=safeResourceUrl(candidate,base);
+  if(!src||!/^https:\/\//i.test(src))return "";
+  const descriptor=parts.length===1&&/^(?:\d+w|(?:\d+(?:\.\d+)?)x)$/.test(parts[0])?parts[0]:"";
+  return (mediaProxy?mediaProxy(src):src)+(descriptor?" "+descriptor:"");
  }).filter(Boolean).join(", ");
 }
 export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=[],mediaProxy?:(url:string)=>string){
- const proxyImage=(src:string)=>mediaProxy&&/^https:\/\//i.test(src)?mediaProxy(src):src;
+ // SVG and vector assets remain direct HTTPS rather than being routed
+ // through the raster-only proxy, where they would always return HTTP 502.
+ const proxyImage=(src:string)=>{
+  if(!mediaProxy||!/^https:\/\//i.test(src))return src;
+  try{if(/\.svg$/i.test(new URL(src).pathname))return src;}catch{return src;}
+  return mediaProxy(src);
+ };
  const proxyCss=(css:string)=>!mediaProxy?css:css.replace(
    /url\(\s*(["']?)(https:\/\/[^)"']+)\1\s*\)/gi,(_whole,_q,url:string)=>{
     let path="";
@@ -97,7 +108,7 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
     const url=safeResourceUrl(v,base);
     if(url)el.attr(k,url);else el.removeAttr(k);
    }else if(["srcset","data-srcset"].includes(k.toLowerCase())){
-    const value=srcsetAbsolute(v,base);
+    const value=srcsetAbsolute(v,base,proxyImage);
     if(value)el.attr(k,value);else el.removeAttr(k);
    }else if(k==="style"){
     el.attr(k,proxyCss(absolutizeCss(v,base)));
@@ -150,16 +161,22 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
    detectedImages++;
   }else el.removeAttr("src");
   const srcset=el.attr("data-srcset")||el.attr("srcset")||"";
-  if(srcset&&!mediaProxy)el.attr("srcset",srcsetAbsolute(srcset,base));
-  if(mediaProxy)el.removeAttr("srcset");
+  if(srcset){
+   const safe=srcsetAbsolute(srcset,base,proxyImage);
+   if(safe)el.attr("srcset",safe);else el.removeAttr("srcset");
+  }
   el.removeAttr("loading").removeAttr("decoding");
   el.removeClass("lazyload lazyloaded ls-is-cached");
  });
- $("source[srcset]").each((_i,node)=>{
-  const el=$(node),src=el.attr("srcset")||el.attr("data-srcset")||"";
-  if(src&&!mediaProxy)el.attr("srcset",srcsetAbsolute(src,base));
-  if(mediaProxy)el.removeAttr("srcset");
+ $("picture source").each((_i,node)=>{
+  const el=$(node),src=el.attr("data-srcset")||el.attr("srcset")||"";
+  const safe=srcsetAbsolute(src,base,proxyImage);
+  if(safe)el.attr("srcset",safe);else el.removeAttr("srcset");
+  el.removeAttr("src").removeAttr("data-srcset");
  });
+ // Original videos/third-party embeds are intentionally not imported;
+ // sources outside <picture> must not fetch media or execute anything.
+ $("source").not("picture source").remove();
  $("[data-bg],[data-background],[data-bg-image],[data-background-image]").each((_i,node)=>{
   const el=$(node),value=el.attr("data-bg")||el.attr("data-background")||
     el.attr("data-bg-image")||el.attr("data-background-image")||"";
