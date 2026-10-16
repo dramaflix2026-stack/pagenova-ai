@@ -175,3 +175,30 @@ O produto pago mais forte atualmente é a assinatura PageNova AI (R$147/mês). P
 ### Status de lançamento
 
 **Não declarar 100% homologado** até realizar teste controlado com conta e projeto autorizados, com resultados documentados de cada rota pública e do fluxo comercial. Construir/passar não prova submissão real ou imagem/PDF corretos; executar os próximos testes em staging ou com recursos de teste designados.
+
+---
+
+## Homologação controlada — 16/10/2026 (Blocos 3 e 4)
+
+### Evidências disponíveis (não equivalem à homologação de compra/navegador real)
+
+- A versão anterior dos Blocos 3/4 (\`8618bdc5\`) foi implantada com sucesso na Railway. O ciclo posterior de testes de integração em armazenamento **simulado e totalmente local** (\`f027c421\`) teve sucesso nos builds Vercel e Railway.
+- Amostra de 501 registros HTTP da Railway: 478 respostas 200, 12 respostas 201, 3 respostas 202, 7 respostas 422 nas tentativas de renderização e 1 resposta 409 de geração. Sem respostas 5xx **nessa amostra**, o que não equivale a ausência universal de falhas. Não divulgar IDs, endereços ou conteúdos das requisições.
+- Teste \`frontend/scripts/test-publishing-flows-runtime.mjs\` usa o código real das funções de negócio, um cliente Supabase **simulado em memória** e credenciais de teste inválidas. Exercita Formulário: rascunho, publicação, validação de email/select, captura e listagem restrita ao dono, rascunho sem republish; Quiz: publicação obrigatória, avaliação oculta, consentimento, pontuação, armazenamento e segregação; eBook: salvar/listar/reabrir/excluir e segregação. Não toca Storage nem tabelas de clientes.
+- Um teste adicional de Clonador foi incluído no mesmo arquivo, porém isolado sob \`PAGENOVA_CLONER_E2E=1\` enquanto se diagnostica uma falha de CI. **Não** contar esse teste extra como executado/aprovado por padrão.
+- Endpoints agora tratam pedidos JSON malformados com 400 e dados de Formulários/eBooks inválidos com 422. Mensagens de exceção internas não são reveladas diretamente aos usuários em falhas inesperadas (500).
+- Migração \`pagenova_public_forms_quizzes_atomic_limits\` aplicada ao Supabase PageNova e versionada em \`supabase/migrations/20261016_pagenova_public_submission_limits.sql\`: limite antiabuso de 1.000 envios **válidos** por recurso publicado por dia UTC. Contador atômico e privado, sem débito de créditos comerciais, aplicado depois da validação e antes da gravação.
+- Banco verificado: contador privado instalado, RPC com EXECUTE reservado a \`service_role\`, zero grants a PUBLIC/anon/authenticated; 3 ciclos de crédito ativos, 0 operações comerciais registradas e 0 requisições no novo contador no momento da verificação.
+
+### Testes que continuam obrigatórios
+
+1. Compra real, primeiro acesso e créditos Kiwify — requer usuários de teste e acesso autorizado ao checkout.
+2. Publicação/edição visual e recuperação em outro dispositivo com contas diferentes — requer navegador autenticado.
+3. PDF A4 real com conteúdo e fotos, inspeção visual das páginas, links/licenças — a verificação atual de eBook alcança HTML e dados, não PDF completo em Chromium.
+4. Clonador com URLs públicas autorizadas, edição e publicação final — simulação extra do Clonador ainda não integrada ao build de produção.
+5. Formulários e Quizzes: submeter e recuperar lead pelo navegador e verificar consentimento no URL público — fluxos de funções em memória foram testados, não entradas reais no Supabase Storage.
+6. Google Places em situação controlada e conciliação histórica de créditos antes de habilitar \`PAGENOVA_CREDITS_ENFORCE=1\`.
+7. Github Actions: execução sem runner (\`runner_id=0\`, \`steps=[]\`). O conector Vercel continua sem permissão para logs runtime/envs (403). Não declarar teste realizado por mera existência do workflow.
+8. Supabase Auth: proteção contra senhas vazadas continua exigindo configuração autorizada no painel.
+
+**Status:** robustez e testes de integração local ampliados. Homologação comercial ponta a ponta ainda **pendente**, sem alterações em dados pessoais de clientes, sem venda de teste, sem consumo de chamadas pagas e sem alterações na esteira comercial do item 9.
