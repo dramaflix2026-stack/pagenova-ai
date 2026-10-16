@@ -48,7 +48,16 @@ function srcsetAbsolute(srcset:string,base:string):string{
   return src?[src,...pieces.filter(x=>/^\d+(?:w|x)$/.test(x))].join(" "):"";
  }).filter(Boolean).join(", ");
 }
-export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=[]){
+export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=[],mediaProxy?:(url:string)=>string){
+ const proxyImage=(src:string)=>mediaProxy&&/^https:\/\//i.test(src)?mediaProxy(src):src;
+ const proxyCss=(css:string)=>!mediaProxy?css:css.replace(
+   /url\(\s*(["']?)(https:\/\/[^)"']+)\1\s*\)/gi,(_whole,_q,url:string)=>{
+    let path="";
+    try{path=new URL(url).pathname;}catch{return 'url("'+url+'")';}
+    return /\.(?:jpe?g|png|webp|gif|avif)$/i.test(path)?
+      'url("'+proxyImage(url)+'")':'url("'+url+'")';
+   }
+ );
  const $=cheerio.load(html,{decodeEntities:false});
  // An HTML document copied from the public web must not carry executable code
  // or client-side network/cookie/analytics behavior into an authenticated app.
@@ -56,7 +65,7 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
  $("meta[http-equiv],base,link[rel=preconnect],link[rel=dns-prefetch]").remove();
  $("link").remove(); // CSS is inlined; fonts/images can be resolved by absolute URLs.
  $("svg foreignObject,svg script,svg animate,svg animateTransform,svg set,svg use").remove();
- $("style").each((_i,node)=>{$(node).html(absolutizeCss($(node).html()||"",base));});
+ $("style").each((_i,node)=>{$(node).html(proxyCss(absolutizeCss($(node).html()||"",base)));});
  // WordPress/Elementor lazy blocks are often initially invisible until the
  // original JS runs. Static snapshot must not keep those JS-only hidden states.
  $("[data-aos],[data-sr-id]").each((_i,node)=>{$(node).removeAttr("data-aos").removeAttr("data-sr-id");});
@@ -76,7 +85,7 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
     const value=srcsetAbsolute(v,base);
     if(value)el.attr(k,value);else el.removeAttr(k);
    }else if(k==="style"){
-    el.attr(k,absolutizeCss(v,base));
+    el.attr(k,proxyCss(absolutizeCss(v,base)));
    }
   }
  });
@@ -122,25 +131,27 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
   if(!recovered&&current&&current.startsWith("data:image/"))recovered=current;
   if(recovered){
    if(recovered!==el.attr("src"))recoveredImages++;
-   el.attr("src",recovered);
+   el.attr("src",proxyImage(recovered));
    detectedImages++;
   }else el.removeAttr("src");
   const srcset=el.attr("data-srcset")||el.attr("srcset")||"";
-  if(srcset)el.attr("srcset",srcsetAbsolute(srcset,base));
+  if(srcset&&!mediaProxy)el.attr("srcset",srcsetAbsolute(srcset,base));
+  if(mediaProxy)el.removeAttr("srcset");
   el.removeAttr("loading").removeAttr("decoding");
   el.removeClass("lazyload lazyloaded ls-is-cached");
  });
  $("source[srcset]").each((_i,node)=>{
   const el=$(node),src=el.attr("srcset")||el.attr("data-srcset")||"";
-  if(src)el.attr("srcset",srcsetAbsolute(src,base));
+  if(src&&!mediaProxy)el.attr("srcset",srcsetAbsolute(src,base));
+  if(mediaProxy)el.removeAttr("srcset");
  });
  $("[data-bg],[data-background],[data-bg-image],[data-background-image]").each((_i,node)=>{
   const el=$(node),value=el.attr("data-bg")||el.attr("data-background")||
     el.attr("data-bg-image")||el.attr("data-background-image")||"";
   const url=safeResourceUrl(value,base);
-  if(url)el.attr("style",(el.attr("style")||"")+";background-image:url('"+url.replace(/'/g,"%27")+"')");
+  if(url)el.attr("style",(el.attr("style")||"")+";background-image:url('"+proxyImage(url).replace(/'/g,"%27")+"')");
  });
- const css=inlineCss.join("\n").slice(0,360000);
+ const css=proxyCss(inlineCss.join("\n")).slice(0,360000);
  if(css)$("head").append('<style data-pagenova-cloned-css="true">'+css.replace(/<\/style/gi,"<\\/style")+"</style>");
  $("head").append('<style data-pagenova-clone-safety="true">'+
   'html{scroll-behavior:auto!important}body{min-height:100vh}'+
