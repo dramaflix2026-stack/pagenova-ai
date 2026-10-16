@@ -65,6 +65,24 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
     offer:"Explore o conteúdo sobre cuidados com a pele",
     cta:"Conhecer o conteúdo"
   }:def[kind];
+  if(kind==="course"){
+    const info=analyzeLandingBrief(n||"Meu infoproduto",briefText);
+    return {id:crypto.randomUUID(),kind,name:n||"Meu infoproduto",brief:briefText,audience:"",
+      eyebrow:"CONHEÇA O MATERIAL DIGITAL",headline:info.headline,subtitle:info.subtitle,
+      description:briefText||"Inclua a descrição real do material, formato de entrega e detalhes da oferta.",
+      offer:"Confira o pacote "+(n||"completo"),price:info.price,ctaLabel:"Quero acessar a oferta",
+      ctaUrl:"",secondaryUrl:"",whatsapp:"",email:"",heroImage:"",accent:"#00d6a1",
+      benefits:info.benefits,steps:["Conheça o conteúdo","Confira o que está incluso","Veja as condições de compra"],
+      faqs:[
+        {question:"O que está incluído nesta oferta?",answer:briefText||"Consulte a descrição do produto antes de comprar."},
+        {question:"Onde encontro as condições de compra?",answer:"Consulte preço, formato de entrega e acesso na página de pagamento."},
+        {question:"Como funciona a garantia?",answer:"Verifique os termos e as condições aplicáveis à garantia antes da compra."}
+      ],proof:"",proofAuthor:"",sections:["benefits","details","process","proof","offer","faq","contact"],
+      salesPage:true,ribbon:"CONHEÇA A OFERTA • "+(n||"MATERIAL DIGITAL"),
+      before:info.before,after:info.after,bonuses:[],guaranteeDays:7,
+      guaranteeText:"Confira os termos e as condições aplicáveis à garantia de 7 dias.",
+      testimonials:[],createdAt:now,updatedAt:now};
+  }
   return {id:crypto.randomUUID(),kind,name:n||"Minha marca",brief:briefText,audience:"",
     eyebrow:d.eye,headline:n?n+" — "+d.headline:d.headline,subtitle:d.sub,
     description:tidy(brief,1400)||"Apresente aqui os detalhes reais da sua oferta e o que o visitante precisa saber.",
