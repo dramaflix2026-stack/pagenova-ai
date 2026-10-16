@@ -37,4 +37,16 @@ if(!generate.includes("detectEbookIntent")||!generate.includes("buildCookbook"))
 const studio=read("src/app/app/ebooks/page.tsx");
 if(!studio.includes('page.kind==="recipe"')||!studio.includes("deliveredItems"))
   throw new Error("Ebook Studio missing recipe-aware behavior.");
+const engine=read("src/lib/ebooks/editorial-engine.ts");
+if(!engine.includes("planEditorialLength")||engine.includes("input.pageCount")||
+   !engine.includes("const total=planEditorialLength(input.prompt)"))
+  throw new Error("General ebooks must plan page count automatically from briefing.");
+if(/PAGE_COUNTS|setPageCount|const \[pageCount/.test(studio)||
+   studio.includes("Quantidade de páginas")||
+   /JSON.stringify\(\{prompt,pageCount/.test(studio))
+  throw new Error("Ebook Studio must not offer a page-count selector or send a fixed length.");
+if(/input.pageCount|\[6,8,10,12,16\]/.test(generate))
+  throw new Error("Ebook generation route must not impose the former page-count selector.");
+if(!generate.includes("buildCookbook")||!read("src/lib/ebooks/cookbook-engine.ts").includes("pages:[cover,intro,contents,...contentPages,closing]"))
+  throw new Error("Cookbook page counts must follow the requested recipe count.");
 process.stdout.write("Ebook quality gate PASS: 50 unique complete recipes, five groups, recipe renderer, route and Studio.\n");
