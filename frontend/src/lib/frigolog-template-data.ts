@@ -8,7 +8,7 @@ export type TemplateImage = { src: string; alt: string };
 export type TemplateBenefit = { title: string; description: string };
 export type TemplateService = { title: string; description: string };
 export type UniversalSiteData = {
-  brand: { name: string; tagline: string; logoUrl?: string };
+  brand: { name: string; tagline: string; logoUrl?: string; textOnly?: boolean };
   palette: { primary: string; accent: string; background: string; foreground: string };
   hero: { eyebrow: string; title: string; description: string; image: TemplateImage; ctaLabel: string };
   highlights: [TemplateBenefit, TemplateBenefit, TemplateBenefit, TemplateBenefit];
