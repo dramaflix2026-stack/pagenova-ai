@@ -248,17 +248,24 @@ fileInput.addEventListener('change',function(){
  var file=fileInput.files&&fileInput.files[0];fileInput.value='';
  var id=pendingImageId;pendingImageId='';
  if(!file||!id||!byId[id])return;
- if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>3_000_000){alert('Use JPG, PNG ou WebP de até 3 MB.');return;}
+ if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>8_000_000){alert('Use JPG, PNG ou WebP de até 8 MB.');return;}
  var img=new Image(),url=URL.createObjectURL(file);
  img.onload=function(){
   try{
-   var scale=Math.min(1,1400/Math.max(img.naturalWidth,img.naturalHeight));
+   var scale=Math.min(1,1200/Math.max(img.naturalWidth,img.naturalHeight));
    var canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
    var ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível');
-   ctx.drawImage(img,0,0,canvas.width,canvas.height);
-   var result=canvas.toDataURL('image/webp',.72);
-   if(result.length>550000){canvas.width=Math.max(1,Math.round(canvas.width*.65));canvas.height=Math.max(1,Math.round(canvas.height*.65));ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);result=canvas.toDataURL('image/webp',.62);}
-   if(result.length>550000)throw Error('Imagem grande demais após compressão.');
+   var result='',limit=id.charAt(0)==='i'?460000:540000;
+   for(var n=0;n<6;n++){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    result=canvas.toDataURL('image/webp',Math.max(.36,.8-n*.09));
+    if(result.length<=limit)break;
+    canvas.width=Math.max(1,Math.round(canvas.width*.78));
+    canvas.height=Math.max(1,Math.round(canvas.height*.78));
+    ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas indisponível');
+   }
+   if(result.length>limit)throw Error('Imagem grande demais após compressão. Tente outra foto.');
    updateImage(id,result);
   }catch(error){alert(error.message||'Não foi possível carregar a imagem.');}
   finally{URL.revokeObjectURL(url);}
