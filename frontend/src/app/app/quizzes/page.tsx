@@ -62,6 +62,7 @@ export default function QuizStudioPage(){
   const [loadingResponses,setLoadingResponses]=useState(false);
   const [chatExpanded,setChatExpanded]=useState(false);
   const [moreOpen,setMoreOpen]=useState(false);
+  const [previewRevision,setPreviewRevision]=useState(0);
   const [origin,setOrigin]=useState("");
   useEffect(()=>{setOrigin(window.location.origin);void refreshSaved();},[]);
 
@@ -87,7 +88,7 @@ export default function QuizStudioPage(){
     change({outcomes:quiz.outcomes.map(o=>o.id===id?{...o,...patch}:o)});
   }
   function openQuiz(existing:QuizProject){
-    setQuiz(existing);setScreen("editor");setDirty(false);setTab("preview");setMoreOpen(false);setChatExpanded(false);
+    setQuiz(existing);setScreen("editor");setDirty(false);setTab("preview");setMoreOpen(false);setChatExpanded(false);setPreviewRevision(n=>n+1);
     setConversation([greeting,{role:"assistant",text:"Seu quiz está carregado! Pode editar os campos ao lado ou me pedir mudanças no chat."}]);
     setPrompt("");setError("");setNotice("");setResponses([]);
   }
@@ -142,7 +143,7 @@ export default function QuizStudioPage(){
       const project:QuizProject={
         ...result,id:quiz?.id||"",updatedAt:quiz?.updatedAt||"",publishedAt:quiz?.publishedAt||null,
       };
-      setQuiz(project);setScreen("editor");setDirty(true);setTab("preview");setMoreOpen(false);setChatExpanded(false);
+      setQuiz(project);setScreen("editor");setDirty(true);setTab("preview");setMoreOpen(false);setChatExpanded(false);setPreviewRevision(n=>n+1);
       setConversation(items=>[...items,{role:"assistant",text:quiz
         ?"Pronto! A alteração suportada pelo modelo local foi aplicada. Revise antes de publicar."
         :"Seu quiz foi montado com modelos locais e três perfis. Personalize perguntas, lógica e imagens antes de publicar."}]);
@@ -456,7 +457,8 @@ export default function QuizStudioPage(){
           </div>
         </details>
       </form>
-      <div className="mt-16 border-t border-white/10 pt-9">
+      {error&&<p role="alert" className="mx-auto mt-4 max-w-[780px] rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</p>}
+      <div className="mt-10 border-t border-white/10 pt-7">
         <div className="flex items-end justify-between gap-4">
           <div><h2 className="text-xl font-bold">Seus quizzes</h2>
             <p className="mt-1 text-xs text-white/50">Continue um rascunho ou edite um quiz publicado.</p></div>
@@ -560,7 +562,7 @@ export default function QuizStudioPage(){
       </details>}
       <div className="mx-auto w-full max-w-[1100px]">
         {tab==="preview"?<div className="overflow-hidden rounded-[20px] border border-white/10 bg-[#10211a]">
-          <PublicQuizPlayer key={quiz.id+quiz.updatedAt+String(quiz.questions.length)} quiz={publicQuiz(quiz)} preview={quiz}/>
+          <PublicQuizPlayer key={quiz.id+quiz.updatedAt+String(quiz.questions.length)+"-"+previewRevision} quiz={publicQuiz(quiz)} preview={quiz}/>
         </div>:tab==="questions"?editor():tab==="settings"?settingsEditor():
           tab==="outcomes"?<div className="space-y-3">
             <button type="button" onClick={()=>setTab("preview")} className="inline-flex items-center gap-2 text-xs text-emerald-200"><ArrowLeft className="h-4 w-4"/> Voltar à prévia</button>
@@ -571,6 +573,5 @@ export default function QuizStudioPage(){
           </div>}
       </div>
     </div>:null}
-    {screen==="start"&&error&&<p role="alert" className="mx-auto mt-5 max-w-3xl rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-200">{error}</p>}
   </main>;
 }
