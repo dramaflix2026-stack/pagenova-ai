@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "dev": "node scripts/install-frigolog.mjs && next dev -p 8000",
-        "build": "node scripts/validate-platform.mjs && node scripts/validate-ebooks.mjs && node scripts/test-cookbook-runtime.mjs && node scripts/test-starter-runtime.mjs && node scripts/test-studio-runtime.mjs && node scripts/test-cloner-integration.mjs && node scripts/install-frigolog.mjs && node scripts/build-stavo-crm.mjs && next build",
+        "build": "node scripts/validate-platform.mjs && node scripts/validate-ebooks.mjs && node scripts/test-cookbook-runtime.mjs && node scripts/test-starter-runtime.mjs && node scripts/test-studio-runtime.mjs && node scripts/test-landing-runtime.mjs && node scripts/test-cloner-integration.mjs && node scripts/install-frigolog.mjs && node scripts/build-stavo-crm.mjs && next build",
         "start": "next start -p 8000",
         "lint": "eslint",
         "test:integration": "node scripts/test-publishing-flows-runtime.mjs",
