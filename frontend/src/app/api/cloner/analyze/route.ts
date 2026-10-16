@@ -109,6 +109,20 @@ function absolute(raw:string,base:URL):string{
 function compact(raw:string,max=800):string{return raw.replace(/\s+/g," ").trim().slice(0,max)}
 type TextLink={text:string;href:string};
 type SiteImage={src:string;alt:string};
+
+/** Read lazy-loaded image URLs before the placeholder src. Static HTML
+ * importers cannot run a site's hydration/IntersectionObserver scripts. */
+function importedImage(node:{attribs?:Record<string,string>},base:URL):SiteImage{
+  const attrs=node.attribs||{};
+  const srcset=(value:string)=>value.split(",")[0]?.trim().split(/\s+/)[0]||"";
+  const candidates=[
+    attrs["data-src"],attrs["data-original"],attrs["data-lazy-src"],
+    srcset(attrs["data-srcset"]||""),
+    attrs.src,srcset(attrs.srcset||""),
+  ];
+  const src=candidates.map(v=>absolute(v||"",base)).find(Boolean)||"";
+  return {src,alt:compact(attrs.alt||"",100)};
+}
 function normalizeHtml(html:string,base:URL){
   const $=cheerio.load(html);
   // Reconstruct an accessible brand accent from public page metadata.
@@ -135,9 +149,8 @@ function normalizeHtml(html:string,base:URL){
   const links:TextLink[]=$("a[href]").toArray().map(el=>({
     text:compact($(el).text()||"Visitar",90),href:absolute($(el).attr("href")||"",base)
   })).filter(item=>item.href).slice(0,100);
-  const images:SiteImage[]=$("img[src]").toArray().map(el=>({
-    src:absolute($(el).attr("src")||"",base),alt:compact($(el).attr("alt")||"",100)
-  })).filter(item=>item.src).slice(0,50);
+  const images:SiteImage[]=$("img").toArray().map(el=>importedImage(el,base))
+    .filter(item=>item.src).slice(0,50);
   const elements=$("main section, main article, body > section, article, header, main, footer").toArray();
   const chosen=elements.length?elements.slice(0,12):[$("body").get(0)].filter(Boolean);
   const sections=chosen.map((el,i)=>{
@@ -147,9 +160,8 @@ function normalizeHtml(html:string,base:URL){
     const relevantLinks=element.find("a[href]").toArray().slice(0,4).map(link=>({
       text:compact($(link).text()||"Conhecer",90),href:absolute($(link).attr("href")||"",base)
     })).filter(item=>item.href);
-    const relevantImages=element.find("img[src]").toArray().slice(0,2).map(img=>({
-      src:absolute($(img).attr("src")||"",base),alt:compact($(img).attr("alt")||"",100)
-    })).filter(item=>item.src);
+    const relevantImages=element.find("img").toArray().map(img=>importedImage(img,base))
+      .filter(item=>item.src).slice(0,2);
     return {id:"section-"+i,type:"section",tag:el!.tagName||"section",heading:heading||null,text,
       links:relevantLinks,images:relevantImages};
   }).filter(section=>section.heading||section.text);
