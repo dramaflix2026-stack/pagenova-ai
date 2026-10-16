@@ -120,6 +120,16 @@ export default function CadastroPage() {
             </p>
           </div>
 
+          <div className="mt-6 rounded-xl border border-amber-300/20 bg-amber-300/[.06] px-4 py-3 text-xs leading-5 text-white/70">
+            <strong className="text-amber-100">Já comprou pela Kiwify?</strong>{" "}
+            Sua conta pode ter sido criada automaticamente. Abra o e-mail de convite
+            para definir a senha, em vez de criar outra conta. Caso o convite tenha
+            expirado ou você já tenha uma conta,{" "}
+            <Link href="/forgot-password" className="font-semibold text-emerald-300 underline underline-offset-2">
+              solicite um novo link de senha
+            </Link>.
+          </div>
+
           {sent ? (
             <div role="status" className="mt-7 rounded-2xl border border-emerald-400/20 bg-emerald-400/[.07] p-5 text-center">
               <p className="font-semibold text-emerald-200">Confirme seu e-mail antes de entrar</p>
