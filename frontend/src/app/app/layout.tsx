@@ -1,6 +1,7 @@
 ﻿import { redirect } from "next/navigation";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { Sidebar } from "@/components/sidebar";
+import { PageNovaSupportChat } from "@/components/pagenova-support-chat";
 import { createClient } from "@/lib/supabase/server";
 import { getPageNovaAccess } from "@/lib/trial/server";
 import Link from "next/link";
@@ -70,6 +71,7 @@ export default async function ProductLayout({
         </div>}
         {children}
       </div>
+      <PageNovaSupportChat />
     </div>
   );
 }
