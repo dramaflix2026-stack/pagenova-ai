@@ -1,6 +1,6 @@
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { authorizedForms, errorsAsResponse } from "@/lib/forms/server";
+import { GET as crmGet } from "@/app/api/crm/[...path]/route";
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import type { SiteProject } from "@/lib/site-builder";
 
 export const runtime = "nodejs";
@@ -14,14 +14,17 @@ export async function POST(request: NextRequest) {
   if (origin && origin !== request.nextUrl.origin) {
     return NextResponse.json({ error: "Origem não autorizada." }, { status: 403 });
   }
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Acesso necessário." }, { status: 401 });
+  // Only paying customers may persist public-site overlays.
+  let access: Awaited<ReturnType<typeof authorizedForms>>;
+  try { access = await authorizedForms(); }
+  catch (error) { return errorsAsResponse(error); }
+  const { admin, userId } = access;
   let body: { project?: SiteProject; url?: string };
   try { body = await request.json(); }
   catch { return NextResponse.json({ error: "Dados inválidos." }, { status: 400 }); }
   const project = body.project;
-  if (!project || project.kind !== "institutional-site" || !project.id ||
+  if (!project || project.kind !== "institutional-site" ||
+      typeof project.id !== "string" || !/^[a-zA-Z0-9]{26}$/.test(project.id) ||
       typeof body.url !== "string") {
     return NextResponse.json({ error: "Projeto inválido." }, { status: 400 });
   }
@@ -32,9 +35,9 @@ export async function POST(request: NextRequest) {
   const upstream = process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\/+$/, "");
   let upstreamOrigin = "";
   try { if (upstream) upstreamOrigin = new URL(upstream).origin; } catch { /* configuration */ }
-  const forwardedHost = request.headers.get("x-forwarded-host") || request.headers.get("host") || "";
-  const publicOrigin = forwardedHost ? `${request.nextUrl.protocol}//${forwardedHost}` : request.nextUrl.origin;
-  const trustedOrigins = new Set([request.nextUrl.origin, publicOrigin, upstreamOrigin].filter(Boolean));
+  // The browser must not choose an arbitrary trusted host via forwarded headers.
+  const publicOrigin = request.nextUrl.origin;
+  const trustedOrigins = new Set([publicOrigin, upstreamOrigin].filter(Boolean));
   if (url.protocol !== "https:" || !trustedOrigins.has(url.origin)) {
     return NextResponse.json({ error: "Domínio de publicação inválido. Confira PAGENOVA_CRM_UPSTREAM." }, { status: 400 });
   }
@@ -42,6 +45,37 @@ export async function POST(request: NextRequest) {
   if (!match || !slugPattern.test(match[1])) {
     return NextResponse.json({ error: "Endereço de publicação inválido." }, { status: 400 });
   }
+  // Ask the authenticated CRM proxy for BOTH the owned workspace project and
+  // its active publication. A signed-in user may not change a foreign slug
+  // merely by submitting its public URL and a fabricated project ID.
+  const crmRead = (path: string[]) => {
+    const url = new URL("/api/crm/" + path.map(encodeURIComponent).join("/"), request.url);
+    const cookie = request.headers.get("cookie");
+    const headers = new Headers(cookie ? { cookie } : undefined);
+    return crmGet(new NextRequest(url, { method: "GET", headers }), {
+      params: Promise.resolve({ path }),
+    });
+  };
+  try {
+    const owned = await crmRead(["site-projects", project.id]);
+    if (!owned.ok) return NextResponse.json({ error: "Projeto não encontrado neste workspace." }, { status: 403 });
+    const details = await owned.json() as { project?: { id?: string } };
+    if (details.project?.id !== project.id)
+      return NextResponse.json({ error: "Projeto não pertence à sessão." }, { status: 403 });
+    const found = await crmRead(["site-projects", project.id, "publications"]);
+    if (!found.ok) return NextResponse.json({ error: "Não foi possível validar a publicação." }, { status: 503 });
+    const listing = await found.json() as { publications?: Array<{slug?: string; status?: string; projectId?: string}> };
+    const isOwnedPublication = Array.isArray(listing.publications) && listing.publications.some(
+      publication => publication.slug === match[1] && publication.status === "ACTIVE" &&
+        publication.projectId === project.id,
+    );
+    if (!isOwnedPublication) return NextResponse.json({
+      error: "Este endereço não corresponde à publicação ativa deste projeto.",
+    }, { status: 403 });
+  } catch {
+    return NextResponse.json({ error: "A validação de propriedade do site está indisponível." }, { status: 503 });
+  }
+
   const images = {
     portrait: project.institutional?.portrait || "",
     businessPhoto: project.institutional?.businessPhoto || project.institutional?.workPhoto || "",
@@ -53,7 +87,7 @@ export async function POST(request: NextRequest) {
   const payload = JSON.stringify({
     version: 1,
     projectId: project.id,
-    ownerId: user.id,
+    ownerId: userId,
     pages: project.liveEdits || {},
     images,
     updatedAt: new Date().toISOString(),
@@ -61,12 +95,6 @@ export async function POST(request: NextRequest) {
   if (Buffer.byteLength(payload) > 17 * 1024 * 1024) {
     return NextResponse.json({ error: "Edições e imagens excedem o limite de publicação." }, { status: 413 });
   }
-  const endpoint = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY;
-  if (!endpoint || !key) return NextResponse.json({ error: "Armazenamento indisponível." }, { status: 503 });
-  const admin = createAdminClient(endpoint, key, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
   const { data: bucket } = await admin.storage.getBucket(BUCKET);
   if (!bucket) {
     const { error } = await admin.storage.createBucket(BUCKET, {
