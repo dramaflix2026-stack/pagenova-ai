@@ -71,4 +71,34 @@ assert(!page.visualHtml.includes('action="https://example.org/exfil"'),
 assert(page.recoveredImages===1&&page.detectedImages===2,"Image recovery metrics incorrect");
 assert(page.visualHtml.includes("https://example.org/assets/footer-bg.webp"),
  "Inline background image was not resolved");
+// Desktop/mobile regression: source <picture> media breakpoints and HD srcsets
+// must keep ALL candidates signed. The previous importer stripped them.
+const signed=(url)=>"/api/cloner/media?u="+encodeURIComponent(url)+"&sig="+("a".repeat(64));
+const responsive='<!doctype html><html><body><main>'+
+ '<picture><source media="(min-width: 1024px)" srcset="/assets/banner-desktop.webp 1x, /assets/banner-desktop-hd.webp 2x">'+
+ '<source media="(max-width: 767px)" data-srcset="/assets/banner-mobile.webp 390w, /assets/banner-mobile-hd.webp 780w">'+
+ '<img src="/assets/banner-mobile.webp" srcset="/assets/banner-mobile.webp 390w, /assets/banner-desktop.webp 1440w" alt="Escritório"></picture>'+
+ '<img data-pagenova-capture-img="0" src="/assets/retrato-mobile.jpg" alt="Advogada">'+
+ '<img src="/assets/logo.svg" alt="Logo vetorial">'+
+ '</main></body></html>';
+const responsivePage=createFaithfulVisual(responsive,source,[],signed,
+ [{id:"0",src:"https://example.org/assets/retrato-desktop.jpg"}]);
+assert(responsivePage.visualHtml.includes('media="(min-width: 1024px)"'),
+ "Desktop picture breakpoint was removed");
+assert(responsivePage.visualHtml.includes(encodeURIComponent("https://example.org/assets/banner-desktop.webp")),
+ "Desktop banner disappeared from signed responsive srcset");
+assert(responsivePage.visualHtml.includes(encodeURIComponent("https://example.org/assets/banner-mobile.webp")),
+ "Mobile banner disappeared from signed responsive srcset");
+assert(responsivePage.visualHtml.includes(encodeURIComponent("https://example.org/assets/banner-desktop-hd.webp")),
+ "2x desktop image variant was lost");
+assert(responsivePage.visualHtml.includes('media="(min-width: 768px)"'),
+ "JS-selected desktop portrait variant did not survive dual viewport capture");
+assert(responsivePage.visualHtml.includes(encodeURIComponent("https://example.org/assets/retrato-desktop.jpg")),
+ "Desktop-specific portrait was not linked");
+assert(responsivePage.visualHtml.includes('src="https://example.org/assets/logo.svg"'),
+ "Vector logo must remain HTTPS, not raster-only media proxy");
+assert(!responsivePage.visualHtml.includes("https://example.org/api/cloner/media"),
+ "Already signed responsive assets were incorrectly rebased to the source host");
+assert(!responsivePage.visualHtml.includes("data-pagenova-capture-img"),
+ "Internal browser image indexes leaked into the public clone");
 console.log("CLONER FIDELITY PASS: real DOM hierarchy, Elementor CSS, mobile media, lazy assets, inert forms, safe CTA, no scripts.");
