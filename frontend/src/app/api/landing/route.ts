@@ -65,14 +65,19 @@ export async function POST(request:NextRequest){
   let publishedUrl="";
   if(body.publish){
     const slug="lp-"+project.id.replace(/-/g,"").toLowerCase();
-    const {data:prior}=await storage.download("landings/"+slug+".json");
+    const {data:prior,error:readError}=await storage.download("landings/"+slug+".json");
+    if(!prior&&readError&&!/not found|404/i.test(readError.message))
+      return NextResponse.json({error:"Não foi possível verificar o proprietário da publicação."},{status:503});
     if(prior){
-      const old=JSON.parse(await prior.text()) as {ownerId?:string};
-      if(old.ownerId!==ctx.user.id)return NextResponse.json({error:"Publicação pertence a outra conta."},{status:403});
+      let previousOwner="";
+      try{previousOwner=(JSON.parse(await prior.text()) as {ownerId?:string}).ownerId||"";}catch{
+        return NextResponse.json({error:"Publicação anterior inválida. Nenhuma alteração aplicada."},{status:409});
+      }
+      if(previousOwner!==ctx.user.id)return NextResponse.json({error:"Publicação pertence a outra conta."},{status:403});
     }
     project.publishedSlug=slug;
     const payload=JSON.stringify({version:1,ownerId:ctx.user.id,project,publishedAt:new Date().toISOString(),html:renderLandingHtml(project)});
-    const {error}=await storage.upload("landings/"+slug+".json",new Blob([payload],{type:"application/json"}),{contentType:"application/json",upsert:true,cacheControl:"0"});
+    const {error}=await storage.upload("landings/"+slug+".json",new Blob([payload],{type:"application/json"}),{contentType:"application/json",upsert:Boolean(prior),cacheControl:"0"});
     if(error)throw error;
     publishedUrl=request.nextUrl.origin+"/lp/"+slug;
   }
