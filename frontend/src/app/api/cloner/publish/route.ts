@@ -14,6 +14,32 @@ function cleanHtml(raw:string):string{
   // Executable JS, source forms and external embeds remain disallowed.
   $("script,iframe,object,embed,video,audio,base,meta[http-equiv],link").remove();
   $("svg script,svg foreignObject,svg image,svg use,svg animate,svg animateTransform,svg set,svg discard,svg feImage").remove();
+  const safeImageUrl=(url:string)=>{
+    if(/^https:\/\//i.test(url))return true;
+    if(url.startsWith("/api/cloner/media?")){
+      try{
+        const parsed=new URL(url,"https://pagenova.local");
+        return parsed.pathname==="/api/cloner/media"&&verifyClonerMedia(
+          parsed.searchParams.get("u")||"",parsed.searchParams.get("sig")||"");
+      }catch{return false;}
+    }
+    return false;
+  };
+  const cleanSrcset=(raw:string)=>raw.split(",").map(candidate=>{
+    const parts=candidate.trim().split(/\s+/).filter(Boolean),url=parts.shift()||"";
+    if(!safeImageUrl(url))return "";
+    const descriptor=parts.length===1&&/^(?:\d+w|(?:\d+(?:\.\d+)?)x)$/.test(parts[0])?parts[0]:"";
+    return url+(descriptor?" "+descriptor:"");
+  }).filter(Boolean).join(", ");
+  // Desktop art direction lives in <picture><source media/srcset>.
+  // Keep only image URL candidates, never a source video or unsafe URL.
+  $("source").not("picture source").remove();
+  $("picture source,img[srcset]").each((_,node)=>{
+    const el=$(node),srcset=cleanSrcset(el.attr("srcset")||"");
+    if(srcset)el.attr("srcset",srcset);else el.removeAttr("srcset");
+    el.removeAttr("data-srcset").removeAttr("src");
+    if(node.tagName==="source"&&!srcset)el.remove();
+  });
   $("form").each((_,node)=>{$(node).replaceWith('<div class="pn-cloned-form">'+$(node).html()+'</div>');});
   $("input,textarea,select").each((_,node)=>{
     $(node).removeAttr("name").removeAttr("form").removeAttr("autofocus")
