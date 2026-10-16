@@ -29,6 +29,15 @@ must("frontend/src/app/api/cloner/analyze/route.ts",[
  [/authorizedForms/,"Cloner must verify entitlement"],[/validateRemote/,"Cloner SSRF protection required"],
  [/MAX_HTML_BYTES/,"HTML fetch budget required"],[/createFaithfulVisual/,"Cloner must preserve source HTML rather than rebuilding generic blocks"]
 ]);
+must("frontend/src/server/services/browser-cloner.ts",[
+ [/settleDynamicPage/,"Visual clone must wait for JS content and lazy-loaded assets"],
+ [/routeWebSocket/,"Headless browser must block untrusted WebSocket egress"],
+ [/serviceWorkers:"block"/,"Source service workers must not persist in PageNova"]
+]);
+must("frontend/src/app/api/cloner/analyze/route.ts",[
+ [/fetchPageWithBrowser/,"Cloner must attempt hydrated browser before static HTML"],
+ [/static-html-fallback-v3/,"Cloner must report downgraded static fidelity"]
+]);
 must("frontend/src/server/services/faithful-cloner.ts",[
  [/visualBodyHtml/,"Cloned source layout must remain editable"],
  [/absolutizeCss/,"Imported CSS must be safely rebased"],
