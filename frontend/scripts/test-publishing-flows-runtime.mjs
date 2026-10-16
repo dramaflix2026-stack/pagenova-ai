@@ -54,7 +54,13 @@ const storage={
     };
   }
 };
-const admin={storage};
+const reservations={form:0,quiz:0};
+const admin={storage,async rpc(name,args){
+  if(name!=="pagenova_public_submission_reserve"||!["form","quiz"].includes(args?.p_kind))
+    return {data:null,error:{code:"UNKNOWN_TEST_RPC"}};
+  reservations[args.p_kind]++;
+  return {data:reservations[args.p_kind]<=1000,error:null};
+}};
 const cache=new Map();
 function load(path){
   const filename=resolve(path.endsWith(".ts")?path:path+".ts");
@@ -123,6 +129,7 @@ try{
   assert(response.formId===form.id&&response.answers.length===3,"Form response persistence failed");
   const ownerResponses=await forms.listOwnedSubmissions(admin,"account-one",form.id);
   assert(ownerResponses.some(x=>x.id===response.id),"Owner cannot retrieve form lead");
+  assert(reservations.form===1,"Invalid form answers must not consume daily anti-abuse reservations");
   await rejects(()=>forms.listOwnedSubmissions(admin,"account-two",form.id),"Another account can read form leads");
   const changed=await forms.saveOwnedForm(admin,"account-one",{
     ...form,title:"New unpublished title"
@@ -165,6 +172,7 @@ try{
   const submissions=await quizzes.listQuizResponses(admin,"account-one",quiz.id);
   assert(submissions.some(x=>x.id===submission.submissionId && x.lead?.consent),
     "Owner cannot retrieve quiz lead and consent");
+  assert(reservations.quiz===1,"Unpublished or no-consent quizzes must not consume anti-abuse reservations");
   await rejects(()=>quizzes.listQuizResponses(admin,"account-two",quiz.id),
     "Another account can read quiz submissions");
   console.log("QUIZ PASS: published-only, hidden scoring, consent, scoring, responses, owner isolation.");
