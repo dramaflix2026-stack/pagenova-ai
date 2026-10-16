@@ -16,8 +16,12 @@ export async function POST(request:NextRequest) {
     await authorizedForms();
     const raw=await request.text();
     if(raw.length>3_800_000)throw new FormServiceError("Imagens muito grandes para exportação direta. Use Imprimir / Salvar PDF no editor.",413);
-    const payload=JSON.parse(raw) as {ebook?:unknown};
-    const ebook=normalizeEbook(payload.ebook);
+    let payload:{ebook?:unknown};
+    try{payload=JSON.parse(raw) as {ebook?:unknown};}
+    catch{throw new FormServiceError("Dados de exportação inválidos.",400);}
+    let ebook:ReturnType<typeof normalizeEbook>;
+    try{ebook=normalizeEbook(payload.ebook);}
+    catch(error){throw new FormServiceError(error instanceof Error?error.message:"Ebook inválido.",422);}
     const html=renderEbookHtml(ebook);
     browser=await playwright.launch({
       args:chromium.args,
