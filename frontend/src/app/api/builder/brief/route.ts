@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
+import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -148,6 +149,9 @@ export async function POST(request: NextRequest) {
       { status: 503 },
     );
   }
+
+  const aiBudget = await reservePaidAiBudget(admin, user.id, "legacy_site_brief");
+  if (!aiBudget.ok) return NextResponse.json({ error: aiBudget.message }, { status: aiBudget.status });
 
   const category = getSitePreset(presetId).title;
 
