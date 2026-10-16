@@ -150,7 +150,7 @@ export async function POST(req:NextRequest){
    }
    return false;
   }
-  if(!await connectFrom(0)||!upstream){
+  if(!await connectFrom(0)||!(upstream as Response|null)){
    console.error("[PageNova IA] No compatible model answered",{problems});
    return NextResponse.json({error:providerError(problems)},{status:502});
   }
@@ -166,7 +166,7 @@ export async function POST(req:NextRequest){
      // customer message or overwriting saved conversation history.
      for(let attempt=modelIndex;attempt<models.length;attempt++){
       let buffer="",partial="";
-      const selected=upstream;
+      const selected:Response|null=upstream as Response|null;
       if(!selected?.body)break;
       try{
        const reader=selected.body.getReader();
