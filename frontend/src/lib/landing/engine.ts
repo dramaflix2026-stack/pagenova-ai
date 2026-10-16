@@ -69,9 +69,9 @@ export function newLanding(kind:LandingKind,name="",brief=""):LandingProject{
   if(kind==="course"){
     const info=analyzeLandingBrief(n||"Meu infoproduto",briefText);
     return {id:crypto.randomUUID(),kind,name:n||"Meu infoproduto",brief:briefText,audience:"",
-      eyebrow:"CONHEÇA O MATERIAL DIGITAL",headline:info.headline,subtitle:info.subtitle,
+      eyebrow:info.niche.toUpperCase()+" • "+info.format.toUpperCase(),headline:info.headline,subtitle:info.subtitle,
       description:briefText||"Inclua a descrição real do material, formato de entrega e detalhes da oferta.",
-      offer:"Confira o pacote "+(n||"completo"),price:info.price,ctaLabel:"Quero acessar a oferta",
+      offer:info.offerHeadline,price:info.price,ctaLabel:"Ver detalhes e condições",
       ctaUrl:"",secondaryUrl:"",whatsapp:"",email:"",heroImage:"",accent:"#00d6a1",
       benefits:info.benefits,steps:["Conheça o conteúdo","Confira o que está incluso","Veja as condições de compra"],
       faqs:[
@@ -252,15 +252,24 @@ export function analyzeLandingBrief(name:string,brief:string){
  const pm=/(?:R\$\s*|por\s+(?:apenas\s+)?(?:R\$\s*)?|preço\s*:?\s*(?:R\$\s*)?|valor\s*:?\s*(?:R\$\s*)?)(\d{1,6}(?:[.,]\d{2}))/i.exec(b);
  const price=pm?"R$ "+pm[1]:"";
  const format=/\b(e-?book|livro digital|pdf)\b/i.test(b)?"eBook":/\bmentoria\b/i.test(b)?"mentoria":/\b(curso|aulas|treinamento)\b/i.test(b)?"curso":/\b(kit|pacote|coleção|acervo)\b/i.test(b)?"pacote digital":"infoproduto";
- const benefits=match?.benefits||(m?["Conheça os "+subject+" apresentados na oferta","Confira os detalhes do conteúdo antes de comprar","Veja as condições de aquisição"]:["Conheça o conteúdo de "+n,"Entenda a proposta da oferta","Avalie os materiais antes de comprar"]);
+ const benefits=match?.benefits||(m?["Uma coleção com "+subject,"Saiba quais materiais compõem a oferta","Compare as informações antes de decidir"]:["Explore o conteúdo de "+n,"Entenda o que faz parte da proposta","Confira o acesso e as condições antes de decidir"]);
+ // The quantity is confirmed by the brief; use it instead of a generic card.
+ if(m&&benefits.length){benefits[0]="Uma coleção anunciada com "+subject;}
  const before=match?.before||["Pesquisar referências em diferentes fontes","Comparar opções e organizar materiais por conta própria"];
  const after=match?.after||(m?["Conhecer a oferta com "+subject,"Avaliar o conteúdo e as condições de aquisição"]:["Conhecer a proposta de "+n,"Avaliar o conteúdo e as condições de aquisição"]);
  const testimonialAngles=match?.angles||["O que a pessoa achou da organização do material","Como utilizou o conteúdo na rotina","Clareza e praticidade percebidas de forma real"];
- const headline=m?subject.charAt(0).toUpperCase()+subject.slice(1)+": conheça a coleção e o que ela oferece":
-   format==="mentoria"?"Conheça a mentoria "+n:format==="curso"?"Descubra a proposta do curso "+n:"Conheça "+n+" e o que está incluído";
- const subtitle=m?"Explore a proposta de "+subject+". Veja o conteúdo anunciado, os detalhes do produto e como adquirir.":
-   b?b.slice(0,320):"Veja o conteúdo e as condições da oferta antes de decidir.";
- return {subject,price,format,niche,headline,subtitle,benefits,before,after,testimonialAngles,
+ const nicheText=niche==="Infoprodutos gerais"?"seu objetivo":niche.toLowerCase();
+ const headline=m?subject.charAt(0).toUpperCase()+subject.slice(1)+" reunidos em uma só coleção":
+   format==="mentoria"?n+": conheça a proposta de acompanhamento":
+   format==="curso"?n+": conheça o conteúdo do treinamento":
+   n+": veja exatamente o que esta oferta apresenta";
+ const subtitle=m?
+   "Para quem busca referências em "+nicheText+": confira a coleção de "+subject+", veja o conteúdo anunciado e decida com as informações em mãos.":
+   b?b.slice(0,270):"Veja o conteúdo e as condições da oferta antes de decidir.";
+ const offerHeadline=m?"Veja o que está incluído nos "+subject:
+   format==="mentoria"?"Conheça as condições da mentoria "+n:
+   "O que você recebe com "+n;
+ return {subject,price,format,niche,headline,subtitle,offerHeadline,benefits,before,after,testimonialAngles,
     facts:[subject,...(price?[price]:[]),format,niche]};
 }
 /** New conversion-first funnel only. Old course pages retain their legacy layout. */
