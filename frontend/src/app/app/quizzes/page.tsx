@@ -275,30 +275,41 @@ export default function QuizStudioPage(){
           </div>
           <textarea className={input+" min-h-20 resize-y text-base font-semibold"} value={question.title}
             maxLength={260} onChange={e=>changeQuestion(question.id,{title:e.target.value})}/>
-          <div className="mt-2 flex flex-wrap gap-1.5">{["✨","❤️","🔥","🎯","🍽️","🏡","🚀","💡"].map(emoji=><button key={emoji} type="button" title={"Adicionar "+emoji+" à pergunta"} className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-base" onClick={()=>changeQuestion(question.id,{title:question.title+" "+emoji})}>{emoji}</button>)}</div>
-          <MediaImageField label={"Imagem da pergunta "+(index+1)} value={question.imageUrl} onChange={imageUrl=>changeQuestion(question.id,{imageUrl})}/>
-          <div className="mt-4 space-y-3">
-            {question.options.map((opt,i)=><div key={opt.id} className="grid grid-cols-[22px_1fr] gap-2 sm:grid-cols-[22px_1fr_160px_32px] sm:items-center">
-              <span className="pt-3 text-xs text-white/50">{String.fromCharCode(65+i)}</span>
+          <div className="mt-4 space-y-2">
+            {question.options.map((opt,i)=><div key={opt.id} className="grid grid-cols-[22px_minmax(0,1fr)_36px] items-center gap-2">
+              <span className="text-xs font-semibold text-white/50">{String.fromCharCode(65+i)}</span>
               <input className={input} aria-label={"Texto da resposta "+(i+1)} maxLength={160}
                 value={opt.label} onChange={e=>changeQuestion(question.id,{
                   options:question.options.map(o=>o.id===opt.id?{...o,label:e.target.value}:o),
                 })}/>
-              <div className="col-start-2 sm:col-span-3"><MediaImageField label={"Imagem da opção "+String.fromCharCode(65+i)} value={opt.imageUrl} onChange={imageUrl=>changeQuestion(question.id,{options:question.options.map(o=>o.id===opt.id?{...o,imageUrl}:o)})}/></div>
-              <select className={input+" col-start-2 sm:col-auto"} aria-label={"Perfil associado à resposta "+(i+1)}
-                value={opt.outcomeId} onChange={e=>changeQuestion(question.id,{
-                  options:question.options.map(o=>o.id===opt.id?{...o,outcomeId:e.target.value}:o),
-                })}>
-                {quiz.outcomes.map(o=><option key={o.id} value={o.id}>{o.title}</option>)}
-              </select>
-              <button type="button" disabled={question.options.length<=2}
-                className="col-start-2 ml-auto rounded-lg p-2 text-white/40 hover:text-red-300 disabled:opacity-25 sm:col-auto sm:ml-0"
-                title="Remover opção"
+              <button type="button" disabled={question.options.length<=2} title="Remover opção" aria-label={"Excluir resposta "+(i+1)}
+                className="rounded-lg p-2 text-white/40 hover:text-red-300 disabled:opacity-25"
                 onClick={()=>changeQuestion(question.id,{options:question.options.filter(o=>o.id!==opt.id)})}>
                 <Trash2 className="h-4 w-4"/>
               </button>
             </div>)}
           </div>
+          <details className="mt-4 rounded-xl border border-white/10 bg-black/10 px-3 py-3">
+            <summary className="cursor-pointer text-xs font-semibold text-white/65">Imagens, emojis e lógica de resultados (opcional)</summary>
+            <div className="mt-4 space-y-4 border-t border-white/10 pt-4">
+              <div className="flex flex-wrap gap-1.5">{["✨","❤️","🔥","🎯","🍽️","🏡","🚀","💡"].map(emoji=><button key={emoji} type="button"
+                title={"Adicionar "+emoji+" à pergunta"} className="rounded-md border border-white/10 bg-white/5 px-2 py-1 text-base"
+                onClick={()=>changeQuestion(question.id,{title:question.title+" "+emoji})}>{emoji}</button>)}</div>
+              <MediaImageField label={"Imagem da pergunta "+(index+1)} value={question.imageUrl}
+                onChange={imageUrl=>changeQuestion(question.id,{imageUrl})}/>
+              {question.options.map((opt,i)=><div key={opt.id} className="space-y-2 border-t border-white/10 pt-3">
+                <p className="text-xs font-semibold text-white/65">Resposta {String.fromCharCode(65+i)}</p>
+                <MediaImageField label={"Imagem da opção "+String.fromCharCode(65+i)} value={opt.imageUrl}
+                  onChange={imageUrl=>changeQuestion(question.id,{options:question.options.map(o=>o.id===opt.id?{...o,imageUrl}:o)})}/>
+                <label className="block text-xs text-white/55">Perfil associado
+                  <select className={input+" mt-1"} value={opt.outcomeId}
+                    onChange={e=>changeQuestion(question.id,{options:question.options.map(o=>o.id===opt.id?{...o,outcomeId:e.target.value}:o)})}>
+                    {quiz.outcomes.map(o=><option key={o.id} value={o.id}>{o.title}</option>)}
+                  </select>
+                </label>
+              </div>)}
+            </div>
+          </details>
           {question.options.length<6&&<button type="button" className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-emerald-300"
             onClick={()=>changeQuestion(question.id,{options:[...question.options,{
               id:"o-"+crypto.randomUUID().slice(0,7),label:"Nova resposta",outcomeId:quiz.outcomes[0].id,
