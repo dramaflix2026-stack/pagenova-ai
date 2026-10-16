@@ -47,10 +47,28 @@ function titleFromPrompt(prompt:string):string{
  return (first.replace(/^(?:(?:crie|quero|faca|faça|gere|escreva|monte|elabore|produza)\s+)+(?:um|uma|o|a)?\s*(?:e-?book|livro|guia|apostila|manual)\s*(?:sobre|de|para|com)?\s*/i,"")
    .replace(/^\s*(?:sobre|de|para|com)\s+/i,"").trim().slice(0,100)||"Seu tema").replace(/<|>/g,"");
 }
-export function editorialEbook(input:{prompt:string;pageCount:number;author:string;theme:EbookTheme;imageMode:"web"|"none"}):EbookProject{
+/**
+ * Page count is a result of the editorial plan, never a user-selected ceiling.
+ * The free general writer has 12 curated, independently useful chapter outlines;
+ * book-of-recipes requests use the dedicated cookbook engine instead.
+ */
+export function planEditorialLength(prompt:string):number{
+ const type=classify(prompt);
+ const baseByKind:Record<Topic,number>={
+  guide:6,manual:8,workbook:9,business:8,education:9,wellness:7,
+ };
+ const brief=normalized(prompt);
+ const scopeSignals=prompt.split(/[;\n]|[.!?]+\s+/).filter(chunk=>chunk.trim().length>16).length;
+ const detail=/\b(completo|detalhado|aprofundado|profundo|abrangente|extenso|avancado|passo a passo)\b/.test(brief);
+ const short=/\b(resumido|breve|enxuto|curto|introducao|basico)\b/.test(brief);
+ const extra=Math.min(3,Math.max(0,scopeSignals-1))+(detail?2:0)-(short?2:0);
+ const chapters=Math.min(common.length,Math.max(4,baseByKind[type]+extra));
+ return chapters+2; // cover + meaningful chapters + closing
+}
+export function editorialEbook(input:{prompt:string;author:string;theme:EbookTheme;imageMode:"web"|"none"}):EbookProject{
  const subject=titleFromPrompt(input.prompt);
  const type=classify(input.prompt),profile=byTopic[type];
- const total=Math.max(4,Math.min(16,input.pageCount));
+ const total=planEditorialLength(input.prompt);
  const sanitizedBrief=input.prompt.replace(/\s+/g," ").trim().slice(0,420);
  const interior=total-2;
  const rows=profile.order.slice(0,interior).map(index=>common[index]);
