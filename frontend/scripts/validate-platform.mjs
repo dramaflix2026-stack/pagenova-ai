@@ -66,6 +66,17 @@ must("frontend/src/app/app/builder/page.tsx",[
  [/Escrever logo/,"Standalone site generator must offer direct logo text entry"],
  [/navigation:\{\.\.\.data.config.navigation,logo:null,wordmark:/,"Standalone text logo must replace the old image"]
 ]);
+must("frontend/src/app/app/quizzes/page.tsx",[
+ [/setTab\("preview"\)/,"Quiz must show generated and reopened projects in preview-first mode"],
+ [/Gerar e visualizar/,"Quiz start must have one compact generate-and-preview action"],
+ [/\["preview","Prévia",Eye\]/,"Quiz navigation must prioritize preview"],
+ [/\["questions","Perguntas",FileQuestion\]/,"Quiz questions must be optional"],
+ [/\["settings","Ajustes",WandSparkles\]/,"Quiz appearance and leads must be in settings"],
+ [/Imagens, emojis e lógica de resultados \(opcional\)/,"Advanced question controls must be collapsed"],
+ [/Salvar rascunho/,"Quiz save must remain accessible"],
+ [/Participações e leads/,"Quiz leads must remain accessible"],
+ [/onClick=\{\(\)=>void publish\(\)\}/,"Quiz publishing must remain accessible"],
+]);
 must("frontend/src/lib/studio/local-engine.ts",[
  [/forms:false,\s*quizzes:false,\s*ebooks:false,\s*apps:false,\s*systems:false/,"local modules cannot silently use paid APIs"]
 ]);
