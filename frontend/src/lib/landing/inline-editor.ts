@@ -229,6 +229,7 @@ function chooseTarget(target){
  return target.closest(selector);
 }
 document.addEventListener('click',function(e){
+ if(e.target===fileInput)return;
  if(e.target&&e.target.closest&&e.target.closest('#pn-inline-tools'))return;
  if(editingText)return;
  var el=chooseTarget(e.target);
