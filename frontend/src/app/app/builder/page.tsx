@@ -1187,14 +1187,12 @@ export default function BuilderPage() {
       : html + overlay;
     const blob = new Blob([withEdits], { type: "text/html;charset=utf-8" });
     const url = URL.createObjectURL(blob);
-    const opened = window.open(url, "_blank", "noopener,noreferrer");
-
-    if (!opened) {
-      URL.revokeObjectURL(url);
-      setError("O navegador bloqueou a nova aba. Permita pop-ups para abrir a prévia.");
-      return;
-    }
-
+    // With the noopener feature, window.open() may return null EVEN WHEN the
+    // browser opened the tab. A real anchor preserves noopener without a
+    // misleading "popup blocked" error for successful previews.
+    const link=document.createElement("a");
+    link.href=url;link.target="_blank";link.rel="noopener noreferrer";
+    document.body.appendChild(link);link.click();link.remove();
     window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
 
