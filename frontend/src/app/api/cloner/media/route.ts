@@ -84,7 +84,9 @@ export async function GET(request:NextRequest){
     "Content-Type":mime,
     "Cache-Control":"public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400",
     "X-Content-Type-Options":"nosniff",
-    "Cross-Origin-Resource-Policy":"same-origin",
+    // Published /c/* pages use CSP sandbox (opaque origin). Signed images
+    // must stay embeddable there; HMAC protects the upstream target.
+    "Cross-Origin-Resource-Policy":"cross-origin",
   }});
  }catch{
   return new Response("Imagem original indisponível.",{status:502,headers:{"Cache-Control":"no-store"}});
