@@ -137,6 +137,14 @@ export async function recordPublicSubmission(id:string,raw:unknown):Promise<Form
   };
   const admin=adminClient();
   await ensureBucket(admin);
+  // Atomically bound valid public responses; this is not a subscription debit.
+  const {data:allowed,error:limitError}=await admin.rpc("pagenova_public_submission_reserve",{
+    p_kind:"form",p_resource_id:id,
+  });
+  if(limitError||typeof allowed!=="boolean")
+    throw new FormServiceError("Envio temporariamente indisponível.",503);
+  if(!allowed)
+    throw new FormServiceError("Este formulário atingiu o limite diário de respostas.",429);
   const bytes=JSON.stringify(submission);
   const {error}=await admin.storage.from(BUCKET).upload(
     "responses/"+id+"/"+submission.id+".json",
