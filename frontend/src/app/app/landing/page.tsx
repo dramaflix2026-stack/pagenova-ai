@@ -271,6 +271,7 @@ export default function LandingStudioPage(){
       <button disabled={!!busy} onClick={()=>void save(true)} className="inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2.5 text-xs font-extrabold text-black hover:bg-emerald-200 disabled:opacity-50">{busy==="publish"?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>} Publicar</button>
      </div>
     </header>
+    {editorProject.salesPage&&briefInsights.length>0&&<div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-emerald-300/15 bg-[#102423] px-4 py-3 text-xs text-white/75"><span className="font-bold text-emerald-300">Extraído do briefing</span>{briefInsights.map(v=><span key={v} className="rounded-full border border-emerald-300/20 px-3 py-1">{v}</span>)}<span className="text-white/45">Motor local · sem API paga</span></div>}
     <div className="mt-5 grid gap-5 xl:grid-cols-[385px_minmax(0,1fr)]">
      <aside className="overflow-hidden rounded-2xl border border-white/10 bg-[#151a24]">
       <div className="flex border-b border-white/10">
@@ -289,10 +290,25 @@ export default function LandingStudioPage(){
          {editorProject.salesPage&&field("ribbon","Tarja fixa superior")}
          {field("name","Nome da marca")}{field("eyebrow","Selo acima do título")}{field("headline","Título principal",3)}{field("subtitle","Subtítulo",3)}{field("audience","Público / posicionamento")}
         </div>}
+        {section==="comparison"&&editorProject.salesPage&&<div className="space-y-5">
+         <Field label="Antes da compra — um por linha" value={(editorProject.before||[]).join("\n")} rows={5} onChange={v=>patch({before:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,5)})} hint="Descreva situações relevantes, sem prometer resultados não comprovados."/>
+         <Field label="Depois da compra — um por linha" value={(editorProject.after||[]).join("\n")} rows={5} onChange={v=>patch({after:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,5)})} hint="Mencione apenas entregáveis e características reais do produto."/>
+        </div>}
+        {section==="bonuses"&&editorProject.salesPage&&<div className="space-y-4">
+         <Field label="Bônus reais — um por linha" value={(editorProject.bonuses||[]).join("\n")} rows={7} onChange={v=>patch({bonuses:v.split("\n").map(s=>s.trim()).filter(Boolean).slice(0,8)})} hint="Sem bônus informados, esta seção fica oculta após publicar."/>
+        </div>}
+        {section==="guarantee"&&editorProject.salesPage&&<div className="space-y-4">
+         <label className="flex items-center gap-3 text-xs font-semibold"><input type="checkbox" className="h-4 w-4 accent-emerald-300" checked={editorProject.guaranteeDays===7} onChange={e=>patch({guaranteeDays:e.target.checked?7:0})}/> Exibir garantia de 7 dias</label>
+         {field("guaranteeText","Termos da garantia",5,"Explique os termos reais da garantia.")}
+         <p className="text-xs leading-5 text-white/50">Confirme a aplicação das condições antes de publicar.</p>
+        </div>}
         {section==="benefits"&&<div className="space-y-4"><Field label="Benefícios — uma linha por item" value={editorProject.benefits.join("\n")} onChange={v=>listValues("benefits",v)} rows={8} hint="Até 6 itens. Use informações verificadas, sem promessas fictícias."/></div>}
         {section==="details"&&<div className="space-y-4">{field("description","Descrição detalhada da oferta",9)}{field("offer","Frase de destaque",2)}</div>}
         {section==="process"&&<Field label="Etapas — uma por linha" value={editorProject.steps.join("\n")} onChange={v=>listValues("steps",v)} rows={7} hint="Exibidas na ordem informada; até 6 etapas."/>}
-        {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}<p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção fica invisível.</p></div>}
+        {section==="proof"&&<div className="space-y-4">{field("proof","Texto do depoimento real",5,"Use somente depoimentos autorizados.")}{field("proofAuthor","Nome da pessoa que autorizou o depoimento")}
+         {editorProject.salesPage&&<Field label="Outros depoimentos — Autor | Texto (um por linha)" value={(editorProject.testimonials||[]).map(t=>t.author+" | "+t.quote).join("\n")}
+          onChange={v=>patch({testimonials:v.split("\n").map(line=>{const i=line.indexOf("|");return i<0?{author:"",quote:""}:{author:line.slice(0,i).trim(),quote:line.slice(i+1).trim()};}).filter(t=>t.author&&t.quote).slice(0,8)})} rows={6} hint="Use apenas depoimentos reais e autorizados."/>}
+         <p className="text-xs leading-5 text-white/45">Sem depoimento real, a seção não é publicada.</p></div>}
         {section==="offer"&&<div className="space-y-4">{field("offer","Título da oferta",2)}{field("price","Preço / condição",0,"Ex.: R$ 149,00")}{field("ctaLabel","Texto do botão")}{field("ctaUrl","URL de checkout / ação",0,"https://...","Sem URL, o botão rola até o formulário de contato.")}{field("secondaryUrl","Link secundário (opcional)",0,"https://...")}</div>}
         {section==="faq"&&<div className="space-y-4">
          {editorProject.faqs.map((f,i)=><div key={i} className="space-y-3 rounded-xl border border-white/10 bg-[#10151e] p-3">
@@ -304,7 +320,13 @@ export default function LandingStudioPage(){
         </div>}
         {section==="contact"&&<div className="space-y-4">{field("whatsapp","WhatsApp com DDD",0,"5511999999999")}{field("email","E-mail da empresa")}{field("ctaLabel","Texto do botão principal")}<p className="text-xs leading-6 text-white/45">O formulário da landing page publicada salva nome, e-mail e mensagem com acesso exclusivo ao dono da página.</p></div>}
        </>}
-       {tab==="structure"&&<>
+       {tab==="structure"&&editorProject.salesPage&&<>
+        <p className="text-xs leading-6 text-white/65">Para infoprodutos, a ordem de conversão é fixa. Edite o conteúdo de cada seção na aba Conteúdo.</p>
+        {["Tarja superior fixa","Headline, subheadline e mockup","Benefícios","Antes e depois","Apresentação do produto","Bônus inclusos","Oferta principal + CTA","Depoimentos reais","Garantia de 7 dias","Perguntas frequentes","Rodapé e contato"].map((title,i)=>
+         <div className="rounded-xl border border-emerald-300/20 bg-[#102122] p-3 text-xs" key={title}><span className="mr-3 text-emerald-300">{String(i+1).padStart(2,"0")}</span>{title}</div>)}
+        <p className="text-xs leading-6 text-white/45">Bônus e depoimentos vazios não aparecem ao publicar. A garantia pode ser desligada.</p>
+       </>}
+       {tab==="structure"&&!editorProject.salesPage&&<>
         <p className="text-xs leading-6 text-white/55">Escolha as seções que aparecerão e arraste a ordem usando as setas. A primeira dobra fica sempre no topo.</p>
         <div className="rounded-xl border border-emerald-300/25 bg-emerald-300/[.06] px-4 py-3 text-xs font-bold text-emerald-200">Primeira dobra / Hero · Fixo</div>
         {LANDING_SECTIONS.map(s=>{
