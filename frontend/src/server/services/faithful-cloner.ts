@@ -49,10 +49,11 @@ function srcsetAbsolute(srcset:string,base:string,mediaProxy?:(url:string)=>stri
  return srcset.split(",").map(entry=>{
   const parts=entry.trim().split(/\s+/).filter(Boolean);
   const candidate=parts.shift()||"";
-  const src=safeResourceUrl(candidate,base);
-  if(!src||!/^https:\/\//i.test(src))return "";
+  const alreadySigned=mediaProxy&&candidate.startsWith("/api/cloner/media?u=");
+  const src=alreadySigned?candidate:safeResourceUrl(candidate,base);
+  if(!src||(!alreadySigned&&!/^https:\/\//i.test(src)))return "";
   const descriptor=parts.length===1&&/^(?:\d+w|(?:\d+(?:\.\d+)?)x)$/.test(parts[0])?parts[0]:"";
-  return (mediaProxy?mediaProxy(src):src)+(descriptor?" "+descriptor:"");
+  return (alreadySigned?src:mediaProxy?mediaProxy(src):src)+(descriptor?" "+descriptor:"");
  }).filter(Boolean).join(", ");
 }
 export function createFaithfulVisual(
