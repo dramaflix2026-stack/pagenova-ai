@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as cheerio from "cheerio";
 
 /** Preserve the actual DOM and CSS of a public landing page, without executing
