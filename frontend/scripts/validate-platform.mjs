@@ -101,6 +101,37 @@ must("frontend/src/components/pagenova-support-chat.tsx",[
  [/landingPreview=path\.startsWith/,"Landing-aware floating assistant placement missing"],
  [/bottom-\[116px\]/,"Assistant must not cover the sticky landing CTA"]
 ]);
+const aiChat=must("frontend/src/app/api/support/chat/route.ts",[
+ [/authorizedChat/,"PageNova IA must require account authentication"],
+ [/pagenova_support_chat_reserve/,"Free chat must enforce rate and cost limits"],
+ [/pagenova_ai_reserve_deep/,"Premium reasoning must use separate daily cost guard"],
+ [/gpt-5-mini/,"PageNova IA must upgrade from 4.1-only support chat"],
+ [/pagenova_ai_threads/,"PageNova IA must persist conversations"],
+ [/recentChatNotes/,"PageNova IA must restore explicitly saved memory"],
+ [/new ReadableStream/,"AI responses must stream progressively"],
+ [/Não tem ferramentas|NÃO tem ferramentas|NÃO tem ferramentas/i,"Chat must not be authorized to change projects"]
+]);
+if(/tools:\s*\[|tool_choice|function_call|writeProject|saveProject/.test(aiChat))
+ throw new Error("PageNova conversational assistant must not receive project editing tools.");
+must("frontend/src/app/api/support/history/route.ts",[
+ [/authorizedChat/,"History must be authenticated"],
+ [/\.eq\("owner_id",userId\)/,"Every chat history query must isolate tenants"],
+ [/export async function DELETE/,"Users must be able to erase their conversations"]
+]);
+must("frontend/src/lib/support/chat-server.ts",[
+ [/explicitMemoryRequest/,"Long-term memory must be opt-in"],
+ [/validThreadId/,"Conversation identifiers must be validated"]
+]);
+must("frontend/src/components/pagenova-support-chat.tsx",[
+ [/Pensar melhor/,"Users need an optional deeper reasoning mode"],
+ [/Histórico de conversas/,"The interface must expose past conversations"],
+ [/Nova conversa/,"The user must be able to start a new thread"],
+ [/deleteAll/,"The user must be able to delete conversation and memory data"]
+]);
+must("supabase/migrations/20261016_pagenova_ai_conversation_history.sql",[
+ [/enable row level security/,"Private history tables require RLS"],
+ [/references auth.users\(id\) on delete cascade/,"Conversation data must have a verified owner"]
+]);
 must("frontend/src/app/api/landing/leads/route.ts",[
   [/b\.consent!==true/,"Landing leads must require informed consent"],
   [/pagenova_landing_lead_reserve/,"Landing public submissions require atomic budget"]
