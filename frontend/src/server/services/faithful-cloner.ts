@@ -183,6 +183,16 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
   '.elementor-section,.e-con{height:auto!important}'+
   '.elementor-column,.elementor-widget-wrap,.e-con-inner{min-width:0!important}'+
   '.elementor-container,.e-con-inner{max-width:100%!important}'+
+  // Applies to non-Elementor sites as well: JS-driven hero/video/gallery
+  // scaffolding must not reserve full-screen heights after being sanitized.
+  'main section,main article,body>section,body>main>div{min-height:0!important;height:auto!important}'+
+  '[class~="min-h-screen"],[class~="h-screen"],[class*="min-h-["],[class*="h-["]{min-height:0!important;height:auto!important}'+
+  'main section,main article{max-width:100%!important;opacity:1!important;visibility:visible!important}'+
+  ':is(main,section,article) img{height:auto;max-width:100%!important}'+
+  // Keep genuinely functional native details; for JS-only accordions show
+  // the answer text instead of leaving a large blank accordion container.
+  '.faq [hidden],.faq-item [hidden],.accordion [hidden],[class*="faq-"] [hidden],[class*="accordion-"] [hidden]{display:block!important;visibility:visible!important}'+
+  'main iframe,main canvas{display:none!important}'+
   '}'+
   '</style>');
  if(!$("head meta[name=viewport]").length)$("head").prepend('<meta name="viewport" content="width=device-width,initial-scale=1">');
