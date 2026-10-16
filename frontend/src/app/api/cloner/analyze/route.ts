@@ -4,6 +4,7 @@ import {isIP} from "node:net";
 import {request as httpsRequest} from "node:https";
 import * as cheerio from "cheerio";
 import {createFaithfulVisual,stylesheetLinks,absolutizeCss} from "@/server/services/faithful-cloner";
+import {signedClonerMedia} from "@/server/services/cloner-media";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 
 export const runtime="nodejs";
@@ -238,7 +239,7 @@ export async function POST(request:NextRequest){
     if(typeof input.url!=="string"||input.url.length>1400)throw new FormServiceError("Informe a URL de uma página.",422);
     const {url,html}=await getPublicHtml(input.url.trim());
     const styles=await inlinedPublicCss(html,url.href);
-    const visual=createFaithfulVisual(html,url.href,styles.content);
+    const visual=createFaithfulVisual(html,url.href,styles.content,signedClonerMedia);
     const parsed=normalizeHtml(html,url,visual);
     const project={id:crypto.randomUUID(),sourceUrl:input.url.trim(),finalUrl:url.href,domain:url.hostname,
       ...parsed,fetchedAt:new Date().toISOString()};
