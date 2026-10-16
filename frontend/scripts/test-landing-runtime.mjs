@@ -44,6 +44,36 @@ for(const section of ["ip-top","ip-cover","id=\"comparacao\"","id=\"beneficios\"
 }
 assert(funnelHtml.includes("5000 projetos de serralheria")&&funnelHtml.includes("R$ 19,90"),
  "Sales headline and price must reflect original briefing");
+assert(funnel.headline.includes("5000 projetos de serralheria")&&
+ funnel.offer.includes("5000 projetos de serralheria"),
+ "Headline and main offer must use confirmed quantity and niche");
+assert(!funnel.headline.includes("conheça a coleção e o que ela oferece")&&
+ !funnel.subtitle.includes("Explore a proposta de "),
+ "Infoproduct copy must not regress to generic placeholder text");
+assert(funnelHtml.includes('data-cta-target="contact"')&&funnelHtml.includes('href="#contato"')&&
+ funnelHtml.includes("Tirar dúvidas sobre a oferta")&&
+ !funnelHtml.includes('data-cta-target="checkout"'),
+ "No checkout may be presented as an immediate purchase");
+assert(funnelHtml.includes("ip-product-stack")&&
+ funnelHtml.includes("ip-cover-back")&&
+ funnelHtml.includes("ip-product-pill")&&
+ funnelHtml.includes("Serralheria"),
+ "Default mockup must show the real product facts without fabricated imagery");
+const withCheckout=normalizeLanding({...funnel,
+ ctaUrl:"https://checkout.example.org/compra",ctaLabel:"Quero comprar o pacote"});
+const checkoutHtml=renderLandingHtml(withCheckout,false);
+assert(checkoutHtml.includes('data-cta-target="checkout"')&&
+ checkoutHtml.includes('href="https://checkout.example.org/compra"')&&
+ checkoutHtml.includes("Quero comprar o pacote")&&
+ checkoutHtml.includes('rel="noopener noreferrer"'),
+ "A configured checkout must be honored as the real purchase destination");
+const withRealImage=normalizeLanding({...funnel,
+ heroImage:"https://assets.example.org/mockup-autorizado.webp"});
+const imageHtml=renderLandingHtml(withRealImage,false);
+assert(imageHtml.includes("ip-product-image")&&
+ imageHtml.includes("mockup-autorizado.webp")&&
+ !imageHtml.includes('class="ip-product-stack"'),
+ "The uploaded mockup must override the placeholder illustration");
 assert(!funnelHtml.includes("Depoimentos reais e autorizados")&&
  !funnelHtml.includes("id=\"depoimentos\""),"Should not invent testimonials");
 assert(!funnelHtml.includes("id=\"bonus\""),"Should not invent bonuses");
@@ -86,4 +116,4 @@ assert(gastronomy.niche==="Gastronomia"&&gastronomy.testimonialAngles.join().inc
 const legacy=normalizeLanding({...funnel,salesPage:false});
 assert(renderLandingHtml(legacy).includes('data-kind="course"'),
  "Old course landing layout must remain backward compatible");
-console.log("Landing runtime PASS: 6 presets, 3 niches, mobile centering, animated/static ribbon, verified portrait reviews, XSS and legacy compatibility.");
+console.log("Landing runtime PASS: 6 presets, 3 niches, truthful offer copy, checkout vs contact CTAs, layered mockup, responsive layout, verified reviews and legacy pages.");
