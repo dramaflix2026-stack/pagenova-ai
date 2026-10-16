@@ -302,7 +302,11 @@ export default function LandingStudioPage(){
  }
  function openFullPreview(){
   if(!project)return;
-  const html=renderLandingHtml(project,true);
+  // Blob URLs have no conventional / path root. The universal template
+  // uses local stylesheet and mockup assets; explicitly resolve them against
+  // this app's origin in the detached full-screen preview.
+  const html=renderLandingHtml(project,true)
+    .replace("<head>","<head><base href="+JSON.stringify(window.location.origin+"/")+">");
   const url=URL.createObjectURL(new Blob([html],{type:"text/html;charset=utf-8"}));
   // A real browser-sized tab is more faithful than the 820px internal iframe.
   // A noopener anchor avoids browsers treating a successful new tab as blocked.
