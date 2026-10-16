@@ -33,7 +33,14 @@ export function isPrivateIp(
     ) {
       return true;
     }
-
+    // Reserved, carrier-grade NAT, documentation, benchmarking,
+    // multicast, and cloud metadata IP ranges must never be contacted.
+    const c=Number(ip.split(".")[2]);
+    if(a>=224||a===100&&b>=64&&b<=127||a===192&&b===0||
+       a===192&&b===0&&c===2||a===198&&b===18||a===198&&b===19||
+       a===198&&b===51&&c===100||a===203&&b===0&&c===113||
+       a===192&&b===88||a===192&&b===9||a===198&&b===19||
+       a===255)return true;
     return false;
   }
 
@@ -89,6 +96,8 @@ export async function assertPublicUrl(
   const hostname =
     url.hostname.toLowerCase();
 
+  if(url.port&&url.port!=="443"&&url.port!=="80")
+    throw new Error("PORTA_NAO_PERMITIDA");
   if (
     hostname === "localhost" ||
     hostname.endsWith(".localhost") ||
