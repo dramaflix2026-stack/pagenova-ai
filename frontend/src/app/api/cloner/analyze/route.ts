@@ -112,8 +112,8 @@ type SiteImage={src:string;alt:string};
 
 /** Read lazy-loaded image URLs before the placeholder src. Static HTML
  * importers cannot run a site's hydration/IntersectionObserver scripts. */
-function importedImage(node:{attribs?:Record<string,string>},base:URL):SiteImage{
-  const attrs=node.attribs||{};
+function importedImage(node:unknown,base:URL):SiteImage{
+  const attrs=(node as {attribs?:Record<string,string>})?.attribs||{};
   const srcset=(value:string)=>value.split(",")[0]?.trim().split(/\s+/)[0]||"";
   const candidates=[
     attrs["data-src"],attrs["data-original"],attrs["data-lazy-src"],
