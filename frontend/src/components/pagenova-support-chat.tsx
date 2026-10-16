@@ -107,7 +107,7 @@ export function PageNovaSupportChat(){
   setMessages([...next,{role:"assistant",content:""}]);setBusy(true);
   const controller=new AbortController();abort.current=controller;
   let selected=threadRef.current;
-  let assembled="";
+  let assembled="",memorySaved=false;
   try{
    const res=await fetch("/api/support/chat",{
     method:"POST",headers:{"Content-Type":"application/json"},
@@ -137,6 +137,7 @@ export function PageNovaSupportChat(){
         if(data.mode==="aprofundado")setNotice("Pensando com mais profundidade…");
         continue;
        }
+       if(kind==="pagenova-memory-saved"){memorySaved=true;continue;}
        if(kind==="pagenova-error")throw Error(data.error||"A resposta foi interrompida.");
        const delta=data.choices?.[0]?.delta?.content;
        if(!delta)continue;
@@ -148,7 +149,7 @@ export function PageNovaSupportChat(){
     }
    }
    if(!assembled.trim())throw Error("A resposta não chegou. Tente novamente.");
-   setNotice("");
+   setNotice(memorySaved?"Informação guardada na sua memória privada.":"");
    if(selected){
     const id=selected;
     setThreads(current=>{
