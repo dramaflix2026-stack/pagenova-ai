@@ -158,7 +158,7 @@ export async function POST(req:NextRequest){
       if(memory){
        const {error:noteError}=await admin.from("pagenova_ai_notes").insert({owner_id:userId,note:memory});
        if(noteError)console.error("[PageNova IA] User-requested note was not saved.");
-       else controller.enqueue(encoder.encode("event: pagenova-memory-saved\\ndata: {}\\n\\n"));
+       else controller.enqueue(encoder.encode("event: pagenova-memory-saved\ndata: {}\n\n"));
       }
      }
     }catch(error){
