@@ -60,6 +60,11 @@ async function writePageNovaProject(id: string, project: unknown): Promise<void>
   }
 }
 
+/** Wait for already queued edits without writing an older React snapshot. */
+export async function waitForPageNovaProjectSaves(id: string): Promise<void> {
+  await pendingProjectWrites.get(id);
+}
+
 export async function readPageNovaProject<T>(
   id: string,
 ): Promise<T | null> {
