@@ -2,13 +2,15 @@
 
 import {
   FormEvent,
+  useEffect,
+  useCallback,
   useState,
 } from "react";
 
 import {
   useRouter,
 } from "next/navigation";
-import {savePageNovaProject} from "@/lib/pagenova-project-store";
+import {savePageNovaProject,listPageNovaProjects,deletePageNovaProject} from "@/lib/pagenova-project-store";
 
 type CloneSection = {
   id: string;
@@ -57,6 +59,7 @@ type CloneProject = {
   visualHeadHtml: string;
 
   fetchedAt: string;
+  updatedAt?: string;
 };
 
 type CloneResponse = {
@@ -101,6 +104,40 @@ export default function ClonerPage() {
     useState<CloneResponse | null>(
       null
     );
+  const [savedClones,setSavedClones]=useState<CloneProject[]>([]);
+  const [libraryBusy,setLibraryBusy]=useState(true);
+  const [libraryError,setLibraryError]=useState("");
+  const refreshSavedClones=useCallback(async()=>{
+    try{
+      const items=await listPageNovaProjects<CloneProject>();
+      const clones=items.filter((item):item is CloneProject=>
+        !!item&&typeof item.id==="string"&&/^[a-f0-9-]{36}$/i.test(item.id)&&
+        typeof item.sourceUrl==="string"&&/^https?:\/\//.test(item.sourceUrl)&&
+        typeof item.visualHtml==="string"&&item.visualHtml.length>0);
+      clones.sort((a,b)=>Date.parse(b.updatedAt||b.fetchedAt||"")-Date.parse(a.updatedAt||a.fetchedAt||""));
+      setSavedClones(clones);
+      setLibraryError("");
+    }catch{
+      setLibraryError("Não foi possível ler os projetos deste dispositivo. Verifique as permissões de armazenamento do navegador.");
+    }finally{setLibraryBusy(false);}
+  },[]);
+  useEffect(()=>{
+    void refreshSavedClones();
+    const onFocus=()=>{void refreshSavedClones();};
+    window.addEventListener("focus",onFocus);
+    window.addEventListener("pageshow",onFocus);
+    return ()=>{window.removeEventListener("focus",onFocus);window.removeEventListener("pageshow",onFocus);};
+  },[refreshSavedClones]);
+  async function removeSavedClone(id:string){
+    const clone=savedClones.find(item=>item.id===id);
+    if(!clone||!window.confirm(`Excluir o projeto "${clone.title||clone.domain}" deste dispositivo? Essa ação não pode ser desfeita.`))return;
+    try{
+      await deletePageNovaProject(id);
+      sessionStorage.removeItem(`lp-clone-project:${id}`);
+      sessionStorage.removeItem(`lp-clone-temp:${id}`);
+      setSavedClones(items=>items.filter(item=>item.id!==id));
+    }catch{setLibraryError("Não foi possível excluir o projeto. Tente novamente.");}
+  }
 
   async function handleSubmit(
     event: FormEvent
@@ -150,6 +187,15 @@ export default function ClonerPage() {
       }
 
       setResult(data);
+      if(data.project){
+        const saved={...data.project,updatedAt:new Date().toISOString()};
+        try{
+          await savePageNovaProject(saved.id,saved);
+          await refreshSavedClones();
+        }catch{
+          setLibraryError("A clonagem abriu, mas este navegador não permitiu salvá-la. Use o editor e exporte o resultado.");
+        }
+      }
     } catch (requestError) {
       setError(
         requestError instanceof Error
@@ -184,9 +230,8 @@ export default function ClonerPage() {
       console.warn("[PageNova] Cloner IndexedDB save unavailable",cause);
       // Temporary session copy remains readable by the editor.
     }
-    router.push(
-      `/app/editor/${project.id}`
-    );
+    void refreshSavedClones();
+    router.push(`/app/editor/${project.id}`);
   }
 
   return (
@@ -528,6 +573,41 @@ export default function ClonerPage() {
               </div>
             </section>
           )}
+
+          <section id="projetos-clonados" className="mt-10 border-t border-white/10 pt-8 pb-14 text-left" aria-label="Projetos clonados e salvos">
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-bold text-white sm:text-2xl">Projetos clonados</h2>
+                <p className="mt-1 text-xs leading-5 text-white/50 sm:text-sm">Abra seus projetos salvos neste dispositivo sem gastar outra clonagem.</p>
+              </div>
+              <button type="button" onClick={()=>void refreshSavedClones()} className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10">
+                Atualizar lista
+              </button>
+            </div>
+            {libraryError&&<p role="alert" className="mb-4 rounded-lg border border-amber-400/20 bg-amber-400/10 p-3 text-xs text-amber-100">{libraryError}</p>}
+            {libraryBusy?<p className="rounded-xl border border-white/10 bg-white/[.03] p-5 text-sm text-white/60">Carregando projetos...</p>:
+              savedClones.length===0?<div className="rounded-2xl border border-dashed border-white/15 bg-white/[.025] px-5 py-8 text-center">
+                <p className="font-semibold text-white/85">Nenhum projeto salvo ainda</p>
+                <p className="mt-1 text-xs text-white/50">As páginas clonadas aparecerão aqui automaticamente.</p>
+              </div>:
+              <div className="grid gap-3 sm:grid-cols-2">
+                {savedClones.map(item=><article key={item.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-[#0d1915] p-4 transition hover:border-emerald-400/30">
+                  <div className="min-w-0">
+                    <h3 className="truncate text-base font-bold text-white" title={item.title}>{item.title||item.domain||"Página clonada"}</h3>
+                    <p className="mt-1 truncate text-xs text-emerald-200/80" title={item.finalUrl}>{item.domain||item.finalUrl}</p>
+                    <p className="mt-2 text-[11px] text-white/40">Salvo em {new Date(item.updatedAt||item.fetchedAt).toLocaleDateString("pt-BR",{day:"2-digit",month:"short",year:"numeric"})}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={()=>router.push(`/app/editor/${item.id}`)}
+                      className="flex-1 rounded-lg bg-[#50dca9] px-3 py-2.5 text-xs font-bold text-[#082117] hover:bg-[#79e4b6]">Abrir e editar →</button>
+                    <button type="button" onClick={()=>void removeSavedClone(item.id)}
+                      className="rounded-lg border border-red-400/20 px-3 py-2.5 text-xs font-semibold text-red-200 hover:bg-red-400/10" aria-label={`Excluir projeto ${item.title||item.domain}`}>Excluir</button>
+                  </div>
+                </article>)}
+              </div>
+            }
+            <p className="mt-4 text-[11px] leading-5 text-white/35">Esses rascunhos usam armazenamento do navegador. Para mantê-los em outro aparelho ou após limpar os dados, exporte ou publique o projeto.</p>
+          </section>
         </div>
       </main>
     </>
