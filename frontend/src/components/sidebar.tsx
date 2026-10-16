@@ -160,6 +160,11 @@ function NavigationGroup({ title, description, items, theme, pathname, currentCr
 }
 
 export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
+  const visibleStudioItems=accessKind==="trial"?studioItems.map(item=>
+    item.href==="/app/builder"
+      ?{...item,href:"/app/crm?view=sites-ia",crmView:"sites-ia",label:"Gerar site com IA · teste"}
+      :item
+  ):studioItems;
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentCrmView = searchParams.get("view");
@@ -284,7 +289,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
           </div>
 
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-            <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={studioItems}
+            <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
@@ -344,7 +349,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         </div>
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
-          <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={studioItems}
+          <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
             theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
