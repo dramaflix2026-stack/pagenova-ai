@@ -63,6 +63,18 @@ must("frontend/src/app/api/forms/[id]/publish/route.ts",[[/publishOwnedForm/,"Fo
 must("frontend/src/app/api/quizzes/[id]/publish/route.ts",[[/publishOwnedQuiz/,"Quiz publishing missing"]]);
 must("frontend/src/app/api/landing/route.ts",[[/renderLandingHtml/,"Landing page publishing missing"],
   [/upsert:Boolean\(prior\)/,"New published landing slugs must not overwrite unknown owners"]]);
+must("frontend/src/app/app/landing/page.tsx",[
+ [/id="landing-preview"/,"Preview section anchor required"],
+ [/id="landing-editor-controls"/,"Editable controls anchor required"],
+ [/order-1 min-w-0/,"Preview must come first on mobile"],
+ [/order-2 overflow-hidden/,"Editor controls must follow preview on mobile"],
+ [/group mt-3 rounded-xl/,"Offer metadata must be collapsible"],
+ [/aria-pressed=\{viewport===/,"Viewport toggles must report selection"],
+]);
+must("frontend/src/components/pagenova-support-chat.tsx",[
+ [/landingPreview=path\.startsWith/,"Landing-aware floating assistant placement missing"],
+ [/bottom-\[116px\]/,"Assistant must not cover the sticky landing CTA"]
+]);
 must("frontend/src/app/api/landing/leads/route.ts",[
   [/b\.consent!==true/,"Landing leads must require informed consent"],
   [/pagenova_landing_lead_reserve/,"Landing public submissions require atomic budget"]
