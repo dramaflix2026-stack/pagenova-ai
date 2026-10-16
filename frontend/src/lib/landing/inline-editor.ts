@@ -8,11 +8,28 @@ export type LandingInlineEdit={
  text?:string;color?:string;fontSize?:string;fontFamily?:string;href?:string;image?:string;
 };
 export type LandingInlineEdits=Record<string,LandingInlineEdit>;
+export type LandingInsertedImage={id:string;afterId:string;src:string};
+export function normalizeInsertedImages(input:unknown):LandingInsertedImage[]{
+ if(!Array.isArray(input))return [];
+ const images:LandingInsertedImage[]=[],seen=new Set<string>();
+ let remaining=1_300_000;
+ for(const raw of input.slice(0,8)){
+  if(!raw||typeof raw!=="object")continue;
+  const {id,afterId,src}=raw as Record<string,unknown>;
+  if(typeof id!=="string"||!/^i[a-z0-9]{8,40}$/.test(id)||seen.has(id)||
+     typeof afterId!=="string"||!/^e\d{1,5}$/.test(afterId)||
+     typeof src!=="string"||!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(src)||
+     src.length>480_000||src.length>remaining)continue;
+  images.push({id,afterId,src});seen.add(id);remaining-=src.length;
+ }
+ return images;
+}
+
 
 export function normalizeInlineEdits(input:unknown):LandingInlineEdits{
  const output:LandingInlineEdits={};
  if(!input||typeof input!=="object"||Array.isArray(input))return output;
- let imageBudget=2_500_000;
+ let imageBudget=1_800_000;
  for(const [id,value] of Object.entries(input).slice(0,240)){
   if(!/^e\d{1,5}$/.test(id)||!value||typeof value!=="object"||Array.isArray(value))continue;
   const v=value as LandingInlineEdit,clean:LandingInlineEdit={};
@@ -34,12 +51,14 @@ export function normalizeInlineEdits(input:unknown):LandingInlineEdits{
 }
 
 /** Injects only trusted, constant JavaScript plus JSON-escaped user data. */
-export function withLandingInlineEditor(html:string,edits:LandingInlineEdits|undefined,preview:boolean):string{
+export function withLandingInlineEditor(html:string,edits:LandingInlineEdits|undefined,preview:boolean,images?:LandingInsertedImage[]):string{
  const normalized=normalizeInlineEdits(edits);
- if(!preview&&!Object.keys(normalized).length)return html;
+ const uploads=normalizeInsertedImages(images);
+ if(!preview&&!Object.keys(normalized).length&&!uploads.length)return html;
  const payload=JSON.stringify(normalized).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026");
+ const uploadPayload=JSON.stringify(uploads).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026");
  const runtime=preview?inlineRuntime:inlineRuntime.slice(0,inlineRuntime.indexOf("if(!editing)return;"))+"\n})();";
- const js=runtime.replace("__PN_EDITS__",payload).replace("__PN_PREVIEW__",String(preview));
+ const js=runtime.replace("__PN_EDITS__",payload).replace("__PN_UPLOADS__",uploadPayload).replace("__PN_PREVIEW__",String(preview));
  return html.replace("</body>",'<script>'+js+'</script></body>');
 }
 
@@ -48,6 +67,7 @@ const inlineRuntime=String.raw`
 'use strict';
 var editing=__PN_PREVIEW__;
 var edits=__PN_EDITS__;
+var inserted=__PN_UPLOADS__;
 var selector='h1,h2,h3,h4,h5,p,li,small,figcaption,blockquote,span,b,strong,em,a,button,img,summary';
 var elements=Array.from(document.querySelectorAll(selector));
 var byId={};
@@ -84,6 +104,21 @@ function apply(id,change){
  if(change.image&&el.tagName==='IMG')el.src=change.image;
 }
 Object.keys(edits).forEach(function(id){apply(id,edits[id]);});
+function placeImage(item){
+ var anchor=byId[item.afterId];if(!anchor||!item.src||document.querySelector('[data-pn-added-image="'+item.id+'"]'))return false;
+ var figure=document.createElement('figure');
+ figure.setAttribute('data-pn-added-image',item.id);
+ figure.style.cssText='display:block;width:min(100%,780px);margin:24px auto;text-align:center;clear:both';
+ var photo=document.createElement('img');
+ photo.src=item.src;photo.alt='Imagem adicionada à landing page';photo.loading='lazy';
+ photo.style.cssText='display:block;width:100%;height:auto;max-height:600px;object-fit:contain;border-radius:14px;margin:auto';
+ photo.setAttribute('data-pn-inline-id',item.id);byId[item.id]=photo;
+ figure.appendChild(photo);
+ var place=anchor.closest('figure')||anchor.closest('.frame')||anchor.closest('.ip-cover')||anchor;
+ place.insertAdjacentElement('afterend',figure);
+ return true;
+}
+inserted.forEach(placeImage);
 if(!editing)return;
 var active=null,toolbar=null,editingText=null;
 var lastTap={id:'',at:0};
