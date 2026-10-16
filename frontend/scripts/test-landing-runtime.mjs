@@ -7,11 +7,22 @@ import {webcrypto} from "node:crypto";
 const root=resolve(dirname(fileURLToPath(import.meta.url)),"../");
 const ts=createRequire(resolve(root,"package.json"))("typescript");
 const filename=resolve(root,"src/lib/landing/engine.ts");
-const transpiled=ts.transpileModule(readFileSync(filename,"utf8"),{
-  compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}
-}).outputText;
-const loaded={exports:{}};
-new Function("module","exports","crypto",transpiled)(loaded,loaded.exports,webcrypto);
+const cache=new Map();
+function loadTs(file){
+ if(cache.has(file))return cache.get(file).exports;
+ const module={exports:{}};cache.set(file,module);
+ const code=ts.transpileModule(readFileSync(file,"utf8"),{
+   compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}
+ }).outputText;
+ const localRequire=(specifier)=>{
+   if(!specifier.startsWith("."))throw Error("Unexpected runtime dependency: "+specifier);
+   return loadTs(resolve(dirname(file),specifier+".ts"));
+ };
+ new Function("module","exports","require","crypto",code)(
+  module,module.exports,localRequire,webcrypto);
+ return module.exports;
+}
+const loaded={exports:loadTs(filename)};
 const {LANDING_KINDS,newLanding,normalizeLanding,renderLandingHtml}=loaded.exports;
 function assert(value,message){if(!value)throw Error(message);}
 for(const kind of LANDING_KINDS){
@@ -116,4 +127,23 @@ assert(gastronomy.niche==="Gastronomia"&&gastronomy.testimonialAngles.join().inc
 const legacy=normalizeLanding({...funnel,salesPage:false});
 assert(renderLandingHtml(legacy).includes('data-kind="course"'),
  "Old course landing layout must remain backward compatible");
+const universal=loaded.exports.newUniversalLanding(
+ "5000 Projetos de Serralheria","Pacote com 5000 projetos de serralheria em arquivos digitais", "19,90");
+assert(universal.templateVersion==="universal-v1","New three-field landing did not select original ZIP template");
+assert(universal.price==="R$ 19,90","User price was not normalized");
+const universalHtml=renderLandingHtml(universal,true);
+assert(universalHtml.includes('landing-universal/hero.webp')&&
+ universalHtml.includes('landing-universal/offer.webp')&&
+ universalHtml.includes('landing-universal/people.webp'),
+ "Supplied template assets are missing");
+assert(universalHtml.includes("Bricolage Grotesque")&&
+ universalHtml.includes("DM Sans")&&
+ universalHtml.includes('id="oferta"')&&
+ universalHtml.includes("5000 Projetos de Serralheria"),
+ "Original design typography, offer and personalized headline missing");
+assert(!universalHtml.includes("Mariana Souza")&&!universalHtml.includes("87% das vagas ocupadas")&&
+ !universalHtml.includes("R$ 497"),
+ "The original template's fictitious testimonials/discounts leaked into the new page");
+assert(!renderLandingHtml(universal,false).includes("Quem aplicou, conta"),
+ "Published page must not invent testimonials");
 console.log("Landing runtime PASS: 6 presets, 3 niches, truthful offer copy, checkout vs contact CTAs, layered mockup, responsive layout, verified reviews and legacy pages.");
