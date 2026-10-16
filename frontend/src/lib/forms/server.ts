@@ -137,6 +137,15 @@ export async function recordPublicSubmission(id:string,raw:unknown):Promise<Form
   };
   const admin=adminClient();
   await ensureBucket(admin);
+  // Check after field validation: malformed/bot requests are never counted.
+  // This ceiling is independent of the 40/150 commercial subscription credits.
+  const {data:allowed,error:limitError}=await admin.rpc("pagenova_public_submission_reserve",{
+    p_kind:"form",p_resource_id:id,
+  });
+  if(limitError||typeof allowed!=="boolean")throw new FormServiceError(
+    "O envio está temporariamente indisponível. Tente novamente.",503);
+  if(!allowed)throw new FormServiceError(
+    "O formulário atingiu o limite diário de respostas.",429);
   const bytes=JSON.stringify(submission);
   const {error}=await admin.storage.from(BUCKET).upload(
     "responses/"+id+"/"+submission.id+".json",
