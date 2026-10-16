@@ -314,6 +314,11 @@
       photoKindFromText(holder.textContent || holder.getAttribute("aria-label")) || "hero";
   }
   function imageCard(target) {
+    // A text node describing a picture remains editable text. Previously the
+    // fallback photo detector climbed its ancestors and opened file upload on
+    // double-clicking an ordinary heading or paragraph.
+    const textNode=closest(target, textSel);
+    if(textNode && !imagePlaceholder(target))return null;
     const direct=imagePlaceholder(target);
     if(direct)return direct;
     // Before the first upload the generated HTML has no slot marker. Locate
