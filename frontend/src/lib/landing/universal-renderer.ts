@@ -53,7 +53,7 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  html=html.replaceAll('href="#oferta"', 'href="'+esc(cta)+'"'+(hasCheckout?' target="_blank" rel="noopener noreferrer"':""));
  html=swapText(html,"Compra 100% segura · Acesso imediato · Garantia de 7 dias",
   hasCheckout?"Confira os termos e condições na página de pagamento.":"O link de pagamento será informado pelo responsável da oferta.");
- html=swapText(html,"MÉTODO COMPROVADO · +3.400 ALUNOS","CONHEÇA O MATERIAL DIGITAL");
+ html=swapText(html,"MÉTODO COMPROVADO · +3.400 ALUNOS",p.eyebrow||"CONHEÇA O MATERIAL DIGITAL");
  html=swapText(html,"Oferta por tempo limitado","CONHEÇA A OFERTA");
  html=html.replace(/50% OFF encerra em\s*<span[^>]*>[\s\S]*?<\/span>/,"Confira detalhes e condições");
  html=html.replaceAll("+3.400","Conteúdo").replaceAll("pessoas transformadas","produto digital")
@@ -69,7 +69,7 @@ export function renderUniversalLanding(input:LandingProject,preview=false){
  html=html.replaceAll("Suporte próximo durante 12 meses","Condições de suporte no checkout");
  html=html.replaceAll("12</b>","Produto</b>").replaceAll("módulos em vídeo","material anunciado");
  html=html.replaceAll("4,9 de 5 · avaliação de quem já comprou","Informações da oferta");
- html=swapText(html,"Tudo isso, liberado hoje","Conheça o que está incluído");
+ html=swapText(html,"Tudo isso, liberado hoje",p.offer||"Conheça o que está incluído");
  html=swapText(html,"Acesso completo, vitalício e com todos os bônus.","Confira a descrição e as condições para acessar o material.");
  html=html.replace(/<p class="text-sm text-muted-foreground">De <s>R\$ 497<\/s> por apenas<\/p>[\s\S]*?<p class="mt-2 text-sm text-muted-foreground">ou R\$ 247 à vista no Pix<\/p>/,
   '<p class="text-sm text-muted-foreground">Preço informado</p><p class="mt-3 font-display text-5xl font-extrabold text-primary">'+esc(p.price||"Consulte o valor")+'</p>');
