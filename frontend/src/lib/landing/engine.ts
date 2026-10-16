@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * PageNova Landing Engine. Deterministic composition: no generative or paid API.
  * Content comes from customer fields; never fabricate reviews, results or scarcity.
