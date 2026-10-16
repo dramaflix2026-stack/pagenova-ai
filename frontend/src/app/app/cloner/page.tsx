@@ -65,6 +65,7 @@ type CloneResponse = {
   code?: string;
 
   project?: CloneProject;
+  warnings?: string[];
 
   stats?: {
     headings: number;
@@ -72,6 +73,8 @@ type CloneResponse = {
     links: number;
     images: number;
     sections: number;
+    stylesheets?: number;
+    recoveredImages?: number;
   };
 };
 
@@ -183,8 +186,8 @@ export default function ClonerPage() {
   return (
     <>
       <header className="border-b border-white/10 bg-[#0b0b0b]/90 px-5 py-5 text-center backdrop-blur">
-        <h1 className="text-xl font-bold tracking-tight text-white">Importar página editável</h1>
-        <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Transforme uma página existente em um projeto editável na PageNova.</p>
+        <h1 className="text-xl font-bold tracking-tight text-white">Clonar site</h1>
+        <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Preserve a estrutura, os estilos e as imagens públicas da página para editar na PageNova.</p>
       </header>
 
       <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-[#07110e] text-[#f2f6f1]">
@@ -209,12 +212,12 @@ export default function ClonerPage() {
               </div>
 
               <h1 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold tracking-[-.045em] text-white sm:text-5xl lg:text-[58px] lg:leading-[1.02]">
-                Transforme uma página em um projeto editável.
+                Clone a estrutura e o visual da página para editar.
               </h1>
 
               <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
-                Cole a URL de uma Landing Page. A PageNova importa os elementos públicos,
-                importa o conteúdo e prepara a página para você continuar no editor.
+                Cole a URL de uma página pública. A PageNova preserva o HTML e os estilos disponíveis,
+                recupera imagens e prepara a página para edição, sem executar os scripts do site original.
               </p>
             </div>
 
@@ -456,6 +459,11 @@ export default function ClonerPage() {
                 </div>
               </div>
 
+              {result.warnings?.length ? <div className="mx-6 mt-5 space-y-2 rounded-2xl border border-amber-400/30 bg-amber-400/[.07] px-5 py-4 text-left text-xs leading-6 text-amber-100 sm:mx-8">
+                <strong className="block text-sm">Fidelidade visual parcial</strong>
+                {result.warnings.map((message,index)=><p key={index}>• {message}</p>)}
+                <p>Se o site utiliza estilos ou imagens privados, envie os arquivos com autorização para concluir a edição.</p>
+              </div> : null}
               {result.stats && (
                 <div className="grid grid-cols-2 border-b border-white/[.08] sm:grid-cols-3 lg:grid-cols-5">
                   {[
@@ -497,7 +505,7 @@ export default function ClonerPage() {
 
                 <div className="inline-flex items-center gap-2 text-xs text-white/30">
                   <span className="h-2 w-2 rounded-full bg-[#50dca9] shadow-[0_0_12px_rgba(80,220,169,.65)]" />
-                  Importação concluída
+                  Clonagem concluída
                 </div>
               </div>
             </section>
