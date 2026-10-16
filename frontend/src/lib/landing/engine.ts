@@ -274,8 +274,8 @@ export function analyzeLandingBrief(name:string,brief:string){
 }
 /** New conversion-first funnel only. Old course pages retain their legacy layout. */
 function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
- const accent=p.accent,cta=p.ctaUrl||"#contato";
- const button=(label=p.ctaLabel)=>'<a class="ip-btn" href="'+esc(cta)+'"'+(cta.startsWith("http")?' rel="noopener noreferrer" target="_blank"':"")+'>'+esc(label)+' <span aria-hidden="true">→</span></a>';
+ const accent=p.accent,hasCheckout=Boolean(p.ctaUrl),cta=hasCheckout?p.ctaUrl:"#contato";
+ const button=(label=p.ctaLabel)=>'<a class="ip-btn" data-cta-target="'+(hasCheckout?'checkout':'contact')+'" href="'+esc(cta)+'"'+(hasCheckout?' rel="noopener noreferrer" target="_blank"':"")+'>'+esc(hasCheckout?label:"Tirar dúvidas sobre a oferta")+' <span aria-hidden="true">→</span></a>';
  const ctaRow=()=>'<div class="ip-center ip-space">'+button()+'</div>';
  const items=(values:string[])=>values.map(t=>'<li><span aria-hidden="true">✓</span>'+esc(t)+'</li>').join("");
  // Never publish placeholders or unsupported identities as authentic reviews.
@@ -284,8 +284,16 @@ function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
    /^[^\s]+\s+[^\s]+/.test(t.author)&&Boolean(t.quote)&&Boolean(t.city)&&
    /^[A-Z]{2}$/.test(t.state||"")&&Boolean(t.photo));
  const ribbon=p.ribbon||"OFERTA DIGITAL • "+p.name;
- const cover=p.heroImage?'<img src="'+esc(p.heroImage)+'" alt="Mockup de '+esc(p.name)+'">':
- '<div class="ip-placeholder" role="img" aria-label="Espaço para o mockup do produto"><span>MATERIAL DIGITAL</span><strong>'+esc(p.name)+'</strong><small>Envie seu mockup ou imagem de capa no editor</small></div>';
+ // A CSS cover made from confirmed briefing facts, not fake project photos.
+ const productInfo=analyzeLandingBrief(p.name,p.brief);
+ const cover=p.heroImage?'<figure class="ip-product-image"><img src="'+esc(p.heroImage)+'" alt="Imagem enviada do produto '+esc(p.name)+'" loading="eager" decoding="async"><figcaption>'+esc(p.name)+'</figcaption></figure>':
+ '<div class="ip-product-stack" role="img" aria-label="Mockup ilustrativo do material '+esc(p.name)+'">'+
+ '<div class="ip-cover-back ip-cover-back-one" aria-hidden="true"></div><div class="ip-cover-back ip-cover-back-two" aria-hidden="true"></div>'+
+ '<div class="ip-placeholder"><span class="ip-product-pill">'+esc(productInfo.format.toUpperCase())+'</span>'+
+ '<span class="ip-cover-rule" aria-hidden="true"></span><strong>'+esc(productInfo.subject)+'</strong>'+
+ '<span class="ip-cover-niche">'+esc(productInfo.niche)+'</span>'+
+ '<div class="ip-cover-decor" aria-hidden="true"><i></i><i></i><i></i></div>'+
+ '</div><div class="ip-product-tag">'+esc(productInfo.price||"Conteúdo da oferta")+'</div></div>';
  const ribbonSegment='<span class="ip-ticker-message">'+esc(ribbon)+'</span>';
  const ticker=p.ribbonAnimated?'<div class="ip-ticker-track" aria-hidden="true" style="--ip-speed:'+String(p.ribbonSpeed||24)+'s">'+
    Array.from({length:8},()=>ribbonSegment).join("")+'</div>':"";
@@ -293,7 +301,8 @@ function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
    (p.ribbonAnimated?ticker:'<span class="ip-ticker-static">'+esc(ribbon)+'</span>')+'</div></div>'+
  '<header class="ip-header"><div class="ip-wrap"><strong>'+esc(p.name)+'</strong><a href="#oferta">Ver oferta ↗</a></div></header>'+
  '<main class="ip-hero"><div class="ip-wrap ip-hero-grid"><div><span class="ip-eye">'+esc(p.eyebrow)+'</span><h1>'+esc(p.headline)+'</h1>'+
- '<p class="ip-lead">'+esc(p.subtitle)+'</p>'+button()+'<p class="ip-micro">Conheça os detalhes e confira as condições antes de comprar.</p></div>'+
+ '<p class="ip-lead">'+esc(p.subtitle)+'</p>'+button()+'<p class="ip-micro">'+
+ (hasCheckout?'Confira o valor e as condições na página de pagamento.':'Confira o material e envie suas dúvidas antes de comprar.')+'</p></div>'+
  '<div class="ip-cover">'+cover+'</div></div></main>';
  const benefits=p.benefits.length?'<section class="ip-section" id="beneficios"><div class="ip-wrap"><span class="ip-eye">O QUE VOCÊ ENCONTRA</span>'+
  '<h2>Entenda o que faz parte da oferta.</h2><div class="ip-grid">'+p.benefits.map((v,i)=>'<article class="ip-card"><span class="ip-number">0'+(i+1)+'</span><h3>'+esc(v)+'</h3></article>').join("")+
@@ -308,7 +317,7 @@ function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
  '<div class="ip-empty">Inclua no editor somente bônus reais. Esta seção não aparecerá na página publicada até ser preenchida.</div>')+'</div></section>':"";
  const offer='<section class="ip-section ip-offer" id="oferta"><div class="ip-wrap"><div class="ip-offer-box"><span class="ip-eye">OFERTA PRINCIPAL</span><h2>'+esc(p.offer||"Confira a oferta completa")+'</h2>'+
  '<p>'+esc(p.description||p.subtitle)+'</p>'+(p.price?'<div class="ip-price">'+esc(p.price)+'</div>':'<p class="ip-subprice">Consulte os valores e condições no checkout.</p>')+
- button()+'<small>Confirme todas as condições de pagamento e acesso antes de comprar.</small></div></div></section>';
+ button()+'<small>'+(hasCheckout?'Você será direcionado ao checkout para conferir pagamento e acesso.':'O checkout ainda não foi informado. Para comprar, solicite as condições ao responsável pelo produto.')+'</small></div></div></section>';
  const reviews=testimonials.length||preview?'<section class="ip-section" id="depoimentos"><div class="ip-wrap"><span class="ip-eye">DEPOIMENTOS</span><h2>Experiências de clientes.</h2>'+
  (testimonials.length?'<div class="ip-grid ip-reviews">'+testimonials.map(t=>
     '<blockquote class="ip-card ip-review"><div class="ip-review-profile"><img class="ip-review-photo" src="'+esc(t.photo)+'" alt="Foto de '+esc(t.author)+'" loading="lazy" width="68" height="68">'+
@@ -351,6 +360,10 @@ function renderInfoproductHtml(p:LandingProject,preview:boolean):string{
   ".ip-reviews .ip-card{align-items:stretch;text-align:left;justify-content:flex-start;gap:22px;min-height:230px}.ip-review-profile{display:flex;gap:14px;align-items:center}.ip-review-profile strong{font-size:15px;display:block}.ip-review-profile small{display:block;font-size:12px;color:var(--a);margin-top:5px}.ip-review-photo{width:66px;height:66px;object-fit:cover;border-radius:50%;border:2px solid color-mix(in srgb,var(--a) 58%,transparent);background:#1e3a39;flex-shrink:0}.ip-review>p{font-size:15px;line-height:1.7;color:#d6e5e7}.ip-review-empty{max-width:710px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}.ip-review-empty strong{font-size:17px}.ip-review-empty p{font-size:13px}.ip-demo-avatar{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:#173b37;color:var(--a);font-size:34px}",
   "@media(max-width:900px){.ip-hero-grid{padding:60px 0 70px;gap:22px}.ip-cover{min-height:330px}.ip-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ip-split{gap:20px}}",
   "@media(max-width:570px){.ip-top .ip-wrap{height:35px}.ip-ticker-message{padding:0 22px}.ip-ticker-message:after{margin-left:30px}.ip-hero-grid{padding:44px 0 51px;gap:10px}.ip-hero h1{max-width:100%;font-size:clamp(31px,8.6vw,46px)}.ip-hero .ip-btn,.ip-center .ip-btn{width:100%;min-width:0}.ip-cover{min-height:305px;max-width:340px}.ip-placeholder{width:77%;min-height:295px;padding:22px}.ip-grid{grid-template-columns:1fr}.ip-card{min-height:150px;padding:22px}.ip-compare{padding:25px 19px}.ip-compare li{text-align:left}.ip-section{padding:54px 0}.ip-split>p,.ip-split>div>p{font-size:15px}.ip-reviews .ip-card{min-height:0;text-align:left}.ip-offer-box{padding:28px 18px}.ip-header .ip-wrap{justify-content:space-between}}",
+  /* Layered package illustration, derived from declared product facts. No stock photos or fabricated product visuals. */
+  ".ip-product-stack{width:min(100%,550px);min-height:445px;display:grid;place-items:center;position:relative;isolation:isolate;padding:32px}.ip-product-stack .ip-placeholder{z-index:3;width:min(75%,360px);min-height:400px;padding:36px 28px;transform:perspective(850px) rotateY(-6deg) rotateX(3deg);background:linear-gradient(135deg,#174e4d,#102930 55%,#091b25);border:1px solid color-mix(in srgb,var(--a) 52%,transparent);box-shadow:14px 28px 65px #0009;gap:20px}.ip-cover-back{position:absolute;width:60%;height:70%;border-radius:18px;z-index:1;border:1px solid #1b6865;background:linear-gradient(145deg,#154a4b,#0a222c);box-shadow:0 24px 55px #0009}.ip-cover-back-one{transform:translate(48px,-13px) rotate(9deg)}.ip-cover-back-two{transform:translate(-40px,5px) rotate(-9deg);background:linear-gradient(140deg,#102e35,#102b35)}.ip-product-pill{border:1px solid #00d6a163;border-radius:50px;padding:8px 13px;color:var(--a);font-size:10px;letter-spacing:.13em;font-weight:850}.ip-product-stack strong{text-wrap:balance;font-size:clamp(24px,3.7vw,39px)}.ip-cover-rule{width:64px;height:4px;border-radius:10px;background:var(--a)}.ip-cover-niche{color:#b1d0d0;font-size:13px;font-weight:750}.ip-cover-decor{display:flex;gap:9px;width:100%;margin-top:10px}.ip-cover-decor i{height:5px;border-radius:8px;flex:1;background:color-mix(in srgb,var(--a) 28%,transparent)}.ip-cover-decor i:nth-child(2){flex:2;background:color-mix(in srgb,var(--a) 75%,transparent)}.ip-product-tag{position:absolute;z-index:4;right:0;bottom:24px;background:#0e2429;border:1px solid #46e5b67d;border-radius:13px;padding:13px 19px;color:var(--a);font-size:18px;font-weight:900;box-shadow:0 18px 40px #0008}.ip-product-image{margin:0;max-width:520px;width:100%;display:grid;justify-items:center;gap:12px}.ip-product-image img{width:100%;height:auto;max-height:465px;object-fit:contain;filter:drop-shadow(0 24px 36px #0009)}.ip-product-image figcaption{font-size:11px;color:#a2b9ba}.ip-hero{overflow:hidden}.ip-offer-box .ip-btn{max-width:100%}",
+  "@media(max-width:570px){.ip-product-stack{width:100%;min-height:335px;padding:18px}.ip-product-stack .ip-placeholder{width:72%;min-height:298px;padding:22px;gap:12px}.ip-product-stack strong{font-size:clamp(22px,6vw,29px)}.ip-cover-back{height:75%;width:61%}.ip-cover-back-one{transform:translate(31px,-10px) rotate(8deg)}.ip-cover-back-two{transform:translate(-26px,5px) rotate(-7deg)}.ip-cover-niche{font-size:11px}.ip-product-tag{font-size:13px;padding:9px 12px;bottom:4px;right:0}.ip-product-image img{max-height:360px}}",
+
   "@media(prefers-reduced-motion:reduce){.ip-ticker-track{animation:none!important;transform:none!important;will-change:auto}.ip-ticker-message{display:none}.ip-ticker-message:first-child{display:block}.ip-top-motion:hover .ip-ticker-track{animation:none}}"
  ].join("");
  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="'+esc(p.subtitle)+'"><title>'+esc(p.name)+' | '+esc(p.headline)+'</title><style>:root{--a:'+accent+'}</style><style>'+css+enhancedCss+'</style></head><body data-kind="infoproduct">'+hero+benefits+comparison+detail+bonuses+offer+reviews+guarantee+faq+contact+footer+script+'</body></html>';
