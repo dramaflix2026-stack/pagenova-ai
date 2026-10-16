@@ -212,8 +212,8 @@ export default function ClonerPage() {
       return;
     }
 
-    const project =
-      result.project;
+    const project:CloneProject =
+      {...result.project,updatedAt:new Date().toISOString()};
 
     sessionStorage.setItem(
       `lp-clone-temp:${project.id}`,
