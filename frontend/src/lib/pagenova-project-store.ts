@@ -2,6 +2,10 @@ export const PAGENOVA_PROJECT_DB = "pagenova-projects";
 export const PAGENOVA_PROJECT_STORE = "projects";
 export const PAGENOVA_PROJECT_DB_VERSION = 1;
 
+/** Keep edits in order. Two rapid saves used to race in IndexedDB and could
+ * restore an older snapshot after the newest text/image/drag operation. */
+const pendingProjectWrites = new Map<string, Promise<void>>();
+
 function openPageNovaProjectDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(
@@ -27,6 +31,15 @@ export async function savePageNovaProject(
   id: string,
   project: unknown,
 ): Promise<void> {
+  const previous = pendingProjectWrites.get(id);
+  const save = (previous ? previous.catch(() => undefined) : Promise.resolve())
+    .then(() => writePageNovaProject(id, project));
+  pendingProjectWrites.set(id, save);
+  try { await save; }
+  finally { if (pendingProjectWrites.get(id) === save) pendingProjectWrites.delete(id); }
+}
+
+async function writePageNovaProject(id: string, project: unknown): Promise<void> {
   const db = await openPageNovaProjectDb();
 
   try {
@@ -50,6 +63,8 @@ export async function savePageNovaProject(
 export async function readPageNovaProject<T>(
   id: string,
 ): Promise<T | null> {
+  // A refresh or preview opened during a pending edit must see the latest save.
+  await pendingProjectWrites.get(id);
   const db = await openPageNovaProjectDb();
 
   try {
@@ -86,6 +101,7 @@ export async function listPageNovaProjects<T>(): Promise<T[]> {
 export async function deletePageNovaProject(
   id: string,
 ): Promise<void> {
+  await pendingProjectWrites.get(id)?.catch(() => undefined);
   const db = await openPageNovaProjectDb();
 
   try {
