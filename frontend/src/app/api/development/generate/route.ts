@@ -15,8 +15,17 @@ export async function POST(request:NextRequest){
   const prompt=typeof raw.prompt==="string"?raw.prompt.trim():"";
   if(!kind||prompt.length<12||prompt.length>50000)throw new FormServiceError("Selecione o tipo e descreva o projeto.");
   const valid=(f:DevFile)=>typeof f?.path==="string"&&typeof f.content==="string"&&
-   f.path.length<150&&!f.path.startsWith("/")&&!f.path.includes("..")&&f.content.length<50000;
-  const existing=Array.isArray(raw.existing)?raw.existing.filter(valid).slice(0,20):[];
+   f.path.length<150&&!f.path.startsWith("/")&&!f.path.includes("\\")&&
+   !/^[a-zA-Z]:/.test(f.path)&&
+   f.path.split("/").every(part=>!!part&&part!=="."&&part!==".."&&/^[a-zA-Z0-9._@+ -]+$/.test(part))&&
+   f.content.length<50000;
+  // Never silently discard malformed files from an existing project.
+  // The local generation mode promises to preserve the customer's source.
+  const supplied=raw.existing;
+  if(supplied!==undefined&&(!Array.isArray(supplied)||supplied.length>20||
+     supplied.some(file=>!valid(file as DevFile))))
+    throw new FormServiceError("Os arquivos existentes contêm caminhos ou conteúdo inválidos. O projeto não foi alterado.",422);
+  const existing=(supplied||[]) as DevFile[];
   const project=localDevelopment(kind,prompt,existing);
   return Response.json({...project,engine:LOCAL_ENGINE_MODE,usage:null,paidApiCalls:0},{headers:{"Cache-Control":"no-store"}});
  }catch(e){return errorsAsResponse(e);}
