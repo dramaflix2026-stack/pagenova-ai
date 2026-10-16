@@ -11,6 +11,10 @@ const BROWSER_TIMEOUT_MS = 30000;
 export type BrowserFetchedPage = {
   html: string;
   finalUrl: URL;
+  desktopImages: {id:string;src:string}[];
+  desktopImageCount: number;
+  mobileImageCount: number;
+  desktopCaptured: boolean;
 };
 
 async function settleDynamicPage(
@@ -307,10 +311,38 @@ export async function fetchPageWithBrowser(
 
     await settleDynamicPage(page);
 
-    // Capture the DOM *after* the site's JS hydration and scroll-triggered
-    // lazy images/styles have completed. The later sanitizer strips scripts.
-    const html =
-      await page.content();
+    // Snapshot mobile first. Stable image IDs survive most CSS-only responsive
+    // layouts, letting the static clone preserve desktop art direction too.
+    const mobileImageCount=await page.evaluate(()=>{
+      const images=[...document.querySelectorAll("img")];
+      images.forEach((image,index)=>image.setAttribute("data-pagenova-capture-img",String(index)));
+      return images.length;
+    });
+    const html=await page.content();
+    let desktopImages:{id:string;src:string}[]=[];
+    let desktopImageCount=0,desktopCaptured=false;
+    try{
+      await page.setViewportSize({width:1440,height:900});
+      await settleDynamicPage(page);
+      const desktop=await page.evaluate(()=>{
+        const images=[...document.querySelectorAll("img")];
+        return {count:images.length,variants:images
+          .filter(image=>image.hasAttribute("data-pagenova-capture-img"))
+          .map(image=>({
+            id:image.getAttribute("data-pagenova-capture-img")||"",
+            src:image.currentSrc||image.getAttribute("src")||"",
+          }))};
+      });
+      desktopImages=desktop.variants;
+      desktopImageCount=desktop.count;
+      desktopCaptured=true;
+    }catch(error){
+      // Never regress a successful mobile capture because a desktop-only
+      // element, resize listener or third-party image timed out.
+      console.warn("[PageNova cloner] Desktop secondary capture incomplete",{
+        code:error instanceof Error?error.message.slice(0,60):"UNKNOWN"
+      });
+    }
 
     if (
       Buffer.byteLength(
@@ -329,6 +361,7 @@ export async function fetchPageWithBrowser(
     return {
       html,
       finalUrl,
+      desktopImages,desktopImageCount,mobileImageCount,desktopCaptured,
     };
   } finally {
     if (browser) {
