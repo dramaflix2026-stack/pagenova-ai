@@ -58,7 +58,7 @@ export function createFaithfulVisual(html:string,base:string,inlineCss:string[]=
       'url("'+proxyImage(url)+'")':'url("'+url+'")';
    }
  );
- const $=cheerio.load(html,{decodeEntities:false});
+ const $=cheerio.load(html);
  // An HTML document copied from the public web must not carry executable code
  // or client-side network/cookie/analytics behavior into an authenticated app.
  $("script,noscript,iframe,object,embed,portal,template,canvas").remove();
