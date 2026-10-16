@@ -53,7 +53,7 @@ assert(!page.visualHtml.includes("SEÇÃO 01")&&!page.visualHtml.includes('class
  "PageNova generic reconstructed template was used");
 assert(page.visualHtml.includes("#bc8995"),"Inline original design colors lost");
 assert(page.visualHtml.includes("@media(max-width:720px)"),"Responsive media query lost");
-assert(page.visualHtml.includes(cssUrl.replace("post-18.css","images/card.png")),
+assert(page.visualHtml.includes("https://example.org/wp-content/uploads/elementor/images/card.png"),
  "Original stylesheet images were lost");
 assert(page.visualHtml.includes('src="https://example.org/wp-content/uploads/samara-real.jpg"'),
  "Lazy photo was not recovered");
