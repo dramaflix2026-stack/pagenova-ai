@@ -327,15 +327,18 @@ export default function EbooksPage(){
     throw new Error("As fotos encontradas não puderam ser baixadas. Tente novamente.");
   }
   async function populateImages(created:EbookProject){
-    // A cookbook intentionally avoids free-image false matches.
-    if(created.pages.some(page=>page.kind==="recipe"))return;
+    // For cookbooks, enrich only the cover with licensed photography.
+    // Do not attach a vaguely related stock photo to any actual recipe:
+    // those images could misrepresent the ingredients or finished plate.
+    const cookbook=created.pages.some(page=>page.kind==="recipe");
     if(created.imageMode==="none"||imagesBusy)return;
     setImagesBusy(true);
     setError("");
     setImageProgress("Procurando fotos de uso permitido no Wikimedia Commons...");
     const budget=Math.min(12,created.pages.length);
     const indices=created.pages.map((p,i)=>({p,i}))
-      .filter(item=>!item.p.imageUrl && isPhotoPage(item.p.kind))
+      .filter(item=>!item.p.imageUrl && isPhotoPage(item.p.kind) &&
+        (!cookbook||item.p.kind==="cover"))
       .slice(0,budget);
     if(!indices.length){
       setImagesBusy(false);
