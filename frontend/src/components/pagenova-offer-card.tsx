@@ -59,7 +59,7 @@ export function PageNovaOfferCard() {
                 : "border-white/10 bg-[#10211c] hover:border-emerald-300/30"
             }`}
           >
-            {plan.featured && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#00DFA6] via-[#84FFD3] to-[#00DFA6]" />}
+            {plan.featured && <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#8fec78] via-[#c6f8ad] to-[#8fec78]" />}
             <div className="min-h-7">
               {plan.badge && (
                 <span className="rounded-full border border-emerald-300/25 bg-emerald-400/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
