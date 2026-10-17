@@ -1620,7 +1620,7 @@ export default function BuilderPage() {
                     {uploadingLogo?"Enviando...":"Enviar imagem"}
                   </button>
                   <button type="button" onClick={()=>{setBrandMenuOpen(false);setEditingBrand(true);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
-                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever nome</button>
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever logo</button>
                   <button type="button" onClick={()=>{setBrandMenuOpen(false);if(window.confirm("Remover a logo personalizada e exibir o nome da empresa?"))void changeBrandLogo(null);}}
                     disabled={uploadingLogo||publishing||switchingTemplate}
                     className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 disabled:opacity-40">Remover imagem</button>
