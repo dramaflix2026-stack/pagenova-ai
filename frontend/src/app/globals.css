@@ -2,19 +2,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080515;
-  --foreground: #f7f5ff;
+  --background: #0b100d;
+  --foreground: #f4f8f2;
 
-  --pn-background: #080515;
-  --pn-surface: #100822;
-  --pn-surface-soft: #16102a;
-  --pn-primary: #6c3bff;
-  --pn-primary-light: #8b5cff;
-  --pn-lavender: #b8a7ff;
+  --pn-background: #0b100d;
+  --pn-surface: #142019;
+  --pn-surface-soft: #1b2a1f;
+  --pn-primary: #8fec78;
+  --pn-primary-light: #a8f494;
+  --pn-lavender: #c5efb7;
   --pn-text: #ffffff;
-  --pn-muted: #a9a3b8;
-  --pn-border: #29223a;
-  --pn-success: #22c55e;
+  --pn-muted: #a8b9a8;
+  --pn-border: #33483a;
+  --pn-success: #8fec78;
 }
 
 @theme inline {
@@ -37,7 +37,7 @@ body {
   background:
     radial-gradient(
       circle at 78% -10%,
-      rgba(108, 59, 255, 0.08),
+      rgba(143, 236, 120, 0.055),
       transparent 28rem
     ),
     var(--pn-background);
@@ -46,7 +46,7 @@ body {
 }
 
 ::selection {
-  background: rgba(108, 59, 255, 0.45);
+  background: rgba(143, 236, 120, 0.35);
   color: #ffffff;
 }
 
@@ -1697,4 +1697,70 @@ body footer.pn-landing-footer > div:first-child {
   .pn-landing-v2 .pn-testimonials-viewport{
     overflow-x:auto!important;
   }
+}
+
+
+/* ================================================================
+  PAGENOVA BRAND V2 — proprietary soft-lime system
+  Single source of truth for platform UI. Do NOT retheme published
+  client sites, screenshot canvases or template content in iframes.
+  The logo is the original P asset, hue-shifted rather than redrawn.
+  ================================================================ */
+:root{
+  --pn-brand:#8fec78;
+  --pn-brand-hover:#a8f494;
+  --pn-brand-dark:#14220f;
+  --pn-brand-background:#0b100d;
+  --pn-brand-surface:#142019;
+  --pn-brand-surface-raised:#1a2a1f;
+  --pn-brand-border:#35503b;
+  --pn-brand-muted:#a9b9a9;
+}
+.pn-brand-logo{
+  filter:hue-rotate(-43deg) saturate(.9) brightness(1.03);
+}
+.pn-platform{
+  --color-emerald-50:#f3fced;
+  --color-emerald-100:#defacb;
+  --color-emerald-200:#c6f8ad;
+  --color-emerald-300:#a8f494;
+  --color-emerald-400:#8fec78;
+  --color-emerald-500:#72d45e;
+  --color-emerald-600:#5ba949;
+  --color-emerald-700:#3e7838;
+  --color-emerald-800:#28502a;
+  --color-emerald-900:#1a3520;
+  --color-cyan-200:#c6f8ad;
+  --color-cyan-400:#8fec78;
+  --color-teal-300:#a8f494;
+  --color-teal-400:#8fec78;
+  --color-teal-500:#72d45e;
+  --color-violet-200:#c6f8ad;
+  --color-violet-400:#8fec78;
+  color-scheme:dark;
+  background-color:var(--pn-brand-background);
+}
+.pn-platform :is(button,a,input,textarea,select):focus-visible{
+  outline-color:var(--pn-brand);
+}
+.pn-platform ::selection{
+  background:rgba(143,236,120,.26);
+  color:#fff;
+}
+/* The studio's mobile and desktop navigation always uses the same palette. */
+.pn-platform .pn-nav-chrome{
+  background-color:rgba(11,16,13,.97);
+}
+.pn-platform .pn-brand-button{
+  background-color:var(--pn-brand);
+  color:var(--pn-brand-dark);
+}
+.pn-platform .pn-brand-button:hover{background-color:var(--pn-brand-hover)}
+.pn-landing-v2 .pn-brand-button{
+  background-color:var(--pn-brand);
+  color:var(--pn-brand-dark);
+}
+.pn-landing-v2 .pn-brand-button:hover{background-color:var(--pn-brand-hover)}
+@media(prefers-reduced-motion:reduce){
+  .pn-brand-logo{transition:none}
 }
