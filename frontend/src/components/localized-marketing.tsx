@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {ArrowRight,BookOpen,BrainCircuit,Check,Copy,Files,Globe2,Layers3,LayoutDashboard,ListChecks,ShieldCheck,Sparkles,Users} from "lucide-react";
 import {SetDocumentLanguage} from "@/components/set-document-language";
+import {PageNovaCountryMarquee} from "@/components/pagenova-country-marquee";
+import {PageNovaCreationDemo} from "@/components/pagenova-creation-demo";
 
 type Lang="en"|"es";
 type Content={
@@ -134,6 +136,23 @@ export function LocalizedMarketing({lang}:{lang:Lang}){
      </div>
     </div>
    </div>
+  </section>
+  <section aria-labelledby="global-audience-heading" className="bg-[#101b14] px-5 py-12">
+   <div className="mx-auto max-w-6xl">
+    <span className="text-xs font-bold uppercase tracking-[.16em] text-[#8fec78]">{lang==="en"?"Built for your work":"Pensado para tu negocio"}</span>
+    <h2 id="global-audience-heading" className="mt-3 text-2xl font-bold tracking-tight sm:text-4xl">{lang==="en"?"Your ideas. Your customers. Your next project.":"Tus ideas. Tus clientes. Tu próximo proyecto."}</h2>
+    <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">{lang==="en"?"Create pages, validate offers and organize contacts from one workspace.":"Crea páginas, prueba ofertas y organiza contactos en un mismo espacio."}</p>
+    <div className="mt-6 flex flex-wrap gap-2">
+     {(lang==="en"?["Service providers","Local businesses","Course creators","Affiliates","Agencies","Freelancers","Small businesses"]:["Prestadores de servicios","Negocios locales","Creadores de cursos","Afiliados","Agencias","Freelancers","Pequeñas empresas"]).map(name=><span key={name} className="rounded-full border border-[#8fec78]/20 bg-[#8fec78]/[.07] px-3 py-2 text-xs font-semibold text-[#d5f5ca]">{name}</span>)}
+    </div>
+   </div>
+  </section>
+  <section aria-label={lang==="en"?"International markets and product preview":"Mercados internacionales y vista previa"} className="bg-[#0b100d] pb-12 pt-8">
+    <PageNovaCountryMarquee lang={lang}/>
+    <div className="mx-auto mt-10 max-w-5xl px-5">
+     <p className="mb-5 text-center text-xs font-bold uppercase tracking-[.15em] text-[#8fec78]">{lang==="en"?"Visual preview of the creation workflow":"Vista ilustrativa del proceso de creación"}</p>
+     <PageNovaCreationDemo/>
+    </div>
   </section>
   <section id="features" className="bg-[#f3f5f0] px-5 py-14 text-[#14251d] sm:py-20">
    <div className="mx-auto max-w-6xl">
