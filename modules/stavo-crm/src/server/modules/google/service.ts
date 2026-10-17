@@ -93,6 +93,7 @@ export async function searchPlaces(
   const textQuery = buildTextQuery(input);
   const response = await textSearch({
     textQuery,
+    country: input.country,
     pageToken: input.pageToken ?? null,
     signal: options.signal,
   });
