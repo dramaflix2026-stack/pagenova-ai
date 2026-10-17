@@ -179,7 +179,11 @@ export function renderEditablePreview(
   }
   @media(max-width:640px){
     #pn-edit-bar{max-width:calc(100vw - 12px)!important;border-radius:12px!important}
-    #pn-edit-box i{width:22px!important;height:22px!important}
+    #pn-edit-box i{width:18px!important;height:18px!important}
+    /* Constrain mobile editing overlays to viewport. */
+    #pn-edit-box{box-sizing:border-box!important;max-width:calc(100dvw - 16px)!important}
+    #pn-edit-bar{box-sizing:border-box!important;max-width:calc(100dvw - 16px)!important;overscroll-behavior-x:contain!important}
+    [data-pn-selected=true]{scroll-margin-top:72px!important}
   }
 </style>`;
 
