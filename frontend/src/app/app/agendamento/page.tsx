@@ -218,7 +218,7 @@ export default function BookingPage() {
   }).length;
 
   return (
-    <div className="min-h-screen bg-[#090b13] text-white">
+    <div className="min-h-screen bg-[#0b100d] text-white">
       <AppHeader title="Agendamento" />
       <main className="mx-auto max-w-6xl px-5 py-10 sm:py-14">
         <Link href="/app/builder" className="text-sm text-emerald-300 hover:text-emerald-200">← Voltar às opções</Link>
@@ -239,14 +239,14 @@ export default function BookingPage() {
         {notice && !error && <div role="status" className="mt-7 rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3 text-sm text-emerald-200">{notice}</div>}
 
         {loading ? <p className="mt-10 text-white/60">Carregando agenda…</p> : !project ? (
-          <form onSubmit={createWorkspace} className="mt-10 max-w-xl rounded-3xl border border-white/10 bg-[#131723] p-7">
+          <form onSubmit={createWorkspace} className="mt-10 max-w-xl rounded-3xl border border-white/10 bg-[#142019] p-7">
             <h2 className="text-2xl font-semibold">Criar espaço de agendamento</h2>
             <p className="mt-2 text-sm text-white/50">Comece pelo nome do negócio. Depois cadastre os serviços e horários.</p>
             <label className="mt-7 block text-sm">Nome do negócio
               <input required maxLength={90} value={business} onChange={(event) => setBusiness(event.target.value)}
                 placeholder="Ex.: Clínica Aurora" className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 p-4 outline-none focus:border-emerald-400" />
             </label>
-            <button className="mt-6 rounded-xl bg-emerald-400 px-6 py-3 font-semibold text-[#06251c] hover:bg-emerald-300">Criar agenda →</button>
+            <button className="mt-6 rounded-xl bg-emerald-400 px-6 py-3 font-semibold text-[#14220f] hover:bg-emerald-300">Criar agenda →</button>
           </form>
         ) : (
           <>
@@ -256,7 +256,7 @@ export default function BookingPage() {
                 ["Reservas confirmadas", active.length],
                 ["Próximos 7 dias", nextSeven],
               ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border border-white/10 bg-[#131723] p-5">
+                <div key={label} className="rounded-2xl border border-white/10 bg-[#142019] p-5">
                   <p className="text-sm text-white/50">{label}</p>
                   <strong className="mt-3 block text-3xl">{value}</strong>
                 </div>
@@ -267,7 +267,7 @@ export default function BookingPage() {
                 ["reservar", "Nova reserva"], ["agenda", "Agenda"], ["servicos", "Serviços"],
               ] as const).map(([key, label]) => (
                 <button key={key} type="button" onClick={() => { setView(key); setError(""); }}
-                  className={`rounded-xl px-5 py-3 text-sm font-semibold ${view === key ? "bg-emerald-400 text-[#06251c]" : "bg-white/5 text-white/65 hover:bg-white/10"}`}>
+                  className={`rounded-xl px-5 py-3 text-sm font-semibold ${view === key ? "bg-emerald-400 text-[#14220f]" : "bg-white/5 text-white/65 hover:bg-white/10"}`}>
                   {label}
                 </button>
               ))}
@@ -275,7 +275,7 @@ export default function BookingPage() {
 
             {view === "servicos" && (
               <div className="mt-8 grid gap-7 lg:grid-cols-[1fr_1fr]">
-                <form onSubmit={addService} className="h-fit rounded-2xl border border-white/10 bg-[#131723] p-6">
+                <form onSubmit={addService} className="h-fit rounded-2xl border border-white/10 bg-[#142019] p-6">
                   <h2 className="text-xl font-semibold">Adicionar serviço</h2>
                   <label className="mt-5 block text-sm">Nome
                     <input required maxLength={90} value={serviceName} onChange={(event) => setServiceName(event.target.value)}
@@ -293,13 +293,13 @@ export default function BookingPage() {
                         className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 p-3 outline-none focus:border-emerald-400" />
                     </label>
                   </div>
-                  <button className="mt-6 rounded-xl bg-emerald-400 px-5 py-3 font-semibold text-[#06251c]">Salvar serviço</button>
+                  <button className="mt-6 rounded-xl bg-emerald-400 px-5 py-3 font-semibold text-[#14220f]">Salvar serviço</button>
                 </form>
                 <div className="space-y-3">
                   <h2 className="text-xl font-semibold">Serviços cadastrados</h2>
                   {project.services.length === 0 && <p className="rounded-xl border border-dashed border-white/20 p-6 text-white/50">Cadastre o primeiro serviço para liberar as reservas.</p>}
                   {project.services.map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#131723] p-5">
+                    <div key={item.id} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#142019] p-5">
                       <div><strong>{item.name}</strong><p className="mt-1 text-sm text-white/50">{item.duration} min · {item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</p></div>
                       <button type="button" onClick={() => removeService(item.id)} className="text-sm text-red-300 hover:text-red-200">Excluir</button>
                     </div>
@@ -310,14 +310,14 @@ export default function BookingPage() {
 
             {view === "reservar" && (
               <div className="mt-8 grid gap-7 lg:grid-cols-[1.1fr_.9fr]">
-                <form onSubmit={reserve} className="rounded-2xl border border-white/10 bg-[#131723] p-6">
+                <form onSubmit={reserve} className="rounded-2xl border border-white/10 bg-[#142019] p-6">
                   <h2 className="text-xl font-semibold">Nova reserva</h2>
                   {project.services.length === 0 ? <p className="mt-5 text-white/55">Cadastre um serviço na aba Serviços antes de reservar.</p> : (
                     <>
                       <div className="mt-5 grid gap-4 sm:grid-cols-2">
                         <label className="text-sm">Serviço
                           <select required value={selectedService} onChange={(event) => { setSelectedService(event.target.value); setTime(""); }}
-                            className="mt-2 w-full rounded-xl border border-white/15 bg-[#10131d] p-3">
+                            className="mt-2 w-full rounded-xl border border-white/15 bg-[#142019] p-3">
                             <option value="">Selecione</option>
                             {project.services.map((item) => <option value={item.id} key={item.id}>{item.name} · {item.duration} min</option>)}
                           </select>
@@ -325,7 +325,7 @@ export default function BookingPage() {
                         <label className="text-sm">Data
                           <input required type="date" min={localDate(new Date())} value={date}
                             onChange={(event) => { setDate(event.target.value); setTime(""); }}
-                            className="mt-2 w-full rounded-xl border border-white/15 bg-[#10131d] p-3" />
+                            className="mt-2 w-full rounded-xl border border-white/15 bg-[#142019] p-3" />
                         </label>
                       </div>
                       <p className="mt-5 text-sm font-semibold">Horários disponíveis</p>
@@ -335,7 +335,7 @@ export default function BookingPage() {
                         {slots.map((slot) => (
                           <button key={slot} type="button" onClick={() => setTime(slot)}
                             aria-pressed={time === slot}
-                            className={`rounded-lg border px-3 py-2 text-sm ${time === slot ? "border-emerald-400 bg-emerald-400 text-[#06251c]" : "border-white/15 hover:border-emerald-400/60"}`}>
+                            className={`rounded-lg border px-3 py-2 text-sm ${time === slot ? "border-emerald-400 bg-emerald-400 text-[#14220f]" : "border-white/15 hover:border-emerald-400/60"}`}>
                             {slot}
                           </button>
                         ))}
@@ -358,7 +358,7 @@ export default function BookingPage() {
                             className="mt-2 w-full rounded-xl border border-white/15 bg-black/25 p-3 outline-none focus:border-emerald-400" />
                         </label>
                       </div>
-                      <button disabled={!time} className="mt-6 rounded-xl bg-emerald-400 px-6 py-3 font-semibold text-[#06251c] disabled:cursor-not-allowed disabled:opacity-40">
+                      <button disabled={!time} className="mt-6 rounded-xl bg-emerald-400 px-6 py-3 font-semibold text-[#14220f] disabled:cursor-not-allowed disabled:opacity-40">
                         Confirmar reserva →
                       </button>
                     </>
@@ -387,7 +387,7 @@ export default function BookingPage() {
                   {ordered.map((item) => {
                     const itemService = project.services.find((entry) => entry.id === item.serviceId);
                     return (
-                      <article key={item.id} className="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#131723] p-5">
+                      <article key={item.id} className="flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-white/10 bg-[#142019] p-5">
                         <div>
                           <div className="flex flex-wrap items-center gap-3">
                             <strong className="text-lg">{item.customer}</strong>
