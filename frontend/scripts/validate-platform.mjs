@@ -83,16 +83,22 @@ must("frontend/src/lib/studio/local-engine.ts",[
 must("frontend/src/app/api/forms/generate/route.ts",[[/paidApiCalls:0/,"Local forms must not call paid AI"]]);
 must("frontend/src/app/api/quizzes/generate/route.ts",[[/paidApiCalls:0/,"Local quizzes must not call paid AI"]]);
 must("frontend/src/app/api/development/generate/route.ts",[[/paidApiCalls:0/,"App and system starters must not call paid AI"]]);
-must("frontend/src/components/development-module-overview.tsx",[
+const appStudio=must("frontend/src/components/development-module-overview.tsx",[
  [/if\(isApp\)return <main/,"Apps need their own simplified, mobile-first view"],
- [/Crie seu aplicativo/,"Apps should lead with a clear creation flow"],
+ [/Qual aplicativo você quer criar\?/,"Apps should lead with the creation prompt"],
  [/Ver código e arquivos/,"Raw source code should be optional"],
+ [/Sobre este projeto/,"Long project details should be collapsed"],
  [/Como testar e publicar/,"Publishing guidance should be collapsed"],
- [/Exportar aplicativo \(\.zip\)/,"Source export must stay available"],
+ [/Exportar ZIP/,"Source export must stay available"],
  [/onClick=\{download\}/,"Source export action must remain connected"],
  [/onSubmit=\{generate\}/,"Generating the app must still use the existing endpoint"],
  [/Histórico da ideia/,"Conversation history should be optional"]
 ]);
+const appStart=appStudio.indexOf("if(isApp)return <main");
+const appEnd=appStudio.indexOf("return <main className=",appStart+20);
+const appSurface=appStudio.slice(appStart,appEnd);
+if(appSurface.indexOf('aria-label="Descrever aplicativo"')>appSurface.indexOf('aria-label="Resultado do aplicativo"'))
+ throw new Error("App chat/briefing must appear before the generated project, even on reopen.");
 must("frontend/src/app/api/ebooks/generate/route.ts",[[/buildCookbook/,"Cookbook planning missing"],[/paidApiCalls:0/,"Ebook paid AI usage must be disabled"]]);
 must("frontend/src/app/api/ebooks/pdf/route.ts",[[/normalizeEbook/,"PDF input validation missing"],[/renderEbookHtml/,"PDF renderer missing"]]);
 must("frontend/src/app/api/forms/[id]/publish/route.ts",[[/publishOwnedForm/,"Form publishing missing"]]);
