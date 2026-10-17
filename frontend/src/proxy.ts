@@ -2,6 +2,21 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // Landing-only language detection. Preserve existing auth guards below.
+  // The rest of the platform remains Portuguese until its own translations ship.
+  if(request.nextUrl.pathname==="/"){
+    const saved=request.cookies.get("pagenova_site_lang")?.value;
+    if(!request.nextUrl.searchParams.has("lang")&&!request.nextUrl.searchParams.has("no_redirect")){
+      const first=(request.headers.get("accept-language")||"").split(",")[0].trim().toLowerCase();
+      const target=saved==="pt"?"pt":saved==="en"||saved==="es"?saved:first.startsWith("en")?"en":first.startsWith("es")?"es":"pt";
+      if(target==="en"||target==="es"){
+        const url=request.nextUrl.clone();
+        url.pathname="/"+target;
+        return NextResponse.redirect(url);
+      }
+    }
+    return NextResponse.next();
+  }
   // Hostname canonicalization belongs in Vercel's domain configuration.
   // Never redirect www to apex here: when Vercel redirects apex to www,
   // an application-level reverse redirect produces ERR_TOO_MANY_REDIRECTS.
@@ -60,6 +75,7 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/app/:path*",
     "/login",
     "/cadastro",
