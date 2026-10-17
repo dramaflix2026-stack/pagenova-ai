@@ -6,7 +6,7 @@ import { AppHeader } from "@/components/app-header";
 
 type Balance={active:boolean;sitesUsed?:number;sitesLimit?:number;sitesRemaining:number;
   googleUsed?:number;googleLimit?:number;googleRemaining:number;startedAt?:string;};
-type CreditsResult={configured:boolean;kind?:"trial";trial?:{expiresAt?:string;startedAt?:string};
+type CreditsResult={configured:boolean;reconciled?:boolean;kind?:"trial";trial?:{expiresAt?:string;startedAt?:string};
   priceBrl:number;contract?:{sites:number;google:number};
   balance?:Balance;message?:string;error?:string};
 
@@ -50,6 +50,7 @@ export default function CreditosPage(){
       </div>}
       {error&&<p role="alert" className="mt-4 rounded-xl border border-rose-400/30 bg-rose-400/10 p-4 text-sm text-rose-200">{error}</p>}
       {loading&&<p role="status" className="mt-6 text-center text-sm text-white/60">Consultando seus créditos...</p>}
+      {!loading&&data?.configured&&data.kind!=="trial"&&data.reconciled===false&&<div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/[.05] p-4 text-xs leading-6 text-amber-100/90">Os números abaixo refletem os créditos registrados no sistema. Consumos anteriores à ativação do controle ainda podem não estar contabilizados.</div>}
       {!loading&&data&&!data.configured&&<div className="mt-5 rounded-xl border border-amber-400/25 bg-amber-400/[.06] p-5">
         <p className="font-semibold text-amber-100">Controle individual em implantação</p>
         <p className="mt-2 text-sm leading-6 text-white/65">{data.message||"Os saldos ainda não foram ativados."}</p>
