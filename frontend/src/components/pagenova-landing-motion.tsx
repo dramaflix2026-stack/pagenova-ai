@@ -24,21 +24,21 @@ const demonstrations = [
 function ProductPreview({type}:{type:number}){
   if(type===0) return <div className="relative flex min-h-[235px] flex-col overflow-hidden bg-[#edf4ee] text-[#113327]">
     <div className="flex h-10 items-center gap-2 border-b border-[#c6dcd0] bg-white/80 px-4">
-      <span className="h-2 w-2 rounded-full bg-[#52cda0]"/><span className="h-2 w-2 rounded-full bg-[#bddacb]"/>
-      <span className="ml-auto rounded-full bg-[#d6f5e5] px-2 py-1 text-[10px] font-semibold text-[#106649]">Prévia do site</span>
+      <span className="h-2 w-2 rounded-full bg-[#8fec78]"/><span className="h-2 w-2 rounded-full bg-[#bddacb]"/>
+      <span className="ml-auto rounded-full bg-[#d6f5e5] px-2 py-1 text-[10px] font-semibold text-[#3e7838]">Prévia do site</span>
     </div>
     <div className="grid flex-1 grid-cols-[1.14fr_.86fr] items-center gap-3 p-5">
       <div>
-        <span className="inline-flex rounded-full bg-[#d5f0df] px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-[#187b58]">Site profissional</span>
+        <span className="inline-flex rounded-full bg-[#d5f0df] px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-[#3e7838]">Site profissional</span>
         <div className="mt-3 max-w-[185px] text-[22px] font-bold leading-[1.14] tracking-tight">Sua marca com presença digital.</div>
         <div className="mt-3 h-2 w-full max-w-40 rounded bg-[#c6d9cb]"/>
         <div className="mt-1.5 h-2 w-3/4 max-w-32 rounded bg-[#d7e3d8]"/>
-        <div className="mt-4 inline-flex items-center gap-1 rounded-lg bg-[#166448] px-3 py-2 text-[10px] font-bold text-white">Saiba mais <ArrowUpRight className="h-3 w-3"/></div>
+        <div className="mt-4 inline-flex items-center gap-1 rounded-lg bg-[#3e7838] px-3 py-2 text-[10px] font-bold text-white">Saiba mais <ArrowUpRight className="h-3 w-3"/></div>
       </div>
       <div className="relative flex h-[154px] items-center justify-center rounded-2xl bg-gradient-to-br from-[#acd9be] to-[#4eac86] shadow-[0_15px_35px_rgba(26,101,66,.20)]">
         <LayoutTemplate className="h-14 w-14 text-white/90" strokeWidth={1.2}/>
         <div className="absolute -bottom-2 -left-3 flex items-center gap-1 rounded-lg border border-white/70 bg-white px-2 py-1.5 text-[9px] font-semibold shadow-md">
-          <Check className="h-3 w-3 text-[#14855a]"/> Layout criado
+          <Check className="h-3 w-3 text-[#467f3b]"/> Layout criado
         </div>
       </div>
     </div>
@@ -46,7 +46,7 @@ function ProductPreview({type}:{type:number}){
   if(type===1) return <div className="relative min-h-[235px] overflow-hidden bg-[#eaf1ec] p-4 text-[#143729]">
     <div className="rounded-2xl border border-[#cfdfd5] bg-white p-3 shadow-[0_14px_30px_rgba(12,55,37,.09)]">
       <div className="flex items-center gap-2 border-b border-[#e1eae3] pb-2">
-        <span className="h-2 w-2 rounded-full bg-[#3ccf9e]"/>
+        <span className="h-2 w-2 rounded-full bg-[#8fec78]"/>
         <span className="h-2 w-2 rounded-full bg-[#d9eadf]"/>
         <div className="ml-1 h-4 flex-1 rounded bg-[#f2f5f2] px-2 text-[9px] leading-4 text-[#668174]">seudominio.com.br</div>
       </div>
@@ -56,22 +56,22 @@ function ProductPreview({type}:{type:number}){
           <div className="h-3 w-full rounded bg-[#174c37]"/>
           <div className="mt-2 h-2 w-full rounded bg-[#d6e0d6]"/>
           <div className="h-2 w-4/5 rounded bg-[#d6e0d6]"/>
-          <div className="mt-4 h-6 w-1/2 rounded-md bg-[#35cc9a]"/>
+          <div className="mt-4 h-6 w-1/2 rounded-md bg-[#8fec78]"/>
         </div>
         <div className="relative h-[123px] rounded-lg bg-gradient-to-br from-[#cceadb] to-[#7bbfa0]">
-          <span className="absolute -right-1 -top-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[9px] font-bold text-[#187b58] shadow">Editar <MousePointer2 className="h-3 w-3"/></span>
-          <div className="absolute inset-5 rounded border-2 border-dashed border-[#16794e]/50"/>
+          <span className="absolute -right-1 -top-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-[9px] font-bold text-[#3e7838] shadow">Editar <MousePointer2 className="h-3 w-3"/></span>
+          <div className="absolute inset-5 rounded border-2 border-dashed border-[#3e7838]/50"/>
         </div>
       </div>
     </div>
-    <div className="absolute bottom-5 right-6 flex items-center gap-2 rounded-xl border border-[#a6d8b9] bg-[#f9fdf9] px-3 py-2 text-[10px] font-bold text-[#1c6846] shadow-lg">
+    <div className="absolute bottom-5 right-6 flex items-center gap-2 rounded-xl border border-[#a6d8b9] bg-[#f9fdf9] px-3 py-2 text-[10px] font-bold text-[#3e7838] shadow-lg">
       <Sparkles className="h-4 w-4"/> Textos e imagens editáveis
     </div>
   </div>;
   return <div className="min-h-[235px] bg-[#eaf3ee] p-4 text-[#153829]">
     <div className="grid grid-cols-[1.1fr_.9fr] gap-3">
       <div className="rounded-2xl border border-[#d4e3d9] bg-white p-3 shadow-[0_10px_22px_rgba(21,78,49,.07)]">
-        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold"><ContactRound className="h-4 w-4 text-[#149765]"/> Pipeline comercial</div>
+        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold"><ContactRound className="h-4 w-4 text-[#467f3b]"/> Pipeline comercial</div>
         {[
           ["Novo contato","#d6f7e5"],["Em negociação","#cbefe0"],["Fechamento","#b5e7cf"],
         ].map(([name,color])=><div key={name} className="mb-2 rounded-lg border border-[#e5eee7] p-2">
@@ -80,8 +80,8 @@ function ProductPreview({type}:{type:number}){
         </div>)}
       </div>
       <div className="rounded-2xl border border-[#d4e3d9] bg-white p-3 shadow-[0_10px_22px_rgba(21,78,49,.07)]">
-        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold"><CalendarDays className="h-4 w-4 text-[#149765]"/> Agenda</div>
-        <div className="grid grid-cols-7 gap-1">{Array.from({length:28},(_,i)=><span key={i} className={"grid aspect-square place-items-center rounded text-[7px] "+(i===17?"bg-[#28c991] font-bold text-white":"bg-[#edf4ef] text-[#668071]")}>{i+1}</span>)}</div>
+        <div className="mb-3 flex items-center gap-2 text-[10px] font-bold"><CalendarDays className="h-4 w-4 text-[#467f3b]"/> Agenda</div>
+        <div className="grid grid-cols-7 gap-1">{Array.from({length:28},(_,i)=><span key={i} className={"grid aspect-square place-items-center rounded text-[7px] "+(i===17?"bg-[#8fec78] font-bold text-white":"bg-[#edf4ef] text-[#668071]")}>{i+1}</span>)}</div>
         <div className="mt-3 rounded bg-[#daf3e4] px-2 py-1.5 text-[9px] font-semibold text-[#187653]">Compromisso organizado</div>
       </div>
     </div>
