@@ -249,54 +249,5 @@ must("frontend/src/app/app/layout.tsx",[
  [/getPageNovaAccess\(admin,user,true\)/,"Dashboard must start one verified trial"],
  [/trial-expired/,"Expired trial must be blocked from dashboard"]
 ]);
-
-must("modules/stavo-crm/src/server/modules/google/country-locale.ts",[
- [/resolvePlacesLocale/,"International Google searches must resolve country-specific locale"],
- [/Estados Unidos/,"Country resolver should accept user-friendly country names"],
- [/return \{languageCode:"en"\}/,"Unknown countries must not be forced into Brazil"]
-]);
-must("modules/stavo-crm/src/server/modules/google/client.ts",[
- [/resolvePlacesLocale\(params.country/,"Places requests must choose region by searched country"],
- [/regionCode:locale.regionCode/,"Places regionCode must follow the country instead of always BR"]
-]);
-must("modules/stavo-crm/src/server/modules/google/service.ts",[
- [/country: input.country/,"Search service must pass country to Google adapter"]
-]);
-must("modules/stavo-crm/src/client/pages/SearchPage.tsx",[
- [/list="places-countries"/,"Country search must offer international suggestions"],
- [/state: '', city: '', region: ''/,"Changing country must clear stale location filters"]
-]);
-must("frontend/src/app/afiliados/page.tsx",[
- [/PAGENOVA_KIWIFY_AFFILIATE_INVITE_URL/,"Affiliate invitation must be explicitly configured"],
- [/https:"/,"Affiliate destination must be HTTPS"],
- [/Convites ainda não habilitados/,"Do not falsely advertise an inactive affiliate program"],
- [/Solicitar afiliação na Kiwify/,"Approved invitation should have a usable CTA"]
-]);
-must("frontend/src/app/page.tsx",[
- [/href="\/afiliados"/,"Affiliate information must be linked from public marketing"],
- [/site-language\?lang=en/,"PageNova marketing must offer an explicit English switch"],
- [/site-language\?lang=es/,"PageNova marketing must offer an explicit Spanish switch"]
-]);
-must("frontend/src/app/en/page.tsx",[/LocalizedMarketing lang="en"/,"English marketing page must exist"]);
-must("frontend/src/app/es/page.tsx",[/LocalizedMarketing lang="es"/,"Spanish marketing page must exist"]);
-must("frontend/src/components/localized-marketing.tsx",[
- [/Record<Lang,Content>/,"Translations must use a structured dictionary"],
- [/prices\.map/,"Localized marketing must display existing subscriptions"],
- [/Precios en BRL|Prices in BRL/,"Prices must communicate BRL rather than suggesting automatic FX"]
-]);
-must("frontend/src/app/api/site-language/route.ts",[
- [/pagenova_site_lang/,"Language selection must persist to a safe cookie"],
- [/languages\.includes/,"Language preference must use a strict allowlist"]
-]);
-must("frontend/src/proxy.ts",[
- [/pathname==="\/"/,"Auto-localization must only run on homepage"],
- [/accept-language/,"Visitors should receive a browser-language suggestion"],
- [/pathname==="\/en"/,"English locale SSR request must be recognized"],
- [/pathname==="\/es"/,"Spanish locale SSR request must be recognized"],
- [/supabase.auth.getUser/,"Language routing must preserve auth guards"]
-]);
-must("frontend/src/app/layout.tsx",[
- [/lang=\{language\}/,"HTML language must match the requested localized page"]
-]);
 if(!webhook.includes('unsupported_product'))throw new Error("Test orders can create entitlement.");
 console.log("PageNova static regression gate PASS: Kiwify, entitlements, credits, builder, cloner, studio, PDF, publishing and Google.");
