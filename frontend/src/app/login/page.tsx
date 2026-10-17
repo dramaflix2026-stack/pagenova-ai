@@ -90,9 +90,9 @@ function LoginForm() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0b100d] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(37,216,157,0.12),transparent_38%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#2cd9a0]/[.07] blur-[120px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#8fec78]/[.07] blur-[120px]" />
 
       <div className="relative w-full max-w-[455px]">
         <Link
@@ -103,13 +103,13 @@ function LoginForm() {
           <img
             src="/brand/pagenova-logo.png"
             alt="PageNova AI"
-            className="h-[65px] w-auto max-w-[240px] object-contain transition duration-200 hover:brightness-105"
+            className="pn-brand-logo h-[65px] w-auto max-w-[240px] object-contain transition duration-200 hover:brightness-105"
           />
         </Link>
 
-        <section className="rounded-[28px] border border-white/[0.12] bg-[#10241c]/90 p-7 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
+        <section className="rounded-[28px] border border-white/[0.12] bg-[#142019]/90 p-7 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#5ce1af]/25 bg-[#36d9a1]/10 text-[#82efc2]">
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#a8f494]/25 bg-[#8fec78]/10 text-[#b8f5a5]">
               <ArrowUpRight className="h-6 w-6" aria-hidden="true" />
             </div>
 
@@ -134,7 +134,7 @@ function LoginForm() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="voce@email.com"
-                className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
+                className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#101c15] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#a8f494]/70 focus:ring-4 focus:ring-[#8fec78]/15"
               />
             </div>
 
@@ -149,7 +149,7 @@ function LoginForm() {
 
                 <Link
                   href="/forgot-password"
-                  className="text-[11px] font-medium text-[#82efc2] transition hover:text-[#a2f5d4]"
+                  className="text-[11px] font-medium text-[#b8f5a5] transition hover:text-[#c6f8ad]"
                 >
                   Esqueci minha senha
                 </Link>
@@ -164,11 +164,11 @@ function LoginForm() {
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   placeholder="Sua senha"
-                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] pl-4 pr-12 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
+                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#101c15] pl-4 pr-12 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#a8f494]/70 focus:ring-4 focus:ring-[#8fec78]/15"
                 />
                 <button type="button" onClick={() => setPasswordVisible((value) => !value)}
                   aria-label={passwordVisible ? "Ocultar senha" : "Mostrar senha"}
-                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#36d9a1]">
+                  className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-white/60 transition hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-[#8fec78]">
                   {passwordVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
@@ -200,7 +200,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] text-sm font-bold text-[#14220f] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Entrando..." : "Entrar"}
             </button>
@@ -214,7 +214,7 @@ function LoginForm() {
             <div className="mt-3 flex flex-col items-center gap-3">
               <Link
                 href="/cadastro"
-                className="inline-flex items-center justify-center rounded-xl border border-[#5ce1af]/35 bg-[#36d9a1]/10 px-5 py-2.5 text-xs font-semibold text-[#a2f5d4] transition hover:bg-[#36d9a1]/20"
+                className="inline-flex items-center justify-center rounded-xl border border-[#a8f494]/35 bg-[#8fec78]/10 px-5 py-2.5 text-xs font-semibold text-[#c6f8ad] transition hover:bg-[#8fec78]/20"
               >
                 Cadastre-se
               </Link>
@@ -238,7 +238,7 @@ function LoginForm() {
 
 function LoginLoading() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#07110e] text-white">
+    <main className="flex min-h-screen items-center justify-center bg-[#0b100d] text-white">
       <div className="text-sm text-white/60">
         Carregando...
       </div>
