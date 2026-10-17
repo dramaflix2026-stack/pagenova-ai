@@ -28,18 +28,12 @@ export async function GET(){
           startedAt:access.trial?.startedAt},
       },{headers:{"Cache-Control":"no-store"}});
     }
-    if(!creditGateEnabled()){
-      return NextResponse.json({
-        configured:false,priceBrl:PAGENOVA_MONTHLY_PRICE_BRL,
-        contract:{sites:PAGENOVA_SITE_CREDITS,google:PAGENOVA_GOOGLE_CREDITS},
-        message:"Os saldos estão sendo migrados para o novo controle individual.",
-      },{headers:{"Cache-Control":"no-store"}});
-    }
     const balance=await getCreditBalance(admin,{
       userId,email:user.email.trim().toLowerCase(),
     });
     return NextResponse.json({
       configured:true,priceBrl:PAGENOVA_MONTHLY_PRICE_BRL,balance,
+      reconciled:creditGateEnabled(),
     },{headers:{"Cache-Control":"no-store"}});
   }catch(error){
     const status=error instanceof CreditGateError?error.status:503;
