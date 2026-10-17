@@ -461,7 +461,7 @@ export default function QuizStudioPage(){
       <div className="mt-10 border-t border-white/10 pt-7">
         <div className="flex items-end justify-between gap-4">
           <div><h2 className="text-xl font-bold">Seus quizzes</h2>
-            <p className="mt-1 text-xs text-white/50">Continue um rascunho ou edite um quiz publicado.</p></div>
+            <p className="mt-1 text-xs text-white/50">Clique em um quiz para editar e consultar suas respostas individualmente.</p></div>
           <span className="text-xs text-white/40">{saved.length} projetos</span>
         </div>
         {listLoading?<p className="mt-6 text-sm text-white/50">Carregando projetos...</p>:
@@ -481,7 +481,7 @@ export default function QuizStudioPage(){
                 <ArrowRight className="h-4 w-4 text-white/50 group-hover:text-emerald-300"/>
               </div>
             </button>
-            {item.publishedAt&&<button type="button" onClick={()=>void openSaved(item.id,true)} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-400/30 px-3 py-2 text-xs font-semibold text-emerald-200 hover:bg-emerald-400/10"><BarChart3 className="h-4 w-4"/> Ver resultados e respostas</button>}
+            
             </div>)}
           </div>}
       </div>
@@ -544,12 +544,13 @@ export default function QuizStudioPage(){
           ["preview","Prévia",Eye],
           ["questions","Perguntas",FileQuestion],
           ["settings","Ajustes",WandSparkles],
+          ["responses","Respostas",BarChart3],
         ] as const).map(([key,label,Icon])=><button type="button" key={key}
-          onClick={()=>{setMoreOpen(false);setTab(key);}}
+          onClick={()=>{setMoreOpen(false);if(key==="responses"){void showResponses();}else{setTab(key);}}}
           aria-current={tab===key?"page":undefined}
           className={"inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition sm:text-sm "+
             (tab===key?"bg-[#356b2f] text-white":"text-white/60 hover:bg-white/5 hover:text-white")}>
-          <Icon className="h-4 w-4 shrink-0"/>{label}
+          <Icon className="h-4 w-4 shrink-0"/><span className="truncate">{label}</span>
         </button>)}
       </nav>
       {tab==="preview"&&<details open={chatExpanded} onToggle={e=>setChatExpanded(e.currentTarget.open)}
