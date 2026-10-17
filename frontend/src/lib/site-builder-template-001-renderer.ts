@@ -546,6 +546,14 @@ const renderHero = (
     project.institutional?.workPhoto,
   );
 
+  const heroImages = [
+    image,
+    firstText(project.institutional?.businessPhoto, image),
+    firstText(project.institutional?.workPhoto, image),
+  ];
+  const slidesHtml = image ? `<div class="pn001-hero-slideshow" data-pn-hero-slideshow>` +
+    heroImages.map((src,index)=>`<img class="pn001-hero-image pn001-hero-slide" data-pn-hero-slide="${index}" src="${escapeHtml(src)}" alt="${escapeHtml(title)} — imagem ${index+1}" />`).join("") +
+    `<div class="pn001-hero-dots"><span></span><span></span><span></span></div></div>` : "";
   return `
     <section class="pn001-hero pn-v2-hero">
       <div class="pn001-container pn001-hero-grid pn-v2-hero-grid">
@@ -575,30 +583,7 @@ const renderHero = (
         </div>
 
         <div class="pn001-hero-visual pn-v2-hero-visual">
-          ${
-            image
-              ? renderImage(
-                  image,
-                  title,
-                  "pn001-hero-image",
-                )
-              : `
-                <div class="pn001-visual-placeholder pn001-visual-placeholder-clean">
-                  <div class="pn001-visual-glow"></div>
-                  <div class="pn001-visual-monogram">
-                    ${escapeHtml(
-                      (project.name || "P")
-                        .split(/\s+/)
-                        .filter(Boolean)
-                        .slice(0, 2)
-                        .map((part) => part.charAt(0))
-                        .join("")
-                        .toUpperCase(),
-                    )}
-                  </div>
-                </div>
-              `
-          }
+          ${image ? slidesHtml : `<div class="pn001-visual-placeholder pn001-visual-placeholder-clean"></div>`}
         </div>
       </div>
     </section>
@@ -6366,6 +6351,12 @@ export function renderTemplate001Preview(
   .pn001-site :is(.pn001-v66-process-timeline,.pn001-faq-layout,.pn001-faq-grid,.pn001-contact-shell,.pn001-footer-main) {display:flex!important;flex-direction:column!important;}
   .pn001-site :is(.pn001-v66-service-row,.pn001-v66-benefit,.pn001-v66-feature,.pn001-faq-item,.pn001-contact-card) {min-width:0!important;max-width:100%!important;}
 }
+
+.pn001-hero-slideshow{position:relative;width:100%;height:100%;min-height:300px;overflow:hidden;border-radius:inherit}
+.pn001-hero-slideshow .pn001-hero-slide{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;opacity:0;visibility:hidden;transition:opacity .7s ease;pointer-events:none}
+.pn001-hero-slideshow .pn001-hero-slide.is-active{opacity:1;visibility:visible;pointer-events:auto}
+.pn001-hero-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:2;pointer-events:none}
+.pn001-hero-dots span{width:7px;height:7px;border-radius:50%;background:#ffffff80}.pn001-hero-dots span.active{background:white}
 </style>\n  </head>\n  <body>\n\n    <div
       class="pn001-site ${designDirection.className}"
       data-pagenova-template="${PAGENOVA_TEMPLATE_001_ID}"
@@ -6903,7 +6894,23 @@ export function renderTemplate001Preview(
         );
       })();
     </script>
-  </body>
+  <script>
+(function(){
+function init(){document.querySelectorAll("[data-pn-hero-slideshow]").forEach(function(root){
+if(root.dataset.pnSlideInit)return;root.dataset.pnSlideInit="1";
+var slides=Array.from(root.querySelectorAll("[data-pn-hero-slide]"));
+var dots=Array.from(root.querySelectorAll(".pn001-hero-dots span"));
+var index=0;
+function show(next){index=next;slides.forEach(function(el,i){el.classList.toggle("is-active",i===index)});dots.forEach(function(el,i){el.classList.toggle("active",i===index)})}
+show(0);
+if(slides.length>1&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+var timer=window.setInterval(function(){if(!document.hidden)show((index+1)%slides.length)},4500);
+window.addEventListener("pagehide",function(){window.clearInterval(timer)},{once:true})
+}
+})}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
+})();
+</script></body>
 </html>
   `;
 }
