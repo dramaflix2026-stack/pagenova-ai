@@ -20,7 +20,7 @@ const TYPES: {value:FormQuestion["type"];label:string}[] = [
   {value:"tel",label:"Telefone"},{value:"textarea",label:"Texto longo"},
   {value:"select",label:"Múltipla escolha"},
 ];
-const fieldClass="w-full rounded-xl border border-white/[.13] bg-[#090d13] px-4 py-3 text-sm text-white outline-none transition focus:border-[#36dfae] focus:ring-2 focus:ring-[#36dfae]/10";
+const fieldClass="w-full rounded-xl border border-white/[.13] bg-[#0b100d] px-4 py-3 text-sm text-white outline-none transition focus:border-[#8fec78] focus:ring-2 focus:ring-[#8fec78]/10";
 function formatDate(value:string){try{return new Date(value).toLocaleDateString("pt-BR");}catch{return "";}}
 function feedbackText(err:unknown):string{return err instanceof Error?err.message:"Não foi possível concluir a operação.";}
 async function jsonRequest<T>(url:string,body:unknown):Promise<T>{
@@ -203,7 +203,7 @@ export default function FormulariosPage(){
   const publishBusy=isPublishing||isSaving;
   const published=Boolean(form?.id&&form.publishedAt);
   const publishedLink=form?.id?"/f/"+form.id:"";
-  return <main className="min-h-[calc(100svh-120px)] bg-[#090c11] px-4 py-8 text-white sm:px-6 sm:py-12">
+  return <main className="min-h-[calc(100svh-120px)] bg-[#0b100d] px-4 py-8 text-white sm:px-6 sm:py-12">
     {screen==="start"?
       <div className="mx-auto flex w-full max-w-5xl flex-col items-center pt-3 pb-12 sm:pt-8">
         <div className="mx-auto max-w-2xl text-center">
@@ -215,7 +215,7 @@ export default function FormulariosPage(){
             Descreva sua necessidade. A PageNova seleciona perguntas de modelos locais e abre tudo para edição.
           </p>
         </div>
-        <form onSubmit={generate} className="mt-8 w-full max-w-2xl rounded-[24px] border border-emerald-400/[.16] bg-gradient-to-b from-[#121b1b] to-[#11151b] p-4 shadow-[0_22px_60px_rgba(0,0,0,.2)] sm:p-6">
+        <form onSubmit={generate} className="mt-8 w-full max-w-2xl rounded-[24px] border border-emerald-400/[.16] bg-gradient-to-b from-[#142019] to-[#142019] p-4 shadow-[0_22px_60px_rgba(0,0,0,.2)] sm:p-6">
           <div className="mb-4 flex items-center gap-3">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-400/20 bg-emerald-400/[.1] text-emerald-300" aria-hidden="true">
               <Sparkles className="h-5 w-5"/>
@@ -231,7 +231,7 @@ export default function FormulariosPage(){
           <textarea id="form-idea" value={prompt} rows={5}
             disabled={isGenerating} onChange={e=>setPrompt(e.target.value)}
             placeholder="Ex.: Quero um formulário para uma imobiliária descobrir se o cliente deseja comprar ou alugar, a região, o orçamento e como prefere ser atendido."
-            className={fieldClass+" min-h-[132px] resize-y rounded-[18px] border-white/10 bg-[#090e12] text-base leading-7 placeholder:text-white/30"}/>
+            className={fieldClass+" min-h-[132px] resize-y rounded-[18px] border-white/10 bg-[#0b100d] text-base leading-7 placeholder:text-white/30"}/>
           {attachments.length>0&&<div className="mt-3 flex flex-wrap gap-2">{attachments.map((file,i)=><span key={i} className="inline-flex max-w-full items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-xs text-white/65"><Paperclip className="h-3.5 w-3.5"/><span className="max-w-40 truncate">{file.name}</span><button type="button" aria-label={"Remover "+file.name} onClick={()=>setAttachments(a=>a.filter((_,index)=>index!==i))}><X className="h-3.5 w-3.5"/></button></span>)}</div>}
           <div className="mt-3 flex items-center gap-2">
             <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-white/5 text-emerald-200" title="Adicionar imagens, PDF, TXT ou vídeo"><Plus className="h-5 w-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm" onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/></label>
@@ -239,7 +239,7 @@ export default function FormulariosPage(){
             <span className="text-xs text-white/45">+ anexos e vídeo · microfone para ditar</span>
           </div>
           <button disabled={isGenerating||prompt.trim().length<20} type="submit"
-            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-3.5 text-sm font-bold text-[#07271e] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45 sm:text-base">
+            className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#8fec78] px-5 py-3.5 text-sm font-bold text-[#142019] transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-45 sm:text-base">
             {isGenerating?<><LoaderCircle className="h-5 w-5 animate-spin"/> Montando formulário...</>:<>
               <Sparkles className="h-5 w-5"/> Gerar meu formulário <ArrowRight className="h-4 w-4"/></>}
           </button>
@@ -267,7 +267,7 @@ export default function FormulariosPage(){
           :<div className="grid gap-3 sm:grid-cols-2">
             {saved.map(item=><div key={item.id} className="min-w-0"><button type="button" onClick={()=>openDraft(item)}
               aria-label={`Editar formulário: ${item.title}`}
-              className="group relative flex min-h-[178px] w-full flex-col overflow-hidden rounded-[20px] border border-white/[.1] bg-gradient-to-br from-[#14231f] via-[#101b1a] to-[#0d1417] p-4 text-left shadow-[0_12px_34px_rgba(0,0,0,.13)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_16px_38px_rgba(0,0,0,.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:min-h-[188px] sm:p-5">
+              className="group relative flex min-h-[178px] w-full flex-col overflow-hidden rounded-[20px] border border-white/[.1] bg-gradient-to-br from-[#14231f] via-[#142019] to-[#142019] p-4 text-left shadow-[0_12px_34px_rgba(0,0,0,.13)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_16px_38px_rgba(0,0,0,.22)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 sm:min-h-[188px] sm:p-5">
               <span className="pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full bg-emerald-400/[.045] blur-2xl" aria-hidden="true"/>
               <span className="relative flex w-full items-start justify-between gap-3">
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-emerald-400/20 bg-emerald-400/[.09] text-emerald-300">
@@ -316,7 +316,7 @@ export default function FormulariosPage(){
               {isSaving?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Save className="h-4 w-4"/>} Salvar rascunho
             </button>
             <button type="button" disabled={publishBusy} onClick={()=>void publish()}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#10d6a1] px-5 py-3 text-sm font-bold text-[#042b1e] hover:bg-emerald-300 disabled:opacity-40">
+              className="inline-flex items-center gap-2 rounded-xl bg-[#8fec78] px-5 py-3 text-sm font-bold text-[#14220f] hover:bg-emerald-300 disabled:opacity-40">
               {isPublishing?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Globe2 className="h-4 w-4"/>}
               {published?"Atualizar publicação":"Publicar formulário"}
             </button>
@@ -325,7 +325,7 @@ export default function FormulariosPage(){
         </header>
         {error&&<p role="alert" className="rounded-xl border border-red-400/25 bg-red-400/[.07] px-4 py-3 text-center text-sm text-red-200">{error}</p>}
         {notice&&<p role="status" className="rounded-xl border border-emerald-400/25 bg-emerald-400/[.07] px-4 py-3 text-center text-sm text-emerald-200">{notice}</p>}
-        <form onSubmit={reviseWithAi} className="rounded-2xl border border-emerald-400/20 bg-[#10211a] p-4 sm:p-5">
+        <form onSubmit={reviseWithAi} className="rounded-2xl border border-emerald-400/20 bg-[#142019] p-4 sm:p-5">
            <div className="mb-3 flex items-center gap-2 text-sm font-bold text-emerald-200"><Sparkles className="h-4 w-4"/> Alterar formulário com comandos locais</div>
            <textarea rows={3} value={revisionPrompt} onChange={event=>setRevisionPrompt(event.target.value)}
              placeholder="Peça mudanças: troque as perguntas, coloque emojis, acrescente uma pergunta de satisfação..."
@@ -333,7 +333,7 @@ export default function FormulariosPage(){
            <div className="mt-3 flex flex-wrap items-center gap-2">
              <VoiceButton disabled={isRevising} onText={text=>setRevisionPrompt(v=>(v?v+" ":"")+text)}/>
              <span className="min-w-0 flex-1 text-xs text-white/40">Escreva ou dite sua alteração. Comandos locais aceitos: adicionar pergunta ...; alterar título para ...</span>
-             <button type="submit" disabled={isRevising||revisionPrompt.trim().length<8} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-bold text-[#032d1c] disabled:opacity-40">
+             <button type="submit" disabled={isRevising||revisionPrompt.trim().length<8} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-bold text-[#14220f] disabled:opacity-40">
                {isRevising?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} Aplicar comando local
              </button>
            </div>
@@ -367,7 +367,7 @@ export default function FormulariosPage(){
         </div>
         {tab==="questions"?
           <section className="space-y-5">
-            <div className="rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
+            <div className="rounded-2xl border border-white/10 bg-[#142019] p-5 sm:p-7">
               <h2 className="mb-5 text-center text-base font-semibold text-emerald-300">Apresentação do formulário</h2>
               <label htmlFor="form-title" className="block text-sm font-medium text-white/70">Título</label>
               <input id="form-title" maxLength={100} className={fieldClass+" mt-2"} value={form.title}
@@ -381,7 +381,7 @@ export default function FormulariosPage(){
               <label className="mt-5 flex items-center gap-3 text-xs text-white/65"><input type="checkbox" checked={form.motion!==false} onChange={e=>edit({motion:e.target.checked})} className="accent-emerald-400"/> Animações suaves entre perguntas</label>
             </div>
             <h2 className="text-center text-lg font-bold">Perguntas ({form.fields.length})</h2>
-            {form.fields.map((q,i)=><article key={q.id} className="rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-6">
+            {form.fields.map((q,i)=><article key={q.id} className="rounded-2xl border border-white/10 bg-[#142019] p-5 sm:p-6">
               <div className="mb-4 flex items-center justify-between gap-3">
                 <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">Pergunta {i+1}</span>
                 <button type="button" aria-label={"Excluir pergunta "+(i+1)}
@@ -419,7 +419,7 @@ export default function FormulariosPage(){
             </button>
           </section>
           :tab==="responses"?
-            <section className="space-y-4 rounded-2xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
+            <section className="space-y-4 rounded-2xl border border-white/10 bg-[#142019] p-5 sm:p-7">
               <div className="text-center">
                 <h2 className="text-xl font-bold">Respostas recebidas</h2>
                 <p className="mt-2 text-3xl font-bold text-emerald-300">{responses.length}</p>
@@ -440,8 +440,8 @@ export default function FormulariosPage(){
                 </article>)}
               {responses.length===100&&<p className="text-center text-xs text-white/50">Exibindo as 100 respostas mais recentes.</p>}
             </section>
-          :<section className="rounded-3xl border border-white/10 bg-[#12151c] p-5 sm:p-7">
-            <div className="mx-auto max-w-lg overflow-hidden rounded-2xl bg-[#f7faf9] p-6 text-[#102c25] sm:p-8">
+          :<section className="rounded-3xl border border-white/10 bg-[#142019] p-5 sm:p-7">
+            <div className="mx-auto max-w-lg overflow-hidden rounded-2xl bg-[#f7faf9] p-6 text-[#18271d] sm:p-8">
               {form.coverImageUrl&&<img src={form.coverImageUrl} alt="" className="mb-5 h-40 w-full rounded-xl object-cover"/>}
               <div className="mb-5 text-center">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700"><ClipboardList className="h-6 w-6"/></span>
@@ -476,7 +476,7 @@ export default function FormulariosPage(){
             Salvar rascunho
           </button>
           <button type="button" onClick={()=>void publish()} disabled={publishBusy}
-            className="rounded-xl bg-[#10d6a1] px-6 py-3 text-sm font-bold text-[#042b1e] disabled:opacity-50">
+            className="rounded-xl bg-[#8fec78] px-6 py-3 text-sm font-bold text-[#14220f] disabled:opacity-50">
             {published?"Atualizar publicação":"Publicar"}
           </button>
         </footer>
