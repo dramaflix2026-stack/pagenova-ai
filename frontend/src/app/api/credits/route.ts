@@ -28,9 +28,20 @@ export async function GET(){
           startedAt:access.trial?.startedAt},
       },{headers:{"Cache-Control":"no-store"}});
     }
-    const balance=await getCreditBalance(admin,{
-      userId,email:user.email.trim().toLowerCase(),
-    });
+    let balance;
+    try{
+      balance=await getCreditBalance(admin,{
+        userId,email:user.email.trim().toLowerCase(),
+      });
+    }catch(error){
+      if(error instanceof CreditGateError&&error.code==="NO_CREDIT_CYCLE"){
+        return NextResponse.json({
+          configured:true,priceBrl:PAGENOVA_MONTHLY_PRICE_BRL,reconciled:creditGateEnabled(),
+          balance:{active:false,sitesRemaining:0,googleRemaining:0},
+        },{headers:{"Cache-Control":"no-store"}});
+      }
+      throw error;
+    }
     return NextResponse.json({
       configured:true,priceBrl:PAGENOVA_MONTHLY_PRICE_BRL,balance,
       reconciled:creditGateEnabled(),
