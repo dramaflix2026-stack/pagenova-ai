@@ -14,6 +14,7 @@ import type { BusinessStatus } from '../../../shared/constants';
 import { getEnv } from '../../config/env';
 import { logger } from '../../lib/logger';
 import { AppError, isAppError, serviceUnavailable, unprocessable } from '../../lib/errors';
+import { resolvePlacesLocale } from './country-locale';
 
 /**
  * Field mask da busca. Cada campo adicional aumenta o custo -- este e o
@@ -313,7 +314,6 @@ async function callGoogle<T>(options: RequestOptions): Promise<T> {
   );
 }
 
-import { resolvePlacesLocale } from './country-locale';
 
 export interface TextSearchParams {
   textQuery: string;
