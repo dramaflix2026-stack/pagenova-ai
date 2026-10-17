@@ -60,16 +60,16 @@ export default async function ProductLayout({
   const daysLeft=expires?Math.max(0,Math.ceil((expires.getTime()-Date.now())/86400000)):0;
 
   return (
-    <div className="min-h-screen bg-[#0b0b0b] text-white">
+    <div className="pn-platform min-h-screen bg-[#0b100d] text-white">
       <MobileAppBackGuard />
       <Sidebar accessKind={access.kind} />
 
       <div className="min-h-screen lg:pl-64">
-        {trial&&<div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-emerald-400/20 bg-[#123126] px-4 py-3 text-center text-xs text-white/85">
+        {trial&&<div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-emerald-400/20 bg-[#182a1c] px-4 py-3 text-center text-xs text-white/85">
           <strong className="text-emerald-200">Teste grátis de 5 dias · {daysLeft} {daysLeft===1?"dia restante":"dias restantes"}</strong>
           <span>{trial.sitesRemaining??0}/2 sites · {trial.googleRemaining??0}/5 pesquisas Google disponíveis</span>
           <Link href="/app/creditos" className="font-bold text-emerald-200 underline underline-offset-2">Ver meu teste</Link>
-          <a href="https://pay.kiwify.com.br/a13pNpS" target="_blank" rel="noopener noreferrer" className="rounded-lg bg-[#36d9a1] px-3 py-2 font-extrabold text-[#062018]">Assinar R$ 147/mês</a>
+          <a href="https://pay.kiwify.com.br/a13pNpS" target="_blank" rel="noopener noreferrer" className="pn-brand-button rounded-lg px-3 py-2 font-extrabold">Assinar R$ 147/mês</a>
         </div>}
         {children}
       </div>
