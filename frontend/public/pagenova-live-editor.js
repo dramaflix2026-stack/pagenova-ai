@@ -387,7 +387,7 @@
   let swallowExtraClick=false;
   const clearSectionGesture=function(){
     if(sectionGesture?.timer)clearTimeout(sectionGesture.timer);
-    if(sectionGesture?.section)sectionGesture.section.style.removeProperty("opacity");
+    if(sectionGesture?.section){sectionGesture.section.style.removeProperty("opacity");sectionGesture.section.style.removeProperty("touch-action");}
     document.querySelectorAll("[data-pn-extra-drop=true]").forEach(n=>n.removeAttribute("data-pn-extra-drop"));
     sectionGesture=null;
   };
@@ -425,11 +425,11 @@
       const target=g.target;
       if(target){
         const parentMain=target.closest("main");
-        const siblings=parentMain?Array.from(parentMain.querySelectorAll("section[data-pn-extra-id], main > section")):[];
+        const siblings=parentMain?Array.from(parentMain.querySelectorAll("section")).filter(s=>s.closest("main")===parentMain&&!s.parentElement?.closest("section")):[];
         const index=siblings.indexOf(target);
         const y=e.clientY;
         const after=y>target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
-        if(index>=0)parent.postMessage({type:"pagenova-extra-section-drop",id:g.id,targetId:target.dataset.pnExtraId||"",originalIndex:index,after},"*");
+        if(index>=0){const slot=siblings.slice(0,index+(after?1:0)).filter(s=>!s.dataset.pnExtraId).length;parent.postMessage({type:"pagenova-extra-section-drop",id:g.id,targetId:target.dataset.pnExtraId||"",slot,after},"*");}
       }
       clearSectionGesture();
       return;
