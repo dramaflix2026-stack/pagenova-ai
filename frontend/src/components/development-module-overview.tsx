@@ -79,13 +79,13 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
  const file=project?.files.find(f=>f.path===selected)||project?.files[0];
  // App Studio is intentionally preview/result first. Technical information is opt-in.
  // Systems retain their existing workspace until their dedicated UX pass.
- if(isApp)return <main className="min-h-screen bg-[#08130e] px-3 py-4 text-white sm:px-8 sm:py-7">
+ if(isApp)return <main className="min-h-screen bg-[#0b100d] px-3 py-4 text-white sm:px-8 sm:py-7">
   <div className="mx-auto max-w-3xl space-y-4">
    <header className="flex items-center justify-between gap-2">
     <Link href="/app/builder" className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white"><ArrowLeft className="size-4"/> Voltar</Link>
     <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone className="size-3.5"/> App Studio</span>
    </header>
-   <section className="rounded-2xl border border-emerald-400/20 bg-[#10221a] p-4 sm:p-6" aria-label="Descrever aplicativo">
+   <section className="rounded-2xl border border-emerald-400/20 bg-[#142019] p-4 sm:p-6" aria-label="Descrever aplicativo">
     <div className="mb-4 flex items-center gap-2">
      <Sparkles className="size-5 text-emerald-300"/>
      <h1 className="text-lg font-extrabold tracking-tight sm:text-2xl">{project?"O que você quer ajustar?":"Qual aplicativo você quer criar?"}</h1>
@@ -106,7 +106,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
       </label>
       <VoiceButton disabled={busy} onText={text=>setPrompt(v=>(v?v+" ":"")+text)}/>
       <button type="submit" disabled={busy||prompt.trim().length<12}
-       className="ml-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">
+       className="ml-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#14220f] disabled:opacity-40">
        {busy?<LoaderCircle className="size-4 animate-spin"/>:<Sparkles className="size-4"/>}
        {busy?"Preparando...":project?"Enviar ideia":"Criar aplicativo"}
       </button>
@@ -119,7 +119,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
       className="rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-left text-xs leading-5 text-white/70 hover:border-emerald-400/40">{example}</button>)}</div>
     </details>}
    </section>
-   {project&&<section className="rounded-2xl border border-emerald-400/20 bg-[#10241b] p-4 sm:p-5" aria-label="Resultado do aplicativo">
+   {project&&<section className="rounded-2xl border border-emerald-400/20 bg-[#142019] p-4 sm:p-5" aria-label="Resultado do aplicativo">
     <div className="flex items-start gap-3">
      <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300"><Smartphone className="size-5"/></div>
      <div className="min-w-0 flex-1">
@@ -129,7 +129,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
      <button type="button" onClick={clear} aria-label="Excluir rascunho do aplicativo" className="shrink-0 rounded-lg border border-white/10 p-2 text-white/45 hover:text-red-300"><Trash2 className="size-4"/></button>
     </div>
     <div className="mt-4 flex flex-wrap gap-2">
-     <button type="button" onClick={download} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062f20] hover:bg-emerald-300 sm:flex-none">
+     <button type="button" onClick={download} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f] hover:bg-emerald-300 sm:flex-none">
       <Download className="size-4"/> Exportar ZIP
      </button>
     </div>
@@ -192,7 +192,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
    </details>
   </div>
  </main>;
- return <main className="min-h-screen bg-[#08130e] px-4 py-8 text-white sm:px-8">
+ return <main className="min-h-screen bg-[#0b100d] px-4 py-8 text-white sm:px-8">
   <div className="mx-auto max-w-6xl space-y-7">
    <header className="flex flex-wrap items-center justify-between gap-4">
     <div><Link href="/app/builder" className="inline-flex items-center gap-2 text-xs text-white/50 hover:text-white"><ArrowLeft className="h-4 w-4"/> Voltar ao Studio</Link>
@@ -200,10 +200,10 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
      <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-5xl">Protótipos de {name}</h1>
      <p className="mt-4 max-w-2xl text-sm leading-7 text-white/60">Descreva sua ideia e gere um modelo de projeto {isApp?"Expo / React Native":"Next.js / React"} com arquivos reais. Sem API paga: o criador oferece estruturas funcionais pré-definidas, não código novo para qualquer instrução.</p>
     </div>
-    {project&&<button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#073023]"><Download className="h-4 w-4"/> Exportar projeto ZIP</button>}
+    {project&&<button type="button" onClick={download} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#14220f]"><Download className="h-4 w-4"/> Exportar projeto ZIP</button>}
    </header>
    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(330px,0.9fr)]">
-    <section className="flex min-h-[550px] flex-col rounded-3xl border border-emerald-400/20 bg-[#10221a] p-5">
+    <section className="flex min-h-[550px] flex-col rounded-3xl border border-emerald-400/20 bg-[#142019] p-5">
      <div className="flex items-center gap-3 border-b border-white/10 pb-4"><div className="rounded-xl bg-emerald-400/10 p-3 text-emerald-300"><Sparkles className="h-5 w-5"/></div><div><h2 className="font-bold">Construtor de modelos iniciais</h2><p className="text-xs text-white/50">Templates locais, sem APIs pagas</p></div></div>
      <div className="my-5 max-h-[500px] min-h-[170px] flex-1 space-y-3 overflow-y-auto">
       {!(project?.conversation.length)&&<p className="rounded-xl border border-white/10 bg-white/[.035] p-4 text-sm leading-7 text-white/65">Escolha seu objetivo (tarefas, agendamentos ou produtos). O modelo local gera um projeto inicial; novas funcionalidades precisam de desenvolvimento no código.</p>}
@@ -219,7 +219,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
        <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/15 bg-white/5 text-emerald-200" title="Adicionar imagens, PDF, texto ou vídeo"><Plus className="h-5 w-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm" onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/></label>
        <VoiceButton disabled={busy} onText={text=>setPrompt(v=>(v?v+" ":"")+text)}/>
        <span className="min-w-0 flex-1 text-xs text-white/35">Anexos e voz</span>
-       <button type="submit" disabled={busy||prompt.trim().length<12} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">{busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}{project?"Preservar projeto":"Criar projeto"}</button>
+       <button type="submit" disabled={busy||prompt.trim().length<12} className="inline-flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f] disabled:opacity-40">{busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}{project?"Preservar projeto":"Criar projeto"}</button>
       </div>
      </form>
      {error&&<p role="alert" className="mt-3 rounded-xl border border-red-400/20 bg-red-500/10 p-3 text-xs text-red-200">{error}</p>}
@@ -232,7 +232,7 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
       <div className="mt-5 flex flex-wrap gap-2"><span className="rounded-lg bg-emerald-400/10 px-3 py-2 text-xs font-bold text-emerald-300">{project.files.length} arquivos</span><span className="rounded-lg border border-white/10 px-3 py-2 text-xs text-white/50">Rascunho local no navegador</span></div>
       <div className="mt-5 grid gap-3 sm:grid-cols-[150px_minmax(0,1fr)]">
        <div className="max-h-[410px] space-y-1 overflow-y-auto">{project.files.map(item=><button key={item.path} type="button" onClick={()=>setSelected(item.path)} title={item.path} className={"flex w-full items-center gap-2 truncate rounded-lg px-2 py-2 text-left text-[11px] "+(file?.path===item.path?"bg-emerald-400/15 text-emerald-200":"text-white/50 hover:bg-white/5")}><FileText className="h-3.5 w-3.5 shrink-0"/><span className="truncate">{item.path}</span></button>)}</div>
-       <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#07110c]"><p className="truncate border-b border-white/10 px-3 py-2 text-xs font-bold text-white/65">{file?.path||"Selecione um arquivo"}</p><pre className="max-h-[370px] overflow-auto p-3 text-[11px] leading-5 text-emerald-100/70"><code>{file?.content||""}</code></pre></div>
+       <div className="min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#0b100d]"><p className="truncate border-b border-white/10 px-3 py-2 text-xs font-bold text-white/65">{file?.path||"Selecione um arquivo"}</p><pre className="max-h-[370px] overflow-auto p-3 text-[11px] leading-5 text-emerald-100/70"><code>{file?.content||""}</code></pre></div>
       </div>
       <h3 className="mt-6 text-sm font-bold">Próximos passos</h3><div className="mt-2 space-y-2">{project.nextSteps.map((step,i)=><p key={i} className="text-xs leading-6 text-white/55">{i+1}. {step}</p>)}</div>
       <button type="button" onClick={download} className="mt-5 inline-flex items-center gap-2 rounded-xl border border-emerald-400/35 px-4 py-3 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10"><Download className="h-4 w-4"/> Exportar código (.zip)</button>
