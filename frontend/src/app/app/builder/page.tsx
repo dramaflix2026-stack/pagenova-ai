@@ -1549,7 +1549,33 @@ export default function BuilderPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
             <div className="mt-3 flex flex-col items-center justify-center gap-3">
               <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
+              {crmProjectId&&phase!=="generating"&&<details className="w-full max-w-xs rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
+                <summary className="cursor-pointer select-none rounded-lg px-3 py-2 font-semibold text-emerald-200">✎ Personalizar logo</summary>
+                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                  <button type="button" onClick={()=>logoInputRef.current?.click()} disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{uploadingLogo?"Enviando...":"Trocar logo"}</button>
+                  <button type="button" onClick={()=>{setEditingBrand(true);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever logo</button>
+                  <button type="button" onClick={()=>{if(window.confirm("Remover a logo personalizada e exibir o nome da empresa?"))void changeBrandLogo(null);}}
+                    disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 disabled:opacity-40">Remover logo</button>
+                </div>
+              </details>}
             </div>
+            {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
+              className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
+              <label htmlFor="pagenova-edit-brand" className="w-full text-xs text-white/70">
+                Nome que substituirá a logo no site (sem gerar novamente)
+              </label>
+              <input id="pagenova-edit-brand" type="text" required minLength={3} maxLength={72}
+                value={brandDraft} onChange={event=>setBrandDraft(event.target.value)}
+                placeholder="Ex.: Nathalia Ferreira Psicóloga"
+                className="w-full min-w-0 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-center text-sm text-white outline-none focus:border-emerald-400"/>
+              <button type="submit" disabled={savingBrand}
+                className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] disabled:opacity-50">
+                {savingBrand?"Salvando...":"Aplicar texto na logo"}
+              </button>
+            </form>}
             <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
           </div>
           <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
@@ -1605,45 +1631,6 @@ export default function BuilderPage() {
             {error && <div role="alert" className="mt-3 w-full rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-3 text-sm text-red-100">{error}</div>}
             {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
-          {crmProjectId&&phase!=="generating"&&<div className="border-b border-white/10 px-3 py-3 sm:px-4">
-            <details className="max-w-md rounded-xl border border-emerald-400/25 bg-[#142019] p-3">
-              <summary className="cursor-pointer text-sm font-semibold text-emerald-200">✎ Personalizar logo</summary>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>logoInputRef.current?.click()}
-                disabled={uploadingLogo||publishing||switchingTemplate}
-                className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/20 disabled:opacity-50"
-                aria-label="Trocar logo da empresa no site">
-                {uploadingLogo?'Enviando logo...':'Trocar logo'}
-              </button>}
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>{if(window.confirm('Remover a logo personalizada e exibir o nome da empresa?'))void changeBrandLogo(null);}}
-                disabled={uploadingLogo||publishing||switchingTemplate}
-                className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 hover:bg-white/10 disabled:opacity-40"
-                aria-label="Remover logo personalizada do site">Remover logo</button>}
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
-                className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
-                aria-label="Escrever nome no lugar da logo">Escrever logo</button>}
-
-              </div>
-            {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
-              className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
-              <label htmlFor="pagenova-edit-brand" className="w-full text-xs text-white/70">
-                Nome que substituirá a logo no site (sem gerar novamente)
-              </label>
-              <input id="pagenova-edit-brand" type="text" required minLength={3} maxLength={72}
-                value={brandDraft} onChange={event=>setBrandDraft(event.target.value)}
-                placeholder="Ex.: Nathalia Ferreira Psicóloga"
-                className="w-full min-w-0 rounded-lg border border-white/20 bg-[#101514] px-3 py-2 text-center text-sm text-white outline-none focus:border-emerald-400"/>
-              <button type="submit" disabled={savingBrand}
-                className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] disabled:opacity-50">
-                {savingBrand?"Salvando...":"Aplicar texto na logo"}
-              </button>
-            </form>}
-
-            </details>
-          </div>}
           {project.pages[activePage]&&phase!=="generating"&&
           <div className="border-b border-white/10 px-3 py-3 sm:px-4">
             <button type="button" onClick={()=>setSectionPickerOpen(open=>!open)} aria-expanded={sectionPickerOpen}
