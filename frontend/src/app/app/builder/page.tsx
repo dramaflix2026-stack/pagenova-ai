@@ -328,6 +328,28 @@ export default function BuilderPage() {
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
       if (event.source !== previewRef.current?.contentWindow) return;
+      if(event.data?.type==="pagenova-template-image-file"){
+        const {key,selector,dataUrl}=event.data;
+        if(!project||key!==activePage||typeof selector!=="string"||!selector||selector.length>500||
+          typeof dataUrl!=="string"||dataUrl.length>7_500_000||
+          !["data:image/png;base64,","data:image/jpeg;base64,","data:image/webp;base64,"].some(prefix=>dataUrl.startsWith(prefix)))return;
+        void (async()=>{
+          try{
+            const blob=await(await fetch(dataUrl)).blob();
+            const file=new File([blob],"imagem."+ (blob.type==="image/png"?"png":blob.type==="image/webp"?"webp":"jpg"),{type:blob.type});
+            const optimized=await compressReference(file);
+            if(optimized.length>1_400_000)throw Error("Imagem muito grande após otimização.");
+            const current=project.liveEdits?.[activePage]||[];
+            const previous=current.find(edit=>edit.selector===selector);
+            const edit:LiveEdit={...previous,selector,text:previous?.text||"",font:previous?.font||"Arial",
+              size:previous?.size||16,color:previous?.color||"#111111",kind:"image",imageUrl:optimized};
+            const updated={...project,liveEdits:{...project.liveEdits,[activePage]:[...current.filter(edit=>edit.selector!==selector),edit].slice(-100)}};
+            await savePageNovaProject(updated.id,updated);
+            setProject(updated);
+          }catch{setError("Não foi possível salvar a imagem do template.");}
+        })();
+        return;
+      }
       if(event.data?.type==="pagenova-extra-image-file"){
         const id=event.data.id;
         const dataUrl=event.data.dataUrl;
