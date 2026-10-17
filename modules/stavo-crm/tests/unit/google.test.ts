@@ -15,7 +15,7 @@ import {
   textSearch,
   type GooglePlaceRaw,
 } from '@server/modules/google/client';
-import { buildTextQuery, mapPlace } from '@server/modules/google/service';
+import { buildTextQuery, mapPlace, matchesRequestedCountry } from '@server/modules/google/service';
 
 const place = (overrides: Partial<GooglePlaceRaw> = {}): GooglePlaceRaw => ({
   id: 'ChIJ_teste',
@@ -42,6 +42,7 @@ describe('field mask', () => {
     const fields = SEARCH_FIELD_MASK.split(',');
     expect(fields).toContain('places.id');
     expect(fields).toContain('places.displayName');
+    expect(fields).toContain('places.addressComponents');
     expect(fields).toContain('places.businessStatus');
     expect(fields).toContain('nextPageToken');
     // Campos caros que a aplicacao nao usa nunca sao solicitados.
@@ -138,7 +139,7 @@ describe('consulta textual', () => {
         pageToken: null,
         searchRunId: null,
       }),
-    ).toBe('psicologos, Cambui, Campinas, SP, Brasil');
+    ).toBe('psicologos em Cambui, Campinas, SP, Brasil');
   });
 
   it('ignora campos vazios', () => {
@@ -155,7 +156,34 @@ describe('consulta textual', () => {
         pageToken: null,
         searchRunId: null,
       }),
-    ).toBe('dentistas, Santos, Brasil');
+    ).toBe('dentistas em Santos, Brasil');
+  });
+});
+
+describe('filtro de país real retornado pelo Google', () => {
+  const portugal = [{longText:'Portugal',shortText:'PT',types:['country','political']}];
+  const brasil = [{longText:'Brasil',shortText:'BR',types:['country','political']}];
+
+  it('rejeita uma empresa chamada Pizzaria Portugal quando localizada no Brasil', () => {
+    const local=place({
+      displayName:{text:'Pizzaria Portugal'},
+      formattedAddress:'Campo Grande, MS, Brasil',
+      addressComponents:brasil,
+    });
+    expect(matchesRequestedCountry(local,'Portugal')).toBe(false);
+    expect(matchesRequestedCountry(local,'Brasil')).toBe(true);
+  });
+  it('aceita empresas portuguesas de verdade independentemente do idioma do nome', () => {
+    const local=place({formattedAddress:'Rua Augusta, Lisboa',addressComponents:portugal});
+    expect(matchesRequestedCountry(local,'Portugal')).toBe(true);
+    expect(matchesRequestedCountry(local,'Brasil')).toBe(false);
+  });
+  it('não confia no endereço escrito se o país estruturado estiver ausente', () => {
+    const local=place({formattedAddress:'Lisboa, Portugal',addressComponents:undefined});
+    expect(matchesRequestedCountry(local,'Portugal')).toBe(false);
+  });
+  it('preserva comportamento histórico quando país não é reconhecido', () => {
+    expect(matchesRequestedCountry(place(),'')).toBe(true);
   });
 });
 
