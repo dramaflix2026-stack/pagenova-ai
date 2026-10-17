@@ -99,17 +99,17 @@ export default function CadastroPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0b100d] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(54,217,161,0.12),transparent_40%)]" />
       <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-emerald-400/[.06] blur-[110px]" />
 
       <div className="relative w-full max-w-[440px]">
         <Link href="/" className="mx-auto mb-8 flex w-fit items-center justify-center" aria-label="Voltar para a PageNova AI">
           <img src="/brand/pagenova-logo.png" alt="PageNova AI"
-            className="h-[65px] w-auto max-w-[240px] object-contain" />
+            className="pn-brand-logo h-[65px] w-auto max-w-[240px] object-contain" />
         </Link>
 
-        <section className="rounded-[28px] border border-white/[.10] bg-[#10241c]/90 p-6 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
+        <section className="rounded-[28px] border border-white/[.10] bg-[#142019]/90 p-6 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
           <div className="text-center">
             <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-400/20 bg-emerald-400/10 text-xl text-emerald-300" aria-hidden="true">
               ✦
@@ -152,7 +152,7 @@ export default function CadastroPage() {
                 <Link href="/forgot-password" className="rounded-xl border border-white/15 px-5 py-3 text-xs font-semibold text-white/70 hover:bg-white/[.05]">
                   Já tenho conta · redefinir senha
                 </Link>
-                <Link href="/login" className="rounded-xl bg-[#36d9a1] px-5 py-3 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
+                <Link href="/login" className="rounded-xl bg-[#8fec78] px-5 py-3 text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494]">
                   Já confirmei · ir para login
                 </Link>
               </div>
@@ -166,7 +166,7 @@ export default function CadastroPage() {
                 <input id="signup-email" type="email" autoComplete="email" required maxLength={254}
                   value={email} onChange={(event) => setEmail(event.target.value)}
                   placeholder="voce@email.com"
-                  className="h-12 w-full rounded-xl border border-white/10 bg-[#091b14] px-4 text-sm text-white outline-none placeholder:text-white/55 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
+                  className="h-12 w-full rounded-xl border border-white/10 bg-[#101c15] px-4 text-sm text-white outline-none placeholder:text-white/55 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10" />
               </div>
               <div>
                 <label htmlFor="signup-password" className="mb-2 block text-xs font-semibold text-white/65">
@@ -190,7 +190,7 @@ export default function CadastroPage() {
               {error && <p role="alert" className="rounded-xl border border-red-400/25 bg-red-400/[.08] px-4 py-3 text-sm text-red-200">{error}</p>}
 
               <button type="submit" disabled={loading}
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] transition hover:bg-[#7debc0] disabled:cursor-not-allowed disabled:opacity-55">
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494] disabled:cursor-not-allowed disabled:opacity-55">
                 {loading ? "Criando conta..." : "Iniciar teste grátis de 5 dias"}
               </button>
             </form>
