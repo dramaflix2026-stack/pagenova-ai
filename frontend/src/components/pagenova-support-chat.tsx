@@ -169,9 +169,9 @@ export function PageNovaSupportChat(){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send();}
  }
  return <div className="pointer-events-none fixed inset-0 z-[150]">
-  {open&&<div className={"pointer-events-auto fixed right-3 flex w-[min(440px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0c1716] text-white shadow-[0_20px_90px_rgba(0,0,0,.6)] sm:right-6 "+(landingPreview?"bottom-[184px] h-[min(600px,calc(100dvh-205px))]":"bottom-[82px] h-[min(640px,calc(100dvh-100px))] sm:bottom-[92px]")} role="dialog" aria-modal="false" aria-label="Conversa com a PageNova IA">
-    <header className="flex items-center gap-2 border-b border-white/10 bg-[#102821] p-3">
-     <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-300 text-[#09251a]"><Bot className="size-6"/></div>
+  {open&&<div className={"pointer-events-auto fixed right-3 flex w-[min(440px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0b100d] text-white shadow-[0_20px_90px_rgba(0,0,0,.6)] sm:right-6 "+(landingPreview?"bottom-[184px] h-[min(600px,calc(100dvh-205px))]":"bottom-[82px] h-[min(640px,calc(100dvh-100px))] sm:bottom-[92px]")} role="dialog" aria-modal="false" aria-label="Conversa com a PageNova IA">
+    <header className="flex items-center gap-2 border-b border-white/10 bg-[#18271d] p-3">
+     <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-300 text-[#14220f]"><Bot className="size-6"/></div>
      <div className="min-w-0 flex-1">
       <p className="text-sm font-extrabold">PageNova IA <Sparkles className="ml-1 inline size-3.5 text-emerald-300"/></p>
       <p className="mt-0.5 text-[11px] text-white/60">Para trocar ideias e pensar junto</p>
@@ -196,26 +196,26 @@ export function PageNovaSupportChat(){
          <button type="button" aria-label={"Excluir conversa "+thread.title} onClick={()=>void deleteThread(thread.id)} className="shrink-0 rounded-lg p-3 text-white/45 hover:text-rose-200"><Trash2 className="size-4"/></button>
         </div>)}
       </div>
-      <button type="button" onClick={newChat} className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 py-3 text-xs font-bold text-[#09251a]"><Plus className="size-4"/> Nova conversa</button>
+      <button type="button" onClick={newChat} className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-emerald-300 px-4 py-3 text-xs font-bold text-[#14220f]"><Plus className="size-4"/> Nova conversa</button>
     </div>:<>
     <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5" aria-live="polite">
      {messages.map((m,i)=><div key={i} className={"flex "+(m.role==="user"?"justify-end":"justify-start")}>
        <div className={"max-w-[94%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm leading-6 "+
-        (m.role==="user"?"bg-emerald-300 text-[#09251a]":"border border-white/10 bg-[#192b2a] text-white/90")}>
+        (m.role==="user"?"bg-emerald-300 text-[#14220f]":"border border-white/10 bg-[#1c3020] text-white/90")}>
         {m.content||<span className="flex items-center gap-2 text-white/50"><LoaderCircle className="size-4 animate-spin"/> Pensando...</span>}
        </div>
       </div>)}
       <div ref={end}/>
     </div>
-    <div className="border-t border-white/10 bg-[#10201f] px-3 py-3">
+    <div className="border-t border-white/10 bg-[#142019] px-3 py-3">
      {messages.length===1&&<div className="mb-3 flex gap-2 overflow-x-auto pb-1">
       {SUGGESTIONS.map(q=><button key={q} type="button" onClick={()=>void send(q)} disabled={busy||loadingHistory} className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-2 text-[11px] text-emerald-100 disabled:opacity-50">{q}</button>)}
      </div>}
      {error&&<p role="alert" className="mb-2 text-xs leading-5 text-rose-300">{error}</p>}
      {notice&&<p role="status" className="mb-2 text-[11px] text-emerald-200/75">{notice}</p>}
-     <form onSubmit={submit} className="flex items-end gap-2 rounded-xl border border-white/20 bg-[#071413] p-2 focus-within:border-emerald-400/50">
+     <form onSubmit={submit} className="flex items-end gap-2 rounded-xl border border-white/20 bg-[#0b100d] p-2 focus-within:border-emerald-400/50">
       <textarea ref={inputRef} rows={1} maxLength={2600} placeholder="O que vamos pensar juntos?" value={input} onChange={e=>setInput(e.target.value)} onKeyDown={onKey} className="max-h-28 min-h-10 flex-1 resize-none bg-transparent px-2 py-2.5 text-sm text-white outline-none placeholder:text-white/40" aria-label="Mensagem para a PageNova IA"/>
-      <button disabled={!input.trim()||busy||loadingHistory} type="submit" aria-label="Enviar mensagem" className="grid size-10 shrink-0 place-items-center rounded-lg bg-emerald-300 text-[#09251a] hover:bg-emerald-200 disabled:opacity-40">
+      <button disabled={!input.trim()||busy||loadingHistory} type="submit" aria-label="Enviar mensagem" className="grid size-10 shrink-0 place-items-center rounded-lg bg-emerald-300 text-[#14220f] hover:bg-emerald-200 disabled:opacity-40">
        {busy?<LoaderCircle className="size-5 animate-spin"/>:<Send className="size-5"/>}
       </button>
      </form>
@@ -230,7 +230,7 @@ export function PageNovaSupportChat(){
     </>}
    </div>}
    <button type="button" aria-label={open?"Fechar PageNova IA":"Conversar com a PageNova IA"} aria-expanded={open} onClick={()=>setOpen(v=>!v)}
-    className={"pointer-events-auto fixed right-3 flex items-center justify-center rounded-full border border-white/15 bg-emerald-300 text-[#05251b] shadow-[0_7px_35px_rgba(16,185,129,.35)] transition hover:scale-[1.05] hover:bg-emerald-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white "+(landingPreview?"bottom-[116px] size-12 sm:right-6":"bottom-4 right-4 size-14 sm:bottom-6 sm:right-6")}>
+    className={"pointer-events-auto fixed right-3 flex items-center justify-center rounded-full border border-white/15 bg-emerald-300 text-[#14220f] shadow-[0_7px_35px_rgba(16,185,129,.35)] transition hover:scale-[1.05] hover:bg-emerald-200 focus-visible:outline focus-visible:outline-4 focus-visible:outline-white "+(landingPreview?"bottom-[116px] size-12 sm:right-6":"bottom-4 right-4 size-14 sm:bottom-6 sm:right-6")}>
     {open?<X className="size-7"/>:<MessageCircle className="size-7"/>}
    </button>
   </div>;
