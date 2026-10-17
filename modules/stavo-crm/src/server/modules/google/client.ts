@@ -313,8 +313,11 @@ async function callGoogle<T>(options: RequestOptions): Promise<T> {
   );
 }
 
+import { resolvePlacesLocale } from './country-locale';
+
 export interface TextSearchParams {
   textQuery: string;
+  country?: string | null;
   pageToken?: string | null;
   signal?: AbortSignal | undefined;
 }
@@ -327,10 +330,11 @@ export interface TextSearchParams {
 export async function textSearch(params: TextSearchParams): Promise<TextSearchResponse> {
   const env = getEnv();
 
+  const locale=resolvePlacesLocale(params.country,env.GOOGLE_PLACES_LANGUAGE,env.GOOGLE_PLACES_REGION);
   const body: Record<string, unknown> = {
     textQuery: params.textQuery,
-    languageCode: env.GOOGLE_PLACES_LANGUAGE,
-    regionCode: env.GOOGLE_PLACES_REGION,
+    languageCode: locale.languageCode,
+    ...(locale.regionCode ? {regionCode:locale.regionCode} : {}),
     pageSize: 20,
   };
 
