@@ -54,13 +54,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/Dialog';
-import { Combobox } from '../components/ui/Combobox';
 import { useToast } from '../components/ui/Toast';
 import { ApiError, api, newIdempotencyKey } from '../lib/api';
 import { ordenarResultados, type SearchResultItem, type SortOption } from '../lib/searchResults';
 import { useServices } from '../hooks/useCrm';
 import { useCidades, useEstados } from '../hooks/useLocations';
 import { semAcento } from '../lib/utils';
+import { countryCodeForName, countryOptions, citySuggestions } from '@shared/country-options';
 
 interface SearchResponse {
   results: SearchResultItem[];
@@ -133,7 +133,15 @@ export default function SearchPage() {
   // As listas de estado e municipio sao brasileiras. Com outro pais no campo,
   // os dois campos voltam a ser texto livre: oferecer municipios do Brasil
   // para uma busca em Portugal seria pior que nao oferecer nada.
-  const ehBrasil = ['', 'brasil', 'brazil', 'br'].includes(semAcento(form.country));
+  const ehBrasil = ['brasil', 'brazil', 'br'].includes(semAcento(form.country));
+  // Native selects open Android/iOS's real option picker, unlike <datalist>
+  // whose drop-down arrow is often inert in embedded mobile browsers.
+  const selectedCountryCode=countryCodeForName(form.country);
+  const knownCountry=countryOptions.some(item=>item.code===selectedCountryCode);
+  const suggestedCities=useMemo(()=>citySuggestions(form.country),[form.country]);
+  const [manualCity,setManualCity]=useState(false);
+  const useCustomCity=!ehBrasil&&(manualCity||
+    (!!form.city&&!suggestedCities.includes(form.city)));
 
   const estados = useEstados();
   const cidades = useCidades(ehBrasil ? form.state : '');
@@ -308,45 +316,57 @@ export default function SearchPage() {
                 />
               </Field>
 
-              <Field label="Pais" htmlFor="search-country">
-                <Input
+              <Field label="País" htmlFor="search-country">
+                <select
                   id="search-country"
-                  list="places-countries"
-                  placeholder="Ex.: Estados Unidos, Portugal, México..."
+                  value={knownCountry && selectedCountryCode ? selectedCountryCode : '__other__'}
+                  onChange={(event) => {
+                    const code=event.target.value;
+                    const option=countryOptions.find(item=>item.code===code);
+                    setForm(current=>({...current,country:option?.name||'',state:'',city:'',region:''}));
+                    setManualCity(false);
+                  }}
+                  className="flex h-11 w-full min-w-0 rounded-md border border-input bg-surface px-3 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-sm"
+                  aria-label="Escolher país"
+                >
+                  {countryOptions.map(item=><option key={item.code} value={item.code}>{item.name}</option>)}
+                  <option value="__other__">Outro país (digitar)</option>
+                </select>
+                {!knownCountry&&<Input
+                  id="search-country-other"
+                  aria-label="Digite o nome do país"
                   value={form.country}
-                  onChange={(event) => setForm((c) => ({ ...c, country: event.target.value, state: '', city: '', region: '' }))}
-                  autoComplete="country-name"
-                />
-                <datalist id="places-countries">
-                  {["Brasil","Estados Unidos","Portugal","Canadá","México","Espanha","Argentina","Chile","Colômbia","Peru","Reino Unido","França","Alemanha","Itália","Austrália","Japão","Índia"].map(name=><option key={name} value={name}/>)}
-                </datalist>
+                  onChange={(event)=>setForm(current=>({...current,country:event.target.value,state:'',city:'',region:''}))}
+                  placeholder="Digite o país que deseja pesquisar"
+                  className="mt-2"
+                />}
               </Field>
 
-              <Field label="Estado" htmlFor="search-state">
+              <Field label={ehBrasil?"Estado":"Estado ou província"} htmlFor="search-state">
                 {ehBrasil ? (
-                  <Combobox
-                    id="search-state"
-                    value={form.state}
-                    // Trocar de estado invalida a cidade: ela pertencia ao anterior.
-                    onChange={(uf) => setForm((c) => ({ ...c, state: uf, city: '' }))}
-                    options={opcoesEstado}
-                    loading={estados.isLoading}
-                    placeholder="Todos os estados"
-                    searchPlaceholder="Buscar estado..."
-                    // Falha de rede nao pode se disfarcar de lista vazia.
-                    emptyMessage={
-                      estados.isError
-                        ? 'Nao foi possivel carregar os estados.'
-                        : 'Nenhum estado encontrado.'
-                    }
-                    clearLabel="Todos os estados"
-                  />
+                  <>
+                    <select
+                      id="search-state"
+                      value={form.state}
+                      onChange={(event)=>setForm(current=>({...current,state:event.target.value,city:''}))}
+                      disabled={estados.isLoading}
+                      className="flex h-11 w-full min-w-0 rounded-md border border-input bg-surface px-3 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 sm:text-sm"
+                      aria-label="Escolher estado brasileiro"
+                    >
+                      <option value="">{estados.isLoading?"Carregando estados...":"Todos os estados"}</option>
+                      {opcoesEstado.map(estado=><option key={estado.value} value={estado.value}>{estado.label} ({estado.value})</option>)}
+                    </select>
+                    {estados.isError&&<div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive">
+                      Não foi possível carregar estados.
+                      <button type="button" className="underline" onClick={()=>void estados.refetch()}>Tentar novamente</button>
+                    </div>}
+                  </>
                 ) : (
                   <Input
                     id="search-state"
                     value={form.state}
-                    onChange={(event) => setForm((c) => ({ ...c, state: event.target.value }))}
-                    placeholder="Ex.: SP"
+                    onChange={(event)=>setForm(current=>({...current,state:event.target.value}))}
+                    placeholder="Opcional: estado, região ou província"
                   />
                 )}
               </Field>
@@ -354,34 +374,55 @@ export default function SearchPage() {
               <Field
                 label="Cidade"
                 htmlFor="search-city"
-                hint={
-                  ehBrasil && !form.state ? 'Escolha o estado para liberar a lista.' : undefined
-                }
+                hint={ehBrasil&&!form.state?"Escolha um estado para ver as cidades.":undefined}
               >
                 {ehBrasil ? (
-                  <Combobox
-                    id="search-city"
-                    value={form.city}
-                    onChange={(cidade) => setForm((c) => ({ ...c, city: cidade }))}
-                    options={opcoesCidade}
-                    disabled={!form.state}
-                    disabledPlaceholder="Escolha o estado primeiro"
-                    loading={cidades.isFetching}
-                    placeholder="Todas as cidades"
-                    searchPlaceholder="Buscar cidade..."
-                    emptyMessage={
-                      cidades.isError
-                        ? 'Nao foi possivel carregar as cidades.'
-                        : 'Nenhuma cidade encontrada.'
-                    }
-                    clearLabel="Todas as cidades"
-                  />
+                  <>
+                    <select
+                      id="search-city"
+                      value={form.city}
+                      disabled={!form.state||cidades.isFetching}
+                      onChange={(event)=>setForm(current=>({...current,city:event.target.value}))}
+                      className="flex h-11 w-full min-w-0 rounded-md border border-input bg-surface px-3 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-60 sm:text-sm"
+                      aria-label="Escolher cidade brasileira"
+                    >
+                      <option value="">{!form.state?"Escolha o estado primeiro":cidades.isFetching?"Carregando cidades...":"Todas as cidades"}</option>
+                      {opcoesCidade.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}
+                    </select>
+                    {cidades.isError&&form.state&&<div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-destructive">
+                      Não foi possível carregar as cidades deste estado.
+                      <button type="button" className="underline" onClick={()=>void cidades.refetch()}>Tentar novamente</button>
+                    </div>}
+                  </>
                 ) : (
-                  <Input
-                    id="search-city"
-                    value={form.city}
-                    onChange={(event) => setForm((c) => ({ ...c, city: event.target.value }))}
-                  />
+                  <>
+                    {suggestedCities.length>0&&<select
+                      id="search-city"
+                      value={useCustomCity?"__other__":form.city}
+                      onChange={(event)=>{
+                        const value=event.target.value;
+                        setManualCity(value==="__other__");
+                        setForm(current=>({...current,city:value==="__other__"?"":value}));
+                      }}
+                      className="flex h-11 w-full min-w-0 rounded-md border border-input bg-surface px-3 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-sm"
+                      aria-label="Escolher cidade internacional"
+                    >
+                      <option value="">Todas as cidades</option>
+                      {suggestedCities.map(city=><option key={city} value={city}>{city}</option>)}
+                      <option value="__other__">Outra cidade (digitar)</option>
+                    </select>}
+                    {(suggestedCities.length===0||useCustomCity)&&<Input
+                      id={suggestedCities.length===0?"search-city":"search-city-custom"}
+                      aria-label="Digite a cidade"
+                      value={form.city}
+                      onChange={(event)=>setForm(current=>({...current,city:event.target.value}))}
+                      placeholder="Digite qualquer cidade deste país"
+                      className={suggestedCities.length?"mt-2":""}
+                    />}
+                    {suggestedCities.length>0&&<p className="mt-1 text-xs text-muted-foreground">
+                      Cidades populares. Use “Outra cidade” para pesquisar qualquer município.
+                    </p>}
+                  </>
                 )}
               </Field>
 
