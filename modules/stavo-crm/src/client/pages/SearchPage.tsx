@@ -169,6 +169,7 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState<SortOption>('SCORE');
   const [error, setError] = useState<string | null>(null);
   const [detalhe, setDetalhe] = useState<string | null>(null);
+  const [searchNotice, setSearchNotice] = useState<string | null>(null);
   const [addTarget, setAddTarget] = useState<SearchResultItem | null>(null);
 
   const usage = useQuery({
@@ -244,6 +245,7 @@ export default function SearchPage() {
       setPageNumber(data.pageNumber);
       setSearchRunId(data.searchRunId);
       setError(null);
+      setSearchNotice(data.notice);
       void usage.refetch();
       void subscriberCredits.refetch();
     },
@@ -268,6 +270,7 @@ export default function SearchPage() {
     setPageToken(null);
     setSearchRunId(null);
     setDetalhe(null);
+    setSearchNotice(null);
     search.mutate({ pageToken: null, page: 1 });
   };
 
@@ -518,6 +521,12 @@ export default function SearchPage() {
             ) : null}
           </CardContent>
         </Card>
+
+        {searchNotice ? (
+          <Callout tone="warning" title="Conferência de localização">
+            {searchNotice}
+          </Callout>
+        ) : null}
 
         {search.isPending && results.length === 0 ? (
           <LoadingBlock label="Consultando o Google..." />
