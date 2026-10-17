@@ -10,6 +10,7 @@ import { readPageNovaProject, savePageNovaProject, waitForPageNovaProjectSaves }
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { inferSiteBrand } from "@/lib/infer-site-brand";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
+import { appendExtraSections, EXTRA_SECTION_OPTIONS, type ExtraSectionKind } from "@/lib/site-builder-extra-sections";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
@@ -101,6 +102,8 @@ export default function BuilderPage() {
   const [publishedUrl, setPublishedUrl] = useState("");
   const [crmProjectId, setCrmProjectId] = useState<string | null>(null);
   const [crmPreviewHtml, setCrmPreviewHtml] = useState("");
+  const [sectionPickerOpen,setSectionPickerOpen]=useState(false);
+  const [addingSection,setAddingSection]=useState(false);
   const [editingBrand,setEditingBrand]=useState(false);
   const [brandDraft,setBrandDraft]=useState("");
   const [savingBrand,setSavingBrand]=useState(false);
@@ -984,12 +987,28 @@ export default function BuilderPage() {
     setCurrentStep(null); setPhase("ready");
   }
 
+  async function addExtraSection(kind:ExtraSectionKind) {
+    if(!project?.pages[activePage]||addingSection||phase==="generating")return;
+    const preset=EXTRA_SECTION_OPTIONS.find(item=>item.kind===kind);
+    if(!preset)return;
+    const current=project.extraSections?.[activePage]||[];
+    if(current.length>=24){setError("O limite é de 24 seções adicionais por página.");return;}
+    const section={id:"extra_"+crypto.randomUUID().replace(/-/g,"").slice(0,16),kind,title:preset.title,body:preset.body};
+    const updated={...project,extraSections:{...project.extraSections,[activePage]:[...current,section]}};
+    setAddingSection(true);setSectionPickerOpen(false);setError("");
+    try{
+      await savePageNovaProject(updated.id,updated);
+      setProject(updated);
+    }catch{setError("Não foi possível salvar a nova seção. Tente novamente.");}
+    finally{setAddingSection(false);}
+  }
+
   const preview = useMemo(() => {
     if (!project) return "";
     // A CRM draft starts with an empty placeholder home page. Rendering it
     // made the UI claim "Inicio pronta" even if the real job had failed.
     if (crmProjectId && !crmPreviewHtml) return "";
-    return renderEditablePreview(crmPreviewHtml || renderSitePreview(project, activePage), project, activePage);
+    return renderEditablePreview(appendExtraSections(crmPreviewHtml || renderSitePreview(project, activePage),project.extraSections?.[activePage]), project, activePage);
   },
     // Text edits already update the current iframe; regenerate only on page or theme changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -997,6 +1016,7 @@ export default function BuilderPage() {
       crmPreviewHtml,
       crmProjectId,
       project?.pages[activePage],
+      project?.extraSections?.[activePage],
       project?.previewTheme,
       project?.visualDirection,
       project?.headerDirection,
@@ -1170,7 +1190,7 @@ export default function BuilderPage() {
 
     // A nova aba recebe a mesma renderizacao do editor, mas sem a camada de
     // edicao inline. Isso evita publicar ou duplicar dados so para visualizar.
-    const html = crmPreviewHtml || renderSitePreview(project, activePage);
+    const html = appendExtraSections(crmPreviewHtml || renderSitePreview(project, activePage),project.extraSections?.[activePage]);
     const config = JSON.stringify({
       version: 1,
       page: activePage,
@@ -1269,6 +1289,7 @@ export default function BuilderPage() {
               id: project.id,
               kind: project.kind,
               liveEdits: project.liveEdits || {},
+              extraSections: project.extraSections || {},
               institutional: {
                 portrait: await optimizePublicationImage(project.institutional?.portrait || ""),
                 businessPhoto: await optimizePublicationImage(project.institutional?.businessPhoto || project.institutional?.workPhoto || ""),
@@ -1601,6 +1622,27 @@ export default function BuilderPage() {
             {error && <div role="alert" className="mt-3 w-full rounded-lg border border-red-400/40 bg-red-950/40 px-3 py-3 text-sm text-red-100">{error}</div>}
             {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
+          {project.pages[activePage]&&phase!=="generating"&&
+          <div className="border-b border-white/10 px-3 py-3 sm:px-4">
+            <button type="button" onClick={()=>setSectionPickerOpen(open=>!open)} aria-expanded={sectionPickerOpen}
+              disabled={addingSection||publishing}
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
+              <span aria-hidden="true" className="text-lg">＋</span> Adicionar seção
+            </button>
+            {sectionPickerOpen&&<div role="dialog" aria-label="Escolher uma seção" className="mt-3 w-full max-w-md rounded-2xl border border-emerald-400/25 bg-[#142019] p-3 shadow-xl">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <span className="text-sm font-bold text-white">Adicionar ao site</span>
+                <button type="button" onClick={()=>setSectionPickerOpen(false)} aria-label="Fechar opções de seção" className="rounded-lg border border-white/15 px-3 py-2 text-xs">Fechar ✕</button>
+              </div>
+              <div className="grid max-h-56 grid-cols-2 gap-2 overflow-y-auto overscroll-contain sm:grid-cols-3">
+                {EXTRA_SECTION_OPTIONS.map(item=><button type="button" key={item.kind} onClick={()=>void addExtraSection(item.kind)}
+                  className="min-h-12 rounded-xl border border-white/10 bg-white/[.05] px-2 py-3 text-center text-xs font-semibold text-white/85 active:bg-emerald-400/20 hover:border-emerald-400/35">
+                  {item.label}
+                </button>)}
+              </div>
+              <p className="mt-3 text-[11px] leading-5 text-white/45">A seção será adicionada ao final desta página. Depois, edite os textos diretamente na prévia com dois toques. Sem nova geração de IA.</p>
+            </div>}
+          </div>}
           {preview ? (() => {
             const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : 390;
             const available = Math.max(280, previewStageWidth - 32);
