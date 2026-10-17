@@ -24,6 +24,8 @@ export const SEARCH_FIELD_MASK = [
   'places.id',
   'places.displayName',
   'places.formattedAddress',
+  // Same Pro/Enterprise SKU already used by this search: no extra detail calls.
+  'places.addressComponents',
   'places.nationalPhoneNumber',
   'places.internationalPhoneNumber',
   'places.websiteUri',
@@ -55,6 +57,7 @@ export interface GooglePlaceRaw {
   id: string;
   displayName?: { text?: string };
   formattedAddress?: string;
+  addressComponents?: Array<{ longText?: string; shortText?: string; types?: string[] }>;
   nationalPhoneNumber?: string;
   internationalPhoneNumber?: string;
   websiteUri?: string;
