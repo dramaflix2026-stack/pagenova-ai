@@ -30,74 +30,50 @@ export function extraSectionsMarkup(raw:unknown):string{
 function renderExtraSection(s:ExtraSection):string{
  return '<section data-pn-extra-id="'+escapeHtml(s.id)+'" style="box-sizing:border-box;max-width:100%;padding:clamp(36px,6vw,86px) 20px;text-align:center;background:#f2f6f2;color:#183024;border-top:1px solid #d8e5d8"><div style="max-width:900px;margin:auto"><h2 style="font-size:clamp(26px,4vw,44px);line-height:1.15;margin:0 0 16px;font-weight:750">'+escapeHtml(s.title)+'</h2><p style="margin:auto;max-width:650px;white-space:pre-line;font-size:clamp(15px,2vw,19px);line-height:1.75">'+escapeHtml(s.body)+'</p></div></section>';
 }
-/**
- * Find original top-level section boundaries without touching the template's
- * styles or nested DOM. The scanning stack excludes sections inside sections.
- * Script/style contents are skipped so JSX-like strings do not become anchors.
- */
-function sectionAnchors(html:string):number[]{
- const tags=/<\/?([a-z][\w:-]*)\b[^>]*>/gi;
- const stack:string[]=[];const slots:number[]=[];
- let match:RegExpExecArray|null;
- while((match=tags.exec(html))){
-   const raw=match[0], tag=match[1].toLowerCase();
-   if(raw.startsWith('<!--'))continue;
-   if(raw.startsWith('</')){
-     const index=stack.lastIndexOf(tag);
-     if(index>=0)stack.length=index;
-     continue;
-   }
-   if(tag==='section'&&!stack.includes('section')&&(stack.includes('main')||!html.includes('<main'))){
-     slots.push(match.index);
-   }
-   if(!raw.endsWith('/>')&&!['meta','link','img','input','br','hr','source','area','base','col','embed','param','track','wbr'].includes(tag)){
-     stack.push(tag);
-     if(tag==='script'||tag==='style'){
-       const closer=new RegExp('<\\/'+tag+'\\s*>','gi');
-       closer.lastIndex=tags.lastIndex;
-       const found=closer.exec(html);
-       if(found){tags.lastIndex=closer.lastIndex;stack.pop();}
-     }
-   }
+
+/** Count top-level sections, excluding nested cards and subsections. */
+function sectionOffsets(markup:string):number[]{
+ const offsets:number[]=[];
+ let depth=0;
+ for(const match of markup.matchAll(/<\/?section\b[^>]*>/gi)){
+  if(/^<\/section/i.test(match[0])) depth=Math.max(0,depth-1);
+  else {if(depth===0)offsets.push(match.index!);depth++;}
  }
- return slots;
+ return offsets;
 }
-/** Original top-level sections in <main>. Nested sections do not become slots. */
+function mainBounds(html:string):{from:number,to:number}|null{
+ const open=/<main\b[^>]*>/i.exec(html);
+ if(!open)return null;
+ const close=/<\/main\s*>/gi;
+ close.lastIndex=open.index+open[0].length;
+ const end=close.exec(html);
+ if(!end)return null;
+ return {from:open.index+open[0].length,to:end.index};
+}
 export function originalSectionCount(html:string):number{
- const main=html.match(/<main\\b[^>]*>([\\s\\S]*?)<\\/main\\s*>/i);
- if(!main)return 0;
- const tokens=main[1].matchAll(/<\\/?section\\b[^>]*>/gi);
- let depth=0,count=0;
- for(const match of tokens){
-   if(/^<\\/section/i.test(match[0]))depth=Math.max(0,depth-1);
-   else {if(depth===0)count++;depth++;}
- }
- return count;
+ const bounds=mainBounds(html);
+ return bounds?sectionOffsets(html.slice(bounds.from,bounds.to)).length:0;
 }
 export function appendExtraSections(html:string,raw:unknown):string{
- const sections=validExtraSections(raw);if(!sections.length)return html;
- const main=/<main\\b[^>]*>/i.exec(html);
- const end=/<\\/main\\s*>/gi;
- if(!main)return /<\\/body>/i.test(html)?html.replace(/<\\/body>/i,extraSectionsMarkup(sections)+"</body>"):html+extraSectionsMarkup(sections);
- const from=main.index+main[0].length;end.lastIndex=from;
- const closing=end.exec(html);if(!closing)return html+extraSectionsMarkup(sections);
- const core=html.slice(from,closing.index);
- const tokens=core.matchAll(/<\\/?section\\b[^>]*>/gi);
- let depth=0;const offsets:number[]=[];
- for(const m of tokens){
-  if(/^<\\/section/i.test(m[0]))depth=Math.max(0,depth-1);
-  else {if(depth===0)offsets.push(m.index!);depth++;}
+ const sections=validExtraSections(raw);
+ if(!sections.length)return html;
+ const bounds=mainBounds(html);
+ if(!bounds){
+  const extra=extraSectionsMarkup(sections);
+  return /<\/body>/i.test(html)?html.replace(/<\/body>/i,extra+"</body>"):html+extra;
  }
- const total=offsets.length;
- // Existing sections without a position preserve their original bottom placement.
+ const core=html.slice(bounds.from,bounds.to);
+ const originals=sectionOffsets(core);
  const groups=new Map<number,ExtraSection[]>();
  for(const section of sections){
-  const slot=Math.min(total,Math.max(0,section.slot??total));
+  const slot=Math.min(originals.length,Math.max(0,section.slot??originals.length));
   groups.set(slot,[...(groups.get(slot)||[]),section]);
  }
- const inserts=[...groups.entries()].map(([slot,list])=>({offset:slot===total?core.length:offsets[slot],markup:extraSectionsMarkup(list)}))
-   .sort((a,b)=>b.offset-a.offset);
- let modified=core;
- for(const insert of inserts)modified=modified.slice(0,insert.offset)+insert.markup+modified.slice(insert.offset);
- return html.slice(0,from)+modified+html.slice(closing.index);
+ const inserts=[...groups.entries()].map(([slot,list])=>({
+  at:slot===originals.length?core.length:originals[slot],
+  html:extraSectionsMarkup(list)
+ })).sort((a,b)=>b.at-a.at);
+ let composed=core;
+ for(const insertion of inserts)composed=composed.slice(0,insertion.at)+insertion.html+composed.slice(insertion.at);
+ return html.slice(0,bounds.from)+composed+html.slice(bounds.to);
 }
