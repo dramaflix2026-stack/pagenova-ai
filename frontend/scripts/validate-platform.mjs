@@ -83,6 +83,16 @@ must("frontend/src/lib/studio/local-engine.ts",[
 must("frontend/src/app/api/forms/generate/route.ts",[[/paidApiCalls:0/,"Local forms must not call paid AI"]]);
 must("frontend/src/app/api/quizzes/generate/route.ts",[[/paidApiCalls:0/,"Local quizzes must not call paid AI"]]);
 must("frontend/src/app/api/development/generate/route.ts",[[/paidApiCalls:0/,"App and system starters must not call paid AI"]]);
+must("frontend/src/components/development-module-overview.tsx",[
+ [/if\(isApp\)return <main/,"Apps need their own simplified, mobile-first view"],
+ [/Crie seu aplicativo/,"Apps should lead with a clear creation flow"],
+ [/Ver código e arquivos/,"Raw source code should be optional"],
+ [/Como testar e publicar/,"Publishing guidance should be collapsed"],
+ [/Exportar aplicativo \(\.zip\)/,"Source export must stay available"],
+ [/onClick=\{download\}/,"Source export action must remain connected"],
+ [/onSubmit=\{generate\}/,"Generating the app must still use the existing endpoint"],
+ [/Histórico da ideia/,"Conversation history should be optional"]
+]);
 must("frontend/src/app/api/ebooks/generate/route.ts",[[/buildCookbook/,"Cookbook planning missing"],[/paidApiCalls:0/,"Ebook paid AI usage must be disabled"]]);
 must("frontend/src/app/api/ebooks/pdf/route.ts",[[/normalizeEbook/,"PDF input validation missing"],[/renderEbookHtml/,"PDF renderer missing"]]);
 must("frontend/src/app/api/forms/[id]/publish/route.ts",[[/publishOwnedForm/,"Form publishing missing"]]);
