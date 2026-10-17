@@ -226,7 +226,7 @@ must("frontend/src/components/pagenova-support-chat.tsx",[
  [/bg-emerald-300/,"Free conversational assistant must retain a visible brand-colored button"]
 ]);
 // Maintain separate user-designed colors in exported templates and cloned pages.
-const renderer=read("src/lib/landing/universal-renderer.ts");
+const renderer=must("frontend/src/lib/landing/universal-renderer.ts");
 if(renderer.includes("pn-brand-logo")||renderer.includes("--pn-brand-background"))
  throw new Error("Customer-generated landing HTML must keep its independent visual theme.");
 
