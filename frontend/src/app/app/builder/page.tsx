@@ -1083,6 +1083,20 @@ export default function BuilderPage() {
     finally{setAddingSection(false);}
   }
 
+  async function deleteExtraSection(id:string,title:string) {
+    if(!project?.pages[activePage]||addingSection||publishing)return;
+    if(!window.confirm(`Excluir a seção "${title}" deste site? Esta ação não pode ser desfeita.`))return;
+    const current=project.extraSections?.[activePage]||[];
+    if(!current.some(section=>section.id===id))return;
+    const updated={...project,extraSections:{...project.extraSections,[activePage]:current.filter(section=>section.id!==id)}};
+    setAddingSection(true);setError("");
+    try{
+      await savePageNovaProject(updated.id,updated);
+      setProject(updated);
+    }catch{setError("Não foi possível excluir a seção. Tente novamente.");}
+    finally{setAddingSection(false);}
+  }
+
   async function moveExtraSection(index:number,direction:-1|1) {
     if(!project?.pages[activePage]||addingSection||publishing)return;
     const list=[...(project.extraSections?.[activePage]||[])];
@@ -1769,6 +1783,9 @@ export default function BuilderPage() {
                   <div className="flex shrink-0 gap-1">
                     <button type="button" disabled={(index===0&&(item.slot??originalSections)===0)||addingSection||publishing} onClick={()=>void moveExtraSection(index,-1)} aria-label={`Subir seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↑</button>
                     <button type="button" disabled={(index===list.length-1&&(item.slot??originalSections)>=originalSections)||addingSection||publishing} onClick={()=>void moveExtraSection(index,1)} aria-label={`Descer seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↓</button>
+                    <button type="button" disabled={addingSection||publishing} onClick={()=>void deleteExtraSection(item.id,item.title)} aria-label={`Excluir seção ${item.title}`} title="Excluir seção" className="flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-red-400/30 bg-red-400/10 text-red-300 disabled:opacity-30 hover:bg-red-400/20">
+                      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m5 4v7m4-7v7"/></svg>
+                    </button>
                   </div>
                   {["image","image-left","image-right","image-top"].includes(item.kind)&&
                     <details className="w-full">
