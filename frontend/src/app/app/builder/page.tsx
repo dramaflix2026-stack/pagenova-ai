@@ -1801,9 +1801,9 @@ export default function BuilderPage() {
             </details>
           </div>}
           {preview ? (() => {
-            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : 390;
+            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : Math.max(320, Math.min(390, previewStageWidth - 8));
             const available = Math.max(280, previewStageWidth - (viewport === "celular" ? 8 : 32));
-            const scale = Math.min(1, available / virtualWidth);
+            const scale = viewport === "celular" ? available / virtualWidth : Math.min(1, available / virtualWidth);
             const visibleHeight = Math.round(900 * scale);
             return <div ref={previewStageRef} className={`relative overflow-hidden bg-[#090d0c] ${viewport === "celular" ? "px-1 py-3 sm:px-3" : "p-4 sm:p-6"}`}>
               <div className="mx-auto overflow-hidden rounded-[22px] border border-white/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,.42)]" style={{ width: virtualWidth * scale, height: visibleHeight }}>
