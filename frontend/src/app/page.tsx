@@ -129,6 +129,7 @@ export default function Home() {
             <a href="#operacao" className="hover:text-white">Operação</a>
             <a href="#planos" className="hover:text-white">Planos</a>
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
+             <Link href="/afiliados" className="hover:text-[#8fec78]">Afiliados</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <Link href="/cadastro?trial=1" className="pn-brand-button inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#8fec78] px-2.5 py-2.5 text-[11px] font-bold text-[#14220f] transition hover:bg-[#a8f494] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8f494] sm:px-5 sm:text-sm">
@@ -493,6 +494,7 @@ export default function Home() {
                 <a href="#criacao" className="transition hover:text-white">Criação</a>
                 <a href="#planos" className="transition hover:text-white">Planos</a>
                 <a href="#duvidas" className="transition hover:text-white">Dúvidas</a>
+                <Link href="/afiliados" className="transition hover:text-[#8fec78]">Seja um afiliado</Link>
               </nav>
             </div>
 
