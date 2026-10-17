@@ -298,6 +298,48 @@ export default function BuilderPage() {
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
       if (event.source !== previewRef.current?.contentWindow) return;
+      if(event.data?.type==="pagenova-extra-image-file"){
+        const id=event.data.id;
+        const dataUrl=event.data.dataUrl;
+        if(!project||typeof id!=="string"||!/^extra_[a-zA-Z0-9_-]{8,40}$/.test(id)||
+          !(project.extraSections?.[activePage]||[]).some(s=>s.id===id)||
+          typeof dataUrl!=="string"||dataUrl.length>12_000_000||
+          !/^data:image\\/(png|jpeg|webp);base64,/.test(dataUrl))return;
+        void (async()=>{
+          try{
+            const blob=await(await fetch(dataUrl)).blob();
+            const file=new File([blob],"imagem."+ (blob.type==="image/png"?"png":blob.type==="image/webp"?"webp":"jpg"),{type:blob.type});
+            const optimized=await compressReference(file);
+            if(optimized.length>1_400_000)throw Error("Imagem muito grande após otimização.");
+            const existing=project.extraSections?.[activePage]||[];
+            const updated={...project,extraSections:{...project.extraSections,[activePage]:existing.map(s=>s.id===id?{...s,imageUrl:optimized}:s)}};
+            await savePageNovaProject(updated.id,updated);
+            setProject(updated);
+          }catch{setError("Não foi possível salvar a foto. Tente novamente.");}
+        })();
+        return;
+      }
+      if(event.data?.type==="pagenova-extra-section-drop"){
+        const id=event.data.id,targetId=event.data.targetId;
+        const slot=event.data.slot,after=event.data.after;
+        if(!project||typeof id!=="string"||!Number.isInteger(slot)||slot<0||slot>100||
+          typeof targetId!=="string"||typeof after!=="boolean")return;
+        const current=project.extraSections?.[activePage]||[];
+        const index=current.findIndex(s=>s.id===id);
+        if(index<0||id===targetId)return;
+        const reordered=[...current];
+        const [moved]=reordered.splice(index,1);
+        let insertAt=reordered.length;
+        if(targetId){
+          const destination=reordered.findIndex(s=>s.id===targetId);
+          if(destination>=0)insertAt=destination+(after?1:0);
+        }
+        reordered.splice(insertAt,0,{...moved,slot});
+        const updated={...project,extraSections:{...project.extraSections,[activePage]:reordered}};
+        setProject(updated);
+        void savePageNovaProject(updated.id,updated).catch(()=>setError("Não foi possível salvar a nova posição."));
+        return;
+      }
       if (event.data?.type === "pagenova-image-upload-error") {
         setError(String(event.data.message || "Falha no envio da imagem."));
         return;
