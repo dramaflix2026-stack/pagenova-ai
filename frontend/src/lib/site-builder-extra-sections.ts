@@ -63,22 +63,42 @@ function sectionAnchors(html:string):number[]{
  return slots;
 }
 export function originalSectionCount(html:string):number{return sectionAnchors(html).length;}
-export function appendExtraSections(html:string,raw:unknown):string{
- const sections=validExtraSections(raw);
- if(!sections.length)return html;
- const anchors=sectionAnchors(html);
- // Legacy extras without a slot remain at the end, preserving old projects.
- const last=anchors.length;
- const markers: Array<{at:number;markup:string}>=[];
- for(let slot=0;slot<=last;slot++){
-  const at=slot<last?anchors[slot]:
-   [...html.matchAll(/<\/main\s*>/gi)].at(-1)?.index??html.search(/<\/body>/i);
-  const found=at<0?html.length:at;
-  const matching=sections.filter(s=>Math.min(last,Math.max(0,Math.floor(s.slot??last)))===slot);
-  if(matching.length)markers.push({at:found,markup:matching.map(renderExtraSection).join('')});
+/** Original top-level sections in <main>. Nested sections do not become slots. */
+export function originalSectionCount(html:string):number{
+ const main=html.match(/<main\\b[^>]*>([\\s\\S]*?)<\\/main\\s*>/i);
+ if(!main)return 0;
+ const tokens=main[1].matchAll(/<\\/?section\\b[^>]*>/gi);
+ let depth=0,count=0;
+ for(const match of tokens){
+   if(/^<\\/section/i.test(match[0]))depth=Math.max(0,depth-1);
+   else {if(depth===0)count++;depth++;}
  }
- // Insert in reverse order to preserve all original offsets.
- let output=html;
- for(const marker of markers.reverse())output=output.slice(0,marker.at)+marker.markup+output.slice(marker.at);
- return output;
+ return count;
+}
+export function appendExtraSections(html:string,raw:unknown):string{
+ const sections=validExtraSections(raw);if(!sections.length)return html;
+ const main=/<main\\b[^>]*>/i.exec(html);
+ const end=/<\\/main\\s*>/gi;
+ if(!main)return /<\\/body>/i.test(html)?html.replace(/<\\/body>/i,extraSectionsMarkup(sections)+"</body>"):html+extraSectionsMarkup(sections);
+ const from=main.index+main[0].length;end.lastIndex=from;
+ const closing=end.exec(html);if(!closing)return html+extraSectionsMarkup(sections);
+ const core=html.slice(from,closing.index);
+ const tokens=core.matchAll(/<\\/?section\\b[^>]*>/gi);
+ let depth=0;const offsets:number[]=[];
+ for(const m of tokens){
+  if(/^<\\/section/i.test(m[0]))depth=Math.max(0,depth-1);
+  else {if(depth===0)offsets.push(m.index!);depth++;}
+ }
+ const total=offsets.length;
+ // Existing sections without a position preserve their original bottom placement.
+ const groups=new Map<number,ExtraSection[]>();
+ for(const section of sections){
+  const slot=Math.min(total,Math.max(0,section.slot??total));
+  groups.set(slot,[...(groups.get(slot)||[]),section]);
+ }
+ const inserts=[...groups.entries()].map(([slot,list])=>({offset:slot===total?core.length:offsets[slot],markup:extraSectionsMarkup(list)}))
+   .sort((a,b)=>b.offset-a.offset);
+ let modified=core;
+ for(const insert of inserts)modified=modified.slice(0,insert.offset)+insert.markup+modified.slice(insert.offset);
+ return html.slice(0,from)+modified+html.slice(closing.index);
 }
