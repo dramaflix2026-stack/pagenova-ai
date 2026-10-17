@@ -62,7 +62,6 @@ function sectionAnchors(html:string):number[]{
  }
  return slots;
 }
-export function originalSectionCount(html:string):number{return sectionAnchors(html).length;}
 /** Original top-level sections in <main>. Nested sections do not become slots. */
 export function originalSectionCount(html:string):number{
  const main=html.match(/<main\\b[^>]*>([\\s\\S]*?)<\\/main\\s*>/i);
