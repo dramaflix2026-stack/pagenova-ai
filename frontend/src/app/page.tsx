@@ -1,7 +1,10 @@
+import type {Metadata} from "next";
 import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
 import Link from "next/link";
 import { PageNovaCreationDemo } from "@/components/pagenova-creation-demo";
 import { PAYMENT_BRANDS, PaymentBrand } from "@/components/payment-brands";
+
+export const metadata:Metadata={alternates:{canonical:"/",languages:{"pt-BR":"/","en":"/en","es":"/es"}}};
 
 const plans = [
   {
@@ -138,6 +141,11 @@ export default function Home() {
             <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-2.5 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#a8f494] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8f494] sm:px-5 sm:text-sm">
               Login
             </Link>
+             <nav aria-label="Idioma da página" className="hidden items-center gap-1 text-xs font-semibold text-white/55 md:flex">
+               <span aria-current="page" className="rounded-md bg-[#8fec78]/15 px-1.5 py-2 text-[#8fec78]">PT</span>
+               <a href="/api/site-language?lang=en" hrefLang="en" className="px-1.5 py-2 hover:text-white">EN</a>
+               <a href="/api/site-language?lang=es" hrefLang="es" className="px-1.5 py-2 hover:text-white">ES</a>
+             </nav>
           </div>
         </div>
       </header>
@@ -495,6 +503,11 @@ export default function Home() {
                 <a href="#planos" className="transition hover:text-white">Planos</a>
                 <a href="#duvidas" className="transition hover:text-white">Dúvidas</a>
                 <Link href="/afiliados" className="transition hover:text-[#8fec78]">Seja um afiliado</Link>
+                <div aria-label="Idioma da página" className="mt-2 flex items-center gap-3 text-xs font-semibold">
+                  <span aria-current="page" className="text-[#8fec78]">Português</span>
+                  <a href="/api/site-language?lang=en" hrefLang="en" className="hover:text-white">English</a>
+                  <a href="/api/site-language?lang=es" hrefLang="es" className="hover:text-white">Español</a>
+                </div>
               </nav>
             </div>
 
