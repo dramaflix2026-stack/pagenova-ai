@@ -323,7 +323,7 @@ export default function BuilderPage() {
     const observer = new ResizeObserver(update);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, [project]);
+  }, [project, Boolean(previewStageWidth === 0)]);
 
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
@@ -1831,12 +1831,12 @@ export default function BuilderPage() {
             </details>
           </div>}
           {preview ? (() => {
-            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : Math.max(280, previewStageWidth - 2);
-            const available = viewport === "celular" ? Math.max(280, previewStageWidth - 2) : Math.max(280, previewStageWidth - 32);
-            const scale = viewport === "celular" ? available / virtualWidth : Math.min(1, available / virtualWidth);
+            const available = Math.max(280, previewStageWidth || 360);
+            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : Math.max(280, available);
+            const scale = available / virtualWidth;
             const visibleHeight = Math.round(900 * scale);
-            return <div ref={previewStageRef} className={`relative overflow-hidden bg-[#090d0c] ${viewport === "celular" ? "px-0 py-2 sm:px-1" : "p-4 sm:p-6"}`}>
-              <div className={`mx-auto overflow-hidden border border-white/10 bg-white shadow-[0_24px_80px_rgba(0,0,0,.42)] ${viewport === "celular" ? "rounded-md sm:rounded-xl" : "rounded-[22px]"}`} style={{ width: virtualWidth * scale, height: visibleHeight }}>
+            return <div ref={previewStageRef} className="relative w-full min-w-0 overflow-hidden bg-white p-0">
+              <div className="mx-auto overflow-hidden bg-white" style={{ width: virtualWidth * scale, height: visibleHeight }}>
                 <iframe ref={previewRef} key={activePage + project.pages[activePage]?.heading + (project.previewTheme || "original") + (project.templateId || "frigolog-universal") + viewport} title={`Prévia de ${activePage} em ${viewport}`} sandbox="allow-scripts allow-forms allow-downloads" srcDoc={preview}
                   style={{ width: virtualWidth, height: 900, transform: `scale(${scale})`, transformOrigin: "top left", border: 0 }}
                   className="block bg-white" />
