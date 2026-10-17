@@ -11,6 +11,7 @@
 import { and, eq, inArray } from 'drizzle-orm';
 
 import { ATTRIBUTION_TEXT, type BusinessStatus } from '../../../shared/constants';
+import { countryCodeForName } from '../../../shared/country-options';
 import type { GoogleSearchInput } from '../../../shared/schemas';
 import type { Database } from '../../db/client';
 import { leads, searchRuns, stages } from '../../db/schema';
@@ -73,12 +74,28 @@ export interface SearchResponse {
   notice: string | null;
 }
 
+/**
+ * RegionCode is only a ranking/formating preference in Places Text Search, not
+ * a geographical restriction. Require the structured country component before
+ * displaying, scoring or adding a result under an explicitly selected country.
+ * Never guess from the business name (e.g. "Pizzaria Portugal" in Brazil).
+ */
+export function matchesRequestedCountry(place: GooglePlaceRaw, country: string | null | undefined): boolean {
+  const expected = countryCodeForName(country ?? '');
+  if (!expected) return true; // legacy or unrecognized free-text country
+  const component=place.addressComponents?.find(item=>item.types?.includes('country'));
+  // Google can omit a formatted country when regionCode matches. The structured
+  // component is authoritative; if absent, do not claim country verification.
+  return Boolean(component?.shortText && component.shortText.toUpperCase()===expected);
+}
+
 /** Monta a consulta textual a partir dos campos do formulario. */
 export function buildTextQuery(input: GoogleSearchInput): string {
-  return [input.niche, input.region, input.city, input.state, input.country]
-    .map((part) => part?.trim())
-    .filter(Boolean)
-    .join(', ');
+  const area=[input.region,input.city,input.state].map(part=>part?.trim()).filter(Boolean);
+  // A conversational location phrase helps Google interpret Portugal as a
+  // country, rather than matching businesses whose NAME contains "Portugal".
+  const place=[...area,input.country?.trim()].filter(Boolean).join(', ');
+  return place ? `${input.niche.trim()} em ${place}` : input.niche.trim();
 }
 
 export async function searchPlaces(
@@ -98,7 +115,9 @@ export async function searchPlaces(
     signal: options.signal,
   });
 
-  const mapped = response.places.map((place) => mapPlace(place));
+  const inCountry = response.places.filter(place => matchesRequestedCountry(place,input.country));
+  const excludedCountry = response.places.length - inCountry.length;
+  const mapped = inCountry.map((place) => mapPlace(place));
 
   // Permanentemente fechado sai por padrao. "Fechado agora" NUNCA e filtrado:
   // horario de funcionamento nao diz nada sobre a empresa estar ativa.
@@ -115,6 +134,10 @@ export async function searchPlaces(
   await bumpSearchRun(db, searchRunId, withExisting.length);
 
   const hiddenByFilters = operational.length - filtered.length;
+  const notices:string[]=[];
+  if(excludedCountry>0)notices.push(`${excludedCountry} resultado(s) de outro país ou sem país confirmado foram ignorados. A pesquisa foi mantida em ${input.country || 'seu país'}.`);
+  if(inCountry.length===0 && excludedCountry>0)notices.push('Nenhuma empresa do país escolhido foi confirmada nesta página. Informe uma cidade ou tente outra busca; não fazemos pesquisas adicionais automaticamente.');
+  if(options.pageNumber>=3)notices.push('Esta é a terceira e última página desta consulta. Os resultados não representam todas as empresas da cidade.');
 
   return {
     results: withExisting,
@@ -125,10 +148,7 @@ export async function searchPlaces(
     attribution: ATTRIBUTION_TEXT,
     rawCount: response.places.length,
     hiddenByFilters,
-    notice:
-      options.pageNumber >= 3
-        ? 'Esta e a terceira e ultima pagina desta consulta. Os resultados nao representam todas as empresas da cidade.'
-        : null,
+    notice: notices.join(' ') || null,
   };
 }
 
