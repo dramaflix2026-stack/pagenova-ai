@@ -147,6 +147,7 @@ export type SiteProject = {
     density: "compact" | "balanced" | "spacious";
   };
   liveEdits?: Partial<Record<SitePageKey, import("@/lib/site-builder-live-editor").LiveEdit[]>>;
+  extraSections?: Partial<Record<SitePageKey, import("@/lib/site-builder-extra-sections").ExtraSection[]>>;
   contactEmail?: string;
   contactWhatsApp?: string;
   contactInstagram?: string;
