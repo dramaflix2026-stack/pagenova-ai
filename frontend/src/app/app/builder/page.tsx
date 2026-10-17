@@ -105,6 +105,7 @@ export default function BuilderPage() {
   const [sectionPickerOpen,setSectionPickerOpen]=useState(false);
   const [addingSection,setAddingSection]=useState(false);
   const [editingBrand,setEditingBrand]=useState(false);
+  const [brandMenuOpen,setBrandMenuOpen]=useState(false);
   const [brandDraft,setBrandDraft]=useState("");
   const [savingBrand,setSavingBrand]=useState(false);
   const [uploadingLogo,setUploadingLogo]=useState(false);
@@ -1549,22 +1550,26 @@ export default function BuilderPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
             <div className="mt-3 flex flex-col items-center justify-center gap-3">
               <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>logoInputRef.current?.click()}
-                disabled={uploadingLogo||publishing||switchingTemplate}
-                className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/20 disabled:opacity-50"
-                aria-label="Trocar logo da empresa no site">
-                {uploadingLogo?'Enviando logo...':'Trocar logo'}
-              </button>}
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>{if(window.confirm('Remover a logo personalizada e exibir o nome da empresa?'))void changeBrandLogo(null);}}
-                disabled={uploadingLogo||publishing||switchingTemplate}
-                className="rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 hover:bg-white/10 disabled:opacity-40"
-                aria-label="Remover logo personalizada do site">Remover logo</button>}
-              {crmProjectId&&phase!=="generating"&&<button type="button"
-                onClick={()=>{setEditingBrand(value=>!value);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
-                className="rounded-lg border border-white/15 px-2.5 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-400/40"
-                aria-label="Escrever nome no lugar da logo">Escrever logo</button>}
+              {crmProjectId&&phase!=="generating"&&<div className="w-full max-w-xs">
+                <button type="button" aria-expanded={brandMenuOpen} aria-controls="pagenova-brand-menu"
+                  onClick={()=>setBrandMenuOpen(open=>!open)}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-400/30 bg-emerald-400/[.07] px-4 text-sm font-semibold text-emerald-200"
+                  aria-label="Personalizar logo do site">
+                  <span aria-hidden="true">✎</span> Personalizar logo <span aria-hidden="true">{brandMenuOpen?"⌃":"⌄"}</span>
+                </button>
+                {brandMenuOpen&&<div id="pagenova-brand-menu" className="mt-2 flex flex-wrap justify-center gap-2 rounded-xl border border-emerald-400/20 bg-[#142019] p-2">
+                  <button type="button" onClick={()=>{setBrandMenuOpen(false);logoInputRef.current?.click();}}
+                    disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
+                    {uploadingLogo?"Enviando...":"Enviar imagem"}
+                  </button>
+                  <button type="button" onClick={()=>{setBrandMenuOpen(false);setEditingBrand(true);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever nome</button>
+                  <button type="button" onClick={()=>{setBrandMenuOpen(false);if(window.confirm("Remover a logo personalizada e exibir o nome da empresa?"))void changeBrandLogo(null);}}
+                    disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/70 disabled:opacity-40">Remover imagem</button>
+                </div>}
+              </div>}
             </div>
             {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
               className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
