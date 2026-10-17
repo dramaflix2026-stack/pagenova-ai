@@ -16,7 +16,7 @@ export function PageNovaCountryMarquee({lang="pt"}:{lang?:Language}){
   <div className="mx-auto max-w-7xl px-5 md:px-8">
    <p className="text-center text-[10px] font-bold uppercase tracking-[.18em] text-[#8fec78] sm:text-xs">{msg.title}</p>
   </div>
-  <div className="relative mt-4 w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+  <div className="relative mt-4 w-full overflow-hidden">
    <div className="pn-country-marquee-track flex w-max items-center gap-3">
     {[0,1].map((copy)=><div key={copy} className="flex shrink-0 items-center gap-3" aria-hidden={copy===1?"true":undefined}>
      {entries.map(([flag,name])=><span key={name} className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#8fec78]/20 bg-[#1b2d20] px-4 py-2 text-xs font-semibold text-[#eef6eb] sm:text-sm">
