@@ -194,6 +194,42 @@ must("frontend/src/app/api/builder/analyze-attachments/route.ts",[
 must("frontend/src/app/api/[...path]/route.ts",[
  [/access\.kind!=="paid"/,"Legacy paid OpenAI endpoints must require paid access"]
 ]);
+const brandCss=must("frontend/src/app/globals.css",[
+ [/--pn-brand:#8fec78/,"New PageNova signature green must have a centralized token"],
+ [/--pn-brand-background:#0b100d/,"Brand background must use the dark green-black palette"],
+ [/--pn-brand-surface:#142019/,"Brand surface tokens must be consistent"],
+ [/--color-emerald-400:#8fec78/,"PageNova app Tailwind controls must use the signature green"],
+ [/\.pn-brand-logo\{/,"Original P mark must receive the new brand hue"],
+ [/\.pn-platform\{/,"Color overrides must be scoped to PageNova app shell"]
+]);
+if(!brandCss.includes("--pn-brand-dark:#14220f"))
+ throw new Error("Brand buttons need dark, accessible text on soft green.");
+must("frontend/src/app/app/layout.tsx",[
+ [/pn-platform min-h-screen/,"Authenticated application shell must apply the brand palette"]
+]);
+must("modules/stavo-crm/src/client/styles.css",[
+ [/--primary: 108 76% 70%/,"CRM brand action token must match the PageNova lime"],
+ [/--primary-foreground: 102 39% 10%/,"CRM buttons must have contrast-safe foreground"],
+ [/--ring: 108 76% 70%/,"CRM focus ring must match the brand"]
+]);
+must("frontend/src/app/page.tsx",[
+ [/pn-brand-logo/,"Public landing should recolor the original logo without changing its shape"],
+ [/#8fec78/,"Landing CTA should use new brand green"]
+]);
+must("frontend/src/app/login/page.tsx",[
+ [/pn-brand-logo/,"Login must use the original logo with the new brand filter"]
+]);
+must("frontend/src/app/cadastro/page.tsx",[
+ [/pn-brand-logo/,"Signup must use the original logo with the new brand filter"]
+]);
+must("frontend/src/components/pagenova-support-chat.tsx",[
+ [/bg-emerald-300/,"Free conversational assistant must retain a visible brand-colored button"]
+]);
+// Maintain separate user-designed colors in exported templates and cloned pages.
+const renderer=read("src/lib/landing/universal-renderer.ts");
+if(renderer.includes("pn-brand-logo")||renderer.includes("--pn-brand-background"))
+ throw new Error("Customer-generated landing HTML must keep its independent visual theme.");
+
 must("frontend/src/components/sidebar.tsx",[
  [/href="\/app"/,"Centered mobile symbol must still open the PageNova home"],
  [/w-\[40px\] overflow-hidden/,"Centered mobile header must show only the existing P symbol"],
