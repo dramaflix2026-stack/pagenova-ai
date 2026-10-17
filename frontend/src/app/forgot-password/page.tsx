@@ -42,9 +42,9 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#07110e] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0b100d] px-4 py-10 font-sans text-white sm:px-5 sm:py-14">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(37,216,157,0.12),transparent_38%)]" />
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#2cd9a0]/[.07] blur-[120px]" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#8fec78]/[.07] blur-[120px]" />
 
       <div className="relative w-full max-w-[430px]">
         <Link
@@ -55,13 +55,13 @@ export default function ForgotPasswordPage() {
           <img
             src="/brand/pagenova-logo.png"
             alt="PageNova AI"
-            className="h-[65px] w-auto max-w-[240px] object-contain transition duration-200 hover:brightness-105"
+            className="pn-brand-logo h-[65px] w-auto max-w-[240px] object-contain transition duration-200 hover:brightness-105"
           />
         </Link>
 
-        <section className="rounded-[28px] border border-white/[0.12] bg-[#10241c]/90 p-7 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
+        <section className="rounded-[28px] border border-white/[0.12] bg-[#142019]/90 p-7 shadow-[0_28px_85px_rgba(0,0,0,.38)] backdrop-blur-xl sm:p-9">
           <div className="text-center">
-            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#5ce1af]/25 bg-[#36d9a1]/10 text-xl text-[#82efc2]">
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[#a8f494]/25 bg-[#8fec78]/10 text-xl text-[#a8f494]">
               ✉
             </div>
 
@@ -92,7 +92,7 @@ export default function ForgotPasswordPage() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="voce@email.com"
-                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#091b14] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#60dfa9]/70 focus:ring-4 focus:ring-[#36d9a1]/15"
+                  className="h-12 w-full rounded-xl border border-white/[0.12] bg-[#101c15] px-4 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-[#a8f494]/70 focus:ring-4 focus:ring-[#8fec78]/15"
                 />
               </div>
 
@@ -105,7 +105,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#36d9a1] text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] text-sm font-bold text-[#14220f] shadow-[0_12px_35px_rgba(44,217,154,0.16)] transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Enviando..." : "Enviar link de recuperação"}
               </button>
@@ -130,7 +130,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 border-t border-white/[0.07] pt-6 text-center">
             <Link
               href="/login"
-              className="text-xs font-semibold text-[#82efc2] transition hover:text-[#a2f5d4]"
+              className="text-xs font-semibold text-[#a8f494] transition hover:text-[#c6f8ad]"
             >
               ← Voltar para o login
             </Link>
