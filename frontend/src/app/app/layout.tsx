@@ -1,6 +1,7 @@
 ﻿import { redirect } from "next/navigation";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { Sidebar } from "@/components/sidebar";
+import { MobileAppBackGuard } from "@/components/mobile-app-back-guard";
 import { PageNovaSupportChat } from "@/components/pagenova-support-chat";
 import { createClient } from "@/lib/supabase/server";
 import { getPageNovaAccess } from "@/lib/trial/server";
@@ -60,6 +61,7 @@ export default async function ProductLayout({
 
   return (
     <div className="min-h-screen bg-[#0b0b0b] text-white">
+      <MobileAppBackGuard />
       <Sidebar accessKind={access.kind} />
 
       <div className="min-h-screen lg:pl-64">
