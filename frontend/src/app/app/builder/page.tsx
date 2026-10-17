@@ -24,6 +24,36 @@ const STARTING_POINTS = [
   { id: "restaurante", title: "Restaurante", icon: "🍽", description: "Cardápio e reservas." },
 ] as const;
 
+/**
+ * Shared generation guardrails: keep every template's visual identity while
+ * tailoring page structure to the actual business and supplied facts.
+ */
+function generationSections(brief: string, preset: string): string[] {
+  const value = (brief + " " + preset).toLocaleLowerCase("pt-BR");
+  const sections = ["hero", "services", "benefits", "about", "process"];
+  if (/arquitet|design de interiores|portf[oó]lio|projetos|fotograf|galeria|est[eé]tica|beleza|cl[ií]nica|im[oó]ve|imobili[aá]r/.test(value)) sections.push("gallery");
+  if (/restaurante|card[aá]pio|menu gastron[oô]mico|caf[eé]|bar\b/.test(value)) sections.push("products");
+  if (/agend|consulta|avalia[cç][aã]o|reserva|contato|formul[aá]rio|or[cç]amento/.test(value)) sections.push("contact");
+  sections.push("faq", "cta", "footer");
+  return [...new Set(sections)];
+}
+function generationQualityInstructions(brief: string, template: string): string {
+  const editorial = template === "muse-editorial";
+  return [
+    "DIRETRIZES OBRIGATÓRIAS DE QUALIDADE:",
+    "Respeite integralmente a paleta, o estilo, o nicho e a hierarquia visual descritos pelo cliente; não substitua cores solicitadas por cores padrão do template.",
+    "Todas as fotografias devem representar o setor e os serviços descritos. Não use fotos genéricas de escritórios, móveis ou arquitetura para ilustrar tratamentos estéticos.",
+    "Não repita o mesmo título, subtítulo ou proposta de valor em blocos consecutivos. Cada seção deve acrescentar informação útil.",
+    "Entregue um site institucional completo com seções adequadas ao negócio, variedade de layouts, CTAs contextuais e navegação funcional.",
+    "No celular: nenhum corte lateral, sobreposição, texto truncado ou carrossel inacessível; imagens proporcionais e tipografia fluida.",
+    "Não invente depoimentos, certificações, profissionais, preços, endereços, resultados ou tratamentos não mencionados. Quando faltarem dados, use texto neutro ou um campo editável.",
+    "Evite inserir assinatura comercial PageNova AI no rodapé do site do cliente, salvo se explicitamente solicitada.",
+    editorial ? "MODELO EDITORIAL: priorize tipografia editorial, respiro, imagens relevantes e cores do briefing. Evite blocos vermelhos ou cores de destaque que contrariem a identidade solicitada." : "Preserve a linguagem visual própria do modelo selecionado.",
+    "BRIEFING ORIGINAL DO CLIENTE:",
+    brief
+  ].join("\n");
+}
+
 type TranscriptionEvent={results:ArrayLike<ArrayLike<{transcript:string}>>;resultIndex:number};
 type Transcriber={
   lang:string;continuous:boolean;interimResults:boolean;
@@ -741,10 +771,10 @@ export default function BuilderPage() {
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: effectivePresetId === "institucional" && selectedPresetId === "automatico"
+            freeformInstructions: generationQualityInstructions(effectivePresetId === "institucional" && selectedPresetId === "automatico"
               ? annotatedPrompt
-              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${annotatedPrompt}`,
-            requiredSections: ["hero", "services", "benefits", "about", "process", "faq", "cta", "footer"],
+              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${annotatedPrompt}`, effectiveTemplateId),
+            requiredSections: generationSections(annotatedPrompt, selectedPresetId),
             forbiddenSections: []
           }
         }),
