@@ -163,6 +163,20 @@ export function renderEditablePreview(
     #pn-edit-box i{width:13px!important;height:13px!important}
   }
 
+  /* Editing-only mobile corrections: sticky site navigation must not cover
+     selected content; keep resize handles inside the iframe viewport. */
+  @media(max-width:640px){
+    body > header, body > .site-header, body > #site-header,
+    header.sticky, header.fixed, .site-header.sticky, .site-header.fixed{
+      position:relative!important;top:auto!important;
+    }
+    #pn-edit-box{max-width:calc(100vw - 20px)!important}
+    #pn-edit-box [data-h=nw],#pn-edit-box [data-h=w],#pn-edit-box [data-h=sw]{left:0!important}
+    #pn-edit-box [data-h=ne],#pn-edit-box [data-h=e],#pn-edit-box [data-h=se]{right:0!important}
+    #pn-edit-box [data-h=nw],#pn-edit-box [data-h=n],#pn-edit-box [data-h=ne]{top:0!important}
+    #pn-edit-box [data-h=sw],#pn-edit-box [data-h=s],#pn-edit-box [data-h=se]{bottom:0!important}
+    #pn-edit-box [data-h]{width:18px!important;height:18px!important}
+  }
   @media(max-width:640px){
     #pn-edit-bar{max-width:calc(100vw - 12px)!important;border-radius:12px!important}
     #pn-edit-box i{width:22px!important;height:22px!important}
