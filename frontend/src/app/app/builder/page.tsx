@@ -104,6 +104,8 @@ export default function BuilderPage() {
   const [crmPreviewHtml, setCrmPreviewHtml] = useState("");
   const [sectionPickerOpen,setSectionPickerOpen]=useState(false);
   const [addingSection,setAddingSection]=useState(false);
+  const [sectionUploadId,setSectionUploadId]=useState<string|null>(null);
+  const sectionImageInputRef=useRef<HTMLInputElement|null>(null);
   const [editingBrand,setEditingBrand]=useState(false);
   const [brandDraft,setBrandDraft]=useState("");
   const [savingBrand,setSavingBrand]=useState(false);
@@ -1000,6 +1002,29 @@ export default function BuilderPage() {
     finally{setAddingSection(false);}
   }
 
+  async function updateExtraSection(id:string,patch:Record<string,string>){
+    if(!project||addingSection||publishing)return;
+    const existing=project.extraSections?.[activePage]||[];
+    const updated={...project,extraSections:{...project.extraSections,[activePage]:existing.map(s=>s.id===id?{...s,...patch}:s)}};
+    setAddingSection(true);setError("");
+    try{await savePageNovaProject(updated.id,updated);setProject(updated);}
+    catch{setError("Não foi possível salvar a edição desta seção.");}
+    finally{setAddingSection(false);}
+  }
+  async function uploadExtraSectionImage(file:File){
+    const id=sectionUploadId;
+    if(!id||!project)return;
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>8*1024*1024){
+      setError("Envie JPG, PNG ou WebP de até 8 MB.");return;
+    }
+    try{
+      const compressed=await compressReference(file);
+      if(compressed.length>1400000)throw Error("A imagem ainda está grande. Escolha outra imagem.");
+      await updateExtraSection(id,{imageUrl:compressed,imageAlt:file.name.replace(/\\.[^.]+$/,"")});
+    }catch(e){setError(e instanceof Error?e.message:"Não foi possível carregar a imagem.");}
+    finally{setSectionUploadId(null);}
+  }
+
   async function addExtraSection(kind:ExtraSectionKind) {
     if(!project?.pages[activePage]||addingSection||phase==="generating")return;
     const preset=EXTRA_SECTION_OPTIONS.find(item=>item.kind===kind);
@@ -1656,7 +1681,7 @@ export default function BuilderPage() {
                 <span className="text-sm font-bold text-white">Adicionar ao site</span>
                 <button type="button" onClick={()=>setSectionPickerOpen(false)} aria-label="Fechar opções de seção" className="rounded-lg border border-white/15 px-3 py-2 text-xs">Fechar ✕</button>
               </div>
-              <div className="grid max-h-56 grid-cols-2 gap-2 overflow-y-auto overscroll-contain sm:grid-cols-3">
+              <div className="grid max-h-64 grid-cols-2 gap-2 overflow-y-auto overscroll-contain sm:grid-cols-3">
                 {EXTRA_SECTION_OPTIONS.map(item=><button type="button" key={item.kind} onClick={()=>void addExtraSection(item.kind)}
                   className="min-h-12 rounded-xl border border-white/10 bg-white/[.05] px-2 py-3 text-center text-xs font-semibold text-white/85 active:bg-emerald-400/20 hover:border-emerald-400/35">
                   {item.label}
@@ -1665,13 +1690,14 @@ export default function BuilderPage() {
               <p className="mt-3 text-[11px] leading-5 text-white/45">A seção será adicionada ao final. Em “Organizar seções” você poderá escolher entre quais partes originais ela aparece. Sem nova geração de IA.</p>
             </div>}
           </div>}
+          <input ref={sectionImageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" aria-label="Selecionar imagem da seção" onChange={event=>{const file=event.target.files?.[0];event.target.value="";if(file)void uploadExtraSectionImage(file);}}/>
           {!!project.extraSections?.[activePage]?.length&&
           <div className="border-b border-white/10 px-3 pb-3 sm:px-4" aria-label="Organizar seções adicionais">
             <details className="group max-w-lg rounded-xl border border-white/10 bg-white/[.03] p-3">
               <summary className="cursor-pointer select-none text-sm font-semibold text-white/80">Organizar seções adicionadas ({project.extraSections[activePage]?.length})</summary>
               <p className="mt-2 text-xs text-white/50">Escolha onde cada seção extra aparece entre as seções originais. Use as setas para ordenar seções no mesmo ponto; nada do template original será apagado.</p>
               <ol className="mt-3 space-y-2">
-                {project.extraSections[activePage]?.map((item,index,list)=><li key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/20 p-2">
+                {project.extraSections[activePage]?.map((item,index,list)=><li key={item.id} className="flex min-w-0 flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/20 p-2">
                   <span className="min-w-0 flex-1 truncate text-xs font-medium text-white/85">{index+1}. {item.title}</span>
                   <select aria-label={`Posição de ${item.title} entre seções do site`} disabled={addingSection||publishing}
                     value={Math.min(originalSections,Math.max(0,item.slot??originalSections))}
@@ -1681,10 +1707,24 @@ export default function BuilderPage() {
                       {slot===0?"Antes da 1ª":slot===originalSections?"Final da página":`Após seção ${slot}`}
                     </option>)}
                   </select>
+                  {["image","image-left","image-right","image-top"].includes(item.kind)&&
+                   <button type="button" disabled={addingSection||publishing} onClick={()=>{setSectionUploadId(item.id);sectionImageInputRef.current?.click();}}
+                     className="min-h-10 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2 text-[11px] font-semibold text-emerald-200 disabled:opacity-50">
+                     {item.imageUrl?"Trocar foto":"Enviar foto"}
+                   </button>}
                   <div className="flex shrink-0 gap-1">
                     <button type="button" disabled={index===0||addingSection||publishing} onClick={()=>void moveExtraSection(index,-1)} aria-label={`Subir seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↑</button>
                     <button type="button" disabled={index===list.length-1||addingSection||publishing} onClick={()=>void moveExtraSection(index,1)} aria-label={`Descer seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↓</button>
                   </div>
+                  {["image","image-left","image-right","image-top"].includes(item.kind)&&
+                    <details className="w-full">
+                      <summary className="cursor-pointer text-xs text-emerald-200">Editar texto da seção</summary>
+                      <form className="mt-2 grid gap-2" onSubmit={event=>{event.preventDefault();const data=new FormData(event.currentTarget);void updateExtraSection(item.id,{title:String(data.get("title")||""),body:String(data.get("body")||"")});}}>
+                        <input name="title" defaultValue={item.title} maxLength={180} aria-label="Título da seção" className="min-h-10 w-full rounded-lg border border-white/15 bg-[#1b2920] px-3 text-sm"/>
+                        <textarea name="body" defaultValue={item.body} maxLength={1800} rows={2} aria-label="Descrição da seção" className="w-full rounded-lg border border-white/15 bg-[#1b2920] p-3 text-sm"/>
+                        <button disabled={addingSection} type="submit" className="min-h-10 rounded-lg bg-emerald-500 px-3 text-xs font-bold text-black">Salvar texto</button>
+                      </form>
+                    </details>}
                 </li>)}
               </ol>
             </details>
