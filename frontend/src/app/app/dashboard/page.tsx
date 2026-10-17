@@ -137,12 +137,12 @@ export default function DashboardPage() {
       </p>}
       {loading && <p className="mt-8 text-white/50">Carregando dados...</p>}
 
-      {!loading && !error && projects.length === 0 && <section className="mt-8 rounded-2xl border border-white/10 bg-[#111923] p-8">
+      {!loading && !error && projects.length === 0 && <section className="mt-8 rounded-2xl border border-white/10 bg-[#142019] p-8">
         <h2 className="text-xl font-bold">Seu painel começa com um CRM</h2>
         <p className="mt-2 max-w-xl leading-7 text-white/55">
           Crie um CRM, cadastre seus leads e volte aqui para acompanhar o funil e os indicadores.
         </p>
-        <Link href="/app/crm" className="mt-6 inline-flex rounded-xl bg-emerald-400 px-5 py-3 font-bold text-[#08130e]">
+        <Link href="/app/crm" className="mt-6 inline-flex rounded-xl bg-emerald-400 px-5 py-3 font-bold text-[#0b100d]">
           Criar CRM →
         </Link>
       </section>}
@@ -151,13 +151,13 @@ export default function DashboardPage() {
         <div className="mt-8 flex flex-wrap gap-4">
           <label className="text-sm text-white/65">Projeto
             <select value={selectedId} onChange={(event) => { setSelectedId(event.target.value); setOwnerFilter(""); }}
-              className="ml-3 rounded-xl border border-white/15 bg-[#171b26] px-4 py-3 text-white">
+              className="ml-3 rounded-xl border border-white/15 bg-[#18271d] px-4 py-3 text-white">
               {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
             </select>
           </label>
           <label className="text-sm text-white/65">Responsável
             <select value={ownerFilter} onChange={(event) => setOwnerFilter(event.target.value)}
-              className="ml-3 rounded-xl border border-white/15 bg-[#171b26] px-4 py-3 text-white">
+              className="ml-3 rounded-xl border border-white/15 bg-[#18271d] px-4 py-3 text-white">
               <option value="">Todos</option>
               {owners.map((owner) => <option key={owner} value={owner}>{owner}</option>)}
             </select>
@@ -175,7 +175,7 @@ export default function DashboardPage() {
             ["Conversão", `${conversion}%`, "Fechados sobre o total"],
             ["Ticket médio", money(average), `${leads.length} leads analisados`],
           ].map(([label, value, detail]) => <article key={label}
-            className="rounded-2xl border border-white/10 bg-[#111923] p-6">
+            className="rounded-2xl border border-white/10 bg-[#142019] p-6">
             <p className="text-xs font-bold uppercase tracking-[.12em] text-emerald-300">{label}</p>
             <strong className="mt-4 block text-3xl tracking-tight">{value}</strong>
             <p className="mt-2 text-xs text-white/45">{detail}</p>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
         </section>
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_.8fr]">
-          <section className="rounded-2xl border border-white/10 bg-[#111923] p-6">
+          <section className="rounded-2xl border border-white/10 bg-[#142019] p-6">
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">Funil</span>
             <h2 className="mt-2 text-xl font-bold">Valor por etapa</h2>
             <div className="mt-7 space-y-6">
@@ -202,7 +202,7 @@ export default function DashboardPage() {
             {leads.length === 0 && <p className="mt-7 text-sm text-white/45">Nenhum lead cadastrado neste filtro.</p>}
           </section>
 
-          <section className="rounded-2xl border border-white/10 bg-[#111923] p-6">
+          <section className="rounded-2xl border border-white/10 bg-[#142019] p-6">
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">Equipe</span>
             <h2 className="mt-2 text-xl font-bold">Por responsável</h2>
             <div className="mt-6 space-y-3">
@@ -217,7 +217,7 @@ export default function DashboardPage() {
           </section>
         </div>
 
-        <section className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#111923]">
+        <section className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#142019]">
           <div className="flex flex-wrap justify-between gap-3 border-b border-white/10 p-6">
             <div><span className="text-xs font-bold uppercase tracking-widest text-emerald-300">Negócios</span>
               <h2 className="mt-2 text-xl font-bold">Leads recentes</h2></div>
