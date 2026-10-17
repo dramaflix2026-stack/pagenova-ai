@@ -148,6 +148,21 @@ export function renderEditablePreview(
     outline:1.5px solid rgba(16,185,129,.75)!important;
   }
 
+  /* Mobile editing: selection handles must not obscure the card content.
+     Preserve native horizontal gestures on carousels until a resize handle is grabbed. */
+  @media (pointer:coarse) {
+    [data-pn-selected=true]:not([contenteditable=true]){touch-action:pan-y!important}
+    #pn-edit-box{pointer-events:none!important}
+    #pn-edit-box [data-h]{pointer-events:auto!important;touch-action:none!important}
+    #pn-edit-box i{width:13px!important;height:13px!important;border-width:2px!important}
+  }
+  @media(max-width:640px){
+    html{max-width:100%;overflow-x:clip}
+    body{max-width:100%;overflow-x:clip}
+    img,video,svg{max-width:100%}
+    #pn-edit-box i{width:13px!important;height:13px!important}
+  }
+
   @media(max-width:640px){
     #pn-edit-bar{max-width:calc(100vw - 12px)!important;border-radius:12px!important}
     #pn-edit-box i{width:22px!important;height:22px!important}
