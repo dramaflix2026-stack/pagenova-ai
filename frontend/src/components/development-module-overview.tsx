@@ -79,43 +79,70 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
  const file=project?.files.find(f=>f.path===selected)||project?.files[0];
  // App Studio is intentionally preview/result first. Technical information is opt-in.
  // Systems retain their existing workspace until their dedicated UX pass.
- if(isApp)return <main className="min-h-screen bg-[#08130e] px-3 py-6 text-white sm:px-8 sm:py-9">
-  <div className="mx-auto max-w-4xl space-y-5">
-   <header className="space-y-2">
-    <Link href="/app/builder" className="inline-flex items-center gap-2 text-xs font-medium text-white/50 hover:text-white">
-     <ArrowLeft className="size-4"/> Voltar
-    </Link>
-    <div className="flex items-center gap-2 text-emerald-300">
-     <Smartphone className="size-5"/><span className="text-[11px] font-bold uppercase tracking-wider">PageNova App Studio</span>
-    </div>
-    <h1 className="text-2xl font-extrabold tracking-tight sm:text-4xl">Crie seu aplicativo</h1>
-    <p className="max-w-2xl text-sm leading-6 text-white/55">
-     Conte sua ideia. Montamos um projeto inicial gratuito, pronto para exportar e continuar desenvolvendo.
-    </p>
+ if(isApp)return <main className="min-h-screen bg-[#08130e] px-3 py-4 text-white sm:px-8 sm:py-7">
+  <div className="mx-auto max-w-3xl space-y-4">
+   <header className="flex items-center justify-between gap-2">
+    <Link href="/app/builder" className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white"><ArrowLeft className="size-4"/> Voltar</Link>
+    <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300"><Smartphone className="size-3.5"/> App Studio</span>
    </header>
-
-   {project&&<section className="rounded-2xl border border-emerald-400/25 bg-[#10241b] p-4 sm:p-6" aria-label="Aplicativo criado">
-    <div className="flex flex-wrap items-start justify-between gap-3">
-     <div className="min-w-0 flex-1">
-      <span className="mb-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-300"><Check className="size-3.5"/> Projeto inicial criado</span>
-      <h2 className="break-words text-xl font-bold sm:text-2xl">{project.name}</h2>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-white/65">{project.summary}</p>
+   <section className="rounded-2xl border border-emerald-400/20 bg-[#10221a] p-4 sm:p-6" aria-label="Descrever aplicativo">
+    <div className="mb-4 flex items-center gap-2">
+     <Sparkles className="size-5 text-emerald-300"/>
+     <h1 className="text-lg font-extrabold tracking-tight sm:text-2xl">{project?"O que você quer ajustar?":"Qual aplicativo você quer criar?"}</h1>
+    </div>
+    <form onSubmit={generate}>
+     <label htmlFor="app-idea" className="sr-only">Descreva a ideia do aplicativo</label>
+     <textarea id="app-idea" rows={4} value={prompt} onChange={e=>setPrompt(e.target.value)} disabled={busy}
+      placeholder={project?"Descreva o que quer ajustar no modelo inicial...":"Ex.: Quero um aplicativo para agendar serviços, cadastrar clientes e ver minha agenda."}
+      className="min-h-32 w-full resize-y rounded-xl border border-white/15 bg-[#07160e] px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/40 focus:border-emerald-400/60"/>
+     {attachments.length>0&&<div className="mt-3 flex flex-wrap gap-2">{attachments.map((f,i)=><span key={i} className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/70">
+      <Paperclip className="size-3.5 shrink-0"/><span className="max-w-36 truncate">{f.name}</span>
+      <button type="button" aria-label={"Remover "+f.name} onClick={()=>setAttachments(a=>a.filter((_,j)=>j!==i))}><X className="size-3.5"/></button>
+     </span>)}</div>}
+     <div className="mt-3 flex flex-wrap items-center gap-2">
+      <label className="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-white/15 text-emerald-200" title="Anexar arquivos">
+       <Plus className="size-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm"
+        onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/>
+      </label>
+      <VoiceButton disabled={busy} onText={text=>setPrompt(v=>(v?v+" ":"")+text)}/>
+      <button type="submit" disabled={busy||prompt.trim().length<12}
+       className="ml-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">
+       {busy?<LoaderCircle className="size-4 animate-spin"/>:<Sparkles className="size-4"/>}
+       {busy?"Preparando...":project?"Enviar ideia":"Criar aplicativo"}
+      </button>
      </div>
-     <button type="button" onClick={clear} aria-label="Excluir rascunho do aplicativo"
-      className="rounded-lg border border-white/10 p-2 text-white/45 hover:border-red-400/20 hover:text-red-300">
-      <Trash2 className="size-4"/>
+    </form>
+    {error&&<p role="alert" className="mt-3 rounded-lg border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">{error}</p>}
+    {!project&&<details className="mt-5 border-t border-white/10 pt-3">
+     <summary className="cursor-pointer text-xs font-semibold text-emerald-200">Precisa de inspiração? Ver exemplos</summary>
+     <div className="mt-3 flex flex-wrap gap-2">{examples.apps.map(example=><button key={example} type="button" onClick={()=>setPrompt(example)}
+      className="rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-left text-xs leading-5 text-white/70 hover:border-emerald-400/40">{example}</button>)}</div>
+    </details>}
+   </section>
+   {project&&<section className="rounded-2xl border border-emerald-400/20 bg-[#10241b] p-4 sm:p-5" aria-label="Resultado do aplicativo">
+    <div className="flex items-start gap-3">
+     <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300"><Smartphone className="size-5"/></div>
+     <div className="min-w-0 flex-1">
+      <p className="text-[11px] font-semibold text-emerald-300"><Check className="mr-1 inline size-3.5"/> Projeto inicial disponível</p>
+      <h2 className="mt-1 break-words text-lg font-bold sm:text-xl">{project.name}</h2>
+     </div>
+     <button type="button" onClick={clear} aria-label="Excluir rascunho do aplicativo" className="shrink-0 rounded-lg border border-white/10 p-2 text-white/45 hover:text-red-300"><Trash2 className="size-4"/></button>
+    </div>
+    <div className="mt-4 flex flex-wrap gap-2">
+     <button type="button" onClick={download} className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#062f20] hover:bg-emerald-300 sm:flex-none">
+      <Download className="size-4"/> Exportar ZIP
      </button>
     </div>
-    <div className="mt-4 flex flex-wrap items-center gap-2">
-     <span className="rounded-lg bg-emerald-400/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-200">{project.files.length} arquivos de projeto</span>
-     <span className="rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-white/55">Rascunho neste navegador</span>
-    </div>
-    <button type="button" onClick={download}
-     className="mt-5 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#062f20] hover:bg-emerald-300 sm:w-auto">
-     <Download className="size-4"/> Exportar aplicativo (.zip)
-    </button>
-    <p className="mt-2 text-xs leading-5 text-white/45">O ZIP contém código-fonte inicial, não um aplicativo instalado nem uma versão pronta para a loja.</p>
-    <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
+    <div className="mt-3 space-y-2">
+     <details className="group rounded-xl border border-white/10 bg-black/10">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 text-xs font-semibold text-white/80 [&::-webkit-details-marker]:hidden">
+       <span>Sobre este projeto</span><span className="text-white/45 group-open:hidden">Ver +</span><span className="hidden text-white/45 group-open:inline">Fechar −</span>
+      </summary>
+      <div className="space-y-2 border-t border-white/10 px-3 py-3">
+       <p className="text-xs leading-5 text-white/65">{project.summary}</p>
+       <p className="text-[11px] text-white/45">{project.files.length} arquivos · Salvo neste navegador · Código-fonte inicial, não APK</p>
+      </div>
+     </details>
      <details className="group overflow-hidden rounded-xl border border-white/10 bg-black/10">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-sm font-semibold text-white/85 [&::-webkit-details-marker]:hidden">
        <span className="flex items-center gap-2"><Code2 className="size-4 text-emerald-300"/> Ver código e arquivos</span>
@@ -159,45 +186,9 @@ export function DevelopmentModuleOverview({kind}:{kind:Kind}){
      </details>}
     </div>
    </section>}
-
-   <section className="rounded-2xl border border-emerald-400/20 bg-[#10221a] p-4 sm:p-6" aria-label="Descrever aplicativo">
-    <div className="mb-4 flex items-center gap-2">
-     <Sparkles className="size-5 text-emerald-300"/>
-     <h2 className="text-base font-bold">{project?"Ajustar a ideia":"Qual aplicativo você quer criar?"}</h2>
-    </div>
-    <form onSubmit={generate}>
-     <label htmlFor="app-idea" className="sr-only">Descreva a ideia do aplicativo</label>
-     <textarea id="app-idea" rows={4} value={prompt} onChange={e=>setPrompt(e.target.value)} disabled={busy}
-      placeholder={project?"Descreva o que quer ajustar no modelo inicial...":"Ex.: Quero um aplicativo para agendar serviços, cadastrar clientes e ver minha agenda."}
-      className="min-h-28 w-full resize-y rounded-xl border border-white/15 bg-[#07160e] px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/40 focus:border-emerald-400/60"/>
-     {attachments.length>0&&<div className="mt-3 flex flex-wrap gap-2">{attachments.map((f,i)=><span key={i} className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-2 text-xs text-white/70">
-      <Paperclip className="size-3.5 shrink-0"/><span className="max-w-36 truncate">{f.name}</span>
-      <button type="button" aria-label={"Remover "+f.name} onClick={()=>setAttachments(a=>a.filter((_,j)=>j!==i))}><X className="size-3.5"/></button>
-     </span>)}</div>}
-     <div className="mt-3 flex flex-wrap items-center gap-2">
-      <label className="inline-flex size-11 cursor-pointer items-center justify-center rounded-xl border border-white/15 text-emerald-200" title="Anexar arquivos">
-       <Plus className="size-5"/><input type="file" className="sr-only" multiple accept="image/jpeg,image/png,image/webp,application/pdf,text/plain,video/mp4,video/webm"
-        onChange={e=>{setAttachments(current=>[...current,...Array.from(e.target.files||[])].slice(0,3));e.target.value="";}}/>
-      </label>
-      <VoiceButton disabled={busy} onText={text=>setPrompt(v=>(v?v+" ":"")+text)}/>
-      <button type="submit" disabled={busy||prompt.trim().length<12}
-       className="ml-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-3 text-sm font-bold text-[#062f20] disabled:opacity-40">
-       {busy?<LoaderCircle className="size-4 animate-spin"/>:<Sparkles className="size-4"/>}
-       {busy?"Criando...":project?"Atualizar modelo":"Criar aplicativo"}
-      </button>
-     </div>
-    </form>
-    {error&&<p role="alert" className="mt-3 rounded-lg border border-red-400/20 bg-red-500/10 px-3 py-2 text-xs text-red-200">{error}</p>}
-    {!project&&<details className="mt-5 border-t border-white/10 pt-3">
-     <summary className="cursor-pointer text-xs font-semibold text-emerald-200">Precisa de inspiração? Ver exemplos</summary>
-     <div className="mt-3 flex flex-wrap gap-2">{examples.apps.map(example=><button key={example} type="button" onClick={()=>setPrompt(example)}
-      className="rounded-lg border border-white/10 bg-white/[.035] px-3 py-2 text-left text-xs leading-5 text-white/70 hover:border-emerald-400/40">{example}</button>)}</div>
-    </details>}
-   </section>
-
-   <details className="rounded-xl border border-white/10 px-4 py-3 text-xs leading-6 text-white/50">
-    <summary className="cursor-pointer font-semibold text-white/60">Sobre a versão gratuita e seus limites</summary>
-    <p className="mt-2">Este gerador usa modelos de código locais sem API paga. O resultado atual é um ponto de partida em Expo/React Native, não um aplicativo completo feito sob medida. Os anexos não passam por interpretação visual com IA, e o código não é compilado nesta tela. Para distribuir em lojas, há etapas e possíveis custos externos.</p>
+   <details className="rounded-xl border border-white/10 px-3 py-3 text-xs leading-5 text-white/50">
+    <summary className="cursor-pointer font-semibold text-white/60">Sobre a geração gratuita</summary>
+    <p className="mt-2">O gerador usa modelos de código locais, sem API paga. Ele entrega um projeto inicial Expo/React Native, não um aplicativo completo pronto para a loja. Anexos não são interpretados visualmente por IA e o código não é compilado aqui.</p>
    </details>
   </div>
  </main>;
