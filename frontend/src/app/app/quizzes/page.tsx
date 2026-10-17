@@ -20,7 +20,7 @@ type Screen="start"|"editor";
 type Tab="preview"|"questions"|"settings"|"outcomes"|"responses";
 type Message={role:"assistant"|"user";text:string};
 const themes:{id:QuizTheme;name:string;swatch:string}[]=[
-  {id:"emerald",name:"Verde PageNova",swatch:"bg-[#36d9a1]"},
+  {id:"emerald",name:"Verde PageNova",swatch:"bg-[#8fec78]"},
   {id:"midnight",name:"Azul profundo",swatch:"bg-[#828dff]"},
   {id:"cream",name:"Editorial claro",swatch:"bg-[#e9dcc4]"},
 ];
@@ -30,7 +30,7 @@ const ideas=[
   "Quero um quiz interativo de 7 perguntas para captar leads de marketing.",
   "Monte um quiz divertido sobre estilo pessoal com três resultados diferentes.",
 ];
-const input="w-full rounded-xl border border-white/[.14] bg-[#0a1b15] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10";
+const input="w-full rounded-xl border border-white/[.14] bg-[#0b100d] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-emerald-400/60 focus:ring-2 focus:ring-emerald-400/10";
 const errText=(e:unknown)=>e instanceof Error?e.message:"Ocorreu um erro inesperado.";
 const prettyDate=(v:string)=>{try{return new Date(v).toLocaleString("pt-BR",{dateStyle:"short",timeStyle:"short"});}catch{return "";}}
 async function post<T>(url:string,payload:unknown):Promise<T>{
@@ -225,7 +225,7 @@ export default function QuizStudioPage(){
   function settingsEditor(){
     if(!quiz)return null;
     return <div className="space-y-5">
-      <section className="rounded-[22px] border border-white/10 bg-[#10211a] p-5">
+      <section className="rounded-[22px] border border-white/10 bg-[#142019] p-5">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.13em] text-[#74e5b2]">
           <FileQuestion className="h-4 w-4"/> Identidade do quiz
         </div>
@@ -263,7 +263,7 @@ export default function QuizStudioPage(){
     return <div className="space-y-4">
       <div className="space-y-4">
         {quiz.questions.map((question,index)=><section key={question.id}
-          className="rounded-[22px] border border-white/10 bg-[#10211a] p-4 sm:p-5">
+          className="rounded-[22px] border border-white/10 bg-[#142019] p-4 sm:p-5">
           <div className="mb-4 flex items-center justify-between gap-3">
             <span className="rounded-lg bg-emerald-400/10 px-3 py-1.5 text-xs font-bold text-emerald-300">
               PERGUNTA {String(index+1).padStart(2,"0")}
@@ -330,7 +330,7 @@ export default function QuizStudioPage(){
         Cada resposta aponta para um perfil. O resultado que receber mais pontos aparece ao final do quiz.
         Você pode editar os perfis e mudar a associação das respostas na aba Perguntas.
       </div>
-      {quiz.outcomes.map((o,i)=><section key={o.id} className="rounded-[22px] border border-white/10 bg-[#10211a] p-5">
+      {quiz.outcomes.map((o,i)=><section key={o.id} className="rounded-[22px] border border-white/10 bg-[#142019] p-5">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-bold text-emerald-300">Resultado {i+1}</h3>
           <button disabled={quiz.outcomes.length<=2} onClick={()=>removeOutcome(o.id)}
@@ -373,17 +373,17 @@ export default function QuizStudioPage(){
           entry.submittedAt,quiz.outcomes.find(o=>o.id===entry.outcomeId)?.title||"Resultado",entry.lead?.name||"",entry.lead?.email||"",
           ...quiz.questions.map(question=>question.options.find(option=>option.id===entry.answers.find(answer=>answer.questionId===question.id)?.optionId)?.label||"")
         ]))} disabled={responses.length===0} className="rounded-xl border border-emerald-400/30 px-3 py-2 text-xs font-semibold text-emerald-200 disabled:opacity-40">Exportar CSV</button></div><div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl border border-white/10 bg-[#10211a] p-5">
+          <div className="rounded-xl border border-white/10 bg-[#142019] p-5">
             <p className="text-xs text-white/50">Participações recentes</p>
             <p className="mt-2 text-3xl font-bold">{responses.length}</p>
           </div>
-          {counts.map(o=><div key={o.id} className="rounded-xl border border-white/10 bg-[#10211a] p-5">
+          {counts.map(o=><div key={o.id} className="rounded-xl border border-white/10 bg-[#142019] p-5">
             <p className="truncate text-xs text-white/55" title={o.name}>{o.name}</p>
             <p className="mt-2 text-3xl font-bold">{o.count}</p><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-emerald-400" style={{width:(responses.length?Math.round(o.count/responses.length*100):0)+"%"}}/></div>
           </div>)}
         </div>
         {responses.length===0?<p className="rounded-xl border border-white/10 p-7 text-center text-sm text-white/55">Ainda não há respostas. Compartilhe o link publicado para receber participações.</p>:
-        responses.map(entry=><div key={entry.id} className="rounded-xl border border-white/10 bg-[#10211a] p-4">
+        responses.map(entry=><div key={entry.id} className="rounded-xl border border-white/10 bg-[#142019] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <strong className="text-sm">{quiz.outcomes.find(o=>o.id===entry.outcomeId)?.title||"Resultado"}</strong>
             <span className="text-xs text-white/45">{prettyDate(entry.submittedAt)}</span>
@@ -396,7 +396,7 @@ export default function QuizStudioPage(){
     </div>;
   }
   function chatPanel(compact=false){
-    return <div className={"flex flex-col rounded-[22px] border border-emerald-400/20 bg-[#0a2118] "+
+    return <div className={"flex flex-col rounded-[22px] border border-emerald-400/20 bg-[#142019] "+
       (compact?"p-4":"min-h-[540px] p-5")}>
       <div className="flex items-center gap-3 border-b border-white/10 pb-4">
         <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/15 text-emerald-300"><WandSparkles className="h-5 w-5"/></span>
@@ -415,11 +415,11 @@ export default function QuizStudioPage(){
         <textarea id={compact?"quiz-prompt-mobile":"quiz-prompt"} value={prompt}
           onChange={e=>setPrompt(e.target.value)}
           placeholder={quiz?"Peça uma mudança: mais divertido, menos perguntas, novo público...":"Descreva o quiz que deseja criar..."}
-          className="block min-h-28 w-full resize-y rounded-2xl border border-white/15 bg-[#061810] px-4 pb-14 pt-3 text-sm leading-6 text-white outline-none placeholder:text-white/35 focus:border-emerald-400/50"
+          className="block min-h-28 w-full resize-y rounded-2xl border border-white/15 bg-[#0b100d] px-4 pb-14 pt-3 text-sm leading-6 text-white outline-none placeholder:text-white/35 focus:border-emerald-400/50"
           onKeyDown={e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();void askAI();}}}/>
         <div className="absolute bottom-3 left-3"><VoiceButton disabled={busy} onText={text=>setPrompt(current=>(current?current+" ":"")+text)}/></div>
         <button type="submit" disabled={busy||prompt.trim().length<12}
-          className="absolute bottom-3 right-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#38dba3] px-4 text-xs font-bold text-[#062b20] transition hover:bg-[#65ebba] disabled:opacity-40">
+          className="absolute bottom-3 right-3 inline-flex h-10 items-center gap-2 rounded-xl bg-[#8fec78] px-4 text-xs font-bold text-[#14220f] transition hover:bg-[#a8f494] disabled:opacity-40">
           {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}
           {quiz?"Aplicar comando":"Gerar Quiz"}
         </button>
@@ -427,23 +427,23 @@ export default function QuizStudioPage(){
       <p className="mt-3 text-[11px] leading-5 text-white/40">Ctrl + Enter para enviar. Revisões não publicam automaticamente.</p>
     </div>;
   }
-  return <main className="min-h-screen bg-[#07130e] px-4 pb-16 pt-7 font-sans text-white sm:px-7 lg:px-10">
+  return <main className="min-h-screen bg-[#0b100d] px-4 pb-16 pt-7 font-sans text-white sm:px-7 lg:px-10">
     {screen==="start"?<div className="mx-auto max-w-[1160px]">
       <div className="mx-auto max-w-2xl pt-4 text-center sm:pt-8">
         <span className="text-xs font-bold uppercase tracking-[.16em] text-emerald-300">PageNova AI · Criador de quiz</span>
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">Qual quiz vamos criar?</h1>
         <p className="mt-2 text-sm text-white/55">Descreva sua ideia. Geramos e mostramos a prévia para você.</p>
       </div>
-      <form onSubmit={askAI} className="mx-auto mt-7 max-w-[780px] rounded-[22px] border border-emerald-400/20 bg-[#10251b] p-4 sm:p-5">
+      <form onSubmit={askAI} className="mx-auto mt-7 max-w-[780px] rounded-[22px] border border-emerald-400/20 bg-[#142019] p-4 sm:p-5">
         <label htmlFor="quiz-create-prompt" className="mb-2 block text-xs font-semibold text-emerald-200">O que você quer criar?</label>
         <textarea id="quiz-create-prompt" value={prompt} onChange={e=>setPrompt(e.target.value)}
           placeholder="Ex.: Crie um quiz com 5 perguntas para recomendar o imóvel ideal e captar contatos."
-          rows={4} className="w-full resize-y rounded-xl border border-white/15 bg-[#061810] px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/35 focus:border-emerald-400/60"
+          rows={4} className="w-full resize-y rounded-xl border border-white/15 bg-[#0b100d] px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-white/35 focus:border-emerald-400/60"
           onKeyDown={e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)){e.preventDefault();void askAI();}}}/>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <VoiceButton disabled={busy} onText={text=>setPrompt(current=>(current?current+" ":"")+text)}/>
           <button type="submit" disabled={busy||prompt.trim().length<12}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#38dba3] px-6 py-3 text-sm font-bold text-[#062b20] disabled:opacity-40">
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#8fec78] px-6 py-3 text-sm font-bold text-[#14220f] disabled:opacity-40">
             {busy?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Sparkles className="h-4 w-4"/>} {busy?"Gerando quiz...":"Gerar e visualizar"}
           </button>
         </div>
@@ -470,7 +470,7 @@ export default function QuizStudioPage(){
           </div>:
           <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {saved.map(item=><div key={item.id} className="relative"><button key={item.id} type="button" onClick={()=>void openSaved(item.id)} disabled={busy}
-              className="group rounded-2xl border border-white/10 bg-[#10211a] p-5 text-left transition hover:-translate-y-0.5 hover:border-emerald-400/35 disabled:opacity-50">
+              className="group rounded-2xl border border-white/10 bg-[#142019] p-5 text-left transition hover:-translate-y-0.5 hover:border-emerald-400/35 disabled:opacity-50">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400/10 text-emerald-300"><FileQuestion className="h-5 w-5"/></span>
               <h3 className="mt-4 line-clamp-2 text-base font-semibold">{item.title}</h3>
               <p className="mt-2 text-xs text-white/45">{item.questions} perguntas · {prettyDate(item.updatedAt)}</p>
@@ -499,7 +499,7 @@ export default function QuizStudioPage(){
         </div>
         <div className="flex items-center gap-2">
           <button type="button" onClick={()=>void publish()} disabled={publishing||saving||busy}
-            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-emerald-400 px-3.5 py-2 text-xs font-bold text-[#062b20] disabled:opacity-40">
+            className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-emerald-400 px-3.5 py-2 text-xs font-bold text-[#14220f] disabled:opacity-40">
             {publishing?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Globe2 className="h-4 w-4"/>}
             {quiz.publishedAt?"Atualizar":"Publicar"}
           </button>
@@ -539,7 +539,7 @@ export default function QuizStudioPage(){
         {error&&<p role="alert" className="rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-sm text-red-200">{error}</p>}
         {notice&&<p role="status" className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3 text-sm text-emerald-200">{notice}</p>}
       </div>}
-      <nav className="mb-3 flex items-center gap-1 rounded-xl border border-white/10 bg-[#0b1c14] p-1" aria-label="Ferramentas do quiz">
+      <nav className="mb-3 flex items-center gap-1 rounded-xl border border-white/10 bg-[#0b100d] p-1" aria-label="Ferramentas do quiz">
         {([
           ["preview","Prévia",Eye],
           ["questions","Perguntas",FileQuestion],
@@ -548,12 +548,12 @@ export default function QuizStudioPage(){
           onClick={()=>{setMoreOpen(false);setTab(key);}}
           aria-current={tab===key?"page":undefined}
           className={"inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-2 text-xs font-semibold transition sm:text-sm "+
-            (tab===key?"bg-[#1e684d] text-white":"text-white/60 hover:bg-white/5 hover:text-white")}>
+            (tab===key?"bg-[#356b2f] text-white":"text-white/60 hover:bg-white/5 hover:text-white")}>
           <Icon className="h-4 w-4 shrink-0"/>{label}
         </button>)}
       </nav>
       {tab==="preview"&&<details open={chatExpanded} onToggle={e=>setChatExpanded(e.currentTarget.open)}
-        className="mb-3 rounded-xl border border-white/10 bg-[#0a2118]">
+        className="mb-3 rounded-xl border border-white/10 bg-[#142019]">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-4 py-3 text-xs font-semibold text-emerald-200">
           <span className="flex items-center gap-2"><MessageSquareText className="h-4 w-4"/> Alterar quiz com IA</span>
           <ChevronDown className={"h-4 w-4 transition "+(chatExpanded?"rotate-180":"")}/>
@@ -561,7 +561,7 @@ export default function QuizStudioPage(){
         <div className="border-t border-white/10 p-2 sm:p-3">{chatPanel(true)}</div>
       </details>}
       <div className="mx-auto w-full max-w-[1100px]">
-        {tab==="preview"?<div className="overflow-hidden rounded-[20px] border border-white/10 bg-[#10211a]">
+        {tab==="preview"?<div className="overflow-hidden rounded-[20px] border border-white/10 bg-[#142019]">
           <PublicQuizPlayer key={quiz.id+quiz.updatedAt+String(quiz.questions.length)+"-"+previewRevision} quiz={publicQuiz(quiz)} preview={quiz}/>
         </div>:tab==="questions"?editor():tab==="settings"?settingsEditor():
           tab==="outcomes"?<div className="space-y-3">
