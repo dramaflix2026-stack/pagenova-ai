@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { createClient } from "@/lib/supabase/client";
 import {
+  ArrowRight,
   BarChart3,
   Blocks,
   Building2,
@@ -58,7 +59,6 @@ const studioItems: MenuItem[] = [
   { href: "/app/quizzes", label: "Gerar Quiz", icon: ListChecks },
   { href: "/app/ebooks", label: "Gerar Ebooks", icon: BookOpen },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
-  { href: "/app/creditos", label: "Meus créditos", icon: Wallet },
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
   { href: "/app/dominios", label: "Domínio profissional", icon: Globe },
 ];
@@ -159,6 +159,21 @@ function NavigationGroup({ title, description, items, theme, pathname, currentCr
   );
 }
 
+type SidebarCredits={balance?:{sitesRemaining?:number;googleRemaining?:number}};
+function AccessCredits({credits,loading}:{credits:SidebarCredits|null;loading:boolean}){
+  return <div className="mt-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-3">
+    <div className="flex items-center gap-2 text-xs font-semibold text-white/80"><Wallet className="h-3.5 w-3.5 text-emerald-300"/> Créditos disponíveis</div>
+    {loading?<p className="mt-2 text-xs text-white/50">Consultando saldo...</p>:
+      credits?.balance?<div className="mt-2 space-y-1.5 text-xs text-white/65">
+        <div className="flex justify-between gap-2"><span>Sites com IA</span><strong className="text-emerald-200">{credits.balance.sitesRemaining??"—"}</strong></div>
+        <div className="flex justify-between gap-2"><span>Pesquisas Google</span><strong className="text-emerald-200">{credits.balance.googleRemaining??"—"}</strong></div>
+      </div>:<p className="mt-2 text-xs text-white/45">Saldo indisponível no momento.</p>}
+    <Link href="/app/creditos" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-300 hover:text-emerald-200">
+      Ver detalhes do meu acesso <ArrowRight className="h-3.5 w-3.5"/>
+    </Link>
+  </div>;
+}
+
 export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const visibleStudioItems=accessKind==="trial"?studioItems.map(item=>
     item.href==="/app/builder"
@@ -170,6 +185,18 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const currentCrmView = searchParams.get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [accountEmail, setAccountEmail] = useState<string>("");
+  const [credits,setCredits]=useState<SidebarCredits|null>(null);
+  const [creditsLoading,setCreditsLoading]=useState(true);
+  useEffect(()=>{
+    let active=true;
+    fetch("/api/credits",{cache:"no-store",credentials:"same-origin"})
+      .then(async response=>{if(!response.ok)throw new Error("Saldo indisponível");return response.json() as Promise<SidebarCredits>;})
+      .then(data=>{if(active)setCredits(data);})
+      .catch(()=>{if(active)setCredits(null);})
+      .finally(()=>{if(active)setCreditsLoading(false);});
+    return ()=>{active=false;};
+  },[pathname]);
+
   useEffect(() => {
     let current = true;
     void createClient().auth.getUser().then(({data}) => {
@@ -326,6 +353,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
                 Ativo
               </div>
 
+              <AccessCredits credits={credits} loading={creditsLoading}/>
               <LogoutButton />
             </div>
           </div>
@@ -387,7 +415,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
             </div>
 
             {/* PAGENOVA_NAV_EXIT */}
-            <LogoutButton />
+            <AccessCredits credits={credits} loading={creditsLoading}/>
+              <LogoutButton />
           </div>
         </div>
       </aside>
