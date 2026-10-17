@@ -345,6 +345,107 @@
     }
     return null;
   }
+  // Extra sections are owned by the builder, not by the original hero/work image pipeline.
+  // Keep the file chooser inside the iframe so Android preserves user activation.
+  const extraInput=document.createElement("input");
+  extraInput.type="file";extraInput.accept="image/png,image/jpeg,image/webp";
+  extraInput.style.cssText="position:fixed;left:-9999px;width:1px;height:1px;opacity:0";
+  extraInput.setAttribute("aria-label","Enviar imagem da seção");
+  document.body.appendChild(extraInput);
+  let extraUploadId="";
+  extraInput.addEventListener("change",function(){
+    const file=extraInput.files&&extraInput.files[0];
+    extraInput.value="";
+    if(!file||!extraUploadId)return;
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>8*1024*1024){
+      parent.postMessage({type:"pagenova-image-upload-error",message:"Envie JPG, PNG ou WebP de até 8 MB."},"*");return;
+    }
+    const targetId=extraUploadId;
+    const reader=new FileReader();
+    reader.onload=function(){
+      if(typeof reader.result==="string")parent.postMessage({type:"pagenova-extra-image-file",id:targetId,dataUrl:reader.result},"*");
+    };
+    reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Falha ao ler imagem."},"*");};
+    reader.readAsDataURL(file);
+  });
+  function extraImageTarget(target){
+    const section=closest(target,"section[data-pn-extra-id]");
+    if(!section||!section.matches('[data-pn-extra-kind^="image"]'))return null;
+    if(closest(target,"a,button,input,textarea,select,[contenteditable=true]"))return null;
+    return section;
+  }
+  function extraUpload(event){
+    const section=extraImageTarget(event.target);
+    if(!section)return false;
+    event.preventDefault();event.stopImmediatePropagation();
+    extraUploadId=section.dataset.pnExtraId;
+    extraInput.click();
+    return true;
+  }
+  // A long press is deliberately required: vertical scrolling stays normal.
+  let sectionGesture=null;
+  let swallowExtraClick=false;
+  const clearSectionGesture=function(){
+    if(sectionGesture?.timer)clearTimeout(sectionGesture.timer);
+    if(sectionGesture?.section)sectionGesture.section.style.removeProperty("opacity");
+    document.querySelectorAll("[data-pn-extra-drop=true]").forEach(n=>n.removeAttribute("data-pn-extra-drop"));
+    sectionGesture=null;
+  };
+  document.addEventListener("pointerdown",function(e){
+    if(e.button!==0||closest(e.target,"#pn-edit-bar,#pn-edit-box,input,textarea,select,a,button"))return;
+    const section=closest(e.target,"section[data-pn-extra-id]");
+    if(!section)return;
+    clearSectionGesture();
+    const g={section,id:section.dataset.pnExtraId,pointerId:e.pointerId,x:e.clientX,y:e.clientY,armed:false,timer:null,target:null};
+    sectionGesture=g;
+    g.timer=setTimeout(function(){
+      if(sectionGesture!==g)return;
+      g.armed=true;section.style.opacity=".62";
+      section.style.setProperty("touch-action","none");
+      parent.postMessage({type:"pagenova-extra-drag-start",id:g.id},"*");
+    },1000);
+  },true);
+  document.addEventListener("pointermove",function(e){
+    const g=sectionGesture;if(!g||g.pointerId!==e.pointerId)return;
+    if(!g.armed){
+      if(Math.abs(e.clientY-g.y)+Math.abs(e.clientX-g.x)>12)clearSectionGesture();
+      return;
+    }
+    e.preventDefault();e.stopImmediatePropagation();
+    const element=document.elementFromPoint(e.clientX,e.clientY);
+    const block=closest(element,"main > section,main > [data-pn-extra-sections],section[data-pn-extra-id]");
+    document.querySelectorAll("[data-pn-extra-drop=true]").forEach(n=>n.removeAttribute("data-pn-extra-drop"));
+    if(block&&block!==g.section){block.dataset.pnExtraDrop="true";g.target=block;}
+    else g.target=null;
+  },true);
+  document.addEventListener("pointerup",function(e){
+    const g=sectionGesture;if(!g||g.pointerId!==e.pointerId)return;
+    if(g.armed){
+      e.preventDefault();e.stopImmediatePropagation();swallowExtraClick=true;
+      const target=g.target;
+      if(target){
+        const parentMain=target.closest("main");
+        const siblings=parentMain?Array.from(parentMain.querySelectorAll("section[data-pn-extra-id], main > section")):[];
+        const index=siblings.indexOf(target);
+        const y=e.clientY;
+        const after=y>target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
+        if(index>=0)parent.postMessage({type:"pagenova-extra-section-drop",id:g.id,targetId:target.dataset.pnExtraId||"",originalIndex:index,after},"*");
+      }
+      clearSectionGesture();
+      return;
+    }
+    clearSectionGesture();
+  },true);
+  document.addEventListener("pointercancel",clearSectionGesture,true);
+  document.addEventListener("click",function(e){if(swallowExtraClick){e.preventDefault();e.stopImmediatePropagation();swallowExtraClick=false;}},true);
+  document.addEventListener("dblclick",function(e){if(extraUpload(e))return;},true);
+  let lastExtraTap={id:"",at:0};
+  document.addEventListener("click",function(e){
+    const section=extraImageTarget(e.target);if(!section)return;
+    const now=Date.now();
+    if(lastExtraTap.id===section.dataset.pnExtraId&&now-lastExtraTap.at<430){extraUpload(e);lastExtraTap={id:"",at:0};}
+    else lastExtraTap={id:section.dataset.pnExtraId,at:now};
+  },true);
   // The picker must open inside the original user click. A postMessage to
   // the parent loses transient user activation on mobile Chrome.
   const photoInput=document.createElement("input");
