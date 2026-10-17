@@ -304,7 +304,7 @@ export default function BuilderPage() {
         if(!project||typeof id!=="string"||!/^extra_[a-zA-Z0-9_-]{8,40}$/.test(id)||
           !(project.extraSections?.[activePage]||[]).some(s=>s.id===id)||
           typeof dataUrl!=="string"||dataUrl.length>12_000_000||
-          !/^data:image\\/(png|jpeg|webp);base64,/.test(dataUrl))return;
+          !["data:image/png;base64,","data:image/jpeg;base64,","data:image/webp;base64,"].some(prefix=>dataUrl.startsWith(prefix)))return;
         void (async()=>{
           try{
             const blob=await(await fetch(dataUrl)).blob();
