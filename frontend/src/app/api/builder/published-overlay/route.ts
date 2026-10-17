@@ -2,6 +2,7 @@ import { authorizedForms, errorsAsResponse } from "@/lib/forms/server";
 import { GET as crmGet } from "@/app/api/crm/[...path]/route";
 import { NextRequest, NextResponse } from "next/server";
 import type { SiteProject } from "@/lib/site-builder";
+import {validExtraSections} from "@/lib/site-builder-extra-sections";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -89,6 +90,7 @@ export async function POST(request: NextRequest) {
     projectId: project.id,
     ownerId: userId,
     pages: project.liveEdits || {},
+    extraSections: Object.fromEntries((["home","sobre","servicos","contato"] as const).map(key=>[key,validExtraSections(project.extraSections?.[key])])),
     images,
     updatedAt: new Date().toISOString(),
   });
