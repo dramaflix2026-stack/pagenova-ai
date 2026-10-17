@@ -1,3 +1,5 @@
+import { countryCodeForName } from '../../../shared/country-options';
+
 /**
  * Google Places uses ISO 3166-1 alpha-2 regionCode and BCP-47 languageCode.
  * Keep country names editable: unrecognized countries never get an accidental
@@ -31,6 +33,10 @@ export function resolvePlacesLocale(country:string|null|undefined,defaultLanguag
  if(!name)return {languageCode:defaultLanguage,regionCode:defaultRegion};
  const known=byName.get(normalize(name))||byCode.get(name.toUpperCase());
  if(known)return known;
+ // Every country in the offline ISO list now has an exact region code,
+ // including locales not included in the initial 30-country map.
+ const code=countryCodeForName(name);
+ if(code)return {regionCode:code,languageCode:"en"};
  // Unknown free-form countries should rely on their text in the query,
  // rather than falsely requesting results biased toward Brazil.
  return {languageCode:"en"};
