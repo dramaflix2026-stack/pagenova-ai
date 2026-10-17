@@ -1,5 +1,6 @@
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
+import {appendExtraSections} from "@/lib/site-builder-extra-sections";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +24,16 @@ async function publishedOverlay(slug: string, page: string) {
     const config = JSON.stringify({ ...parsed, page }).replace(/</g, "\\u003c");
     return `<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=${config};</script><script src="/pagenova-published-overlay.js" defer></script>`;
   } catch { return ""; }
+}
+
+async function publishedSectionData(slug:string,page:string):Promise<unknown>{
+ try{
+  const admin=adminClient();
+  const {data,error}=await admin.storage.from(BUCKET).download(`overlays/${slug}.json`);
+  if(error||!data)return [];
+  const raw=JSON.parse(await data.text()) as {extraSections?:Record<string,unknown>};
+  return raw.extraSections?.[page]||[];
+ }catch{return [];}
 }
 
 async function railwayPublishedSite(slug: string, path: string[] | undefined) {
@@ -56,9 +67,10 @@ async function railwayPublishedSite(slug: string, path: string[] | undefined) {
       const overlay = await publishedOverlay(slug, path?.[0] || "home");
       if (overlay) {
         const html = await response.text();
-        const output = /<\/body>/i.test(html)
-          ? html.replace(/<\/body>/i, overlay + "</body>")
-          : html + overlay;
+        const enriched=appendExtraSections(html,await publishedSectionData(slug,path?.[0]||"home"));
+        const output = /<\/body>/i.test(enriched)
+          ? enriched.replace(/<\/body>/i, overlay + "</body>")
+          : enriched + overlay;
         headers.delete("content-length");
         return new NextResponse(output, { status: response.status, headers });
       }
