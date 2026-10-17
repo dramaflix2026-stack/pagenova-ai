@@ -10,7 +10,7 @@ import { readPageNovaProject, savePageNovaProject, waitForPageNovaProjectSaves }
 import { renderSitePreview, SITE_PAGES, type SitePage, type SitePageKey, type SiteProject, RevisionPlan } from "@/lib/site-builder";
 import { inferSiteBrand } from "@/lib/infer-site-brand";
 import { renderEditablePreview, type LiveEdit, type PreviewTheme } from "@/lib/site-builder-live-editor";
-import { appendExtraSections, EXTRA_SECTION_OPTIONS, type ExtraSectionKind } from "@/lib/site-builder-extra-sections";
+import { appendExtraSections, originalSectionCount, EXTRA_SECTION_OPTIONS, type ExtraSectionKind } from "@/lib/site-builder-extra-sections";
 import { applyElementChanges } from "@/lib/site-builder-element-revision";
 import { INITIAL_GENERATION_PROGRESS, REAL_GENERATION_STAGES, milestoneFor, type GenerationProgress } from "@/lib/site-generation-progress";
 
@@ -987,13 +987,26 @@ export default function BuilderPage() {
     setCurrentStep(null); setPhase("ready");
   }
 
+  const originalSections=project?.pages[activePage]?originalSectionCount(crmPreviewHtml||renderSitePreview(project,activePage)):0;
+  async function changeExtraSectionSlot(index:number,slot:number){
+    if(!project?.pages[activePage]||addingSection||publishing)return;
+    const list=[...(project.extraSections?.[activePage]||[])];
+    if(!list[index])return;
+    list[index]={...list[index],slot};
+    const updated={...project,extraSections:{...project.extraSections,[activePage]:list}};
+    setAddingSection(true);setError("");
+    try{await savePageNovaProject(updated.id,updated);setProject(updated);}
+    catch{setError("Não foi possível salvar a posição da seção.");}
+    finally{setAddingSection(false);}
+  }
+
   async function addExtraSection(kind:ExtraSectionKind) {
     if(!project?.pages[activePage]||addingSection||phase==="generating")return;
     const preset=EXTRA_SECTION_OPTIONS.find(item=>item.kind===kind);
     if(!preset)return;
     const current=project.extraSections?.[activePage]||[];
     if(current.length>=24){setError("O limite é de 24 seções adicionais por página.");return;}
-    const section={id:"extra_"+crypto.randomUUID().replace(/-/g,"").slice(0,16),kind,title:preset.title,body:preset.body};
+    const section={id:"extra_"+crypto.randomUUID().replace(/-/g,"").slice(0,16),kind,title:preset.title,body:preset.body,slot:originalSections};
     const updated={...project,extraSections:{...project.extraSections,[activePage]:[...current,section]}};
     setAddingSection(true);setSectionPickerOpen(false);setError("");
     try{
@@ -1649,17 +1662,25 @@ export default function BuilderPage() {
                   {item.label}
                 </button>)}
               </div>
-              <p className="mt-3 text-[11px] leading-5 text-white/45">A seção será adicionada ao final desta página. Depois, edite os textos diretamente na prévia com dois toques. Sem nova geração de IA.</p>
+              <p className="mt-3 text-[11px] leading-5 text-white/45">A seção será adicionada ao final. Em “Organizar seções” você poderá escolher entre quais partes originais ela aparece. Sem nova geração de IA.</p>
             </div>}
           </div>}
           {!!project.extraSections?.[activePage]?.length&&
           <div className="border-b border-white/10 px-3 pb-3 sm:px-4" aria-label="Organizar seções adicionais">
             <details className="group max-w-lg rounded-xl border border-white/10 bg-white/[.03] p-3">
               <summary className="cursor-pointer select-none text-sm font-semibold text-white/80">Organizar seções adicionadas ({project.extraSections[activePage]?.length})</summary>
-              <p className="mt-2 text-xs text-white/50">Altere a ordem das seções extras. As seções geradas originalmente permanecem intactas.</p>
+              <p className="mt-2 text-xs text-white/50">Escolha onde cada seção extra aparece entre as seções originais. Use as setas para ordenar seções no mesmo ponto; nada do template original será apagado.</p>
               <ol className="mt-3 space-y-2">
                 {project.extraSections[activePage]?.map((item,index,list)=><li key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/20 p-2">
                   <span className="min-w-0 flex-1 truncate text-xs font-medium text-white/85">{index+1}. {item.title}</span>
+                  <select aria-label={`Posição de ${item.title} entre seções do site`} disabled={addingSection||publishing}
+                    value={Math.min(originalSections,Math.max(0,item.slot??originalSections))}
+                    onChange={event=>void changeExtraSectionSlot(index,Number(event.target.value))}
+                    className="max-w-[132px] min-w-0 rounded-lg border border-white/15 bg-[#1b2920] px-1 py-2 text-[11px] text-white sm:max-w-[190px]">
+                    {Array.from({length:originalSections+1},(_,slot)=><option key={slot} value={slot}>
+                      {slot===0?"Antes da 1ª":slot===originalSections?"Final da página":`Após seção ${slot}`}
+                    </option>)}
+                  </select>
                   <div className="flex shrink-0 gap-1">
                     <button type="button" disabled={index===0||addingSection||publishing} onClick={()=>void moveExtraSection(index,-1)} aria-label={`Subir seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↑</button>
                     <button type="button" disabled={index===list.length-1||addingSection||publishing} onClick={()=>void moveExtraSection(index,1)} aria-label={`Descer seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↓</button>
