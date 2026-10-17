@@ -224,13 +224,17 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         <Link
           href="/app"
           className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-          aria-label="Ir para o início do PageNova AI"
+          aria-label="Ir para o início da PageNova AI"
+          title="Voltar ao início"
         >
-          <img
-            src="/brand/pagenova-logo.png"
-            alt="PageNova AI"
-            className="h-12 w-auto max-w-[180px] object-contain"
-          />
+          {/* Keep exactly the original brand mark: crop the wordmark, not a recreated P. */}
+          <span aria-hidden="true" className="relative block h-12 w-[40px] overflow-hidden">
+            <img
+              src="/brand/pagenova-logo.png"
+              alt=""
+              className="absolute left-0 top-0 h-12 w-auto max-w-none object-contain"
+            />
+          </span>
         </Link>
 
         <div className="ml-auto h-10 w-10" aria-hidden="true" />
