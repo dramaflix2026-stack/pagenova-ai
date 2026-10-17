@@ -175,11 +175,13 @@ export function renderEditablePreview(
     #pn-edit-box [data-h=ne],#pn-edit-box [data-h=e],#pn-edit-box [data-h=se]{right:0!important}
     #pn-edit-box [data-h=nw],#pn-edit-box [data-h=n],#pn-edit-box [data-h=ne]{top:0!important}
     #pn-edit-box [data-h=sw],#pn-edit-box [data-h=s],#pn-edit-box [data-h=se]{bottom:0!important}
-    #pn-edit-box [data-h]{width:18px!important;height:18px!important}
+    /* On touch screens, show corner handles only; avoid covering text. */
+    #pn-edit-box [data-h=n],#pn-edit-box [data-h=e],#pn-edit-box [data-h=s],#pn-edit-box [data-h=w]{display:none!important}
+    #pn-edit-box [data-h]{width:12px!important;height:12px!important;opacity:.72!important}
   }
   @media(max-width:640px){
     #pn-edit-bar{max-width:calc(100vw - 12px)!important;border-radius:12px!important}
-    #pn-edit-box i{width:18px!important;height:18px!important}
+    #pn-edit-box i{width:12px!important;height:12px!important}
     /* Constrain mobile editing overlays to viewport. */
     #pn-edit-box{box-sizing:border-box!important;max-width:calc(100dvw - 16px)!important}
     #pn-edit-bar{box-sizing:border-box!important;max-width:calc(100dvw - 16px)!important;overscroll-behavior-x:contain!important}
