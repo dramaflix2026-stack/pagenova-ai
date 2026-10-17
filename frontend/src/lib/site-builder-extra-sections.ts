@@ -1,5 +1,5 @@
-export type ExtraSectionKind="services"|"benefits"|"about"|"gallery"|"products"|"testimonials"|"pricing"|"process"|"faq"|"contact"|"cta"|"custom";
-export type ExtraSection={id:string;kind:ExtraSectionKind;title:string;body:string;slot?:number};
+export type ExtraSectionKind="services"|"benefits"|"about"|"gallery"|"products"|"testimonials"|"pricing"|"process"|"faq"|"contact"|"cta"|"custom"|"image"|"image-left"|"image-right"|"image-top";
+export type ExtraSection={id:string;kind:ExtraSectionKind;title:string;body:string;slot?:number;imageUrl?:string;imageAlt?:string};
 export const EXTRA_SECTION_OPTIONS:ReadonlyArray<{kind:ExtraSectionKind;label:string;title:string;body:string}>=[
 {kind:"services",label:"Serviços",title:"Nossos serviços",body:"Conheça como podemos ajudar você."},
 {kind:"benefits",label:"Benefícios",title:"Por que escolher nossa empresa?",body:"Atendimento, qualidade e soluções para suas necessidades."},
@@ -12,7 +12,11 @@ export const EXTRA_SECTION_OPTIONS:ReadonlyArray<{kind:ExtraSectionKind;label:st
 {kind:"faq",label:"Perguntas frequentes",title:"Dúvidas frequentes",body:"Responda às principais perguntas de seus clientes."},
 {kind:"contact",label:"Contato",title:"Vamos conversar?",body:"Fale conosco para saber mais."},
 {kind:"cta",label:"Chamada para ação",title:"Pronto para começar?",body:"Entre em contato e descubra o próximo passo."},
-{kind:"custom",label:"Texto livre",title:"Nova seção",body:"Clique duas vezes aqui para personalizar seu conteúdo."}
+{kind:"custom",label:"Texto livre",title:"Nova seção",body:"Clique duas vezes aqui para personalizar seu conteúdo."},
+{kind:"image",label:"Imagem",title:"Imagem",body:""},
+{kind:"image-left",label:"Imagem à esquerda",title:"Imagem e texto",body:"Escreva aqui a descrição da sua imagem."},
+{kind:"image-right",label:"Imagem à direita",title:"Texto e imagem",body:"Escreva aqui a descrição da sua imagem."},
+{kind:"image-top",label:"Imagem em cima",title:"Imagem com descrição",body:"Escreva aqui a descrição da sua imagem."}
 ];
 export function validExtraSections(raw:unknown):ExtraSection[]{
  if(!Array.isArray(raw))return [];
@@ -20,7 +24,8 @@ export function validExtraSections(raw:unknown):ExtraSection[]{
  return raw.slice(0,24).filter((v):v is ExtraSection=>Boolean(v)&&typeof v==="object"&&
  typeof v.id==="string"&&/^[a-zA-Z0-9_-]{4,80}$/.test(v.id)&&
  kinds.has(v.kind)&&typeof v.title==="string"&&v.title.length<=180&&
- typeof v.body==="string"&&v.body.length<=1800&&(v.slot===undefined||(Number.isInteger(v.slot)&&v.slot>=0&&v.slot<=100)));
+ typeof v.body==="string"&&v.body.length<=1800&&
+ (v.imageUrl===undefined||(typeof v.imageUrl==="string"&&v.imageUrl.length<1500000&&/^(data:image\/(webp|png|jpeg);base64,|https:\/\/)/.test(v.imageUrl)))&&(v.slot===undefined||(Number.isInteger(v.slot)&&v.slot>=0&&v.slot<=100)));
 }
 function escapeHtml(s:string){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]||c));}
 export function extraSectionsMarkup(raw:unknown):string{
@@ -28,7 +33,18 @@ export function extraSectionsMarkup(raw:unknown):string{
  return sections.map(renderExtraSection).join("");
 }
 function renderExtraSection(s:ExtraSection):string{
- return '<section data-pn-extra-id="'+escapeHtml(s.id)+'" style="box-sizing:border-box;max-width:100%;padding:clamp(36px,6vw,86px) 20px;text-align:center;background:#f2f6f2;color:#183024;border-top:1px solid #d8e5d8"><div style="max-width:900px;margin:auto"><h2 style="font-size:clamp(26px,4vw,44px);line-height:1.15;margin:0 0 16px;font-weight:750">'+escapeHtml(s.title)+'</h2><p style="margin:auto;max-width:650px;white-space:pre-line;font-size:clamp(15px,2vw,19px);line-height:1.75">'+escapeHtml(s.body)+'</p></div></section>';
+ const imageKind=["image","image-left","image-right","image-top"].includes(s.kind);
+ const shell='box-sizing:border-box;max-width:100%;padding:clamp(32px,5vw,72px) 18px;background:#f2f6f2;color:#183024;border-top:1px solid #d8e5d8;';
+ const id=escapeHtml(s.id);
+ if(imageKind){
+  const image=s.imageUrl?'<img src="'+escapeHtml(s.imageUrl)+'" alt="'+escapeHtml(s.imageAlt||s.title)+'" loading="lazy" style="display:block;max-width:100%;width:100%;height:auto;border-radius:15px;object-fit:cover"/>':'<div style="border:2px dashed #9fbba8;border-radius:15px;min-height:200px;display:grid;place-items:center;color:#53705c;text-align:center;padding:20px">Adicione sua imagem no editor</div>';
+  const text=s.kind==="image"?"":'<div style="min-width:0"><h2 style="font-size:clamp(24px,3vw,40px);line-height:1.16;margin:0 0 14px;font-weight:750">'+escapeHtml(s.title)+'</h2><p style="white-space:pre-line;font-size:clamp(15px,2vw,19px);line-height:1.7;margin:0">'+escapeHtml(s.body)+'</p></div>';
+  const layout=s.kind==="image-left"||s.kind==="image-right"?"display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));align-items:center;gap:clamp(20px,4vw,50px);":"display:grid;gap:24px;";
+  const media='<div style="min-width:0">'+image+'</div>';
+  const inner=s.kind==="image-right"?text+media:media+text;
+  return '<section data-pn-extra-id="'+id+'" style="'+shell+'"><div style="max-width:1050px;margin:auto;'+layout+'">'+inner+'</div></section>';
+ }
+ return '<section data-pn-extra-id="'+id+'" style="'+shell+'text-align:center"><div style="max-width:900px;margin:auto"><h2 style="font-size:clamp(26px,4vw,44px);line-height:1.15;margin:0 0 16px;font-weight:750">'+escapeHtml(s.title)+'</h2><p style="margin:auto;max-width:650px;white-space:pre-line;font-size:clamp(15px,2vw,19px);line-height:1.75">'+escapeHtml(s.body)+'</p></div></section>';
 }
 
 /** Count top-level sections, excluding nested cards and subsections. */
