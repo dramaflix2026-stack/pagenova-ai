@@ -87,17 +87,17 @@ const navigationTheme: Record<NavigationTheme, {
   inactiveHover: string;
 }> = {
   studio: {
-    container: "border-cyan-400/30 bg-cyan-400/[0.045] shadow-[inset_0_0_22px_rgba(34,211,238,0.035)]",
-    indicator: "bg-cyan-400 shadow-[0_0_9px_rgba(34,211,238,0.35)]",
-    heading: "text-cyan-200",
-    activeLink: "border-cyan-400/30 bg-cyan-400/[0.11] text-white",
-    activeIcon: "bg-cyan-400/[0.14] text-cyan-200",
-    activeDot: "bg-cyan-400",
-    inactiveHover: "hover:bg-cyan-400/[0.055] hover:text-white",
+    container: "border-emerald-400/25 bg-emerald-400/[0.045] shadow-[inset_0_0_22px_rgba(143,236,120,0.035)]",
+    indicator: "bg-emerald-400 shadow-[0_0_9px_rgba(143,236,120,0.35)]",
+    heading: "text-emerald-300",
+    activeLink: "border-emerald-400/30 bg-emerald-400/[0.11] text-white",
+    activeIcon: "bg-emerald-400/[0.14] text-emerald-200",
+    activeDot: "bg-emerald-400",
+    inactiveHover: "hover:bg-emerald-400/[0.055] hover:text-white",
   },
   crm: {
-    container: "border-emerald-400/30 bg-emerald-400/[0.055] shadow-[inset_0_0_20px_rgba(16,185,129,0.035)]",
-    indicator: "bg-emerald-400 shadow-[0_0_9px_rgba(52,211,153,0.35)]",
+    container: "border-emerald-400/25 bg-emerald-400/[0.055] shadow-[inset_0_0_20px_rgba(143,236,120,0.035)]",
+    indicator: "bg-emerald-400 shadow-[0_0_9px_rgba(143,236,120,0.35)]",
     heading: "text-emerald-300",
     activeLink: "border-emerald-400/25 bg-emerald-400/[0.14] text-white",
     activeIcon: "bg-emerald-400/[0.13] text-emerald-300",
@@ -105,13 +105,13 @@ const navigationTheme: Record<NavigationTheme, {
     inactiveHover: "hover:bg-emerald-400/[0.055] hover:text-white",
   },
   development: {
-    container: "border-violet-400/30 bg-violet-400/[0.045] shadow-[inset_0_0_22px_rgba(139,92,246,0.035)]",
-    indicator: "bg-violet-400 shadow-[0_0_9px_rgba(167,139,250,0.35)]",
-    heading: "text-violet-200",
-    activeLink: "border-violet-400/30 bg-violet-400/[0.12] text-white",
-    activeIcon: "bg-violet-400/[0.14] text-violet-200",
-    activeDot: "bg-violet-400",
-    inactiveHover: "hover:bg-violet-400/[0.055] hover:text-white",
+    container: "border-emerald-400/25 bg-emerald-400/[0.045] shadow-[inset_0_0_22px_rgba(143,236,120,0.035)]",
+    indicator: "bg-emerald-400 shadow-[0_0_9px_rgba(143,236,120,0.35)]",
+    heading: "text-emerald-300",
+    activeLink: "border-emerald-400/30 bg-emerald-400/[0.12] text-white",
+    activeIcon: "bg-emerald-400/[0.14] text-emerald-200",
+    activeDot: "bg-emerald-400",
+    inactiveHover: "hover:bg-emerald-400/[0.055] hover:text-white",
   },
 };
 
@@ -209,7 +209,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
       {/* =======================================================
           MOBILE HEADER
           ======================================================= */}
-      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center border-b border-white/[0.08] bg-[#090613]/95 px-4 backdrop-blur-xl lg:hidden">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center border-b border-white/[0.08] bg-[#0b100d]/95 px-4 backdrop-blur-xl lg:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen(true)}
@@ -232,7 +232,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
             <img
               src="/brand/pagenova-logo.png"
               alt=""
-              className="absolute left-0 top-0 h-12 w-auto max-w-none object-contain"
+              className="pn-brand-logo absolute left-0 top-0 h-12 w-auto max-w-none object-contain"
             />
           </span>
         </Link>
@@ -261,12 +261,12 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
 
         <aside
           id="pagenova-mobile-menu"
-          className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col overflow-hidden border-r border-white/[0.08] bg-[#090613] shadow-[24px_0_80px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out ${
+          className={`absolute inset-y-0 left-0 flex w-[min(86vw,320px)] flex-col overflow-hidden border-r border-white/[0.08] bg-[#0b100d] shadow-[24px_0_80px_rgba(0,0,0,0.5)] transition-transform duration-300 ease-out ${
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           aria-label="Menu PageNova"
         >
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top_left,rgba(0,245,180,0.12),transparent_68%)]" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top_left,rgba(143,236,120,0.10),transparent_68%)]" />
 
           <div className="relative flex h-20 items-center border-b border-white/[0.07] px-5">
             <Link
@@ -278,7 +278,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
               <img
                 src="/brand/pagenova-logo.png"
                 alt="PageNova AI"
-                className="h-[58px] w-auto max-w-[210px] object-contain object-left"
+                className="pn-brand-logo h-[58px] w-auto max-w-[210px] object-contain object-left"
               />
             </Link>
 
@@ -308,7 +308,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
                   Seu acesso
                 </p>
 
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(143,236,120,0.6)]" />
               </div>
 
               <p className="mt-2 text-sm font-semibold text-white">
@@ -335,8 +335,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
       {/* =======================================================
           DESKTOP SIDEBAR
           ======================================================= */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden border-r border-white/[0.07] bg-[#090613] lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(0,245,180,0.10),transparent_68%)]" />
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(143,236,120,0.085),transparent_68%)]" />
 
         <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
           <Link
@@ -347,7 +347,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
             <img
               src="/brand/pagenova-logo.png"
               alt="PageNova AI"
-              className="h-[62px] w-auto max-w-[218px] object-contain object-left transition duration-200 group-hover:brightness-110"
+              className="pn-brand-logo h-[62px] w-auto max-w-[218px] object-contain object-left transition duration-200 group-hover:brightness-110"
             />
           </Link>
         </div>
@@ -368,7 +368,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
                 Seu acesso
               </p>
 
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(143,236,120,0.6)]" />
             </div>
 
             <p className="mt-2 text-sm font-semibold text-white">
