@@ -61,10 +61,10 @@ body {
   background:
     linear-gradient(
       180deg,
-      #080515 0%,
-      #0b051c 30%,
-      #12052d 62%,
-      #25075a 100%
+      #0a1307 0%,
+      #0c1908 30%,
+      #10280a 62%,
+      #1f5011 100%
     );
 }
 
@@ -74,18 +74,18 @@ body {
   background:
     radial-gradient(
       circle at 50% 34%,
-      rgba(111, 62, 255, 0.15),
+      rgba(117, 231, 86, 0.15),
       transparent 31%
     ),
     radial-gradient(
       circle at 50% 90%,
-      rgba(105, 37, 255, 0.28),
+      rgba(100, 228, 64, 0.28),
       transparent 40%
     ),
     linear-gradient(
       180deg,
-      rgba(8, 5, 21, 0.04),
-      rgba(52, 10, 112, 0.18)
+      rgba(10, 19, 7, 0.04),
+      rgba(39, 99, 23, 0.18)
     );
 }
 
@@ -102,7 +102,7 @@ body {
   width: 980px;
   height: 720px;
   transform: translateX(-50%);
-  background: rgba(108, 59, 255, 0.18);
+  background: rgba(115, 231, 84, 0.18);
 }
 
 .pagenova-nebula-b {
@@ -110,7 +110,7 @@ body {
   top: 260px;
   width: 560px;
   height: 520px;
-  background: rgba(68, 21, 177, 0.16);
+  background: rgba(66, 158, 41, 0.16);
 }
 
 .pagenova-nebula-c {
@@ -118,7 +118,7 @@ body {
   top: 190px;
   width: 620px;
   height: 560px;
-  background: rgba(124, 62, 255, 0.15);
+  background: rgba(117, 231, 86, 0.15);
 }
 
 /* Atmospheric cloud masses */
@@ -136,13 +136,13 @@ body {
   background:
     radial-gradient(
       circle at 42% 40%,
-      rgba(34, 11, 79, 0.96) 0%,
-      rgba(18, 7, 49, 0.97) 58%,
-      rgba(8, 4, 25, 0.98) 100%
+      rgba(31, 71, 20, 0.96) 0%,
+      rgba(19, 44, 12, 0.97) 58%,
+      rgba(10, 22, 7, 0.98) 100%
     );
   box-shadow:
-    inset -30px -20px 80px rgba(67, 23, 137, 0.22),
-    0 0 80px rgba(17, 5, 48, 0.4);
+    inset -30px -20px 80px rgba(56, 123, 37, 0.22),
+    0 0 80px rgba(17, 43, 10, 0.4);
 }
 
 .pagenova-cloud-left {
@@ -242,7 +242,7 @@ body {
   opacity: 0.42;
   background-image:
     radial-gradient(circle, rgba(255,255,255,0.95) 0 1px, transparent 1.2px),
-    radial-gradient(circle, rgba(194,174,255,0.8) 0 0.8px, transparent 1px),
+    radial-gradient(circle, rgba(197, 245, 184,0.8) 0 0.8px, transparent 1px),
     radial-gradient(circle, rgba(255,255,255,0.65) 0 0.7px, transparent 1px);
   background-size:
     157px 131px,
@@ -259,7 +259,7 @@ body {
   opacity: 0.35;
   background-image:
     radial-gradient(circle, rgba(255,255,255,0.92) 0 1.3px, transparent 1.6px),
-    radial-gradient(circle, rgba(168,139,255,0.85) 0 1.1px, transparent 1.5px);
+    radial-gradient(circle, rgba(172, 240, 153,0.85) 0 1.1px, transparent 1.5px);
   background-size:
     379px 293px,
     487px 347px;
@@ -277,7 +277,7 @@ body {
   background: rgba(255,255,255,0.9);
   box-shadow:
     0 0 7px rgba(255,255,255,0.7),
-    0 0 15px rgba(135,96,255,0.45);
+    0 0 15px rgba(142, 235, 116,0.45);
   animation: pagenova-twinkle 4.5s ease-in-out infinite;
 }
 
@@ -306,11 +306,11 @@ body {
     linear-gradient(
       90deg,
       transparent 0%,
-      rgba(174, 151, 255, 0.08) 20%,
-      rgba(212, 199, 255, 0.65) 76%,
+      rgba(181, 242, 164, 0.08) 20%,
+      rgba(215, 248, 206, 0.65) 76%,
       rgba(255, 255, 255, 1) 100%
     );
-  filter: drop-shadow(0 0 5px rgba(145, 105, 255, 0.8));
+  filter: drop-shadow(0 0 5px rgba(148, 236, 124, 0.8));
 }
 
 .pagenova-comet::after {
@@ -325,7 +325,7 @@ body {
   transform: translateY(-50%);
   box-shadow:
     0 0 8px white,
-    0 0 16px rgba(137, 93, 255, 0.95);
+    0 0 16px rgba(140, 235, 113, 0.95);
 }
 
 .pagenova-comet-01 {
@@ -362,9 +362,9 @@ body {
   background:
     radial-gradient(
       ellipse at center,
-      rgba(104, 35, 255, 0.46) 0%,
-      rgba(83, 21, 196, 0.24) 31%,
-      rgba(47, 9, 111, 0.10) 54%,
+      rgba(98, 227, 62, 0.46) 0%,
+      rgba(71, 174, 43, 0.24) 31%,
+      rgba(38, 98, 22, 0.10) 54%,
       transparent 72%
     );
   filter: blur(35px);
@@ -376,17 +376,17 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(4, 2, 13, 0.28),
+      rgba(8, 18, 5, 0.28),
       transparent 18%,
       transparent 82%,
-      rgba(4, 2, 13, 0.28)
+      rgba(8, 18, 5, 0.28)
     ),
     linear-gradient(
       180deg,
-      rgba(5, 3, 15, 0.12),
+      rgba(8, 17, 6, 0.12),
       transparent 28%,
       transparent 68%,
-      rgba(8, 3, 24, 0.12)
+      rgba(9, 21, 6, 0.12)
     );
 }
 
@@ -529,10 +529,10 @@ body {
   background:
     radial-gradient(
       ellipse at center,
-      rgba(123, 72, 255, 0.52) 0%,
-      rgba(102, 43, 236, 0.30) 26%,
-      rgba(71, 23, 168, 0.16) 48%,
-      rgba(34, 11, 84, 0.06) 64%,
+      rgba(125, 232, 95, 0.52) 0%,
+      rgba(98, 212, 67, 0.30) 26%,
+      rgba(65, 150, 41, 0.16) 48%,
+      rgba(32, 75, 20, 0.06) 64%,
       transparent 76%
     );
   filter: blur(42px);
@@ -556,9 +556,9 @@ body {
   background:
     radial-gradient(
       ellipse at 50% 100%,
-      rgba(157, 124, 255, 0.34) 0%,
-      rgba(121, 78, 244, 0.18) 31%,
-      rgba(83, 42, 180, 0.07) 54%,
+      rgba(162, 239, 140, 0.34) 0%,
+      rgba(126, 223, 99, 0.18) 31%,
+      rgba(82, 163, 59, 0.07) 54%,
       transparent 73%
     );
   filter: blur(30px);
@@ -580,10 +580,10 @@ body {
     linear-gradient(
       180deg,
       transparent 0%,
-      rgba(138, 99, 255, 0.035) 20%,
-      rgba(178, 154, 255, 0.09) 52%,
-      rgba(225, 216, 255, 0.18) 78%,
-      rgba(246, 243, 255, 0.26) 100%
+      rgba(144, 236, 118, 0.035) 20%,
+      rgba(183, 242, 167, 0.09) 52%,
+      rgba(227, 250, 221, 0.18) 78%,
+      rgba(246, 254, 244, 0.26) 100%
     );
   filter: blur(10px);
 }
@@ -596,18 +596,18 @@ body {
   background:
     linear-gradient(
       90deg,
-      rgba(4, 2, 13, 0.28),
+      rgba(8, 18, 5, 0.28),
       transparent 18%,
       transparent 82%,
-      rgba(4, 2, 13, 0.28)
+      rgba(8, 18, 5, 0.28)
     ),
     linear-gradient(
       180deg,
-      rgba(5, 3, 15, 0.12) 0%,
+      rgba(8, 17, 6, 0.12) 0%,
       transparent 27%,
       transparent 67%,
-      rgba(44, 17, 100, 0.08) 83%,
-      rgba(111, 74, 211, 0.05) 100%
+      rgba(41, 90, 27, 0.08) 83%,
+      rgba(113, 194, 91, 0.05) 100%
     );
 }
 
@@ -656,10 +656,10 @@ body {
     linear-gradient(
       90deg,
       transparent 0%,
-      rgba(156, 128, 255, 0.02) 18%,
-      rgba(175, 153, 255, 0.10) 42%,
-      rgba(202, 190, 255, 0.32) 70%,
-      rgba(239, 235, 255, 0.82) 92%,
+      rgba(165, 239, 144, 0.02) 18%,
+      rgba(182, 242, 166, 0.10) 42%,
+      rgba(209, 247, 198, 0.32) 70%,
+      rgba(241, 252, 237, 0.82) 92%,
       rgba(255, 255, 255, 1) 100%
     );
 
@@ -667,8 +667,8 @@ body {
   opacity: 0;
 
   filter:
-    drop-shadow(0 0 2px rgba(210, 195, 255, 0.65))
-    drop-shadow(0 0 7px rgba(122, 78, 255, 0.22));
+    drop-shadow(0 0 2px rgba(212, 248, 203, 0.65))
+    drop-shadow(0 0 7px rgba(129, 233, 100, 0.22));
 
   will-change: transform, opacity;
 }
@@ -693,8 +693,8 @@ body {
 
   box-shadow:
     0 0 3px rgba(255, 255, 255, 0.95),
-    0 0 8px rgba(203, 186, 255, 0.82),
-    0 0 16px rgba(128, 83, 255, 0.38);
+    0 0 8px rgba(206, 246, 195, 0.82),
+    0 0 16px rgba(132, 234, 105, 0.38);
 }
 
 /* subtle aura immediately behind the head */
@@ -717,7 +717,7 @@ body {
     radial-gradient(
       circle,
       rgba(255,255,255,0.32) 0%,
-      rgba(173,145,255,0.16) 35%,
+      rgba(177, 241, 159,0.16) 35%,
       transparent 72%
     );
 
@@ -952,14 +952,14 @@ body {
   0%,
   100% {
     box-shadow:
-      0 12px 34px rgba(108, 59, 255, 0.18),
-      0 0 0 rgba(139, 92, 246, 0);
+      0 12px 34px rgba(115, 231, 84, 0.18),
+      0 0 0 rgba(136, 227, 111, 0);
   }
 
   50% {
     box-shadow:
-      0 16px 44px rgba(108, 59, 255, 0.28),
-      0 0 28px rgba(139, 92, 246, 0.12);
+      0 16px 44px rgba(115, 231, 84, 0.28),
+      0 0 28px rgba(136, 227, 111, 0.12);
   }
 }
 
@@ -986,9 +986,9 @@ body {
 
 .pagenova-premium-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(139, 92, 246, 0.26);
+  border-color: rgba(136, 227, 111, 0.26);
   box-shadow:
-    0 22px 55px rgba(42, 18, 92, 0.12),
+    0 22px 55px rgba(39, 83, 27, 0.12),
     0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
@@ -1025,7 +1025,7 @@ body {
 .pagenova-premium-cta:hover {
   transform: translateY(-2px);
   filter: brightness(1.08);
-  box-shadow: 0 16px 42px rgba(108, 59, 255, 0.32);
+  box-shadow: 0 16px 42px rgba(115, 231, 84, 0.32);
 }
 
 .pagenova-premium-cta:active {
@@ -1090,7 +1090,7 @@ body {
   line-height: 1;
   text-shadow:
     0 0 1px rgba(0, 0, 0, 0.95),
-    0 0 10px rgba(124, 58, 237, 0.65);
+    0 0 10px rgba(109, 215, 80, 0.65);
 }
 
 .pagenova-demo-cursor--hidden {
@@ -1133,7 +1133,7 @@ body {
   top: -8px;
   width: 34px;
   height: 34px;
-  border: 2px solid rgba(167, 139, 250, 0.9);
+  border: 2px solid rgba(171, 236, 153, 0.9);
   border-radius: 9999px;
   opacity: 0;
   transform: scale(0.35);
