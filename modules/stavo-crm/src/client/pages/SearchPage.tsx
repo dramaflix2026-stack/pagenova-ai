@@ -133,7 +133,7 @@ export default function SearchPage() {
   // As listas de estado e municipio sao brasileiras. Com outro pais no campo,
   // os dois campos voltam a ser texto livre: oferecer municipios do Brasil
   // para uma busca em Portugal seria pior que nao oferecer nada.
-  const ehBrasil = ['', 'brasil'].includes(semAcento(form.country));
+  const ehBrasil = ['', 'brasil', 'brazil', 'br'].includes(semAcento(form.country));
 
   const estados = useEstados();
   const cidades = useCidades(ehBrasil ? form.state : '');
@@ -311,9 +311,15 @@ export default function SearchPage() {
               <Field label="Pais" htmlFor="search-country">
                 <Input
                   id="search-country"
+                  list="places-countries"
+                  placeholder="Ex.: Estados Unidos, Portugal, México..."
                   value={form.country}
-                  onChange={(event) => setForm((c) => ({ ...c, country: event.target.value }))}
+                  onChange={(event) => setForm((c) => ({ ...c, country: event.target.value, state: '', city: '', region: '' }))}
+                  autoComplete="country-name"
                 />
+                <datalist id="places-countries">
+                  {["Brasil","Estados Unidos","Portugal","Canadá","México","Espanha","Argentina","Chile","Colômbia","Peru","Reino Unido","França","Alemanha","Itália","Austrália","Japão","Índia"].map(name=><option key={name} value={name}/>)}
+                </datalist>
               </Field>
 
               <Field label="Estado" htmlFor="search-state">
