@@ -1003,6 +1003,19 @@ export default function BuilderPage() {
     finally{setAddingSection(false);}
   }
 
+  async function moveExtraSection(index:number,direction:-1|1) {
+    if(!project?.pages[activePage]||addingSection||publishing)return;
+    const list=[...(project.extraSections?.[activePage]||[])];
+    const other=index+direction;
+    if(index<0||other<0||other>=list.length)return;
+    [list[index],list[other]]=[list[other],list[index]];
+    const updated={...project,extraSections:{...project.extraSections,[activePage]:list}};
+    setAddingSection(true);setError("");
+    try{await savePageNovaProject(updated.id,updated);setProject(updated);}
+    catch{setError("Não foi possível salvar a nova ordem das seções.");}
+    finally{setAddingSection(false);}
+  }
+
   const preview = useMemo(() => {
     if (!project) return "";
     // A CRM draft starts with an empty placeholder home page. Rendering it
@@ -1642,6 +1655,22 @@ export default function BuilderPage() {
               </div>
               <p className="mt-3 text-[11px] leading-5 text-white/45">A seção será adicionada ao final desta página. Depois, edite os textos diretamente na prévia com dois toques. Sem nova geração de IA.</p>
             </div>}
+          </div>}
+          {!!project.extraSections?.[activePage]?.length&&
+          <div className="border-b border-white/10 px-3 pb-3 sm:px-4" aria-label="Organizar seções adicionais">
+            <details className="group max-w-lg rounded-xl border border-white/10 bg-white/[.03] p-3">
+              <summary className="cursor-pointer select-none text-sm font-semibold text-white/80">Organizar seções adicionadas ({project.extraSections[activePage]?.length})</summary>
+              <p className="mt-2 text-xs text-white/50">Altere a ordem das seções extras. As seções geradas originalmente permanecem intactas.</p>
+              <ol className="mt-3 space-y-2">
+                {project.extraSections[activePage]?.map((item,index,list)=><li key={item.id} className="flex min-w-0 items-center justify-between gap-2 rounded-lg border border-white/10 bg-black/20 p-2">
+                  <span className="min-w-0 flex-1 truncate text-xs font-medium text-white/85">{index+1}. {item.title}</span>
+                  <div className="flex shrink-0 gap-1">
+                    <button type="button" disabled={index===0||addingSection||publishing} onClick={()=>void moveExtraSection(index,-1)} aria-label={`Subir seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↑</button>
+                    <button type="button" disabled={index===list.length-1||addingSection||publishing} onClick={()=>void moveExtraSection(index,1)} aria-label={`Descer seção ${item.title}`} className="min-h-10 min-w-10 rounded-lg border border-emerald-400/20 bg-emerald-400/10 px-2 text-sm font-bold text-emerald-200 disabled:opacity-30">↓</button>
+                  </div>
+                </li>)}
+              </ol>
+            </details>
           </div>}
           {preview ? (() => {
             const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : 390;
