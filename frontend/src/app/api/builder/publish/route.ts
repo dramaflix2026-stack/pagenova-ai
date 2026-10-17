@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHash } from "node:crypto";
 import { renderSitePreview, SITE_PAGES, type SiteProject } from "@/lib/site-builder";
+import {appendExtraSections} from "@/lib/site-builder-extra-sections";
 import { authorizedForms, errorsAsResponse } from "@/lib/forms/server";
 
 export const runtime = "nodejs";
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
   const pages = Object.fromEntries(
     SITE_PAGES
       .filter(({ key }) => Boolean(project.pages[key]))
-      .map(({ key }) => [key, renderSitePreview(project, key)]),
+      .map(({ key }) => [key, appendExtraSections(renderSitePreview(project, key),project.extraSections?.[key])]),
   );
   if (!pages.home) {
     return NextResponse.json({ error: "A pagina inicial precisa estar pronta antes de publicar." }, { status: 409 });
