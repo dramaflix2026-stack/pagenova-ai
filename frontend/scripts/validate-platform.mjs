@@ -194,6 +194,21 @@ must("frontend/src/app/api/builder/analyze-attachments/route.ts",[
 must("frontend/src/app/api/[...path]/route.ts",[
  [/access\.kind!=="paid"/,"Legacy paid OpenAI endpoints must require paid access"]
 ]);
+must("frontend/src/components/sidebar.tsx",[
+ [/href="\/app"/,"Centered mobile symbol must still open the PageNova home"],
+ [/w-\[40px\] overflow-hidden/,"Centered mobile header must show only the existing P symbol"],
+ [/\/brand\/pagenova-logo\.png/,"Header must reuse the original PageNova brand asset"]
+]);
+must("frontend/src/components/mobile-app-back-guard.tsx",[
+ [/window\.history\.replaceState/,"Android Back needs a safe initial history entry"],
+ [/window\.history\.pushState/,"Android Back needs a same-URL history buffer"],
+ [/window\.addEventListener\("popstate"/,"Android Back must be handled when a deep page opens directly"],
+ [/router\.replace\("\/app"\)/,"Direct deep link must return to PageNova start rather than exit"],
+ [/path==="\/app\/builder"/,"Natural Back from the PageNova home should not be trapped"]
+]);
+must("frontend/src/app/app/layout.tsx",[
+ [/MobileAppBackGuard/,"The mobile back protection must be installed across the authenticated app"]
+]);
 must("frontend/src/app/app/layout.tsx",[
  [/getPageNovaAccess\(admin,user,true\)/,"Dashboard must start one verified trial"],
  [/trial-expired/,"Expired trial must be blocked from dashboard"]
