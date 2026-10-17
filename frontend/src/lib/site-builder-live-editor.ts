@@ -2,6 +2,7 @@ export type PreviewTheme = "original" | "claro" | "escuro" | "areia";
 
 export type LiveEdit = {
   selector: string;
+  imageUrl?: string;
   text: string;
   font: string;
   size: number;
