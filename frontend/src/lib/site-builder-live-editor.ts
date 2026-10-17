@@ -163,6 +163,28 @@ export function renderEditablePreview(
     #pn-edit-box i{width:13px!important;height:13px!important}
   }
 
+  /* Prevent long editorial headings and user-resized text from overflowing the mobile canvas. */
+  @media(max-width:640px){
+    body :is(h1,h2,h3,h4,p,blockquote,[data-pn-selected=true]){
+      overflow-wrap:anywhere!important;
+      word-break:normal!important;
+      max-width:100%!important;
+    }
+    body :is(h1,h2,h3){
+      line-height:1.12!important;
+    }
+    #pn-edit-box{
+      border-width:1px!important;
+      box-shadow:none!important;
+    }
+    #pn-edit-box [data-h]{
+      width:10px!important;height:10px!important;
+      border-width:1px!important;
+      box-shadow:none!important;
+      opacity:.8!important;
+    }
+  }
+
   /* Editing-only mobile corrections: sticky site navigation must not cover
      selected content; keep resize handles inside the iframe viewport. */
   @media(max-width:640px){
