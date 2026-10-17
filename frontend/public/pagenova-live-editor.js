@@ -503,7 +503,7 @@
 
   document.addEventListener("dblclick", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    if (imageCard(e.target)) { requestUpload(e); return; }\n    if (requestTemplateImage(e)) return;
+    if (imageCard(e.target)) { requestUpload(e); return; }
     const el = candidate(e.target);
     if (!el || !el.matches(textSel)) return;
     e.preventDefault(); e.stopPropagation(); openToolbar(el);
