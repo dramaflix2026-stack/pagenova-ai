@@ -99,15 +99,15 @@ function Brand() {
       alt="PageNova AI"
       width={210}
       height={64}
-      className="h-11 w-auto max-w-[165px] object-contain object-left sm:h-12 sm:max-w-[190px]"
+      className="pn-brand-logo h-11 w-auto max-w-[165px] object-contain object-left sm:h-12 sm:max-w-[190px]"
     />
   );
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#31d9a4]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[#31d9a4]" />
+    <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#8fec78]">
+      <span className="h-1.5 w-1.5 rounded-full bg-[#8fec78]" />
       {children}
     </span>
   );
@@ -119,8 +119,8 @@ function ProductFrame() {
 
 export default function Home() {
   return (
-    <main className="pn-mobile-centered pn-landing-v2 min-h-screen overflow-x-clip bg-[#07110e] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
-      <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#07110e]/95 backdrop-blur-xl">
+    <main className="pn-mobile-centered pn-landing-v2 min-h-screen overflow-x-clip bg-[#0b100d] font-sans text-[#f2f6f1]"><PageNovaLandingMotion />
+      <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#0b100d]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-2.5 px-4 sm:gap-5 sm:px-6 md:px-8">
           <Link href="/" aria-label="PageNova AI, início" className="min-w-0 shrink [&_img]:h-10 [&_img]:max-w-[135px] sm:shrink-0 sm:[&_img]:h-11 sm:[&_img]:max-w-[165px]"><Brand /></Link>
           <nav aria-label="Menu principal" className="hidden items-center gap-7 text-[13px] text-white/60 lg:flex">
@@ -131,10 +131,10 @@ export default function Home() {
             <a href="#duvidas" className="hover:text-white">Dúvidas</a>
           </nav>
           <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
-            <Link href="/cadastro?trial=1" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#36d9a1] px-2.5 py-2.5 text-[11px] font-bold text-[#062018] transition hover:bg-[#7debc0] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+            <Link href="/cadastro?trial=1" className="pn-brand-button inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl bg-[#8fec78] px-2.5 py-2.5 text-[11px] font-bold text-[#14220f] transition hover:bg-[#a8f494] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8f494] sm:px-5 sm:text-sm">
               Testar 5 dias grátis
             </Link>
-            <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-2.5 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#75e8b7] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7debc0] sm:px-5 sm:text-sm">
+            <Link href="/login" className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-xl border border-white/25 bg-white/[.035] px-2.5 py-2.5 text-[11px] font-semibold text-white transition hover:border-[#a8f494] hover:bg-white/[.07] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a8f494] sm:px-5 sm:text-sm">
               Login
             </Link>
           </div>
@@ -142,23 +142,23 @@ export default function Home() {
       </header>
 
       <section id="plataforma" className="relative overflow-hidden border-b border-white/[.07]">
-        <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#0b7b55]/20 blur-[130px]" />
-        <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#00aa78]/10 blur-[110px]" />
+        <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#3e7838]/20 blur-[130px]" />
+        <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#5ba949]/10 blur-[110px]" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-9 px-5 pb-14 pt-14 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 lg:pb-24 lg:pt-24">
           <div>
             <SectionLabel>Seu espaço para criar e evoluir</SectionLabel>
             <h1 className="mt-5 max-w-xl text-[clamp(2.45rem,5.2vw,5rem)] font-semibold leading-[1.04] tracking-[-.055em]">
               Sua ideia ganha forma.{" "}
-              <span className="text-[#68e6b6]">Seu trabalho ganha ritmo.</span>
+              <span className="text-[#a8f494]">Seu trabalho ganha ritmo.</span>
             </h1>
             <p className="mt-5 max-w-lg text-[15px] leading-7 text-white/58 sm:text-base sm:leading-8">
               Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/cadastro?trial=1" className="rounded-xl bg-[#36d9a1] px-6 py-3.5 text-sm font-bold text-[#062018] transition hover:bg-[#7debc0]">
+              <Link href="/cadastro?trial=1" className="pn-brand-button rounded-xl bg-[#8fec78] px-6 py-3.5 text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494]">
                 Começar meus 5 dias grátis →
               </Link>
-              <a href="#planos" className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-semibold text-white/80 transition hover:border-[#75e8b7] hover:text-white">
+              <a href="#planos" className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-semibold text-white/80 transition hover:border-[#a8f494] hover:text-white">
                 Ver os planos
               </a>
             </div>
@@ -174,7 +174,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid gap-5 lg:grid-cols-[.85fr_1.15fr] lg:gap-16">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
+              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#3e7838]">
                 01 / Criação
               </span>
               <h2 className="mt-4 max-w-lg text-[2.15rem] font-semibold leading-[1.1] tracking-[-.045em] md:text-5xl">
@@ -194,17 +194,17 @@ export default function Home() {
               ["Clonar e editar", "Use uma URL como ponto de partida para um projeto editável e ajuste textos, imagens e links.", "URL → projeto → editor"],
             ].map(([title, description, path], index) => (
               <article key={title} className={`p-6 md:p-9 ${index < 2 ? "border-b border-[#e4e9e2] lg:border-b-0 lg:border-r" : ""}`}>
-                <span className="text-xs font-bold text-[#178759]">0{index + 1}</span>
+                <span className="text-xs font-bold text-[#467f3b]">0{index + 1}</span>
                 <h3 className="mt-5 text-xl font-semibold tracking-[-.035em] md:mt-10 md:text-2xl">{title}</h3>
                 <p className="mt-3 text-sm leading-6 text-[#607064] md:min-h-24 md:leading-7">{description}</p>
-                <p className="mt-5 border-t border-[#e9eee8] pt-4 text-xs font-semibold text-[#187552]">{path}</p>
+                <p className="mt-5 border-t border-[#e9eee8] pt-4 text-xs font-semibold text-[#3e7838]">{path}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="scroll-mt-20 border-y border-white/[.07] bg-[#0a1b14] py-14 md:py-24">
+      <section className="scroll-mt-20 border-y border-white/[.07] bg-[#0b100d] py-14 md:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 md:px-8 lg:grid-cols-2 lg:gap-20">
           <div>
             <SectionLabel>O processo aparece na tela</SectionLabel>
@@ -215,9 +215,9 @@ export default function Home() {
               O briefing já traz uma base para o nicho escolhido. Você personaliza
               a direção do projeto, gera as páginas e navega pela prévia para revisar o resultado.
             </p>
-            <a href="#planos" className="mt-8 inline-flex text-sm font-semibold text-[#74e6b6] hover:text-white">Conhecer os planos →</a>
+            <a href="#planos" className="mt-8 inline-flex text-sm font-semibold text-[#a8f494] hover:text-white">Conhecer os planos →</a>
           </div>
-          <div className="rounded-[24px] border border-white/10 bg-[#0e261b] p-5 sm:p-8">
+          <div className="rounded-[24px] border border-white/10 bg-[#142019] p-5 sm:p-8">
             {[
               ["01", "Escolher o tipo", "Selecione o segmento ou comece por uma landing page."],
               ["02", "Ajustar o briefing", "Defina nome, proposta e informações do negócio."],
@@ -225,7 +225,7 @@ export default function Home() {
               ["04", "Refinar", "Edite os detalhes e continue trabalhando no projeto."],
             ].map(([number, title, description], index) => (
               <div key={number} className={`flex gap-5 py-4 ${index < 3 ? "border-b border-white/10" : ""}`}>
-                <span className="mt-1 text-xs font-bold text-[#5ce1af]">{number}</span>
+                <span className="mt-1 text-xs font-bold text-[#a8f494]">{number}</span>
                 <div>
                   <strong className="text-sm text-white">{title}</strong>
                   <p className="mt-1.5 text-sm leading-6 text-white/45">{description}</p>
@@ -239,7 +239,7 @@ export default function Home() {
       <section id="operacao" className="scroll-mt-20 bg-[#f3f5f0] py-14 text-[#14251d] md:py-24">
         <div className="mx-auto grid max-w-7xl gap-8 px-5 md:px-8 lg:grid-cols-[.85fr_1.15fr] lg:gap-20">
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
+            <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#3e7838]">
               02 / Operação
             </span>
             <h2 className="mt-4 max-w-lg text-[2.15rem] font-semibold leading-[1.1] tracking-[-.045em] md:text-5xl">
@@ -257,7 +257,7 @@ export default function Home() {
               ["Projetos", "Volte às páginas e aos sites salvos para continuar a edição.", "04"],
             ].map(([title, description, number], index) => (
               <div key={title} className={`grid gap-3 p-6 sm:grid-cols-[42px_1fr] sm:p-7 ${index < 3 ? "border-b border-[#e4e9e2]" : ""}`}>
-                <span className="text-xs font-bold text-[#168457]">{number}</span>
+                <span className="text-xs font-bold text-[#467f3b]">{number}</span>
                 <div>
                   <h3 className="text-lg font-semibold tracking-[-.025em]">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-[#657367]">{description}</p>
@@ -292,14 +292,14 @@ export default function Home() {
                 key={plan.name}
                 className={`flex flex-col rounded-[16px] border p-4 sm:p-5 ${
                   plan.featured
-                    ? "border-[#50dca9]/60 bg-[#123729]"
+                    ? "border-[#8fec78]/60 bg-[#123729]"
                     : "border-white/10 bg-[#0d2117]"
                 }`}
               >
                 <div className="flex min-h-7 items-center justify-between gap-2">
                   <h3 className="text-xs font-semibold text-white/85 sm:text-sm">{plan.name}</h3>
                   {plan.featured && (
-                    <span className="rounded-full bg-[#40dfa5] px-2.5 py-1 text-[10px] font-bold text-[#082219]">
+                    <span className="rounded-full bg-[#8fec78] px-2.5 py-1 text-[10px] font-bold text-[#14220f]">
                       Destaque
                     </span>
                   )}
@@ -309,15 +309,15 @@ export default function Home() {
                   <span className="text-xs text-white/45">{plan.cycle}</span>
                 </div>
                 <p className="mt-2 text-xs text-white/55">{plan.equivalent}</p>
-                <p className="mt-5 text-xs font-semibold text-[#79e4b6]">{plan.saving}</p>
+                <p className="mt-5 text-xs font-semibold text-[#a8f494]">{plan.saving}</p>
                 <a
                   href={plan.checkoutUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-5 block rounded-lg px-3 py-2.5 text-center text-xs font-bold transition ${
                     plan.featured
-                      ? "bg-[#50dca9] text-[#062018] hover:bg-[#79e4b6]"
-                      : "border border-white/15 bg-white/[.04] text-white hover:border-[#50dca9]/50 hover:bg-[#50dca9]/10"
+                      ? "bg-[#8fec78] text-[#14220f] hover:bg-[#a8f494]"
+                      : "border border-white/15 bg-white/[.04] text-white hover:border-[#8fec78]/50 hover:bg-[#8fec78]/10"
                   }`}
                 >
                   Escolher {plan.name} <span aria-hidden="true">↗</span>
@@ -331,7 +331,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="overflow-hidden border-t border-white/[.07] bg-[#0b1c15] py-12 md:py-20">
+      <section className="overflow-hidden border-t border-white/[.07] bg-[#0b100d] py-12 md:py-20">
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <SectionLabel>Tudo em um só lugar</SectionLabel>
           <h2 className="mt-4 max-w-2xl text-[2.15rem] font-semibold leading-[1.08] tracking-[-.045em] md:text-5xl">
@@ -349,12 +349,12 @@ export default function Home() {
                 {showcaseFlows.map((item) => (
                   <article key={`${copy}-${item.number}`} className="pn-testimonial-card">
                     <div className="flex items-center justify-between gap-3">
-                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#67e4b3]/25 bg-[#49dba5]/10 text-lg font-bold text-[#7ceac2]">{item.number}</span>
-                      <span className="rounded-full border border-[#50dca9]/20 bg-[#50dca9]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.12em] text-[#9cf3cf]">{item.label}</span>
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-[#a8f494]/25 bg-[#8fec78]/10 text-lg font-bold text-[#a8f494]">{item.number}</span>
+                      <span className="rounded-full border border-[#8fec78]/20 bg-[#8fec78]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.12em] text-[#c6f8ad]">{item.label}</span>
                     </div>
                     <h3 className="mt-6 text-left text-[19px] font-semibold leading-snug tracking-[-.03em] text-white">{item.title}</h3>
                     <p className="mt-3 text-left text-sm leading-6 text-white/70">{item.description}</p>
-                    <div className="mt-5 border-t border-white/10 pt-3 text-left text-[11px] font-semibold text-[#7ceac2]">Funcionalidade da PageNova <span aria-hidden="true">↗</span></div>
+                    <div className="mt-5 border-t border-white/10 pt-3 text-left text-[11px] font-semibold text-[#a8f494]">Funcionalidade da PageNova <span aria-hidden="true">↗</span></div>
                   </article>
                 ))}
               </div>
@@ -388,7 +388,7 @@ export default function Home() {
             border: 1px solid rgba(80,220,169,.34);
             border-radius: 24px;
             padding: 20px;
-            background: #102a20;
+            background: #18271d;
             color: #fff;
             box-shadow: 0 14px 32px rgba(0,0,0,.26);
             -webkit-font-smoothing: antialiased;
@@ -442,7 +442,7 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-5 md:px-8">
           <div className="grid gap-4 border-b border-[#d9e1d8] pb-7 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#137650]">
+              <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#3e7838]">
                 Dúvidas frequentes
               </span>
               <h2 className="mt-3 text-[2.15rem] font-semibold leading-tight tracking-[-.045em] md:text-5xl">
@@ -458,7 +458,7 @@ export default function Home() {
               <details key={question} className="group rounded-2xl border border-[#d9e1d8] bg-white px-5 shadow-[0_1px_0_rgba(20,37,29,.02)] open:border-[#b8d9ca] open:bg-[#fbfdfb]">
                 <summary className="flex min-h-[72px] cursor-pointer list-none items-center justify-between gap-4 text-left text-[15px] font-semibold leading-5 marker:hidden">
                   <span>{question}</span>
-                  <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#eaf5ef] text-xl font-normal text-[#168457] transition group-open:rotate-45">
+                  <span aria-hidden="true" className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#eaf5ef] text-xl font-normal text-[#467f3b] transition group-open:rotate-45">
                     +
                   </span>
                 </summary>
@@ -487,7 +487,7 @@ export default function Home() {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#50dca9]">Navegação</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#8fec78]">Navegação</p>
               <nav className="mt-3 flex flex-col items-start gap-2.5 text-xs text-white/60 sm:text-sm" aria-label="Rodapé">
                 <a href="#plataforma" className="transition hover:text-white">Plataforma</a>
                 <a href="#criacao" className="transition hover:text-white">Criação</a>
@@ -497,7 +497,7 @@ export default function Home() {
             </div>
 
             <div className="min-w-0">
-              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#50dca9]">Empresa</p>
+              <p className="text-[10px] font-bold uppercase tracking-[.17em] text-[#8fec78]">Empresa</p>
               <div className="mt-3 grid gap-3 text-left text-[11px] leading-4 text-white/45 sm:text-xs">
                 <div>
                   <p className="font-semibold text-white/75">Localização</p>
@@ -510,8 +510,8 @@ export default function Home() {
                 <div>
                   <p className="font-semibold text-white/75">Suporte</p>
                   <div className="mt-1 flex flex-col items-start gap-1">
-                    <a href="https://wa.me/5521987627887" target="_blank" rel="noopener noreferrer" className="transition hover:text-[#50dca9]">WhatsApp</a>
-                    <a href="mailto:suporte@pagenovaai.com.br" className="break-all transition hover:text-[#50dca9]">suporte@pagenovaai.com.br</a>
+                    <a href="https://wa.me/5521987627887" target="_blank" rel="noopener noreferrer" className="transition hover:text-[#8fec78]">WhatsApp</a>
+                    <a href="mailto:suporte@pagenovaai.com.br" className="break-all transition hover:text-[#8fec78]">suporte@pagenovaai.com.br</a>
                   </div>
                 </div>
               </div>
@@ -524,10 +524,10 @@ export default function Home() {
           </div>
 
           <div className="mt-6 grid w-full grid-cols-2 gap-3 sm:ml-auto sm:max-w-[410px]" aria-label="Selos de confiança">
-            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#7ad3ae]/20 bg-[#10251c] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Norton">
+            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#a8f494]/20 bg-[#142019] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Norton">
               <img src="/trust/norton.svg" alt="Norton" width="383" height="88" loading="lazy" className="block h-auto max-h-11 w-full object-contain" />
             </div>
-            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#7ad3ae]/20 bg-[#10251c] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Reclame Aqui">
+            <div className="flex h-[68px] min-w-0 items-center justify-center rounded-2xl border border-[#a8f494]/20 bg-[#142019] px-3 shadow-[inset_0_1px_0_rgba(255,255,255,.04)]" title="Reclame Aqui">
               <img src="/trust/reclame-aqui.svg" alt="Reclame Aqui" width="620" height="112" loading="lazy" className="block h-auto max-h-10 w-full object-contain" />
             </div>
           </div>
