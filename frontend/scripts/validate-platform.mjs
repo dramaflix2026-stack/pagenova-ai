@@ -249,5 +249,25 @@ must("frontend/src/app/app/layout.tsx",[
  [/getPageNovaAccess\(admin,user,true\)/,"Dashboard must start one verified trial"],
  [/trial-expired/,"Expired trial must be blocked from dashboard"]
 ]);
+must("frontend/src/components/pagenova-country-marquee.tsx",[
+ [/pn-country-marquee-track/,"International flags must scroll automatically"],
+ [/aria-hidden=\{copy===1/,"Duplicated ticker must not repeat screen reader content"],
+ [/Estados Unidos/,"Flags should represent actual supported search regions"],
+ [/idioma|language|comercial/i,"Do not confuse language support with worldwide interface translation"]
+]);
+must("frontend/src/app/page.tsx",[
+ [/PageNovaCountryMarquee lang="pt"/,"Country flags must render on Portuguese landing"],
+ [/Para quem é a PageNova/,"Audience section is required"],
+ [/PageNovaCreationDemo|ProductFrame/,"Existing visual demonstration must be preserved"]
+]);
+must("frontend/src/components/localized-marketing.tsx",[
+ [/PageNovaCountryMarquee lang=\{lang\}/,"EN and ES variants must show international flags"],
+ [/PageNovaCreationDemo/,"Localized pages need the same visual mockup"],
+ [/Service providers/,"English audience section should be localized"],
+ [/Negocios locales/,"Spanish audience section should be localized"]
+]);
+must("frontend/src/app/globals.css",[
+ [/prefers-reduced-motion:reduce\) \{ \.pn-country-marquee-track/,"Country marquee must honor reduced-motion preference"]
+]);
 if(!webhook.includes('unsupported_product'))throw new Error("Test orders can create entitlement.");
 console.log("PageNova static regression gate PASS: Kiwify, entitlements, credits, builder, cloner, studio, PDF, publishing and Google.");
