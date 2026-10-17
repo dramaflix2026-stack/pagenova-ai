@@ -1764,3 +1764,9 @@ body footer.pn-landing-footer > div:first-child {
 @media(prefers-reduced-motion:reduce){
   .pn-brand-logo{transition:none}
 }
+
+/* Continuous country strip: repeat twice, moving exactly one group. */
+@keyframes pn-country-scroll { to {transform:translateX(calc(-50% - 6px));} }
+.pn-country-marquee-track {animation:pn-country-scroll 52s linear infinite;will-change:transform;}
+.pn-country-marquee:hover .pn-country-marquee-track,.pn-country-marquee:focus-within .pn-country-marquee-track {animation-play-state:paused;}
+@media (prefers-reduced-motion:reduce) { .pn-country-marquee-track{animation:none;max-width:100%;overflow-x:auto;will-change:auto;} }
