@@ -287,7 +287,7 @@ export default function PagesPage() {
               const pagePreview=(!isCrmSite&&site.pages.home)?renderSitePreview(site,"home"):"";
               const displayName=site.name?.trim()==="Sua marca"?"Site sem nome definido":site.name||"Meu site";
               return <article key={site.id}
-                className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#101714] shadow-[0_12px_35px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_22px_48px_rgba(0,0,0,.28)]">
+                className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#142019] shadow-[0_12px_35px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_22px_48px_rgba(0,0,0,.28)]">
                 <SiteHoverPreview title={displayName} html={pagePreview}
                   remoteProjectId={isCrmSite?site.id:undefined}
                   imageUrl={site.institutional?.portrait||site.institutional?.businessPhoto||null}/>
@@ -308,7 +308,7 @@ export default function PagesPage() {
                     <span>{new Date(site.createdAt).toLocaleDateString("pt-BR")}</span>
                   </div>
                   <Link href={`/app/builder?project=${encodeURIComponent(site.id)}`}
-                    className="flex w-full items-center justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#052217] transition hover:bg-emerald-300">
+                    className="flex w-full items-center justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f] transition hover:bg-emerald-300">
                     Continuar / Publicar →
                   </Link>
                   <p className="text-center text-[11px] text-white/35">No celular, toque na prévia para percorrer o site.</p>
@@ -394,7 +394,7 @@ export default function PagesPage() {
                 return (
                   <article
                     key={project.id}
-                    className="overflow-hidden rounded-[22px] border border-white/10 bg-[#101714] transition hover:-translate-y-0.5 hover:border-emerald-400/40"
+                    className="overflow-hidden rounded-[22px] border border-white/10 bg-[#142019] transition hover:-translate-y-0.5 hover:border-emerald-400/40"
                   >
                     <SiteHoverPreview title={project.title||project.domain||"Landing Page"}
                       html={project.visualHtml||""} imageUrl={previewImage}/>
