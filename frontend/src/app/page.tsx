@@ -127,7 +127,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-white/[.08] bg-[#0b100d]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-2.5 px-4 sm:gap-5 sm:px-6 md:px-8">
           <Link href="/" aria-label="PageNova AI, início" className="min-w-0 shrink [&_img]:h-10 [&_img]:max-w-[135px] sm:shrink-0 sm:[&_img]:h-11 sm:[&_img]:max-w-[165px]"><Brand /></Link>
-          <nav aria-label="Menu principal" className="hidden items-center gap-7 text-[13px] text-white/60 lg:flex">
+          <nav aria-label="Menu principal" className="hidden items-center gap-5 text-[13px] text-white/60 2xl:flex">
             <a href="#plataforma" className="hover:text-white">Plataforma</a>
             <a href="#criacao" className="hover:text-white">Criação</a>
             <a href="#operacao" className="hover:text-white">Operação</a>
@@ -154,17 +154,17 @@ export default function Home() {
       <section id="plataforma" className="relative overflow-hidden border-b border-white/[.07]">
         <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#3e7838]/20 blur-[130px]" />
         <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#5ba949]/10 blur-[110px]" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-9 px-5 pb-14 pt-14 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-[.85fr_1.15fr] lg:gap-16 lg:pb-24 lg:pt-24">
-          <div>
+        <div className="relative mx-auto grid max-w-7xl items-center gap-9 px-5 pb-14 pt-14 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-1 lg:gap-9 lg:pb-24 lg:pt-24">
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center"> 
             <SectionLabel>Seu espaço para criar e evoluir</SectionLabel>
-            <h1 className="mt-5 max-w-xl text-[clamp(2.45rem,5.2vw,5rem)] font-semibold leading-[1.04] tracking-[-.055em]">
+            <h1 className="mt-5 max-w-4xl text-[clamp(2.45rem,5vw,4.75rem)] font-semibold leading-[1.08] tracking-[-.055em]">
               Sua ideia ganha forma.{" "}
               <span className="text-[#a8f494]">Seu trabalho ganha ritmo.</span>
             </h1>
-            <p className="mt-5 max-w-lg text-[15px] leading-7 text-white/58 sm:text-base sm:leading-8">
+            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-white/58 sm:text-lg sm:leading-8">
               Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link href="/cadastro?trial=1" className="pn-brand-button rounded-xl bg-[#8fec78] px-6 py-3.5 text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494]">
                 Começar meus 5 dias grátis →
               </Link>
@@ -176,8 +176,8 @@ export default function Home() {
               Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
-          <div className="min-w-0 lg:col-span-2"><PageNovaCountryMarquee lang="pt" /></div>
-          <div className="min-w-0 lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-4xl"><ProductFrame /></div>
+          <div className="min-w-0 w-full"><PageNovaCountryMarquee lang="pt" /></div>
+          <div className="mx-auto w-full min-w-0 max-w-4xl"><ProductFrame /></div>
         </div>
       </section>
 
