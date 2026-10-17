@@ -470,45 +470,6 @@
     reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Não foi possível ler a imagem."},"*");photoInput.value="";};
     reader.readAsDataURL(file);
   });
-  // Original template images are editable too, not only empty photo slots.
-  const templateImageInput=document.createElement("input");
-  templateImageInput.type="file";
-  templateImageInput.accept="image/png,image/jpeg,image/webp";
-  templateImageInput.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0";
-  document.body.appendChild(templateImageInput);
-  let templateImageTarget=null;
-  templateImageInput.addEventListener("change",function(){
-    const file=templateImageInput.files&&templateImageInput.files[0];
-    const target=templateImageTarget;
-    templateImageInput.value="";
-    if(!file||!target||!document.contains(target))return;
-    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>8*1024*1024){
-      parent.postMessage({type:"pagenova-image-upload-error",message:"Envie JPG, PNG ou WebP de até 8 MB."},"*");return;
-    }
-    const reader=new FileReader();
-    reader.onload=function(){
-      if(typeof reader.result!=="string")return;
-      const selector=target.dataset.pnSource||path(target);
-      target.dataset.pnSource=selector;
-      target.src=reader.result;
-      target.removeAttribute("srcset");
-      target.removeAttribute("sizes");
-      const picture=target.closest("picture");
-      if(picture)picture.querySelectorAll("source").forEach(function(s){s.removeAttribute("srcset");});
-      parent.postMessage({type:"pagenova-template-image-file",selector:selector,dataUrl:reader.result},"*");
-      select(target);
-    };
-    reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Falha ao ler imagem."},"*");};
-    reader.readAsDataURL(file);
-  });
-  function requestTemplateImage(e){
-    const img=closest(e.target,"img");
-    if(!img||imagePlaceholder(e.target)||closest(e.target,"#pn-edit-bar,#pn-edit-box"))return false;
-    e.preventDefault();e.stopPropagation();
-    templateImageTarget=img;
-    templateImageInput.click();
-    return true;
-  }
   function requestUpload(e) {
     if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
     const holder=imageCard(e.target);
@@ -526,7 +487,7 @@
       const now=Date.now();
       const doubleTap=lastTap.el===card&&now-lastTap.at<450;
       lastTap={el:card,at:now};
-      if(doubleTap){if(!requestTemplateImage(e))requestUpload(e);}
+      if(doubleTap)requestUpload(e);
       return;
     }
     const el = candidate(e.target);
