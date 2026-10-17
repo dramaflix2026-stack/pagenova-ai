@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import { PageNovaLandingMotion, PageNovaVideoShowcase } from "@/components/pagenova-landing-motion";
 import Link from "next/link";
 import { PageNovaCreationDemo } from "@/components/pagenova-creation-demo";
+import {PageNovaCountryMarquee} from "@/components/pagenova-country-marquee";
 import { PAYMENT_BRANDS, PaymentBrand } from "@/components/payment-brands";
 
 export const metadata:Metadata={alternates:{canonical:"/",languages:{"pt-BR":"/","en":"/en","es":"/es"}}};
@@ -175,7 +176,20 @@ export default function Home() {
               Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
-          <ProductFrame />
+          <div className="min-w-0 lg:col-span-2"><PageNovaCountryMarquee lang="pt" /></div>
+          <div className="min-w-0 lg:col-span-2 lg:mx-auto lg:w-full lg:max-w-4xl"><ProductFrame /></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="pn-audience-heading" className="border-b border-white/[.08] bg-[#101b14] px-5 py-10 md:py-14">
+        <div className="mx-auto max-w-7xl">
+          <span className="text-[11px] font-bold uppercase tracking-[.16em] text-[#8fec78]">Para quem é a PageNova?</span>
+          <h2 id="pn-audience-heading" className="mt-3 text-2xl font-bold tracking-tight md:text-4xl">Seu negócio, suas ideias, seu próximo projeto.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-7 text-white/60">Uma estrutura para criar páginas, experimentar ofertas e organizar contatos sem depender de várias ferramentas.</p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {["Prestadores de serviços","Negócios locais","Infoprodutores","Afiliados","Agências","Freelancers","Pequenas empresas"].map(name=><span key={name} className="rounded-full border border-[#8fec78]/20 bg-[#8fec78]/[.07] px-3 py-2 text-xs font-semibold text-[#d5f5ca]">{name}</span>)}
+          </div>
+          <p className="mt-5 text-xs leading-6 text-white/45">Site comercial em português, inglês e espanhol. A pesquisa de empresas permite selecionar países internacionais no CRM; os recursos internos ainda estão em processo de tradução.</p>
         </div>
       </section>
 
