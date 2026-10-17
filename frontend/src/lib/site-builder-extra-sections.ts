@@ -42,7 +42,7 @@ function renderExtraSection(s:ExtraSection):string{
   const layout=s.kind==="image-left"||s.kind==="image-right"?"display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));align-items:center;gap:clamp(20px,4vw,50px);":"display:grid;gap:24px;";
   const media='<div style="min-width:0">'+image+'</div>';
   const inner=s.kind==="image-right"?text+media:media+text;
-  return '<section data-pn-extra-id="'+id+'" style="'+shell+'"><div style="max-width:1050px;margin:auto;'+layout+'">'+inner+'</div></section>';
+  return '<section data-pn-extra-id="'+id+'" data-pn-extra-kind="'+escapeHtml(s.kind)+'" style="'+shell+'"><div style="max-width:1050px;margin:auto;'+layout+'">'+inner+'</div></section>';
  }
  return '<section data-pn-extra-id="'+id+'" style="'+shell+'text-align:center"><div style="max-width:900px;margin:auto"><h2 style="font-size:clamp(26px,4vw,44px);line-height:1.15;margin:0 0 16px;font-weight:750">'+escapeHtml(s.title)+'</h2><p style="margin:auto;max-width:650px;white-space:pre-line;font-size:clamp(15px,2vw,19px);line-height:1.75">'+escapeHtml(s.body)+'</p></div></section>';
 }
