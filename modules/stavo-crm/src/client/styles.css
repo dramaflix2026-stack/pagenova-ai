@@ -7,31 +7,31 @@
 /**
  * Design system.
  *
- * Tema claro e neutro, profissional e de baixo ruido.
- * Azul  = acao primaria      Cinza  = acao secundaria
+ * Tema escuro e neutro, profissional e de baixo ruido.
+ * Verde-lima = acao primaria   Cinza = acao secundaria
  * Verde = sucesso/recebido   Vermelho = destrutivo/irreversivel
  * Ambar = atencao/pendencia
  * Nunca dourado. Cor nunca aparece sozinha: sempre com texto e icone.
  */
 @layer base {
   :root {
-    --background: 222 48% 5%;
-    --surface: 220 38% 8%;
-    --foreground: 150 20% 96%;
+    --background: 120 22% 6%;
+    --surface: 120 23% 10%;
+    --foreground: 105 20% 96%;
 
-    --muted: 218 28% 13%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 120 18% 15%;
+    --muted-foreground: 118 12% 68%;
 
-    --border: 218 24% 17%;
-    --input: 218 24% 20%;
-    --ring: 158 70% 52%;
+    --border: 120 17% 23%;
+    --input: 120 19% 20%;
+    --ring: 108 76% 70%;
 
-    --primary: 158 70% 52%;
-    --primary-foreground: 164 72% 8%;
-    --primary-soft: 159 42% 14%;
+    --primary: 108 76% 70%;
+    --primary-foreground: 102 39% 10%;
+    --primary-soft: 113 30% 18%;
 
-    --secondary: 218 24% 14%;
-    --secondary-foreground: 150 20% 92%;
+    --secondary: 120 20% 15%;
+    --secondary-foreground: 110 20% 92%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
