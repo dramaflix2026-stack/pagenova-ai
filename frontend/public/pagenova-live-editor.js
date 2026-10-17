@@ -267,6 +267,11 @@
     const source = find(edit.selector);
     const el = source;
     if (!el) return;
+    if (edit.imageUrl && el.matches("img") && edit.imageUrl.startsWith("data:image/")) {
+      el.src=edit.imageUrl;el.removeAttribute("srcset");el.removeAttribute("sizes");
+      const picture=el.closest("picture");
+      if(picture)picture.querySelectorAll("source").forEach(function(source){source.removeAttribute("srcset");});
+    }
     if (edit.text && el.matches(textSel)) el.textContent = edit.text;
     if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
     if (edit.size && el.matches(textSel)) el.style.setProperty("font-size", edit.size + "px", "important");
@@ -470,6 +475,38 @@
     reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Não foi possível ler a imagem."},"*");photoInput.value="";};
     reader.readAsDataURL(file);
   });
+  const templatePicker=document.createElement("input");
+  templatePicker.type="file";
+  templatePicker.accept="image/png,image/jpeg,image/webp";
+  templatePicker.style.cssText="position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0";
+  document.body.appendChild(templatePicker);
+  let templateTarget=null;
+  templatePicker.addEventListener("change",function(){
+    const file=templatePicker.files&&templatePicker.files[0],target=templateTarget;
+    templatePicker.value="";
+    if(!file||!target||!document.contains(target))return;
+    if(!["image/png","image/jpeg","image/webp"].includes(file.type)||file.size>5*1024*1024){
+      parent.postMessage({type:"pagenova-image-upload-error",message:"Envie JPG, PNG ou WebP de até 5 MB."},"*");return;
+    }
+    const reader=new FileReader();
+    reader.onload=function(){
+      if(typeof reader.result!=="string")return;
+      const selector=path(target);
+      if(!selector)return;
+      applyEdit({selector:selector,imageUrl:reader.result,kind:"image"});
+      parent.postMessage({type:"pagenova-template-image-file",key:KEY,selector:selector,dataUrl:reader.result},"*");
+    };
+    reader.onerror=function(){parent.postMessage({type:"pagenova-image-upload-error",message:"Falha ao ler imagem."},"*");};
+    reader.readAsDataURL(file);
+  });
+  function requestTemplateImage(e){
+    const img=closest(e.target,"img");
+    if(!img||imagePlaceholder(e.target)||closest(e.target,"#pn-edit-bar,#pn-edit-box"))return false;
+    e.preventDefault();e.stopPropagation();
+    templateTarget=img;
+    templatePicker.click();
+    return true;
+  }
   function requestUpload(e) {
     if(closest(e.target,"#pn-edit-bar,#pn-edit-box")) return false;
     const holder=imageCard(e.target);
@@ -487,7 +524,7 @@
       const now=Date.now();
       const doubleTap=lastTap.el===card&&now-lastTap.at<450;
       lastTap={el:card,at:now};
-      if(doubleTap)requestUpload(e);
+      if(doubleTap && !requestTemplateImage(e))requestUpload(e);
       return;
     }
     const el = candidate(e.target);
@@ -503,7 +540,8 @@
 
   document.addEventListener("dblclick", function(e) {
     if (closest(e.target, "#pn-edit-bar,#pn-edit-box")) return;
-    if (imageCard(e.target)) { requestUpload(e); return; }
+    if (imageCard(e.target)) { if(!requestTemplateImage(e))requestUpload(e); return; }
+    if (requestTemplateImage(e)) return;
     const el = candidate(e.target);
     if (!el || !el.matches(textSel)) return;
     e.preventDefault(); e.stopPropagation(); openToolbar(el);
