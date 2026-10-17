@@ -2,6 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // Server-rendered document language for the localized public pages.
+  // Existing Supabase route protection below remains unchanged.
+  if(request.nextUrl.pathname==="/en"||request.nextUrl.pathname==="/es"){
+    const requestHeaders=new Headers(request.headers);
+    requestHeaders.set("x-pagenova-html-lang",request.nextUrl.pathname.slice(1));
+    return NextResponse.next({request:{headers:requestHeaders}});
+  }
   // Landing-only language detection. Preserve existing auth guards below.
   // The rest of the platform remains Portuguese until its own translations ship.
   if(request.nextUrl.pathname==="/"){
@@ -76,6 +83,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/en",
+    "/es",
     "/app/:path*",
     "/login",
     "/cadastro",
