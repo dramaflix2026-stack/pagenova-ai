@@ -241,15 +241,15 @@ export default function ClonerPage() {
         <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Preserve a estrutura, os estilos e as imagens públicas da página para editar na PageNova.</p>
       </header>
 
-      <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-[#07110e] text-[#f2f6f1]">
+      <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-[#0b100d] text-[#f2f6f1]">
         {/* Ambient background */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-hidden"
         >
-          <div className="absolute left-1/2 top-[-340px] h-[620px] w-[900px] -translate-x-1/2 rounded-full bg-[#1f8f61]/[.10] blur-[120px]" />
-          <div className="absolute -left-48 top-[360px] h-[420px] w-[420px] rounded-full bg-[#50dca9]/[.055] blur-[120px]" />
-          <div className="absolute right-[-220px] top-[180px] h-[520px] w-[520px] rounded-full bg-[#168457]/[.07] blur-[140px]" />
+          <div className="absolute left-1/2 top-[-340px] h-[620px] w-[900px] -translate-x-1/2 rounded-full bg-[#467f3b]/[.10] blur-[120px]" />
+          <div className="absolute -left-48 top-[360px] h-[420px] w-[420px] rounded-full bg-[#8fec78]/[.055] blur-[120px]" />
+          <div className="absolute right-[-220px] top-[180px] h-[520px] w-[520px] rounded-full bg-[#467f3b]/[.07] blur-[140px]" />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.018)_1px,transparent_1px)] bg-[size:52px_52px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
         </div>
 
@@ -257,8 +257,8 @@ export default function ClonerPage() {
           {/* Hero */}
           <section className="flex flex-col items-center justify-center gap-7 border-b border-white/[.08] pb-10 lg:pb-12">
             <div className="mx-auto max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#50dca9]/20 bg-[#50dca9]/[.07] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#79e4b6]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#50dca9] shadow-[0_0_12px_rgba(80,220,169,.8)]" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#8fec78]/20 bg-[#8fec78]/[.07] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#a8f494]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#8fec78] shadow-[0_0_12px_rgba(80,220,169,.8)]" />
                 PageNova Cloner
               </div>
 
@@ -273,17 +273,17 @@ export default function ClonerPage() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pb-1 text-xs text-white/45">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#50dca9]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#8fec78]">
                 01
               </span>
               URL
               <span className="h-px w-7 bg-white/10" />
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#50dca9]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#8fec78]">
                 02
               </span>
               Análise
               <span className="h-px w-7 bg-white/10" />
-              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#50dca9]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/[.035] text-[#8fec78]">
                 03
               </span>
               Editor
@@ -292,10 +292,10 @@ export default function ClonerPage() {
 
           {/* Main workspace */}
           <section className="mx-auto mt-8 flex max-w-3xl flex-col gap-6">
-            <div className="overflow-hidden rounded-[28px] border border-white/[.09] bg-[#0b1712]/95 shadow-[0_30px_90px_rgba(0,0,0,.24)]">
+            <div className="overflow-hidden rounded-[28px] border border-white/[.09] bg-[#0b100d]/95 shadow-[0_30px_90px_rgba(0,0,0,.24)]">
               <div className="border-b border-white/[.08] px-6 py-5 sm:px-8">
                 <div className="flex flex-col items-center justify-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#50dca9]/20 bg-[#50dca9]/[.08] text-lg text-[#79e4b6]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#8fec78]/20 bg-[#8fec78]/[.08] text-lg text-[#a8f494]">
                     ↗
                   </div>
 
@@ -321,9 +321,9 @@ export default function ClonerPage() {
                   URL da página
                 </label>
 
-                <div className="mt-3 rounded-2xl border border-white/[.10] bg-black/20 p-2 transition focus-within:border-[#50dca9]/45 focus-within:bg-black/30 focus-within:shadow-[0_0_0_4px_rgba(80,220,169,.05)] sm:flex sm:items-center">
+                <div className="mt-3 rounded-2xl border border-white/[.10] bg-black/20 p-2 transition focus-within:border-[#8fec78]/45 focus-within:bg-black/30 focus-within:shadow-[0_0_0_4px_rgba(80,220,169,.05)] sm:flex sm:items-center">
                   <div className="flex min-w-0 flex-1 items-center">
-                    <span className="ml-3 mr-1 hidden shrink-0 text-sm text-[#50dca9] sm:block">
+                    <span className="ml-3 mr-1 hidden shrink-0 text-sm text-[#8fec78] sm:block">
                       ↗
                     </span>
 
@@ -342,11 +342,11 @@ export default function ClonerPage() {
                   <button
                     type="submit"
                     disabled={loading || !url.trim()}
-                    className="mt-2 flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50dca9] px-5 py-3.5 text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(80,220,169,.16)] transition hover:bg-[#79e4b6] disabled:cursor-not-allowed disabled:opacity-40 sm:mt-0 sm:w-auto"
+                    className="mt-2 flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-[#8fec78] px-5 py-3.5 text-sm font-bold text-[#14220f] shadow-[0_12px_35px_rgba(80,220,169,.16)] transition hover:bg-[#a8f494] disabled:cursor-not-allowed disabled:opacity-40 sm:mt-0 sm:w-auto"
                   >
                     {loading ? (
                       <>
-                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#062018]/25 border-t-[#062018]" />
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#14220f]/25 border-t-[#14220f]" />
                         Analisando...
                       </>
                     ) : (
@@ -364,7 +364,7 @@ export default function ClonerPage() {
                   </span>
 
                   <span className="inline-flex items-center gap-1.5 text-white/25">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#50dca9]/70" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#8fec78]/70" />
                     Importação automática
                   </span>
                 </div>
@@ -392,7 +392,7 @@ export default function ClonerPage() {
 
             {/* Workflow explanation */}
             <aside className="rounded-[28px] border border-white/[.08] bg-white/[.025] p-6 sm:p-7">
-              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#50dca9]">
+              <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#8fec78]">
                 Como funciona
               </p>
 
@@ -418,7 +418,7 @@ export default function ClonerPage() {
                     key={number}
                     className="flex flex-col items-center gap-3 rounded-2xl border border-white/[.06] bg-black/[.12] p-4"
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#50dca9]/20 bg-[#0d1c16] text-[10px] font-bold text-[#79e4b6]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#8fec78]/20 bg-[#142019] text-[10px] font-bold text-[#a8f494]">
                       {number}
                     </span>
 
@@ -444,11 +444,11 @@ export default function ClonerPage() {
 
           {/* Loading */}
           {loading && (
-            <section className="mt-6 overflow-hidden rounded-[28px] border border-[#50dca9]/15 bg-[#0b1712] p-6 sm:p-8">
+            <section className="mt-6 overflow-hidden rounded-[28px] border border-[#8fec78]/15 bg-[#0b100d] p-6 sm:p-8">
               <div className="flex flex-col items-center gap-6">
                 <div className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-[#50dca9]/10" />
-                  <span className="relative h-7 w-7 animate-spin rounded-full border-2 border-white/10 border-t-[#50dca9]" />
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[#8fec78]/10" />
+                  <span className="relative h-7 w-7 animate-spin rounded-full border-2 border-white/10 border-t-[#8fec78]" />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -462,13 +462,13 @@ export default function ClonerPage() {
                       </p>
                     </div>
 
-                    <span className="text-xs font-medium text-[#79e4b6]">
+                    <span className="text-xs font-medium text-[#a8f494]">
                       Processando
                     </span>
                   </div>
 
                   <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/[.06]">
-                    <div className="h-full w-1/2 animate-pulse rounded-full bg-[#50dca9]" />
+                    <div className="h-full w-1/2 animate-pulse rounded-full bg-[#8fec78]" />
                   </div>
                 </div>
               </div>
@@ -477,15 +477,15 @@ export default function ClonerPage() {
 
           {/* Result */}
           {result?.project && (
-            <section className="mt-6 overflow-hidden rounded-[28px] border border-[#50dca9]/20 bg-[#0b1712] shadow-[0_30px_100px_rgba(0,0,0,.24)]">
+            <section className="mt-6 overflow-hidden rounded-[28px] border border-[#8fec78]/20 bg-[#0b100d] shadow-[0_30px_100px_rgba(0,0,0,.24)]">
               <div className="border-b border-white/[.08] p-6 sm:p-8">
                 <div className="flex flex-col items-center justify-center gap-6">
                   <div className="min-w-0">
                     <div className="flex items-center justify-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#50dca9]/10 text-xs font-bold text-[#50dca9]">
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#8fec78]/10 text-xs font-bold text-[#8fec78]">
                         ✓
                       </span>
-                      <p className="text-xs font-bold uppercase tracking-[.14em] text-[#79e4b6]">
+                      <p className="text-xs font-bold uppercase tracking-[.14em] text-[#a8f494]">
                         Página importada
                       </p>
                     </div>
@@ -509,7 +509,7 @@ export default function ClonerPage() {
                   <button
                     type="button"
                     onClick={openEditor}
-                    className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#50dca9] px-5 py-3.5 text-sm font-bold text-[#062018] shadow-[0_12px_35px_rgba(80,220,169,.16)] transition hover:-translate-y-0.5 hover:bg-[#79e4b6]"
+                    className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-[#8fec78] px-5 py-3.5 text-sm font-bold text-[#14220f] shadow-[0_12px_35px_rgba(80,220,169,.16)] transition hover:-translate-y-0.5 hover:bg-[#a8f494]"
                   >
                     Abrir no editor
                     <span aria-hidden="true">→</span>
@@ -567,7 +567,7 @@ export default function ClonerPage() {
                 </div>
 
                 <div className="inline-flex items-center gap-2 text-xs text-white/30">
-                  <span className="h-2 w-2 rounded-full bg-[#50dca9] shadow-[0_0_12px_rgba(80,220,169,.65)]" />
+                  <span className="h-2 w-2 rounded-full bg-[#8fec78] shadow-[0_0_12px_rgba(80,220,169,.65)]" />
                   Clonagem concluída
                 </div>
               </div>
@@ -591,7 +591,7 @@ export default function ClonerPage() {
                 <p className="mt-1 text-xs text-white/50">As páginas clonadas aparecerão aqui automaticamente.</p>
               </div>:
               <div className="grid gap-3 sm:grid-cols-2">
-                {savedClones.map(item=><article key={item.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-[#0d1915] p-4 transition hover:border-emerald-400/30">
+                {savedClones.map(item=><article key={item.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-2xl border border-white/10 bg-[#142019] p-4 transition hover:border-emerald-400/30">
                   <div className="min-w-0">
                     <h3 className="truncate text-base font-bold text-white" title={item.title}>{item.title||item.domain||"Página clonada"}</h3>
                     <p className="mt-1 truncate text-xs text-emerald-200/80" title={item.finalUrl}>{item.domain||item.finalUrl}</p>
@@ -599,7 +599,7 @@ export default function ClonerPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button type="button" onClick={()=>router.push(`/app/editor/${item.id}`)}
-                      className="flex-1 rounded-lg bg-[#50dca9] px-3 py-2.5 text-xs font-bold text-[#082117] hover:bg-[#79e4b6]">Abrir e editar →</button>
+                      className="flex-1 rounded-lg bg-[#8fec78] px-3 py-2.5 text-xs font-bold text-[#14220f] hover:bg-[#a8f494]">Abrir e editar →</button>
                     <button type="button" onClick={()=>void removeSavedClone(item.id)}
                       className="rounded-lg border border-red-400/20 px-3 py-2.5 text-xs font-semibold text-red-200 hover:bg-red-400/10" aria-label={`Excluir projeto ${item.title||item.domain}`}>Excluir</button>
                   </div>
