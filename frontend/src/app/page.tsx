@@ -55,9 +55,14 @@ const showcaseFlows = [
   { number:"06", label:"EBOOKS COM IA", title:"Conteúdo com identidade própria", description:"Monte ebooks, revise capítulos e personalize o visual antes de exportar." },
   { number:"07", label:"CRM DE VENDAS", title:"Organize os próximos contatos", description:"Mantenha leads e oportunidades por etapa, com contexto para continuar o atendimento." },
   { number:"08", label:"AGENDA", title:"Mais clareza na rotina", description:"Visualize compromissos, serviços e horários sem alternar de ferramenta." },
+  { number:"09", label:"CHAT COM IA", title:"Sua IA para conversar sobre projetos", description:"Troque ideias com o assistente da PageNova sobre recursos da plataforma, criação de páginas e próximos ajustes, sem sair do seu espaço de trabalho." },
 ] as const;
 
 const questions = [
+  {
+    question: "A PageNova tem um chat com inteligência artificial?",
+    answer: "Sim. O chat com IA da PageNova é um espaço para tirar dúvidas, discutir ideias e receber orientação sobre as funcionalidades da plataforma e seus projetos. Ele complementa o editor visual; não substitui a revisão e a publicação feitas por você.",
+  },
   {
     question: "O que posso criar na PageNova?",
     answer: "Você pode criar sites institucionais, landing pages, quizzes, formulários e ebooks com IA, além de clonar páginas para edição e organizar sua operação com CRM, agenda e projetos.",
@@ -162,7 +167,7 @@ export default function Home() {
               <span className="text-[#a8f494]">Seu trabalho ganha ritmo.</span>
             </h1>
             <p className="mt-5 w-full max-w-2xl break-words text-[14px] leading-6 text-white/65 sm:text-lg sm:leading-8">
-              Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
+              Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado, converse com nosso assistente de IA e organize leads e agendamentos em um só lugar.
             </p>
             <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
               <Link href="/cadastro?trial=1" className="pn-brand-button inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] px-4 py-3.5 text-center text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494] sm:w-auto sm:px-6">
