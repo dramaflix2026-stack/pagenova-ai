@@ -14,7 +14,7 @@ const themes={
     chosen:"border-indigo-300 bg-indigo-300/20"},
   cream:{page:"bg-[#efece4]",card:"bg-[#fffdf8] border-[#d8cfbd]",text:"text-[#283f33]",
     faded:"text-[#6c756d]",button:"bg-[#1f7454] text-white hover:bg-[#2b8b68]",
-    option:"border-[#d5d4cc] bg-[#f8f7f1] hover:border-[#1f7454]/60",
+    option:"border-[#d5d4cc] bg-[#f8f7f1] hover:border-[#1f7454]/60 hover:bg-white",
     chosen:"border-[#1f7454] bg-[#e7f6ec]"},
 };
 type Props={quiz:PublicQuiz;preview?:QuizProject};
@@ -63,18 +63,15 @@ export function PublicQuizPlayer({quiz,preview}:Props){
     else if(quiz.collectLeads)setIndex(quiz.questions.length);
     else void finish(answers);
   }
-  const labelClasses="rounded-2xl border px-4 py-4 text-left text-sm font-medium leading-6 transition-all";
+  const labelClasses="group flex min-h-[72px] w-full rounded-2xl border px-4 py-4 text-left text-[15px] font-medium leading-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 sm:px-5";
   const animate=quiz.motion!==false?" motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"";
-  return <main className={"relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-10 font-sans sm:py-14 "+(hasBackground?"bg-[#101511] text-white":palette.page+" "+palette.text)}>
+  return <main className={"relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12 font-sans sm:px-8 sm:py-20 "+(hasBackground?"bg-[#101511] text-white":palette.page+" "+palette.text)}>
     {hasBackground&&<>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url(${JSON.stringify(quiz.coverImageUrl)})`}}/>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-black/65"/>
     </>}
-    <div className="w-full max-w-[670px]">
-      {preview&&<div className="mb-4 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-center text-xs font-semibold text-amber-200">
-        Prévia interativa · suas respostas não serão registradas
-      </div>}
-      <article className={"p-1 sm:p-3 "+(hasBackground?"text-white":"")}>
+    <div className="w-full max-w-[720px]">
+      <article className={"px-1 py-3 sm:px-5 sm:py-6 "+(hasBackground?"text-white":"")}>
         {/* The quiz sits directly on its chosen background, not inside a second card. */}
         {result? <div className={"py-9 text-center"+animate}>
           {result.imageUrl&&<img src={result.imageUrl} alt={"Resultado: "+result.title} className="mx-auto mb-6 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
@@ -117,20 +114,20 @@ export function PublicQuizPlayer({quiz,preview}:Props){
               {working?<LoaderCircle className="h-4 w-4 animate-spin"/>:"Ver meu resultado →"}
             </button>
           </div>
-        </form> : question? <div key={question.id} className={"pt-8"+animate}>
-          {index===0&&<div className="mb-7">
-            <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{quiz.title}</h1>
-            <p className={"mt-2 text-sm leading-6 "+palette.faded}>{quiz.subtitle}</p>
+        </form> : question? <div key={question.id} className={"pt-5 sm:pt-8"+animate}>
+          {index===0&&<div className="mb-9">
+            <h1 className="text-2xl font-extrabold leading-tight tracking-[-.035em] sm:text-[32px]">{quiz.title}</h1>
+            <p className={"mt-3 text-[15px] leading-7 "+palette.faded}>{quiz.subtitle}</p>
           </div>}
-          {question.imageUrl&&<img src={question.imageUrl} alt={"Imagem da pergunta "+(index+1)} className="mb-5 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
-          <h2 className="text-[clamp(1.35rem,4vw,1.9rem)] font-bold leading-snug tracking-[-.035em]">{question.title}</h2>
-          <div className="mt-7 space-y-3" role="radiogroup" aria-label={question.title}>
+          {question.imageUrl&&<img src={question.imageUrl} alt={"Imagem da pergunta "+(index+1)} className="mb-8 max-h-[360px] w-full rounded-2xl object-cover shadow-sm" loading="lazy"/>}
+          <h2 className="text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold leading-[1.2] tracking-[-.04em]">{question.title}</h2>
+          <div className="mt-8 space-y-3.5" role="radiogroup" aria-label={question.title}>
             {question.options.map((option,i)=>{
               const chosen=answers[question.id]===option.id;
               return <button key={option.id} type="button" role="radio" aria-checked={chosen}
                 onClick={()=>{setAnswers(a=>({...a,[question.id]:option.id}));setError("");}}
-                className={"flex w-full items-center gap-4 "+labelClasses+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
-                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
+                className={"items-center gap-4 "+labelClasses+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
                   {chosen?<Check className="h-4 w-4"/>:String.fromCharCode(65+i)}
                 </span>
                 {option.imageUrl&&<img src={option.imageUrl} alt="" loading="lazy" className="h-14 w-14 shrink-0 rounded-xl object-cover"/>}
@@ -139,13 +136,13 @@ export function PublicQuizPlayer({quiz,preview}:Props){
             })}
           </div>
           {error&&<p role="alert" className="mt-4 text-sm text-red-400">{error}</p>}
-          <div className="mt-9 flex gap-3">
+          <div className="mt-10 flex gap-3">
             {index>0&&<button type="button" onClick={()=>{setError("");setIndex(i=>i-1);}}
               className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-current/20 px-4 py-3 text-sm font-semibold">
               <ArrowLeft className="h-4 w-4"/> Voltar
             </button>}
             <button type="button" disabled={working||!answers[question.id]} onClick={next}
-              className={"inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 "+palette.button}>
+              className={"inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 "+palette.button}>
               {working?<LoaderCircle className="h-4 w-4 animate-spin"/>:index===quiz.questions.length-1?"Ver resultado":"Continuar"}
               {!working&&<ArrowRight className="h-4 w-4"/>}
             </button>
