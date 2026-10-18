@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowUpRight, CalendarDays, Check, ContactRound, LayoutTemplate, MousePointer2, Sparkles } from "lucide-react";
 
 const demonstrations = [
