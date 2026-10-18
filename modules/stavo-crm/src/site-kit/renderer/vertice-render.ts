@@ -19,7 +19,7 @@ export const VERTICE_CSS=[
 ".vertice-site .v-brand img{display:block;max-width:235px;max-height:65px;object-fit:contain}.vertice-site .v-symbol{display:grid;grid-template-columns:repeat(2,10px);gap:3px;transform:rotate(-8deg);flex:none}.vertice-site .v-symbol i{width:10px;height:10px;background:var(--v-ink)}.vertice-site .v-symbol i:last-child{opacity:.35}",
 ".vertice-site .v-nav{display:flex;align-items:center;gap:28px;font-size:12px;font-weight:700}.vertice-site .v-nav a:hover{color:#25845d}.vertice-site .v-btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:4px;background:#27573e;color:white!important;padding:15px 24px;font-size:12px;font-weight:700;transition:background .2s}.vertice-site .v-btn:hover{background:#17402a}",
 ".vertice-site .v-hero{min-height:610px;position:relative;display:flex;align-items:center;overflow:hidden;background:linear-gradient(105deg,#e8ede8,#b9cec0)}",
-".vertice-site .v-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}.vertice-site .v-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,250,246,.98) 0%,rgba(247,250,246,.94) 30%,rgba(247,250,246,.12) 80%)}",
+".vertice-site .v-hero-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}.vertice-site .v-hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(247,250,246,.92) 0%,rgba(247,250,246,.74) 30%,rgba(247,250,246,0) 80%)}",
 ".vertice-site .v-hero-inner{position:relative;z-index:1;padding:75px 0}.vertice-site .v-eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:.19em;font-weight:800;display:flex;align-items:center;gap:10px}.vertice-site .v-eyebrow:before{content:'';width:23px;height:1px;background:currentColor}",
 ".vertice-site .v-hero h1{font-weight:500;font-size:clamp(40px,5.5vw,70px);letter-spacing:-.06em;line-height:1.12;max-width:720px;margin:25px 0}.vertice-site .v-hero h1 strong{display:block;font-weight:800}.vertice-site .v-hero-description{max-width:440px;color:#576e5f;font-size:15px;line-height:1.85;margin-bottom:26px!important}",
 ".vertice-site .v-value-strip{border-bottom:1px solid var(--v-line)}.vertice-site .v-value-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}.vertice-site .v-value{padding:30px 0;display:flex;gap:16px;align-items:flex-start}.vertice-site .v-value-icon{width:43px;height:43px;display:grid;place-items:center;border-radius:50%;background:var(--v-soft);flex:none;color:#438467}.vertice-site .v-value h3{font-size:13px;margin-bottom:5px;font-weight:800}.vertice-site .v-value p{font-size:11px;color:var(--v-muted);line-height:1.8}",
@@ -38,7 +38,13 @@ export function renderVertice(model:SiteSchemaModel, ctx:RenderContext, apply:(h
  const services=d.services.items.slice(0,6).map((item,i)=>'<article class="v-service"><span class="v-index">0'+(i+1)+'</span><h3>'+e(item.title)+'</h3><p>'+e(item.description)+'</p></article>').join('');
  const benefits=d.highlights.slice(0,3).map((item,i)=>'<article class="v-value"><span class="v-value-icon">'+['✦','◇','↗'][i]+'</span><div><h3>'+e(item.title)+'</h3><p>'+e(item.description)+'</p></div></article>').join('');
  const about=d.about.paragraphs.join(' ');
- const picture=d.hero.image.src||d.about.image.src||'';
+ const nicheText=[model.business.niche,model.business.name,d.hero.description,d.services.heading].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const isSolar=/energia solar|fotovoltaic|pain[eé]is solares|solarprime/.test(nicheText);
+ const isMismatchedSolarHero=isSolar&&/seu espa[cç]o|projeto que fa[cç]a sentido|ambiente|interiores|decora[cç][aã]o/i.test(d.hero.title);
+ // Do not reuse a lifestyle/architecture photograph when the persisted solar copy is visibly off-niche.
+ const picture=isMismatchedSolarHero?'':(d.hero.image.src||d.about.image.src||'');
+ const heroTitle=isMismatchedSolarHero?'Energia solar para sua casa, comércio ou indústria':d.hero.title;
+ const heroDescription=isMismatchedSolarHero?'Conheça soluções fotovoltaicas para diferentes perfis de consumo e solicite uma avaliação personalizada para seu projeto.':d.hero.description;
  const contact=d.contact.ctaUrl||'#contato';
  const html=[
  '<div class="vertice-site">',
@@ -48,7 +54,7 @@ export function renderVertice(model:SiteSchemaModel, ctx:RenderContext, apply:(h
  '<main id="conteudo"><section id="inicio" class="v-hero" data-v-slot="hero">',
  picture?'<img class="v-hero-photo" src="'+e(picture)+'" alt="'+e(d.hero.image.alt||brand)+'">':'',
  '<div class="v-width v-hero-inner"><p class="v-eyebrow">'+e(model.business.niche||'Novas perspectivas')+'</p>',
- '<h1>'+e(d.hero.title)+'</h1><p class="v-hero-description">'+e(d.hero.description)+'</p>',
+ '<h1>'+e(heroTitle)+'</h1><p class="v-hero-description">'+e(heroDescription)+'</p>',
  '<a class="v-btn" href="#solucoes">'+e(d.hero.ctaLabel||'Conheça nossas soluções')+' ↗</a></div></section>',
  '<section class="v-value-strip"><div class="v-width v-value-grid">'+benefits+'</div></section>',
  '<section id="solucoes" class="v-section" data-v-slot="services"><div class="v-width"><p class="v-eyebrow">O que fazemos</p><h2 class="v-section-title">'+e(d.services.heading)+'</h2><p class="v-section-description">'+e(d.hero.description)+'</p><div class="v-service-grid">'+services+'</div></div></section>',
