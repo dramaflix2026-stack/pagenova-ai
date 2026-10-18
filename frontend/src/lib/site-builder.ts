@@ -137,7 +137,7 @@ export type SiteProject = {
   brief: string;
   style: string;
   /** Rendering family saved with the CRM draft, not a visual color filter. */
-  templateId?: "frigolog-universal" | "muse-editorial" | "atelier-norte" | "vertice-corporate" | "restaurant-premium" | "real-estate-premium";
+  templateId?: "frigolog-universal" | "muse-editorial" | "atelier-norte" | "vertice-corporate" | "vertice-premium" | "restaurant-premium" | "real-estate-premium";
   previewTheme?: import("@/lib/site-builder-live-editor").PreviewTheme;
   visualDirection?: VisualDirection;
   siteStrategy?: import("@/lib/site-builder-universal").UniversalSiteStrategy;
@@ -186,6 +186,8 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
    * Explicit opt-in path.
    * Existing universal and legacy renderers remain available below.
    */
+  if (project.templateId === "vertice-premium") return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey));
+
   if (project.presetId === "template-001") {
     const template001Html = renderTemplate001Preview(
       project,
@@ -256,3 +258,5 @@ import {
   hasUniversalRenderStrategy,
   renderUniversalSitePreview,
 } from "@/lib/site-builder-universal-renderer";
+
+import { renderVerticePremiumPreview } from "@/lib/site-builder-vertice-premium";
