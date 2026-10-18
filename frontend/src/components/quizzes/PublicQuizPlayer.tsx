@@ -20,6 +20,7 @@ const themes={
 type Props={quiz:PublicQuiz;preview?:QuizProject};
 export function PublicQuizPlayer({quiz,preview}:Props){
   const hasBackground=Boolean(quiz.coverImageUrl);
+  const conversational=quiz.layout==="conversational";
   const palette=themes[quiz.theme]||themes.emerald;
   const [index,setIndex]=useState(0);
   const [answers,setAnswers]=useState<Record<string,string>>({});
@@ -70,8 +71,8 @@ export function PublicQuizPlayer({quiz,preview}:Props){
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url(${JSON.stringify(quiz.coverImageUrl)})`}}/>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-black/65"/>
     </>}
-    <div className="w-full max-w-[720px]">
-      <article className={"px-1 py-3 sm:px-5 sm:py-6 "+(hasBackground?"text-white":"")}>
+    <div className={conversational?"w-full max-w-[880px]":"w-full max-w-[720px]"}>
+      <article className={(conversational?"px-0 py-6 sm:px-4 sm:py-10 ":"px-1 py-3 sm:px-5 sm:py-6 ")+(hasBackground?"text-white":"")}>
         {/* The quiz sits directly on its chosen background, not inside a second card. */}
         {result? <div className={"py-9 text-center"+animate}>
           {result.imageUrl&&<img src={result.imageUrl} alt={"Resultado: "+result.title} className="mx-auto mb-6 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
@@ -115,18 +116,19 @@ export function PublicQuizPlayer({quiz,preview}:Props){
             </button>
           </div>
         </form> : question? <div key={question.id} className={"pt-5 sm:pt-8"+animate}>
-          {index===0&&<div className="mb-9">
+          {index===0&&!conversational&&<div className="mb-9">
             <h1 className="text-2xl font-extrabold leading-tight tracking-[-.035em] sm:text-[32px]">{quiz.title}</h1>
             <p className={"mt-3 text-[15px] leading-7 "+palette.faded}>{quiz.subtitle}</p>
           </div>}
+          {conversational&&<div className="mb-5 flex items-center gap-3 text-sm opacity-75"><span className="grid h-7 w-7 place-items-center rounded-md border border-current/30 text-xs font-bold">{index+1}</span><span>{index+1} de {quiz.questions.length}</span></div>}
           {question.imageUrl&&<img src={question.imageUrl} alt={"Imagem da pergunta "+(index+1)} className="mb-8 max-h-[360px] w-full rounded-2xl object-cover shadow-sm" loading="lazy"/>}
-          <h2 className="text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold leading-[1.2] tracking-[-.04em]">{question.title}</h2>
-          <div className="mt-8 space-y-3.5" role="radiogroup" aria-label={question.title}>
+          <h2 className={conversational?"text-[clamp(1.8rem,4vw,2.8rem)] font-medium leading-[1.25] tracking-[-.035em]":"text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold leading-[1.2] tracking-[-.04em]"}>{question.title}</h2>
+          <div className={conversational?"mt-9 space-y-3":"mt-8 space-y-3.5"} role="radiogroup" aria-label={question.title}>
             {question.options.map((option,i)=>{
               const chosen=answers[question.id]===option.id;
               return <button key={option.id} type="button" role="radio" aria-checked={chosen}
                 onClick={()=>{setAnswers(a=>({...a,[question.id]:option.id}));setError("");}}
-                className={"items-center gap-4 "+labelClasses+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
+                className={"items-center gap-4 "+(conversational?"min-h-[66px] rounded-xl border px-4 py-3 text-left text-base font-medium transition hover:translate-x-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ":""+labelClasses)+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
                   {chosen?<Check className="h-4 w-4"/>:String.fromCharCode(65+i)}
                 </span>
@@ -136,13 +138,13 @@ export function PublicQuizPlayer({quiz,preview}:Props){
             })}
           </div>
           {error&&<p role="alert" className="mt-4 text-sm text-red-400">{error}</p>}
-          <div className="mt-10 flex gap-3">
+          <div className={conversational?"mt-8 flex flex-wrap items-center gap-3":"mt-10 flex gap-3"}>
             {index>0&&<button type="button" onClick={()=>{setError("");setIndex(i=>i-1);}}
               className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-current/20 px-4 py-3 text-sm font-semibold">
               <ArrowLeft className="h-4 w-4"/> Voltar
             </button>}
             <button type="button" disabled={working||!answers[question.id]} onClick={next}
-              className={"inline-flex min-h-14 flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 "+palette.button}>
+              className={"inline-flex min-h-12 items-center justify-center gap-2 px-6 py-3 text-sm font-bold shadow-sm transition-all hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 "+(conversational?"flex-none rounded-lg ":"flex-1 rounded-2xl ")+palette.button}>
               {working?<LoaderCircle className="h-4 w-4 animate-spin"/>:index===quiz.questions.length-1?"Ver resultado":"Continuar"}
               {!working&&<ArrowRight className="h-4 w-4"/>}
             </button>
