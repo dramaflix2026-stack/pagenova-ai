@@ -189,12 +189,19 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const [creditsLoading,setCreditsLoading]=useState(true);
   useEffect(()=>{
     let active=true;
-    fetch("/api/credits",{cache:"no-store",credentials:"same-origin"})
-      .then(async response=>{if(!response.ok)throw new Error("Saldo indisponível");return response.json() as Promise<SidebarCredits>;})
-      .then(data=>{if(active)setCredits(data);})
-      .catch(()=>{if(active)setCredits(null);})
-      .finally(()=>{if(active)setCreditsLoading(false);});
-    return ()=>{active=false;};
+    const refresh=()=>{
+      if(document.visibilityState==="hidden")return;
+      fetch("/api/credits",{cache:"no-store",credentials:"same-origin"})
+        .then(async response=>{if(!response.ok)throw new Error("Saldo indisponível");return response.json() as Promise<SidebarCredits>;})
+        .then(data=>{if(active)setCredits(data);})
+        .catch(()=>{if(active)setCredits(null);})
+        .finally(()=>{if(active)setCreditsLoading(false);});
+    };
+    refresh();
+    const timer=window.setInterval(refresh,30000);
+    window.addEventListener("focus",refresh);
+    document.addEventListener("visibilitychange",refresh);
+    return ()=>{active=false;window.clearInterval(timer);window.removeEventListener("focus",refresh);document.removeEventListener("visibilitychange",refresh);};
   },[pathname]);
 
   useEffect(() => {
