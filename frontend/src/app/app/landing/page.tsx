@@ -13,14 +13,21 @@ import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,C
 
 type Tab="content"|"structure"|"design";
 type EditorSection=LandingSection|"hero"|"comparison"|"bonuses"|"guarantee";
-type Draft={id:string;name?:string;updatedAt:string};
+type Draft={id:string;name?:string;headline?:string;updatedAt:string};
+function draftDisplayName(d:Draft,index:number){
+ const name=(d.name||"").trim();
+ if(name&&!/^projeto(?:\s+[a-f0-9]{6,})?$/i.test(name)&&!/^landing page sem t[ií]tulo$/i.test(name))return name;
+ const headline=(d.headline||"").trim();
+ if(headline&&!/^projeto\b/i.test(headline))return headline;
+ return `Landing page ${String(index+1).padStart(2,"0")}`;
+}
 type Lead={name:string;email:string;message?:string;submittedAt:string};
 const sectionLabels:Record<LandingSection|"hero",string>={
  hero:"Primeira dobra",benefits:"Benefícios",details:"Apresentação",process:"Como funciona",
  proof:"Depoimento",offer:"Oferta e CTA",faq:"Dúvidas frequentes",contact:"Formulário e contato"
 };
 function errorText(error:unknown){return error instanceof Error?error.message:"Não foi possível concluir.";}
-const inputClass="w-full rounded-xl border border-white/10 bg-[#131d17] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70";
+const inputClass="w-full rounded-xl border border-white/10 bg-[#151d17] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70";
 function Field({label,value,onChange,placeholder="",rows=0,hint}:{
  label:string;value:string;onChange:(v:string)=>void;placeholder?:string;rows?:number;hint?:string;
 }){
@@ -406,20 +413,20 @@ export default function LandingStudioPage(){
   value={String(project?.[key]??"")} onChange={value=>patch({[key]:value} as Partial<LandingProject>)} rows={rows} placeholder={placeholder} hint={hint}/>;
 
  const editorProject = project as LandingProject;
- return <div className="min-h-screen bg-[#0d1017] text-white">
+ return <div className="min-h-screen bg-[#0b100d] text-white">
   <div className="mx-auto max-w-[1700px] px-3 py-3 sm:px-5 sm:py-5 lg:px-7">
    {!project?<>
     <div className="mx-auto max-w-4xl text-center">
-     <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-emerald-200">
-      <WandSparkles className="h-4 w-4"/> ESTÚDIO DE LANDING PAGES
+     <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-[#a8f494]/25 bg-emerald-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-[#c9f7bc]">
+      <WandSparkles className="h-4 w-4"/> PAGENOVA AI · LANDING PAGES
      </div>
-     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#a8f494]">alto padrão.</span></h1>
+     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Crie páginas que <span className="text-[#a8f494]">convertem ideias em resultados.</span></h1>
      <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">
-      Descreva sua ideia, crie uma página com IA e personalize cada detalhe antes de publicar.
+      Descreva seu produto em três passos. A PageNova prepara sua landing page para você editar e publicar.
      </p>
     </div>
     <section className="mx-auto mt-10 max-w-4xl">
-      <div className="rounded-2xl border border-emerald-400/25 bg-[#111a15] p-5 shadow-2xl sm:p-8">
+      <div className="rounded-2xl border border-[#a8f494]/25 bg-[#131c15] p-5 shadow-2xl sm:p-8">
        <div className="mb-6 flex items-center gap-3">
         <span className="grid size-11 place-items-center rounded-xl bg-emerald-300/10 text-emerald-300"><LayoutTemplate className="size-6"/></span>
         <div><h2 className="text-lg font-extrabold">Sua landing page começa aqui</h2>
@@ -435,7 +442,7 @@ export default function LandingStudioPage(){
        </div>
        <p className="mt-6 text-xs leading-6 text-white/55">O restante da página é estruturado automaticamente. A IA ajuda com textos contextualizados e não cria depoimentos, bônus ou resultados falsos.</p>
        <button type="button" disabled={!!creatingStep} onClick={()=>void create()}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-300 px-6 py-4 text-sm font-extrabold text-[#042019] hover:bg-emerald-200 disabled:opacity-60">
+        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#a8f494] px-6 py-4 text-sm font-extrabold text-[#14220f] shadow-[0_10px_30px_rgba(168,244,148,.12)] hover:bg-[#bdf8ae] disabled:opacity-60">
         {creatingStep?<LoaderCircle className="size-5 animate-spin"/>:<WandSparkles className="size-5"/>}
         {creatingStep?"Preparando sua landing...":"Criar Landing Page com IA"}
         {!creatingStep&&<ArrowRight className="size-5"/>}
@@ -445,9 +452,9 @@ export default function LandingStudioPage(){
      <div className="mt-8">
       <h2 className="mb-4 text-lg font-bold">Meus projetos salvos</h2>
       {loadingDrafts?<p className="text-sm text-white/45">Carregando...</p>:drafts.length===0?<p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-white/45">Seu primeiro projeto aparecerá aqui depois de criado e salvo.</p>:
-       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{drafts.map(d=><button key={d.id} onClick={()=>void openDraft(d.id)} disabled={!!opening}
-        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#121c16] p-4 text-left hover:border-emerald-300/50">
-        <span><strong className="block text-sm">{d.name?.trim()||"Landing page sem título"}</strong><small className="mt-1 block text-white/40">Atualizado {d.updatedAt?new Date(d.updatedAt).toLocaleDateString("pt-BR"):"recentemente"}</small></span>
+       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{drafts.map((d,index)=><button key={d.id} onClick={()=>void openDraft(d.id)} disabled={!!opening}
+        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141d16] p-4 text-left hover:border-emerald-300/50">
+        <span><strong className="block text-sm">{draftDisplayName(d,index)}</strong><small className="mt-1 block text-white/40">Atualizado {d.updatedAt?new Date(d.updatedAt).toLocaleDateString("pt-BR"):"recentemente"}</small></span>
         {opening===d.id?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ArrowRight className="h-4 w-4 text-emerald-300"/>}
        </button>)}</div>}
      </div>
