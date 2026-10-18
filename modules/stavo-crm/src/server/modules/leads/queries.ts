@@ -456,7 +456,7 @@ export async function searchLeadOptions(
   db: Database,
   termo: string,
   limit = 20,
-  onlyOwnerUserId: string | null = null,
+  onlyOwnerUserId: string | null,
   workspaceId: string,
 ): Promise<LeadOption[]> {
   const busca = `%${termo.trim()}%`;
