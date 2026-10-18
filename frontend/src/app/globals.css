@@ -1770,3 +1770,20 @@ body footer.pn-landing-footer > div:first-child {
 .pn-country-marquee-track {animation:pn-country-scroll 52s linear infinite;will-change:transform;}
 .pn-country-marquee:hover .pn-country-marquee-track,.pn-country-marquee:focus-within .pn-country-marquee-track {animation-play-state:paused;}
 @media (prefers-reduced-motion:reduce) { .pn-country-marquee-track{animation:none;max-width:100%;overflow-x:auto;will-change:auto;} }
+
+/* PAGENOVA MOBILE FIRST FOLD — viewport-safe hero and country carousel */
+@media (max-width: 767px) {
+  html, body { max-width: 100%; overflow-x: clip; }
+  .pn-landing-v2 { width: 100%; max-width: 100%; overflow-x: clip; }
+  .pn-landing-v2 > section { min-width: 0; max-width: 100%; }
+  .pn-landing-v2 > section:first-of-type > div { max-width: 100%; }
+  .pn-landing-v2 > section:first-of-type h1 {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    font-size: clamp(1.95rem, 8.3vw, 3.5rem);
+    line-height: 1.13;
+    letter-spacing: -0.045em;
+  }
+  .pn-landing-v2 > section:first-of-type p { max-width: 100%; overflow-wrap: anywhere; }
+  .pn-landing-v2 > section:first-of-type a { min-width: 0; max-width: 100%; white-space: normal; }
+}
