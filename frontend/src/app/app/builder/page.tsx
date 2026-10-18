@@ -45,7 +45,9 @@ function generationQualityInstructions(brief: string, template: string): string 
     "Inferir do setor as categorias de serviços normalmente oferecidas apenas como sugestões editáveis; não apresentar suposições como serviços efetivamente confirmados, credenciais ou promessas da empresa.",
     "Para briefings mínimos, desenvolva introduções, propostas de valor, explicações educativas, etapas gerais, diferenciais editoriais, perguntas frequentes e chamadas para contato contextualizadas. Use placeholders claros para dados específicos desconhecidos.",
     "Respeite integralmente a paleta, o estilo, o nicho e a hierarquia visual descritos pelo cliente; não substitua cores solicitadas por cores padrão do template.",
-    "Todas as fotografias devem representar o setor e os serviços descritos. Não use fotos genéricas de escritórios, móveis ou arquitetura para ilustrar tratamentos estéticos.",
+    "COERÊNCIA VISUAL OBRIGATÓRIA: escolha imagens do nicho real identificado no briefing, jamais imagens decorativas herdadas do modelo visual. Para energia solar use painéis fotovoltaicos, telhados com módulos solares, instalações e técnicos; NUNCA interiores com móveis, arquitetura residencial decorativa ou recepções. Para outros setores, aplique a mesma correspondência rigorosa entre negócio, imagem e mensagem.",
+    "COERÊNCIA DE COPY: títulos, subtítulos, botões, benefícios e descrições devem tratar exclusivamente do negócio informado. Não reutilize textos de demonstração ou de outro setor, mesmo quando o briefing for curto.",
+    "O template selecionado define somente identidade visual e composição, NUNCA o nicho, os serviços ou o assunto das fotografias. Preserve a identidade e as cores solicitadas no briefing.",
     "Não repita o mesmo título, subtítulo ou proposta de valor em blocos consecutivos. Cada seção deve acrescentar informação útil.",
     "Entregue um site institucional completo e rico em conteúdo. Inclua serviços detalhados, benefícios, diferenciais, apresentação, processo, perguntas frequentes, contato e chamada final, respeitando o nicho.",
     "Crie conteúdo substancial em cada seção, com 4 a 6 itens específicos em serviços e benefícios e perguntas frequentes úteis. Evite seções vazias, títulos repetidos e descrições genéricas.",
@@ -1880,8 +1882,8 @@ export default function BuilderPage() {
             const available = Math.max(1, previewStageWidth || 360);
             // On phones render at the actual viewport width, without desktop
             // scaling. Desktop/tablet keep their intentional scaled previews.
-            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : available;
-            const scale = viewport === "celular" ? 1 : available / virtualWidth;
+            const virtualWidth = viewport === "desktop" ? available : viewport === "tablet" ? 768 : available;
+            const scale = viewport === "desktop" || viewport === "celular" ? 1 : Math.min(1, available / virtualWidth);
             const visibleHeight = Math.round(900 * scale);
             return <div ref={previewStageRef} className="relative w-full min-w-0 overflow-hidden bg-white p-0">
               <div className="mx-auto overflow-hidden bg-white" style={{ width: virtualWidth * scale, height: visibleHeight }}>
