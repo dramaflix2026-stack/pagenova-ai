@@ -13,14 +13,14 @@ import { ArrowDown,ArrowLeft,ArrowRight,ArrowUp,Check,CheckCircle2,ChevronDown,C
 
 type Tab="content"|"structure"|"design";
 type EditorSection=LandingSection|"hero"|"comparison"|"bonuses"|"guarantee";
-type Draft={id:string;updatedAt:string};
+type Draft={id:string;name?:string;updatedAt:string};
 type Lead={name:string;email:string;message?:string;submittedAt:string};
 const sectionLabels:Record<LandingSection|"hero",string>={
  hero:"Primeira dobra",benefits:"Benefícios",details:"Apresentação",process:"Como funciona",
  proof:"Depoimento",offer:"Oferta e CTA",faq:"Dúvidas frequentes",contact:"Formulário e contato"
 };
 function errorText(error:unknown){return error instanceof Error?error.message:"Não foi possível concluir.";}
-const inputClass="w-full rounded-xl border border-white/10 bg-[#181e2a] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70";
+const inputClass="w-full rounded-xl border border-white/10 bg-[#131d17] px-3.5 py-3 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-300/70";
 function Field({label,value,onChange,placeholder="",rows=0,hint}:{
  label:string;value:string;onChange:(v:string)=>void;placeholder?:string;rows?:number;hint?:string;
 }){
@@ -411,19 +411,19 @@ export default function LandingStudioPage(){
    {!project?<>
     <div className="mx-auto max-w-4xl text-center">
      <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-emerald-300/25 bg-emerald-300/[.07] px-4 py-2 text-xs font-bold tracking-[.12em] text-emerald-200">
-      <WandSparkles className="h-4 w-4"/> PAGENOVA LANDING ENGINE
+      <WandSparkles className="h-4 w-4"/> ESTÚDIO DE LANDING PAGES
      </div>
-     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#00d6a1]">alto padrão.</span></h1>
+     <h1 className="mt-6 text-4xl font-bold tracking-[-.055em] sm:text-6xl">Landing pages de <span className="text-[#a8f494]">alto padrão.</span></h1>
      <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/55 sm:text-base">
-      Template original responsivo, textos contextualizados por IA, edição, salvamento e publicação.
+      Descreva sua ideia, crie uma página com IA e personalize cada detalhe antes de publicar.
      </p>
     </div>
     <section className="mx-auto mt-10 max-w-4xl">
-      <div className="rounded-2xl border border-emerald-400/25 bg-[#151b25] p-5 shadow-2xl sm:p-8">
+      <div className="rounded-2xl border border-emerald-400/25 bg-[#111a15] p-5 shadow-2xl sm:p-8">
        <div className="mb-6 flex items-center gap-3">
         <span className="grid size-11 place-items-center rounded-xl bg-emerald-300/10 text-emerald-300"><LayoutTemplate className="size-6"/></span>
-        <div><h2 className="text-lg font-extrabold">Template universal de infoproduto</h2>
-         <p className="mt-1 text-xs leading-5 text-white/55">Layout original: tarja, headline, mockup, antes/depois, bônus, oferta, depoimentos, garantia e CTA fixo no celular.</p>
+        <div><h2 className="text-lg font-extrabold">Sua landing page começa aqui</h2>
+         <p className="mt-1 text-xs leading-5 text-white/55">Descreva sua oferta em três passos. A IA monta uma primeira versão para você personalizar e publicar.</p>
         </div>
        </div>
        <div className="grid gap-5 sm:grid-cols-2">
@@ -446,8 +446,8 @@ export default function LandingStudioPage(){
       <h2 className="mb-4 text-lg font-bold">Meus projetos salvos</h2>
       {loadingDrafts?<p className="text-sm text-white/45">Carregando...</p>:drafts.length===0?<p className="rounded-xl border border-dashed border-white/15 p-5 text-sm text-white/45">Seu primeiro projeto aparecerá aqui depois de criado e salvo.</p>:
        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{drafts.map(d=><button key={d.id} onClick={()=>void openDraft(d.id)} disabled={!!opening}
-        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#171d28] p-4 text-left hover:border-emerald-300/50">
-        <span><strong className="block text-sm">Projeto {d.id.slice(0,8)}</strong><small className="mt-1 block text-white/40">Atualizado {d.updatedAt?new Date(d.updatedAt).toLocaleDateString("pt-BR"):"recentemente"}</small></span>
+        className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#121c16] p-4 text-left hover:border-emerald-300/50">
+        <span><strong className="block text-sm">{d.name?.trim()||"Landing page sem título"}</strong><small className="mt-1 block text-white/40">Atualizado {d.updatedAt?new Date(d.updatedAt).toLocaleDateString("pt-BR"):"recentemente"}</small></span>
         {opening===d.id?<LoaderCircle className="h-4 w-4 animate-spin"/>:<ArrowRight className="h-4 w-4 text-emerald-300"/>}
        </button>)}</div>}
      </div>
