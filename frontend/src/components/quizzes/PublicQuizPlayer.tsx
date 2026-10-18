@@ -32,7 +32,6 @@ export function PublicQuizPlayer({quiz,preview}:Props){
   const [working,setWorking]=useState(false);
   const question=quiz.questions[index];
   const isLeadStep=index===quiz.questions.length && quiz.collectLeads;
-  const progress=result?100:Math.round(index/quiz.questions.length*100);
   function reset(){
     setIndex(0);setAnswers({});setResult(null);setName("");setEmail("");setConsent(false);setError("");
   }
@@ -77,17 +76,6 @@ export function PublicQuizPlayer({quiz,preview}:Props){
       </div>}
       <article className={"p-1 sm:p-3 "+(hasBackground?"text-white":"")}>
         {/* The quiz sits directly on its chosen background, not inside a second card. */}
-        <div className="mb-8 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em]">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-400/15"><Sparkles className="h-4 w-4"/></span>
-            <span>Quiz interativo</span>
-          </div>
-          <span className={"text-xs "+(hasBackground?"text-white/75":palette.faded)}>{result?"Finalizado":isLeadStep?"Seu resultado":(index+1)+" / "+quiz.questions.length}</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-current/10" role="progressbar"
-          aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso">
-          <div className="h-full rounded-full bg-[#48dfa9] transition-all duration-300" style={{width:progress+"%"}}/>
-        </div>
         {result? <div className={"py-9 text-center"+animate}>
           {result.imageUrl&&<img src={result.imageUrl} alt={"Resultado: "+result.title} className="mx-auto mb-6 max-h-72 w-full rounded-2xl object-cover" loading="lazy"/>}
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-[#48dfa9]/15 text-[#57e9b1]">
