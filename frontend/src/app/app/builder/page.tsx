@@ -319,13 +319,13 @@ export default function BuilderPage() {
     // The stage only mounts after the preview exists. Observing changes to
     // project alone can leave mobile rendering stuck at the 360px fallback.
     const stage = previewStageRef.current;
-    if (!stage || !preview) return;
+    if (!stage) return;
     const update = () => setPreviewStageWidth(stage.getBoundingClientRect().width);
     update();
     const observer = new ResizeObserver(update);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, [Boolean(preview), viewport, project?.id]);
+  }, [viewport, project?.id, phase, crmPreviewHtml]);
 
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
