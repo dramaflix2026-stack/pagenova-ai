@@ -6241,6 +6241,14 @@ export function renderTemplate001Preview(
   html body .pn001-site > header.pn001-header .pn001-header-cta{white-space:nowrap!important;}
   html body .pn001-site > header.pn001-header .pn001-nav{display:none!important;}
 }
+/* PAGENOVA MOBILE V9 — repair real viewport and hero contrast */
+@media (max-width:900px){
+  html body .pn001-site .pn001-trust-row{display:grid!important;grid-template-columns:minmax(0,1fr)!important;width:100%!important;overflow:visible!important}
+  html body .pn001-site .pn001-trust-item{width:100%!important;min-width:0!important;max-width:100%!important;grid-column:1!important;border-right:0!important;border-bottom:1px solid var(--pn001-line)!important}
+  html body .pn001-site .pn001-hero h1{color:#172b36!important;text-shadow:none!important}
+  html body .pn001-site .pn001-hero-copy{min-width:0!important}
+  html body .pn001-site .pn001-hero-copy *{overflow-wrap:break-word}
+}
 /* PAGENOVA MOBILE COMPOSITION V8 — single authoritative phone/tablet contract */
 @media (max-width:900px){
   html body .pn001-site{font-size:16px!important}
