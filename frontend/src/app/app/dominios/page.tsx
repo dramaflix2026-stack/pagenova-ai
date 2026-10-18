@@ -1,16 +1,14 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { listPageNovaProjects } from "@/lib/pagenova-project-store";
 import { ArrowLeft, ArrowRight, CircleHelp, Globe, ShieldCheck, ExternalLink } from "lucide-react";
 
 export default function DominiosPage(){
- const params=useSearchParams();
  const [sites,setSites]=useState<Array<{id:string;name:string}>>([]);
  const [siteId,setSiteId]=useState("");
  const [domain,setDomain]=useState("");
- useEffect(()=>{listPageNovaProjects<{id:string;name:string;kind?:string}>().then(items=>{const filtered=items.filter(s=>s.kind==="institutional-site");setSites(filtered);const requested=params.get("project");setSiteId(requested&&filtered.some(s=>s.id===requested)?requested:filtered[0]?.id||"");}).catch(()=>setSites([]));},[params]);
+ useEffect(()=>{listPageNovaProjects<{id:string;name:string;kind?:string}>().then(items=>{const filtered=items.filter(s=>s.kind==="institutional-site");setSites(filtered);const requested=new URLSearchParams(window.location.search).get("project");setSiteId(requested&&filtered.some(s=>s.id===requested)?requested:filtered[0]?.id||"");}).catch(()=>setSites([]));},[]);
  const steps=[
   {title:"Publique seu site",body:"No editor, escolha Publicar e confirme que a prévia pública funciona. Guarde o endereço temporário."},
   {title:"Compre ou escolha um domínio",body:"Se preferir, utilize a Hostinger nos botões acima para registrar seu domínio. Você continua proprietário do domínio e pode manter a gestão de DNS onde quiser."},
