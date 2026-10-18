@@ -316,14 +316,16 @@ export default function BuilderPage() {
   const [previewStageWidth, setPreviewStageWidth] = useState(0);
 
   useEffect(() => {
+    // The stage only mounts after the preview exists. Observing changes to
+    // project alone can leave mobile rendering stuck at the 360px fallback.
     const stage = previewStageRef.current;
-    if (!stage) return;
-    const update = () => setPreviewStageWidth(stage.clientWidth);
+    if (!stage || !preview) return;
+    const update = () => setPreviewStageWidth(stage.getBoundingClientRect().width);
     update();
     const observer = new ResizeObserver(update);
     observer.observe(stage);
     return () => observer.disconnect();
-  }, [project, Boolean(previewStageWidth === 0)]);
+  }, [Boolean(preview), viewport, project?.id]);
 
   useEffect(() => {
     function handlePreviewNavigation(event: MessageEvent) {
@@ -1853,9 +1855,11 @@ export default function BuilderPage() {
             </details>
           </div>}
           {preview ? (() => {
-            const available = Math.max(280, previewStageWidth || 360);
-            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : Math.max(280, available);
-            const scale = available / virtualWidth;
+            const available = Math.max(1, previewStageWidth || 360);
+            // On phones render at the actual viewport width, without desktop
+            // scaling. Desktop/tablet keep their intentional scaled previews.
+            const virtualWidth = viewport === "desktop" ? 1440 : viewport === "tablet" ? 768 : available;
+            const scale = viewport === "celular" ? 1 : available / virtualWidth;
             const visibleHeight = Math.round(900 * scale);
             return <div ref={previewStageRef} className="relative w-full min-w-0 overflow-hidden bg-white p-0">
               <div className="mx-auto overflow-hidden bg-white" style={{ width: virtualWidth * scale, height: visibleHeight }}>
