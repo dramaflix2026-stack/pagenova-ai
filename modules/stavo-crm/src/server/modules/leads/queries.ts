@@ -184,12 +184,13 @@ function buildFilterConditions(filters: LeadFilters, today: string) {
 export interface BoardViewer {
   id: string;
   role: string;
+  workspaceId: string;
 }
 
 export async function getBoard(
   db: Database,
   filters: LeadFilters,
-  viewer?: BoardViewer,
+  viewer: BoardViewer,
   now: Date = new Date(),
 ): Promise<{ columns: BoardColumn[]; totalCards: number }> {
   const today = toLocalDateString(now);
@@ -197,10 +198,10 @@ export async function getBoard(
   const columns = await db
     .select()
     .from(stages)
-    .where(isNull(stages.deletedAt))
+    .where(and(isNull(stages.deletedAt), eq(stages.workspaceId, viewer.workspaceId)))
     .orderBy(asc(stages.position));
 
-  const conditions = buildFilterConditions(filters, today);
+  const conditions = [eq(leads.workspaceId, viewer.workspaceId), ...buildFilterConditions(filters, today)];
   // Vendedor so recebe os proprios cards. Vem da sessao, nunca da URL.
   const onlyOwner = viewer ? leadVisibilityOwnerFilter(viewer.role as UserRole, viewer.id) : null;
   if (onlyOwner) conditions.push(eq(leads.ownerUserId, onlyOwner));
@@ -456,6 +457,7 @@ export async function searchLeadOptions(
   termo: string,
   limit = 20,
   onlyOwnerUserId: string | null = null,
+  workspaceId: string,
 ): Promise<LeadOption[]> {
   const busca = `%${termo.trim()}%`;
 
@@ -471,6 +473,7 @@ export async function searchLeadOptions(
     .innerJoin(stages, eq(stages.id, leads.currentStageId))
     .where(
       and(
+        eq(leads.workspaceId, workspaceId),
         isNull(leads.archivedAt),
         sql`${leads.internalName} like ${busca}`,
         onlyOwnerUserId ? eq(leads.ownerUserId, onlyOwnerUserId) : undefined,
@@ -483,7 +486,7 @@ export async function searchLeadOptions(
 export async function getLeadDetail(
   db: Database,
   leadId: string,
-  viewer?: BoardViewer,
+  viewer: BoardViewer,
 ): Promise<LeadDetail | null> {
   const [row] = await db
     .select({
@@ -497,7 +500,7 @@ export async function getLeadDetail(
     })
     .from(leads)
     .innerJoin(stages, eq(stages.id, leads.currentStageId))
-    .where(eq(leads.id, leadId))
+    .where(and(eq(leads.id, leadId), eq(leads.workspaceId, viewer.workspaceId)))
     .limit(1);
 
   if (!row) return null;
@@ -648,18 +651,18 @@ export async function getLeadDetail(
 }
 
 /** Valores distintos usados para preencher os filtros da interface. */
-export async function getFilterOptions(db: Database) {
+export async function getFilterOptions(db: Database, workspaceId: string) {
   const cities = await db
     .selectDistinct({ value: leads.prospectingCity })
     .from(leads)
-    .where(isNotNull(leads.prospectingCity))
+    .where(and(eq(leads.workspaceId, workspaceId), isNotNull(leads.prospectingCity)))
     .orderBy(asc(leads.prospectingCity))
     .limit(300);
 
   const niches = await db
     .selectDistinct({ value: leads.prospectingNiche })
     .from(leads)
-    .where(isNotNull(leads.prospectingNiche))
+    .where(and(eq(leads.workspaceId, workspaceId), isNotNull(leads.prospectingNiche)))
     .orderBy(asc(leads.prospectingNiche))
     .limit(300);
 
