@@ -154,10 +154,10 @@ export default function Home() {
       <section id="plataforma" className="relative overflow-hidden border-b border-white/[.07]">
         <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#3e7838]/20 blur-[130px]" />
         <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#5ba949]/10 blur-[110px]" />
-        <div className="relative mx-auto grid w-full max-w-7xl min-w-0 items-center gap-9 px-4 pb-12 pt-12 sm:px-5 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-1 lg:gap-9 lg:pb-24 lg:pt-24">
+        <div className="relative mx-auto grid w-full max-w-7xl min-w-0 items-center gap-9 px-4 pb-12 pt-12 max-sm:gap-7 max-sm:px-5 max-sm:pt-10 sm:px-5 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-1 lg:gap-9 lg:pb-24 lg:pt-24">
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center"> 
             <SectionLabel>Seu espaço para criar e evoluir</SectionLabel>
-            <h1 className="mt-5 w-full max-w-4xl text-balance text-[clamp(2.15rem,9.2vw,4.75rem)] font-semibold leading-[1.12] tracking-[-.045em] sm:leading-[1.08] sm:tracking-[-.055em]">
+            <h1 className="mt-5 w-full max-w-4xl min-w-0 text-balance text-[clamp(2rem,8.5vw,4.75rem)] font-semibold leading-[1.12] tracking-[-.045em] sm:leading-[1.08] sm:tracking-[-.055em]">
               Sua ideia ganha forma.{" "}
               <span className="text-[#a8f494]">Seu trabalho ganha ritmo.</span>
             </h1>
@@ -176,7 +176,7 @@ export default function Home() {
               Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
-          <div className="relative left-1/2 w-screen min-w-0 max-w-none -translate-x-1/2 overflow-hidden"><PageNovaCountryMarquee lang="pt" /></div>
+          <div className="relative w-full min-w-0 max-w-full overflow-hidden"><PageNovaCountryMarquee lang="pt" /></div>
           <div className="mx-auto w-full min-w-0 max-w-4xl"><ProductFrame /></div>
         </div>
       </section>
