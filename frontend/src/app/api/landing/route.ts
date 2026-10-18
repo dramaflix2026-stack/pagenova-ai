@@ -41,8 +41,18 @@ export async function GET(request:NextRequest){
   }
   const {data,error}=await storage.list("landing-drafts/"+ctx.user.id,{limit:100,sortBy:{column:"updated_at",order:"desc"}});
   if(error)throw error;
-  const items=(data||[]).filter(x=>idPattern.test(x.name.replace(/\.json$/,""))).map(x=>({
-    id:x.name.replace(/\.json$/,""),updatedAt:x.updated_at||x.created_at||""
+  const entries=(data||[]).filter(x=>idPattern.test(x.name.replace(/\\.json$/,""))).slice(0,40);
+  const items=await Promise.all(entries.map(async x=>{
+    const id=x.name.replace(/\\.json$/,"");
+    let name="";
+    try{
+      const {data:file,error:downloadError}=await storage.download(draftPath(ctx.user.id,id));
+      if(!downloadError&&file){
+        const saved=JSON.parse(await file.text()) as {ownerId?:string;project?:{name?:string;headline?:string}};
+        if(saved.ownerId===ctx.user.id)name=String(saved.project?.name||saved.project?.headline||"").trim().slice(0,100);
+      }
+    }catch{/* Keep the draft accessible even if its title cannot be read. */}
+    return {id,name,updatedAt:x.updated_at||x.created_at||""};
   }));
   return NextResponse.json({projects:items},{headers:{"Cache-Control":"no-store"}});
  }catch(e){console.error("[LANDING] list failed",e instanceof Error?e.name:"unknown");return NextResponse.json({error:"Não foi possível consultar seus projetos."},{status:503});}
