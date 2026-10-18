@@ -27,7 +27,7 @@ import {
 } from '../../../shared/schemas';
 import { leadVisibilityOwnerFilter, type UserRole } from '../../../shared/roles';
 import { getDb } from '../../db/client';
-import { activities, followUps } from '../../db/schema';
+import { activities, followUps, leads } from '../../db/schema';
 import { asyncHandler, parseBody, parseQuery } from '../../lib/http';
 import { notFound } from '../../lib/errors';
 import { csrfProtection, requireAuth, requireCapability } from '../../middleware';
@@ -55,16 +55,30 @@ import {
   transferLead,
   updateLeadData,
 } from './service';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 export const leadsRouter: Router = Router();
 
 leadsRouter.use(requireAuth);
 
+// Tenant boundary: lead identifiers are untrusted, including nested operations.
+leadsRouter.use(asyncHandler(async (req, _res, next) => {
+  const match = req.path.match(/^\/leads\/([^/]+)/);
+  const leadId = match?.[1];
+  if (leadId && !['board', 'search', 'filter-options'].includes(leadId)) {
+    const [owned] = await getDb().select({ id: leads.id }).from(leads)
+      .where(and(eq(leads.id, leadId), eq(leads.workspaceId, req.session!.workspaceId)))
+      .limit(1);
+    if (!owned) throw notFound('Lead nao encontrado.');
+  }
+  next();
+}));
+
 /** Quem esta pedindo: id decide a propriedade, cargo decide a permissao. */
 const atorDe = (req: { session?: { user: { id: string; role: string } } }) => ({
   id: req.session!.user.id,
   role: req.session!.user.role,
+  workspaceId: req.session!.workspaceId,
 });
 
 leadsRouter.get(
@@ -91,6 +105,7 @@ leadsRouter.get(
         termo,
         20,
         leadVisibilityOwnerFilter(ator.role as UserRole, ator.id),
+        req.session!.workspaceId,
       ),
     });
   }),
@@ -98,8 +113,8 @@ leadsRouter.get(
 
 leadsRouter.get(
   '/leads/filter-options',
-  asyncHandler(async (_req, res) => {
-    res.json(await getFilterOptions(getDb()));
+  asyncHandler(async (req, res) => {
+    res.json(await getFilterOptions(getDb(), req.session!.workspaceId));
   }),
 );
 
