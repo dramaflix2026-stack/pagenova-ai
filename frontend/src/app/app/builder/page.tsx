@@ -1828,6 +1828,11 @@ export default function BuilderPage() {
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
               <span aria-hidden="true" className="text-lg">＋</span> Adicionar seção
             </button>
+            <button type="button" onClick={()=>{inlineImageKindRef.current="hero";inlineImageInputRef.current?.click();}}
+              disabled={uploadingImage||publishing}
+              className="ml-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
+              {uploadingImage?"Carregando imagem...":"🖼 Trocar imagem do banner"}
+            </button>
             {sectionPickerOpen&&<div role="dialog" aria-label="Escolher uma seção" className="mt-3 w-full max-w-md rounded-2xl border border-emerald-400/25 bg-[#142019] p-3 shadow-xl">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="text-sm font-bold text-white">Adicionar ao site</span>
