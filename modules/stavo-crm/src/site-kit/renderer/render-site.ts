@@ -257,6 +257,14 @@ export function renderSite(model: SiteSchemaModel, ctx: RenderContext): string {
       ? renderCanonicalFrigolog(model, ctx, applyVisualTextEdits)
       : model.sections.map((section) => renderSection(section, ctx, model)).join('\n');
 
+  // All five branded layouts must preserve generated FAQ content, not discard it.
+  // Vértice renders FAQ itself; for the others inject the real schema section.
+  const faq = model.sections.find(s => s.visible && s.type === 'faq');
+  const extraFaq = !isVertice && faq && faq.type === 'faq'
+    ? '<section class="pn-complete-faq" id="perguntas-frequentes"><div class="pn-complete-wrap"><p class="pn-complete-label">TIRE SUAS DÚVIDAS</p><h2>'+escapeHtml(faq.headline)+'</h2>'+faq.items.map(item => '<details><summary>'+escapeHtml(item.question)+'</summary><p>'+escapeHtml(item.answer)+'</p></details>').join('')+'</div></section>'
+    : '';
+  const completeSections = extraFaq ? sections.replace(/(<footer\\b)/i, extraFaq+'$1') : sections;
+
   const robots =
     ctx.profile === 'DEMO' || model.seo.noindex
       ? '<meta name="robots" content="noindex,nofollow,noarchive">'
@@ -281,7 +289,7 @@ ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage.url)}">` : 
 <meta name="twitter:card" content="${ogImage ? 'summary_large_image' : 'summary'}">
 ${fontLinkTags(isRestaurant ? ['DM Sans','DM Serif Display'] : isNiche ? ['Manrope'] : isVertice ? ['Manrope'] : isAtelier ? ['Instrument Serif','Work Sans'] : isMuse ? ['Urbanist','Epilogue'] : isUniversal ? ['Poppins', model.theme.typography.headingFont, model.theme.typography.bodyFont] : [model.theme.typography.headingFont, model.theme.typography.bodyFont], ctx.fontSource ?? 'google')}
 <style>${isRestaurant ? CASA_CSS : isNiche ? NICHE_CSS : isVertice ? VERTICE_CSS : isAtelier ? ATELIER_NORTE_CSS : isMuse ? MUSE_EDITORIAL_CSS : isUniversal ? FRIGOLOG_APPROVED_CSS : renderStyles(model.theme)}
- .skip{position:absolute!important;left:-9999px!important;top:0!important;z-index:1000;padding:12px 16px;background:#fff;color:#252525}.skip:focus{position:fixed!important;left:12px!important;top:12px!important}\n${isNiche ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isVertice ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isAtelier ? `html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
+ .pn-complete-faq{padding:80px 24px;background:#f4f7f2;color:#244334;font-family:inherit}.pn-complete-wrap{max-width:1100px;margin:auto}.pn-complete-label{font-size:12px;letter-spacing:.14em;font-weight:800;color:#347550}.pn-complete-faq h2{font-size:clamp(28px,4vw,44px);line-height:1.2;margin:16px 0 32px}.pn-complete-faq details{border-bottom:1px solid #d6e2d7;padding:20px 0}.pn-complete-faq summary{cursor:pointer;font-weight:700}.pn-complete-faq details p{margin:12px 0 0;line-height:1.75;max-width:850px}.pn-complete-faq *{box-sizing:border-box}\n .skip{position:absolute!important;left:-9999px!important;top:0!important;z-index:1000;padding:12px 16px;background:#fff;color:#252525}.skip:focus{position:fixed!important;left:12px!important;top:12px!important}\n${isNiche ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isVertice ? 'html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}' : isAtelier ? `html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
 .skip{position:absolute;left:-9999px;top:0;z-index:1000;padding:12px;background:white;color:#252525}.skip:focus{position:fixed;left:12px;top:12px}
 ` : isMuse ? `/* Muse editorial uses self-contained scoped styles. */
 html,body{margin:0;padding:0;width:100%;max-width:100%;overflow-x:hidden}
@@ -309,7 +317,7 @@ ${renderJsonLd(model)}
 </head>
 <body>
 <a class="skip" href="#conteudo">Pular para o conteudo</a>
-${isUniversal || isMuse || isAtelier || isVertice || isNiche ? sections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
+${isUniversal || isMuse || isAtelier || isVertice || isNiche ? completeSections : `${renderHeader(model, ctx)}\n<main id="conteudo">\n${sections}\n</main>`}
 ${isUniversal ? `<script>${FRIGOLOG_STATIC_RUNTIME}</script>` : ''}
 ${isAtelier ? `<script>${ATELIER_NORTE_RUNTIME}</script>` : ''}
 ${isRestaurant ? `<script>${CASA_JS}</script>` : ''}
