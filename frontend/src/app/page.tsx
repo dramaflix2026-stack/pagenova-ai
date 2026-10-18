@@ -110,7 +110,7 @@ function Brand() {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#8fec78]">
+    <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-2 text-center text-[10px] font-bold uppercase tracking-[0.12em] text-[#8fec78] sm:text-[11px] sm:tracking-[0.18em]">
       <span className="h-1.5 w-1.5 rounded-full bg-[#8fec78]" />
       {children}
     </span>
@@ -154,29 +154,29 @@ export default function Home() {
       <section id="plataforma" className="relative overflow-hidden border-b border-white/[.07]">
         <div className="pointer-events-none absolute -right-32 top-0 h-[550px] w-[650px] rounded-full bg-[#3e7838]/20 blur-[130px]" />
         <div className="pointer-events-none absolute -left-64 bottom-0 h-[360px] w-[550px] rounded-full bg-[#5ba949]/10 blur-[110px]" />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-9 px-5 pb-14 pt-14 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-1 lg:gap-9 lg:pb-24 lg:pt-24">
+        <div className="relative mx-auto grid w-full max-w-7xl min-w-0 items-center gap-9 px-4 pb-12 pt-12 sm:px-5 md:px-8 md:pb-20 md:pt-20 lg:grid-cols-1 lg:gap-9 lg:pb-24 lg:pt-24">
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center text-center"> 
             <SectionLabel>Seu espaço para criar e evoluir</SectionLabel>
-            <h1 className="mt-5 max-w-4xl text-[clamp(2.45rem,5vw,4.75rem)] font-semibold leading-[1.08] tracking-[-.055em]">
+            <h1 className="mt-5 w-full max-w-4xl text-balance text-[clamp(2.15rem,9.2vw,4.75rem)] font-semibold leading-[1.12] tracking-[-.045em] sm:leading-[1.08] sm:tracking-[-.055em]">
               Sua ideia ganha forma.{" "}
               <span className="text-[#a8f494]">Seu trabalho ganha ritmo.</span>
             </h1>
-            <p className="mt-5 max-w-2xl text-[15px] leading-7 text-white/58 sm:text-lg sm:leading-8">
+            <p className="mt-5 w-full max-w-2xl break-words text-[14px] leading-6 text-white/65 sm:text-lg sm:leading-8">
               Crie sites, landing pages, quizzes, formulários e ebooks com IA. Edite o resultado e organize leads e agendamentos em um só lugar.
             </p>
-            <div className="mt-7 flex flex-wrap justify-center gap-3">
-              <Link href="/cadastro?trial=1" className="pn-brand-button rounded-xl bg-[#8fec78] px-6 py-3.5 text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494]">
+            <div className="mt-7 flex w-full flex-col justify-center gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
+              <Link href="/cadastro?trial=1" className="pn-brand-button inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#8fec78] px-4 py-3.5 text-center text-sm font-bold text-[#14220f] transition hover:bg-[#a8f494] sm:w-auto sm:px-6">
                 Começar meus 5 dias grátis →
               </Link>
-              <a href="#planos" className="rounded-xl border border-white/20 px-6 py-3.5 text-sm font-semibold text-white/80 transition hover:border-[#a8f494] hover:text-white">
+              <a href="#planos" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-white/20 px-4 py-3.5 text-center text-sm font-semibold text-white/80 transition hover:border-[#a8f494] hover:text-white sm:w-auto sm:px-6">
                 Ver os planos
               </a>
             </div>
-            <p className="mt-6 text-xs text-white/40">
+            <p className="mt-6 max-w-sm px-1 text-center text-xs leading-5 text-white/50 sm:max-w-none">
               Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
-          <div className="relative left-1/2 w-screen min-w-0 max-w-none -translate-x-1/2"><PageNovaCountryMarquee lang="pt" /></div>
+          <div className="relative left-1/2 w-screen min-w-0 max-w-none -translate-x-1/2 overflow-hidden"><PageNovaCountryMarquee lang="pt" /></div>
           <div className="mx-auto w-full min-w-0 max-w-4xl"><ProductFrame /></div>
         </div>
       </section>
