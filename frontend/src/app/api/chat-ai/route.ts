@@ -6,6 +6,8 @@ import { getPageNovaAccess } from "@/lib/trial/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 const MODEL = "gpt-4.1-mini";
+// 750,000 micro-USD = US$0.75; a conservative ceiling below R$5 at USD/BRL up to 6.66.
+const MONTHLY_BUDGET_USD_MICROS = 750000;
 const month = () => new Date().toISOString().slice(0,7);
 const error = (message:string,status=400) => NextResponse.json({error:message},{status});
 async function session(){
@@ -27,11 +29,12 @@ export async function GET(request:NextRequest){
   const {data,error:e}=await s.admin.from("pagenova_chat_messages").select("id,role,content,created_at").eq("thread_id",thread).eq("user_id",s.user.id).order("created_at");
   return e?error("Histórico indisponível.",503):NextResponse.json({messages:data});
  }
- const [{data:threads,error:e},{data:budget}]=await Promise.all([
+ const [{data:threads,error:e},{data:budget,error:budgetError}]=await Promise.all([
   s.admin.from("pagenova_chat_threads").select("id,title,updated_at").eq("user_id",s.user.id).order("updated_at",{ascending:false}).limit(60),
   s.admin.from("pagenova_chat_budget").select("spent_units,reserved_units").eq("user_id",s.user.id).eq("month",month()).maybeSingle()
  ]);
- return e?error("Conversas indisponíveis. Verifique a configuração do banco.",503):NextResponse.json({threads,budgetUsed:(budget?.spent_units||0)+(budget?.reserved_units||0),budgetLimit:850000});
+ if(e||budgetError){console.error("[PageNova Chat] list failed",{threadsCode:e?.code,budgetCode:budgetError?.code});return error("Não foi possível carregar suas conversas. Tente atualizar a página.",503)}
+ return NextResponse.json({threads,budgetUsed:(budget?.spent_units||0)+(budget?.reserved_units||0),budgetLimit:MONTHLY_BUDGET_USD_MICROS});
 }
 export async function POST(request:NextRequest){
  if(request.headers.get("origin")&&request.headers.get("origin")!==request.nextUrl.origin)return error("Origem inválida.",403);
@@ -39,9 +42,10 @@ export async function POST(request:NextRequest){
  const key=process.env.OPENAI_API_KEY;if(!key)return error("Chat AI aguardando configuração da API.",503);
  let input:{threadId?:string;message?:string};try{input=await request.json()}catch{return error("Mensagem inválida.")}
  const message=String(input.message||"").trim();if(!message||message.length>4000)return error("Digite uma mensagem de até 4.000 caracteres.");
+ // Reserve more than the worst-case cost for 900 output tokens and the bounded history.
  const reserved=20000;
  const {data:allowed,error:reserveError}=await s.admin.rpc("pagenova_chat_reserve",{p_user:s.user.id,p_month:month(),p_units:reserved});
- if(reserveError)return error("Controle de consumo indisponível.",503);
+ if(reserveError){console.error("[PageNova Chat] reserve failed",reserveError.code);return error("Controle de consumo indisponível.",503)}
  if(!allowed)return error("Sua franquia mensal do Chat AI foi atingida.",429);
  let spent=0;
  try{
@@ -56,11 +60,12 @@ export async function POST(request:NextRequest){
   const data=await response.json();const answer=String(data.choices?.[0]?.message?.content||"").trim();if(!answer)return error("A IA não retornou uma resposta.",502);
   // Conservative accounting: GPT-4.1 mini $0.40 / 1M input, $1.60 / 1M output.
   spent=Math.ceil(((data.usage?.prompt_tokens||0)*0.4+(data.usage?.completion_tokens||0)*1.6));
+  if(spent>reserved){console.error("[PageNova Chat] unexpectedly high token cost");spent=reserved;return error("Resposta excedeu o limite de segurança. Tente novamente.",502)}
   const {error:saveError}=await s.admin.from("pagenova_chat_messages").insert([{user_id:s.user.id,thread_id:threadId,role:"user",content:message},{user_id:s.user.id,thread_id:threadId,role:"assistant",content:answer}]);
   if(saveError)return error("Resposta gerada, mas não foi possível salvar o histórico.",503);
   await s.admin.from("pagenova_chat_threads").update({updated_at:new Date().toISOString()}).eq("id",threadId).eq("user_id",s.user.id);
   return NextResponse.json({threadId,answer});
- }catch{return error("Falha temporária no chat.",502)}finally{
+ }catch(e){console.error("[PageNova Chat] request failed",e instanceof Error?e.name:"unknown");return error("Falha temporária no chat.",502)}finally{
   const {error:e}=await s.admin.rpc("pagenova_chat_settle",{p_user:s.user.id,p_month:month(),p_reserved:reserved,p_actual:spent});
   if(e)console.error("[PageNova Chat] budget settlement failed",e.code);
  }
