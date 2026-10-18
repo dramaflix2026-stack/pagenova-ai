@@ -176,7 +176,7 @@ export default function Home() {
               Teste grátis sem cartão · 2 sites pelo CRM · 5 páginas Google Places · Sem cobrança automática
             </p>
           </div>
-          <div className="min-w-0 w-full"><PageNovaCountryMarquee lang="pt" /></div>
+          <div className="relative left-1/2 w-screen min-w-0 max-w-none -translate-x-1/2"><PageNovaCountryMarquee lang="pt" /></div>
           <div className="mx-auto w-full min-w-0 max-w-4xl"><ProductFrame /></div>
         </div>
       </section>
