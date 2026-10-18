@@ -387,6 +387,33 @@ export const completeHomeSectionsV5 = (
    ========================================================== */
 
 export const PAGENOVA_DESIGN_CORE_V5_STYLES = `
+  /* Universal mobile safety net: generated templates and editor preview. */
+  .pn001-site, .pn001-site * { box-sizing: border-box; }
+  .pn001-site { width: 100%; max-width: 100%; overflow-x: clip; }
+  .pn001-site img, .pn001-site video, .pn001-site iframe { max-width: 100%; }
+  .pn001-site h1, .pn001-site h2, .pn001-site h3,
+  .pn001-site p, .pn001-site a { overflow-wrap: anywhere; }
+  @media (max-width: 767px) {
+    .pn001-site { width: 100% !important; overflow-x: clip !important; }
+    .pn001-site .pn001-container,
+    .pn001-site .pn001-header-inner { width: 100% !important; max-width: 100% !important; padding-left: 20px !important; padding-right: 20px !important; }
+    .pn001-site .pn001-hero-grid,
+    .pn001-site .pn001-about-grid,
+    .pn001-site .pn001-process-grid,
+    .pn001-site .pn001-services-grid,
+    .pn001-site .pn001-features-grid { grid-template-columns: minmax(0,1fr) !important; }
+    .pn001-site .pn001-hero-copy,
+    .pn001-site .pn001-hero-media { min-width: 0 !important; max-width: 100% !important; }
+    .pn001-site .pn001-hero h1 { font-size: clamp(32px, 9vw, 48px) !important; line-height: 1.08 !important; max-width: 100% !important; }
+    .pn001-site .pn001-hero { padding-top: 42px !important; padding-bottom: 48px !important; }
+    .pn001-site .pn001-hero-media,
+    .pn001-site .pn001-hero-media img { min-height: 220px !important; max-height: 380px !important; }
+    .pn001-site .pn001-final-cta-card { display: flex !important; flex-direction: column !important; align-items: stretch !important; gap: 24px !important; padding: 32px 22px !important; }
+    .pn001-site .pn001-final-cta h2 { max-width: 100% !important; font-size: clamp(30px, 8vw, 42px) !important; }
+    .pn001-site .pn001-final-cta-action,
+    .pn001-site .pn001-final-cta-action a { max-width: 100% !important; }
+  }
+
 
   /* ========================================================
      GLOBAL COLOR SYSTEM
