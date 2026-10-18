@@ -19,6 +19,7 @@ const themes={
 };
 type Props={quiz:PublicQuiz;preview?:QuizProject};
 export function PublicQuizPlayer({quiz,preview}:Props){
+  const hasBackground=Boolean(quiz.coverImageUrl);
   const palette=themes[quiz.theme]||themes.emerald;
   const [index,setIndex]=useState(0);
   const [answers,setAnswers]=useState<Record<string,string>>({});
@@ -65,13 +66,17 @@ export function PublicQuizPlayer({quiz,preview}:Props){
   }
   const labelClasses="rounded-2xl border px-4 py-4 text-left text-sm font-medium leading-6 transition-all";
   const animate=quiz.motion!==false?" motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"";
-  return <main className={"flex min-h-[100svh] items-center justify-center px-4 py-10 font-sans sm:py-14 "+palette.page+" "+palette.text}>
+  return <main className={"relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-10 font-sans sm:py-14 "+(hasBackground?"bg-[#101511] text-white":palette.page+" "+palette.text)}>
+    {hasBackground&&<>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url("${quiz.coverImageUrl?.replace(/["\\\\]/g,"")}")`}}/>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-black/65"/>
+    </>}
     <div className="w-full max-w-[670px]">
       {preview&&<div className="mb-4 rounded-xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-center text-xs font-semibold text-amber-200">
         Prévia interativa · suas respostas não serão registradas
       </div>}
-      <article className={"overflow-hidden rounded-[30px] border p-5 shadow-[0_28px_90px_rgba(0,0,0,.19)] sm:p-10 "+palette.card}>
-        {quiz.coverImageUrl&&<img src={quiz.coverImageUrl} alt={"Capa do quiz: "+quiz.title} loading="lazy" className="-mx-5 -mt-5 mb-8 h-44 w-[calc(100%+2.5rem)] object-cover sm:-mx-10 sm:-mt-10 sm:h-56 sm:w-[calc(100%+5rem)]"/>}
+      <article className={"p-1 sm:p-3 "+(hasBackground?"text-white":"")}>
+        {/* The quiz sits directly on its chosen background, not inside a second card. */}
         <div className="mb-8 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em]">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-400/15"><Sparkles className="h-4 w-4"/></span>
