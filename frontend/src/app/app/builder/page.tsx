@@ -41,6 +41,9 @@ function generationQualityInstructions(brief: string, template: string): string 
   const editorial = template === "muse-editorial";
   return [
     "DIRETRIZES OBRIGATÓRIAS DE QUALIDADE:",
+    "MODO AUTÔNOMO DE BRIEFING: o usuário pode escrever somente uma frase com o tipo de negócio. A quantidade de texto enviada NUNCA limita a quantidade de seções, cards ou detalhes do site. Expanda automaticamente um briefing curto em uma arquitetura editorial completa e adequada ao nicho, sem pedir mais informações.",
+    "Inferir do setor as categorias de serviços normalmente oferecidas apenas como sugestões editáveis; não apresentar suposições como serviços efetivamente confirmados, credenciais ou promessas da empresa.",
+    "Para briefings mínimos, desenvolva introduções, propostas de valor, explicações educativas, etapas gerais, diferenciais editoriais, perguntas frequentes e chamadas para contato contextualizadas. Use placeholders claros para dados específicos desconhecidos.",
     "Respeite integralmente a paleta, o estilo, o nicho e a hierarquia visual descritos pelo cliente; não substitua cores solicitadas por cores padrão do template.",
     "Todas as fotografias devem representar o setor e os serviços descritos. Não use fotos genéricas de escritórios, móveis ou arquitetura para ilustrar tratamentos estéticos.",
     "Não repita o mesmo título, subtítulo ou proposta de valor em blocos consecutivos. Cada seção deve acrescentar informação útil.",
