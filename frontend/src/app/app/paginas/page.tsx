@@ -311,6 +311,7 @@ export default function PagesPage() {
                     className="flex w-full items-center justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f] transition hover:bg-emerald-300">
                     Continuar / Publicar →
                   </Link>
+                  <Link href={`/app/dominios?project=${encodeURIComponent(site.id)}`} className="flex w-full items-center justify-center rounded-xl border border-emerald-400/30 px-4 py-3 text-sm font-semibold text-emerald-200 hover:bg-emerald-400/10">Conectar domínio profissional →</Link>
                   <p className="text-center text-[11px] text-white/35">No celular, toque na prévia para percorrer o site.</p>
                 </div>
               </article>;
