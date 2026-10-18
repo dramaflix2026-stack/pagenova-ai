@@ -3,12 +3,12 @@ export type QuizOption={id:string;label:string;outcomeId:string;imageUrl?:string
 export type QuizQuestion={id:string;title:string;options:QuizOption[];imageUrl?:string};
 export type QuizOutcome={id:string;title:string;description:string;ctaLabel:string;ctaUrl:string;imageUrl?:string};
 export type QuizInput={
-  title:string;subtitle:string;prompt:string;theme:QuizTheme;coverImageUrl?:string;motion?:boolean;
+  title:string;subtitle:string;prompt:string;theme:QuizTheme;coverImageUrl?:string;motion?:boolean;layout?:"classic"|"conversational";
   questions:QuizQuestion[];outcomes:QuizOutcome[];
   collectLeads:boolean;
 };
 export type QuizProject=QuizInput&{id:string;updatedAt:string;publishedAt:string|null};
-export type PublicQuiz=Pick<QuizProject,"id"|"title"|"subtitle"|"theme"|"collectLeads"|"publishedAt"|"coverImageUrl"|"motion">&{
+export type PublicQuiz=Pick<QuizProject,"id"|"title"|"subtitle"|"theme"|"collectLeads"|"publishedAt"|"coverImageUrl"|"motion"|"layout">&{
   questions:Array<{id:string;title:string;imageUrl?:string;options:Array<{id:string;label:string;imageUrl?:string}>}>;
 };
 export type QuizEntry={id:string;quizId:string;submittedAt:string;outcomeId:string;
@@ -67,10 +67,10 @@ export function normalizeQuiz(value:unknown):QuizInput{
     return {id:optionId(item.id,i),title,options:parsed,...(safeMedia(item.imageUrl)?{imageUrl:safeMedia(item.imageUrl)}:{})};
   });
   if(new Set(questions.map(q=>q.id)).size!==questions.length)throw new Error("Perguntas duplicadas.");
-  return {title,subtitle,prompt:safe(v.prompt,50000),theme,questions,outcomes,collectLeads:v.collectLeads===true,coverImageUrl:safeMedia(v.coverImageUrl),motion:v.motion!==false};
+  return {title,subtitle,prompt:safe(v.prompt,50000),theme,questions,outcomes,collectLeads:v.collectLeads===true,coverImageUrl:safeMedia(v.coverImageUrl),motion:v.motion!==false,layout:v.layout==="conversational"?"conversational":"classic"};
 }
 export function publicQuiz(project:QuizProject):PublicQuiz{
-  return {id:project.id,title:project.title,subtitle:project.subtitle,theme:project.theme,coverImageUrl:project.coverImageUrl,motion:project.motion,
+  return {id:project.id,title:project.title,subtitle:project.subtitle,theme:project.theme,coverImageUrl:project.coverImageUrl,motion:project.motion,layout:project.layout,
     collectLeads:project.collectLeads,publishedAt:project.publishedAt,
     questions:project.questions.map(q=>({id:q.id,title:q.title,imageUrl:q.imageUrl,
       options:q.options.map(o=>({id:o.id,label:o.label,imageUrl:o.imageUrl}))}))};
