@@ -1582,8 +1582,8 @@ export default function BuilderPage() {
                   <div className="mt-1 flex gap-1">{[0,1,2].map(x=><span key={x} className="h-2.5 flex-1 rounded-sm bg-[#d4ddd7]"/>)}</div>
                 </div>
                 <span className="min-w-0 flex-1 sm:mt-2">
-                  <span className="block text-sm font-semibold">Modelo 1 · Original</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Moderno, estrutura comercial e conversão.</span>
+                  <span className="block text-sm font-semibold">PageNova Start</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Estrutura moderna para vender e converter.</span>
                 </span>
               </button>
               <button type="button" aria-pressed={templateId==="muse-editorial"}
@@ -1592,54 +1592,54 @@ export default function BuilderPage() {
                   templateId==="muse-editorial"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"
                 }`}>
                 <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#faf9f6] p-2 sm:h-[100px] sm:w-full">
-                  <div className="flex items-center justify-between"><span className="text-[11px] font-black tracking-tighter text-[#272522]">muse<span className="text-[#df321e]">.</span></span><span className="h-1 w-4 rounded bg-[#777]"/></div>
+                  <div className="flex items-center justify-between"><span className="text-[11px] font-black tracking-tighter text-[#272522]">PageNova<span className="text-[#df321e]">.</span></span><span className="h-1 w-4 rounded bg-[#777]"/></div>
                   <div className="mt-1 flex items-end justify-between gap-1"><span className="text-[15px] font-black leading-none tracking-tighter text-[#242424] sm:text-[27px]">forma<span className="text-[#df321e]">.</span></span><span className="mb-0.5 h-3 w-[38%] rounded-sm bg-[#c7c4bd]"/></div>
                   <div className="mt-1 flex-1 rounded-sm bg-gradient-to-br from-[#6b756c] via-[#b5ae99] to-[#e3dac4]"/>
                   <div className="mt-1 flex gap-1"><span className="h-2 w-1/2 bg-[#d7d2c8]"/><span className="h-2 w-1/3 bg-[#c2b6a5]"/></div>
                 </div>
                 <span className="min-w-0 flex-1 sm:mt-2">
-                  <span className="block text-sm font-semibold">Modelo 2 · Editorial</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Muse: tipografia marcante e portfólio visual.</span>
+                  <span className="block text-sm font-semibold">PageNova Studio</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Design criativo com forte impacto visual.</span>
                 </span>
               </button>
               <button type="button" aria-pressed={templateId==="atelier-norte"}
                 onClick={()=>setTemplateId("atelier-norte")}
                 className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="atelier-norte"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
                 <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f5f0e7] p-2 sm:h-[100px] sm:w-full">
-                  <span className="text-[10px] font-semibold tracking-tight text-[#38302a]">atelier <i className="font-serif font-normal text-[#ba684e]">norte</i></span>
+                  <span className="text-[10px] font-semibold tracking-tight text-[#38302a]">PageNova <i className="font-serif font-normal text-[#ba684e]">Elegance</i></span>
                   <span className="mt-1 font-serif text-[13px] leading-none text-[#38302a] sm:mt-2 sm:text-[26px]">Design <i className="text-[#ba684e]">com alma.</i></span>
                   <div className="mt-1 flex flex-1 gap-1"><span className="w-3/5 rounded-sm bg-[#c0ad99]"/><span className="flex-1 rounded-sm bg-[#e2d3c0]"/></div>
                   <div className="mt-1 h-1.5 rounded bg-[#d0bdab]"/>
                 </div>
                 <span className="min-w-0 flex-1 sm:mt-2">
-                  <span className="block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Institucional sofisticado, fundo claro e terracota.</span>
+                  <span className="block text-sm font-semibold">PageNova Elegance</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Sofisticação para marcas e profissionais.</span>
                 </span>
               </button>
               <button type="button" aria-pressed={templateId==="vertice-corporate"}
                 onClick={()=>setTemplateId("vertice-corporate")}
                 className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="vertice-corporate"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
                 <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f4f7f2] p-2 sm:h-[100px] sm:w-full">
-                  <div className="flex items-center justify-between"><span className="text-[10px] font-black tracking-tight text-[#214734]">✦ vértice.</span><span className="h-1 w-5 rounded bg-[#9fb7a5]"/></div>
+                  <div className="flex items-center justify-between"><span className="text-[10px] font-black tracking-tight text-[#214734]">✦ PageNova</span><span className="h-1 w-5 rounded bg-[#9fb7a5]"/></div>
                   <div className="mt-2 flex flex-1 items-center gap-1.5"><div className="w-[63%] space-y-1"><span className="block h-2 w-4/5 rounded-sm bg-[#27573e]"/><span className="block h-2 w-full rounded-sm bg-[#27573e]"/><span className="block h-1 w-2/3 rounded-sm bg-[#9aae9e]"/><span className="block h-2 w-1/2 rounded-sm bg-[#27573e]"/></div><div className="h-full flex-1 rounded-sm bg-gradient-to-br from-[#d9e2db] to-[#648c74]"/></div>
                   <div className="mt-1 flex gap-1">{[0,1,2].map(n=><span key={n} className="h-2 flex-1 rounded-sm bg-[#d2ddd4]"/>)}</div>
                 </div>
                 <span className="min-w-0 flex-1 sm:mt-2">
-                  <span className="block text-sm font-semibold">Modelo 4 · Vértice</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Corporativo claro, verde institucional e fotografia ampla.</span>
+                  <span className="block text-sm font-semibold">PageNova Business</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Presença corporativa com credibilidade.</span>
                 </span>
               </button>
               <button type="button" aria-pressed={templateId==="vertice-premium"}
                 onClick={()=>setTemplateId("vertice-premium")}
                 className={`flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-xl border p-2.5 text-left transition hover:-translate-y-0.5 sm:block focus-visible:outline focus-visible:outline-2 focus-visible:outline-emerald-300 ${templateId==="vertice-premium"?"border-emerald-400 bg-emerald-400/[0.08]":"border-white/15 bg-black/15 hover:border-emerald-400/30"}`}>
                 <div aria-hidden="true" className="flex h-[68px] w-[108px] shrink-0 flex-col overflow-hidden rounded-lg bg-[#f4f2e9] p-2 sm:h-[100px] sm:w-full">
-                  <div className="flex items-center justify-between"><span className="font-serif text-[12px] font-semibold text-[#15382e]">Vértice<span className="text-[#c7a16a]">.</span></span><span className="h-1 w-5 rounded bg-[#c7a16a]"/></div>
+                  <div className="flex items-center justify-between"><span className="font-serif text-[12px] font-semibold text-[#15382e]">PageNova<span className="text-[#c7a16a]">.</span></span><span className="h-1 w-5 rounded bg-[#c7a16a]"/></div>
                   <div className="mt-2 flex flex-1 items-center gap-2"><div className="w-[55%] space-y-1.5"><span className="block h-2 w-full rounded-sm bg-[#15382e]"/><span className="block h-2 w-4/5 rounded-sm bg-[#15382e]"/><span className="block h-1 w-full rounded-sm bg-[#c0c7bd]"/></div><div className="h-full flex-1 rounded-tl-[24px] bg-gradient-to-br from-[#c5c7b9] to-[#3b6652]"/></div>
                   <div className="mt-1.5 flex gap-1">{[0,1,2].map(n=><span key={n} className="h-2 flex-1 rounded-sm bg-[#1c4838]"/>)}</div>
                 </div>
                 <span className="min-w-0 flex-1 sm:mt-2">
-                  <span className="block text-sm font-semibold">Modelo 5 · Vértice Premium</span>
-                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Editorial premium, tipografia clássica e seções institucionais.</span>
+                  <span className="block text-sm font-semibold">PageNova Signature</span>
+                  <span className="mt-1 block text-[11px] leading-4 text-white/50">Experiência premium com design exclusivo.</span>
                 </span>
               </button>
             </div>
