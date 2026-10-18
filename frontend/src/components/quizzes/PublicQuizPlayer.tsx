@@ -68,7 +68,7 @@ export function PublicQuizPlayer({quiz,preview}:Props){
   const animate=quiz.motion!==false?" motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"";
   return <main className={"relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-4 py-10 font-sans sm:py-14 "+(hasBackground?"bg-[#101511] text-white":palette.page+" "+palette.text)}>
     {hasBackground&&<>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url("${quiz.coverImageUrl?.replace(/["\\\\]/g,"")}")`}}/>
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url(${JSON.stringify(quiz.coverImageUrl)})`}}/>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-black/65"/>
     </>}
     <div className="w-full max-w-[670px]">
@@ -82,7 +82,7 @@ export function PublicQuizPlayer({quiz,preview}:Props){
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-emerald-400/15"><Sparkles className="h-4 w-4"/></span>
             <span>Quiz interativo</span>
           </div>
-          <span className={"text-xs "+palette.faded}>{result?"Finalizado":isLeadStep?"Seu resultado":(index+1)+" / "+quiz.questions.length}</span>
+          <span className={"text-xs "+(hasBackground?"text-white/75":palette.faded)}>{result?"Finalizado":isLeadStep?"Seu resultado":(index+1)+" / "+quiz.questions.length}</span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-current/10" role="progressbar"
           aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} aria-label="Progresso">
@@ -141,7 +141,7 @@ export function PublicQuizPlayer({quiz,preview}:Props){
               const chosen=answers[question.id]===option.id;
               return <button key={option.id} type="button" role="radio" aria-checked={chosen}
                 onClick={()=>{setAnswers(a=>({...a,[question.id]:option.id}));setError("");}}
-                className={"flex w-full items-center gap-4 "+labelClasses+" "+(chosen?palette.chosen:palette.option)}>
+                className={"flex w-full items-center gap-4 "+labelClasses+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
                   {chosen?<Check className="h-4 w-4"/>:String.fromCharCode(65+i)}
                 </span>
