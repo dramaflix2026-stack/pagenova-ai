@@ -6249,6 +6249,15 @@ export function renderTemplate001Preview(
   html body .pn001-site .pn001-hero-copy{min-width:0!important}
   html body .pn001-site .pn001-hero-copy *{overflow-wrap:break-word}
 }
+/* PAGENOVA HERO CONTRAST V12 — readable title on light hero imagery */
+html body .pn001-site section.pn001-hero h1,
+html body .pn001-site section.pn-v2-hero h1,
+html body .pn001-site section.pn001-hero h1 *,
+html body .pn001-site section.pn-v2-hero h1 * {
+ color:#172b36!important;
+ -webkit-text-fill-color:#172b36!important;
+ text-shadow:none!important;
+}
 /* PAGENOVA HERO CONTRAST V11 — light banners need dark, legible headings on every viewport */
 html body .pn001-site section.pn001-hero h1,
 html body .pn001-site section.pn-v2-hero h1,
