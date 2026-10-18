@@ -1784,6 +1784,7 @@ export default function BuilderPage() {
               <button type="button" disabled={!project.pages.home || publishing || phase === "generating" || switchingTemplate} onClick={() => void publishSite()} className="rounded-lg bg-emerald-400 px-3 py-2 text-xs font-bold text-[#08130e] transition hover:bg-emerald-300 disabled:opacity-40">
                 {publishing ? "Publicando..." : publishedUrl ? "Atualizar publicação" : "Publicar site"}
               </button>
+              <a href={`/app/dominios?project=${encodeURIComponent(project.id)}`} className="inline-flex items-center rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15">Conectar domínio ↗</a>
               {publishedUrl ? <a href={publishedUrl} target="_blank" rel="noreferrer" className="max-w-[280px] truncate rounded-lg border border-white/10 px-3 py-2 text-xs text-white/65 hover:text-white" title={publishedUrl}>Ver site publicado ↗</a> : null}
               {costDebugEnabled && crmProjectId ? <button type="button" onClick={() => { setCostPanelOpen((value) => !value); void refreshCost(crmProjectId); void refreshCostAudit(crmProjectId); }} className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-semibold text-amber-200">🔒 Custo IA</button> : null}
             </div>
