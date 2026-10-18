@@ -786,7 +786,10 @@ export default function BuilderPage() {
           internalName: inferredName,
           siteType: "ONE_PAGE",
           briefing: {
-            templateId: effectiveTemplateId,
+            // The CRM API validates its own supported template IDs. Keep the
+            // premium visual selection in the PageNova project and use the
+            // compatible corporate family for CRM content generation.
+            templateId: effectiveTemplateId === "vertice-premium" ? "vertice-corporate" : effectiveTemplateId,
             business: { name: inferredName, services: [], differentials: [] },
             objective: { goal: "QUOTE_REQUESTS" },
             style: {
