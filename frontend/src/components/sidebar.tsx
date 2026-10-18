@@ -346,9 +346,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
-            <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
-            theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
-          <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
+            <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
               theme="development" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
@@ -380,6 +378,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
           <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
+            theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
+          <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
             theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
