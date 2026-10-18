@@ -164,6 +164,18 @@ export function renderEditablePreview(
     #pn-edit-box i{width:13px!important;height:13px!important}
   }
 
+  /* Keep the hero headline legible on both pale photography and dark banners.
+     Difference blending adapts the text to the pixels beneath it, without
+     changing saved content or locking the user's editable text colors. */
+  body :is(section.hero,section[class*="hero"],section[id*="hero"],.hero) h1 {
+    color:#fff;
+    mix-blend-mode:difference;
+    isolation:auto;
+  }
+  body :is(section.hero,section[class*="hero"],section[id*="hero"],.hero) :is(.eyebrow,.kicker,[class*="eyebrow"]) {
+    text-shadow:0 1px 3px rgba(0,0,0,.35);
+  }
+
   /* Prevent long editorial headings and user-resized text from overflowing the mobile canvas. */
   @media(max-width:640px){
     body :is(h1,h2,h3,h4,p,blockquote,[data-pn-selected=true]){
