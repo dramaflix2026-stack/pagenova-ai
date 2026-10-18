@@ -132,6 +132,7 @@ export default function QuizStudioPage(){
       if(quiz){
         result.coverImageUrl=result.coverImageUrl||quiz.coverImageUrl;
         result.motion=quiz.motion;
+        result.layout=quiz.layout;
         result.questions=result.questions.map((q,i)=>({
           ...q,imageUrl:q.imageUrl||quiz.questions.find(old=>old.id===q.id)?.imageUrl||quiz.questions[i]?.imageUrl,
           options:q.options.map((o,j)=>({...o,imageUrl:o.imageUrl||
@@ -246,6 +247,13 @@ export default function QuizStudioPage(){
               (quiz.theme===theme.id?"border-emerald-400/70 bg-emerald-400/10":"border-white/10 bg-white/[.03]")}>
             <span className={"h-3.5 w-3.5 rounded-full "+theme.swatch}/>{theme.name}
           </button>)}
+        </div>
+        <div className="mt-5">
+          <p className="mb-2 text-xs font-semibold text-white/65">Apresentação das perguntas</p>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <button type="button" onClick={()=>change({layout:"classic"})} aria-pressed={quiz.layout!=="conversational"} className={"rounded-xl border p-4 text-left text-sm transition "+(quiz.layout!=="conversational"?"border-emerald-400 bg-emerald-400/10":"border-white/10 bg-white/[.03]")}><strong className="block">Clássico</strong><span className="mt-1 block text-xs text-white/55">Alternativas em cartões</span></button>
+            <button type="button" onClick={()=>change({layout:"conversational"})} aria-pressed={quiz.layout==="conversational"} className={"rounded-xl border p-4 text-left text-sm transition "+(quiz.layout==="conversational"?"border-emerald-400 bg-emerald-400/10":"border-white/10 bg-white/[.03]")}><strong className="block">Conversacional</strong><span className="mt-1 block text-xs text-white/55">Uma pergunta por tela, estilo Typeform</span></button>
+          </div>
         </div>
         <label className="mt-4 flex items-start gap-3 rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6"><input type="checkbox" className="mt-1 accent-emerald-400" checked={quiz.motion!==false} onChange={e=>change({motion:e.target.checked})}/><span><strong className="block text-sm">Animações suaves</strong><span className="block text-xs text-white/55">Transições entre perguntas, respeitando movimento reduzido.</span></span></label>
         <label className="mt-5 flex items-start gap-3 rounded-xl border border-white/10 bg-black/15 p-4 text-sm leading-6">
