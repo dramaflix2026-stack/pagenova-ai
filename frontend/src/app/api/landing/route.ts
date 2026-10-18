@@ -41,9 +41,9 @@ export async function GET(request:NextRequest){
   }
   const {data,error}=await storage.list("landing-drafts/"+ctx.user.id,{limit:100,sortBy:{column:"updated_at",order:"desc"}});
   if(error)throw error;
-  const entries=(data||[]).filter(x=>idPattern.test(x.name.replace(/\\.json$/,""))).slice(0,40);
+  const entries=(data||[]).filter(x=>idPattern.test(x.name.replace(/\.json$/,""))).slice(0,40);
   const items=await Promise.all(entries.map(async x=>{
-    const id=x.name.replace(/\\.json$/,"");
+    const id=x.name.replace(/\.json$/,"");
     let name="";
     try{
       const {data:file,error:downloadError}=await storage.download(draftPath(ctx.user.id,id));
