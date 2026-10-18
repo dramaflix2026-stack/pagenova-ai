@@ -726,8 +726,8 @@ export default function BuilderPage() {
     if (phase === "generating") return;
 
     const prompt = brief.trim();
-    if (prompt.length < 20) {
-      setError("Descreva o site que você quer criar com pelo menos 20 caracteres.");
+    if (prompt.length < 5) {
+      setError("Informe pelo menos o tipo de negócio, por exemplo: Clínica de estética.");
       return;
     }
     // Do not create an empty CRM project when the authoritative wallet has no credits.
