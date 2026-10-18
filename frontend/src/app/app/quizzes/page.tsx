@@ -405,7 +405,7 @@ export default function QuizStudioPage(){
               </div>)}</div>
             </details>
           </article>)}
-        </div>
+        </div>}
         </>}
       <p className="text-xs leading-6 text-white/40">Exibindo até 100 participações recentes. Os dados são privados e acessíveis apenas ao responsável pelo projeto.</p>
     </div>;
