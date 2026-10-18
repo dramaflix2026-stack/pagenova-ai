@@ -189,11 +189,53 @@ const hasKind = (
     kinds.includes(kindOf(section)),
   );
 
+/**
+ * Editorial safety net for sparse AI output. Uses only the business category,
+ * never asserts that a company offers an unconfirmed service.
+ */
+const editorialFallbackV7 = (project: SiteProject) => {
+  const subject = [project.name, project.style].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
+  if (/academia|fitness|muscula[cç][aã]o|treino/.test(subject)) return {
+    benefits: {
+      title: "Uma rotina de treino que funciona para você",
+      body: "O treino ganha consistência quando objetivos, modalidades e frequência fazem sentido para a sua realidade.",
+      items: [
+        {title:"Força e resistência",body:"Entenda como exercícios de força podem fazer parte de uma rotina progressiva e adaptada ao seu nível."},
+        {title:"Condicionamento",body:"Explore diferentes intensidades e formatos para trabalhar fôlego e disposição de maneira gradual."},
+        {title:"Mobilidade",body:"Conheça atividades que valorizam amplitude de movimento, coordenação e controle corporal."},
+        {title:"Regularidade",body:"Escolher horários e modalidades compatíveis com a sua semana ajuda a manter a prática."}
+      ]
+    },
+    features: {
+      title:"Como escolher seu próximo treino",
+      body:"Antes de começar, vale comparar objetivos, preferências e disponibilidade para encontrar um caminho viável.",
+      items:[
+        {title:"Seu objetivo",body:"Defina se a prioridade é força, condicionamento, mobilidade ou simplesmente movimentar-se mais."},
+        {title:"Seu ponto de partida",body:"Considere experiência anterior, disponibilidade e possíveis limitações antes de escolher uma modalidade."},
+        {title:"Sua frequência",body:"Planeje dias e horários realistas para transformar a intenção em hábito."}
+      ]
+    },
+    faq: {
+      title:"Perguntas para começar a treinar",
+      body:"Confira o que avaliar antes de escolher sua rotina de atividades.",
+      items:[
+        {title:"Qual modalidade combina comigo?",body:"Compare seus objetivos e preferências com as opções apresentadas e peça orientação sobre o melhor ponto de partida."},
+        {title:"Preciso ter experiência para começar?",body:"A experiência anterior ajuda a orientar a escolha, mas há diferentes formas de iniciar uma rotina de exercícios."},
+        {title:"Quantas vezes por semana devo treinar?",body:"A frequência depende dos seus objetivos, condicionamento e disponibilidade. Busque orientação individualizada."},
+        {title:"Como conheço os horários e planos?",body:"Consulte a equipe pelos canais de contato para confirmar horários, disponibilidade e valores atualizados."},
+        {title:"Posso conhecer o espaço antes de decidir?",body:"Entre em contato para verificar se a academia oferece visitas e como funciona o atendimento inicial."}
+      ]
+    }
+  };
+  return null;
+};
+
 export const completeHomeSectionsV5 = (
   project: SiteProject,
   page: SitePage,
 ): SitePage["sections"] => {
   const sections = [...page.sections];
+  const editorial = editorialFallbackV7(project);
 
   /*
    * Do not fabricate business facts.
@@ -277,10 +319,10 @@ export const completeHomeSectionsV5 = (
    */
   if (!hasKind(sections, ["benefits"])) {
     sections.push({
-      title: "Uma experiência mais clara em cada etapa",
-      body: "Organização, comunicação e entendimento ajudam a transformar a necessidade inicial em decisões mais objetivas.",
+      title: editorial?.benefits.title || "Uma experiência mais clara em cada etapa",
+      body: editorial?.benefits.body || "Organização, comunicação e entendimento ajudam a transformar a necessidade inicial em decisões mais objetivas.",
       kind: "benefits",
-      items: [
+      items: editorial?.benefits.items || [
         { title: "Clareza", body: "Informações e prioridades organizadas para facilitar as decisões." },
         { title: "Coerência", body: "Cada etapa permanece conectada ao objetivo principal do projeto." },
         { title: "Proximidade", body: "O diálogo mantém contexto, expectativas e próximos passos alinhados." },
@@ -291,10 +333,10 @@ export const completeHomeSectionsV5 = (
 
   if (!hasKind(sections, ["features"])) {
     sections.push({
-      title: "O que orienta cada projeto",
-      body: "Uma boa entrega começa pela combinação entre contexto, prioridades e uma direção bem definida.",
+      title: editorial?.features.title || "O que orienta cada projeto",
+      body: editorial?.features.body || "Uma boa entrega começa pela combinação entre contexto, prioridades e uma direção bem definida.",
       kind: "features",
-      items: [
+      items: editorial?.features.items || [
         { title: "Contexto em primeiro lugar", body: "As decisões partem da necessidade apresentada e do cenário de cada projeto." },
         { title: "Prioridades bem definidas", body: "O que é mais importante ganha clareza antes do avanço das etapas." },
         { title: "Decisões conectadas", body: "As escolhas são organizadas para manter unidade entre intenção e execução." },
@@ -304,10 +346,10 @@ export const completeHomeSectionsV5 = (
 
   if (!hasKind(sections, ["faq"])) {
     sections.push({
-      title: "Dúvidas frequentes",
-      body: "Informações essenciais para entender a proposta e iniciar uma conversa.",
+      title: editorial?.faq.title || "Dúvidas frequentes",
+      body: editorial?.faq.body || "Informações essenciais para entender a proposta e iniciar uma conversa.",
       kind: "faq",
-      items: [
+      items: editorial?.faq.items || [
         { title: "Como funciona o primeiro contato?", body: "O primeiro passo é entender a necessidade, o contexto e o objetivo para orientar os próximos passos." },
         { title: "Como saber quais soluções fazem sentido?", body: "A conversa inicial ajuda a organizar prioridades e identificar o caminho mais adequado ao projeto." },
         { title: "Posso tirar dúvidas antes de começar?", body: "Sim. Use o canal de contato informado para esclarecer os pontos necessários antes de avançar." },
