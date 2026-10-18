@@ -30,7 +30,7 @@ const STARTING_POINTS = [
  */
 function generationSections(brief: string, preset: string): string[] {
   const value = (brief + " " + preset).toLocaleLowerCase("pt-BR");
-  const sections = ["hero", "services", "benefits", "about", "process"];
+  const sections = ["hero", "services", "benefits", "features", "about", "process", "faq", "contact", "cta", "footer"];
   if (/arquitet|design de interiores|portf[oó]lio|projetos|fotograf|galeria|est[eé]tica|beleza|cl[ií]nica|im[oó]ve|imobili[aá]r/.test(value)) sections.push("gallery");
   if (/restaurante|card[aá]pio|menu gastron[oô]mico|caf[eé]|bar\b/.test(value)) sections.push("products");
   if (/agend|consulta|avalia[cç][aã]o|reserva|contato|formul[aá]rio|or[cç]amento/.test(value)) sections.push("contact");
