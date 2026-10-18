@@ -383,14 +383,29 @@ export default function QuizStudioPage(){
           </div>)}
         </div>
         {responses.length===0?<p className="rounded-xl border border-white/10 p-7 text-center text-sm text-white/55">Ainda não há respostas. Compartilhe o link publicado para receber participações.</p>:
-        responses.map(entry=><div key={entry.id} className="rounded-xl border border-white/10 bg-[#142019] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <strong className="text-sm">{quiz.outcomes.find(o=>o.id===entry.outcomeId)?.title||"Resultado"}</strong>
-            <span className="text-xs text-white/45">{prettyDate(entry.submittedAt)}</span>
-          </div>
-          {entry.lead&&<p className="mt-2 break-words text-xs text-emerald-200">{entry.lead.name} · {entry.lead.email}</p>}
-          <details className="mt-3 rounded-xl border border-white/10 bg-black/15 p-3"><summary className="cursor-pointer text-xs font-semibold text-emerald-200">Ver {entry.answers.length} respostas desta participação</summary><div className="mt-3 space-y-3">{quiz.questions.map((question,i)=><div key={question.id}><p className="text-xs font-semibold text-white/65">{i+1}. {question.title}</p><p className="mt-1 text-xs text-white/85">{question.options.find(option=>option.id===entry.answers.find(a=>a.questionId===question.id)?.optionId)?.label||"Não informado"}</p></div>)}</div></details>
-        </div>)}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {responses.map((entry,idx)=><article key={entry.id} className="min-w-0 rounded-2xl border border-white/10 bg-[#142019] p-5 transition hover:border-emerald-400/30">
+            <div className="flex items-start gap-3">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-emerald-400/25 bg-emerald-400/10 text-base font-bold text-emerald-200">{(entry.lead?.name?.trim()?.[0]||"P").toLocaleUpperCase("pt-BR")}</span>
+              <div className="min-w-0 flex-1">
+                <h3 className="break-words text-base font-bold text-white">{entry.lead?.name?.trim()||"Participante sem nome"}</h3>
+                <p className="mt-1 text-xs text-white/45">{prettyDate(entry.submittedAt)}</p>
+              </div>
+            </div>
+            {entry.lead?.email&&<p className="mt-3 break-all text-xs text-emerald-200">{entry.lead.email}</p>}
+            <div className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-white/40">Resultado do quiz</p>
+              <p className="mt-1 break-words text-sm font-semibold text-white/90">{quiz.outcomes.find(o=>o.id===entry.outcomeId)?.title||"Resultado"}</p>
+            </div>
+            <details className="mt-4 rounded-xl border border-white/10 bg-black/15 p-3">
+              <summary className="cursor-pointer text-xs font-semibold text-emerald-200">Ver respostas ({entry.answers.length})</summary>
+              <div className="mt-4 space-y-3">{quiz.questions.map((question,i)=><div key={question.id}>
+                <p className="text-xs font-semibold leading-5 text-white/65">{i+1}. {question.title}</p>
+                <p className="mt-1 text-xs leading-5 text-white/90">{question.options.find(option=>option.id===entry.answers.find(a=>a.questionId===question.id)?.optionId)?.label||"Não informado"}</p>
+              </div>)}</div>
+            </details>
+          </article>)}
+        </div>
         </>}
       <p className="text-xs leading-6 text-white/40">Exibindo até 100 participações recentes. Os dados são privados e acessíveis apenas ao responsável pelo projeto.</p>
     </div>;
