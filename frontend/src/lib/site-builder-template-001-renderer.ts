@@ -6249,6 +6249,15 @@ export function renderTemplate001Preview(
   html body .pn001-site .pn001-hero-copy{min-width:0!important}
   html body .pn001-site .pn001-hero-copy *{overflow-wrap:break-word}
 }
+/* PAGENOVA HERO CONTRAST V11 — light banners need dark, legible headings on every viewport */
+html body .pn001-site section.pn001-hero h1,
+html body .pn001-site section.pn-v2-hero h1,
+html body .pn001-site section.pn001-hero h1 *,
+html body .pn001-site section.pn-v2-hero h1 *{
+ color:#172b36!important;
+ -webkit-text-fill-color:#172b36!important;
+ text-shadow:none!important;
+}
 /* PAGENOVA HERO CONTRAST V10 — force readable heading on light photography */
 @media(max-width:900px){
  html body .pn001-site section.pn001-hero h1,
