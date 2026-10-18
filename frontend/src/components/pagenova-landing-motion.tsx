@@ -114,6 +114,21 @@ export function PageNovaLandingMotion() {
   return null;
 }
 
+const demoVideoPaths=["/videos/GERARSITEIA.mp4","/videos/CLONAR.mp4","/videos/CRM.mp4"] as const;
+
+function DemonstrationVideo({index}:{index:number}){
+  const [available,setAvailable]=useState(true);
+  return <div className="relative aspect-video overflow-hidden bg-[#0b1510]">
+    {available?<video
+      className="h-full w-full object-contain"
+      controls playsInline preload="metadata"
+      aria-label={"Demonstração: "+demonstrations[index].title}
+      onError={()=>setAvailable(false)}
+      src={demoVideoPaths[index]}
+    />:<div className="relative h-full w-full"><ProductPreview type={index}/><span className="absolute bottom-3 left-3 rounded-lg bg-[#0b1510]/90 px-3 py-1.5 text-xs text-white/90">Vídeo em preparação</span></div>}
+  </div>;
+}
+
 export function PageNovaVideoShowcase(){
   return <section id="demonstracoes" className="scroll-mt-20 border-t border-white/[.08] bg-[#07140d] py-14 text-white md:py-24">
     <div className="mx-auto max-w-7xl px-5 md:px-8">
@@ -123,13 +138,13 @@ export function PageNovaVideoShowcase(){
           <h2 className="mt-4 max-w-xl text-[clamp(2.1rem,4vw,3.4rem)] font-semibold leading-[1.1] tracking-[-.05em]">Veja o que você pode construir.</h2>
         </div>
         <p className="max-w-xl text-sm leading-7 text-white/60 lg:justify-self-end">
-          Uma visão ilustrativa das ferramentas disponíveis. Crie páginas, personalize o resultado e organize seus projetos e contatos.
+          Veja demonstrações das ferramentas disponíveis. Crie páginas, personalize o resultado e organize seus projetos e contatos.
         </p>
       </div>
       <div className="mt-8 grid gap-4 lg:grid-cols-3">
         {demonstrations.map((demo,index)=><article key={demo.number}
           className="overflow-hidden rounded-[22px] border border-white/10 bg-[#0d2116] transition duration-300 hover:-translate-y-1 hover:border-[#65deb0]/50 hover:shadow-[0_18px_38px_rgba(0,0,0,.22)]">
-          <ProductPreview type={index}/>
+          <DemonstrationVideo index={index}/>
           <div className="border-t border-white/10 p-5">
             <span className="text-[10px] font-bold uppercase tracking-[.15em] text-[#68e2af]">{demo.number} / FUNCIONALIDADE</span>
             <h3 className="mt-2 text-lg font-semibold tracking-tight">{demo.title}</h3>
@@ -137,7 +152,7 @@ export function PageNovaVideoShowcase(){
           </div>
         </article>)}
       </div>
-      <p className="mt-4 text-center text-xs text-white/45">Visualizações ilustrativas da interface. A experiência real está disponível dentro da plataforma.</p>
+      <p className="mt-4 text-center text-xs text-white/45">Conheça as funcionalidades e explore tudo na plataforma.</p>
     </div>
   </section>;
 }
