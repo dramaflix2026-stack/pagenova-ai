@@ -75,7 +75,7 @@ leadsRouter.use(asyncHandler(async (req, _res, next) => {
 }));
 
 /** Quem esta pedindo: id decide a propriedade, cargo decide a permissao. */
-const atorDe = (req: { session?: { user: { id: string; role: string } } }) => ({
+const atorDe = (req: { session?: { workspaceId: string; user: { id: string; role: string } } }) => ({
   id: req.session!.user.id,
   role: req.session!.user.role,
   workspaceId: req.session!.workspaceId,
