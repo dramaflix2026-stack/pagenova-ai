@@ -24,6 +24,7 @@ import {
   KanbanSquare,
   LayoutDashboard,
   Menu,
+  MessageCircle,
   Settings,
   Smartphone,
   Sparkles,
@@ -63,6 +64,8 @@ const studioItems: MenuItem[] = [
   { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
   { href: "/app/dominios", label: "Domínio profissional", icon: Globe },
 ];
+
+const intelligenceItems: MenuItem[] = [{ href: "/app/chat-ai", label: "PageNova Chat AI", icon: MessageCircle }];
 
 const developmentItems: MenuItem[] = [
   { href: "/app/aplicativos", label: "Protótipos de Aplicativos", icon: Smartphone },
@@ -341,7 +344,11 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
             <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
-            <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
+            <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
+              theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
+            <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
+            theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
+          <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
               theme="development" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
