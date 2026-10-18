@@ -96,6 +96,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
   let body: ArrayBuffer | undefined=["GET","HEAD"].includes(method)
     ? undefined : await request.arrayBuffer();
   const metered=creditGateEnabled()&&who.access.kind==="paid";
+  const usageOnly=who.access.kind==="paid"&&!metered;
   const isTrial=who.access.kind==="trial";
   // Additional AI / recovery / export actions can consume real provider resources.
   // Trial includes only two initial CRM generations and five Google search pages.
@@ -115,6 +116,7 @@ async function proxy(request: NextRequest, context: RouteContext) {
 
   let creditId:string|null=null;
   let trialCreditId:string|null=null;
+  const usageKey=usageOnly&&(siteMatch||googlePage)?(siteMatch?"site:"+siteMatch[1]+":"+(request.headers.get("x-pagenova-credit-request")||randomUUID()):"google:"+(request.headers.get("x-pagenova-credit-request")||randomUUID())):null;
   // Trial quota is enforced regardless of the commercial-credit rollout flag.
   // Reservations happen before any billable Google/OpenAI operation.
   if((isTrial||metered)&&(siteMatch||googlePage)){
@@ -201,6 +203,38 @@ async function proxy(request: NextRequest, context: RouteContext) {
   if(responseType)outHeaders.set("content-type",responseType);
   if(disposition)outHeaders.set("content-disposition",disposition);
   outHeaders.set("cache-control","no-store");
+
+  if(usageOnly&&usageKey&&(siteMatch||googlePage)&&response.ok){
+    const raw=await response.arrayBuffer();
+    let parsed:{jobId?:string;created?:boolean}={};
+    try{parsed=JSON.parse(Buffer.from(raw).toString("utf8")) as typeof parsed;}catch{}
+    const accepted=!siteMatch||(parsed.created===true&&!!parsed.jobId);
+    if(accepted){
+      const {error}=await who.admin.rpc("pagenova_usage_record",{
+        p_email:who.email,p_owner_id:who.externalUserId,
+        p_kind:siteMatch?"site_generation":"google_page",p_key:usageKey,
+        p_job_id:siteMatch?parsed.jobId:null,
+      });
+      if(error)console.error("[PageNova usage] Recording failed",error.code);
+    }
+    return new NextResponse(raw,{status:response.status,headers:outHeaders});
+  }
+
+  if(usageOnly&&jobMatch&&response.ok){
+    const raw=await response.arrayBuffer();
+    try{
+      const parsed=JSON.parse(Buffer.from(raw).toString("utf8")) as {job?:{id?:string;status?:string}};
+      const status=parsed.job?.status;
+      if(status==="SUCCEEDED"||status==="FAILED"||status==="CANCELLED"){
+        const {error}=await who.admin.rpc("pagenova_usage_finish_job",{
+          p_email:who.email,p_owner_id:who.externalUserId,
+          p_job_id:parsed.job?.id||jobMatch[1],p_success:status==="SUCCEEDED",
+        });
+        if(error)console.error("[PageNova usage] Job reconciliation failed",error.code);
+      }
+    }catch(error){console.error("[PageNova usage] Invalid job response",error instanceof Error?error.name:"unknown");}
+    return new NextResponse(raw,{status:response.status,headers:outHeaders});
+  }
 
   if(creditId||trialCreditId){
     // Only successful upstream operations consume the reservation. Site
