@@ -384,7 +384,7 @@ export default function QuizStudioPage(){
         </div>
         {responses.length===0?<p className="rounded-xl border border-white/10 p-7 text-center text-sm text-white/55">Ainda não há respostas. Compartilhe o link publicado para receber participações.</p>:
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {responses.map((entry,idx)=><article key={entry.id} className="min-w-0 rounded-2xl border border-white/10 bg-[#142019] p-5 transition hover:border-emerald-400/30">
+          {responses.map(entry=><article key={entry.id} className="min-w-0 rounded-2xl border border-white/10 bg-[#142019] p-5 transition hover:border-emerald-400/30">
             <div className="flex items-start gap-3">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-emerald-400/25 bg-emerald-400/10 text-base font-bold text-emerald-200">{(entry.lead?.name?.trim()?.[0]||"P").toLocaleUpperCase("pt-BR")}</span>
               <div className="min-w-0 flex-1">
