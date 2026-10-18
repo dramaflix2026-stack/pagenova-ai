@@ -1,17 +1,17 @@
-import Link from "next/link";
-import { MessageCircle, ShieldCheck, Sparkles } from "lucide-react";
-
-export default function PageNovaChatAI() {
-  return <main className="mx-auto max-w-5xl px-5 py-12 text-white">
-    <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-200"><Sparkles className="h-4 w-4"/> Inteligência Artificial</div>
-    <h1 className="text-3xl font-bold md:text-5xl">PageNova Chat AI</h1>
-    <p className="mt-4 max-w-2xl text-white/65">Seu futuro assistente para ideias, textos, estratégias e criação de conteúdo, integrado à PageNova.</p>
-    <section className="mt-10 rounded-3xl border border-emerald-400/20 bg-[#111d15] p-8">
-      <MessageCircle className="h-10 w-10 text-emerald-300"/>
-      <h2 className="mt-5 text-xl font-semibold">Estamos preparando seu chat com IA</h2>
-      <p className="mt-3 text-sm leading-6 text-white/65">As conversas serão disponibilizadas após a ativação segura da API, do histórico privado e dos limites mensais de uso. Nenhum crédito será consumido nesta tela.</p>
-      <div className="mt-6 flex items-center gap-2 text-sm text-emerald-200"><ShieldCheck className="h-4 w-4"/> Acesso integrado à sua conta PageNova</div>
-      <Link href="/app/builder" className="mt-8 inline-flex rounded-xl bg-emerald-400 px-5 py-3 font-semibold text-[#0b100d] hover:bg-emerald-300">Continuar criando sites</Link>
-    </section>
-  </main>;
+"use client";
+import { useEffect, useState } from "react";
+import { MessageCircle, Plus, Send, LoaderCircle } from "lucide-react";
+type Thread={id:string;title:string};type Msg={id?:string;role:"user"|"assistant";content:string};
+export default function PageNovaChatAI(){
+ const [threads,setThreads]=useState<Thread[]>([]),[active,setActive]=useState<string|null>(null),[messages,setMessages]=useState<Msg[]>([]),[draft,setDraft]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[budget,setBudget]=useState<number|null>(null);
+ async function refresh(){try{const r=await fetch("/api/chat-ai",{cache:"no-store"});const d=await r.json();if(!r.ok)throw Error(d.error);setThreads(d.threads||[]);setBudget(d.budgetUsed??0)}catch(e){setError(e instanceof Error?e.message:"Erro ao carregar conversas")}}
+ useEffect(()=>{void refresh()},[]);
+ async function open(id:string){setError("");setActive(id);setMessages([]);try{const r=await fetch("/api/chat-ai?thread="+encodeURIComponent(id));const d=await r.json();if(!r.ok)throw Error(d.error);setMessages(d.messages||[])}catch(e){setError(e instanceof Error?e.message:"Erro ao abrir conversa")}}
+ async function send(){const message=draft.trim();if(!message||busy)return;setBusy(true);setError("");setDraft("");setMessages(old=>[...old,{role:"user",content:message}]);try{const r=await fetch("/api/chat-ai",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({threadId:active||undefined,message})});const d=await r.json();if(!r.ok)throw Error(d.error||"Falha ao enviar");setActive(d.threadId);setMessages(old=>[...old,{role:"assistant",content:d.answer}]);await refresh()}catch(e){setError(e instanceof Error?e.message:"Erro ao enviar");setMessages(old=>old.slice(0,-1));setDraft(message)}finally{setBusy(false)}}
+ return <main className="flex min-h-[calc(100vh-80px)] flex-col gap-4 p-4 text-white lg:flex-row lg:p-6">
+  <aside className="w-full shrink-0 rounded-2xl border border-emerald-400/20 bg-[#101b14] p-4 lg:w-64"><button onClick={()=>{setActive(null);setMessages([]);setError("")}} className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-3 font-semibold text-[#09140d]"><Plus size={18}/> Nova conversa</button><p className="mt-6 mb-3 text-xs font-semibold uppercase tracking-widest text-emerald-300">Suas conversas</p><div className="max-h-72 space-y-1 overflow-y-auto lg:max-h-[65vh]">{threads.map(t=><button key={t.id} onClick={()=>void open(t.id)} className={`block w-full truncate rounded-lg px-3 py-3 text-left text-sm hover:bg-white/10 ${active===t.id?"bg-emerald-400/15 text-emerald-200":"text-white/70"}`}>{t.title}</button>)}</div>{budget!==null&&<p className="mt-5 border-t border-white/10 pt-4 text-xs text-white/50">Franquia mensal utilizada: {Math.min(100,Math.round(budget/850000*100))}%</p>}</aside>
+  <section className="flex min-h-[65vh] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0d1510]"><header className="border-b border-white/10 px-5 py-4"><h1 className="flex items-center gap-2 text-xl font-bold"><MessageCircle className="text-emerald-300"/> PageNova Chat AI</h1><p className="mt-1 text-xs text-white/50">Seu assistente de inteligência artificial</p></header>
+  <div className="flex-1 space-y-5 overflow-y-auto p-5 lg:p-8" aria-live="polite">{messages.length===0&&<div className="mx-auto mt-16 max-w-lg text-center"><div className="text-4xl">✦</div><h2 className="mt-4 text-2xl font-bold">Como posso ajudar hoje?</h2><p className="mt-3 text-white/50">Crie textos, explore ideias, planeje estratégias ou tire suas dúvidas.</p></div>}{messages.map((m,i)=><div key={m.id||i} className={`flex ${m.role==="user"?"justify-end":"justify-start"}`}><div className={`max-w-[88%] whitespace-pre-wrap break-words rounded-2xl px-5 py-4 text-sm leading-7 ${m.role==="user"?"bg-emerald-400 text-[#0b170e]":"border border-white/10 bg-white/5 text-white/90"}`}>{m.content}</div></div>)}{busy&&<p className="flex items-center gap-2 text-sm text-emerald-300"><LoaderCircle className="animate-spin" size={16}/> Pensando...</p>}</div>
+  <div className="border-t border-white/10 p-4">{error&&<p role="alert" className="mb-3 rounded-lg bg-red-900/30 p-3 text-sm text-red-200">{error}</p>}<form onSubmit={e=>{e.preventDefault();void send()}} className="flex items-end gap-3 rounded-xl border border-emerald-400/20 bg-[#15231a] p-3"><textarea aria-label="Mensagem" value={draft} onChange={e=>setDraft(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send()}}} rows={2} maxLength={4000} placeholder="Pergunte qualquer coisa..." className="min-h-12 flex-1 resize-none bg-transparent px-2 py-2 text-sm text-white outline-none placeholder:text-white/40"/><button type="submit" disabled={busy||!draft.trim()} aria-label="Enviar mensagem" className="rounded-lg bg-emerald-400 p-3 text-[#0c1b10] disabled:opacity-40"><Send size={19}/></button></form><p className="mt-2 text-center text-xs text-white/35">A IA pode cometer erros. Confira informações importantes.</p></div></section>
+ </main>
 }
