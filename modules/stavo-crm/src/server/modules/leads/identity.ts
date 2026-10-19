@@ -185,6 +185,18 @@ export async function checkDuplicates(
         };
       }
 
+      // Telefones podem ser compartilhados por clinicas, recepcoes e filiais.
+      // Nao bloquear um novo estabelecimento apenas pelo telefone, mesmo
+      // dentro do mesmo workspace. A suspeita fica registrada para revisao.
+      if (row.keyType === 'PHONE') {
+        return {
+          kind: 'REVIEW',
+          keyType: 'PHONE',
+          reason: KEY_REASONS.PHONE,
+          existing,
+        };
+      }
+
       // Chave ja marcada como compartilhada volta para revisao; ela nunca
       // libera automaticamente uma terceira criacao.
       if (row.isSharedException) {
