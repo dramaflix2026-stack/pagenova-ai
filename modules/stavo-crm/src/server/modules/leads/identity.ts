@@ -1,12 +1,12 @@
 /**
- * Deduplicacao global de leads.
+ * Deduplicacao de leads isolada por workspace.
  *
  * Escopo da comparacao: CRM ativo, leads arquivados, importacoes anteriores,
  * leads manuais e leads originados do Google -- tudo pela mesma tabela de
  * identidades normalizadas.
  *
  * Regras inegociaveis:
- *  - mesmo place_id NUNCA cria dois cards e nunca vira excecao;
+ *  - mesmo place_id nunca cria dois cards NO MESMO WORKSPACE;
  *  - chave forte ja pertencente a outro lead bloqueia a criacao automatica;
  *  - correspondencia apenas provavel nao cria e nao funde: vai para revisao;
  *  - so a decisao humana "sao leads diferentes" cria excecao auditada;
@@ -142,7 +142,7 @@ async function summarizeLead(
 export async function checkDuplicates(
   db: Database,
   input: IdentityInput,
-  options: { excludeLeadId?: string; allowSharedIdentity?: boolean } = {},
+  options: { workspaceId: string; excludeLeadId?: string; allowSharedIdentity?: boolean },
 ): Promise<DuplicateVerdict> {
   const keys = buildIdentityKeys(input);
 
@@ -161,7 +161,7 @@ export async function checkDuplicates(
         leadIdentityMemberships,
         eq(leadIdentityMemberships.identityKeyId, leadIdentityKeys.id),
       )
-      .where(inArray(leadIdentityKeys.keyHash, hashes));
+      .where(and(eq(leadIdentityKeys.workspaceId, options.workspaceId), inArray(leadIdentityKeys.keyHash, hashes)));
 
     const byHash = new Map(keys.map((key) => [key.keyHash, key]));
 
@@ -213,7 +213,7 @@ export async function checkDuplicates(
     }
   }
 
-  const probable = await findProbableMatch(db, input, options.excludeLeadId);
+  const probable = await findProbableMatch(db, options.workspaceId, input, options.excludeLeadId);
   if (probable) return probable;
 
   return { kind: 'CLEAR' };
@@ -229,6 +229,7 @@ const PROBABLE_NAME_THRESHOLD = 0.86;
  */
 async function findProbableMatch(
   db: Database,
+  workspaceId: string,
   input: IdentityInput,
   excludeLeadId?: string,
 ): Promise<DuplicateVerdict | null> {
@@ -256,6 +257,7 @@ async function findProbableMatch(
     .innerJoin(stages, eq(stages.id, leads.currentStageId))
     .where(
       and(
+        eq(leads.workspaceId, workspaceId),
         excludeLeadId ? ne(leads.id, excludeLeadId) : sql`1 = 1`,
         or(
           sql`${leads.internalName} like ${prefix}`,
