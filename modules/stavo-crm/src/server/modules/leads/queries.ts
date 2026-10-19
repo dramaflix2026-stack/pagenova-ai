@@ -260,6 +260,21 @@ export async function getBoard(
     .orderBy(desc(leads.stageEnteredAt))
     .limit(2000);
 
+  // Leads criados antes da correcao de tenant podem apontar para uma etapa
+  // de outro workspace. Exiba-os na coluna semantica equivalente deste
+  // workspace sem alterar o ID real (necessario para concorrencia otimista).
+  const currentStageIds = new Set(columns.map((stage) => stage.id));
+  const legacyStageIds = [...new Set(rows.map((row) => row.stageId).filter((id) => !currentStageIds.has(id)))];
+  const legacyStages = legacyStageIds.length
+    ? await db.select({ id: stages.id, semanticKey: stages.semanticKey })
+        .from(stages).where(inArray(stages.id, legacyStageIds))
+    : [];
+  const stageBySemantic = new Map(columns.map((stage) => [stage.semanticKey, stage.id]));
+  const legacyStageMap = new Map(legacyStages.flatMap((stage) => {
+    const target = stageBySemantic.get(stage.semanticKey);
+    return target ? [[stage.id, target] as const] : [];
+  }));
+
   const leadIds = rows.map((row) => row.lead.id);
   const interestsByLead = await loadInterests(db, leadIds);
   // Uma consulta para o quadro inteiro: buscar reuniao card a card seria N+1.
@@ -326,9 +341,10 @@ export async function getBoard(
 
   const byStage = new Map<string, BoardCard[]>();
   for (const card of cards) {
-    const list = byStage.get(card.stageId) ?? [];
+    const displayStageId = legacyStageMap.get(card.stageId) ?? card.stageId;
+    const list = byStage.get(displayStageId) ?? [];
     list.push(card);
-    byStage.set(card.stageId, list);
+    byStage.set(displayStageId, list);
   }
 
   return {
