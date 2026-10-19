@@ -240,7 +240,7 @@ export interface CreateLeadOptions {
 }
 
 /**
- * Cria um lead aplicando a deduplicacao global.
+ * Cria um lead aplicando a deduplicacao por workspace.
  * Lanca conflito quando existe identidade forte de outro lead.
  */
 export async function createLead(
@@ -267,6 +267,7 @@ export async function createLead(
   };
 
   const verdict = await checkDuplicates(db, identityInput, {
+    workspaceId,
     allowSharedIdentity: input.allowSharedIdentity,
   });
 
