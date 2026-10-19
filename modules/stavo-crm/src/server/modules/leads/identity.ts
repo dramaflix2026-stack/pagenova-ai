@@ -118,6 +118,7 @@ const KEY_REASONS: Record<IdentityKeyType, string> = {
 async function summarizeLead(
   db: Database,
   leadId: string,
+  workspaceId: string,
 ): Promise<ExistingLeadSummary | null> {
   const [row] = await db
     .select({
@@ -130,7 +131,7 @@ async function summarizeLead(
     })
     .from(leads)
     .innerJoin(stages, eq(stages.id, leads.currentStageId))
-    .where(eq(leads.id, leadId))
+    .where(and(eq(leads.id, leadId), eq(leads.workspaceId, workspaceId)))
     .limit(1);
   return row ?? null;
 }
@@ -161,6 +162,7 @@ export async function checkDuplicates(
         leadIdentityMemberships,
         eq(leadIdentityMemberships.identityKeyId, leadIdentityKeys.id),
       )
+      .innerJoin(leads, and(eq(leads.id, leadIdentityMemberships.leadId), eq(leads.workspaceId, options.workspaceId)))
       .where(and(eq(leadIdentityKeys.workspaceId, options.workspaceId), inArray(leadIdentityKeys.keyHash, hashes)));
 
     const byHash = new Map(keys.map((key) => [key.keyHash, key]));
@@ -170,7 +172,7 @@ export async function checkDuplicates(
       const key = byHash.get(row.keyHash);
       if (!key || key.keyType !== row.keyType) continue;
 
-      const existing = await summarizeLead(db, row.leadId);
+      const existing = await summarizeLead(db, row.leadId, options.workspaceId);
       if (!existing) continue;
 
       // place_id nunca aceita excecao nem confirmacao humana.
@@ -373,7 +375,7 @@ export async function refreshIdentities(
     })
     .from(leadIdentityMemberships)
     .innerJoin(leadIdentityKeys, eq(leadIdentityKeys.id, leadIdentityMemberships.identityKeyId))
-    .where(eq(leadIdentityMemberships.leadId, leadId));
+    .where(and(eq(leadIdentityMemberships.leadId, leadId), eq(leadIdentityKeys.workspaceId, workspaceId)));
 
   // Remove vinculos que nao correspondem mais aos dados atuais.
   const stale = current
