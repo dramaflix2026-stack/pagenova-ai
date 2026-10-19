@@ -18,7 +18,8 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { Filter, Plus, Search, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { formatMoney } from '@shared/format';
 import type { MoveLeadInput } from '@shared/schemas';
@@ -67,6 +68,7 @@ import {
 const CRITICAL_SEMANTICS = new Set(['NEGOTIATION', 'AWAITING_PAYMENT', 'WON', 'LOST']);
 
 export default function CrmPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [filters, setFilters] = useState<BoardFilters>({ archived: 'EXCLUDE' });
   const [searchInput, setSearchInput] = useState('');
   const [showFilters, setShowFilters] = useState(false);
@@ -77,6 +79,15 @@ export default function CrmPage() {
     null,
   );
   const [mobilePicker, setMobilePicker] = useState<BoardCardData | null>(null);
+
+  useEffect(() => {
+    const requestedLead = searchParams.get('lead');
+    if (!requestedLead) return;
+    setOpenLeadId(requestedLead);
+    const next = new URLSearchParams(searchParams);
+    next.delete('lead');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const board = useBoard(filters);
   const stages = useStages();
