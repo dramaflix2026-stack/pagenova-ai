@@ -286,7 +286,7 @@ export async function createLead(
     );
   }
 
-  const selectedStage = await requireSemanticStage(db, 'SELECTED');
+  const selectedStage = await requireSemanticStage(db, workspaceId, 'SELECTED');
   const now = new Date();
   const leadId = newId();
 
@@ -406,11 +406,11 @@ export async function createLead(
   };
 }
 
-async function requireSemanticStage(db: Database, key: StageSemanticKey): Promise<Stage> {
+async function requireSemanticStage(db: Database, workspaceId: string, key: StageSemanticKey): Promise<Stage> {
   const [stage] = await db
     .select()
     .from(stages)
-    .where(and(eq(stages.semanticKey, key), isNull(stages.deletedAt)))
+    .where(and(eq(stages.workspaceId, workspaceId), eq(stages.semanticKey, key), isNull(stages.deletedAt)))
     .limit(1);
   if (!stage) {
     throw unprocessable(
