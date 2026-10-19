@@ -148,20 +148,20 @@ export function MoveDialog({
     setError(null);
 
     if (semantic === 'NEGOTIATION') {
-      if (items.length === 0) {
-        setError('Selecione pelo menos um servico para registrar a proposta.');
-        return;
-      }
-      onConfirm({
-        negotiation: {
-          interests: items.map((item) => ({
-            serviceId: item.serviceId,
-            proposedPrice: normalizePrice(item.unitPrice),
-            notes: null,
-          })),
-          notes: notes || null,
-        },
-      });
+      // A etapa de negociacao nao depende de catalogo de servicos.
+      // Sem proposta definida, move o lead sem criar valores financeiros.
+      onConfirm(items.length > 0
+        ? {
+            negotiation: {
+              interests: items.map((item) => ({
+                serviceId: item.serviceId,
+                proposedPrice: normalizePrice(item.unitPrice),
+                notes: null,
+              })),
+              notes: notes || null,
+            },
+          }
+        : {});
       return;
     }
 
@@ -248,7 +248,7 @@ export function MoveDialog({
   };
 
   const descriptions: Record<string, string> = {
-    NEGOTIATION: 'Escolha os servicos e ajuste o valor proposto. O preco padrao e apenas sugestao.',
+    NEGOTIATION: 'Mova o lead para negociacao agora. Servicos e valores sao opcionais nesta etapa.',
     AWAITING_PAYMENT:
       'O valor entra como pendente. Ele NAO conta como receita ate o recebimento ser confirmado.',
     WON: 'Confirme o recebimento. O valor sai de pendente e entra na receita realizada na data informada.',
@@ -296,7 +296,7 @@ export function MoveDialog({
 
               {activeServices.length === 0 ? (
                 <Callout tone="warning" title="Nenhum servico ativo">
-                  Cadastre um servico em Servicos antes de registrar valores.
+                  Voce pode continuar sem servicos. Cadastre um servico depois, quando quiser registrar uma proposta com valores.
                 </Callout>
               ) : null}
 
