@@ -1224,6 +1224,10 @@ function universalRendererStyles(
       *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
     }
 
+    .pn-skip-link{position:absolute;left:12px;top:-100px;z-index:1000;padding:12px 18px;border-radius:8px;background:#fff;color:#111827;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+    .pn-skip-link:focus{top:12px}
+    a:focus-visible,button:focus-visible{outline:3px solid #2563eb;outline-offset:3px}
+
     *{box-sizing:border-box}
 
     html{scroll-behavior:smooth}
@@ -2385,6 +2389,7 @@ export function renderUniversalSitePreview(
   }
 
   const nav = universalNav(project);
+  const description = normalizeText(model.page.introduction || project.brief).replace(/\s+/g, " ").slice(0, 160);
   const sections = renderUniversalSemanticSections(
     project,
     model,
@@ -2396,9 +2401,11 @@ export function renderUniversalSitePreview(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>${escapeUniversalHtml(project.name)}</title>
+  ${description ? `<meta name="description" content="${escapeUniversalHtml(description)}">` : ""}
   <style>${universalRendererStyles(model.strategy)}</style>
 </head>
 <body class="pn-motion-${model.strategy.design.motionStyle}">
+  <a class="pn-skip-link" href="#pn-main-content">Pular para o conteúdo</a>
   <header class="pn-site-header pn-header-${model.strategy.design.headerStyle}">
     <a
       class="brand"
@@ -2412,7 +2419,7 @@ export function renderUniversalSitePreview(
     </nav>
   </header>
 
-  <main>
+  <main id="pn-main-content">
     ${renderUniversalHero(project, model)}
     ${sections}
   </main>
