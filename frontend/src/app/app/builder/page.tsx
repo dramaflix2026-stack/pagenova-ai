@@ -1183,10 +1183,27 @@ export default function BuilderPage() {
       if (crmProjectId && crmPreviewHtml) {
         const changes = revisionPlan.contentChanges;
         const structural = revisionPlan.sectionChanges;
+        const domOperations = revisionPlan.domOperations || [];
         const otherActions = revisionPlan.elementChanges.length +
           revisionPlan.headerChanges.length + revisionPlan.visualChanges.length +
           revisionPlan.institutionalChanges.length;
         if (otherActions) throw new Error("A alteração inclui propriedades do template que ainda não podem ser editadas com segurança. Nenhuma mudança foi salva.");
+        if (domOperations.length) {
+          if (otherActions || changes.length || structural.length)
+            throw new Error("A IA combinou alterações incompatíveis. Peça cada grupo de mudanças separadamente.");
+          const inventorySelectors = new Set(renderedElements.map(item => item.selector));
+          if (domOperations.some(op => !inventorySelectors.has(op.selector)))
+            throw new Error("A IA selecionou um elemento que não está mais presente na prévia. Atualize e tente novamente.");
+          // The executor applies and persists the complete validated batch.
+          await executeCrmTextPlan([], renderedElements, domOperations.map(op => ({
+            selector: op.selector,
+            action: op.action,
+            ...(op.action === "text" ? { text: op.value } : { value: op.value }),
+          })));
+          setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
+          return;
+        }
+
         const existingExtras = project.extraSections?.[activePage] || [];
         let nextExtras = existingExtras.map(section => ({ ...section }));
         if (structural.length) {
