@@ -728,7 +728,7 @@
     if (!Array.isArray(operations) || !operations.length || operations.length > 12) return { ok: false, reason: "invalid-operations" };
     const pending = [], used = new Set();
     for (const op of operations) {
-      if (!op || typeof op.selector !== "string" || op.selector.length > 500 || used.has(op.selector)) return { ok: false, reason: "invalid-operation" };
+      if (!op || typeof op.selector !== "string" || op.selector.length > 500) return { ok: false, reason: "invalid-operation" };
       const el = find(op.selector);
       if (!el || !el.getClientRects().length || path(el) !== op.selector || el.closest("#pn-edit-bar")) return { ok: false, reason: "target-not-editable" };
       const action = op.action || "text";
