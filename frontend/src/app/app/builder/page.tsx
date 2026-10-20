@@ -1488,7 +1488,8 @@ export default function BuilderPage() {
     const last = project.revisionHistory[project.revisionHistory.length - 1];
     const updated: SiteProject = { ...project,
       revisionHistory: project.revisionHistory.slice(0, -1),
-      liveEdits: { ...project.liveEdits, [last.page]: last.edits } };
+      liveEdits: { ...project.liveEdits, [last.page]: last.edits },
+      extraSections: last.sections ? { ...project.extraSections, [last.page]: last.sections } : project.extraSections };
     try {
       await savePageNovaProject(updated.id, updated);
       setProject(updated);
