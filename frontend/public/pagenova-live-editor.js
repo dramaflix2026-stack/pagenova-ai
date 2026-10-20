@@ -273,7 +273,7 @@
       const picture=el.closest("picture");
       if(picture)picture.querySelectorAll("source").forEach(function(source){source.removeAttribute("srcset");});
     }
-    if (typeof edit.text === "string" && el.matches(textSel) && edit.kind !== "section") el.textContent = edit.text;
+    if (typeof edit.text === "string" && edit.text.length > 0 && el.matches(textSel) && edit.kind !== "section") el.textContent = edit.text;
     if (edit.backgroundColor && /^#[0-9a-f]{6}$/i.test(edit.backgroundColor)) el.style.setProperty("background-color", edit.backgroundColor, "important");
     if (Number.isFinite(edit.borderRadius) && edit.borderRadius >= 0 && edit.borderRadius <= 100) el.style.setProperty("border-radius", edit.borderRadius + "px", "important");
     if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
