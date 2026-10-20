@@ -12,28 +12,26 @@ function crmUpstream() {
   return process.env.PAGENOVA_CRM_UPSTREAM?.trim().replace(/\/+$/, "") || "";
 }
 
-async function publishedOverlay(slug: string, page: string) {
+async function publishedOverlayData(slug: string, page: string): Promise<{ script: string; sections: unknown }> {
+  const empty = { script: "", sections: [] as unknown };
   try {
     const admin = adminClient();
     const { data, error } = await admin.storage.from(BUCKET).download(`overlays/${slug}.json`);
-    if (error || !data) return "";
+    if (error || !data) return empty;
     const raw = await data.text();
-    if (raw.length > 18 * 1024 * 1024) return "";
+    if (raw.length > 18 * 1024 * 1024) return empty;
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (parsed.version !== 1 || parsed.slug && parsed.slug !== slug) return "";
-    const config = JSON.stringify({ ...parsed, page }).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
-    return `<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=${config};</script><script src="/pagenova-published-overlay.js" defer></script>`;
-  } catch { return ""; }
-}
-
-async function publishedSectionData(slug:string,page:string):Promise<unknown>{
- try{
-  const admin=adminClient();
-  const {data,error}=await admin.storage.from(BUCKET).download(`overlays/${slug}.json`);
-  if(error||!data)return [];
-  const raw=JSON.parse(await data.text()) as {extraSections?:Record<string,unknown>};
-  return raw.extraSections?.[page]||[];
- }catch{return [];}
+    if (parsed.version !== 1 || (parsed.slug && parsed.slug !== slug)) return empty;
+    const config = JSON.stringify({ ...parsed, page })
+      .replace(/</g, "\\u003c").replace(/>/g, "\\u003e")
+      .replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+    const sections = parsed.extraSections && typeof parsed.extraSections === "object"
+      ? (parsed.extraSections as Record<string, unknown>)[page] || [] : [];
+    return {
+      script: `<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=${config};</script><script src="/pagenova-published-overlay.js" defer></script>`,
+      sections,
+    };
+  } catch { return empty; }
 }
 
 async function railwayPublishedSite(slug: string, path: string[] | undefined) {
@@ -64,13 +62,13 @@ async function railwayPublishedSite(slug: string, path: string[] | undefined) {
     headers.set("x-robots-tag", robots || "noindex, nofollow, noarchive");
 
     if (response.ok && (contentType || "").includes("text/html")) {
-      const overlay = await publishedOverlay(slug, path?.[0] || "home");
-      if (overlay) {
+      const overlay = await publishedOverlayData(slug, path?.[0] || "home");
+      if (overlay.script) {
         const html = await response.text();
-        const enriched=appendExtraSections(html,await publishedSectionData(slug,path?.[0]||"home"));
+        const enriched=appendExtraSections(html, overlay.sections);
         const output = /<\/body>/i.test(enriched)
-          ? enriched.replace(/<\/body>/i, overlay + "</body>")
-          : enriched + overlay;
+          ? enriched.replace(/<\/body>/i, overlay.script + "</body>")
+          : enriched + overlay.script;
         // Published edits live in a separate Supabase overlay and can change
         // without a new Railway HTML publication. Never cache enriched HTML.
         headers.set("cache-control", "no-store, max-age=0");
