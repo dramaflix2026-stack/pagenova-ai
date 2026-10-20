@@ -1584,7 +1584,7 @@ export default function BuilderPage() {
   }
 
   return <>
-    {project && <AppHeader title="Criar Site com IA" description="Revise o resultado e converse com a IA." align="center" />}
+    
     <main className="mx-auto max-w-[1800px] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
       <input ref={logoInputRef} type="file" accept="image/png,image/jpeg,image/webp"
         className="hidden" aria-label="Selecionar logo do site"
@@ -1804,11 +1804,11 @@ export default function BuilderPage() {
         </section>
       )}
       {project && !(phase==="generating" && crmProjectId && !crmPreviewHtml) && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
-        <aside className="space-y-5 rounded-[24px] border border-white/10 bg-[#0d1110] p-5 text-center shadow-[0_18px_60px_rgba(0,0,0,.22)] xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
+        <aside className="space-y-3 rounded-[18px] border border-white/10 bg-[#0d1110] p-3 text-center shadow-[0_18px_60px_rgba(0,0,0,.22)] sm:p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
-            <div className="mt-3 flex flex-col items-center justify-center gap-3">
-              <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
+            <span className="sr-only">PageNova AI</span>
+            <div className="flex flex-col items-center justify-center gap-1">
+              <h2 className="w-full break-words text-lg font-bold sm:text-xl">{project.name}</h2>
               
             </div>
             {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
@@ -1825,20 +1825,20 @@ export default function BuilderPage() {
                 {savingBrand?"Salvando...":"Aplicar texto na logo"}
               </button>
             </form>}
-            <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
+            <p className="mt-1 text-xs text-white/50">{phase==="generating"?"Atualizando…":phase==="ready"?"Pronto para editar":"Verifique o projeto"}</p>
           </div>
-          <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
+          <form id="pagenova-revision-form" onSubmit={revise} className="space-y-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-3 sm:p-4">
             <label htmlFor="builder-change" className="block text-base font-semibold text-emerald-200">✨ Edite seu site com IA</label>
-            <p className="text-sm leading-6 text-white/65">Descreva o que deseja mudar. Você pode pedir ajustes de textos, palavras, cores, fontes, tamanhos, botões, seções e imagens. A IA tentará preservar o restante do site.</p>
-            <div className="flex flex-wrap gap-2" aria-label="Exemplos de alterações com IA">{[
+            <p className="text-xs text-white/60">Descreva a alteração. O restante do site será preservado.</p>
+            <details className="rounded-lg border border-white/10 px-3 py-2 text-left"><summary className="cursor-pointer text-xs text-emerald-200">Ver sugestões de comandos</summary><div className="mt-3 flex flex-wrap gap-2" aria-label="Exemplos de alterações com IA">{[
               "Aumente o tamanho do título principal",
               "Mude a cor dos botões para azul",
               "Reescreva os textos dos serviços",
               "Troque a imagem principal por uma foto mais profissional",
-            ].map(example=><button type="button" key={example} onClick={()=>setInstruction(example)} className="rounded-full border border-emerald-400/25 bg-emerald-400/[.07] px-3 py-2 text-left text-xs text-emerald-100 hover:bg-emerald-400/15">{example}</button>)}</div>
+            ].map(example=><button type="button" key={example} onClick={()=>setInstruction(example)} className="rounded-full border border-emerald-400/25 bg-emerald-400/[.07] px-3 py-2 text-left text-xs text-emerald-100 hover:bg-emerald-400/15">{example}</button>)}</div></details>
             <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
-              onPaste={pasteRevisionImage} rows={4}
-              placeholder="Ex.: Na página Início, aumente o título principal para 48px, use a fonte Poppins e troque a imagem do banner por uma foto de academia."
+              onPaste={pasteRevisionImage} rows={3}
+              placeholder="O que deseja mudar? Ex.: Troque o nome do site para LifeT."
               className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-left text-sm outline-none focus:border-emerald-400" />
             <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
               className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#08130e] disabled:opacity-40">
