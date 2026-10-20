@@ -720,6 +720,27 @@
         image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined };
     }).filter(function(item) { return item.selector && item.selector.length <= 500; });
   }
+  // Transactional AI text executor: validate all targets before touching the DOM.
+  // Parent persists returned edits before reporting success to the user.
+  function executeTextOperations(operations) {
+    if (!Array.isArray(operations) || !operations.length || operations.length > 12) return { ok: false, reason: "invalid-operations" };
+    const pending = [];
+    const used = new Set();
+    for (const op of operations) {
+      if (!op || typeof op.selector !== "string" || op.selector.length > 500 ||
+          typeof op.text !== "string" || !op.text.trim() || op.text.length > 180) return { ok: false, reason: "invalid-operation" };
+      const el = find(op.selector);
+      if (!el || !el.matches(textSel) || !el.getClientRects().length || used.has(op.selector) ||
+          el.children.length || path(el) !== op.selector) return { ok: false, reason: "target-not-editable" };
+      used.add(op.selector);
+      const cs = getComputedStyle(el);
+      pending.push({ selector: op.selector, text: op.text.trim(), font: cs.fontFamily || "Arial",
+        size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
+        color: hex(cs.color), kind: "text" });
+    }
+    pending.forEach(applyEdit);
+    return { ok: true, edits: pending };
+  }
   // Conservative zero-API edits on the real Railway HTML. Only unique targets.
   function applyLocalCommand(command) {
     if (!command || !["heading", "cta", "eyebrow", "replace"].includes(command.field) || typeof command.value !== "string" || !command.value.trim() || command.value.length > 180) return false;
@@ -789,6 +810,10 @@
   }
   window.addEventListener("message", function(event) {
     if (event.source !== parent && event.source !== window) return;
+    if (event.data?.type === "pagenova-ai-text-operations") {
+      const result = executeTextOperations(event.data.operations);
+      parent.postMessage({ type: "pagenova-ai-text-result", id: event.data.id, ...result }, "*");
+    }
     if (event.data?.type === "pagenova-editor-inventory-request") {
       parent.postMessage({ type: "pagenova-editor-inventory-result", id: event.data.id, elements: editableInventory() }, "*");
     }
