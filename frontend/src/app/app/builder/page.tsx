@@ -983,12 +983,23 @@ export default function BuilderPage() {
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
-    // Brand rename is a first-class site operation, not a literal text replacement.
-    // Reuse the CRM configuration save so navigation, SEO and published HTML agree.
-    if (!revisionImage && crmProjectId) {
-      const brandRename = instruction.trim().match(/^(?:(?:mude|troque|altere|substitua|renomeie|mudar|trocar|alterar)\s+)?(?:o\s+)?(?:nome\s+(?:do\s+)?(?:projeto|site|neg[oó]cio|empresa|marca)|nome\s+da\s+(?:marca|empresa)|marca|nome\s+novo\s+projeto)\s+(?:de\s+[^\n]{1,100}?\s+)?(?:para|por|pra|:|=)\s*["“”']?(.+?)["“”']?\s*[.!]?$/i);
-      if (brandRename) {
-        await saveProjectBrand(brandRename[1].trim());
+    // A brand rename is a project-level operation, not a text search in the preview.
+    if (!revisionImage) {
+      const renameRequest = instruction.trim().match(/^(?:mude|troque|altere|substitua|renomeie|mudar|trocar|alterar|quero mudar|quero trocar)\s+(?:o\s+)?(?:nome\s+(?:(?:do|da|de)\s+)?(?:projeto|site|neg[oó]cio|empresa|marca|novo projeto)?|marca|nome\s+de\s+novo projeto)(?:\s+(?:de|do|da)\s+[^\n]{1,90}?)?\s+(?:para|por|pra)\s+["“”']?(.+?)["“”']?\s*[.!]?$/i);
+      if (renameRequest) {
+        const newName = renameRequest[1].trim().replace(/[.!]+$/, "").trim();
+        if (crmProjectId) {
+          await saveProjectBrand(newName);
+        } else if (newName.length >= 3 && newName.length <= 72) {
+          try {
+            const updated = { ...project, name: newName };
+            await savePageNovaProject(updated.id, updated);
+            setProject(updated);
+            setInstruction(""); setError("");
+          } catch { setError("Não foi possível salvar o novo nome do projeto."); }
+        } else {
+          setError("O nome deve ter entre 3 e 72 caracteres.");
+        }
         return;
       }
     }
@@ -1391,6 +1402,8 @@ export default function BuilderPage() {
       setProject(saved);
       await savePageNovaProject(saved.id,saved);
       setEditingBrand(false);
+      setInstruction("");
+      setError("");
     }catch(cause){
       setError(cause instanceof Error?cause.message:"Falha ao corrigir nome do site.");
     }finally{setSavingBrand(false);}
