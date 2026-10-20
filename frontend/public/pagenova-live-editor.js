@@ -744,6 +744,22 @@
         src: el.matches("img") ? (el.getAttribute("src") || "").slice(0, 300) : undefined };
     }).filter(function(item) { return item.selector && item.selector.length <= 500; });
   }
+  function verifyHeroAlignment(selectors, alignment) {
+    const nodes = selectors.map(find);
+    if (nodes.some(el => !el || !el.getClientRects().length)) return false;
+    const hero = nodes[1].closest("section") || nodes[1].parentElement;
+    if (!hero) return false;
+    const box = hero.getBoundingClientRect();
+    return nodes.every(function(el) {
+      const rect = el.getBoundingClientRect();
+      if (getComputedStyle(el).textAlign !== alignment) return false;
+      if (alignment === "center" && el.matches("a,button")) {
+        const delta = Math.abs((rect.left + rect.right) / 2 - (box.left + box.right) / 2);
+        return delta <= Math.max(14, box.width * 0.06);
+      }
+      return true;
+    });
+  }
   // Transactional AI text executor: validate all targets before touching the DOM.
   // Parent persists returned edits before reporting success to the user.
   function executeTextOperations(operations) {
@@ -813,7 +829,23 @@
         pending.push(edit);
       }
     }
+    // A command may change several elements. Do not claim visual success
+    // when the button remains outside the visual center of the hero.
+    const alignOps = operations.filter(op => op.action === "align");
+    const snapshot = pending.map(edit => {
+      const el = find(edit.selector);
+      return { el, style: el?.getAttribute("style") ?? null };
+    });
     pending.forEach(applyEdit);
+    if (alignOps.length >= 4 && alignOps.every(op => op.value === "center") &&
+        !verifyHeroAlignment(alignOps.map(op => op.selector), "center")) {
+      snapshot.forEach(item => {
+        if (!item.el) return;
+        if (item.style === null) item.el.removeAttribute("style");
+        else item.el.setAttribute("style", item.style);
+      });
+      return { ok: false, reason: "visual-alignment-not-confirmed" };
+    }
     return { ok: true, edits: pending };
   }
   // Conservative zero-API edits on the real Railway HTML. Only unique targets.
