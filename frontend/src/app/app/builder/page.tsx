@@ -1082,10 +1082,11 @@ export default function BuilderPage() {
     const sizeMatch = normalized.match(/(?:tamanho|fonte|texto|letra)[^\d]{0,28}(\d{1,3})\s*(?:px|pixels)?\b/);
     const size = sizeMatch ? Number(sizeMatch[1]) : undefined;
     const fontMatch = normalized.match(/(?:fonte|tipografia)\s+(?:para\s+|por\s+|em\s+)?(poppins|inter|arial|roboto|montserrat|georgia)\b/);
-    const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b/);
-    const textMatch = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
+    const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b|\b(centralizado|centralizada|centralize)\b/);
+    const quotedText = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
     const naturalCopy = input.match(/(?:altere|mude|troque|reescreva)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:do\s+site\s+)?(?:para|por)\s+(.+?)(?=\s+e\s+(?:deixe|coloque|alinhe|centralize|mude|altere|aplique)\b|[.!?]?$)/i);
-    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[1]) ? "center" : /esquerda/.test(alignMatch[1]) ? "left" : "right") : undefined;
+    const textMatch = quotedText || (naturalCopy?.[1]?.trim() ? [naturalCopy[0], naturalCopy[1].trim()] : null);
+    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[1]) ? "left" : "right") : undefined;
     // Unquoted copy plus styling is ambiguous: never insert the styling instruction
     // into the headline. Let the planner handle that case.
     if (!textMatch && /(?:altere|mude|troque|reescreva)\\s+(?:o\\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
