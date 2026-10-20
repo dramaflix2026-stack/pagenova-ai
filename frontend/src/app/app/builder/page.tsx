@@ -925,9 +925,67 @@ export default function BuilderPage() {
     });
   }
 
+  async function tryDeterministicStyleCommand(raw: string): Promise<boolean> {
+    if (!project?.pages[activePage] || revisionImage) return false;
+    const input = raw.trim();
+    const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Only execute when the target is explicit; ambiguous requests go to the AI.
+    const targets: Array<[RegExp, string]> = [
+      [/t[ií]tulo principal|titulo principal|headline|h1/i, ".hero h1"],
+      [/subt[ií]tulo|subtitulo|texto de apoio/i, ".hero .hero-lead"],
+      [/bot[aã]o principal|botao principal|cta principal/i, ".hero .btn"],
+      [/logo|logotipo/i, ".pn-site-header .brand"],
+      [/menu|navega[cç][aã]o|navegacao/i, ".pn-site-header nav"],
+    ];
+    const match = targets.find(([pattern]) => pattern.test(normalized));
+    if (!match) return false;
+    const colorNames: Record<string, string> = {
+      vermelho: "#ef4444", azul: "#2563eb", amarelo: "#eab308",
+      verde: "#16a34a", preto: "#000000", branco: "#ffffff",
+      cinza: "#6b7280", rosa: "#ec4899", roxo: "#9333ea",
+      laranja: "#f97316",
+    };
+    const hex = input.match(/#[0-9a-fA-F]{6}\b/);
+    const named = Object.entries(colorNames).find(([name]) => new RegExp("\\b"+name+"\\b").test(normalized));
+    const wantsColor = /cor|color|pinte|pintar/i.test(normalized);
+    const color = wantsColor ? (hex?.[0] || named?.[1]) : undefined;
+    const sizeMatch = normalized.match(/(?:tamanho|fonte|texto|letra)[^\d]{0,28}(\d{1,3})\s*(?:px|pixels)?\b/);
+    const size = sizeMatch ? Number(sizeMatch[1]) : undefined;
+    const fontMatch = normalized.match(/(?:fonte|tipografia)\s+(?:para\s+|por\s+|em\s+)?(poppins|inter|arial|roboto|montserrat|georgia)\b/);
+    const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b/);
+    const textMatch = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
+    if (!color && !(size && size >= 8 && size <= 160) && !fontMatch && !alignMatch && !textMatch) return false;
+    // Do not partially apply multi-action commands we cannot interpret reliably.
+    if ((wantsColor && !color) || (sizeMatch && (!size || size < 8 || size > 160))) return false;
+    const selector = match[1];
+    const current = [...(project.liveEdits?.[activePage] || [])];
+    const index = current.findIndex(edit => edit.selector === selector && !edit.ghostId);
+    const base = index >= 0 ? current[index] : { selector, text: "", font: "", size: 0, color: "" };
+    const next = {
+      ...base,
+      ...(color ? { color } : {}),
+      ...(size ? { size } : {}),
+      ...(fontMatch ? { font: fontMatch[1][0].toUpperCase()+fontMatch[1].slice(1) } : {}),
+      ...(alignMatch ? { textAlign: ({ centro: "center", esquerda: "left", direita: "right" } as const)[alignMatch[1] as "centro"|"esquerda"|"direita"] } : {}),
+      ...(textMatch ? { text: textMatch[1] } : {}),
+    };
+    if (index >= 0) current[index] = next; else current.push(next);
+    const updated = { ...project, liveEdits: { ...project.liveEdits, [activePage]: current } };
+    await savePageNovaProject(updated.id, updated);
+    setProject(updated); setInstruction(""); setError("");
+    return true;
+  }
+
   async function revise(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!project || (!instruction.trim() && !revisionImage) || phase === "generating") return;
+    // Deterministic edits are free; complex or ambiguous instructions use the existing AI API.
+    try {
+      if (await tryDeterministicStyleCommand(instruction)) return;
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível salvar a alteração.");
+      return;
+    }
     // Sem print e sem instrucao ambigua: alteracoes locais nao usam API.
     const local = revisionImage ? null : parseLocalEdit(instruction);
     if (local?.kind === "theme") {
