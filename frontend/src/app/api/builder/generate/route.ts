@@ -345,7 +345,7 @@ Em MODO DE REVISÃO:
 - scope deve ser "page", exceto quando o usuário pedir explicitamente uma alteração global no site;
 - cada categoria não solicitada deve ser [];
 - não invente alterações para preencher o plano;
-- domOperations: para templates CRM use os seletores exatos de siteContext.renderedElements, com selector, action e value. Prefira este campo para texto, cor, fundo, fonte, tamanho, alinhamento e bordas. Use [] quando não aplicável. Nunca invente seletores. Para cor use #RRGGBB. Para tamanho e raio use pixels numéricos. Não misture com outras categorias.\n- contentChanges registra mudanças em eyebrow, heading, introduction ou cta;
+- domOperations: para templates CRM use os seletores exatos de siteContext.renderedElements, com selector, action e value. Prefira este campo para texto, cor, fundo, fonte, tamanho, alinhamento e bordas. Use [] quando não aplicável. Nunca invente seletores. Para cor use #RRGGBB. Para tamanho e raio use pixels numéricos. Para link use URL HTTPS, mailto ou tel; para image use somente URL HTTPS de imagem fornecida pelo usuário ou já presente no inventário. Não invente links ou imagens. Não misture com outras categorias.\n- contentChanges registra mudanças em eyebrow, heading, introduction ou cta;
 - institutionalChanges registra mudanças em role, audience, offer, process ou proof;
 - visualChanges registra mudanças em heroLayout, heroAlignment, heroContentWidth, imageFocus, density ou cardStyle;
 - headerChanges registra mudanças em logoPosition, menuStyle ou density;
@@ -536,7 +536,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
                     type: "object", additionalProperties: false,
                     properties: {
                       selector: { type: "string" },
-                      action: { type: "string", enum: ["text", "color", "background", "font", "size", "align", "radius"] },
+                      action: { type: "string", enum: ["text", "color", "background", "font", "size", "align", "radius", "link", "image"] },
                       value: { type: "string" },
                     },
                     required: ["selector", "action", "value"],
@@ -1078,7 +1078,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
           body: string;
         } => change !== null,
       );
-    const domActions = new Set(["text", "color", "background", "font", "size", "align", "radius"]);
+    const domActions = new Set(["text", "color", "background", "font", "size", "align", "radius", "link", "image"]);
     const domOperations: NonNullable<RevisionPlan["domOperations"]> = [];
     for (const operation of rawRevisionPlan.domOperations.slice(0, 12)) {
       if (typeof operation?.selector !== "string" || operation.selector.length > 500 ||
