@@ -960,7 +960,8 @@ export default function BuilderPage() {
     if (/\b(adicion|remov|exclu|crie|insir|mov|troque a imagem|banner|se[cç][aã]o|secao|todas as paginas)\w*/i.test(normalized)) return false;
     // Do not partially apply multi-action commands we cannot interpret reliably.
     if ((wantsColor && !color) || (sizeMatch && (!size || size < 8 || size > 160))) return false;
-    if (/(?:aument|dimin|maior|menor)/i.test(normalized) && !sizeMatch) return false;\n    const selector = match[1];
+    if (/(?:aument|dimin|maior|menor)/i.test(normalized) && !sizeMatch) return false;
+    const selector = match[1];
     const current = [...(project.liveEdits?.[activePage] || [])];
     const index = current.findIndex(edit => edit.selector === selector && !edit.ghostId);
     const base = index >= 0 ? current[index] : { selector, text: "", font: "", size: 0, color: "" };
