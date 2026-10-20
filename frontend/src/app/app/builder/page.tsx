@@ -888,6 +888,10 @@ export default function BuilderPage() {
     | null {
     const input = raw.trim();
     const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    // Understand natural, even imperfect, requests to replace visible copy.
+    // Example: "Troquei o: novo projeto do título para Tcar".
+    const describedReplacement = input.match(/^(?:troquei|troque|mude|altere|substitua|mudar|trocar)\s+(?:o\s*:?\s*|a\s*:?\s*)?["“”']?(.{3,120}?)["“”']?\s+(?:do|no|na)\s+(?:t[ií]tulo|cabe[cç]alho|site|texto)(?:\s+principal)?\s+(?:para|por|pra)\s+["“”']?(.{2,160}?)["“”']?\s*[.!]?$/i);
+    if (describedReplacement) return { kind: "replace", from: describedReplacement[1].trim(), to: describedReplacement[2].trim() };
     const literal = input.match(/^(?:mude|troque|altere|substitua) (.{3,120}?) (?:para|por) (.{2,160})$/i);
     if (literal) return { kind: "replace", from: literal[1].trim(), to: literal[2].trim() };
     const theme = normalized.match(/^(?:mude|mudar|troque|trocar|altere|alterar|coloque|usar|use|aplique) (?:o |a )?(?:tema|aparencia)(?: (?:do site|da pagina))? (?:para |pra |por )?(original|claro|escuro|areia)$/);
