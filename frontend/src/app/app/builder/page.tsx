@@ -1198,6 +1198,7 @@ export default function BuilderPage() {
           revisionPlan.institutionalChanges.length;
         const existingExtras = project.extraSections?.[activePage] || [];
         let nextExtras = existingExtras.map(section => ({ ...section }));
+        let skippedOriginalSections = 0;
         if (structural.length) {
           for (const change of structural) {
             if (change.action === "add") {
@@ -1214,8 +1215,12 @@ export default function BuilderPage() {
             } else {
               // Only previously added sections can be updated or removed.
               const index = change.index - originalSections;
-              if (!Number.isInteger(index) || index < 0 || index >= nextExtras.length)
-                throw new Error("Não é seguro modificar esta seção original do CRM. Nenhuma alteração foi salva.");
+              if (!Number.isInteger(index) || index < 0 || index >= nextExtras.length) {
+                // Existing Railway sections are not extraSections. Never mutate
+                // their indices as if they were overlays; keep independent edits.
+                skippedOriginalSections++;
+                continue;
+              }
               if (change.action === "remove") nextExtras.splice(index, 1);
               else if (change.action === "update") nextExtras[index] = {
                 ...nextExtras[index],
@@ -1237,7 +1242,7 @@ export default function BuilderPage() {
           throw new Error("A IA solicitou uma alteração de texto incompatível com este template.");
         const known = new Set(renderedElements.map(element => element.selector));
         if (domOperations.some(op => !known.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
-        if (!changes.length && !structural.length && !domOperations.length) throw new Error("A IA não retornou alterações aplicáveis ao site.");
+        if (!changes.length && nextExtras.length === existingExtras.length && !domOperations.length && skippedOriginalSections === structural.length) throw new Error("A IA tentou modificar apenas seções originais do template. Nenhuma alteração foi aplicada. Tente pedir uma seção nova ou mudanças em elementos específicos.");
         if (changes.length && domOperations.length) throw new Error("A IA repetiu alterações de texto. Tente novamente para evitar mudanças duplicadas.");
         if (changes.length || domOperations.length) {
           await executeCrmTextPlan(changes, renderedElements,
@@ -1256,7 +1261,8 @@ export default function BuilderPage() {
           await savePageNovaProject(updated.id, updated);
           setProject(updated);
         }
-        setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
+        setInstruction(""); setRevisionImage(""); setPhase("ready");
+        setError(skippedOriginalSections ? `${skippedOriginalSections} alteração(ões) em seções originais não foram aplicadas; as demais foram salvas. Para modificar essas seções, peça alterações nos textos ou elementos específicos.` : "");
         return;
       }
 
