@@ -441,6 +441,29 @@ const SECTION_PURPOSE: Record<UniversalSectionKind, string> = {
   "final-cta": "Encerrar a página com uma ação principal coerente com o objetivo.",
 };
 
+// Stable per-brand variation: regeneration keeps its identity, while different
+// businesses in the same segment need not receive an identical composition.
+function brandVariant(profile: UniversalBusinessProfile): number {
+  const seed = normalize(profile.name || profile.description || profile.category);
+  let hash = 2166136261;
+  for (const char of seed) {
+    hash = Math.imul(hash ^ char.charCodeAt(0), 16777619);
+  }
+  return (hash >>> 0) % 4;
+}
+
+function varyDesign(base: UniversalDesignDirection, profile: UniversalBusinessProfile): UniversalDesignDirection {
+  const variant = brandVariant(profile);
+  const heroes: UniversalDesignDirection["heroStyle"][] = ["full-bleed", "editorial", "layered", "split"];
+  const banners: UniversalDesignDirection["bannerStyle"][] = ["photographic", "editorial", "gradient", "product-focus"];
+  const headers: UniversalDesignDirection["headerStyle"][] = ["transparent", "minimal", "floating", "classic"];
+  // Preserve product-focused treatment for software and physical products.
+  if (profile.businessModel === "software" || profile.businessModel === "product") {
+    return { ...base, heroStyle: variant % 2 ? "product" : "layered", bannerStyle: "product-focus", headerStyle: headers[variant] };
+  }
+  return { ...base, heroStyle: heroes[variant], bannerStyle: banners[variant], headerStyle: headers[variant] };
+}
+
 function buildDesign(
   profile: UniversalBusinessProfile,
 ): UniversalDesignDirection {
@@ -552,7 +575,7 @@ export function createUniversalSiteStrategy(
       priority: index + 1,
       purpose: SECTION_PURPOSE[kind],
     })),
-    design: buildDesign(profile),
+    design: varyDesign(buildDesign(profile), profile),
   };
 }
 
