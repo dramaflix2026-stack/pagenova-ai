@@ -964,13 +964,13 @@ export default function BuilderPage() {
       if (field === "introduction") return el.tag === "p";
       return (el.tag === "a" || el.tag === "button") && /come[cç]|saiba|contato|agend|conhe[cç]|solicit|whatsapp|fale/i.test(el.text);
     });
-    const operations = directOperations || changes.map(change => {
+    const operations = [...(directOperations || []), ...changes.filter(change => !directOperations?.some(op => op.action === "text" && candidates(change.field).some(el => el.selector === op.selector))).map(change => {
       const matching = candidates(change.field);
       if (!matching.length || !change.value?.trim()) throw new Error("Não consegui identificar um elemento editável para alterar: " + change.field + ".");
       // A página pode ter H1 duplicado para desktop/mobile. Preferir o primeiro H1 renderizado.
       if (matching.length > 1 && change.field !== "heading") throw new Error("Há mais de um elemento possível para alterar: " + change.field + ".");
-      return { selector: matching[0].selector, text: change.value };
-    });
+      return { selector: matching[0].selector, action: "text", text: change.value };
+    })];
     const edits = await new Promise<LiveEdit[]>((resolve, reject) => {
       const id = "ai-edit-" + Date.now() + "-" + Math.random().toString(36).slice(2);
       const finish = (result?: LiveEdit[], error?: string) => {
@@ -1243,7 +1243,7 @@ export default function BuilderPage() {
         const known = new Set(renderedElements.map(element => element.selector));
         if (domOperations.some(op => !known.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
         if (!changes.length && nextExtras.length === existingExtras.length && !domOperations.length) throw new Error("A IA não identificou nenhuma alteração aplicável aos elementos desta página. Nenhuma alteração foi salva.");
-        if (changes.length && domOperations.length) throw new Error("A IA repetiu alterações de texto. Tente novamente para evitar mudanças duplicadas.");
+        // DOM selector operations take precedence; legacy text changes are merged only when they target other elements.
         if (changes.length || domOperations.length) {
           await executeCrmTextPlan(changes, renderedElements,
             domOperations.length ? domOperations.map(op => ({ selector: op.selector, action: op.action,
