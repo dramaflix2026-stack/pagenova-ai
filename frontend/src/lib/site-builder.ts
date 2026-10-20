@@ -44,6 +44,8 @@ export type SitePage = {
 export type RevisionPlan = {
   scope: "page" | "site";
 
+  domOperations?: Array<{ selector: string; action: "text" | "color" | "background" | "font" | "size" | "align" | "radius"; value: string }>;
+
   contentChanges: Array<{
     field: "eyebrow" | "heading" | "introduction" | "cta";
     value: string;
