@@ -108,10 +108,20 @@ export async function POST(request: NextRequest) {
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
-  if ((!instruction && (brief.length < 20 || name.length < 2)) || brief.length > 6000 || name.length > 100 ||
-      instruction.length > 3000 ||
-      !keys.has(key) || !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) || !["moderno", "elegante", "vibrante"].includes(style) || existingPage.length > 6000) {
-    return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
+  const revising = instruction.length > 0;
+  const invalidFields = [
+    ...(!revising && brief.length < 20 ? ["briefing mínimo de 20 caracteres"] : []),
+    ...(brief.length > 6000 ? ["briefing acima de 6000 caracteres"] : []),
+    ...(!revising && name.length < 2 ? ["nome mínimo de 2 caracteres"] : []),
+    ...(name.length > 100 ? ["nome acima de 100 caracteres"] : []),
+    ...(instruction.length > 3000 ? ["instrução acima de 3000 caracteres"] : []),
+    ...(!keys.has(key) ? ["página inválida"] : []),
+    ...(!revising && !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) ? ["modelo inválido"] : []),
+    ...(!["moderno", "elegante", "vibrante"].includes(style) ? ["estilo inválido"] : []),
+    ...(existingPage.length > 6000 ? ["página existente acima de 6000 caracteres"] : []),
+  ];
+  if (invalidFields.length) {
+    return NextResponse.json({ error: "Não foi possível processar " + (revising ? "a edição" : "a geração") + ": " + invalidFields.join(", ") + "." }, { status: 400 });
   }
   const apiKey = process.env.OPENAI_API_KEY;
   if (process.env.PAGENOVA_AI_PROVIDER !== "openai" || !apiKey) {
