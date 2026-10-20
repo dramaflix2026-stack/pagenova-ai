@@ -729,6 +729,30 @@ export default function BuilderPage() {
     }
   }
 
+  function crmValidationMessage(response: unknown, fallback: string): string {
+    if (!response || typeof response !== "object") return fallback;
+    const data = response as Record<string, unknown>;
+    const error = data.error && typeof data.error === "object" ? data.error as Record<string, unknown> : {};
+    const details = [data.details, error.details, data.issues, error.issues, data.fieldErrors, error.fieldErrors];
+    const messages: string[] = [];
+    for (const detail of details) {
+      if (Array.isArray(detail)) for (const item of detail) {
+        if (item && typeof item === "object") {
+          const entry = item as Record<string, unknown>;
+          const field = Array.isArray(entry.path) ? entry.path.join(".") : String(entry.field || entry.path || "");
+          const message = entry.message || entry.msg;
+          if (typeof message === "string") messages.push(field ? field + ": " + message : message);
+        } else if (typeof item === "string") messages.push(item);
+      }
+      else if (detail && typeof detail === "object") for (const [field, value] of Object.entries(detail)) {
+        const message = Array.isArray(value) ? value.join(", ") : value;
+        if (typeof message === "string") messages.push(field + ": " + message);
+      }
+    }
+    if (messages.length) return messages.slice(0, 4).join(" · ");
+    return typeof error.message === "string" ? error.message : fallback;
+  }
+
   async function start(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (phase === "generating") return;
@@ -811,17 +835,15 @@ export default function BuilderPage() {
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: generationQualityInstructions(effectivePresetId === "institucional" && selectedPresetId === "automatico"
-              ? annotatedPrompt
-              : `Site do tipo ${selectedPreset.title}. Use isso para orientar as seções, sem inventar dados ou funcionalidades.\n${annotatedPrompt}`, effectiveTemplateId),
-            requiredSections: generationSections(annotatedPrompt, selectedPresetId),
+            freeformInstructions: `Crie um site profissional, completo e responsivo para o negócio descrito. Respeite as cores e o nicho. Inclua serviços, benefícios, sobre, perguntas frequentes, contato e chamada para ação. Não invente endereço, preços, credenciais ou depoimentos. Use textos claros e imagens pertinentes. Briefing: ${annotatedPrompt}`.slice(0, 1800),
+                        requiredSections: [], // CRM validates a narrower section enum; let its generator choose sections.
             forbiddenSections: []
           }
         }),
       });
       const created = await createResponse.json() as { project?: { id: string }; error?: { message?: string } };
       if (!createResponse.ok || !created.project?.id) {
-        throw new Error(created.error?.message || "Não foi possível criar o site no motor do PageNova.");
+        throw new Error(crmValidationMessage(created, "Não foi possível criar o site no motor do PageNova."));
       }
 
       const projectId = created.project.id;
