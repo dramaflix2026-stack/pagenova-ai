@@ -982,7 +982,7 @@ export default function BuilderPage() {
       };
       const onMessage = (event: MessageEvent) => {
         if (event.source !== frame || event.data?.type !== "pagenova-editor-inventory-result" || event.data.id !== id) return;
-        finish(Array.isArray(event.data.elements) ? event.data.elements.slice(0, 180) : []);
+        finish(Array.isArray(event.data.elements) ? event.data.elements.slice(0, 360) : []);
       };
       window.addEventListener("message", onMessage);
       const timer = window.setTimeout(() => finish([]), 1200);
