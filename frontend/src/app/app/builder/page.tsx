@@ -1061,10 +1061,25 @@ export default function BuilderPage() {
 
       const revisionPlan = result.revisionPlan;
 
-      // CRM pages are rendered by Railway. Updating the local SitePage alone
-      // does not change that HTML and must never be reported as a successful edit.
+      if (!revisionPlan) {
+        throw new Error("A IA não retornou um plano de revisão válido.");
+      }
+
+      // Railway renders CRM pages independently of SitePage. Apply supported
+      // single-target copy through the live editor (which persists its overlay).
+      // Reject unsupported/multi-target plans instead of silently claiming success.
       if (crmProjectId && crmPreviewHtml) {
-        throw new Error("A IA interpretou o pedido, mas esta alteração ainda não possui execução segura no template do CRM. Nenhuma mudança foi aplicada. Para textos específicos, use ‘Troque TEXTO ATUAL por TEXTO NOVO’; para a marca, use ‘Mude o nome do site para LifeT’.");
+        const changes = revisionPlan.contentChanges;
+        const otherActions = revisionPlan.elementChanges.length +
+          revisionPlan.sectionChanges.length + revisionPlan.headerChanges.length +
+          revisionPlan.visualChanges.length + revisionPlan.institutionalChanges.length;
+        if (changes.length === 1 && otherActions === 0 &&
+            (changes[0].field === "heading" || changes[0].field === "eyebrow" || changes[0].field === "cta") &&
+            await tryLocalIframeCopy(changes[0].field, changes[0].value)) {
+          setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
+          return;
+        }
+        throw new Error("A IA entendeu o pedido, mas não conseguiu aplicá-lo com segurança neste template do CRM. Nenhuma alteração estrutural foi salva. Para textos específicos, use ‘Troque TEXTO ATUAL por TEXTO NOVO’. Para a marca, use ‘Mude o nome do site para LifeT’.");
       }
 
       if (!revisionPlan) {
