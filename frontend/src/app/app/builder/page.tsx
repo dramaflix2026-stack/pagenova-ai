@@ -914,13 +914,13 @@ export default function BuilderPage() {
     // Natural direct heading edits should target the rendered heading, not literal text search.
     // Split quoted headline copy from formatting instructions instead of
     // accidentally saving "e deixe o texto centralizado..." as part of H1.
-    const compoundHeading = input.match(/^(?:troque|mude|altere|substitua|coloque|defina)\\s+(?:o\\s+)?(?:texto\\s+do\\s+)?t[ií]tulo\\s+principal(?:\\s+(?:do\\s+site|da\\s+p[aá]gina|do\\s+banner))?\\s+(?:para|por|como)\\s+[“"'](.{2,180}?)[”"']\\s*(?:,?\\s*e\\s+(.+))?\\s*[.!]?$/i);
+    const compoundHeading = input.match(/^(?:troque|mude|altere|substitua|coloque|defina)\s+(?:o\s+)?(?:texto\s+do\s+)?t[ií]tulo\s+principal(?:\s+(?:do\s+site|da\s+p[aá]gina|do\s+banner))?\s+(?:para|por|como)\s+[“"'](.{2,180}?)[”"']\s*(?:,?\s*e\s+(.+))?\s*[.!]?$/i);
     if (compoundHeading && compoundHeading[2]) {
-      const instructions = compoundHeading[2].toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
-      const align = /(?:centralizad[oa]|alinhad[oa]\\s+(?:ao\\s+)?centro)/.test(instructions) ? "center"
-        : /alinhad[oa]\\s+(?:a\\s+)?esquerda/.test(instructions) ? "left"
-        : /alinhad[oa]\\s+(?:a\\s+)?direita/.test(instructions) ? "right" : undefined;
-      const namedColor = instructions.match(/(?:cor\\s+|em\\s+)(azul|verde|vermelh[oa]|pret[oa]|branc[oa])\\b/);
+      const instructions = compoundHeading[2].toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const align = /(?:centralizad[oa]|alinhad[oa]\s+(?:ao\s+)?centro)/.test(instructions) ? "center"
+        : /alinhad[oa]\s+(?:a\s+)?esquerda/.test(instructions) ? "left"
+        : /alinhad[oa]\s+(?:a\s+)?direita/.test(instructions) ? "right" : undefined;
+      const namedColor = instructions.match(/(?:cor\s+|em\s+)(azul|verde|vermelh[oa]|pret[oa]|branc[oa])\b/);
       const color = namedColor ? ({ azul: "#2563eb", verde: "#16a34a", vermelho: "#dc2626", vermelha: "#dc2626", preto: "#111111", preta: "#111111", branco: "#ffffff", branca: "#ffffff" } as Record<string,string>)[namedColor[1]] : undefined;
       if (align || color) return { kind: "heading-format", value: compoundHeading[1].trim(), align, color };
     }
