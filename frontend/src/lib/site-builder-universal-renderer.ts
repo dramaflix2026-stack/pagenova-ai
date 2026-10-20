@@ -891,6 +891,7 @@ function renderUniversalStructuredItems(
   `;
 }
 function renderUniversalGenericSection(
+  project: SiteProject,
   section: UniversalRenderableSection,
   occurrence: number,
   legacyFeatureIndex: number,
@@ -916,8 +917,20 @@ function renderUniversalGenericSection(
   const structuredItems =
     renderUniversalStructuredItems(section);
 
+  // Use actual client-provided photos in editorial sections when available.
+  // Never generate fake portfolio images or testimonials as placeholders.
+  const sectionPhoto =
+    section.kind === "about"
+      ? safeUniversalImage(project.institutional?.portrait) || safeUniversalImage(project.institutional?.businessPhoto)
+      : section.kind === "gallery" || section.kind === "portfolio"
+        ? safeUniversalImage(project.institutional?.workPhoto)
+        : "";
+  const photoMarkup = sectionPhoto
+    ? `<figure class="pn-universal-section-photo"><img src="${escapeUniversalHtml(sectionPhoto)}" alt="" loading="lazy" decoding="async"></figure>`
+    : "";
   const visual =
     structuredItems ||
+    photoMarkup ||
     universalSemanticVisual(section.kind);
 
   const compositionClass =
@@ -1133,6 +1146,7 @@ function renderUniversalSemanticSections(
       }
 
       return renderUniversalGenericSection(
+        project,
         section,
         occurrence,
         legacyFeatureIndex,
@@ -1491,6 +1505,10 @@ function universalRendererStyles(
       background:var(--pn-card-background);
       box-shadow:var(--pn-card-shadow);
     }
+
+    .pn-universal-section-photo{margin:24px 0 0;border-radius:18px;overflow:hidden;background:#e2e8f0;aspect-ratio:16/10}
+    .pn-universal-section-photo img{display:block;width:100%;height:100%;object-fit:cover}
+    @media(max-width:560px){.pn-universal-section-photo{aspect-ratio:4/3;border-radius:12px}}
 
     .pn-universal-section-content p{
       margin:0;
