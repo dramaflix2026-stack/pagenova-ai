@@ -966,7 +966,9 @@ export default function BuilderPage() {
     });
     const operations = changes.map(change => {
       const matching = candidates(change.field);
-      if (matching.length !== 1 || !change.value?.trim()) throw new Error("Não consegui identificar um elemento único para alterar: " + change.field + ".");
+      if (!matching.length || !change.value?.trim()) throw new Error("Não consegui identificar um elemento editável para alterar: " + change.field + ".");
+      // A página pode ter H1 duplicado para desktop/mobile. Preferir o primeiro H1 renderizado.
+      if (matching.length > 1 && change.field !== "heading") throw new Error("Há mais de um elemento possível para alterar: " + change.field + ".");
       return { selector: matching[0].selector, text: change.value };
     });
     const edits = await new Promise<LiveEdit[]>((resolve, reject) => {
