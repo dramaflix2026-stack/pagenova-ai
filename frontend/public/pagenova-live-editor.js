@@ -737,7 +737,7 @@
   // Transactional AI text executor: validate all targets before touching the DOM.
   // Parent persists returned edits before reporting success to the user.
   function executeTextOperations(operations) {
-    if (!Array.isArray(operations) || !operations.length || operations.length > 12) return { ok: false, reason: "invalid-operations" };
+    if (!Array.isArray(operations) || !operations.length || operations.length > 36) return { ok: false, reason: "invalid-operations" };
     const pending = [], pendingBySelector = new Map();
     for (const op of operations) {
       if (!op || typeof op.selector !== "string" || op.selector.length > 500) return { ok: false, reason: "invalid-operation" };
