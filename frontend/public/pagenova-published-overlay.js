@@ -2,7 +2,7 @@
 "use strict";
 const cfg=window.__PAGENOVA_PUBLISHED_OVERLAY__;
 if(!cfg||typeof cfg!=="object")return;
-function find(selector){try{return document.querySelector(selector);}catch{return null;}}
+function find(selector){try{const matches=document.querySelectorAll(selector);return matches.length===1?matches[0]:null;}catch{return null;}}
 function textNode(el){return el&&el.matches("h1,h2,h3,h4,h5,h6,p,li,blockquote,small,strong,a,span,button,[data-pn-free-text=true]");}
 function apply(edit){
  if(!edit||typeof edit.selector!=="string")return;
