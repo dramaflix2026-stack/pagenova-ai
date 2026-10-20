@@ -618,8 +618,8 @@ function universalSectionClass(
 // Only render user-provided media. Never substitute a fabricated business photo.
 function safeUniversalImage(value: unknown): string {
   const url = normalizeText(value);
-  if (!url || /[\\u0000-\\u001f\\u007f]/.test(url)) return "";
-  if (/^https:\\/\\/[^\\s]+$/i.test(url) || /^\\/[^\\/]/.test(url) || /^data:image\\/(?:png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) {
+  if (!url || /[\u0000-\u001f\u007f]/.test(url)) return "";
+  if (/^https:\/\/[^\s]+$/i.test(url) || /^\/[^\/]/.test(url) || /^data:image\/(?:png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) {
     return url;
   }
   return "";
