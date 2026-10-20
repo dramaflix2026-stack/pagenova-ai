@@ -625,6 +625,14 @@ function safeUniversalImage(value: unknown): string {
   return "";
 }
 
+function firstUniversalImage(...values: unknown[]): string {
+  for (const value of values) {
+    const safe = safeUniversalImage(value);
+    if (safe) return safe;
+  }
+  return "";
+}
+
 function renderUniversalHero(
   project: SiteProject,
   model: UniversalRenderModel,
@@ -635,7 +643,7 @@ function renderUniversalHero(
 
   const heroStyle = strategy.design.heroStyle;
   const density = strategy.design.density;
-  const heroPhoto = safeUniversalImage(project.institutional?.businessPhoto || project.institutional?.workPhoto || project.institutional?.portrait);
+  const heroPhoto = firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait);
 
   return `
     <section
@@ -921,7 +929,7 @@ function renderUniversalGenericSection(
   // Never generate fake portfolio images or testimonials as placeholders.
   const sectionPhoto =
     section.kind === "about"
-      ? safeUniversalImage(project.institutional?.portrait) || safeUniversalImage(project.institutional?.businessPhoto)
+      ? firstUniversalImage(project.institutional?.portrait, project.institutional?.businessPhoto)
       : section.kind === "gallery" || section.kind === "portfolio"
         ? safeUniversalImage(project.institutional?.workPhoto)
         : "";
@@ -1194,6 +1202,26 @@ function universalRendererStyles(
       --pn-card-shadow:${cardShadow};
       --pn-card-border:${cardBorder};
       --pn-card-background:${cardBackground};
+    }
+
+    /* Motion direction applies to actual rendered sections. No JS dependency. */
+    @media(prefers-reduced-motion:no-preference){
+      .pn-motion-reveal .pn-universal-hero-copy{
+        animation:pn-hero-enter .7s cubic-bezier(.2,.75,.25,1) both;
+      }
+      .pn-motion-reveal .pn-universal-section{
+        animation:pn-section-enter .55s ease-out both;
+      }
+      .pn-motion-subtle .pn-structured-card{
+        transition:transform .22s ease,box-shadow .22s ease;
+      }
+      .pn-motion-subtle .pn-structured-card:hover{transform:translateY(-4px)}
+      @keyframes pn-hero-enter{from{opacity:.25;transform:translateY(18px)}to{opacity:1;transform:none}}
+      @keyframes pn-section-enter{from{opacity:.5;transform:translateY(10px)}to{opacity:1;transform:none}}
+    }
+    @media(prefers-reduced-motion:reduce){
+      html{scroll-behavior:auto}
+      *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
     }
 
     *{box-sizing:border-box}
@@ -2370,7 +2398,7 @@ export function renderUniversalSitePreview(
   <title>${escapeUniversalHtml(project.name)}</title>
   <style>${universalRendererStyles(model.strategy)}</style>
 </head>
-<body>
+<body class="pn-motion-${model.strategy.design.motionStyle}">
   <header class="pn-site-header pn-header-${model.strategy.design.headerStyle}">
     <a
       class="brand"
