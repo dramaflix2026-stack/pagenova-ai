@@ -918,12 +918,21 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
       proof: typeof submitted.proof === "string" ? submitted.proof.slice(0, 700).trim() : "",
     };
 
+    // AI only generates textual institutional fields. Keep existing
+    // user-uploaded photo URLs intact across generation and revisions.
+    // Never let model output replace or invent client image URLs.
+    const existingPhotos = {
+      portrait: typeof submitted.portrait === "string" ? submitted.portrait : "",
+      businessPhoto: typeof submitted.businessPhoto === "string" ? submitted.businessPhoto : "",
+      workPhoto: typeof submitted.workPhoto === "string" ? submitted.workPhoto : "",
+    };
     let institutional = {
       role: rawInstitutional.role.slice(0, 700).trim(),
       audience: rawInstitutional.audience.slice(0, 700).trim(),
       offer: rawInstitutional.offer.slice(0, 700).trim(),
       process: rawInstitutional.process.slice(0, 700).trim(),
       proof: rawInstitutional.proof.slice(0, 700).trim(),
+      ...existingPhotos,
     };
 
 
@@ -1151,6 +1160,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
         proof: preserveProof
           ? currentInstitutional.proof
           : institutional.proof,
+        ...existingPhotos,
       };
 
       console.info(
