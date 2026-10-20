@@ -1077,7 +1077,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
         } => change !== null,
       );
     const validDomActions = new Set(["text","color","background","font","size","align","radius"]);
-    const normalizedDomOperations = rawRevisionPlan.domOperations.slice(0, 12).filter(
+    const normalizedDomOperations = (rawRevisionPlan.domOperations as Array<{selector?: unknown;action?: unknown;value?: unknown}>).slice(0, 12).filter(
       (op: {selector?: unknown;action?: unknown;value?: unknown}) =>
         typeof op?.selector === "string" && op.selector.length <= 500 &&
         validDomActions.has(String(op.action)) && typeof op.value === "string" && op.value.length <= 2000,
