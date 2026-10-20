@@ -1178,20 +1178,73 @@ export default function BuilderPage() {
         throw new Error("A IA não retornou um plano de revisão válido.");
       }
 
-      // CRM pages are rendered by Railway; execute only supported operations
-      // against selectors found in the actual iframe, then await persistence.
+      // Railway templates are immutable at their base; additions are saved as
+      // responsive extra sections. Never silently remove or reorder base sections.
       if (crmProjectId && crmPreviewHtml) {
         const changes = revisionPlan.contentChanges;
+        const structural = revisionPlan.sectionChanges;
         const otherActions = revisionPlan.elementChanges.length +
-          revisionPlan.sectionChanges.length + revisionPlan.headerChanges.length +
-          revisionPlan.visualChanges.length + revisionPlan.institutionalChanges.length;
-        if (changes.length > 0 && otherActions === 0 && changes.every(change =>
-            ["heading", "eyebrow", "introduction", "cta"].includes(change.field))) {
-          await executeCrmTextPlan(changes, renderedElements);
-          setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
-          return;
+          revisionPlan.headerChanges.length + revisionPlan.visualChanges.length +
+          revisionPlan.institutionalChanges.length;
+        if (otherActions) throw new Error("A alteração inclui propriedades do template que ainda não podem ser editadas com segurança. Nenhuma mudança foi salva.");
+        const existingExtras = project.extraSections?.[activePage] || [];
+        let nextExtras = existingExtras.map(section => ({ ...section }));
+        if (structural.length) {
+          for (const change of structural) {
+            if (change.action === "add") {
+              if (nextExtras.length >= 24) throw new Error("Limite de 24 seções adicionais atingido.");
+              const section = {
+                id: "extra_" + crypto.randomUUID().replace(/-/g, "").slice(0, 16),
+                kind: "custom" as ExtraSectionKind,
+                title: change.title?.slice(0, 180) || "Nova seção",
+                body: change.body?.slice(0, 1800) || "",
+                slot: originalSections,
+              };
+              const target = change.targetIndex < 0 ? nextExtras.length : Math.min(change.targetIndex, nextExtras.length);
+              nextExtras.splice(target, 0, section);
+            } else {
+              // Only previously added sections can be updated or removed.
+              const index = change.index - originalSections;
+              if (!Number.isInteger(index) || index < 0 || index >= nextExtras.length)
+                throw new Error("Não é seguro modificar esta seção original do CRM. Nenhuma alteração foi salva.");
+              if (change.action === "remove") nextExtras.splice(index, 1);
+              else if (change.action === "update") nextExtras[index] = {
+                ...nextExtras[index],
+                title: change.title?.slice(0, 180) || nextExtras[index].title,
+                body: change.body?.slice(0, 1800) || nextExtras[index].body,
+              };
+              else if (change.action === "move") {
+                const target = change.targetIndex - originalSections;
+                if (!Number.isInteger(target) || target < 0 || target >= nextExtras.length)
+                  throw new Error("O destino da seção está fora da área editável.");
+                const [moved] = nextExtras.splice(index, 1);
+                nextExtras.splice(target, 0, moved);
+              }
+            }
+          }
         }
-        throw new Error("A alteração solicitada exige recursos de edição estrutural ainda não suportados neste template. Nenhuma alteração foi salva.");
+        if (changes.length && !changes.every(change => ["heading", "eyebrow", "introduction", "cta"].includes(change.field)))
+          throw new Error("A IA solicitou uma alteração de texto incompatível com este template.");
+        if (!changes.length && !structural.length) throw new Error("A IA não retornou alterações aplicáveis ao site.");
+        // Avoid half-committed mixed edits until they share one atomic transaction.
+        if (changes.length && structural.length) throw new Error("Peça as mudanças de texto e estrutura separadamente para garantir um salvamento consistente.");
+        if (changes.length) await executeCrmTextPlan(changes, renderedElements);
+        else {
+          const updated: SiteProject = {
+            ...project,
+            revisionHistory: [...(project.revisionHistory || []), {
+              page: activePage,
+              edits: project.liveEdits?.[activePage] || [],
+              sections: existingExtras,
+              at: new Date().toISOString(),
+            }].slice(-15),
+            extraSections: { ...project.extraSections, [activePage]: nextExtras },
+          };
+          await savePageNovaProject(updated.id, updated);
+          setProject(updated);
+        }
+        setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
+        return;
       }
 
       if (!revisionPlan) {
