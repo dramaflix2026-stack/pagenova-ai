@@ -1059,12 +1059,12 @@ export default function BuilderPage() {
   // This avoids relying on the model to guess four unrelated CSS selectors.
   async function tryHeroAlignmentCommand(raw: string): Promise<boolean> {
     if (!crmPreviewHtml || !project || revisionImage) return false;
-    const normalized = raw.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+    const normalized = raw.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     const alignment = /centraliz|alinhar? (?:ao |no )?centro/.test(normalized) ? "center" :
       /alinhar? (?:a |à )?esquerda/.test(normalized) ? "left" :
       /alinhar? (?:a |à )?direita/.test(normalized) ? "right" : "";
     if (!alignment || !/(?:todos os elementos|tudo|secao principal|hero|texto superior.*botao|titulo.*paragrafo.*botao)/.test(normalized)) return false;
-    if (/(?:mude|troque|altere|remova|adicione|reescreva|cor|fonte|tamanho|imagem|fundo)/.test(normalized)) return false;
+    if (/(?:mude|troque|altere|remova|adicione|reescreva|imagem|fundo)/.test(normalized)) return false;
     const inventory = await readRenderedElementInventory();
     const headings = inventory.filter(el => el.tag === "h1");
     if (headings.length !== 1) throw new Error("Não foi possível identificar um título principal único.");
