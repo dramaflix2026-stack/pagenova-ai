@@ -287,11 +287,18 @@ export async function getFunnel(db: Database, filters: MetricFilters): Promise<F
         scope.length > 0 ? and(...scope) : sql`1 = 1`,
       ),
     )
-    .where(isNull(stages.deletedAt))
+    .where(and(isNull(stages.deletedAt), eq(stages.workspaceId, filters.workspaceId)))
     .groupBy(stages.id, stages.name, stages.semanticKey, stages.color, stages.position)
     .orderBy(stages.position);
 
-  return rows.map((row) => ({ ...row, count: Number(row.count) }));
+  // Um unico indicador por etapa semantica, mesmo com etapas legadas duplicadas.
+  const unique = new Map<string, FunnelEntry>();
+  for (const row of rows) {
+    const previous = unique.get(row.semanticKey);
+    if (previous) previous.count += Number(row.count);
+    else unique.set(row.semanticKey, { ...row, count: Number(row.count) });
+  }
+  return [...unique.values()];
 }
 
 export interface FinancialSnapshot {
@@ -418,6 +425,7 @@ export async function getAttentionItems(
   options: {
     stalledNegotiationDays: number;
     stalledSelectedDays: number;
+    workspaceId: string;
     now?: Date;
     /** Vendedor: so alertas dos proprios leads. Vem da sessao. */
     onlyOwnerUserId?: string | null;
@@ -654,7 +662,12 @@ export async function getAttentionItems(
     });
   }
 
-  return items.sort(
+  // O dashboard nunca pode devolver alertas de leads de outro workspace.
+  const referencedIds = [...new Set(items.map((item) => item.leadId).filter((id): id is string => Boolean(id)))];
+  const allowedRows = referencedIds.length ? await db.select({ id: leads.id }).from(leads)
+    .where(and(eq(leads.workspaceId, options.workspaceId), inArray(leads.id, referencedIds), dono)) : [];
+  const allowedIds = new Set(allowedRows.map((row) => row.id));
+  return items.filter((item) => !item.leadId || allowedIds.has(item.leadId)).sort(
     (a, b) => a.priority - b.priority || (a.dueDate ?? '').localeCompare(b.dueDate ?? ''),
   );
 }
