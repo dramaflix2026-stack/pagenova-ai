@@ -20,6 +20,8 @@ export type LiveEdit = {
   textAlign?: "left" | "center" | "right";
   fontWeight?: number;
   cardStyle?: "flat" | "bordered" | "elevated";
+  backgroundColor?: string;
+  borderRadius?: number;
 };
 
 export type LiveEditorState = { edits?: LiveEdit[] };
