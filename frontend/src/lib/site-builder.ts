@@ -191,17 +191,6 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
    */
   if (project.templateId === "vertice-premium") return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey));
 
-  if (project.presetId === "template-001") {
-    const template001Html = renderTemplate001Preview(
-      project,
-      pageKey,
-    );
-
-    if (template001Html) {
-      return enhanceSitePreview(template001Html);
-    }
-  }
-
   /*
    * Universal Renderer migration boundary:
    *
@@ -218,6 +207,14 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
     if (universalHtml) {
       return enhanceSitePreview(universalHtml);
     }
+  }
+
+  // Only legacy drafts without a valid universal strategy use Template 001.
+  // Newly generated projects persist siteStrategy even when presetId remains
+  // "template-001" for backward compatibility with the builder workflow.
+  if (project.presetId === "template-001") {
+    const template001Html = renderTemplate001Preview(project, pageKey);
+    if (template001Html) return enhanceSitePreview(template001Html);
   }
 
   const html =
