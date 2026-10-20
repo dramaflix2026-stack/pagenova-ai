@@ -1093,19 +1093,33 @@ export default function BuilderPage() {
         return;
       } catch { setError("Falha ao salvar alinhamento; nenhuma chamada de IA foi feita."); return; }
     }
-    if (local?.kind === "replace" && crmPreviewHtml) {
-      const applied = await tryLocalIframeCopy("replace", local.to, local.from);
-      if (applied) { setInstruction(""); setError(""); return; }
-      // No unique match: delegate to the AI revision planner instead of blocking the user.
-      // The AI receives the existing project page and requested instruction below.
-    }
-    if (local?.kind === "text" && crmPreviewHtml) {
-      // O iframe gera a mesma LiveEdit usada pelo editor visual e pela publicacao.
-      // Se nao houver um alvo unico e seguro, seguimos com a IA existente.
-      if (await tryLocalIframeCopy(local.field, local.value)) {
-        setInstruction(""); setError("");
-        return;
+    if (crmPreviewHtml && (local?.kind === "replace" || local?.kind === "text")) {
+      const inventory = await readRenderedElementInventory();
+      let operations: Array<{selector:string;tag:string;text:string}> = [];
+      let newValue = "";
+      if (local.kind === "replace") {
+        const needle = local.from.toLocaleLowerCase("pt-BR");
+        operations = inventory.filter(el => el.text.toLocaleLowerCase("pt-BR").includes(needle) &&
+          /^(h[1-6]|p|a|button|span|strong)$/.test(el.tag));
+        newValue = local.to;
+      } else {
+        const field = local.field;
+        operations = inventory.filter(el => field === "heading" ? el.tag === "h1" :
+          field === "eyebrow" ? el.tag === "p" && /hero|eyebrow|subtitle/i.test(el.selector) :
+          (el.tag === "a" || el.tag === "button") && /come[cç]|saiba|contato|agend|conhe[cç]|solicit|whatsapp|fale/i.test(el.text));
+        newValue = local.value;
       }
+      if (operations.length === 1) {
+        try {
+          const text = local.kind === "replace" ? operations[0].text.slice(0, operations[0].text.toLocaleLowerCase("pt-BR").indexOf(local.from.toLocaleLowerCase("pt-BR"))) + newValue + operations[0].text.slice(operations[0].text.toLocaleLowerCase("pt-BR").indexOf(local.from.toLocaleLowerCase("pt-BR")) + local.from.length) : newValue;
+          await executeCrmTextPlan([{ field: "heading", value: text }], [{ ...operations[0], tag: "h1" }]);
+          setInstruction(""); setError(""); setPhase("ready"); return;
+        } catch (cause) {
+          setError(cause instanceof Error ? cause.message : "Falha ao salvar a edição.");
+          setPhase("ready"); return;
+        }
+      }
+      // Ambiguous targets continue to the AI revision planner.
     }
     // Texto estruturado so pode ser alterado localmente se a pagina renderizada
     // for a do proprio projeto. No HTML do Railway, a alteracao seria invisivel.
