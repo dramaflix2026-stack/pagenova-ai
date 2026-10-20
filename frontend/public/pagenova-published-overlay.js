@@ -26,7 +26,15 @@ function apply(edit){
    el.style.setProperty("max-width","100%","important");
   }
   if(/^#[a-f0-9]{6}$/i.test(edit.color||""))el.style.setProperty("color",edit.color,"important");
-  if(["left","center","right"].includes(edit.textAlign))el.style.setProperty("text-align",edit.textAlign,"important");
+  if(["left","center","right"].includes(edit.textAlign)){
+   el.style.setProperty("text-align",edit.textAlign,"important");
+   if(el.matches("a,button")&&edit.textAlign==="center"){
+    el.style.setProperty("margin-inline","auto","important");
+    el.style.setProperty("align-self","center","important");
+    el.style.setProperty("justify-self","center","important");
+    if(["inline","inline-block"].includes(getComputedStyle(el).display))el.style.setProperty("display","table","important");
+   }
+  }
   if(edit.fontWeight)el.style.setProperty("font-weight",String(edit.fontWeight),"important");
  }
  if(/^#[a-f0-9]{6}$/i.test(edit.backgroundColor||""))el.style.setProperty("background-color",edit.backgroundColor,"important");
