@@ -288,7 +288,16 @@
       el.style.setProperty("max-width", "100%", "important");
     }
     if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
-    if (edit.textAlign && el.matches(textSel)) el.style.setProperty("text-align", edit.textAlign, "important");
+    if (edit.textAlign && (el.matches(textSel) || el.matches("button"))) {
+      el.style.setProperty("text-align", edit.textAlign, "important");
+      if (el.matches("a,button") && edit.textAlign === "center") {
+        el.style.setProperty("margin-inline", "auto", "important");
+        el.style.setProperty("align-self", "center", "important");
+        if (["inline", "inline-block"].includes(getComputedStyle(el).display)) {
+          el.style.setProperty("display", "table", "important");
+        }
+      }
+    }
     if (edit.fontWeight && el.matches(textSel)) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
     if (Number.isFinite(edit.offsetX) && Number.isFinite(edit.offsetY) && (edit.offsetX || edit.offsetY)) {
       moveElement(el, edit.offsetX, edit.offsetY);
@@ -764,7 +773,7 @@
         if (!el.matches(textSel) || !Number.isFinite(value) || value < 10 || value > 120) return { ok: false, reason: "invalid-size" };
         edit.size = value;
       } else if (action === "align") {
-        if (!el.matches(textSel) || !["left","center","right"].includes(op.value)) return { ok: false, reason: "invalid-alignment" };
+        if (!(el.matches(textSel) || el.matches("button")) || !["left","center","right"].includes(op.value)) return { ok: false, reason: "invalid-alignment" };
         edit.textAlign = op.value;
       } else if (action === "link") {
         if (!el.matches("a") || typeof op.value !== "string" || op.value.length > 2048 ||
