@@ -1828,7 +1828,8 @@ export default function BuilderPage() {
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
               {uploadingImage?"Carregando imagem...":"🖼 Trocar imagem do banner"}
             </button>
-            <div className="mt-3 w-full max-w-sm">{crmProjectId&&phase!=="generating"&&<details className="w-full rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
+            <div className="w-full max-w-sm">
+              {crmProjectId ? <details className="w-full rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
                 <summary className="cursor-pointer select-none rounded-lg px-3 py-2 font-semibold text-emerald-200">✎ Personalizar logo</summary>
                 <div className="mt-2 flex flex-wrap justify-center gap-2">
                   <button type="button" onClick={()=>logoInputRef.current?.click()} disabled={uploadingLogo||publishing||switchingTemplate}
@@ -1839,7 +1840,8 @@ export default function BuilderPage() {
                     disabled={uploadingLogo||publishing||switchingTemplate}
                     className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 disabled:opacity-40">Remover logo</button>
                 </div>
-              </details>}</div>
+              </details> : null}
+            </div>
             {sectionPickerOpen&&<div role="dialog" aria-label="Escolher uma seção" className="mt-3 w-full max-w-md rounded-2xl border border-emerald-400/25 bg-[#142019] p-3 shadow-xl">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="text-sm font-bold text-white">Adicionar ao site</span>
