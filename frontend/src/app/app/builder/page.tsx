@@ -1237,12 +1237,12 @@ export default function BuilderPage() {
             }
           }
         }
-        // Legacy template-only operations cannot run against Railway HTML.\n        // Keep independent selector and added-section operations instead of aborting the request.\n        const skippedTemplateActions = otherActions;
+        if (otherActions) throw new Error("A IA solicitou mudanças que não podem ser aplicadas diretamente neste template. Nenhuma alteração foi salva.");
         if (changes.length && !changes.every(change => ["heading", "eyebrow", "introduction", "cta"].includes(change.field)))
           throw new Error("A IA solicitou uma alteração de texto incompatível com este template.");
         const known = new Set(renderedElements.map(element => element.selector));
         if (domOperations.some(op => !known.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
-        if (!changes.length && nextExtras.length === existingExtras.length && !domOperations.length) throw new Error("A IA não conseguiu identificar alterações compatíveis com os elementos desta página. Nenhuma alteração foi salva. Tente solicitar uma mudança específica no título, botão ou seção.");
+        if (!changes.length && nextExtras.length === existingExtras.length && !domOperations.length && skippedOriginalSections === structural.length) throw new Error("A IA tentou modificar apenas seções originais do template. Nenhuma alteração foi aplicada. Tente pedir uma seção nova ou mudanças em elementos específicos.");
         if (changes.length && domOperations.length) throw new Error("A IA repetiu alterações de texto. Tente novamente para evitar mudanças duplicadas.");
         if (changes.length || domOperations.length) {
           await executeCrmTextPlan(changes, renderedElements,
@@ -1262,7 +1262,7 @@ export default function BuilderPage() {
           setProject(updated);
         }
         setInstruction(""); setRevisionImage(""); setPhase("ready");
-        setError(skippedOriginalSections || skippedTemplateActions ? `As alterações compatíveis foram salvas, mas ${skippedOriginalSections + skippedTemplateActions} operação(ões) não puderam ser aplicadas neste template. Revise a prévia antes de publicar.` : "");
+        setError(skippedOriginalSections ? `${skippedOriginalSections} alteração(ões) em seções originais não foram aplicadas; as demais foram salvas. Para modificar essas seções, peça alterações nos textos ou elementos específicos.` : "");
         return;
       }
 
