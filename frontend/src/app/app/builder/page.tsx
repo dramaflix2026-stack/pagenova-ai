@@ -888,6 +888,9 @@ export default function BuilderPage() {
     | null {
     const input = raw.trim();
     const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    // Natural direct heading edits should target the rendered heading, not literal text search.
+    const directHeading = input.match(/^(?:troque|mude|altere|substitua|coloque|defina)\s+(?:o\s+)?(?:texto\s+do\s+)?t[ií]tulo\s+principal(?:\s+(?:do\s+site|da\s+p[aá]gina|do\s+banner))?\s+(?:para|por|como)\s+['"“”]?(.{2,180}?)['"“”]?\s*[.!]?$/i);
+    if (directHeading) return { kind: "text", field: "heading", value: directHeading[1].trim() };
     // Explicit quoted source/target, optionally scoped to the main heading.
     const quotedReplacement = input.match(/^(?:troque|mude|altere|substitua)\s+(?:o\s+)?(?:texto\s+)?["'“”](.{2,120}?)["'“”]\s+(?:por|para|pra)\s+["'“”](.{2,160}?)["'“”](?:\s+(?:no|na|do|da)\s+(?:t[ií]tulo(?:\s+principal)?|cabe[cç]alho|texto))?\s*[.!]?$/i);
     if (quotedReplacement) return { kind: "replace", from: quotedReplacement[1].trim(), to: quotedReplacement[2].trim() };
