@@ -955,7 +955,7 @@ export default function BuilderPage() {
     });
   }
 
-  async function executeCrmTextPlan(changes: Array<{field:string;value:string}>, elements: Array<{selector:string;tag:string;text:string}>, directOperations?: Array<{selector:string;action:string;value?:string;text?:string}>): Promise<void> {
+  async function executeCrmTextPlan(changes: Array<{field:string;value:string}>, elements: Array<{selector:string;tag:string;text:string}>, directOperations?: Array<{selector:string;action:string;value?:string;text?:string}>, structuralSections?: { before: NonNullable<SiteProject["extraSections"]>[SitePageKey]; after: NonNullable<SiteProject["extraSections"]>[SitePageKey] }): Promise<void> {
     const frame = previewRef.current?.contentWindow;
     if (!frame) throw new Error("A prévia do site ainda não está pronta.");
     const candidates = (field: string) => elements.filter(el => {
@@ -1000,8 +1000,9 @@ export default function BuilderPage() {
     }
     const merged = [...bySelector.values()];
     const updated = { ...project,
-      revisionHistory: [...(project.revisionHistory || []), { page: activePage, edits: before, at: new Date().toISOString() }].slice(-15),
-      liveEdits: { ...project.liveEdits, [activePage]: [...current, ...merged].slice(-100) } };
+      revisionHistory: [...(project.revisionHistory || []), { page: activePage, edits: before, sections: structuralSections?.before || project.extraSections?.[activePage] || [], at: new Date().toISOString() }].slice(-15),
+      liveEdits: { ...project.liveEdits, [activePage]: [...current, ...merged].slice(-100) },
+      extraSections: structuralSections ? { ...project.extraSections, [activePage]: structuralSections.after } : project.extraSections };
     try { await savePageNovaProject(updated.id, updated); }
     catch {
       // Rebuild the iframe from the last committed snapshot on save failure.
@@ -1195,18 +1196,6 @@ export default function BuilderPage() {
         const otherActions = revisionPlan.elementChanges.length +
           revisionPlan.headerChanges.length + revisionPlan.visualChanges.length +
           revisionPlan.institutionalChanges.length;
-        if (otherActions) throw new Error("A alteração inclui propriedades do template que ainda não podem ser editadas com segurança. Nenhuma mudança foi salva.");
-        if (domOperations.length) {
-          if (otherActions || changes.length || structural.length) throw new Error("A IA combinou alterações de tipos diferentes. Faça pedidos separados para estrutura e estilo.");
-          const validSelectors = new Set(renderedElements.map(element => element.selector));
-          if (domOperations.some(op => !validSelectors.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
-          await executeCrmTextPlan([], renderedElements, domOperations.map(op => ({
-            selector: op.selector, action: op.action,
-            ...(op.action === "text" ? { text: op.value } : { value: op.value }),
-          })));
-          setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
-          return;
-        }
         const existingExtras = project.extraSections?.[activePage] || [];
         let nextExtras = existingExtras.map(section => ({ ...section }));
         if (structural.length) {
@@ -1243,20 +1232,24 @@ export default function BuilderPage() {
             }
           }
         }
+        if (otherActions) throw new Error("A IA solicitou mudanças que não podem ser aplicadas diretamente neste template. Nenhuma alteração foi salva.");
         if (changes.length && !changes.every(change => ["heading", "eyebrow", "introduction", "cta"].includes(change.field)))
           throw new Error("A IA solicitou uma alteração de texto incompatível com este template.");
-        if (!changes.length && !structural.length) throw new Error("A IA não retornou alterações aplicáveis ao site.");
-        // Avoid half-committed mixed edits until they share one atomic transaction.
-        if (changes.length && structural.length) throw new Error("Peça as mudanças de texto e estrutura separadamente para garantir um salvamento consistente.");
-        if (changes.length) await executeCrmTextPlan(changes, renderedElements);
-        else {
+        const known = new Set(renderedElements.map(element => element.selector));
+        if (domOperations.some(op => !known.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
+        if (!changes.length && !structural.length && !domOperations.length) throw new Error("A IA não retornou alterações aplicáveis ao site.");
+        if (changes.length && domOperations.length) throw new Error("A IA repetiu alterações de texto. Tente novamente para evitar mudanças duplicadas.");
+        if (changes.length || domOperations.length) {
+          await executeCrmTextPlan(changes, renderedElements,
+            domOperations.length ? domOperations.map(op => ({ selector: op.selector, action: op.action,
+              ...(op.action === "text" ? { text: op.value } : { value: op.value }) })) : undefined,
+            structural.length ? { before: existingExtras, after: nextExtras } : undefined);
+        } else {
           const updated: SiteProject = {
             ...project,
             revisionHistory: [...(project.revisionHistory || []), {
-              page: activePage,
-              edits: project.liveEdits?.[activePage] || [],
-              sections: existingExtras,
-              at: new Date().toISOString(),
+              page: activePage, edits: project.liveEdits?.[activePage] || [],
+              sections: existingExtras, at: new Date().toISOString(),
             }].slice(-15),
             extraSections: { ...project.extraSections, [activePage]: nextExtras },
           };
