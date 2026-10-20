@@ -1778,9 +1778,8 @@ export default function BuilderPage() {
         });
         const data = await readPublicationResponse(response, "Publicação no Railway");
         if (!data.url) throw new Error("O Railway não retornou o endereço do site publicado.");
-        // Publication already exists upstream. Keep its address visible even
-        // if the subsequent overlay sync fails; do not report a false total failure.
-        setPublishedUrl(data.url);
+        // Do not expose the upstream publication as the finished edited site
+        // until its visual overlay has been persisted successfully.
         // The Railway publication contains the original generated HTML.
         // Persist the visual editor overlay before reporting publication success.
         const overlayResponse = await fetch("/api/builder/published-overlay", {
