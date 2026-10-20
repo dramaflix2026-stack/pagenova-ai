@@ -715,7 +715,7 @@
   function editableInventory() {
     const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img";
     return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
-      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style");
+      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img") || el.children.length === 0);
     }).slice(0, 180).map(function(el) {
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
