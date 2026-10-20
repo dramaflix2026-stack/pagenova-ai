@@ -930,7 +930,7 @@ function renderUniversalGenericSection(
   return `
     <section
       id="${legacyId}"
-      class="${className} ${compositionClass}"
+      class="${className} ${compositionClass} pn-section-variant-${(legacyFeatureIndex - 1) % 3}"
       data-pn-section="true"
       data-pn-section-kind="${escapeUniversalHtml(section.kind)}"
       data-pn-semantic-id="${escapeUniversalHtml(semanticId)}"
@@ -1451,6 +1451,29 @@ function universalRendererStyles(
       grid-template-columns:minmax(220px,.72fr) minmax(0,1.28fr);
       gap:70px;
       align-items:start;
+    }
+
+    /* Editorial rhythm: alternate the section grid without changing DOM IDs
+       or the live editor's existing source selectors. */
+    .pn-section-variant-1 .pn-universal-shell{
+      grid-template-columns:minmax(0,1.28fr) minmax(220px,.72fr);
+    }
+    .pn-section-variant-1 .pn-universal-section-heading{grid-column:2;grid-row:1}
+    .pn-section-variant-1 .pn-universal-section-content{grid-column:1;grid-row:1}
+    .pn-section-variant-2 .pn-universal-shell{
+      display:block;
+    }
+    .pn-section-variant-2 .pn-universal-section-heading{
+      max-width:800px;margin:0 auto 36px;text-align:center;
+    }
+    .pn-section-variant-2 .pn-universal-section-content{
+      max-width:1050px;margin:0 auto;
+    }
+    @media(max-width:760px){
+      .pn-section-variant-1 .pn-universal-shell{grid-template-columns:1fr}
+      .pn-section-variant-1 .pn-universal-section-heading,
+      .pn-section-variant-1 .pn-universal-section-content{grid-column:auto;grid-row:auto}
+      .pn-section-variant-2 .pn-universal-section-heading{text-align:left;margin-bottom:24px}
     }
 
     .pn-universal-section-heading h2{
