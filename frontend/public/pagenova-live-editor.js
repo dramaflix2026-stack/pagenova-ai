@@ -292,6 +292,7 @@
       el.style.setProperty("text-align", edit.textAlign, "important");
       if (el.matches("a,button") && edit.textAlign === "center") {
         el.style.setProperty("margin-inline", "auto", "important");
+        el.style.setProperty("justify-self", "center", "important");
         el.style.setProperty("align-self", "center", "important");
         if (["inline", "inline-block"].includes(getComputedStyle(el).display)) {
           el.style.setProperty("display", "table", "important");
