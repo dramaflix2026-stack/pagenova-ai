@@ -272,7 +272,9 @@
       const picture=el.closest("picture");
       if(picture)picture.querySelectorAll("source").forEach(function(source){source.removeAttribute("srcset");});
     }
-    if (edit.text && el.matches(textSel)) el.textContent = edit.text;
+    if (typeof edit.text === "string" && el.matches(textSel) && edit.kind === "text") el.textContent = edit.text;
+    if (edit.backgroundColor && /^#[0-9a-f]{6}$/i.test(edit.backgroundColor)) el.style.setProperty("background-color", edit.backgroundColor, "important");
+    if (Number.isFinite(edit.borderRadius) && edit.borderRadius >= 0 && edit.borderRadius <= 100) el.style.setProperty("border-radius", edit.borderRadius + "px", "important");
     if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
     if (edit.size && el.matches(textSel)) el.style.setProperty("font-size", edit.size + "px", "important");
     if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
@@ -724,19 +726,40 @@
   // Parent persists returned edits before reporting success to the user.
   function executeTextOperations(operations) {
     if (!Array.isArray(operations) || !operations.length || operations.length > 12) return { ok: false, reason: "invalid-operations" };
-    const pending = [];
-    const used = new Set();
+    const pending = [], used = new Set();
     for (const op of operations) {
-      if (!op || typeof op.selector !== "string" || op.selector.length > 500 ||
-          typeof op.text !== "string" || !op.text.trim() || op.text.length > 180) return { ok: false, reason: "invalid-operation" };
+      if (!op || typeof op.selector !== "string" || op.selector.length > 500 || used.has(op.selector)) return { ok: false, reason: "invalid-operation" };
       const el = find(op.selector);
-      if (!el || !el.matches(textSel) || !el.getClientRects().length || used.has(op.selector) ||
-          el.children.length || path(el) !== op.selector) return { ok: false, reason: "target-not-editable" };
-      used.add(op.selector);
+      if (!el || !el.getClientRects().length || path(el) !== op.selector || el.closest("#pn-edit-bar")) return { ok: false, reason: "target-not-editable" };
+      const action = op.action || "text";
+      if (!["text","color","font","size","align","background","radius"].includes(action)) return { ok: false, reason: "unsupported-action" };
       const cs = getComputedStyle(el);
-      pending.push({ selector: op.selector, text: op.text.trim(), font: cs.fontFamily || "Arial",
-        size: Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16))),
-        color: hex(cs.color), kind: "text" });
+      const edit = { selector: op.selector, text: "", font: "", size: 0, color: "", kind: action === "text" ? "text" : "section" };
+      if (action === "text") {
+        if (!el.matches(textSel) || el.children.length || typeof op.text !== "string" || !op.text.trim() || op.text.length > 2000) return { ok: false, reason: "invalid-text-target" };
+        edit.text = op.text.trim(); edit.font = cs.fontFamily || "Arial";
+        edit.size = Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16)));
+        edit.color = hex(cs.color);
+      } else if (action === "color" || action === "background") {
+        if (typeof op.value !== "string" || !/^#[0-9a-f]{6}$/i.test(op.value)) return { ok: false, reason: "invalid-color" };
+        if (action === "color") { if (!el.matches(textSel)) return { ok: false, reason: "invalid-color-target" }; edit.color = op.value; }
+        else edit.backgroundColor = op.value;
+      } else if (action === "font") {
+        if (!el.matches(textSel) || typeof op.value !== "string" || !/^[a-zA-Z0-9 ,'-]{2,80}$/.test(op.value)) return { ok: false, reason: "invalid-font" };
+        edit.font = op.value;
+      } else if (action === "size") {
+        const value = Number(op.value);
+        if (!el.matches(textSel) || !Number.isFinite(value) || value < 10 || value > 120) return { ok: false, reason: "invalid-size" };
+        edit.size = value;
+      } else if (action === "align") {
+        if (!el.matches(textSel) || !["left","center","right"].includes(op.value)) return { ok: false, reason: "invalid-alignment" };
+        edit.textAlign = op.value;
+      } else if (action === "radius") {
+        const value = Number(op.value);
+        if (!Number.isFinite(value) || value < 0 || value > 100) return { ok: false, reason: "invalid-radius" };
+        edit.borderRadius = value;
+      }
+      used.add(op.selector); pending.push(edit);
     }
     pending.forEach(applyEdit);
     return { ok: true, edits: pending };
