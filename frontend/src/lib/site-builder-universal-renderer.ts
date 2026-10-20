@@ -1352,6 +1352,50 @@ function universalRendererStyles(
       display:none;
     }
 
+    /* Visual Engine 2.0: distinct real compositions, not just prompt labels. */
+    .pn-hero-full-bleed{
+      color:#fff;
+      background:radial-gradient(ellipse at 78% 20%,rgba(255,255,255,.19),transparent 42%),
+        linear-gradient(125deg,#102a43 0%,#194e5a 50%,#102f42 100%);
+    }
+    .pn-hero-full-bleed .pn-universal-hero-inner{
+      grid-template-columns:minmax(0,1fr);
+      min-height:650px;
+      position:relative;
+      isolation:isolate;
+    }
+    .pn-hero-full-bleed .pn-universal-hero-copy{position:relative;z-index:2;max-width:850px}
+    .pn-hero-full-bleed .eyebrow,.pn-hero-full-bleed .hero-lead{color:rgba(255,255,255,.83)}
+    .pn-hero-full-bleed .pn-universal-hero-visual{
+      position:absolute;inset:4% -4% 4% 35%;z-index:0;min-height:0;
+      border:0;border-radius:0;opacity:.35;
+      background:radial-gradient(circle at 65% 40%,#b3f0e6,transparent 50%),
+        repeating-linear-gradient(125deg,transparent 0 28px,rgba(255,255,255,.12) 29px 30px);
+      pointer-events:none;
+    }
+    .pn-hero-editorial .pn-universal-hero-inner{grid-template-columns:minmax(0,1.35fr) minmax(220px,.65fr);gap:28px}
+    .pn-hero-editorial h1{font-size:clamp(52px,7.2vw,100px);letter-spacing:-.075em}
+    .pn-hero-editorial .pn-universal-hero-visual{border-radius:180px 180px 16px 16px;min-height:490px}
+    .pn-hero-layered .pn-universal-hero-inner{grid-template-columns:minmax(0,1fr) minmax(280px,.9fr)}
+    .pn-hero-layered .pn-universal-hero-visual{
+      border:0;border-radius:44px 12px 90px 20px;transform:rotate(-3deg);
+      background:linear-gradient(135deg,#dbeafe,#f5d0fe 55%,#fef3c7);
+      box-shadow:24px 28px 0 rgba(15,23,42,.065);
+    }
+    .pn-hero-product .pn-universal-hero-visual{border-radius:24px;box-shadow:0 32px 90px rgba(15,23,42,.12)}
+    .pn-hero-split .pn-universal-hero-visual{border-radius:12px 100px 12px 100px}
+    @media(prefers-reduced-motion:no-preference){
+      .pn-universal-hero .btn{transition:transform .2s ease,box-shadow .2s ease}
+      .pn-universal-hero .btn:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.16)}
+    }
+    @media(max-width:760px){
+      .pn-hero-editorial .pn-universal-hero-inner,
+      .pn-hero-layered .pn-universal-hero-inner{grid-template-columns:1fr}
+      .pn-hero-editorial .pn-universal-hero-visual{min-height:300px}
+      .pn-hero-full-bleed .pn-universal-hero-inner{min-height:550px}
+      .pn-hero-full-bleed .pn-universal-hero-visual{inset:12% -20% 8% 15%}
+    }
+
     .pn-universal-section{
       padding:var(--pn-section-space) 0;
       border-top:1px solid var(--pn-border);
