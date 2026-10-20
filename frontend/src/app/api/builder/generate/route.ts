@@ -105,6 +105,13 @@ export async function POST(request: NextRequest) {
     `Tom: ${universalStrategy.profile.tone}`,
     `Densidade visual: ${universalStrategy.design.density}`,
     `Hero: ${universalStrategy.design.heroStyle}`,
+    `Banner: ${universalStrategy.design.bannerStyle}`,
+    `Cabeçalho: ${universalStrategy.design.headerStyle}`,
+    `Movimento: ${universalStrategy.design.motionStyle}`,
+    "A direção visual deve afetar a composição real do HTML/CSS, não apenas a descrição. Banners full-bleed devem usar imagem de fundo com sobreposição legível e CTA visível; layouts editoriais devem variar hierarquia, alinhamento e proporção; layouts layered devem usar camadas sem comprometer leitura mobile.",
+    "Aplique transições leves somente onde agregarem clareza, respeitando prefers-reduced-motion. Evite animações obrigatórias, conteúdo oculto sem JavaScript e efeitos que prejudiquem a velocidade.",
+    "Para briefings curtos, complete a estrutura e a redação sem inventar endereço, telefone, credenciais, preços, avaliações, fotos reais ou resultados. Marque dados faltantes como pendentes.",
+    "Evite repetir a mesma composição de hero, grade e cartões em todas as seções. Preserve edição visual, semântica HTML, acessibilidade e responsividade.",
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
