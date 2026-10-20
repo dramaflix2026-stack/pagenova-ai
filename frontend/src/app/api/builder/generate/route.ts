@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
-  if (brief.length < 20 || brief.length > 6000 || name.length < 2 || name.length > 100 ||
+  if ((!instruction && (brief.length < 20 || name.length < 2)) || brief.length > 6000 || name.length > 100 ||
       instruction.length > 3000 ||
       !keys.has(key) || !(presetId === "template-001" || SITE_PRESETS.some((preset) => preset.id === presetId)) || !["moderno", "elegante", "vibrante"].includes(style) || existingPage.length > 6000) {
     return NextResponse.json({ error: "Revise o nome, a descrição e o estilo." }, { status: 400 });
