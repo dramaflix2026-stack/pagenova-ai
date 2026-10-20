@@ -738,7 +738,7 @@
   // Parent persists returned edits before reporting success to the user.
   function executeTextOperations(operations) {
     if (!Array.isArray(operations) || !operations.length || operations.length > 12) return { ok: false, reason: "invalid-operations" };
-    const pending = [], used = new Set();
+    const pending = [], pendingBySelector = new Map();
     for (const op of operations) {
       if (!op || typeof op.selector !== "string" || op.selector.length > 500) return { ok: false, reason: "invalid-operation" };
       const el = find(op.selector);
@@ -780,7 +780,24 @@
         if (!Number.isFinite(value) || value < 0 || value > 100) return { ok: false, reason: "invalid-radius" };
         edit.borderRadius = value;
       }
-      used.add(op.selector); pending.push(edit);
+      const existing = pendingBySelector.get(op.selector);
+      if (existing) {
+        // Merge individual properties without clearing fields from earlier operations.
+        // A text rewrite also carries the original font and color as defaults;
+        // preserve explicitly requested styling when both target one element.
+        const merged = Object.assign({}, existing, edit);
+        if (action !== "text") {
+          merged.text = existing.text;
+          merged.kind = existing.kind === "text" ? "text" : edit.kind;
+        }
+        for (const key of ["font", "color", "size", "backgroundColor", "textAlign", "href", "imageUrl", "borderRadius"]) {
+          if (edit[key] === "" || edit[key] === 0 || edit[key] === undefined) merged[key] = existing[key];
+        }
+        Object.assign(existing, merged);
+      } else {
+        pendingBySelector.set(op.selector, edit);
+        pending.push(edit);
+      }
     }
     pending.forEach(applyEdit);
     return { ok: true, edits: pending };
