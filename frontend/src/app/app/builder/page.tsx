@@ -1738,18 +1738,7 @@ export default function BuilderPage() {
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">PageNova AI</span>
             <div className="mt-3 flex flex-col items-center justify-center gap-3">
               <h2 className="w-full break-words text-xl font-bold">{project.name}</h2>
-              {crmProjectId&&phase!=="generating"&&<details className="w-full max-w-xs rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
-                <summary className="cursor-pointer select-none rounded-lg px-3 py-2 font-semibold text-emerald-200">✎ Personalizar logo</summary>
-                <div className="mt-2 flex flex-wrap justify-center gap-2">
-                  <button type="button" onClick={()=>logoInputRef.current?.click()} disabled={uploadingLogo||publishing||switchingTemplate}
-                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{uploadingLogo?"Enviando...":"Trocar logo"}</button>
-                  <button type="button" onClick={()=>{setEditingBrand(true);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
-                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever logo</button>
-                  <button type="button" onClick={()=>{if(window.confirm("Remover a logo personalizada e exibir o nome da empresa?"))void changeBrandLogo(null);}}
-                    disabled={uploadingLogo||publishing||switchingTemplate}
-                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 disabled:opacity-40">Remover logo</button>
-                </div>
-              </details>}
+              
             </div>
             {editingBrand&&<form onSubmit={event=>{event.preventDefault();void saveProjectBrand();}}
               className="mt-3 flex flex-wrap items-center justify-center gap-3 rounded-xl border border-emerald-400/25 bg-black/20 p-3">
@@ -1828,7 +1817,7 @@ export default function BuilderPage() {
             {publishing && <p role="status" className="mt-2 w-full text-sm font-medium text-emerald-300">Publicando no Railway e sincronizando as edições. Aguarde…</p>}
           </div>
           {project.pages[activePage]&&phase!=="generating"&&
-          <div className="border-b border-white/10 px-3 py-3 sm:px-4">
+          <div className="flex flex-col items-start gap-3 border-b border-white/10 px-3 py-4 sm:px-4">
             <button type="button" onClick={()=>setSectionPickerOpen(open=>!open)} aria-expanded={sectionPickerOpen}
               disabled={addingSection||publishing}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
@@ -1836,9 +1825,21 @@ export default function BuilderPage() {
             </button>
             <button type="button" onClick={()=>{inlineImageKindRef.current="hero";inlineImageInputRef.current?.click();}}
               disabled={uploadingImage||publishing}
-              className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50 sm:ml-2 sm:mt-0">
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
               {uploadingImage?"Carregando imagem...":"🖼 Trocar imagem do banner"}
             </button>
+            <div className="mt-3 w-full max-w-sm">{crmProjectId&&phase!=="generating"&&<details className="w-full rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
+                <summary className="cursor-pointer select-none rounded-lg px-3 py-2 font-semibold text-emerald-200">✎ Personalizar logo</summary>
+                <div className="mt-2 flex flex-wrap justify-center gap-2">
+                  <button type="button" onClick={()=>logoInputRef.current?.click()} disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40">{uploadingLogo?"Enviando...":"Trocar logo"}</button>
+                  <button type="button" onClick={()=>{setEditingBrand(true);setBrandDraft(project.name==="Novo projeto"?"":project.name);}}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white">Escrever logo</button>
+                  <button type="button" onClick={()=>{if(window.confirm("Remover a logo personalizada e exibir o nome da empresa?"))void changeBrandLogo(null);}}
+                    disabled={uploadingLogo||publishing||switchingTemplate}
+                    className="min-h-11 rounded-lg border border-white/15 px-3 py-2 text-xs font-semibold text-white/65 disabled:opacity-40">Remover logo</button>
+                </div>
+              </details>}</div>
             {sectionPickerOpen&&<div role="dialog" aria-label="Escolher uma seção" className="mt-3 w-full max-w-md rounded-2xl border border-emerald-400/25 bg-[#142019] p-3 shadow-xl">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <span className="text-sm font-bold text-white">Adicionar ao site</span>
