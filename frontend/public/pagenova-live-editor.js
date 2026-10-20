@@ -267,7 +267,8 @@
     const source = find(edit.selector);
     const el = source;
     if (!el) return;
-    if (edit.imageUrl && el.matches("img") && edit.imageUrl.startsWith("data:image/")) {
+    if (edit.href && el.matches("a") && /^(https:\/\/|mailto:|tel:|\/[^/])/.test(edit.href)) el.setAttribute("href", edit.href);
+    if (edit.imageUrl && el.matches("img") && (/^https:\/\//.test(edit.imageUrl) || edit.imageUrl.startsWith("data:image/"))) {
       el.src=edit.imageUrl;el.removeAttribute("srcset");el.removeAttribute("sizes");
       const picture=el.closest("picture");
       if(picture)picture.querySelectorAll("source").forEach(function(source){source.removeAttribute("srcset");});
@@ -719,7 +720,9 @@
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
         text: (el.innerText || el.textContent || "").trim().slice(0, 160),
-        image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined };
+        image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined,
+        href: el.matches("a") ? (el.getAttribute("href") || "") : undefined,
+        src: el.matches("img") ? (el.getAttribute("src") || "").slice(0, 300) : undefined };
     }).filter(function(item) { return item.selector && item.selector.length <= 500; });
   }
   // Transactional AI text executor: validate all targets before touching the DOM.
@@ -732,7 +735,7 @@
       const el = find(op.selector);
       if (!el || !el.getClientRects().length || path(el) !== op.selector || el.closest("#pn-edit-bar")) return { ok: false, reason: "target-not-editable" };
       const action = op.action || "text";
-      if (!["text","color","font","size","align","background","radius"].includes(action)) return { ok: false, reason: "unsupported-action" };
+      if (!["text","color","font","size","align","background","radius","link","image"].includes(action)) return { ok: false, reason: "unsupported-action" };
       const cs = getComputedStyle(el);
       const edit = { selector: op.selector, text: "", font: "", size: 0, color: "", kind: action === "text" ? "text" : "section" };
       if (action === "text") {
@@ -754,6 +757,15 @@
       } else if (action === "align") {
         if (!el.matches(textSel) || !["left","center","right"].includes(op.value)) return { ok: false, reason: "invalid-alignment" };
         edit.textAlign = op.value;
+      } else if (action === "link") {
+        if (!el.matches("a") || typeof op.value !== "string" || op.value.length > 2048 ||
+            !/^(https:\/\/|mailto:|tel:|\/[^/])/.test(op.value)) return { ok: false, reason: "invalid-link" };
+        edit.href = op.value;
+      } else if (action === "image") {
+        if (!el.matches("img") || typeof op.value !== "string" || op.value.length > 250000 ||
+            !(/^https:\/\//.test(op.value) || /^data:image\/(png|jpeg|webp);base64,/.test(op.value)))
+          return { ok: false, reason: "invalid-image" };
+        edit.imageUrl = op.value;
       } else if (action === "radius") {
         const value = Number(op.value);
         if (!Number.isFinite(value) || value < 0 || value > 100) return { ok: false, reason: "invalid-radius" };
