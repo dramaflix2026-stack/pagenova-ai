@@ -639,7 +639,7 @@ function renderUniversalHero(
 
   return `
     <section
-      class="hero pn-universal-hero pn-hero-${heroStyle} pn-density-${density}"
+      class="hero pn-universal-hero pn-hero-${heroStyle} pn-banner-${strategy.design.bannerStyle} pn-density-${density}"
       data-pn-section="true"
       data-pn-section-kind="hero"
       data-pn-source=".hero"
@@ -1211,6 +1211,28 @@ function universalRendererStyles(
       padding:14px max(24px,calc((100vw - 1180px)/2));
       border-bottom:1px solid var(--pn-border);
       background:rgba(255,255,255,.96);
+    }
+
+    /* Visual Engine 2.0: header direction is now rendered, not prompt-only. */
+    .pn-header-minimal{min-height:88px;border-bottom:0;background:#fff}
+    .pn-header-minimal .brand{font-size:clamp(19px,2vw,25px);font-weight:700}
+    .pn-header-classic{box-shadow:0 1px 0 rgba(15,23,42,.04)}
+    .pn-header-floating{
+      width:min(1180px,calc(100% - 48px));
+      margin:18px auto 0;
+      padding:12px 28px;
+      min-height:70px;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:18px;
+      background:#fff;
+      box-shadow:0 16px 45px rgba(15,23,42,.09);
+    }
+    .pn-header-transparent{background:rgba(255,255,255,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+    .pn-banner-editorial .pn-universal-hero-visual:not(.pn-has-photo){background:linear-gradient(155deg,#f8f4ed 0%,#e4d5c2 55%,#a8aaa2 100%)}
+    .pn-banner-product-focus .pn-universal-hero-visual:not(.pn-has-photo){background:radial-gradient(circle at 65% 35%,#fff 0%,#e0edfc 50%,#c3d5eb 100%)}
+    .pn-banner-gradient .pn-universal-hero-visual:not(.pn-has-photo){background:linear-gradient(135deg,#dbeafe 0%,#ede9fe 50%,#fce7f3 100%)}
+    @media(max-width:760px){
+      .pn-header-floating{width:calc(100% - 24px);margin:12px auto 0;padding:12px 16px;border-radius:14px}
     }
 
     .pn-site-header .brand{
@@ -2308,7 +2330,7 @@ export function renderUniversalSitePreview(
   <style>${universalRendererStyles(model.strategy)}</style>
 </head>
 <body>
-  <header class="pn-site-header">
+  <header class="pn-site-header pn-header-${model.strategy.design.headerStyle}">
     <a
       class="brand"
       href="#home"
