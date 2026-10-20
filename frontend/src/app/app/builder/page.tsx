@@ -955,6 +955,44 @@ export default function BuilderPage() {
     });
   }
 
+  async function executeCrmTextPlan(changes: Array<{field:string;value:string}>, elements: Array<{selector:string;tag:string;text:string}>): Promise<void> {
+    const frame = previewRef.current?.contentWindow;
+    if (!frame) throw new Error("A prévia do site ainda não está pronta.");
+    const candidates = (field: string) => elements.filter(el => {
+      if (field === "heading") return el.tag === "h1";
+      if (field === "eyebrow") return el.tag === "p" && /hero|eyebrow|subtitle|subtitulo/i.test(el.selector);
+      if (field === "introduction") return el.tag === "p";
+      return (el.tag === "a" || el.tag === "button") && /come[cç]|saiba|contato|agend|conhe[cç]|solicit|whatsapp|fale/i.test(el.text);
+    });
+    const operations = changes.map(change => {
+      const matching = candidates(change.field);
+      if (matching.length !== 1 || !change.value?.trim()) throw new Error("Não consegui identificar um elemento único para alterar: " + change.field + ".");
+      return { selector: matching[0].selector, text: change.value };
+    });
+    const edits = await new Promise<LiveEdit[]>((resolve, reject) => {
+      const id = "ai-edit-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      const finish = (result?: LiveEdit[], error?: string) => {
+        clearTimeout(timer); window.removeEventListener("message", onMessage);
+        if (error) reject(new Error(error)); else resolve(result || []);
+      };
+      const onMessage = (event: MessageEvent) => {
+        if (event.source !== frame || event.data?.type !== "pagenova-ai-text-result" || event.data.id !== id) return;
+        if (event.data.ok !== true || !Array.isArray(event.data.edits)) finish(undefined, "O editor não conseguiu aplicar a alteração com segurança.");
+        else finish(event.data.edits as LiveEdit[]);
+      };
+      window.addEventListener("message", onMessage);
+      const timer = window.setTimeout(() => finish(undefined, "O editor não respondeu à solicitação."), 2500);
+      frame.postMessage({ type: "pagenova-ai-text-operations", id, operations }, "*");
+    });
+    if (!edits.length || !project) throw new Error("Nenhuma alteração foi executada.");
+    const selectors = new Set(edits.map(edit => edit.selector));
+    const current = (project.liveEdits?.[activePage] || []).filter(edit => !selectors.has(edit.selector));
+    const updated = { ...project, liveEdits: { ...project.liveEdits, [activePage]: [...current, ...edits].slice(-100) } };
+    try { await savePageNovaProject(updated.id, updated); }
+    catch { throw new Error("O editor alterou a prévia, mas não conseguiu salvar. Atualize a página e tente novamente."); }
+    setProject(updated);
+  }
+
   async function tryDeterministicStyleCommand(raw: string): Promise<boolean> {
     if (!project?.pages[activePage] || revisionImage) return false;
     const input = raw.trim();
@@ -1097,21 +1135,20 @@ export default function BuilderPage() {
         throw new Error("A IA não retornou um plano de revisão válido.");
       }
 
-      // Railway renders CRM pages independently of SitePage. Apply supported
-      // single-target copy through the live editor (which persists its overlay).
-      // Reject unsupported/multi-target plans instead of silently claiming success.
+      // CRM pages are rendered by Railway; execute only supported operations
+      // against selectors found in the actual iframe, then await persistence.
       if (crmProjectId && crmPreviewHtml) {
         const changes = revisionPlan.contentChanges;
         const otherActions = revisionPlan.elementChanges.length +
           revisionPlan.sectionChanges.length + revisionPlan.headerChanges.length +
           revisionPlan.visualChanges.length + revisionPlan.institutionalChanges.length;
-        if (changes.length === 1 && otherActions === 0 &&
-            (changes[0].field === "heading" || changes[0].field === "eyebrow" || changes[0].field === "cta") &&
-            await tryLocalIframeCopy(changes[0].field, changes[0].value)) {
+        if (changes.length > 0 && otherActions === 0 && changes.every(change =>
+            ["heading", "eyebrow", "introduction", "cta"].includes(change.field))) {
+          await executeCrmTextPlan(changes, renderedElements);
           setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
           return;
         }
-        throw new Error("A IA entendeu o pedido, mas não conseguiu aplicá-lo com segurança neste template do CRM. Nenhuma alteração estrutural foi salva. Para textos específicos, use ‘Troque TEXTO ATUAL por TEXTO NOVO’. Para a marca, use ‘Mude o nome do site para LifeT’.");
+        throw new Error("A alteração solicitada exige recursos de edição estrutural ainda não suportados neste template. Nenhuma alteração foi salva.");
       }
 
       if (!revisionPlan) {
@@ -1206,7 +1243,7 @@ export default function BuilderPage() {
       await savePageNovaProject(updated.id, updated);
       setProject(updated); setInstruction(""); setRevisionImage(""); setPhase("ready");
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Não foi possível aplicar a alteração."); setPhase("error");
+      setError(cause instanceof Error ? cause.message : "Não foi possível aplicar a alteração."); setPhase("ready");
     } finally { setCurrentStep(null); }
   }
 
