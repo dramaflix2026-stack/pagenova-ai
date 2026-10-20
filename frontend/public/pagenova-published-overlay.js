@@ -7,14 +7,31 @@ function textNode(el){return el&&el.matches("h1,h2,h3,h4,h5,h6,p,li,blockquote,s
 function apply(edit){
  if(!edit||typeof edit.selector!=="string")return;
  const el=find(edit.selector);if(!el)return;
+ if(edit.href&&el.matches("a")&&/^(https:\/\/|mailto:|tel:|\/[^/])/.test(edit.href))
+  el.setAttribute("href",edit.href);
+ if(edit.imageUrl&&el.matches("img")&&(/^https:\/\//.test(edit.imageUrl)||/^data:image\/(png|jpeg|webp);base64,/.test(edit.imageUrl))){
+  el.src=edit.imageUrl;
+  el.removeAttribute("srcset");el.removeAttribute("sizes");
+  const picture=el.closest("picture");
+  if(picture)picture.querySelectorAll("source").forEach(source=>source.removeAttribute("srcset"));
+ }
  if(textNode(el)){
-  if(typeof edit.text==="string"&&edit.text)el.textContent=edit.text;
+  if(typeof edit.text==="string"&&edit.text&&edit.kind!=="section")el.textContent=edit.text;
   if(edit.font)el.style.setProperty("font-family",edit.font,"important");
-  if(Number.isFinite(edit.size))el.style.setProperty("font-size",edit.size+"px","important");
+  if(Number.isFinite(edit.size)&&edit.size>=10&&edit.size<=120)el.style.setProperty("font-size",edit.size+"px","important");
+  if(edit.kind==="text"&&edit.text&&el.matches("h1,h2,h3,h4,h5,h6")){
+   const size=Number(edit.size)||parseFloat(getComputedStyle(el).fontSize)||48;
+   el.style.setProperty("font-size","min("+Math.max(10,Math.min(120,size))+"px, max(28px, 8vw))","important");
+   el.style.setProperty("overflow-wrap","break-word","important");
+   el.style.setProperty("max-width","100%","important");
+  }
   if(/^#[a-f0-9]{6}$/i.test(edit.color||""))el.style.setProperty("color",edit.color,"important");
-  if(edit.textAlign)el.style.setProperty("text-align",edit.textAlign,"important");
+  if(["left","center","right"].includes(edit.textAlign))el.style.setProperty("text-align",edit.textAlign,"important");
   if(edit.fontWeight)el.style.setProperty("font-weight",String(edit.fontWeight),"important");
  }
+ if(/^#[a-f0-9]{6}$/i.test(edit.backgroundColor||""))el.style.setProperty("background-color",edit.backgroundColor,"important");
+ if(Number.isFinite(edit.borderRadius)&&edit.borderRadius>=0&&edit.borderRadius<=100)
+  el.style.setProperty("border-radius",edit.borderRadius+"px","important");
  if(Number.isFinite(edit.offsetX)&&Number.isFinite(edit.offsetY)&&(edit.offsetX||edit.offsetY)){
   el.style.setProperty("transform","translate3d("+edit.offsetX+"px,"+edit.offsetY+"px,0)","important");
  }
