@@ -990,7 +990,7 @@ export default function BuilderPage() {
     const selectors = new Set(edits.map(edit => edit.selector));
     const before = project.liveEdits?.[activePage] || [];
     const current = before.filter(edit => !selectors.has(edit.selector));
-    const merged = edits.map(edit => ({ ...(before.find(previous => previous.selector === edit.selector) || {}), ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || key === "kind" && value === "text" || value !== "" && value !== 0)) })) as LiveEdit[];
+    const merged = edits.map(edit => ({ ...(before.find(previous => previous.selector === edit.selector) || {}), ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || (key !== "kind" || value === "text") && value !== "" && value !== 0)) })) as LiveEdit[];
     const updated = { ...project,
       revisionHistory: [...(project.revisionHistory || []), { page: activePage, edits: before, at: new Date().toISOString() }].slice(-15),
       liveEdits: { ...project.liveEdits, [activePage]: [...current, ...merged].slice(-100) } };
