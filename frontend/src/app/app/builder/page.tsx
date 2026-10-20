@@ -1305,12 +1305,16 @@ export default function BuilderPage() {
         if (changes.length && !changes.every(change => ["heading", "eyebrow", "introduction", "cta"].includes(change.field)))
           throw new Error("A IA solicitou uma alteração de texto incompatível com este template.");
         const known = new Set(renderedElements.map(element => element.selector));
-        if (domOperations.some(op => !known.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
-        if (!changes.length && nextExtras.length === existingExtras.length && !domOperations.length) throw new Error("A IA não identificou nenhuma alteração aplicável aos elementos desta página. Nenhuma alteração foi salva.");
+        // A model may hallucinate a selector or return a stale DOM path.
+        // Never fail an otherwise valid multi-element edit because of one bad target.
+        const safeDomOperations = domOperations.filter(op => known.has(op.selector));
+        if (domOperations.length && !safeDomOperations.length && !changes.length && !structural.length)
+          throw new Error("A IA não encontrou elementos válidos para este pedido. Tente descrever os elementos pelo texto visível.");
+        if (!changes.length && nextExtras.length === existingExtras.length && !safeDomOperations.length) throw new Error("A IA não identificou nenhuma alteração aplicável aos elementos desta página. Nenhuma alteração foi salva.");
         // DOM selector operations take precedence; legacy text changes are merged only when they target other elements.
-        if (changes.length || domOperations.length) {
+        if (changes.length || safeDomOperations.length) {
           await executeCrmTextPlan(changes, renderedElements,
-            domOperations.length ? domOperations.map(op => ({ selector: op.selector, action: op.action,
+            safeDomOperations.length ? safeDomOperations.map(op => ({ selector: op.selector, action: op.action,
               ...(op.action === "text" ? { text: op.value } : { value: op.value }) })) : undefined,
             structural.length ? { before: existingExtras, after: nextExtras } : undefined);
         } else {
