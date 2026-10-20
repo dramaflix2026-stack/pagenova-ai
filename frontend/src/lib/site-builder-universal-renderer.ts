@@ -1693,6 +1693,27 @@ function universalRendererStyles(
       }
     }
 
+    /* Final mobile safeguards across all hero/header/section variants. */
+    @media(max-width:820px){
+      .pn-site-header nav{max-width:100%;min-width:0;overflow-wrap:anywhere}
+      .pn-site-header nav a{display:inline-flex;align-items:center;min-height:40px}
+      .pn-universal-hero-copy,.pn-universal-section-heading,
+      .pn-universal-section-content{min-width:0;overflow-wrap:anywhere}
+      .pn-universal-hero-inner{gap:28px}
+      .pn-universal-section .pn-universal-shell{align-items:stretch}
+      .pn-hero-full-bleed .pn-universal-hero-inner{position:relative;z-index:1}
+      .pn-hero-full-bleed .pn-universal-hero-copy{position:relative;z-index:2}
+    }
+    @media(max-width:560px){
+      .pn-site-header nav{gap:4px 14px}
+      .pn-site-header nav a{font-size:13px}
+      .pn-universal-hero-inner{padding-top:48px;padding-bottom:48px}
+      .hero h1{overflow-wrap:break-word;hyphens:auto}
+      .pn-universal-section-heading h2{overflow-wrap:break-word}
+      .pn-universal-section-content{padding:18px}
+      .pn-universal-hero-copy .btn{max-width:100%;white-space:normal;text-align:center}
+    }
+
     /* ==========================================================
        U5.6E.7 - UNIVERSAL SEMANTIC VISUAL COMPOSITIONS
        ========================================================== */
