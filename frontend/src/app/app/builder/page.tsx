@@ -1002,7 +1002,7 @@ export default function BuilderPage() {
     for (const edit of edits) {
       const previous = bySelector.get(edit.selector) || before.find(item => item.selector === edit.selector);
       bySelector.set(edit.selector, {
-        ...(previous || { selector: edit.selector, text: "", font: "", size: 0, color: "" }),
+        ...(previous || { selector: edit.selector }),
         ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || ((key !== "kind" || value === "text") && value !== "" && value !== 0))),
       } as LiveEdit);
     }
