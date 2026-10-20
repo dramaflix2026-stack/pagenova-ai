@@ -65,6 +65,7 @@ dashboardRouter.get(
       getFunnel(db, filters),
       getFinancialSnapshot(db, req.session!.workspaceId, filters.ownerUserId),
       getAttentionItems(db, {
+        workspaceId: req.session!.workspaceId,
         stalledNegotiationDays: preferences.stalledNegotiationDays,
         stalledSelectedDays: preferences.stalledSelectedDays,
         onlyOwnerUserId: leadVisibilityOwnerFilter(
