@@ -58,3 +58,11 @@ test("CRM structural edits are bounded to extra sections and undo snapshots", ()
   assert.match(builder, /sections: existingExtras/);
   assert.match(builder, /last\.sections \?/);
 });
+
+test("CRM AI planner returns exact selector operations and validates inventory", () => {
+  const route = readFileSync(join(root, "src/app/api/builder/generate/route.ts"), "utf8");
+  assert.match(route, /domOperations/);
+  assert.match(route, /const domActions = new Set/);
+  assert.match(builder, /known\.has\(op\.selector\)/);
+  assert.match(builder, /const bySelector = new Map<string, LiveEdit>/);
+});
