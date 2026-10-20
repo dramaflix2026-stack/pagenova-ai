@@ -71,6 +71,9 @@ async function railwayPublishedSite(slug: string, path: string[] | undefined) {
         const output = /<\/body>/i.test(enriched)
           ? enriched.replace(/<\/body>/i, overlay + "</body>")
           : enriched + overlay;
+        // Published edits live in a separate Supabase overlay and can change
+        // without a new Railway HTML publication. Never cache enriched HTML.
+        headers.set("cache-control", "no-store, max-age=0");
         headers.delete("content-length");
         return new NextResponse(output, { status: response.status, headers });
       }
