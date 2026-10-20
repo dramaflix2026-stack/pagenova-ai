@@ -725,7 +725,7 @@
     const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img";
     return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
       return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img,h1,h2,h3,h4,h5,h6") || el.children.length === 0);
-    }).slice(0, 180).map(function(el) {
+    }).slice(0, 360).map(function(el) {
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
         text: (el.innerText || el.textContent || "").trim().slice(0, 160),
