@@ -853,6 +853,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
       };
       revisionPlan?: {
         scope?: "page" | "site";
+        domOperations?: Array<{ selector?: string; action?: string; value?: string }>;
         contentChanges?: Array<{ field?: string; value?: string }>;
         institutionalChanges?: Array<{ field?: string; value?: string }>;
         visualChanges?: Array<{ field?: string; value?: string }>;
