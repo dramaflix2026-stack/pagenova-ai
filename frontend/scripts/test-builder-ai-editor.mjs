@@ -65,3 +65,12 @@ test("AI selector operations are validated and merged before persistence", () =>
   assert.match(builder, /validSelectors\.has\(op\.selector\)/);
   assert.match(builder, /const bySelector = new Map<string, LiveEdit>/);
 });
+
+test("AI image and link changes reject unsafe destinations", () => {
+  assert.match(editor, /invalid-link/);
+  assert.match(editor, /invalid-image/);
+  assert.match(editor, /edit\.href/);
+  assert.match(editor, /edit\.imageUrl/);
+  const route = readFileSync(join(root, "src/app/api/builder/generate/route.ts"), "utf8");
+  assert.match(route, /"link", "image"/);
+});
