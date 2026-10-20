@@ -643,7 +643,14 @@ function renderUniversalHero(
 
   const heroStyle = strategy.design.heroStyle;
   const density = strategy.design.density;
-  const heroPhoto = firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait);
+  // Match the leading photograph to the chosen composition: product/portfolio
+  // heroes prioritize actual work imagery, while editorial heroes prioritize
+  // the business and its people. Never invent or duplicate an image.
+  const heroPhoto = heroStyle === "product" || strategy.design.bannerStyle === "product-focus"
+    ? firstUniversalImage(project.institutional?.workPhoto, project.institutional?.businessPhoto, project.institutional?.portrait)
+    : heroStyle === "editorial"
+      ? firstUniversalImage(project.institutional?.portrait, project.institutional?.businessPhoto, project.institutional?.workPhoto)
+      : firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait);
 
   return `
     <section
