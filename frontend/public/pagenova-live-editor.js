@@ -715,7 +715,7 @@
   function editableInventory() {
     const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img";
     return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
-      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img") || el.children.length === 0);
+      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img,h1,h2,h3,h4,h5,h6") || el.children.length === 0);
     }).slice(0, 180).map(function(el) {
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
@@ -739,7 +739,7 @@
       const cs = getComputedStyle(el);
       const edit = { selector: op.selector, text: "", font: "", size: 0, color: "", kind: action === "text" ? "text" : "section" };
       if (action === "text") {
-        if (!el.matches(textSel) || el.children.length || typeof op.text !== "string" || !op.text.trim() || op.text.length > 2000) return { ok: false, reason: "invalid-text-target" };
+        if (!el.matches(textSel) || (el.children.length && !el.matches("h1,h2,h3,h4,h5,h6")) || typeof op.text !== "string" || !op.text.trim() || op.text.length > 2000) return { ok: false, reason: "invalid-text-target" };
         edit.text = op.text.trim(); edit.font = cs.fontFamily || "Arial";
         edit.size = Math.max(10, Math.min(120, Math.round(parseFloat(cs.fontSize) || 16)));
         edit.color = hex(cs.color);
