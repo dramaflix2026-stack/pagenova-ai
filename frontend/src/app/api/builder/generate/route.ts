@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import { SITE_PAGES, type SitePage, type SitePageKey } from "@/lib/site-builder";
+import { SITE_PAGES, type SitePage, type SitePageKey, type RevisionPlan } from "@/lib/site-builder";
 import { getSitePreset, SITE_PRESETS } from "@/lib/site-builder-presets";
 import { planUniversalSite } from "@/lib/site-builder-universal";
 
