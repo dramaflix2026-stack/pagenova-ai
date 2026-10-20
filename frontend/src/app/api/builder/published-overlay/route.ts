@@ -87,6 +87,7 @@ export async function POST(request: NextRequest) {
   }
   const payload = JSON.stringify({
     version: 1,
+    slug: match[1],
     projectId: project.id,
     ownerId: userId,
     pages: project.liveEdits || {},
