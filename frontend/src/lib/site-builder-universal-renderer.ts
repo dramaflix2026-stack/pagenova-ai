@@ -936,8 +936,21 @@ function renderUniversalGenericSection(
   const photoMarkup = sectionPhoto
     ? `<figure class="pn-universal-section-photo"><img src="${escapeUniversalHtml(sectionPhoto)}" alt="" loading="lazy" decoding="async"></figure>`
     : "";
+  const galleryPhotos = (section.kind === "gallery" || section.kind === "portfolio")
+    ? Array.from(new Set([
+        safeUniversalImage(project.institutional?.workPhoto),
+        safeUniversalImage(project.institutional?.businessPhoto),
+        safeUniversalImage(project.institutional?.portrait),
+      ].filter(Boolean)))
+    : [];
+  const galleryMarkup = galleryPhotos.length > 1
+    ? `<div class="pn-real-photo-grid" role="group" aria-label="Fotografias do projeto">${galleryPhotos.map((photo) =>
+        `<figure><img src="${escapeUniversalHtml(photo)}" alt="" loading="lazy" decoding="async"></figure>`
+      ).join("")}</div>`
+    : "";
   const visual =
     structuredItems ||
+    galleryMarkup ||
     photoMarkup ||
     universalSemanticVisual(section.kind);
 
@@ -1537,6 +1550,12 @@ function universalRendererStyles(
       background:var(--pn-card-background);
       box-shadow:var(--pn-card-shadow);
     }
+
+    .pn-real-photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}
+    .pn-real-photo-grid figure{margin:0;min-width:0;aspect-ratio:4/3;overflow:hidden;border-radius:16px;background:#e2e8f0}
+    .pn-real-photo-grid figure:first-child{grid-row:span 2;aspect-ratio:auto}
+    .pn-real-photo-grid img{width:100%;height:100%;object-fit:cover;display:block}
+    @media(max-width:560px){.pn-real-photo-grid{gap:8px}.pn-real-photo-grid figure{border-radius:10px}.pn-real-photo-grid figure:first-child{grid-row:auto;aspect-ratio:4/3}}
 
     .pn-universal-section-photo{margin:24px 0 0;border-radius:18px;overflow:hidden;background:#e2e8f0;aspect-ratio:16/10}
     .pn-universal-section-photo img{display:block;width:100%;height:100%;object-fit:cover}
