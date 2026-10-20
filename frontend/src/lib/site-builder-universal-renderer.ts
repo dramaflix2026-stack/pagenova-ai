@@ -1647,6 +1647,8 @@ function universalRendererStyles(
       color:#111827;
     }
 
+    .pn-universal-contact-pending{margin:8px auto 0;font-size:13px;color:var(--pn-muted)}
+    .pn-universal-footer{scroll-margin-top:100px}
     .pn-universal-footer{
       padding:34px 24px;
       border-top:1px solid var(--pn-border);
@@ -2464,8 +2466,11 @@ export function renderUniversalSitePreview(
     ${sections}
   </main>
 
-  <footer class="pn-universal-footer">
-    ${escapeUniversalHtml(project.name)}
+  <footer id="contato" class="pn-universal-footer">
+    <strong>${escapeUniversalHtml(project.name)}</strong>
+    ${universalContactItems(project).length === 0
+      ? '<p class="pn-universal-contact-pending">Informações de contato ainda não cadastradas.</p>'
+      : ""}
   </footer>
 
   <script>${universalRendererScript()}</script>
