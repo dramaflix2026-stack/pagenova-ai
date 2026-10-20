@@ -955,7 +955,7 @@ export default function BuilderPage() {
     });
   }
 
-  async function executeCrmTextPlan(changes: Array<{field:string;value:string}>, elements: Array<{selector:string;tag:string;text:string}>): Promise<void> {
+  async function executeCrmTextPlan(changes: Array<{field:string;value:string}>, elements: Array<{selector:string;tag:string;text:string}>, directOperations?: Array<{selector:string;action:string;value?:string;text?:string}>): Promise<void> {
     const frame = previewRef.current?.contentWindow;
     if (!frame) throw new Error("A prévia do site ainda não está pronta.");
     const candidates = (field: string) => elements.filter(el => {
@@ -964,7 +964,7 @@ export default function BuilderPage() {
       if (field === "introduction") return el.tag === "p";
       return (el.tag === "a" || el.tag === "button") && /come[cç]|saiba|contato|agend|conhe[cç]|solicit|whatsapp|fale/i.test(el.text);
     });
-    const operations = changes.map(change => {
+    const operations = directOperations || changes.map(change => {
       const matching = candidates(change.field);
       if (!matching.length || !change.value?.trim()) throw new Error("Não consegui identificar um elemento editável para alterar: " + change.field + ".");
       // A página pode ter H1 duplicado para desktop/mobile. Preferir o primeiro H1 renderizado.
@@ -1039,6 +1039,25 @@ export default function BuilderPage() {
     // Do not partially apply multi-action commands we cannot interpret reliably.
     if ((wantsColor && !color) || (sizeMatch && (!size || size < 8 || size > 160))) return false;
     if (/(?:aument|dimin|maior|menor)/i.test(normalized) && !sizeMatch) return false;
+    if (crmPreviewHtml) {
+      const inventory = await readRenderedElementInventory();
+      const matches = inventory.filter(el => match[1].includes("h1") ? el.tag === "h1" :
+        match[1].includes("hero-lead") ? el.tag === "p" :
+        match[1].includes(".btn") ? (el.tag === "a" || el.tag === "button") : false);
+      if (!matches.length || (matches.length > 1 && !match[1].includes("h1"))) return false;
+      const target = matches[0];
+      const actions = [
+        color ? { selector: target.selector, action: "color", value: color } : null,
+        size ? { selector: target.selector, action: "size", value: String(size) } : null,
+        fontMatch ? { selector: target.selector, action: "font", value: fontMatch[1] } : null,
+        alignMatch ? { selector: target.selector, action: "align", value: ({ centro: "center", esquerda: "left", direita: "right" } as const)[alignMatch[1] as "centro"|"esquerda"|"direita"] } : null,
+        textMatch ? { selector: target.selector, action: "text", text: textMatch[1] } : null,
+      ].filter((op): op is NonNullable<typeof op> => op !== null);
+      if (actions.length !== 1) return false;
+      await executeCrmTextPlan([], inventory, actions);
+      setInstruction(""); setError(""); setPhase("ready");
+      return true;
+    }
     const selector = match[1];
     const current = [...(project.liveEdits?.[activePage] || [])];
     const index = current.findIndex(edit => edit.selector === selector && !edit.ghostId);
