@@ -707,6 +707,19 @@
       img.src=item.src;
     });
   }
+  // Read-only element inventory for a future selector-based AI revision executor.
+  // The model should target these stable selectors rather than guessing template classes.
+  function editableInventory() {
+    const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img";
+    return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
+      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style");
+    }).slice(0, 180).map(function(el) {
+      const selector = path(el);
+      return { selector: selector, tag: el.tagName.toLowerCase(),
+        text: (el.innerText || el.textContent || "").trim().slice(0, 160),
+        image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined };
+    }).filter(function(item) { return item.selector && item.selector.length <= 500; });
+  }
   // Conservative zero-API edits on the real Railway HTML. Only unique targets.
   function applyLocalCommand(command) {
     if (!command || !["heading", "cta", "eyebrow", "replace"].includes(command.field) || typeof command.value !== "string" || !command.value.trim() || command.value.length > 180) return false;
@@ -754,6 +767,12 @@
       return el.children.length === 0;
     }); } catch (_) { return false; }
     // Do not choose a random element if the target is ambiguous.
+    // A generated CRM template can contain multiple H1s (desktop/mobile or
+    // secondary sections). Select the first visible H1 in main, deterministically.
+    if (command.field === "heading" && nodes.length > 1) {
+      const primary = nodes.find(function(el) { return !!el.closest("main") && !!el.closest("section,header"); }) || nodes[0];
+      nodes = [primary];
+    }
     if (nodes.length !== 1) return false;
     const el = nodes[0], selector = path(el), cs = getComputedStyle(el);
     if (!selector || !find(selector) || find(selector) !== el) return false;
@@ -770,6 +789,9 @@
   }
   window.addEventListener("message", function(event) {
     if (event.source !== parent && event.source !== window) return;
+    if (event.data?.type === "pagenova-editor-inventory-request") {
+      parent.postMessage({ type: "pagenova-editor-inventory-result", id: event.data.id, elements: editableInventory() }, "*");
+    }
     if (event.data?.type === "pagenova-local-command") {
       const ok = applyLocalCommand(event.data.command);
       parent.postMessage({ type: "pagenova-local-command-result", id: event.data.id, ok: ok }, "*");
