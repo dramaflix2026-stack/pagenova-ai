@@ -345,7 +345,7 @@ Em MODO DE REVISÃO:
 - scope deve ser "page", exceto quando o usuário pedir explicitamente uma alteração global no site;
 - cada categoria não solicitada deve ser [];
 - não invente alterações para preencher o plano;
-- contentChanges registra mudanças em eyebrow, heading, introduction ou cta;
+- domOperations: para templates CRM use os seletores exatos de siteContext.renderedElements, com selector, action e value. Prefira este campo para texto, cor, fundo, fonte, tamanho, alinhamento e bordas. Use [] quando não aplicável. Nunca invente seletores. Para cor use #RRGGBB. Para tamanho e raio use pixels numéricos. Não misture com outras categorias.\n- contentChanges registra mudanças em eyebrow, heading, introduction ou cta;
 - institutionalChanges registra mudanças em role, audience, offer, process ou proof;
 - visualChanges registra mudanças em heroLayout, heroAlignment, heroContentWidth, imageFocus, density ou cardStyle;
 - headerChanges registra mudanças em logoPosition, menuStyle ou density;
@@ -530,6 +530,18 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
                   type: "string",
                   enum: ["page", "site"],
                 },
+                domOperations: {
+                  type: "array", maxItems: 12,
+                  items: {
+                    type: "object", additionalProperties: false,
+                    properties: {
+                      selector: { type: "string" },
+                      action: { type: "string", enum: ["text", "color", "background", "font", "size", "align", "radius"] },
+                      value: { type: "string" },
+                    },
+                    required: ["selector", "action", "value"],
+                  },
+                },
                 contentChanges: {
                   type: "array",
                   maxItems: 8,
@@ -687,6 +699,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
               },
               required: [
                 "scope",
+                "domOperations",
                 "contentChanges",
                 "institutionalChanges",
                 "visualChanges",
@@ -927,6 +940,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
     if (
       !rawRevisionPlan ||
       !["page", "site"].includes(String(rawRevisionPlan.scope)) ||
+      !Array.isArray(rawRevisionPlan.domOperations) ||
       !Array.isArray(rawRevisionPlan.contentChanges) ||
       !Array.isArray(rawRevisionPlan.institutionalChanges) ||
       !Array.isArray(rawRevisionPlan.visualChanges) ||
@@ -1063,8 +1077,16 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
           body: string;
         } => change !== null,
       );
+    const domActions = new Set(["text", "color", "background", "font", "size", "align", "radius"]);
+    const domOperations: NonNullable<RevisionPlan["domOperations"]> = [];
+    for (const operation of rawRevisionPlan.domOperations.slice(0, 12)) {
+      if (typeof operation?.selector !== "string" || operation.selector.length > 500 ||
+          !domActions.has(String(operation.action)) || typeof operation.value !== "string" || operation.value.length > 2000) continue;
+      domOperations.push({ selector: operation.selector, action: operation.action, value: operation.value });
+    }
     const revisionPlan = {
       scope: rawRevisionPlan.scope as "page" | "site",
+      domOperations,
       contentChanges: rawRevisionPlan.contentChanges,
       institutionalChanges: normalizedInstitutionalChanges,
       visualChanges: rawRevisionPlan.visualChanges,
