@@ -742,7 +742,7 @@
     for (const op of operations) {
       if (!op || typeof op.selector !== "string" || op.selector.length > 500) return { ok: false, reason: "invalid-operation" };
       const el = find(op.selector);
-      if (!el || !el.getClientRects().length || path(el) !== op.selector || el.closest("#pn-edit-bar")) return { ok: false, reason: "target-not-editable" };
+      if (!el || !el.getClientRects().length || path(el) !== op.selector || el.closest("#pn-edit-bar") || document.querySelectorAll(op.selector).length !== 1) return { ok: false, reason: "target-not-editable" };
       const action = op.action || "text";
       if (!["text","color","font","size","align","background","radius","link","image"].includes(action)) return { ok: false, reason: "unsupported-action" };
       const cs = getComputedStyle(el);
