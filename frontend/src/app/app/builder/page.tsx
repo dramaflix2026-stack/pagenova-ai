@@ -964,13 +964,21 @@ export default function BuilderPage() {
       if (field === "introduction") return el.tag === "p";
       return (el.tag === "a" || el.tag === "button") && /come[cç]|saiba|contato|agend|conhe[cç]|solicit|whatsapp|fale/i.test(el.text);
     });
-    const operations = [...(directOperations || []), ...changes.filter(change => !directOperations?.some(op => op.action === "text" && candidates(change.field).some(el => el.selector === op.selector))).map(change => {
-      const matching = candidates(change.field);
-      if (!matching.length || !change.value?.trim()) throw new Error("Não consegui identificar um elemento editável para alterar: " + change.field + ".");
-      // A página pode ter H1 duplicado para desktop/mobile. Preferir o primeiro H1 renderizado.
-      if (matching.length > 1 && change.field !== "heading") throw new Error("Há mais de um elemento possível para alterar: " + change.field + ".");
-      return { selector: matching[0].selector, action: "text", text: change.value };
-    })];
+    // Selector-targeted operations are authoritative. Legacy semantic changes
+    // are fallback-only: guessing which paragraph to edit can corrupt a page.
+    const operations: Array<{selector:string;action:string;value?:string;text?:string}> = [...(directOperations || [])];
+    if (!operations.length) {
+      for (const change of changes) {
+        const matching = candidates(change.field);
+        if (!change.value?.trim()) continue;
+        if (!matching.length) throw new Error("Não consegui identificar um elemento editável para alterar: " + change.field + ".");
+        if (matching.length > 1 && change.field !== "heading")
+          throw new Error("Há mais de um elemento possível para alterar: " + change.field + ".");
+        operations.push({ selector: matching[0].selector, action: "text", text: change.value });
+      }
+    }
+    if (!operations.length) throw new Error("Nenhuma alteração segura foi identificada.");
+    if (operations.length > 36) throw new Error("A IA solicitou mais de 36 alterações. Divida o pedido em duas etapas.");
     const edits = await new Promise<LiveEdit[]>((resolve, reject) => {
       const id = "ai-edit-" + Date.now() + "-" + Math.random().toString(36).slice(2);
       const finish = (result?: LiveEdit[], error?: string) => {
