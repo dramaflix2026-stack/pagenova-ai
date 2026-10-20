@@ -1061,6 +1061,12 @@ export default function BuilderPage() {
 
       const revisionPlan = result.revisionPlan;
 
+      // CRM pages are rendered by Railway. Updating the local SitePage alone
+      // does not change that HTML and must never be reported as a successful edit.
+      if (crmProjectId && crmPreviewHtml) {
+        throw new Error("A IA interpretou o pedido, mas esta alteração ainda não possui execução segura no template do CRM. Nenhuma mudança foi aplicada. Para textos específicos, use ‘Troque TEXTO ATUAL por TEXTO NOVO’; para a marca, use ‘Mude o nome do site para LifeT’.");
+      }
+
       if (!revisionPlan) {
         throw new Error("A IA não retornou um plano de revisão válido.");
       }
