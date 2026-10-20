@@ -614,7 +614,7 @@ export default function BuilderPage() {
           proof: site.institutional.proof || "",
         } : undefined,
         currentHeaderDirection: site.headerDirection || undefined,
-        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
+        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "",\n        siteContext: editInstruction ? JSON.stringify({ pages: Object.fromEntries(Object.entries(site.pages).map(([pageKey, page]) => [pageKey, { heading: page.heading, eyebrow: page.eyebrow, introduction: page.introduction, cta: page.cta, sections: page.sections?.map(section => ({ title: section.title, kind: section.kind })) }])), activePage: key, liveEdits: site.liveEdits?.[key] || [], visualDirection: site.visualDirection, headerDirection: site.headerDirection }).slice(0, 12000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "N├úo foi poss├¡vel gerar a p├ígina.");
