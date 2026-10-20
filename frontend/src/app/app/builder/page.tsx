@@ -1071,6 +1071,10 @@ export default function BuilderPage() {
     const fontMatch = normalized.match(/(?:fonte|tipografia)\s+(?:para\s+|por\s+|em\s+)?(poppins|inter|arial|roboto|montserrat|georgia)\b/);
     const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b/);
     const textMatch = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
+    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[1]) ? "center" : /esquerda/.test(alignMatch[1]) ? "left" : "right") : undefined;
+    // Unquoted copy plus styling is ambiguous: never insert the styling instruction
+    // into the headline. Let the planner handle that case.
+    if (!textMatch && /(?:altere|mude|troque|reescreva)\\s+(?:o\\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
     if (!color && !(size && size >= 8 && size <= 160) && !fontMatch && !alignMatch && !textMatch) return false;
     // Multiple targets or unrecognized actions must be handled as a complete AI revision.
     if (targets.filter(([pattern]) => pattern.test(normalized)).length !== 1) return false;
@@ -1089,10 +1093,10 @@ export default function BuilderPage() {
         color ? { selector: target.selector, action: "color", value: color } : null,
         size ? { selector: target.selector, action: "size", value: String(size) } : null,
         fontMatch ? { selector: target.selector, action: "font", value: fontMatch[1] } : null,
-        alignMatch ? { selector: target.selector, action: "align", value: ({ centro: "center", esquerda: "left", direita: "right" } as const)[alignMatch[1] as "centro"|"esquerda"|"direita"] } : null,
+        alignMatch ? { selector: target.selector, action: "align", value: alignValue } : null,
         textMatch ? { selector: target.selector, action: "text", text: textMatch[1] } : null,
       ].filter((op): op is NonNullable<typeof op> => op !== null);
-      if (actions.length !== 1) return false;
+      if (!actions.length) return false;
       await executeCrmTextPlan([], inventory, actions);
       setInstruction(""); setError(""); setPhase("ready");
       return true;
