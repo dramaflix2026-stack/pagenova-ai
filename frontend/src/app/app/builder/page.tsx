@@ -986,7 +986,7 @@ export default function BuilderPage() {
     // Brand rename is a first-class site operation, not a literal text replacement.
     // Reuse the CRM configuration save so navigation, SEO and published HTML agree.
     if (!revisionImage && crmProjectId) {
-      const brandRename = instruction.trim().match(/^(?:(?:mude|troque|altere|substitua|renomeie|mudar|trocar|alterar)\\s+)?(?:o\\s+)?(?:nome\\s+(?:do\\s+)?(?:projeto|site|neg[oó]cio|empresa|marca)|nome\\s+da\\s+(?:marca|empresa)|marca|nome\\s+novo\\s+projeto)\\s+(?:de\\s+[^\\n]{1,100}?\\s+)?(?:para|por|pra|:|=)\\s*["“”']?(.+?)["“”']?\\s*[.!]?$/i);
+      const brandRename = instruction.trim().match(/^(?:(?:mude|troque|altere|substitua|renomeie|mudar|trocar|alterar)\s+)?(?:o\s+)?(?:nome\s+(?:do\s+)?(?:projeto|site|neg[oó]cio|empresa|marca)|nome\s+da\s+(?:marca|empresa)|marca|nome\s+novo\s+projeto)\s+(?:de\s+[^\n]{1,100}?\s+)?(?:para|por|pra|:|=)\s*["“”']?(.+?)["“”']?\s*[.!]?$/i);
       if (brandRename) {
         await saveProjectBrand(brandRename[1].trim());
         return;
