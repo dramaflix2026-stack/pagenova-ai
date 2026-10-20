@@ -1008,8 +1008,8 @@ export default function BuilderPage() {
     if (local?.kind === "replace" && crmPreviewHtml) {
       const applied = await tryLocalIframeCopy("replace", local.to, local.from);
       if (applied) { setInstruction(""); setError(""); return; }
-      setError("Não encontrei uma correspondência única para o texto na prévia. Nenhuma alteração foi aplicada e nenhuma chamada de IA foi feita. Selecione o texto diretamente no editor ou especifique onde ele aparece.");
-      return;
+      // No unique match: delegate to the AI revision planner instead of blocking the user.
+      // The AI receives the existing project page and requested instruction below.
     }
     if (local?.kind === "text" && crmPreviewHtml) {
       // O iframe gera a mesma LiveEdit usada pelo editor visual e pela publicacao.
