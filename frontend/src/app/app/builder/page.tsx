@@ -888,6 +888,9 @@ export default function BuilderPage() {
     | null {
     const input = raw.trim();
     const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
+    // Explicit quoted source/target, optionally scoped to the main heading.
+    const quotedReplacement = input.match(/^(?:troque|mude|altere|substitua)\s+(?:o\s+)?(?:texto\s+)?["'“”](.{2,120}?)["'“”]\s+(?:por|para|pra)\s+["'“”](.{2,160}?)["'“”](?:\s+(?:no|na|do|da)\s+(?:t[ií]tulo(?:\s+principal)?|cabe[cç]alho|texto))?\s*[.!]?$/i);
+    if (quotedReplacement) return { kind: "replace", from: quotedReplacement[1].trim(), to: quotedReplacement[2].trim() };
     // Understand natural, even imperfect, requests to replace visible copy.
     // Example: "Troquei o: novo projeto do título para Tcar".
     const describedReplacement = input.match(/^(?:troquei|troque|mude|altere|substitua|mudar|trocar)\s+(?:o\s*:?\s*|a\s*:?\s*)?["“”']?(.{3,120}?)["“”']?\s+(?:do|no|na)\s+(?:t[ií]tulo|cabe[cç]alho|site|texto)(?:\s+principal)?\s+(?:para|por|pra)\s+["“”']?(.{2,160}?)["“”']?\s*[.!]?$/i);
