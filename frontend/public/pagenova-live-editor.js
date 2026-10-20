@@ -278,6 +278,15 @@
     if (Number.isFinite(edit.borderRadius) && edit.borderRadius >= 0 && edit.borderRadius <= 100) el.style.setProperty("border-radius", edit.borderRadius + "px", "important");
     if (edit.font && el.matches(textSel)) el.style.setProperty("font-family", edit.font, "important");
     if (edit.size && el.matches(textSel)) el.style.setProperty("font-size", edit.size + "px", "important");
+    // AI-rewritten headlines can be substantially longer than the original.
+    // Constrain the saved heading font size to the available viewport, rather
+    // than forcing a fixed desktop-sized font on a narrow phone screen.
+    if (edit.kind === "text" && typeof edit.text === "string" && el.matches("h1,h2,h3,h4,h5,h6")) {
+      const originalSize = Math.max(10, Math.min(120, Number(edit.size) || parseFloat(getComputedStyle(el).fontSize) || 48));
+      el.style.setProperty("font-size", "min(" + originalSize + "px, max(28px, 8vw))", "important");
+      el.style.setProperty("overflow-wrap", "break-word", "important");
+      el.style.setProperty("max-width", "100%", "important");
+    }
     if (edit.color && el.matches(textSel)) el.style.setProperty("color", edit.color, "important");
     if (edit.textAlign && el.matches(textSel)) el.style.setProperty("text-align", edit.textAlign, "important");
     if (edit.fontWeight && el.matches(textSel)) el.style.setProperty("font-weight", String(edit.fontWeight), "important");
