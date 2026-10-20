@@ -782,18 +782,22 @@
       }
       const existing = pendingBySelector.get(op.selector);
       if (existing) {
-        // Merge individual properties without clearing fields from earlier operations.
-        // A text rewrite also carries the original font and color as defaults;
-        // preserve explicitly requested styling when both target one element.
-        const merged = Object.assign({}, existing, edit);
-        if (action !== "text") {
-          merged.text = existing.text;
-          merged.kind = existing.kind === "text" ? "text" : edit.kind;
+        // Combine only the property explicitly requested by this operation.
+        // In particular, a text operation must not reset a prior color/size.
+        if (action === "text") {
+          existing.text = edit.text;
+          existing.kind = "text";
+          if (!existing.font) existing.font = edit.font;
+          if (!existing.size) existing.size = edit.size;
+          if (!existing.color) existing.color = edit.color;
+        } else {
+          const key = {
+            color: "color", background: "backgroundColor", font: "font",
+            size: "size", align: "textAlign", radius: "borderRadius",
+            link: "href", image: "imageUrl"
+          }[action];
+          if (key) existing[key] = edit[key];
         }
-        for (const key of ["font", "color", "size", "backgroundColor", "textAlign", "href", "imageUrl", "borderRadius"]) {
-          if (edit[key] === "" || edit[key] === 0 || edit[key] === undefined) merged[key] = existing[key];
-        }
-        Object.assign(existing, merged);
       } else {
         pendingBySelector.set(op.selector, edit);
         pending.push(edit);
