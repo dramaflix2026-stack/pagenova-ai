@@ -495,6 +495,7 @@ function buildDesign(
     bannerStyle: "gradient",
     headerStyle: "classic",
     motionStyle: "subtle",
+    cardStyle: "bordered",
     defaultFont: "Poppins",
   };
 }
