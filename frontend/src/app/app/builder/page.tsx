@@ -907,10 +907,23 @@ export default function BuilderPage() {
     | { kind: "text"; field: "heading" | "eyebrow" | "cta"; value: string }
     | { kind: "logo"; value: "left" | "center" | "right" }
     | { kind: "replace"; from: string; to: string }
+    | { kind: "heading-format"; value: string; align?: "left" | "center" | "right"; color?: string }
     | null {
     const input = raw.trim();
     const normalized = input.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[.!?]+$/g, "").trim();
     // Natural direct heading edits should target the rendered heading, not literal text search.
+    // Split quoted headline copy from formatting instructions instead of
+    // accidentally saving "e deixe o texto centralizado..." as part of H1.
+    const compoundHeading = input.match(/^(?:troque|mude|altere|substitua|coloque|defina)\\s+(?:o\\s+)?(?:texto\\s+do\\s+)?t[ií]tulo\\s+principal(?:\\s+(?:do\\s+site|da\\s+p[aá]gina|do\\s+banner))?\\s+(?:para|por|como)\\s+[“"'](.{2,180}?)[”"']\\s*(?:,?\\s*e\\s+(.+))?\\s*[.!]?$/i);
+    if (compoundHeading && compoundHeading[2]) {
+      const instructions = compoundHeading[2].toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+      const align = /(?:centralizad[oa]|alinhad[oa]\\s+(?:ao\\s+)?centro)/.test(instructions) ? "center"
+        : /alinhad[oa]\\s+(?:a\\s+)?esquerda/.test(instructions) ? "left"
+        : /alinhad[oa]\\s+(?:a\\s+)?direita/.test(instructions) ? "right" : undefined;
+      const namedColor = instructions.match(/(?:cor\\s+|em\\s+)(azul|verde|vermelh[oa]|pret[oa]|branc[oa])\\b/);
+      const color = namedColor ? ({ azul: "#2563eb", verde: "#16a34a", vermelho: "#dc2626", vermelha: "#dc2626", preto: "#111111", preta: "#111111", branco: "#ffffff", branca: "#ffffff" } as Record<string,string>)[namedColor[1]] : undefined;
+      if (align || color) return { kind: "heading-format", value: compoundHeading[1].trim(), align, color };
+    }
     const directHeading = input.match(/^(?:troque|mude|altere|substitua|coloque|defina)\s+(?:o\s+)?(?:texto\s+do\s+)?t[ií]tulo\s+principal(?:\s+(?:do\s+site|da\s+p[aá]gina|do\s+banner))?\s+(?:para|por|como)\s+['"“”]?(.{2,180}?)['"“”]?\s*[.!]?$/i);
     if (directHeading) return { kind: "text", field: "heading", value: directHeading[1].trim() };
     // Explicit quoted source/target, optionally scoped to the main heading.
@@ -1164,6 +1177,21 @@ export default function BuilderPage() {
         setProject(updated); setInstruction(""); setError("");
         return;
       } catch { setError("Falha ao salvar alinhamento; nenhuma chamada de IA foi feita."); return; }
+    }
+    if (crmPreviewHtml && local?.kind === "heading-format") {
+      try {
+        const headings = (await readRenderedElementInventory()).filter(el => el.tag === "h1");
+        if (headings.length !== 1) throw new Error("Não consegui identificar um título principal único para editar.");
+        const target = headings[0].selector;
+        const ops: Array<{selector:string;action:string;value?:string;text?:string}> = [{ selector: target, action: "text", text: local.value }];
+        if (local.align) ops.push({ selector: target, action: "align", value: local.align });
+        if (local.color) ops.push({ selector: target, action: "color", value: local.color });
+        await executeCrmTextPlan([], headings, ops);
+        setInstruction(""); setError(""); setPhase("ready"); return;
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Falha ao editar o título.");
+        setPhase("ready"); return;
+      }
     }
     if (crmPreviewHtml && (local?.kind === "replace" || local?.kind === "text")) {
       const inventory = await readRenderedElementInventory();
