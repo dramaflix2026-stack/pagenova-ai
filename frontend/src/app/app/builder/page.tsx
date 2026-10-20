@@ -1768,15 +1768,21 @@ export default function BuilderPage() {
             <p className="mt-2 text-sm text-white/50">{phase==="generating"?"Criando seu site…":phase==="ready"?"Site pronto para revisão.":"A criação foi interrompida."}</p>
           </div>
           <form id="pagenova-revision-form" onSubmit={revise} className="space-y-3 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-4">
-            <label htmlFor="builder-change" className="block text-sm font-semibold text-emerald-200">✨ Converse com a IA</label>
-            <p className="mx-auto max-w-[40ch] text-xs leading-5 text-white/50">Peça mudanças em textos, cores e seções. Ajustes simples podem ser feitos sem nova geração.</p>
+            <label htmlFor="builder-change" className="block text-base font-semibold text-emerald-200">✨ Edite seu site com IA</label>
+            <p className="text-sm leading-6 text-white/65">Descreva o que deseja mudar. Você pode pedir ajustes de textos, palavras, cores, fontes, tamanhos, botões, seções e imagens. A IA tentará preservar o restante do site.</p>
+            <div className="flex flex-wrap gap-2" aria-label="Exemplos de alterações com IA">{[
+              "Aumente o tamanho do título principal",
+              "Mude a cor dos botões para azul",
+              "Reescreva os textos dos serviços",
+              "Troque a imagem principal por uma foto mais profissional",
+            ].map(example=><button type="button" key={example} onClick={()=>setInstruction(example)} className="rounded-full border border-emerald-400/25 bg-emerald-400/[.07] px-3 py-2 text-left text-xs text-emerald-100 hover:bg-emerald-400/15">{example}</button>)}</div>
             <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
               onPaste={pasteRevisionImage} rows={4}
-              placeholder="Ex.: Deixe os títulos mais diretos e melhore os serviços."
+              placeholder="Ex.: Na página Início, aumente o título principal para 48px, use a fonte Poppins e troque a imagem do banner por uma foto de academia."
               className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-left text-sm outline-none focus:border-emerald-400" />
             <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
               className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#08130e] disabled:opacity-40">
-              {phase==="generating"?"Aguarde a geração":"Enviar instrução →"}
+              {phase==="generating"?"Aguarde a geração":"Aplicar alterações com IA →"}
             </button>
             {revisionImage&&<button type="button" onClick={()=>setRevisionImage("")} className="text-xs text-emerald-300">Remover print anexado</button>}
             {revisionImageError&&<p role="alert" className="text-xs text-red-300">{revisionImageError}</p>}
@@ -1802,11 +1808,11 @@ export default function BuilderPage() {
           </button>}
           <p className="mx-auto max-w-[46ch] text-xs text-white/35">Projeto salvo. Use a prévia em nova aba para revisar o site antes da publicação.</p>
         </aside>
-        <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/40">Duplo clique no texto para editar</span></div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-3">
-            <label className="flex min-w-0 max-w-full flex-wrap items-center gap-2 text-xs text-white/70"><span>Estilo do site</span><select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="min-w-0 max-w-full rounded-lg bg-white/10 p-2 text-white disabled:opacity-50"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option><option className="text-black" value="vertice-corporate">Modelo 4 · Vértice Corporativo</option><option className="text-black" value="vertice-premium">Modelo 5 · Vértice Premium</option><option className="text-black" value="restaurant-premium">Restaurante · Especializado</option><option className="text-black" value="real-estate-premium">Imobiliária · Especializado</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex gap-1" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
+        <section className="min-w-0 overflow-hidden rounded-[26px] border border-white/10 bg-[#0d1110] shadow-[0_22px_80px_rgba(0,0,0,.28)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 p-4"><div className="flex flex-wrap gap-2">{SITE_PAGES.map(({ key, label }) => <button key={key} onClick={() => setActivePage(key)} disabled={!project.pages[key]} className={`rounded-lg px-3 py-2 text-sm disabled:opacity-30 ${activePage === key ? "bg-emerald-400 text-black" : "bg-white/5 text-white/70"}`}>{label}</button>)}</div><span className="text-xs text-white/50">Toque duas vezes para editar manualmente</span></div>
+          <div className="flex flex-col gap-3 border-b border-white/10 p-3 sm:p-4">
+            <label className="flex min-w-0 flex-col gap-2 text-xs font-medium text-white/70 sm:flex-row sm:items-center"><span>Modelo visual</span><select aria-label="Template visual do site" value={project.templateId || "frigolog-universal"} onChange={(e) => void changeSiteTemplate(e.target.value as SiteTemplateId)} disabled={!crmProjectId||phase==="generating"||switchingTemplate||publishing} className="w-full min-w-0 rounded-lg border border-white/10 bg-[#252a28] p-3 text-sm text-white disabled:opacity-50 sm:w-auto"><option className="text-black" value="frigolog-universal">Modelo 1 · Original</option><option className="text-black" value="muse-editorial">Modelo 2 · Muse Editorial</option><option className="text-black" value="atelier-norte">Modelo 3 · Atelier Norte</option><option className="text-black" value="vertice-corporate">Modelo 4 · Vértice Corporativo</option><option className="text-black" value="vertice-premium">Modelo 5 · Vértice Premium</option><option className="text-black" value="restaurant-premium">Restaurante · Especializado</option><option className="text-black" value="real-estate-premium">Imobiliária · Especializado</option></select>{switchingTemplate&&<span role="status" className="ml-2 text-emerald-300">Aplicando modelo...</span>}</label>
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Tamanho da prévia">{(["desktop", "tablet", "celular"] as const).map((mode) => <button type="button" key={mode} aria-pressed={viewport === mode} onClick={() => setViewport(mode)} className={`rounded-lg px-3 py-2 text-xs capitalize ${viewport === mode ? "bg-emerald-400 text-black" : "bg-white/10 text-white"}`}>{mode}</button>)}</div>
               <button type="button" disabled={!project.pages[activePage]} onClick={openPreviewInNewTab} className="rounded-lg border border-emerald-400/35 bg-emerald-400/10 px-3 py-2 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-400/15 disabled:opacity-40">
                 Abrir prévia em nova aba ↗
               </button>
@@ -1830,7 +1836,7 @@ export default function BuilderPage() {
             </button>
             <button type="button" onClick={()=>{inlineImageKindRef.current="hero";inlineImageInputRef.current?.click();}}
               disabled={uploadingImage||publishing}
-              className="ml-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
+              className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50 sm:ml-2 sm:mt-0">
               {uploadingImage?"Carregando imagem...":"🖼 Trocar imagem do banner"}
             </button>
             {sectionPickerOpen&&<div role="dialog" aria-label="Escolher uma seção" className="mt-3 w-full max-w-md rounded-2xl border border-emerald-400/25 bg-[#142019] p-3 shadow-xl">
