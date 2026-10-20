@@ -1307,6 +1307,12 @@ export default function BuilderPage() {
         const known = new Set(renderedElements.map(element => element.selector));
         // A model may hallucinate a selector or return a stale DOM path.
         // Never fail an otherwise valid multi-element edit because of one bad target.
+        const unknownDomOperations = domOperations.filter(op => !known.has(op.selector));
+        // An instruction spanning multiple targets must not silently succeed
+        // after dropping operations. Reject it before applying any edits.
+        if (unknownDomOperations.length) {
+          throw new Error("A IA identificou " + unknownDomOperations.length + " elemento(s) fora da prévia atual. Nenhuma alteração deste comando foi aplicada. Tente novamente com os elementos visíveis.");
+        }
         const safeDomOperations = domOperations.filter(op => known.has(op.selector));
         if (domOperations.length && !safeDomOperations.length && !changes.length && !structural.length)
           throw new Error("A IA não encontrou elementos válidos para este pedido. Tente descrever os elementos pelo texto visível.");
