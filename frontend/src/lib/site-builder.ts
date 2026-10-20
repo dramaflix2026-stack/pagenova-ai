@@ -49,6 +49,8 @@ export type RevisionPlan = {
     value: string;
   }>;
 
+  domOperations?: Array<{ selector: string; action: "text" | "color" | "background" | "font" | "size" | "align" | "radius"; value: string }>;
+
   institutionalChanges: Array<{
     field: "role" | "audience" | "offer" | "process" | "proof";
     value: string;
