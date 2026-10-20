@@ -74,7 +74,10 @@ export type UniversalSectionPlan = {
 
 export type UniversalDesignDirection = {
   density: "compact" | "balanced" | "editorial";
-  heroStyle: "split" | "centered" | "visual" | "product";
+  heroStyle: "split" | "centered" | "visual" | "product" | "full-bleed" | "editorial" | "layered";
+  bannerStyle: "photographic" | "gradient" | "editorial" | "product-focus";
+  headerStyle: "transparent" | "floating" | "classic" | "minimal";
+  motionStyle: "subtle" | "reveal" | "none";
   cardStyle: "soft" | "bordered" | "elevated" | "minimal";
   defaultFont: "Poppins";
 };
@@ -448,6 +451,9 @@ function buildDesign(
     return {
       density: "balanced",
       heroStyle: "product",
+      bannerStyle: "product-focus",
+      headerStyle: "floating",
+      motionStyle: "subtle",
       cardStyle: "elevated",
       defaultFont: "Poppins",
     };
@@ -459,7 +465,10 @@ function buildDesign(
   ) {
     return {
       density: "editorial",
-      heroStyle: "split",
+      heroStyle: "editorial",
+      bannerStyle: "editorial",
+      headerStyle: "minimal",
+      motionStyle: "reveal",
       cardStyle: "minimal",
       defaultFont: "Poppins",
     };
@@ -471,7 +480,10 @@ function buildDesign(
   ) {
     return {
       density: "editorial",
-      heroStyle: "visual",
+      heroStyle: "full-bleed",
+      bannerStyle: "photographic",
+      headerStyle: "transparent",
+      motionStyle: "subtle",
       cardStyle: "soft",
       defaultFont: "Poppins",
     };
@@ -479,8 +491,10 @@ function buildDesign(
 
   return {
     density: "balanced",
-    heroStyle: "split",
-    cardStyle: "bordered",
+    heroStyle: "layered",
+    bannerStyle: "gradient",
+    headerStyle: "classic",
+    motionStyle: "subtle",
     defaultFont: "Poppins",
   };
 }
