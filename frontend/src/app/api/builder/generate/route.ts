@@ -1083,7 +1083,7 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
     for (const operation of rawRevisionPlan.domOperations.slice(0, 12)) {
       if (typeof operation?.selector !== "string" || operation.selector.length > 500 ||
           !domActions.has(String(operation.action)) || typeof operation.value !== "string" || operation.value.length > 2000) continue;
-      domOperations.push({ selector: operation.selector, action: operation.action, value: operation.value });
+      domOperations.push({ selector: operation.selector, action: operation.action as NonNullable<RevisionPlan["domOperations"]>[number]["action"], value: operation.value });
     }
     const revisionPlan = {
       scope: rawRevisionPlan.scope as "page" | "site",
