@@ -1055,6 +1055,39 @@ export default function BuilderPage() {
     setProject(updated);
   }
 
+  // Apply explicit whole-hero alignment as one validated transaction.
+  // This avoids relying on the model to guess four unrelated CSS selectors.
+  async function tryHeroAlignmentCommand(raw: string): Promise<boolean> {
+    if (!crmPreviewHtml || !project || revisionImage) return false;
+    const normalized = raw.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+    const alignment = /centraliz|alinhar? (?:ao |no )?centro/.test(normalized) ? "center" :
+      /alinhar? (?:a |à )?esquerda/.test(normalized) ? "left" :
+      /alinhar? (?:a |à )?direita/.test(normalized) ? "right" : "";
+    if (!alignment || !/(?:todos os elementos|tudo|secao principal|hero|texto superior.*botao|titulo.*paragrafo.*botao)/.test(normalized)) return false;
+    if (/(?:mude|troque|altere|remova|adicione|reescreva|cor|fonte|tamanho|imagem|fundo)/.test(normalized)) return false;
+    const inventory = await readRenderedElementInventory();
+    const headings = inventory.filter(el => el.tag === "h1");
+    if (headings.length !== 1) throw new Error("Não foi possível identificar um título principal único.");
+    const headingIndex = inventory.findIndex(el => el.selector === headings[0].selector);
+    const candidates = inventory.filter(el => /^(h1|p|a|button|span|small|strong)$/.test(el.tag));
+    const heroCandidates = candidates.filter(el => {
+      const s = el.selector.toLowerCase();
+      return /hero|banner|masthead|intro|principal/.test(s) ||
+        el.selector.split(" > ").slice(0, -1).join(" > ") === headings[0].selector.split(" > ").slice(0, -1).join(" > ");
+    });
+    const pool = heroCandidates.length >= 3 ? heroCandidates : candidates.slice(Math.max(0, headingIndex - 8), headingIndex + 15);
+    const eyebrow = pool.find(el => /novas perspectivas/i.test(el.text)) ||
+      pool.find(el => /eyebrow|kicker|overline/.test(el.selector.toLowerCase()));
+    const button = pool.find(el => /^(a|button)$/.test(el.tag) && /solicitar|agend|avali|contato|whatsapp/i.test(el.text));
+    const paragraph = pool.find(el => el.tag === "p" && el.text.length > 35 && el.selector !== eyebrow?.selector);
+    if (!eyebrow || !button || !paragraph) throw new Error("Não identifiquei com segurança todos os elementos do hero. Nenhuma alteração foi aplicada.");
+    const targets = [eyebrow, headings[0], paragraph, button];
+    if (new Set(targets.map(el => el.selector)).size !== 4) throw new Error("Os elementos do hero não são únicos.");
+    await executeCrmTextPlan([], inventory, targets.map(el => ({ selector: el.selector, action: "align", value: alignment })));
+    setInstruction(""); setError(""); setPhase("ready");
+    return true;
+  }
+
   async function tryDeterministicStyleCommand(raw: string): Promise<boolean> {
     if (!project?.pages[activePage] || revisionImage) return false;
     const input = raw.trim();
@@ -1160,6 +1193,7 @@ export default function BuilderPage() {
     }
     // Deterministic edits are free; complex or ambiguous instructions use the existing AI API.
     try {
+      if (await tryHeroAlignmentCommand(instruction)) return;
       if (await tryDeterministicStyleCommand(instruction)) return;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível salvar a alteração.");
