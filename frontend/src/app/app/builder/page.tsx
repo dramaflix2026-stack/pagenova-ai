@@ -947,17 +947,17 @@ export default function BuilderPage() {
     };
     const hex = input.match(/#[0-9a-fA-F]{6}\b/);
     const named = Object.entries(colorNames).find(([name]) => new RegExp("\\b"+name+"\\b").test(normalized));
-    const wantsColor = /cor|color|pinte|pintar/i.test(normalized);
+    const wantsColor = /\bcor\b|\bcolor\b|pinte|pintar/i.test(normalized);
     const color = wantsColor ? (hex?.[0] || named?.[1]) : undefined;
     const sizeMatch = normalized.match(/(?:tamanho|fonte|texto|letra)[^\d]{0,28}(\d{1,3})\s*(?:px|pixels)?\b/);
     const size = sizeMatch ? Number(sizeMatch[1]) : undefined;
     const fontMatch = normalized.match(/(?:fonte|tipografia)\s+(?:para\s+|por\s+|em\s+)?(poppins|inter|arial|roboto|montserrat|georgia)\b/);
     const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b/);
     const textMatch = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
-    if (!color && !(size && size >= 8 && size <= 160) && !fontMatch && !alignMatch && !textMatch) return false;
+    if (!color && !(size && size >= 8 && size <= 160) && !fontMatch && !alignMatch && !textMatch) return false;\n    // Multiple targets or unrecognized actions must be handled as a complete AI revision.\n    if (targets.filter(([pattern]) => pattern.test(normalized)).length !== 1) return false;\n    if (/\b(adicion|remov|exclu|crie|insir|mov|troque a imagem|banner|se[cç][aã]o|secao|todas as paginas)\w*/i.test(normalized)) return false;
     // Do not partially apply multi-action commands we cannot interpret reliably.
     if ((wantsColor && !color) || (sizeMatch && (!size || size < 8 || size > 160))) return false;
-    const selector = match[1];
+    if (/(?:aument|dimin|maior|menor)/i.test(normalized) && !sizeMatch) return false;\n    const selector = match[1];
     const current = [...(project.liveEdits?.[activePage] || [])];
     const index = current.findIndex(edit => edit.selector === selector && !edit.ghostId);
     const base = index >= 0 ? current[index] : { selector, text: "", font: "", size: 0, color: "" };
