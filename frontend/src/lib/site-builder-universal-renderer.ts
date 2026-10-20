@@ -948,11 +948,16 @@ function renderUniversalGenericSection(
         `<figure><img src="${escapeUniversalHtml(photo)}" alt="" loading="lazy" decoding="async"></figure>`
       ).join("")}</div>`
     : "";
+  // Real client imagery remains visible even when the AI generated
+  // structured captions/cards for the same portfolio or gallery section.
   const visual =
-    structuredItems ||
-    galleryMarkup ||
-    photoMarkup ||
-    universalSemanticVisual(section.kind);
+    galleryMarkup
+      ? `${galleryMarkup}${structuredItems || ""}`
+      : photoMarkup && structuredItems
+        ? `${photoMarkup}${structuredItems}`
+        : structuredItems ||
+          photoMarkup ||
+          universalSemanticVisual(section.kind);
 
   const compositionClass =
     section.kind === "process"
@@ -1551,6 +1556,8 @@ function universalRendererStyles(
       box-shadow:var(--pn-card-shadow);
     }
 
+    .pn-real-photo-grid + .pn-structured-grid{margin-top:24px}
+    .pn-universal-section-photo + .pn-structured-grid{margin-top:24px}
     .pn-real-photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}
     .pn-real-photo-grid figure{margin:0;min-width:0;aspect-ratio:4/3;overflow:hidden;border-radius:16px;background:#e2e8f0}
     .pn-real-photo-grid figure:first-child{grid-row:span 2;aspect-ratio:auto}
