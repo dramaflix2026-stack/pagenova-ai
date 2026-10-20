@@ -988,10 +988,18 @@ export default function BuilderPage() {
     });
     if (!edits.length || !project) throw new Error("Nenhuma alteração foi executada.");
     const selectors = new Set(edits.map(edit => edit.selector));
-    const current = (project.liveEdits?.[activePage] || []).filter(edit => !selectors.has(edit.selector));
-    const updated = { ...project, liveEdits: { ...project.liveEdits, [activePage]: [...current, ...edits].slice(-100) } };
+    const before = project.liveEdits?.[activePage] || [];
+    const current = before.filter(edit => !selectors.has(edit.selector));
+    const merged = edits.map(edit => ({ ...(before.find(previous => previous.selector === edit.selector) || {}), ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || key === "kind" && value === "text" || value !== "" && value !== 0)) })) as LiveEdit[];
+    const updated = { ...project,
+      revisionHistory: [...(project.revisionHistory || []), { page: activePage, edits: before, at: new Date().toISOString() }].slice(-15),
+      liveEdits: { ...project.liveEdits, [activePage]: [...current, ...merged].slice(-100) } };
     try { await savePageNovaProject(updated.id, updated); }
-    catch { throw new Error("O editor alterou a prévia, mas não conseguiu salvar. Atualize a página e tente novamente."); }
+    catch {
+      // Rebuild the iframe from the last committed snapshot on save failure.
+      setCrmPreviewHtml(html => html + " ");
+      throw new Error("A edição não foi salva. A prévia será restaurada; tente novamente.");
+    }
     setProject(updated);
   }
 
@@ -1403,6 +1411,22 @@ export default function BuilderPage() {
       activePage,
     ]);
 
+  async function undoLastAiRevision(): Promise<void> {
+    if (!project?.revisionHistory?.length || phase === "generating") return;
+    const last = project.revisionHistory[project.revisionHistory.length - 1];
+    const updated: SiteProject = { ...project,
+      revisionHistory: project.revisionHistory.slice(0, -1),
+      liveEdits: { ...project.liveEdits, [last.page]: last.edits } };
+    try {
+      await savePageNovaProject(updated.id, updated);
+      setProject(updated);
+      // The iframe must reload to restore original text and styles, not just
+      // remove an overlay entry from IndexedDB.
+      setCrmPreviewHtml(html => html + " ");
+      setError("");
+    } catch { setError("Não foi possível desfazer a última edição."); }
+  }
+
   async function changeTheme(theme: PreviewTheme) {
     if (!project) return;
     const updated = { ...project, previewTheme: theme };
@@ -1644,6 +1668,7 @@ export default function BuilderPage() {
     try {
       // Await pending edits without re-saving a possibly older React snapshot.
       await waitForPageNovaProjectSaves(project.id);
+      const publicationProject = await readPageNovaProject<SiteProject>(project.id) || project;
       if (crmProjectId) {
         const response = await fetch(`/api/crm/site-projects/${crmProjectId}/publish`, {
           method: "POST",
@@ -1665,13 +1690,13 @@ export default function BuilderPage() {
           body: JSON.stringify({
             url: data.url,
             project: {
-              id: project.id,
-              kind: project.kind,
-              liveEdits: project.liveEdits || {},
-              extraSections: project.extraSections || {},
+              id: publicationProject.id,
+              kind: publicationProject.kind,
+              liveEdits: publicationProject.liveEdits || {},
+              extraSections: publicationProject.extraSections || {},
               institutional: {
-                portrait: await optimizePublicationImage(project.institutional?.portrait || ""),
-                businessPhoto: await optimizePublicationImage(project.institutional?.businessPhoto || project.institutional?.workPhoto || ""),
+                portrait: await optimizePublicationImage(publicationProject.institutional?.portrait || ""),
+                businessPhoto: await optimizePublicationImage(publicationProject.institutional?.businessPhoto || publicationProject.institutional?.workPhoto || ""),
               },
             },
           }),
@@ -1689,7 +1714,7 @@ export default function BuilderPage() {
       const response = await fetch("/api/builder/publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ project }),
+        body: JSON.stringify({ project: publicationProject }),
       });
       const data = await readPublicationResponse(response, "Publicação do site");
       if (!data.url) throw new Error("A publicação não retornou o endereço do site.");
@@ -1946,6 +1971,10 @@ export default function BuilderPage() {
             </form>}
             <p className="mt-1 text-xs text-white/50">{phase==="generating"?"Atualizando…":phase==="ready"?"Pronto para editar":"Verifique o projeto"}</p>
           </div>
+          {project.revisionHistory?.length ? <button type="button" onClick={()=>void undoLastAiRevision()}
+            className="mb-2 rounded-lg border border-white/20 px-3 py-2 text-xs text-white/80 hover:border-emerald-300">
+            ↶ Desfazer última alteração da IA
+          </button> : null}
           <form id="pagenova-revision-form" onSubmit={revise} className="space-y-2 rounded-xl border border-emerald-400/25 bg-emerald-400/[.04] p-3 sm:p-4">
             <label htmlFor="builder-change" className="block text-base font-semibold text-emerald-200">✨ Edite seu site com IA</label>
             <p className="text-xs text-white/60">Descreva a alteração. O restante do site será preservado.</p>
