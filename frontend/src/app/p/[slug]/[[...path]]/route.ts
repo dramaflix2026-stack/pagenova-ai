@@ -21,7 +21,7 @@ async function publishedOverlay(slug: string, page: string) {
     if (raw.length > 18 * 1024 * 1024) return "";
     const parsed = JSON.parse(raw) as Record<string, unknown>;
     if (parsed.version !== 1) return "";
-    const config = JSON.stringify({ ...parsed, page }).replace(/</g, "\\u003c");
+    const config = JSON.stringify({ ...parsed, page }).replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
     return `<script>window.__PAGENOVA_PUBLISHED_OVERLAY__=${config};</script><script src="/pagenova-published-overlay.js" defer></script>`;
   } catch { return ""; }
 }
