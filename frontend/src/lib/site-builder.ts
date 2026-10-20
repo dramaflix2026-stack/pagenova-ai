@@ -147,7 +147,7 @@ export type SiteProject = {
     density: "compact" | "balanced" | "spacious";
   };
   liveEdits?: Partial<Record<SitePageKey, import("@/lib/site-builder-live-editor").LiveEdit[]>>;
-  revisionHistory?: Array<{ page: SitePageKey; edits: import("@/lib/site-builder-live-editor").LiveEdit[]; at: string }>;
+  revisionHistory?: Array<{ page: SitePageKey; edits: import("@/lib/site-builder-live-editor").LiveEdit[]; sections?: import("@/lib/site-builder-extra-sections").ExtraSection[]; at: string }>;
   extraSections?: Partial<Record<SitePageKey, import("@/lib/site-builder-extra-sections").ExtraSection[]>>;
   contactEmail?: string;
   contactWhatsApp?: string;
