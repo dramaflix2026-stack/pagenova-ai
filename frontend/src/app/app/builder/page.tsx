@@ -598,7 +598,7 @@ export default function BuilderPage() {
     }
   }
 
-  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = ""): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
+  async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = "", renderedElements: Array<{selector:string;tag:string;text:string}> = []): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
     const controller = new AbortController();
     abortRef.current = controller;
     const response = await fetch("/api/builder/generate", {
@@ -614,7 +614,7 @@ export default function BuilderPage() {
           proof: site.institutional.proof || "",
         } : undefined,
         currentHeaderDirection: site.headerDirection || undefined,
-        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "", siteContext: editInstruction ? JSON.stringify({ activePage: key, pages: SITE_PAGES.map(({ key: pageKey }) => ({ key: pageKey, page: site.pages[pageKey] ? { heading: site.pages[pageKey]?.heading, eyebrow: site.pages[pageKey]?.eyebrow, introduction: site.pages[pageKey]?.introduction, cta: site.pages[pageKey]?.cta, sections: site.pages[pageKey]?.sections?.map(section => ({ title: section.title, kind: section.kind })) } : null })), liveEdits: site.liveEdits?.[key] || [], renderedSite: crmPreviewHtml ? (() => { const doc = new DOMParser().parseFromString(crmPreviewHtml, "text/html"); doc.querySelectorAll("script,style,noscript,iframe,svg").forEach(node => node.remove()); return { title: doc.title, headings: Array.from(doc.querySelectorAll("h1,h2,h3")).slice(0, 50).map(el => ({ tag: el.tagName.toLowerCase(), text: el.textContent?.trim().slice(0, 180) })), buttons: Array.from(doc.querySelectorAll("button,a,[role=button]")).slice(0, 45).map(el => ({ text: el.textContent?.trim().slice(0, 100), href: el.getAttribute("href")?.slice(0, 120) })), sections: Array.from(doc.querySelectorAll("section,header,footer,nav,main")).slice(0, 55).map(el => ({ tag: el.tagName.toLowerCase(), id: el.id.slice(0, 80), className: typeof el.className === "string" ? el.className.slice(0, 120) : "", text: el.textContent?.trim().slice(0, 200) })) }; })() : null, headerDirection: site.headerDirection, visualDirection: site.visualDirection }).slice(0, 11000) : "" }),
+        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "", siteContext: editInstruction ? JSON.stringify({ renderedElements, activePage: key, pages: SITE_PAGES.map(({ key: pageKey }) => ({ key: pageKey, page: site.pages[pageKey] ? { heading: site.pages[pageKey]?.heading, eyebrow: site.pages[pageKey]?.eyebrow, introduction: site.pages[pageKey]?.introduction, cta: site.pages[pageKey]?.cta, sections: site.pages[pageKey]?.sections?.map(section => ({ title: section.title, kind: section.kind })) } : null })), liveEdits: site.liveEdits?.[key] || [], renderedSite: crmPreviewHtml ? (() => { const doc = new DOMParser().parseFromString(crmPreviewHtml, "text/html"); doc.querySelectorAll("script,style,noscript,iframe,svg").forEach(node => node.remove()); return { title: doc.title, headings: Array.from(doc.querySelectorAll("h1,h2,h3")).slice(0, 50).map(el => ({ tag: el.tagName.toLowerCase(), text: el.textContent?.trim().slice(0, 180) })), buttons: Array.from(doc.querySelectorAll("button,a,[role=button]")).slice(0, 45).map(el => ({ text: el.textContent?.trim().slice(0, 100), href: el.getAttribute("href")?.slice(0, 120) })), sections: Array.from(doc.querySelectorAll("section,header,footer,nav,main")).slice(0, 55).map(el => ({ tag: el.tagName.toLowerCase(), id: el.id.slice(0, 80), className: typeof el.className === "string" ? el.className.slice(0, 120) : "", text: el.textContent?.trim().slice(0, 200) })) }; })() : null, headerDirection: site.headerDirection, visualDirection: site.visualDirection }).slice(0, 11000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "N├úo foi poss├¡vel gerar a p├ígina.");
@@ -935,6 +935,26 @@ export default function BuilderPage() {
     });
   }
 
+  function readRenderedElementInventory(): Promise<Array<{selector:string;tag:string;text:string}>> {
+    const frame = previewRef.current?.contentWindow;
+    if (!frame) return Promise.resolve([]);
+    return new Promise((resolve) => {
+      const id = "inventory-" + Date.now() + "-" + Math.random().toString(36).slice(2);
+      const finish = (items: Array<{selector:string;tag:string;text:string}>) => {
+        window.clearTimeout(timer);
+        window.removeEventListener("message", onMessage);
+        resolve(items);
+      };
+      const onMessage = (event: MessageEvent) => {
+        if (event.source !== frame || event.data?.type !== "pagenova-editor-inventory-result" || event.data.id !== id) return;
+        finish(Array.isArray(event.data.elements) ? event.data.elements.slice(0, 180) : []);
+      };
+      window.addEventListener("message", onMessage);
+      const timer = window.setTimeout(() => finish([]), 1200);
+      frame.postMessage({ type: "pagenova-editor-inventory-request", id }, "*");
+    });
+  }
+
   async function tryDeterministicStyleCommand(raw: string): Promise<boolean> {
     if (!project?.pages[activePage] || revisionImage) return false;
     const input = raw.trim();
@@ -1061,11 +1081,13 @@ export default function BuilderPage() {
     }
     setError(""); setPhase("generating"); setCurrentStep(activePage);
     try {
+      const renderedElements = crmPreviewHtml ? await readRenderedElementInventory() : [];
       const result = await requestPage(
         project,
         activePage,
         instruction.trim() || "Analise o print e melhore esta página mantendo os dados reais.",
         revisionImage,
+        renderedElements,
       );
       const page = result.page;
 
