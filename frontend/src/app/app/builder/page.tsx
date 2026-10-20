@@ -990,7 +990,15 @@ export default function BuilderPage() {
     const selectors = new Set(edits.map(edit => edit.selector));
     const before = project.liveEdits?.[activePage] || [];
     const current = before.filter(edit => !selectors.has(edit.selector));
-    const merged = edits.map(edit => ({ ...(before.find(previous => previous.selector === edit.selector) || {}), ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || (key !== "kind" || value === "text") && value !== "" && value !== 0)) })) as LiveEdit[];
+    const bySelector = new Map<string, LiveEdit>();
+    for (const edit of edits) {
+      const previous = bySelector.get(edit.selector) || before.find(item => item.selector === edit.selector);
+      bySelector.set(edit.selector, {
+        ...(previous || { selector: edit.selector, text: "", font: "", size: 0, color: "" }),
+        ...Object.fromEntries(Object.entries(edit).filter(([key, value]) => key === "selector" || ((key !== "kind" || value === "text") && value !== "" && value !== 0))),
+      } as LiveEdit);
+    }
+    const merged = [...bySelector.values()];
     const updated = { ...project,
       revisionHistory: [...(project.revisionHistory || []), { page: activePage, edits: before, at: new Date().toISOString() }].slice(-15),
       liveEdits: { ...project.liveEdits, [activePage]: [...current, ...merged].slice(-100) } };
@@ -1183,10 +1191,22 @@ export default function BuilderPage() {
       if (crmProjectId && crmPreviewHtml) {
         const changes = revisionPlan.contentChanges;
         const structural = revisionPlan.sectionChanges;
+        const domOperations = revisionPlan.domOperations || [];
         const otherActions = revisionPlan.elementChanges.length +
           revisionPlan.headerChanges.length + revisionPlan.visualChanges.length +
           revisionPlan.institutionalChanges.length;
         if (otherActions) throw new Error("A alteração inclui propriedades do template que ainda não podem ser editadas com segurança. Nenhuma mudança foi salva.");
+        if (domOperations.length) {
+          if (otherActions || changes.length || structural.length) throw new Error("A IA combinou alterações de tipos diferentes. Faça pedidos separados para estrutura e estilo.");
+          const validSelectors = new Set(renderedElements.map(element => element.selector));
+          if (domOperations.some(op => !validSelectors.has(op.selector))) throw new Error("O elemento selecionado pela IA não existe na prévia atual.");
+          await executeCrmTextPlan([], renderedElements, domOperations.map(op => ({
+            selector: op.selector, action: op.action,
+            ...(op.action === "text" ? { text: op.value } : { value: op.value }),
+          })));
+          setInstruction(""); setRevisionImage(""); setPhase("ready"); setError("");
+          return;
+        }
         const existingExtras = project.extraSections?.[activePage] || [];
         let nextExtras = existingExtras.map(section => ({ ...section }));
         if (structural.length) {
