@@ -731,9 +731,9 @@
   // Read-only element inventory for a future selector-based AI revision executor.
   // The model should target these stable selectors rather than guessing template classes.
   function editableInventory() {
-    const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img";
+    const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img,span,small,strong,[class*=eyebrow],[class*=Eyebrow],[class*=subtitle],[class*=Subtitle],[class*=cta],[class*=CTA]";
     return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
-      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img,h1,h2,h3,h4,h5,h6") || el.children.length === 0);
+      return el.getClientRects().length && !el.closest("[data-pn-editor],script,style") && (el.matches("section,img,h1,h2,h3,h4,h5,h6,a,button") || el.children.length === 0 || (el.children.length <= 2 && (el.matches("[class*=eyebrow],[class*=Eyebrow],[class*=subtitle],[class*=Subtitle],[class*=cta],[class*=CTA]"))));
     }).slice(0, 360).map(function(el) {
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
