@@ -614,7 +614,7 @@ export default function BuilderPage() {
           proof: site.institutional.proof || "",
         } : undefined,
         currentHeaderDirection: site.headerDirection || undefined,
-        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "" }),
+        instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "", siteContext: editInstruction ? JSON.stringify({ activePage: key, pages: SITE_PAGES.map(({ key: pageKey }) => ({ key: pageKey, page: site.pages[pageKey] ? { heading: site.pages[pageKey]?.heading, eyebrow: site.pages[pageKey]?.eyebrow, introduction: site.pages[pageKey]?.introduction, cta: site.pages[pageKey]?.cta, sections: site.pages[pageKey]?.sections?.map(section => ({ title: section.title, kind: section.kind })) } : null })), liveEdits: site.liveEdits?.[key] || [], headerDirection: site.headerDirection, visualDirection: site.visualDirection }).slice(0, 11000) : "" }),
     });
     const data = await response.json() as { page?: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan; error?: string };
     if (!response.ok || !data.page) throw new Error(data.error || "N├úo foi poss├¡vel gerar a p├ígina.");
