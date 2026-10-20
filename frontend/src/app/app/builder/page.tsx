@@ -979,7 +979,7 @@ export default function BuilderPage() {
       };
       const onMessage = (event: MessageEvent) => {
         if (event.source !== frame || event.data?.type !== "pagenova-ai-text-result" || event.data.id !== id) return;
-        if (event.data.ok !== true || !Array.isArray(event.data.edits)) finish(undefined, "O editor não conseguiu aplicar a alteração com segurança.");
+        if (event.data.ok !== true || !Array.isArray(event.data.edits)) finish(undefined, `O editor não conseguiu aplicar a alteração: ${String(event.data.reason || "resposta inválida").slice(0, 100)}.`);
         else finish(event.data.edits as LiveEdit[]);
       };
       window.addEventListener("message", onMessage);
