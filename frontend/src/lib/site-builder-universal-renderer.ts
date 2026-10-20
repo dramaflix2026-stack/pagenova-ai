@@ -615,6 +615,16 @@ function universalSectionClass(
   }
 }
 
+// Only render user-provided media. Never substitute a fabricated business photo.
+function safeUniversalImage(value: unknown): string {
+  const url = normalizeText(value);
+  if (!url || /[\\u0000-\\u001f\\u007f]/.test(url)) return "";
+  if (/^https:\\/\\/[^\\s]+$/i.test(url) || /^\\/[^\\/]/.test(url) || /^data:image\\/(?:png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) {
+    return url;
+  }
+  return "";
+}
+
 function renderUniversalHero(
   project: SiteProject,
   model: UniversalRenderModel,
@@ -625,6 +635,7 @@ function renderUniversalHero(
 
   const heroStyle = strategy.design.heroStyle;
   const density = strategy.design.density;
+  const heroPhoto = safeUniversalImage(project.institutional?.businessPhoto || project.institutional?.workPhoto || project.institutional?.portrait);
 
   return `
     <section
@@ -656,8 +667,9 @@ function renderUniversalHero(
           }
         </div>
 
-        <div class="pn-universal-hero-visual" aria-hidden="true">
-          <span class="pn-universal-hero-orb"></span>
+        <div class="pn-universal-hero-visual${heroPhoto ? " pn-has-photo" : ""}" aria-hidden="true">
+          ${heroPhoto ? `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="" loading="eager" decoding="async">` : ""}
+          ${heroPhoto ? "" : `<span class="pn-universal-hero-orb"></span>`}
           <span class="pn-universal-hero-mark">${escapeUniversalHtml(project.name.slice(0, 1).toUpperCase())}</span>
         </div>
       </div>
@@ -1306,6 +1318,13 @@ function universalRendererStyles(
       background:
         linear-gradient(145deg,#f8fafc,#e2e8f0);
     }
+
+    .pn-universal-hero-photo{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+    .pn-universal-hero-visual.pn-has-photo{background:#e2e8f0}
+    .pn-universal-hero-visual.pn-has-photo .pn-universal-hero-mark{display:none}
+    .pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo{opacity:1;inset:0;z-index:0}
+    .pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,23,37,.90),rgba(8,23,37,.64) 54%,rgba(8,23,37,.28));pointer-events:none}
+    @media(max-width:760px){.pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo{inset:0}.pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo::after{background:linear-gradient(90deg,rgba(8,23,37,.84),rgba(8,23,37,.53))}}
 
     .pn-universal-hero-orb{
       position:absolute;
