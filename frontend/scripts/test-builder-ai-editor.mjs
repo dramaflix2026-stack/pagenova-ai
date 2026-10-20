@@ -48,3 +48,13 @@ test("publishing reloads latest persisted project after queued saves", () => {
   assert.match(implementation, /readPageNovaProject<SiteProject>\(project\.id\)/);
   assert.match(implementation, /liveEdits: publicationProject\.liveEdits/);
 });
+
+test("CRM structural edits are bounded to extra sections and undo snapshots", () => {
+  assert.match(builder, /change\.action === "add"/);
+  assert.match(builder, /change\.action === "remove"/);
+  assert.match(builder, /change\.action === "update"/);
+  assert.match(builder, /change\.action === "move"/);
+  assert.match(builder, /change\.index - originalSections/);
+  assert.match(builder, /sections: existingExtras/);
+  assert.match(builder, /last\.sections \?/);
+});
