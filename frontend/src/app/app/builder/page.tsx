@@ -1847,20 +1847,6 @@ export default function BuilderPage() {
             {revisionImage&&<button type="button" onClick={()=>setRevisionImage("")} className="text-xs text-emerald-300">Remover print anexado</button>}
             {revisionImageError&&<p role="alert" className="text-xs text-red-300">{revisionImageError}</p>}
           </form>
-          {crmProjectId ? (
-            <div role="status" className="rounded-xl border border-white/10 bg-white/[.03] p-4 text-sm text-white/70">
-              <p className="font-semibold text-white">Status da criação</p>
-              <p className="mt-2">{phase==="ready" ? "Site gerado e pronto para revisão." :
-                phase==="error" ? "A geração precisa de atenção. O projeto foi mantido." :
-                "Acompanhando as etapas no servidor. Aguarde a confirmação."}</p>
-            </div>
-          ) : (
-            <ol className="space-y-2" aria-label="Páginas do projeto">{SITE_PAGES.map(({key,label})=>(
-              <li key={key} className="rounded-xl border border-white/10 px-3 py-2 text-sm">
-                {label} · {project.pages[key]?"Disponível":"Pendente"}
-              </li>
-            ))}</ol>
-          )}
           {error && <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           {phase==="error"&&crmProjectId&&<button type="button" onClick={()=>void monitorCrmGeneration(crmProjectId)}
             className="w-full rounded-xl border border-emerald-400/40 px-4 py-3 font-semibold text-emerald-200">
@@ -1893,11 +1879,6 @@ export default function BuilderPage() {
               disabled={addingSection||publishing}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
               <span aria-hidden="true" className="text-lg">＋</span> Adicionar seção
-            </button>
-            <button type="button" onClick={()=>{inlineImageKindRef.current="hero";inlineImageInputRef.current?.click();}}
-              disabled={uploadingImage||publishing}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-4 text-sm font-semibold text-emerald-200 active:scale-[.98] disabled:opacity-50">
-              {uploadingImage?"Carregando imagem...":"🖼 Trocar imagem do banner"}
             </button>
             <div className="w-full max-w-sm">
               {crmProjectId ? <details className="w-full rounded-xl border border-emerald-400/25 bg-emerald-400/[.05] p-2 text-sm">
