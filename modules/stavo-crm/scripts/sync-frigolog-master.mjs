@@ -54,7 +54,7 @@ if (!existsSync(resolve(frontend, 'frigolog-next-integration-v7.zip'))) {
     let downloaded = false;
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        const response = await fetch(url, { signal: AbortSignal.timeout(25000) });
+        const response = await fetch(url, { signal: AbortSignal.timeout(25000), cache: 'no-store', headers: { 'Cache-Control': 'no-cache' } });
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const bytes = Buffer.from(await response.arrayBuffer());
         if (bytes.length === 0) throw new Error('empty response');
