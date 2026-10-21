@@ -869,10 +869,23 @@ export default function BuilderPage() {
     // person's or business's actual name. Purely local parsing: no AI call.
     const inferredName = inferSiteBrand(prompt) || "Novo projeto";
     // Keep explicit brand colors visible to the upstream CRM generator.
-    const colorNames = ["azul", "branco", "verde", "preto", "cinza", "dourado", "amarelo", "vermelho", "rosa", "roxo", "laranja", "bege", "marrom"];
-    const requestedColors = colorNames.filter(color => new RegExp(`\\b${color}(?:s|a|as)?\\b`, "i").test(prompt));
+    const normalizedBrief = prompt.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const colorAliases: Array<[string, string[]]> = [
+      ["azul", ["azul", "azuis"]], ["branco", ["branco", "branca", "brancos", "brancas"]],
+      ["verde", ["verde", "verdes"]], ["preto", ["preto", "preta", "pretos", "pretas"]],
+      ["cinza", ["cinza", "cinzas"]], ["dourado", ["dourado", "dourada", "dourados", "douradas"]],
+      ["amarelo", ["amarelo", "amarela", "amarelos", "amarelas"]],
+      ["vermelho", ["vermelho", "vermelha", "vermelhos", "vermelhas"]],
+      ["rosa", ["rosa", "rosas"]], ["roxo", ["roxo", "roxa", "roxos", "roxas"]],
+      ["laranja", ["laranja", "laranjas"]], ["bege", ["bege", "beges"]],
+      ["marrom", ["marrom", "marrons"]], ["turquesa", ["turquesa"]],
+    ];
+    const explicitColorContext = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo)/i.test(normalizedBrief);
+    const requestedColors = explicitColorContext
+      ? colorAliases.filter(([, aliases]) => aliases.some(alias => new RegExp(`\\b${alias}\\b`).test(normalizedBrief))).map(([color]) => color)
+      : [];
     const colorInstruction = requestedColors.length
-      ? `PALETA OBRIGATÓRIA: ${requestedColors.join(" e ")}. Não substituir por verde ou outra cor não solicitada. Preserve contraste AA para títulos, textos e botões.`
+      ? `PALETA OBRIGATÓRIA: ${requestedColors.join(" e ")}. Use estas cores na identidade visual inteira. Não substitua a paleta por verde ou qualquer outra cor não solicitada. Garanta contraste AA.`
       : "Escolha uma paleta apropriada ao setor, garantindo contraste legível.";
 
     setPhase("generating");
