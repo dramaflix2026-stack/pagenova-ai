@@ -2470,6 +2470,20 @@ function universalRendererScript(): string {
         return;
       }
       var targetSection=document.getElementById(page);
+      // Published universal sites render one complete landing page, while
+      // editor navigation uses separate page keys. Resolve those keys to
+      // real sections so published menu links do not point to missing IDs.
+      if(!targetSection){
+        if(page==='home'){
+          targetSection=document.querySelector('.pn-universal-hero');
+        }else if(page==='sobre'){
+          targetSection=document.querySelector('[data-pn-section-kind="about"],[data-pn-section-kind="story"],[data-pn-section-kind="team"]');
+        }else if(page==='servicos'){
+          targetSection=document.querySelector('[data-pn-section-kind="services"],[data-pn-section-kind="features"],[data-pn-section-kind="benefits"],[data-pn-section-kind="offer"]');
+        }else if(page==='contato'){
+          targetSection=document.querySelector('[data-pn-section-kind="contact"],.pn-universal-footer');
+        }
+      }
       if(targetSection){
         event.preventDefault();
         var reduceMotion=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
