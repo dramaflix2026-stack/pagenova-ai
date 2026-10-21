@@ -127,6 +127,7 @@
     });
 
     box.addEventListener("pointerdown", function(e) {
+      if (innerWidth <= 600) return; // Touch users edit content without accidental resizing.
       const h = e.target.dataset.h;
       if (!h || !selected) return;
       e.preventDefault(); e.stopPropagation(); clearNativeSelection();
