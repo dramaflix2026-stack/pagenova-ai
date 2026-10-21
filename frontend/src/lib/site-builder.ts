@@ -189,7 +189,11 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
    * Explicit opt-in path.
    * Existing universal and legacy renderers remain available below.
    */
-  if (project.templateId === "vertice-premium") return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey));
+  // Strategy-driven projects must use the renderer that honors their brief.
+  // Keep the legacy premium renderer only for drafts without a valid strategy.
+  if (project.templateId === "vertice-premium" && !hasUniversalRenderStrategy(project)) {
+    return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey));
+  }
 
   /*
    * Universal Renderer migration boundary:
