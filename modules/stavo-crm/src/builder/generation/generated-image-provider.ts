@@ -53,6 +53,10 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     {pattern: /loja|ecommerce|e-commerce|moda|vestuario|roupas|boutique/, subject: 'a premium retail boutique interior with carefully curated merchandise displays', label: 'comercio varejista'},
     {pattern: /construc|engenhari|reforma|obra|marcenaria/, subject: 'a polished architecture and construction project space with quality building materials and professional tools', label: 'construcao e engenharia'},
     {pattern: /pet shop|veterinari|animais|banho e tosa/, subject: 'a clean modern veterinary consultation room with organized pet care equipment', label: 'cuidados animais'},
+    {pattern: /escola|educac|curso|ensino|faculdade|treinamento|idiomas/, subject: 'a bright modern learning space with neatly arranged desks, books and teaching materials', label: 'educacao'},
+    {pattern: /oficina|mecanica|automot|veiculos|carros|lava rapido/, subject: 'a clean professional automotive service workshop with modern diagnostic tools and a vehicle service bay', label: 'servicos automotivos'},
+    {pattern: /hotel|pousada|hospedagem|turismo|viagem/, subject: 'an inviting boutique hospitality interior with beautifully styled reception and guest amenities', label: 'hotelaria e turismo'},
+    {pattern: /contabil|contabilidade|financeir|consultoria empresarial/, subject: 'a refined professional consulting office with a welcoming meeting area and organized work materials', label: 'consultoria e contabilidade'},
   ];
   // An explicit exclusion must never be treated as a positive sector signal.
   const positiveBrief = secondaryContext
