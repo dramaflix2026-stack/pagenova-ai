@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Block = { id: string; type: "heading" | "paragraph" | "button"; text: string; color: string; align: "left" | "center" | "right" };
+type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; section?: string };
 type Site = { title: string; background: string; blocks: Block[] };
 type ChatMessage = { role: "user" | "assistant"; text: string };
 const initial: Site = { title: "Meu novo site", background: "#ffffff", blocks: [
@@ -50,21 +50,42 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: "assistant", text: "Descreva o site que quer criar. Depois, continue conversando para modificá-lo." }]);
   const [instruction, setInstruction] = useState("");
   const [loaded, setLoaded] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [reference, setReference] = useState<string | null>(null);
   useEffect(() => { try { const saved = localStorage.getItem(storageKey); if (saved) setSite(JSON.parse(saved)); } catch {} setLoaded(true); }, []);
   useEffect(() => { if (loaded) localStorage.setItem(storageKey, JSON.stringify(site)); }, [site, loaded]);
-  function send() {
-    const prompt = instruction.trim(); if (!prompt) return;
-    const result = applyInstruction(site, prompt);
-    setMessages(prev => [...prev, { role: "user", text: prompt }, { role: "assistant", text: result?.summary || "Ainda não sei executar esse pedido neste protótipo. Nenhuma alteração foi feita." }]);
-    if (result) setSite(result.site);
-    setInstruction("");
+  async function send() {
+    const prompt = instruction.trim(); if (!prompt || busy) return;
+    setBusy(true);
+    setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    try {
+      const response = await fetch("/api/builder-v2/chat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ site, instruction: prompt, image: reference })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
+      if (!data.site?.blocks) throw new Error("Resposta inválida da IA.");
+      setSite(data.site);
+      setMessages(prev => [...prev, { role: "assistant", text: data.summary || "Alteração aplicada." }]);
+      setInstruction(""); setReference(null);
+    } catch (error) {
+      setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
+    } finally { setBusy(false); }
+  }
+  function attachImage(file?: File) {
+    if (!file) return;
+    if (file.size > 2_000_000) { setMessages(prev => [...prev,{role:"assistant",text:"Use uma imagem de até 2 MB."}]); return; }
+    const reader = new FileReader();
+    reader.onload = () => setReference(typeof reader.result === "string" ? reader.result : null);
+    reader.readAsDataURL(file);
   }
   return <main className="min-h-screen bg-[#0b1110] px-4 py-8 text-white">
     <div className="mx-auto max-w-6xl">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-lime-300">Ambiente experimental privado</p><h1 className="text-3xl font-bold">PageNova Builder 2.0</h1><p className="mt-2 text-sm text-white/60">Motor estruturado: escrever → gerar → modificar. Não altera seus projetos atuais.</p></div><a href="/app/builder" className="rounded-xl border border-white/20 px-4 py-2 text-sm">Voltar ao editor atual</a></div>
       <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
-        <section className="flex min-h-[580px] flex-col rounded-2xl border border-white/15 bg-[#141d1a] p-4"><h2 className="mb-3 font-semibold">Chat com IA — protótipo</h2><div aria-live="polite" className="mb-4 flex-1 space-y-3 overflow-y-auto">{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><form onSubmit={e=>{e.preventDefault();send();}} className="space-y-3"><textarea aria-label="Descreva a criação ou alteração" value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Crie um site para uma clínica odontológica... ou Centralize todos os textos e o botão..." rows={4} className="w-full rounded-xl border border-white/20 bg-black/30 p-3 text-white outline-none focus:border-lime-300"/><button type="submit" className="w-full rounded-xl bg-lime-300 p-3 font-bold text-black">Enviar e aplicar →</button></form><p className="mt-3 text-xs text-white/50">Primeira etapa: comandos locais verificáveis. A integração com o modelo de IA e o salvamento no servidor vêm depois.</p></section>
-        <section className="overflow-hidden rounded-2xl border border-white/15 bg-white text-black"><div className="flex items-center justify-between border-b border-black/10 px-6 py-4"><span className="font-bold">{site.title}</span><span className="text-xs text-gray-500">Prévia responsiva</span></div><div className="flex min-h-[480px] flex-col justify-center gap-6 px-8 py-16 md:px-16" style={{backgroundColor:site.background}}>{site.blocks.map(b=><div key={b.id} style={{textAlign:b.align}}>{b.type==="heading"?<h2 style={{color:b.color}} className="text-4xl font-bold leading-tight md:text-6xl">{b.text}</h2>:b.type==="paragraph"?<p style={{color:b.color}} className="text-lg leading-relaxed">{b.text}</p>:<a href="#contato" style={{backgroundColor:b.color}} className="inline-block rounded-xl px-7 py-4 font-semibold text-white">{b.text}</a>}</div>)}</div></section>
+        <section className="flex min-h-[580px] flex-col rounded-2xl border border-white/15 bg-[#141d1a] p-4"><h2 className="mb-3 font-semibold">Chat com IA</h2><div aria-live="polite" className="mb-4 flex-1 space-y-3 overflow-y-auto">{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><form onSubmit={e=>{e.preventDefault();void send();}} className="space-y-3"><textarea aria-label="Descreva a criação ou alteração" value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Crie um site para uma clínica odontológica... ou Centralize todos os textos e o botão..." rows={4} className="w-full rounded-xl border border-white/20 bg-black/30 p-3 text-white outline-none focus:border-lime-300"/><label className="block cursor-pointer rounded-xl border border-white/20 p-3 text-center text-sm">📎 Anexar imagem de referência<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e=>attachImage(e.target.files?.[0])}/></label>{reference && <p className="text-xs text-lime-300">Imagem anexada à conversa</p>}<button type="submit" disabled={busy} className="w-full rounded-xl bg-lime-300 p-3 font-bold text-black disabled:opacity-60">{busy ? "IA trabalhando..." : "Enviar e aplicar →"}</button></form><p className="mt-3 text-xs text-white/50">A IA recebe o site atual e suas instruções. Salvamento local experimental; publicação e persistência no servidor ainda não estão disponíveis.</p></section>
+        <section className="overflow-hidden rounded-2xl border border-white/15 bg-white text-black"><div className="flex items-center justify-between border-b border-black/10 px-6 py-4"><span className="font-bold">{site.title}</span><span className="text-xs text-gray-500">Prévia responsiva</span></div><div className="flex min-h-[480px] flex-col justify-center gap-6 px-8 py-16 md:px-16" style={{backgroundColor:site.background}}>{site.blocks.map(b=><div key={b.id} style={{textAlign:b.align}}>{b.type==="heading"?<h2 style={{color:b.color}} className="text-4xl font-bold leading-tight md:text-6xl">{b.text}</h2>:b.type==="image"?<>{b.src ? <img src={b.src} alt={b.text || "Imagem do site"} className="mx-auto max-h-[440px] w-full rounded-xl object-cover"/> : <div className="rounded-xl bg-gray-100 p-12 text-center text-gray-500">Imagem ainda não definida</div>}</>:b.type==="paragraph"?<p style={{color:b.color}} className="text-lg leading-relaxed">{b.text}</p>:<a href="#contato" style={{backgroundColor:b.color}} className="inline-block rounded-xl px-7 py-4 font-semibold text-white">{b.text}</a>}</div>)}</div></section>
       </div>
     </div>
   </main>;
