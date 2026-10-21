@@ -41,12 +41,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         "Você é o arquiteto de sites premium PageNova. Responda APENAS JSON com title, background e sections: array de 7 a 9 objetos {id,layout,goal}. Layout permitido: hero,grid,split,banner,faq,standard. Não invente nome de escritório, telefone, endereço, profissionais ou depoimentos. Crie uma arquitetura elegante, não repetitiva. A instrução do usuário prevalece.",
         {instruction},1200
       );
-      const sections = Array.isArray(plan.sections) ? plan.sections.filter((v):v is Record<string,unknown>=>!!v&&typeof v==="object").slice(0,9) : [];
+      const sections = Array.isArray(plan.sections) ? plan.sections.filter((v):v is Record<string,unknown>=>!!v&&typeof v==="object").slice(0,9).filter(v=>!/(depoiment|testemunh|cliente|parceiro|equipe|profissionai|publicaç|artigo|notícia)/i.test(String(v.id)+" "+String(v.goal))) : [];
       if (sections.length < 5) throw new Error("invalid-plan");
       const batches = [sections.slice(0,Math.ceil(sections.length/2)),sections.slice(Math.ceil(sections.length/2))];
       const results = await Promise.all(batches.map(async (batch,index) => {
         const out = await callAI(
-          "Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e 1 a 5 blocos apropriados. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste; hero fundo escuro, outras seções claras, grids com cards claros. Em grid: heading + 3 a 5 paragraphs separados. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Texto conciso, premium e adequado ao segmento. Não gere seções fora da lista. A instrução do usuário prevalece.",
+          "Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e 1 a 5 blocos apropriados. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste; hero fundo escuro, outras seções claras, grids com cards claros. Em grid: heading + 3 a 5 paragraphs separados. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Texto conciso, premium e adequado ao segmento. Não gere seções fora da lista. PROIBIDO inventar nomes de empresas, equipes, advogados, clientes, endereços, telefones, emails, anos de experiência, depoimentos ou afirmações de clientes reais. Sem dados de contato, apresente CTA para solicitar informações sem prometer formulário funcional. Prefira hero editorial, cards concisos, faixa de benefícios e FAQ em vez de blocos longos. A instrução do usuário prevalece.",
           {instruction,siteTitle:plan.title,sections:batch,batch:index},4500
         );
         return Array.isArray(out.blocks)?out.blocks:[];
@@ -63,9 +63,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:typeof b.section==="string"?b.section:"principal"};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      const generatedSections=new Set(blocks.map(b=>b.section));
-      if(blocks.length<12||sections.filter(sec=>generatedSections.has(String(sec.id))).length<5)throw new Error("incomplete-site");
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      const forbidden = /(?:\b(?:dra?\.?\s+[A-ZÁÉÍÓÚ][a-záéíóú]+\s+[A-ZÁÉÍÓÚ][a-záéíóú]+)|\(\d{2}\)\s*\d{4,5}[- ]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|(?:av\.?|avenida|rua)\s+[\wÀ-ÿ\s]+,\s*\d{2,}|cliente anônimo|depoimentos reais)/i;
+      const safeBlocks = blocks.filter(b=>!forbidden.test(b.text));
+      const generatedSections=new Set(safeBlocks.map(b=>b.section));
+      if(safeBlocks.length<10||sections.filter(sec=>generatedSections.has(String(sec.id))).length<4)throw new Error("incomplete-site");
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:safeBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       return NextResponse.json({error:"A geração completa falhou. O projeto foi preservado. Código: SITE_GENERATION_FAILED."},{status:502});
