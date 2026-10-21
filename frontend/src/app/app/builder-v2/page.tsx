@@ -195,17 +195,17 @@ export default function BuilderV2() {
           const blocks=group.blocks;
           const first=blocks[0];
           const id=group.id.toLowerCase();
-          const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
+          const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || (/galeria|foto/i.test(id)?"gallery":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
           const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
           const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
           
           const heading=blocks.filter(b=>b.type==="heading");
-          const images=blocks.filter(b=>b.type==="image");
+          const images=blocks.filter(b=>b.type==="image"&&!!b.src);
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
           const render=(b:Block)=> {
-            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2.2rem,5vw,4.7rem)] font-bold leading-[1.06] tracking-[-.05em]":"text-[clamp(1.7rem,3vw,2.8rem)] font-bold leading-tight tracking-[-.035em]"}>{b.text}</h2>;
+            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2.2rem,5vw,4.7rem)] font-bold leading-[1.06] tracking-[-.05em]":"text-[clamp(1.7rem,3vw,2.8rem)] font-bold leading-tight tracking-[-.035em]"}>{b.text.replace(/\\s*[-–—,;]?\\s*(?:layout|design|background|fundo)\\s*:\\s*[^,;]+/giu,"").trim()}</h2>;
             if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className="text-[15px] leading-[1.7] md:text-lg">{b.text}</p>;
             if(b.type==="image") return b.src?<img key={b.id} data-block-id={b.id} src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover"/>:null;
             return <a key={b.id} data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:undefined} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{b.text}</a>;
@@ -213,7 +213,7 @@ export default function BuilderV2() {
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
           const visualLayout=layout==="standard"&&textItems.length>=3?"grid":layout;
           const isGallery=visualLayout==="gallery";
-          const cardItems=isGallery?images:textItems;
+          const cardItems=isGallery?images:textItems.slice(0,6);
           const cardText=(b:Block)=>{const parts=b.text.split(/:\s|\s[—–]\s/);return {name:parts.length>1?parts[0].trim():"",description:parts.length>1?parts.slice(1).join(" — ").trim():b.text};};
           return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-12 sm:px-8 md:px-14 md:py-20">
             <div className="mx-auto max-w-6xl">
@@ -224,7 +224,7 @@ export default function BuilderV2() {
                     {isGallery?render(item):<><span className="mb-5 inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-[#f5f0e4] px-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></>}
                   </article>})}
                 </div>
-                {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4">{images.slice(0,2).map(render)}</div>}
+                {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">{images.slice(0,2).map(render)}</div>}
                 {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
               </>:
               visualLayout==="faq"?<>
