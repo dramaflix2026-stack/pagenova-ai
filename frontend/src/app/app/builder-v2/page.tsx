@@ -10,6 +10,20 @@ const initial: Site = { title: "Meu novo site", background: "#ffffff", blocks: [
   { id: "hero-description", type: "paragraph", text: "Uma experiência criada para apresentar sua marca com clareza.", color: "#52645c", align: "left" },
   { id: "hero-cta", type: "button", text: "Fale conosco", color: "#1c5942", align: "left" }
 ] };
+const premiumThemes = {
+  legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
+  health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
+  creative: {dark:"#202327",accent:"#e5cbb3",light:"#f7f5f1"}
+};
+function readableColor(color:string,background:string) {
+  const rgb=(value:string)=>{const v=value.trim().replace("#","");if(!/^[0-9a-f]{6}$/i.test(v))return null;return [0,2,4].map(i=>parseInt(v.slice(i,i+2),16)/255).map(x=>x<=.04045?x/12.92:Math.pow((x+.055)/1.055,2.4));};
+  const fg=rgb(color),bg=rgb(background);
+  if(!fg||!bg)return color;
+  const l=(v:number[])=>v[0]*.2126+v[1]*.7152+v[2]*.0722;
+  const contrast=(a:number,b:number)=>(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+  if(contrast(l(fg),l(bg))>=4.5)return color;
+  return l(bg)>.4?"#24332e":"#f8f5e9";
+}
 const storageKey = "pagenova-builder-v2-private-v1";
 function applyInstruction(site: Site, instruction: string): { site: Site; summary: string } | null {
   const text = instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -131,19 +145,21 @@ export default function BuilderV2() {
           const first=blocks[0];
           const id=group.id.toLowerCase();
           const layout=first?.layout || (/servic|especialidade|benefic|diferencia/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre/.test(id)?"split":index===0?"hero":"standard");
+          const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
+          const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
           const heading=blocks.filter(b=>b.type==="heading");
           const images=blocks.filter(b=>b.type==="image");
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
           const render=(b:Block)=> <div key={b.id} data-block-id={b.id} style={{textAlign:b.align,marginBlock:b.spacing!==undefined?Math.min(60,Math.max(0,b.spacing)):undefined}}>
-            {b.type==="heading"?<h2 style={{color:b.color,fontSize:b.fontSize?Math.min(80,Math.max(16,b.fontSize)):undefined}} className="text-2xl font-bold leading-tight tracking-tight md:text-5xl">{b.text}</h2>:b.type==="paragraph"?<p style={{color:b.color,fontSize:b.fontSize?Math.min(40,Math.max(12,b.fontSize)):undefined}} className="text-base leading-relaxed md:text-lg">{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href="#contato" style={{backgroundColor:b.color,borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
+            {b.type==="heading"?<h2 style={{color:readableColor(b.color,sectionBackground),fontSize:b.fontSize?Math.min(80,Math.max(16,b.fontSize)):undefined}} className={layout==="hero"?"text-4xl font-extrabold leading-[1.09] tracking-[-0.045em] md:text-7xl":"text-3xl font-bold leading-[1.12] tracking-[-0.035em] md:text-5xl"}>{b.text}</h2>:b.type==="paragraph"?<p style={{color:b.color,fontSize:b.fontSize?Math.min(40,Math.max(12,b.fontSize)):undefined}} className={layout==="hero"?"text-lg leading-relaxed md:text-xl":"text-base leading-[1.8] md:text-lg"}>{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href="#contato" style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color),borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
           </div>;
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
-          return <section key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:first?.background||(index%2?"#f7f8f6":site.background)}} className="px-5 py-12 md:px-12 md:py-20">
+          return <section key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-6 py-16 md:px-14 md:py-28">
             <div className="mx-auto max-w-6xl">
-              {layout==="grid"||layout==="gallery"?<><div className="mb-7 space-y-3">{heading.map(render)}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
-              layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-4"><summary className="cursor-pointer font-semibold" style={{color:b.color}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
-              layout==="split"||layout==="hero"?<div className={images.length?"grid items-center gap-8 md:grid-cols-2":"mx-auto max-w-3xl"}><div className="space-y-5">{heading.map(render)}{textItems.map(render)}{buttons.map(render)}</div>{images.length>0?<div className="space-y-4">{images.map(render)}</div>:null}</div>:
+              {layout==="grid"||layout==="gallery"?<><div className="mb-7 space-y-3">{heading.map(render)}</div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className="rounded-2xl border border-black/10 bg-white p-7 shadow-sm transition-shadow hover:shadow-lg md:p-9">{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
+              layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-4"><summary className="cursor-pointer font-semibold" style={{color:readableColor(b.color,"#ffffff")}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
+              layout==="split"||layout==="hero"?<div className={images.length?"grid items-center gap-10 md:grid-cols-2 md:gap-16":layout==="hero"?"mx-auto max-w-4xl py-5 md:py-12":"mx-auto max-w-3xl"}><div className="space-y-7">{heading.map(render)}{textItems.map(render)}{buttons.map(render)}</div>{images.length>0?<div className="space-y-4">{images.map(render)}</div>:null}</div>:
               <div className="mx-auto max-w-3xl space-y-5">{blocks.filter(b=>b.type!=="paragraph"||textItems.includes(b)).map(render)}</div>}
             </div>
           </section>;
