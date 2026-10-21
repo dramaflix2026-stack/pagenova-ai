@@ -9,6 +9,7 @@ import type {
   UniversalSectionPlan,
   UniversalSiteStrategy,
 } from "@/lib/site-builder-universal";
+import { planUniversalSite } from "@/lib/site-builder-universal";
 
 /**
  * PageNova Universal Renderer
@@ -261,7 +262,16 @@ export function createUniversalRenderModel(
   project: SiteProject,
   pageKey: SitePageKey,
 ): UniversalRenderModel | null {
-  const strategy = project.siteStrategy;
+  const persisted = project.siteStrategy;
+  // Older drafts retain their original section plan, but visual tokens are
+  // recomputed from the canonical user brief to avoid stale green palettes.
+  const refreshed = persisted && project.brief?.trim()
+    ? planUniversalSite({ name: project.name, brief: project.brief, category: persisted.profile?.category })
+    : null;
+  const strategy = persisted && refreshed
+    ? { ...persisted, design: { ...persisted.design, palette: refreshed.design.palette,
+        defaultFont: refreshed.design.defaultFont, motionStyle: refreshed.design.motionStyle } }
+    : persisted;
   const page = project.pages?.[pageKey];
 
   if (!strategy || !page) {
@@ -1272,6 +1282,12 @@ function universalRendererStyles(
     .pn-universal-hero .btn,.pn-universal-final-cta .btn{background:var(--pn-accent);border-color:var(--pn-accent);color:#fff}
     .pn-universal-hero .eyebrow,.pn-universal-section .eyebrow{color:var(--pn-accent)}
     .pn-universal-hero-visual{background:var(--pn-soft)}
+    /* Accessible text treatment for all hero layouts, including older drafts. */
+    .pn-universal-hero h1,.pn-universal-hero .pn-universal-hero-copy h1{color:var(--pn-text)!important;text-shadow:none!important}
+    .pn-universal-hero .pn-universal-hero-copy{isolation:isolate}
+    .pn-universal-hero{background:var(--pn-soft)}
+    .pn-universal-section h2{overflow-wrap:anywhere}
+    @media(max-width:760px){.pn-universal-hero h1{font-size:clamp(2rem,9vw,3.5rem)!important;line-height:1.08!important}}
     /* Hybrid banner: composition reserves a dedicated readable text zone. */
     .pn-banner-mode-hybrid .pn-universal-hero-inner{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(24px,4vw,72px)}
     .pn-banner-mode-hybrid .pn-universal-hero-copy{position:relative;z-index:2;padding-block:clamp(30px,5vw,85px)}
