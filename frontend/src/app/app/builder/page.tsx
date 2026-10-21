@@ -1746,6 +1746,8 @@ export default function BuilderPage() {
       crmPreviewHtml,
       crmProjectId,
       project?.pages[activePage],
+      project?.brief,
+      project?.templateId,
       project?.extraSections?.[activePage],
       project?.previewTheme,
       project?.visualDirection,
@@ -1939,7 +1941,7 @@ export default function BuilderPage() {
 
     // A nova aba recebe a mesma renderizacao do editor, mas sem a camada de
     // edicao inline. Isso evita publicar ou duplicar dados so para visualizar.
-    const html = appendExtraSections(crmPreviewHtml || renderSitePreview(project, activePage),project.extraSections?.[activePage]);
+    const html = appendExtraSections(crmPreviewHtml ? applyCrmBriefPalette(crmPreviewHtml, project.brief) : renderSitePreview(project, activePage),project.extraSections?.[activePage]);
     const config = JSON.stringify({
       version: 1,
       page: activePage,
