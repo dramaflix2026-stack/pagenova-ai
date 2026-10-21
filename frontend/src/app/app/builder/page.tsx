@@ -612,6 +612,11 @@ export default function BuilderPage() {
           offer: site.institutional.offer || "",
           process: site.institutional.process || "",
           proof: site.institutional.proof || "",
+          // Preserve customer-uploaded imagery across AI page generation
+          // and subsequent revisions; the API cannot recover omitted photos.
+          portrait: site.institutional.portrait || "",
+          businessPhoto: site.institutional.businessPhoto || "",
+          workPhoto: site.institutional.workPhoto || "",
         } : undefined,
         currentHeaderDirection: site.headerDirection || undefined,
         instruction: editInstruction, screenshot, existingPage: editInstruction ? JSON.stringify(site.pages[key]).slice(0, 6000) : "", siteContext: editInstruction ? JSON.stringify({ renderedElements, activePage: key, pages: SITE_PAGES.map(({ key: pageKey }) => ({ key: pageKey, page: site.pages[pageKey] ? { heading: site.pages[pageKey]?.heading, eyebrow: site.pages[pageKey]?.eyebrow, introduction: site.pages[pageKey]?.introduction, cta: site.pages[pageKey]?.cta, sections: site.pages[pageKey]?.sections?.map(section => ({ title: section.title, kind: section.kind })) } : null })), liveEdits: site.liveEdits?.[key] || [], renderedSite: crmPreviewHtml ? (() => { const doc = new DOMParser().parseFromString(crmPreviewHtml, "text/html"); doc.querySelectorAll("script,style,noscript,iframe,svg").forEach(node => node.remove()); return { title: doc.title, headings: Array.from(doc.querySelectorAll("h1,h2,h3")).slice(0, 50).map(el => ({ tag: el.tagName.toLowerCase(), text: el.textContent?.trim().slice(0, 180) })), buttons: Array.from(doc.querySelectorAll("button,a,[role=button]")).slice(0, 45).map(el => ({ text: el.textContent?.trim().slice(0, 100), href: el.getAttribute("href")?.slice(0, 120) })), sections: Array.from(doc.querySelectorAll("section,header,footer,nav,main")).slice(0, 55).map(el => ({ tag: el.tagName.toLowerCase(), id: el.id.slice(0, 80), className: typeof el.className === "string" ? el.className.slice(0, 120) : "", text: el.textContent?.trim().slice(0, 200) })) }; })() : null, headerDirection: site.headerDirection, visualDirection: site.visualDirection }).slice(0, 11000) : "" }),
