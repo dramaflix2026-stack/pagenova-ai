@@ -81,8 +81,17 @@ export async function POST(request: NextRequest) {
     portrait: project.institutional?.portrait || "",
     businessPhoto: project.institutional?.businessPhoto || project.institutional?.workPhoto || "",
   };
-  if (Object.values(images).some((image) =>
-    image && (!/^data:image\/(png|jpeg|webp);base64,/.test(image) || image.length > 7_500_000))) {
+  const validPublicationImage = (image: string) => {
+    if (!image) return true;
+    if (/[\u0000-\u001f\u007f]/.test(image)) return false;
+    if (/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(image)) {
+      return image.length <= 7_500_000;
+    }
+    // Images already hosted on HTTPS or under our own site are valid too.
+    // Do not silently reject them while synchronizing the published overlay.
+    return image.length <= 4096 && (/^https:\/\/[^\s]+$/i.test(image) || /^\/[^/]/.test(image));
+  };
+  if (Object.values(images).some(image => !validPublicationImage(image))) {
     return NextResponse.json({ error: "Formato ou tamanho de imagem inválido." }, { status: 400 });
   }
   const payload = JSON.stringify({
