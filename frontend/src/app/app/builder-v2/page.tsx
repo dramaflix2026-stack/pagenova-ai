@@ -204,27 +204,29 @@ export default function BuilderV2() {
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
-          const render=(b:Block)=> {
-            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2.2rem,5vw,4.7rem)] font-bold leading-[1.06] tracking-[-.05em]":"text-[clamp(1.7rem,3vw,2.8rem)] font-bold leading-tight tracking-[-.035em]"}>{b.text.replace(/\\s*[-–—,;]?\\s*(?:layout|design|background|fundo)\\s*:\\s*[^,;]+/giu,"").trim()}</h2>;
-            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className="text-[15px] leading-[1.7] md:text-lg">{b.text}</p>;
-            if(b.type==="image") return b.src?<img key={b.id} data-block-id={b.id} src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover"/>:null;
-            return <a key={b.id} data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:undefined} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{b.text}</a>;
-          };
-          const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
-          const visualLayout=layout==="standard"&&textItems.length>=3?"grid":layout;
+          const visualLayout=layout==="standard"&&paragraphs.length>=3?"grid":layout;
           const isGallery=visualLayout==="gallery";
-          const cardItems=isGallery?images:textItems.slice(0,6);
-          const cardText=(b:Block)=>{const parts=b.text.split(/:\s|\s[—–]\s/);return {name:parts.length>1?parts[0].trim():"",description:parts.length>1?parts.slice(1).join(" — ").trim():b.text};};
-          return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-12 sm:px-8 md:px-14 md:py-20">
+          const clean=(value:string)=>value.replace(/\s*[-–—,;]?\s*(?:layout|design|background|fundo)\s*:\s*[^,;]+/giu,"").replace(/\s*[-–—]\s*$/u,"").trim();
+          const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
+          const galleryImages=isGallery?(images.length?images:previewBlocks.filter(b=>b.type==="image"&&!!b.src).slice(0,6)):images;
+          const cardItems=isGallery?galleryImages:textItems.slice(0,6);
+          const cardText=(b:Block)=>{const parts=clean(b.text).split(/:\s|\s[—–]\s/);return {name:parts.length>1?parts[0].trim():"",description:parts.length>1?parts.slice(1).join(" — ").trim():clean(b.text)};};
+          const render=(b:Block)=> {
+            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2.2rem,5vw,4.7rem)] font-bold leading-[1.08] tracking-[-.045em]":"max-w-3xl text-[clamp(1.65rem,3vw,2.65rem)] font-bold leading-[1.15] tracking-[-.035em]"}>{clean(b.text)}</h2>;
+            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className="max-w-2xl text-base leading-[1.65] md:text-lg">{clean(b.text)}</p>;
+            if(b.type==="image") return b.src?<img key={b.id} data-block-id={b.id} src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover"/>:null;
+            return <a key={b.id} data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:undefined} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{clean(b.text)}</a>;
+          };
+          return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-14 sm:px-8 md:px-14 md:py-24">
             <div className="mx-auto max-w-6xl">
               {visualLayout==="grid"||isGallery?<>
-                <div className="mb-8 max-w-3xl space-y-3">{heading.map(render)}</div>
+                <div className="mb-9 max-w-3xl space-y-3">{heading.map(render)}</div>
                 <div className={"grid gap-4 "+(isGallery?"grid-cols-2 lg:grid-cols-3":"md:grid-cols-2 lg:grid-cols-3")}>
-                  {cardItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} className={isGallery?"overflow-hidden rounded-2xl bg-white shadow-sm":"rounded-2xl border border-[#e7e4dd] bg-white p-5 shadow-sm md:p-6"}>
+                  {cardItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} className={isGallery?"overflow-hidden rounded-2xl bg-white shadow-sm":i===0?"rounded-2xl border border-[#e7e4dd] bg-white p-6 shadow-sm md:p-8":"rounded-2xl border border-[#e7e4dd] bg-white p-5 shadow-sm md:p-6"}>
                     {isGallery?render(item):<><span className="mb-5 inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-[#f5f0e4] px-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></>}
                   </article>})}
                 </div>
-                {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">{images.slice(0,2).map(render)}</div>}
+                {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">{images.slice(0,1).map(render)}</div>}
                 {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
               </>:
               visualLayout==="faq"?<>
@@ -233,7 +235,7 @@ export default function BuilderV2() {
               </>:
               visualLayout==="hero"||visualLayout==="split"?<div className={images.length?"grid items-center gap-8 md:grid-cols-2 md:gap-14":"mx-auto max-w-3xl"}>
                 <div className="space-y-5">{heading.map(render)}{textItems.map(render)}<div className="flex flex-wrap gap-3">{buttons.map(render)}</div></div>
-                {images.length>0&&<div className="grid gap-4">{images.slice(0,2).map(render)}</div>}
+                {images.length>0&&<div className="grid gap-4">{images.slice(0,1).map(render)}</div>}
               </div>:
               <div className="mx-auto max-w-3xl space-y-5">{heading.map(render)}{textItems.map(render)}{images.length>0&&<div className="grid grid-cols-2 gap-4">{images.map(render)}</div>}{buttons.map(render)}</div>}
 
