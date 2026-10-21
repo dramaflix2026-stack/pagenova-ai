@@ -153,19 +153,33 @@ function resolveVariant(
   });
   if (check.ok) return requested;
 
-  const fallback = variantsFor(type)[0];
-  return fallback?.id ?? requested;
+  // The first registered variant is not necessarily compatible with this
+  // section's item count or image availability. Select a valid one.
+  const fallback = variantsFor(type).find((variant) => checkCompatibility({
+    variantId: variant.id,
+    type,
+    itemCount,
+    hasImage,
+    motionPreset: 'fade-in',
+  }).ok);
+  return fallback?.id ?? variantsFor(type)[0]?.id ?? requested;
 }
 
 const STANDARD_SECTION_ORDER: ReadonlyArray<PlanSection['type']> = [
   'hero',
+  'authority',
   'benefits',
   'services',
+  'audience',
   'about',
   'process',
+  'stats',
+  'gallery',
+  'offer',
   'testimonials',
   'faq',
   'contactMap',
+  'whatsappForm',
   'cta',
   'footer',
 ];
@@ -194,8 +208,8 @@ export function assemblePlan(input: AssembleInput): AssembleResult {
   const droppedSections: Array<{ type: string; reason: string }> = [];
   const aiWarnings = plan.missingDataWarnings.map((warning) => sanitizeLine(warning, 300));
 
-  // Passo 1: monta as secoes que TEM os fatos necessarios; descarta as que nao
-  // tem. A ordem do plano e preservada -- e a composicao que a IA decidiu.
+  // Build only sections supported by the available facts. Keep the canonical
+  // ordering while preserving optional editorial sections supplied by the plan.
   const built: SiteSection[] = [];
   const counters = new Map<string, number>();
 
@@ -623,10 +637,10 @@ function reresolveAnchors(sections: SiteSection[], fallbackAnchor: string): void
 }
 
 function buildNavigation(sections: SiteSection[], plan: SitePlanOutput, business: BusinessFacts) {
-  const EXCLUDED = new Set(['hero', 'footer', 'cta', 'whatsappForm']);
+  const EXCLUDED = new Set(['hero', 'footer', 'cta', 'whatsappForm', 'stats', 'gallery']);
 
   const items = sections
-    .filter((section) => !EXCLUDED.has(section.type) && section.anchor)
+    .filter((section) => section.visible && !EXCLUDED.has(section.type) && section.anchor)
     .slice(0, 5)
     .map((section) => ({
       label: sanitizeLine(('headline' in section && section.headline) || section.type, 30),
