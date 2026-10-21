@@ -92,7 +92,12 @@ const sourceData = readFileSync(previewData, 'utf8');
 // bundled into production, even if the underlying V7 template exists.
 if (!sourceComponent.includes('data-pn-operation-steps') ||
     !sourceData.includes('steps?: TemplateBenefit[]')) {
-  throw new Error('[FRIGOLOG] Cached frontend source is missing the operation steps. Refusing outdated build.');
+  const missing = [
+    !sourceComponent.includes('data-pn-operation-steps') ? 'component: operation steps' : null,
+    !sourceData.includes('steps?: TemplateBenefit[]') ? 'data: steps interface' : null,
+  ].filter(Boolean).join(', ');
+  throw new Error('[FRIGOLOG] Canonical source validation failed (' + missing +
+    '). Refusing outdated build. Check pinned Git commit and mirror refresh.');
 }
 // Do not accept a green backend deployment whose cached frontend predates the
 // continuous mobile KPI rail. Railway may restore a mirror from an older build.
