@@ -2261,7 +2261,8 @@ export default function BuilderPage() {
                 {generatingPhotoKind==="work"?"Gerando imagem secundária…":"Gerar imagem secundária"}
               </button>
             </div>
-            <p className="mt-2 text-[11px] text-white/45">Cada clique gera uma imagem com IA e consome uma chamada paga. Revise o resultado antes de publicar.</p>
+            <p className="mt-2 text-[11px] text-white/45">Cada geração utiliza uma chamada paga, inclusive se o provedor falhar após a reserva. Aguarde o resultado antes de publicar.</p>
+            {generatingPhotoKind && <p role="status" aria-live="polite" className="mt-2 text-xs text-emerald-200">Gerando fotografia com IA. Pode levar até 90 segundos; não feche esta página.</p>}
           </div>
           <div>
             <span className="sr-only">PageNova AI</span>
