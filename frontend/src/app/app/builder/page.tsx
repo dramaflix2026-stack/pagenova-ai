@@ -868,6 +868,12 @@ export default function BuilderPage() {
     // Do not submit a generic draft label when the briefing contains the
     // person's or business's actual name. Purely local parsing: no AI call.
     const inferredName = inferSiteBrand(prompt) || "Novo projeto";
+    // Keep explicit brand colors visible to the upstream CRM generator.
+    const colorNames = ["azul", "branco", "verde", "preto", "cinza", "dourado", "amarelo", "vermelho", "rosa", "roxo", "laranja", "bege", "marrom"];
+    const requestedColors = colorNames.filter(color => new RegExp(`\\b${color}(?:s|a|as)?\\b`, "i").test(prompt));
+    const colorInstruction = requestedColors.length
+      ? `PALETA OBRIGATÓRIA: ${requestedColors.join(" e ")}. Não substituir por verde ou outra cor não solicitada. Preserve contraste AA para títulos, textos e botões.`
+      : "Escolha uma paleta apropriada ao setor, garantindo contraste legível.";
 
     setPhase("generating");
     setGenerationProgress(INITIAL_GENERATION_PROGRESS);
@@ -928,11 +934,11 @@ export default function BuilderPage() {
             objective: { goal: "QUOTE_REQUESTS" },
             style: {
               theme: "AI_DECIDES",
-              keywords: style === "automatico" ? ["responsivo"] : [style, "responsivo"],
+              keywords: [...(style === "automatico" ? [] : [style]), ...requestedColors, "responsivo", "contraste-legivel"],
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: `Crie um site profissional, completo e responsivo para o negócio descrito. Respeite as cores e o nicho. Inclua serviços, benefícios, sobre, perguntas frequentes, contato e chamada para ação. Não invente endereço, preços, credenciais ou depoimentos. Use textos claros e imagens pertinentes. Briefing: ${annotatedPrompt}`.slice(0, 1800),
+            freeformInstructions: `BRIEFING DO CLIENTE (prioridade máxima): ${annotatedPrompt.slice(0, 1150)}. ${colorInstruction} Crie site responsivo com serviços, benefícios, sobre, perguntas frequentes, contato e CTA. Fotografia obrigatoriamente coerente com o ramo do cliente: clínica odontológica exige consultório, dentistas ou atendimento odontológico; não use lojas, roupas, escritórios genéricos ou ambientes de outro setor. No celular, use títulos legíveis, fotos com sobreposição escura quando houver texto branco, cards compactos sem altura mínima exagerada e espaçamentos proporcionais. Não invente endereço, preços, credenciais ou depoimentos.`.slice(0, 1800),
                         requiredSections: [], // CRM validates a narrower section enum; let its generator choose sections.
             forbiddenSections: []
           }
