@@ -137,7 +137,15 @@ A imagem deve parecer produzida especificamente para ${name}, e não uma fotogra
       body: JSON.stringify({ model: process.env.PAGENOVA_IMAGE_MODEL || "gpt-image-1",
         prompt, size: "1536x1024", quality: "medium", output_format: "jpeg", output_compression: 76, n: 1 }),
     });
-    if (!result.ok) { console.error("[Builder image] Provider failed", result.status); return NextResponse.json({ error: "Não foi possível criar a imagem." }, { status: 502 }); }
+    if (!result.ok) {
+      console.error("[Builder image] Provider failed", result.status);
+      const message = result.status === 429
+        ? "O serviço de imagens está temporariamente sobrecarregado. Aguarde antes de tentar novamente."
+        : result.status === 401 || result.status === 403
+          ? "A configuração do serviço de imagens precisa ser revisada."
+          : "Não foi possível criar a imagem. Tente novamente mais tarde.";
+      return NextResponse.json({ error: message }, { status: 502 });
+    }
     const payload = await result.json() as { data?: { b64_json?: string }[] };
     const base64 = payload.data?.[0]?.b64_json;
     if (!base64 || base64.length > 8_000_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new Error("Invalid image response");
