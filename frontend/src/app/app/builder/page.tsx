@@ -606,11 +606,15 @@ export default function BuilderPage() {
       if (!image.startsWith("data:image/webp;base64,") || image.length > 2_800_000) {
         throw new Error("Imagem muito grande após otimização. Escolha outra fotografia.");
       }
+      // Merge with the latest persisted project so an image request does not
+      // overwrite text edits made while the paid generation was running.
+      await waitForPageNovaProjectSaves(project.id);
+      const latest = await readPageNovaProject<SiteProject>(project.id) || project;
       const updated: SiteProject = {
-        ...project,
+        ...latest,
         institutional: {
           role: "", audience: "", offer: "", process: "", proof: "",
-          ...project.institutional,
+          ...latest.institutional,
           ...(kind === "hero" ? { portrait: image } : { businessPhoto: image, workPhoto: image }),
         },
       };
