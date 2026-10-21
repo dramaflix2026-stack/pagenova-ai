@@ -41,7 +41,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   const fallbackContext = normalizeIndustry(niche);
   const secondaryContext = normalizeIndustry(brief);
   const sectors: Array<{pattern: RegExp; subject: string; label: string}> = [
-    {pattern: /odont|dentist|dentari|ortodont|implante dent|clinica dental|sorriso prime/, subject: 'a contemporary dental treatment room with an empty dental chair, dental lamp and clean dental instruments', label: 'consultorio odontologico'},
+    {pattern: /odont|dentist|dentari|ortodont|implante dent|clinica dental|clareamento dental|saude bucal/, subject: 'a contemporary dental treatment room with an empty dental chair, dental lamp and clean dental instruments', label: 'consultorio odontologico'},
     {pattern: /estetica|spa|beleza|skincare|facial|depilac|cosmetic/, subject: 'a refined beauty treatment studio with a professional treatment bed and elegant skincare equipment', label: 'clinica de estetica'},
     {pattern: /cabelo|cabeleireir|barbearia|barber|salao de beleza/, subject: 'an upscale hair salon with styling chairs, large mirrors and professional hairdressing tools', label: 'salao de beleza'},
     {pattern: /restaurante|pizzaria|hamburguer|cafeteria|bistro|gastronom|sushi|padaria/, subject: 'a welcoming restaurant dining room with beautifully arranged tables and a warm culinary atmosphere', label: 'restaurante'},
