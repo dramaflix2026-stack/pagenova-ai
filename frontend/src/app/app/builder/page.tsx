@@ -1963,7 +1963,7 @@ export default function BuilderPage() {
   }
 
   async function publishSite() {
-    if (!project?.pages.home || publishing) return;
+    if (!project?.pages.home || publishing || imageBusyRef.current || phase === "generating") return;
     setPublishing(true);
     setError("");
     try {
