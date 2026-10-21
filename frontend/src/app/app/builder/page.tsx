@@ -889,7 +889,7 @@ export default function BuilderPage() {
             const after = normalizedBrief.slice((match.index ?? 0) + alias.length, (match.index ?? 0) + alias.length + 30);
             const context = before + alias + after;
             const colorIntent = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo|use|utilize|prefiro|quero|predominante)/.test(context);
-            const negated = /(?:nao|evite|sem|nunca)\\s+(?:usar?|utilizar?|colocar?|a cor\\s+)?\\s*$/.test(before);
+            const negated = /(?:nao|evite|sem|nunca)\s+(?:usar?|utilizar?|colocar?|a cor\s+)?\s*$/.test(before);
             return colorIntent && !negated;
           });
         })).map(([color]) => color)
