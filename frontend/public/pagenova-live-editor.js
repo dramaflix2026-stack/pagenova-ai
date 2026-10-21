@@ -790,6 +790,7 @@
     }).slice(0, 360).map(function(el) {
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
+        sectionSelector: el.closest("section,[class*=hero],[class*=Hero],[class*=banner]") ? path(el.closest("section,[class*=hero],[class*=Hero],[class*=banner]")) : "",
         text: (el.innerText || el.textContent || "").trim().slice(0, 160),
         image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined,
         href: el.matches("a") ? (el.getAttribute("href") || "") : undefined,
