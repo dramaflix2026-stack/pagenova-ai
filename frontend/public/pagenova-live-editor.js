@@ -309,6 +309,13 @@
         el.style.setProperty("margin-inline", "auto", "important");
         el.style.setProperty("justify-self", "center", "important");
         el.style.setProperty("align-self", "center", "important");
+        // A CTA inside a flex row with justify-content:flex-start remains
+        // left-aligned even with margin:auto. Center the actual CTA wrapper.
+        const wrapper = el.parentElement;
+        if (wrapper && wrapper.children.length === 1) {
+          wrapper.style.setProperty("justify-content", "center", "important");
+          wrapper.style.setProperty("text-align", "center", "important");
+        }
         if (["inline", "inline-block"].includes(getComputedStyle(el).display)) {
           el.style.setProperty("display", "table", "important");
         }
@@ -814,15 +821,15 @@
   function verifyHeroAlignment(selectors, alignment) {
     const nodes = selectors.map(find);
     if (nodes.some(el => !el || !el.getClientRects().length)) return false;
-    const hero = nodes[1].closest("section") || nodes[1].parentElement;
-    if (!hero) return false;
-    const box = hero.getBoundingClientRect();
     return nodes.every(function(el) {
-      const rect = el.getBoundingClientRect();
       if (getComputedStyle(el).textAlign !== alignment) return false;
       if (alignment === "center" && el.matches("a,button")) {
-        const delta = Math.abs((rect.left + rect.right) / 2 - (box.left + box.right) / 2);
-        return delta <= Math.max(14, box.width * 0.06);
+        const parent = el.parentElement;
+        if (!parent) return false;
+        const parentBox = parent.getBoundingClientRect();
+        const box = el.getBoundingClientRect();
+        const delta = Math.abs((box.left + box.right - parentBox.left - parentBox.right) / 2);
+        return delta <= Math.max(14, parentBox.width * 0.06);
       }
       return true;
     });
