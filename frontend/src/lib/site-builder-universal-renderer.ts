@@ -2441,12 +2441,24 @@ function universalRendererScript(): string {
       var link=target.closest('[data-page]');
       if(!link)return;
 
-      event.preventDefault();
-
-      parent.postMessage({
-        type:'pagenova-site-preview-page',
-        key:link.getAttribute('data-page')
-      },'*');
+      var page=link.getAttribute('data-page');
+      if(!page)return;
+      // In the editor iframe the host owns page navigation. On a
+      // standalone published page the same links must remain usable.
+      if(window.parent!==window){
+        event.preventDefault();
+        window.parent.postMessage({
+          type:'pagenova-site-preview-page',
+          key:page
+        },'*');
+        return;
+      }
+      var targetSection=document.getElementById(page);
+      if(targetSection){
+        event.preventDefault();
+        targetSection.scrollIntoView({behavior:'smooth',block:'start'});
+        history.replaceState(null,'','#'+page);
+      }
     });
   `;
 }
@@ -2454,10 +2466,8 @@ function universalRendererScript(): string {
 /**
  * Standalone Universal Renderer HTML.
  *
- * IMPORTANT:
- * This function is deliberately not wired into renderSitePreview during
- * E.4C. It can be integrated only after build validation and dispatcher
- * fallback review.
+ * This renderer is used by the universal site dispatcher for
+ * preview and standalone HTML output.
  */
 export function renderUniversalSitePreview(
   project: SiteProject,
