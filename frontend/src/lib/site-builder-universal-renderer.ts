@@ -1789,7 +1789,7 @@ function universalRendererStyles(
       position:relative;
       z-index:2;
       width:100%;
-      margin-top:26px;
+      margin-top:12px;
     }
 
     .pn-structured-grid{
@@ -1813,7 +1813,7 @@ function universalRendererStyles(
       justify-content:center;
       min-width:36px;
       height:28px;
-      margin-bottom:24px;
+      margin-bottom:14px;
       padding:0 10px;
       border:1px solid var(--pn-border);
       border-radius:999px;
