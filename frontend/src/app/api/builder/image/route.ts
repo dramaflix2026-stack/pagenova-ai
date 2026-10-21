@@ -18,6 +18,10 @@ export async function POST(request: NextRequest) {
     .eq("product", "pagenova-ai").eq("status", "active")
     .ilike("email", user.email.trim()).limit(1).maybeSingle();
   if (error || !entitlement) return NextResponse.json({ error: "Acesso indisponível." }, { status: 403 });
+  const origin = request.headers.get("origin");
+  if (origin && origin !== request.nextUrl.origin) return NextResponse.json({ error: "Origem não autorizada." }, { status: 403 });
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > 12_000) return NextResponse.json({ error: "Pedido muito grande." }, { status: 413 });
   let input: unknown;
   try { input = await request.json(); } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
   if (!input || typeof input !== "object") return NextResponse.json({ error: "Pedido inválido." }, { status: 400 });
@@ -126,13 +130,13 @@ A imagem deve parecer produzida especificamente para ${name}, e não uma fotogra
     const result = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST", signal: controller.signal,
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: process.env.PAGENOVA_IMAGE_MODEL || "gpt-image-2.5-flare",
+      body: JSON.stringify({ model: process.env.PAGENOVA_IMAGE_MODEL || "gpt-image-1",
         prompt, size: "1536x1024", quality: "medium", output_format: "jpeg", output_compression: 76, n: 1 }),
     });
     if (!result.ok) { console.error("[Builder image] Provider failed", result.status); return NextResponse.json({ error: "Não foi possível criar a imagem." }, { status: 502 }); }
     const payload = await result.json() as { data?: { b64_json?: string }[] };
     const base64 = payload.data?.[0]?.b64_json;
-    if (!base64 || base64.length > 8_000_000) throw new Error("Invalid image response");
+    if (!base64 || base64.length > 8_000_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new Error("Invalid image response");
     return NextResponse.json({ image: `data:image/jpeg;base64,${base64}` });
   } catch (cause) {
     console.error("[Builder image] Generation failed", cause);
