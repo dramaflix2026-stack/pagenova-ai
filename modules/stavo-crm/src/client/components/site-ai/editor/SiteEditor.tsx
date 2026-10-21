@@ -946,7 +946,7 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
         </div>
       ) : null}
 
-      {showAiTools&&<section id="pagenova-editor-ai-tools" className="max-h-[44dvh] shrink-0 overflow-y-auto overscroll-contain border-b border-primary/20 bg-surface px-3 py-3 md:max-h-[40vh]" aria-label="Alterar site com IA">
+      {showAiTools&&<section id="pagenova-editor-ai-tools" className="shrink-0 overflow-visible border-b border-primary/20 bg-surface px-3 py-3 " aria-label="Alterar site com IA">
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
           <div><p className="text-sm font-semibold text-foreground">✨ Alterar site com IA</p>
             <p className="text-[11px] text-muted-foreground">Peça mudanças na seção selecionada por texto, voz ou print.</p></div>
@@ -957,9 +957,9 @@ export function SiteEditor({ projectId }: SiteEditorProps) {
           </select>
         </div>
         <div className="flex flex-wrap items-end gap-2">
-          <textarea rows={2} value={aiInstruction} onChange={event=>setAiInstruction(event.target.value)}
+          <textarea rows={5} value={aiInstruction} onChange={event=>setAiInstruction(event.target.value)}
             placeholder="Ex.: troque o texto do botão, diminua a seção e destaque o benefício principal..."
-            className="w-full min-w-0 flex-1 resize-y rounded-lg border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary"/>
+            className="w-full min-w-full min-h-[150px] flex-[1_1_100%] resize-y rounded-lg border border-border bg-muted px-4 py-3 text-base leading-relaxed text-foreground outline-none placeholder:text-muted-foreground focus:border-primary sm:min-h-[120px]"/>
           <label className="inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg border border-border bg-muted" title="Adicionar print como referência">
             {aiAnalyzing?<Loader2 className="h-4 w-4 animate-spin"/>:<Paperclip className="h-4 w-4"/>}
             <input type="file" accept="image/jpeg,image/png,image/webp" disabled={aiAnalyzing} className="sr-only"
