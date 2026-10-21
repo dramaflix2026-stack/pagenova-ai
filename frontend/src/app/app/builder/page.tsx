@@ -951,7 +951,7 @@ export default function BuilderPage() {
               density: "BALANCED",
               motionLevel: "BALANCED"
             },
-            freeformInstructions: `BRIEFING DO CLIENTE (prioridade máxima): ${annotatedPrompt.slice(0, 1150)}. ${colorInstruction} Crie site responsivo com serviços, benefícios, sobre, perguntas frequentes, contato e CTA. Fotografia obrigatoriamente coerente com o ramo do cliente: clínica odontológica exige consultório, dentistas ou atendimento odontológico; não use lojas, roupas, escritórios genéricos ou ambientes de outro setor. No celular, use títulos legíveis, fotos com sobreposição escura quando houver texto branco, cards compactos sem altura mínima exagerada e espaçamentos proporcionais. Não invente endereço, preços, credenciais ou depoimentos.`.slice(0, 1800),
+            freeformInstructions: `BRIEFING DO CLIENTE (prioridade máxima): ${annotatedPrompt.slice(0, 1150)}. ${colorInstruction} Crie site responsivo com serviços, benefícios, sobre, perguntas frequentes, contato e CTA. Fotografias devem retratar exclusivamente o setor e os serviços descritos no briefing; nunca inserir fotos genéricas de outro ramo. Para clínica odontológica, use apenas consultórios, equipamentos odontológicos ou atendimento dentário. No celular, use títulos legíveis, fotos com sobreposição escura quando houver texto branco, cards compactos sem altura mínima exagerada e espaçamentos proporcionais. Não invente endereço, preços, credenciais ou depoimentos.`.slice(0, 1800),
                         requiredSections: [], // CRM validates a narrower section enum; let its generator choose sections.
             forbiddenSections: []
           }
