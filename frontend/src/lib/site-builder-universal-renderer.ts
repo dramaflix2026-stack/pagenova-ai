@@ -685,7 +685,7 @@ function renderUniversalHero(
         </div>
 
         <div class="pn-universal-hero-visual${heroPhoto ? " pn-has-photo" : ""}" aria-hidden="true">
-          ${heroPhoto ? `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="" loading="eager" decoding="async">` : ""}
+          ${heroPhoto ? `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="" loading="eager" fetchpriority="high" decoding="async">` : ""}
           <span class="pn-universal-hero-orb"></span>
           <span class="pn-universal-hero-mark">${escapeUniversalHtml(project.name.slice(0, 1).toUpperCase())}</span>
         </div>
@@ -2478,12 +2478,18 @@ export function renderUniversalSitePreview(
     project,
     model,
   );
+  const heroPhoto = model.strategy.design.heroStyle === "product" || model.strategy.design.bannerStyle === "product-focus"
+    ? firstUniversalImage(project.institutional?.workPhoto, project.institutional?.businessPhoto, project.institutional?.portrait)
+    : model.strategy.design.heroStyle === "editorial"
+      ? firstUniversalImage(project.institutional?.portrait, project.institutional?.businessPhoto, project.institutional?.workPhoto)
+      : firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait);
 
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  ${heroPhoto && !heroPhoto.startsWith("data:") ? `<link rel="preload" as="image" href="${escapeUniversalHtml(heroPhoto)}">` : ""}
   <title>${escapeUniversalHtml(project.name)}</title>
   ${description ? `<meta name="description" content="${escapeUniversalHtml(description)}">` : ""}
   <style>${universalRendererStyles(model.strategy)}</style>
