@@ -60,11 +60,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(!["heading","paragraph","button","image"].includes(String(b.type))||typeof b.text!=="string")return null;
         if(/^(?:\(?xx\)?[\s-]*){2,}|contato@clinic|rua principal\s*,?\s*123/i.test(b.text))return null;
         b.text=cleanGeneratedCopy(b.text);
-        const providedContact=/(?:\+?\d{2}\s*)?\(?\d{2}\)?\s*9?\d{4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[a-z]{2,}/i.test(instruction);
-        if(!providedContact&&/(?:\(?\d{2}\)?\s*9?\d{4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[a-z]{2,}|rua principal)/i.test(b.text))return null;
-        if(/(?:cl[ií]nica|est[eé]tica|tratamento|procedimento)/i.test(instruction)){
-          b.text=b.text.replace(/\bgarantem? (?:resultados?|tratamentos?) (?:eficazes?|seguros?)\b/gi,"auxiliam no cuidado personalizado").replace(/\bresultados? garantidos?\b/gi,"cuidados individualizados");
-        }
         const id=typeof b.id==="string"&&b.id?b.id:"block-"+index;
         const unique=seen.has(id)?id+"-"+index:id;seen.add(unique);
         return {...b,id:unique,color:typeof b.color==="string"?b.color:"#243043",
