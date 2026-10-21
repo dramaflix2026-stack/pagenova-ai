@@ -37,7 +37,10 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   // Structured niche wins over a long brief that may mention unrelated sectors
   // (for example, "not a clothing store"). The name is only a fallback.
   const normalizeIndustry = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const primaryContext = normalizeIndustry([industry, project.businessName].join(' '));
+  const primaryContext = normalizeIndustry(industry);
+  const businessNameContext = normalizeIndustry(String(project.businessName ?? ''));
+  // A confirmed structured niche outranks incidental sector words in the business name.
+  // Only fall back to the name when neither the niche nor the positive briefing matches.
   const fallbackContext = normalizeIndustry(niche);
   const secondaryContext = normalizeIndustry(brief);
   const sectors: Array<{pattern: RegExp; subject: string; label: string}> = [
@@ -61,7 +64,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   // An explicit exclusion must never be treated as a positive sector signal.
   const positiveBrief = secondaryContext
     .replace(/(?:nao|nunca|evite|sem)\s+(?:use|usar|utilize|coloque|inclua|mostre|imagem de|foto de|fotos de)?\s*(?:uma?\s+)?(?:loja|roupas|moda|escritorio|restaurante|clinica|consultorio)[^.;,\n]*/g, '');
-  const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(positiveBrief)) ?? sectors.find(item => item.pattern.test(fallbackContext));
+  const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(positiveBrief)) ?? sectors.find(item => item.pattern.test(businessNameContext)) ?? sectors.find(item => item.pattern.test(fallbackContext));
   const subject = sector?.subject ?? 'a refined neutral editorial still life of professional tools on a minimal studio background, with no unrelated retail or fashion scenery';
   const slotComposition = {
     hero: 'Wide establishing view of the relevant professional environment. Keep the right half visually interesting and the left half quiet enough for a readable title overlay.',
