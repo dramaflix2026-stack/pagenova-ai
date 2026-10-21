@@ -926,8 +926,8 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
     const safeSubmittedPhoto = (value: unknown): string => {
       if (typeof value !== "string") return "";
       const url = value.trim();
-      if (!url || url.length > 4096 || /[\\u0000-\\u001f\\u007f]/.test(url)) return "";
-      if (/^https:\\/\\/[^\\s]+$/i.test(url) || /^\\/[^\\/]/.test(url)) return url;
+      if (!url || url.length > 4096 || /[\u0000-\u001f\u007f]/.test(url)) return "";
+      if (/^https:\/\/[^\s]+$/i.test(url) || /^\/[^\/]/.test(url)) return url;
       return "";
     };
     const existingPhotos = {
