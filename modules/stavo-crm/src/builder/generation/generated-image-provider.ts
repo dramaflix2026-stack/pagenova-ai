@@ -34,14 +34,24 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   const draft = project.draftConfig as {freeformInstructions?: unknown; business?: {name?: unknown; niche?: unknown; description?: unknown}} | null;
   const brief = typeof draft?.freeformInstructions === 'string' ? draft.freeformInstructions.slice(0, 1800) : '';
   const industry = typeof draft?.business?.niche === 'string' ? draft.business.niche.slice(0, 100) : '';
-  const context = [niche, project.businessName, industry, brief].join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
-  const dental = /odont|dent|sorriso|ortodont|implante|clinica dental/i.test(context);
-  const technology = /tecnolog|tech|inform[aá]tic|sistemas|digital|software|comput|infraestrutura|conectividade|cloud/i.test(context);
-  const subject = dental
-    ? 'a modern, welcoming dental treatment room with an empty dental chair and clean equipment'
-    : technology
-      ? 'an elegant technology workspace featuring contemporary computers and thoughtfully designed network equipment, without any company branding'
-      : 'an elegant, contemporary small-business interior with no identifying branding';
+  const context = [niche, project.businessName, industry, brief].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const sectors: Array<{pattern: RegExp; subject: string; label: string}> = [
+    {pattern: /odont|dentist|dentari|ortodont|implante dent|clinica dental|sorriso prime/, subject: 'a contemporary dental treatment room with an empty dental chair, dental lamp and clean dental instruments', label: 'consultorio odontologico'},
+    {pattern: /estetica|spa|beleza|skincare|facial|depilac|cosmetic/, subject: 'a refined beauty treatment studio with a professional treatment bed and elegant skincare equipment', label: 'clinica de estetica'},
+    {pattern: /cabelo|cabeleireir|barbearia|barber|salao de beleza/, subject: 'an upscale hair salon with styling chairs, large mirrors and professional hairdressing tools', label: 'salao de beleza'},
+    {pattern: /restaurante|pizzaria|hamburguer|cafeteria|bistro|gastronom|sushi|padaria/, subject: 'a welcoming restaurant dining room with beautifully arranged tables and a warm culinary atmosphere', label: 'restaurante'},
+    {pattern: /imobiliari|imoveis|corretor de imoveis|arquitet|interiores/, subject: 'a sophisticated residential interior with thoughtful architecture and natural daylight', label: 'arquitetura e imoveis'},
+    {pattern: /academia|fitness|pilates|personal trainer|musculac/, subject: 'a bright modern fitness studio with organized exercise equipment and ample open floor space', label: 'estudio de atividade fisica'},
+    {pattern: /advocac|advogad|juridic|escritorio de direito/, subject: 'an elegant law office with a refined meeting table, bookshelves and natural daylight', label: 'escritorio juridico'},
+    {pattern: /medic|saude|fisioterap|psicolog|nutricion|terapia|clinica/, subject: 'a modern welcoming healthcare consultation room with professional clinical furniture', label: 'consultorio de saude'},
+    {pattern: /tecnolog|tech|informat|sistemas|digital|software|comput|infraestrutura|conectividade|cloud/, subject: 'a sophisticated technology workspace with contemporary computers and thoughtfully arranged equipment', label: 'tecnologia'},
+    {pattern: /loja|ecommerce|e-commerce|moda|vestuario|roupas|boutique/, subject: 'a premium retail boutique interior with carefully curated merchandise displays', label: 'comercio varejista'},
+    {pattern: /construc|engenhari|reforma|obra|marcenaria/, subject: 'a polished architecture and construction project space with quality building materials and professional tools', label: 'construcao e engenharia'},
+    {pattern: /pet shop|veterinari|animais|banho e tosa/, subject: 'a clean modern veterinary consultation room with organized pet care equipment', label: 'cuidados animais'},
+  ];
+  const sector = sectors.find(item => item.pattern.test(context));
+  const subject = sector?.subject ?? 'a refined neutral editorial still life of professional tools on a minimal studio background, with no unrelated retail or fashion scenery';
+  const sectorLabel = sector?.label ?? 'atividade profissional';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);
   try {
@@ -94,7 +104,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
       height: processed.image.optimized.height,
       sizeBytes: processed.image.optimized.sizeBytes,
       checksum: processed.image.checksum,
-      altText: `[${slot}] ` + (dental ? 'Imagem ilustrativa gerada por IA de consultorio odontologico' : technology ? 'Ambiente ilustrativo de tecnologia gerado por IA' : 'Ambiente ilustrativo gerado por IA'),
+      altText: `[${slot}] Imagem ilustrativa gerada por IA de ${sectorLabel}`,
       rightsStatus: 'AI_GENERATED',
       createdBy: project.ownerUserId,
     });
