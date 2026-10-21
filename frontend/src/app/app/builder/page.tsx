@@ -80,12 +80,26 @@ async function compressReference(file:File):Promise<string>{
   const url=URL.createObjectURL(file);
   try{
     const image=new Image();image.src=url;await image.decode();
+    if(!image.naturalWidth || !image.naturalHeight){
+      throw new Error("Não foi possível decodificar a imagem.");
+    }
     const factor=Math.min(1,1150/Math.max(image.naturalWidth,image.naturalHeight));
     const canvas=document.createElement("canvas");
     canvas.width=Math.max(1,Math.round(image.naturalWidth*factor));
     canvas.height=Math.max(1,Math.round(image.naturalHeight*factor));
-    canvas.getContext("2d")?.drawImage(image,0,0,canvas.width,canvas.height);
-    return canvas.toDataURL("image/webp",0.7);
+    const context=canvas.getContext("2d");
+    if(!context)throw new Error("Não foi possível otimizar a imagem neste navegador.");
+    context.drawImage(image,0,0,canvas.width,canvas.height);
+    // Keep uploaded photos under the same bound enforced by the server.
+    // Retry with lower quality rather than accepting a file that will
+    // silently disappear when the next AI revision is requested.
+    for(const quality of [0.76,0.64,0.5,0.36]){
+      const result=canvas.toDataURL("image/webp",quality);
+      if(result.startsWith("data:image/webp;base64,") && result.length<=2_800_000){
+        return result;
+      }
+    }
+    throw new Error("Imagem muito grande após otimização. Escolha outra fotografia.");
   }finally{URL.revokeObjectURL(url);}
 }
 
