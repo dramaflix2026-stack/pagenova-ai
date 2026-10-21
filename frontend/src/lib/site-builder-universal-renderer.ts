@@ -1739,6 +1739,12 @@ function universalRendererStyles(
       }
     }
 
+    /* Motor 2.0: predictable contrast on every hero composition. */
+    .pn-universal-hero:not(.pn-hero-full-bleed) h1{color:var(--pn-text);text-wrap:balance}
+    .pn-universal-hero:not(.pn-hero-full-bleed) .hero-lead{color:var(--pn-muted)}
+    .pn-hero-full-bleed h1{color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.18)}
+    .pn-hero-full-bleed .hero-lead{color:rgba(255,255,255,.9)}
+    .pn-universal-hero .btn{max-width:100%;text-align:center}
     /* Final mobile safeguards across all hero/header/section variants. */
     @media(max-width:820px){
       .pn-site-header nav{max-width:100%;min-width:0;overflow-wrap:anywhere}
