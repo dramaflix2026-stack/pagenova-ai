@@ -54,10 +54,33 @@ export default function BuilderV2() {
   const [reference, setReference] = useState<string | null>(null);
   useEffect(() => { try { const saved = localStorage.getItem(storageKey); if (saved) setSite(JSON.parse(saved)); } catch {} setLoaded(true); }, []);
   useEffect(() => { if (loaded) localStorage.setItem(storageKey, JSON.stringify(site)); }, [site, loaded]);
+  function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
+    const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+    const align = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" :
+      /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" :
+      /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
+    if (!align || !/todos|todas|tudo|site inteiro|site todo|pagina inteira|pagina toda/.test(normalized)) return null;
+    if (!/textos|titulos|descricoes|paragrafos|botoes|elementos|conteudo|site|pagina|tudo/.test(normalized)) return null;
+    if (/nao (?:centralize|alinhe|altere)|exceto|menos|somente|apenas|so o|so a/.test(normalized)) return null;
+    const next: Site = {...current,blocks:current.blocks.map(block => ({
+      ...block,
+      align: block.type === "image" ? block.align : align
+    }))};
+    const affected = next.blocks.filter(b=>b.type!=="image");
+    if (!affected.length || affected.some(b=>b.align!==align)) return null;
+    return {site:next,summary:"Alinhamento "+(align==="center"?"centralizado":align==="left"?"à esquerda":"à direita")+" aplicado e conferido em "+affected.length+" elementos. Imagens e textos preservados."};
+  }
   async function send() {
     const prompt = instruction.trim(); if (!prompt || busy) return;
     setBusy(true);
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    const direct = applyGlobalAlignment(site, prompt);
+    if (direct) {
+      setSite(direct.site);
+      setMessages(prev => [...prev, {role:"assistant",text:direct.summary}]);
+      setInstruction(""); setBusy(false);
+      return;
+    }
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -66,7 +89,14 @@ export default function BuilderV2() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!data.site?.blocks) throw new Error("Resposta inválida da IA.");
-      setSite(data.site);
+      const incoming = data.site as Site;
+      const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
+      const requested = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" : /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" : /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
+      if (requested && /todos|todas|tudo/.test(normalized) && /textos|titulos|descricoes|paragrafos|elementos/.test(normalized)) {
+        const relevant = incoming.blocks.filter(b=>b.type!=="image");
+        if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento em todos os elementos. O projeto foi preservado.");
+      }
+      setSite(incoming);
       setMessages(prev => [...prev, { role: "assistant", text: data.summary || "Alteração aplicada." }]);
       setInstruction(""); setReference(null);
     } catch (error) {
