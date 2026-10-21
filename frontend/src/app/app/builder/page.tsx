@@ -570,13 +570,13 @@ export default function BuilderPage() {
     }
     setUploadingImage(true); setError("");
     try {
-      const image = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => typeof reader.result === "string"
-          ? resolve(reader.result) : reject(new Error("Imagem inválida."));
-        reader.onerror = () => reject(new Error("Não foi possível ler a imagem."));
-        reader.readAsDataURL(file);
-      });
+      // Compress uploads before storing or sending them to the AI endpoint.
+      // Raw 5 MB photos can become 6.7 MB base64 strings and exceed
+      // the server's per-image limit, even though upload itself succeeds.
+      const image = await compressReference(file);
+      if (!image.startsWith("data:image/webp;base64,") || image.length > 2_800_000) {
+        throw new Error("Imagem muito grande após otimização. Escolha outra fotografia.");
+      }
       const updated: SiteProject = {
         ...project,
         institutional: {
