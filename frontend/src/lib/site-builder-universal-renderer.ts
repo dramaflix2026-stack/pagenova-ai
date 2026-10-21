@@ -1253,6 +1253,18 @@ function universalRendererStyles(
       .pn-universal-hero-copy h1{font-size:clamp(32px,9vw,48px);line-height:1.12;letter-spacing:-.035em}
     }
 
+    /* Motor 2.0: protect text readability on image-led hero variants. */
+    .pn-hero-full-bleed .pn-universal-hero-copy{position:relative;z-index:2}
+    .pn-hero-full-bleed .pn-universal-hero-copy h1,
+    .pn-hero-full-bleed .pn-universal-hero-copy p{text-shadow:0 2px 18px rgba(0,0,0,.22)}
+    .pn-hero-full-bleed .pn-universal-hero-inner::after{pointer-events:none}
+    .pn-universal-hero-copy h1{max-width:18ch;text-wrap:balance}
+    .pn-universal-hero-copy p{max-width:62ch}
+    @media(max-width:760px){
+      .pn-universal-hero-copy h1{max-width:16ch}
+      .pn-universal-hero-copy p{line-height:1.65}
+    }
+
     /* Motion direction applies to actual rendered sections. No JS dependency. */
     @media(prefers-reduced-motion:no-preference){
       .pn-motion-reveal .pn-universal-hero-copy{
