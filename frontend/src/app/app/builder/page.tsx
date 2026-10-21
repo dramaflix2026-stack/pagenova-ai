@@ -655,11 +655,14 @@ export default function BuilderPage() {
       if (blob.type !== "image/jpeg" || blob.size > 6_000_000) throw new Error("A imagem gerada não é válida.");
       const file = new File([blob], "imagem-gerada.jpg", { type: "image/jpeg" });
       const optimized = await compressReference(file);
+      // Image generation may take over a minute; preserve edits saved meanwhile.
+      await waitForPageNovaProjectSaves(project.id);
+      const latest = await readPageNovaProject<SiteProject>(project.id) || project;
       const updated: SiteProject = {
-        ...project,
+        ...latest,
         institutional: {
           role: "", audience: "", offer: "", process: "", proof: "",
-          ...project.institutional,
+          ...latest.institutional,
           ...(kind === "hero"
             ? { portrait: optimized }
             : { businessPhoto: optimized, workPhoto: optimized }),
