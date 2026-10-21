@@ -686,7 +686,7 @@ function renderUniversalHero(
 
         <div class="pn-universal-hero-visual${heroPhoto ? " pn-has-photo" : ""}" aria-hidden="true">
           ${heroPhoto ? `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="" loading="eager" decoding="async">` : ""}
-          ${heroPhoto ? "" : `<span class="pn-universal-hero-orb"></span>`}
+          <span class="pn-universal-hero-orb"></span>
           <span class="pn-universal-hero-mark">${escapeUniversalHtml(project.name.slice(0, 1).toUpperCase())}</span>
         </div>
       </div>
@@ -1418,6 +1418,10 @@ function universalRendererStyles(
     .pn-universal-hero-photo{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
     .pn-universal-hero-visual.pn-has-photo{background:#e2e8f0}
     .pn-universal-hero-visual.pn-has-photo .pn-universal-hero-mark{display:none}
+    .pn-universal-hero-visual.pn-has-photo .pn-universal-hero-orb{display:none}
+    .pn-universal-hero-visual.pn-image-failed{background:var(--pn-surface,#f1f5f9)}
+    .pn-real-photo-grid:empty,.pn-universal-section-photo:empty{display:none}
+
     .pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo{opacity:1;inset:0;z-index:0}
     .pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,23,37,.90),rgba(8,23,37,.64) 54%,rgba(8,23,37,.28));pointer-events:none}
     @media(max-width:760px){.pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo{inset:0}.pn-hero-full-bleed .pn-universal-hero-visual.pn-has-photo::after{background:linear-gradient(90deg,rgba(8,23,37,.84),rgba(8,23,37,.53))}}
@@ -2412,6 +2416,24 @@ function universalRendererStyles(
 
 function universalRendererScript(): string {
   return `
+    // A missing or expired uploaded image must not leave an empty hero/card.
+    function handleBrokenImage(image){
+      if(!(image instanceof HTMLImageElement))return;
+      if(!image.matches('.pn-universal-hero-photo,.pn-universal-section-photo img,.pn-real-photo-grid img'))return;
+      var hero=image.closest('.pn-universal-hero-visual');
+      if(hero){
+        hero.classList.remove('pn-has-photo');
+        hero.classList.add('pn-image-failed');
+        image.remove();
+      }else{
+        var figure=image.closest('figure');
+        if(figure)figure.remove();
+      }
+    }
+    document.addEventListener('error',function(event){handleBrokenImage(event.target);},true);
+    document.querySelectorAll('.pn-universal-hero-photo,.pn-universal-section-photo img,.pn-real-photo-grid img').forEach(function(image){
+      if(image.complete && image.naturalWidth===0)handleBrokenImage(image);
+    });
     document.addEventListener('click',function(event){
       var target=event.target;
       if(!(target instanceof Element))return;
