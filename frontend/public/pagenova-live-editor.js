@@ -195,7 +195,7 @@
       const bw = Math.min(bar.offsetWidth || 360, innerWidth - 16);
       const left = Math.max(8, Math.min(innerWidth - bw - 8, r.left + r.width / 2 - bw / 2));
       const preferredTop = r.top - (bar.offsetHeight || 48) - 10;
-      const top = preferredTop >= 8 ? preferredTop : Math.min(innerHeight - (bar.offsetHeight || 48) - 8, r.bottom + 10);
+      const top = preferredTop >= 8 ? preferredTop : Math.max(8, Math.min(innerHeight - (bar.offsetHeight || 48) - 8, r.bottom + 10));
       bar.style.left = px(left);
       bar.style.top = px(top);
     }
