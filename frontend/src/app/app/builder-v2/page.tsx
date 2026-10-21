@@ -219,28 +219,22 @@ export default function BuilderV2() {
             if(b.type==="image") return b.src?<img key={b.id} data-block-id={b.id} src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover"/>:null;
             return <a key={b.id} data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:undefined} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{clean(b.text)}</a>;
           };
-          return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-14 sm:px-8 md:px-14 md:py-24">
+          const isContact=/contato|agend|fale.conosco/i.test(id);
+          const sectionImages=isGallery?galleryImages:images;
+          const visualCards=cardItems.filter(b=>b.type==="paragraph");
+          const headingNode=<div className="mb-9 max-w-3xl space-y-3">{heading.map(render)}</div>;
+          const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{render(b)}</div>;
+          return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-14 sm:px-8 md:px-14 md:py-24">
             <div className="mx-auto max-w-6xl">
-              {visualLayout==="grid"||isGallery?<>
-                <div className="mb-9 max-w-3xl space-y-3">{heading.map(render)}</div>
-                <div className={"grid gap-4 "+(isGallery?"grid-cols-2 lg:grid-cols-3":"md:grid-cols-2 lg:grid-cols-3")}>
-                  {cardItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} className={isGallery?"overflow-hidden rounded-2xl bg-white shadow-sm":i===0?"rounded-2xl border border-[#e7e4dd] bg-white p-6 shadow-sm md:p-8":"rounded-2xl border border-[#e7e4dd] bg-white p-5 shadow-sm md:p-6"}>
-                    {isGallery?render(item):<>{isProcess&&<span className="mb-5 inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-[#f5f0e4] px-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>}{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></>}
-                  </article>})}
-                </div>
-                {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">{images.slice(0,1).map(render)}</div>}
-                {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
-              </>:
-              visualLayout==="faq"?<>
-                <div className="mb-8">{heading.map(render)}</div>
-                <div className="mx-auto max-w-3xl space-y-3">{textItems.map(b=>{const at=b.text.indexOf("?");return <details key={b.id} className="rounded-xl border border-[#e9e4da] bg-white p-5 text-[#24332e] shadow-sm"><summary className="cursor-pointer font-semibold">{at>=0?b.text.slice(0,at+1):b.text}</summary>{at>=0&&b.text.slice(at+1).trim()&&<p className="mt-3 border-t border-[#eee9e0] pt-3 text-sm leading-relaxed">{b.text.slice(at+1).trim()}</p>}</details>})}</div>
-              </>:
-              visualLayout==="hero"||visualLayout==="split"?<div className={images.length?"grid items-center gap-8 md:grid-cols-2 md:gap-14":"mx-auto max-w-3xl"}>
-                <div className="space-y-5">{heading.map(render)}{textItems.map(render)}<div className="flex flex-wrap gap-3">{buttons.map(render)}</div></div>
-                {images.length>0&&<div className="grid gap-4">{images.slice(0,1).map(render)}</div>}
+              {isGallery?<>{headingNode}<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">{sectionImages.slice(0,6).map((b,i)=><div key={b.id} className={i===0?"col-span-2 md:col-span-2 md:row-span-2":""}>{imageNode(b,i)}</div>)}</div></>:
+              visualLayout==="faq"?<>{headingNode}<div className="mx-auto max-w-3xl space-y-3">{textItems.map(b=>{const at=b.text.indexOf("?");return <details key={b.id} className="group rounded-xl border border-[#e9e4da] bg-white px-5 py-4 text-[#24332e]"><summary className="cursor-pointer list-none font-semibold leading-snug">{at>=0?b.text.slice(0,at+1):b.text}<span className="float-right ml-3 text-lg">+</span></summary>{at>=0&&b.text.slice(at+1).trim()&&<p className="mt-3 border-t border-[#eee9e0] pt-3 text-sm leading-relaxed">{b.text.slice(at+1).trim()}</p>}</details>})}</div></>:
+              visualLayout==="hero"||visualLayout==="split"?<div className={sectionImages.length?"grid items-center gap-8 md:grid-cols-2 md:gap-14":"mx-auto max-w-3xl"}>
+                <div className="space-y-5">{heading.map(render)}{textItems.slice(0,3).map(render)}{buttons.length>0&&<div className="flex flex-wrap gap-3 pt-2">{buttons.map(render)}</div>}</div>
+                {sectionImages.length>0&&<div className="relative">{sectionImages.slice(0,1).map(imageNode)}</div>}
               </div>:
-              <div className="mx-auto max-w-3xl space-y-5">{heading.map(render)}{textItems.map(render)}{images.length>0&&<div className="grid grid-cols-2 gap-4">{images.map(render)}</div>}{buttons.map(render)}</div>}
-
+              visualLayout==="grid"?<>{headingNode}<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{visualCards.map((item,i)=>{const card=cardText(item);const photo=sectionImages[i];return <article key={item.id} className="overflow-hidden rounded-2xl border border-[#e7e4dd] bg-white shadow-sm">{photo&&<div className="aspect-[16/10] overflow-hidden [&_img]:h-full [&_img]:w-full [&_img]:rounded-none [&_img]:object-cover">{render(photo)}</div>}<div className="p-5 md:p-7">{isProcess&&<span className="mb-4 inline-flex rounded-lg bg-[#f5f0e4] px-3 py-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>}{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></div></article>})}</div>{buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}</>:
+              visualLayout==="banner"||isContact?<div className="mx-auto max-w-3xl space-y-5 text-center [&_h2]:mx-auto [&_h2]:text-center [&_p]:mx-auto [&_p]:text-center">{heading.map(render)}{textItems.filter(b=>!/\b(?:xx|xxx|rua principal|contato@clinic)/i.test(b.text)).slice(0,2).map(render)}{buttons.map(render)}</div>:
+              <div className={sectionImages.length?"grid items-center gap-8 md:grid-cols-2 md:gap-14":"mx-auto max-w-3xl space-y-5"}><div className="space-y-5">{heading.map(render)}{textItems.slice(0,3).map(render)}{buttons.map(render)}</div>{sectionImages.slice(0,1).map(imageNode)}</div>}
             </div>
           </section>;
         })}{missingContact?<footer id="contato" className="border-t border-black/10 bg-[#101d33] px-6 py-12 text-center text-white"><p className="text-xl font-semibold">Vamos conversar sobre seu projeto?</p><p className="mt-3 text-sm text-white/70">Personalize os canais de atendimento pelo chat para receber contatos.</p></footer>:null}</div></section>
