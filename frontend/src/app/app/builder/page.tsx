@@ -95,7 +95,7 @@ async function compressReference(file:File):Promise<string>{
     // silently disappear when the next AI revision is requested.
     for(const quality of [0.76,0.64,0.5,0.36]){
       const result=canvas.toDataURL("image/webp",quality);
-      if(result.startsWith("data:image/webp;base64,") && result.length<=2_800_000){
+      if(result.startsWith("data:image/webp;base64,") && result.length<=1_400_000){
         return result;
       }
     }
