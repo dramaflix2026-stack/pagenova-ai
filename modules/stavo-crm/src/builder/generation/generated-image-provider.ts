@@ -53,7 +53,10 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     {pattern: /construc|engenhari|reforma|obra|marcenaria/, subject: 'a polished architecture and construction project space with quality building materials and professional tools', label: 'construcao e engenharia'},
     {pattern: /pet shop|veterinari|animais|banho e tosa/, subject: 'a clean modern veterinary consultation room with organized pet care equipment', label: 'cuidados animais'},
   ];
-  const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(secondaryContext));
+  // An explicit exclusion must never be treated as a positive sector signal.
+  const positiveBrief = secondaryContext
+    .replace(/(?:nao|nunca|evite|sem)\s+(?:use|usar|utilize|coloque|inclua|mostre|imagem de|foto de|fotos de)?\s*(?:uma?\s+)?(?:loja|roupas|moda|escritorio|restaurante|clinica|consultorio)[^.;,\n]*/g, '');
+  const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(positiveBrief));
   const subject = sector?.subject ?? 'a refined neutral editorial still life of professional tools on a minimal studio background, with no unrelated retail or fashion scenery';
   const sectorLabel = sector?.label ?? 'atividade profissional';
   const controller = new AbortController();
