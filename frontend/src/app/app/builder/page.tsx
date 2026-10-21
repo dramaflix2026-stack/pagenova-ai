@@ -99,6 +99,21 @@ async function compressReference(file:File):Promise<string>{
         return result;
       }
     }
+    // A very detailed photo can still exceed the budget at low quality.
+    // Reduce pixel dimensions progressively rather than rejecting a valid upload.
+    for(const side of [900,720,560]){
+      const shrink=Math.min(1,side/Math.max(canvas.width,canvas.height));
+      const smaller=document.createElement("canvas");
+      smaller.width=Math.max(1,Math.round(canvas.width*shrink));
+      smaller.height=Math.max(1,Math.round(canvas.height*shrink));
+      const smallerContext=smaller.getContext("2d");
+      if(!smallerContext)break;
+      smallerContext.drawImage(canvas,0,0,smaller.width,smaller.height);
+      for(const quality of [0.68,0.48]){
+        const result=smaller.toDataURL("image/webp",quality);
+        if(result.startsWith("data:image/webp;base64,") && result.length<=1_400_000)return result;
+      }
+    }
     throw new Error("Imagem muito grande após otimização. Escolha outra fotografia.");
   }finally{URL.revokeObjectURL(url);}
 }
