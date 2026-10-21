@@ -681,6 +681,12 @@
       ? document.querySelector(".pn-universal-hero-visual")
       : document.querySelector('[data-pn-section-kind="gallery"] .pn-universal-section-photo,[data-pn-section-kind="portfolio"] .pn-universal-section-photo,[data-pn-section-kind="gallery"] .pn-real-photo-grid figure,[data-pn-section-kind="portfolio"] .pn-real-photo-grid figure,[data-pn-section-kind="gallery"] .pn-semantic-visual,[data-pn-section-kind="portfolio"] .pn-semantic-visual,[data-pn-section-kind="services"] .pn-semantic-visual');
     if(universal)return universal;
+    // Some generated sites have no gallery. Prefer a real editorial visual
+    // instead of failing silently when adding the first secondary photo.
+    if(kind==="work"){
+      const editorial=document.querySelector('[data-pn-section-kind="about"] .pn-semantic-visual,[data-pn-section-kind="features"] .pn-semantic-visual,[data-pn-section-kind="benefits"] .pn-semantic-visual');
+      if(editorial)return editorial;
+    }
     const candidates=Array.from(document.querySelectorAll("div,span,p,button"))
       .filter(function(node) {
         const text=(node.textContent||"").trim();
