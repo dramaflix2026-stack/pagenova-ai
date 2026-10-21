@@ -926,7 +926,14 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
     const safeSubmittedPhoto = (value: unknown): string => {
       if (typeof value !== "string") return "";
       const url = value.trim();
-      if (!url || url.length > 4096 || /[\u0000-\u001f\u007f]/.test(url)) return "";
+      if (!url || /[\u0000-\u001f\u007f]/.test(url)) return "";
+      // Uploaded images may be represented as base64 data URLs before
+      // permanent storage. Preserve only explicitly supported image MIME
+      // types, with a strict size cap to protect the generation endpoint.
+      if (/^data:image\/(?:png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(url)) {
+        return url.length <= 2_800_000 ? url : "";
+      }
+      if (url.length > 4096) return "";
       if (/^https:\/\/[^\s]+$/i.test(url) || /^\/[^\/]/.test(url)) return url;
       return "";
     };
