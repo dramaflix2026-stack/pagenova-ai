@@ -1248,7 +1248,7 @@ export default function BuilderPage() {
     const alignValue: "center" | "left" | "right" | undefined = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[0]) ? "left" : "right") : undefined;
     // Unquoted copy plus styling is ambiguous: never insert the styling instruction
     // into the headline. Let the planner handle that case.
-    if (!textMatch && /(?:altere|mude|troque|reescreva)\\s+(?:o\\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
+    if (!textMatch && /(?:altere|mude|troque|reescreva)\s+(?:o\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
     if (!color && !(size && size >= 8 && size <= 160) && !fontMatch && !alignMatch && !textMatch) return false;
     // Multiple targets or unrecognized actions must be handled as a complete AI revision.
     if (targets.filter(([pattern]) => pattern.test(normalized)).length !== 1) return false;
@@ -1259,9 +1259,11 @@ export default function BuilderPage() {
     if (crmPreviewHtml) {
       const inventory = await readRenderedElementInventory();
       const matches = inventory.filter(el => match[1].includes("h1") ? el.tag === "h1" :
-        match[1].includes("hero-lead") ? el.tag === "p" :
-        match[1].includes(".btn") ? (el.tag === "a" || el.tag === "button") : false);
-      if (!matches.length || (matches.length > 1 && !match[1].includes("h1"))) return false;
+        match[1].includes("hero-lead") ? el.tag === "p" && /hero|lead|subtit|intro/i.test(el.selector) :
+        match[1].includes(".btn") ? (el.tag === "a" || el.tag === "button") && /hero|cta|btn|button/i.test(el.selector) :
+        match[1].includes(".brand") ? /brand|logo/i.test(el.selector) :
+        match[1].includes("nav") ? /nav|menu/i.test(el.selector) : false);
+      if (matches.length !== 1) return false;
       const target = matches[0];
       const actions = [
         color ? { selector: target.selector, action: "color", value: color } : null,
@@ -2351,9 +2353,9 @@ export default function BuilderPage() {
               "Troque a imagem principal por uma foto mais profissional",
             ].map(example=><button type="button" key={example} onClick={()=>setInstruction(example)} className="rounded-full border border-emerald-400/25 bg-emerald-400/[.07] px-3 py-2 text-left text-xs text-emerald-100 hover:bg-emerald-400/15">{example}</button>)}</div></details>
             <textarea id="builder-change" value={instruction} onChange={event=>setInstruction(event.target.value)}
-              onPaste={pasteRevisionImage} rows={3}
-              placeholder="O que deseja mudar? Ex.: Troque o nome do site para LifeT."
-              className="w-full rounded-xl border border-white/15 bg-black/30 p-3 text-left text-sm outline-none focus:border-emerald-400" />
+              onPaste={pasteRevisionImage} rows={5}
+              placeholder="Peça a alteração: mude o título, troque a cor, alinhe o texto, edite botões ou imagens..."
+              className="block min-h-[150px] w-full resize-y rounded-xl border border-white/15 bg-black/30 p-4 text-left text-base leading-6 outline-none focus:border-emerald-400 sm:min-h-[170px]" />
             <button type="submit" disabled={!project.pages[activePage]||phase==="generating"||(!instruction.trim()&&!revisionImage)}
               className="w-full rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#08130e] disabled:opacity-40">
               {phase==="generating"?"Aguarde a geração":"Aplicar alterações com IA →"}
