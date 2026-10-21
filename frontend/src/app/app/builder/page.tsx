@@ -612,6 +612,50 @@ export default function BuilderPage() {
     }
   }
 
+  async function generateSitePhoto(kind: "hero" | "work") {
+    if (!project || uploadingImage) return;
+    setUploadingImage(true);
+    setError("");
+    try {
+      const response = await fetch("/api/builder/image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          name: project.name,
+          brief: project.brief,
+          kind,
+        }),
+      });
+      const payload = await response.json() as { image?: string; error?: string };
+      if (!response.ok || !payload.image?.startsWith("data:image/jpeg;base64,")) {
+        throw new Error(payload.error || "Não foi possível gerar a fotografia.");
+      }
+      const blob = await (await fetch(payload.image)).blob();
+      const file = new File([blob], "imagem-gerada.jpg", { type: "image/jpeg" });
+      const optimized = await compressReference(file);
+      const updated: SiteProject = {
+        ...project,
+        institutional: {
+          role: "", audience: "", offer: "", process: "", proof: "",
+          ...project.institutional,
+          ...(kind === "hero"
+            ? { portrait: optimized }
+            : { businessPhoto: optimized, workPhoto: optimized }),
+        },
+      };
+      await savePageNovaProject(updated.id, updated);
+      setProject(updated);
+      previewRef.current?.contentWindow?.postMessage({
+        type: "pagenova-user-images", images: updated.institutional,
+      }, "*");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Falha ao gerar fotografia.");
+    } finally {
+      setUploadingImage(false);
+    }
+  }
+
   async function requestPage(site: SiteProject, key: SitePageKey, editInstruction = "", screenshot = "", renderedElements: Array<{selector:string;tag:string;text:string}> = []): Promise<{ page: SitePage; visualDirection?: SiteProject["visualDirection"]; headerDirection?: SiteProject["headerDirection"]; institutional?: SiteProject["institutional"]; siteStrategy?: SiteProject["siteStrategy"]; revisionPlan?: RevisionPlan }> {
     const controller = new AbortController();
     abortRef.current = controller;
@@ -2167,6 +2211,20 @@ export default function BuilderPage() {
       )}
       {project && !(phase==="generating" && crmProjectId && !crmPreviewHtml) && <div className="grid gap-4 xl:grid-cols-[330px_minmax(0,1fr)]">
         <aside className="space-y-3 rounded-[18px] border border-white/10 bg-[#0d1110] p-3 text-center shadow-[0_18px_60px_rgba(0,0,0,.22)] sm:p-5 xl:sticky xl:top-4 xl:max-h-[calc(100vh-32px)] xl:overflow-auto">
+          <div className="rounded-xl border border-white/10 p-3 text-left">
+            <p className="mb-2 text-xs font-semibold text-white/80">Fotografias com IA</p>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={uploadingImage} onClick={()=>void generateSitePhoto("hero")}
+                className="rounded-lg border border-emerald-400/40 px-3 py-2 text-xs text-emerald-200 disabled:opacity-50">
+                {uploadingImage?"Processando…":"Gerar imagem principal"}
+              </button>
+              <button type="button" disabled={uploadingImage} onClick={()=>void generateSitePhoto("work")}
+                className="rounded-lg border border-white/20 px-3 py-2 text-xs text-white/80 disabled:opacity-50">
+                Gerar imagem secundária
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-white/45">Cada clique gera uma imagem com IA e consome uma chamada paga. Revise o resultado antes de publicar.</p>
+          </div>
           <div>
             <span className="sr-only">PageNova AI</span>
             <div className="flex flex-col items-center justify-center gap-1">
