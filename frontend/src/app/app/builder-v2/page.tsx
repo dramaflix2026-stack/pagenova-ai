@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
+type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type Site = { title: string; background: string; blocks: Block[] };
 type ChatMessage = { role: "user" | "assistant"; text: string };
 const initial: Site = { title: "Meu novo site", background: "#ffffff", blocks: [
@@ -134,6 +134,7 @@ export default function BuilderV2() {
     reader.onload = () => setReference(typeof reader.result === "string" ? reader.result : null);
     reader.readAsDataURL(file);
   }
+  const missingContact = !site.blocks.some(b=>/contato|agendamento|whatsapp/i.test(b.section||""));
   const sections = site.blocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
     const id = block.section || "principal";
     const last = acc[acc.length-1];
@@ -160,10 +161,10 @@ export default function BuilderV2() {
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
           const render=(b:Block)=> <div key={b.id} data-block-id={b.id} style={{textAlign:b.align,marginBlock:b.spacing!==undefined?Math.min(60,Math.max(0,b.spacing)):undefined}}>
-            {b.type==="heading"?<h2 style={{color:readableColor(b.color,sectionBackground),fontSize:b.fontSize?Math.min(80,Math.max(16,b.fontSize)):undefined}} className={layout==="hero"?"text-4xl font-extrabold leading-[1.09] tracking-[-0.045em] md:text-7xl":"text-3xl font-bold leading-[1.12] tracking-[-0.035em] md:text-5xl"}>{b.text}</h2>:b.type==="paragraph"?<p style={{color:b.color,fontSize:b.fontSize?Math.min(40,Math.max(12,b.fontSize)):undefined}} className={layout==="hero"?"text-lg leading-relaxed md:text-xl":"text-base leading-[1.8] md:text-lg"}>{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href="#contato" style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color),borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
+            {b.type==="heading"?<h2 style={{color:readableColor(b.color,sectionBackground),fontSize:b.fontSize?Math.min(80,Math.max(16,b.fontSize)):undefined}} className={layout==="hero"?"text-4xl font-extrabold leading-[1.09] tracking-[-0.045em] md:text-7xl":"text-3xl font-bold leading-[1.12] tracking-[-0.035em] md:text-5xl"}>{b.text}</h2>:b.type==="paragraph"?<p style={{color:b.color,fontSize:b.fontSize?Math.min(40,Math.max(12,b.fontSize)):undefined}} className={layout==="hero"?"text-lg leading-relaxed md:text-xl":"text-base leading-[1.8] md:text-lg"}>{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href={b.href&&/^(https?:\\/\\/|mailto:|tel:|#)/i.test(b.href)?b.href:"#contato"} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color),borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
           </div>;
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
-          return <section key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-6 py-16 md:px-14 md:py-28">
+          return <section id={/contato|agendamento/i.test(group.id)?"contato":undefined} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-6 py-16 md:px-14 md:py-28">
             <div className="mx-auto max-w-6xl">
               {layout==="grid"||layout==="gallery"?<><div className="mb-9 space-y-4">{heading.map(render)}</div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className={preset.card==="bordered"?"rounded-xl border border-[#d9d5c9] bg-white p-7 shadow-[0_8px_30px_rgba(0,0,0,.035)] transition-all hover:-translate-y-1 hover:shadow-lg md:p-9":"rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg md:p-9"}>{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
               layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-5 shadow-sm"><summary className="cursor-pointer font-semibold" style={{color:readableColor(b.color,"#ffffff")}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
@@ -171,7 +172,7 @@ export default function BuilderV2() {
               <div className="mx-auto max-w-3xl space-y-7">{blocks.filter(b=>b.type!=="paragraph"||textItems.includes(b)).map(render)}</div>}
             </div>
           </section>;
-        })}</div></section>
+        })}{missingContact?<footer id="contato" className="border-t border-black/10 bg-[#101d33] px-6 py-12 text-center text-white"><p className="text-xl font-semibold">Vamos conversar sobre seu projeto?</p><p className="mt-3 text-sm text-white/70">Personalize os canais de atendimento pelo chat para receber contatos.</p></footer>:null}</div></section>
       </div>
     </div>
   </main>;
