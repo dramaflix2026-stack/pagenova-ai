@@ -29,7 +29,12 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   // Never put private lead data, addresses, names, or real people's likenesses
   // in the prompt. The sector is sufficient for an illustrative banner.
   const niche = String(project.internalName ?? '').slice(0, 100);
-  const context = niche + ' ' + project.businessName;
+  // The project name can be generic ("Novo projeto"). Read the saved briefing
+  // only to classify the industry; never send the original briefing to images.
+  const draft = project.draftConfig as {freeformInstructions?: unknown; business?: {name?: unknown; niche?: unknown; description?: unknown}} | null;
+  const brief = typeof draft?.freeformInstructions === 'string' ? draft.freeformInstructions.slice(0, 1800) : '';
+  const industry = typeof draft?.business?.niche === 'string' ? draft.business.niche.slice(0, 100) : '';
+  const context = [niche, project.businessName, industry, brief].join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
   const dental = /odont|dent|sorriso|ortodont|implante|clinica dental/i.test(context);
   const technology = /tecnolog|tech|inform[aá]tic|sistemas|digital|software|comput|infraestrutura|conectividade|cloud/i.test(context);
   const subject = dental
