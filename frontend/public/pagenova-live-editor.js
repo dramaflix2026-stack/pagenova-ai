@@ -166,10 +166,17 @@
     }
     const r = selected.getBoundingClientRect();
     box.dataset.open = "true";
-    box.style.left = px(r.left - 3);
-    box.style.top = px(r.top - 3);
-    box.style.width = px(r.width + 6);
-    box.style.height = px(r.height + 6);
+    // Keep mobile selection chrome inside the viewport rather than placing
+    // resize handles over text or outside the iframe's visible edges.
+    const compact = innerWidth <= 600;
+    const inset = compact ? 0 : 3;
+    const leftEdge = Math.max(2, r.left - inset);
+    const topEdge = Math.max(2, r.top - inset);
+    box.style.left = px(leftEdge);
+    box.style.top = px(topEdge);
+    box.style.width = px(Math.max(0, Math.min(innerWidth - 4 - leftEdge, r.right + inset - leftEdge)));
+    box.style.height = px(Math.max(0, r.bottom + inset - topEdge));
+    box.dataset.compact = compact ? "true" : "false";
 
     if (toolbarOpen && bar) {
       const cs = getComputedStyle(selected);
