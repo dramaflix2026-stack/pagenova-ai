@@ -1759,7 +1759,16 @@ function universalRendererStyles(
     @media(max-width:560px){
       .pn-site-header nav{gap:4px 14px}
       .pn-site-header nav a{font-size:13px}
-      .pn-universal-hero-inner{padding-top:48px;padding-bottom:48px}
+      .pn-universal-hero-inner{min-height:0;padding-top:38px;padding-bottom:42px;gap:22px}
+      .pn-density-compact .pn-universal-hero-inner,.pn-density-editorial .pn-universal-hero-inner{min-height:0;padding-top:38px;padding-bottom:42px}
+      .pn-hero-full-bleed .pn-universal-hero-inner{min-height:440px}
+      .pn-universal-hero-visual{min-height:230px;border-radius:22px}
+      .pn-universal-section{padding:clamp(34px,9vw,54px) 0}
+      .pn-universal-section .pn-universal-shell{gap:22px}
+      .pn-structured-card{padding:18px;border-radius:16px}
+      .pn-structured-card-index{margin-bottom:10px}
+      .pn-structured-items{margin-top:8px}
+      .pn-structured-grid{gap:12px}
       .hero h1{overflow-wrap:break-word;hyphens:auto}
       .pn-universal-section-heading h2{overflow-wrap:break-word}
       .pn-universal-section-content{padding:18px}
