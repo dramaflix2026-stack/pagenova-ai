@@ -1194,21 +1194,22 @@ export default function BuilderPage() {
     const inventory = await readRenderedElementInventory();
     const headings = inventory.filter(el => el.tag === "h1");
     if (headings.length !== 1) throw new Error("Não foi possível identificar um título principal único.");
-    const headingIndex = inventory.findIndex(el => el.selector === headings[0].selector);
-    const candidates = inventory.filter(el => /^(h1|p|a|button|span|small|strong)$/.test(el.tag));
-    const heroCandidates = candidates.filter(el => {
-      const s = el.selector.toLowerCase();
-      return /hero|banner|masthead|intro|principal/.test(s) ||
-        el.selector.split(" > ").slice(0, -1).join(" > ") === headings[0].selector.split(" > ").slice(0, -1).join(" > ");
+    // Use the actual rendered hero instead of assuming one specific template
+    // or hard-coded copy such as "Novas perspectivas".
+    const heading = headings[0];
+    const heroRoot = heading.selector.split(" > ").slice(0, -1).join(" > ");
+    const candidates = inventory.filter(el => {
+      const selector = el.selector.toLowerCase();
+      const sameHero = /hero|banner|masthead/.test(selector) ||
+        (heroRoot.length > 0 && el.selector.startsWith(heroRoot + " > "));
+      return sameHero && /^(h1|p|a|button|small)$/.test(el.tag);
     });
-    const pool = heroCandidates.length >= 3 ? heroCandidates : candidates.slice(Math.max(0, headingIndex - 8), headingIndex + 15);
-    const eyebrow = pool.find(el => /novas perspectivas/i.test(el.text)) ||
-      pool.find(el => /eyebrow|kicker|overline/.test(el.selector.toLowerCase()));
-    const button = pool.find(el => /^(a|button)$/.test(el.tag) && /solicitar|agend|avali|contato|whatsapp/i.test(el.text));
-    const paragraph = pool.find(el => el.tag === "p" && el.text.length > 35 && el.selector !== eyebrow?.selector);
-    if (!eyebrow || !button || !paragraph) throw new Error("Não identifiquei com segurança todos os elementos do hero. Nenhuma alteração foi aplicada.");
-    const targets = [eyebrow, headings[0], paragraph, button];
-    if (new Set(targets.map(el => el.selector)).size !== 4) throw new Error("Os elementos do hero não são únicos.");
+    const targets = candidates.filter(el => el.tag === "h1" || el.tag === "p" ||
+      ((el.tag === "a" || el.tag === "button") && /hero|banner|masthead/.test(el.selector.toLowerCase())));
+    if (targets.length < 2 || targets.length > 36 || !targets.some(el => el.selector === heading.selector))
+      throw new Error("Não identifiquei com segurança os elementos do topo do site. Nenhuma alteração foi aplicada.");
+    if (new Set(targets.map(el => el.selector)).size !== targets.length)
+      throw new Error("Elementos duplicados no topo do site.");
     await executeCrmTextPlan([], inventory, targets.map(el => ({ selector: el.selector, action: "align", value: alignment })));
     setInstruction(""); setError(""); setPhase("ready");
     return true;
