@@ -90,7 +90,8 @@ export default function BuilderV2() {
   }
   async function generateVisuals(current: Site, prompt: string, only?: number): Promise<Site> {
     const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer|galeria/i.test(id));
-    const slots=Array.from({length:6},(_,i)=>ids[i%Math.max(1,ids.length)]||"principal");
+    const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto/i.test(id));
+    const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
     const jobs=only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     const responses=await Promise.allSettled(jobs.map(async ({section,index})=>{
       const description=[only===undefined?"":prompt, "Commercial editorial photograph for the specific business and service described below. Show a believable professional environment, real people engaged in the service or relevant equipment. Never use generic laptops, random portraits, decorative plants, stock business imagery, text, logos, collages or unrelated subjects. Natural light, authentic documentary photography, premium art direction. Different composition for each image. Image slot "+(index+1)+".", current.blocks.filter(b=>(b.section||"principal")===section).map(b=>b.text).join(". ").slice(0,450)].filter(Boolean).join(" ");
@@ -206,10 +207,11 @@ export default function BuilderV2() {
           const buttons=blocks.filter(b=>b.type==="button");
           const visualLayout=layout==="standard"&&paragraphs.length>=3?"grid":layout;
           const isGallery=visualLayout==="gallery";
-          const clean=(value:string)=>value.replace(/\s*[-–—,;]?\s*(?:layout|design|background|fundo)\s*:\s*[^,;]+/giu,"").replace(/\s*[-–—]\s*$/u,"").trim();
+          const clean=(value:string)=>value.replace(/\s*[-–—]\s*(?:(?:grid|hero|faq|banner|split|standard|gallery)|(?:fundo\s+)?(?:areia|branco|verde|escuro|claro|preto))(?:\s*[-–—]\s*(?:(?:fundo\s+)?(?:areia|branco|verde|escuro|claro|preto)))*/giu,"").replace(/\s*[-–—,;]?\s*(?:layout|design|background|fundo)\s*:\s*[^,;]+/giu,"").replace(/\s*[-–—]\s*$/u,"").trim();
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
           const galleryImages=isGallery?(images.length?images:previewBlocks.filter(b=>b.type==="image"&&!!b.src).slice(0,6)):images;
           const cardItems=isGallery?galleryImages:textItems.slice(0,6);
+          const isProcess=/etapas|processo|passos|como-funciona/i.test(id);
           const cardText=(b:Block)=>{const parts=clean(b.text).split(/:\s|\s[—–]\s/);return {name:parts.length>1?parts[0].trim():"",description:parts.length>1?parts.slice(1).join(" — ").trim():clean(b.text)};};
           const render=(b:Block)=> {
             if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2.2rem,5vw,4.7rem)] font-bold leading-[1.08] tracking-[-.045em]":"max-w-3xl text-[clamp(1.65rem,3vw,2.65rem)] font-bold leading-[1.15] tracking-[-.035em]"}>{clean(b.text)}</h2>;
@@ -223,7 +225,7 @@ export default function BuilderV2() {
                 <div className="mb-9 max-w-3xl space-y-3">{heading.map(render)}</div>
                 <div className={"grid gap-4 "+(isGallery?"grid-cols-2 lg:grid-cols-3":"md:grid-cols-2 lg:grid-cols-3")}>
                   {cardItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} className={isGallery?"overflow-hidden rounded-2xl bg-white shadow-sm":i===0?"rounded-2xl border border-[#e7e4dd] bg-white p-6 shadow-sm md:p-8":"rounded-2xl border border-[#e7e4dd] bg-white p-5 shadow-sm md:p-6"}>
-                    {isGallery?render(item):<><span className="mb-5 inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-[#f5f0e4] px-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></>}
+                    {isGallery?render(item):<>{isProcess&&<span className="mb-5 inline-flex h-8 min-w-8 items-center justify-center rounded-lg bg-[#f5f0e4] px-2 text-xs font-semibold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>}{card.name&&<h3 className="mb-2 text-lg font-bold leading-snug text-[#24332e]">{card.name}</h3>}<p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></>}
                   </article>})}
                 </div>
                 {images.length>0&&!isGallery&&<div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-3">{images.slice(0,1).map(render)}</div>}
