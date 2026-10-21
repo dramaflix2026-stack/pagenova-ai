@@ -88,11 +88,47 @@ export default function BuilderV2() {
     if (!affected.length || affected.some(b=>b.align!==align)) return null;
     return {site:next,summary:"Alinhamento "+(align==="center"?"centralizado":align==="left"?"à esquerda":"à direita")+" aplicado e conferido em "+affected.length+" elementos. Imagens e textos preservados."};
   }
+  async function generateVisuals(current: Site, prompt: string, only?: number): Promise<Site> {
+    const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer/i.test(id)).slice(0,6);
+    const jobs=only===undefined?ids.map((section,index)=>({section,index})): [{section:ids[only]||ids[0]||"principal",index:only}];
+    const responses=await Promise.allSettled(jobs.map(async ({section,index})=>{
+      const description=(only===undefined?"":prompt+". ")+current.blocks.filter(b=>(b.section||"principal")===section).map(b=>b.text).join(". ").slice(0,450);
+      const res=await fetch("/api/builder-v2/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteTitle:current.title,section,description})});
+      const data=await res.json();
+      if(!res.ok||typeof data.src!=="string")throw new Error(data.error||"Falha na imagem");
+      return {section,index,src:data.src as string};
+    }));
+    const blocks=[...current.blocks];
+    let completed=0;
+    for(const response of responses){
+      if(response.status!=="fulfilled")continue;
+      const {section,index,src}=response.value;
+      const id="visual-"+index;
+      const visual:Block={id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src};
+      const previous=blocks.findIndex(b=>b.id===id);
+      if(previous>=0)blocks[previous]=visual;
+      else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
+      completed++;
+    }
+    if(!completed)throw new Error("Imagens indisponíveis: verifique o armazenamento do Supabase.");
+    setMessages(prev=>[...prev,{role:"assistant",text:completed+" imagem(ns) criada(s). "+(completed<jobs.length?"Algumas imagens falharam.":"Pode substituir uma imagem pelo chat.")}]);
+    return {...current,blocks};
+  }
   async function send() {
     const prompt = instruction.trim(); if (!prompt || busy) return;
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    if (/(?:regener|troqu|substitu|nova imagem|nova foto|gere imagens|gerar imagens)/i.test(prompt) && /(?:imagem|foto)/i.test(prompt) && site.blocks.length) {
+      try {
+        const match=prompt.match(/(?:imagem|foto)\\s*(?:n[uú]mero\\s*)?(\\d+)/i);
+        const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
+        const updated=await generateVisuals(site,prompt,index);
+        setHistory(prev=>[...prev.slice(-19),site]);setSite(updated);setInstruction("");
+      } catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha ao gerar imagem."}]);}
+      finally {setBusy(false);}
+      return;
+    }
     const direct = applyGlobalAlignment(site, prompt);
     if (direct) {
       setHistory(prev=>[...prev.slice(-19),site]);
@@ -118,6 +154,10 @@ export default function BuilderV2() {
       }
       setHistory(prev=>[...prev.slice(-19),site]);
       setSite(incoming);
+      if (!site.blocks.length) {
+        try { const illustrated=await generateVisuals(incoming,prompt);setSite(illustrated); }
+        catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
+      }
       setGenerationError("");
       setMessages(prev => [...prev, { role: "assistant", text: data.summary || "Alteração aplicada." }]);
       setInstruction(""); setReference(null);
