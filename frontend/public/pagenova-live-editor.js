@@ -182,7 +182,7 @@
     box.style.left = px(leftEdge);
     box.style.top = px(topEdge);
     box.style.width = px(Math.max(0, Math.min(innerWidth - 4 - leftEdge, r.right + inset - leftEdge)));
-    box.style.height = px(Math.max(0, r.bottom + inset - topEdge));
+    box.style.height = px(Math.max(0, Math.min(innerHeight - 4 - topEdge, r.bottom + inset - topEdge)));
     box.dataset.compact = compact ? "true" : "false";
     box.setAttribute("aria-label", compact ? "Elemento selecionado no editor mobile" : "Elemento selecionado para edição");
 
