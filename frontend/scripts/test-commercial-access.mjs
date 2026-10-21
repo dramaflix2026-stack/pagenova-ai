@@ -58,3 +58,40 @@ test("duplicate provider event key is recognized", () => {
   assert.equal(isUniqueProviderEvent("kiwify", "order-124", seen), true);
   assert.equal(isUniqueProviderEvent("", "order-124", seen), false);
 });
+
+
+const mappingSource = readFileSync(new URL("../src/lib/pagenova-commercial-kiwify.ts", import.meta.url), "utf8");
+const mappingCompiled = ts.transpileModule(mappingSource, {
+  compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  reportDiagnostics: true,
+});
+assert.equal(mappingCompiled.diagnostics?.length ?? 0, 0);
+const mappingModule = { exports: {} };
+new Function("module", "exports", mappingCompiled.outputText)(mappingModule, mappingModule.exports);
+const { resolveKiwifyCheckout, resolveKiwifyCommercialEvent } = mappingModule.exports;
+
+const checkout = {
+  id: "mapping-1", plan_code: "crm_studio", provider: "kiwify",
+  provider_product_id: "product-123", provider_offer_id: "offer-456",
+  billing_period: "monthly", state: "active",
+};
+
+test("Kiwify mapping requires exact trusted product and offer IDs", () => {
+  const input = { productId: "product-123", offerId: "offer-456" };
+  assert.equal(resolveKiwifyCheckout(input, [checkout]).status, "matched");
+  assert.equal(resolveKiwifyCheckout({ ...input, offerId: "wrong" }, [checkout]).status, "unmapped");
+  assert.equal(resolveKiwifyCheckout({ ...input, productId: "wrong" }, [checkout]).status, "unmapped");
+  assert.equal(resolveKiwifyCheckout({ productId: null, offerId: null }, [checkout]).status, "invalid");
+  assert.equal(resolveKiwifyCheckout(input, [{ ...checkout, state: "draft" }]).status, "unmapped");
+  assert.equal(resolveKiwifyCheckout(input, [checkout, { ...checkout, id: "mapping-2", plan_code: "apps" }]).status, "ambiguous");
+});
+
+test("commercial Kiwify lifecycle requires paid status and defers cancellations", () => {
+  assert.equal(resolveKiwifyCommercialEvent("order_approved", "paid"), "activate");
+  assert.equal(resolveKiwifyCommercialEvent("order_approved", "pending"), "ignore");
+  assert.equal(resolveKiwifyCommercialEvent("subscription_renewed", "paid"), "activate");
+  assert.equal(resolveKiwifyCommercialEvent("order_refunded", null), "revoke");
+  assert.equal(resolveKiwifyCommercialEvent("chargeback", null), "revoke");
+  assert.equal(resolveKiwifyCommercialEvent("subscription_canceled", null), "defer");
+  assert.equal(resolveKiwifyCommercialEvent("subscription_late", null), "defer");
+});
