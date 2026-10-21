@@ -2456,8 +2456,11 @@ function universalRendererScript(): string {
       var targetSection=document.getElementById(page);
       if(targetSection){
         event.preventDefault();
-        targetSection.scrollIntoView({behavior:'smooth',block:'start'});
-        history.replaceState(null,'','#'+page);
+        var reduceMotion=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        targetSection.scrollIntoView({behavior:reduceMotion?'auto':'smooth',block:'start'});
+        if(window.history && window.history.replaceState){
+          window.history.replaceState(null,'','#'+page);
+        }
       }
     });
   `;
