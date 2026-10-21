@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const title = String(body.siteTitle || "").slice(0, 160);
   const section = String(body.section || "").slice(0, 100);
   if (!title || !description) return NextResponse.json({ error: "Descreva a imagem." }, { status: 400 });
-  const bucket = process.env.PAGENOVA_IMAGE_BUCKET || "site-images";
+  const bucket = "site-images";
   const prompt = [
     "Create one highly realistic premium editorial photograph for a professional website.",
     "Business context: " + title + ". Website section: " + section + ".",
