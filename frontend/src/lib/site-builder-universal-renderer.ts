@@ -133,7 +133,7 @@ function normalizePageSections(
                     item.title.length > 0 ||
                     item.body.length > 0,
                 )
-                .slice(0, 6)
+                .slice(0, 24)
             : [];
 
           return {
@@ -1231,6 +1231,36 @@ function universalRendererStyles(
       --pn-card-border:${cardBorder};
       --pn-card-background:${cardBackground};
     }
+
+    /* Motor 2.0: responsive composition shared by all external niches. */
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:90px}
+    body{overflow-x:hidden}
+    .pn-universal-section,.pn-universal-hero{min-width:0}
+    .pn-universal-section h2{max-width:22ch;line-height:1.12;letter-spacing:-.035em;text-wrap:balance}
+    .pn-universal-section p{overflow-wrap:break-word}
+    .pn-structured-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:clamp(16px,2.2vw,28px)}
+    .pn-structured-card{display:flex;flex-direction:column;gap:clamp(10px,1.5vw,18px);min-width:0;min-height:0}
+    .pn-structured-card h3{line-height:1.25;text-wrap:balance}
+    .pn-universal-section-photo{min-width:0;overflow:hidden}
+    .pn-universal-section-photo img{aspect-ratio:4/3;object-fit:cover}
+    .pn-universal-hero-copy{max-width:100%;min-width:0}
+    .pn-universal-hero-copy h1{font-size:clamp(2.4rem,5.1vw,5.6rem);line-height:1.07;letter-spacing:-.045em;text-wrap:balance}
+    .pn-universal-hero-copy p{font-size:clamp(1rem,1.35vw,1.2rem);line-height:1.65}
+    .pn-universal-hero-visual img{display:block;width:100%;height:100%;object-fit:cover}
+    .pn-universal-faq-section{max-width:100%}
+    .pn-universal-final-cta{text-align:center}
+    .pn-universal-final-cta h2{margin-inline:auto}
+    @media(max-width:760px){
+      html{scroll-padding-top:72px}
+      .pn-universal-section h2{font-size:clamp(1.7rem,7vw,2.6rem)}
+      .pn-structured-grid{grid-template-columns:minmax(0,1fr)}
+      .pn-universal-hero-inner{display:flex;flex-direction:column}
+      .pn-universal-hero-copy h1{font-size:clamp(2rem,8.8vw,3rem)}
+      .pn-universal-hero-visual{width:100%;aspect-ratio:4/3}
+      .pn-site-header{max-width:100%}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 
     /* Motor 2.0: keep content-driven cards and strong visual rhythm. */
     .pn-structured-card{height:auto;min-height:0;align-self:stretch;overflow-wrap:anywhere}
