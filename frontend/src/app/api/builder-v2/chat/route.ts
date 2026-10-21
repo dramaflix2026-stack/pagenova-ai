@@ -76,7 +76,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:typeof b.section==="string"?b.section:"principal"};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      const safeBlocks=cleanBlocks(blocks);\n      const generatedSections=new Set(safeBlocks.map(b=>b.section));
+      const safeBlocks=cleanBlocks(blocks);
+      const generatedSections=new Set(safeBlocks.map(b=>b.section));
       if(safeBlocks.length<10||sections.filter(sec=>generatedSections.has(String(sec.id))).length<5)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:safeBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
@@ -115,7 +116,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.fontSize==="number"?{fontSize:Math.min(120,Math.max(8,block.fontSize))}:{}),
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
-    incoming.blocks=cleanBlocks(incoming.blocks as Array<Record<string,unknown>>) as typeof incoming.blocks;\n    if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
+    incoming.blocks=cleanBlocks(incoming.blocks as Array<Record<string,unknown>>) as unknown as typeof incoming.blocks;\n    if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
     return NextResponse.json({site:incoming,summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
