@@ -64,6 +64,11 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     supplement: 'Process-oriented close-up of the tools or environment used for this exact service. Avoid repeating the hero or about compositions.',
   } as const;
   const sectorLabel = sector?.label ?? 'atividade profissional';
+  if (!sector) {
+    logger.info({ projectId: project.id, slot }, 'PAGENOVA_IMAGE_SECTOR_FALLBACK');
+  } else {
+    logger.info({ projectId: project.id, slot, sector: sectorLabel }, 'PAGENOVA_IMAGE_SECTOR_SELECTED');
+  }
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);
   try {
