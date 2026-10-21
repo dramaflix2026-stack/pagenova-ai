@@ -635,6 +635,29 @@ function firstUniversalImage(...values: unknown[]): string {
   return "";
 }
 
+/** Curated banners are registered manually, never fabricated at site-generation time. */
+type CuratedBanner = {
+  id: string;
+  imageDesktop: string;
+  imageMobile?: string;
+  keywords: string[];
+  mode: "hybrid" | "embedded";
+  alt: string;
+};
+
+// Add reviewed, licensed artwork here after uploading it to /public/banners/.
+// Empty by design: do not display a mismatched banner as a fallback.
+const CURATED_BANNERS: readonly CuratedBanner[] = [];
+
+function selectCuratedBanner(project: SiteProject, mode: "hybrid" | "overlay" | "embedded"): CuratedBanner | null {
+  const context = normalizeText([project.name, project.brief].join(" ")).normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
+  const ranked = CURATED_BANNERS.filter((banner) => banner.mode === (mode === "embedded" ? "embedded" : "hybrid"))
+    .map((banner) => ({ banner, score: banner.keywords.filter((keyword) => context.includes(keyword.toLowerCase())).length }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => b.score - a.score);
+  return ranked[0]?.banner ?? null;
+}
+
 /** Banner 2.0: hybrid is the default; embedded requires an explicitly supplied artwork. */
 function universalBannerMode(project: SiteProject): "hybrid" | "overlay" | "embedded" {
   const brief = normalizeText(project.brief).toLowerCase();
@@ -654,14 +677,15 @@ function renderUniversalHero(
   const heroStyle = strategy.design.heroStyle;
   const density = strategy.design.density;
   const bannerMode = universalBannerMode(project);
+  const curatedBanner = selectCuratedBanner(project, bannerMode);
   // Match the leading photograph to the chosen composition: product/portfolio
   // heroes prioritize actual work imagery, while editorial heroes prioritize
   // the business and its people. Never invent or duplicate an image.
-  const heroPhoto = heroStyle === "product" || strategy.design.bannerStyle === "product-focus"
+  const heroPhoto = curatedBanner?.imageDesktop ?? (heroStyle === "product" || strategy.design.bannerStyle === "product-focus"
     ? firstUniversalImage(project.institutional?.workPhoto, project.institutional?.businessPhoto, project.institutional?.portrait)
     : heroStyle === "editorial"
       ? firstUniversalImage(project.institutional?.portrait, project.institutional?.businessPhoto, project.institutional?.workPhoto)
-      : firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait);
+      : firstUniversalImage(project.institutional?.businessPhoto, project.institutional?.workPhoto, project.institutional?.portrait));
 
   return `
     <section
@@ -694,7 +718,7 @@ function renderUniversalHero(
         </div>
 
         <div class="pn-universal-hero-visual${heroPhoto ? " pn-has-photo" : ""}" aria-hidden="true">
-          ${heroPhoto ? `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="" loading="eager" fetchpriority="high" decoding="async">` : ""}
+          ${heroPhoto ? (curatedBanner?.imageMobile ? `<picture><source media="(max-width: 760px)" srcset="${escapeUniversalHtml(curatedBanner.imageMobile)}"><img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="${escapeUniversalHtml(curatedBanner.alt)}" loading="eager" fetchpriority="high" decoding="async"></picture>` : `<img class="pn-universal-hero-photo" src="${escapeUniversalHtml(heroPhoto)}" alt="${escapeUniversalHtml(curatedBanner?.alt ?? "")}" loading="eager" fetchpriority="high" decoding="async">`) : ""}
           <span class="pn-universal-hero-orb"></span>
           <span class="pn-universal-hero-mark">${escapeUniversalHtml(project.name.slice(0, 1).toUpperCase())}</span>
         </div>
