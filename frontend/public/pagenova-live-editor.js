@@ -707,6 +707,9 @@
         !(/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/|\/(?!\/))/.test(item.src)))return;
       const slot=imageSlotFor(item.kind);
       if(!slot)return;
+      if(!slot.hasAttribute("data-pn-original-inline-style")){
+        slot.setAttribute("data-pn-original-inline-style",slot.getAttribute("style")||"");
+      }
       slot.dataset.pnPhotoSlot=item.kind;
       slot.dataset.pnUploadKind=item.kind;
       let img=slot.querySelector('img[data-pn-uploaded="'+item.kind+'"]');
@@ -739,6 +742,8 @@
           if(child.dataset.pnUploaded)return;
           child.style.removeProperty("display");
         });
+        slot.setAttribute("style",slot.getAttribute("data-pn-original-inline-style")||"");
+        slot.removeAttribute("data-pn-original-inline-style");
         slot.removeAttribute("data-pn-photo-slot");
         slot.removeAttribute("data-pn-upload-kind");
       };
