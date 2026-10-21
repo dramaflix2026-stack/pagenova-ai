@@ -213,9 +213,10 @@ export default function BuilderV2() {
           const cardItems=isGallery?galleryImages:textItems.slice(0,6);
           const isProcess=/etapas|processo|passos|como-funciona/i.test(id);
           const cardText=(b:Block)=>{const parts=clean(b.text).split(/:\s|\s[—–-]\s/);return {name:parts.length>1?parts[0].trim():"",description:parts.length>1?parts.slice(1).join(" — ").trim():clean(b.text)};};
+          const safeColor=(color:string)=>{const c=readableColor(color,sectionBackground);const dark=/^#(?:1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(sectionBackground);return dark&&/^#(?:0[0-9a-f]|1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(c)?"#f7f4eb":c;};
           const render=(b:Block)=> {
-            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2rem,4.5vw,4.4rem)] font-bold leading-[1.08] tracking-[-.045em]":"max-w-3xl text-[clamp(1.65rem,3vw,2.65rem)] font-bold leading-[1.15] tracking-[-.035em]"}>{clean(b.text)}</h2>;
-            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(b.color,sectionBackground)}} className="max-w-2xl text-[15px] leading-[1.7] md:text-lg">{clean(b.text)}</p>;
+            if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:safeColor(b.color)}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2rem,4.5vw,4.4rem)] font-bold leading-[1.08] tracking-[-.045em]":"max-w-3xl text-[clamp(1.65rem,3vw,2.65rem)] font-bold leading-[1.15] tracking-[-.035em]"}>{clean(b.text)}</h2>;
+            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:safeColor(b.color)}} className="max-w-2xl text-[15px] leading-[1.7] md:text-lg">{clean(b.text)}</p>;
             if(b.type==="image") return b.src?<img key={b.id} data-block-id={b.id} src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" className="aspect-[4/3] w-full rounded-2xl object-cover"/>:null;
             return <a key={b.id} data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:undefined} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{clean(b.text)}</a>;
           };
