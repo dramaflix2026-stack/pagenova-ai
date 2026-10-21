@@ -24,6 +24,12 @@ function readableColor(color:string,background:string) {
   if(contrast(l(fg),l(bg))>=4.5)return color;
   return l(bg)>.4?"#24332e":"#f8f5e9";
 }
+const designPresets = [
+ {id:"legal",match:/advoga|jurid|direito|escritorio/i,hero:"editorial",card:"bordered",accent:"#c9b782"},
+ {id:"health",match:/clinic|odonto|medic|saude|terapia/i,hero:"split",card:"soft",accent:"#a6cbb9"},
+ {id:"commerce",match:/loja|moda|produto|ecommerce|roupa/i,hero:"split",card:"soft",accent:"#e2a86c"},
+ {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
+] as const;
 const storageKey = "pagenova-builder-v2-private-v1";
 function applyInstruction(site: Site, instruction: string): { site: Site; summary: string } | null {
   const text = instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -145,8 +151,10 @@ export default function BuilderV2() {
           const first=blocks[0];
           const id=group.id.toLowerCase();
           const layout=first?.layout || (/servic|especialidade|benefic|diferencia/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre/.test(id)?"split":index===0?"hero":"standard");
+          const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
           const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
+          
           const heading=blocks.filter(b=>b.type==="heading");
           const images=blocks.filter(b=>b.type==="image");
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
@@ -157,10 +165,10 @@ export default function BuilderV2() {
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
           return <section key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-6 py-16 md:px-14 md:py-28">
             <div className="mx-auto max-w-6xl">
-              {layout==="grid"||layout==="gallery"?<><div className="mb-7 space-y-3">{heading.map(render)}</div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className="rounded-2xl border border-black/10 bg-white p-7 shadow-sm transition-shadow hover:shadow-lg md:p-9">{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
-              layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-4"><summary className="cursor-pointer font-semibold" style={{color:readableColor(b.color,"#ffffff")}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
+              {layout==="grid"||layout==="gallery"?<><div className="mb-9 space-y-4">{heading.map(render)}</div><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className={preset.card==="bordered"?"rounded-xl border border-[#d9d5c9] bg-white p-7 shadow-[0_8px_30px_rgba(0,0,0,.035)] transition-all hover:-translate-y-1 hover:shadow-lg md:p-9":"rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg md:p-9"}>{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
+              layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-5 shadow-sm"><summary className="cursor-pointer font-semibold" style={{color:readableColor(b.color,"#ffffff")}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
               layout==="split"||layout==="hero"?<div className={images.length?"grid items-center gap-10 md:grid-cols-2 md:gap-16":layout==="hero"?"mx-auto max-w-4xl py-5 md:py-12":"mx-auto max-w-3xl"}><div className="space-y-7">{heading.map(render)}{textItems.map(render)}{buttons.map(render)}</div>{images.length>0?<div className="space-y-4">{images.map(render)}</div>:null}</div>:
-              <div className="mx-auto max-w-3xl space-y-5">{blocks.filter(b=>b.type!=="paragraph"||textItems.includes(b)).map(render)}</div>}
+              <div className="mx-auto max-w-3xl space-y-7">{blocks.filter(b=>b.type!=="paragraph"||textItems.includes(b)).map(render)}</div>}
             </div>
           </section>;
         })}</div></section>
