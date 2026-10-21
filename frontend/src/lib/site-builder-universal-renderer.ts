@@ -2468,6 +2468,18 @@ function universalRendererScript(): string {
         if(!found)link.remove();
       });
     }
+    // Native anchors also work without JavaScript, including keyboard use.
+    // Give real targets to the common menu entries when their section exists.
+    var anchorTargets={
+      home:document.querySelector('.pn-universal-hero'),
+      sobre:document.querySelector('[data-pn-section-kind="about"],[data-pn-section-kind="story"],[data-pn-section-kind="team"]'),
+      servicos:document.querySelector('[data-pn-section-kind="services"],[data-pn-section-kind="features"],[data-pn-section-kind="benefits"],[data-pn-section-kind="offer"]'),
+      contato:document.querySelector('[data-pn-section-kind="contact"],.pn-universal-footer')
+    };
+    Object.keys(anchorTargets).forEach(function(page){
+      var section=anchorTargets[page];
+      if(section && !document.getElementById(page))section.id=page;
+    });
     document.addEventListener('click',function(event){
       var target=event.target;
       if(!(target instanceof Element))return;
