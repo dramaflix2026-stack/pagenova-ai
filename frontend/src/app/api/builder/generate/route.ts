@@ -115,6 +115,13 @@ export async function POST(request: NextRequest) {
     "Aplique transições leves somente onde agregarem clareza, respeitando prefers-reduced-motion. Evite animações obrigatórias, conteúdo oculto sem JavaScript e efeitos que prejudiquem a velocidade.",
     "Para briefings curtos, complete a estrutura e a redação sem inventar endereço, telefone, credenciais, preços, avaliações, fotos reais ou resultados. Marque dados faltantes como pendentes.",
     "Evite repetir a mesma composição de hero, grade e cartões em todas as seções. Preserve edição visual, semântica HTML, acessibilidade e responsividade.",
+    "MOTOR 2.0: transforme o briefing em uma direção de arte concreta: paleta solicitada, tipografia legível, ritmo visual, contraste e proporção de imagens. Nunca troque azul por verde quando azul for explicitamente pedido.",
+    "MOTOR 2.0: hero com título de até duas ou três linhas no celular, subtítulo conciso, CTA acima da dobra quando possível e imagem relacionada diretamente ao segmento. Nunca use fotos de lojas de roupas em clínicas, consultórios ou serviços médicos.",
+    "MOTOR 2.0: cards devem ajustar a altura ao conteúdo; não reserve alturas enormes para descrições curtas. No celular, seções devem ter espaçamento compacto e consistente, sem grandes áreas vazias.",
+    "MOTOR 2.0: use fundos e superfícies contrastantes, jamais texto branco sobre bege, cinza-claro ou fotografia sem overlay suficientemente escuro. Garanta legibilidade do hero em qualquer tela.",
+    "MOTOR 2.0: variar composição entre seções: alternar mídia e texto, grids adaptativos e blocos editoriais. Evite repetir cartões idênticos do início ao fim.",
+    "MOTOR 2.0: trate imagens como conteúdo semântico. Se não houver fotografia verdadeira ou apropriada ao nicho, prefira composição gráfica elegante em vez de fotografia aleatória.",
+
     `Cards: ${universalStrategy.design.cardStyle}`,
     `Fonte padrão: ${universalStrategy.design.defaultFont}`,
   ].join("\n");
