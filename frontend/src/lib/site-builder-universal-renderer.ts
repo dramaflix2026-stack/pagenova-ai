@@ -1769,11 +1769,11 @@ function universalRendererStyles(
     .pn-composition-faq .pn-universal-section-content{
       position:relative;
       overflow:hidden;
-      min-height:260px;
+      min-height:0;
       display:flex;
       flex-direction:column;
-      justify-content:space-between;
-      gap:30px;
+      justify-content:flex-start;
+      gap:20px;
       padding:34px;
       border-radius:28px;
       background:
