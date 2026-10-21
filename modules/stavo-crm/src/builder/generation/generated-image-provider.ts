@@ -34,7 +34,11 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
   const draft = project.draftConfig as {freeformInstructions?: unknown; business?: {name?: unknown; niche?: unknown; description?: unknown}} | null;
   const brief = typeof draft?.freeformInstructions === 'string' ? draft.freeformInstructions.slice(0, 1800) : '';
   const industry = typeof draft?.business?.niche === 'string' ? draft.business.niche.slice(0, 100) : '';
-  const context = [niche, project.businessName, industry, brief].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  // Structured niche wins over a long brief that may mention unrelated sectors
+  // (for example, "not a clothing store"). The name is only a fallback.
+  const normalizeIndustry = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const primaryContext = normalizeIndustry([industry, niche, project.businessName].join(' '));
+  const secondaryContext = normalizeIndustry(brief);
   const sectors: Array<{pattern: RegExp; subject: string; label: string}> = [
     {pattern: /odont|dentist|dentari|ortodont|implante dent|clinica dental|sorriso prime/, subject: 'a contemporary dental treatment room with an empty dental chair, dental lamp and clean dental instruments', label: 'consultorio odontologico'},
     {pattern: /estetica|spa|beleza|skincare|facial|depilac|cosmetic/, subject: 'a refined beauty treatment studio with a professional treatment bed and elegant skincare equipment', label: 'clinica de estetica'},
@@ -49,7 +53,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     {pattern: /construc|engenhari|reforma|obra|marcenaria/, subject: 'a polished architecture and construction project space with quality building materials and professional tools', label: 'construcao e engenharia'},
     {pattern: /pet shop|veterinari|animais|banho e tosa/, subject: 'a clean modern veterinary consultation room with organized pet care equipment', label: 'cuidados animais'},
   ];
-  const sector = sectors.find(item => item.pattern.test(context));
+  const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(secondaryContext));
   const subject = sector?.subject ?? 'a refined neutral editorial still life of professional tools on a minimal studio background, with no unrelated retail or fashion scenery';
   const sectorLabel = sector?.label ?? 'atividade profissional';
   const controller = new AbortController();
