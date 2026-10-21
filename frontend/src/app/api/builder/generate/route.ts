@@ -9,6 +9,9 @@ import { applySectionChanges } from "@/lib/site-builder-revision-plan";
 import { reservePaidAiBudget } from "@/lib/paid-ai-budget";
 export const runtime = "nodejs";
 export const maxDuration = 90;
+// Three bounded user photos can be carried through an AI revision. Keep the
+// HTTP body ceiling consistent with safeSubmittedPhoto's per-image cap.
+const MAX_GENERATION_REQUEST_BYTES = 9_500_000;
 
 const keys = new Set<SitePageKey>(SITE_PAGES.map((page) => page.key));
 
@@ -18,7 +21,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Origem não autorizada." }, { status: 403 });
   }
   const declaredLength = Number(request.headers.get("content-length") || "0");
-  if (declaredLength > 1_300_000) {
+  if (declaredLength > MAX_GENERATION_REQUEST_BYTES) {
     return NextResponse.json({ error: "Briefing ou anexo muito grande." }, { status: 413 });
   }
   const supabase = await createClient();
@@ -37,7 +40,7 @@ export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
   try {
     const raw = await request.text();
-    if (raw.length > 1_300_000) {
+    if (raw.length > MAX_GENERATION_REQUEST_BYTES) {
       return NextResponse.json({ error: "Briefing ou anexo muito grande." }, { status: 413 });
     }
     const parsed: unknown = JSON.parse(raw);
