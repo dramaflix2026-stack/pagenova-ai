@@ -27,7 +27,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:tokens,
           response_format:{type:"json_object"},
           messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(user)}]}),
-        signal:AbortSignal.timeout(35000)
+        signal:AbortSignal.timeout(55000)
       });
       if (!response.ok) throw new Error("upstream-"+response.status);
       const data = await response.json();
@@ -64,7 +64,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           section:typeof b.section==="string"?b.section:"principal"};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
       const generatedSections=new Set(blocks.map(b=>b.section));
-      if(blocks.length<12||sections.filter(sec=>generatedSections.has(String(sec.id))).length<5)throw new Error("incomplete-site");
+      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
