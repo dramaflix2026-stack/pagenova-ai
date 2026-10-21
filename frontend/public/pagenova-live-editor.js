@@ -732,6 +732,16 @@
       slot.style.setProperty("aspect-ratio","auto","important");
       slot.style.setProperty("padding","0","important");
       img.style.cssText="display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;min-height:0!important;object-fit:contain!important;aspect-ratio:auto!important;border-radius:inherit";
+      img.onerror=function(){
+        // A stale external URL must not leave a permanently blank photo slot.
+        img.remove();
+        Array.from(slot.children).forEach(function(child){
+          if(child.dataset.pnUploaded)return;
+          child.style.removeProperty("display");
+        });
+        slot.removeAttribute("data-pn-photo-slot");
+        slot.removeAttribute("data-pn-upload-kind");
+      };
       img.src=item.src;
     });
   }
