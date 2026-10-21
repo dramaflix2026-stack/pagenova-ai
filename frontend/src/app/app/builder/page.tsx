@@ -1236,16 +1236,16 @@ export default function BuilderPage() {
     };
     const hex = input.match(/#[0-9a-fA-F]{6}\b/);
     const named = Object.entries(colorNames).find(([name]) => new RegExp("\\b"+name+"\\b").test(normalized));
-    const wantsColor = /\bcor\b|\bcolor\b|pinte|pintar/i.test(normalized);
+    const wantsColor = /\bcor\b|\bcolor\b|pinte|pintar|mude.*(?:para|por)|troque.*(?:para|por)|deixe.*(?:em|na|no|para)/i.test(normalized) && Boolean(hex || named);
     const color = wantsColor ? (hex?.[0] || named?.[1]) : undefined;
     const sizeMatch = normalized.match(/(?:tamanho|fonte|texto|letra)[^\d]{0,28}(\d{1,3})\s*(?:px|pixels)?\b/);
     const size = sizeMatch ? Number(sizeMatch[1]) : undefined;
     const fontMatch = normalized.match(/(?:fonte|tipografia)\s+(?:para\s+|por\s+|em\s+)?(poppins|inter|arial|roboto|montserrat|georgia)\b/);
-    const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|alinhar)[^.,;]{0,30}\b(centro|esquerda|direita)\b|\b(centralizado|centralizada|centralize)\b/);
+    const alignMatch = normalized.match(/(?:alinhe|alinhamento|centralize|centralizar|alinhar|deixe|coloque|posicione|mova)[^.,;]{0,65}\b(centro|esquerda|direita)\b|\b(centralizado|centralizada|centralize)\b/);
     const quotedText = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
     const naturalCopy = input.match(/(?:altere|mude|troque|reescreva)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:do\s+site\s+)?(?:para|por)\s+(.+?)(?=\s+e\s+(?:deixe|coloque|alinhe|centralize|mude|altere|aplique)\b|[.!?]?$)/i);
     const textMatch = quotedText || (naturalCopy?.[1]?.trim() ? [naturalCopy[0], naturalCopy[1].trim()] : null);
-    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[1]) ? "left" : "right") : undefined;
+    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[0]) ? "left" : "right") : undefined;
     // Unquoted copy plus styling is ambiguous: never insert the styling instruction
     // into the headline. Let the planner handle that case.
     if (!textMatch && /(?:altere|mude|troque|reescreva)\\s+(?:o\\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
@@ -1284,7 +1284,7 @@ export default function BuilderPage() {
       ...(color ? { color } : {}),
       ...(size ? { size } : {}),
       ...(fontMatch ? { font: fontMatch[1][0].toUpperCase()+fontMatch[1].slice(1) } : {}),
-      ...(alignMatch ? { textAlign: ({ centro: "center", esquerda: "left", direita: "right" } as const)[alignMatch[1] as "centro"|"esquerda"|"direita"] } : {}),
+      ...(alignValue ? { textAlign: alignValue } : {}),
       ...(textMatch ? { text: textMatch[1] } : {}),
     };
     if (index >= 0) current[index] = next; else current.push(next);
