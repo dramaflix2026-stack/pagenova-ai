@@ -1265,6 +1265,16 @@ function universalRendererStyles(
       .pn-universal-hero-copy p{line-height:1.65}
     }
 
+    /* Motor 2.0: avoid stretched photographs and oversized empty media. */
+    .pn-universal-section-photo img,.pn-real-photo-grid img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+    .pn-real-photo-grid figure{min-width:0;overflow:hidden}
+    .pn-universal-hero-visual{isolation:isolate}
+    @media(max-width:760px){
+      .pn-universal-section-photo{max-height:400px;overflow:hidden}
+      .pn-universal-section-photo img{max-height:400px}
+      .pn-real-photo-grid figure{max-height:320px}
+    }
+
     /* Motion direction applies to actual rendered sections. No JS dependency. */
     @media(prefers-reduced-motion:no-preference){
       .pn-motion-reveal .pn-universal-hero-copy{
