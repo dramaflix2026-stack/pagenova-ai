@@ -9,7 +9,7 @@ export function renderVerticePremiumPreview(project: SiteProject, pageKey: SiteP
   if (!page) return "";
   const nav = (Object.keys(labels) as SitePageKey[]).filter((key)=>Boolean(project.pages[key])).map((key)=>`<a href="#${key}" data-page="${key}" class="${key===pageKey?"active":""}">${labels[key]}</a>`).join("");
   // Template palette must follow the customer's briefing, not the demo's green theme.
-  const requestedColors = [...(project.brief || "").matchAll(/#[0-9a-fA-F]{6}\\b/g)].map((match) => match[0]);
+  const requestedColors = [...(project.brief || "").matchAll(/#[0-9a-fA-F]{6}\b/g)].map((match) => match[0]);
   const primary = requestedColors[0] || (/azul/i.test(project.brief || "") ? "#164B8B" : "#15382e");
   const secondary = requestedColors[1] || (/azul/i.test(project.brief || "") ? "#EAF4FF" : "#fbfaf6");
   const brandStyles = `<style id="pn-brief-palette">
