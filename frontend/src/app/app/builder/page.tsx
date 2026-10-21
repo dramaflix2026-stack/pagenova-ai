@@ -1919,10 +1919,14 @@ export default function BuilderPage() {
       const smaller = document.createElement("canvas");
       smaller.width = Math.max(1, Math.round(canvas.width * shrink));
       smaller.height = Math.max(1, Math.round(canvas.height * shrink));
-      smaller.getContext("2d")?.drawImage(canvas, 0, 0, smaller.width, smaller.height);
+      const smallerContext = smaller.getContext("2d");
+      if (!smallerContext) throw new Error("Não foi possível reduzir a imagem para publicação.");
+      smallerContext.drawImage(canvas, 0, 0, smaller.width, smaller.height);
       output = smaller.toDataURL("image/webp", 0.68);
     }
-    if (output.length > 1_500_000) throw new Error("Imagem grande demais para publicação. Envie uma imagem menor.");
+    if (!output.startsWith("data:image/webp;base64,") || output.length > 1_500_000) {
+      throw new Error("Imagem grande demais para publicação. Envie uma imagem menor.");
+    }
     return output;
   }
 
