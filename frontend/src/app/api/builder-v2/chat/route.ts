@@ -61,7 +61,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const b=raw as Record<string,unknown>;
         if(!["heading","paragraph","button","image"].includes(String(b.type))||typeof b.text!=="string")return null;
         if(/^(?:\(?xx\)?[\s-]*){2,}|contato@clinic|rua principal\s*,?\s*123/i.test(b.text))return null;
-        b.text=cleanGeneratedCopy(b.text);\n        if(b.type==="heading")b.text=removeLayoutHeading(b.text,String(b.section||""));\n        if(b.type==="paragraph"&&fabricatedContact.test(b.text))return null;
+        b.text=cleanGeneratedCopy(b.text);
+        if(b.type==="heading")b.text=removeLayoutHeading(b.text,String(b.section||""));
+        if(b.type==="paragraph"&&fabricatedContact.test(b.text))return null;
         const id=typeof b.id==="string"&&b.id?b.id:"block-"+index;
         const unique=seen.has(id)?id+"-"+index:id;seen.add(unique);
         return {...b,id:unique,color:typeof b.color==="string"?b.color:"#243043",
