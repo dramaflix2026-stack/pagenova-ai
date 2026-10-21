@@ -635,6 +635,14 @@ function firstUniversalImage(...values: unknown[]): string {
   return "";
 }
 
+/** Banner 2.0: hybrid is the default; embedded requires an explicitly supplied artwork. */
+function universalBannerMode(project: SiteProject): "hybrid" | "overlay" | "embedded" {
+  const brief = normalizeText(project.brief).toLowerCase();
+  if (/texto (?:100% |totalmente )?(?:embutido|incorporado|dentro da imagem)|banner com texto na imagem/.test(brief)) return "embedded";
+  if (/texto sobreposto|texto por cima da imagem|banner com sobreposi[cç][aã]o/.test(brief)) return "overlay";
+  return "hybrid";
+}
+
 function renderUniversalHero(
   project: SiteProject,
   model: UniversalRenderModel,
@@ -645,6 +653,7 @@ function renderUniversalHero(
 
   const heroStyle = strategy.design.heroStyle;
   const density = strategy.design.density;
+  const bannerMode = universalBannerMode(project);
   // Match the leading photograph to the chosen composition: product/portfolio
   // heroes prioritize actual work imagery, while editorial heroes prioritize
   // the business and its people. Never invent or duplicate an image.
@@ -656,7 +665,7 @@ function renderUniversalHero(
 
   return `
     <section
-      class="hero pn-universal-hero pn-hero-${heroStyle} pn-banner-${strategy.design.bannerStyle} pn-density-${density}"
+      class="hero pn-universal-hero pn-hero-${heroStyle} pn-banner-${strategy.design.bannerStyle} pn-banner-mode-${bannerMode} pn-density-${density}"
       data-pn-section="true"
       data-pn-section-kind="hero"
       data-pn-source=".hero"
@@ -1230,6 +1239,21 @@ function universalRendererStyles(
       --pn-card-shadow:${cardShadow};
       --pn-card-border:${cardBorder};
       --pn-card-background:${cardBackground};
+    }
+
+    /* Hybrid banner: composition reserves a dedicated readable text zone. */
+    .pn-banner-mode-hybrid .pn-universal-hero-inner{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(24px,4vw,72px)}
+    .pn-banner-mode-hybrid .pn-universal-hero-copy{position:relative;z-index:2;padding-block:clamp(30px,5vw,85px)}
+    .pn-banner-mode-hybrid .pn-universal-hero-copy h1{color:var(--pn-text);text-shadow:none}
+    .pn-banner-mode-hybrid .pn-universal-hero-visual{position:relative;min-height:340px;overflow:hidden;border-radius:clamp(18px,2.5vw,36px)}
+    .pn-banner-mode-hybrid .pn-universal-hero-visual.pn-has-photo .pn-universal-hero-orb,.pn-banner-mode-hybrid .pn-universal-hero-visual.pn-has-photo .pn-universal-hero-mark{display:none}
+    .pn-banner-mode-embedded .pn-universal-hero-copy{position:relative;z-index:2}
+    .pn-banner-mode-embedded .pn-universal-hero-copy h1{color:var(--pn-text);text-shadow:none}
+    @media(max-width:760px){
+      .pn-banner-mode-hybrid .pn-universal-hero-inner{display:flex;flex-direction:column;align-items:stretch;gap:20px}
+      .pn-banner-mode-hybrid .pn-universal-hero-copy{padding-block:12px}
+      .pn-banner-mode-hybrid .pn-universal-hero-visual{min-height:220px;aspect-ratio:4/3}
+      .pn-banner-mode-hybrid .pn-universal-hero-copy h1{max-width:100%}
     }
 
     /* Motor 2.0: responsive composition shared by all external niches. */
