@@ -23,17 +23,33 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   let response: Response;
   try { response = await fetch("https://api.openai.com/v1/chat/completions",{
     method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
-    body:JSON.stringify({model:"gpt-4.1-mini",response_format:{type:"json_object"},messages:[{role:"system",content:prompt},{role:"user",content:userContent}]}),
+    body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:12000,response_format:{type:"json_object"},messages:[{role:"system",content:prompt},{role:"user",content:userContent}]}),
     signal:AbortSignal.timeout(75000)
   }); } catch { return NextResponse.json({error:"Tempo esgotado. O projeto foi preservado."},{status:504}); }
   if (!response.ok) return NextResponse.json({error:"A IA falhou. Nenhuma alteração foi aplicada."},{status:502});
   const data = await response.json();
   try {
-    const output = JSON.parse(data.choices[0].message.content);
-    if (!output.site || !Array.isArray(output.site.blocks) || output.site.blocks.length > 120 ||
-      output.site.blocks.some((b:{id?:string;type?:string;text?:string;align?:string})=>!b.id || !["heading","paragraph","button","image"].includes(b.type||"") || typeof b.text !== "string" || !["left","center","right"].includes(b.align||""))) throw Error("invalid");
-    const incoming = output.site as {title?:string;background?:string;blocks:Array<{id:string;type:string;text:string;color?:string;align:string;src?:string;fontSize?:number;radius?:number;spacing?:number}>};
-    if (typeof incoming.title !== "string" || typeof incoming.background !== "string" || new Set(incoming.blocks.map(b=>b.id)).size !== incoming.blocks.length || incoming.blocks.some(b=>typeof b.color !== "string" || (b.fontSize !== undefined && (typeof b.fontSize !== "number" || b.fontSize < 8 || b.fontSize > 120)) || (b.spacing !== undefined && (typeof b.spacing !== "number" || b.spacing < 0 || b.spacing > 120)))) throw Error("invalid");
-    return NextResponse.json(output);
-  } catch { return NextResponse.json({error:"Resposta inválida da IA; projeto preservado."},{status:502}); }
+    const raw = data?.choices?.[0]?.message?.content;
+    if (typeof raw !== "string" || !raw.trim()) throw Error("empty");
+    const output = JSON.parse(raw);
+    if (!output.site || !Array.isArray(output.site.blocks) || !output.site.blocks.length || output.site.blocks.length > 120) throw Error("blocks");
+    const incoming = output.site as {title?:string;background?:string;blocks:Array<{id?:string;type?:string;text?:string;color?:string;align?:string;src?:string;fontSize?:number;radius?:number;spacing?:number;section?:string}>};
+    if (typeof incoming.title !== "string" || !incoming.title.trim()) incoming.title = "Site profissional";
+    if (typeof incoming.background !== "string" || !incoming.background.trim()) incoming.background = "#ffffff";
+    const seen = new Set<string>();
+    incoming.blocks = incoming.blocks.map((block,index) => {
+      if (!block || !["heading","paragraph","button","image"].includes(block.type||"") || typeof block.text !== "string") throw Error("block type");
+      const id = typeof block.id === "string" && block.id.trim() ? block.id : "block-"+index;
+      const uniqueId = seen.has(id) ? id+"-"+index : id;
+      seen.add(uniqueId);
+      return {...block,id:uniqueId,align:["left","center","right"].includes(block.align||"")?block.align:"left",color:typeof block.color==="string"&&block.color.trim()?block.color:"#263343",
+        ...(typeof block.fontSize==="number"?{fontSize:Math.min(120,Math.max(8,block.fontSize))}:{}),
+        ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
+    });
+    if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
+    return NextResponse.json({site:incoming,summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
+  } catch (error) {
+    console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
+    return NextResponse.json({error:"A IA não retornou um site válido e completo. Tente novamente; seu projeto foi preservado."},{status:502});
+  }
 }
