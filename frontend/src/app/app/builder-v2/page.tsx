@@ -136,7 +136,7 @@ export default function BuilderV2() {
     reader.readAsDataURL(file);
   }
   const missingContact = site.blocks.length>0 && !site.blocks.some(b=>/contato|agendamento|whatsapp/i.test(b.section||""));
-  const sections = site.blocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
+  const visibleBlocks = site.blocks.filter(b=>!(/^(?:título principal impactante|subtítulo suave|imagem a adicionar|redes sociais\s*\(|©\s*20\d{2})/i.test(b.text.trim()) || /(?:fundo azul.marinho translúcido|sobre imagem impactante|ícones dourados discretos|tipografia refinada)/i.test(b.text)));\n  const sections = visibleBlocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
     const id = block.section || "principal";
     const last = acc[acc.length-1];
     if(last?.id===id) last.blocks.push(block);
