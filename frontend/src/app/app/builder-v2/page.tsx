@@ -89,8 +89,9 @@ export default function BuilderV2() {
     return {site:next,summary:"Alinhamento "+(align==="center"?"centralizado":align==="left"?"à esquerda":"à direita")+" aplicado e conferido em "+affected.length+" elementos. Imagens e textos preservados."};
   }
   async function generateVisuals(current: Site, prompt: string, only?: number): Promise<Site> {
-    const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer/i.test(id)).slice(0,6);
-    const jobs=only===undefined?ids.map((section,index)=>({section,index})): [{section:ids[only]||ids[0]||"principal",index:only}];
+    const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer/i.test(id));
+    const slots=Array.from({length:6},(_,i)=>ids[i%Math.max(1,ids.length)]||"principal");
+    const jobs=only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     const responses=await Promise.allSettled(jobs.map(async ({section,index})=>{
       const description=(only===undefined?"":prompt+". ")+current.blocks.filter(b=>(b.section||"principal")===section).map(b=>b.text).join(". ").slice(0,450);
       const res=await fetch("/api/builder-v2/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteTitle:current.title,section,description})});
@@ -121,7 +122,7 @@ export default function BuilderV2() {
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
     if (/(?:regener|troqu|substitu|nova imagem|nova foto|gere imagens|gerar imagens)/i.test(prompt) && /(?:imagem|foto)/i.test(prompt) && site.blocks.length) {
       try {
-        const match=prompt.match(/(?:imagem|foto)\\s*(?:n[uú]mero\\s*)?(\\d+)/i);
+        const match=prompt.match(/(?:imagem|foto)\s*(?:n[uú]mero\s*)?(\d+)/i);
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
         const updated=await generateVisuals(site,prompt,index);
         setHistory(prev=>[...prev.slice(-19),site]);setSite(updated);setInstruction("");
