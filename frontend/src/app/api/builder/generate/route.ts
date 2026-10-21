@@ -921,10 +921,19 @@ PAGENOVA V6.7 - HOME COMPLETA POR NICHO:
     // AI only generates textual institutional fields. Keep existing
     // user-uploaded photo URLs intact across generation and revisions.
     // Never let model output replace or invent client image URLs.
+    // Keep only bounded, safe image sources. This route must not persist
+    // arbitrary schemes (javascript:, file:, etc.) from client payloads.
+    const safeSubmittedPhoto = (value: unknown): string => {
+      if (typeof value !== "string") return "";
+      const url = value.trim();
+      if (!url || url.length > 4096 || /[\\u0000-\\u001f\\u007f]/.test(url)) return "";
+      if (/^https:\\/\\/[^\\s]+$/i.test(url) || /^\\/[^\\/]/.test(url)) return url;
+      return "";
+    };
     const existingPhotos = {
-      portrait: typeof submitted.portrait === "string" ? submitted.portrait : "",
-      businessPhoto: typeof submitted.businessPhoto === "string" ? submitted.businessPhoto : "",
-      workPhoto: typeof submitted.workPhoto === "string" ? submitted.workPhoto : "",
+      portrait: safeSubmittedPhoto(submitted.portrait),
+      businessPhoto: safeSubmittedPhoto(submitted.businessPhoto),
+      workPhoto: safeSubmittedPhoto(submitted.workPhoto),
     };
     let institutional = {
       role: rawInstitutional.role.slice(0, 700).trim(),
