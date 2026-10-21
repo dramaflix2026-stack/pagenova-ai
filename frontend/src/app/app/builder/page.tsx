@@ -1197,23 +1197,22 @@ export default function BuilderPage() {
     // The preview iframe is intentionally sandboxed without allow-same-origin.
     // contentDocument is therefore inaccessible. Resolve section ancestry from
     // metadata returned by the iframe's own editor over postMessage.
-    const heading = headings[0] as typeof inventory[number] & {sectionSelector?: string};
-    const scoped = inventory as Array<typeof inventory[number] & {sectionSelector?: string}>;
+    const heading = headings[0] as typeof inventory[number] & {sectionSelector?: string;heroGroup?: string};
+    const scoped = inventory as Array<typeof inventory[number] & {sectionSelector?: string;heroGroup?: string}>;
     const eligible = (el: typeof heading) => /^(h1|p|a|button|small|span|strong)$/.test(el.tag);
-    let targets = heading.sectionSelector
-      ? scoped.filter(el => eligible(el) && el.sectionSelector === heading.sectionSelector)
+    // The sandbox itself identifies the closest real DOM ancestor containing
+    // the hero H1, description and CTA. No CSS class naming assumptions.
+    let targets = heading.heroGroup
+      ? scoped.filter(el => eligible(el) && el.heroGroup === heading.heroGroup)
       : [];
-    if (!targets.some(el => el.tag === "p") || !targets.some(el => el.tag === "a" || el.tag === "button")) {
-      const index = scoped.findIndex(el => el.selector === heading.selector);
-      const nextSection = scoped.findIndex((el, i) => i > index && (el.tag === "section" || /^h[2-6]$/.test(el.tag)));
-      const stop = nextSection < 0 ? Math.min(scoped.length, index + 25) : Math.min(nextSection, index + 25);
-      targets = scoped.slice(Math.max(0, index - 4), stop).filter(eligible);
+    if (!targets.length && heading.sectionSelector) {
+      targets = scoped.filter(el => eligible(el) && el.sectionSelector === heading.sectionSelector);
     }
     if (!targets.some(el => el.selector === heading.selector) ||
         !targets.some(el => el.tag === "p") ||
         !targets.some(el => el.tag === "a" || el.tag === "button") ||
         targets.length > 36)
-      throw new Error("Não localizei título, texto e botão juntos na prévia. Nenhuma alteração foi salva.");
+      throw new Error("Não encontrei título, descrição e botão na mesma seção. Nenhuma alteração foi feita.");
     if (new Set(targets.map(el => el.selector)).size !== targets.length)
       throw new Error("Elementos duplicados na seção principal.");
     await executeCrmTextPlan([], inventory, targets.map(el => ({ selector: el.selector, action: "align", value: alignment })));
