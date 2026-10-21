@@ -58,6 +58,11 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     .replace(/(?:nao|nunca|evite|sem)\s+(?:use|usar|utilize|coloque|inclua|mostre|imagem de|foto de|fotos de)?\s*(?:uma?\s+)?(?:loja|roupas|moda|escritorio|restaurante|clinica|consultorio)[^.;,\n]*/g, '');
   const sector = sectors.find(item => item.pattern.test(primaryContext)) ?? sectors.find(item => item.pattern.test(positiveBrief));
   const subject = sector?.subject ?? 'a refined neutral editorial still life of professional tools on a minimal studio background, with no unrelated retail or fashion scenery';
+  const slotComposition = {
+    hero: 'Wide establishing view of the relevant professional environment. Keep the right half visually interesting and the left half quiet enough for a readable title overlay.',
+    about: 'Tighter editorial view of relevant professional equipment or interior details. Clearly different camera angle and framing from the hero.',
+    supplement: 'Process-oriented close-up of the tools or environment used for this exact service. Avoid repeating the hero or about compositions.',
+  } as const;
   const sectorLabel = sector?.label ?? 'atividade profissional';
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 90_000);
@@ -71,7 +76,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
         size: '1536x1024',
         quality: 'low',
         n: 1,
-        prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slot === 'hero' ? 'Open negative space on the left for overlaid website copy, important details on the right.' : slot === 'about' ? 'Warm editorial details with a sophisticated close-up perspective, suitable for a company introduction.' : 'A practical process-oriented work scene from an alternate angle, visually distinct from the hero and about sections.'} Premium art direction: professional editorial photography aesthetic, realistic lighting, accurate sector-specific equipment, clean composition, balanced perspective and visual hierarchy. Keep the main subject fully visible with safe margins for mobile cropping. No unrelated products, clothing stores, shopping racks, random retail displays or equipment from another industry. NO PEOPLE, NO FACES, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
+        prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slotComposition[slot]} Premium art direction: professional editorial photography aesthetic, realistic lighting, accurate sector-specific equipment, clean composition, balanced perspective and visual hierarchy. Keep the main subject fully visible with safe margins for mobile cropping. No unrelated products, clothing stores, shopping racks, random retail displays or equipment from another industry. NO PEOPLE, NO FACES, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
       }),
     });
     if (!response.ok) {
