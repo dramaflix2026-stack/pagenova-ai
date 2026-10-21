@@ -1801,6 +1801,8 @@ function universalRendererStyles(
     .pn-structured-card{
       position:relative;
       min-width:0;
+      height:fit-content;
+      align-self:start;
       padding:24px;
       border:1px solid var(--pn-border);
       border-radius:18px;
