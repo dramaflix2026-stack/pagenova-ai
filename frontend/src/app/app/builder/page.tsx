@@ -1194,20 +1194,40 @@ export default function BuilderPage() {
     const inventory = await readRenderedElementInventory();
     const headings = inventory.filter(el => el.tag === "h1");
     if (headings.length !== 1) throw new Error("Não foi possível identificar um título principal único.");
-    // Use the actual rendered hero instead of assuming one specific template
-    // or hard-coded copy such as "Novas perspectivas".
+    // Templates from Railway frequently have no .hero class and their H1
+    // can be nested several wrappers below the paragraph and CTA.
+    // Prefer the nearest section ancestor; fall back to the first content
+    // region around the H1, stopping at the next section heading.
     const heading = headings[0];
-    const heroRoot = heading.selector.split(" > ").slice(0, -1).join(" > ");
-    const candidates = inventory.filter(el => {
-      const selector = el.selector.toLowerCase();
-      const sameHero = /hero|banner|masthead/.test(selector) ||
-        (heroRoot.length > 0 && el.selector.startsWith(heroRoot + " > "));
-      return sameHero && /^(h1|p|a|button|small)$/.test(el.tag);
-    });
-    const targets = candidates.filter(el => el.tag === "h1" || el.tag === "p" ||
-      ((el.tag === "a" || el.tag === "button") && /hero|banner|masthead/.test(el.selector.toLowerCase())));
-    if (targets.length < 2 || targets.length > 36 || !targets.some(el => el.selector === heading.selector))
-      throw new Error("Não identifiquei com segurança os elementos do topo do site. Nenhuma alteração foi aplicada.");
+    const headingIndex = inventory.findIndex(el => el.selector === heading.selector);
+    const segments = heading.selector.split(" > ");
+    const roots = segments.slice(0, -1).map((_, index) => segments.slice(0, index + 1).join(" > ")).reverse();
+    const isContent = (el: typeof heading) => /^(h1|p|a|button|small)$/.test(el.tag);
+    const isNavigation = (el: typeof heading) => /nav|menu|footer|cookie|modal/i.test(el.selector);
+    let targets: typeof inventory = [];
+    for (const root of roots) {
+      if (/^(html|body|#root|main)$/i.test(root)) continue;
+      const group = inventory.filter(el => (el.selector === root || el.selector.startsWith(root + " > ")) && isContent(el) && !isNavigation(el));
+      if (group.some(el => el.selector === heading.selector) &&
+          group.some(el => el.tag === "p") &&
+          group.some(el => el.tag === "a" || el.tag === "button") &&
+          group.length <= 36) {
+        targets = group;
+        break;
+      }
+    }
+    if (!targets.length) {
+      const nextHeading = inventory.findIndex((el, index) => index > headingIndex && /^h[2-6]$/.test(el.tag));
+      const stop = nextHeading < 0 ? Math.min(inventory.length, headingIndex + 22) : Math.min(nextHeading, headingIndex + 22);
+      targets = inventory.slice(Math.max(0, headingIndex - 3), stop)
+        .filter(el => isContent(el) && !isNavigation(el));
+    }
+    // A single H1 is not enough to claim the entire hero was aligned.
+    if (!targets.some(el => el.selector === heading.selector) ||
+        !targets.some(el => el.tag === "p") ||
+        !targets.some(el => el.tag === "a" || el.tag === "button") ||
+        targets.length > 36)
+      throw new Error("Não localizei o texto e botão da seção principal nesta prévia. Atualize a prévia e tente novamente.");
     if (new Set(targets.map(el => el.selector)).size !== targets.length)
       throw new Error("Elementos duplicados no topo do site.");
     await executeCrmTextPlan([], inventory, targets.map(el => ({ selector: el.selector, action: "align", value: alignment })));
