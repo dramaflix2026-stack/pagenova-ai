@@ -1570,6 +1570,7 @@ function universalRendererStyles(
       box-shadow:var(--pn-card-shadow);
     }
 
+    .pn-real-photo-grid.pn-single-photo{grid-template-columns:minmax(0,1fr);max-width:720px}
     .pn-real-photo-grid + .pn-structured-grid{margin-top:24px}
     .pn-universal-section-photo + .pn-structured-grid{margin-top:24px}
     .pn-real-photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px}
@@ -2427,7 +2428,22 @@ function universalRendererScript(): string {
         image.remove();
       }else{
         var figure=image.closest('figure');
-        if(figure)figure.remove();
+        if(figure){
+          var grid=figure.closest('.pn-real-photo-grid');
+          figure.remove();
+          // Do not leave a half-empty photo grid or a single stretched
+          // photograph when one or more uploaded assets have expired.
+          if(grid){
+            var remaining=grid.querySelectorAll('figure');
+            if(remaining.length===0){
+              grid.remove();
+            }else if(remaining.length===1){
+              grid.classList.add('pn-single-photo');
+            }
+          }
+        }else{
+          image.remove();
+        }
       }
     }
     document.addEventListener('error',function(event){handleBrokenImage(event.target);},true);
