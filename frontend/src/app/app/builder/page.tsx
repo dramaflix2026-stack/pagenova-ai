@@ -592,7 +592,7 @@ export default function BuilderPage() {
 
 
   async function uploadSiteImage(file: File, kind: "hero" | "work") {
-    if (!project || imageBusyRef.current) return;
+    if (!project || imageBusyRef.current || publishing || phase === "generating") return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setError("Envie uma imagem PNG, JPG ou WebP."); return;
     }
@@ -636,7 +636,7 @@ export default function BuilderPage() {
   }
 
   async function generateSitePhoto(kind: "hero" | "work") {
-    if (!project || imageBusyRef.current || phase === "generating") return;
+    if (!project || imageBusyRef.current || publishing || phase === "generating") return;
     imageBusyRef.current = true;
     setGeneratingPhotoKind(kind);
     setUploadingImage(true);
