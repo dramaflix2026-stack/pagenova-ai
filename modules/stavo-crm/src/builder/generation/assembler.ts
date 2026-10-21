@@ -347,13 +347,10 @@ function buildSection(
     case 'services':
     case 'benefits':
     case 'audience': {
-      let sourceItems = plan.items;
-      // Grades de cards do Template Master precisam fechar a linha. A IA e
-      // instruida a gerar quantidades pares, mas o assembler e a garantia
-      // deterministica: uma resposta impar nunca deixa um buraco no layout.
-      if ((plan.type === 'services' || plan.type === 'benefits') && sourceItems.length > 2 && sourceItems.length % 2 !== 0) {
-        sourceItems = sourceItems.slice(0, -1);
-      }
+      const sourceItems = plan.items;
+      // Preserve every service and benefit supplied by the plan. Dropping the
+      // final card to make an even grid silently removes commercial content.
+      // The renderer owns grid geometry, including incomplete final rows.
       const items = sourceItems.map((item, itemIndex) => ({
         title: sanitizeLine(item.title, 80),
         body: item.body ? sanitizeText(item.body, 300) : undefined,
