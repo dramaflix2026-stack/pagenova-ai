@@ -16,6 +16,20 @@ export async function POST(req: NextRequest) {
 Esquema site: {"title":string,"background":cor CSS,"blocks":[{"id":string,"type":"heading"|"paragraph"|"button"|"image","text":string,"color":cor CSS,"align":"left"|"center"|"right","src"?:string,"href"?:string,"section"?:string,"fontSize"?:number,"radius"?:number,"spacing"?:number,"layout"?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard","background"?:string,"columns"?:number}]}.
 Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SOMENTE os elementos solicitados e mantenha rigorosamente todos os outros blocos, sua ordem e propriedades. Se o usuário pedir para trocar texto, substitua o texto exato do bloco correspondente. Se pedir cor, fonte/tamanho, espaçamento, alinhamento, botão, imagem ou reorganizar/adicionar/remover seção, execute nos blocos relevantes. Para botões, use href somente quando o usuário fornecer URL, telefone, e-mail ou âncora real; não invente destinos externos. Se o usuário pedir para trocar o link do botão, altere href e preserve o restante. Para mover uma seção, mova seus blocos em conjunto. Não se limite a modelos fixos. Cada seção pode ter layout hero, grid, split, banner, faq, gallery ou standard no primeiro bloco, além de background próprio. O primeiro bloco deve ser heading com layout e section. Para serviços e benefícios: gere um heading e 3 a 6 blocos paragraph SEPARADOS, cada um com nome e descrição curta; layout grid. Para FAQ: gere heading e um bloco paragraph SEPARADO por pergunta, no formato "Pergunta? Resposta"; layout faq. Para galeria: heading e blocos image separados; layout gallery. Para equipe e estrutura: layout split com heading, texto e imagem. Não escreva instruções de design dentro do texto do site. Não crie dados de contato fictícios, nem rodapé com ano ou endereço inventados. Escolha o layout pelo nicho e permita ao usuário alterá-lo pelo chat. Nunca invente nome de empresa, escritório ou pessoa. Se o briefing não informar marca, use um título descritivo neutro. Varie realmente a composição entre seções, alternando hero, grid, split, banner e faq conforme fizer sentido; evite 10 seções com o mesmo estilo. Para um escritório de advocacia, escolha tipografia sóbria e paleta elegante (ex.: azul-marinho, marfim e dourado discreto), hero institucional, áreas de atuação em cards separados, apresentação do escritório, diferenciais factuais sem promessas, processo de atendimento, perguntas frequentes e CTA de contato. Evite linguagem mercantilista, garantia de resultados, depoimentos fictícios, especializações ou registros OAB inventados. Para outros segmentos, infira a identidade visual e estrutura adequada sem depender de palavras exatas no briefing. Evite escrever "a definir" no rodapé público: omita dados que não foram informados e use CTA genérico editável sem link fictício. Ao criar novo site, produza 7 a 10 seções relevantes, cada uma com um identificador section próprio, composição editorial de títulos curtos, descrições objetivas e CTAs adequados. Evite parágrafos enormes e repetitivos. Nunca invente endereço, telefone, e-mail, anos de experiência, depoimentos, profissionais, certificações ou URLs de imagens; omita informações não fornecidas sem mostrar "A definir". Para imagens não disponíveis, evite criar espaços vazios em excesso: priorize composição tipográfica e cards sem fotos. Se o usuário fornecer URL válida de imagem, use src; se fornecer somente referência visual, não finja ter gerado uma imagem. Quando houver imagem de referência, analise-a para aplicar as alterações visuais ou textuais solicitadas; não alegue que substituiu uma imagem se não recebeu uma URL ou arquivo utilizável. O campo summary deve explicar brevemente a ação executada em português.`;
 
+  // A presentation layer must never expose design specifications as visitor copy.
+  const cleanCopy = (value:string) => {
+    let text=value.trim();
+    text=text.replace(/\\s*(?:[–—-]|•)\\s*(?:(?:layout|fundo|background|bordas?|tipografia|responsiv[oa]|banner horizontal|chamada para a[cç][aã]o|rodap[eé] profissional|faq)\\b[^.!?]*)$/i,"").trim();
+    if (/^(?:cabe[cç]alho elegante|t[ií]tulo principal impactante|subt[ií]tulo suave|[aá]rea reservada para|imagem a adicionar|redes sociais\\s*[:(]|©|copyright)/i.test(text)) return "";
+    if (/(?:layout (?:grid|split|standard)|fundo (?:marfim|branco|azul.marinho)|bordas douradas|[ií]cones dourados|fontes refinadas|imagem impactante|menu de navega[cç][aã]o sofisticado)/i.test(text)) return "";
+    return text;
+  };
+  const normalizeBlocks = (items:Array<Record<string,unknown>>) => items.flatMap((raw,index)=>{
+    if (!raw || !["heading","paragraph","button","image"].includes(String(raw.type))) return [];
+    const text=typeof raw.text==="string"?cleanCopy(raw.text):"";
+    if (!text || raw.type==="image" && (typeof raw.src!=="string" || !/^https?:\\/\\/|^data:image\\//.test(raw.src))) return [];
+    return [{...raw,id:typeof raw.id==="string"&&raw.id?raw.id:"block-"+index,text}];
+  });
   // New websites are assembled in small independently validated batches.
   // Existing-site edits still use the original editing path below.
   if (isFresh) {
@@ -63,9 +77,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:typeof b.section==="string"?b.section:"principal"};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      const generatedSections=new Set(blocks.map(b=>b.section));
-      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      const cleaned=normalizeBlocks(blocks);\n      const generatedSections=new Set(cleaned.map(b=>b.section));
+      if(cleaned.length<8||generatedSections.size<3)throw new Error("incomplete-site");
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:cleaned},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
@@ -129,7 +143,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.fontSize==="number"?{fontSize:Math.min(120,Math.max(8,block.fontSize))}:{}),
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
-    if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
+    incoming.blocks = normalizeBlocks(incoming.blocks as unknown as Array<Record<string,unknown>>) as unknown as typeof incoming.blocks;\n    if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
     return NextResponse.json({site:incoming,summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
