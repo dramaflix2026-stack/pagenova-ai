@@ -1718,11 +1718,11 @@ export default function BuilderPage() {
   // actual iframe boundary, without changing the saved CRM HTML or edit data.
   function applyCrmBriefPalette(html: string, brief: string): string {
     if (!html || !brief) return html;
-    const matches = [...brief.matchAll(/#[0-9a-fA-F]{6}\\b/g)].map(m => m[0]);
-    const normalized = brief.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
-    const primary = matches[0] || (/\\bazul\\b/.test(normalized) ? "#164B8B" : "");
+    const matches = [...brief.matchAll(/#[0-9a-fA-F]{6}\b/g)].map(m => m[0]);
+    const normalized = brief.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const primary = matches[0] || (/\bazul\b/.test(normalized) ? "#164B8B" : "");
     if (!primary) return html;
-    const secondary = matches[1] || (/\\bazul\\b/.test(normalized) ? "#EAF4FF" : "#F8FAFC");
+    const secondary = matches[1] || (/\bazul\b/.test(normalized) ? "#EAF4FF" : "#F8FAFC");
     const override = `<style id="pn-crm-brief-palette">
       :root,html,body{--primary:${primary}!important;--primary-color:${primary}!important;--color-primary:${primary}!important;--brand-primary:${primary}!important;--accent:${primary}!important;--accent-color:${primary}!important;--pn-accent:${primary}!important;--green:${primary}!important;--ink:${primary}!important;--secondary:${secondary}!important;--secondary-color:${secondary}!important;--color-secondary:${secondary}!important;--pn-soft:${secondary}!important}
       .hero h1,.hero-title,.hero-copy h1,.hero-content h1,.pn-universal-hero h1{color:${primary}!important;text-shadow:none!important}
@@ -1730,7 +1730,7 @@ export default function BuilderPage() {
       .hero .btn,.hero .button,.hero a.btn,.primary-btn,.btn-primary,.cta-button,.pn-universal-hero .btn{background-color:${primary}!important;border-color:${primary}!important;color:#fff!important}
       .eyebrow,.section-eyebrow,.section-label{color:${primary}!important}
     </style>`;
-    return /<\\/head>/i.test(html) ? html.replace(/<\\/head>/i, override + "</head>") : override + html;
+    return /<\/head>/i.test(html) ? html.replace(/<\/head>/i, override + "</head>") : override + html;
   }
 
   const preview = useMemo(() => {
