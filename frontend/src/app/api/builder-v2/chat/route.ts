@@ -12,9 +12,11 @@ export async function POST(req: NextRequest) {
   const prompt = "Você é o editor de sites PageNova. O pedido do usuário sempre prevalece sobre o template. Crie um site completo com 10 a 14 seções relevantes quando solicitado. Em edições preserve o restante. Responda somente JSON com site e summary. site tem title, background e blocks; cada block tem id estável, type (heading, paragraph, button, image), text, color, align (left,center,right), src opcional e section opcional. Não invente URLs, avaliações ou depoimentos reais.";
   const input = JSON.stringify({instruction:body.instruction,site:body.site});
   if (input.length > 140000) return NextResponse.json({error:"Projeto grande demais."},{status:413});
+  const image = typeof body.image === "string" && /^data:image\\/(png|jpeg|webp);base64,/.test(body.image) && body.image.length < 3000000 ? body.image : null;
+  const userContent = image ? [{type:"text",text:input},{type:"image_url",image_url:{url:image,detail:"low"}}] : input;
   const response = await fetch("https://api.openai.com/v1/chat/completions",{
     method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
-    body:JSON.stringify({model:"gpt-4.1-mini",response_format:{type:"json_object"},messages:[{role:"system",content:prompt},{role:"user",content:input}]}),
+    body:JSON.stringify({model:"gpt-4.1-mini",response_format:{type:"json_object"},messages:[{role:"system",content:prompt},{role:"user",content:userContent}]}),
     signal:AbortSignal.timeout(75000)
   });
   if (!response.ok) return NextResponse.json({error:"A IA falhou. Nenhuma alteração foi aplicada."},{status:502});
