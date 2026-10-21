@@ -26,20 +26,6 @@ const designPresets = [
  {id:"commerce",match:/loja|moda|produto|ecommerce|roupa/i,hero:"split",card:"soft",accent:"#e2a86c"},
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
-const stripDesignCopy = (value:string) => {
-  const raw=value.trim();
-  if (/^(?:cabe[cç]alho elegante|t[ií]tulo principal impactante|subt[ií]tulo suave|[aá]rea reservada para|imagem a adicionar|redes sociais\\s*[:(]|©)/i.test(raw)) return "";
-  if (/(?:layout (?:grid|split|standard)|fundo (?:marfim|branco|azul.marinho)|bordas douradas|[ií]cones dourados|fontes refinadas|imagem impactante|menu de navega[cç][aã]o sofisticado)/i.test(raw)) {
-    const first=raw.split(/\\s*[–—-]\\s*|\\s*•\\s*/)[0].trim();
-    return /layout|fundo|bordas|[ií]cones|imagem impactante/i.test(first)?"":first;
-  }
-  return raw;
-};
-const safePreview = (site:Site):Site => ({...site,blocks:site.blocks.flatMap(b=>{
-  if(b.type==="image" && !b.src)return [];
-  const text=stripDesignCopy(b.text);
-  return text?[{...b,text}]:[];
-})});
 const storageKey = "pagenova-builder-v2-private-v1";
 function applyInstruction(site: Site, instruction: string): { site: Site; summary: string } | null {
   const text = instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -149,8 +135,8 @@ export default function BuilderV2() {
     reader.onload = () => setReference(typeof reader.result === "string" ? reader.result : null);
     reader.readAsDataURL(file);
   }
-  const preview = safePreview(site);\n  const missingContact = preview.blocks.length>0 && !preview.blocks.some(b=>/contato|agendamento|whatsapp/i.test(b.section||""));
-  const sections = preview.blocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
+  const missingContact = site.blocks.length>0 && !site.blocks.some(b=>/contato|agendamento|whatsapp/i.test(b.section||""));
+  const sections = site.blocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
     const id = block.section || "principal";
     const last = acc[acc.length-1];
     if(last?.id===id) last.blocks.push(block);
@@ -176,10 +162,10 @@ export default function BuilderV2() {
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
           const render=(b:Block)=> <div key={b.id} data-block-id={b.id} style={{textAlign:b.align,marginBlock:b.spacing!==undefined?Math.min(60,Math.max(0,b.spacing)):undefined}}>
-            {b.type==="heading"?<h2 style={{color:readableColor(b.color,sectionBackground),fontSize:undefined}} className={layout==="hero"?"text-[clamp(2rem,6vw,4.5rem)] font-extrabold leading-[1.07] tracking-[-0.045em]":"text-[clamp(1.65rem,5vw,3rem)] font-bold leading-[1.15] tracking-[-0.035em]"}>{b.text}</h2>:b.type==="paragraph"?<p style={{color:readableColor(b.color,layout==="grid"?"#ffffff":sectionBackground),fontSize:undefined}} className={layout==="hero"?"text-base leading-[1.7] md:text-xl":"text-[15px] leading-[1.7] md:text-lg"}>{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href={b.href&&(b.href.startsWith("https://")||b.href.startsWith("http://")||b.href.startsWith("mailto:")||b.href.startsWith("tel:")||b.href.startsWith("#"))?b.href:"#contato"} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color),borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
+            {b.type==="heading"?<h2 style={{color:readableColor(b.color,sectionBackground),fontSize:b.fontSize?Math.min(80,Math.max(16,b.fontSize)):undefined}} className={layout==="hero"?"text-[clamp(2.25rem,7vw,4.75rem)] font-extrabold leading-[1.07] tracking-[-0.045em]":"text-[clamp(1.8rem,5.5vw,3.25rem)] font-bold leading-[1.15] tracking-[-0.035em]"}>{b.text}</h2>:b.type==="paragraph"?<p style={{color:readableColor(b.color,layout==="grid"?"#ffffff":sectionBackground),fontSize:b.fontSize?Math.min(40,Math.max(12,b.fontSize)):undefined}} className={layout==="hero"?"text-base leading-[1.7] md:text-xl":"text-[15px] leading-[1.75] md:text-lg"}>{b.text}</p>:b.type==="image"?<>{b.src?<img src={b.src} alt={b.text||"Imagem"} className="w-full rounded-2xl object-cover" onError={e=>{e.currentTarget.style.display="none";e.currentTarget.nextElementSibling?.classList.remove("hidden");}}/>:null}<div className={b.src?"hidden rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500":"rounded-2xl border border-dashed border-gray-300 bg-gray-100 p-10 text-center text-sm text-gray-500"}>Imagem a adicionar</div></>:<a href={b.href&&(b.href.startsWith("https://")||b.href.startsWith("http://")||b.href.startsWith("mailto:")||b.href.startsWith("tel:")||b.href.startsWith("#"))?b.href:"#contato"} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color),borderRadius:b.radius!==undefined?b.radius:undefined}} className="inline-block rounded-xl px-6 py-3 font-semibold text-white">{b.text}</a>}
           </div>;
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
-          return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-5 py-12 sm:px-8 md:px-14 md:py-24">
+          return <section id={/contato|agendamento/i.test(group.id)?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="px-6 py-12 md:px-14 md:py-24">
             <div className="mx-auto max-w-6xl">
               {layout==="grid"||layout==="gallery"?<><div className="mb-9 space-y-4">{heading.map(render)}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{(layout==="gallery"?images:textItems).map(b=><article key={b.id} className={preset.card==="bordered"?"rounded-2xl border border-[#e2ded3] bg-white p-5 shadow-[0_8px_30px_rgba(0,0,0,.035)] transition-all hover:-translate-y-1 hover:shadow-lg md:p-8":"rounded-3xl border border-black/5 bg-white p-7 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg md:p-9"}>{render(b)}</article>)}</div><div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div></>:
               layout==="faq"?<><div className="mb-6">{heading.map(render)}</div><div className="space-y-3">{textItems.map(b=><details key={b.id} className="rounded-xl border border-black/10 bg-white p-5 shadow-sm"><summary className="cursor-pointer font-semibold" style={{color:readableColor(b.color,"#ffffff")}}>{b.text.split("?")[0]}{b.text.includes("?")?"?":""}</summary><p className="mt-3 text-sm leading-relaxed">{b.text.includes("?")?b.text.slice(b.text.indexOf("?")+1).trim():b.text}</p></details>)}</div></>:
