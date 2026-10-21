@@ -399,6 +399,28 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       promptVersion: promptVersion ?? '1.0.0',
       imageBindings,
     });
+    // Deterministic safeguard: explicit blue/white branding must survive even
+    // when the LLM proposes an unrelated palette. Keep AA-friendly text colors.
+    const requestedPalette = [input.style.keywords.join(' '), input.freeformInstructions ?? '']
+      .join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+    const explicitlyBlueWhite = /\\b(?:azul|azuis)\\b/.test(requestedPalette)
+      && /\\b(?:branco|branca|brancos|brancas)\\b/.test(requestedPalette)
+      && /(?:cor|cores|paleta|visual|identidade|tema|utilize|use|prefiro)/.test(requestedPalette);
+    if (explicitlyBlueWhite) {
+      model.theme.colors = {
+        ...model.theme.colors,
+        primary: '#164B96',
+        accent: '#2563EB',
+        background: '#FFFFFF',
+        surface: '#F3F7FF',
+        text: '#172B4D',
+        muted: '#475569',
+        border: '#D5E2F3',
+        primaryForeground: '#FFFFFF',
+        accentForeground: '#FFFFFF',
+      };
+      logger.info({ projectId: project.id }, 'PAGENOVA_EXPLICIT_BLUE_WHITE_PALETTE_APPLIED');
+    }
     // The user's selection was validated and stored at project creation.
     // Generation must honor it deterministically, not let the LLM improvise
     // or quietly fall back to the first visual template.
