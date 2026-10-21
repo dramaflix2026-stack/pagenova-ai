@@ -494,6 +494,8 @@ function universalContactHref(project: SiteProject): string {
     return emailHref;
   }
 
+  // The contact anchor is always present in the footer. When a social
+  // contact method is configured, the footer exposes it as a usable link.
   return "#contato";
 }
 
@@ -1663,6 +1665,9 @@ function universalRendererStyles(
 
     .pn-universal-contact-pending{margin:8px auto 0;font-size:13px;color:var(--pn-muted)}
     .pn-universal-footer{scroll-margin-top:100px}
+    .pn-universal-footer-links{display:flex;justify-content:center;flex-wrap:wrap;gap:12px 24px;margin-top:12px}
+    .pn-universal-footer-links a{color:inherit;text-decoration:underline;text-underline-offset:3px}
+
     .pn-universal-footer{
       padding:34px 24px;
       border-top:1px solid var(--pn-border);
@@ -2484,7 +2489,9 @@ export function renderUniversalSitePreview(
     <strong>${escapeUniversalHtml(project.name)}</strong>
     ${universalContactItems(project).length === 0
       ? '<p class="pn-universal-contact-pending">Informações de contato ainda não cadastradas.</p>'
-      : ""}
+      : `<div class="pn-universal-footer-links">${universalContactItems(project).map((item) =>
+          `<a href="${escapeUniversalHtml(item.href)}" ${item.href.startsWith("http") ? 'target="_blank" rel="noopener noreferrer"' : ""}>${escapeUniversalHtml(item.label)}</a>`
+        ).join("")}</div>`}
   </footer>
 
   <script>${universalRendererScript()}</script>
