@@ -2250,13 +2250,13 @@ export default function BuilderPage() {
           <div className="rounded-xl border border-white/10 p-3 text-left">
             <p className="mb-2 text-xs font-semibold text-white/80">Fotografias com IA</p>
             <div className="flex flex-wrap gap-2">
-              <button type="button" disabled={uploadingImage} onClick={()=>void generateSitePhoto("hero")}
+              <button type="button" disabled={uploadingImage || phase==="generating"} onClick={()=>void generateSitePhoto("hero")}
                 className="rounded-lg border border-emerald-400/40 px-3 py-2 text-xs text-emerald-200 disabled:opacity-50">
-                {uploadingImage?"Processando…":"Gerar imagem principal"}
+                {generatingPhotoKind==="hero"?"Gerando imagem principal…":"Gerar imagem principal"}
               </button>
-              <button type="button" disabled={uploadingImage} onClick={()=>void generateSitePhoto("work")}
+              <button type="button" disabled={uploadingImage || phase==="generating"} onClick={()=>void generateSitePhoto("work")}
                 className="rounded-lg border border-white/20 px-3 py-2 text-xs text-white/80 disabled:opacity-50">
-                Gerar imagem secundária
+                {generatingPhotoKind==="work"?"Gerando imagem secundária…":"Gerar imagem secundária"}
               </button>
             </div>
             <p className="mt-2 text-[11px] text-white/45">Cada clique gera uma imagem com IA e consome uma chamada paga. Revise o resultado antes de publicar.</p>
