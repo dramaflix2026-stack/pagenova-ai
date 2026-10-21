@@ -880,7 +880,7 @@ export default function BuilderPage() {
       ["laranja", ["laranja", "laranjas"]], ["bege", ["bege", "beges"]],
       ["marrom", ["marrom", "marrons"]], ["turquesa", ["turquesa"]],
     ];
-    const explicitColorContext = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo)/i.test(normalizedBrief);
+    const explicitColorContext = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo|use|utilize|utilizar|prefiro|quero|predominante)/i.test(normalizedBrief);
     const requestedColors = explicitColorContext
       ? colorAliases.filter(([, aliases]) => aliases.some(alias => new RegExp(`\\b${alias}\\b`).test(normalizedBrief))).map(([color]) => color)
       : [];
