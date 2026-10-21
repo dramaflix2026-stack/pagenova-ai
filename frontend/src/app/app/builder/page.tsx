@@ -1245,7 +1245,7 @@ export default function BuilderPage() {
     const quotedText = input.match(/(?:texto|frase|palavras?|t[ií]tulo)[^"“]{0,60}(?:para|por|seja|como)\s*["“]([^"”]{1,200})["”]/i);
     const naturalCopy = input.match(/(?:altere|mude|troque|reescreva)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:do\s+site\s+)?(?:para|por)\s+(.+?)(?=\s+e\s+(?:deixe|coloque|alinhe|centralize|mude|altere|aplique)\b|[.!?]?$)/i);
     const textMatch = quotedText || (naturalCopy?.[1]?.trim() ? [naturalCopy[0], naturalCopy[1].trim()] : null);
-    const alignValue = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[0]) ? "left" : "right") : undefined;
+    const alignValue: "center" | "left" | "right" | undefined = alignMatch ? (/centro|centraliz/.test(alignMatch[0]) ? "center" : /esquerda/.test(alignMatch[0]) ? "left" : "right") : undefined;
     // Unquoted copy plus styling is ambiguous: never insert the styling instruction
     // into the headline. Let the planner handle that case.
     if (!textMatch && /(?:altere|mude|troque|reescreva)\\s+(?:o\\s+)?t[ií]tulo/i.test(normalized) && /(?:cor|centraliz|alinh|fonte)/i.test(normalized)) return false;
