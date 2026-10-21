@@ -64,7 +64,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           section:typeof b.section==="string"?b.section:"principal"};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
       const forbidden = /(?:\b(?:dra?\.?\s+[A-ZÁÉÍÓÚ][a-záéíóú]+\s+[A-ZÁÉÍÓÚ][a-záéíóú]+)|\(\d{2}\)\s*\d{4,5}[- ]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}|(?:av\.?|avenida|rua)\s+[\wÀ-ÿ\s]+,\s*\d{2,}|cliente anônimo|depoimentos reais)/i;
-      const safeBlocks = blocks.filter(b=>!forbidden.test(b.text));
+      const safeBlocks = blocks.filter(b=>!forbidden.test(String(b.text)));
       const generatedSections=new Set(safeBlocks.map(b=>b.section));
       if(safeBlocks.length<10||sections.filter(sec=>generatedSections.has(String(sec.id))).length<4)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:safeBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
