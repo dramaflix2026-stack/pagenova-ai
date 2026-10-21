@@ -72,6 +72,17 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
     supplement: 'Process-oriented close-up of the tools or environment used for this exact service. Avoid repeating the hero or about compositions.',
   } as const;
   const sectorLabel = sector?.label ?? 'atividade profissional';
+  // Keep sector-specific directions exclusive to the chosen niche: listing other
+  // industries in an image prompt can introduce unrelated objects into the scene.
+  const visualGuardrail = sector?.label === 'consultorio odontologico'
+    ? 'Show accurate dental instruments and a dental treatment chair only.'
+    : sector?.label === 'consultorio de saude'
+      ? 'Show accurate healthcare consultation furniture only.'
+      : sector?.label === 'restaurante'
+        ? 'Show authentic dining and culinary details only.'
+        : sector?.label === 'tecnologia'
+          ? 'Show realistic technical equipment only.'
+          : 'Use only objects appropriate to the selected business sector.';
   if (!sector) {
     logger.info({ projectId: project.id, slot }, 'PAGENOVA_IMAGE_SECTOR_FALLBACK');
   } else {
@@ -89,7 +100,7 @@ export async function ensureIllustrativeHero(project: SiteProject, slot: 'hero' 
         size: '1536x1024',
         quality: 'low',
         n: 1,
-        prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slotComposition[slot]} Premium art direction: professional editorial photography aesthetic, realistic lighting, accurate sector-specific equipment, clean composition, balanced perspective and visual hierarchy. Keep the main subject fully visible with safe margins for mobile cropping. The depicted environment and every visible object must belong to the identified industry. For healthcare show authentic clinical furniture; for restaurants show dining or culinary details; for technology show real technical equipment. Never add unrelated products, clothing stores, shopping racks, random retail displays or equipment from another industry. NO PEOPLE, NO FACES, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
+        prompt: `Premium editorial website illustration for ${slot === 'hero' ? 'the homepage hero' : slot === 'about' ? 'the company story/about section' : 'the how-we-work/process section'} depicting ${subject}. Beautiful, wide horizontal 3:2 composition, distinct visual perspective and carefully arranged details. ${slotComposition[slot]} Premium art direction: professional editorial photography aesthetic, realistic lighting, accurate sector-specific equipment, clean composition, balanced perspective and visual hierarchy. Keep the main subject fully visible with safe margins for mobile cropping. The depicted environment and every visible object must belong to the identified industry. ${visualGuardrail} Never add unrelated products, clothing stores, shopping racks, random retail displays or equipment from another industry. NO PEOPLE, NO FACES, NO TEXT, no logos, no trademarks, no watermarks. Conceptual illustration only; never pretend this depicts a real business, premises or team.`,
       }),
     });
     if (!response.ok) {
