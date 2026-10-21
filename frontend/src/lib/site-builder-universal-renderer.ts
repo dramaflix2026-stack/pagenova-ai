@@ -2450,6 +2450,24 @@ function universalRendererScript(): string {
     document.querySelectorAll('.pn-universal-hero-photo,.pn-universal-section-photo img,.pn-real-photo-grid img').forEach(function(image){
       if(image.complete && image.naturalWidth===0)handleBrokenImage(image);
     });
+    // The published landing page may not contain every editor page.
+    // Hide navigation entries that have no corresponding section instead
+    // of exposing links that appear clickable but do nothing.
+    if(window.parent===window){
+      document.querySelectorAll('.pn-site-header [data-page]').forEach(function(link){
+        var page=link.getAttribute('data-page');
+        var found=page==='home'
+          ? document.querySelector('.pn-universal-hero')
+          : page==='sobre'
+            ? document.querySelector('[data-pn-section-kind="about"],[data-pn-section-kind="story"],[data-pn-section-kind="team"]')
+            : page==='servicos'
+              ? document.querySelector('[data-pn-section-kind="services"],[data-pn-section-kind="features"],[data-pn-section-kind="benefits"],[data-pn-section-kind="offer"]')
+              : page==='contato'
+                ? document.querySelector('[data-pn-section-kind="contact"],.pn-universal-footer')
+                : document.getElementById(page);
+        if(!found)link.remove();
+      });
+    }
     document.addEventListener('click',function(event){
       var target=event.target;
       if(!(target instanceof Element))return;
