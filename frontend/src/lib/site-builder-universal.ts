@@ -496,6 +496,7 @@ function buildDesign(
       motionStyle: "reveal",
       cardStyle: "minimal",
       defaultFont: "Poppins",
+      palette: { primary: "#1D4ED8", secondary: "#EFF6FF", background: "#FFFFFF", text: "#111827" },
     };
   }
 
@@ -511,6 +512,7 @@ function buildDesign(
       motionStyle: "subtle",
       cardStyle: "soft",
       defaultFont: "Poppins",
+      palette: { primary: "#1D4ED8", secondary: "#EFF6FF", background: "#FFFFFF", text: "#111827" },
     };
   }
 
@@ -522,6 +524,7 @@ function buildDesign(
     motionStyle: "subtle",
     cardStyle: "bordered",
     defaultFont: "Poppins",
+    palette: { primary: "#1D4ED8", secondary: "#EFF6FF", background: "#FFFFFF", text: "#111827" },
   };
 }
 
