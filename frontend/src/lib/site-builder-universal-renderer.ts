@@ -1228,6 +1228,9 @@ function universalRendererStyles(
 ): string {
   const density = strategy.design.density;
   const cardStyle = strategy.design.cardStyle;
+  const palette = strategy.design.palette ?? { primary: "#1D4ED8", secondary: "#EFF6FF", background: "#FFFFFF", text: "#111827" };
+  const safeColor = (value: string, fallback: string) => /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+  const font = ["Poppins", "Inter", "Montserrat", "Georgia"].includes(strategy.design.defaultFont) ? strategy.design.defaultFont : "Poppins";
 
   const sectionPadding =
     density === "compact"
@@ -1253,18 +1256,22 @@ function universalRendererStyles(
 
   return `
     :root{
-      --pn-text:#111827;
+      --pn-text:${safeColor(palette.text, "#111827")};
       --pn-muted:#64748b;
       --pn-border:rgba(15,23,42,.10);
-      --pn-surface:#ffffff;
-      --pn-soft:#f8fafc;
-      --pn-accent:#111827;
+      --pn-surface:${safeColor(palette.background, "#FFFFFF")};
+      --pn-soft:${safeColor(palette.secondary, "#EFF6FF")};
+      --pn-accent:${safeColor(palette.primary, "#1D4ED8")};
       --pn-section-space:${sectionPadding};
       --pn-card-shadow:${cardShadow};
       --pn-card-border:${cardBorder};
       --pn-card-background:${cardBackground};
     }
 
+    body{font-family:${font === "Georgia" ? "Georgia,serif" : `"${font}",Arial,sans-serif`};color:var(--pn-text);background:var(--pn-surface)}
+    .pn-universal-hero .btn,.pn-universal-final-cta .btn{background:var(--pn-accent);border-color:var(--pn-accent);color:#fff}
+    .pn-universal-hero .eyebrow,.pn-universal-section .eyebrow{color:var(--pn-accent)}
+    .pn-universal-hero-visual{background:var(--pn-soft)}
     /* Hybrid banner: composition reserves a dedicated readable text zone. */
     .pn-banner-mode-hybrid .pn-universal-hero-inner{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);align-items:center;gap:clamp(24px,4vw,72px)}
     .pn-banner-mode-hybrid .pn-universal-hero-copy{position:relative;z-index:2;padding-block:clamp(30px,5vw,85px)}
