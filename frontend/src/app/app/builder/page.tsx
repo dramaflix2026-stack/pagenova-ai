@@ -882,7 +882,17 @@ export default function BuilderPage() {
     ];
     const explicitColorContext = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo|use|utilize|utilizar|prefiro|quero|predominante)/i.test(normalizedBrief);
     const requestedColors = explicitColorContext
-      ? colorAliases.filter(([, aliases]) => aliases.some(alias => new RegExp(`\\b${alias}\\b`).test(normalizedBrief))).map(([color]) => color)
+      ? colorAliases.filter(([, aliases]) => aliases.some(alias => {
+          const matches = [...normalizedBrief.matchAll(new RegExp(`\\b${alias}\\b`, "g"))];
+          return matches.some(match => {
+            const before = normalizedBrief.slice(Math.max(0, (match.index ?? 0) - 90), match.index);
+            const after = normalizedBrief.slice((match.index ?? 0) + alias.length, (match.index ?? 0) + alias.length + 30);
+            const context = before + alias + after;
+            const colorIntent = /(?:cores?|paleta|identidade visual|tons?|tema|visual|design|estilo|use|utilize|prefiro|quero|predominante)/.test(context);
+            const negated = /(?:nao|evite|sem|nunca)\\s+(?:usar?|utilizar?|colocar?|a cor\\s+)?\\s*$/.test(before);
+            return colorIntent && !negated;
+          });
+        })).map(([color]) => color)
       : [];
     const colorInstruction = requestedColors.length
       ? `PALETA OBRIGATÓRIA: ${requestedColors.join(" e ")}. Use estas cores na identidade visual inteira. Não substitua a paleta por verde ou qualquer outra cor não solicitada. Garanta contraste AA.`
