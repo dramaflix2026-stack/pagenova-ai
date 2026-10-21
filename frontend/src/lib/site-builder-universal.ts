@@ -532,9 +532,9 @@ function buildDesign(
 /** Briefing colors have precedence over template defaults. No random brand colors. */
 function inferVisualDirection(brief: string, base: UniversalDesignDirection): UniversalDesignDirection {
   const text = normalize(brief);
-  const hex = [...brief.matchAll(/#[0-9a-fA-F]{6}\\b/g)].map((match) => match[0].toUpperCase());
+  const hex = [...brief.matchAll(/#[0-9a-fA-F]{6}\b/g)].map((match) => match[0].toUpperCase());
   const named: Array<[RegExp, string]> = [
-    [/azul(?:\\s+(?:marinho|escuro))?/, "#164B8B"],
+    [/azul(?:\s+(?:marinho|escuro))?/, "#164B8B"],
     [/verde/, "#166534"], [/roxo|violeta/, "#6D28D9"],
     [/vermelho/, "#B91C1C"], [/laranja/, "#C2410C"],
     [/rosa/, "#BE185D"], [/amarelo|dourado/, "#B45309"],
@@ -543,9 +543,9 @@ function inferVisualDirection(brief: string, base: UniversalDesignDirection): Un
   const primary = hex[0] || named.find(([pattern]) => pattern.test(text))?.[1] || base.palette.primary;
   const secondary = hex[1] || (text.includes("azul") ? "#EAF4FF" : base.palette.secondary);
   const background = /fundo (?:escuro|preto)/.test(text) ? "#101827" : "#FFFFFF";
-  const font = /fonte\\s+inter|tipografia\\s+inter/.test(text) ? "Inter"
-    : /fonte\\s+montserrat|tipografia\\s+montserrat/.test(text) ? "Montserrat"
-    : /fonte\\s+georgia|tipografia\\s+georgia/.test(text) ? "Georgia" : "Poppins";
+  const font = /fonte\s+inter|tipografia\s+inter/.test(text) ? "Inter"
+    : /fonte\s+montserrat|tipografia\s+montserrat/.test(text) ? "Montserrat"
+    : /fonte\s+georgia|tipografia\s+georgia/.test(text) ? "Georgia" : "Poppins";
   const motion = /(?:sem animac|sem movimento|sem efeito|estatico)/.test(text) ? "none"
     : /(?:animac|movimento|efeito de entrada|scroll reveal)/.test(text) ? "reveal" : "none";
   const hero = /(?:banner dividido|hero dividido|texto ao lado)/.test(text) ? "split"
