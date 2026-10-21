@@ -679,7 +679,7 @@
     // Universal previews already contain real photo frames rather than text placeholders.
     const universal=kind==="hero"
       ? document.querySelector(".pn-universal-hero-visual")
-      : document.querySelector(".pn-universal-section-photo,.pn-real-photo-grid figure");
+      : document.querySelector('[data-pn-section-kind="gallery"] .pn-universal-section-photo,[data-pn-section-kind="portfolio"] .pn-universal-section-photo,[data-pn-section-kind="gallery"] .pn-real-photo-grid figure,[data-pn-section-kind="portfolio"] .pn-real-photo-grid figure,[data-pn-section-kind="gallery"] .pn-semantic-visual,[data-pn-section-kind="portfolio"] .pn-semantic-visual,[data-pn-section-kind="services"] .pn-semantic-visual');
     if(universal)return universal;
     const candidates=Array.from(document.querySelectorAll("div,span,p,button"))
       .filter(function(node) {
