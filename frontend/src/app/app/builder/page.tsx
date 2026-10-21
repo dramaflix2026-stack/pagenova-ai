@@ -1194,53 +1194,26 @@ export default function BuilderPage() {
     const inventory = await readRenderedElementInventory();
     const headings = inventory.filter(el => el.tag === "h1");
     if (headings.length !== 1) throw new Error("Não foi possível identificar um título principal único.");
-    // Live editor selectors are CSS paths joined with ">" (without spaces).
-    // Work from the actual iframe DOM instead of guessing from CSS names.
-    const frameDoc = previewRef.current?.contentDocument;
-    if (!frameDoc) throw new Error("A prévia ainda não está pronta. Atualize a página e tente novamente.");
-    const heading = headings[0];
-    const headingEl = frameDoc.querySelector(heading.selector);
-    if (!headingEl) throw new Error("O título principal não está disponível na prévia.");
-    const section = headingEl.closest("section,header,main,[class*='hero'],[class*='Hero'],[class*='banner']");
-    const ancestors: Element[] = [];
-    let node: Element | null = headingEl.parentElement;
-    while (node && node !== frameDoc.body) {
-      ancestors.push(node);
-      if (node === section) break;
-      node = node.parentElement;
-    }
-    if (section && !ancestors.includes(section)) ancestors.push(section);
+    // The preview iframe is intentionally sandboxed without allow-same-origin.
+    // contentDocument is therefore inaccessible. Resolve section ancestry from
+    // metadata returned by the iframe's own editor over postMessage.
+    const heading = headings[0] as typeof inventory[number] & {sectionSelector?: string};
+    const scoped = inventory as Array<typeof inventory[number] & {sectionSelector?: string}>;
     const eligible = (el: typeof heading) => /^(h1|p|a|button|small|span|strong)$/.test(el.tag);
-    let targets: typeof inventory = [];
-    for (const ancestor of ancestors) {
-      const group = inventory.filter(el => {
-        if (!eligible(el)) return false;
-        const target = frameDoc.querySelector(el.selector);
-        return target && ancestor.contains(target) &&
-          !target.closest("nav,footer,[role='navigation'],#pn-edit-bar");
-      });
-      if (group.some(el => el.selector === heading.selector) &&
-          group.some(el => el.tag === "p") &&
-          group.some(el => el.tag === "a" || el.tag === "button") &&
-          group.length <= 36) {
-        targets = group;
-        break;
-      }
-    }
-    if (!targets.length) {
-      // Some Railway layouts put the CTA in a sibling wrapper. Use the
-      // nearest containing section, but never silently apply only the title.
-      const scope = headingEl.closest("section,[class*='hero'],[class*='Hero'],[class*='banner'],main");
-      if (scope) targets = inventory.filter(el => {
-        const target = frameDoc.querySelector(el.selector);
-        return eligible(el) && !!target && scope.contains(target) &&
-          !target.closest("nav,footer,[role='navigation'],#pn-edit-bar");
-      }).slice(0, 36);
+    let targets = heading.sectionSelector
+      ? scoped.filter(el => eligible(el) && el.sectionSelector === heading.sectionSelector)
+      : [];
+    if (!targets.some(el => el.tag === "p") || !targets.some(el => el.tag === "a" || el.tag === "button")) {
+      const index = scoped.findIndex(el => el.selector === heading.selector);
+      const nextSection = scoped.findIndex((el, i) => i > index && (el.tag === "section" || /^h[2-6]$/.test(el.tag)));
+      const stop = nextSection < 0 ? Math.min(scoped.length, index + 25) : Math.min(nextSection, index + 25);
+      targets = scoped.slice(Math.max(0, index - 4), stop).filter(eligible);
     }
     if (!targets.some(el => el.selector === heading.selector) ||
+        !targets.some(el => el.tag === "p") ||
         !targets.some(el => el.tag === "a" || el.tag === "button") ||
-        !targets.some(el => el.tag === "p"))
-      throw new Error("A prévia não apresentou todos os elementos da seção principal. Nenhuma alteração foi salva.");
+        targets.length > 36)
+      throw new Error("Não localizei título, texto e botão juntos na prévia. Nenhuma alteração foi salva.");
     if (new Set(targets.map(el => el.selector)).size !== targets.length)
       throw new Error("Elementos duplicados na seção principal.");
     await executeCrmTextPlan([], inventory, targets.map(el => ({ selector: el.selector, action: "align", value: alignment })));
