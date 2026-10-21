@@ -1342,13 +1342,13 @@ function universalRendererStyles(
     }
 
     .pn-universal-hero-inner{
-      min-height:620px;
+      min-height:520px;
       display:grid;
       grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);
       align-items:center;
-      gap:64px;
-      padding-top:84px;
-      padding-bottom:84px;
+      gap:clamp(24px,4vw,56px);
+      padding-top:64px;
+      padding-bottom:64px;
     }
 
     .pn-density-compact .pn-universal-hero-inner{
