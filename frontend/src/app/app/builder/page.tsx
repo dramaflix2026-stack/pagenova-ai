@@ -648,7 +648,9 @@ export default function BuilderPage() {
         credentials: "same-origin",
         body: JSON.stringify({
           name: project.name,
-          brief: project.brief.length >= 20 ? project.brief : `Site institucional para ${project.name}. Fotografia profissional relacionada aos serviços e ao negócio.`,
+          brief: project.brief.trim().length >= 20
+            ? project.brief.trim().slice(0, 3000)
+            : `Site institucional para ${project.name}. Fotografia profissional relacionada aos serviços e ao negócio.`.slice(0, 3000),
           kind,
         }),
       });
