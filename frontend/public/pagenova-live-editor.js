@@ -718,6 +718,10 @@
         // decorative contents, never replace the card or section children.
         Array.from(slot.children).forEach(function(child) {
           if(child.dataset.pnUploaded)return;
+          if(!child.hasAttribute("data-pn-original-display")){
+            child.setAttribute("data-pn-original-display",child.style.getPropertyValue("display"));
+            child.setAttribute("data-pn-original-display-priority",child.style.getPropertyPriority("display"));
+          }
           child.style.setProperty("display","none","important");
         });
         img=document.createElement("img");
@@ -740,7 +744,13 @@
         img.remove();
         Array.from(slot.children).forEach(function(child){
           if(child.dataset.pnUploaded)return;
-          child.style.removeProperty("display");
+          const display=child.getAttribute("data-pn-original-display");
+          if(display!==null){
+            if(display)child.style.setProperty("display",display,child.getAttribute("data-pn-original-display-priority")||"");
+            else child.style.removeProperty("display");
+            child.removeAttribute("data-pn-original-display");
+            child.removeAttribute("data-pn-original-display-priority");
+          }
         });
         slot.setAttribute("style",slot.getAttribute("data-pn-original-inline-style")||"");
         slot.removeAttribute("data-pn-original-inline-style");
