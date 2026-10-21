@@ -141,6 +141,8 @@ export default function BuilderPage() {
   const [attachmentWarning,setAttachmentWarning]=useState("");
   const [style, setStyle] = useState("automatico");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const imageBusyRef = useRef(false);
+  const [generatingPhotoKind, setGeneratingPhotoKind] = useState<"hero" | "work" | null>(null);
   const [selectedPresetId, setSelectedPresetId] = useState("automatico");
   // Rendering family, independent from the site's niche/type.
   const [templateId,setTemplateId]=useState<SiteTemplateId>("frigolog-universal");
@@ -590,13 +592,14 @@ export default function BuilderPage() {
 
 
   async function uploadSiteImage(file: File, kind: "hero" | "work") {
-    if (!project) return;
+    if (!project || imageBusyRef.current) return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
       setError("Envie uma imagem PNG, JPG ou WebP."); return;
     }
     if (file.size > 5 * 1024 * 1024) {
       setError("A imagem deve ter até 5 MB."); return;
     }
+    imageBusyRef.current = true;
     setUploadingImage(true); setError("");
     try {
       // Compress uploads before storing or sending them to the AI endpoint.
@@ -627,12 +630,15 @@ export default function BuilderPage() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Falha ao carregar imagem.");
     } finally {
+      imageBusyRef.current = false;
       setUploadingImage(false);
     }
   }
 
   async function generateSitePhoto(kind: "hero" | "work") {
-    if (!project || uploadingImage || phase === "generating") return;
+    if (!project || imageBusyRef.current || phase === "generating") return;
+    imageBusyRef.current = true;
+    setGeneratingPhotoKind(kind);
     setUploadingImage(true);
     setError("");
     try {
@@ -676,6 +682,8 @@ export default function BuilderPage() {
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Falha ao gerar fotografia.");
     } finally {
+      imageBusyRef.current = false;
+      setGeneratingPhotoKind(null);
       setUploadingImage(false);
     }
   }
