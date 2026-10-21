@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
   const section = String(body.section || "").slice(0, 100);
   if (!title || !description) return NextResponse.json({ error: "Descreva a imagem." }, { status: 400 });
   const bucket = "site-images";
-  const prompt = [
+  const architecture = /arquitet|interior|atelier|ateli[eê]|design de espa[cç]os/i.test(title);\n  const healthcare = !architecture && /cl[ií]nica|sa[uú]de|fisioterap|m[eé]dic|odonto|terapia/i.test(title);\n  const nicheGuard = architecture\n    ? "STRICT SUBJECT RULE: this is an ARCHITECTURE AND INTERIOR DESIGN business. Photograph architecture only: contemporary residential interiors, elegant living rooms, architectural facades, furniture details, natural materials, spaces and lighting. Absolutely NO doctors, nurses, medical appointments, physiotherapy, massage, treatment beds, patients, examinations or healthcare scenes. No people unless explicitly requested and relevant to architectural practice."\n    : healthcare ? "STRICT SUBJECT RULE: depict a healthcare setting only when relevant to the specific business. Avoid suggesting identifiable real employees or patients."\n    : "STRICT SUBJECT RULE: the image must depict the actual industry described by the business title, not a generic clinic, doctor, massage or physiotherapy session.";\n  const prompt = [
     "Create one highly realistic premium editorial photograph for a professional website.",
-    "Business context: " + title + ". Website section: " + section + ".",
+    "Business context: " + title + ". Website section: " + section + ".",\n    nicheGuard,
     "Subject: " + description + ".",
     "Natural window light, believable textures, restrained colors, subtle imperfections, realistic camera optics and shadows.",
     "Avoid AI-looking glossy surfaces, fake skin, over-sharpening, exaggerated bokeh, impossible architecture, and artificial symmetry.",
