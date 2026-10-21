@@ -676,6 +676,11 @@
   function imageSlotFor(kind) {
     const existing=document.querySelector('[data-pn-photo-slot="'+kind+'"]');
     if(existing)return existing;
+    // Universal previews already contain real photo frames rather than text placeholders.
+    const universal=kind==="hero"
+      ? document.querySelector(".pn-universal-hero-visual")
+      : document.querySelector(".pn-universal-section-photo,.pn-real-photo-grid figure");
+    if(universal)return universal;
     const candidates=Array.from(document.querySelectorAll("div,span,p,button"))
       .filter(function(node) {
         const text=(node.textContent||"").trim();
@@ -698,7 +703,8 @@
   function updateUploadedImages(images) {
     if(!images)return;
     [{kind:"hero",src:images.portrait},{kind:"work",src:images.businessPhoto||images.workPhoto}].forEach(function(item) {
-      if(!item.src||!item.src.startsWith("data:image/"))return;
+      if(typeof item.src!=="string"||item.src.length>7_500_000||
+        !(/^(?:data:image\/(?:png|jpeg|webp);base64,|https:\/\/|\/(?!\/))/.test(item.src)))return;
       const slot=imageSlotFor(item.kind);
       if(!slot)return;
       slot.dataset.pnPhotoSlot=item.kind;
