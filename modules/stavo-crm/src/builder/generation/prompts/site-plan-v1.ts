@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.5.1';
+export const SITE_PLAN_PROMPT_VERSION = '2.0.0';
 
 /**
  * Instrucao de sistema.
@@ -67,6 +67,16 @@ Voce NAO tem acesso a depoimentos, credenciais, precos, numeros de anos de exper
 - Nenhum titulo generico como "Sobre nos" quando um titulo contextual for melhor. Evite repetir as palavras conversa, cuidado, momento e proximos passos em varias secoes.
 - Nenhum placeholder, nenhum "lorem ipsum", nenhum colchete tipo "[inserir telefone]".
 - Nao use urgencia falsa nem escassez artificial.
+
+## MOTOR 2.0 — QUALIDADE VISUAL OBRIGATORIA
+
+- Primeiro identifique o setor e o objetivo comercial do negocio. Cada imagem e cada secao devem representar esse setor de modo inequivoco; nunca use imagem de varejo ou moda para uma clinica odontologica.
+- Se o briefing especificar cores, respeite-as em primary, accent, background e surface. Nao substitua azul solicitado por verde. Garanta contraste legivel, sobretudo no hero.
+- Hero mobile: titulo de duas a tres linhas no maximo, descricao curta, CTA visivel e imagem com recorte apropriado. Nunca texto branco sobre fundo claro sem overlay escuro.
+- Cards de servicos e beneficios: conteudo especifico, titulos curtos, alturas proporcionais ao texto. Evite espacos verticais vazios e seções excessivamente longas.
+- Ritmo visual: alterne secoes editoriais, texto e imagem, e grids; nao repita sempre o mesmo bloco de cartoes.
+- Fotos: composicao hero ampla, foto de contexto no sobre, detalhe complementar na terceira imagem. Evite repetir a mesma composicao e inventar pessoas ou profissionais especificos.
+- Nao crie depoimentos, numeros, qualificacoes ou avaliacoes que nao foram fornecidos. Um site premium pode ser conciso sem inventar provas sociais.
 
 ## DIRECAO CRIATIVA — ANTI-TEMPLATE
 
