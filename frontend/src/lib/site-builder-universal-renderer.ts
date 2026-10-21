@@ -2468,8 +2468,8 @@ function universalRendererScript(): string {
         if(!found)link.remove();
       });
     }
-    // Native anchors also work without JavaScript, including keyboard use.
-    // Give real targets to the common menu entries when their section exists.
+    // Assign stable section IDs for direct links and browser history.
+    // Menu clicks still enhance navigation with smooth scrolling when available.
     var anchorTargets={
       home:document.querySelector('.pn-universal-hero'),
       sobre:document.querySelector('[data-pn-section-kind="about"],[data-pn-section-kind="story"],[data-pn-section-kind="team"]'),
@@ -2521,6 +2521,9 @@ function universalRendererScript(): string {
         if(window.history && window.history.replaceState){
           window.history.replaceState(null,'','#'+page);
         }
+      }else{
+        // A menu link with no target must not navigate to a broken fragment.
+        event.preventDefault();
       }
     });
   `;
