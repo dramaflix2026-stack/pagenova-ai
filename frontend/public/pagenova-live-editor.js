@@ -67,6 +67,7 @@
     const bar = document.createElement("div");
     bar.id = "pn-edit-bar";
     bar.setAttribute("aria-hidden", "true");
+    bar.setAttribute("aria-label", "Ferramentas de edição do elemento selecionado");
     bar.innerHTML =
       '<button type="button" data-act="bold" title="Negrito"><b>B</b></button>' +
       '<button type="button" data-act="align-left" title="Alinhar à esquerda">≡</button>' +
@@ -183,6 +184,7 @@
     box.style.width = px(Math.max(0, Math.min(innerWidth - 4 - leftEdge, r.right + inset - leftEdge)));
     box.style.height = px(Math.max(0, r.bottom + inset - topEdge));
     box.dataset.compact = compact ? "true" : "false";
+    box.setAttribute("aria-label", compact ? "Elemento selecionado no editor mobile" : "Elemento selecionado para edição");
 
     if (toolbarOpen && bar) {
       const cs = getComputedStyle(selected);
