@@ -783,6 +783,19 @@
   }
   // Read-only element inventory for a future selector-based AI revision executor.
   // The model should target these stable selectors rather than guessing template classes.
+  function heroGroupFor(el) {
+    const heading = document.querySelector("main h1, section h1, h1");
+    if (!heading || !el) return "";
+    let root = heading.parentElement;
+    while (root && root !== document.body) {
+      if (root.querySelector("p") && root.querySelector("a,button") &&
+          root.querySelectorAll("h1").length === 1) {
+        return root.contains(el) ? path(root) : "";
+      }
+      root = root.parentElement;
+    }
+    return "";
+  }
   function editableInventory() {
     const selectors = "h1,h2,h3,h4,h5,h6,p,a,button,section,img,span,small,strong,[class*=eyebrow],[class*=Eyebrow],[class*=subtitle],[class*=Subtitle],[class*=cta],[class*=CTA]";
     return Array.from(document.querySelectorAll(selectors)).filter(function(el) {
@@ -791,6 +804,7 @@
       const selector = path(el);
       return { selector: selector, tag: el.tagName.toLowerCase(),
         sectionSelector: el.closest("section,[class*=hero],[class*=Hero],[class*=banner]") ? path(el.closest("section,[class*=hero],[class*=Hero],[class*=banner]")) : "",
+        heroGroup: heroGroupFor(el),
         text: (el.innerText || el.textContent || "").trim().slice(0, 160),
         image: el.matches("img") ? (el.getAttribute("alt") || "") : undefined,
         href: el.matches("a") ? (el.getAttribute("href") || "") : undefined,
