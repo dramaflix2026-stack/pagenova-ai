@@ -945,11 +945,12 @@ function renderUniversalGenericSection(
   const photoMarkup = sectionPhoto
     ? `<figure class="pn-universal-section-photo"><img src="${escapeUniversalHtml(sectionPhoto)}" alt="" loading="lazy" decoding="async"></figure>`
     : "";
+  // Portfolio imagery must represent actual work or the business.
+  // A portrait is appropriate for the "about" section, not evidence of work.
   const galleryPhotos = (section.kind === "gallery" || section.kind === "portfolio")
     ? Array.from(new Set([
         safeUniversalImage(project.institutional?.workPhoto),
         safeUniversalImage(project.institutional?.businessPhoto),
-        safeUniversalImage(project.institutional?.portrait),
       ].filter(Boolean)))
     : [];
   const galleryMarkup = galleryPhotos.length > 1
