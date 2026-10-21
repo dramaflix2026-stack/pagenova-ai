@@ -650,7 +650,7 @@ type CuratedBanner = {
 const CURATED_BANNERS: readonly CuratedBanner[] = [];
 
 function selectCuratedBanner(project: SiteProject, mode: "hybrid" | "overlay" | "embedded"): CuratedBanner | null {
-  const context = normalizeText([project.name, project.brief].join(" ")).normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase();
+  const context = normalizeText([project.name, project.brief].join(" ")).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const ranked = CURATED_BANNERS.filter((banner) => banner.mode === (mode === "embedded" ? "embedded" : "hybrid"))
     .map((banner) => ({ banner, score: banner.keywords.filter((keyword) => context.includes(keyword.toLowerCase())).length }))
     .filter((entry) => entry.score > 0)
