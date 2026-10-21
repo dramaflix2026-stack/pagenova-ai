@@ -654,9 +654,9 @@ export default function BuilderPage() {
           kind,
         }),
       });
-      const payload = await response.json() as { image?: string; error?: string };
-      if (!response.ok || !payload.image?.startsWith("data:image/jpeg;base64,")) {
-        throw new Error(payload.error || "Não foi possível gerar a fotografia.");
+      const payload = await response.json().catch(() => null) as { image?: string; error?: string } | null;
+      if (!response.ok || !payload?.image?.startsWith("data:image/jpeg;base64,")) {
+        throw new Error(payload?.error || `Não foi possível gerar a fotografia (HTTP ${response.status}).`);
       }
       if (payload.image.length > 8_100_000) throw new Error("A imagem retornada excedeu o limite permitido.");
       const blob = await (await fetch(payload.image)).blob();
