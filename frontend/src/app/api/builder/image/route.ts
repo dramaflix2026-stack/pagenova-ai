@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
   const contentLength = Number(request.headers.get("content-length") || 0);
   if (contentLength > 12_000) return NextResponse.json({ error: "Pedido muito grande." }, { status: 413 });
   let input: unknown;
-  try { input = await request.json(); } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
+  try {
+    const raw = await request.text();
+    if (raw.length > 12_000) return NextResponse.json({ error: "Pedido muito grande." }, { status: 413 });
+    input = JSON.parse(raw);
+  } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
   if (!input || typeof input !== "object") return NextResponse.json({ error: "Pedido inválido." }, { status: 400 });
   const body = input as Record<string, unknown>;
   const name = typeof body.name === "string" ? body.name.trim() : "";
