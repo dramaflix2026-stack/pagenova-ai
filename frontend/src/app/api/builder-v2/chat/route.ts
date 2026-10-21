@@ -60,6 +60,15 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(!["heading","paragraph","button","image"].includes(String(b.type))||typeof b.text!=="string")return null;
         if(/^(?:\(?xx\)?[\s-]*){2,}|contato@clinic|rua principal\s*,?\s*123/i.test(b.text))return null;
         b.text=cleanGeneratedCopy(b.text);
+        const briefing=instruction.toLocaleLowerCase("pt-BR");
+        const suppliedAddress=/\b(?:rua|avenida|av\.|alameda|travessa|praça)\s+[\p{L}\s]+,?\s*\d+/iu.test(briefing);
+        const suppliedHours=/\b\d{1,2}\s*h\s*(?:às|as|a|-)\s*\d{1,2}\s*h\b/i.test(briefing);
+        if(!suppliedAddress&&/\b(?:rua|avenida|av\.|alameda|travessa|praça)\s+[^.!?]{3,70}\d{1,5}/iu.test(b.text))return null;
+        if(!suppliedHours&&/\b(?:segunda|sexta|s[aá]bado|domingo)\b.{0,65}\b\d{1,2}\s*h\b/iu.test(b.text))return null;
+        if(!/\b(?:equipe|profissionais|certificados|especializados|equipamentos|tecnologia avançada)\b/i.test(briefing)){
+          b.text=b.text.replace(/\bequipe especializada\b/giu,"atendimento dedicado").replace(/\bprofissionais certificados\b/giu,"atendimento cuidadoso").replace(/\btecnologia avançada\b/giu,"atenção aos detalhes").replace(/\bequipamentos modernos\b/giu,"abordagem cuidadosa");
+        }
+        b.text=b.text.replace(/\b(?:asseguram|garantem) resultados?[^.!?]*/giu,"buscam oferecer uma experiência de cuidado").replace(/\bgaleria de resultados\b/giu,"Galeria de imagens ilustrativas");
         const id=typeof b.id==="string"&&b.id?b.id:"block-"+index;
         const unique=seen.has(id)?id+"-"+index:id;seen.add(unique);
         return {...b,id:unique,color:typeof b.color==="string"?b.color:"#243043",
