@@ -613,7 +613,7 @@ export default function BuilderPage() {
   }
 
   async function generateSitePhoto(kind: "hero" | "work") {
-    if (!project || uploadingImage) return;
+    if (!project || uploadingImage || phase === "generating") return;
     setUploadingImage(true);
     setError("");
     try {
@@ -623,7 +623,7 @@ export default function BuilderPage() {
         credentials: "same-origin",
         body: JSON.stringify({
           name: project.name,
-          brief: project.brief,
+          brief: project.brief.length >= 20 ? project.brief : `Site institucional para ${project.name}. Fotografia profissional relacionada aos serviços e ao negócio.`,
           kind,
         }),
       });
@@ -631,7 +631,9 @@ export default function BuilderPage() {
       if (!response.ok || !payload.image?.startsWith("data:image/jpeg;base64,")) {
         throw new Error(payload.error || "Não foi possível gerar a fotografia.");
       }
+      if (payload.image.length > 8_100_000) throw new Error("A imagem retornada excedeu o limite permitido.");
       const blob = await (await fetch(payload.image)).blob();
+      if (blob.type !== "image/jpeg" || blob.size > 6_000_000) throw new Error("A imagem gerada não é válida.");
       const file = new File([blob], "imagem-gerada.jpg", { type: "image/jpeg" });
       const optimized = await compressReference(file);
       const updated: SiteProject = {
