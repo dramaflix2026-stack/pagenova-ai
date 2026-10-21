@@ -81,6 +81,10 @@
     const box = document.createElement("div");
     box.id = "pn-edit-box";
     box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
+    const compactStyle = document.createElement("style");
+    compactStyle.id = "pn-mobile-editor-controls";
+    compactStyle.textContent = '@media(max-width:600px){#pn-edit-box[data-compact="true"]>i{display:none!important}#pn-edit-bar{max-width:calc(100vw - 16px)!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:thin}#pn-edit-bar select{max-width:120px}#pn-edit-bar input[type="number"]{width:54px}}';
+    document.head.appendChild(compactStyle);
     document.body.appendChild(box);
 
     const gx = document.createElement("div"); gx.id = "pn-align-x";
