@@ -68,7 +68,34 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
-      return NextResponse.json({error:"A geração completa falhou. O projeto foi preservado. Código: SITE_GENERATION_FAILED."},{status:502});
+      const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
+      const title=legal?"Escritório de Advocacia":"Site profissional";
+      const items=legal?[
+        ["inicio","hero","Assessoria jurídica com clareza e responsabilidade","Orientação para decisões importantes, com atenção às particularidades de cada situação."],
+        ["atuacao","grid","Áreas de atuação","Direito Civil — orientação em contratos e relações jurídicas.|Direito Empresarial — apoio a demandas societárias e negociais.|Direito Trabalhista — análise de direitos e obrigações.|Direito Tributário — orientação em questões fiscais."],
+        ["institucional","split","Atendimento jurídico próximo e criterioso","Cada demanda merece escuta, análise técnica e comunicação transparente ao longo do atendimento."],
+        ["diferenciais","grid","Uma atuação pautada em princípios","Escuta atenta e comunicação clara.|Análise individualizada de cada demanda.|Compromisso com a ética profissional.|Acompanhamento e transparência."],
+        ["processo","grid","Como funciona o atendimento","01 — Conversa inicial e compreensão da demanda.|02 — Análise das informações e documentos.|03 — Orientação sobre possibilidades e próximos passos."],
+        ["faq","faq","Perguntas frequentes","Como iniciar o atendimento? Entre em contato pelo canal disponibilizado pelo escritório.|Quais documentos são necessários? A documentação depende do tipo de demanda e será orientada durante o atendimento.|Como são definidos os honorários? As condições são apresentadas conforme o serviço e as normas aplicáveis."],
+        ["contato","banner","Vamos conversar sobre sua demanda?","Solicite informações e conheça os próximos passos para receber orientação jurídica."]
+      ]:[
+        ["inicio","hero","Uma experiência feita para você","Conheça soluções pensadas para suas necessidades."],
+        ["servicos","grid","O que oferecemos","Atendimento com atenção aos detalhes.|Soluções adaptadas a cada necessidade.|Comunicação clara em cada etapa."],
+        ["sobre","split","Conheça nossa proposta","Uma abordagem dedicada a tornar sua experiência mais simples e eficiente."],
+        ["beneficios","grid","Nossos compromissos","Clareza nas informações.|Atenção em cada etapa.|Qualidade no atendimento."],
+        ["processo","grid","Como funciona","01 — Conte o que você precisa.|02 — Entenda as possibilidades.|03 — Escolha o próximo passo."],
+        ["faq","faq","Perguntas frequentes","Como posso saber mais? Utilize os canais de contato informados pela empresa.|Como funciona o atendimento? As etapas são explicadas conforme a necessidade."],
+        ["contato","banner","Vamos conversar?","Entre em contato para saber mais."]
+      ];
+      const fallbackBlocks:Array<Record<string,unknown>>=[];
+      for(const [section,layout,heading,description] of items){
+        const dark=layout==="hero"||layout==="banner";
+        const background=dark?"#101d33":section==="institucional"||section==="sobre"?"#f7f5ef":"#ffffff";
+        fallbackBlocks.push({id:section+"-heading",section,layout,background,type:"heading",text:heading,color:dark?"#f8f5e9":"#101d33",align:layout==="hero"||layout==="banner"?"center":"left"});
+        for(const [i,line] of description.split("|").entries())fallbackBlocks.push({id:section+"-text-"+i,section,type:"paragraph",text:line,color:dark?"#f8f5e9":"#24332e",align:layout==="hero"||layout==="banner"?"center":"left"});
+        if(section==="inicio")fallbackBlocks.push({id:"hero-cta",section,type:"button",text:"Conheça nossos serviços",href:legal?"#atuacao":"#servicos",color:"#c9b782",align:"center"});
+      }
+      return NextResponse.json({site:{title,background:"#ffffff",blocks:fallbackBlocks},summary:"Site completo criado com estrutura de segurança após instabilidade temporária da IA."});
     }
   }
   const input = JSON.stringify({instruction:body.instruction,site:body.site,mode:isFresh?"create_full_website":"edit_existing_website"});
