@@ -1232,6 +1232,27 @@ function universalRendererStyles(
       --pn-card-background:${cardBackground};
     }
 
+    /* Motor 2.0: keep content-driven cards and strong visual rhythm. */
+    .pn-structured-card{height:auto;min-height:0;align-self:stretch;overflow-wrap:anywhere}
+    .pn-structured-grid{align-items:stretch}
+    .pn-structured-card p:last-child{margin-bottom:0}
+    .pn-universal-section{scroll-margin-top:24px}
+    .pn-universal-hero-copy{min-width:0}
+    .pn-universal-hero-copy h1,.pn-universal-hero-copy p{overflow-wrap:break-word}
+    @media(max-width:760px){
+      :root{--pn-section-space:48px}
+      .pn-universal-shell{width:calc(100% - 32px)}
+      .pn-universal-hero-inner,
+      .pn-density-compact .pn-universal-hero-inner,
+      .pn-density-editorial .pn-universal-hero-inner{min-height:0;padding-top:42px;padding-bottom:44px;gap:24px}
+      .pn-universal-hero-visual{min-height:230px;border-radius:22px}
+      .pn-hero-full-bleed .pn-universal-hero-inner{min-height:460px}
+      .pn-structured-grid{gap:16px}
+      .pn-structured-card{min-height:0;padding:20px}
+      .pn-universal-section{min-height:0}
+      .pn-universal-hero-copy h1{font-size:clamp(32px,9vw,48px);line-height:1.12;letter-spacing:-.035em}
+    }
+
     /* Motion direction applies to actual rendered sections. No JS dependency. */
     @media(prefers-reduced-motion:no-preference){
       .pn-motion-reveal .pn-universal-hero-copy{
