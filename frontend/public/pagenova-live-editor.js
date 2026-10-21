@@ -83,7 +83,8 @@
     box.innerHTML = '<i data-h="nw"></i><i data-h="n"></i><i data-h="ne"></i><i data-h="e"></i><i data-h="se"></i><i data-h="s"></i><i data-h="sw"></i><i data-h="w"></i>';
     const compactStyle = document.createElement("style");
     compactStyle.id = "pn-mobile-editor-controls";
-    compactStyle.textContent = '@media(max-width:600px){#pn-edit-box[data-compact="true"]>i{display:none!important}#pn-edit-bar{max-width:calc(100vw - 16px)!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:thin}#pn-edit-bar select{max-width:120px}#pn-edit-bar input[type="number"]{width:54px}}';
+    compactStyle.textContent = '#pn-edit-box[data-compact="true"]{outline:2px solid #eab308!important;outline-offset:0!important;border-radius:8px!important;box-shadow:0 0 0 3px rgba(234,179,8,.14)!important;pointer-events:none!important}#pn-edit-bar[data-open="true"]{box-shadow:0 12px 34px rgba(15,23,42,.22)!important;border-radius:12px!important}'+
+      '@media(max-width:600px){#pn-edit-box[data-compact="true"]>i{display:none!important}#pn-edit-bar{max-width:calc(100vw - 16px)!important;overflow-x:auto!important;overscroll-behavior-x:contain;scrollbar-width:thin}#pn-edit-bar select{max-width:120px}#pn-edit-bar input[type="number"]{width:54px}}';
     document.head.appendChild(compactStyle);
     document.body.appendChild(box);
 
