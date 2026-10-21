@@ -402,9 +402,9 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     // Deterministic safeguard: explicit blue/white branding must survive even
     // when the LLM proposes an unrelated palette. Keep AA-friendly text colors.
     const requestedPalette = [input.style.keywords.join(' '), input.freeformInstructions ?? '']
-      .join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
-    const explicitlyBlueWhite = /\\b(?:azul|azuis)\\b/.test(requestedPalette)
-      && /\\b(?:branco|branca|brancos|brancas)\\b/.test(requestedPalette)
+      .join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const explicitlyBlueWhite = /\b(?:azul|azuis)\b/.test(requestedPalette)
+      && /\b(?:branco|branca|brancos|brancas)\b/.test(requestedPalette)
       && /(?:cor|cores|paleta|visual|identidade|tema|utilize|use|prefiro)/.test(requestedPalette);
     if (explicitlyBlueWhite) {
       model.theme.colors = {
