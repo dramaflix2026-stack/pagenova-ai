@@ -16,7 +16,7 @@ import { motionForPrompt } from '@site-kit/interactions/motion';
 import { neutralizeInjection } from '@site-kit/utils/sanitize';
 import type { GenerateSitePlanInput } from '@builder/generation/provider';
 
-export const SITE_PLAN_PROMPT_VERSION = '1.5.0';
+export const SITE_PLAN_PROMPT_VERSION = '1.5.1';
 
 /**
  * Instrucao de sistema.
@@ -73,6 +73,10 @@ Voce NAO tem acesso a depoimentos, credenciais, precos, numeros de anos de exper
 Nao escolha combinacoes obvias por clichê de nicho (nutricionista nao precisa ser verde-folha; advogado nao precisa ser azul-marinho-serio). Baseie a direcao no publico, no tom pedido e nas instrucoes do administrador, nao no estereotipo do setor.
 
 Cores: proponha "primary", "accent", "background", "surface", "text", "muted", "border", "primaryForeground" e "accentForeground" em hexadecimal de 6 digitos, com contraste alto o bastante para leitura confortavel (o sistema ainda vai verificar e ajustar automaticamente, mas comece por algo legivel).
+
+Cores solicitadas explicitamente pelo administrador no briefing prevalecem sobre a sua escolha criativa. Se o cliente pediu branco e azul, o primary/accent deve usar azul e background/surface devem permanecer brancos ou quase brancos; nao introduza verde como cor dominante. Para outras paletas, mantenha a mesma fidelidade. Use text e primaryForeground legiveis, especialmente quando a imagem do hero for clara.
+
+Composicao mobile obrigatoria: titulos e paragrafos precisam caber sem cortes em larguras de 320 a 430px. Cards de servicos e beneficios devem ser compactos, com altura determinada pelo conteudo; evite grandes vazios verticais, espacos excessivos e blocos visuais sem funcao. Texto branco sobre foto exige area de fundo suficientemente escura ou sobreposicao que assegure contraste.
 
 Tipografia: no maximo duas familias, escolhidas entre fontes amplamente disponiveis (ex.: Inter, Fraunces, Sora, Manrope, Lora, Space Grotesk, Playfair Display, Work Sans).
 
