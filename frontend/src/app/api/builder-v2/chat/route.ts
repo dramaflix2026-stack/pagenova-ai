@@ -138,6 +138,19 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{title,background:"#ffffff",blocks:fallbackBlocks},summary:"Site completo criado com estrutura de segurança após instabilidade temporária da IA."});
     }
   }
+  // Resolve simple alignment requests locally to avoid regenerating the full site.
+  const instructionText=String(body.instruction);
+  const editingSite=body.site as {title?:string;background?:string;blocks?:Array<Record<string,unknown>>}|undefined;
+  if (!isFresh && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
+    const alignment=/centraliz|ao centro|no centro/i.test(instructionText)?"center":/alinhar?[^.]{0,50}(?:esquerda)|à esquerda/i.test(instructionText)?"left":/alinhar?[^.]{0,50}(?:direita)|à direita/i.test(instructionText)?"right":null;
+    if(alignment) {
+      const buttons=editingSite.blocks.filter(b=>b.type==="button");
+      const named=buttons.find(b=>instructionText.toLocaleLowerCase("pt-BR").includes(String(b.text||"").toLocaleLowerCase("pt-BR")) && String(b.text||"").length>3);
+      const hero=buttons.find(b=>/^(inicio|hero|home|principal)$/i.test(String(b.section||"")));
+      const selected=named || (/(?:hero|inicial|primeira se[cç][aã]o)/i.test(instructionText)?hero:undefined) || (buttons.length===1?buttons[0]:undefined);
+      if(selected) return NextResponse.json({site:{...editingSite,blocks:editingSite.blocks.map(b=>b===selected?{...b,align:alignment}:b)},summary:"Alinhamento do botão atualizado sem modificar outros elementos."});
+    }
+  }
   const input = JSON.stringify({instruction:body.instruction,site:body.site,mode:isFresh?"create_full_website":"edit_existing_website"});
   if (input.length > 140000) return NextResponse.json({error:"Projeto grande demais."},{status:413});
   const imageInput: string = typeof body.image === "string" ? body.image : "";
