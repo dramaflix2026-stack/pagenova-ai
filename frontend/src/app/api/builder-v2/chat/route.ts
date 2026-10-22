@@ -141,6 +141,24 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // Resolve simple alignment requests locally to avoid regenerating the full site.
   const instructionText=String(body.instruction);
   const editingSite=body.site as {title?:string;background?:string;blocks?:Array<Record<string,unknown>>}|undefined;
+  // Section-level moves are deterministic: never ask the model to relocate individual blocks.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/\\bmov(?:a|er|imente)\\b/i.test(instructionText)&&/se[cç][aã]o/i.test(instructionText)){
+    const match=instructionText.match(/(?:mov(?:a|er|imente))\\s+(?:a\\s+)?se[cç][aã]o\\s+(?:completa\\s+)?["“]([^"”]+)["”][\\s\\S]*?(?:depois|ap[oó]s)\\s+(?:da\\s+)?(?:se[cç][aã]o\\s+)?["“]([^"”]+)["”]/i);
+    if(match){
+      const normalize=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+      const headings=editingSite.blocks.filter(b=>b.type==="heading"&&typeof b.section==="string");
+      const source=headings.find(b=>normalize(String(b.text||""))===normalize(match[1]));
+      const target=headings.find(b=>normalize(String(b.text||""))===normalize(match[2]));
+      if(!source||!target||source.section===target.section)return NextResponse.json({error:"Não foi possível identificar as duas seções para a movimentação. O site foi preservado."},{status:422});
+      const moved=editingSite.blocks.filter(b=>b.section===source.section);
+      const remaining=editingSite.blocks.filter(b=>b.section!==source.section);
+      const last=remaining.findLastIndex(b=>b.section===target.section);
+      if(!moved.length||last<0)return NextResponse.json({error:"Movimentação não validada. O site foi preservado."},{status:422});
+      remaining.splice(last+1,0,...moved);
+      if(remaining.length!==editingSite.blocks.length||remaining.filter(b=>b.section===source.section).length!==moved.length)return NextResponse.json({error:"Falha na validação da movimentação. O site foi preservado."},{status:422});
+      return NextResponse.json({site:{...editingSite,blocks:remaining},summary:'Seção "'+match[1]+'" movida integralmente para depois de "'+match[2]+'".'});
+    }
+  }
   const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
   if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
     const alignment=/centraliz|ao centro|no centro/i.test(instructionText)?"center":/alinhar?[^.]{0,50}(?:esquerda)|à esquerda/i.test(instructionText)?"left":/alinhar?[^.]{0,50}(?:direita)|à direita/i.test(instructionText)?"right":null;
