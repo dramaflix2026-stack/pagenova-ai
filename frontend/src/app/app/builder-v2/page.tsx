@@ -121,6 +121,19 @@ export default function BuilderV2() {
     setMessages(prev=>[...prev,{role:"assistant",text:completed+" imagem(ns) criada(s). "+(completed<jobs.length?"Algumas imagens falharam.":"Pode substituir uma imagem pelo chat.")}]);
     return {...current,blocks};
   }
+  function applySingleButtonAlignment(current:Site,prompt:string):{site:Site;summary:string}|null {
+    const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    if(!/botao|cta/.test(normalized)||!/alinh|centraliz|posicion/.test(normalized))return null;
+    const direction=/centro|centraliz|centralizado/.test(normalized)?"center":/esquerda/.test(normalized)?"left":/direita/.test(normalized)?"right":null;
+    if(!direction)return null;
+    const buttons=current.blocks.filter(b=>b.type==="button");
+    if(!buttons.length)return null;
+    const explicit=buttons.find(b=>normalized.includes(b.text.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&b.text.length>3);
+    const hero=buttons.find(b=>/^(inicio|hero|home|principal)$/i.test(b.section||""));
+    const selected=explicit||((/esse botao|deste botao|botao do hero|botao principal|botao inicial/.test(normalized)||buttons.length===1)?hero||buttons[0]:null);
+    if(!selected)return null;
+    return {site:{...current,blocks:current.blocks.map(b=>b.id===selected.id?{...b,align:direction}:b)},summary:"Alinhamento do botão aplicado. Todo o restante do site foi preservado."};
+  }
   async function send() {
     const prompt = instruction.trim(); if (!prompt || busy) return;
     setBusy(true);
@@ -136,7 +149,7 @@ export default function BuilderV2() {
       finally {setBusy(false);}
       return;
     }
-    const direct = applyGlobalAlignment(site, prompt);
+    const direct = applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt);
     if (direct) {
       setHistory(prev=>[...prev.slice(-19),site]);
       setSite(direct.site);
