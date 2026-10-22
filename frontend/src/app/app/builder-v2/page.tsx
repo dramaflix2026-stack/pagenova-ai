@@ -270,7 +270,7 @@ export default function BuilderV2() {
               {isGallery?<>{headingNode}<div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5">{sectionImages.slice(0,6).map((b,i)=><div key={b.id} className={i===0?"col-span-2 md:col-span-2 md:row-span-2":""}>{imageNode(b,i)}</div>)}</div></>:
               (visualLayout==="faq"||/faq|perguntas.frequentes/i.test(id))?<>{headingNode}<div className="mx-auto max-w-3xl space-y-3">{textItems.map(b=>{const at=b.text.indexOf("?");return <details key={b.id} className="group rounded-xl border border-[#e9e4da] bg-white px-5 py-4 text-[#24332e]"><summary className="cursor-pointer list-none font-semibold leading-snug">{at>=0?b.text.slice(0,at+1):b.text}<span className="float-right ml-3 text-lg">+</span></summary>{at>=0&&b.text.slice(at+1).trim()&&<p className="mt-3 border-t border-[#eee9e0] pt-3 text-sm leading-relaxed">{b.text.slice(at+1).trim()}</p>}</details>})}</div></>:
               (visualLayout==="hero"||visualLayout==="split")&&!isPrinciples?<div className={sectionImages.length?"grid items-center gap-8 md:grid-cols-2 md:gap-14":"mx-auto max-w-3xl"}>
-                <div className="space-y-5">{heading.map(render)}{textItems.slice(0,3).map(render)}{buttons.length>0&&<div className="flex flex-wrap gap-3 pt-2">{buttons.map(render)}</div>}</div>
+                <div className="space-y-5">{blocks.filter(b=>b.type==="heading"||b.type==="button"||(b.type==="paragraph"&&textItems.slice(0,3).some(item=>item.id===b.id))).map(render)}</div>
                 {sectionImages.length>0&&<div className="relative">{sectionImages.slice(0,1).map(imageNode)}</div>}
               </div>:
               useEditorialGrid?<div className="space-y-8 md:space-y-12">
