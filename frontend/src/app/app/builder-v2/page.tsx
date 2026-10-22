@@ -236,7 +236,7 @@ export default function BuilderV2() {
           const isGallery=visualLayout==="gallery"||/portf[oó]lio|galeria/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "));
           const clean=(value:string)=>value.replace(/\s*[-–—]\s*(?:(?:grid|hero|faq|banner|split|standard|gallery)|(?:fundo\s+)?(?:areia|branco|verde|escuro|claro|preto))(?:\s*[-–—]\s*(?:(?:fundo\s+)?(?:areia|branco|verde|escuro|claro|preto)))*/giu,"").replace(/\s*[-–—,;]?\s*(?:layout|design|background|fundo)\s*:\s*[^,;]+/giu,"").replace(/\s*[-–—]\s*$/u,"").trim();
           const textItems=paragraphs.filter(b=>!/^\s*\(?(apresente|adicione|insira|coloque|crie)\s.+layout/i.test(b.text));
-          const galleryImages=isGallery?Array.from(new Map([...images,...previewBlocks.filter(b=>b.type==="image"&&!!b.src)].filter(b=>!!b.src).map(b=>[b.src,b])).values()).slice(0,6):images;
+          const galleryImages=isGallery?(images.length?images:previewBlocks.filter(b=>b.type==="image"&&b.section===group.id)).slice(0,6):images;
           const cardItems=isGallery?galleryImages:textItems.slice(0,6);
           const isProcess=/etapas|processo|passos|como-funciona|atendimento|metodologia/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const isPrinciples=/princip|diferencia|valores|filosofia/i.test(id+" "+heading.map(b=>b.text).join(" "));
@@ -265,7 +265,7 @@ export default function BuilderV2() {
           const treatmentHasCompletePhotos=uniqueImages.length>=editorialCards.slice(0,6).length;
           const useTextOnlyTreatments=isTreatments&&!treatmentHasCompletePhotos;
           const headingNode=<div className="mb-9 max-w-3xl space-y-3">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
-          const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{render(b)}</div>;
+          const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{b.src?render(b):<div data-block-id={b.id} className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-[#c5cbbf] bg-[#f1f1e9] text-center text-sm text-[#52615a]">{b.text||"Adicionar imagem"}</div>}</div>;
           return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="overflow-hidden px-5 py-16 sm:px-8 md:px-14 md:py-24">
             <div className="mx-auto max-w-6xl">
               {isGallery?<>{headingNode}<div className="grid grid-cols-2 gap-3 md:hidden">{sectionImages.slice(0,6).map((b,i)=><div key={b.id} className={i===0?"col-span-2":""}>{imageNode(b,i)}</div>)}</div><div className="hidden md:block md:space-y-12">{sectionImages.slice(0,6).map((b,i)=><div key={b.id} className="grid items-center gap-10 md:grid-cols-2"><div className={i%2===1?"md:order-2":""}>{imageNode(b,i)}</div><div className={i%2===1?"md:order-1":""}><h3 className="mb-4 text-2xl font-semibold text-[#24332e]">{textItems[i]?cardText(textItems[i]).name||"Nossa atuação":"Nossa atuação"}</h3><p className="text-lg leading-relaxed text-[#52615a]">{textItems[i]?cardText(textItems[i]).description:"Conheça mais sobre nosso trabalho e nossa abordagem."}</p></div></div>)}</div></>:
