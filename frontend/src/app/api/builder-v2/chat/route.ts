@@ -169,6 +169,34 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
     }
   }
+  // Existing sites are edited with a compact patch response, never a full-site rewrite.
+  if(!isFresh && Array.isArray(editingSite?.blocks) && editingSite.blocks.length) {
+    const inventory=editingSite.blocks.map(b=>({id:b.id,type:b.type,section:b.section,text:String(b.text||"").slice(0,220),align:b.align,color:b.color}));
+    const editSystem='Você é o editor da PageNova. A instrução do usuário prevalece. Identifique os IDs dos blocos existentes e retorne SOMENTE JSON {"edits":[{"id":"ID existente","changes":{"text":"novo texto","align":"left|center|right","color":"#hex"}}],"summary":"resumo"}. Cada edição deve conter APENAS propriedades explicitamente solicitadas. Execute TODAS as alterações pedidas, mesmo em seções diferentes. Não crie blocos, não mude IDs e não retorne o site completo. Título principal é o primeiro heading do hero; subtítulo é o primeiro paragraph do hero. Títulos de seção são heading. Para mudança de cor use a propriedade color. Se o usuário solicitar algo não representável, retorne edits vazio e summary explicativo.';
+    try {
+      const editResponse=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:1800,response_format:{type:"json_object"},messages:[{role:"system",content:editSystem},{role:"user",content:JSON.stringify({instruction:instructionText,blocks:inventory})}]}),signal:AbortSignal.timeout(45000)});
+      if(!editResponse.ok) return NextResponse.json({error:"Não foi possível interpretar as alterações. O projeto foi preservado."},{status:502});
+      const editData=await editResponse.json();
+      const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;summary?:string};
+      if(!Array.isArray(payload.edits)||!payload.edits.length) return NextResponse.json({error:"Não foram identificadas alterações aplicáveis. O projeto foi preservado."},{status:422});
+      const allowed=new Set(["text","align","color","fontSize","href","background","spacing","radius"]);
+      const changesById=new Map<string,Record<string,unknown>>();
+      for(const edit of payload.edits){
+        if(typeof edit.id!=="string"||!editingSite.blocks.some(b=>b.id===edit.id)||!edit.changes||typeof edit.changes!=="object")continue;
+        const clean:Record<string,unknown>={};
+        for(const [k,v] of Object.entries(edit.changes)){
+          if(!allowed.has(k))continue;
+          if(k==="align"&&["left","center","right"].includes(String(v)))clean[k]=v;
+          else if(["text","color","href","background"].includes(k)&&typeof v==="string")clean[k]=v;
+          else if(["fontSize","spacing","radius"].includes(k)&&typeof v==="number"&&Number.isFinite(v))clean[k]=v;
+        }
+        if(Object.keys(clean).length)changesById.set(edit.id,{...(changesById.get(edit.id)||{}),...clean});
+      }
+      if(!changesById.size)return NextResponse.json({error:"Nenhuma alteração válida foi encontrada. O projeto foi preservado."},{status:422});
+      const updatedBlocks=editingSite.blocks.map(b=>changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b);
+      return NextResponse.json({site:{...editingSite,blocks:updatedBlocks},summary:typeof payload.summary==="string"?payload.summary:"Alterações aplicadas aos elementos solicitados."});
+    }catch(error){console.error("[builder-v2] edit patch error",error instanceof Error?error.message:"unknown");return NextResponse.json({error:"Não foi possível concluir a edição. O projeto foi preservado."},{status:502});}
+  }
   const input = JSON.stringify({instruction:body.instruction,site:body.site,mode:isFresh?"create_full_website":"edit_existing_website"});
   if (input.length > 140000) return NextResponse.json({error:"Projeto grande demais."},{status:413});
   const imageInput: string = typeof body.image === "string" ? body.image : "";
