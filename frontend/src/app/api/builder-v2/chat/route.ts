@@ -245,6 +245,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const sectionId="section-"+crypto.randomUUID();
         const fresh=section.blocks.filter(b=>["heading","paragraph","button"].includes(String(b.type))&&typeof b.text==="string"&&b.text.trim()).map(b=>({id:"added-"+crypto.randomUUID(),section:sectionId,type:b.type,text:b.text,color:typeof b.color==="string"?b.color:"#B89B60",align:["left","center","right"].includes(String(b.align))?b.align:"center",layout:"standard"}));
         if(!fresh.length)continue;
+        const sectionTitle=String(section.name).trim();
+        const headings=fresh.filter(b=>b.type==="heading");
+        if(!headings.length){
+          fresh.unshift({id:"added-"+crypto.randomUUID(),section:sectionId,type:"heading",text:sectionTitle,color:"#B89B60",align:"center",layout:"standard"});
+        }else{
+          const heading=headings[0];
+          heading.text=sectionTitle;
+          const index=fresh.indexOf(heading);
+          if(index>0){fresh.splice(index,1);fresh.unshift(heading);}
+        }
         const last=updatedBlocks.findLastIndex(b=>b.section===section.afterSection);
         updatedBlocks.splice(last>=0?last+1:updatedBlocks.length,0,...fresh);
       }
