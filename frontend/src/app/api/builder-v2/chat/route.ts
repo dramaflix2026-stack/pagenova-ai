@@ -172,12 +172,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // Existing sites are edited with a compact patch response, never a full-site rewrite.
   if(!isFresh && Array.isArray(editingSite?.blocks) && editingSite.blocks.length) {
     const inventory=editingSite.blocks.map(b=>({id:b.id,type:b.type,section:b.section,text:String(b.text||"").slice(0,220),align:b.align,color:b.color}));
-    const editSystem='Você é o editor da PageNova. A instrução do usuário prevalece. Retorne SOMENTE JSON {"edits":[{"id":"ID existente","changes":{"text":"novo texto","align":"left|center|right","color":"#hex"}}],"insertions":[{"afterId":"ID existente","block":{"type":"button|heading|paragraph","text":"texto novo","color":"#hex","align":"left|center|right"}}],"sections":[{"afterSection":"ID da seção anterior","name":"Nome da nova seção","blocks":[{"type":"heading|paragraph|button","text":"conteúdo","align":"left|center|right","color":"#hex"}]}],"deletions":["ID existente"],"moves":[{"id":"ID a mover","beforeId":"ID que ficará depois"}],"summary":"resumo"}. Para criar uma seção inteira, use sections, com afterSection igual ao identificador de uma seção existente, name e todos os blocos necessários; não use insertions para criar seções. Preserve todas as seções existentes. Para reorganizar, retorne moves com id e beforeId de blocos existentes da MESMA seção. Mova o bloco antes do outro sem alterar suas propriedades. Para editar, preserve IDs e altere apenas propriedades solicitadas. Para remover, retorne os IDs exatos em deletions e não edite os outros blocos. Para adicionar, escolha afterId do bloco que deve preceder o novo elemento, dentro da seção correta. Pode adicionar vários elementos. Não retorne o site inteiro. Não invente href. Execute TODAS as instruções solicitadas. Se não houver inserções, retorne insertions:[]; se não houver edições, retorne edits:[]. Se não houver exclusões, retorne deletions:[]. Se não houver movimentos, retorne moves:[]. Se não houver novas seções, retorne sections:[]. Título principal é o primeiro heading do hero; títulos de seção são heading. Cor dourada é #B89B60';
+    const editSystem='Você é o editor da PageNova. A instrução do usuário prevalece. Retorne SOMENTE JSON {"edits":[{"id":"ID existente","changes":{"text":"novo texto","align":"left|center|right","color":"#hex"}}],"insertions":[{"afterId":"ID existente","block":{"type":"button|heading|paragraph","text":"texto novo","color":"#hex","align":"left|center|right"}}],"sections":[{"afterSection":"ID da seção anterior","name":"Nome da nova seção","blocks":[{"type":"heading|paragraph|button","text":"conteúdo","align":"left|center|right","color":"#hex"}]}],"deletions":["ID existente"],"moves":[{"id":"ID a mover","beforeId":"ID opcional","toSection":"ID opcional da seção destino","position":"start|end"}],"summary":"resumo"}. Para criar uma seção inteira, use sections, com afterSection igual ao identificador de uma seção existente, name e todos os blocos necessários; não use insertions para criar seções. Preserve todas as seções existentes. Para reorganizar na mesma seção use moves com id e beforeId. Para transferir entre seções use moves com id, toSection igual ao ID de seção existente e position:"end" para último card. Preserve o mesmo ID, texto, cor e propriedades; não duplique nem recrie. Para editar, preserve IDs e altere apenas propriedades solicitadas. Para remover, retorne os IDs exatos em deletions e não edite os outros blocos. Para adicionar, escolha afterId do bloco que deve preceder o novo elemento, dentro da seção correta. Pode adicionar vários elementos. Não retorne o site inteiro. Não invente href. Execute TODAS as instruções solicitadas. Se não houver inserções, retorne insertions:[]; se não houver edições, retorne edits:[]. Se não houver exclusões, retorne deletions:[]. Se não houver movimentos, retorne moves:[]. Se não houver novas seções, retorne sections:[]. Título principal é o primeiro heading do hero; títulos de seção são heading. Cor dourada é #B89B60';
     try {
       const editResponse=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:1800,response_format:{type:"json_object"},messages:[{role:"system",content:editSystem},{role:"user",content:JSON.stringify({instruction:instructionText,blocks:inventory})}]}),signal:AbortSignal.timeout(45000)});
       if(!editResponse.ok) return NextResponse.json({error:"Não foi possível interpretar as alterações. O projeto foi preservado."},{status:502});
       const editData=await editResponse.json();
-      const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;insertions?:Array<{afterId?:string;block?:Record<string,unknown>}>;deletions?:string[];sections?:Array<{afterSection?:string;name?:string;blocks?:Array<Record<string,unknown>>}>;moves?:Array<{id?:string;beforeId?:string}>;summary?:string};
+      const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;insertions?:Array<{afterId?:string;block?:Record<string,unknown>}>;deletions?:string[];sections?:Array<{afterSection?:string;name?:string;blocks?:Array<Record<string,unknown>>}>;moves?:Array<{id?:string;beforeId?:string;toSection?:string;position?:string}>;summary?:string};
       if(!Array.isArray(payload.edits))payload.edits=[];
       const allowed=new Set(["text","align","color","fontSize","href","background","spacing","radius"]);
       const changesById=new Map<string,Record<string,unknown>>();
@@ -208,13 +208,25 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(!changesById.size&&!insertionsByAnchor.size&&!deletedIds.size&&!(Array.isArray(payload.moves)&&payload.moves.length)&&!(Array.isArray(payload.sections)&&payload.sections.length))return NextResponse.json({error:"Nenhuma alteração válida foi encontrada. O projeto foi preservado."},{status:422});
       const updatedBlocks=editingSite.blocks.filter(b=>!deletedIds.has(String(b.id))).flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
       for(const move of Array.isArray(payload.moves)?payload.moves:[]){
-        if(!move.id||!move.beforeId||move.id===move.beforeId)continue;
+        if(!move.id)continue;
         const from=updatedBlocks.findIndex(b=>b.id===move.id);
+        if(from<0)continue;
+        const original=updatedBlocks[from];
+        if(move.toSection){
+          const targetSection=String(move.toSection);
+          if(!updatedBlocks.some(b=>b.section===targetSection))continue;
+          const [item]=updatedBlocks.splice(from,1);
+          item.section=targetSection;
+          const indices=updatedBlocks.map((b,i)=>b.section===targetSection?i:-1).filter(i=>i>=0);
+          const destination=move.position==="start"?indices[0]:indices[indices.length-1]+1;
+          updatedBlocks.splice(destination,0,item);
+          continue;
+        }
+        if(!move.beforeId||move.id===move.beforeId)continue;
         const target=updatedBlocks.findIndex(b=>b.id===move.beforeId);
-        if(from<0||target<0||updatedBlocks[from].section!==updatedBlocks[target].section)continue;
+        if(target<0||original.section!==updatedBlocks[target].section)continue;
         const [item]=updatedBlocks.splice(from,1);
-        const destination=updatedBlocks.findIndex(b=>b.id===move.beforeId);
-        updatedBlocks.splice(destination,0,item);
+        updatedBlocks.splice(updatedBlocks.findIndex(b=>b.id===move.beforeId),0,item);
       }
       for(const section of Array.isArray(payload.sections)?payload.sections:[]){
         if(!section.name||!Array.isArray(section.blocks)||!section.blocks.length)continue;
