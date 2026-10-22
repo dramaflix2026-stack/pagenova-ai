@@ -151,6 +151,24 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(selected) return NextResponse.json({site:{...editingSite,blocks:editingSite.blocks.map(b=>b===selected?{...b,align:alignment}:b)},summary:"Alinhamento do botão atualizado sem modificar outros elementos."});
     }
   }
+  // Apply narrowly scoped button color edits without asking the model to regenerate the site.
+  if (!isFresh && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText) && /(?:cor|color|fundo|background)/i.test(instructionText)) {
+    const hex = instructionText.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/);
+    const namedColors:Record<string,string>={"verde-escuro":"#174D3A","verde escuro":"#174D3A","azul-marinho":"#101D33","preto":"#000000","branco":"#FFFFFF","dourado":"#B89B60"};
+    const normalized=instructionText.toLocaleLowerCase("pt-BR");
+    const requestedColor=hex?.[0] || Object.entries(namedColors).find(([name])=>normalized.includes(name))?.[1];
+    if (requestedColor) {
+      const buttons=editingSite.blocks.filter(b=>b.type==="button");
+      const named=buttons.find(b=>String(b.text||"").length>3 && normalized.includes(String(b.text).toLocaleLowerCase("pt-BR")));
+      const hero=buttons.find(b=>/^(inicio|hero|home|principal)$/i.test(String(b.section||"")));
+      const selected=named || (/(?:hero|inicial|primeira se[cç][aã]o)/i.test(instructionText)?hero:undefined) || (buttons.length===1?buttons[0]:undefined);
+      if(selected) {
+        const changeBackground=/(?:cor de fundo|fundo do bot[aã]o|background)/i.test(instructionText);
+        const blocks=editingSite.blocks.map(b=>b===selected?{...b,[changeBackground?"background":"color"]:requestedColor}:b);
+        return NextResponse.json({site:{...editingSite,blocks},summary:"Cor do botão atualizada; todos os demais elementos foram preservados."});
+      }
+    }
+  }
   const input = JSON.stringify({instruction:body.instruction,site:body.site,mode:isFresh?"create_full_website":"edit_existing_website"});
   if (input.length > 140000) return NextResponse.json({error:"Projeto grande demais."},{status:413});
   const imageInput: string = typeof body.image === "string" ? body.image : "";
