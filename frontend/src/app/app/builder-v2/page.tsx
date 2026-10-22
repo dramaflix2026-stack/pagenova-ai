@@ -203,6 +203,27 @@ export default function BuilderV2() {
     if(!selected)return null;
     return {site:{...current,blocks:current.blocks.map(b=>b.id===selected.id?{...b,align:direction}:b)},summary:"Alinhamento do botão aplicado. Todo o restante do site foi preservado."};
   }
+  async function applyRealNichePhotos(current:Site,niche:string):Promise<Site> {
+    const response=await fetch("/api/builder-v2/stock-photos",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({niche})
+    });
+    const data=await response.json();
+    if(!response.ok||!Array.isArray(data.photos)||data.photos.length!==6)throw new Error(data.error||"Fotografias reais indisponíveis");
+    const imageBlocks=current.blocks.filter(b=>b.type==="image");
+    const blocks=current.blocks.filter(b=>b.type!=="image");
+    const sections=[...new Set(blocks.map(b=>b.section||"principal"))].slice(0,6);
+    for(let i=0;i<6;i++){
+      const photo=data.photos[i] as {src:string;alt:string};
+      if(!photo.src?.startsWith("https://"))continue;
+      const section=sections[i%Math.max(1,sections.length)]||"principal";
+      const id="visual-"+i;
+      const existing=imageBlocks.find(b=>b.id===id);
+      const visual:Block={...(existing||{id,type:"image",color:"#ffffff",align:"center"}),id,type:"image",section,src:photo.src,text:photo.alt||"Fotografia real do setor"};
+      const at=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");
+      if(at>=0)blocks.splice(at+1,0,visual);else blocks.push(visual);
+    }
+    return {...current,blocks};
+  }
   async function send() {
     const prompt = instruction.trim(); if (!prompt || busy) return;
     setBusy(true);
@@ -245,7 +266,7 @@ export default function BuilderV2() {
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       setSite(incoming);
       if (!site.blocks.length) {
-        try { const illustrated=await generateVisuals(incoming,prompt);setSite(illustrated); }
+        try { const illustrated=selectedNiche ? await applyRealNichePhotos(incoming,selectedNiche) : await generateVisuals(incoming,prompt);setSite(illustrated); }
         catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
       }
       setGenerationError("");
