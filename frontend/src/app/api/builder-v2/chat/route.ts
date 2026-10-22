@@ -103,21 +103,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      // Keep the first coherent hero composition and remove repeated AI output.
-      const heroId=String(sections[0]?.id||"");
-      let seenHeroHeading=false;
-      let seenHeroParagraph=false;
-      let seenHeroButton=false;
-      const duplicateHeroIds=new Set<string>();
-      for(const block of blocks){
-        if(block.section!==heroId)continue;
-        const repeated=block.type==="heading"?seenHeroHeading:block.type==="paragraph"?seenHeroParagraph:block.type==="button"?seenHeroButton:false;
-        if(repeated){duplicateHeroIds.add(block.id);continue;}
-        if(block.type==="heading")seenHeroHeading=true;
-        if(block.type==="paragraph")seenHeroParagraph=true;
-        if(block.type==="button")seenHeroButton=true;
-      }
-      for(let i=blocks.length-1;i>=0;i--)if(duplicateHeroIds.has(blocks[i].id))blocks.splice(i,1);
       const generatedSections=new Set(blocks.map(b=>b.section));
       if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
