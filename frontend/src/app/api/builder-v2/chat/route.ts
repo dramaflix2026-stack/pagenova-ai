@@ -153,7 +153,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }
   }
   // Apply narrowly scoped button color edits without asking the model to regenerate the site.
-  if (!isFresh && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText) && /(?:cor|color|fundo|background)/i.test(instructionText)) {
+  if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText) && /(?:cor|color|fundo|background)/i.test(instructionText)) {
     const hex = instructionText.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/);
     const namedColors:Record<string,string>={"verde-escuro":"#174D3A","verde escuro":"#174D3A","azul-marinho":"#101D33","preto":"#000000","branco":"#FFFFFF","dourado":"#B89B60"};
     const normalized=instructionText.toLocaleLowerCase("pt-BR");
