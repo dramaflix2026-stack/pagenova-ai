@@ -48,6 +48,26 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       );
       const sections = Array.isArray(plan.sections) ? plan.sections.filter((v):v is Record<string,unknown>=>!!v&&typeof v==="object").slice(0,9) : [];
       if (sections.length < 5) throw new Error("invalid-plan");
+      // Keep the approved component architecture stable regardless of AI wording.
+      const normalizeId=(value:unknown)=>String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+      const usedSectionIds=new Set<string>();
+      for(let i=0;i<sections.length;i++){
+        const section=sections[i];
+        const original=normalizeId(section.id)||"secao-"+(i+1);
+        const id=usedSectionIds.has(original)?original+"-"+(i+1):original;
+        usedSectionIds.add(id);
+        section.id=id;
+        const goal=String(section.goal||"");
+        if(i===0)section.layout="hero";
+        else if(/faq|perguntas|duvidas/.test(id+" "+goal))section.layout="faq";
+        else if(/galeria|portfolio|projetos-realizados/.test(id+" "+goal))section.layout="gallery";
+        else if(/servic|atuacao|diferencia|princip|metodologia|processo|atendimento/.test(id+" "+goal))section.layout="grid";
+        else if(/contato|agendamento|fale-conosco/.test(id+" "+goal))section.layout="banner";
+        else if(!["hero","grid","split","banner","faq","gallery","standard"].includes(String(section.layout)))section.layout="standard";
+      }
+      if(!sections.some(v=>v.layout==="faq"))sections.splice(Math.max(1,sections.length-1),0,{id:"faq",layout:"faq",goal:"Perguntas frequentes do segmento com respostas objetivas"});
+      if(!sections.some(v=>/contato|agendamento/.test(String(v.id))))sections.push({id:"contato",layout:"banner",goal:"Contato com formulário Nome, E-mail e Mensagem"});
+      if(!sections.some(v=>v.layout==="gallery")&&sections.length<10)sections.splice(Math.max(1,sections.length-2),0,{id:"galeria",layout:"gallery",goal:"Galeria visual com fotografias, sem afirmações de projetos reais não comprovados"});
       const batches = [sections.slice(0,Math.ceil(sections.length/2)),sections.slice(Math.ceil(sections.length/2))];
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
@@ -72,14 +92,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if (b.type!=="image" && inventedContact.test(cleanedText) && !instruction.includes(cleanedText.match(inventedContact)?.[0] || "__missing__")) return null;
         if (nicheArchitecture && !nicheHealthcare && /possibilidades de cuidado|tratamentos est[eé]ticos|sua beleza|sess[oõ]es de tratamento/i.test(cleanedText)) return null;
         if (b.type==="paragraph" && /^(.{12,85}?)\s*:\s*\1\b/i.test(cleanedText)) return null;
-        const sectionName=String(b.section||"");
+        const requestedSection=String(b.section||"");
+        const sectionName=sections.find(v=>String(v.id)===requestedSection)?.id as string|undefined;
+        if(!sectionName)return null;
         b.text=b.type==="heading"?removeLayoutHeading(cleanedText,sectionName):cleanedText;
         if(b.type==="paragraph"&&fabricatedContact.test(cleanedText))return null;
         const id=typeof b.id==="string"&&b.id?b.id:"block-"+index;
         const unique=seen.has(id)?id+"-"+index:id;seen.add(unique);
         return {...b,id:unique,color:typeof b.color==="string"?b.color:"#243043",
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
-          section:typeof b.section==="string"?b.section:"principal"};
+          section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
       const generatedSections=new Set(blocks.map(b=>b.section));
       if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
