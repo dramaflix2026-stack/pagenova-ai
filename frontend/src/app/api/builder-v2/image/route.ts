@@ -10,12 +10,13 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Faça login." }, { status: 401 });
   const key = process.env.OPENAI_API_KEY;
   if (!key) return NextResponse.json({ error: "IA não configurada." }, { status: 503 });
-  let body: { description?: string; siteTitle?: string; section?: string };
+  let body: { description?: string; siteTitle?: string; section?: string; orientation?: "portrait" | "landscape" };
   try { body = await req.json(); } catch { return NextResponse.json({ error: "Pedido inválido." }, { status: 400 }); }
   const description = String(body.description || "").slice(0, 700);
   const title = String(body.siteTitle || "").slice(0, 160);
   const section = String(body.section || "").slice(0, 100);
   if (!title || !description) return NextResponse.json({ error: "Descreva a imagem." }, { status: 400 });
+  const orientation = body.orientation === "portrait" ? "portrait" : "landscape";
   const bucket = "site-images";
   const architecture = /arquitet|interior|atelier|ateli[eê]|design de espa[cç]os/i.test(title);
   const healthcare = !architecture && /cl[ií]nica|sa[uú]de|fisioterap|m[eé]dic|odonto|terapia/i.test(title);
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
     nicheGuard,
     "Subject: " + description + ".",
     "Natural window light, believable textures, restrained colors, subtle imperfections, realistic camera optics and shadows.",
+    orientation === "portrait" ? "Vertical mobile composition 2:3, clear subject, safe crop margins." : "Wide horizontal desktop composition 3:2, clear subject, safe crop margins.",
     "Avoid AI-looking glossy surfaces, fake skin, over-sharpening, exaggerated bokeh, impossible architecture, and artificial symmetry.",
     "No text, logos, watermarks, invented storefront signage, invented identifiable staff, or fabricated certificates.",
     "This is illustrative photography, not a claim to depict the actual business. Compose with room for website text."
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: { Authorization: "Bearer " + key, "Content-Type": "application/json" },
-      body: JSON.stringify({ model: "gpt-image-1-mini", prompt, size: "1536x1024", quality: "medium", n: 1 }),
+      body: JSON.stringify({ model: "gpt-image-1-mini", prompt, size: orientation === "portrait" ? "1024x1536" : "1536x1024", quality: "medium", n: 1 }),
       signal: AbortSignal.timeout(75000)
     });
     if (!response.ok) throw new Error("image-api-" + response.status);
