@@ -111,34 +111,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      // Initial generation only: remove duplicate hero copy without changing the chat editor.
-      const heroId=String(sections[0]?.id||"");
-      const heroSeen=new Set<string>();
-      const finalBlocks=blocks.filter(b=>{
-        if(b.section!==heroId||!["heading","paragraph","button"].includes(b.type))return true;
-        if(heroSeen.has(b.type))return false;
-        heroSeen.add(b.type);
-        return true;
-      });
-      // Guarantee a gallery section immediately before FAQ, even if the model omitted its blocks.
-      const gallery=sections.find(v=>v.layout==="gallery");
-      const faq=sections.find(v=>v.layout==="faq");
-      if(gallery&&faq){
-        const galleryId=String(gallery.id);
-        const galleryBlocks=finalBlocks.filter(b=>b.section===galleryId);
-        const faqStart=finalBlocks.findIndex(b=>b.section===String(faq.id));
-        const heading=galleryBlocks.find(b=>b.type==="heading");
-        const galleryContent:typeof blocks=galleryBlocks.length?[...galleryBlocks]:[{id:"gallery-heading",type:"heading",text:"Galeria de imagens",color:"#123e2c",align:"center",section:galleryId,layout:"gallery"}];
-        if(!heading)galleryContent.unshift({id:"gallery-heading",type:"heading",text:"Galeria de imagens",color:"#123e2c",align:"center",section:galleryId,layout:"gallery"});
-        const existingGalleryIds=new Set(galleryBlocks.map(b=>b.id));
-        const withoutGallery=finalBlocks.filter(b=>!existingGalleryIds.has(b.id));
-        const destination=withoutGallery.findIndex(b=>b.section===String(faq.id));
-        withoutGallery.splice(destination<0?withoutGallery.length:destination,0,...galleryContent);
-        finalBlocks.splice(0,finalBlocks.length,...withoutGallery);
-      }
-      const generatedSections=new Set(finalBlocks.map(b=>b.section));
-      if(finalBlocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:finalBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      const generatedSections=new Set(blocks.map(b=>b.section));
+      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
