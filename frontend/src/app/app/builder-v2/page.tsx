@@ -124,6 +124,10 @@ export default function BuilderV2() {
   function applySingleButtonAlignment(current:Site,prompt:string):{site:Site;summary:string}|null {
     const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     if(!/botao|cta/.test(normalized)||!/alinh|centraliz|posicion/.test(normalized))return null;
+    // A targeted shortcut must never swallow instructions about other elements.
+    const clauses=normalized.split(/(?:\b\d+[.)]\s*|[.;]\s*)/).map(x=>x.trim()).filter(Boolean);
+    if(clauses.some(x=>/(?:alinhe|alinhamento|centralize|centralizar)/.test(x)&&/(?:subtitulo|titulo|paragrafo|texto principal)/.test(x)))return null;
+    if(/(?:altere|mude|troque|modifique)\s+(?:a\s+)?(?:cor|texto|fonte|tamanho)/.test(normalized))return null;
     const direction=/centro|centraliz|centralizado/.test(normalized)?"center":/esquerda/.test(normalized)?"left":/direita/.test(normalized)?"right":null;
     if(!direction)return null;
     const buttons=current.blocks.filter(b=>b.type==="button");
