@@ -89,8 +89,8 @@ export default function BuilderV2() {
     return {site:next,summary:"Alinhamento "+(align==="center"?"centralizado":align==="left"?"à esquerda":"à direita")+" aplicado e conferido em "+affected.length+" elementos. Imagens e textos preservados."};
   }
   async function generateVisuals(current: Site, prompt: string, only?: number): Promise<Site> {
-    const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer|galeria/i.test(id));
-    const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto/i.test(id));
+    const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer|galeria|gallery|portf[oó]lio/i.test(id));
+    const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto|portf[oó]lio/i.test(id));
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
     const jobs=only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     const responses=await Promise.allSettled(jobs.map(async ({section,index})=>{
@@ -185,12 +185,12 @@ export default function BuilderV2() {
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   const publicHeading = (value:string,section:string) => {const cleaned=stripLayoutMetadata(value);if(cleaned&& !/^(?:hero|grid|split|banner|standard|gallery|faq)$/i.test(cleaned))return cleaned;return /tratament|servi[cç]/i.test(section)?"Nossos tratamentos":/apresent|sobre|cl[ií]nica/i.test(section)?"Conheça nosso espaço":/diferenc|escolh/i.test(section)?"Por que nos escolher":/galeria|resultad/i.test(section)?"Galeria de imagens":/contato|agend/i.test(section)?"Entre em contato":/faq|pergunt/i.test(section)?"Dúvidas frequentes":"Conheça nossos serviços";};
   const isDesignInstruction = (value:string) => /(?:hero\\s+layout|background\\s*#(?:[0-9a-f]{3,8})|layout\\s+(?:grid|split|standard)|fundo\\s+(?:marfim|branco|azul.marinho)|bordas?\\s+douradas?|[ií]cones?\\s+dourados?|imagem\\s+(?:a adicionar|impactante)|t[ií]tulo principal impactante|subt[ií]tulo suave|cabe[cç]alho elegante e responsivo)/i.test(value);
-  const previewBlocks = site.blocks.filter(b=>(b.type==="heading"||!isDesignInstruction(b.text)) && (b.type!=="image" || !!b.src));
+  const previewBlocks = site.blocks.filter(b=>(b.type==="heading"||!isDesignInstruction(b.text)) && (b.type!=="image" || !!b.src)).map(b=>({...b,section:b.section||"principal"}));
   const missingContact = previewBlocks.length>0 && !site.blocks.some(b=>/contato|agendamento|whatsapp/i.test(b.section||""));
   const sections = previewBlocks.reduce<Array<{id:string;blocks:Block[]}>>((acc,block)=>{
     const id = block.section || "principal";
-    const last = acc[acc.length-1];
-    if(last?.id===id) last.blocks.push(block);
+    const existing = acc.find(group=>group.id===id);
+    if(existing) existing.blocks.push(block);
     else acc.push({id,blocks:[block]});
     return acc;
   },[]);
@@ -203,12 +203,12 @@ export default function BuilderV2() {
           const blocks=group.blocks;
           const first=blocks[0];
           const id=group.id.toLowerCase();
-          const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || (/galeria|foto/i.test(id)?"gallery":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
+          const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || (/galeria|foto|portf[oó]lio/i.test(id)?"gallery":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
           const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
           const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
           
-          const heading=blocks.filter(b=>b.type==="heading");
+          const heading=blocks.filter(b=>b.type==="heading").slice(0,1);
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
           const buttons=blocks.filter(b=>b.type==="button");
@@ -253,7 +253,7 @@ export default function BuilderV2() {
                 {sectionImages.length>0&&<div className="relative">{sectionImages.slice(0,1).map(imageNode)}</div>}
               </div>:
               useEditorialGrid?<div className="space-y-8 md:space-y-12">
-                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">{headingNode}<p className="max-w-sm text-sm leading-relaxed opacity-65">{isTreatments?"Conheça as possibilidades de cuidado e escolha o que combina com você.":"Detalhes que fazem parte de uma experiência pensada para você."}</p></div>
+                <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">{headingNode}<p className="max-w-sm text-sm leading-relaxed opacity-65">{isTreatments?"Explore os serviços e descubra como podemos ajudar em seu projeto.":"Conheça os aspectos que orientam nossa proposta de trabalho."}</p></div>
                 {isTreatments&&!useTextOnlyTreatments?<div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">{editorialCards.slice(0,6).map((item,i)=>{const card=cardText(item);const photo=uniqueImages[i];return <article key={item.id} data-block-id={item.id} className={`group relative overflow-hidden rounded-[1.75rem] bg-[#eee9df] shadow-[0_18px_48px_rgba(18,28,24,.10)] transition-transform duration-500 hover:-translate-y-2 ${i%3===1?"lg:translate-y-8":""}`}>{photo?<div className="aspect-[4/5] overflow-hidden [&_img]:h-full [&_img]:w-full [&_img]:object-cover [&_img]:transition-transform [&_img]:duration-700 group-hover:[&_img]:scale-105">{render(photo)}</div>:<div className="flex aspect-[4/3] items-end bg-gradient-to-br from-[#dcd7c9] via-[#f0ede6] to-[#c6c5b6] p-7"><span className="font-serif text-6xl text-[#5a6851]/35">{String(i+1).padStart(2,"0")}</span></div>}<div className="space-y-3 p-6 md:p-8"><span className="text-[10px] font-semibold uppercase tracking-[.25em] text-[#718066]">Tratamento {String(i+1).padStart(2,"0")}</span><h3 className="font-serif text-[clamp(1.5rem,2vw,2rem)] leading-tight text-[#24332e]">{editorialTitle(item,i)}</h3><p className="text-sm leading-relaxed text-[#4d5652]">{card.description}</p></div></article>})}</div>:<div className="grid items-center gap-10 lg:grid-cols-[.9fr_1.1fr] lg:gap-20">{!useTextOnlyTreatments&&uniqueImages[0]&&<div className="relative overflow-hidden rounded-[2rem] shadow-[22px_24px_0_-8px_rgba(113,128,102,.15)] [&_img]:aspect-[4/5] [&_img]:w-full [&_img]:object-cover">{render(uniqueImages[0])}</div>}<div className="divide-y divide-[#8a907e]/25">{editorialCards.slice(0,isTreatments?6:5).map((item,i)=>{const card=cardText(item);return <div key={item.id} data-block-id={item.id} className="grid grid-cols-[2.5rem_1fr] gap-4 py-6 first:pt-0"><span className="pt-1 text-xs font-semibold tracking-widest text-[#778567]">{String(i+1).padStart(2,"0")}</span><div><h3 className="font-serif text-[clamp(1.4rem,2vw,2rem)] leading-snug text-[#24332e]">{editorialTitle(item,i)}</h3><p className="mt-2 max-w-md text-sm leading-relaxed text-[#4d5652]">{card.description}</p></div></div>})}</div></div>}
                 {buttons.length>0&&<div className="flex flex-wrap gap-3">{buttons.map(render)}</div>}
               </div>:
