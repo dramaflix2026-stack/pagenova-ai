@@ -163,8 +163,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const hero=buttons.find(b=>/^(inicio|hero|home|principal)$/i.test(String(b.section||"")));
       const selected=named || (/(?:hero|inicial|primeira se[cç][aã]o)/i.test(instructionText)?hero:undefined) || (buttons.length===1?buttons[0]:undefined);
       if(selected) {
-        const changeBackground=/(?:cor de fundo|fundo do bot[aã]o|background)/i.test(instructionText);
-        const blocks=editingSite.blocks.map(b=>b===selected?{...b,[changeBackground?"background":"color"]:requestedColor}:b);
+        const blocks=editingSite.blocks.map(b=>b===selected?{...b,color:requestedColor}:b);
         return NextResponse.json({site:{...editingSite,blocks},summary:"Cor do botão atualizada; todos os demais elementos foram preservados."});
       }
     }
