@@ -67,7 +67,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(!["heading","paragraph","button","image"].includes(String(b.type))||typeof b.text!=="string")return null;
         if(/^(?:\(?xx\)?[\s-]*){2,}|contato@clinic|rua principal\s*,?\s*123/i.test(b.text))return null;
         const cleanedText=cleanGeneratedCopy(String(b.text));
-        if (forbiddenDesignCopy.test(cleanedText) && b.type!=="image") return null;\n        if (designOnlyHeading.test(cleanedText)) return null;
+        if (forbiddenDesignCopy.test(cleanedText) && b.type!=="image") return null;
+        if (designOnlyHeading.test(cleanedText)) return null;
         if (b.type!=="image" && inventedContact.test(cleanedText) && !instruction.includes(cleanedText.match(inventedContact)?.[0] || "__missing__")) return null;
         if (nicheArchitecture && !nicheHealthcare && /possibilidades de cuidado|tratamentos est[eé]ticos|sua beleza|sess[oõ]es de tratamento/i.test(cleanedText)) return null;
         if (b.type==="paragraph" && /^(.{12,85}?)\s*:\s*\1\b/i.test(cleanedText)) return null;
