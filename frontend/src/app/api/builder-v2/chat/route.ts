@@ -172,12 +172,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // Existing sites are edited with a compact patch response, never a full-site rewrite.
   if(!isFresh && Array.isArray(editingSite?.blocks) && editingSite.blocks.length) {
     const inventory=editingSite.blocks.map(b=>({id:b.id,type:b.type,section:b.section,text:String(b.text||"").slice(0,220),align:b.align,color:b.color}));
-    const editSystem='Você é o editor da PageNova. A instrução do usuário prevalece. Retorne SOMENTE JSON {"edits":[{"id":"ID existente","changes":{"text":"novo texto","align":"left|center|right","color":"#hex"}}],"insertions":[{"afterId":"ID existente","block":{"type":"button|heading|paragraph","text":"texto novo","color":"#hex","align":"left|center|right"}}],"summary":"resumo"}. Para editar, preserve IDs e altere apenas propriedades solicitadas. Para adicionar, escolha afterId do bloco que deve preceder o novo elemento, dentro da seção correta. Pode adicionar vários elementos. Não retorne o site inteiro. Não invente href. Execute TODAS as instruções solicitadas. Se não houver inserções, retorne insertions:[]; se não houver edições, retorne edits:[]. Título principal é o primeiro heading do hero; títulos de seção são heading. Cor dourada é #B89B60';
+    const editSystem='Você é o editor da PageNova. A instrução do usuário prevalece. Retorne SOMENTE JSON {"edits":[{"id":"ID existente","changes":{"text":"novo texto","align":"left|center|right","color":"#hex"}}],"insertions":[{"afterId":"ID existente","block":{"type":"button|heading|paragraph","text":"texto novo","color":"#hex","align":"left|center|right"}}],"deletions":["ID existente"],"summary":"resumo"}. Para editar, preserve IDs e altere apenas propriedades solicitadas. Para remover, retorne os IDs exatos em deletions e não edite os outros blocos. Para adicionar, escolha afterId do bloco que deve preceder o novo elemento, dentro da seção correta. Pode adicionar vários elementos. Não retorne o site inteiro. Não invente href. Execute TODAS as instruções solicitadas. Se não houver inserções, retorne insertions:[]; se não houver edições, retorne edits:[]. Se não houver exclusões, retorne deletions:[]. Título principal é o primeiro heading do hero; títulos de seção são heading. Cor dourada é #B89B60';
     try {
       const editResponse=await fetch("https://api.openai.com/v1/chat/completions",{method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:1800,response_format:{type:"json_object"},messages:[{role:"system",content:editSystem},{role:"user",content:JSON.stringify({instruction:instructionText,blocks:inventory})}]}),signal:AbortSignal.timeout(45000)});
       if(!editResponse.ok) return NextResponse.json({error:"Não foi possível interpretar as alterações. O projeto foi preservado."},{status:502});
       const editData=await editResponse.json();
-      const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;insertions?:Array<{afterId?:string;block?:Record<string,unknown>}>;summary?:string};
+      const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;insertions?:Array<{afterId?:string;block?:Record<string,unknown>}>;deletions?:string[];summary?:string};
       if(!Array.isArray(payload.edits))payload.edits=[];
       const allowed=new Set(["text","align","color","fontSize","href","background","spacing","radius"]);
       const changesById=new Map<string,Record<string,unknown>>();
@@ -204,8 +204,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const entries=insertionsByAnchor.get(String(anchor.id))||[];
         entries.push(block);insertionsByAnchor.set(String(anchor.id),entries);existingIds.add(id);
       }
-      if(!changesById.size&&!insertionsByAnchor.size)return NextResponse.json({error:"Nenhuma alteração válida foi encontrada. O projeto foi preservado."},{status:422});
-      const updatedBlocks=editingSite.blocks.flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
+      const deletedIds=new Set((Array.isArray(payload.deletions)?payload.deletions:[]).filter((id):id is string=>typeof id==="string"&&editingSite.blocks!.some(b=>b.id===id)));
+      if(!changesById.size&&!insertionsByAnchor.size&&!deletedIds.size)return NextResponse.json({error:"Nenhuma alteração válida foi encontrada. O projeto foi preservado."},{status:422});
+      const updatedBlocks=editingSite.blocks.filter(b=>!deletedIds.has(String(b.id))).flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
       return NextResponse.json({site:{...editingSite,blocks:updatedBlocks},summary:typeof payload.summary==="string"?payload.summary:"Alterações aplicadas aos elementos solicitados."});
     }catch(error){console.error("[builder-v2] edit patch error",error instanceof Error?error.message:"unknown");return NextResponse.json({error:"Não foi possível concluir a edição. O projeto foi preservado."},{status:502});}
   }
