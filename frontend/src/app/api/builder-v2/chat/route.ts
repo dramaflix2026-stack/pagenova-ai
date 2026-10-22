@@ -103,30 +103,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      // Normalize staged output: each section owns exactly one heading, and design notes never become page copy.
-      for(const section of sections){
-        const sectionId=String(section.id);
-        const sectionBlocks=blocks.filter(b=>b.section===sectionId);
-        if(!sectionBlocks.length)continue;
-        const headings=sectionBlocks.filter(b=>b.type==="heading");
-        if(!headings.length)continue;
-        const primary=headings[0];
-        const metadata=/\\b(?:layout|design|paleta|tipografia|fundo|cores?)\\b/i;
-        const cleanTitle=(value:string)=>value.replace(/\\s*[-–—:]\\s*(?:layout|design|paleta|tipografia|fundo|cores?)\\b[\\s\\S]*$/i,"").trim();
-        const firstTitle=cleanTitle(String(primary.text||""));
-        if(firstTitle)primary.text=firstTitle;
-        for(const extra of headings.slice(1)){
-          const index=blocks.indexOf(extra);
-          if(index<0)continue;
-          const text=cleanTitle(String(extra.text||""));
-          if(!text||metadata.test(String(extra.text||""))||text.toLowerCase()===String(primary.text||"").toLowerCase()){
-            blocks.splice(index,1);
-          }else{
-            extra.type="paragraph";
-            extra.text=text;
-          }
-        }
-      }
       const generatedSections=new Set(blocks.map(b=>b.section));
       if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
