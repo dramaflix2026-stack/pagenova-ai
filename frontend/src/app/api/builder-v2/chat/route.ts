@@ -128,7 +128,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const galleryBlocks=finalBlocks.filter(b=>b.section===galleryId);
         const faqStart=finalBlocks.findIndex(b=>b.section===String(faq.id));
         const heading=galleryBlocks.find(b=>b.type==="heading");
-        const galleryContent=galleryBlocks.length?galleryBlocks:[{id:"gallery-heading",type:"heading",text:"Galeria de imagens",color:"#123e2c",align:"center",section:galleryId,layout:"gallery"}];
+        const galleryContent:typeof blocks=galleryBlocks.length?[...galleryBlocks]:[{id:"gallery-heading",type:"heading",text:"Galeria de imagens",color:"#123e2c",align:"center",section:galleryId,layout:"gallery"}];
         if(!heading)galleryContent.unshift({id:"gallery-heading",type:"heading",text:"Galeria de imagens",color:"#123e2c",align:"center",section:galleryId,layout:"gallery"});
         const existingGalleryIds=new Set(galleryBlocks.map(b=>b.id));
         const withoutGallery=finalBlocks.filter(b=>!existingGalleryIds.has(b.id));
