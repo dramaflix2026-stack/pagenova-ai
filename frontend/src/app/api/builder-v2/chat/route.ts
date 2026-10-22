@@ -141,7 +141,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // Resolve simple alignment requests locally to avoid regenerating the full site.
   const instructionText=String(body.instruction);
   const editingSite=body.site as {title?:string;background?:string;blocks?:Array<Record<string,unknown>>}|undefined;
-  if (!isFresh && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
+  const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
+  if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
     const alignment=/centraliz|ao centro|no centro/i.test(instructionText)?"center":/alinhar?[^.]{0,50}(?:esquerda)|à esquerda/i.test(instructionText)?"left":/alinhar?[^.]{0,50}(?:direita)|à direita/i.test(instructionText)?"right":null;
     if(alignment) {
       const buttons=editingSite.blocks.filter(b=>b.type==="button");
