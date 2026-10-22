@@ -324,7 +324,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(changesById.get(id)?.color!==undefined&&typeof block.color==="string"&&!/^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(block.color)){
           return NextResponse.json({error:"Cor inválida na edição. O site foi preservado."},{status:422});
         }
-        if(changesById.get(id)?.href!==undefined&&typeof block.href==="string"&&block.href&&!/^(https?:\\/\\/|mailto:|tel:|#)/i.test(block.href)){
+        if(changesById.get(id)?.href!==undefined&&typeof block.href==="string"&&block.href&&!["https://","http://","mailto:","tel:","#"].some(prefix=>String(block.href).startsWith(prefix))){
           return NextResponse.json({error:"Link inválido na edição. O site foi preservado."},{status:422});
         }
       }
