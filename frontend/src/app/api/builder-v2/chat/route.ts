@@ -111,9 +111,35 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      const generatedSections=new Set(blocks.map(b=>b.section));
-      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      // Normalize only the initial generation; edits continue using their existing path.
+      const heroSection=String(sections.find(v=>v.layout==="hero")?.id||"");
+      const seenHeroTypes=new Set<string>();
+      const cleanBlocks=blocks.filter(b=>{
+        if(b.section!==heroSection||!["heading","paragraph","button"].includes(b.type))return true;
+        if(seenHeroTypes.has(b.type))return false;
+        seenHeroTypes.add(b.type);
+        return true;
+      });
+      const gallerySection=sections.find(v=>v.layout==="gallery");
+      const faqSection=sections.find(v=>v.layout==="faq");
+      if(gallerySection&&faqSection){
+        const galleryId=String(gallerySection.id);
+        const faqId=String(faqSection.id);
+        const galleryBlocks=cleanBlocks.filter(b=>b.section===galleryId);
+        const existingIds=new Set(galleryBlocks.map(b=>b.id));
+        const remaining=cleanBlocks.filter(b=>!existingIds.has(b.id));
+        const insertAt=remaining.findIndex(b=>b.section===faqId);
+        const galleryInsert=insertAt<0?remaining.length:insertAt;
+        const galleryHeading=galleryBlocks.find(b=>b.type==="heading");
+        const headingBlock=galleryHeading||{id:"gallery-title",type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center",section:galleryId,layout:"gallery"};
+        const galleryImages=galleryBlocks.filter(b=>b.type==="image");
+        const imageBlocks=galleryImages.length?galleryImages:Array.from({length:3},(_,i)=>({id:"gallery-image-"+i,type:"image",text:"Imagem da galeria "+(i+1),color:"#24332e",align:"center",section:galleryId,layout:"gallery",src:""}));
+        remaining.splice(galleryInsert,0,headingBlock,...galleryBlocks.filter(b=>b.type==="paragraph"),...imageBlocks);
+        cleanBlocks.splice(0,cleanBlocks.length,...remaining);
+      }
+      const generatedSections=new Set(cleanBlocks.map(b=>b.section));
+      if(cleanBlocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:cleanBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
