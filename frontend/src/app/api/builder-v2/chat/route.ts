@@ -124,10 +124,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(gallery&&faq){
         const galleryId=String(gallery.id);
         if(!blocks.some(b=>b.section===galleryId&&b.type==="heading")){
-          blocks.push({id:"gallery-title",section:galleryId,type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center",layout:"gallery"} as (typeof blocks)[number]);
+          blocks.push({id:"gallery-title",section:galleryId,type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center",layout:"gallery"});
         }
         if(!blocks.some(b=>b.section===galleryId&&b.type==="image")){
-          for(let i=0;i<3;i++)blocks.push({id:"gallery-image-"+i,section:galleryId,type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center",layout:"gallery"} as (typeof blocks)[number]);
+          for(let i=0;i<3;i++)blocks.push({id:"gallery-image-"+i,section:galleryId,type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center",layout:"gallery"});
         }
         const galleryBlocks=blocks.filter(b=>b.section===galleryId);
         const remaining=blocks.filter(b=>b.section!==galleryId);
