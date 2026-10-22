@@ -153,7 +153,8 @@ export default function BuilderV2() {
       finally {setBusy(false);}
       return;
     }
-    const direct = applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt);
+    const structuralRequest = /(?:adicione|crie|criar|incluir|inclua|nova|novo|remova|exclua|mova|coloque|reorganize)[\\s\\S]{0,90}(?:se[cç][aã]o|bloco|etapas|par[aá]grafo)|(?:se[cç][aã]o)[\\s\\S]{0,90}(?:adicione|crie|criar|incluir|inclua|nova|novo)/i.test(prompt);
+    const direct = structuralRequest ? null : (applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt));
     if (direct) {
       setHistory(prev=>[...prev.slice(-19),site]);
       setSite(direct.site);
