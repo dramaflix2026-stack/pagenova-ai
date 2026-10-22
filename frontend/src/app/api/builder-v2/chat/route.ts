@@ -103,19 +103,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      // Guard the initial hero only; never alter the AI editor or other sections.
-      const heroSectionId=String(sections[0]?.id||"");
-      const heroSeen={heading:false,paragraph:false,button:false};
-      const normalizedBlocks=blocks.filter(block=>{
-        if(block.section!==heroSectionId)return true;
-        if(block.type!=="heading"&&block.type!=="paragraph"&&block.type!=="button")return true;
-        if(heroSeen[block.type])return false;
-        heroSeen[block.type]=true;
-        return true;
-      });
-      const generatedSections=new Set(normalizedBlocks.map(b=>b.section));
-      if(normalizedBlocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:normalizedBlocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      const generatedSections=new Set(blocks.map(b=>b.section));
+      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
