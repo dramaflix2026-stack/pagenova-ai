@@ -111,29 +111,28 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
+      const mutableBlocks: Array<Record<string,unknown>> = blocks;
       const heroId=String(sections.find(v=>v.layout==="hero")?.id||"");
-      const seenHero=new Set<string>();
-      for(let i=blocks.length-1;i>=0;i--){
-        const b=blocks[i];
-        if(b.section!==heroId||!["heading","paragraph","button"].includes(String(b.type)))continue;
-        if(seenHero.has(String(b.type)))blocks.splice(i,1);
-        else seenHero.add(String(b.type));
+      const heroSeen=new Set<string>();
+      for(let i=0;i<mutableBlocks.length;i++){
+        const item=mutableBlocks[i];
+        if(String(item.section)!==heroId||!["heading","paragraph","button"].includes(String(item.type)))continue;
+        const kind=String(item.type);
+        if(heroSeen.has(kind)){mutableBlocks.splice(i,1);i--;}else heroSeen.add(kind);
       }
-      const gallery=sections.find(v=>v.layout==="gallery");
-      const faq=sections.find(v=>v.layout==="faq");
-      if(gallery&&faq){
-        const galleryId=String(gallery.id);
-        if(!blocks.some(b=>b.section===galleryId&&b.type==="heading")){
-          blocks.push({id:"gallery-title",section:galleryId,type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center",layout:"gallery"});
+      const galleryPlan=sections.find(v=>v.layout==="gallery");
+      const faqPlan=sections.find(v=>v.layout==="faq");
+      if(galleryPlan&&faqPlan){
+        const galleryId=String(galleryPlan.id);
+        if(!mutableBlocks.some(item=>item.section===galleryId&&item.type==="heading"))mutableBlocks.push({id:"gallery-heading",section:galleryId,layout:"gallery",type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center"});
+        if(!mutableBlocks.some(item=>item.section===galleryId&&item.type==="image")){
+          for(let i=0;i<3;i++)mutableBlocks.push({id:"gallery-image-"+i,section:galleryId,layout:"gallery",type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center"});
         }
-        if(!blocks.some(b=>b.section===galleryId&&b.type==="image")){
-          for(let i=0;i<3;i++)blocks.push({id:"gallery-image-"+i,section:galleryId,type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center",layout:"gallery"});
-        }
-        const galleryBlocks=blocks.filter(b=>b.section===galleryId);
-        const remaining=blocks.filter(b=>b.section!==galleryId);
-        const index=remaining.findIndex(b=>b.section===String(faq.id));
-        remaining.splice(index<0?remaining.length:index,0,...galleryBlocks);
-        blocks.splice(0,blocks.length,...remaining);
+        const galleryBlocks=mutableBlocks.filter(item=>item.section===galleryId);
+        const otherBlocks=mutableBlocks.filter(item=>item.section!==galleryId);
+        const faqIndex=otherBlocks.findIndex(item=>item.section===String(faqPlan.id));
+        otherBlocks.splice(faqIndex<0?otherBlocks.length:faqIndex,0,...galleryBlocks);
+        mutableBlocks.splice(0,mutableBlocks.length,...otherBlocks);
       }
       const generatedSections=new Set(blocks.map(b=>b.section));
       if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
