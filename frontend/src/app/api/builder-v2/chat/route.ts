@@ -255,7 +255,13 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           const index=fresh.indexOf(heading);
           if(index>0){fresh.splice(index,1);fresh.unshift(heading);}
         }
-        const last=updatedBlocks.findLastIndex(b=>b.section===section.afterSection);
+        const normalizeSection=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+        const sectionHeadings=updatedBlocks.filter(b=>b.type==="heading"&&b.section);
+        const namedAnchor=sectionHeadings.find(b=>normalizeSection(String(b.text||""))===normalizeSection(String(section.afterSection||"")));
+        const explicitAfter=String(instructionText).match(/(?:imediatamente\\s+)?(?:logo\\s+)?ap[oó]s\\s+(?:a\\s+)?se[cç][aã]o\\s+["“]?([^"”.,\\n]+)["”]?/i);
+        const requestedAnchor=explicitAfter?sectionHeadings.find(b=>normalizeSection(String(b.text||""))===normalizeSection(explicitAfter[1])):undefined;
+        const anchorId=requestedAnchor?.section||namedAnchor?.section||section.afterSection;
+        const last=updatedBlocks.findLastIndex(b=>b.section===anchorId);
         updatedBlocks.splice(last>=0?last+1:updatedBlocks.length,0,...fresh);
       }
       return NextResponse.json({site:{...editingSite,blocks:updatedBlocks},summary:typeof payload.summary==="string"?payload.summary:"Alterações aplicadas aos elementos solicitados."});
