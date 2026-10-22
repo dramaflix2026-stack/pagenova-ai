@@ -68,6 +68,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(!sections.some(v=>v.layout==="faq"))sections.splice(Math.max(1,sections.length-1),0,{id:"faq",layout:"faq",goal:"Perguntas frequentes do segmento com respostas objetivas"});
       if(!sections.some(v=>/contato|agendamento/.test(String(v.id))))sections.push({id:"contato",layout:"banner",goal:"Contato com formulário Nome, E-mail e Mensagem"});
       if(!sections.some(v=>v.layout==="gallery")&&sections.length<10)sections.splice(Math.max(1,sections.length-2),0,{id:"galeria",layout:"gallery",goal:"Galeria visual com fotografias, sem afirmações de projetos reais não comprovados"});
+      // Keep the gallery immediately before FAQ in the approved standard template.
+      const galleryIndex=sections.findIndex(v=>v.layout==="gallery");
+      const faqIndex=sections.findIndex(v=>v.layout==="faq");
+      if(galleryIndex>=0&&faqIndex>=0&&galleryIndex!==faqIndex-1){
+        const [gallerySection]=sections.splice(galleryIndex,1);
+        const nextFaqIndex=sections.findIndex(v=>v.layout==="faq");
+        sections.splice(nextFaqIndex,0,gallerySection);
+      }
       const batches = [sections.slice(0,Math.ceil(sections.length/2)),sections.slice(Math.ceil(sections.length/2))];
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
