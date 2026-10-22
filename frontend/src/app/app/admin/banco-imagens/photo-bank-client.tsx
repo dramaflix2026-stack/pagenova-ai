@@ -1,5 +1,5 @@
 "use client";
-import { useEffect,useState } from "react";
+import { useEffect,useRef,useState } from "react";
 const nicheGroups: Record<string,string[]> = {
   "Saúde e bem-estar": ["Clínica médica","Odontologia","Psicologia","Fisioterapia","Nutrição","Estética","Dermatologia","Academia","Pilates","Veterinária","Farmácia","Oftalmologia","Terapia ocupacional","Fonoaudiologia","Quiropraxia","Clínica de exames","Clínica de vacinação"],
   "Beleza": ["Barbearia","Salão de beleza","Manicure","Maquiagem","Spa","Cabeleireiro","Design de sobrancelhas","Depilação","Massoterapia","Tatuagem","Estúdio de unhas","Clínica capilar"],
@@ -21,36 +21,44 @@ export default function PhotoBankClient(){
  const [search,setSearch]=useState("");
  const [niche,setNiche]=useState("Barbearia");
  const [catalog,setCatalog]=useState<Catalog>({});
- const [running,setRunning]=useState(false);
+ const [runningByNiche,setRunningByNiche]=useState<Record<string,boolean>>({});
+ const [progressByNiche,setProgressByNiche]=useState<Record<string,string>>({});
+ const catalogRef=useRef<Catalog>({});
+ const runningRef=useRef<Set<string>>(new Set());
+ const running=Boolean(runningByNiche[niche]);
  const [progress,setProgress]=useState("");
  const [error,setError]=useState("");
- useEffect(()=>{try{setCatalog(JSON.parse(localStorage.getItem(key)||"{}"))}catch{}},[]);
- function save(next:Catalog){setCatalog(next);try{localStorage.setItem(key,JSON.stringify(next))}catch{}}
+ useEffect(()=>{try{(()=>{const loaded=JSON.parse(localStorage.getItem(key)||"{}");catalogRef.current=loaded;setCatalog(loaded)})()}catch{}},[]);
+ function save(next:Catalog){catalogRef.current=next;setCatalog(next);try{localStorage.setItem(key,JSON.stringify(next))}catch{}}
  const current=catalog[niche]||[];
  async function generate(){
-  if(running)return;
-  setRunning(true);setError("");
-  let images=[...current];
+  const selected=niche;
+  if(runningRef.current.has(selected))return;
+  runningRef.current.add(selected);setRunningByNiche(prev=>({...prev,[selected]:true}));setError("");
+  let images=[...(catalogRef.current[selected]||[])];
   try{
    for(const device of ["desktop","mobile"] as const){
     for(let i=0;i<6;i++){
      if(images.some(p=>p.device===device&&p.role===roles[i]))continue;
-     setProgress("Gerando "+device+" — "+(i+1)+"/6");
-     const desc="Nicho: "+niche+". Papel visual: "+roles[i]+". "+
+     setProgressByNiche(prev=>({...prev,[selected]:"Gerando "+device+" — "+(i+1)+"/6"}));
+     const desc="Nicho: "+selected+". Papel visual: "+roles[i]+". "+
       (device==="mobile"?"Versão vertical da mesma direção de arte para celular.":"Versão horizontal para desktop.")+
       " Fotografia editorial natural e convincente, luz real, imperfeições discretas, materiais autênticos, cenário profissional coerente com a atividade. Evitar aparência de IA, pele plástica, mãos artificiais, poses publicitárias genéricas, letreiros e pessoas fictícias apresentadas como equipe real.";
-     const response=await fetch("/api/builder-v2/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteTitle:niche,section:roles[i],description:desc,orientation:device==="mobile"?"portrait":"landscape"})});
+     const response=await fetch("/api/builder-v2/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteTitle:selected,section:roles[i],description:desc,orientation:device==="mobile"?"portrait":"landscape"})});
      const data=await response.json();
      if(!response.ok||typeof data.src!=="string")throw Error(data.error||"Falha ao gerar imagem");
      images=[...images,{src:data.src,role:roles[i],device,approved:false}];
-     save({...catalog,[niche]:images});
+     save({...catalogRef.current,[selected]:images});
     }
    }
-   setProgress("Pacote gerado. Revise as 12 imagens antes de aprovar.");
-  }catch(e){setError(e instanceof Error?e.message:"Falha inesperada");setProgress("Geração interrompida. Você pode retomar as imagens restantes.");}
-  finally{setRunning(false)}
+   setProgressByNiche(prev=>({...prev,[selected]:"Pacote gerado. Revise as 12 imagens antes de aprovar."}));
+  }catch(e){setError(e instanceof Error?e.message:"Falha inesperada");setProgressByNiche(prev=>({...prev,[selected]:"Geração interrompida. Você pode retomar as imagens restantes."}));}
+  finally{runningRef.current.delete(selected);setRunningByNiche(prev=>({...prev,[selected]:false}))}
  }
- async function copyPhoto(photo:Photo){const label=niche+" - "+(photo.device==="desktop"?"Desktop":"Mobile")+" - "+photo.role;const value=photo.src+" >> "+label;try{await navigator.clipboard.writeText(value);setProgress("Copiado: "+label)}catch{setError("Não foi possível copiar. Verifique a permissão da área de transferência.")}}
+ function photoLine(photo:Photo,category:string){return photo.src+" >> "+category+" - "+(photo.device==="desktop"?"Desktop":"Mobile")+" - "+photo.role}
+ async function copyPackage(all=false){const items=all?Object.entries(catalogRef.current).flatMap(([name,photos])=>photos.map(photo=>photoLine(photo,name))):current.map(photo=>photoLine(photo,niche));if(!items.length){setError("Ainda não há imagens para copiar.");return}try{await navigator.clipboard.writeText(items.join("\\n"));setProgress(items.length+" URLs copiadas. Cole aqui no chat.")}catch{setError("Não foi possível copiar as URLs.")}}
+ async function downloadPhoto(photo:Photo){const filename=(niche+"-"+photo.device+"-"+photo.role).normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-")+".png";try{const res=await fetch(photo.src);if(!res.ok)throw Error("download");const blob=await res.blob();const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download=filename;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),15000)}catch{window.open(photo.src,"_blank");setError("O navegador abriu a imagem. Use Salvar imagem caso o download automático seja bloqueado.")}}
+ async function copyPhoto(photo:Photo){const label=niche+" - "+(photo.device==="desktop"?"Desktop":"Mobile")+" - "+photo.role;const value=photoLine(photo,niche);try{await navigator.clipboard.writeText(value);setProgress("Copiado: "+label)}catch{setError("Não foi possível copiar. Verifique a permissão da área de transferência.")}}
  function approve(src:string){save({...catalog,[niche]:current.map(p=>p.src===src?{...p,approved:!p.approved}:p)})}
  function remove(src:string){save({...catalog,[niche]:current.filter(p=>p.src!==src)})}
  const filtered=Object.entries(nicheGroups).map(([group,items])=>[group,items.filter(n=>n.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR")))] as const).filter(([,items])=>items.length);
@@ -60,10 +68,10 @@ export default function PhotoBankClient(){
   <div className="rounded-xl border border-amber-600/40 bg-amber-950/30 p-4 text-sm text-amber-100">Área de preparação e revisão. Os pacotes são rascunhos locais deste navegador, ainda não são publicados para clientes. A geração consome créditos da OpenAI e cada imagem precisa de aprovação.</div>
   <div className="grid gap-5 lg:grid-cols-[290px_minmax(0,1fr)]">
    <aside className="rounded-xl border border-zinc-700 p-4 space-y-4"><input aria-label="Pesquisar nicho" placeholder="Pesquisar nicho..." value={search} onChange={e=>setSearch(e.target.value)} className="w-full rounded-lg bg-zinc-900 border border-zinc-700 p-3 text-sm"/><div className="max-h-[540px] overflow-auto space-y-4">{filtered.map(([group,items])=><section key={group}><h2 className="text-xs font-semibold uppercase text-zinc-400 mb-2">{group}</h2><div className="space-y-1">{items.map(item=><button key={item} onClick={()=>{setNiche(item);setError("");setProgress("")}} className={"w-full text-left text-sm rounded-lg px-3 py-2 "+(niche===item?"bg-lime-400 text-black":"hover:bg-zinc-800")}>{item} <span className="opacity-60">({catalog[item]?.length||0}/12)</span></button>)}</div></section>)}</div></aside>
-   <section className="space-y-4 min-w-0">
+   <section className="space-y-4 min-w-0"><div className="flex flex-wrap gap-2"><button onClick={()=>copyPackage(false)} className="rounded-lg bg-lime-400 text-black px-4 py-3 font-semibold">Copiar URLs deste nicho</button><button onClick={()=>copyPackage(true)} className="rounded-lg bg-zinc-700 px-4 py-3 font-semibold">Copiar URLs de todos os nichos</button></div>{Object.entries(runningByNiche).filter(([,active])=>active).length>0&&<p className="text-sm text-lime-300">Gerações em andamento: {Object.entries(runningByNiche).filter(([,active])=>active).map(([name])=>name).join(", ")}. Você pode selecionar outro nicho e iniciar a geração sem aguardar.</p>}
     <div className="rounded-xl border border-zinc-700 p-4 flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-semibold">{niche}</h2><p className="text-sm text-zinc-400">{current.length}/12 imagens • {current.filter(p=>p.approved).length} aprovadas</p></div><button disabled={running||current.length===12} onClick={generate} className="rounded-lg bg-lime-400 px-5 py-3 font-semibold text-black disabled:opacity-40">{running?"Gerando...":current.length?"Completar pacote":"Gerar pacote de 12 imagens"}</button></div>
-    {progress&&<p role="status" className="text-sm text-lime-300">{progress}</p>}{error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
-    {(["desktop","mobile"] as const).map(device=><section key={device} className="space-y-3"><h3 className="font-semibold text-lg">{device==="desktop"?"Desktop (6)":"Mobile (6)"}</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{roles.map(role=>{const photo=current.find(p=>p.device===device&&p.role===role);return <div key={role} className="rounded-lg overflow-hidden border border-zinc-700 bg-zinc-900"><div className={device==="desktop"?"aspect-[3/2]":"aspect-[2/3] max-h-64"}>{photo?<img src={photo.src} alt={niche+" — "+role} className="w-full h-full object-cover"/>:<div className="w-full h-full flex items-center justify-center text-zinc-500 text-xs">Aguardando imagem</div>}</div><div className="p-3 space-y-2"><p className="text-xs">{role}</p>{photo&&<div className="flex flex-wrap gap-2"><button onClick={()=>copyPhoto(photo)} className="text-xs rounded px-2 py-1 bg-lime-400 text-black font-semibold">Copiar URL</button><button onClick={()=>approve(photo.src)} className={"text-xs rounded px-2 py-1 "+(photo.approved?"bg-lime-400 text-black":"bg-zinc-700")}>{photo.approved?"Aprovada ✓":"Aprovar"}</button><button onClick={()=>remove(photo.src)} disabled={running} className="text-xs rounded px-2 py-1 bg-zinc-800 text-red-200">Refazer</button></div>}</div></div>})}</div></section>)}
+    {(progressByNiche[niche]||progress)&&<p role="status" className="text-sm text-lime-300">{progressByNiche[niche]||progress}</p>}{error&&<p role="alert" className="text-sm text-red-300">{error}</p>}
+    {(["desktop","mobile"] as const).map(device=><section key={device} className="space-y-3"><h3 className="font-semibold text-lg">{device==="desktop"?"Desktop (6)":"Mobile (6)"}</h3><div className="grid grid-cols-2 md:grid-cols-3 gap-3">{roles.map(role=>{const photo=current.find(p=>p.device===device&&p.role===role);return <div key={role} className="rounded-lg overflow-hidden border border-zinc-700 bg-zinc-900"><div className={device==="desktop"?"aspect-[3/2]":"aspect-[2/3] max-h-64"}>{photo?<img src={photo.src} alt={niche+" — "+role} className="w-full h-full object-cover"/>:<div className="w-full h-full flex items-center justify-center text-zinc-500 text-xs">Aguardando imagem</div>}</div><div className="p-3 space-y-2"><p className="text-xs">{role}</p>{photo&&<div className="flex flex-wrap gap-2"><button onClick={()=>copyPhoto(photo)} className="text-xs rounded px-2 py-1 bg-lime-400 text-black font-semibold">Copiar URL</button><button onClick={()=>downloadPhoto(photo)} className="text-xs rounded px-2 py-1 bg-zinc-700">Baixar PNG</button><button onClick={()=>approve(photo.src)} className={"text-xs rounded px-2 py-1 "+(photo.approved?"bg-lime-400 text-black":"bg-zinc-700")}>{photo.approved?"Aprovada ✓":"Aprovar"}</button><button onClick={()=>remove(photo.src)} disabled={running} className="text-xs rounded px-2 py-1 bg-zinc-800 text-red-200">Refazer</button></div>}</div></div>})}</div></section>)}
     <p className="text-xs text-zinc-400">O botão “Refazer” remove a imagem do rascunho. Use “Completar pacote” para gerar somente as posições faltantes. A aprovação ainda não disponibiliza as imagens no Builder V2.</p>
    </section>
   </div>
