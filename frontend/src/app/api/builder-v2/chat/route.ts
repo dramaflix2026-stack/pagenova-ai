@@ -67,7 +67,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
       if(!sections.some(v=>v.layout==="faq"))sections.splice(Math.max(1,sections.length-1),0,{id:"faq",layout:"faq",goal:"Perguntas frequentes do segmento com respostas objetivas"});
       if(!sections.some(v=>/contato|agendamento/.test(String(v.id))))sections.push({id:"contato",layout:"banner",goal:"Contato com formulário Nome, E-mail e Mensagem"});
-      if(!sections.some(v=>v.layout==="gallery"))sections.splice(Math.max(1,sections.length-2),0,{id:"galeria",layout:"gallery",goal:"Galeria visual com fotografias, sem afirmações de projetos reais não comprovados"});
+      if(!sections.some(v=>v.layout==="gallery")&&sections.length<10)sections.splice(Math.max(1,sections.length-2),0,{id:"galeria",layout:"gallery",goal:"Galeria visual com fotografias, sem afirmações de projetos reais não comprovados"});
       // Keep the gallery immediately before FAQ in the approved standard template.
       const galleryIndex=sections.findIndex(v=>v.layout==="gallery");
       const faqIndex=sections.findIndex(v=>v.layout==="faq");
@@ -111,31 +111,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           align:["left","center","right"].includes(String(b.align))?b.align:"left",
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
-      const heroId=String(sections.find(v=>v.layout==="hero")?.id||"");
-      const seenHero=new Set<string>();
-      for(let i=blocks.length-1;i>=0;i--){
-        const block=blocks[i];
-        if(block.section!==heroId||!["heading","paragraph","button"].includes(block.type))continue;
-        const key=String(block.type);
-        if(seenHero.has(key))blocks.splice(i,1);
-        else seenHero.add(key);
-      }
-      const galleryPlan=sections.find(v=>v.layout==="gallery");
-      if(galleryPlan){
-        const galleryId=String(galleryPlan.id);
-        if(!blocks.some(b=>b.section===galleryId&&b.type==="heading")){
-          blocks.push({id:"gallery-heading",section:galleryId,type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center",layout:"gallery"});
-        }
-        if(!blocks.some(b=>b.section===galleryId&&b.type==="image")){
-          for(let i=0;i<3;i++)blocks.push({id:"gallery-photo-"+i,section:galleryId,type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center",layout:"gallery"});
-        }
-        const galleryBlocks=blocks.filter(b=>b.section===galleryId);
-        const remaining=blocks.filter(b=>b.section!==galleryId);
-        const faqId=String(sections.find(v=>v.layout==="faq")?.id||"");
-        const faqStart=remaining.findIndex(b=>b.section===faqId);
-        remaining.splice(faqStart<0?remaining.length:faqStart,0,...galleryBlocks);
-        blocks.splice(0,blocks.length,...remaining);
-      }
       const generatedSections=new Set(blocks.map(b=>b.section));
       if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
@@ -168,12 +143,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         for(const [i,line] of description.split("|").entries())fallbackBlocks.push({id:section+"-text-"+i,section,type:"paragraph",text:line,color:dark?"#f8f5e9":"#24332e",align:layout==="hero"||layout==="banner"?"center":"left"});
         if(section==="inicio")fallbackBlocks.push({id:"hero-cta",section,type:"button",text:"Conheça nossos serviços",href:legal?"#atuacao":"#servicos",color:"#c9b782",align:"center"});
       }
-      const faqAt=fallbackBlocks.findIndex(b=>b.section==="faq");
-      const galleryFallback:Array<Record<string,unknown>>=[
-        {id:"gallery-heading",section:"galeria",layout:"gallery",type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center"},
-        ...Array.from({length:3},(_,i)=>({id:"gallery-image-"+i,section:"galeria",layout:"gallery",type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center"}))
-      ];
-      fallbackBlocks.splice(faqAt<0?fallbackBlocks.length:faqAt,0,...galleryFallback);
       return NextResponse.json({site:{title,background:"#ffffff",blocks:fallbackBlocks},summary:"Site completo criado com estrutura de segurança após instabilidade temporária da IA."});
     }
   }
