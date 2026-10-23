@@ -283,7 +283,7 @@ export default function BuilderV2() {
     reader.readAsDataURL(file);
   }
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
-  const removeVisualDirectives = (value:string) => value.replace(/\s*(?:[-–—,;]\s*)*(?:background|fundo)\s*:?\s*#[0-9a-f]{3,8}\b.*$/giu,"").replace(/\s*[-–—,;]+\s*$/u,"").trim();
+  const removeVisualDirectives = (value:string) => value.replace(/\\s*(?:[-–—,;]\\s*)*(?:background|fundo)\\s*:?\\s*#[0-9a-f]{3,8}\\b.*$/giu,"").replace(/\\s*[-–—,;]+\\s*$/u,"").trim();
     const publicHeading = (value:string,section:string) => {const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\s*[-–—,;]*\s*(?:background|fundo)\s*:?\s*#[0-9a-f]{3,8}\b.*$/giu,"").replace(/\s*[-–—,;]*\s*background\s*:?\s*#[0-9a-f]{3,8}\b/giu,"").replace(/\s*[-–—,;]*\s*(?:fundo|background)\s*#(?:[0-9a-f]{3,8})\b/giu,"").replace(/\s*[-–—,;]+\s*$/u,"").trim();if(cleaned&& !/^(?:hero|grid|split|banner|standard|gallery|faq)$/i.test(cleaned))return removeVisualDirectives(cleaned);return /tratament|servi[cç]/i.test(section)?"Nossos tratamentos":/apresent|sobre|cl[ií]nica/i.test(section)?"Conheça nosso espaço":/diferenc|escolh/i.test(section)?"Por que nos escolher":/galeria|resultad/i.test(section)?"Galeria de imagens":/contato|agend/i.test(section)?"Entre em contato":/faq|pergunt/i.test(section)?"Dúvidas frequentes":"Conheça nossos serviços";};
   const isDesignInstruction = (value:string) => /(?:hero\\s+layout|background\\s*#(?:[0-9a-f]{3,8})|layout\\s+(?:grid|split|standard)|fundo\\s+(?:marfim|branco|azul.marinho)|bordas?\\s+douradas?|[ií]cones?\\s+dourados?|imagem\\s+(?:a adicionar|impactante)|t[ií]tulo principal impactante|subt[ií]tulo suave|cabe[cç]alho elegante e responsivo)/i.test(value);
   const previewBlocks = site.blocks.filter(b=>(b.type==="heading"||!isDesignInstruction(b.text)) && (b.type!=="image" || !!b.src)).map(b=>({...b,section:b.section||"principal"}));
@@ -305,7 +305,7 @@ export default function BuilderV2() {
           const first=blocks[0];
           const id=group.id.toLowerCase();
           // Keep the universal Template 1 intact; omit unfinished editorial sections from the public preview.
-          const isEditorialSection=/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id+" "+blocks.map(b=>b.text).join(" "));
+          const isEditorialSection=/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "));
           const editorialEntries=blocks.filter(b=>b.type==="paragraph" && b.text.trim().length>85);
           const editorialPhotos=blocks.filter(b=>b.type==="image" && !!b.src);
           if(isEditorialSection && (editorialPhotos.length===0 || editorialEntries.length<2)) return null;
@@ -321,6 +321,7 @@ export default function BuilderV2() {
           const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
           const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
+          if(blocks.filter(b=>b.type==="heading").some(b=>/conte[uú]dos? sobre|artigos? sobre/i.test(b.text)) && !blocks.some(b=>b.type==="image"&&b.src)) return null;
           
           const heading=blocks.filter(b=>b.type==="heading").slice(0,1);
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
