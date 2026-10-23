@@ -249,16 +249,15 @@ export default function BuilderV2() {
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
     if(siteCategory==="restaurant") {
-      const add=prompt.match(/(?:adicione|adicionar|inclua|coloque|cadastre)\\s+(?:no card[aá]pio\\s+)?(?:um[a]?\\s+)?(.+?)\\s+(?:por|a|pre[cç]o de)\\s*R?\\$?\\s*(\\d+(?:[.,]\\d{1,2})?)/i);
+      const add=prompt.match(/(?:adicione|adicionar|inclua|coloque|cadastre)\s+(?:no card[aá]pio\s+)?(?:um[a]?\s+)?(.+?)\s+(?:por|a|pre[cç]o de)\s*R?\$?\s*(\d+(?:[.,]\d{1,2})?)/i);
       if(add){
-        const name=add[1].trim();const price=Number(add[2].replace(",","."));
+        const name=add[1].trim();const price=Number(add[2].replace(",", "."));
         if(name&&Number.isFinite(price)&&price>0){
-          setSite(prev=>({...prev,kind:"restaurant",restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:[...(prev.restaurant?.menu||[]),{id:crypto.randomUUID(),name,description:"",price,category:menuCategory}]}}));
-          setMessages(prev=>[...prev,{role:"assistant",text:`Adicionei ${name} ao cardápio por R$ ${price.toFixed(2).replace(".",",")}. Você pode editar ou remover o item na prévia.`}]);setInstruction("");setBusy(false);return;
+          setSite(prev=>({...prev,kind:"restaurant",restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:[...(prev.restaurant?.menu||[]),{id:crypto.randomUUID(),name,description:"",price,category:"Cardápio"}]}}));
+          setMessages(prev=>[...prev,{role:"assistant",text:"Item adicionado ao cadastro de produtos."}]);setInstruction("");setBusy(false);return;
         }
       }
     }
-
     if (/(?:regener|troqu|substitu|nova imagem|nova foto|gere imagens|gerar imagens)/i.test(prompt) && /(?:imagem|foto)/i.test(prompt) && site.blocks.length) {
       try {
         const match=prompt.match(/(?:imagem|foto)\s*(?:n[uú]mero\s*)?(\d+)/i);
