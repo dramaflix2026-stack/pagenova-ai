@@ -202,6 +202,13 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>}|undefined;
   // Animation-only instructions must never regenerate copy, sections or images.
   // Deterministic social configuration. Never publish icons with missing destinations.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(faixa|aviso superior|banner superior)/i.test(instructionText)&&/(movimento|mover|passando|rolando|est[aá]tic|parar anima[cç][aã]o)/i.test(instructionText)){
+    const current=(editingSite as typeof editingSite&{extras?:Record<string,unknown>}).extras||{};
+    const off=/(est[aá]tic|parar|sem movimento|desativar)/i.test(instructionText);
+    const speed=instructionText.match(/(\d{1,3})\s*(?:segundos|seg|s)\b/i);
+    const extras={...current,announcementMotion:!off,announcementDirection:/direita/i.test(instructionText)?"right":"left",...(speed?{announcementSpeed:Math.max(8,Math.min(120,Number(speed[1])))}:{})};
+    return NextResponse.json({site:{...editingSite,extras},summary:off?"Faixa superior estática.":"Movimento contínuo ativado na faixa superior."});
+  }
   if(!isFresh&&Array.isArray(editingSite?.blocks)){
     const targets:[string,string][]=[["announcement","faixa de avisos"],["map","mapa"],["video","vídeo"],["comparison","antes e depois"],["partners","parceiros"],["pricing","planos"],["counters","contadores"],["popup","pop-up"],["faq","faq"],["backToTop","voltar ao topo"]];
     const text=instructionText.toLocaleLowerCase("pt-BR");
