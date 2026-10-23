@@ -303,6 +303,11 @@ export default function BuilderV2() {
           const blocks=group.blocks;
           const first=blocks[0];
           const id=group.id.toLowerCase();
+          // Keep the universal Template 1 intact; omit unfinished editorial sections from the public preview.
+          const isEditorialSection=/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id);
+          const editorialEntries=blocks.filter(b=>b.type==="paragraph" && b.text.trim().length>85);
+          const editorialPhotos=blocks.filter(b=>b.type==="image" && !!b.src);
+          if(isEditorialSection && editorialEntries.length===0 && editorialPhotos.length===0) return null;
           const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || (/galeria|foto|portf[oó]lio/i.test(id)?"gallery":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
           const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
