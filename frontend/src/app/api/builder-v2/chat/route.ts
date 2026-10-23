@@ -190,6 +190,22 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const instructionText=String(body.instruction);
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>}|undefined;
   // Animation-only instructions must never regenerate copy, sections or images.
+  // Header identity is independent from the page title and remains editable via chat.
+  if(!isFresh && Array.isArray(editingSite?.blocks) && /(?:cabe[cç]alho|logo|logotipo|marca|menu)/i.test(instructionText)){
+    const current=editingSite.header&&typeof editingSite.header==="object"?editingSite.header:{};
+    const next={...current};
+    const rename=instructionText.match(/(?:nome|texto|marca|logo(?:tipo)?)\\s+(?:do|da|no|na|de)?\\s*(?:cabe[cç]alho|logo|marca)?\\s*(?:para|por|como|:|é)\\s*["“']?([^"”'\\n.!?]{2,65})/i)||instructionText.match(/(?:altere|mude|troque|renomeie)\\s+(?:o\\s+)?(?:nome|texto)\\s+(?:do\\s+)?cabe[cç]alho\\s+(?:para|por)\\s+["“']?([^"”'\\n.!?]{2,65})/i);
+    const image=instructionText.match(/https:\\/\\/[^\\s"'<>]+\\.(?:png|jpe?g|webp|svg)(?:\\?[^\\s"'<>]*)?/i);
+    let changed=false;
+    if(rename){next.brand=rename[1].trim().replace(/["“”']+$/,"");next.logoUrl="";changed=true;}
+    if(image&&/(?:logo|logotipo|marca)/i.test(instructionText)){next.logoUrl=image[0];changed=true;}
+    if(/(?:remov|retir|escond|ocult).{0,30}(?:logo|logotipo|imagem da marca)/i.test(instructionText)){next.logoUrl="";changed=true;}
+    if(/(?:remov|retir|escond|ocult).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=false;changed=true;}
+    if(/(?:mostr|ativ|exib).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=true;changed=true;}
+    const bg=instructionText.match(/(?:fundo|background)\\s+(?:do\\s+)?cabe[cç]alho\\s+(?:para|em|:)\\s*(#[0-9a-fA-F]{6})/i);
+    if(bg){next.background=bg[1];changed=true;}
+    if(changed)return NextResponse.json({site:{...editingSite,header:next},summary:"Identidade do cabeçalho atualizada. Demais seções preservadas."});
+  }
   if (!isFresh && Array.isArray(editingSite?.blocks) && isMotionOnlyInstruction(instructionText)) {
     return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
   }
