@@ -1,5 +1,5 @@
-import { Instagram, Facebook, MessageCircle } from "lucide-react";
 "use client";
+import { Instagram, Facebook, MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 import { attachSiteMotion, type SiteMotion } from "@/lib/site-builder-animation";
