@@ -197,14 +197,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     let changed=false;
     const requested=[["instagram","instagram"],["facebook","facebook"],["whatsapp","whatsapp"]] as const;
     const wantsAll=/redes sociais|[ií]cones? sociais/i.test(instructionText);
-    const normalizeWhatsapp=(raw:string)=>{const digits=raw.replace(/\\D/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"";};
+    const normalizeWhatsapp=(raw:string)=>{const digits=raw.replace(/[^0-9]/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"";};
     for(const [key,word] of requested){
       if(!wantsAll&&!new RegExp(word,"i").test(instructionText))continue;
       const removing=new RegExp("(?:remov|retir|exclu|ocult|escond).{0,40}"+word,"i").test(instructionText);
       if(removing){next[key]="";changed=true;continue;}
       if(key==="whatsapp"){
         const wa=instructionText.match(new RegExp("https://(?:wa[.]me/[0-9]{10,15}|api[.]whatsapp[.]com/send[?]phone=[0-9]{10,15})[^\\s]*","i"));
-        const phone=instructionText.match(/(?:\\+?55\\s*)?\\(?\\d{2}\\)?[\\s.-]*9?\\d{4}[\\s.-]*\\d{4}/);
+        const phone=instructionText.match(/[+]?[0-9(). -]{10,22}/);
         const url=wa?.[0]||normalizeWhatsapp(phone?.[0]||"");
         if(url){next.whatsapp=url;changed=true;}
       }else{
