@@ -188,7 +188,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   }
   // Resolve simple alignment requests locally to avoid regenerating the full site.
   const instructionText=String(body.instruction);
-  const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>}|undefined;
+  const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>}|undefined;
   // Animation-only instructions must never regenerate copy, sections or images.
   // Deterministic social configuration. Never publish icons with missing destinations.
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)){
