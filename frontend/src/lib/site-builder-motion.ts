@@ -24,7 +24,7 @@ export function enhanceSitePreview(html: string, motion?: SiteMotion): string {
     }
     [data-pn-ready="true"] .pn-reveal{
       opacity:0;transform:translate3d(0,26px,0);
-      transition:opacity .7s ease,transform .75s cubic-bezier(.16,1,.3,1);
+      transition:opacity var(--pn-duration,700ms) ease,transform var(--pn-duration,750ms) cubic-bezier(.16,1,.3,1);
       transition-delay:var(--pn-delay,0ms)
     }
     [data-pn-ready="true"] .pn-reveal.pn-visible{
