@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try { body = await req.json(); } catch { return NextResponse.json({error:"Pedido inválido."},{status:400}); }
   if (typeof body.instruction !== "string" || body.instruction.length > 5000) return NextResponse.json({error:"Pedido inválido."},{status:400});
   const currentBlocks = (body.site as {blocks?:unknown[]}|undefined)?.blocks;
-  const isFresh = (!Array.isArray(currentBlocks) || currentBlocks.length === 0) && /(?:site|website|página|pagina|landing page|escritório|advogados|clínica|loja)/i.test(String(body.instruction));
+  const isFresh = !Array.isArray(currentBlocks) || currentBlocks.length === 0;
   const prompt = `Você é o motor de edição PageNova Builder 2.0. A instrução do usuário prevalece sobre o template. A plataforma dispõe de modelos internos invisíveis para acelerar a criação, mas nunca exige que o usuário escolha um modelo. Se receber somente "Faça um site para advogados", "site para restaurante" ou outra descrição mínima, infira o segmento e entregue um site COMPLETO com arquitetura, identidade visual e textos adequados, sem perguntar por detalhes. O usuário pode refinar tudo depois pelo chat. Retorne APENAS JSON válido {"site":{...},"summary":"..."}.
 Esquema site: {"title":string,"background":cor CSS,"blocks":[{"id":string,"type":"heading"|"paragraph"|"button"|"image","text":string,"color":cor CSS,"align":"left"|"center"|"right","src"?:string,"href"?:string,"section"?:string,"fontSize"?:number,"radius"?:number,"spacing"?:number,"layout"?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard","background"?:string,"columns"?:number}]}.
 Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SOMENTE os elementos solicitados e mantenha rigorosamente todos os outros blocos, sua ordem e propriedades. Se o usuário pedir para trocar texto, substitua o texto exato do bloco correspondente. Se pedir cor, fonte/tamanho, espaçamento, alinhamento, botão, imagem ou reorganizar/adicionar/remover seção, execute nos blocos relevantes. Para botões, use href somente quando o usuário fornecer URL, telefone, e-mail ou âncora real; não invente destinos externos. Se o usuário pedir para trocar o link do botão, altere href e preserve o restante. Para mover uma seção, mova seus blocos em conjunto. Não se limite a modelos fixos. Cada seção pode ter layout hero, grid, split, banner, faq, gallery ou standard no primeiro bloco, além de background próprio. O primeiro bloco deve ser heading com layout e section. Para serviços e benefícios: gere um heading e 3 a 6 blocos paragraph SEPARADOS, cada um com nome e descrição curta; layout grid. Para FAQ: gere heading e um bloco paragraph SEPARADO por pergunta, no formato "Pergunta? Resposta"; layout faq. Cada pergunta deve ter no máximo 14 palavras e cada resposta no máximo 35 palavras. Em serviços, tratamentos, etapas e diferenciais, escreva cada card como "Título curto: descrição de até 25 palavras". Quando o briefing trouxer títulos explícitos para cards, use exatamente esses títulos, palavra por palavra, na ordem indicada. Nunca parafraseie, resuma ou omita a última palavra. Preserve também todas as seções explicitamente pedidas. Não escreva um parágrafo longo por card. Não afirme que o negócio possui equipamentos, equipe, certificações, tratamentos específicos, tempo de sessão ou resultados comprovados sem o usuário informar isso. Não anuncie formulário, WhatsApp, agendamento ou canal de contato como disponível se não houver link ou integração fornecida. Evite prometer resultados garantidos. Para galeria: heading e blocos image separados; layout gallery. Para equipe e estrutura: layout split com heading, texto e imagem. Não escreva instruções de design dentro do texto do site. Não crie dados de contato fictícios, nem rodapé com ano ou endereço inventados. Escolha o layout pelo nicho e permita ao usuário alterá-lo pelo chat. Nunca invente nome de empresa, escritório ou pessoa. Se o briefing não informar marca, use um título descritivo neutro. Varie realmente a composição entre seções, alternando hero, grid, split, banner e faq conforme fizer sentido; evite 10 seções com o mesmo estilo. Para um escritório de advocacia, escolha tipografia sóbria e paleta elegante (ex.: azul-marinho, marfim e dourado discreto), hero institucional, áreas de atuação em cards separados, apresentação do escritório, diferenciais factuais sem promessas, processo de atendimento, perguntas frequentes e CTA de contato. Evite linguagem mercantilista, garantia de resultados, depoimentos fictícios, especializações ou registros OAB inventados. Para outros segmentos, infira a identidade visual e estrutura adequada sem depender de palavras exatas no briefing. Evite escrever "a definir" no rodapé público: omita dados que não foram informados e use CTA genérico editável sem link fictício. Ao criar novo site, produza 7 a 10 seções relevantes, cada uma com um identificador section próprio, composição editorial de títulos curtos, descrições objetivas e CTAs adequados. Evite parágrafos enormes e repetitivos. Nunca invente endereço, telefone, e-mail, anos de experiência, depoimentos, profissionais, certificações ou URLs de imagens; omita informações não fornecidas sem mostrar "A definir". Para imagens não disponíveis, evite criar espaços vazios em excesso: priorize composição tipográfica e cards sem fotos. Se o usuário fornecer URL válida de imagem, use src; se fornecer somente referência visual, não finja ter gerado uma imagem. Quando houver imagem de referência, analise-a para aplicar as alterações visuais ou textuais solicitadas; não alegue que substituiu uma imagem se não recebeu uma URL ou arquivo utilizável. O campo summary deve explicar brevemente a ação executada em português.`;
@@ -43,8 +43,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     };
     try {
       const plan = await callAI(
-        "Você é o arquiteto de sites premium PageNova. Responda APENAS JSON com title, background e sections: array de 7 a 9 objetos {id,layout,goal}. Layout permitido: hero,grid,split,banner,faq,standard. Não invente nome de escritório, telefone, endereço, profissionais, certificações, equipamentos, tratamentos específicos ou depoimentos. Crie uma arquitetura editorial elegante e não repetitiva. Hero forte, serviços em grid, história em split, diferenciais em grid, uma seção editorial em banner, galeria, FAQ e contato. Distribua imagens entre hero, apresentação e galeria; não exija fotografia para cada card de serviços. Não use cards numerados para todas as seções. Não repita estruturas consecutivas. Não escreva metadados de design em títulos. ATENÇÃO: separe instruções de aparência visual de fatos do negócio. Paleta, tipografia, profundidade, sobreposição e estilo são apenas METADADOS DE DESIGN, nunca serviços, diferenciais, valores ou textos do site. Para arquitetura, portfólio precisa ter seção gallery com imagens solicitadas, serviços de arquitetura e metodologia em etapas; jamais use texto de clínica. Toda seção precisa ter conteúdo além do heading. A instrução do usuário prevalece.",
-        {instruction},1200
+        "Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
+        {instruction},350
       );
       // Template 1 has a deterministic structure; AI is responsible for niche-specific
       // copy and design, not for deleting essential sections or making a gallery the hero.
@@ -120,6 +120,17 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
 
       // Reject an apparently successful response if any core Template 1 section vanished.
       // The fallback below is safer than publishing a three-section "complete" site.
+      // The template order is fixed regardless of the model's JSON item ordering.
+      const canonicalIds=sections.map(section=>section.id);
+      mutableBlocks.sort((a,b)=>{
+        const diff=canonicalIds.indexOf(String(a.section))-canonicalIds.indexOf(String(b.section));
+        if(diff)return diff;
+        return (a.type==="heading"?-1:0)-(b.type==="heading"?-1:0);
+      });
+      const heroTitle=mutableBlocks.find(b=>b.section==="inicio"&&b.type==="heading");
+      if(heroTitle&&/^(?:nosso espa[cç]o|nossos ambientes|galeria|consult[oó]rio|nossa equipe|ambiente acolhedor)$/i.test(String(heroTitle.text).trim())){
+        heroTitle.text=typeof plan.title==="string"&&plan.title.trim()?plan.title.trim():"Conheça nossa proposta";
+      }
       const coreIds=["inicio","servicos","sobre","diferenciais","processo","galeria","faq","contato"];
       const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));
       const missing=coreIds.filter(id=>!generatedIds.has(id));
@@ -130,34 +141,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
-      const legal=/advoga|jur[ií]dic|direito|escrit[oó]rio/i.test(instruction);
-      const title=legal?"Escritório de Advocacia":"Site profissional";
-      const items=legal?[
-        ["inicio","hero","Assessoria jurídica com clareza e responsabilidade","Orientação para decisões importantes, com atenção às particularidades de cada situação."],
-        ["atuacao","grid","Áreas de atuação","Direito Civil — orientação em contratos e relações jurídicas.|Direito Empresarial — apoio a demandas societárias e negociais.|Direito Trabalhista — análise de direitos e obrigações.|Direito Tributário — orientação em questões fiscais."],
-        ["institucional","split","Atendimento jurídico próximo e criterioso","Cada demanda merece escuta, análise técnica e comunicação transparente ao longo do atendimento."],
-        ["diferenciais","grid","Uma atuação pautada em princípios","Escuta atenta e comunicação clara.|Análise individualizada de cada demanda.|Compromisso com a ética profissional.|Acompanhamento e transparência."],
-        ["processo","grid","Como funciona o atendimento","01 — Conversa inicial e compreensão da demanda.|02 — Análise das informações e documentos.|03 — Orientação sobre possibilidades e próximos passos."],
-        ["faq","faq","Perguntas frequentes","Como iniciar o atendimento? Entre em contato pelo canal disponibilizado pelo escritório.|Quais documentos são necessários? A documentação depende do tipo de demanda e será orientada durante o atendimento.|Como são definidos os honorários? As condições são apresentadas conforme o serviço e as normas aplicáveis."],
-        ["contato","banner","Vamos conversar sobre sua demanda?","Solicite informações e conheça os próximos passos para receber orientação jurídica."]
-      ]:[
-        ["inicio","hero","Uma experiência feita para você","Conheça soluções pensadas para suas necessidades."],
-        ["servicos","grid","O que oferecemos","Atendimento com atenção aos detalhes.|Soluções adaptadas a cada necessidade.|Comunicação clara em cada etapa."],
-        ["sobre","split","Conheça nossa proposta","Uma abordagem dedicada a tornar sua experiência mais simples e eficiente."],
-        ["beneficios","grid","Nossos compromissos","Clareza nas informações.|Atenção em cada etapa.|Qualidade no atendimento."],
-        ["processo","grid","Como funciona","01 — Conte o que você precisa.|02 — Entenda as possibilidades.|03 — Escolha o próximo passo."],
-        ["faq","faq","Perguntas frequentes","Como posso saber mais? Utilize os canais de contato informados pela empresa.|Como funciona o atendimento? As etapas são explicadas conforme a necessidade."],
-        ["contato","banner","Vamos conversar?","Entre em contato para saber mais."]
-      ];
-      const fallbackBlocks:Array<Record<string,unknown>>=[];
-      for(const [section,layout,heading,description] of items){
-        const dark=layout==="hero"||layout==="banner";
-        const background=dark?"#101d33":section==="institucional"||section==="sobre"?"#f7f5ef":"#ffffff";
-        fallbackBlocks.push({id:section+"-heading",section,layout,background,type:"heading",text:heading,color:dark?"#f8f5e9":"#101d33",align:layout==="hero"||layout==="banner"?"center":"left"});
-        for(const [i,line] of description.split("|").entries())fallbackBlocks.push({id:section+"-text-"+i,section,type:"paragraph",text:line,color:dark?"#f8f5e9":"#24332e",align:layout==="hero"||layout==="banner"?"center":"left"});
-        if(section==="inicio")fallbackBlocks.push({id:"hero-cta",section,type:"button",text:"Conheça nossos serviços",href:legal?"#atuacao":"#servicos",color:"#c9b782",align:"center"});
-      }
-      return NextResponse.json({site:{title,background:"#ffffff",blocks:fallbackBlocks},summary:"Site completo criado com estrutura de segurança após instabilidade temporária da IA."});
+      // Never silently publish an incomplete or generic fallback as a finished site.
+      return NextResponse.json({error:"Não foi possível concluir o Template 1 com todas as seções. Seu projeto foi preservado; tente gerar novamente."},{status:502});
     }
   }
   // Resolve simple alignment requests locally to avoid regenerating the full site.
