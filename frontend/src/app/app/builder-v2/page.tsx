@@ -285,8 +285,8 @@ export default function BuilderV2() {
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   // Metadata from the AI describes presentation, never customer-facing copy.
   const removeVisualDirectives = (value:string) => value
-    .replace(/\\s*[-–—,;]?\\s*(?:background|fundo)\\s*:?\\s*#[0-9a-f]{3,8}(?=\\s|$|[,;])/giu,"")
-    .replace(/\\s*[-–—,;]\\s*$/u,"").trim();
+    .replace(/\s*[-–—,;]?\s*(?:background|fundo)\s*:?\s*#[0-9a-f]{3,8}(?=\s|$|[,;])/giu,"")
+    .replace(/\s*[-–—,;]\s*$/u,"").trim();
   const publicHeading = (value:string,section:string) => {
     const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\s*[-–—,;]\s*$/u,"").trim();
     if(cleaned&&!/^(?:hero|grid|split|banner|standard|gallery|faq)$/i.test(cleaned))return cleaned;
@@ -375,6 +375,9 @@ export default function BuilderV2() {
           const useEditorialGrid=visualLayout==="grid"&&(isTreatments||isDifferentials)&&editorialCards.length>=2;
           const treatmentHasCompletePhotos=uniqueImages.length>=editorialCards.slice(0,6).length;
           const useTextOnlyTreatments=isTreatments&&!treatmentHasCompletePhotos;
+          // Skip AI-generated sections without usable customer-facing content.
+          const meaningfulParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
+          if(!images.length && !buttons.length && meaningfulParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
           const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
