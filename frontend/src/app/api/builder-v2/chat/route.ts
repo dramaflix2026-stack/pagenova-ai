@@ -46,36 +46,19 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         "Você é o arquiteto de sites premium PageNova. Responda APENAS JSON com title, background e sections: array de 7 a 9 objetos {id,layout,goal}. Layout permitido: hero,grid,split,banner,faq,standard. Não invente nome de escritório, telefone, endereço, profissionais, certificações, equipamentos, tratamentos específicos ou depoimentos. Crie uma arquitetura editorial elegante e não repetitiva. Hero forte, serviços em grid, história em split, diferenciais em grid, uma seção editorial em banner, galeria, FAQ e contato. Distribua imagens entre hero, apresentação e galeria; não exija fotografia para cada card de serviços. Não use cards numerados para todas as seções. Não repita estruturas consecutivas. Não escreva metadados de design em títulos. ATENÇÃO: separe instruções de aparência visual de fatos do negócio. Paleta, tipografia, profundidade, sobreposição e estilo são apenas METADADOS DE DESIGN, nunca serviços, diferenciais, valores ou textos do site. Para arquitetura, portfólio precisa ter seção gallery com imagens solicitadas, serviços de arquitetura e metodologia em etapas; jamais use texto de clínica. Toda seção precisa ter conteúdo além do heading. A instrução do usuário prevalece.",
         {instruction},1200
       );
-      const sections = Array.isArray(plan.sections) ? plan.sections.filter((v):v is Record<string,unknown>=>!!v&&typeof v==="object").slice(0,9) : [];
-      if (sections.length < 5) throw new Error("invalid-plan");
-      // Keep the approved component architecture stable regardless of AI wording.
-      const normalizeId=(value:unknown)=>String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-      const usedSectionIds=new Set<string>();
-      for(let i=0;i<sections.length;i++){
-        const section=sections[i];
-        const original=normalizeId(section.id)||"secao-"+(i+1);
-        const id=usedSectionIds.has(original)?original+"-"+(i+1):original;
-        usedSectionIds.add(id);
-        section.id=id;
-        const goal=String(section.goal||"");
-        if(i===0)section.layout="hero";
-        else if(/faq|perguntas|duvidas/.test(id+" "+goal))section.layout="faq";
-        else if(/galeria|portfolio|projetos-realizados/.test(id+" "+goal))section.layout="gallery";
-        else if(/servic|atuacao|diferencia|princip|metodologia|processo|atendimento/.test(id+" "+goal))section.layout="grid";
-        else if(/contato|agendamento|fale-conosco/.test(id+" "+goal))section.layout="banner";
-        else if(!["hero","grid","split","banner","faq","gallery","standard"].includes(String(section.layout)))section.layout="standard";
-      }
-      if(!sections.some(v=>v.layout==="faq"))sections.splice(Math.max(1,sections.length-1),0,{id:"faq",layout:"faq",goal:"Perguntas frequentes do segmento com respostas objetivas"});
-      if(!sections.some(v=>/contato|agendamento/.test(String(v.id))))sections.push({id:"contato",layout:"banner",goal:"Contato com formulário Nome, E-mail e Mensagem"});
-      if(!sections.some(v=>v.layout==="gallery"))sections.splice(Math.max(1,sections.length-2),0,{id:"galeria",layout:"gallery",goal:"Galeria visual com fotografias, sem afirmações de projetos reais não comprovados"});
-      // Keep the gallery immediately before FAQ in the approved standard template.
-      const galleryIndex=sections.findIndex(v=>v.layout==="gallery");
-      const faqIndex=sections.findIndex(v=>v.layout==="faq");
-      if(galleryIndex>=0&&faqIndex>=0&&galleryIndex!==faqIndex-1){
-        const [gallerySection]=sections.splice(galleryIndex,1);
-        const nextFaqIndex=sections.findIndex(v=>v.layout==="faq");
-        sections.splice(nextFaqIndex,0,gallerySection);
-      }
+      // Template 1 has a deterministic structure; AI is responsible for niche-specific
+      // copy and design, not for deleting essential sections or making a gallery the hero.
+      // Later edits still honor the user's chat instructions and preserve existing blocks.
+      const sections: Array<{id:string;layout:string;goal:string}> = [
+        {id:"inicio",layout:"hero",goal:"Capa principal do negócio, com proposta de valor clara, subtítulo e CTA para #servicos. Nunca usar galeria, nosso espaço ou equipe como título principal."},
+        {id:"servicos",layout:"grid",goal:"Três a cinco serviços ou atividades relevantes para o segmento, com títulos específicos e descrições objetivas, sem inventar especializações."},
+        {id:"sobre",layout:"split",goal:"Apresentação institucional do negócio com abordagem e proposta de trabalho, sem inventar histórico, estrutura, profissionais ou anos de experiência."},
+        {id:"diferenciais",layout:"grid",goal:"Três a cinco diferenciais verdadeiros ou compromissos genéricos verificáveis, sem prometer resultados ou alegar certificações."},
+        {id:"processo",layout:"grid",goal:"Como funciona o atendimento ou a experiência do cliente, em três etapas objetivas e adequadas ao nicho."},
+        {id:"galeria",layout:"gallery",goal:"Galeria de imagens do segmento; heading e três imagens descritivas com src vazio para a biblioteca de fotos preencher."},
+        {id:"faq",layout:"faq",goal:"Quatro perguntas frequentes com respostas curtas e úteis, sem afirmar dados comerciais não fornecidos."},
+        {id:"contato",layout:"banner",goal:"Uma única seção de contato, com descrição breve e formulário de contato; não inventar endereços, e-mails ou telefones."}
+      ];
       const batches = [sections.slice(0,Math.ceil(sections.length/2)),sections.slice(Math.ceil(sections.length/2))];
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
@@ -134,8 +117,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         otherBlocks.splice(faqIndex<0?otherBlocks.length:faqIndex,0,...galleryBlocks);
         mutableBlocks.splice(0,mutableBlocks.length,...otherBlocks);
       }
-      const generatedSections=new Set(blocks.map(b=>b.section));
-      if(blocks.length<8||generatedSections.size<3)throw new Error("incomplete-site");
+
+      // Reject an apparently successful response if any core Template 1 section vanished.
+      // The fallback below is safer than publishing a three-section "complete" site.
+      const coreIds=["inicio","servicos","sobre","diferenciais","processo","galeria","faq","contato"];
+      const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));
+      const missing=coreIds.filter(id=>!generatedIds.has(id));
+      const meaningful=(id:string)=>mutableBlocks.filter(b=>b.section===id && (b.type==="paragraph" || b.type==="button" || b.type==="image")).length;
+      const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"||id==="faq"?3:1));
+      if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
+      const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
