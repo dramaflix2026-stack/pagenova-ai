@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
 export const runtime = "nodejs";
 export const maxDuration = 90;
 export async function POST(req: NextRequest) {
@@ -171,7 +172,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"?4:id==="faq"?3:1));
       if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       // Never silently publish an incomplete or generic fallback as a finished site.
@@ -180,7 +181,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   }
   // Resolve simple alignment requests locally to avoid regenerating the full site.
   const instructionText=String(body.instruction);
-  const editingSite=body.site as {title?:string;background?:string;blocks?:Array<Record<string,unknown>>}|undefined;
+  const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>}|undefined;
+  // Animation-only instructions must never regenerate copy, sections or images.
+  if (!isFresh && Array.isArray(editingSite?.blocks) && isMotionOnlyInstruction(instructionText)) {
+    return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
+  }
   // Section-level moves are deterministic: never ask the model to relocate individual blocks.
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/\\bmov(?:a|er|imente)\\b/i.test(instructionText)&&/se[cç][aã]o/i.test(instructionText)){
     const match=instructionText.match(/(?:mov(?:a|er|imente))\\s+(?:a\\s+)?se[cç][aã]o\\s+(?:completa\\s+)?["“]([^"”]+)["”][\\s\\S]*?(?:depois|ap[oó]s)\\s+(?:da\\s+)?(?:se[cç][aã]o\\s+)?["“]([^"”]+)["”]/i);
@@ -196,7 +201,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(!moved.length||last<0)return NextResponse.json({error:"Movimentação não validada. O site foi preservado."},{status:422});
       remaining.splice(last+1,0,...moved);
       if(remaining.length!==editingSite.blocks.length||remaining.filter(b=>b.section===source.section).length!==moved.length)return NextResponse.json({error:"Falha na validação da movimentação. O site foi preservado."},{status:422});
-      return NextResponse.json({site:{...editingSite,blocks:remaining},summary:'Seção "'+match[1]+'" movida integralmente para depois de "'+match[2]+'".'});
+      return NextResponse.json({site:{...editingSite,blocks:remaining,motion:hasMotionIntent(instructionText)?applySiteMotionInstruction({...editingSite,blocks:remaining},instructionText):editingSite.motion},summary:'Seção "'+match[1]+'" movida integralmente para depois de "'+match[2]+'".'});
     }
   }
   const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
@@ -340,7 +345,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(updatedBlocks.length>120||updatedBlocks.length<4||!updatedBlocks.some(b=>b.type==="heading")){
         return NextResponse.json({error:"A alteração comprometeria a estrutura do site. Nada foi aplicado."},{status:422});
       }
-      return NextResponse.json({site:{...editingSite,blocks:updatedBlocks},summary:typeof payload.summary==="string"?payload.summary:"Alterações aplicadas aos elementos solicitados."});
+      return NextResponse.json({site:{...editingSite,blocks:updatedBlocks,motion:hasMotionIntent(instructionText)?applySiteMotionInstruction({...editingSite,blocks:updatedBlocks},instructionText):editingSite.motion||{preset:"professional"}},summary:typeof payload.summary==="string"?payload.summary:"Alterações aplicadas aos elementos solicitados."});
     }catch(error){console.error("[builder-v2] edit patch error",error instanceof Error?error.message:"unknown");return NextResponse.json({error:"Não foi possível concluir a edição. O projeto foi preservado."},{status:502});}
   }
   const input = JSON.stringify({instruction:body.instruction,site:body.site,mode:isFresh?"create_full_website":"edit_existing_website"});
@@ -375,7 +380,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
     if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
-    return NextResponse.json({site:incoming,summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
+    return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction))},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
     return NextResponse.json({error:"A IA não retornou um site válido e completo. Tente novamente; seu projeto foi preservado."},{status:502});
