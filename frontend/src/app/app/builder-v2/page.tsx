@@ -286,7 +286,7 @@ export default function BuilderV2() {
   // Presentation metadata is not customer-facing content.
   const removeVisualDirectives = (value:string) => value
     .replace(/(?:\s*[-–—,;]\s*)?(?:background|fundo)\s*:?\s*(?:#[0-9a-f]{3,8}\b|white\b|black\b|transparent\b|branco\b|preto\b)/giu,"")
-    .replace(/\s*[-–—,;]\s*$/u,"").trim();
+    .replace(/\s*[-–—,;]\s*$/u,"").replace(/\s*[,;]\s*$/u,"").trim();
   const publicHeading = (value:string,section:string) => {
     const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\s*[-–—,;]\s*$/u,"").trim();
     const title=/galeria|gallery|portf[oó]lio/i.test(section)
@@ -313,6 +313,8 @@ export default function BuilderV2() {
     const label=id+" "+heading;
     const paragraphs=group.blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>12);
     const pictures=group.blocks.filter(b=>b.type==="image"&&!!b.src);
+    const meaningful=paragraphs.filter(b=>!/^\s*(?:acompanhe|saiba mais|conheça mais|em breve|descubra)/i.test(b.text)).length;
+    if(/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o|sa[uú]de mental/i.test(label)&&meaningful<2)return false;
     const buttons=group.blocks.filter(b=>b.type==="button");
     const contact=/contato|agend|fale.conosco|fale-conosco/i.test(label);
     const faq=/faq|perguntas|d[uú]vidas/i.test(label);
@@ -381,7 +383,7 @@ export default function BuilderV2() {
           const safeColor=(color:string)=>{const c=readableColor(color,sectionBackground);const lightBackground=/^#(?:[cdef][0-9a-f]|f[0-9a-f]|[a-f]{3})/i.test(sectionBackground)||/^(white|#fff(?:fff)?)$/i.test(sectionBackground);if(lightBackground&&(/^#(?:[cdef][0-9a-f]|f[0-9a-f])/i.test(c)||/^(?:white|#fff(?:fff)?)$/i.test(c)))return "#26382f";const dark=/^#(?:1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(sectionBackground);return dark&&/^#(?:0[0-9a-f]|1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(c)?"#f7f4eb":c;};
           const render=(b:Block)=> {
             if(b.type==="heading") return <h2 key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:safeColor(b.color),fontFamily:displayFont,fontSize:b.fontSize?`${b.fontSize}px`:undefined}} className={visualLayout==="hero"?"max-w-3xl text-[clamp(2rem,4.2vw,3.9rem)] font-medium leading-[1.04] tracking-[-.05em]":"max-w-3xl text-[clamp(1.75rem,3.2vw,3rem)] font-medium leading-[1.1] tracking-[-.045em]"}>{publicHeading(b.text,id)}</h2>;
-            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:safeColor(b.color),fontSize:b.fontSize?`${b.fontSize}px`:undefined}} className="max-w-2xl text-[15px] leading-[1.65] md:text-lg">{clean(b.text).replace(/(?:telefone\s*:\s*)?\(?11\)?\s*1234[-\s]?5678/gi,"")}</p>;
+            if(b.type==="paragraph") return <p key={b.id} data-block-id={b.id} style={{textAlign:b.align,color:readableColor(safeColor(b.color),sectionBackground),fontSize:b.fontSize?`${b.fontSize}px`:undefined}} className="max-w-2xl text-[15px] leading-[1.65] md:text-lg">{clean(b.text).replace(/(?:telefone\s*:\s*)?\(?11\)?\s*1234[-\s]?5678/gi,"")}</p>;
             if(b.type==="image") return b.src?<picture key={b.id} data-block-id={b.id}>{b.mobileSrc&&<source media="(max-width: 767px)" srcSet={b.mobileSrc}/>}<img src={b.src} alt={b.text||"Fotografia do negócio"} loading="lazy" onError={event=>{const img=event.currentTarget;if(img.dataset.fallbackAttempted)return;img.dataset.fallbackAttempted="true";const niche=Object.keys(nichePhotoCatalog).find(name=>site.title.toLocaleLowerCase("pt-BR").includes(name.toLocaleLowerCase("pt-BR")))||(/psicolog|terap/i.test(site.title)?"Psicologia":undefined);const entry=niche?(nichePhotoCatalog as Record<string,{desktop:string[];mobile:string[]}>)[niche]:undefined;const candidates=entry?.desktop||[];if(candidates.length){const source=img.parentElement?.querySelector("source");source?.remove();img.src=nichePhotoBase+candidates[Math.abs(b.id.split("").reduce((n,c)=>n+c.charCodeAt(0),0))%candidates.length]+".png";}else{img.style.display="none";}}} className="aspect-[4/3] w-full rounded-2xl object-cover"/></picture>:null;
             return <span key={b.id} className="flex w-full" style={{justifyContent:b.align==="center"?"center":b.align==="right"?"flex-end":"flex-start"}}><a data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:(/agend|contato|convers|consulta|orçamento|saiba mais/i.test(b.text)?"#contato":undefined)} style={{backgroundColor:b.color,color:readableColor("#ffffff",b.color)}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{clean(b.text)}</a></span>;
           };
