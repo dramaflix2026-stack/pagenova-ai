@@ -7,9 +7,6 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
-type ChatMessage = { role: "user" | "assistant"; text: string };
-type SavedVersion = { id: string; at: string; label: string; site: Site };
-const initial: Site = { title: "Novo projeto", background: "#ffffff", blocks: [], motion: {preset:"professional"} };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
