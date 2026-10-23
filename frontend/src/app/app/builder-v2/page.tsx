@@ -381,8 +381,8 @@ export default function BuilderV2() {
           const treatmentHasCompletePhotos=uniqueImages.length>=editorialCards.slice(0,6).length;
           const useTextOnlyTreatments=isTreatments&&!treatmentHasCompletePhotos;
           // Skip AI-generated sections without usable customer-facing content.
-          const meaningfulParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
-          if(!images.length && !buttons.length && meaningfulParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
+          const contentParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
+          if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
           const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
