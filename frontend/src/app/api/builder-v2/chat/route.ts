@@ -190,7 +190,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"?4:id==="faq"?3:1));
       if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction),footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       // Never silently publish an incomplete or generic fallback as a finished site.
@@ -441,7 +441,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
     if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
-    return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction)),footer:{...socialFromBrief(String(body.instruction)),...(incoming.footer||{})}},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
+    return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction)),extras:{enabled:{}},footer:{...socialFromBrief(String(body.instruction)),...(incoming.footer||{})}},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
     return NextResponse.json({error:"A IA não retornou um site válido e completo. Tente novamente; seu projeto foi preservado."},{status:502});
