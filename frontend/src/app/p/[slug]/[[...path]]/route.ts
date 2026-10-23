@@ -113,6 +113,20 @@ export async function GET(
     return new NextResponse("Pagina nao encontrada.", { status: 404 });
   }
 
+  // Builder V2 slugs have their own immutable public snapshot. Resolve them
+  // before the CRM proxy so an upstream catch-all cannot mask a valid V2 site.
+  if(slug.startsWith("v2-")){
+    if(path?.length)return new NextResponse("Página não encontrada.",{status:404});
+    const admin=adminClient();
+    const {data,error}=await admin.storage.from(BUCKET).download(slug+".json");
+    if(error||!data)return new NextResponse("Página não encontrada.",{status:404});
+    try{
+      const stored=JSON.parse(await data.text()) as {version?:number;site?:{blocks?:unknown}};
+      if(stored.version!==2||!Array.isArray(stored.site?.blocks))return new NextResponse("Página não encontrada.",{status:404});
+    }catch{return new NextResponse("Página indisponível.",{status:500});}
+    return NextResponse.redirect(new URL("/site/"+encodeURIComponent(slug),_request.url),307);
+  }
+
   // New Sites com IA are published and stored by Railway. Proxy the public
   // artifact through the PageNova domain so preview and publication use the
   // exact same renderer/config. This also proxies nested image assets.
