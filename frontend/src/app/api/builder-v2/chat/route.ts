@@ -190,6 +190,33 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const instructionText=String(body.instruction);
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>}|undefined;
   // Animation-only instructions must never regenerate copy, sections or images.
+  // Deterministic social configuration. Never publish icons with missing destinations.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)){
+    const oldFooter=editingSite.footer&&typeof editingSite.footer==="object"?editingSite.footer:{};
+    const next={...oldFooter};
+    let changed=false;
+    const requested=[["instagram","instagram"],["facebook","facebook"],["whatsapp","whatsapp"]] as const;
+    const wantsAll=/redes sociais|[ií]cones? sociais/i.test(instructionText);
+    const normalizeWhatsapp=(raw:string)=>{const digits=raw.replace(/\\D/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"";};
+    for(const [key,word] of requested){
+      if(!wantsAll&&!new RegExp(word,"i").test(instructionText))continue;
+      const removing=new RegExp("(?:remov|retir|exclu|ocult|escond).{0,40}"+word,"i").test(instructionText);
+      if(removing){next[key]="";changed=true;continue;}
+      if(key==="whatsapp"){
+        const wa=instructionText.match(/https:\\/\\/(?:wa\\.me\\/\\d{10,15}|api\\.whatsapp\\.com\\/send\\?phone=\\d{10,15})[^\\s]*/i);
+        const phone=instructionText.match(/(?:\\+?55\\s*)?\\(?\\d{2}\\)?[\\s.-]*9?\\d{4}[\\s.-]*\\d{4}/);
+        const url=wa?.[0]||normalizeWhatsapp(phone?.[0]||"");
+        if(url){next.whatsapp=url;changed=true;}
+      }else{
+        const re=new RegExp("https?:\\/\\/(?:www\\.)?"+word+"\\.com\\/[^\\s\\\"'<>]+","i");
+        const url=instructionText.match(re)?.[0];
+        if(url){next[key]=url;changed=true;}
+      }
+    }
+    if(/(?:flutuante|canto inferior|bot[aã]o fixo)/i.test(instructionText)&&/whatsapp/i.test(instructionText)){next.showFloatingWhatsapp=!/(?:remov|retir|desativ|ocult|escond)/i.test(instructionText);changed=true;}
+    if(changed)return NextResponse.json({site:{...editingSite,footer:next},summary:"Redes sociais atualizadas. Ícones sem links válidos permanecem ocultos."});
+    return NextResponse.json({site:editingSite,summary:"Para ativar os ícones, envie o link do Instagram, o link do Facebook e o WhatsApp com DDD e código do país. Nenhum botão sem destino foi publicado."});
+  }
   // Header identity is independent from the page title and remains editable via chat.
   if(!isFresh && Array.isArray(editingSite?.blocks) && /(?:cabe[cç]alho|logo|logotipo|marca|menu)/i.test(instructionText)){
     const current=editingSite.header&&typeof editingSite.header==="object"?editingSite.header:{};
