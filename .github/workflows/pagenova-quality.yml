@@ -21,6 +21,8 @@ jobs:
           node-version: '22'
       - name: Install frontend dependencies
         run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Test universal animation behavior
+        run: node --test frontend/scripts/test-site-motion.mjs
       - name: Validate curated eBook recipes
         run: node frontend/scripts/validate-ebooks.mjs
       - name: Execute cookbook and print HTML without paid APIs
