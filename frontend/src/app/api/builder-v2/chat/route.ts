@@ -153,7 +153,13 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         }
       }
 
-      // Reject an apparently successful response if any core Template 1 section vanished.
+      // Default CTAs are real editable blocks. AI chat may change, move or delete them.
+      for(const sectionId of ["servicos","depoimentos"]){
+        if(!mutableBlocks.some(b=>b.section===sectionId&&b.type==="button")){
+          mutableBlocks.push({id:"cta-"+sectionId+"-"+crypto.randomUUID(),section:sectionId,type:"button",text:"Entre em contato",href:"#contato",color:"#234b3a",align:"center"});
+        }
+      }
+            // Reject an apparently successful response if any core Template 1 section vanished.
       // The fallback below is safer than publishing a three-section "complete" site.
       // The template order is fixed regardless of the model's JSON item ordering.
       const canonicalIds=sections.map(section=>section.id);
