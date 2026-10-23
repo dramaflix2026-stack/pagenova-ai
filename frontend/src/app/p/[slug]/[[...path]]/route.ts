@@ -130,11 +130,18 @@ export async function GET(
   const { data, error } = await admin.storage.from(BUCKET).download(slug + ".json");
   if (error || !data) return new NextResponse("Pagina nao encontrada.", { status: 404 });
 
-  let payload: { pages?: Record<string, string> };
+  let payload: { version?: number; pages?: Record<string, string> };
   try {
-    payload = JSON.parse(await data.text()) as { pages?: Record<string, string> };
+    payload = JSON.parse(await data.text()) as { version?: number; pages?: Record<string, string> };
   } catch {
     return new NextResponse("Pagina indisponivel.", { status: 500 });
+  }
+
+  // Builder V2 publishes a frozen JSON snapshot that uses the exact same
+  // React preview component as the editor, served by its public Next.js page.
+  if(payload.version===2){
+    if(path?.length)return new NextResponse("Página não encontrada.",{status:404});
+    return NextResponse.redirect(new URL("/site/"+encodeURIComponent(slug),_request.url),307);
   }
 
   const html = payload.pages?.[pageKey];
