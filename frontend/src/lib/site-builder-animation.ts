@@ -24,7 +24,7 @@ const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, 
 export const hasMotionIntent = (text: string) => /anima|efeito|fade.?in|parallax|surg|apare[cç]|desliz|puls|flutu|movimento|transi[cç][aã]o|zoom/i.test(text);
 export function isMotionOnlyInstruction(text: string): boolean {
   if (!hasMotionIntent(text)) return false;
-  return !/(?:adicione|inclua|crie|criar|remova|exclua|mova|reorganize|inserir)[\s\S]{0,65}(?:se[cç][aã]o|bloco|card de conte[uú]do|formul[aá]rio)|(?:troque|altere|mude|substitua|reescreva)[\s\S]{0,55}(?:texto|t[ií]tulo|cor|fundo|layout|imagem|foto|fonte|alinhamento)/i.test(text);
+  return !/(?:adicione|inclua|crie|criar|remova|exclua|mova|reorganize|inserir)\s+(?:(?:uma?|nov[ao]s?|mais)\s+){0,3}(?:se[cç][aã]o|bloco|formul[aá]rio)|(?:troque|altere|mude|substitua|reescreva)[\s\S]{0,55}(?:texto|t[ií]tulo|cor|fundo|layout|imagem|foto|fonte|alinhamento)/i.test(text);
 }
 export function initialSiteMotion(text: string): SiteMotion {
   const off = /(?:sem|nenhuma?s?|n[aã]o (?:quero|use|coloque|adicione))\s+(?:qualquer\s+)?(?:anima[cç][oõ]es?|efeitos?\s+de\s+movimento)|(?:anima[cç][oõ]es?|efeitos?)\s+(?:desligad[ao]s?|desativad[ao]s?)|site\s+est[aá]tico/i.test(text);
@@ -49,7 +49,7 @@ function findSectionIds(site: MotionSite, text: string): string[] {
   const matches = ids.filter(id => {
     const heading = blocks.find(b=>b.section===id&&b.type==="heading");
     const terms = [normalize(id), normalize(String(heading?.text||""))].filter(x=>x.length>=3);
-    return terms.some(term => normalized.includes(term) || (term.split(" ").length>1 && normalized.includes(term.split(" ")[0])));
+    return terms.some(term => normalized.includes(term));
   });
   if (matches.length) return matches;
   const labels: Record<string,RegExp> = {
@@ -67,7 +67,7 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   };
   if (!hasMotionIntent(instruction)) return next;
   const normalized = normalize(instruction);
-  const disable = /(?:sem|remov|retir|exclu|desativ|deslig|cancel|parar|elimin|nao quero)\b/.test(normalized);
+  const disable = /(?:\bsem\b|\bremov\w*|\bretir\w*|\bexclu\w*|\bdesativ\w*|\bdeslig\w*|\bcancel\w*|\bparar\b|\belimin\w*|\bnao quero\b)/.test(normalized);
   const mobileOnlyOff = /(?:mobile|celular)[\s\S]{0,32}(?:sem|desativ|deslig)|(?:sem|desativ|deslig)[\s\S]{0,32}(?:mobile|celular)/i.test(instruction);
   if (mobileOnlyOff) {
     next.mobile = "none";
