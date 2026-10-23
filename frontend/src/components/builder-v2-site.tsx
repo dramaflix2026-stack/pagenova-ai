@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 import { attachSiteMotion, type SiteMotion } from "@/lib/site-builder-animation";
 import "@/app/app/builder-v2/motion.css";
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
+export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; motion?: SiteMotion; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -30,6 +30,7 @@ const designPresets = [
 
 export function BuilderV2Site({site,selectedNiche="",publishedMode=false}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean}) {
   const previewRef=useRef<HTMLDivElement>(null);
+  const [menuOpen,setMenuOpen]=useState(false);
   useEffect(()=>attachSiteMotion(previewRef.current,site.motion),[site]);
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   // Presentation metadata is not customer-facing content.
@@ -85,8 +86,18 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false}:{site:
     ...(footerContact?[footerContact]:[])
   ];
 
+  const header=site.header;
+  const showHeader=site.blocks.length>0&&header?.enabled!==false;
+  const brand=header?.brand||site.title.split(/\\s+[–—-]\\s+/)[0].trim();
+  const nav=footerNavSections;
+  const ctaHref=header?.ctaHref||"#contato";
+  const ctaLabel=header?.ctaLabel||"Agendar conversa";
+  const headerBackground=header?.background||"#ffffff";
+  const headerColor=header?.textColor||"#1c2e27";
+  const navLabel=(g:{id:string;blocks:Block[]})=>/servic|tratament|especialidade/i.test(g.id)?"Serviços":/sobre|hist[oó]ria|institucional/i.test(g.id)?"Sobre":/diferenc/i.test(g.id)?"Diferenciais":/depoiment/i.test(g.id)?"Depoimentos":/galeria/i.test(g.id)?"Galeria":/contato|agend/i.test(g.id)?"Contato":publicHeading(g.blocks.find(b=>b.type==="heading")?.text||g.id,g.id).replace(/:.*/,"");
   return (
-        <section className={publishedMode ? "w-full bg-white text-black" : "overflow-hidden rounded-2xl border border-white/15 bg-white text-black"}>{!publishedMode&&<div className="flex items-center justify-between border-b border-black/10 px-6 py-4"><span className="font-bold">{site.title}</span><span className="text-xs text-gray-500">Animações: {site.motion?.preset==="none"?"desligadas":site.motion?.preset==="dynamic"?"dinâmicas":"profissionais"} · Prévia responsiva</span></div>}<div ref={previewRef} className="pn-motion-site" style={{backgroundColor:site.background}}>{!site.blocks.length && <div className="flex min-h-[420px] flex-col items-center justify-center px-8 py-16 text-center"><p className="text-2xl font-bold text-slate-900">Seu site ainda não foi gerado</p><p className="mt-3 max-w-md text-slate-600">Escreva no chat, por exemplo: Faça um site premium para advogados. Depois clique em Enviar e aplicar.</p></div>}{visibleSections.map((group,index)=>{
+        <section className={publishedMode ? "w-full bg-white text-black" : "overflow-hidden rounded-2xl border border-white/15 bg-white text-black"}>{!publishedMode&&<div className="flex items-center justify-between border-b border-black/10 px-6 py-4"><span className="font-bold">{site.title}</span><span className="text-xs text-gray-500">Animações: {site.motion?.preset==="none"?"desligadas":site.motion?.preset==="dynamic"?"dinâmicas":"profissionais"} · Prévia responsiva</span></div>}{showHeader&&<header style={{backgroundColor:headerBackground,color:headerColor}} className={`z-50 border-b border-black/10 shadow-[0_2px_18px_rgba(0,0,0,.04)] ${header?.sticky===false?"relative":"sticky top-0"}`}><div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 sm:px-8 lg:px-12"><a href="#inicio" onClick={()=>setMenuOpen(false)} className="flex min-w-0 max-w-[65%] items-center gap-2.5 text-base font-bold tracking-tight sm:text-lg">{header?.logoUrl&&<img src={header.logoUrl} alt="" className="h-9 w-9 shrink-0 rounded-lg object-contain"/>}<span className="truncate">{brand}</span></a><nav aria-label="Navegação principal" className="hidden items-center gap-5 lg:flex">{nav.slice(0,5).map(g=><a key={g.id} href={"#"+g.id} className="text-sm font-medium opacity-80 transition hover:opacity-100">{navLabel(g)}</a>)}</nav><div className="flex shrink-0 items-center gap-3"><a href={ctaHref} className="hidden rounded-full bg-[#193f31] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#2b5b48] sm:inline-flex">{ctaLabel}</a><button type="button" aria-label={menuOpen?"Fechar menu":"Abrir menu"} aria-expanded={menuOpen} aria-controls="pn-builder-mobile-menu" onClick={()=>setMenuOpen(v=>!v)} className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-current/20 text-xl lg:hidden">{menuOpen?"×":"☰"}</button></div></div>{menuOpen&&<nav id="pn-builder-mobile-menu" aria-label="Navegação mobile" className="border-t border-black/10 px-5 pb-5 pt-2 lg:hidden">{nav.map(g=><a key={g.id} href={"#"+g.id} onClick={()=>setMenuOpen(false)} className="block border-b border-black/10 py-3 text-sm font-medium">{navLabel(g)}</a>)}<a href={ctaHref} onClick={()=>setMenuOpen(false)} className="mt-4 block rounded-xl bg-[#193f31] px-5 py-3 text-center text-sm font-semibold text-white">{ctaLabel}</a></nav>}</header>}
+        <div ref={previewRef} className="pn-motion-site" style={{backgroundColor:site.background}}>{!site.blocks.length && <div className="flex min-h-[420px] flex-col items-center justify-center px-8 py-16 text-center"><p className="text-2xl font-bold text-slate-900">Seu site ainda não foi gerado</p><p className="mt-3 max-w-md text-slate-600">Escreva no chat, por exemplo: Faça um site premium para advogados. Depois clique em Enviar e aplicar.</p></div>}{visibleSections.map((group,index)=>{
           const blocks=group.blocks;
           const first=blocks[0];
           const id=group.id.toLowerCase();
