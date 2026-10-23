@@ -71,7 +71,8 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   const mobileOnlyOff = /(?:mobile|celular)[\s\S]{0,32}(?:sem|desativ|deslig)|(?:sem|desativ|deslig)[\s\S]{0,32}(?:mobile|celular)/i.test(instruction);
   if (mobileOnlyOff) {
     next.mobile = "none";
-    if (/apenas|somente/i.test(instruction) && !/(?:todos|todas|site inteiro)/i.test(instruction)) return next;
+    // Device-specific opt-out must not disable the entire desktop site.
+    if (!/(?:todos|todas|site inteiro|site todo)/i.test(instruction)) return next;
   }
   if (/(?:mobile|celular)[\s\S]{0,30}(?:com|ativ)|(?:ativ|anima)[\s\S]{0,30}(?:mobile|celular)/i.test(instruction) && !mobileOnlyOff) next.mobile="inherit";
   const all = /(?:todo|toda|todos|todas|inteiro|geral|site completo|site todo|pagina inteira)\b/.test(normalized);
