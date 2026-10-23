@@ -78,4 +78,5 @@ test("combined section creation + motion is routed to full editing, not motion-o
   assert.equal(isMotionOnlyInstruction("Retire todas as animações"),true);
   assert.equal(isMotionOnlyInstruction("Altere a animação do título para vir da esquerda"),true);
   assert.equal(isMotionOnlyInstruction("Altere a cor do título e coloque animações nos cards"),false);
+  assert.equal(isMotionOnlyInstruction("Centralize o título e anime os cards"),false);
 });
