@@ -1,6 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
+
+// Social links are optional, never fabricated. The layout supports all three brands
+// automatically; only destinations explicitly supplied by the client are published.
+function socialFromBrief(brief:string){
+  const url=(brand:"instagram"|"facebook")=>brief.match(new RegExp("https?:\\/\\/(?:www\\.)?"+brand+"\\.com\\/[^\\s\\\"'<>]+","i"))?.[0]?.replace(/[),.;]+$/,"")||"";
+  const whatsappLink=brief.match(/https:\/\/wa\.me\/[0-9]{10,15}(?:\?[^\s"'<>]*)?/i)?.[0]||"";
+  const labeledPhone=brief.match(/(?:whatsapp|telefone|celular|contato)\s*(?::|é|=|-)?\s*(\+?[0-9][0-9() .-]{9,20})/i)?.[1]||"";
+  const digits=labeledPhone.replace(/\D/g,"");
+  const whatsapp=whatsappLink||(digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"");
+  return {instagram:url("instagram"),facebook:url("facebook"),whatsapp,showFloatingWhatsapp:!/\b(?:sem|remover|ocultar|desativar)\s+(?:o\s+)?(?:bot[aã]o\s+)?whatsapp\s+flutuante\b/i.test(brief)};
+}
 export const runtime = "nodejs";
 export const maxDuration = 90;
 export async function POST(req: NextRequest) {
@@ -179,7 +190,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"?4:id==="faq"?3:1));
       if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction),footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       // Never silently publish an incomplete or generic fallback as a finished site.
@@ -430,7 +441,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
     if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
-    return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction))},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
+    return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction)),footer:{...socialFromBrief(String(body.instruction)),...(incoming.footer||{})}},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
     return NextResponse.json({error:"A IA não retornou um site válido e completo. Tente novamente; seu projeto foi preservado."},{status:502});
