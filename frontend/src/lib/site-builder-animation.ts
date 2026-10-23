@@ -67,7 +67,7 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   };
   if (!hasMotionIntent(instruction)) return next;
   const normalized = normalize(instruction);
-  const disable = /(?:\bsem\b|\bremov\w*|\bretir\w*|\bexclu\w*|\bdesativ\w*|\bdeslig\w*|\bcancel\w*|\bparar\b|\belimin\w*|\bnao quero\b)/.test(normalized);
+  const disable = /\bsem\s+(?:qualquer\s+)?(?:anim\w*|efeitos?|movimento)|\b(?:remov\w*|retir\w*|exclu\w*|desativ\w*|deslig\w*|cancel\w*|elimin\w*)\b[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\bnao\s+quero[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\b(?:anim\w*|efeitos?)\s+(?:deslig\w*|desativ\w*)/.test(normalized);
   const mobileOnlyOff = /(?:mobile|celular)[\s\S]{0,32}(?:sem|desativ|deslig)|(?:sem|desativ|deslig)[\s\S]{0,32}(?:mobile|celular)/i.test(instruction);
   if (mobileOnlyOff) {
     next.mobile = "none";
