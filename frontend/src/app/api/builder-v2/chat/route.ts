@@ -51,9 +51,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Later edits still honor the user's chat instructions and preserve existing blocks.
       const sections: Array<{id:string;layout:string;goal:string}> = [
         {id:"inicio",layout:"hero",goal:"Capa principal do negócio, com proposta de valor clara, subtítulo e CTA para #servicos. Nunca usar galeria, nosso espaço ou equipe como título principal."},
-        {id:"servicos",layout:"grid",goal:"Três a cinco serviços ou atividades relevantes para o segmento, com títulos específicos e descrições objetivas, sem inventar especializações."},
+        {id:"servicos",layout:"grid",goal:"EXATAMENTE QUATRO cards de serviços ou atividades relevantes para o segmento, com quatro blocos paragraph separados, títulos específicos e descrições objetivas, sem inventar especializações."},
         {id:"sobre",layout:"split",goal:"Apresentação institucional do negócio com abordagem e proposta de trabalho, sem inventar histórico, estrutura, profissionais ou anos de experiência."},
-        {id:"diferenciais",layout:"grid",goal:"Três a cinco diferenciais verdadeiros ou compromissos genéricos verificáveis, sem prometer resultados ou alegar certificações."},
+        {id:"diferenciais",layout:"grid",goal:"EXATAMENTE QUATRO cards distintos com motivos para escolher o atendimento, em quatro blocos paragraph separados. Use compromissos plausíveis sem inventar resultados, equipe ou certificações."},
         {id:"processo",layout:"grid",goal:"Como funciona o atendimento ou a experiência do cliente, em três etapas objetivas e adequadas ao nicho."},
         {id:"galeria",layout:"gallery",goal:"Galeria de imagens do segmento; heading e três imagens descritivas com src vazio para a biblioteca de fotos preencher."},
         {id:"faq",layout:"faq",goal:"Quatro perguntas frequentes com respostas curtas e úteis, sem afirmar dados comerciais não fornecidos."},
@@ -65,7 +65,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const nicheHealthcare = /cl[ií]nica|est[eé]tica facial|tratamentos est[eé]ticos|beleza|spa/i.test(instruction);
       const results = await Promise.all(batches.map(async (batch,index) => {
         const out = await callAI(
-          "Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e 1 a 5 blocos apropriados. Escreva somente conteúdo final para o visitante, nunca instruções de design ou placeholders como Título Principal Impactante, Subtítulo suave, Fundo azul-marinho, ícones dourados, Imagem a adicionar, ©2024 ou Redes Sociais (ícones). Não inclua rodapé sem dados reais. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste; hero fundo escuro, outras seções claras, grids com cards claros. Em grid: heading + 3 a 5 paragraphs separados, títulos curtos e descrições com até 20 palavras. Nunca escreva Layout:, Background:, Design: ou instruções técnicas no texto público. Não invente credenciais ou resultados, nem alegue experiência comprovada, tecnologia exclusiva, resultados garantidos, eficácia, equipamentos próprios, profissionais certificados ou resultados duradouros sem fatos explícitos no briefing. Em cada grid, todos os cards devem ter título curto e descrição concreta separados por dois-pontos. Planeje variedade editorial: hero com CTA para âncora existente, serviços em grid sem imagens repetidas, história em split, diferenciais em cards, galeria, FAQ e contato com CTA somente se existir destino real. Evite prometer formulário que não existe. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Nunca gere números de telefone, e-mails ou endereços a menos que estejam literalmente presentes no briefing. Não use frases de clínica em sites de arquitetura. Não transforme instruções como editorial, assimétrico, sobreposição ou colagem em títulos públicos. Texto conciso, premium e adequado ao segmento. Não gere seções fora da lista. CRÍTICO: o briefing mistura dados do NEGÓCIO e DIREÇÃO DE ARTE. Direção de arte nunca deve aparecer como diferencial, serviço, valor ou título. Exemplo proibido: Paleta Sofisticada, Profundidade e Textura, Estética Minimalista. Não use copy genérica de clínica (possibilidades de cuidado, tratamento) para arquitetura. Cada seção deve ter conteúdo real: portfólio com heading e pelo menos 3 blocos image de src vazio e text descritivo para o gerador de imagens posterior; metodologia em etapas curtas no formato Etapa: descrição, sem repetir a mesma frase no título e no corpo. Em serviços use descrições específicas do setor. Evite headings vazios. A instrução do usuário prevalece.",
+          "Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e 1 a 5 blocos apropriados. Escreva somente conteúdo final para o visitante, nunca instruções de design ou placeholders como Título Principal Impactante, Subtítulo suave, Fundo azul-marinho, ícones dourados, Imagem a adicionar, ©2024 ou Redes Sociais (ícones). Não inclua rodapé sem dados reais. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste; hero fundo escuro, outras seções claras, grids com cards claros. Em grid: heading + 3 a 5 paragraphs separados, títulos curtos e descrições com até 20 palavras. EXCEÇÃO OBRIGATÓRIA: para as seções com section=servicos e section=diferenciais, gere exatamente 4 paragraphs separados no formato Título curto: descrição. Não produza 3 nem 5 nesses dois casos. Nunca escreva Layout:, Background:, Design: ou instruções técnicas no texto público. Não invente credenciais ou resultados, nem alegue experiência comprovada, tecnologia exclusiva, resultados garantidos, eficácia, equipamentos próprios, profissionais certificados ou resultados duradouros sem fatos explícitos no briefing. Em cada grid, todos os cards devem ter título curto e descrição concreta separados por dois-pontos. Planeje variedade editorial: hero com CTA para âncora existente, serviços em grid sem imagens repetidas, história em split, diferenciais em cards, galeria, FAQ e contato com CTA somente se existir destino real. Evite prometer formulário que não existe. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Nunca gere números de telefone, e-mails ou endereços a menos que estejam literalmente presentes no briefing. Não use frases de clínica em sites de arquitetura. Não transforme instruções como editorial, assimétrico, sobreposição ou colagem em títulos públicos. Texto conciso, premium e adequado ao segmento. Não gere seções fora da lista. CRÍTICO: o briefing mistura dados do NEGÓCIO e DIREÇÃO DE ARTE. Direção de arte nunca deve aparecer como diferencial, serviço, valor ou título. Exemplo proibido: Paleta Sofisticada, Profundidade e Textura, Estética Minimalista. Não use copy genérica de clínica (possibilidades de cuidado, tratamento) para arquitetura. Cada seção deve ter conteúdo real: portfólio com heading e pelo menos 3 blocos image de src vazio e text descritivo para o gerador de imagens posterior; metodologia em etapas curtas no formato Etapa: descrição, sem repetir a mesma frase no título e no corpo. Em serviços use descrições específicas do setor. Evite headings vazios. A instrução do usuário prevalece.",
           {instruction,siteTitle:plan.title,sections:batch,batch:index},4500
         );
         return Array.isArray(out.blocks)?out.blocks:[];
@@ -118,6 +118,39 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         mutableBlocks.splice(0,mutableBlocks.length,...otherBlocks);
       }
 
+      // Template 1: the two commercial card sections always contain four distinct cards.
+      // If the model underproduces, request only the missing copy; preserve all other sections.
+      for(const sectionId of ["servicos","diferenciais"]){
+        const cards=mutableBlocks.filter(item=>item.section===sectionId&&item.type==="paragraph");
+        if(cards.length>4){
+          const redundant=new Set(cards.slice(4));
+          for(let i=mutableBlocks.length-1;i>=0;i--)if(redundant.has(mutableBlocks[i]))mutableBlocks.splice(i,1);
+        }else if(cards.length<4){
+          const missing=4-cards.length;
+          const supplement=await callAI(
+            "Você completa cards específicos de um site profissional sem modificar outras seções. Retorne apenas JSON {cards:[{title:string,description:string}]}. Forneça exatamente a quantidade solicitada de novos cards, com títulos diferentes dos existentes. Descrição factual, concisa e adequada ao nicho, até 20 palavras; não invente equipe, métodos certificados, experiência, especializações, resultados, endereço ou telefone.",
+            {instruction,siteTitle:plan.title,section:sectionId,existingCards:cards.map(item=>item.text),count:missing},1100
+          );
+          const candidates=Array.isArray(supplement.cards)?supplement.cards:[];
+          const priorTitles=new Set(cards.map(item=>String(item.text).split(":")[0].trim().toLocaleLowerCase("pt-BR")));
+          let appended=0;
+          for(const item of candidates){
+            if(!item||typeof item!=="object")continue;
+            const candidate=item as Record<string,unknown>;
+            if(typeof candidate.title!=="string"||typeof candidate.description!=="string")continue;
+            const title=cleanGeneratedCopy(candidate.title).trim();
+            const description=cleanGeneratedCopy(candidate.description).trim();
+            if(!title||!description||title.length>85||description.length>210||forbiddenDesignCopy.test(title+" "+description)||inventedContact.test(title+" "+description))continue;
+            if(priorTitles.has(title.toLocaleLowerCase("pt-BR")))continue;
+            priorTitles.add(title.toLocaleLowerCase("pt-BR"));
+            mutableBlocks.push({id:"card-"+sectionId+"-"+crypto.randomUUID(),section:sectionId,layout:"grid",type:"paragraph",text:title+": "+description,color:"#24332e",align:"left"});
+            appended++;
+            if(appended===missing)break;
+          }
+          if(appended<missing)throw new Error("incomplete-cards:"+sectionId);
+        }
+      }
+
       // Reject an apparently successful response if any core Template 1 section vanished.
       // The fallback below is safer than publishing a three-section "complete" site.
       // The template order is fixed regardless of the model's JSON item ordering.
@@ -135,7 +168,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));
       const missing=coreIds.filter(id=>!generatedIds.has(id));
       const meaningful=(id:string)=>mutableBlocks.filter(b=>b.section===id && (b.type==="paragraph" || b.type==="button" || b.type==="image")).length;
-      const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"||id==="faq"?3:1));
+      const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"?4:id==="faq"?3:1));
       if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções."});
