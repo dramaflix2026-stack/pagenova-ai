@@ -360,7 +360,8 @@ export default function BuilderV2() {
           const useEditorialGrid=visualLayout==="grid"&&(isTreatments||isDifferentials)&&editorialCards.length>=2;
           const treatmentHasCompletePhotos=uniqueImages.length>=editorialCards.slice(0,6).length;
           const useTextOnlyTreatments=isTreatments&&!treatmentHasCompletePhotos;
-          const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);\n          if(!visibleHeading && !images.length && !buttons.length) return null;\n          const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
+          const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);\n          if(!visibleHeading && !images.length && !buttons.length) return null;
+          const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
           const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{b.src?render(b):<div data-block-id={b.id} className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-[#c5cbbf] bg-[#f1f1e9] text-center text-sm text-[#52615a]">{b.text||"Adicionar imagem"}</div>}</div>;
           if(isGallery&&galleryImages.length===0&&textItems.length===0&&buttons.length===0)return null;
           return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className="scroll-mt-20 overflow-hidden px-5 py-9 sm:px-8 sm:py-12 md:px-14 md:py-14">
