@@ -285,8 +285,8 @@ export default function BuilderV2() {
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   // Metadata from the AI describes presentation, never customer-facing copy.
   const removeVisualDirectives = (value:string) => value
-    .replace(/(?:\s*[-–—,;]\s*)?\b(?:background|fundo)\s*:?\s*#[0-9a-f]{3,8}\b[^\n]*/giu,"")
-    .replace(/\s*[-–—,;]\s*$/u,"").trim();
+    .replace(/(?:\\s*[-–—,;]\\s*)*\\b(?:background|fundo)\\s*:?\\s*#[0-9a-f]{3,8}(?=\\s|$|[,;])/giu,"")
+    .replace(/\\s*[-–—,;]\\s*$/u,"").trim();
   const publicHeading = (value:string,section:string) => {
     const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\s*[-–—,;]\s*$/u,"").trim();
     if(cleaned&&!/^(?:hero|grid|split|banner|standard|gallery|faq)$/i.test(cleaned))return cleaned;
@@ -332,6 +332,8 @@ export default function BuilderV2() {
           const layout=(/pergunt|faq/i.test(id+" "+blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))?"faq":undefined) || (/galeria|foto|portf[oó]lio/i.test(id)?"gallery":undefined) || first?.layout || (/servic|tratament|especialidade|benefic|diferencia|atuacao|atua[cç][aã]o|processo|etapas/.test(id)?"grid":/pergunt|faq/.test(id)?"faq":/galeria|foto/.test(id)?"gallery":/equipe|estrutura|sobre|institucional/.test(id)?"split":index===0?"hero":"standard");
           const preset=designPresets.find(p=>p.match.test(site.title))||designPresets[3];
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
+          // Incomplete editorial sections must not reserve empty space in the published page.
+          if(/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id) && blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>80).length<2)return null;
           const sectionBackground=first?.background||(index===0?theme.dark:index%2?theme.light:site.background);
           if(blocks.filter(b=>b.type==="heading").some(b=>/conte[uú]dos? sobre|artigos? sobre/i.test(b.text)) && !blocks.some(b=>b.type==="image"&&b.src)) return null;
           
