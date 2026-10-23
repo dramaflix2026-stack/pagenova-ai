@@ -166,6 +166,7 @@ export type SiteProject = {
     workPhoto?: string;
   };
   presetId?: string;
+  motion?: import("@/lib/site-builder-animation").SiteMotion;
   pages: Partial<Record<SitePageKey, SitePage>>;
   createdAt: string;
 };
@@ -192,7 +193,7 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
   // Strategy-driven projects must use the renderer that honors their brief.
   // Keep the legacy premium renderer only for drafts without a valid strategy.
   if (project.templateId === "vertice-premium" && !hasUniversalRenderStrategy(project)) {
-    return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey));
+    return enhanceSitePreview(renderVerticePremiumPreview(project, pageKey), project.motion);
   }
 
   /*
@@ -209,7 +210,7 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
     );
 
     if (universalHtml) {
-      return enhanceSitePreview(universalHtml);
+      return enhanceSitePreview(universalHtml, project.motion);
     }
   }
 
@@ -218,7 +219,7 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
   // "template-001" for backward compatibility with the builder workflow.
   if (project.presetId === "template-001") {
     const template001Html = renderTemplate001Preview(project, pageKey);
-    if (template001Html) return enhanceSitePreview(template001Html);
+    if (template001Html) return enhanceSitePreview(template001Html, project.motion);
   }
 
   const html =
@@ -230,7 +231,7 @@ export function renderSitePreview(project: SiteProject, pageKey: SitePageKey): s
           ? renderSaasPage(project, page, pageKey)
           : renderInstitutionalPage(project, page, pageKey);
 
-  return enhanceSitePreview(html);
+  return enhanceSitePreview(html, project.motion);
 }
 function renderRealEstateHome(project: SiteProject, page: SitePage): string {
   const nav = SITE_PAGES.filter(({ key }) => project.pages[key]).map(({ key, label }) => `<a href="#${key}" data-page="${key}">${label}</a>`).join("");
