@@ -427,7 +427,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if (typeof raw !== "string" || !raw.trim()) throw Error("empty");
     const output = JSON.parse(raw);
     if (!output.site || !Array.isArray(output.site.blocks) || !output.site.blocks.length || output.site.blocks.length > 120) throw Error("blocks");
-    const incoming = output.site as {title?:string;background?:string;blocks:Array<{id?:string;type?:string;text?:string;color?:string;align?:string;src?:string;fontSize?:number;radius?:number;spacing?:number;section?:string}>};
+    const incoming = output.site as {title?:string;background?:string;footer?:Record<string,string|boolean>;blocks:Array<{id?:string;type?:string;text?:string;color?:string;align?:string;src?:string;fontSize?:number;radius?:number;spacing?:number;section?:string}>};
     if (typeof incoming.title !== "string" || !incoming.title.trim()) incoming.title = "Site profissional";
     if (typeof incoming.background !== "string" || !incoming.background.trim()) incoming.background = "#ffffff";
     const seen = new Set<string>();
