@@ -203,7 +203,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const removing=new RegExp("(?:remov|retir|exclu|ocult|escond).{0,40}"+word,"i").test(instructionText);
       if(removing){next[key]="";changed=true;continue;}
       if(key==="whatsapp"){
-        const wa=instructionText.match(/https:\\/\\/(?:wa\\.me\\/\\d{10,15}|api\\.whatsapp\\.com\\/send\\?phone=\\d{10,15})[^\\s]*/i);
+        const wa=instructionText.match(new RegExp("https://(?:wa[.]me/[0-9]{10,15}|api[.]whatsapp[.]com/send[?]phone=[0-9]{10,15})[^\\s]*","i"));
         const phone=instructionText.match(/(?:\\+?55\\s*)?\\(?\\d{2}\\)?[\\s.-]*9?\\d{4}[\\s.-]*\\d{4}/);
         const url=wa?.[0]||normalizeWhatsapp(phone?.[0]||"");
         if(url){next.whatsapp=url;changed=true;}
