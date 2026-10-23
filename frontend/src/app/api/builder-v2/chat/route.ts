@@ -202,6 +202,18 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>}|undefined;
   // Animation-only instructions must never regenerate copy, sections or images.
   // Deterministic social configuration. Never publish icons with missing destinations.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)){
+    const targets:[string,string][]=[["announcement","faixa de avisos"],["map","mapa"],["video","vídeo"],["comparison","antes e depois"],["partners","parceiros"],["pricing","planos"],["counters","contadores"],["popup","pop-up"],["faq","faq"],["backToTop","voltar ao topo"]];
+    const text=instructionText.toLocaleLowerCase("pt-BR");
+    const selected=targets.filter(([,label])=>text.includes(label));
+    if(selected.length&&/(remover|retirar|excluir|ocultar|desativar|mostrar|adicionar|ativar|exibir|colocar)/i.test(text)){
+      const current=(editingSite as typeof editingSite&{extras?:{enabled?:Record<string,boolean>}}).extras||{};
+      const enabled={...(current.enabled||{})};
+      const removing=/(remover|retirar|excluir|ocultar|desativar)/i.test(text);
+      for(const [key] of selected)enabled[key]=!removing;
+      return NextResponse.json({site:{...editingSite,extras:{...current,enabled}},summary:"Componentes atualizados pelo chat; outras seções preservadas."});
+    }
+  }
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)){
     const oldFooter=editingSite.footer&&typeof editingSite.footer==="object"?editingSite.footer:{};
     const next={...oldFooter};
