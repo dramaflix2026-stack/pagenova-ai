@@ -40,6 +40,8 @@ test("existing site created without animation gains effects from chat without da
   assert.equal(updated.preset,"professional");
   assert.equal(updated.blocks["service-1"].effect,"fade-up");
   assert.equal(updated.blocks["service-2"].staggerMs,200);
+  const noDelay=applySiteMotionInstruction(site({preset:"professional"}),"Anime os cards sem atraso");
+  assert.equal(noDelay.blocks["service-1"].effect,"fade-up");
   assert.equal(JSON.stringify(current.blocks),before);
 });
 test("chat overrides selected blocks and sections only",()=>{
