@@ -285,10 +285,10 @@ export default function BuilderV2() {
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   // Metadata from the AI describes presentation, never customer-facing copy.
   const removeVisualDirectives = (value:string) => value
-    .replace(/(?:\\s*[-–—,;]\\s*)?\\b(?:background|fundo)\\s*:?\\s*#[0-9a-f]{3,8}\\b[^\\n]*/giu,"")
-    .replace(/\\s*[-–—,;]\\s*$/u,"").trim();
+    .replace(/(?:\s*[-–—,;]\s*)?\b(?:background|fundo)\s*:?\s*#[0-9a-f]{3,8}\b[^\n]*/giu,"")
+    .replace(/\s*[-–—,;]\s*$/u,"").trim();
   const publicHeading = (value:string,section:string) => {
-    const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\\s*[-–—,;]\\s*$/u,"").trim();
+    const cleaned=removeVisualDirectives(stripLayoutMetadata(value)).replace(/\s*[-–—,;]\s*$/u,"").trim();
     if(cleaned&&!/^(?:hero|grid|split|banner|standard|gallery|faq)$/i.test(cleaned))return cleaned;
     return /tratament|servi[cç]/i.test(section)?"Nossos tratamentos":/apresent|sobre|cl[ií]nica/i.test(section)?"Conheça nosso espaço":/diferenc|escolh/i.test(section)?"Por que nos escolher":/galeria|resultad/i.test(section)?"Galeria de imagens":/contato|agend/i.test(section)?"Entre em contato":/faq|pergunt/i.test(section)?"Dúvidas frequentes":"Conheça nossos serviços";
   };
@@ -318,6 +318,7 @@ export default function BuilderV2() {
           const editorialEntries=blocks.filter(b=>b.type==="paragraph" && b.text.trim().length>85);
           const editorialPhotos=blocks.filter(b=>b.type==="image" && !!b.src);
           if(isEditorialSection && (editorialPhotos.length===0 || editorialEntries.length<2)) return null;
+          if(isEditorialSection && !blocks.some(b=>b.type==="button") && editorialPhotos.length<1) return null;
           // Never render a section whose only content is an empty or design-instruction heading.
           if(!blocks.some(b=>b.type==="image"&&!!b.src || b.type==="button") && blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>40).length===0) return null;
           if(!blocks.some(b=>b.type==="image"&&b.src || b.type==="button") && blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim()).length<2 && blocks.every(b=>b.type!=="heading" || !removeVisualDirectives(b.text).trim()))return null;
