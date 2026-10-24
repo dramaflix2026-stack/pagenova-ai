@@ -97,3 +97,13 @@
  .pn-motion-site .pn-institutional-section .pn-site-social-proof{justify-content:flex-start;text-align:left}
  .pn-motion-site .pn-institutional-section [data-block-id]{max-width:100%}
 }
+
+/* Shared institutional defaults: keep every section on one left reading axis. */
+.pn-motion-site .pn-default-left :is(h1,h2,h3,h4,p){text-align:left}
+.pn-motion-site .pn-default-left :is(h1,h2,h3,h4,p){margin-inline-start:0;margin-inline-end:auto}
+.pn-motion-site .pn-default-left .pn-site-social-proof{justify-content:flex-start;text-align:left}
+@media(max-width:767px){
+ .pn-motion-site .pn-default-left :is(.pn-alternate-copy,.pn-alternate-content){text-align:left}
+ .pn-motion-site .pn-default-left :is(.pn-alternate-copy,.pn-alternate-content)>*{margin-inline-start:0}
+ .pn-motion-site .pn-default-left :is(.flex.flex-wrap):has(>a){justify-content:flex-start}
+}
