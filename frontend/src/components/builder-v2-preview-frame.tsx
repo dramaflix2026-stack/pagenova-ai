@@ -42,7 +42,7 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
       if(!head.querySelector("[data-pn-preview-overrides]")){
         const overrides=frameDocument.createElement("style");
         overrides.setAttribute("data-pn-preview-overrides","true");
-        overrides.textContent="html,body{margin:0;padding:0;overflow-x:hidden} .pn-motion-target{opacity:1!important;transform:none!important;animation:none!important} .pn-motion-site .pn-motion-target{opacity:1!important;transform:none!important}";
+        overrides.textContent="html,body{margin:0;padding:0;overflow-x:hidden} body{overscroll-behavior-y:contain}";
         head.appendChild(overrides);
       }
     };
