@@ -107,3 +107,21 @@
  .pn-motion-site .pn-default-left :is(.pn-alternate-copy,.pn-alternate-content)>*{margin-inline-start:0}
  .pn-motion-site .pn-default-left :is(.flex.flex-wrap):has(>a){justify-content:flex-start}
 }
+
+/* Builder 2.0 control-panel alignment */
+.pn-builder-editor .pn-editor-head,
+.pn-builder-editor .pn-editor-chat {text-align:left!important}
+.pn-builder-editor .pn-editor-chat textarea,
+.pn-builder-editor .pn-editor-chat input,
+.pn-builder-editor .pn-editor-chat select {text-align:left!important}
+.pn-builder-editor .pn-editor-chat-actions {justify-content:flex-start!important}
+.pn-builder-editor .pn-editor-chat-actions h2 {text-align:left!important;margin-right:auto!important}
+.pn-builder-editor .pn-editor-chat details summary {text-align:left!important}
+.pn-builder-editor .pn-editor-chat :is(p,h1,h2,h3){text-align:left}
+.pn-builder-editor .pn-editor-chat .pn-editor-tools {text-align:left!important}
+@media(max-width:767px) {
+ .pn-builder-editor .pn-editor-head {text-align:left!important}
+ .pn-builder-editor .pn-editor-chat textarea {text-align:left!important}
+ .pn-builder-editor .pn-editor-chat .pn-editor-chat-actions {justify-content:flex-start!important}
+ .pn-builder-editor .pn-editor-chat-actions h2 {text-align:left!important}
+}
