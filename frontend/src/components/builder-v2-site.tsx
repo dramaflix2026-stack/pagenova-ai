@@ -9,7 +9,7 @@ function TestimonialCarousel({children,auto=true}:{children:React.ReactNode;auto
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
+export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -83,6 +83,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
     const contact=(item:{id:string;blocks:Block[]})=>/contato|agend|fale.conosco|fale-conosco/i.test(item.id+" "+item.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "));
     return !contact(group)||all.findIndex(contact)===index;
   });
+  const heroSourceImage=visibleSections[0]?.blocks.find(b=>b.type==="image"&&!!b.src);
   const footerCandidates=visibleSections.filter(g=>!/rodape|footer|faq/i.test(g.id));
   const footerContact=footerCandidates.find(g=>/contato|agend|fale.conosco|fale-conosco/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ")));
   const footerNavSections=[
@@ -312,6 +313,11 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const useEditorialGrid=visualLayout==="grid"&&(isTreatments||isDifferentials)&&editorialCards.length>=2;
           const treatmentHasCompletePhotos=uniqueImages.length>=editorialCards.slice(0,6).length;
           const useTextOnlyTreatments=isTreatments&&!treatmentHasCompletePhotos;
+          // Default editorial structure: three process cards + the original hero photo as card four.
+          // A chat instruction can disable this, or supply a different number of process cards.
+          const featureProcessCard=site.processImageCard!==false&&site.heroPresentation!=="split"&&index>0&&isProcess&&
+            textItems.length===3&&!!heroSourceImage?.src&&/processo|etapas|passos|metodologia|como.funciona|atendimento/i.test(id);
+
           // Skip AI-generated sections without usable customer-facing content.
           const contentParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
           if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
@@ -325,7 +331,35 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           if(isGallery&&galleryImages.length===0&&textItems.length===0&&buttons.length===0)return null;
           return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground,...(immersivePhoto?{backgroundImage:`linear-gradient(90deg,rgba(9,19,28,.90),rgba(9,19,28,.54)),url("${immersivePhoto.replace(/"/g,"%22")}")`,backgroundSize:"cover",backgroundPosition:"center"}:{})}} className={`pn-institutional-section pn-default-left scroll-mt-20 overflow-hidden ${immersiveHero?"pn-immersive-hero":""} ${templateId==="minimalist-sophisticated"?"px-5 py-8 sm:px-8 sm:py-12 md:px-14 md:py-14":"px-5 py-10 sm:px-8 sm:py-14 md:px-14 md:py-16"}`}>
             <div className="mx-auto max-w-6xl">
-              {templateId==="image-text-alternating"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="mx-auto max-w-[1200px]">
+              {immersiveHero?
+                <div className="relative z-10 flex min-h-[450px] w-full max-w-4xl flex-col justify-center gap-5 py-6 text-left sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14">
+                  {headingNode}
+                  <div className="max-w-2xl space-y-4">{textItems.slice(0,3).map(render)}</div>
+                  {buttons.length>0&&<div className="flex flex-wrap items-start gap-3">{buttons.map(render)}</div>}
+                </div>:
+              featureProcessCard?
+                <div className="mx-auto w-full max-w-6xl">
+                  {headingNode}
+                  <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                    {textItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
+                      <div className="flex h-full flex-col p-5 lg:p-6">
+                        <span className="mb-4 inline-flex w-fit rounded-xl bg-[#f5f0e4] px-3 py-2 text-xs font-bold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>
+                        <h3 className="mb-3 text-lg font-semibold leading-snug text-[#24332e]">{card.name||card.description.split(/[,.]/)[0]}</h3>
+                        <p className="text-sm leading-relaxed text-[#53605b]">{card.description}</p>
+                      </div>
+                    </article>})}
+                    <article className="group relative min-h-[250px] overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-[#233c32] shadow-[0_8px_24px_rgba(20,35,29,.04)]" aria-label="Imagem ilustrativa do atendimento">
+                      <picture data-block-id={heroSourceImage!.id} className="absolute inset-0 block h-full w-full">
+                        {heroSourceImage!.mobileSrc&&<source media="(max-width: 767px)" srcSet={heroSourceImage!.mobileSrc}/>}
+                        <img src={heroSourceImage!.src} alt={heroSourceImage!.text||"Imagem do negócio"} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"/>
+                      </picture>
+                      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent"/>
+                      <span className="pointer-events-none absolute bottom-5 left-5 rounded-lg border border-white/40 bg-black/25 px-3 py-2 text-xs font-bold text-white backdrop-blur-sm">04 · Em imagens</span>
+                    </article>
+                  </div>
+                  {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
+                </div>:
+              templateId==="image-text-alternating"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="mx-auto max-w-[1200px]">
                 {isGallery?<div className="space-y-8"><div className="max-w-3xl">{headingNode}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{sectionImages.filter(b=>!!b.src).slice(0,4).map((b,i)=><div key={b.id} className="pn-alternate-image">{imageNode(b,i)}</div>)}</div></div>:
                 <div className={`pn-alternate-row pn-alternate-row-${index%2===0?"even":"odd"} ${index===0?"pn-alternate-hero":""}`}>
                   <div className="pn-alternate-copy space-y-6">
