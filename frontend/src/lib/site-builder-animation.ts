@@ -85,12 +85,13 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   const blocks = site.blocks||[];
   const targetButtons = /\b(botao|botoes|cta|whatsapp)\b/.test(normalized);
   const targetHeading = /\b(titulo|titulos|cabecalho)\b/.test(normalized);
+  const targetParagraph = /\b(texto|textos|subtitulo|descricao|paragrafo|paragrafos)\b/.test(normalized);
   const targetCards = /\b(cards?|cartoes?)\b/.test(normalized);
   const requestedEffect: MotionEffect =
     disable?"none":/puls/.test(normalized)?"pulse":/flutu/.test(normalized)?"float":
     /zoom|aproxim/.test(normalized)?"zoom":
     /(?:esquerda|pela esquerda|da esquerda)/.test(normalized)?"fade-left":
-    /(?:direita|pela direita|da direita)/.test(normalized)?"fade-right":"fade-up";
+    /(?:direita|pela direita|da direita)/.test(normalized)?"fade-right":continuousIntent?(targetButtons?"pulse":"float"):"fade-up";
   const rule: MotionRule = {effect:requestedEffect};
   const parsedDuration=duration(instruction), parsedStagger=stagger(instruction);
   if(parsedDuration!==undefined)rule.durationMs=parsedDuration;
@@ -99,16 +100,16 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
     if(/desktop|computador/i.test(normalized) && !/mobile|celular/i.test(normalized)) rule.device="desktop";
     if(/mobile|celular/i.test(normalized) && !/desktop|computador/i.test(normalized)) rule.device="mobile";
   }
-  if (all || (!sections.length&&!targetButtons&&!targetHeading&&!targetCards)) {
+  if (all || (!sections.length&&!targetButtons&&!targetHeading&&!targetCards&&!targetParagraph)) {
     next.preset=disable?"none":/dinam|intens|marcante/.test(normalized)?"dynamic":"professional";
     if(disable){next.sections={};next.blocks={};}
     return next;
   }
   const allowedSections = sections.length ? sections : [...new Set(blocks.map(b=>String(b.section||"")).filter(Boolean))];
   if (!disable && next.preset==="none") next.preset="professional";
-  if (targetButtons || targetHeading || targetCards) {
+  if (targetButtons || targetHeading || targetCards || targetParagraph) {
     const matching = blocks.filter(b=>allowedSections.includes(String(b.section||"")) && (
-      targetButtons&&b.type==="button" || targetHeading&&b.type==="heading" || targetCards&&b.type==="paragraph"
+      targetButtons&&b.type==="button" || targetHeading&&b.type==="heading" || (targetCards||targetParagraph)&&b.type==="paragraph"
     ));
     matching.forEach(b=>{if(typeof b.id==="string")next.blocks![b.id]=rule;});
   } else {
