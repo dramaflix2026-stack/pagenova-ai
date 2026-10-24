@@ -63,15 +63,3 @@
  .pn-real-estate-preview>div:nth-child(2) h2{font-size:clamp(2.5rem,5vw,3.5rem)}
 }
 
-/* Premium compact menu, scoped to the existing proven pizzaria markup. */
-.pn-pizza-menu-card{min-height:0;gap:0;box-shadow:0 7px 25px rgba(74,39,14,.065);transition:box-shadow .2s ease,transform .2s ease}
-.pn-pizza-menu-card:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(74,39,14,.11)}
-.pn-pizza-menu-card h4{line-height:1.3;letter-spacing:-.02em}
-.pn-pizza-menu-card strong{letter-spacing:-.035em}
-@media(max-width:639px){
- .pn-pizza-menu-card{padding:18px 20px;border-radius:19px}
- .pn-pizza-menu-card h4{font-size:1.12rem;margin-top:7px}
- .pn-pizza-menu-card>div:last-child{padding-top:11px;align-items:center}
- .pn-pizza-menu-card strong{font-size:1.35rem}
- .pn-pizza-menu-card p:first-child{font-size:9px;letter-spacing:.11em}
-}
