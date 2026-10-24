@@ -10,7 +10,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
+type Site = { kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -329,6 +329,16 @@ export default function BuilderV2() {
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    const photoCardOff=/(?:3|tr[eê]s)\s+cards?\b.{0,55}(?:processo|etapas|passos|atendimento)|(?:processo|etapas|passos|atendimento).{0,55}(?:3|tr[eê]s)\s+cards?\b|(?:remov|tir|exclu|ocult|sem)\w*.{0,35}(?:quarto|4[oº]?|foto do quarto|imagem do quarto)\s*card/i.test(prompt);
+    const photoCardOn=/(?:4|quatro)\s+cards?\b.{0,55}(?:processo|etapas|passos|atendimento)|(?:processo|etapas|passos|atendimento).{0,55}(?:4|quatro)\s+cards?\b|(?:mostr|inclu|adicione|coloque|restaur|reativ)\w*.{0,40}(?:foto|imagem).{0,30}(?:quarto|4[oº]?)\s*card/i.test(prompt);
+    const processCardOverride=photoCardOff?false:photoCardOn?true:undefined;
+    const onlyProcessCardChange=processCardOverride!==undefined&&!/(?:crie|gere|novo site|modifiqu|altere|troque).{0,70}(?:texto|titulo|cor|imagem de fundo|formato da capa|design geral|se[cç][aã]o)/i.test(prompt);
+    if(onlyProcessCardChange&&site.blocks.length){
+      recordVersion(site,"Antes de alterar quantidade de cards da seção de etapas");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+      setSite(prev=>({...prev,processImageCard:processCardOverride}));
+      setMessages(prev=>[...prev,{role:"assistant",text:processCardOverride?"Quarto card com a fotografia da capa ativado na seção de etapas.":"Card fotográfico removido da seção de etapas. Os três cards de texto foram preservados."}]);
+      setInstruction("");setBusy(false);return;
+    }
     const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
     const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
     if(immersiveRequest||splitRequest){
@@ -398,6 +408,8 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
+      incoming.heroPresentation=site.heroPresentation;
+      incoming.processImageCard=processCardOverride??site.processImageCard;
       if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
