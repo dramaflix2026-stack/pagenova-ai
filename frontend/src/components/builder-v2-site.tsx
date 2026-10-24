@@ -103,6 +103,8 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
   return (
         <>
         {<style>{`
+.pn-institutional-section.pn-immersive-hero{color:#fff!important}
+.pn-institutional-section.pn-immersive-hero :is(h1,h2,h3,p){color:#fff!important}
 @media(min-width:1024px){
 .pn-institutional-section.pn-immersive-hero{position:relative;min-height:660px;display:flex;align-items:center;color:#fff!important;background-color:#14202a!important}
 .pn-institutional-section.pn-immersive-hero>div{width:100%}
