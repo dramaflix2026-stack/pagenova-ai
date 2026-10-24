@@ -1787,3 +1787,74 @@ body footer.pn-landing-footer > div:first-child {
   .pn-landing-v2 > section:first-of-type p { max-width: 100%; overflow-wrap: anywhere; }
   .pn-landing-v2 > section:first-of-type a { min-width: 0; max-width: 100%; white-space: normal; }
 }
+
+/* Builder V2 published/preview footers are intentionally isolated from the
+   legacy global `body footer > div:first-child` four-column !important rule.
+   Keep this AFTER legacy footer CSS; never cascade these rules onto other
+   PageNova platform or landing footers. */
+body footer.pn-builder-v2-footer {
+  background:#101713 !important;
+  color:#f7f5ed !important;
+  padding:clamp(32px,5vw,68px) clamp(20px,5vw,72px) 28px !important;
+  overflow-x:clip;
+}
+body footer.pn-builder-v2-footer > .pn-builder-v2-footer-shell:first-child {
+  display:block !important;
+  width:100% !important;
+  max-width:1152px !important;
+  margin:0 auto !important;
+  padding:0 !important;
+  border:0 !important;
+  gap:0 !important;
+  grid-template-columns:none !important;
+  align-items:initial !important;
+  justify-content:initial !important;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-main {
+  display:grid !important;
+  grid-template-columns:minmax(0,1.65fr) minmax(250px,.8fr) !important;
+  gap:clamp(32px,5vw,78px) !important;
+  align-items:start !important;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-main > div {
+  min-width:0;
+  width:auto;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-nav {
+  display:block !important;
+  width:100%;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-nav > div {
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  gap:16px 36px !important;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-nav a {
+  display:inline-block !important;
+  width:auto !important;
+  max-width:100%;
+}
+body footer.pn-builder-v2-footer .pn-builder-v2-footer-legal {
+  display:flex !important;
+  flex-wrap:wrap !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:12px 24px !important;
+  margin-top:28px !important;
+  padding-top:0 !important;
+  border-top:0 !important;
+  font-size:13px !important;
+}
+@media(max-width:767px) {
+  body footer.pn-builder-v2-footer .pn-builder-v2-footer-main {
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:32px !important;
+  }
+  body footer.pn-builder-v2-footer .pn-builder-v2-footer-main > div {
+    justify-self:start !important;
+  }
+  body footer.pn-builder-v2-footer .pn-builder-v2-footer-nav > div {
+    gap:12px 24px !important;
+  }
+}
