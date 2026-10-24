@@ -9,7 +9,7 @@ function TestimonialCarousel({children,auto=true}:{children:React.ReactNode;auto
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
+export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -101,6 +101,19 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
   const navLabel=(g:{id:string;blocks:Block[]})=>/servic|tratament|especialidade/i.test(g.id)?"Serviços":/sobre|hist[oó]ria|institucional/i.test(g.id)?"Sobre":/diferenc/i.test(g.id)?"Diferenciais":/depoiment/i.test(g.id)?"Depoimentos":/galeria/i.test(g.id)?"Galeria":/contato|agend/i.test(g.id)?"Contato":publicHeading(g.blocks.find(b=>b.type==="heading")?.text||g.id,g.id).replace(/:.*/,"");
   return (
         <>
+        {<style>{`
+@media(min-width:1024px){
+.pn-institutional-section.pn-immersive-hero{position:relative;isolation:isolate;min-height:680px;display:flex;align-items:center;background:#14202a!important;color:#fff!important}
+.pn-institutional-section.pn-immersive-hero>div{position:static;width:100%;z-index:2}
+.pn-institutional-section.pn-immersive-hero:before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(7,19,29,.94) 0%,rgba(7,19,29,.83) 45%,rgba(7,19,29,.48) 100%);pointer-events:none}
+.pn-institutional-section.pn-immersive-hero picture:has(img),.pn-institutional-section.pn-immersive-hero .pn-alternate-image:has(img){position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:-1!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+.pn-institutional-section.pn-immersive-hero picture img,.pn-institutional-section.pn-immersive-hero .pn-alternate-image img{width:100%!important;height:100%!important;object-fit:cover!important;filter:blur(3px) brightness(.75)!important;transform:scale(1.025);border-radius:0!important}
+.pn-institutional-section.pn-immersive-hero h1,.pn-institutional-section.pn-immersive-hero h2,.pn-institutional-section.pn-immersive-hero p{color:#fff!important}
+.pn-institutional-section.pn-immersive-hero>div>div{max-width:780px!important}
+.pn-institutional-section.pn-immersive-hero .pn-alternate-row{display:block!important}
+.pn-institutional-section.pn-immersive-hero .pn-alternate-copy{max-width:780px!important}
+}
+`}</style>}
         {templateId==="modern-impactful"&&<style>{`
 .pn-template-impact{font-family:Arial,Helvetica,sans-serif;color:#f8f7f2;background:#12151b}
 .pn-template-impact header{background:#11151d!important;color:#fff!important;border-color:#ffffff24!important;box-shadow:none!important}
@@ -239,6 +252,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const sectionBackground=(templateId==="image-text-alternating"?(index%2===0?"#ffffff":"#f1f6f5"):templateId==="minimalist-sophisticated" ? (index%2===0?"#ffffff":"#f7f8f5") : first?.background)||(templateId==="modern-impactful"?(index%2===0?"#12151b":"#202532"):templateId==="minimalist-sophisticated"?(index%2===0?"#f7f5f0":"#eae7df"):(index===0?theme.dark:index%2?theme.light:site.background));
           if(blocks.filter(b=>b.type==="heading").some(b=>/conte[uú]dos? sobre|artigos? sobre/i.test(b.text)) && !blocks.some(b=>b.type==="image"&&b.src)) return null;
           
+          const immersiveHero=index===0&&site.heroPresentation!=="split"&&blocks.some(b=>b.type==="image"&&!!b.src);
           const heading=blocks.filter(b=>b.type==="heading").slice(0,1);
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
@@ -309,7 +323,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const editorialPhotoCard=(b:Block,i:number)=><article key={b.id} data-block-id={b.id} className="group min-w-0 overflow-hidden rounded-xl border border-[#e4e7e3] bg-white"><div className={editorialVisuals[i]?"relative aspect-[4/3] overflow-hidden bg-[#f1f3f0]":"hidden"}>{editorialVisuals[i]?<img src={editorialVisuals[i].src} alt={editorialTitle(b,i)} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" style={{objectPosition:`${35+(i%3)*15}% center`}}/>:<div className="flex h-full items-center justify-center text-4xl font-bold text-[#597585]">{String(i+1).padStart(2,"0")}</div>}</div><div className="p-5 text-left sm:p-6"><span className="mb-3 block text-left text-xs font-bold tracking-[.2em] text-[#607787]">{String(i+1).padStart(2,"0")}</span><div className="text-left [&_p]:!text-left [&_p]:!text-[1rem] [&_p]:!leading-relaxed [&_p]:line-clamp-3">{render(b)}</div></div></article>;
           const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{b.src?render(b):<div data-block-id={b.id} className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-[#c5cbbf] bg-[#f1f1e9] text-center text-sm text-[#52615a]">{b.text||"Adicionar imagem"}</div>}</div>;
           if(isGallery&&galleryImages.length===0&&textItems.length===0&&buttons.length===0)return null;
-          return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className={`pn-institutional-section pn-default-left scroll-mt-20 overflow-hidden ${templateId==="minimalist-sophisticated"?"px-5 py-8 sm:px-8 sm:py-12 md:px-14 md:py-14":"px-5 py-10 sm:px-8 sm:py-14 md:px-14 md:py-16"}`}>
+          return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground}} className={`pn-institutional-section pn-default-left scroll-mt-20 overflow-hidden ${immersiveHero?"pn-immersive-hero":""} ${templateId==="minimalist-sophisticated"?"px-5 py-8 sm:px-8 sm:py-12 md:px-14 md:py-14":"px-5 py-10 sm:px-8 sm:py-14 md:px-14 md:py-16"}`}>
             <div className="mx-auto max-w-6xl">
               {templateId==="image-text-alternating"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="mx-auto max-w-[1200px]">
                 {isGallery?<div className="space-y-8"><div className="max-w-3xl">{headingNode}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{sectionImages.filter(b=>!!b.src).slice(0,4).map((b,i)=><div key={b.id} className="pn-alternate-image">{imageNode(b,i)}</div>)}</div></div>:
