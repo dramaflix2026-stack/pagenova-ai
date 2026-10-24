@@ -222,3 +222,21 @@
    flex:0 1 auto;
  }
 }
+
+/* Publication now lives below the site preview. Keep the legacy actions in
+   markup for safe migration, but show only the new publication panel. */
+.pn-builder-editor .pn-editor-intro>div:last-child {
+  display:none!important;
+}
+.pn-builder-editor .pn-editor-publish-panel {
+  margin-bottom:12px;
+}
+.pn-builder-editor .pn-editor-publish-panel :is(button,a){
+  text-align:center;
+  justify-content:center;
+}
+@media(max-width:767px){
+  .pn-builder-editor .pn-editor-publish-panel>div:last-child>button:first-child{
+    flex:1 1 100%;
+  }
+}
