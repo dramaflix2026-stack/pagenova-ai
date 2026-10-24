@@ -168,6 +168,8 @@ export function PageNovaSupportChat(){
  function onKey(e:KeyboardEvent<HTMLTextAreaElement>){
   if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();void send();}
  }
+ // The Builder V2 already has its own AI chat; only the customer-site WhatsApp belongs in its preview.
+ if(path.startsWith("/app/builder-v2"))return null;
  return <div className="pointer-events-none fixed inset-0 z-[150]">
   {open&&<div className={"pointer-events-auto fixed right-3 flex w-[min(440px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-emerald-500/30 bg-[#0b100d] text-white shadow-[0_20px_90px_rgba(0,0,0,.6)] sm:right-6 "+(landingPreview?"bottom-[184px] h-[min(600px,calc(100dvh-205px))]":"bottom-[82px] h-[min(640px,calc(100dvh-100px))] sm:bottom-[92px]")} role="dialog" aria-modal="false" aria-label="Conversa com a PageNova IA">
     <header className="flex items-center gap-2 border-b border-white/10 bg-[#18271d] p-3">
