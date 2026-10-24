@@ -149,6 +149,25 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 @media(prefers-reduced-motion:reduce){.pn-template-impact *{scroll-behavior:auto!important}}
 `}</style>}
         {templateId==="image-text-alternating"&&<style>{`
+.pn-template-alternating{font-family:Georgia,'Times New Roman',serif!important;color:#292b29!important}
+.pn-template-alternating .pn-motion-site>section{background:#faf8f4!important}
+.pn-template-alternating .pn-motion-site>section:nth-child(even){background:#eaece7!important}
+.pn-template-alternating .pn-motion-site>section h1,.pn-template-alternating .pn-motion-site>section h2{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.045em!important;line-height:1.12!important;text-transform:none!important}
+.pn-template-alternating .pn-alternate-row{gap:clamp(30px,7vw,110px);padding-block:clamp(22px,5vw,72px)}
+.pn-template-alternating .pn-alternate-row-odd .pn-alternate-image{order:-1}
+.pn-template-alternating .pn-alternate-image{border-radius:0!important;overflow:visible!important;position:relative}
+.pn-template-alternating .pn-alternate-image>div{border-radius:0!important}
+.pn-template-alternating .pn-alternate-image img{border-radius:0!important;max-height:650px!important;min-height:360px;object-fit:cover}
+.pn-template-alternating .pn-alternate-hero .pn-alternate-image img{min-height:520px;max-height:740px!important}
+.pn-template-alternating .pn-alternate-kicker{color:#9b6d49!important;letter-spacing:.3em!important;font-family:Arial,Helvetica,sans-serif}
+.pn-template-alternating .pn-alternate-content{display:grid;gap:16px}
+.pn-template-alternating .pn-alternate-list{border-top:1px solid #b9b8af;gap:0}
+.pn-template-alternating .pn-alternate-list .pn-alternate-text-item{padding:19px 0;border-bottom:1px solid #c9cac2}
+.pn-template-alternating .pn-alternate-quote{min-height:320px;display:grid;place-items:center;border:1px solid #c9c8bf}
+.pn-template-alternating .pn-alternate-quote span{font-family:Georgia,serif;font-size:clamp(7rem,15vw,14rem);color:#c2c8be;font-weight:400}
+.pn-template-alternating .pn-alternate-copy p{font-family:Arial,Helvetica,sans-serif!important;font-size:1rem!important;color:#4c544f!important}
+@media(min-width:900px){.pn-template-alternating .pn-alternate-row{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important}.pn-template-alternating .pn-alternate-hero{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr)!important}}
+@media(max-width:899px){.pn-template-alternating .pn-alternate-row-odd .pn-alternate-image{order:-1}.pn-template-alternating .pn-alternate-image img{min-height:250px;max-height:400px!important}.pn-template-alternating .pn-alternate-hero .pn-alternate-image img{min-height:340px;max-height:450px!important}.pn-template-alternating .pn-alternate-row{padding-block:12px}}
 .pn-template-alternating{font-family:Arial,Helvetica,sans-serif;background:#fff;color:#172b32}
 .pn-template-alternating header{background:#fff!important;color:#172b32!important;border-bottom:1px solid #e5ebea!important}
 .pn-template-alternating .pn-motion-site>section{border-radius:0!important}
@@ -282,9 +301,14 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
             <div className="mx-auto max-w-6xl">
               {templateId==="image-text-alternating"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="mx-auto max-w-[1200px]">
                 {isGallery?<div className="space-y-8"><div className="max-w-3xl">{headingNode}</div><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{sectionImages.slice(0,6).map((b,i)=><div key={b.id} className="pn-alternate-image">{imageNode(b,i)}</div>)}</div></div>:
-                <div className={`pn-alternate-row ${index%2===1?"lg:[&_.pn-alternate-image]:order-first":""}`}>
-                  <div className="pn-alternate-copy space-y-6"><span className="pn-alternate-kicker block">{index===0?"CONHEÇA NOSSO TRABALHO":`NOSSA EXPERIÊNCIA / ${String(index+1).padStart(2,"0")}`}</span>{headingNode}<div className="space-y-4">{textItems.slice(0,8).map((b,i)=><div key={b.id} className={i>0?"border-t border-[#dce8e6] pt-4":""}>{render(b)}</div>)}</div><div className="flex flex-wrap gap-3">{buttons.map(render)}</div></div>
-                  {sectionImages.length>0?<div className="pn-alternate-image">{sectionImages.slice(0,2).map(imageNode)}</div>:<div className="hidden lg:block rounded-2xl border border-[#dce8e6] bg-[#e5efed] p-12"><span className="text-7xl font-light text-[#87b3ac]">{String(index+1).padStart(2,"0")}</span></div>}
+                <div className={`pn-alternate-row pn-alternate-row-${index%2===0?"even":"odd"} ${index===0?"pn-alternate-hero":""}`}>
+                  <div className="pn-alternate-copy space-y-6">
+                    <span className="pn-alternate-kicker block">{index===0?"EDITORIAL / APRESENTAÇÃO":`CAPÍTULO ${String(index+1).padStart(2,"0")}`}</span>
+                    {headingNode}
+                    <div className={`pn-alternate-content ${/servi[cç]os|tratament|diferencia|vantagen/i.test(id)?"pn-alternate-list":""}`}>{textItems.slice(0,8).map((item,i)=><div key={item.id} className="pn-alternate-text-item" data-block-id={item.id}>{render(item)}</div>)}</div>
+                    <div className="flex flex-wrap gap-3">{buttons.map(render)}</div>
+                  </div>
+                  {sectionImages.length>0?<div className="pn-alternate-image">{sectionImages.slice(0,index===0?1:2).map(imageNode)}</div>:<div className="pn-alternate-quote" aria-hidden="true"><span>{String(index+1).padStart(2,"0")}</span></div>}
                 </div>}
               </div>:
               templateId==="modern-impactful"&&!isTestimonials&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="pn-impact-panel mx-auto max-w-[1440px] text-white">
