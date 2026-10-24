@@ -446,7 +446,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
       <span>Criado com PageNova AI</span>
     </div>
   </div>
-</footer>}{<SiteWhatsAppButton numberOrUrl={site.footer?.whatsapp||site.restaurant?.whatsapp||site.realEstateWhatsapp} message={site.footer?.whatsappMessage} enabled={site.footer?.showFloatingWhatsapp!==false} preview={!publishedMode}/></div></section>
+</footer>}{<SiteWhatsAppButton numberOrUrl={site.footer?.whatsapp||site.restaurant?.whatsapp||site.realEstateWhatsapp} message={site.footer?.whatsappMessage} enabled={site.footer?.showFloatingWhatsapp!==false} preview={!publishedMode}/>}</div></section>
         </>
   );
 }
