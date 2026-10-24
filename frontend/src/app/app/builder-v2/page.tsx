@@ -285,12 +285,37 @@ export default function BuilderV2() {
     if(!selected)return null;
     return {site:{...current,blocks:current.blocks.map(b=>b.id===selected.id?{...b,align:direction}:b)},summary:"Alinhamento do botão aplicado. Todo o restante do site foi preservado."};
   }
+  function parseMenuLines(message:string) {
+    const parsed:{name:string;price:number}[]=[];
+    for(const row of message.split(/\r?\n/)){
+      const match=row.trim().replace(/^[•*\s]+/,"").match(/^(.{2,100}?)\s*[-–—:]\s*R?\$\s*(\d{1,5}(?:[.,]\d{1,2})?)\s*$/i);
+      if(!match)continue;
+      const price=Number(match[2].replace(",","."));
+      if(Number.isFinite(price)&&price>0)parsed.push({name:match[1].trim(),price});
+    }
+    return parsed;
+  }
   async function send() {
     const prompt = instruction.trim(); if (!prompt || busy) return;
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
     if(siteCategory==="restaurant") {
+      const entries=parseMenuLines(prompt);
+      if(entries.length){
+        recordVersion(site,"Antes de importar cardápio pelo chat");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(prev=>{
+          const menu=[...(prev.restaurant?.menu||[])];
+          for(const entry of entries){
+            const index=menu.findIndex(item=>item.name.trim().toLocaleLowerCase("pt-BR")===entry.name.toLocaleLowerCase("pt-BR"));
+            const item={id:index>=0?menu[index].id:crypto.randomUUID(),name:entry.name,description:index>=0?menu[index].description:"",price:entry.price,category:index>=0?menu[index].category:"Cardápio"};
+            if(index>=0)menu[index]=item;else menu.push(item);
+          }
+          return {...prev,kind:"restaurant",restaurant:{...prev.restaurant,whatsapp:prev.restaurant?.whatsapp||"",menu}};
+        });
+        setMessages(prev=>[...prev,{role:"assistant",text:`${entries.length} produtos importados para o cardápio. A prévia foi atualizada.`}]);
+        setInstruction("");setBusy(false);return;
+      }
       const add=prompt.match(/(?:adicione|adicionar|inclua|coloque|cadastre)\s+(?:no card[aá]pio\s+)?(?:um[a]?\s+)?(.+?)\s+(?:por|a|pre[cç]o de)\s*R?\$?\s*(\d+(?:[.,]\d{1,2})?)/i);
       if(add){
         const name=add[1].trim();const price=Number(add[2].replace(",", "."));
