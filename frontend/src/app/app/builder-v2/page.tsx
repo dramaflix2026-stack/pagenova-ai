@@ -10,7 +10,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
+type Site = { kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -410,6 +410,8 @@ export default function BuilderV2() {
       const incoming = data.site as Site;
       incoming.heroPresentation=site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
+      incoming.processImageCardTitle=site.processImageCardTitle;
+      incoming.processImageCardDescription=site.processImageCardDescription;
       if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
