@@ -86,3 +86,14 @@
  .pn-editor-chat-actions{gap:8px}
  .pn-editor-chat-actions>button{min-height:42px}
 }
+
+/* Institutional mobile typography: left-aligned by default.
+   Inline text-align from a user/chat edit always wins. */
+@media(max-width:767px){
+ .pn-motion-site .pn-institutional-section :is(h1,h2,h3,h4,p):not([style*="text-align"]):not([style*="textAlign"]){text-align:left}
+ .pn-motion-site .pn-institutional-section :is(h1,h2,h3,h4,p):not([style*="text-align"]):not([style*="textAlign"]){margin-left:0;margin-right:auto}
+ .pn-motion-site .pn-institutional-section :is(h1,h2,h3,h4){text-wrap:pretty}
+ .pn-motion-site .pn-institutional-section :is(p,h1,h2,h3,h4){overflow-wrap:break-word}
+ .pn-motion-site .pn-institutional-section .pn-site-social-proof{justify-content:flex-start;text-align:left}
+ .pn-motion-site .pn-institutional-section [data-block-id]{max-width:100%}
+}
