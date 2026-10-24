@@ -146,15 +146,10 @@ const pizzaIngredients:Record<string,string>={
 function pizzaDescription(name:string){const key=name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
 // Navigate within the correct document, including the isolated desktop/mobile preview.
 function scrollToSiteSection(event:MouseEvent<HTMLAnchorElement>,sectionId:string){
-  const doc=event.currentTarget.ownerDocument;
-  const target=doc.getElementById(sectionId);
+  const target=event.currentTarget.ownerDocument.getElementById(sectionId);
   if(!target)return;
   event.preventDefault();
-  const scrolling=doc.scrollingElement;
-  if(scrolling){
-    const top=target.getBoundingClientRect().top+scrolling.scrollTop;
-    scrolling.scrollTo({top,behavior:"smooth"});
-  }else target.scrollIntoView({behavior:"smooth",block:"start"});
+  target.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
   const [activeCategory,setActiveCategory]=useState("Todos");
