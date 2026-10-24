@@ -11,7 +11,7 @@ const source=readFileSync(path.join(root,"src/lib/site-builder-animation.ts"),"u
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}});
 const exports={};
 vm.runInNewContext(compiled.outputText,{exports,module:{exports},console,window:undefined});
-const {initialSiteMotion,applySiteMotionInstruction,isMotionOnlyInstruction,motionRuleFor}=exports;
+const {initialSiteMotion,applySiteMotionInstruction,isMotionOnlyInstruction,motionRuleFor,attachSiteMotion}=exports;
 const blocks=[
   {id:"hero-heading",section:"inicio",type:"heading",text:"Sua saúde"},
   {id:"hero-cta",section:"inicio",type:"button",text:"Agendar consulta"},
@@ -81,4 +81,50 @@ test("combined section creation + motion is routed to full editing, not motion-o
   assert.equal(isMotionOnlyInstruction("Altere a animação do título para vir da esquerda"),true);
   assert.equal(isMotionOnlyInstruction("Altere a cor do título e coloque animações nos cards"),false);
   assert.equal(isMotionOnlyInstruction("Centralize o título e anime os cards"),false);
+});
+
+test("ongoing movement is opt-in and preserves blocks when updated via chat",()=>{
+  const current=site({preset:"professional"});
+  const original=JSON.stringify(current.blocks);
+  const updated=applySiteMotionInstruction(current,"Quero a página sempre em movimento");
+  assert.equal(updated.continuous,true);
+  assert.equal(updated.preset,"professional");
+  assert.equal(JSON.stringify(current.blocks),original);
+  const removed=applySiteMotionInstruction(site(updated),"Retire todas as animações");
+  assert.equal(removed.continuous,false);
+  assert.equal(removed.preset,"none");
+});
+test("targeted headings and buttons continue moving when requested",()=>{
+  const title=applySiteMotionInstruction(site({preset:"professional"}),"Deixe o título da capa ficar em movimento");
+  assert.equal(title.continuous,true);
+  assert.equal(title.blocks["hero-heading"].effect,"float");
+  const button=applySiteMotionInstruction(site(title),"Faça os botões pulsarem continuamente");
+  assert.equal(button.continuous,true);
+  assert.equal(button.blocks["hero-cta"].effect,"pulse");
+});
+test("isolated responsive preview does not disable animation via CSS override",()=>{
+  const file=readFileSync(path.join(root,"src/components/builder-v2-preview-frame.tsx"),"utf8");
+  assert.ok(file.includes('data-pn-preview-overrides'));
+  assert.equal(file.includes('animation:none!important} .pn-motion-site'),false);
+  assert.equal(file.includes('.pn-motion-target{opacity:1!important'),false);
+  const renderer=readFileSync(path.join(root,"src/components/builder-v2-site.tsx"),"utf8");
+  assert.ok(renderer.includes("attachSiteMotion(previewRef.current,site.motion)"));
+});
+test("DOM motion engine uses the embedded preview viewport rather than the parent window",()=>{
+  const classes=new Set(),styles=new Map(),attrs={};
+  const section={dataset:{sectionId:"inicio"},querySelectorAll:()=>[element]};
+  const iframe={innerHeight:740,matchMedia:(q)=>({matches:q.includes("767px")}),requestAnimationFrame:(fn)=>{fn();return 1;},cancelAnimationFrame:()=>{},IntersectionObserver:class{observe(){} disconnect(){} unobserve(){}}};
+  const element={
+    dataset:{blockId:"hero-heading"},classList:{add:(...x)=>x.forEach(v=>classes.add(v)),remove:(...x)=>x.forEach(v=>classes.delete(v))},
+    style:{setProperty:(k,v)=>styles.set(k,v),removeProperty:(k)=>styles.delete(k)},
+    closest:()=>section,getBoundingClientRect:()=>({top:80}),matches:()=>false,querySelector:()=>null,
+    removeAttribute:(k)=>delete attrs[k],isConnected:true
+  };
+  const rootEl={
+    ownerDocument:{defaultView:iframe},dataset:{},querySelectorAll:()=>[element],
+    removeAttribute:(name)=>delete rootEl.dataset[name],getAttribute:()=>null
+  };
+  const stop=attachSiteMotion(rootEl,{preset:"professional",mobile:"none"});
+  assert.equal(classes.has("pn-motion-target"),false,"mobile suppression must use iframe width");
+  stop();
 });
