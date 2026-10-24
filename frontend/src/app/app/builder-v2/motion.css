@@ -9,6 +9,20 @@
 .pn-motion-site .pn-motion-loop[data-pn-motion-effect="float"] {animation:pn-universal-float 4s ease-in-out infinite;}
 @keyframes pn-universal-pulse {0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
 @keyframes pn-universal-float {0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+/* Continuous movement is opt-in via chat and is subtle by default.
+   Background motion changes ONLY the photograph position, never the copy. */
+.pn-motion-site[data-pn-motion-continuous="true"] .pn-immersive-hero {
+  animation:pn-universal-background-drift 16s ease-in-out infinite alternate;
+}
+@keyframes pn-universal-background-drift {
+  0% {background-position:48% 50%}
+  100% {background-position:54% 50%}
+}
+@media(prefers-reduced-motion:reduce) {
+ .pn-motion-site[data-pn-motion-continuous="true"] .pn-immersive-hero,
+ .pn-motion-site .pn-motion-loop {animation:none!important}
+}
+
 @media(prefers-reduced-motion:reduce){
  .pn-motion-site .pn-motion-target {opacity:1!important;transform:none!important;transition:none!important;animation:none!important}
 }
