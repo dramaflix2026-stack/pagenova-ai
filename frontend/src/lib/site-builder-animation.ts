@@ -16,6 +16,8 @@ export type SiteMotion = {
   sections?: Record<string, MotionRule>;
   blocks?: Record<string, MotionRule>;
   mobile?: "inherit" | "none";
+  /** Opt-in to subtle ongoing movement instead of one-time reveal animations. */
+  continuous?: boolean;
 };
 
 type MotionBlock = { id?: unknown; type?: unknown; section?: unknown; text?: unknown };
@@ -67,8 +69,11 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   };
   if (!hasMotionIntent(instruction)) return next;
   const normalized = normalize(instruction);
+  const continuousIntent=/(?:continuament|constantement|sem parar|sempre em movimento|ficar? em movimento|movimento continuo|movimento constante|animacao continua|animacoes continuas|flutuando|flutuant|oscilando|mexendo o tempo todo)/.test(normalized);
   const disable = /\bsem\s+(?:qualquer\s+)?(?:anim\w*|efeitos?|movimento)|\b(?:remov\w*|retir\w*|exclu\w*|desativ\w*|deslig\w*|cancel\w*|elimin\w*)\b[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\bnao\s+quero[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\b(?:anim\w*|efeitos?)\s+(?:deslig\w*|desativ\w*)/.test(normalized);
   const mobileOnlyOff = /(?:mobile|celular)[\s\S]{0,32}(?:sem|desativ|deslig)|(?:sem|desativ|deslig)[\s\S]{0,32}(?:mobile|celular)/i.test(instruction);
+  if (continuousIntent) next.continuous=true;
+  if (disable && !mobileOnlyOff) next.continuous=false;
   if (mobileOnlyOff) {
     next.mobile = "none";
     // Device-specific opt-out must not disable the entire desktop site.
@@ -115,37 +120,97 @@ export function motionRuleFor(config: SiteMotion|undefined, sectionId: string, b
   if(config?.preset==="none") return {effect:"none"};
   return (blockId && config?.blocks?.[blockId]) || config?.sections?.[sectionId] || {effect:"fade-up"};
 }
-/** DOM adapter: used by the Builder preview, independent of template markup. */
+/** DOM adapter: used by both public sites and the isolated Builder preview.
+ * Use the element's owner document to support real mobile/desktop iframe viewports.
+ * The observer must watch the iframe scrolling, not the PageNova editor window.
+ */
 export function attachSiteMotion(root: HTMLElement|null, config?: SiteMotion): () => void {
   if (!root) return () => {};
-  const targets = Array.from(root.querySelectorAll<HTMLElement>("[data-section-id] [data-block-id], [data-section-id] details, [data-section-id] .grid > div"))
-    .filter((el,index,all)=> all.indexOf(el)===index && !el.closest("[hidden]"));
-  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const mobile = window.matchMedia("(max-width: 767px)").matches;
+  const view=root.ownerDocument.defaultView;
+  if (!view) return () => {};
+  const targets=Array.from(root.querySelectorAll<HTMLElement>(
+    "[data-section-id] [data-block-id], [data-section-id] details, [data-section-id] .grid > div"
+  )).filter((el,index,all)=>all.indexOf(el)===index&&!el.closest("[hidden]"));
+  const reduce=view.matchMedia?.("(prefers-reduced-motion: reduce)").matches??false;
+  const mobile=view.matchMedia?.("(max-width: 767px)").matches??false;
+  // This attribute lets immersive covers animate their photographic background
+  // without ever animating or obscuring the text above the photograph.
+  if (config?.continuous && !reduce && config.preset!=="none" && !(mobile && config.mobile==="none")) {
+    root.dataset.pnMotionContinuous="true";
+  } else {
+    root.removeAttribute("data-pn-motion-continuous");
+  }
+  const ObserverClass="IntersectionObserver" in view
+    ? (view as Window & typeof globalThis).IntersectionObserver
+    : null;
   const observers: IntersectionObserver[]=[];
+  const pendingFrames: number[]=[];
+  let disposed=false;
+  const reveal=(element:HTMLElement)=>{
+    if (!disposed && element.isConnected) element.classList.add("pn-motion-visible");
+  };
   targets.forEach((element,index)=>{
     const section=element.closest<HTMLElement>("[data-section-id]");
-    const rule=motionRuleFor(config,section?.dataset.sectionId||"",element.dataset.blockId);
-    const suppressed = reduce || config?.preset==="none" || (mobile && config?.mobile==="none") ||
-      (rule.device==="desktop"&&mobile) || (rule.device==="mobile"&&!mobile);
+    const sectionId=section?.dataset.sectionId||"";
+    const blockId=element.dataset.blockId;
+    const explicit=(blockId?config?.blocks?.[blockId]:undefined)||config?.sections?.[sectionId];
+    const rule=motionRuleFor(config,sectionId,blockId);
+    const suppressed=reduce||config?.preset==="none"||(mobile&&config?.mobile==="none")||
+      (rule.device==="desktop"&&mobile)||(rule.device==="mobile"&&!mobile);
     element.classList.remove("pn-motion-target","pn-motion-visible","pn-motion-loop");
     element.style.removeProperty("--pn-motion-duration");
     element.style.removeProperty("--pn-motion-delay");
     element.removeAttribute("data-pn-motion-effect");
-    if(suppressed || rule.effect==="none") return;
-    const effect=rule.effect;
+    if(suppressed||rule.effect==="none")return;
+
+    const isImage=element.matches("img,picture") || !!element.querySelector("img");
+    const isButton=element.matches("a,button") ||
+      (blockId!==undefined&&element.querySelector("a,button")!==null);
+    const effect:MotionEffect= config?.continuous&&!explicit
+      ? (isImage?"float":isButton?"pulse":rule.effect) : rule.effect;
     element.dataset.pnMotionEffect=effect;
-    element.style.setProperty("--pn-motion-duration",String(rule.durationMs || (config?.preset==="dynamic"?780:680))+"ms");
+    element.style.setProperty("--pn-motion-duration",String(rule.durationMs||(config?.preset==="dynamic"?780:680))+"ms");
     const sectionIndex=Array.from(section?.querySelectorAll("[data-block-id], details, .grid > div")||[]).indexOf(element);
     const staggerMs=rule.staggerMs??(config?.preset==="dynamic"?110:75);
     element.style.setProperty("--pn-motion-delay",String(Math.min(450,Math.max(0,sectionIndex<0?index%4:sectionIndex%5)*staggerMs))+"ms");
     element.classList.add("pn-motion-target");
-    if(effect==="pulse"||effect==="float"){element.classList.add("pn-motion-visible","pn-motion-loop");return;}
-    if(!("IntersectionObserver" in window) || element.getBoundingClientRect().top < window.innerHeight*.85){
-      element.classList.add("pn-motion-visible");return;
+    if(effect==="pulse"||effect==="float"){
+      element.classList.add("pn-motion-visible","pn-motion-loop");
+      return;
     }
-    const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("pn-motion-visible");observer.unobserve(entry.target);}})},{threshold:.06,rootMargin:"0px 0px -18px 0px"});
-    observer.observe(element);observers.push(observer);
+    const top=element.getBoundingClientRect().top;
+    if(!ObserverClass||top<view.innerHeight*.85){
+      // Allow one painted frame at the initial position. Without this,
+      // the class is applied in the same frame and the entry animation is lost.
+      const frame=view.requestAnimationFrame(()=> {
+        const next=view.requestAnimationFrame(()=>reveal(element));
+        pendingFrames.push(next);
+      });
+      pendingFrames.push(frame);
+      return;
+    }
+    const observer=new ObserverClass(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          const target=entry.target as HTMLElement;
+          reveal(target);
+          observer.unobserve(target);
+        }
+      });
+    },{threshold:.06,rootMargin:"0px 0px -18px 0px"});
+    observer.observe(element);
+    observers.push(observer);
   });
-  return ()=>{observers.forEach(observer=>observer.disconnect());targets.forEach(el=>{el.classList.remove("pn-motion-target","pn-motion-visible","pn-motion-loop");el.removeAttribute("data-pn-motion-effect");el.style.removeProperty("--pn-motion-duration");el.style.removeProperty("--pn-motion-delay");});};
+  return ()=>{
+    disposed=true;
+    observers.forEach(observer=>observer.disconnect());
+    pendingFrames.forEach(frame=>view.cancelAnimationFrame(frame));
+    root.removeAttribute("data-pn-motion-continuous");
+    targets.forEach(el=>{
+      el.classList.remove("pn-motion-target","pn-motion-visible","pn-motion-loop");
+      el.removeAttribute("data-pn-motion-effect");
+      el.style.removeProperty("--pn-motion-duration");
+      el.style.removeProperty("--pn-motion-delay");
+    });
+  };
 }
