@@ -146,12 +146,15 @@ const pizzaIngredients:Record<string,string>={
 function pizzaDescription(name:string){const key=name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
 // Navigate within the correct document, including the isolated desktop/mobile preview.
 function scrollToSiteSection(event:MouseEvent<HTMLAnchorElement>,sectionId:string){
-  const target=event.currentTarget.ownerDocument.getElementById(sectionId);
+  const doc=event.currentTarget.ownerDocument;
+  const target=doc.getElementById(sectionId);
   if(!target)return;
   event.preventDefault();
-  // Scroll the target inside its actual document, including the isolated
-  // desktop/mobile iframe preview. Avoid scrolling the parent Builder page.
-  target.scrollIntoView({behavior:"smooth",block:"start"});
+  const scrolling=doc.scrollingElement;
+  if(scrolling){
+    const top=target.getBoundingClientRect().top+scrolling.scrollTop;
+    scrolling.scrollTo({top,behavior:"smooth"});
+  }else target.scrollIntoView({behavior:"smooth",block:"start"});
 }
 function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
   const [activeCategory,setActiveCategory]=useState("Todos");
@@ -500,6 +503,7 @@ export default function BuilderV2() {
   </div></main>;
   return <main className="pn-builder-shell pn-builder-editor min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-5 text-white sm:px-4 sm:py-8">
     <div className="mx-auto w-full min-w-0 max-w-6xl"><div className="pn-editor-category mb-4 flex flex-wrap items-center justify-between gap-2"><span className="text-xs text-white/55">Categoria: {siteCategories.find(item=>item.id===siteCategory)?.title||"Site Institucional"} {siteCategory==="restaurant"&&restaurantSegment?`· ${restaurantSegment}`:""}</span><button type="button" onClick={()=>{if(siteCategory==="restaurant")setSegmentScreen(true);else setCategoryScreen(true);}} className="rounded-lg border border-white/20 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-white/10">← Tipos de site</button></div>
+      <div className="pn-editor-intro mb-6 flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-widest text-lime-300">Criação com IA</p><h1 className="break-words text-2xl font-bold leading-tight sm:text-3xl">PageNova Builder 2.0</h1><p className="mt-2 text-sm text-white/60">Descreva, personalize e publique seu site em poucos passos.</p></div><div className="flex flex-wrap items-center gap-2"><button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||site.blocks.length<4} className="rounded-xl bg-lime-300 px-4 py-2 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>{site.publishedUrl&&<a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-lime-300/60 px-4 py-2 text-sm font-bold text-lime-300">Abrir site publicado ↗</a>}{site.publishedUrl&&<button type="button" onClick={()=>void navigator.clipboard.writeText(site.publishedUrl||"")} className="rounded-xl border border-white/20 px-4 py-2 text-sm">Copiar URL</button>}<a href="/app/builder" className="rounded-xl border border-white/20 px-4 py-2 text-sm">Editor anterior</a></div></div>
       <div className="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(350px,440px)_minmax(0,1fr)] xl:gap-6">
         <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border border-lime-300/20 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-left text-lg font-bold">Chat com IA</h2><p className="mt-1 text-left text-xs text-white/55">Crie um site ou peça mudanças à IA.</p></div><button type="button" onClick={newProject} disabled={busy||publishing} className="rounded-lg border border-lime-300/50 px-3 py-2 text-xs font-semibold text-lime-300 disabled:opacity-40">+ Novo site</button></div>
 <details className="pn-editor-tools mb-4 rounded-xl border border-white/15 bg-black/20 p-3">
