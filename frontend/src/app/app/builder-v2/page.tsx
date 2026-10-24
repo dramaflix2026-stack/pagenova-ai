@@ -141,7 +141,7 @@ const pizzaIngredients:Record<string,string>={
  "romeu e julieta":"Mussarela e goiabada.",
  "banana com canela":"Banana, açúcar e canela."
 };
-function pizzaDescription(name:string){const key=name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
+function pizzaDescription(name:string){const key=name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
 function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
   const [activeCategory,setActiveCategory]=useState("Todos");
   const menu=site.restaurant?.menu||[];
