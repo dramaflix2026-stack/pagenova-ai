@@ -10,7 +10,7 @@ const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u0
 
 export function referencesTopAnnouncement(instruction: string, currentText = DEFAULT_BUILDER_ANNOUNCEMENT): boolean {
   const text = normalize(instruction);
-  const explicit = /\b(?:tarja|faixa|barra (?:verde|superior|do topo|de avisos)|aviso (?:superior|do topo|de cima)|banner (?:superior|do topo)|(?:texto|mensagem) (?:do|no) topo)\b/.test(text);
+  const explicit = /\b(?:tarja|faixa (?:verde|superior|do topo|de cima|de avisos)|barra (?:verde|superior|do topo|de avisos)|aviso (?:superior|do topo|de cima)|banner (?:superior|do topo)|(?:texto|mensagem) (?:do|no) topo)\b/.test(text);
   if (explicit) return true;
   // Users often quote only the beginning of the visible announcement.
   // Never mistake a named hero CTA for the announcement.
@@ -22,6 +22,8 @@ export function referencesTopAnnouncement(instruction: string, currentText = DEF
 export function applyAnnouncementTextInstruction<T extends EditableAnnouncementSite>(site: T, instruction: string): {site: T; summary: string} | {error: string} | null {
   const text = normalize(instruction);
   if (!referencesTopAnnouncement(instruction, site.extras?.announcement)) return null;
+  // Motion and visual styling commands are not requests to replace the text.
+  if (/\b(?:movimento|animacao|velocidade|rolando|rolar|mover|estatica|estatico|direcao|direita|esquerda|cor|fundo|background|fonte|tamanho|altura|largura|opacidade|alinhamento|centralizar|alinhar)\b/.test(text)) return null;
   if (!/\b(?:troque|trocar|mude|mudar|altere|alterar|substitua|substituir|atualize|atualizar|coloque|escreva|defina|modifique|modificar)\b/.test(text)) return null;
   // Compound instructions must go through the patch editor, which can target
   // both regular blocks and this separate field transactionally.

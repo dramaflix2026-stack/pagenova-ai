@@ -40,6 +40,14 @@ test("identifies a previously customized announcement",()=>{
 test("rejects unclear strip replacements without modifying the site",()=>{
   assert.deepEqual(applyAnnouncementTextInstruction(site(),"Troque a tarja verde"),{error:"Informe o novo texto da tarja superior. Nenhum outro elemento foi alterado."});
 });
+test("motion, color and unrelated image strips never become announcement text",()=>{
+  const original=site();
+  for(const instruction of [
+    "Mude o movimento da faixa superior para direita",
+    "Altere a cor da tarja verde para amarelo",
+    "Troque o texto da faixa de produtos para Ofertas",
+  ]) assert.equal(applyAnnouncementTextInstruction(original,instruction),null);
+});
 test("multi-target edits pass through the patch editor",()=>{
   assert.equal(applyAnnouncementTextInstruction(site(),"Troque a tarja verde para Frete grátis e mude o botão para Ver produtos"),null);
 });
