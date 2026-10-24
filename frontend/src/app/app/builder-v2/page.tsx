@@ -329,6 +329,15 @@ export default function BuilderV2() {
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
+    const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
+    if(immersiveRequest||splitRequest){
+      recordVersion(site,"Antes de alterar apresentação da capa");
+      setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+      setSite(prev=>({...prev,heroPresentation:immersiveRequest?"immersive":"split"}));
+      setMessages(prev=>[...prev,{role:"assistant",text:immersiveRequest?"Capa imersiva aplicada no desktop: foto ao fundo, sobreposição escura e conteúdo à frente. A versão mobile foi preservada.":"Capa dividida restaurada. Conteúdo, imagens e versão mobile preservados."}]);
+      setInstruction("");setBusy(false);return;
+    }
     if(siteCategory==="restaurant") {
       const entries=parseMenuLines(prompt);
       if(entries.length){
