@@ -9,7 +9,7 @@ function TestimonialCarousel({children,auto=true}:{children:React.ReactNode;auto
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
+export type BuilderV2SiteData = { title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -342,21 +342,36 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
               featureProcessCard?
                 <div className="mx-auto w-full max-w-6xl">
                   {headingNode}
-                  <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                    {textItems.map((item,i)=>{const card=cardText(item);return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
-                      <div className="flex h-full flex-col p-5 lg:p-6">
-                        <span className="mb-4 inline-flex w-fit rounded-xl bg-[#f5f0e4] px-3 py-2 text-xs font-bold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>
-                        <h3 className="mb-3 text-lg font-semibold leading-snug text-[#24332e]">{card.name||card.description.split(/[,.]/)[0]}</h3>
-                        <p className="text-sm leading-relaxed text-[#53605b]">{card.description}</p>
-                      </div>
-                    </article>})}
-                    <article className="group relative min-h-[250px] overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-[#233c32] shadow-[0_8px_24px_rgba(20,35,29,.04)]" aria-label="Imagem ilustrativa do atendimento">
-                      <picture data-block-id={heroSourceImage!.id} className="absolute inset-0 block h-full w-full">
+                  <div className="grid items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                    {textItems.map((item,i)=>{
+                      const card=cardText(item);
+                      // Preserve the existing process-card photos. When there are other
+                      // generated photos, reserve the original hero photo for card four.
+                      const alternatives=processPhotos.filter(photo=>photo.src!==heroSourceImage?.src);
+                      const candidates=alternatives.length>=3?alternatives:processPhotos;
+                      const photo=candidates[i%candidates.length];
+                      return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
+                        {photo?.src&&<picture data-block-id={photo.id} className="block aspect-[16/10] w-full overflow-hidden bg-[#eff1ec]">
+                          {photo.mobileSrc&&<source media="(max-width: 767px)" srcSet={photo.mobileSrc}/>}
+                          <img src={photo.src} alt={photo.text||card.name||"Imagem ilustrativa"} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"/>
+                        </picture>}
+                        <div className="flex grow flex-col p-5 sm:p-6">
+                          <span className="mb-4 inline-flex w-fit rounded-xl bg-[#f5f0e4] px-3 py-2 text-xs font-bold text-[#92773b]">{String(i+1).padStart(2,"0")}</span>
+                          <h3 className="mb-3 text-lg font-semibold leading-snug text-[#24332e]">{card.name||card.description.split(/[,.]/)[0]}</h3>
+                          <p className="text-sm leading-relaxed text-[#53605b]">{card.description}</p>
+                        </div>
+                      </article>;
+                    })}
+                    <article className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
+                      <picture data-block-id={heroSourceImage!.id} className="block aspect-[16/10] w-full overflow-hidden bg-[#eff1ec]">
                         {heroSourceImage!.mobileSrc&&<source media="(max-width: 767px)" srcSet={heroSourceImage!.mobileSrc}/>}
-                        <img src={heroSourceImage!.src} alt={heroSourceImage!.text||"Imagem do negócio"} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"/>
+                        <img src={heroSourceImage!.src} alt={heroSourceImage!.text||"Imagem de apresentação do negócio"} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"/>
                       </picture>
-                      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/60 to-transparent"/>
-                      <span className="pointer-events-none absolute bottom-5 left-5 rounded-lg border border-white/40 bg-black/25 px-3 py-2 text-xs font-bold text-white backdrop-blur-sm">04 · Em imagens</span>
+                      <div className="flex grow flex-col p-5 sm:p-6">
+                        <span className="mb-4 inline-flex w-fit rounded-xl bg-[#f5f0e4] px-3 py-2 text-xs font-bold text-[#92773b]">04</span>
+                        <h3 className="mb-3 text-lg font-semibold leading-snug text-[#24332e]">{site.processImageCardTitle||"Nosso trabalho em imagens"}</h3>
+                        <p className="text-sm leading-relaxed text-[#53605b]">{site.processImageCardDescription||"Uma apresentação visual do nosso trabalho e dos serviços oferecidos."}</p>
+                      </div>
                     </article>
                   </div>
                   {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
