@@ -253,17 +253,29 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   if(!isFresh && Array.isArray(editingSite?.blocks) && /(?:cabe[cç]alho|logo|logotipo|marca|menu)/i.test(instructionText)){
     const current=editingSite.header&&typeof editingSite.header==="object"?editingSite.header:{};
     const next={...current};
-    const rename=instructionText.match(/(?:nome|texto|marca|logo(?:tipo)?)\\s+(?:do|da|no|na|de)?\\s*(?:cabe[cç]alho|logo|marca)?\\s*(?:para|por|como|:|é)\\s*["“']?([^"”'\\n.!?]{2,65})/i)||instructionText.match(/(?:altere|mude|troque|renomeie)\\s+(?:o\\s+)?(?:nome|texto)\\s+(?:do\\s+)?cabe[cç]alho\\s+(?:para|por)\\s+["“']?([^"”'\\n.!?]{2,65})/i);
+    // A brand/logo rename is distinct from changing the hero heading.
+    // Examples: "Mude a logo de Pet Shop Natural para PetLoVe",
+    // "Troque o nome da marca para PetLoVe", "Altere o texto do cabeçalho para PetLoVe".
+    const renameWithOldName=instructionText.match(/(?:mude|altere|troque|substitua|renomeie|modifique|mudar|alterar|trocar)\s+(?:o|a)?\s*(?:nome(?:\s+(?:do|da)\s+(?:logo|logotipo|marca|cabe[cç]alho))?|texto(?:\s+(?:do|da)\s+(?:logo|logotipo|marca|cabe[cç]alho))?|logo(?:tipo)?|marca|identidade(?:\s+visual)?|cabe[cç]alho)\s+(?:(?:de|do|da)\s+["“”']?[^.!?\n]{1,80}?["“”']?\s+)?(?:para|por|como)\s+["“']?([^"”'\n.!?]{2,65})/i);
+    const renameDirect=instructionText.match(/(?:nome|texto|marca|logo(?:tipo)?)\s+(?:(?:do|da|no|na|de)\s+)?(?:cabe[cç]alho|logo|marca)?\s*(?:para|por|como|:|é)\s*["“']?([^"”'\n.!?]{2,65})/i);
+    const rename=renameWithOldName||renameDirect;
     const image=instructionText.match(new RegExp("https://[^\\s\\\"\x27<>]+[.](?:png|jpe?g|webp|svg)(?:[?][^\\s\\\"\x27<>]*)?","i"));
     let changed=false;
-    if(rename){next.brand=rename[1].trim().replace(/["“”']+$/,"");next.logoUrl="";changed=true;}
+    const requestedBrand=rename?.[1]?.trim().replace(/["“”']+$/,"").trim();
+    const isImageRequest=!!requestedBrand&&/^(?:(?:uma?|o|a)\s+)?(?:imagem|foto|ícone|icone|arquivo|símbolo|simbolo|logotipo\s+gráfico|logo\s+gráfica)\b/i.test(requestedBrand);
+    if(requestedBrand&&!isImageRequest&&!/^https?:\/\//i.test(requestedBrand)){
+      next.brand=requestedBrand;
+      // A textual wordmark replaces any previous image logo so the new brand is visible.
+      next.logoUrl="";
+      changed=true;
+    }
     if(image&&/(?:logo|logotipo|marca)/i.test(instructionText)){next.logoUrl=image[0];changed=true;}
     if(/(?:remov|retir|escond|ocult).{0,30}(?:logo|logotipo|imagem da marca)/i.test(instructionText)){next.logoUrl="";changed=true;}
     if(/(?:remov|retir|escond|ocult).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=false;changed=true;}
     if(/(?:mostr|ativ|exib).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=true;changed=true;}
     const bg=instructionText.match(/(?:fundo|background)\\s+(?:do\\s+)?cabe[cç]alho\\s+(?:para|em|:)\\s*(#[0-9a-fA-F]{6})/i);
     if(bg){next.background=bg[1];changed=true;}
-    if(changed)return NextResponse.json({site:{...editingSite,header:next},summary:"Identidade do cabeçalho atualizada. Demais seções preservadas."});
+    if(changed)return NextResponse.json({site:{...editingSite,header:next},summary:requestedBrand&&!isImageRequest?"Nome da marca no cabeçalho atualizado para "+requestedBrand+". Título principal, imagens e demais seções preservados.":"Identidade do cabeçalho atualizada. Demais seções preservadas."});
   }
   if (!isFresh && Array.isArray(editingSite?.blocks) && isMotionOnlyInstruction(instructionText)) {
     return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
