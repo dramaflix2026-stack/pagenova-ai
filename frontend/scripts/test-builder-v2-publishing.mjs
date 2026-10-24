@@ -43,3 +43,15 @@ test("Public route prioritizes V2 snapshots, not untrusted CRM catch-alls",()=>{
  assert.match(publicPage,/const BUCKET="pagenova-published-sites"/);
  assert.match(publicPage,/payload.version!==2/);
 });
+
+test("Scaled preview keeps native touch scrolling inside iframe and scroll chaining on mobile",()=>{
+ const frame=read("src/components/builder-v2-preview-frame.tsx");
+ assert.match(frame,/overscroll-behavior-y:auto!important/);
+ assert.match(frame,/overflow-y:auto!important/);
+ assert.match(frame,/scrolling="yes"/);
+ assert.match(frame,/touchAction:"auto"/);
+ assert.match(frame,/WebkitOverflowScrolling:"touch"/);
+ assert.doesNotMatch(frame,/overscroll-behavior-y:contain/);
+ assert.match(frame,/transform:`scale\(\$\{scale\}\)`/);
+ assert.match(frame,/createPortal\(/);
+});
