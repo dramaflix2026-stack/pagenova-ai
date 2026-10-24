@@ -117,7 +117,7 @@ test("DOM motion engine uses the embedded preview viewport rather than the paren
   const element={
     dataset:{blockId:"hero-heading"},classList:{add:(...x)=>x.forEach(v=>classes.add(v)),remove:(...x)=>x.forEach(v=>classes.delete(v))},
     style:{setProperty:(k,v)=>styles.set(k,v),removeProperty:(k)=>styles.delete(k)},
-    closest:()=>section,getBoundingClientRect:()=>({top:80}),matches:()=>false,querySelector:()=>null,
+    closest:(selector)=>selector==="[hidden]"?null:section,getBoundingClientRect:()=>({top:80}),matches:()=>false,querySelector:()=>null,
     removeAttribute:(k)=>delete attrs[k],isConnected:true
   };
   const rootEl={
@@ -127,4 +127,30 @@ test("DOM motion engine uses the embedded preview viewport rather than the paren
   const stop=attachSiteMotion(rootEl,{preset:"professional",mobile:"none"});
   assert.equal(classes.has("pn-motion-target"),false,"mobile suppression must use iframe width");
   stop();
+});
+
+test("scroll/entrance effects are attached inside the isolated iframe and cleaned up",()=>{
+  const classes=new Set(),styles=new Map();
+  const element={
+    dataset:{blockId:"headline"},classList:{add:(...values)=>values.forEach(value=>classes.add(value)),remove:(...values)=>values.forEach(value=>classes.delete(value))},
+    style:{setProperty:(key,value)=>styles.set(key,value),removeProperty:(key)=>styles.delete(key)},
+    closest:(query)=>query==="[hidden]"?null:section,
+    matches:()=>false,querySelector:()=>null,getBoundingClientRect:()=>({top:30}),isConnected:true,
+    removeAttribute:()=>{}
+  };
+  const section={dataset:{sectionId:"inicio"},querySelectorAll:()=>[element]};
+  const childWindow={innerHeight:780,matchMedia:()=>({matches:false}),
+    requestAnimationFrame:(callback)=>{callback();return 1;},cancelAnimationFrame:()=>{},
+    IntersectionObserver:class{observe(){}disconnect(){}unobserve(){}}
+  };
+  const data={};
+  const rootNode={dataset:data,ownerDocument:{defaultView:childWindow},querySelectorAll:()=>[element],removeAttribute:(key)=>{delete data[key];}};
+  const cleanup=attachSiteMotion(rootNode,{preset:"professional",continuous:true});
+  assert.equal(rootNode.dataset.pnMotionContinuous,"true");
+  assert.equal(classes.has("pn-motion-target"),true);
+  assert.equal(classes.has("pn-motion-visible"),true);
+  assert.equal(element.dataset.pnMotionEffect,"fade-up");
+  cleanup();
+  assert.equal(classes.has("pn-motion-target"),false);
+  assert.equal(rootNode.dataset.pnMotionContinuous,undefined);
 });
