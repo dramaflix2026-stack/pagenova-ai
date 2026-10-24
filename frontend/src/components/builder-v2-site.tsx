@@ -415,9 +415,9 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
               <div className={sectionImages.length?"grid min-w-0 items-center gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] lg:gap-12":"mx-auto max-w-3xl space-y-5"}><div className="space-y-5">{heading.map(render)}{textItems.slice(0,3).map(render)}{buttons.map(render)}</div>{sectionImages.slice(0,1).map(imageNode)}</div>}
             </div>
           </section>;
-        })}{site.blocks.length>0&&<BuilderExtras extras={{...site.extras,enabled:{announcement:false,video:site.extras?.enabled?.video===true,comparison:site.extras?.enabled?.comparison===true,partners:site.extras?.enabled?.partners===true,pricing:site.extras?.enabled?.pricing===true,counters:true,faq:false,map:site.extras?.enabled?.map!==false&&!!site.extras?.address,popup:site.extras?.enabled?.popup!==false,backToTop:site.extras?.enabled?.backToTop!==false}}} />}{site.blocks.length>0&&<footer className="bg-[#102a22] px-6 py-10 text-[#f7f5ed] md:px-12 md:py-14 lg:px-16">
-  <div className="mx-auto w-full max-w-6xl">
-    <div className="grid min-w-0 items-start gap-x-12 gap-y-10 border-b border-white/15 pb-10 md:grid-cols-[minmax(0,1.65fr)_minmax(260px,.8fr)] lg:gap-x-20">
+        })}{site.blocks.length>0&&<BuilderExtras extras={{...site.extras,enabled:{announcement:false,video:site.extras?.enabled?.video===true,comparison:site.extras?.enabled?.comparison===true,partners:site.extras?.enabled?.partners===true,pricing:site.extras?.enabled?.pricing===true,counters:true,faq:false,map:site.extras?.enabled?.map!==false&&!!site.extras?.address,popup:site.extras?.enabled?.popup!==false,backToTop:site.extras?.enabled?.backToTop!==false}}} />}{site.blocks.length>0&&<footer className="pn-builder-v2-footer bg-[#102a22] px-6 py-10 text-[#f7f5ed] md:px-12 md:py-14 lg:px-16">
+  <div className="pn-builder-v2-footer-shell mx-auto w-full max-w-6xl">
+    <div className="pn-builder-v2-footer-main grid min-w-0 items-start gap-x-12 gap-y-10 border-b border-white/15 pb-10 md:grid-cols-[minmax(0,1.65fr)_minmax(260px,.8fr)] lg:gap-x-20">
       <div className="min-w-0">
         <div className="mb-5 h-1 w-12 rounded-full bg-[#d4c19b]"/>
         <p className="max-w-2xl text-2xl font-bold leading-[1.18] tracking-tight [text-wrap:balance] sm:text-[1.75rem] lg:text-3xl">{site.title.split(/\s+[–—-]\s+/)[0].trim()}</p>
@@ -434,13 +434,13 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
         </div>
       </div>
     </div>
-    <nav aria-label="Menu do rodapé" className="min-w-0 border-b border-white/15 py-8">
+    <nav aria-label="Menu do rodapé" className="pn-builder-v2-footer-nav min-w-0 border-b border-white/15 py-8">
       <h3 className="mb-5 text-xs font-bold uppercase tracking-[.18em] text-[#d4c19b]">Explore</h3>
       <div className="flex min-w-0 flex-wrap items-center gap-x-8 gap-y-4 md:gap-x-10">
         {footerNavSections.map((g,i)=><a key={g.id} className="inline-block max-w-full text-sm leading-relaxed text-white/70 transition hover:text-white" href={/contato|agend|fale.conosco/i.test(g.id)?"#contato":"#"+g.id}>{i===0?"Início":navLabel(g)}</a>)}
       </div>
     </nav>
-    <div className="mt-7 flex flex-col gap-3 text-left text-xs leading-relaxed text-white/50 md:flex-row md:items-center md:justify-between">
+    <div className="pn-builder-v2-footer-legal mt-7 flex flex-col gap-3 text-left text-xs leading-relaxed text-white/50 md:flex-row md:items-center md:justify-between">
       <span>© {new Date().getFullYear()} {site.title.split(/\s+[–—-]\s+/)[0].trim()}. Todos os direitos reservados.</span>
       <span>Criado com PageNova AI</span>
     </div>
