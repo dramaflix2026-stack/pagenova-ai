@@ -63,3 +63,26 @@
  .pn-real-estate-preview>div:nth-child(2) h2{font-size:clamp(2.5rem,5vw,3.5rem)}
 }
 
+
+/* Center the builder controls on mobile; generated-site content keeps its own alignment. */
+@media(max-width:1023px){
+ .pn-editor-category{justify-content:center;text-align:center;gap:12px}
+ .pn-editor-category>span{flex-basis:100%;line-height:1.5}
+ .pn-editor-intro{flex-direction:column;align-items:center;text-align:center;gap:18px}
+ .pn-editor-intro>div:first-child{width:100%;max-width:680px}
+ .pn-editor-intro>div:first-child p{margin-inline:auto}
+ .pn-editor-intro>div:last-child{justify-content:center;width:100%}
+ .pn-editor-chat{text-align:center}
+ .pn-editor-chat-actions{justify-content:center}
+ .pn-editor-chat-actions h2{width:100%;margin:0 0 8px;text-align:center}
+ .pn-editor-chat textarea{text-align:center}
+ .pn-editor-chat :is(input,select){text-align:center}
+ .pn-editor-chat button{justify-content:center}
+ .pn-editor-chat :is(p,span){overflow-wrap:anywhere}
+}
+@media(max-width:639px){
+ .pn-editor-intro>div:last-child{gap:10px}
+ .pn-editor-intro>div:last-child>button,.pn-editor-intro>div:last-child>a{min-height:44px}
+ .pn-editor-chat-actions{gap:8px}
+ .pn-editor-chat-actions>button{min-height:42px}
+}
