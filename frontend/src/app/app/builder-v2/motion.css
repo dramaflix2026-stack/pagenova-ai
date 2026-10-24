@@ -240,3 +240,7 @@
     flex:1 1 100%;
   }
 }
+
+/* Builder V2 intro is redundant: the AI chat already identifies the workspace.
+   Keep JSX for compatibility with existing controls, but hide the card. */
+.pn-builder-editor .pn-editor-intro{display:none!important}
