@@ -346,9 +346,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const payload=JSON.parse(String(editData?.choices?.[0]?.message?.content||"{}")) as {edits?:Array<{id?:string;changes?:Record<string,unknown>}>;extraChanges?:{announcement?:string};insertions?:Array<{afterId?:string;block?:Record<string,unknown>}>;deletions?:string[];sections?:Array<{afterSection?:string;name?:string;blocks?:Array<Record<string,unknown>>}>;moves?:Array<{id?:string;beforeId?:string;toSection?:string;position?:string}>;summary?:string};
       if(!Array.isArray(payload.edits))payload.edits=[];
       const wantsAnnouncement=referencesTopAnnouncement(instructionText,editingSite.extras?.announcement);
-      const announcementChange=wantsAnnouncement&&typeof payload.extraChanges?.announcement==="string"?payload.extraChanges.announcement.replace(/\\s+/g," ").trim():undefined;
+      const announcementChange=wantsAnnouncement&&typeof payload.extraChanges?.announcement==="string"?payload.extraChanges.announcement.replace(/\s+/g," ").trim():undefined;
       if(announcementChange!==undefined&&(!announcementChange||announcementChange.length>300))return NextResponse.json({error:"Texto inválido para a tarja superior. Nenhuma alteração foi aplicada."},{status:422});
-      if(wantsAnnouncement&&/\\b(?:troque|mude|altere|substitua|atualize|coloque|modifique)\\b/i.test(instructionText)&&announcementChange===undefined)return NextResponse.json({error:"A IA não identificou a alteração da tarja superior. O site foi preservado."},{status:422});
+      if(wantsAnnouncement&&/\b(?:troque|mude|altere|substitua|atualize|coloque|modifique)\b/i.test(instructionText)&&announcementChange===undefined)return NextResponse.json({error:"A IA não identificou a alteração da tarja superior. O site foi preservado."},{status:422});
       const allowed=new Set(["text","align","color","fontSize","href","background","spacing","radius"]);
       const changesById=new Map<string,Record<string,unknown>>();
       for(const edit of payload.edits){

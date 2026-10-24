@@ -4,7 +4,6 @@ export const DEFAULT_BUILDER_ANNOUNCEMENT = "Conheça nossos serviços e entre e
 
 type EditableAnnouncementSite = {
   extras?: { announcement?: string; [key: string]: unknown };
-  [key: string]: unknown;
 };
 
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR").replace(/\s+/g, " ").trim();
