@@ -315,7 +315,17 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(!moving.length||!targetIndices.length)return NextResponse.json({error:"Movimentação inválida. O site foi preservado."},{status:422});
     const position=match[2].toLowerCase()==="antes"?targetIndices[0]:targetIndices[targetIndices.length-1]+1;
     const blocks=[...remaining.slice(0,position),...moving,...remaining.slice(position)];
-    return NextResponse.json({site:{...editingSite,blocks},summary:"Seção movida integralmente, sem perder conteúdo."});
+    // Verify an exact permutation: every block and every property must remain unchanged.
+    const original=editingSite.blocks;
+    const byId=new Map(original.map(b=>[String(b.id),JSON.stringify(b)]));
+    const valid=blocks.length===original.length&&new Set(blocks.map(b=>String(b.id))).size===original.length&&blocks.every(b=>byId.get(String(b.id))===JSON.stringify(b));
+    const resultingSections=[...new Set(blocks.map(b=>String(b.section||"principal")))];
+    const sourceIndex=resultingSections.indexOf(String(source.section));
+    const targetIndex=resultingSections.indexOf(String(target.section));
+    if(!valid||sourceIndex<0||targetIndex<0||(match[2].toLowerCase()==="antes"?sourceIndex!==targetIndex-1:sourceIndex!==targetIndex+1)){
+      return NextResponse.json({error:"Não foi possível preservar integralmente a ordem e o conteúdo. Nenhuma alteração aplicada."},{status:422});
+    }
+    return NextResponse.json({site:{...editingSite,blocks},summary:"Somente a posição da seção foi alterada. Textos, cards, imagens e configurações de todas as seções foram preservados."});
   }
   if (!isFresh && Array.isArray(editingSite?.blocks) && !explicitSectionReorder && isMotionOnlyInstruction(instructionText)) {
     return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
