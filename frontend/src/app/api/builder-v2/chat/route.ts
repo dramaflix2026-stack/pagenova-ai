@@ -393,6 +393,23 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         return NextResponse.json({error:"A edição tentou remover conteúdo não solicitado. O projeto foi preservado."},{status:422});
       }
       const updatedBlocks=editingSite.blocks.filter(b=>!deletedIds.has(String(b.id))).flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
+      // Section moves operate on the entire group; never move only its heading.
+      const sectionMove=instructionText.match(/(?:mova|mover|coloque|reposicione)\\s+(?:a\\s+)?se[cç][aã]o\\s+["“]?(.+?)["”]?\\s+para\\s+(antes|depois)\\s+d[aeo]\\s+(?:se[cç][aã]o\\s+)?["“]?(.+?)["”]?(?:[.!]|$)/i);
+      if(sectionMove){
+        const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+        const headings=updatedBlocks.filter(b=>b.type==="heading"&&b.section);
+        const findSection=(label:string)=>headings.find(b=>normalize(String(b.text))===normalize(label))?.section;
+        const sourceId=findSection(sectionMove[1]);
+        const targetId=findSection(sectionMove[3]);
+        if(!sourceId||!targetId||sourceId===targetId)return NextResponse.json({error:"Não foi possível identificar as seções para mover com segurança. O site foi preservado."},{status:422});
+        const moved=updatedBlocks.filter(b=>b.section===sourceId);
+        const rest=updatedBlocks.filter(b=>b.section!==sourceId);
+        const positions=rest.map((b,i)=>b.section===targetId?i:-1).filter(i=>i>=0);
+        if(!moved.length||!positions.length)return NextResponse.json({error:"A movimentação não pôde ser validada. O site foi preservado."},{status:422});
+        const insertAt=sectionMove[2]==="antes"?positions[0]:positions[positions.length-1]+1;
+        const result=[...rest.slice(0,insertAt),...moved,...rest.slice(insertAt)];
+        return NextResponse.json({site:{...editingSite,blocks:result},summary:"Seção inteira movida com todos os blocos preservados."});
+      }
       for(const move of Array.isArray(payload.moves)?payload.moves:[]){
         if(!move.id)continue;
         const from=updatedBlocks.findIndex(b=>b.id===move.id);
