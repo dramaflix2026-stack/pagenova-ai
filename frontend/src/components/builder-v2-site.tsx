@@ -229,6 +229,11 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 .pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:1rem!important;min-height:0!important}
 .pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child>span{display:block!important;margin:0!important;line-height:1.4!important;min-height:1.4em!important;font-variant-numeric:tabular-nums!important;letter-spacing:.2em!important}
 .pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child>div{margin:0!important;align-self:stretch!important}
+/* Keep the card number and copy together even when generic motion/layout rules stretch cards. */
+.pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card{height:auto!important;min-height:0!important;align-self:start!important}
+.pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child{flex:0 0 auto!important;display:block!important;padding:1.25rem!important;min-height:0!important;height:auto!important}
+.pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child>span{display:block!important;position:static!important;margin:0 0 .85rem!important;line-height:1.4!important}
+.pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child>div{display:block!important;margin:0!important;min-height:0!important;height:auto!important}
 .pn-template-editorial .pn-editorial-layout article{box-shadow:none!important}
 .pn-template-editorial .pn-editorial-layout article>div:last-child{padding:1.1rem!important}
 .pn-template-editorial .pn-editorial-layout article p{-webkit-line-clamp:unset;display:block;overflow:visible}
