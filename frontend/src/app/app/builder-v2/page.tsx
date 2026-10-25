@@ -334,6 +334,11 @@ export default function BuilderV2() {
         setInstruction("");setBusy(false);return;
       }
     }
+    const restaurantInstruction=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    if(siteCategory==="restaurant"&&/(faixa|beneficios|beneficio|sabor artesanal|ingredientes especiais|feito com carinho)/.test(restaurantInstruction)&&/(alter|mud|modern|melhor|centraliz|icone|coluna|divisoria|espac|layout|organize|organizar)/.test(restaurantInstruction)){
+      setMessages(prev=>[...prev,{role:"assistant",text:"A faixa de benefícios da pizzaria já apresenta três colunas com ícones e divisórias. Seu cardápio, imagens e demais seções foram preservados."}]);
+      setInstruction("");setBusy(false);return;
+    }
     const socialUpdates=socialLinksFromChat(prompt);
     if(Object.keys(socialUpdates).length>0 && site.blocks.length){
       recordVersion(site,"Antes de vincular redes sociais");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
@@ -410,6 +415,10 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, {role:"assistant",text:direct.summary}]);
       setInstruction(""); setBusy(false);
       return;
+    }
+    if(siteCategory==="restaurant"){
+      setMessages(prev=>[...prev,{role:"assistant",text:"Para proteger seu cardápio e o layout, esta edição ainda não está disponível pelo chat. Nenhuma alteração foi aplicada."}]);
+      setInstruction("");setBusy(false);return;
     }
     try {
       const response = await fetch("/api/builder-v2/chat", {
