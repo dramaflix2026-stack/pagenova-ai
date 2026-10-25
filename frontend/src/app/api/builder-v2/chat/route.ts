@@ -360,7 +360,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/cards?|cart[oõ]es/i.test(instructionText)&&/colunas?/i.test(instructionText)&&/servi[cç]os|tratament|modalidade/i.test(instructionText)){
     const section=editingSite.blocks.find(block=>/servic|tratament|modalidade/i.test(String(block.section||"")))?.section;
     if(!section)return NextResponse.json({error:"Seção de Serviços não encontrada. Nenhuma alteração aplicada."},{status:422});
-    const match=instructionText.match(/(\\d+|uma|duas|tr[eê]s|quatro)\\s+colunas?[^.]{0,45}desktop/i);
+    const match=instructionText.match(/(\d+|uma|duas|tr[eê]s|quatro)\s+colunas?[^.]{0,45}desktop/i);
     const word=match?.[1]?.toLocaleLowerCase("pt-BR")||"";
     const count=({uma:1,duas:2,"três":3,tres:3,quatro:4}[word]||Number(word));
     if(!Number.isInteger(count)||count<1||count>4)return NextResponse.json({error:"Especifique de uma a quatro colunas no desktop."},{status:422});
