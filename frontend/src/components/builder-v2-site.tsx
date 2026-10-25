@@ -283,7 +283,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
               ||Object.keys(bankCatalog).find(name=>titleAndHeadings.includes(name.toLocaleLowerCase("pt-BR")))
               ||(/psicolog/i.test(titleAndHeadings)?"Psicologia":undefined);
             const bank=bankKey?bankCatalog[bankKey]:undefined;
-            const fallback:Block[]=bank?[3,4,5,2,1,0].filter(i=>!!bank.desktop[i]&&!!bank.mobile[i]).map(i=>({id:"gallery-niche-"+i,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section:group.id,src:nichePhotoBase+bank.desktop[i]+".png",mobileSrc:nichePhotoBase+bank.mobile[i]+".png"})):[];
+            const fallback:Block[]=bank?[3,4,5,2,1,0].filter(i=>!!bank.desktop[i]&&!!bank.mobile[i]).map(i=>({id:"gallery-niche-"+i,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center" as const,section:group.id,src:nichePhotoBase+bank.desktop[i]+".png",mobileSrc:nichePhotoBase+bank.mobile[i]+".png"})):[];
             // Prefer the About photo over generated fallback photos for slot four.
             // Do not cap user-authored galleries or overwrite any existing images.
             const preferred=existing.length>=4?existing:[...existing,...(borrowed?[borrowed]:[])];
