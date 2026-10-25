@@ -323,6 +323,17 @@ export default function BuilderV2() {
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    // Restaurant identity edits must never invoke full-site generation.
+    if(siteCategory==="restaurant"&&/(?:mude|mudar|altere|alterar|troque|trocar|renomeie|renomear|substitua|substituir)/i.test(prompt)&&/(?:nome|t[ií]tulo|cabe[cç]alho|marca)\b/i.test(prompt)&&/(?:pizzaria|restaurante|hamburgueria|cafeteria|loja|estabelecimento|cabe[cç]alho)/i.test(prompt)){
+      const match=prompt.match(/(?:\bpara\b|\bpor\b|\bcomo\b)\s+["“']?([^"'“”\n.!?]{2,75})/i);
+      const name=match?.[1]?.replace(/\s+(?:no|na)\s+cabe[cç]alho.*$/i,"").trim();
+      if(name){
+        recordVersion(site,"Antes de renomear restaurante");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(prev=>({...prev,title:name,kind:"restaurant"}));
+        setMessages(prev=>[...prev,{role:"assistant",text:"Nome do estabelecimento alterado para "+name+". Cardápio, imagens, cores, seções e projeto original preservados."}]);
+        setInstruction("");setBusy(false);return;
+      }
+    }
     const socialUpdates=socialLinksFromChat(prompt);
     if(Object.keys(socialUpdates).length>0 && site.blocks.length){
       recordVersion(site,"Antes de vincular redes sociais");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
