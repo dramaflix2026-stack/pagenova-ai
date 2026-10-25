@@ -171,7 +171,13 @@ function scrollToSiteSection(event:MouseEvent<HTMLAnchorElement>,sectionId:strin
   const target=event.currentTarget.ownerDocument.getElementById(sectionId);
   if(!target)return;
   event.preventDefault();
-  target.scrollIntoView({behavior:"smooth",block:"start"});
+  // scrollIntoView alone can move the outer Builder rather than the
+  // embedded preview. Scroll the target's own document instead.
+  const doc=event.currentTarget.ownerDocument;
+  const viewport=doc.scrollingElement||doc.documentElement;
+  const offset=target.getBoundingClientRect().top+viewport.scrollTop;
+  viewport.scrollTo({top:offset,behavior:"smooth"});
+  if(typeof doc.defaultView?.history?.replaceState==="function")doc.defaultView.history.replaceState(null,"","#"+sectionId);
 }
 function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
   const [activeCategory,setActiveCategory]=useState("Todos");
@@ -185,7 +191,7 @@ function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
     <div className="relative overflow-hidden bg-[#251810] px-6 py-14 text-[#fff9ed] sm:px-12 sm:py-20"><div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#bd5b1d]/25 blur-3xl"/><div className="relative z-10 max-w-2xl"><p className="mb-5 text-xs font-black uppercase tracking-[.28em] text-[#f8b557]">Receitas artesanais · Sabor de verdade</p><h2 className="text-5xl font-black leading-[1.04] tracking-tight sm:text-7xl">O sabor que <span className="text-[#f4a83b]">reúne</span> todo mundo.</h2><p className="mt-6 max-w-lg text-base leading-relaxed text-[#e4cdb6]">Massa dourada, ingredientes selecionados e aquele momento especial em cada fatia.</p><a href="#cardapio-pizzaria-v2" onClick={event=>scrollToSiteSection(event,"cardapio-pizzaria-v2")} className="mt-8 inline-flex rounded-full bg-[#f4a83b] px-7 py-4 text-sm font-black text-[#28180c]">Explorar nosso cardápio →</a></div><div className="relative mt-10 overflow-hidden rounded-3xl border border-[#eeb16c]/30 bg-[#6c3219] sm:mt-12"><img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=85" alt="Pizza artesanal com queijo e ingredientes frescos" className="h-56 w-full object-cover sm:h-96" loading="lazy"/><span className="absolute bottom-4 left-4 rounded-full bg-[#231910]/85 px-4 py-2 text-xs font-bold text-white">Feita para compartilhar</span></div></div>
     <div className="grid grid-cols-3 gap-2 bg-[#f4a83b] px-4 py-5 text-center text-[11px] font-black uppercase tracking-wide text-[#35200e] sm:text-sm"><span>🍕 Sabor artesanal</span><span>✦ Ingredientes especiais</span><span>♥ Feito com carinho</span></div>
     <div id="cardapio-pizzaria-v2" className="px-5 py-12 sm:px-10 sm:py-16"><p className="text-xs font-black uppercase tracking-[.25em] text-[#ad5726]">Escolha seu favorito</p><h3 className="mt-3 text-4xl font-black sm:text-5xl">Nosso cardápio<span className="text-[#c9682b]">.</span></h3><p className="mt-3 max-w-xl text-sm leading-relaxed text-[#766354]">Confira os sabores e faça seu pedido. Os itens e preços vêm diretamente do cadastro de produtos.</p><div className="mt-7 flex flex-wrap gap-2">{["Todos",...categories].map(category=><button type="button" key={category} onClick={()=>setActiveCategory(category)} className={"rounded-full px-4 py-2 text-sm font-bold "+(activeCategory===category?"bg-[#2b1c12] text-white":"border border-[#dbc7ae] bg-white text-[#644932]")}>{category}</button>)}</div>{filtered.length===0?<div className="mt-8 rounded-2xl border border-dashed border-[#d3bca0] bg-white/60 p-8 text-center"><p className="text-xl font-bold">Seu cardápio começa aqui</p><p className="mt-2 text-sm text-[#806c5a]">Adicione produtos na seção de cadastro acima. Eles aparecerão automaticamente neste template.</p></div>:<div className="mt-8 grid gap-4 sm:grid-cols-2">{filtered.map(item=><article key={item.id} className="flex flex-col rounded-2xl border border-[#eadbc6] bg-white p-5 shadow-sm"><p className="text-[10px] font-black uppercase tracking-widest text-[#bc6b34]">{item.category||"Cardápio"}</p><h4 className="mt-3 text-xl font-black">{item.name||"Novo item"}</h4>{(item.description||pizzaDescription(item.name))&&<p className="mt-2 text-sm leading-relaxed text-[#756557]">{item.description||pizzaDescription(item.name)}</p>}<div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-5"><strong className="text-2xl text-[#a64c1d]">{item.price.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</strong>{whatsapp&&item.name&&item.price>0&&<a target="_blank" rel="noopener noreferrer" href={orderLink(item.name,item.price)} className="rounded-full bg-[#2d5d3b] px-4 py-3 text-xs font-black text-white">Pedir agora ↗</a>}</div></article>)}</div>}</div>
-    <footer className="bg-[#231910] px-6 py-10 text-center text-[#fff8e9]"><p className="text-xs font-black tracking-[.25em] text-[#f0a84a]">UMA EXPERIÊNCIA EM CADA FATIA</p><h3 className="mt-3 text-3xl font-black">Bateu a fome?</h3><p className="mt-2 text-sm text-[#d9c1a7]">{whatsapp?"Escolha seu sabor e faça seu pedido pelo WhatsApp.":"Cadastre um WhatsApp para habilitar os botões de pedido."}</p>{whatsapp&&<a target="_blank" rel="noopener noreferrer" href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Gostaria de fazer um pedido.")}`} className="mt-6 inline-flex rounded-full bg-[#f4a83b] px-7 py-3 text-sm font-black text-[#28180c]">Pedir pelo WhatsApp ↗</a>}<p className="mt-7 text-xs text-[#b99c80]">Template 01 · {segment||"Pizzaria"} · Prévia experimental</p><RestaurantFooterSocials footer={site.footer} whatsapp={whatsapp}/></footer><SiteWhatsAppButton numberOrUrl={whatsapp} preview message="Olá! Gostaria de fazer um pedido de pizza." />
+    <footer className="bg-[#231910] px-6 py-10 text-center text-[#fff8e9]"><p className="text-xs font-black tracking-[.25em] text-[#f0a84a]">UMA EXPERIÊNCIA EM CADA FATIA</p><h3 className="mt-3 text-3xl font-black">Bateu a fome?</h3><p className="mt-2 text-sm text-[#d9c1a7]">{whatsapp?"Escolha seu sabor e faça seu pedido pelo WhatsApp.":"Cadastre um WhatsApp para habilitar os botões de pedido."}</p>{whatsapp&&<a target="_blank" rel="noopener noreferrer" href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Gostaria de fazer um pedido.")}`} className="mt-6 inline-flex rounded-full bg-[#f4a83b] px-7 py-3 text-sm font-black text-[#28180c]">Pedir pelo WhatsApp ↗</a>}<RestaurantFooterSocials footer={site.footer} whatsapp={whatsapp}/></footer><SiteWhatsAppButton numberOrUrl={whatsapp} preview message="Olá! Gostaria de fazer um pedido de pizza." />
   </section>;
 }
 export default function BuilderV2() {
@@ -383,7 +389,7 @@ export default function BuilderV2() {
       setMessages(prev=>[...prev,{role:"assistant",text:immersiveRequest?"Capa imersiva aplicada no desktop: foto ao fundo, sobreposição escura e conteúdo à frente. A versão mobile foi preservada.":"Capa dividida restaurada. Conteúdo, imagens e versão mobile preservados."}]);
       setInstruction("");setBusy(false);return;
     }
-    if(siteCategory==="restaurant") {
+    if(siteCategory==="restaurant" && !/\b(?:altere|mude|troque|substitua|remova|exclua|reorganize|mova|alinh|cor|fonte|imagem|logo|titulo|bot[aã]o)\b/i.test(prompt)) {
       const entries=parseMenuLines(prompt);
       if(entries.length){
         recordVersion(site,"Antes de importar cardápio pelo chat");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
@@ -443,6 +449,13 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
+      // Restaurant renderers use dedicated menu/footer data. Preserve it
+      // through generic block edits unless the AI explicitly returns updates.
+      if(siteCategory==="restaurant"&&site.blocks.length){
+        incoming.kind="restaurant";
+        incoming.restaurant={...site.restaurant,...incoming.restaurant,menu:incoming.restaurant?.menu??site.restaurant?.menu??[]};
+        incoming.footer={...site.footer,...incoming.footer};
+      }
       incoming.heroPresentation=site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
