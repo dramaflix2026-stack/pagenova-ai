@@ -363,14 +363,20 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const radiusMatch=instructionText.match(/(?:cantos|raio|arredondamento)[^0-9]{0,45}(\\d{1,2})\\s*px/i);
     const borderMatch=instructionText.match(/borda[^.]{0,100}?(\\d{1,2})\\s*px/i);
     const colorMatch=instructionText.match(/#[0-9a-f]{6}\\b/i);
-    const setRadius=/arredond|cantos|raio/i.test(instructionText);
-    const setBorder=/borda/i.test(instructionText);
-    const setShadow=/sombra/i.test(instructionText);
+    const instructions=instructionText.split(/(?<=[.!?])\\s+/);
+    const actionable=instructions.filter(sentence=>!/^(?:n[aã]o\\s+alter[ea]|preserv[ea]|mantenha|sem\\s+alterar|deixe\\s+como)/i.test(sentence.trim())).join(" ");
+    const setRadius=/arredond|cantos|raio/i.test(actionable)&&!/(?:mantenha|preserve|n[aã]o altere)[^.]{0,65}(?:arredond|cantos|raio)/i.test(actionable);
+    const setBorder=/borda/i.test(actionable)&&!/(?:mantenha|preserve|n[aã]o altere)[^.]{0,65}borda/i.test(actionable);
+    const setShadow=/sombra/i.test(actionable);
+    const stronger=/aument|intens|forte|mais vis[ií]vel|destac/i.test(actionable);
+    const softer=/reduz|suaviz|mais leve|menos intens/i.test(actionable);
+    const shadowValue=/sem sombra|remov[ae].{0,12}sombra/i.test(actionable)?"none":stronger?"0 14px 34px rgba(20,35,29,0.25)":softer?"0 5px 16px rgba(20,35,29,0.06)":"0 8px 24px rgba(20,35,29,0.10)";
+    if(!setRadius&&!setBorder&&!setShadow)return NextResponse.json({error:"Nenhuma mudança de estilo identificada. Propriedades preservadas."},{status:422});
     const changed=editingSite.blocks.map(block=>{
       if(block.section!==target||block.type!=="paragraph")return block;
-      return {...block,...(setRadius?{radius:radiusMatch?Math.min(48,Number(radiusMatch[1])):20}:{}),...(setBorder?{cardBorderWidth:borderMatch?Math.min(12,Number(borderMatch[1])):1,cardBorderColor:colorMatch?.[0]||"#E5E7EB"}:{}),...(setShadow?{cardShadow:/sem sombra|remov[ae].{0,12}sombra/i.test(instructionText)?"none":"0 8px 24px rgba(20,35,29,0.10)"}:{})};
+      return {...block,...(setRadius?{radius:radiusMatch?Math.min(48,Number(radiusMatch[1])):20}:{}),...(setBorder?{cardBorderWidth:borderMatch?Math.min(12,Number(borderMatch[1])):1,cardBorderColor:colorMatch?.[0]||"#E5E7EB"}:{}),...(setShadow?{cardShadow:shadowValue}:{})};
     });
-    return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Cards de Serviços: "+[setRadius?"cantos arredondados":null,setBorder?"borda aplicada":null,setShadow?"sombra configurada":null].filter(Boolean).join(", ")+". Demais seções preservadas."});
+    return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Cards de Serviços: "+[setRadius?"cantos arredondados":null,setBorder?"borda aplicada":null,setShadow?stronger?"sombra intensificada":softer?"sombra suavizada":"sombra configurada":null].filter(Boolean).join(", ")+". Demais propriedades preservadas."});
   }
   const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
   if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
