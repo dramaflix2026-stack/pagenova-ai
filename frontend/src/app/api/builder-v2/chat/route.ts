@@ -352,7 +352,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/centraliz|alinhar|alinhamento/i.test(instructionText)&&/capa|hero|principal/i.test(instructionText)&&/t[ií]tulo|descri[cç][aã]o/i.test(instructionText)){
     const align=/centraliz|centro/i.test(instructionText)?"center":/direita/i.test(instructionText)?"right":/esquerda/i.test(instructionText)?"left":null;
     if(align){const hero=editingSite.blocks.find(b=>b.type==="heading"&&/^(inicio|hero|home|principal)$/i.test(String(b.section||"")))?.section||editingSite.blocks.find(b=>b.type==="heading")?.section;
-      if(hero){const changed=editingSite.blocks.map(b=>b.section===hero&&(["heading","paragraph","button"].includes(String(b.type))?{...b,align}:b);
+      if(hero){const changed=editingSite.blocks.map(b=>b.section===hero&&["heading","paragraph","button"].includes(String(b.type))?{...b,align}:b);
         return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Alinhamento da capa aplicado somente aos seus textos e botões."});}
     }
   }
