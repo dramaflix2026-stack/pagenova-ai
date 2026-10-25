@@ -199,7 +199,7 @@ const pizzaIngredients:Record<string,string>={
  "romeu e julieta":"Mussarela e goiabada.",
  "banana com canela":"Banana, açúcar e canela."
 };
-function pizzaDescription(name:string){const key=name.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
+function pizzaDescription(name:string){const key=name.replace(/^\d+[.)]\s*/,"").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
 // Navigate within the correct document, including the isolated desktop/mobile preview.
 function scrollToSiteSection(event:MouseEvent<HTMLAnchorElement>,sectionId:string){
   const target=event.currentTarget.ownerDocument.getElementById(sectionId);
@@ -224,7 +224,7 @@ function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
     <header className="flex flex-wrap items-center justify-between gap-3 bg-[#231910] px-5 py-5 text-[#fff8e9] sm:px-9"><div><span className="text-xs font-black tracking-[.25em] text-[#f0a84a]">FORNO & SABOR</span><p className="mt-1 text-lg font-black">PIZZARIA <span className="text-[#f4a83b]">ARTESANAL</span></p></div><a href="#cardapio-pizzaria-v2" onClick={event=>scrollToSiteSection(event,"cardapio-pizzaria-v2")} className="rounded-full border border-[#f4a83b]/60 px-5 py-2 text-xs font-bold text-[#ffd69d]">Ver cardápio ↓</a></header>
     <div className="relative isolate flex min-h-[600px] items-center overflow-hidden bg-[#251810] px-6 py-16 text-[#fff9ed] sm:min-h-[690px] sm:px-12 sm:py-24"><img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=85" alt="" aria-hidden="true" className="absolute inset-0 -z-20 h-full w-full object-cover" loading="eager"/><div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1c1008]/90 via-[#1c1008]/75 to-[#1c1008]/40"/><div className="relative z-10 max-w-2xl"><p className="mb-5 text-xs font-black uppercase tracking-[.28em] text-[#f8b557]">Receitas artesanais · Sabor de verdade</p><h2 className="text-5xl font-black leading-[1.04] tracking-tight sm:text-7xl">O sabor que <span className="text-[#f4a83b]">reúne</span> todo mundo.</h2><p className="mt-6 max-w-lg text-base leading-relaxed text-[#fff0dd]">Massa dourada, ingredientes selecionados e aquele momento especial em cada fatia.</p><a href="#cardapio-pizzaria-v2" onClick={event=>scrollToSiteSection(event,"cardapio-pizzaria-v2")} className="mt-8 inline-flex rounded-full bg-[#f4a83b] px-7 py-4 text-sm font-black text-[#28180c]">Explorar nosso cardápio →</a></div></div>
     <div className="grid grid-cols-3 gap-2 bg-[#f4a83b] px-4 py-5 text-center text-[11px] font-black uppercase tracking-wide text-[#35200e] sm:text-sm"><span>🍕 Sabor artesanal</span><span>✦ Ingredientes especiais</span><span>♥ Feito com carinho</span></div>
-    <div id="cardapio-pizzaria-v2" className="px-5 py-12 sm:px-10 sm:py-16"><p className="text-xs font-black uppercase tracking-[.25em] text-[#ad5726]">Escolha seu favorito</p><h3 className="mt-3 text-4xl font-black sm:text-5xl">Nosso cardápio<span className="text-[#c9682b]">.</span></h3><p className="mt-3 max-w-xl text-sm leading-relaxed text-[#766354]">Confira os sabores e faça seu pedido. Os itens e preços vêm diretamente do cadastro de produtos.</p><div className="mt-7 flex flex-wrap gap-2">{["Todos",...categories].map(category=><button type="button" key={category} onClick={()=>setActiveCategory(category)} className={"rounded-full px-4 py-2 text-sm font-bold "+(activeCategory===category?"bg-[#2b1c12] text-white":"border border-[#dbc7ae] bg-white text-[#644932]")}>{category}</button>)}</div>{filtered.length===0?<div className="mt-8 rounded-2xl border border-dashed border-[#d3bca0] bg-white/60 p-8 text-center"><p className="text-xl font-bold">Seu cardápio começa aqui</p><p className="mt-2 text-sm text-[#806c5a]">Adicione produtos na seção de cadastro acima. Eles aparecerão automaticamente neste template.</p></div>:<div className="mt-8 grid gap-4 sm:grid-cols-2">{filtered.map(item=><article key={item.id} className="flex flex-col rounded-2xl border border-[#eadbc6] bg-white p-5 shadow-sm"><p className="text-[10px] font-black uppercase tracking-widest text-[#bc6b34]">{item.category||"Cardápio"}</p><h4 className="mt-3 text-xl font-black">{item.name||"Novo item"}</h4>{(item.description||pizzaDescription(item.name))&&<p className="mt-2 text-sm leading-relaxed text-[#756557]">{item.description||pizzaDescription(item.name)}</p>}<div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-5"><strong className="text-2xl text-[#a64c1d]">{item.price.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</strong>{whatsapp&&item.name&&item.price>0&&<a target="_blank" rel="noopener noreferrer" href={orderLink(item.name,item.price)} className="rounded-full bg-[#2d5d3b] px-4 py-3 text-xs font-black text-white">Pedir agora ↗</a>}</div></article>)}</div>}</div>
+    <div id="cardapio-pizzaria-v2" className="px-5 py-12 sm:px-10 sm:py-16"><p className="text-xs font-black uppercase tracking-[.25em] text-[#ad5726]">Escolha seu favorito</p><h3 className="mt-3 text-4xl font-black sm:text-5xl">Nosso cardápio<span className="text-[#c9682b]">.</span></h3><p className="mt-3 max-w-xl text-sm leading-relaxed text-[#766354]">Confira os sabores e faça seu pedido. Os itens e preços vêm diretamente do cadastro de produtos.</p><div className="mt-7 flex flex-wrap gap-2">{["Todos",...categories].map(category=><button type="button" key={category} onClick={()=>setActiveCategory(category)} className={"rounded-full px-4 py-2 text-sm font-bold "+(activeCategory===category?"bg-[#2b1c12] text-white":"border border-[#dbc7ae] bg-white text-[#644932]")}>{category}</button>)}</div>{filtered.length===0?<div className="mt-8 rounded-2xl border border-dashed border-[#d3bca0] bg-white/60 p-8 text-center"><p className="text-xl font-bold">Seu cardápio começa aqui</p><p className="mt-2 text-sm text-[#806c5a]">Adicione produtos na seção de cadastro acima. Eles aparecerão automaticamente neste template.</p></div>:<div className="mt-8 grid gap-4 sm:grid-cols-2">{filtered.map(item=><article key={item.id} className="flex flex-col rounded-2xl border border-[#eadbc6] bg-white p-4 shadow-sm"><p className="text-[10px] font-black uppercase tracking-widest text-[#bc6b34]">{item.category||"Cardápio"}</p><h4 className="mt-3 text-xl font-black">{item.name.replace(/^\d+[.)]\s*/,"")||"Novo item"}</h4>{(item.description||pizzaDescription(item.name))&&<p className="mt-2 text-sm leading-relaxed text-[#756557]">{item.description||pizzaDescription(item.name)}</p>}<div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-5"><strong className="text-2xl text-[#a64c1d]">{item.price.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}</strong>{whatsapp&&item.name&&item.price>0&&<a target="_blank" rel="noopener noreferrer" href={orderLink(item.name,item.price)} className="rounded-full bg-[#2d5d3b] px-4 py-3 text-xs font-black text-white">Pedir agora ↗</a>}</div></article>)}</div>}</div>
     <footer className="bg-[#231910] px-6 py-10 text-center text-[#fff8e9]"><p className="text-xs font-black tracking-[.25em] text-[#f0a84a]">UMA EXPERIÊNCIA EM CADA FATIA</p><h3 className="mt-3 text-3xl font-black">Bateu a fome?</h3><p className="mt-2 text-sm text-[#d9c1a7]">{whatsapp?"Escolha seu sabor e faça seu pedido pelo WhatsApp.":"Cadastre um WhatsApp para habilitar os botões de pedido."}</p>{whatsapp&&<a target="_blank" rel="noopener noreferrer" href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Gostaria de fazer um pedido.")}`} className="mt-6 inline-flex rounded-full bg-[#f4a83b] px-7 py-3 text-sm font-black text-[#28180c]">Pedir pelo WhatsApp ↗</a>}<RestaurantFooterSocials footer={site.footer} whatsapp={whatsapp}/></footer><SiteWhatsAppButton numberOrUrl={whatsapp} preview message="Olá! Gostaria de fazer um pedido de pizza." />
   </section>;
 }
@@ -390,12 +390,21 @@ export default function BuilderV2() {
     return {site:{...current,blocks:current.blocks.map(b=>b.id===selected.id?{...b,align:direction}:b)},summary:"Alinhamento do botão aplicado. Todo o restante do site foi preservado."};
   }
   function parseMenuLines(message:string) {
-    const parsed:{name:string;price:number}[]=[];
-    for(const row of message.split(/\r?\n/)){
-      const match=row.trim().replace(/^[•*\s]+/,"").match(/^(.{2,100}?)\s*[-–—:]\s*R?\$\s*(\d{1,5}(?:[.,]\d{1,2})?)\s*$/i);
+    const parsed:{name:string;description:string;price:number;category:string}[]=[];
+    let category="Cardápio";
+    const lines=message.split(/\r?\n/);
+    for(let i=0;i<lines.length;i++){
+      const row=lines[i].trim().replace(/^[•*\s]+/,"");
+      if(/pizzas?\s+doces/i.test(row)&&!/\bR\$\s*\d/.test(row)){category="Pizzas doces";continue;}
+      if(/pizzas?\s+salgadas/i.test(row)&&!/\bR\$\s*\d/.test(row)){category="Pizzas salgadas";continue;}
+      const match=row.match(/^(?:\d+[.)]\s*)?(.{2,100}?)\s*[-–—:]\s*R?\$\s*(\d{1,5}(?:[.,]\d{1,2})?)\s*$/i);
       if(!match)continue;
       const price=Number(match[2].replace(",","."));
-      if(Number.isFinite(price)&&price>0)parsed.push({name:match[1].trim(),price});
+      if(!Number.isFinite(price)||price<=0)continue;
+      let description="";
+      const next=lines[i+1]?.trim()||"";
+      if(/^ingredientes?\s*:/i.test(next)){description=next.replace(/^ingredientes?\s*:\s*/i,"").trim();i++;}
+      parsed.push({name:match[1].trim().replace(/^\d+[.)]\s*/,""),description,price,category});
     }
     return parsed;
   }
@@ -438,7 +447,7 @@ export default function BuilderV2() {
           const menu=[...(prev.restaurant?.menu||[])];
           for(const entry of entries){
             const index=menu.findIndex(item=>item.name.trim().toLocaleLowerCase("pt-BR")===entry.name.toLocaleLowerCase("pt-BR"));
-            const item={id:index>=0?menu[index].id:crypto.randomUUID(),name:entry.name,description:index>=0?menu[index].description:"",price:entry.price,category:index>=0?menu[index].category:"Cardápio"};
+            const item={id:index>=0?menu[index].id:crypto.randomUUID(),name:entry.name,description:entry.description||(index>=0?menu[index].description:""),price:entry.price,category:entry.category!=="Cardápio"?entry.category:(index>=0?menu[index].category:"Cardápio")};
             if(index>=0)menu[index]=item;else menu.push(item);
           }
           return {...prev,kind:"restaurant",restaurant:{...prev.restaurant,whatsapp:prev.restaurant?.whatsapp||"",menu}};
