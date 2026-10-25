@@ -429,13 +429,6 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
-      // Restaurant renderers use dedicated menu/footer data. Preserve it
-      // through generic block edits unless the AI explicitly returns updates.
-      if(siteCategory==="restaurant"&&site.blocks.length){
-        incoming.kind="restaurant";
-        incoming.restaurant={whatsapp:incoming.restaurant?.whatsapp??site.restaurant?.whatsapp??"",...site.restaurant,...incoming.restaurant,menu:incoming.restaurant?.menu??site.restaurant?.menu??[]};
-        incoming.footer={...site.footer,...incoming.footer};
-      }
       incoming.heroPresentation=site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
