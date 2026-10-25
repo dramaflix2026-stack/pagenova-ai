@@ -12,7 +12,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
-type RestaurantData = {whatsapp:string;menu:MenuItem[];benefitsStyle?:"columns"};
+type RestaurantData = {whatsapp:string;menu:MenuItem[]};
 type Site = { realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
@@ -334,10 +334,10 @@ export default function BuilderV2() {
         setInstruction("");setBusy(false);return;
       }
     }
-    const normalizedRestaurantPrompt=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+    const normalizedRestaurantPrompt=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     if(siteCategory==="restaurant"&&/(faixa|beneficios|beneficio|sabor artesanal|ingredientes especiais|feito com carinho)/i.test(normalizedRestaurantPrompt)&&/(alter|mud|modern|melhor|centraliz|icone|coluna|divisoria|espac|layout|organize|organizar)/i.test(normalizedRestaurantPrompt)){
       recordVersion(site,"Antes de editar faixa de benefícios");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-      setSite(prev=>({...prev,kind:"restaurant",restaurant:{...prev.restaurant,whatsapp:prev.restaurant?.whatsapp||"",menu:prev.restaurant?.menu||[],benefitsStyle:"columns"}}));
+      setSite(prev=>({...prev,kind:"restaurant",restaurant:{...prev.restaurant,whatsapp:prev.restaurant?.whatsapp||"",menu:prev.restaurant?.menu||[]}}));
       setMessages(prev=>[...prev,{role:"assistant",text:"Faixa de benefícios atualizada com três colunas, ícones acima dos textos e divisórias. Todo o restante foi preservado."}]);
       setInstruction("");setBusy(false);return;
     }
