@@ -292,8 +292,22 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(!match)return NextResponse.json({error:"Informe os nomes das duas seções entre aspas e a posição desejada. Nada foi alterado."},{status:422});
     const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const headings=editingSite.blocks.filter(b=>b.type==="heading"&&b.section);
-    const source=headings.find(b=>normalize(String(b.text))===normalize(match[1]));
-    const target=headings.find(b=>normalize(String(b.text))===normalize(match[3]));
+    const sectionAliases:Record<string,string[]>={servicos:["nossos servicos","servicos","tratamentos","tratamentos para seu bem estar"],diferenciais:["diferenciais","nossos diferenciais","beneficios"],inicio:["inicio","capa","hero"],contato:["contato","fale conosco"],sobre:["sobre","sobre nos"]};
+    const resolve=(label:string)=>{
+      const wanted=normalize(label);
+      const exact=headings.find(b=>normalize(String(b.text))===wanted||normalize(String(b.section))===wanted);
+      if(exact)return exact;
+      const aliasKey=Object.entries(sectionAliases).find(([,names])=>names.includes(wanted))?.[0];
+      if(aliasKey){
+        const byId=headings.find(b=>normalize(String(b.section)).includes(aliasKey));
+        if(byId)return byId;
+        const byTitle=headings.find(b=>sectionAliases[aliasKey].includes(normalize(String(b.text))));
+        if(byTitle)return byTitle;
+      }
+      return undefined;
+    };
+    const source=resolve(match[1]);
+    const target=resolve(match[3]);
     if(!source||!target||source.section===target.section)return NextResponse.json({error:"Seções não identificadas com segurança. Nenhuma alteração aplicada."},{status:422});
     const moving=editingSite.blocks.filter(b=>b.section===source.section);
     const remaining=editingSite.blocks.filter(b=>b.section!==source.section);
