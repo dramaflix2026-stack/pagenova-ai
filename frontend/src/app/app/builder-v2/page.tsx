@@ -3,7 +3,7 @@
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import { BuilderV2Site } from "@/components/builder-v2-site";
-import {PizzeriaTemplate,RestaurantSegmentTemplate} from "@/components/builder-v2-restaurant-templates";
+import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
 import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
 import { BuilderV2PreviewFrame, type BuilderPreviewDevice } from "@/components/builder-v2-preview-frame";
 import "./motion.css";

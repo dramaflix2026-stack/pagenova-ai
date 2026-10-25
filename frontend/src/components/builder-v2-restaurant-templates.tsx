@@ -75,8 +75,8 @@ const pizzaIngredients:Record<string,string>={
  "brocolis com bacon":"Brócolis, bacon, mussarela e alho.",
  "especial da casa":"Mussarela, pepperoni, bacon, Catupiry e parmesão.",
  "morango com chocolate":"Chocolate ao leite, morangos frescos e leite condensado."};
-function cleanMenuName(name:string){return name.replace(/^\s*\d+[.)]\s*/,"").trim();}
-function menuCategory(item:MenuItem){const category=(item.category||"").trim();if(category&&category.toLocaleLowerCase("pt-BR")!=="cardápio")return category;return /chocolate|brigadeiro|romeu|julieta|banana|doce|nutella|morango|prestígio|beijinho/i.test(item.name)?"Pizzas doces":"Pizzas salgadas";}
+export function cleanMenuName(name:string){return name.replace(/^\s*\d+[.)]\s*/,"").trim();}
+export function menuCategory(item:MenuItem){const category=(item.category||"").trim();if(category&&category.toLocaleLowerCase("pt-BR")!=="cardápio")return category;return /chocolate|brigadeiro|romeu|julieta|banana|doce|nutella|morango|prestígio|beijinho/i.test(item.name)?"Pizzas doces":"Pizzas salgadas";}
 function pizzaDescription(name:string){const key=cleanMenuName(name).toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim();return pizzaIngredients[key]||"";}
 // Navigate within the correct document, including the isolated desktop/mobile preview.
 function scrollToSiteSection(event:MouseEvent<HTMLAnchorElement>,sectionId:string){
