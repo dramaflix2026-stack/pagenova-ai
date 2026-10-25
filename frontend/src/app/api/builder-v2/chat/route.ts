@@ -348,6 +348,23 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{...editingSite,blocks:remaining,motion:hasMotionIntent(instructionText)?applySiteMotionInstruction({...editingSite,blocks:remaining},instructionText):editingSite.motion},summary:'Seção "'+match[1]+'" movida integralmente para depois de "'+match[2]+'".'});
     }
   }
+  // Deterministic, section-scoped hero alignment: never touch unrelated sections.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/centraliz|alinhar|alinhamento/i.test(instructionText)&&/capa|hero|principal/i.test(instructionText)&&/t[ií]tulo|descri[cç][aã]o/i.test(instructionText)){
+    const align=/centraliz|centro/i.test(instructionText)?"center":/direita/i.test(instructionText)?"right":/esquerda/i.test(instructionText)?"left":null;
+    if(align){const hero=editingSite.blocks.find(b=>b.type==="heading"&&/^(inicio|hero|home|principal)$/i.test(String(b.section||"")))?.section||editingSite.blocks.find(b=>b.type==="heading")?.section;
+      if(hero){const changed=editingSite.blocks.map(b=>b.section===hero&&(["heading","paragraph","button"].includes(b.type))?{...b,align}:b);
+        return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Alinhamento da capa aplicado somente aos seus textos e botões."});}
+    }
+  }
+  // Apply card styling to existing service cards without regenerating content.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/cards?|cart[oõ]es/i.test(instructionText)&&/arredond|cantos|borda/i.test(instructionText)){
+    const radiusMatch=instructionText.match(/(?:cantos|raio|arredondamento)[^0-9]{0,35}(\\d{1,2})\\s*px/i);
+    const radius=radiusMatch?Math.min(48,Number(radiusMatch[1])):20;
+    const target=editingSite.blocks.find(b=>/servic|tratament|modalidade/i.test(String(b.section||"")))?.section;
+    if(target){const changed=editingSite.blocks.map(b=>b.section===target&&b.type==="paragraph"?{...b,radius}:b);
+      return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Cantos dos cards de Serviços atualizados, preservando textos, imagens e outras seções."});}
+    return NextResponse.json({error:"Não foi possível identificar a seção de Serviços. Nenhuma alteração aplicada."},{status:422});
+  }
   const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
   if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
     const alignment=/centraliz|ao centro|no centro/i.test(instructionText)?"center":/alinhar?[^.]{0,50}(?:esquerda)|à esquerda/i.test(instructionText)?"left":/alinhar?[^.]{0,50}(?:direita)|à direita/i.test(instructionText)?"right":null;
