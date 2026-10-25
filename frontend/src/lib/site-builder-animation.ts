@@ -70,7 +70,7 @@ export function applySiteMotionInstruction(site: MotionSite, instruction: string
   if (!hasMotionIntent(instruction)) return next;
   const normalized = normalize(instruction);
   const continuousIntent=/(?:continuament|constantement|sem parar|sempre em movimento|ficar? em movimento|movimento continuo|movimento constante|animacao continua|animacoes continuas|flutuando|flutuant|oscilando|mexendo o tempo todo)/.test(normalized);
-  const disable = /\bsem\s+(?:qualquer\s+)?(?:anim\w*|efeitos?|movimento)|\b(?:remov\w*|retir\w*|exclu\w*|desativ\w*|deslig\w*|cancel\w*|elimin\w*)\b[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\bnao\s+quero[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\b(?:anim\w*|efeitos?)\s+(?:deslig\w*|desativ\w*)/.test(normalized);
+  const disable = /\bsem\s+(?:qualquer\s+)?(?:anim\w*|efeitos?|movimento)|\b(?:remov\w*|retir\w*|exclu\w*|desativ\w*|deslig\w*|cancel\w*|elimin\w*)\b[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\bnao\s+quero[\s\S]{0,50}\b(?:anim\w*|efeitos?|movimento)|\b(?:anim\w*|efeitos?)\s+(?:deslig\w*|desativ\w*)/.test(normalized) && !/\b(?:preserv\w*|mantenh\w*|manter|sem alterar|nao alter\w*|nao modific\w*)\b[\s\S]{0,65}\b(?:funcionalidad\w*|conteudo|layout|imagem|texto|produto|preco|configurac\w*)/.test(normalized.slice(-150));
   const mobileOnlyOff = /(?:mobile|celular)[\s\S]{0,32}(?:sem|desativ|deslig)|(?:sem|desativ|deslig)[\s\S]{0,32}(?:mobile|celular)/i.test(instruction);
   if (continuousIntent) next.continuous=true;
   if (disable && !mobileOnlyOff) next.continuous=false;
