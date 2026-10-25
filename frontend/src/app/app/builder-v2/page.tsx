@@ -420,7 +420,7 @@ export default function BuilderV2() {
       const updated=applySiteMotionInstruction(site,prompt);
       recordVersion(site,"Antes de alterar animações do restaurante");
       setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
-      setSite(prev=>({...prev,motion:updated.motion}));
+      setSite({...site,motion:updated.motion});
       setMessages(prev=>[...prev,{role:"assistant",text:updated.motion?.preset==="none"?"Animações desativadas em todo o restaurante. Conteúdo e layout preservados.":"Configurações de animação atualizadas no restaurante, sem alterar cardápio, preços, imagens ou textos."}]);
       setInstruction("");setBusy(false);return;
     }
