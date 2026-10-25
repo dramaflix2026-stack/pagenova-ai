@@ -13,7 +13,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
+type Site = { realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -417,7 +417,25 @@ export default function BuilderV2() {
       return;
     }
     if(siteCategory==="restaurant"){
-      setMessages(prev=>[...prev,{role:"assistant",text:"Para proteger seu cardápio e o layout, esta edição ainda não está disponível pelo chat. Nenhuma alteração foi aplicada."}]);
+      const lower=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      const quoted=[...prompt.matchAll(/["“”]([^"“”]+)["“”]/g)].map(match=>match[1].trim());
+      const inMenu=/(cardapio|menu)/.test(lower);
+      const inFooter=/(secao final|ultima secao|rodape|bateu a fome)/.test(lower);
+      const edits:NonNullable<Site["restaurantContent"]>={};
+      if(inMenu&&/(titulo|subtitulo)/.test(lower)){
+        if(/titulo/.test(lower)&&quoted.length>=1)edits.menuTitle=quoted[0];
+        if(/subtitulo/.test(lower)&&quoted.length>=2)edits.menuSubtitle=quoted[1];
+      }
+      if(inFooter&&/(substitu|alter|troqu|mude|mudar).*(titulo|texto)|(titulo|texto).*(substitu|alter|troqu|mude|mudar)/.test(lower)&&quoted.length>=2)edits.footerTitle=quoted[1];
+      if(inFooter&&/(centraliz|alinhar ao centro|alinhamento central)/.test(lower))edits.footerCentered=true;
+      if(inFooter&&/(espacamento|espaco entre|distancia entre)/.test(lower))edits.footerSpacious=true;
+      if(Object.keys(edits).length){
+        recordVersion(site,"Antes de editar seção do restaurante");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(prev=>({...prev,restaurantContent:{...prev.restaurantContent,...edits}}));
+        setMessages(prev=>[...prev,{role:"assistant",text:"Alterações aplicadas somente à seção solicitada. Cardápio, imagens, preços e demais elementos preservados."}]);
+        setInstruction("");setBusy(false);return;
+      }
+      setMessages(prev=>[...prev,{role:"assistant",text:"Não consegui identificar uma edição localizada segura para esse pedido. Nenhuma alteração foi aplicada."}]);
       setInstruction("");setBusy(false);return;
     }
     try {
