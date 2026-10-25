@@ -388,6 +388,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
       const deletedIds=new Set((Array.isArray(payload.deletions)?payload.deletions:[]).filter((id):id is string=>typeof id==="string"&&editingSite.blocks!.some(b=>b.id===id)));
       if(!changesById.size&&!insertionsByAnchor.size&&!deletedIds.size&&announcementChange===undefined&&!(Array.isArray(payload.moves)&&payload.moves.length)&&!(Array.isArray(payload.sections)&&payload.sections.length))return NextResponse.json({error:"Nenhuma alteração válida foi encontrada. O projeto foi preservado."},{status:422});
+      // Protect existing content: AI suggestions cannot delete blocks unless the user explicitly asks.
+      if(deletedIds.size && !/(?:remover|remova|excluir|exclua|apagar|apague|deletar|delete|eliminar|elimine)/i.test(instructionText)){
+        return NextResponse.json({error:"A edição tentou remover conteúdo não solicitado. O projeto foi preservado."},{status:422});
+      }
       const updatedBlocks=editingSite.blocks.filter(b=>!deletedIds.has(String(b.id))).flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
       for(const move of Array.isArray(payload.moves)?payload.moves:[]){
         if(!move.id)continue;
