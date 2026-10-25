@@ -272,7 +272,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
             // Reuse the existing About/Presentation image as the fourth gallery photo.
             // The original About section stays untouched. Respect galleries explicitly
             // customized with four or more photos by the customer/AI.
-            const aboutPhoto=groups
+            const aboutPhoto=sections
               .filter(candidate=>candidate.id!==group.id&&/sobre|apresent|institucional|quem.somos|nossa.hist[oó]ria|a.cl[ií]nica/i.test(candidate.id+" "+candidate.blocks.filter(item=>item.type==="heading").map(item=>item.text).join(" ")))
               .flatMap(candidate=>candidate.blocks)
               .find(item=>item.type==="image"&&!!item.src&&!existing.some(photo=>photo.src===item.src));
