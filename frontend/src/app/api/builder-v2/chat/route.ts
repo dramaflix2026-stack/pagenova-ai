@@ -356,14 +356,21 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Alinhamento da capa aplicado somente aos seus textos e botões."});}
     }
   }
-  // Apply card styling to existing service cards without regenerating content.
-  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/cards?|cart[oõ]es/i.test(instructionText)&&/arredond|cantos|borda/i.test(instructionText)){
-    const radiusMatch=instructionText.match(/(?:cantos|raio|arredondamento)[^0-9]{0,35}(\d{1,2})\s*px/i);
-    const radius=radiusMatch?Math.min(48,Number(radiusMatch[1])):20;
+  // Scoped multi-property styling: do not silently discard border or shadow requests.
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/cards?|cart[oõ]es/i.test(instructionText)&&/arredond|cantos|borda|sombra/i.test(instructionText)){
     const target=editingSite.blocks.find(b=>/servic|tratament|modalidade/i.test(String(b.section||"")))?.section;
-    if(target){const changed=editingSite.blocks.map(b=>b.section===target&&b.type==="paragraph"?{...b,radius}:b);
-      return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Cantos dos cards de Serviços atualizados, preservando textos, imagens e outras seções."});}
-    return NextResponse.json({error:"Não foi possível identificar a seção de Serviços. Nenhuma alteração aplicada."},{status:422});
+    if(!target)return NextResponse.json({error:"Não foi possível identificar a seção de Serviços. Nenhuma alteração aplicada."},{status:422});
+    const radiusMatch=instructionText.match(/(?:cantos|raio|arredondamento)[^0-9]{0,45}(\\d{1,2})\\s*px/i);
+    const borderMatch=instructionText.match(/borda[^.]{0,100}?(\\d{1,2})\\s*px/i);
+    const colorMatch=instructionText.match(/#[0-9a-f]{6}\\b/i);
+    const setRadius=/arredond|cantos|raio/i.test(instructionText);
+    const setBorder=/borda/i.test(instructionText);
+    const setShadow=/sombra/i.test(instructionText);
+    const changed=editingSite.blocks.map(block=>{
+      if(block.section!==target||block.type!=="paragraph")return block;
+      return {...block,...(setRadius?{radius:radiusMatch?Math.min(48,Number(radiusMatch[1])):20}:{}),...(setBorder?{cardBorderWidth:borderMatch?Math.min(12,Number(borderMatch[1])):1,cardBorderColor:colorMatch?.[0]||"#E5E7EB"}:{}),...(setShadow?{cardShadow:/sem sombra|remov[ae].{0,12}sombra/i.test(instructionText)?"none":"0 8px 24px rgba(20,35,29,0.10)"}:{})};
+    });
+    return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Cards de Serviços: "+[setRadius?"cantos arredondados":null,setBorder?"borda aplicada":null,setShadow?"sombra configurada":null].filter(Boolean).join(", ")+". Demais seções preservadas."});
   }
   const multiEditRequest = /(?:\b[123][.)]\s|\b(?:primeiro|segundo|terceiro)\b|\baltere\b[\s\S]*\balinhe\b|\balinhe\b[\s\S]*\baltere\b)/i.test(instructionText) || (/(?:t[ií]tulo|subt[ií]tulo|par[aá]grafo)/i.test(instructionText) && /bot[aã]o/i.test(instructionText));
   if (!isFresh && !multiEditRequest && Array.isArray(editingSite?.blocks) && /bot[aã]o/i.test(instructionText)) {
