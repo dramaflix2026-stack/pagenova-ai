@@ -453,7 +453,7 @@ export default function BuilderV2() {
       // through generic block edits unless the AI explicitly returns updates.
       if(siteCategory==="restaurant"&&site.blocks.length){
         incoming.kind="restaurant";
-        incoming.restaurant={...site.restaurant,...incoming.restaurant,menu:incoming.restaurant?.menu??site.restaurant?.menu??[]};
+        incoming.restaurant={whatsapp:incoming.restaurant?.whatsapp??site.restaurant?.whatsapp??"",...site.restaurant,...incoming.restaurant,menu:incoming.restaurant?.menu??site.restaurant?.menu??[]};
         incoming.footer={...site.footer,...incoming.footer};
       }
       incoming.heroPresentation=site.heroPresentation;
