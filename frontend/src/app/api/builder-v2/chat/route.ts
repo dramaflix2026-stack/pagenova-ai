@@ -286,7 +286,24 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(bg){next.background=bg[1];changed=true;}
     if(changed)return NextResponse.json({site:{...editingSite,header:next},summary:requestedBrand&&!isImageRequest?"Nome da marca no cabeçalho atualizado para "+requestedBrand+". Título principal, imagens e demais seções preservados.":"Identidade do cabeçalho atualizada. Demais seções preservadas."});
   }
-  if (!isFresh && Array.isArray(editingSite?.blocks) && isMotionOnlyInstruction(instructionText)) {
+  const explicitSectionReorder=/(?:mova|mover|reposicione|reorganize|coloque)\s+(?:a\s+)?se[cç][aã]o/i.test(instructionText);
+  if (!isFresh && Array.isArray(editingSite?.blocks) && explicitSectionReorder) {
+    const match=instructionText.match(/(?:mova|mover|reposicione|reorganize|coloque)\s+(?:a\s+)?se[cç][aã]o\s+["“]([^"”]+)["”]\s+para\s+(antes|depois)\s+d[aeo]\s+(?:se[cç][aã]o\s+)?["“]([^"”]+)["”]/i);
+    if(!match)return NextResponse.json({error:"Informe os nomes das duas seções entre aspas e a posição desejada. Nada foi alterado."},{status:422});
+    const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+    const headings=editingSite.blocks.filter(b=>b.type==="heading"&&b.section);
+    const source=headings.find(b=>normalize(String(b.text))===normalize(match[1]));
+    const target=headings.find(b=>normalize(String(b.text))===normalize(match[3]));
+    if(!source||!target||source.section===target.section)return NextResponse.json({error:"Seções não identificadas com segurança. Nenhuma alteração aplicada."},{status:422});
+    const moving=editingSite.blocks.filter(b=>b.section===source.section);
+    const remaining=editingSite.blocks.filter(b=>b.section!==source.section);
+    const targetIndices=remaining.map((b,i)=>b.section===target.section?i:-1).filter(i=>i>=0);
+    if(!moving.length||!targetIndices.length)return NextResponse.json({error:"Movimentação inválida. O site foi preservado."},{status:422});
+    const position=match[2].toLowerCase()==="antes"?targetIndices[0]:targetIndices[targetIndices.length-1]+1;
+    const blocks=[...remaining.slice(0,position),...moving,...remaining.slice(position)];
+    return NextResponse.json({site:{...editingSite,blocks},summary:"Seção movida integralmente, sem perder conteúdo."});
+  }
+  if (!isFresh && Array.isArray(editingSite?.blocks) && !explicitSectionReorder && isMotionOnlyInstruction(instructionText)) {
     return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
   }
   // Section-level moves are deterministic: never ask the model to relocate individual blocks.
