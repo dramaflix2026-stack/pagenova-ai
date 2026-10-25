@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
@@ -111,16 +111,22 @@ function RealEstateTemplate({properties,whatsapp}:{properties:{id:string;title:s
  </section>;
 }
 function RestaurantFooterSocials({footer,whatsapp}:{footer?:Site["footer"];whatsapp?:string}) {
+  const icons:Record<string,ReactNode>={
+    Instagram:<><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></>,
+    Facebook:<path d="M14 21v-8h3l.5-4H14V7c0-1.1.4-2 2-2h2V1.5A23 23 0 0 0 15 1c-3.2 0-5 1.9-5 5.3V9H7v4h3v8z"/>,
+    YouTube:<><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z"/></>,
+    WhatsApp:<><path d="M20.5 11.7a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.5-4.7a8.5 8.5 0 1 1 16-4.1Z"/><path d="M9 8.5c.3-.5.6-.5.9-.1l1 1.5c.2.3.1.6-.2.9l-.5.5c.8 1.4 1.9 2.4 3.3 3l.6-.6c.3-.3.6-.3.9-.1l1.5.9c.4.3.3.7-.1 1.1-.8.8-1.7.8-2.7.4-2.7-1.1-4.9-3.2-6-5.8-.3-.8-.1-1.4.4-1.7Z"/></>
+  };
   const profiles=[
-    {name:"Instagram",url:footer?.instagram,icon:"◎"},
-    {name:"Facebook",url:footer?.facebook,icon:"f"},
-    {name:"YouTube",url:footer?.youtube,icon:"▶"},
-    {name:"WhatsApp",url:footer?.whatsapp||whatsapp,icon:"◉"},
+    {name:"Instagram",url:footer?.instagram},
+    {name:"Facebook",url:footer?.facebook},
+    {name:"YouTube",url:footer?.youtube},
+    {name:"WhatsApp",url:footer?.whatsapp||whatsapp},
   ];
   const hrefFor=(name:string,value?:string)=>{
     const raw=(value||"").trim();
     if(!raw)return "";
-    if(name==="WhatsApp"){const digits=raw.replace(/\\D/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:raw.startsWith("https://wa.me/")?raw:"";}
+    if(name==="WhatsApp"){const digits=raw.replace(/\D/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:raw.startsWith("https://wa.me/")?raw:"";}
     if(/^https:\/\//i.test(raw))return raw;
     if(name==="Instagram"&&/^@?[a-zA-Z0-9._]+$/.test(raw))return "https://www.instagram.com/"+raw.replace(/^@/,"")+"/";
     if(name==="Facebook"&&/^[a-zA-Z0-9.]+$/.test(raw))return "https://www.facebook.com/"+raw;
@@ -128,8 +134,9 @@ function RestaurantFooterSocials({footer,whatsapp}:{footer?:Site["footer"];whats
   };
   return <div className="mt-7 flex flex-wrap items-center justify-center gap-3" aria-label="Redes sociais">{profiles.map(profile=>{
     const href=hrefFor(profile.name,profile.url);
-    const cls="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/10 text-xl font-bold text-white transition hover:bg-white/20";
-    return href?<a key={profile.name} href={href} aria-label={profile.name} target="_blank" rel="noopener noreferrer" className={cls}>{profile.icon}</a>:<span key={profile.name} role="img" aria-label={profile.name+" — não configurado"} title={profile.name+": configure pelo chat"} className={cls+" opacity-45"}>{profile.icon}</span>;
+    const cls="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white transition hover:bg-white/20";
+    const icon=<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[profile.name]}</svg>;
+    return href?<a key={profile.name} href={href} aria-label={profile.name} target="_blank" rel="noopener noreferrer" className={cls}>{icon}</a>:<span key={profile.name} role="img" aria-label={profile.name+" — não configurado"} title={profile.name+": configure pelo chat"} className={cls+" opacity-45"}>{icon}</span>;
   })}</div>;
 }
 function RestaurantSegmentTemplate({site,segment}:{site:Site;segment:string}) {
