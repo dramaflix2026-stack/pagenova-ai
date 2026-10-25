@@ -82,7 +82,7 @@ function socialLinksFromChat(message:string):Partial<NonNullable<Site["footer"]>
   }
   for(const name of names){
     if(result[name])continue;
-    const expression=new RegExp("(?:^|[\\\\s,;])"+name+"\\\\s*(?:[:=–—-]|é|\\\\s+)\\\\s*(@?[a-zA-Z0-9._+-]{3,})","i");
+    const expression=new RegExp("(?:^|[\\s,;])"+name+"\\s*(?:[:=–—-]|é|\\s+)\\s*(@?[a-zA-Z0-9._+-]{3,})","i");
     const match=message.match(expression);
     if(!match)continue;
     const handle=match[1].replace(/^@/,"");
