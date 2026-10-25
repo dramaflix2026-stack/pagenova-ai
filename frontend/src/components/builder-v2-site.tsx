@@ -338,7 +338,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
                 <div className="relative z-10 flex min-h-[450px] w-full max-w-4xl flex-col justify-center gap-5 py-6 text-left sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14">
                   {headingNode}
                   <div className="max-w-2xl space-y-4">{textItems.slice(0,3).map(render)}</div>
-                  {buttons.length>0&&<div className="flex flex-wrap items-start gap-3">{buttons.map(render)}</div>}
+                  {buttons.length>0&&<div className={`flex flex-wrap items-start gap-3 ${buttons[0]?.align==="center"?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-start"}`}>{buttons.map(render)}</div>}
                 </div>:
               featureProcessCard?
                 <div className="mx-auto w-full max-w-6xl">
@@ -351,7 +351,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
                       const alternatives=processPhotos.filter(photo=>photo.src!==heroSourceImage?.src);
                       const candidates=alternatives.length>=3?alternatives:processPhotos;
                       const photo=candidates[i%candidates.length];
-                      return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
+                      return <article key={item.id} data-block-id={item.id} style={item.radius?{borderRadius:`${item.radius}px`}:undefined} className="group flex min-w-0 flex-col overflow-hidden rounded-xl border border-[#e4e0d8] border-l-[5px] border-l-[#a69a76] bg-white shadow-[0_8px_24px_rgba(20,35,29,.04)]">
                         {photo?.src&&<picture data-block-id={photo.id} className="block aspect-[16/10] w-full overflow-hidden bg-[#eff1ec]">
                           {photo.mobileSrc&&<source media="(max-width: 767px)" srcSet={photo.mobileSrc}/>}
                           <img src={photo.src} alt={photo.text||card.name||"Imagem ilustrativa"} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"/>
