@@ -61,29 +61,9 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
   },[]);
   // A single source of truth for preview and footer navigation. Do not hide
   // service cards simply because the AI wrote a short (but valid) description.
-  const visibleSections=sections.filter(group=>{
-    const id=group.id.toLowerCase();
-    const heading=group.blocks.find(b=>b.type==="heading")?.text||"";
-    const label=id+" "+heading;
-    if(/localiza[cç][aã]o|endere[cç]o|como chegar|mapa/i.test(label)&&!site.extras?.address)return false;
-    const paragraphs=group.blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>12);
-    const pictures=group.blocks.filter(b=>b.type==="image"&&!!b.src);
-    const meaningful=paragraphs.filter(b=>!/^\s*(?:acompanhe|saiba mais|conheça mais|em breve|descubra)/i.test(b.text)).length;
-    if(/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o|sa[uú]de mental/i.test(label)&&meaningful<2)return false;
-    const buttons=group.blocks.filter(b=>b.type==="button");
-    const contact=/contato|agend|fale.conosco|fale-conosco/i.test(label);
-    const faq=/faq|perguntas|d[uú]vidas/i.test(label);
-    const gallery=/galeria|portf[oó]lio|fotos|imagens/i.test(label);
-    const editorial=/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o|dicas|recursos/i.test(label);
-    if(editorial&&(paragraphs.length<2||pictures.length===0))return false;
-    if(gallery&&pictures.length===0)return false;
-    if(faq&&paragraphs.length===0)return false;
-    if(!contact&&paragraphs.length===0&&pictures.length===0&&buttons.length===0)return false;
-    return true;
-  }).filter((group,index,all)=>{
-    const contact=(item:{id:string;blocks:Block[]})=>/contato|agend|fale.conosco|fale-conosco/i.test(item.id+" "+item.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "));
-    return !contact(group)||all.findIndex(contact)===index;
-  });
+  // The editor's block list is authoritative. Reordering sections must never
+  // cause existing sections to disappear because of heuristic content filters.
+  const visibleSections=sections.filter(group=>group.blocks.length>0);
   const heroSourceImage=visibleSections[0]?.blocks.find(b=>b.type==="image"&&!!b.src);
   const footerCandidates=visibleSections.filter(g=>!/rodape|footer|faq/i.test(g.id));
   const footerContact=footerCandidates.find(g=>/contato|agend|fale.conosco|fale-conosco/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ")));
@@ -261,7 +241,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           // Incomplete editorial sections must not reserve empty space in the published page.
           if(/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id) && blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>80).length<2)return null;
           const sectionBackground=(templateId==="image-text-alternating"?(index%2===0?"#ffffff":"#f1f6f5"):templateId==="minimalist-sophisticated" ? (index%2===0?"#ffffff":"#f7f8f5") : first?.background)||(templateId==="modern-impactful"?(index%2===0?"#12151b":"#202532"):templateId==="minimalist-sophisticated"?(index%2===0?"#f7f5f0":"#eae7df"):(index===0?theme.dark:index%2?theme.light:site.background));
-          if(blocks.filter(b=>b.type==="heading").some(b=>/conte[uú]dos? sobre|artigos? sobre/i.test(b.text)) && !blocks.some(b=>b.type==="image"&&b.src)) return null;
+
           
           const heroPhotoCandidate=blocks.find(b=>b.type==="image"&&!!b.src)?.src || (index===0 ? visibleSections.flatMap(section=>section.blocks).find(b=>b.type==="image"&&!!b.src)?.src : undefined);
           const immersiveHero=index===0&&(templateId==="modern-impactful"||templateId==="image-text-alternating"||site.heroPresentation!=="split")&&!!heroPhotoCandidate;
