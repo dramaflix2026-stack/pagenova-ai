@@ -130,7 +130,7 @@ export function attachSiteMotion(root: HTMLElement|null, config?: SiteMotion): (
   const view=root.ownerDocument.defaultView;
   if (!view) return () => {};
   const targets=Array.from(root.querySelectorAll<HTMLElement>(
-    "[data-section-id] [data-block-id], [data-section-id] details, [data-section-id] .grid > div"
+    "[data-section-id] [data-block-id], [data-section-id] details, [data-section-id] .grid > div, [data-pn-motion-auto]"
   )).filter((el,index,all)=>all.indexOf(el)===index&&!el.closest("[hidden]"));
   const reduce=view.matchMedia?.("(prefers-reduced-motion: reduce)").matches??false;
   const mobile=view.matchMedia?.("(max-width: 767px)").matches??false;
