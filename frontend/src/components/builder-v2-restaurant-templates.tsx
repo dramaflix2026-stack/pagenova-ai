@@ -1,5 +1,6 @@
 "use client";
-import {useState,type MouseEvent,type ReactNode} from "react";
+import {useEffect,useRef,useState,type MouseEvent,type ReactNode} from "react";
+import {attachSiteMotion} from "@/lib/site-builder-animation";
 import {SiteWhatsAppButton} from "@/components/site-whatsapp-button";
 import type {SiteMotion} from "@/lib/site-builder-animation";
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
@@ -8,6 +9,26 @@ type RestaurantData = {whatsapp:string;menu:MenuItem[]};
 type Site = { realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 
+function useRestaurantMotion(motion:SiteMotion|undefined){
+  const ref=useRef<HTMLElement>(null);
+  useEffect(()=>{
+    const root=ref.current;
+    if(!root)return;
+    const marked:HTMLElement[]=[];
+    const selectors="header, footer, [id^='cardapio'], h1, h2, h3, h4, p, img, a, button, article, svg, .grid > div";
+    root.querySelectorAll<HTMLElement>(selectors).forEach((element,index)=>{
+      if(element.closest("[hidden]")||element.closest("button svg")||element.closest("a svg"))return;
+      if(element.matches("svg")&&!element.closest("footer"))return;
+      if(element.matches("header,footer")||element.querySelector("h1,h2,h3,h4,article"))return;
+      element.setAttribute("data-pn-motion-auto","");
+      element.setAttribute("data-block-id","restaurant-motion-"+index);
+      marked.push(element);
+    });
+    const cleanup=attachSiteMotion(root,motion);
+    return ()=>{cleanup();marked.forEach(element=>{element.removeAttribute("data-pn-motion-auto");element.removeAttribute("data-block-id");});};
+  },[motion]);
+  return ref;
+}
 function RestaurantFooterSocials({footer,whatsapp}:{footer?:Site["footer"];whatsapp?:string}) {
   const icons:Record<string,ReactNode>={
     Instagram:<><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></>,
@@ -46,7 +67,8 @@ export function RestaurantSegmentTemplate({site,segment}:{site:Site;segment:stri
   const categories=Array.from(new Set(menu.map(menuGroup)));
   const filtered=activeCategory==="Todos"?menu:menu.filter(item=>menuGroup(item)===activeCategory);
   const whatsapp=(site.restaurant?.whatsapp||"").replace(/\\D/g,"");
-  return <section className="overflow-hidden rounded-[26px] bg-[#f9f7f1] text-[#222a24]" aria-label={`Prévia de ${config.name}`}>
+  const motionRef=useRestaurantMotion(site.motion);
+  return <section ref={motionRef} className="overflow-hidden rounded-[26px] bg-[#f9f7f1] text-[#222a24]" aria-label={`Prévia de ${config.name}`}>
     <header className="flex items-center justify-between gap-4 px-6 py-5 text-white sm:px-10" style={{background:config.dark}}><strong className="text-lg font-black uppercase tracking-wider">{site.title&&site.title!=="Novo projeto"?site.title:config.eyebrow}</strong><a href="#cardapio-segmento-v2" onClick={event=>scrollToSiteSection(event,"cardapio-segmento-v2")} className="rounded-full border border-white/40 px-4 py-2 text-xs font-bold">Ver cardápio ↓</a></header>
     <div className="relative isolate flex min-h-[580px] items-center overflow-hidden px-6 py-16 sm:min-h-[660px] sm:px-10 lg:py-24" style={{background:config.dark,color:"#fff"}}><img src={config.photo} alt="" aria-hidden="true" className="absolute inset-0 -z-20 h-full w-full object-cover" loading="eager"/><div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-black/85 via-black/70 to-black/40"/><div className="relative z-10 max-w-2xl"><p className="text-xs font-black uppercase tracking-[.24em]" style={{color:config.accent}}>{config.name} · Delivery</p><h2 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">{config.headline}</h2><p className="mt-5 max-w-lg text-base leading-relaxed text-white/75">{config.description}</p><a href="#cardapio-segmento-v2" onClick={event=>scrollToSiteSection(event,"cardapio-segmento-v2")} className="mt-8 inline-flex rounded-full px-7 py-4 text-sm font-black text-[#172018]" style={{background:config.accent}}>Explorar cardápio →</a></div></div>
     <div className="px-6 py-5 text-center text-sm font-bold" style={{background:config.accent}}>{config.badge} · Ingredientes selecionados · Peça pelo WhatsApp</div>
@@ -98,7 +120,8 @@ export function PizzeriaTemplate({site,segment}:{site:Site;segment:string}) {
   const filtered=activeCategory==="Todos"?menu:menu.filter(item=>menuCategory(item)===activeCategory);
   const whatsapp=(site.restaurant?.whatsapp||"").replace(/\\D/g,"");
   const orderLink=(name:string,price:number)=>`https://wa.me/${whatsapp}?text=${encodeURIComponent("Olá! Gostaria de pedir "+name+" ("+price.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})+").")}`;
-  return <section className="overflow-hidden rounded-[26px] border border-[#f2d6ad]/20 bg-[#fff8ed] text-[#2a2019] shadow-2xl" aria-label="Prévia do template 01 de pizzaria">
+  const motionRef=useRestaurantMotion(site.motion);
+  return <section ref={motionRef} className="overflow-hidden rounded-[26px] border border-[#f2d6ad]/20 bg-[#fff8ed] text-[#2a2019] shadow-2xl" aria-label="Prévia do template 01 de pizzaria">
     <header className="flex flex-wrap items-center justify-between gap-3 bg-[#231910] px-5 py-5 text-[#fff8e9] sm:px-9"><div><span className="text-xs font-black tracking-[.25em] text-[#f0a84a]">FORNO & SABOR</span><p className="mt-1 text-lg font-black">{site.title&&site.title!=="Novo projeto"?site.title:<>PIZZARIA <span className="text-[#f4a83b]">ARTESANAL</span></>}</p></div><a href="#cardapio-pizzaria-v2" onClick={event=>scrollToSiteSection(event,"cardapio-pizzaria-v2")} className="rounded-full border border-[#f4a83b]/60 px-5 py-2 text-xs font-bold text-[#ffd69d]">Ver cardápio ↓</a></header>
     <div className="relative isolate flex min-h-[600px] items-center overflow-hidden bg-[#251810] px-6 py-16 text-[#fff9ed] sm:min-h-[690px] sm:px-12 sm:py-24"><img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=1400&q=85" alt="" aria-hidden="true" className="absolute inset-0 -z-20 h-full w-full object-cover" loading="eager"/><div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-[#1c1008]/90 via-[#1c1008]/75 to-[#1c1008]/40"/><div className="relative z-10 max-w-2xl"><p className="mb-5 text-xs font-black uppercase tracking-[.28em] text-[#f8b557]">Receitas artesanais · Sabor de verdade</p><h2 className="text-5xl font-black leading-[1.04] tracking-tight sm:text-7xl">O sabor que <span className="text-[#f4a83b]">reúne</span> todo mundo.</h2><p className="mt-6 max-w-lg text-base leading-relaxed text-[#fff0dd]">Massa dourada, ingredientes selecionados e aquele momento especial em cada fatia.</p><a href="#cardapio-pizzaria-v2" onClick={event=>scrollToSiteSection(event,"cardapio-pizzaria-v2")} className="mt-8 inline-flex rounded-full bg-[#f4a83b] px-7 py-4 text-sm font-black text-[#28180c]">Explorar nosso cardápio →</a></div></div>
     <div className="grid grid-cols-3 bg-[#f4a83b] px-3 py-6 text-center font-black uppercase text-[#35200e] sm:px-6"><div className="flex min-w-0 flex-col items-center gap-2 px-1 text-[10px] leading-tight sm:text-sm"><span className="text-xl">🍕</span><span>Sabor artesanal</span></div><div className="flex min-w-0 flex-col items-center gap-2 border-l border-[#35200e]/20 px-1 text-[10px] leading-tight sm:text-sm"><span className="text-xl">✦</span><span>Ingredientes especiais</span></div><div className="flex min-w-0 flex-col items-center gap-2 border-l border-[#35200e]/20 px-1 text-[10px] leading-tight sm:text-sm"><span className="text-xl">♥</span><span>Feito com carinho</span></div></div>
