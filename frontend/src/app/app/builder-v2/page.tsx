@@ -69,16 +69,16 @@ const storageKey = "pagenova-builder-v2-private-v1";
 function socialLinksFromChat(message:string):Partial<NonNullable<Site["footer"]>> {
   const result:Partial<NonNullable<Site["footer"]>>={};
   const names=["instagram","facebook","youtube","whatsapp"] as const;
-  const urls=message.match(/https?:\\/\\/[^\\s<>"'\\u201c\\u201d]+/gi)||[];
+  const urls=message.match(/https?:\/\/[^\s<>"'\u201c\u201d]+/gi)||[];
   for(const candidate of urls){
     const raw=candidate.replace(/[),.;!?]+$/g,"");
     try {
       const parsed=new URL(raw);
       if(parsed.protocol!=="https:"&&parsed.protocol!=="http:")continue;
-      const host=parsed.hostname.toLowerCase().replace(/^www\\./,"").replace(/^m\\./,"");
+      const host=parsed.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");
       const name=host==="instagram.com"||host==="instagr.am"?"instagram":host==="facebook.com"||host==="fb.com"||host==="fb.me"?"facebook":host==="youtube.com"||host==="youtu.be"?"youtube":host==="wa.me"||host==="api.whatsapp.com"||host==="web.whatsapp.com"?"whatsapp":undefined;
       if(name)result[name]=raw.replace(/^http:/i,"https:");
-    } catch { /* Ignore invalid URLs; do not overwrite saved profiles. */ }
+    } catch { /* Invalid URLs do not overwrite existing links. */ }
   }
   for(const name of names){
     if(result[name])continue;
@@ -89,7 +89,7 @@ function socialLinksFromChat(message:string):Partial<NonNullable<Site["footer"]>
     if(name==="instagram")result.instagram="https://www.instagram.com/"+handle+"/";
     if(name==="facebook")result.facebook="https://www.facebook.com/"+handle;
     if(name==="youtube"&&match[1].startsWith("@"))result.youtube="https://www.youtube.com/"+match[1];
-    if(name==="whatsapp"){const digits=handle.replace(/\\D/g,"");if(digits.length>=10&&digits.length<=15)result.whatsapp="https://wa.me/"+digits;}
+    if(name==="whatsapp"){const digits=handle.replace(/\D/g,"");if(digits.length>=10&&digits.length<=15)result.whatsapp="https://wa.me/"+digits;}
   }
   return result;
 }
