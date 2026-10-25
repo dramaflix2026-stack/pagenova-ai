@@ -394,9 +394,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
       const updatedBlocks=editingSite.blocks.filter(b=>!deletedIds.has(String(b.id))).flatMap(b=>[changesById.has(String(b.id))?{...b,...changesById.get(String(b.id))}:b,...(insertionsByAnchor.get(String(b.id))||[])]);
       // Section moves operate on the entire group; never move only its heading.
-      const sectionMove=instructionText.match(/(?:mova|mover|coloque|reposicione)\\s+(?:a\\s+)?se[cç][aã]o\\s+["“]?(.+?)["”]?\\s+para\\s+(antes|depois)\\s+d[aeo]\\s+(?:se[cç][aã]o\\s+)?["“]?(.+?)["”]?(?:[.!]|$)/i);
+      const sectionMove=instructionText.match(/(?:mova|mover|coloque|reposicione)\s+(?:a\s+)?se[cç][aã]o\s+["“]?(.+?)["”]?\s+para\s+(antes|depois)\s+d[aeo]\s+(?:se[cç][aã]o\s+)?["“]?(.+?)["”]?(?:[.!]|$)/i);
       if(sectionMove){
-        const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+        const normalize=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
         const headings=updatedBlocks.filter(b=>b.type==="heading"&&b.section);
         const findSection=(label:string)=>headings.find(b=>normalize(String(b.text))===normalize(label))?.section;
         const sourceId=findSection(sectionMove[1]);
