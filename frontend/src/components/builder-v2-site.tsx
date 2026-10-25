@@ -131,8 +131,8 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 /* Template 3 visual refinement: quieter editorial composition, deliberate mobile rhythm. */
 .pn-template-impact{--impact-accent:#8ce1df}
 .pn-template-impact .pn-impact-panel:before{background:linear-gradient(145deg,rgba(39,60,79,.26),transparent 68%)}
-.pn-template-impact .pn-motion-site>section{background:#121820!important;border:0!important}
-.pn-template-impact .pn-motion-site>section:nth-child(even){background:#19222c!important}
+.pn-template-impact .pn-motion-site>section:not(.pn-immersive-hero){background:#121820!important;border:0!important}
+.pn-template-impact .pn-motion-site>section:not(.pn-immersive-hero):nth-child(even){background:#19222c!important}
 .pn-template-impact .pn-motion-site>section h1,.pn-template-impact .pn-motion-site>section h2{letter-spacing:-.045em!important;line-height:1.08!important;overflow-wrap:break-word;text-wrap:balance}
 .pn-template-impact .pn-impact-panel img{border-radius:12px!important}
 .pn-template-impact .pn-impact-panel a,.pn-template-impact .pn-impact-panel button{border-radius:12px!important}
@@ -172,8 +172,8 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 .pn-template-alternating .pn-alternate-copy a[style]{background:#304b40!important;color:white!important}
 .pn-template-alternating .pn-alternate-row-odd .pn-alternate-image{order:-1}
 .pn-template-alternating{font-family:Georgia,'Times New Roman',serif!important;color:#292b29!important}
-.pn-template-alternating .pn-motion-site>section{background:#faf8f4!important}
-.pn-template-alternating .pn-motion-site>section:nth-child(even){background:#eaece7!important}
+.pn-template-alternating .pn-motion-site>section:not(.pn-immersive-hero){background:#faf8f4!important}
+.pn-template-alternating .pn-motion-site>section:not(.pn-immersive-hero):nth-child(even){background:#eaece7!important}
 .pn-template-alternating .pn-motion-site>section h1,.pn-template-alternating .pn-motion-site>section h2{font-family:Georgia,'Times New Roman',serif!important;font-weight:500!important;letter-spacing:-.045em!important;line-height:1.12!important;text-transform:none!important}
 .pn-template-alternating .pn-alternate-row{gap:clamp(30px,7vw,110px);padding-block:clamp(22px,5vw,72px)}
 .pn-template-alternating .pn-alternate-row-odd .pn-alternate-image{order:-1}
