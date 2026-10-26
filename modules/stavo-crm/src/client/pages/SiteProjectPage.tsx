@@ -23,7 +23,7 @@ export default function SiteProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [searchParams]=useSearchParams();
-  const handoffStarted=useRef(false);
+  const handoffProject=useRef<string|null>(null);
   const toast = useToast();
   const query = useSiteProject(projectId ?? null);
   const generate = useGenerateSite(projectId ?? '');
@@ -56,8 +56,8 @@ export default function SiteProjectPage() {
   useEffect(()=>{
     // Never render the old SiteEditor for new Builder V2 projects, even for a
     // single frame while the generated CRM config is being retrieved.
-    if(!openInStudio||!projectId||handoffStarted.current)return;
-    handoffStarted.current=true;
+    if(!openInStudio||!projectId||handoffProject.current===projectId)return;
+    handoffProject.current=projectId;
     window.top?.location.replace('/app/builder-v2?crmProject='+encodeURIComponent(projectId));
   },[openInStudio,projectId]);
   
@@ -69,7 +69,7 @@ export default function SiteProjectPage() {
   // The config query is async. While it resolves, render only the handoff UI.
   // Rendering SiteEditor here caused the old site to flash for a moment before
   // useEffect redirected to the original Builder 2.0.
-  if(openInStudio||checkingEditor||handoffStarted.current){
+  if(openInStudio||checkingEditor||handoffProject.current===projectId){
     return <PageBody className="mx-auto flex min-h-[65dvh] max-w-3xl items-center justify-center px-4">
       <div role="status" aria-live="polite" className="w-full max-w-md rounded-2xl border border-primary/25 bg-surface p-7 text-center shadow-sm">
         <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true"/>
