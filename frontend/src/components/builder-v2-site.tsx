@@ -1,5 +1,5 @@
-import type {PropertyItem} from "@/components/builder-v2-real-estate";
 "use client";
+import type {PropertyItem} from "@/components/builder-v2-real-estate";
 import { useEffect, useRef, useState } from "react";
 import { BuilderExtras, type SiteExtras } from "@/components/builder-v2-extras";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
