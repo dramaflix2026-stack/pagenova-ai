@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
+import {Paperclip,Mic,MicOff,Send,LayoutTemplate} from "lucide-react";
+import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
@@ -13,6 +15,27 @@ import {MAX_PHOTOS_PER_PROPERTY,MAX_PHOTOS_PER_UPLOAD,getPropertyPhotos,withProp
 import { BuilderV2PreviewFrame, type BuilderPreviewDevice } from "@/components/builder-v2-preview-frame";
 import "./motion.css";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
+type SpeechResult={isFinal:boolean;[index:number]:{transcript:string}};
+type BuilderSpeechRecognition={
+  lang:string;continuous:boolean;interimResults:boolean;
+  onresult:((event:{resultIndex:number;results:ArrayLike<SpeechResult>})=>void)|null;
+  onerror:((event:{error:string})=>void)|null;
+  onend:(()=>void)|null;
+  start:()=>void;stop:()=>void;abort:()=>void;
+};
+type SpeechWindow=Window&{
+  SpeechRecognition?:new()=>BuilderSpeechRecognition;
+  webkitSpeechRecognition?:new()=>BuilderSpeechRecognition;
+};
+function photoToInlineReference(file:File):Promise<string>{
+  if(file.size>2_000_000)return Promise.reject(new Error("Para referência visual, envie uma imagem de até 2 MB."));
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("Não foi possível ler a imagem de referência."));
+    reader.onload=()=>typeof reader.result==="string"?resolve(reader.result):reject(new Error("Anexo inválido."));
+    reader.readAsDataURL(file);
+  });
+}
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
@@ -128,6 +151,38 @@ export default function BuilderV2() {
   const [publishNotice,setPublishNotice] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: "assistant", text: "Descreva o site que quer criar. Depois, continue conversando para modificá-lo." }]);
   const [instruction, setInstruction] = useState("");
+  const [voiceListening,setVoiceListening]=useState(false);
+  const [voiceNotice,setVoiceNotice]=useState("");
+  const voiceRef=useRef<BuilderSpeechRecognition|null>(null);
+  const composerRef=useRef<HTMLTextAreaElement|null>(null);
+  const attachmentRef=useRef<HTMLInputElement|null>(null);
+  useEffect(()=>()=>{voiceRef.current?.abort();voiceRef.current=null;},[]);
+  function toggleVoice(){
+    if(voiceListening){voiceRef.current?.stop();setVoiceListening(false);return;}
+    const speechWindow=window as SpeechWindow;
+    const Recognition=speechWindow.SpeechRecognition||speechWindow.webkitSpeechRecognition;
+    if(!Recognition){
+      setVoiceNotice("Neste navegador, use o microfone do teclado para ditar sua mensagem.");
+      composerRef.current?.focus();return;
+    }
+    const recognition=new Recognition();
+    recognition.lang="pt-BR";recognition.continuous=false;recognition.interimResults=false;
+    recognition.onresult=event=>{
+      const parts:string[]=[];
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const result=event.results[i];
+        if(result?.isFinal&&result[0]?.transcript)parts.push(result[0].transcript.trim());
+      }
+      if(parts.length)setInstruction(prev=>[prev.trim(),parts.join(" ")].filter(Boolean).join(" "));
+    };
+    recognition.onerror=event=>{
+      setVoiceListening(false);
+      setVoiceNotice(event.error==="not-allowed"?"Autorize o microfone no navegador para usar o ditado.":"Não foi possível transcrever. Você pode digitar ou usar o microfone do teclado.");
+    };
+    recognition.onend=()=>{setVoiceListening(false);voiceRef.current=null;};
+    try{voiceRef.current=recognition;setVoiceNotice("");recognition.start();setVoiceListening(true);}
+    catch{setVoiceListening(false);setVoiceNotice("Não foi possível iniciar o microfone neste navegador.");}
+  }
   const [nicheMenuOpen, setNicheMenuOpen] = useState(false);
   const [nicheQuery, setNicheQuery] = useState("");
   const [nicheGroup, setNicheGroup] = useState("Todos");
@@ -292,7 +347,25 @@ export default function BuilderV2() {
     return parsed;
   }
   async function send() {
-    const prompt = instruction.trim(); if ((!prompt && !(siteCategory==="real-estate"&&propertyFiles.length)) || busy) return;
+    const prompt = instruction.trim();
+    const attachmentMode=siteCategory!=="real-estate"&&institutionalFiles.length>0
+      ?builderAttachmentIntent(prompt,site.blocks.length>0):null;
+    if(busy)return;
+    if(attachmentMode==="needs-instruction"){
+      setVoiceNotice("Diga onde colocar a foto ou escreva que ela é apenas uma referência.");
+      composerRef.current?.focus();return;
+    }
+    if(institutionalFiles.length>1&&attachmentMode==="reference"){
+      setVoiceNotice("Para referência visual, anexe apenas uma imagem. Para colocar várias fotos no site, indique a seção no texto.");
+      return;
+    }
+    if(!prompt && !(siteCategory==="real-estate"&&propertyFiles.length))return;
+    let referenceForChat=reference;
+    if(attachmentMode==="reference"){
+      try{referenceForChat=await photoToInlineReference(institutionalFiles[0]);}
+      catch(error){setVoiceNotice(error instanceof Error?error.message:"Não foi possível processar o anexo.");return;}
+    }
+    setVoiceNotice("");
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt || "Enviar "+propertyFiles.length+" foto(s) reais do imóvel" }]);
@@ -530,7 +603,7 @@ export default function BuilderV2() {
       }finally{setBusy(false);}
       return;
     }
-    if(siteCategory==="institutional"&&site.blocks.length&&(institutionalFiles.length>0||institutionalImageIntent(prompt))){
+    if(siteCategory==="institutional"&&site.blocks.length&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)))){
       try{
         if(reference&&institutionalFiles.length)throw Error("Escolha entre foto de referência e fotos para usar no site.");
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
@@ -622,7 +695,7 @@ export default function BuilderV2() {
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site:requestSite, instruction: prompt, image: reference })
+        body: JSON.stringify({ site:requestSite, instruction: prompt, image: referenceForChat })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
@@ -655,13 +728,13 @@ export default function BuilderV2() {
       }
       setGenerationError("");
       setMessages(prev => [...prev, { role: "assistant", text: data.summary || "Alteração aplicada." }]);
-      setInstruction(""); setReference(null);
+      setInstruction(""); setReference(null);setInstitutionalFiles([]);
     } catch (error) {
       setGenerationError(error instanceof Error ? error.message : "Falha na geração.");
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4))return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
