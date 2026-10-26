@@ -4,7 +4,7 @@
  * Lista os projetos e usa leads cadastrados no CRM como unica origem para
  * novos sites. O painel acompanha todos os projetos do workspace.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, CalendarDays, FilePenLine, Globe2, LayoutTemplate, Search, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -69,7 +69,7 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [selectedTemplateId,setSelectedTemplateId] = useState<'institutional-complete'|'minimalist-sophisticated'|'modern-impactful'|'image-text-alternating'>('institutional-complete');
+  const autoGenerationLeadRef=useRef<string|null>(null);
   const [creatingFromLead, setCreatingFromLead] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdProjectId,setCreatedProjectId]=useState<string|null>(null);
@@ -144,7 +144,7 @@ export default function SiteAiPage() {
     try {
       const briefing = {
         templateId: 'frigolog-universal' as const, // only the existing CRM image-generation/hero pipeline
-        builderV2TemplateId: selectedTemplateId, // original Builder 2.0 renderer, no copied templates
+        builderV2TemplateId: 'institutional-complete' as const, // default original Template 1; the client can switch later in Builder V2 without another generation
         business: {
           name: businessName,
           niche: optionalText(lead.lead.prospectingNiche) ?? optionalText(liveCategory),
@@ -204,8 +204,18 @@ export default function SiteAiPage() {
     }
   }
 
-  // Do NOT auto-start a paid generation when a lead is selected.
-  // The user must choose a visual template and confirm explicitly.
+  // The user entered "Gerar site com IA" and explicitly imported a lead.
+  // Start its original CRM generation once the lead data is available; never
+  // open a second screen just to choose a visual template. The user can
+  // change between the 4 real Builder V2 templates AFTER generation.
+  useEffect(()=>{
+    if(!selectedLeadId||!selectedLead.data||selectedLead.isLoading||googleDetails.isLoading||creatingFromLead||createError)return;
+    if(autoGenerationLeadRef.current===selectedLeadId)return;
+    autoGenerationLeadRef.current=selectedLeadId;
+    void createSiteDirectlyFromLead();
+    // The ref is a synchronous guard against duplicate paid jobs in StrictMode.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[selectedLeadId,selectedLead.data,selectedLead.isLoading,googleDetails.isLoading,creatingFromLead,createError]);
 
   const projects = useSiteProjects({
     search: search || undefined,
@@ -317,7 +327,7 @@ export default function SiteAiPage() {
             // Fecha primeiro o seletor e so depois monta o wizard.
             // Evita duas camadas modais concorrendo no mesmo frame no mobile.
             setLeadPickerOpen(false);
-            setSelectedTemplateId('institutional-complete');
+            autoGenerationLeadRef.current=null;
             setCreateError(null);
             setCreatedProjectId(null);
             setGenerateOperationKey(null);
@@ -327,78 +337,37 @@ export default function SiteAiPage() {
       ) : null}
 
       {selectedLeadId ? (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-background p-4" role="status" aria-live="polite">
-          <Card className="w-full max-w-md">
-            <CardContent className="space-y-4 p-6">
-              {selectedLead.isLoading || (selectedLead.data && googleDetails.isLoading) ? (
-                <LoadingBlock label="Preparando os dados do lead para gerar o site..." />
-              ) : selectedLead.isError ? (
-                <>
-                  <ErrorState message="Nao foi possivel carregar os dados deste lead." />
-                  <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Voltar para os leads</Button>
-                </>
-              ) : createError ? (
-                <>
-                  <ErrorState message={createError} />
-                  <div className="flex gap-2">
-                    <Button variant="secondary" onClick={() => setSelectedLeadId(null)}>Cancelar</Button>
-                    {createdProjectId&&<Button variant="secondary" onClick={()=>{setSelectedLeadId(null);navigate(`/sites-ia/${createdProjectId}`);}}>Abrir projeto salvo</Button>}
-                    <Button onClick={() => void createSiteDirectlyFromLead()} disabled={creatingFromLead || (!createdProjectId&&noSiteCredits)}>
-                      {creatingFromLead ? 'Verificando...' : createdProjectId ? 'Retomar este projeto' : 'Tentar novamente'}
-                    </Button>
-                  </div>
-                </>
-              ) : selectedLead.data ? (
-                <>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[.12em] text-primary">Criar site com IA</p>
-                    <h2 className="mt-2 break-words text-lg font-semibold text-foreground">
-                      {selectedLead.data.lead.internalName}
-                    </h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      Escolha um dos modelos. A IA vai adaptar o conteúdo deste lead ao visual selecionado.
-                    </p>
-                  </div>
-                  <div role="group" aria-label="Escolher template visual" className="grid grid-cols-2 gap-3">
-                    {([
-                      {id:'institutional-complete',title:'01 — Institucional Completo',sub:'Template 1 do PageNova Studio'},
-                      {id:'minimalist-sophisticated',title:'02 — Minimalista Sofisticado',sub:'Template 2 do PageNova Studio'},
-                      {id:'modern-impactful',title:'03 — Moderno e Impactante',sub:'Template 3 do PageNova Studio'},
-                      {id:'image-text-alternating',title:'04 — Imagens e Textos Lado a Lado',sub:'Template 4 do PageNova Studio'},
-                    ] as const).map(option=><button key={option.id} type="button"
-                      aria-pressed={selectedTemplateId===option.id}
-                      onClick={()=>setSelectedTemplateId(option.id)} disabled={creatingFromLead}
-                      className={"rounded-xl border p-4 text-left transition-colors "+(selectedTemplateId===option.id?
-                        "border-primary bg-primary-soft text-foreground":"border-border bg-card text-foreground hover:border-primary/40")}>
-                      <div className="mb-3 flex h-16 flex-col justify-center gap-2 rounded-lg bg-[#f5f7f5] px-3" aria-hidden="true">
-                        <div className={"h-2 w-3/5 rounded "+(option.id==='modern-impactful'?"bg-[#14202a]":"bg-[#31574a]")}/>
-                        <div className="flex gap-2"><span className="h-5 w-1/2 rounded bg-[#d7ddd8]"/><span className="h-5 flex-1 rounded bg-[#b4c7bb]"/></div>
-                      </div>
-                      <span className="block text-sm font-semibold">{option.title}</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">{option.sub}</span>
-                    </button>)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    O CRM importa os dados do lead e mantém a geração atual da capa e das fotos do Google.
-                    O visual final é exatamente o template escolhido no Builder 2.0.
-                  </p>
-                  <SiteCreditsNotice compact />
-                  <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-3">
-                    <Button type="button" variant="secondary" disabled={creatingFromLead}
-                      onClick={()=>setSelectedLeadId(null)}>Cancelar</Button>
-                    <Button type="button" disabled={creatingFromLead || noSiteCredits}
-                      onClick={()=>void createSiteDirectlyFromLead()}>
-                      <Sparkles className="h-4 w-4" aria-hidden="true"/>
-                      {creatingFromLead?'Gerando...':'Gerar com este template'}
-                    </Button>
-                  </div>
-                  {creatingFromLead&&<p role="status" className="text-center text-xs text-muted-foreground">
-                    Criando projeto e iniciando geração...
-                  </p>}
-                </>
-              ) : null}
-            </CardContent>
-          </Card>
+        <div className="pointer-events-none fixed inset-x-0 bottom-3 z-[65] flex justify-center px-3 sm:bottom-6"
+          aria-live="polite">
+          <div className="pointer-events-auto w-full max-w-md max-h-[min(60dvh,400px)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-surface p-4 text-foreground shadow-2xl">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-[.13em] text-primary">Site com IA · CRM</p>
+              {!creatingFromLead&&<Button type="button" size="sm" variant="ghost" onClick={()=>{setSelectedLeadId(null);setCreateError(null);}}>Fechar</Button>}
+            </div>
+            <h2 className="break-words text-base font-semibold">{selectedLead.data?.lead.internalName||"Preparando site do lead"}</h2>
+            {selectedLead.isLoading||(selectedLead.data&&googleDetails.isLoading)?(
+              <div role="status" className="mt-2"><LoadingBlock label="Carregando dados do lead e fotografias do Google..."/></div>
+            ):selectedLead.isError?(
+              <div className="mt-2"><ErrorState message="Não foi possível carregar este lead."/>
+                <Button type="button" variant="secondary" onClick={()=>setSelectedLeadId(null)}>Voltar aos leads</Button>
+              </div>
+            ):createError?(
+              <div className="mt-3 space-y-3">
+                <ErrorState message={createError}/>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="button" variant="secondary" onClick={()=>{setSelectedLeadId(null);setCreateError(null);}}>Cancelar</Button>
+                  {createdProjectId&&<Button type="button" variant="secondary" onClick={()=>{setSelectedLeadId(null);navigate('/sites-ia/'+createdProjectId);}}>Abrir projeto salvo</Button>}
+                  <Button type="button" disabled={creatingFromLead||(!createdProjectId&&noSiteCredits)} onClick={()=>void createSiteDirectlyFromLead()}>
+                    {createdProjectId?"Retomar geração":"Tentar novamente"}
+                  </Button>
+                </div>
+              </div>
+            ):(
+              <p role="status" className="mt-2 text-sm text-muted-foreground">
+                {creatingFromLead?"Gerando automaticamente no Template 1. Você poderá alterar o visual depois no Builder 2.0.":"Preparando a geração automática..."}
+              </p>
+            )}
+          </div>
         </div>
       ) : null}
     </>
@@ -493,8 +462,8 @@ function LeadPicker({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true">
-      <Card className="w-full max-w-2xl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/70 p-3 py-4 sm:items-center sm:p-4" role="dialog" aria-modal="true">
+      <Card className="w-full max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <CardContent className="space-y-4 p-5">
           <div className="flex items-start justify-between gap-3">
             <div>
