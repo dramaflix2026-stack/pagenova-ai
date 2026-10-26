@@ -16,7 +16,7 @@ type AnyObject=Record<string,unknown>;
 export type ImportedBuilderBlock={
   id:string;section:string;type:"heading"|"paragraph"|"image"|"button";
   text:string;color:string;align:"left"|"center"|"right";
-  src?:string;href?:string;forCardId?:string;layout?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard";imageFit?:"cover"|"contain";
+  src?:string;href?:string;forCardId?:string;userUploaded?:boolean;layout?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard";imageFit?:"cover"|"contain";
 };
 export type ImportedCrmSite={
   id:string;kind:"institutional";title:string;background:string;niche:string;
@@ -24,6 +24,8 @@ export type ImportedCrmSite={
   blocks:ImportedBuilderBlock[];
   motion:{preset:"professional"};
   footer:{instagram?:string;whatsapp?:string;showFloatingWhatsapp?:boolean};
+  socialProof:{enabled:false};
+  sectionMediaManaged:string[];
 };
 const obj=(v:unknown):AnyObject=>v&&typeof v==="object"&&!Array.isArray(v)?v as AnyObject:{};
 const text=(v:unknown)=>typeof v==="string"?v.trim():"";
@@ -74,7 +76,7 @@ export function convertCrmSiteToBuilder(config:unknown,urls:Record<string,string
     const asset=obj(raw);
     const assetId=text(asset.assetId);
     const url=urls[assetId];
-    if(url)add(section,"image",text(asset.alt)||"Fotografia do estabelecimento",{src:url,...(card?{forCardId:card}:{})});
+    if(url)add(section,"image",text(asset.alt)||"Fotografia do estabelecimento",{src:url,userUploaded:true,...(card?{forCardId:card}:{})});
   };
   const link=(value:unknown)=>{
     const action=obj(value),target=text(action.target),kind=text(action.kind);
@@ -133,6 +135,8 @@ export function convertCrmSiteToBuilder(config:unknown,urls:Record<string,string
     id:projectId,kind:"institutional",title:name,background,
     niche:text(business.niche),templateId:crmTemplateFromConfig(config),
     heroPresentation:"immersive",blocks,motion:{preset:"professional"},
+    socialProof:{enabled:false},
+    sectionMediaManaged:["galeria"],
     footer:{
       ...(instagram.startsWith("https://")?{instagram}:{}),
       ...(whatsapp?{whatsapp}:{}),
