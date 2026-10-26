@@ -134,3 +134,21 @@ test("three images required for triplo but only one missing when two already exi
   assert.throws(()=>apply(before,"Transforme a capa em banner triplo. Preserve o restante."),
     /anexe mais 1 foto/);
 });
+
+test("replacing photo on second banner updates only that image",()=>{
+  const before=original();
+  before.heroComposition="duo";
+  before.blocks.push(img("second-banner","inicio","https://img.example/second.jpg"));
+  const next=apply(before,'Troque a imagem do segundo banner pela foto anexada.',["https://store/new-second.jpg"]);
+  assert.equal(next.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
+  assert.equal(next.blocks.find(b=>b.id==="second-banner").src,"https://store/new-second.jpg");
+  assert.equal(next.blocks.filter(b=>b.section==="inicio"&&b.type==="image").length,2);
+  assert.deepEqual(next.blocks.filter(b=>b.type!=="image"),before.blocks.filter(b=>b.type!=="image"));
+});
+test("second photo on cover phrasing creates carousel composition",()=>{
+  const before=original();
+  const next=apply(before,"Adicione esta segunda foto na capa sem mexer na primeira.",["https://store/banner2.jpg"]);
+  assert.equal(next.heroComposition,"duo");
+  assert.equal(next.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
+  assert.ok(next.blocks.some(b=>b.section==="inicio"&&b.src==="https://store/banner2.jpg"));
+});
