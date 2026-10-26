@@ -35,7 +35,7 @@ test("Home product updates and archive share one factual, dated source",()=>{
  const home=read("src/app/app/page.tsx");
  const archive=read("src/app/app/atualizacoes/page.tsx");
  const updates=read("src/lib/pagenova-updates.ts");
- assert.match(home,/pagenovaUpdates\.slice\(0,3\)/);
+ assert.match(home,/pagenovaUpdates\.slice\(0,2\)/);
  assert.match(archive,/pagenovaUpdates\.map/);
  assert.match(updates,/2026-10-26-builder/);
  assert.match(updates,/2026-10-26-crm/);
@@ -63,4 +63,18 @@ test("Trial visitors can see Home but site-generation entry still follows the CR
  assert.match(home,/access.kind==="trial"\?"\/app\/crm\?view=sites-ia":"\/app\/builder-v2"/);
  const navigation=read("src/components/sidebar.tsx");
  assert.match(navigation,/accessKind==="trial"\?studioItems\.map/);
+});
+
+test("Premium mobile Home is compact and prioritizes creation and resuming work",()=>{
+ const home=read("src/app/app/page.tsx");
+ const resume=read("src/components/continue-pagenova-project.tsx");
+ assert.match(home,/sm:mt-7 sm:flex sm:flex-wrap/);
+ assert.match(home,/grid grid-cols-2 gap-2/);
+ assert.match(home,/sm:rounded-\[26px\] sm:px-9 sm:py-10/);
+ assert.match(home,/<ContinuePageNovaProject\/>/);
+ assert.match(home,/min-h-\[166px\]/);
+ assert.match(home,/grid gap-3 lg:grid-cols-2/);
+ assert.match(home,/href="\/app\/atualizacoes"/);
+ assert.match(resume,/aria-label="Continuar meu projeto"/);
+ assert.match(resume,/resolvePageNovaContinueHref\(window.localStorage\)/);
 });
