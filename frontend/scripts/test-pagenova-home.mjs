@@ -17,7 +17,7 @@ test("The authenticated /app entry opens the Início dashboard, not Studio or CR
  assert.match(home,/PageNova AI/);
  assert.match(home,/O que vamos criar hoje/);
  assert.match(home,/site a partir de um lead/i);
- assert.match(home,/Como usar/);
+ assert.match(home,/como usar/i);
 });
 
 test("Navigation first shows Início with update archive and guide, not the old Studio 'Como usar'",()=>{
