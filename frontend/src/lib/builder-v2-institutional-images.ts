@@ -81,6 +81,17 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   const section=targetSection(blocks,s);
   const hero=sectionOf(blocks.find(b=>b.type==="heading")||blocks[0]);
   const sectionImages=()=>indexesForGroup(blocks,section);
+  const usableSectionImages=()=>sectionImages().filter(i=>!!blocks[i].src&&!blocks[i].forCardId);
+  // The hero preview can use a photo from another section when no hero image exists.
+  // Materialize only that already-visible photo into the hero when a multi-banner is
+  // explicitly requested; keep the source block and all other sections untouched.
+  if(section===hero&&!usableSectionImages().length&&/\b(?:capa|hero|banner|home|inicio|principal)\b/.test(s)){
+    const renderedCover=blocks.find(b=>isImage(b)&&!!b.src&&!b.forCardId&&sectionOf(b)!==hero);
+    if(renderedCover){
+      const last=blocks.findLastIndex(b=>sectionOf(b)===hero);
+      blocks.splice(last+1,0,{...renderedCover,id:"hero-visible-"+crypto.randomUUID(),section:hero});
+    }
+  }
   const cardRequest=s.match(new RegExp("(?:card|cartao)\\s*(?:numero\\s*)?"+ordinalPattern+"|"+ordinalPattern+"\\s*(?:card|cartao)"));
   const cardIndex=numberWord(cardRequest?.[1]||cardRequest?.[2]);
   const paragraphs=blocks.filter(b=>sectionOf(b)===section&&isCard(b)&&b.text.trim().length>0);
@@ -90,7 +101,7 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   const imageMention=s.match(new RegExp("(?:foto|imagem|fotografia)\\s*(?:numero\\s*)?"+ordinalPattern+"|"+ordinalPattern+"\\s*(?:foto|imagem|fotografia)"));
   const photoIndex=numberWord(imageMention?.[1]||imageMention?.[2]);
   const layout:HeroComposition|undefined=/\b(?:triplo|tres|3)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)[^.]{0,45}\b(?:tres|3)\s*(?:foto|imagem)/.test(s)?"trio":
-    /\b(?:duplo|duas|dois|2)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)[^.]{0,45}\b(?:duas|2)\s*(?:foto|imagem)/.test(s)?"duo":
+    /\b(?:duplo|duas|dois|2)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)[^.]{0,45}\b(?:duas|2)\s*(?:foto|imagem)|\b(?:segunda|2[ªa])\s+(?:foto|imagem)\s+(?:da\s+)?capa/.test(s)?"duo":
     /\b(?:banner|capa)\s+(?:unico|simples|com\s+uma\s+(?:foto|imagem))/.test(s)?"single":undefined;
   const fit=/sem\s+cort|inteir[ao]|formato\s+original|object.contain/.test(s)?"contain" as const:
     /preench|recort|corte\s+central|object.cover/.test(s)?"cover" as const:undefined;
@@ -172,7 +183,13 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   if(layout){
     if(section!==hero)throw Error("Duplo e triplo banner são configurações da capa. Indique a capa na mensagem.");
     const required=layout==="duo"?2:layout==="trio"?3:1;
-    if(sectionImages().filter(i=>!!blocks[i].src).length<required)throw Error("A capa precisa de "+required+" fotografias. Anexe as fotos que faltam.");
+    const available=usableSectionImages().length;
+    if(available<required){
+      const missing=required-available;
+      throw Error("A capa já possui "+available+" "+(available===1?"fotografia":"fotografias")+" reconhecida"+(available===1?"":"s")+
+        ". Para criar o banner "+(layout==="duo"?"duplo":"triplo")+", anexe mais "+missing+" "+(missing===1?"foto":"fotos")+
+        " em 'Fotos para usar no site'. Nenhuma imagem existente será apagada.");
+    }
     updated.heroComposition=layout;
     changes.push("capa "+(layout==="duo"?"dupla":layout==="trio"?"tripla":"simples"));
   }
