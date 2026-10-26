@@ -92,3 +92,45 @@ test("adding image to Sobre Nos does not touch the cover",()=>{
   assert.ok(next.blocks.some(b=>b.section==="sobre"&&b.src==="https://store/about.jpg"));
   assert.equal(next.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
 });
+
+test("one already-installed hero photo plus one attachment makes a double banner",()=>{
+  const before=original();
+  const result=apply(before,
+    "Adicione esta imagem como segunda imagem da capa, formando um banner duplo. Preserve a imagem original, o título, a descrição e os botões.",
+    ["https://store/new-second.jpg"]);
+  assert.equal(result.heroComposition,"duo");
+  assert.deepEqual(result.blocks.filter(b=>b.type==="image"&&b.section==="inicio").map(b=>b.src),
+    ["https://img.example/old.jpg","https://store/new-second.jpg"]);
+  assert.deepEqual(result.blocks.filter(b=>b.type!=="image"),before.blocks.filter(b=>b.type!=="image"));
+});
+test("existing visible hero from another section is recognized without moving its source",()=>{
+  const before=original();
+  before.blocks=before.blocks.filter(b=>b.id!=="hero");
+  const result=apply(before,"Coloque esta foto como segunda imagem da capa, banner duplo.",
+    ["https://store/extra.jpg"]);
+  assert.equal(result.heroComposition,"duo");
+  assert.deepEqual(result.blocks.filter(b=>b.section==="inicio"&&b.type==="image").map(b=>b.src),
+    ["https://img.example/s1.jpg","https://store/extra.jpg"]);
+  assert.equal(result.blocks.find(b=>b.id==="old-service")?.src,"https://img.example/s1.jpg");
+  assert.deepEqual(result.blocks.filter(b=>b.type!=="image"),before.blocks.filter(b=>b.type!=="image"));
+});
+test("no attached second photo reports exactly one missing and changes nothing",()=>{
+  const before=original();
+  assert.throws(()=>apply(before,"Transforme a capa em banner duplo. Preserve tudo."),
+    error=>/capa já possui 1 fotografia/.test(error.message)&&/anexe mais 1 foto/.test(error.message));
+  assert.equal(before.heroComposition,"single");
+  assert.equal(before.blocks.filter(b=>b.section==="inicio"&&b.type==="image").length,1);
+});
+test("first hero photo rendered from another section also counts toward missing total",()=>{
+  const before=original();
+  before.blocks=before.blocks.filter(b=>b.id!=="hero");
+  assert.throws(()=>apply(before,"Forme um banner duplo com a foto atual e uma segunda imagem."),
+    /capa já possui 1 fotografia/);
+  assert.equal(before.blocks.find(b=>b.id==="old-service")?.src,"https://img.example/s1.jpg");
+});
+test("three images required for triplo but only one missing when two already exist",()=>{
+  const before=original();
+  before.blocks.push(img("hero-2","inicio","https://img.example/existing2.jpg"));
+  assert.throws(()=>apply(before,"Transforme a capa em banner triplo. Preserve o restante."),
+    /anexe mais 1 foto/);
+});
