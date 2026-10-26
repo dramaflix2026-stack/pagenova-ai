@@ -887,6 +887,8 @@ export type SiteBriefingBusiness = z.infer<typeof siteBriefingBusinessSchema>;
 export const siteBriefingSchema = z.object({
   /** Deterministic visual template; retained in the project's saved briefing. */
   templateId: z.enum(['frigolog-universal','muse-editorial','atelier-norte','vertice-corporate','restaurant-premium','real-estate-premium']).default('frigolog-universal'),
+  /** The exact PageNova Studio institutional renderer; CRM keeps its original image generation pipeline. */
+  builderV2TemplateId: z.enum(['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating']).optional(),
   business: siteBriefingBusinessSchema,
   objective: z.object({
     goal: z.enum([
