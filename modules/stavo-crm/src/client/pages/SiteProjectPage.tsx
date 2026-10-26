@@ -14,7 +14,7 @@ import { SITE_PROJECT_STATUS_LABELS, isProjectBusy, type SiteProjectStatus } fro
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteEditor } from '../components/site-ai/editor/SiteEditor';
 import { SiteProgressView } from '../components/site-ai/SiteProgressView';
-import { useArchiveSiteProject, useGenerateSite, useSiteProject, useSiteConfig } from '../hooks/useSiteAi';
+import { useArchiveSiteProject, useGenerateSite, useSiteProject, useSiteDraftConfig } from '../hooks/useSiteAi';
 import { SiteCreditsNotice, siteCreditsExhausted, usePageNovaSiteCredits } from '../components/site-ai/SiteCreditsNotice';
 import { Badge, Button, Callout, ErrorState, LoadingBlock } from '../components/ui';
 import { useToast } from '../components/ui/Toast';
@@ -35,7 +35,7 @@ export default function SiteProjectPage() {
   const latestJob = jobs[0];
   const busy = project ? isProjectBusy(project.status as SiteProjectStatus) : false;
   const editable = project ? project.status === 'READY' || project.status === 'PUBLISHED' : false;
-  const savedConfig=useSiteConfig(editable ? projectId ?? null : null);
+  const savedConfig=useSiteDraftConfig(editable ? projectId ?? null : null);
   const modernSelection=(savedConfig.data?.config as {project?:{builderV2TemplateId?:string}}|null)?.project?.builderV2TemplateId;
   const showLegacy=searchParams.get('crmLegacy')==='1';
 
