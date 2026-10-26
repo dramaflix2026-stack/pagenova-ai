@@ -951,7 +951,7 @@ export default function BuilderV2() {
         className={"flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-white/85 hover:bg-white/10 disabled:opacity-40 "+(voiceListening?"border-red-400 bg-red-400/20":"border-white/20")}>
         {voiceListening?<MicOff size={19}/>:<Mic size={19}/>}
       </button>
-      <button type="button" aria-expanded={nicheMenuOpen} onClick={()=>setNicheMenuOpen(open=>!open)}
+      !crmProjectId&&<button type="button" aria-expanded={nicheMenuOpen} onClick={()=>setNicheMenuOpen(open=>!open)}
         className="inline-flex h-10 min-w-0 max-w-[145px] items-center gap-1 rounded-full border border-white/20 px-3 text-xs font-medium text-white/80 hover:bg-white/10">
         <span className="truncate">{selectedNiche||"Nicho"}</span><span aria-hidden="true">⌄</span>
       </button>
@@ -961,7 +961,7 @@ export default function BuilderV2() {
       </button>
     </div>
   </form>
-  {nicheMenuOpen&&<div className="mt-3 space-y-2 border-t border-white/15 pt-3">
+  {!crmProjectId&&nicheMenuOpen&&<div className="mt-3 space-y-2 border-t border-white/15 pt-3">
     <input aria-label="Pesquisar nichos" value={nicheQuery} onChange={e=>setNicheQuery(e.target.value)}
       placeholder="Buscar profissão ou negócio..." className="w-full rounded-lg border border-white/20 bg-black/30 p-2 text-sm text-white outline-none focus:border-lime-300"/>
     <select aria-label="Categoria do nicho" value={nicheGroup} onChange={e=>setNicheGroup(e.target.value)}
