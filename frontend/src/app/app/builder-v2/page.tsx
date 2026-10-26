@@ -334,8 +334,9 @@ export default function BuilderV2() {
         let next=previous.slice();
         if(propertyFiles.length){
           if(propertyFiles.length>MAX_PHOTOS_PER_UPLOAD)throw new Error("Envie no máximo "+MAX_PHOTOS_PER_UPLOAD+" fotos por vez.");
-          if(action==="replace"&&propertyFiles.length!==1)throw new Error("Para substituir uma foto, anexe exatamente uma imagem.");
-          if(action==="replace"&&(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length))throw new Error("Indique a foto existente a substituir: foto 1, foto 2 ou foto de capa.");
+          const replaceAll=action==="replace"&&/\b(?:todas|todos)\s+(?:as\s+|os\s+)?(?:fotos|imagens)\b/i.test(prompt);
+          if(action==="replace"&&!replaceAll&&propertyFiles.length!==1)throw new Error("Para substituir uma foto, anexe exatamente uma imagem.");
+          if(action==="replace"&&!replaceAll&&(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length))throw new Error("Indique a foto existente a substituir: foto 1, foto 2 ou foto de capa.");
           if(action!=="replace"&&previous.length+propertyFiles.length>MAX_PHOTOS_PER_PROPERTY)throw new Error("O limite é "+MAX_PHOTOS_PER_PROPERTY+" fotos por imóvel. Remova algumas antes.");
           const projectId=site.id||crypto.randomUUID();
           const uploaded:string[]=[];
@@ -349,7 +350,8 @@ export default function BuilderV2() {
             uploaded.push(data.src);
           }
           if(action==="replace"){
-            next[photoIndex as number]=uploaded[0];
+            if(replaceAll)next=uploaded;
+            else next[photoIndex as number]=uploaded[0];
           }else{
             next=[...previous,...uploaded];
             const requestedCover=/\bcapa\b|\bprincipal\b/i.test(prompt);
@@ -579,6 +581,7 @@ export default function BuilderV2() {
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
+      if(!creatingNewSite&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}
       incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;

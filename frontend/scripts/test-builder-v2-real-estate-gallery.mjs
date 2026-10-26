@@ -39,6 +39,8 @@ test("Portuguese numbering and cover commands are understood",()=>{
  assert.equal(photoAction("Remova a foto 2",false),"remove");
  assert.equal(photoAction("Apague todas as fotos",false),"clear");
  assert.equal(photoAction("Mova a foto 3 depois da foto 1",false),"reorder");
+ assert.equal(photoAction("Substitua a foto 2 do imóvel 1",false),"help");
+ assert.equal(photoIndexFromInstruction("A terceira será a capa"),2);
 });
 test("Photo-preservation clauses do not hijack price or copy edits",()=>{
  assert.equal(looksLikePhotoInstruction("Altere o preço do imóvel 1. Preserve todas as fotos."),false);
@@ -62,6 +64,7 @@ test("Real estate photos use a scoped, authenticated upload and the public page 
  assert.match(editor,/\/api\/builder-v2\/property-photos/);
  assert.match(editor,/propertyFiles/);
  assert.match(editor,/recordVersion\(site,"Antes de editar fotos do imóvel"\)/);
+ assert.match(editor,/incoming\.properties=site\.properties/);
  assert.match(publicPage,/RealEstateTemplate properties=\{payload\.site\.properties\|\|\[\]\}/);
  assert.match(gallery,/role="dialog"/);
  assert.match(gallery,/getPropertyPhotos\(p\)/);

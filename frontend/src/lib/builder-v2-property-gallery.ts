@@ -31,6 +31,8 @@ export function photoIndexFromInstruction(instruction:string):number|undefined{
   if(ordinal&&(!numeric||(ordinal.index??Infinity)<(numeric.index??Infinity)))return ordinals[ordinal[1]||ordinal[2]];
   if(numeric)return Number(numeric[1])-1;
   if(ordinal)return ordinals[ordinal[1]||ordinal[2]];
+  const describedCover=text.match(/\b(primeira|primeiro|segunda|segundo|terceira|terceiro|quarta|quarto|quinta|quinto|sexta|sexto|setima|setimo|oitava|oitavo|nona|nono|decima|decimo)\b.{0,32}\bcapa\b/);
+  if(describedCover)return ordinals[describedCover[1]];
   if(/\b(?:foto|imagem)\s+(?:principal|de capa)\b|\b(?:capa|foto principal)\b/.test(text))return 0;
   return undefined;
 }
@@ -53,6 +55,7 @@ export function photoAction(instruction:string,hasUpload:boolean):"add"|"replace
   if(hasUpload){
     return /\b(?:troqu|substitu)\w*/.test(text)?"replace":"add";
   }
+  if(/\b(?:troqu|substitu)\w*/.test(text)&&!/\b(?:capa|principal)\b/.test(text))return "help";
   if(/\b(?:mov|coloc|reposicion|reorden|organiz)\w*/.test(text)&&/\b(?:antes|depois)\b/.test(text)&&/\b(?:foto|imagem)\b/.test(text))return "reorder";
   if(/\b(?:capa|principal|primeira|segunda|terceira|quarta|quinta|sexta|setima|oitava|\d+)\b/.test(text)&&/\b(?:use|usar|deix|defin|torn|escolh|coloc|mov|alter|mud|troqu)\w*/.test(text))return "cover";
   return "help";
