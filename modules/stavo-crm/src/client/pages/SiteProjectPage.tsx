@@ -7,14 +7,14 @@
  */
 import { ArrowLeft, Eye } from 'lucide-react';
 import { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
 import { SITE_PROJECT_STATUS_LABELS, isProjectBusy, type SiteProjectStatus } from '@site-kit/types/site-ai';
 import { PageBody, PageHeader } from '../components/layout/AppLayout';
 import { SiteEditor } from '../components/site-ai/editor/SiteEditor';
 import { SiteProgressView } from '../components/site-ai/SiteProgressView';
-import { useArchiveSiteProject, useGenerateSite, useSiteProject } from '../hooks/useSiteAi';
+import { useArchiveSiteProject, useGenerateSite, useSiteProject, useSiteConfig } from '../hooks/useSiteAi';
 import { SiteCreditsNotice, siteCreditsExhausted, usePageNovaSiteCredits } from '../components/site-ai/SiteCreditsNotice';
 import { Badge, Button, Callout, ErrorState, LoadingBlock } from '../components/ui';
 import { useToast } from '../components/ui/Toast';
@@ -22,6 +22,7 @@ import { useToast } from '../components/ui/Toast';
 export default function SiteProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const [searchParams]=useSearchParams();
   const toast = useToast();
   const query = useSiteProject(projectId ?? null);
   const generate = useGenerateSite(projectId ?? '');
@@ -34,6 +35,9 @@ export default function SiteProjectPage() {
   const latestJob = jobs[0];
   const busy = project ? isProjectBusy(project.status as SiteProjectStatus) : false;
   const editable = project ? project.status === 'READY' || project.status === 'PUBLISHED' : false;
+  const savedConfig=useSiteConfig(editable ? projectId ?? null : null);
+  const modernSelection=(savedConfig.data?.config as {project?:{builderV2TemplateId?:string}}|null)?.project?.builderV2TemplateId;
+  const showLegacy=searchParams.get('crmLegacy')==='1';
 
   // Hooks precisam rodar na mesma ordem em todos os renders. Antes este hook
   // ficava depois dos returns de loading/error; quando a query terminava de
@@ -44,6 +48,16 @@ export default function SiteProjectPage() {
     }
   }, [latestJob?.status, editable, query.refetch]);
 
+  useEffect(()=>{
+    // Existing projects without Builder V2 selection keep their original editor.
+    // A newly generated lead with one of the four Studio templates opens the
+    // REAL Builder component instead of the old CRM preview/editor.
+    const templates=['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating'];
+    if(!editable||!projectId||showLegacy||!templates.includes(modernSelection||''))return;
+    const destination='/app/builder-v2?crmProject='+encodeURIComponent(projectId);
+    window.top?.location.assign(destination);
+  },[editable,projectId,modernSelection,showLegacy]);
+  
   if (query.isLoading) return <LoadingBlock label="Carregando projeto..." />;
   if (query.isError || !query.data || !project) {
     return <ErrorState message="Projeto nao encontrado ou voce nao tem acesso a ele." />;
@@ -63,6 +77,11 @@ export default function SiteProjectPage() {
               window.top?.location.assign(url);
             }}>
               Abrir no Builder 2.0
+            </Button>
+          ) : null}
+          {editable&&modernSelection&&!showLegacy ? (
+            <Button variant="secondary" onClick={()=>navigate('/sites-ia/'+project.id+'?crmLegacy=1')}>
+              Editor anterior
             </Button>
           ) : null}
           {editable ? (
