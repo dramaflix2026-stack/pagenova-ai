@@ -184,3 +184,34 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   if(!changes.length)throw Error("Nenhuma alteração de imagem foi identificada.");
   return {site:updated,summary:changes.join("; ")+". Textos, botões e outras seções preservados."};
 }
+
+/**
+ * Restore photography for ONE section from a previous snapshot without rewinding
+ * intervening changes to text, buttons, colors or other sections.
+ */
+export function restoreInstitutionalSectionImages<T extends InstitutionalMediaSite>(current:T,previous:T,instruction:string):{site:T;summary:string}|null{
+  const s=norm(instruction);
+  const section=targetSection(current.blocks,s);
+  const hero=sectionOf(current.blocks.find(b=>b.type==="heading")||current.blocks[0]);
+  const prior=previous.blocks.filter(b=>isImage(b)&&sectionOf(b)===section);
+  const now=current.blocks.filter(b=>isImage(b)&&sectionOf(b)===section);
+  const imageKey=(list:InstitutionalMediaBlock[])=>JSON.stringify(list.map(b=>({
+    id:b.id,src:b.src,mobileSrc:b.mobileSrc,forCardId:b.forCardId,imageFit:b.imageFit
+  })));
+  const layoutChanged=section===hero?current.heroComposition!==previous.heroComposition:
+    current.sectionMediaLayouts?.[section]!==previous.sectionMediaLayouts?.[section];
+  if(imageKey(prior)===imageKey(now)&&!layoutChanged)return null;
+  const rest=structuredClone(current.blocks).filter(b=>!(isImage(b)&&sectionOf(b)===section));
+  const last=rest.findLastIndex(b=>sectionOf(b)===section);
+  rest.splice(last+1,0,...structuredClone(prior));
+  const restored={
+    ...current,blocks:rest,
+    ...(section===hero?{heroComposition:previous.heroComposition}:{}),
+    sectionMediaLayouts:{...current.sectionMediaLayouts,...(previous.sectionMediaLayouts?.[section]?
+      {[section]:previous.sectionMediaLayouts[section]}:{})},
+    sectionMediaManaged:[...new Set([...(current.sectionMediaManaged||[]),section])]
+  } as T;
+  if(section!==hero&&!previous.sectionMediaLayouts?.[section]&&restored.sectionMediaLayouts)
+    delete restored.sectionMediaLayouts[section];
+  return {site:restored,summary:"Imagens anteriores da seção restauradas. Textos, botões e outras seções preservados."};
+}
