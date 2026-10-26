@@ -82,5 +82,18 @@ export async function POST(request:NextRequest) {
     contentType:"application/json",upsert,cacheControl:"0"
   });
   if(error)return NextResponse.json({error:"Falha ao publicar. Seu rascunho foi preservado."},{status:503});
+  // Index the owned publication server-side. Domain selectors must never
+  // trust IndexedDB names or a URL supplied by the browser.
+  const {error:indexError}=await admin.from("pagenova_site_publications").upsert({
+    owner_id:userId,project_id:site.id,slug,title:site.title,published_at:publishedAt
+  },{onConflict:"owner_id,project_id"});
+  if(indexError){
+    console.error("[pagenova/domains] publication index error",indexError.code);
+    return NextResponse.json({slug,url:`${request.nextUrl.origin}/p/${slug}`,publishedAt,
+      notice:"Site publicado. A atualização da lista de domínios está temporariamente indisponível."
+    });
+  }
+  await admin.from("pagenova_custom_domains").update({slug,updated_at:publishedAt})
+    .eq("owner_id",userId).eq("project_id",site.id);
   return NextResponse.json({slug,url:`${request.nextUrl.origin}/p/${slug}`,publishedAt});
 }
