@@ -27,8 +27,9 @@ const ordinals:Record<string,number>={primeira:0,primeiro:0,segunda:1,segundo:1,
 export function photoIndexFromInstruction(instruction:string):number|undefined{
   const text=normalize(instruction);
   const numeric=text.match(/\b(?:foto|imagem)\s*(?:n(?:umero|[º°.])\s*)?#?\s*(\d{1,2})\b/);
-  if(numeric)return Number(numeric[1])-1;
   const ordinal=text.match(/\b(primeira|primeiro|segunda|segundo|terceira|terceiro|quarta|quarto|quinta|quinto|sexta|sexto|setima|setimo|oitava|oitavo|nona|nono|decima|decimo)\s+(?:foto|imagem)\b|\b(?:foto|imagem)\s+(primeira|primeiro|segunda|segundo|terceira|terceiro|quarta|quarto|quinta|quinto|sexta|sexto|setima|setimo|oitava|oitavo|nona|nono|decima|decimo)\b/);
+  if(ordinal&&(!numeric||(ordinal.index??Infinity)<(numeric.index??Infinity)))return ordinals[ordinal[1]||ordinal[2]];
+  if(numeric)return Number(numeric[1])-1;
   if(ordinal)return ordinals[ordinal[1]||ordinal[2]];
   if(/\b(?:foto|imagem)\s+(?:principal|de capa)\b|\b(?:capa|foto principal)\b/.test(text))return 0;
   return undefined;
