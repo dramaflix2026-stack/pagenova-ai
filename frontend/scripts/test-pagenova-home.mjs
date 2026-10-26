@@ -1,0 +1,66 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import path from "node:path";
+import {fileURLToPath} from "node:url";
+
+const cwd=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const read=(name)=>readFileSync(path.join(cwd,name),"utf8");
+
+test("The authenticated /app entry opens the Início dashboard, not Studio or CRM redirects",()=>{
+ const home=read("src/app/app/page.tsx");
+ assert.match(home,/getPageNovaAccess\(admin,user,true\)/);
+ assert.match(home,/if\(access.kind==="none"\)redirect/);
+ assert.doesNotMatch(home,/redirect\("\/app\/builder-v2"\)/);
+ assert.doesNotMatch(home,/redirect\("\/app\/crm\?view=sites-ia"\)/);
+ assert.match(home,/Bem-vindo à/);
+ assert.match(home,/PageNova AI/);
+ assert.match(home,/O que vamos criar hoje/);
+ assert.match(home,/site a partir de um lead/i);
+ assert.match(home,/Como usar/);
+});
+
+test("Navigation first shows Início with update archive and guide, not the old Studio 'Como usar'",()=>{
+ const nav=read("src/components/sidebar.tsx");
+ assert.match(nav,/const homeItems: MenuItem\[\] = \[/);
+ assert.match(nav,/href:"\/app",label:"Visão geral"/);
+ assert.match(nav,/href:"\/app\/atualizacoes",label:"Atualizações"/);
+ assert.match(nav,/href:"\/app\/como-usar",label:"Como Usar a Plataforma"/);
+ assert.ok(!nav.slice(nav.indexOf("const studioItems"),nav.indexOf("const intelligenceItems")).includes('href: "/app/como-usar"'));
+ assert.equal((nav.match(/NavigationGroup title="Início"/g)||[]).length,2);
+ assert.match(nav,/if\(href==="\/app"\)return pathname==="\/app"/);
+});
+
+test("Home product updates and archive share one factual, dated source",()=>{
+ const home=read("src/app/app/page.tsx");
+ const archive=read("src/app/app/atualizacoes/page.tsx");
+ const updates=read("src/lib/pagenova-updates.ts");
+ assert.match(home,/pagenovaUpdates\.slice\(0,3\)/);
+ assert.match(archive,/pagenovaUpdates\.map/);
+ assert.match(updates,/2026-10-26-builder/);
+ assert.match(updates,/2026-10-26-crm/);
+ assert.match(updates,/2026-10-26-images/);
+ assert.match(archive,/time dateTime=\{entry\.date\}/);
+ assert.match(home,/href="\/app\/atualizacoes"/);
+});
+
+test("Existing interactive tutorials are preserved and video cards never pretend to play unavailable videos",()=>{
+ const guide=read("src/app/app/como-usar/page.tsx");
+ assert.match(guide,/title="Como Usar a Plataforma"/);
+ assert.match(guide,/Central de aprendizado/);
+ assert.match(guide,/Criar site pelo Studio/);
+ assert.match(guide,/Gerar site a partir de um lead/);
+ assert.match(guide,/Vídeos da plataforma/);
+ assert.match(guide,/Vídeo em preparação/);
+ assert.match(guide,/function PracticalDemo/);
+ assert.match(guide,/function ClonerDemo/);
+ assert.match(guide,/function GeneratorDemo/);
+ assert.match(guide,/href=\{mode === "cloner" \? "\/app\/cloner" : "\/app\/landing"\}/);
+});
+
+test("Trial visitors can see Home but site-generation entry still follows the CRM trial flow",()=>{
+ const home=read("src/app/app/page.tsx");
+ assert.match(home,/access.kind==="trial"\?"\/app\/crm\?view=sites-ia":"\/app\/builder-v2"/);
+ const navigation=read("src/components/sidebar.tsx");
+ assert.match(navigation,/accessKind==="trial"\?studioItems\.map/);
+});
