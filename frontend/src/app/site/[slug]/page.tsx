@@ -1,10 +1,29 @@
 import { notFound } from "next/navigation";
+import {headers} from "next/headers";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { BuilderV2Site, type BuilderV2SiteData } from "@/components/builder-v2-site";
 import {RealEstateTemplate} from "@/components/builder-v2-real-estate";
 import {PizzeriaTemplate,RestaurantSegmentTemplate} from "@/components/builder-v2-restaurant-templates";
 export const dynamic="force-dynamic";
-export const metadata={robots:{index:false,follow:false}};
+// Public /site/<slug> and /p/<slug> previews are deliberately non-indexable.
+// Only a verified customer-owned custom hostname is allowed to be indexed.
+export async function generateMetadata({params}:{params:Promise<{slug:string}>}){
+  const {slug}=await params;
+  const host=((await headers()).get("host")||"").toLowerCase().split(":")[0];
+  if(!host||host==="pagenovaai.com.br"||host==="www.pagenovaai.com.br"||
+     host.endsWith(".vercel.app")||host==="localhost")
+    return {robots:{index:false,follow:false}};
+  const url=process.env.NEXT_PUBLIC_SUPABASE_URL,key=process.env.SUPABASE_SECRET_KEY;
+  if(!url||!key)return {robots:{index:false,follow:false}};
+  const admin=createAdminClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+  const {data}=await admin.from("pagenova_custom_domains")
+    .select("slug").eq("domain",host).eq("slug",slug).eq("state","active").maybeSingle();
+  if(!data)return {robots:{index:false,follow:false}};
+  const {data:publication}=await admin.from("pagenova_site_publications")
+    .select("title").eq("slug",slug).maybeSingle();
+  return {title:publication?.title||"Site profissional",robots:{index:true,follow:true},
+    alternates:{canonical:"https://"+host+"/"}};
+}
 const BUCKET="pagenova-published-sites";
 export default async function PublishedBuilderV2({params}:{params:Promise<{slug:string}>}) {
   const {slug}=await params;
