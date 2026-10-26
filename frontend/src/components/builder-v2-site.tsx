@@ -101,6 +101,17 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){color:#fff!important}
 .pn-cinematic-enabled .pn-motion-site>section :is(article,div){background-color:transparent}
 
+/* Cinematic-only refinements; static appearance remains unchanged. */
+.pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
+.pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
+.pn-cinematic-enabled .pn-motion-site>section :is(article,[class*="rounded"]){max-width:100%;min-width:0}
+.pn-cinematic-enabled .pn-motion-site>section :is(article,[class*="rounded"]) p{overflow-wrap:anywhere}
+@media(max-width:767px){
+.pn-cinematic-enabled .pn-motion-site>section{padding-top:clamp(2.5rem,8vw,4rem)!important;padding-bottom:clamp(2.5rem,8vw,4rem)!important}
+.pn-cinematic-enabled .pn-motion-site>section :is(article,[class*="rounded"]){min-height:0}
+.pn-cinematic-enabled .pn-motion-site>section :is(h1,h2){line-height:1.15}
+.pn-cinematic-enabled .pn-motion-site>section :is(.pn-testimonial-carousel,[class*="testimonial"]){max-width:100%;overflow:hidden}
+}
 .pn-institutional-section.pn-immersive-hero{color:#fff!important}
 .pn-institutional-section.pn-immersive-hero :is(h1,h2,h3,p){color:#fff!important}
 @media(max-width:767px){.pn-institutional-section [data-pn-responsive-mobile-size="true"]{font-size:var(--pn-mobile-font-size)!important}}
