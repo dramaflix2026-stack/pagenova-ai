@@ -6,13 +6,14 @@ import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 import { attachSiteMotion, type SiteMotion } from "@/lib/site-builder-animation";
 import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
 import {immersiveHeroTextColor} from "@/lib/builder-v2-hero-contrast";
+import {BuilderV2HeroSlideshow} from "@/components/builder-v2-hero-slideshow";
 import "@/app/app/builder-v2/motion.css";
 const SocialIcon=({name,size=20}:{name:"instagram"|"facebook"|"whatsapp"|"youtube";size?:number})=><svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">{name==="instagram"?<><rect x="2" y="2" width="20" height="20" rx="6" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="17.5" cy="6.5" r="1.2"/></>:name==="facebook"?<path d="M13.5 22v-8.8h3l.5-3.7h-3.5V7.1c0-1.1.4-1.8 1.9-1.8h1.9V2.1c-.3 0-1.4-.1-2.7-.1-2.8 0-4.7 1.7-4.7 4.9v2.6H7v3.7h2.9V22h3.6z"/>:name==="youtube"?<path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/>:<path d="M12.04 2C6.52 2 2.03 6.49 2.03 12c0 1.76.46 3.48 1.33 5L2 22l5.14-1.35A9.97 9.97 0 0 0 12.04 22C17.56 22 22.05 17.51 22.05 12S17.56 2 12.04 2Zm0 18.3a8.3 8.3 0 0 1-4.23-1.16l-.3-.18-3.14.82.84-3.06-.2-.32a8.3 8.3 0 1 1 7.03 3.9Zm4.56-6.21c-.25-.13-1.48-.73-1.71-.81-.23-.08-.39-.13-.56.13-.17.25-.65.81-.8.98-.14.17-.29.19-.54.06-.25-.12-1.06-.39-2.02-1.25-.75-.67-1.26-1.49-1.41-1.74-.15-.25-.02-.39.11-.51.12-.11.25-.29.38-.44.12-.14.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.35-.77-1.84-.2-.48-.4-.41-.56-.42h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09s.9 2.42 1.02 2.59c.13.17 1.77 2.7 4.28 3.78.6.26 1.07.42 1.43.53.6.19 1.15.16 1.59.1.49-.07 1.48-.61 1.69-1.2.21-.59.21-1.09.15-1.2-.06-.1-.23-.17-.48-.29Z"/>}</svg>;
 function TestimonialCarousel({children,auto=true}:{children:React.ReactNode;auto?:boolean}){const items=Array.isArray(children)?children:[children];const animate=auto&&items.length>0;const copies=Math.max(2,Math.ceil(8/Math.max(1,items.length)));const groups=Array.from({length:copies},(_,i)=>i);return <div className="pn-testimonial-marquee relative overflow-hidden" aria-label="Depoimentos"><style>{`@keyframes pn-testimonials-flow{from{transform:translateX(0)}to{transform:translateX(calc(-100% / var(--pn-marquee-copies)))}}.pn-testimonial-marquee .pn-testimonial-track{display:flex;width:max-content;animation:pn-testimonials-flow var(--pn-marquee-duration) linear infinite;will-change:transform}@media(hover:hover) and (pointer:fine){.pn-testimonial-marquee:hover .pn-testimonial-track{animation-play-state:paused}}@media(prefers-reduced-motion:reduce){.pn-testimonial-marquee .pn-testimonial-track{animation:none!important}}`}</style><div className="pn-testimonial-track" style={{"--pn-marquee-copies":copies,"--pn-marquee-duration":`${Math.max(14,items.length*8)}s`,animationPlayState:animate?"running":"paused"} as React.CSSProperties}>{groups.map(i=><div key={i} aria-hidden={i>0?"true":undefined} className="flex shrink-0 gap-4 pr-4 [&>*]:w-[min(78vw,340px)] [&>*]:shrink-0 md:[&>*]:w-[360px]">{items}</div>)}</div></div>}
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; mobileFontSize?: number; fontFamily?: string; textColor?: string; colorExplicit?: boolean; radius?: number; cardBorderWidth?: number; cardBorderColor?: string; cardShadow?: string; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; kind?: "institutional" | "restaurant" | "real-estate" | "catalog"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; heroComposition?: "single" | "duo" | "trio"; sectionMediaLayouts?: Record<string,"grid" | "mosaic" | "carousel">; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; restaurant?: {whatsapp?:string;menu?:{id:string;name:string;description:string;price:number;category:string;image?:string}[]}; realEstateWhatsapp?:string; properties?:PropertyItem[]; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
+export type BuilderV2SiteData = { templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; kind?: "institutional" | "restaurant" | "real-estate" | "catalog"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; heroComposition?: "single" | "duo" | "trio"; heroBannerCopy?: Record<string,{title?:string;description?:string;buttonText?:string;buttonHref?:string}>; sectionMediaLayouts?: Record<string,"grid" | "mosaic" | "carousel">; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; restaurant?: {whatsapp?:string;menu?:{id:string;name:string;description:string;price:number;category:string;image?:string}[]}; realEstateWhatsapp?:string; properties?:PropertyItem[]; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean }; extras?: SiteExtras; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; whatsappMessage?: string; showFloatingWhatsapp?: boolean; showMenu?: boolean } };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -91,6 +92,11 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
 @media(max-width:767px){.pn-institutional-section [data-pn-responsive-mobile-size="true"]{font-size:var(--pn-mobile-font-size)!important}}
 .pn-motion-site{scroll-behavior:smooth}
 .pn-motion-site picture img[data-pn-image-fit="contain"]{object-fit:contain!important}
+.pn-institutional-section.pn-immersive-hero .pn-hero-slide-picture{display:block!important}
+.pn-institutional-section.pn-immersive-hero .pn-hero-slide-picture img{display:block!important}
+.pn-institutional-section.pn-immersive-hero>div>.pn-hero-slideshow{max-width:none!important}
+.pn-institutional-section.pn-immersive-hero.pn-carousel-hero{padding:0!important}
+.pn-institutional-section.pn-immersive-hero.pn-carousel-hero>div{max-width:none!important}
 /* Explicit editor colors override immersive hero defaults without changing other blocks. */
 .pn-institutional-section.pn-immersive-hero :is(h1,h2,h3,p)[data-block-id][style*="color:"]{color:var(--pn-block-color,inherit)!important}
 @media(min-width:1024px){
@@ -252,8 +258,8 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           
           const heroPhotoCandidate=blocks.find(b=>b.type==="image"&&!!b.src)?.src || (index===0 ? visibleSections.flatMap(section=>section.blocks).find(b=>b.type==="image"&&!!b.src)?.src : undefined);
           const multiHero=index===0&&(site.heroComposition==="duo"||site.heroComposition==="trio")&&blocks.filter(b=>b.type==="image"&&!!b.src).length>=(site.heroComposition==="duo"?2:3);
-          const immersiveHero=!multiHero&&index===0&&(templateId==="modern-impactful"||templateId==="image-text-alternating"||site.heroPresentation!=="split")&&!!heroPhotoCandidate;
-          const immersivePhoto=immersiveHero?heroPhotoCandidate:undefined;
+          const immersiveHero=index===0&&(templateId==="modern-impactful"||templateId==="image-text-alternating"||site.heroPresentation!=="split")&&!!heroPhotoCandidate;
+          const immersivePhoto=immersiveHero&&!multiHero?heroPhotoCandidate:undefined;
           const heading=blocks.filter(b=>b.type==="heading").slice(0,1);
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
           const paragraphs=blocks.filter(b=>b.type==="paragraph");
@@ -340,25 +346,22 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const editorialPhotoCard=(b:Block,i:number)=> cardImage(b,i) ? <article key={b.id} data-block-id={b.id} className="pn-editorial-photo-card group min-w-0 overflow-hidden rounded-xl border border-[#e4e7e3] bg-white"><div className="relative aspect-[4/3] overflow-hidden bg-[#f1f3f0]"><img src={cardImage(b,i)?.src} alt={editorialTitle(b,i)} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" style={{objectFit:cardImage(b,i)?.imageFit||"cover",objectPosition:cardImage(b,i)?.imagePosition||"center"}}/></div><div className="p-5 text-left sm:p-6"><span className="mb-3 block text-left text-xs font-bold tracking-[.2em] text-[#607787]">{String(i+1).padStart(2,"0")}</span><div className="text-left [&_p]:!text-left [&_p]:!text-[1rem] [&_p]:!leading-relaxed">{render(b)}</div></div></article> : <div key={b.id} data-block-id={b.id} className="pn-editorial-text-card min-w-0 rounded border border-[#e5eaf0] bg-white px-5 py-5 sm:px-6 sm:py-6" style={{display:"flex",flexDirection:"column",justifyContent:"flex-start",alignSelf:"start",height:"auto",minHeight:0,gap:"12px"}}><span className="block text-left text-xs font-bold leading-5 tracking-[.2em] text-[#607787]" style={{position:"static",margin:0}}>{String(i+1).padStart(2,"0")}</span><div className="min-w-0 text-left [&_p]:!m-0 [&_p]:!text-left [&_p]:!text-[1rem] [&_p]:!leading-relaxed">{render(b)}</div></div>;
           const imageNode=(b:Block,i:number)=><div key={b.id} className={i===0?"overflow-hidden rounded-[1.75rem]":"overflow-hidden rounded-2xl"}>{b.src?render(b):<div data-block-id={b.id} className="flex aspect-[4/3] items-center justify-center rounded-2xl border border-dashed border-[#c5cbbf] bg-[#f1f1e9] text-center text-sm text-[#52615a]">{b.text||"Adicionar imagem"}</div>}</div>;
           if(isGallery&&galleryImages.length===0&&textItems.length===0&&buttons.length===0)return null;
-          return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground,...(immersivePhoto?{backgroundImage:`linear-gradient(90deg,rgba(9,19,28,.90),rgba(9,19,28,.54)),url("${immersivePhoto.replace(/"/g,"%22")}")`,backgroundSize:"cover",backgroundPosition:"center"}:{})}} className={`pn-institutional-section pn-default-left scroll-mt-20 overflow-hidden ${immersiveHero?"pn-immersive-hero":""} ${templateId==="minimalist-sophisticated"?"px-5 py-8 sm:px-8 sm:py-12 md:px-14 md:py-14":"px-5 py-10 sm:px-8 sm:py-14 md:px-14 md:py-16"}`}>
-            <div className="mx-auto max-w-6xl">
+          return <section id={isContact?"contato":group.id} key={group.id+"-"+index} data-section-id={group.id} style={{backgroundColor:sectionBackground,...(immersivePhoto?{backgroundImage:`linear-gradient(90deg,rgba(9,19,28,.90),rgba(9,19,28,.54)),url("${immersivePhoto.replace(/"/g,"%22")}")`,backgroundSize:"cover",backgroundPosition:"center"}:{})}} className={`pn-institutional-section pn-default-left scroll-mt-20 overflow-hidden ${immersiveHero?"pn-immersive-hero":""} ${multiHero?"pn-carousel-hero":""} ${templateId==="minimalist-sophisticated"?"px-5 py-8 sm:px-8 sm:py-12 md:px-14 md:py-14":"px-5 py-10 sm:px-8 sm:py-14 md:px-14 md:py-16"}`}>
+            <div className={multiHero?"w-full":"mx-auto max-w-6xl"}>
               {multiHero?
-                <div className="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)] lg:gap-9">
-                  <div className="min-w-0 space-y-5 rounded-2xl bg-[#14202a] px-5 py-10 text-white sm:px-8 lg:py-16 [&_h2]:!text-white [&_p]:!text-white">
+                <BuilderV2HeroSlideshow
+                  slides={images.slice(0,site.heroComposition==="trio"?3:2).map(image=>({
+                    id:image.id,src:image.src!,mobileSrc:image.mobileSrc,
+                    imageFit:image.imageFit,imagePosition:image.imagePosition,
+                    ...(site.heroBannerCopy?.[image.id]||{})
+                  }))}
+                  firstAlign={heading[0]?.align||"left"}
+                  firstContent={<>
                     {headingNode}
-                    <div className="space-y-4">{textItems.slice(0,3).map(render)}</div>
-                    <div className="flex flex-wrap gap-3">{buttons.map(render)}</div>
-                  </div>
-                  <div className={"grid min-w-0 gap-2 sm:gap-3 "+(site.heroComposition==="trio"?"grid-cols-2 lg:grid-cols-3":"grid-cols-1 sm:grid-cols-2")}>
-                    {images.slice(0,site.heroComposition==="trio"?3:2).map((image,i)=>
-                      <div key={image.id} className={"min-w-0 overflow-hidden rounded-xl bg-[#e8e8e4] "+(site.heroComposition==="trio"&&i===0?"col-span-2 aspect-[16/9] lg:col-span-1 lg:aspect-[3/4]":"aspect-[3/4]")}>
-                        <picture data-block-id={image.id} className="block h-full w-full">
-                          {image.mobileSrc&&<source media="(max-width:767px)" srcSet={image.mobileSrc}/>}
-                          <img src={image.src} alt={image.text||"Fotografia da capa"} loading={i===0?"eager":"lazy"} data-pn-image-fit={image.imageFit} className="h-full w-full" style={{objectFit:image.imageFit||"cover",objectPosition:image.imagePosition||"center"}}/>
-                        </picture>
-                      </div>)}
-                  </div>
-                </div>:
+                    <div className="max-w-2xl space-y-4">{textItems.slice(0,3).map(render)}</div>
+                    {buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="center"?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-start")}>{buttons.map(render)}</div>}
+                  </>}
+                />:
               immersiveHero?
                 <div className="relative z-10 flex min-h-[450px] w-full max-w-4xl flex-col justify-center gap-5 py-6 text-left sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14">
                   {headingNode}
