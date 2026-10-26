@@ -100,8 +100,8 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   const mobileOnly=/\b(?:somente|apenas|so)\s+(?:no\s+|a\s+|para\s+)?mobile\b|\bimagem\s+mobile\b|\bfoto\s+mobile\b/.test(s)&&!/\bdesktop\b/.test(s);
   const imageMention=s.match(new RegExp("(?:foto|imagem|fotografia)\\s*(?:numero\\s*)?"+ordinalPattern+"|"+ordinalPattern+"\\s*(?:foto|imagem|fotografia)"));
   const photoIndex=numberWord(imageMention?.[1]||imageMention?.[2]);
-  const layout:HeroComposition|undefined=/\b(?:triplo|tres|3)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)[^.]{0,45}\b(?:tres|3)\s*(?:foto|imagem)/.test(s)?"trio":
-    /\b(?:duplo|duas|dois|2)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)[^.]{0,45}\b(?:duas|2)\s*(?:foto|imagem)|\b(?:segunda|2[ªa])\s+(?:foto|imagem)\s+(?:da\s+)?capa/.test(s)?"duo":
+  const layout:HeroComposition|undefined=/\b(?:triplo|tres|3)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)\s+(?:em\s+)?triplo\b|(?:capa|banner)[^.]{0,45}\b(?:tres|3)\s*(?:foto|imagem)/.test(s)?"trio":
+    /\b(?:duplo|duas|dois|2)\s*(?:banner|fotos|fotografias|imagens)|(?:capa|banner)\s+(?:em\s+)?duplo\b|(?:capa|banner)[^.]{0,45}\b(?:duas|2)\s*(?:foto|imagem)|\b(?:segunda|2[ªa])\s+(?:foto|imagem)\s+(?:da\s+)?capa/.test(s)?"duo":
     /\b(?:banner|capa)\s+(?:unico|simples|com\s+uma\s+(?:foto|imagem))/.test(s)?"single":undefined;
   const fit=/sem\s+cort|inteir[ao]|formato\s+original|object.contain/.test(s)?"contain" as const:
     /preench|recort|corte\s+central|object.cover/.test(s)?"cover" as const:undefined;
