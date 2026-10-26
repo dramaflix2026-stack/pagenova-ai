@@ -963,7 +963,7 @@ export default function BuilderV2() {
         <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-lime-300/10 blur-[75px]" aria-hidden="true"/>
         <div className="pointer-events-none absolute -bottom-24 right-[12%] h-44 w-44 rounded-full bg-emerald-400/10 blur-[68px]" aria-hidden="true"/>
         <div className="relative z-10">
-          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-lime-300/25 bg-lime-300/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.13em] text-lime-300 sm:mb-4 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:tracking-[.18em]">
+          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-lime-300/50 bg-lime-300/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.13em] text-lime-300 sm:mb-4 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:tracking-[.18em]">
             <Sparkles size={14}/> PageNova Studio <span className="mx-1 text-lime-300/40">/</span> Criação com IA
           </div>
           <h1 className="max-w-[790px] text-[clamp(1.7rem,7vw,2.1rem)] font-extrabold leading-[1.12] tracking-[-.052em] text-white sm:text-[clamp(1.95rem,5.1vw,3.45rem)]">
@@ -980,7 +980,7 @@ export default function BuilderV2() {
         </div>
       </header>
       <div className="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(350px,440px)_minmax(0,1fr)] xl:gap-6">
-        <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border border-lime-300/20 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
+        <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border-2 border-lime-300/45 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-lime-300/20 bg-lime-300/10 text-lime-300"><Sparkles size={17}/></span>
   <div className="mr-auto min-w-0"><h2 className="text-left text-base font-bold tracking-tight text-white sm:text-lg">Crie com a IA</h2>
     <p className="text-left text-[11px] text-white/50">{site.blocks.length?"Continue sua criação":"Descreva o que deseja criar"}</p></div>
@@ -1004,7 +1004,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="pn-chat-composer mb-2 rounded-2xl border border-white/15 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="pn-chat-composer mb-2 rounded-2xl border-2 border-lime-300/40 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
