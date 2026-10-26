@@ -1109,7 +1109,7 @@ export default function BuilderV2() {
   <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-xs text-white">
     <LayoutTemplate size={15}/> Modelo visual <span aria-hidden="true">⌄</span>
   </summary>
-  <div className="absolute left-1/2 top-full z-40 mt-2 w-[min(360px,calc(100vw-40px))] max-w-[calc(100vw-40px)] -translate-x-1/2 rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
+  <div className="fixed left-1/2 top-[min(36vh,300px)] z-[100] w-[calc(100vw-32px)] max-w-[360px] -translate-x-1/2 rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
     <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label="Aparência do site">
       {(["static","cinematic"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":"Cinematográfico"}</button>)}
     </div>
