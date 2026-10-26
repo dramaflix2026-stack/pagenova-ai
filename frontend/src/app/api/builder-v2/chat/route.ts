@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BUILDER_ANNOUNCEMENT } from "@/lib/builder-v2-announcement";
+import { applyInstitutionalEdit } from "@/lib/builder-v2-institutional-edits";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
 
 // Social links are optional, never fabricated. The layout supports all three brands
@@ -206,6 +207,15 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instructionText);
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  // Scoped deterministic edits take priority over generic handlers: a complex prompt
+  // must be applied atomically, never answered as if only one sub-step succeeded.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const localized=applyInstitutionalEdit(editingSite as typeof editingSite&{blocks:Array<Record<string,unknown>>},instructionText);
+    if(localized){
+      if("error" in localized)return NextResponse.json({error:localized.error},{status:422});
+      return NextResponse.json(localized);
+    }
+  }
   // Top announcement is rendered from extras, not from a heading or CTA block.
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
     const announcementEdit=applyAnnouncementTextInstruction(editingSite,instructionText);

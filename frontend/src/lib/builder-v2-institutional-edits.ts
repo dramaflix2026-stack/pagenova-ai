@@ -1,7 +1,7 @@
 // Transactional edits for institutional sites. These operate only on the existing
 // block inventory; they never regenerate, delete or replace unrelated sections.
 export type InstitutionalBlock = Record<string, unknown>;
-export type InstitutionalSite = { blocks: InstitutionalBlock[]; [key: string]: unknown };
+export type InstitutionalSite = { blocks: InstitutionalBlock[] };
 export type InstitutionalEdit<T> = { site: T; summary: string } | { error: string };
 const normalized=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const words=(v:unknown)=>normalized(String(v||""));
@@ -99,6 +99,14 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
      heading.align=dest;return "Título de Serviços alinhado.";
    }};
  }
+ if(heroMention&&/\bt[ií]tulo\b/.test(norm)&&/\bdescri[cç]ao\b/.test(norm)&&buttonMention&&alignment){
+   return {description:"alinhamento conjunto da capa",run:draft=>{
+     const items=draft.filter(b=>sectionOf(b)===hero&&["heading","paragraph","button"].includes(typeOf(b)));
+     if(!items.length)return;
+     const dest=/esquerda/.test(norm)?"left":/direita/.test(norm)?"right":"center";
+     items.forEach(b=>b.align=dest);return "Título, descrição e botão da capa alinhados.";
+   }};
+ }
  // Hero paragraph should be independent of the title and button.
  if(heroMention&&/\bdescri[cç]ao\b/.test(norm)&&alignment){
    return {description:"alinhamento da descrição da capa",run:draft=>{
@@ -106,14 +114,6 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
      if(!paragraph)return;
      paragraph.align=/esquerda/.test(norm)?"left":/direita/.test(norm)?"right":"center";
      return "Somente a descrição da capa foi alinhada.";
-   }};
- }
- if(heroMention&&/\bt[ií]tulo\b/.test(norm)&&/\bdescri[cç]ao\b/.test(norm)&&buttonMention&&alignment){
-   return {description:"alinhamento conjunto da capa",run:draft=>{
-     const items=draft.filter(b=>sectionOf(b)===hero&&["heading","paragraph","button"].includes(typeOf(b)));
-     if(!items.length)return;
-     const dest=/esquerda/.test(norm)?"left":/direita/.test(norm)?"right":"center";
-     items.forEach(b=>b.align=dest);return "Título, descrição e botão da capa alinhados.";
    }};
  }
  // Caption change is selected by role, never a full-page rewrite.
