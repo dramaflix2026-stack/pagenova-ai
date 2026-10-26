@@ -43,8 +43,9 @@ test("configures pulse and blink without hiding WhatsApp or changing social URLs
   assert.equal(blink.site.footer.showFloatingWhatsapp,undefined);
   const pulse=applySocialInstruction(blink.site,"Faça o botão flutuante do WhatsApp pulsar suavemente");
   assert.equal(pulse.site.footer.whatsappEffect,"pulse");
-  const off=applySocialInstruction(pulse.site,"Desative o efeito de pulsação do ícone do WhatsApp");
+  const off=applySocialInstruction(pulse.site,"Remova somente o efeito de pulsação do ícone do WhatsApp");
   assert.equal(off.site.footer.whatsappEffect,"none");
+  assert.equal(off.site.footer.whatsapp,"https://wa.me/5511999998888");
   assert.notEqual(off.site.footer.showFloatingWhatsapp,false);
 });
 test("toggle visibility independently from animation",()=>{
