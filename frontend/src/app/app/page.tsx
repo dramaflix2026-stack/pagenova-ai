@@ -3,7 +3,7 @@ import {redirect} from "next/navigation";
 import {createClient as createAdminClient} from "@supabase/supabase-js";
 import {
   ArrowRight,ArrowUpRight,BookOpen,Check,ChevronRight,Clock3,
-  FileText,Globe,LayoutTemplate,PlayCircle,Sparkles,Users
+  FileText,Globe,LayoutTemplate,MessageCircle,PlayCircle,Sparkles,Users
 } from "lucide-react";
 import {createClient} from "@/lib/supabase/server";
 import {getPageNovaAccess} from "@/lib/trial/server";
@@ -15,7 +15,7 @@ export const dynamic="force-dynamic";
 const shortcuts=[
   {title:"Meus sites",subtitle:"Acesse seus projetos",href:"/app/paginas",icon:FileText},
   {title:"Landing Pages",subtitle:"Crie uma página de conversão",href:"/app/landing",icon:LayoutTemplate},
-  {title:"Tutoriais",subtitle:"Aprenda no seu ritmo",href:"/app/como-usar",icon:BookOpen},
+  {title:"Chat com IA",subtitle:"Seu assistente PageNova",href:"/app/chat-ai",icon:MessageCircle},
   {title:"Domínios",subtitle:"Configure seu endereço",href:"/app/dominios",icon:Globe},
 ];
 
