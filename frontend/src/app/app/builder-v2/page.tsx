@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate} from "lucide-react";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
+import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
@@ -131,6 +132,10 @@ function applyInstruction(site: Site, instruction: string): { site: Site; summar
 }
 export default function BuilderV2() {
   const [site, setSite] = useState<Site>(initial);
+  const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
+  const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
+  const [crmImporting,setCrmImporting]=useState(false);
+  const [crmImportError,setCrmImportError]=useState("");
   const [siteCategory,setSiteCategory] = useState<SiteCategory>("institutional");
   const [categoryScreen,setCategoryScreen] = useState(true);
   const [segmentScreen,setSegmentScreen] = useState(false);
@@ -242,9 +247,59 @@ export default function BuilderV2() {
 
   }
 
-  useEffect(() => { try { const saved = localStorage.getItem(storageKey); if (saved) { const parsed=JSON.parse(saved) as Site; setSite(parsed); if(parsed.kind) setSiteCategory(parsed.kind); if(parsed.realEstateWhatsapp)setRealEstateWhatsapp(parsed.realEstateWhatsapp); if(parsed.kind==="restaurant" && parsed.niche) setRestaurantSegment(parsed.niche); if(parsed.blocks?.length||parsed.restaurant?.menu?.length) setCategoryScreen(false); } const savedVersions = localStorage.getItem(storageKey + ":versions"); if (savedVersions) { const parsed: unknown = JSON.parse(savedVersions); if (Array.isArray(parsed)) setVersions(parsed.filter((item): item is SavedVersion => !!item && typeof item === "object" && typeof item.id === "string" && !!item.site && Array.isArray(item.site.blocks)).slice(-25)); } } catch {} setLoaded(true); }, []);
-  useEffect(() => { if (!loaded) return; try { localStorage.setItem(storageKey, JSON.stringify(site)); setStorageError(""); } catch { setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações."); } }, [site, loaded]);
-  useEffect(() => { if (!loaded) return; try { localStorage.setItem(storageKey + ":versions", JSON.stringify(versions)); } catch { setStorageError("O histórico atingiu o limite de armazenamento do navegador. Exclua versões antigas."); } }, [versions, loaded]);
+  useEffect(()=>{
+    let cancelled=false;
+    const crm=new URLSearchParams(window.location.search).get("crmProject");
+    const projectId=crm&&/^[a-zA-Z0-9_-]{20,40}$/.test(crm)?crm:null;
+    const key=projectId?storageKey+":crm:"+projectId:storageKey;
+    setActiveStorageKey(key);
+    setCrmProjectId(projectId);
+    let hasDraft=false;
+    try{
+      const saved=localStorage.getItem(key);
+      if(saved){
+        const parsed=JSON.parse(saved) as Site;
+        if(Array.isArray(parsed.blocks)&&parsed.blocks.length){
+          setSite(parsed);
+          if(parsed.kind)setSiteCategory(parsed.kind);
+          if(parsed.realEstateWhatsapp)setRealEstateWhatsapp(parsed.realEstateWhatsapp);
+          if(parsed.kind==="restaurant"&&parsed.niche)setRestaurantSegment(parsed.niche);
+          setCategoryScreen(false);
+          hasDraft=true;
+        }
+      }
+      const savedVersions=localStorage.getItem(key+":versions");
+      if(savedVersions){
+        const parsed:unknown=JSON.parse(savedVersions);
+        if(Array.isArray(parsed))setVersions(parsed.filter((v):v is SavedVersion=>
+          !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
+      }
+    }catch{}
+    setLoaded(true);
+    if(projectId&&!hasDraft){
+      setCrmImporting(true);setCrmImportError("");
+      void importReadyCrmProject(projectId).then(site=>{
+        if(cancelled)return;
+        setSite(site as Site);setSiteCategory("institutional");
+        setSelectedNiche(site.niche);setCategoryScreen(false);
+        setMessages([{role:"assistant",text:"Lead do CRM importado. Os quatro templates institucionais e o chat são os mesmos do PageNova Studio. A capa e as fotografias da geração original foram preservadas."}]);
+      }).catch(error=>{
+        if(cancelled)return;
+        setCrmImportError(error instanceof Error?error.message:"Falha ao importar projeto CRM.");
+      }).finally(()=>{if(!cancelled)setCrmImporting(false);});
+    }
+    return()=>{cancelled=true;};
+  },[]);
+  useEffect(()=>{
+    if(!loaded)return;
+    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError("");}
+    catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
+  },[site,loaded,activeStorageKey]);
+  useEffect(()=>{
+    if(!loaded)return;
+    try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
+    catch{setStorageError("O histórico atingiu o limite de armazenamento do navegador.");}
+  },[versions,loaded,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
@@ -827,6 +882,8 @@ export default function BuilderV2() {
     reader.readAsDataURL(file);
   }
   if (!loaded) return <main className="min-h-screen bg-[#0b1110] p-8 text-white">Carregando PageNova V2...</main>;
+  if(crmProjectId&&crmImporting)return <main className="pn-builder-shell grid min-h-[65vh] place-items-center bg-[#0b1110] px-5 text-white"><div className="max-w-lg text-center"><p className="text-xl font-semibold">Preparando o site do lead...</p><p className="mt-3 text-sm text-white/60">Carregando a capa, as fotos e os dados do CRM no Builder 2.0, sem nova geração de IA.</p></div></main>;
+  if(crmProjectId&&crmImportError&&!site.blocks.length)return <main className="pn-builder-shell grid min-h-[65vh] place-items-center bg-[#0b1110] px-5 text-white"><div className="max-w-lg rounded-2xl border border-white/20 bg-white/5 p-6"><h1 className="text-xl font-semibold">Não foi possível abrir este lead</h1><p role="alert" className="mt-3 text-sm text-amber-200">{crmImportError}</p><p className="mt-3 text-xs text-white/50">O site e o projeto original permanecem salvos no CRM. Volte ao CRM e abra novamente o editor.</p><a href="/app/crm?view=sites-ia" className="mt-5 inline-flex rounded-lg bg-lime-300 px-4 py-2 text-sm font-bold text-black">Voltar ao CRM</a></div></main>;
   if(segmentScreen) return <main className="pn-builder-shell pn-builder-selection min-h-screen bg-[#0b1110] px-4 py-10 text-white"><div className="pn-segment-content mx-auto max-w-5xl"><button type="button" onClick={()=>{setSegmentScreen(false);setCategoryScreen(true);}} className="mb-8 rounded-lg border border-white/20 px-4 py-2 text-sm">← Voltar aos tipos de site</button><p className="text-xs font-bold uppercase tracking-widest text-lime-300">Restaurante e Delivery</p><h1 className="mt-3 text-3xl font-bold sm:text-4xl">Qual é o seu tipo de negócio?</h1><p className="mt-3 text-sm text-white/60">Escolha o segmento para preparar o cadastro de produtos. Os templates visuais serão selecionados em outra etapa.</p><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{restaurantSegments.map(segment=><button key={segment.id} type="button" onClick={()=>{setRestaurantSegment(segment.name);setSelectedNiche(segment.name);setSiteCategory("restaurant");setSite(prev=>({...prev,kind:"restaurant",niche:segment.name,restaurant:prev.kind==="restaurant"&&prev.niche===segment.name?(prev.restaurant||{whatsapp:"",menu:[]}):{whatsapp:"",menu:[]},blocks:prev.kind==="restaurant"&&prev.niche===segment.name?prev.blocks:[],templateId:prev.kind==="restaurant"&&prev.niche===segment.name?prev.templateId:undefined}));setSegmentScreen(false);setCategoryScreen(false);}} className="rounded-2xl border border-white/20 bg-white/[.04] p-6 text-left hover:border-lime-300 hover:bg-lime-300/10"><h2 className="text-xl font-bold">{segment.name}</h2><p className="mt-3 text-sm text-white/60">{segment.description}</p><span className="mt-6 inline-block text-sm font-semibold text-lime-300">Selecionar →</span></button>)}</div></div></main>;
   if(categoryScreen) return <main className="pn-builder-shell pn-builder-selection min-h-screen bg-[#0b1110] px-4 py-8 text-white sm:py-12"><div className="mx-auto max-w-6xl">
     <div className="pn-selection-heading mb-10"><p className="mb-3 text-xs font-bold uppercase tracking-[.2em] text-lime-300">PageNova AI · Builder V2 · Ambiente experimental</p><h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl">Que tipo de site vamos criar?</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">Escolha a finalidade do seu projeto. O chat com IA e o editor serão os mesmos; cada categoria terá os recursos próprios do seu negócio.</p></div>
