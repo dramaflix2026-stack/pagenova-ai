@@ -26,6 +26,12 @@ test("Navigation first shows Início with update archive and guide, not the old 
  assert.match(nav,/href:"\/app",label:"Visão geral"/);
  assert.match(nav,/href:"\/app\/atualizacoes",label:"Atualizações"/);
  assert.match(nav,/href:"\/app\/como-usar",label:"Como Usar a Plataforma"/);
+ assert.match(nav,/href:"\/app\/dominios",label:"Domínio profissional"/);
+ assert.match(nav,/href:"\/app\/chat-ai",label:"PageNova Chat AI"/);
+ assert.equal((nav.match(/label:"Domínio profissional"/g)||[]).length,1);
+ assert.equal((nav.match(/label:"PageNova Chat AI"/g)||[]).length,1);
+ assert.doesNotMatch(nav,/NavigationGroup title="Inteligência Artificial"/);
+ assert.doesNotMatch(nav,/const intelligenceItems/);
  const studioGroup=nav.slice(nav.indexOf("const studioItems"),nav.indexOf("const developmentItems"));
  assert.ok(!studioGroup.includes('href: "/app/como-usar"'));
  assert.ok(!studioGroup.includes('href: "/app/dominios"'));
@@ -38,7 +44,8 @@ test("Home product updates and archive share one factual, dated source",()=>{
  const home=read("src/app/app/page.tsx");
  const archive=read("src/app/app/atualizacoes/page.tsx");
  const updates=read("src/lib/pagenova-updates.ts");
- assert.match(home,/pagenovaUpdates\.slice\(0,2\)/);
+ assert.match(home,/getHomePageNovaUpdates\(2\)/);
+ assert.match(updates,/\.filter\(update=>update\.featuredOnHome===true\)/);
  assert.match(archive,/pagenovaUpdates\.map/);
  assert.match(updates,/2026-10-26-builder/);
  assert.match(updates,/2026-10-26-crm/);
