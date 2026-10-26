@@ -476,20 +476,25 @@ export default function BuilderV2() {
       setMessages(prev=>[...prev,{role:"assistant",text:"Não consegui identificar uma edição localizada segura para esse pedido. Nenhuma alteração foi aplicada."}]);
       setInstruction("");setBusy(false);return;
     }
+    const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
+    const targetKind:SiteCategory=creatingNewSite&&/imobili[aá]ria|im[oó]veis/i.test(prompt)?"real-estate":siteCategory;
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,properties:[]}:site;
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ site, instruction: prompt, image: reference })
+        body: JSON.stringify({ site:requestSite, instruction: prompt, image: reference })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
-      incoming.heroPresentation=site.heroPresentation;
+      if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);setProperties([]);}
+      incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
+      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=selectedNiche||undefined;}
+      else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
       const requested = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" : /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" : /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
@@ -499,7 +504,7 @@ export default function BuilderV2() {
       }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       setSite(incoming);
-      if (!site.blocks.length) {
+      if (!site.blocks.length || creatingNewSite) {
         try { const illustrated=await generateVisuals(incoming,prompt);setSite(illustrated); }
         catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
       }
