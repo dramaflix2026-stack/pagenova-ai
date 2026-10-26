@@ -28,20 +28,20 @@ export async function importReadyCrmProject(projectId:string):Promise<ImportedCr
   // Keep the CRM hero intact. Other verified assets follow its existing order.
   const transfer=async(assetId:string)=>{
     const asset=items.find(item=>item.id===assetId&&!item.deletedAt);
-    if(!asset)continue;
-    if(!["GOOGLE_PLACES","UPLOAD","AI_GENERATED"].includes(String(asset.source||"")))continue;
+    if(!asset)return;
+    if(!["GOOGLE_PLACES","UPLOAD","AI_GENERATED"].includes(String(asset.source||"")))return;
     const media=await fetch(
       "/api/crm/site-projects/"+encodeURIComponent(projectId)+"/assets/"+encodeURIComponent(assetId)+"/file",
       {credentials:"same-origin",cache:"no-store"}
     );
-    if(!media.ok)continue;
+    if(!media.ok)return;
     const bytes=await media.blob();
-    if(bytes.size<100||bytes.size>8_000_000||!["image/png","image/jpeg","image/webp"].includes(bytes.type))continue;
+    if(bytes.size<100||bytes.size>8_000_000||!["image/png","image/jpeg","image/webp"].includes(bytes.type))return;
     const form=new FormData();
     form.append("projectId",projectId);
     form.append("file",new File([bytes],assetId+".webp",{type:bytes.type}));
     const saved=await fetch("/api/builder-v2/assets",{method:"POST",body:form,credentials:"same-origin"});
-    if(!saved.ok)continue;
+    if(!saved.ok)return;
     const result=await saved.json() as {src?:string};
     if(typeof result.src==="string"&&result.src.startsWith("https://"))urls[assetId]=result.src;
   };
