@@ -54,7 +54,7 @@ const crmItems: MenuItem[] = [
 ];
 
 const studioItems: MenuItem[] = [
-  { href: "/app/builder", label: "Gerar site com IA", icon: Sparkles },
+  { href: "/app/builder-v2", label: "Gerar site com IA", icon: Sparkles },
   { href: "/app/landing", label: "Criar Landing Page com IA", icon: Files },
   { href: "/app/cloner", label: "Clonar site", icon: Copy },
   { href: "/app/formularios", label: "Gerar Formulário", icon: ClipboardList },
@@ -191,7 +191,7 @@ function AccessPanel({accessKind,accountEmail,credits,creditsLoading}:{accessKin
 
 export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const visibleStudioItems=accessKind==="trial"?studioItems.map(item=>
-    item.href==="/app/builder"
+    item.href==="/app/builder-v2"
       ?{...item,href:"/app/crm?view=sites-ia",crmView:"sites-ia",label:"Gerar site com IA · teste"}
       :item
   ):studioItems;
