@@ -966,11 +966,6 @@ export default function BuilderV2() {
   </div></main>;
   return <main className="pn-builder-shell pn-builder-editor min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-5 text-white sm:px-4 sm:py-8">
     <div className="mx-auto w-full min-w-0 max-w-6xl">
-      {siteCategory==="institutional"&&<section className="mb-4 rounded-2xl border-2 border-lime-300/40 bg-[#141d1a] p-4 sm:p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-white">Aparência do site institucional</h2><p className="mt-1 text-xs text-white/60">Teste cinematográfico no Template 4 · funciona com ou sem CRM</p></div>
-        <select aria-label="Aparência do site" value={site.cinematic?.mode||"static"} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:e.target.value as "static"|"cinematic"}}))} className="rounded-lg border border-lime-300/40 bg-[#18251c] p-2 text-white"><option value="static">Estático</option><option value="cinematic">Cinematográfico</option></select></div>
-        {site.cinematic?.mode==="cinematic"&&<div className="mt-4 grid gap-3 sm:grid-cols-2">{(["desktopUrl","mobileUrl"] as const).map((field)=><label key={field} className="text-xs font-semibold text-white/70">{field==="desktopUrl"?"Vídeo desktop (MP4 público)":"Vídeo mobile (MP4 público)"}<input type="url" value={site.cinematic?.[field]||""} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:"cinematic",[field]:e.target.value}}))} placeholder="https://..." className="mt-2 block w-full rounded-lg border border-white/25 bg-[#09130e] px-3 py-2 text-white"/></label>)}<p className="text-xs text-white/55 sm:col-span-2">Use os links públicos do Banco de Vídeos. O Template 4 aplica o vídeo como fundo contínuo.</p></div>}
-      </section>}
       <header className="pn-studio-hero relative mb-4 overflow-hidden rounded-[22px] border border-lime-300/15 px-4 py-5 sm:mb-5 sm:rounded-[26px] sm:px-9 sm:py-9">
         <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-lime-300/10 blur-[75px]" aria-hidden="true"/>
         <div className="pointer-events-none absolute -bottom-24 right-[12%] h-44 w-44 rounded-full bg-emerald-400/10 blur-[68px]" aria-hidden="true"/>
@@ -1097,6 +1092,10 @@ export default function BuilderV2() {
     <LayoutTemplate size={15}/> Modelo visual <span aria-hidden="true">⌄</span>
   </summary>
   <div className="absolute right-0 top-full z-40 mt-2 w-[min(290px,80vw)] rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
+    <div className="mb-3 grid grid-cols-2 gap-2" role="group" aria-label="Aparência do site">
+      {(["static","cinematic"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-3 py-3 text-sm font-semibold transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":"Cinematográfico"}</button>)}
+    </div>
+    {site.cinematic?.mode==="cinematic"&&<div className="mb-3 grid gap-2">{(["desktopUrl","mobileUrl"] as const).map(field=><label key={field} className="text-left text-xs text-white/70">{field==="desktopUrl"?"Vídeo desktop (MP4)":"Vídeo mobile (MP4)"}<input type="url" value={site.cinematic?.[field]||""} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:"cinematic",[field]:e.target.value}}))} placeholder="Link público do Banco de Vídeos" className="mt-1 w-full rounded-lg border border-white/25 bg-[#0d1713] px-2 py-2 text-xs text-white"/></label>)}</div>}
     <label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
     <select id="pn-template-choice" aria-label="Escolher template visual" value={site.templateId||"institutional-complete"}
       onChange={e=>{
