@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate} from "lucide-react";
+import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
@@ -131,6 +132,7 @@ function applyInstruction(site: Site, instruction: string): { site: Site; summar
   return null;
 }
 export default function BuilderV2() {
+  const siteCredits=useSiteGenerationCredits();
   const [site, setSite] = useState<Site>(initial);
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
@@ -416,6 +418,9 @@ export default function BuilderV2() {
       return;
     }
     if(!prompt && !(siteCategory==="real-estate"&&propertyFiles.length))return;
+    if((!site.blocks.length||/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt))&&siteCredits.exhausted){
+      setGenerationError("Você utilizou todas as gerações disponíveis neste ciclo. Continue editando um site existente ou aguarde a renovação.");return;
+    }
     let referenceForChat=reference;
     if(attachmentMode==="reference"){
       try{referenceForChat=await photoToInlineReference(institutionalFiles[0]);}
@@ -754,7 +759,8 @@ export default function BuilderV2() {
         body: JSON.stringify({ site:requestSite, instruction: prompt, image: referenceForChat })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
+      if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
+      if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
@@ -976,6 +982,7 @@ export default function BuilderV2() {
   </div>}
   {voiceNotice&&<p role="status" className="mt-2 rounded-lg bg-white/10 p-2 text-xs text-white/80">{voiceNotice}</p>}
   <p className="mt-2 text-left text-[11px] text-white/45">Use o clipe e diga no chat onde colocar a foto ou se é apenas referência.</p>
+  {!crmProjectId&&<div className="mt-3"><SiteGenerationCreditsNotice credits={siteCredits}/></div>}
 </div><details className="pn-editor-tools mb-4 rounded-xl border border-white/15 bg-black/20 p-3">
   <summary className="flex cursor-pointer list-none items-center justify-between text-left text-xs font-semibold text-white/75">Histórico e versões <span className="text-lime-300">⌄ {versions.length+cloudVersions.length}</span></summary>
   <div className="pn-editor-chat-actions mt-3 flex flex-wrap items-center gap-2">
