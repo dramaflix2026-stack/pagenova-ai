@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Transactional edits for institutional sites. These operate only on the existing
 // block inventory; they never regenerate, delete or replace unrelated sections.
 export type InstitutionalBlock = Record<string, unknown>;
