@@ -21,16 +21,27 @@ test("official Studio opening presents a premium brand intro and clean chat",()=
 });
 test("before generation show real interactive starter preview, not giant empty iframe",()=>{
  assert.match(page,/function BuilderV2EmptyPreview/);
- assert.match(page,/site.blocks.length>0\?<BuilderV2PreviewFrame/);
+ assert.match(page,/\(site.blocks.length>0\|\|siteCategory!=="institutional"\)\?<BuilderV2PreviewFrame/);
  assert.match(page,/<BuilderV2EmptyPreview device=\{previewDevice\} onStart=/);
  assert.match(page,/nenhum site gerado ainda/);
  assert.match(page,/composerRef\.current\?\.focus\(\)/);
 });
 test("after generation all four original templates and real responsive previews stay intact",()=>{
- assert.match(page,/site.blocks.length>0\?<BuilderV2PreviewFrame device=\{previewDevice\}>/);
+ assert.match(page,/\(site.blocks.length>0\|\|siteCategory!=="institutional"\)\?<BuilderV2PreviewFrame device=\{previewDevice\}>/);
  assert.match(page,/BuilderV2Site site=\{site\}/);
  for(const template of ["institutional-complete","minimalist-sophisticated","modern-impactful","image-text-alternating"])assert.ok(page.includes(template));
  assert.match(page,/aria-label="Visualizar desktop ou mobile"/);
  assert.match(page,/setPreviewExpanded/);
  assert.match(page,/SiteGenerationCreditsNotice/);
+});
+
+test("specialized restaurant and real-estate preview renderers remain visible",()=>{
+ assert.match(page,/\(site.blocks.length>0\|\|siteCategory!=="institutional"\)\?<BuilderV2PreviewFrame/);
+ assert.match(page,/PizzeriaTemplate/);
+ assert.match(page,/RealEstateTemplate/);
+});
+test("the welcome page includes optional examples without submitting them automatically",()=>{
+ assert.match(page,/Clínica odontológica/);
+ assert.match(page,/Escritório de arquitetura/);
+ assert.match(page,/setInstruction\(example\)/);
 });
