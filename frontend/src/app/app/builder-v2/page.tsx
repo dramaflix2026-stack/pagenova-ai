@@ -463,7 +463,7 @@ export default function BuilderV2() {
     if(siteCategory==="institutional"&&site.blocks.length>0&&/(cinematogr[aá]fic|v[ií]deo de fundo|fundo em v[ií]deo|modo est[aá]tico|sem v[ií]deo)/i.test(prompt)){
       const disable=/(modo est[aá]tico|sem v[ií]deo|remov|desativ)/i.test(prompt);
       setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:disable?"static":"cinematic"}}));
-      setMessages(prev=>[...prev,{role:"assistant",text:disable?"Modo estático ativado.":"Modo cinematográfico ativado. Configure os links de vídeo desktop e mobile no painel abaixo."}]);
+      setMessages(prev=>[...prev,{role:"assistant",text:disable?"Modo estático ativado.":"Modo cinematográfico ativado. O vídeo será carregado automaticamente do Banco de Vídeos quando estiver disponível para o nicho."}]);
       setInstruction("");
       return;
     }
