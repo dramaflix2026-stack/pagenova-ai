@@ -58,6 +58,7 @@ const crmItems: MenuItem[] = [
 const homeItems: MenuItem[] = [
   {href:"/app",label:"Visão geral",icon:House},
   {href:"/app/atualizacoes",label:"Atualizações",icon:Megaphone},
+  {href:"/app/banco-midias",label:"Banco de Mídias",icon:Files},
   {href:"/app/como-usar",label:"Como Usar a Plataforma",icon:CircleHelp},
   {href:"/app/dominios",label:"Domínio profissional",icon:Globe},
   {href:"/app/chat-ai",label:"PageNova Chat AI",icon:MessageCircle},
