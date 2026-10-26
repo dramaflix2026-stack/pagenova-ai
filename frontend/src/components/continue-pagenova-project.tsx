@@ -4,37 +4,7 @@ import Link from "next/link";
 import {ArrowRight,FolderOpen} from "lucide-react";
 import {useEffect,useState} from "react";
 
-const STUDIO_STORAGE_KEY="pagenova-builder-v2-private-v1";
-
-/**
- * A site being edited in Studio V2 is a local browser draft.
- * Resolve it locally without an API call; otherwise send the visitor to
- * their existing "Meus sites" page, which includes legacy projects.
- */
-export function resolvePageNovaContinueHref(storage:Pick<Storage,"getItem"|"key"|"length">):string {
-  const isEditableDraft=(key:string)=>{
-    try{
-      const raw=storage.getItem(key);
-      if(!raw)return false;
-      const data:unknown=JSON.parse(raw);
-      if(!data||typeof data!=="object")return false;
-      const blocks=(data as {blocks?:unknown}).blocks;
-      return Array.isArray(blocks)&&blocks.length>0;
-    }catch{return false;}
-  };
-  if(isEditableDraft(STUDIO_STORAGE_KEY))return "/app/builder-v2";
-
-  // Imported CRM drafts have their own keys and keep their real lead ID.
-  // Do not interpret :versions or unrelated values as editable projects.
-  for(let i=storage.length-1;i>=0;i--){
-    const key=storage.key(i);
-    if(!key||!key.startsWith(STUDIO_STORAGE_KEY+":crm:"))continue;
-    const projectId=key.slice((STUDIO_STORAGE_KEY+":crm:").length);
-    if(!/^[a-zA-Z0-9_-]{20,40}$/.test(projectId))continue;
-    if(isEditableDraft(key))return "/app/builder-v2?crmProject="+encodeURIComponent(projectId);
-  }
-  return "/app/paginas";
-}
+import {resolvePageNovaContinueHref} from "@/lib/pagenova-continue-project";
 
 export function ContinuePageNovaProject(){
   const [href,setHref]=useState("/app/paginas");
