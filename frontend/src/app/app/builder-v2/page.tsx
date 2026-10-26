@@ -5,6 +5,7 @@ import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
 import {RealEstateTemplate,type PropertyItem} from "@/components/builder-v2-real-estate";
+import {MAX_PHOTOS_PER_PROPERTY,MAX_PHOTOS_PER_UPLOAD,getPropertyPhotos,withPropertyPhotos,findPropertyForPhotos,photoIndexFromInstruction,looksLikePhotoInstruction,photoAction} from "@/lib/builder-v2-property-gallery";
 import { BuilderV2PreviewFrame, type BuilderPreviewDevice } from "@/components/builder-v2-preview-frame";
 import "./motion.css";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
@@ -167,6 +168,7 @@ export default function BuilderV2() {
   const [busy, setBusy] = useState(false);
   const [generationError, setGenerationError] = useState("");
   const [reference, setReference] = useState<string | null>(null);
+  const [propertyFiles,setPropertyFiles]=useState<File[]>([]);
   const [history, setHistory] = useState<Site[]>([]);
   const [redoHistory, setRedoHistory] = useState<Site[]>([]);
   const [versions, setVersions] = useState<SavedVersion[]>([]);
@@ -312,10 +314,78 @@ export default function BuilderV2() {
     return parsed;
   }
   async function send() {
-    const prompt = instruction.trim(); if (!prompt || busy) return;
+    const prompt = instruction.trim(); if ((!prompt && !(siteCategory==="real-estate"&&propertyFiles.length)) || busy) return;
     setBusy(true);
     setGenerationError("");
-    setMessages(prev => [...prev, { role: "user", text: prompt }]);
+    setMessages(prev => [...prev, { role: "user", text: prompt || "Enviar "+propertyFiles.length+" foto(s) reais do imóvel" }]);
+    // Property photography is a scoped, deterministic operation; never regenerate the site to change a photo.
+    const isFullGeneration=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
+    const photoIntent=propertyFiles.length>0||looksLikePhotoInstruction(prompt);
+    const isSiteHeroPhoto=/\b(?:capa|imagem|foto)\s+(?:principal\s+)?(?:do|da)\s+(?:site|home|p[aá]gina|hero)\b/i.test(prompt);
+    if(siteCategory==="real-estate"&&site.kind==="real-estate"&&!isFullGeneration&&!isSiteHeroPhoto&&photoIntent){
+      try{
+        if(!properties.length)throw new Error("Cadastre um imóvel antes de enviar fotos.");
+        const index=findPropertyForPhotos(properties,prompt);
+        if(index<0)throw new Error("Identifique o imóvel pelo número (ex.: imóvel 1) ou nome do bairro. Nenhuma imagem foi alterada.");
+        const selected=properties[index];
+        const previous=getPropertyPhotos(selected);
+        const action=photoAction(prompt,propertyFiles.length>0);
+        const photoIndex=photoIndexFromInstruction(prompt);
+        let next=previous.slice();
+        if(propertyFiles.length){
+          if(propertyFiles.length>MAX_PHOTOS_PER_UPLOAD)throw new Error("Envie no máximo "+MAX_PHOTOS_PER_UPLOAD+" fotos por vez.");
+          if(action==="replace"&&propertyFiles.length!==1)throw new Error("Para substituir uma foto, anexe exatamente uma imagem.");
+          if(action==="replace"&&(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length))throw new Error("Indique a foto existente a substituir: foto 1, foto 2 ou foto de capa.");
+          if(action!=="replace"&&previous.length+propertyFiles.length>MAX_PHOTOS_PER_PROPERTY)throw new Error("O limite é "+MAX_PHOTOS_PER_PROPERTY+" fotos por imóvel. Remova algumas antes.");
+          const projectId=site.id||crypto.randomUUID();
+          const uploaded:string[]=[];
+          for(const file of propertyFiles){
+            const prepared=await prepareRealEstatePhoto(file);
+            const body=new FormData();
+            body.append("projectId",projectId);body.append("propertyId",selected.id);body.append("file",prepared);
+            const response=await fetch("/api/builder-v2/property-photos",{method:"POST",body});
+            const data=await response.json() as {src?:string;error?:string};
+            if(!response.ok||!data.src)throw new Error(data.error||"Falha no upload da foto "+(uploaded.length+1)+".");
+            uploaded.push(data.src);
+          }
+          if(action==="replace"){
+            next[photoIndex as number]=uploaded[0];
+          }else{
+            next=[...previous,...uploaded];
+            const requestedCover=/\bcapa\b|\bprincipal\b/i.test(prompt);
+            if(requestedCover){
+              const newCoverIndex=photoIndex??0;
+              if(newCoverIndex<0||newCoverIndex>=uploaded.length)throw new Error("A foto indicada como capa não faz parte das fotos enviadas.");
+              const cover=uploaded[newCoverIndex];
+              next=[cover,...next.filter(url=>url!==cover)];
+            }
+          }
+        }else if(action==="clear"){
+          next=[];
+        }else if(action==="remove"){
+          if(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length)throw new Error("Informe qual foto deseja remover (ex.: foto 2 ou foto de capa).");
+          next.splice(photoIndex,1);
+        }else if(action==="cover"){
+          if(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length)throw new Error("Informe uma foto existente para tornar capa (ex.: terceira foto).");
+          const cover=next[photoIndex];next=[cover,...next.filter(url=>url!==cover)];
+        }else{
+          throw new Error("Anexe fotos ao chat ou peça: 'Use a foto 2 como capa do imóvel 1'.");
+        }
+        if(JSON.stringify(next)!==JSON.stringify(previous)){
+          const updated=withPropertyPhotos(selected,next);
+          recordVersion(site,"Antes de editar fotos do imóvel");
+          setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+          setSite(current=>({...current,id:current.id||site.id||crypto.randomUUID(),properties:(current.properties??[]).map(item=>item.id===selected.id?updated:item)}));
+        }
+        const message=propertyFiles.length?"Fotos reais salvas no imóvel "+(index+1)+". Galeria: "+next.length+" foto(s), capa definida. Outros imóveis e seções preservados.":action==="clear"?"Todas as fotos removidas deste imóvel. Histórico preservado.":action==="remove"?"Foto removida do imóvel "+(index+1)+".":action==="cover"?"Capa do imóvel "+(index+1)+" atualizada.":"Nenhuma alteração necessária.";
+        setMessages(prev=>[...prev,{role:"assistant",text:message}]);
+        setPropertyFiles([]);setInstruction("");setGenerationError("");
+      }catch(error){
+        const message=error instanceof Error?error.message:"Não foi possível atualizar a galeria.";
+        setGenerationError(message);setMessages(prev=>[...prev,{role:"assistant",text:message+" O catálogo foi preservado."}]);
+      }finally{setBusy(false);}
+      return;
+    }
     // Property instructions must update the structured catalogue, not generic site sections.
     if(siteCategory==="real-estate" && site.kind==="real-estate"){
       const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -527,7 +597,7 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4))return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
@@ -546,6 +616,37 @@ export default function BuilderV2() {
   }
     function undo() { if (!history.length || busy) return; recordVersion(site, "Antes de desfazer"); setRedoHistory(prev=>[...prev.slice(-19),site]);setSite(history[history.length-1]); setHistory(prev=>prev.slice(0,-1)); setMessages(prev=>[...prev,{role:"assistant",text:"Última alteração desfeita."}]); }
   function redo() { if (!redoHistory.length || busy) return; recordVersion(site, "Antes de refazer");setHistory(prev=>[...prev.slice(-19),site]);setSite(redoHistory[redoHistory.length-1]);setRedoHistory(prev=>prev.slice(0,-1));setMessages(prev=>[...prev,{role:"assistant",text:"Alteração refeita."}]); }
+  function attachPropertyFiles(files:File[]){
+    if(!files.length)return;
+    const accepted=["image/jpeg","image/png","image/webp"];
+    if(files.some(file=>!accepted.includes(file.type)||file.size>12_000_000||file.size<100)){
+      setMessages(prev=>[...prev,{role:"assistant",text:"Use fotos JPG, PNG ou WebP de até 12 MB cada. Nenhuma foto foi anexada."}]);return;
+    }
+    if(propertyFiles.length+files.length>MAX_PHOTOS_PER_UPLOAD){
+      setMessages(prev=>[...prev,{role:"assistant",text:"Você pode enviar até "+MAX_PHOTOS_PER_UPLOAD+" fotos por mensagem."}]);return;
+    }
+    setPropertyFiles(prev=>[...prev,...files]);
+  }
+  async function prepareRealEstatePhoto(file:File):Promise<File>{
+    if(typeof createImageBitmap!=="function"){
+      if(file.size>3_600_000)throw new Error("Esta foto é grande demais para este navegador. Reduza-a para menos de 3,6 MB.");
+      return file;
+    }
+    const bitmap=await createImageBitmap(file);
+    try{
+      const limit=1800,ratio=Math.min(1,limit/Math.max(bitmap.width,bitmap.height));
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.max(1,Math.round(bitmap.width*ratio));
+      canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
+      const context=canvas.getContext("2d");
+      if(!context)throw new Error("Não foi possível processar a foto.");
+      context.fillStyle="#ffffff";context.fillRect(0,0,canvas.width,canvas.height);
+      context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+      const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,"image/jpeg",0.83));
+      if(!blob||blob.size>3_600_000)throw new Error("Não foi possível reduzir esta foto. Tente outro arquivo.");
+      return new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"});
+    }finally{bitmap.close();}
+  }
   function attachImage(file?: File) {
     if (!file) return;
     if (file.size > 2_000_000) { setMessages(prev => [...prev,{role:"assistant",text:"Use uma imagem de até 2 MB."}]); return; }
@@ -589,7 +690,7 @@ export default function BuilderV2() {
     <button type="button" onClick={()=>setShowVersions(v=>!v)} aria-expanded={showVersions} className="rounded-lg border border-lime-300/50 px-3 py-2 text-xs text-lime-300">Ver histórico ({versions.length+cloudVersions.length})</button>
     <button type="button" onClick={saveNamedVersion} disabled={!site.blocks.length||busy} className="rounded-lg border border-lime-300/50 px-3 py-2 text-xs text-lime-300 disabled:opacity-40">Salvar versão nomeada</button>
   </div>
-</details><p className="mb-2 text-xs text-white/60" role="status">{cloudStatus}</p>{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}{showVersions && <div className="mb-3 max-h-64 overflow-y-auto rounded-xl border border-white/20 p-3"><p className="mb-2 text-xs text-white/70">Versões locais e na nuvem. Salve uma versão nomeada antes de aprovar alterações.</p>{(versions.length + cloudVersions.length)===0 ? <p className="text-xs text-white/60">Nenhuma versão anterior ainda.</p> : [...cloudVersions, ...[...versions].reverse()].map(version=><div key={version.id} className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2"><div className="min-w-0"><p className="text-xs">{version.label}</p><p className="text-[11px] text-white/60">{new Date(version.at).toLocaleString("pt-BR")}</p></div><button type="button" disabled={busy} onClick={()=>restoreVersion(version)} className="rounded-md border border-lime-300/50 px-2 py-1 text-xs text-lime-300 disabled:opacity-40">Restaurar</button></div>)}</div>}<div aria-live="polite" className="mb-4 flex-1 space-y-3 overflow-y-auto">{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3 rounded-xl border border-white/20 bg-white/5 p-3"><button type="button" aria-expanded={nicheMenuOpen} onClick={()=>setNicheMenuOpen(open=>!open)} className="flex w-full items-center justify-between gap-2 text-left text-sm font-semibold text-white"><span>▦ Escolher nicho {selectedNiche ? "· "+selectedNiche : ""}</span><span aria-hidden="true">{nicheMenuOpen ? "▲" : "▼"}</span></button>{nicheMenuOpen&&<div className="mt-3 space-y-2"><input aria-label="Pesquisar nichos" value={nicheQuery} onChange={e=>setNicheQuery(e.target.value)} placeholder="Pesquisar profissão ou negócio..." className="w-full rounded-lg border border-white/20 bg-black/30 p-2 text-sm text-white outline-none focus:border-lime-300"/><select aria-label="Categoria do nicho" value={nicheGroup} onChange={e=>setNicheGroup(e.target.value)} className="w-full rounded-lg border border-white/20 bg-[#18251d] p-2 text-sm text-white"><option>Todos</option>{Object.keys(nicheGroups).map(group=><option key={group}>{group}</option>)}</select><div className="grid max-h-56 grid-cols-2 gap-1 overflow-y-auto sm:grid-cols-3">{nicheNames.filter(n=>(nicheGroup==="Todos"||nicheGroups[nicheGroup]?.includes(n))&&n.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").includes(nicheQuery.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,""))).map(n=><button type="button" key={n} onClick={()=>chooseNiche(n)} className="rounded-lg border border-white/10 p-2 text-left text-xs text-white/90 hover:border-lime-300 hover:bg-white/10">{n}</button>)}</div><p className="text-xs text-white/50">Selecionar apenas preenche o chat. Você pode editar o texto antes de enviar.</p></div>}</div><form onSubmit={e=>{e.preventDefault();void send();}} className="space-y-3"><textarea aria-label="Descreva a criação ou alteração" value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Crie um site para uma clínica odontológica... ou Centralize todos os textos e o botão..." rows={5} className="min-h-[145px] w-full resize-y rounded-xl border border-white/20 bg-black/30 p-3 text-left text-sm leading-relaxed text-white outline-none focus:border-lime-300"/><label className="block cursor-pointer rounded-xl border border-white/20 p-3 text-left text-sm">📎 Anexar imagem de referência<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e=>attachImage(e.target.files?.[0])}/></label>{reference && <p className="text-xs text-lime-300">Imagem anexada à conversa</p>}<button type="submit" disabled={busy} className="w-full rounded-xl bg-lime-300 p-3 font-bold text-black disabled:opacity-60">{busy ? "IA trabalhando..." : "Enviar e aplicar →"}</button></form>{generationError && <p role="alert" className="mt-3 rounded-lg border border-red-400 bg-red-950/60 p-3 text-sm text-red-100">Erro na geração: {generationError}</p>}<p className="mt-3 text-left text-[11px] leading-relaxed text-white/50">O chat IA prevalece sobre o modelo. Confira a prévia antes de publicar.</p></section>
+</details><p className="mb-2 text-xs text-white/60" role="status">{cloudStatus}</p>{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}{showVersions && <div className="mb-3 max-h-64 overflow-y-auto rounded-xl border border-white/20 p-3"><p className="mb-2 text-xs text-white/70">Versões locais e na nuvem. Salve uma versão nomeada antes de aprovar alterações.</p>{(versions.length + cloudVersions.length)===0 ? <p className="text-xs text-white/60">Nenhuma versão anterior ainda.</p> : [...cloudVersions, ...[...versions].reverse()].map(version=><div key={version.id} className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2"><div className="min-w-0"><p className="text-xs">{version.label}</p><p className="text-[11px] text-white/60">{new Date(version.at).toLocaleString("pt-BR")}</p></div><button type="button" disabled={busy} onClick={()=>restoreVersion(version)} className="rounded-md border border-lime-300/50 px-2 py-1 text-xs text-lime-300 disabled:opacity-40">Restaurar</button></div>)}</div>}<div aria-live="polite" className="mb-4 flex-1 space-y-3 overflow-y-auto">{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3 rounded-xl border border-white/20 bg-white/5 p-3"><button type="button" aria-expanded={nicheMenuOpen} onClick={()=>setNicheMenuOpen(open=>!open)} className="flex w-full items-center justify-between gap-2 text-left text-sm font-semibold text-white"><span>▦ Escolher nicho {selectedNiche ? "· "+selectedNiche : ""}</span><span aria-hidden="true">{nicheMenuOpen ? "▲" : "▼"}</span></button>{nicheMenuOpen&&<div className="mt-3 space-y-2"><input aria-label="Pesquisar nichos" value={nicheQuery} onChange={e=>setNicheQuery(e.target.value)} placeholder="Pesquisar profissão ou negócio..." className="w-full rounded-lg border border-white/20 bg-black/30 p-2 text-sm text-white outline-none focus:border-lime-300"/><select aria-label="Categoria do nicho" value={nicheGroup} onChange={e=>setNicheGroup(e.target.value)} className="w-full rounded-lg border border-white/20 bg-[#18251d] p-2 text-sm text-white"><option>Todos</option>{Object.keys(nicheGroups).map(group=><option key={group}>{group}</option>)}</select><div className="grid max-h-56 grid-cols-2 gap-1 overflow-y-auto sm:grid-cols-3">{nicheNames.filter(n=>(nicheGroup==="Todos"||nicheGroups[nicheGroup]?.includes(n))&&n.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").includes(nicheQuery.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,""))).map(n=><button type="button" key={n} onClick={()=>chooseNiche(n)} className="rounded-lg border border-white/10 p-2 text-left text-xs text-white/90 hover:border-lime-300 hover:bg-white/10">{n}</button>)}</div><p className="text-xs text-white/50">Selecionar apenas preenche o chat. Você pode editar o texto antes de enviar.</p></div>}</div><form onSubmit={e=>{e.preventDefault();void send();}} className="space-y-3"><textarea aria-label="Descreva a criação ou alteração" value={instruction} onChange={e=>setInstruction(e.target.value)} placeholder="Crie um site para uma clínica odontológica... ou Centralize todos os textos e o botão..." rows={5} className="min-h-[145px] w-full resize-y rounded-xl border border-white/20 bg-black/30 p-3 text-left text-sm leading-relaxed text-white outline-none focus:border-lime-300"/>{siteCategory==="real-estate"?<div className="rounded-xl border border-white/20 p-3 text-left"><label className="block cursor-pointer text-sm text-lime-300">📷 Adicionar fotos reais ao imóvel (até 8 por mensagem)<input type="file" accept="image/png,image/jpeg,image/webp" multiple className="hidden" disabled={busy} onChange={e=>{attachPropertyFiles(Array.from(e.target.files||[]));e.target.value="";}}/></label>{propertyFiles.length>0&&<div className="mt-2 text-xs text-white/75"><p>{propertyFiles.length} foto(s) selecionada(s). No chat, indique "imóvel 1" e a foto de capa.</p><p className="mt-1 break-words">{propertyFiles.map(file=>file.name).join(", ")}</p><button type="button" disabled={busy} onClick={()=>setPropertyFiles([])} className="mt-2 rounded-lg border border-white/30 px-2 py-1 text-white">Remover anexos</button></div>}</div>:<><label className="block cursor-pointer rounded-xl border border-white/20 p-3 text-left text-sm">📎 Anexar imagem de referência<input type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={e=>attachImage(e.target.files?.[0])}/></label>{reference && <p className="text-xs text-lime-300">Imagem anexada à conversa</p>}</>}<button type="submit" disabled={busy} className="w-full rounded-xl bg-lime-300 p-3 font-bold text-black disabled:opacity-60">{busy ? "IA trabalhando..." : "Enviar e aplicar →"}</button></form>{generationError && <p role="alert" className="mt-3 rounded-lg border border-red-400 bg-red-950/60 p-3 text-sm text-red-100">Erro na geração: {generationError}</p>}<p className="mt-3 text-left text-[11px] leading-relaxed text-white/50">O chat IA prevalece sobre o modelo. Confira a prévia antes de publicar.</p></section>
         <div className="min-w-0">{siteCategory==="institutional"&&<details className="mb-4 rounded-xl border border-white/20 bg-[#141d1a] p-4 text-white"><summary className="cursor-pointer text-left text-sm font-semibold">Modelo visual do site <span className="text-xs font-normal text-white/50">(alterar)</span></summary><p className="mt-2 text-left text-xs text-white/60">Troque o modelo sem perder textos ou imagens. O chat com IA tem prioridade.</p><select aria-label="Escolher template visual" value={site.templateId||"institutional-complete"} onChange={e=>{const templateId=e.target.value as "institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating";recordVersion(site,"Antes de trocar o template");setSite(prev=>({...prev,templateId}));}} className="mt-3 w-full rounded-lg border border-white/25 bg-[#1b2b23] px-3 py-3 text-sm text-white"><option value="institutional-complete">01 — Institucional Completo</option><option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option><option value="modern-impactful">03 — Moderno e Impactante</option><option value="image-text-alternating">04 — Imagens e Textos Lado a Lado</option></select></details>}{siteCategory==="restaurant"&&<details className="mb-5 rounded-2xl border border-white/20 bg-[#141d1a] p-5 text-white"><summary className="cursor-pointer list-none text-sm font-bold text-lime-300">▸ Gerenciar cardápio · {(site.restaurant?.menu||[]).length} produtos <span className="ml-2 text-xs font-normal text-white/60">(toque para expandir)</span></summary><div className="mt-5"><p className="text-xs font-bold uppercase tracking-widest text-lime-300">Restaurante · Cadastro de produtos</p><h2 className="mt-2 text-2xl font-bold">Cadastre seu cardápio</h2><p className="mt-2 text-sm text-white/60">Informe apenas o item e o valor. O template visual será definido separadamente.</p><div className="mt-5 grid grid-cols-[minmax(0,1fr)_110px_36px] gap-2 text-xs font-semibold text-white/70"><span>Item</span><span>Valor (R$)</span><span/></div><div className="mt-2 space-y-2">{(site.restaurant?.menu||[]).map((item,index)=><div key={item.id} className="grid grid-cols-[minmax(0,1fr)_110px_36px] gap-2"><input aria-label={`Item ${index+1}`} value={item.name} placeholder="Ex.: Pizza Calabresa" onChange={e=>setSite(prev=>({...prev,restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:(prev.restaurant?.menu||[]).map(x=>x.id===item.id?{...x,name:e.target.value}:x)}}))} className="min-w-0 rounded-lg border border-white/20 bg-black/30 p-3 text-sm"/><input aria-label={`Preço do item ${index+1}`} inputMode="decimal" value={Number.isFinite(item.price)?String(item.price).replace(".",","):""} onChange={e=>{const value=e.target.value.replace(",",".");if(value&&!/^\\d*(?:\\.\\d{0,2})?$/.test(value))return;setSite(prev=>({...prev,restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:(prev.restaurant?.menu||[]).map(x=>x.id===item.id?{...x,price:value===""?0:Number(value)}:x)}}));}} className="min-w-0 rounded-lg border border-white/20 bg-black/30 p-3 text-sm"/><button type="button" aria-label={`Remover ${item.name||"item"}`} onClick={()=>setSite(prev=>({...prev,restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:(prev.restaurant?.menu||[]).filter(x=>x.id!==item.id)}}))} className="rounded-lg border border-white/20 text-red-300">×</button></div>)}</div><button type="button" onClick={()=>setSite(prev=>({...prev,kind:"restaurant",restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:[...(prev.restaurant?.menu||[]),{id:crypto.randomUUID(),name:"",description:"",category:"Cardápio",price:0}]}}))} className="mt-3 w-full rounded-xl border border-dashed border-lime-300/60 px-4 py-3 text-sm font-semibold text-lime-300 hover:bg-lime-300/10">+ Adicionar outro item</button><details className="mt-5 rounded-xl border border-white/15 p-4"><summary className="cursor-pointer text-sm font-semibold">Colar vários itens de uma vez</summary><p className="mt-2 text-xs text-white/60">Uma linha por produto: Pizza Calabresa - 49,90</p><textarea id="restaurant-bulk-menu" rows={5} placeholder={"Pizza Calabresa - 49,90\\nPizza Portuguesa - 54,90\\nRefrigerante 2L - 12,00"} className="mt-3 w-full rounded-lg border border-white/20 bg-black/30 p-3 text-sm"/><button type="button" onClick={()=>{const textarea=document.getElementById("restaurant-bulk-menu") as HTMLTextAreaElement|null;const lines=(textarea?.value||"").split(/\\r?\\n/);const entries=lines.map(line=>line.match(/^\\s*(.+?)\\s*[-–—;:]\\s*(?:R\\$\\s*)?(\\d+(?:[.,]\\d{1,2})?)\\s*$/)).filter((match):match is RegExpMatchArray=>Boolean(match)).map(match=>({id:crypto.randomUUID(),name:match[1].trim(),description:"",category:"Cardápio",price:Number(match[2].replace(",","."))})).filter(item=>item.name&&Number.isFinite(item.price)&&item.price>0);if(!entries.length){setGenerationError("Nenhum item válido encontrado. Use: Nome do item - 49,90");return;}setSite(prev=>({...prev,kind:"restaurant",restaurant:{whatsapp:prev.restaurant?.whatsapp||"",menu:[...(prev.restaurant?.menu||[]),...entries]}}));if(textarea)textarea.value="";setGenerationError("");}} className="mt-2 rounded-lg bg-lime-300 px-4 py-2 text-sm font-bold text-black">Importar itens válidos</button></details><p className="mt-4 text-xs text-white/50">{(site.restaurant?.menu||[]).length} itens cadastrados. Dados e apresentação visual permanecem independentes.</p></div></details>}{siteCategory==="real-estate"&&<details className="mb-5 rounded-2xl border border-white/20 bg-[#141d1a] p-5 text-white"><summary className="cursor-pointer font-bold text-lime-300">▸ Gerenciar imóveis · {properties.length} cadastrados</summary><div className="mt-5 space-y-4"><label className="block text-sm">WhatsApp da imobiliária<input value={realEstateWhatsapp} onChange={e=>setRealEstateWhatsapp(e.target.value)} placeholder="5511999999999" className="mt-2 w-full rounded-lg border border-white/20 bg-black/30 p-3"/></label>{properties.map((p,i)=><div key={p.id} className="grid gap-2 rounded-xl border border-white/15 p-3 sm:grid-cols-2">{(["title","location","price","image"] as const).map(field=><label key={field} className="text-xs text-white/65">{field}<input aria-label={field} value={String(p[field])} onChange={e=>{const value=e.target.value;setProperties(prev=>prev.map(x=>x.id===p.id?{...x,[field]:field==="price"?Number(value)||0:value}:x));}} className="mt-1 w-full rounded-lg border border-white/20 bg-black/30 p-3 text-sm text-white"/></label>)}<select value={p.type} onChange={e=>setProperties(prev=>prev.map(x=>x.id===p.id?{...x,type:e.target.value}:x))} className="rounded-lg bg-[#26332e] p-3"><option>Venda</option><option>Aluguel</option></select><button type="button" onClick={()=>setProperties(prev=>prev.filter(x=>x.id!==p.id))} className="rounded-lg border border-red-300/30 p-3 text-red-300">Remover imóvel</button></div>)}<button type="button" onClick={()=>setProperties(prev=>[...prev,{id:crypto.randomUUID(),title:"Novo imóvel",location:"Informe a localização",price:0,type:"Venda",image:""}])} className="w-full rounded-xl border border-dashed border-lime-300/50 p-3 font-bold text-lime-300">+ Adicionar imóvel</button></div></details>}<div className={previewExpanded?"fixed inset-0 z-[200] overflow-y-auto bg-[#0b1110] p-3 text-white sm:p-6":"mb-4 min-w-0 rounded-xl border border-white/20 bg-[#141d1a] p-3 text-white sm:p-4"}>
 <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-left text-base font-bold">Prévia do seu site</h2><p className="mt-1 text-left text-xs text-white/55">Visualização em tempo real</p></div><div className="flex flex-wrap items-center gap-2">
 <div role="group" aria-label="Visualizar desktop ou mobile" className="flex items-center rounded-lg border border-white/20 bg-black/20 p-1"><button type="button" aria-pressed={previewDevice==="desktop"} onClick={()=>setPreviewDevice("desktop")} className={previewDevice==="desktop"?"rounded-md bg-lime-300 px-3 py-2 text-xs font-bold text-black":"rounded-md px-3 py-2 text-xs text-white/70"}>▣ Desktop</button><button type="button" aria-pressed={previewDevice==="mobile"} onClick={()=>setPreviewDevice("mobile")} className={previewDevice==="mobile"?"rounded-md bg-lime-300 px-3 py-2 text-xs font-bold text-black":"rounded-md px-3 py-2 text-xs text-white/70"}>▯ Mobile</button></div>
