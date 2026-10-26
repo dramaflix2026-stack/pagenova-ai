@@ -324,33 +324,52 @@ export default function BuilderV2() {
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt }]);
-    if(siteCategory==="real-estate"){
+    // Property instructions must update the structured catalogue, not generic site sections.
+    if(siteCategory==="real-estate" && site.kind==="real-estate"){
       const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-      const adding=/\\b(cadastr|adicion|inclu|crie|criar|novo imovel)\\w*/.test(normalized)&&/\\b(casa|apartamento|terreno|imovel|sobrado|cobertura)\\b/.test(normalized);
-      const deleting=/\\b(remov|exclu|apag|ocult)\\w*/.test(normalized)&&/\\b(imovel|casa|apartamento|card)\\b/.test(normalized);
-      const changing=/\\b(alter|mud|atualiz|troqu)\\w*/.test(normalized)&&/\\b(preco|valor)\\b/.test(normalized);
-      const priceMatch=prompt.match(/R\\$\\s*([\\d.,]+)\\s*(milh(?:ao|oes|ão|ões)|mil)?/i);
-      const price=priceMatch?Number(priceMatch[1].replace(/\\./g,"").replace(",","."))*(/milh/i.test(priceMatch[2]||"")?1000000:/mil/i.test(priceMatch[2]||"")?1000:1):undefined;
-      const indexMatch=normalized.match(/(?:imovel|casa|apartamento|card)\\s*(?:numero|n[º°.]|#)?\\s*(\\d{1,3})/);
-      const targetIndex=indexMatch?Number(indexMatch[1])-1:-1;
-      const target=targetIndex>=0?properties[targetIndex]:undefined;
+      const adding=/\b(cadastr|adicion|inclu|crie|criar|novo imovel)\w*/.test(normalized)&&/\b(casa|apartamento|terreno|imovel|sobrado|cobertura)\b/.test(normalized)&&!/\bcrie\s+um\s+site\b/.test(normalized);
+      const deleting=/\b(remov|exclu|apag|ocult)\w*/.test(normalized)&&/\b(imovel|casa|apartamento|card)\b/.test(normalized);
+      const changing=/\b(alter|mud|atualiz|troqu)\w*/.test(normalized)&&/\b(preco|valor)\b/.test(normalized);
       if(adding||deleting||changing){
-        let next:PropertyItem[]|null=null;let message="";
+        const priceMatch=prompt.match(/R\$\s*([\d.,]+)\s*(milh(?:ao|oes|ão|ões)|mil)?/i);
+        const price=priceMatch?Number(priceMatch[1].replace(/\./g,"").replace(",","."))*(/milh/i.test(priceMatch[2]||"")?1000000:/mil/i.test(priceMatch[2]||"")?1000:1):undefined;
+        const numberMatch=normalized.match(/(?:imovel|casa|apartamento|card)\s*(?:numero|n[º°.]|#)?\s*(\d{1,3})\b/);
+        const numberIndex=numberMatch?Number(numberMatch[1])-1:-1;
+        const matchingNames=numberIndex<0?properties.filter(item=>{
+          const location=item.location.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+          return location.length>3&&normalized.includes(location);
+        }):[];
+        const selected=numberIndex>=0?properties[numberIndex]:matchingNames.length===1?matchingNames[0]:undefined;
+        let next:PropertyItem[]|undefined;
+        let message="";
         if(adding){
-          if(!price||!Number.isFinite(price)){message="Informe o preço do imóvel em reais (ex.: R$ 650.000). Nenhuma alteração aplicada.";}
+          if(!price||!Number.isFinite(price)||price<=0)message="Informe o preço do imóvel em reais (ex.: R$ 650.000). Nenhum imóvel cadastrado.";
           else {
-            const title=prompt.match(/\\b(casa|apartamento|terreno|sobrado|cobertura)\\b[^,.\\n]{0,75}/i)?.[0]?.trim()||"Novo imóvel";
-            const location=prompt.match(/(?:no bairro|na região de|em|localizado em)\\s+([^,.\\n]{3,65})/i)?.[1]?.trim()||"Localização não informada";
-            const count=(re:RegExp)=>Number(normalized.match(re)?.[1]||0)||undefined;
-            const item:PropertyItem={id:crypto.randomUUID(),title,location,price,type:/aluguel|alugar|locacao/.test(normalized)?"Aluguel":"Venda",image:"",description:prompt,bedrooms:count(/(\\d+)\\s*quartos?/),bathrooms:count(/(\\d+)\\s*banheiros?/),parking:count(/(\\d+)\\s*vagas?/),area:count(/(\\d+)\\s*m\\s*[²2]/)};
-            next=[...properties,item];message="Imóvel cadastrado: "+title+". Outros imóveis preservados.";
+            const type=prompt.match(/\b(casa|apartamento|terreno|sobrado|cobertura)\b/i)?.[1]||"Imóvel";
+            const location=prompt.match(/\b(?:no bairro|na região de|localizado em|localizada em|no|na|em)\s+([^,.;\n]{3,65}?)(?=\s+(?:por\s+R\$|com\s+\d+)|[,.;\n]|$)/i)?.[1]?.trim()||"Localização não informada";
+            const metric=(pattern:RegExp)=>Number(normalized.match(pattern)?.[1]||0)||undefined;
+            const description=prompt.match(/descri[cç][aã]o\s*:\s*([^\n]+)/i)?.[1]?.trim().replace(/\s*(?:adicione|n[aã]o altere)\b.*$/i,"")||"";
+            const item:PropertyItem={id:crypto.randomUUID(),title:type.charAt(0).toUpperCase()+type.slice(1)+" "+(/aluguel|alugar|loca[cç][aã]o/i.test(prompt)?"para alugar":"à venda")+" no "+location,location,price,type:/aluguel|alugar|locacao/.test(normalized)?"Aluguel":"Venda",image:"",description,bedrooms:metric(/(\d+)\s*quartos?/),bathrooms:metric(/(\d+)\s*banheiros?/),parking:metric(/(\d+)\s*vagas?/),area:metric(/(\d+)\s*m\s*[²2]/)};
+            next=[...properties,item];
+            message="Imóvel cadastrado no catálogo de imóveis: "+item.title+". Agora são "+next.length+" imóvel(is). Outros conteúdos preservados.";
           }
-        }else if(!target){message="Informe o número do imóvel (ex.: imóvel 2). Nenhuma alteração aplicada.";}
-        else if(deleting){next=properties.filter(x=>x.id!==target.id);message="Imóvel "+(targetIndex+1)+" removido. Outros imóveis preservados.";}
-        else if(!price){message="Informe o novo preço em reais. Nenhuma alteração aplicada.";}
-        else {next=properties.map(x=>x.id===target.id?{...x,price}:x);message="Preço do imóvel "+(targetIndex+1)+" atualizado. Demais informações preservadas.";}
-        if(next){recordVersion({...site,properties},"Antes de editar imóveis");setHistory(prev=>[...prev.slice(-19),{...site,properties}]);setRedoHistory([]);setProperties(next);setSite(prev=>({...prev,kind:"real-estate",properties:next}));}
-        setMessages(prev=>[...prev,{role:"assistant",text:message}]);setInstruction("");setBusy(false);return;
+        }else if(!selected){
+          message="Identifique um único imóvel pelo número (ex.: imóvel 1) ou pela localização cadastrada. Nenhuma alteração aplicada.";
+        }else if(deleting){
+          next=properties.filter(item=>item.id!==selected.id);message="Imóvel removido do catálogo: "+selected.title+". Outros imóveis preservados.";
+        }else if(!price||!Number.isFinite(price)||price<=0){
+          message="Informe o novo preço em reais. Nenhuma alteração aplicada.";
+        }else{
+          next=properties.map(item=>item.id===selected.id?{...item,price}:item);
+          message="Preço atualizado no catálogo: "+selected.title+". Outros dados preservados.";
+        }
+        if(next){
+          recordVersion(site,"Antes de editar catálogo de imóveis");
+          setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+          setSite(prev=>({...prev,kind:"real-estate",properties:next}));
+        }
+        setMessages(prev=>[...prev,{role:"assistant",text:message}]);
+        setInstruction("");setBusy(false);return;
       }
     }
     // Restaurant identity edits must never invoke full-site generation.
