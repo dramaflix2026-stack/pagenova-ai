@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
+import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
 import {RealEstateTemplate,type PropertyItem} from "@/components/builder-v2-real-estate";
@@ -512,7 +513,7 @@ export default function BuilderV2() {
         }
       }
     }
-    if (/(?:regener|troqu|substitu|nova imagem|nova foto|gere imagens|gerar imagens)/i.test(prompt) && /(?:imagem|foto)/i.test(prompt) && site.blocks.length) {
+    if (isExplicitImageChangeRequest(prompt) && site.blocks.length) {
       try {
         const match=prompt.match(/(?:imagem|foto)\s*(?:n[uú]mero\s*)?(\d+)/i);
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
