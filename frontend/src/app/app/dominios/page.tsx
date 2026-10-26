@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import {normalizeCustomerDomain} from "@/lib/pagenova-custom-domains";
 
-type PublishedSite={id:string;slug:string;title:string;publishedAt:string;url:string};
+type PublishedSite={id:string;slug:string;title:string;publishedAt:string;url:string;source?:"studio"|"crm";published?:boolean};
 type Verification={type:string;domain:string;value:string;reason?:string};
 type DnsRecord={name:string;value:string};
 type DomainBinding={
@@ -48,6 +48,7 @@ function Copyable({label,value}:{label:string;value:string}){
 export default function DominiosPage(){
  const [data,setData]=useState<DomainsResponse>({connectionAvailable:false,sites:[],domains:[]});
  const [loading,setLoading]=useState(true);
+ const [crmSites,setCrmSites]=useState<PublishedSite[]>([]);
  const [loadingAction,setLoadingAction]=useState(false);
  const [siteId,setSiteId]=useState("");
  const [pickerOpen,setPickerOpen]=useState(false);
@@ -69,6 +70,20 @@ export default function DominiosPage(){
   finally{setLoading(false);}
  },[]);
  useEffect(()=>{void load();},[load]);
+ useEffect(()=>{
+   let alive=true;
+   void fetch("/api/crm/site-projects?limit=100&offset=0",{credentials:"same-origin",cache:"no-store"})
+     .then(async response=>response.ok?response.json():null)
+     .then(body=>{
+       if(!alive||!Array.isArray(body?.projects))return;
+       setCrmSites(body.projects.map((p:{id:string;internalName?:string;businessName?:string;updatedAt?:string;activePublicationId?:string})=>({
+         id:p.id,slug:"",title:(p.businessName||p.internalName||"Site CRM").slice(0,90),
+         publishedAt:p.updatedAt||new Date().toISOString(),url:"",source:"crm" as const,
+         published:Boolean(p.activePublicationId)
+       })));
+     }).catch(()=>{});
+   return ()=>{alive=false;};
+ },[]);
  useEffect(()=>{
    // Restore previously published local Studio/CRM projects into the new
    // server-side ownership registry. Every import is verified against the
@@ -98,15 +113,16 @@ export default function DominiosPage(){
    }).catch(()=>null))).then(()=>{if(!cancelled)void load();});
    return ()=>{cancelled=true;};
  },[load]);
- const selected=useMemo(()=>data.sites.find(item=>item.id===siteId),[data.sites,siteId]);
+ const allSites=useMemo(()=>[...data.sites.map(site=>({...site,source:"studio" as const,published:true})),...crmSites],[data.sites,crmSites]);
+ const selected=useMemo(()=>allSites.find(item=>item.id===siteId),[allSites,siteId]);
  const selectedBindings=useMemo(()=>data.domains.filter(item=>item.projectId===siteId),[data.domains,siteId]);
  const currentBinding=lastResult?.projectId===siteId?lastResult:selectedBindings[0]||null;
  const validDomain=normalizeCustomerDomain(domain);
  const filtered=useMemo(()=>{
   const q=search.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-  return data.sites.filter(site=>!q||
+  return allSites.filter(site=>!q||
    (siteTitle(site)+" "+site.slug).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().includes(q)).slice(0,35);
- },[data.sites,search]);
+ },[allSites,search]);
  async function execute(action:"connect"|"verify"){
   if(!selected||loadingAction)return;
   if(action==="connect"&&!validDomain){setError("Informe um domínio válido, sem www obrigatório, caminhos ou protocolo.");return;}
@@ -153,7 +169,7 @@ export default function DominiosPage(){
      <div>
       <label className="mb-2 block text-sm font-semibold text-white/90" htmlFor="pn-site-search">1. Escolha um site publicado</label>
       {loading?<div role="status" className="flex min-h-20 items-center gap-3 rounded-xl border border-white/10 bg-[#0b130e] p-4 text-sm text-white/55"><Loader2 size={18} className="animate-spin"/> Buscando publicações da sua conta...</div>
-       :!data.sites.length?<div className="rounded-xl border border-dashed border-white/15 bg-[#0b130e] p-5">
+       :!allSites.length?<div className="rounded-xl border border-dashed border-white/15 bg-[#0b130e] p-5">
           <p className="text-sm font-semibold text-white/85">Nenhum site publicado encontrado</p>
           <p className="mt-2 text-xs leading-6 text-white/55">Publique o projeto no PageNova Studio para que ele apareça aqui. Sites antigos podem precisar ser publicados novamente no Builder 2.0.</p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -181,7 +197,7 @@ export default function DominiosPage(){
             }} className={"flex w-full items-start gap-2 rounded-xl px-3 py-3 text-left hover:bg-lime-300/10 "+(site.id===siteId?"bg-lime-300/10":"")}>
              <Globe size={15} className="mt-0.5 shrink-0 text-lime-300/70"/>
              <span className="min-w-0 flex-1"><span className="block break-words text-sm font-medium">{siteTitle(site)}</span>
-              <span className="mt-1 block truncate text-[11px] text-white/50">{site.url} · {new Date(site.publishedAt).toLocaleDateString("pt-BR")}</span></span>
+              <span className="mt-1 block truncate text-[11px] text-white/50">{site.source==="crm"?"CRM · "+(site.published?"Publicado":"Em edição"):"Studio · "+(site.published?"Publicado":"Rascunho")} · {new Date(site.publishedAt).toLocaleDateString("pt-BR")}</span></span>
              {site.id===siteId&&<Check size={16} className="shrink-0 text-lime-300"/>}
             </button>)}
            {!filtered.length&&<p className="p-3 text-xs text-white/55">Nenhum site correspondente.</p>}
@@ -189,6 +205,7 @@ export default function DominiosPage(){
          </div>}
         </div>}
      </div>
+     {selected?.source==="crm"&&<p className="rounded-xl border border-amber-300/20 bg-amber-300/[.05] p-3 text-xs leading-6 text-amber-100">Site do CRM identificado. A associação de domínio será habilitada após a publicação estar sincronizada com o registro de domínios da PageNova.</p>}
      <div>
       <label htmlFor="pn-domain-input" className="mb-2 block text-sm font-semibold text-white/90">2. Informe seu domínio</label>
       <div className="flex min-h-14 items-center gap-3 rounded-xl border border-white/20 bg-[#09130d] px-4 focus-within:border-lime-300/55">
@@ -203,7 +220,7 @@ export default function DominiosPage(){
      <div>
       <p className="mb-3 text-sm font-semibold text-white/90">3. Associação e verificação</p>
       {data.connectionAvailable?
-       <button type="button" disabled={loadingAction||!selected||!validDomain} onClick={()=>void execute("connect")}
+       <button type="button" disabled={loadingAction||!selected||!selected.slug||!validDomain} onClick={()=>void execute("connect")}
         className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-lime-300 px-5 py-3 text-sm font-bold text-[#10200f] transition hover:bg-lime-200 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto">
         {loadingAction?<Loader2 className="animate-spin" size={17}/>:<ShieldCheck size={18}/>} Associar ao meu site <ArrowRight size={15}/>
        </button>:
