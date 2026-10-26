@@ -350,9 +350,15 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
             <div className={multiHero?"w-full":"mx-auto max-w-6xl"}>
               {multiHero?
                 <BuilderV2HeroSlideshow
-                  slides={images.slice(0,site.heroComposition==="trio"?3:2).map(image=>({
+                  slides={images.slice(0,site.heroComposition==="trio"?3:2).map((image,i)=>({
                     id:image.id,src:image.src!,mobileSrc:image.mobileSrc,
                     imageFit:image.imageFit,imagePosition:image.imagePosition,
+                    ...(i===0?{}:{
+                      title:/arquitet|interior|design/i.test(site.title)?"Arquitetura que inspira novas perspectivas":"Novas perspectivas para seu próximo projeto",
+                      description:/arquitet|interior|design/i.test(site.title)?"Espaços com personalidade, harmonia e atenção aos detalhes.":"Conheça outras possibilidades e descubra o que podemos construir juntos.",
+                      buttonText:buttons[0]?.text||"Conheça nossos serviços",
+                      buttonHref:buttons[0]?.href||"#"+(visibleSections.find(g=>/servic|tratament/i.test(g.id))?.id||"contato")
+                    }),
                     ...(site.heroBannerCopy?.[image.id]||{})
                   }))}
                   firstAlign={heading[0]?.align||"left"}
