@@ -60,6 +60,7 @@ function newImage(section:string,src:string,card?:string):InstitutionalMediaBloc
 export function institutionalImageIntent(instruction:string,hasUploads=false){
   const s=norm(instruction);
   if(hasUploads)return true;
+  if(/(?:imagem|foto|fotografia)/.test(s)&&/sem\s+cort|inteir[ao]|formato\s+original/.test(s))return true;
   if(!/(?:imagem|imagens|foto|fotos|fotografia|fotografias|banner|galeria|mosaico|carrossel|enquadramento)/.test(s))return false;
   if(!hasPositiveImageAction(s)&&!/\b(duplo|triplo|duas|tres)\b/.test(s))return false;
   if(/(?:nao|sem)\s+(?:alterar|trocar|modificar|mexer|substituir)[^\n.]{0,28}(?:imagem|foto|fotografia)/.test(s) &&
@@ -111,6 +112,8 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
     if(targetCard&&uploads.length!==1)throw Error("Envie uma foto por card para evitar substituições ambíguas.");
     const replace=/\b(?:troqu|substitu|reempla|altere)\w*/.test(s)&&!/\b(?:adicione|inclua|acrescente)\b/.test(s);
     if(mobileOnly&&uploads.length!==1)throw Error("Para trocar apenas a imagem mobile, envie uma foto.");
+    const desired=layout==="duo"?2:layout==="trio"?3:1;
+    const replaceSlots=layout&&section===hero&&uploads.length>=desired?sectionImages().filter(index=>!blocks[index].forCardId):[];
     for(let i=0;i<uploads.length;i++){
       const existing=selectedImage();
       if(mobileOnly){
@@ -119,10 +122,13 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
         blocks[existing].userUploaded=true;
       }else if(targetCard){
         const assigned=findCardImage();
-        if(assigned>=0){blocks[assigned].src=uploads[i];blocks[assigned].userUploaded=true;}
+        if(assigned>=0){blocks[assigned].src=uploads[i];delete blocks[assigned].mobileSrc;blocks[assigned].userUploaded=true;}
         else blocks.push(newImage(section,uploads[i],targetCard.id));
+      }else if(replaceSlots[i]!==undefined){
+        blocks[replaceSlots[i]].src=uploads[i];delete blocks[replaceSlots[i]].mobileSrc;
+        blocks[replaceSlots[i]].userUploaded=true;
       }else if(replace&&uploads.length===1&&existing>=0&&!layout){
-        blocks[existing].src=uploads[i];
+        blocks[existing].src=uploads[i];delete blocks[existing].mobileSrc;
         blocks[existing].userUploaded=true;
       }else{
         const image=newImage(section,uploads[i]);
@@ -140,7 +146,7 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   }
   if(reorder){
     if(uploads.length)throw Error("Reordene as fotos em outro comando para preservar a ordem dos anexos.");
-    const match=s.match(new RegExp("(?:mova|mover|coloque)\\s+(?:a\\s+)?(?:foto|imagem)\\s*"+ordinalPattern+"[^.]{0,55}?(?:posicao|lugar|foto|imagem)\\s*"+ordinalPattern));
+    const match=s.match(new RegExp("(?:mova|mover|coloque)\\s+(?:a\\s+)?(?:(?:foto|imagem|fotografia)\\s*)?"+ordinalPattern+"\\s*(?:foto|imagem|fotografia)?[^.]{0,55}?(?:posicao|lugar|foto|imagem)\\s*"+ordinalPattern));
     const from=numberWord(match?.[1])??photoIndex;
     const to=numberWord(match?.[2]);
     const positions=sectionImages().filter(i=>!blocks[i].forCardId);
