@@ -64,6 +64,46 @@ test("T12 — internal contact CTA cannot navigate to a random page",()=>{
  assert.deepEqual(cards(site),cards(original));
 });
 
+test("T12.1 — named services CTA navigates to existing Services section without changing text",()=>{
+ const original=fixture();
+ const prompt="Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site. Não abra outra página, não altere o texto do botão e preserve todos os demais elementos.";
+ const updated=edit(original,prompt);
+ assert.equal(get(updated,"hero-button").href,"#servicos");
+ assert.equal(get(updated,"hero-button").text,get(original,"hero-button").text);
+ for(const block of original.blocks.filter(b=>b.id!=="hero-button")){
+   assert.deepEqual(get(updated,block.id),block);
+ }
+});
+test("T12.2 — same CTA can point to Contato even though its label mentions serviços",()=>{
+ const original=fixture();
+ const services=edit(original,"Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site. Não altere o texto.");
+ const contact=edit(services,"Configure o botão principal da capa para levar à seção de Contato do próprio site, com rolagem suave. Preserve o visual do botão.");
+ assert.equal(get(contact,"hero-button").href,"#contato");
+ const switched=edit(contact,"Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site. Não abra outra página.");
+ assert.equal(get(switched,"hero-button").href,"#servicos");
+});
+test("T12.3 — services links use the real nonstandard section ID",()=>{
+ const original=fixture();
+ const services=original.blocks.map(b=>({...b,section:b.section==="servicos"?"nossos-servicos":b.section}));
+ const site=edit({...original,blocks:services},"Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site.");
+ assert.equal(get(site,"hero-button").href,"#nossos-servicos");
+});
+test("T12.4 — unknown destination cannot produce a false success",()=>{
+ const original=fixture();
+ const stripped={...original,blocks:original.blocks.filter(b=>b.section!=="servicos")};
+ const result=applyInstitutionalEdit(stripped,"Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site.");
+ assert.ok(result&&"error" in result);
+ assert.equal(get(stripped,"hero-button").href,"https://example.com");
+});
+test("T12.5 — named second CTA is selected instead of the first CTA",()=>{
+ const original=fixture();
+ const amended={...original,blocks:original.blocks.map(b=>({...b}))};
+ amended.blocks.splice(3,0,{id:"hero-secondary",section:"inicio",type:"button",text:"Ver portfólio",color:"#ffcc00",align:"left",href:"#portfolio"});
+ const result=edit(amended,"Configure o botão 'Conheça nossos serviços' da capa para rolar até o início da seção 'Nossos Serviços' neste mesmo site. Não altere o outro botão.");
+ assert.equal(get(result,"hero-button").href,"#servicos");
+ assert.deepEqual(get(result,"hero-secondary"),get(amended,"hero-secondary"));
+});
+
 test("T13 — add second hero CTA without losing original",()=>{
  const original=fixture();
  const site=edit(original,"Adicione um segundo botão na capa chamado 'Conhecer serviços', direcionado à seção de Serviços. Preserve o botão principal e os demais elementos.");
