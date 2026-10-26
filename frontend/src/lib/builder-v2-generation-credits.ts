@@ -26,7 +26,10 @@ export async function reserveBuilderV2Generation(user:Pick<User,"id"|"email"|"em
     if(!reservation.created||!reservation.operationId)throw new Error("Esta geração já foi solicitada. Verifique seu histórico antes de reenviar.");
     paidOperation=reservation.operationId;
   }
+  let finished=false;
   const finish=async(success:boolean)=>{
+    if(finished)return;
+    finished=true;
     if(trialOperation)await settleTrialCredit(admin,user.id,trialOperation,success);
     else if(paidOperation)await settleCredit(admin,account,paidOperation,success);
     else if(success){
