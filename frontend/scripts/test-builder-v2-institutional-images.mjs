@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {planInstitutionalImageEdit,institutionalImageIntent} from "../src/lib/builder-v2-institutional-images.ts";
+import {planInstitutionalImageEdit,institutionalImageIntent,restoreInstitutionalSectionImages} from "../src/lib/builder-v2-institutional-images.ts";
 
 const img=(id,section,src)=>({id,type:"image",section,text:"Foto "+id,color:"#fff",align:"center",src});
 const text=(id,section,value,type="paragraph")=>({id,type,section,text:value,color:"#222",align:"left"});
@@ -69,4 +69,26 @@ test("invalid card requests reject atomically",()=>{
   const input=original();
   assert.throws(()=>apply(input,"Troque a imagem do card 18 de serviços.",["https://store/photo.jpg"]),/Não encontrei/);
   assert.equal(input.blocks.length,original().blocks.length);
+});
+
+test("gallery photo order can be changed while IDs and other sections stay stable",()=>{
+  const before=original();
+  const next=apply(before,"Mova a foto 3 do portfólio para a posição 1.");
+  assert.deepEqual(next.blocks.filter(b=>b.section==="galeria"&&b.type==="image").map(b=>b.id),["p3","p1","p2"]);
+  assert.equal(next.blocks.find(b=>b.id==="hero").src,before.blocks.find(b=>b.id==="hero").src);
+});
+test("restoring cover photos leaves subsequent text edits untouched",()=>{
+  const previous=original();
+  const edited=apply(previous,"Troque a imagem principal da capa.",["https://store/new.jpg"]);
+  edited.blocks.find(b=>b.id==="lead").text="Texto editado após a foto";
+  const restored=restoreInstitutionalSectionImages(edited,previous,"Restaure a foto anterior da capa");
+  assert.equal(restored.site.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
+  assert.equal(restored.site.blocks.find(b=>b.id==="lead").text,"Texto editado após a foto");
+});
+test("adding image to Sobre Nos does not touch the cover",()=>{
+  const before=original();
+  before.blocks.push(text("about","sobre","Sobre nós","heading"));
+  const next=apply(before,"Adicione esta foto à seção Sobre Nós.",["https://store/about.jpg"]);
+  assert.ok(next.blocks.some(b=>b.section==="sobre"&&b.src==="https://store/about.jpg"));
+  assert.equal(next.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
 });
