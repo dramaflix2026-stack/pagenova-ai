@@ -365,6 +365,15 @@ export default function BuilderV2() {
         }else if(action==="remove"){
           if(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length)throw new Error("Informe qual foto deseja remover (ex.: foto 2 ou foto de capa).");
           next.splice(photoIndex,1);
+        }else if(action==="reorder"){
+          const direction=prompt.match(/\b(antes|depois)\b([\s\S]*)$/i);
+          const destination=direction?photoIndexFromInstruction(direction[2]):undefined;
+          if(photoIndex===undefined||destination===undefined||photoIndex<0||destination<0||photoIndex>=previous.length||destination>=previous.length){
+            throw new Error("Para reorganizar, informe duas fotos válidas (ex.: mova a foto 3 depois da foto 1).");
+          }
+          const [image]=next.splice(photoIndex,1);
+          const insertion=destination+(direction?.[1].toLowerCase()==="depois"?1:0)-(destination>photoIndex?1:0);
+          next.splice(insertion,0,image);
         }else if(action==="cover"){
           if(photoIndex===undefined||photoIndex<0||photoIndex>=previous.length)throw new Error("Informe uma foto existente para tornar capa (ex.: terceira foto).");
           const cover=next[photoIndex];next=[cover,...next.filter(url=>url!==cover)];
@@ -377,7 +386,7 @@ export default function BuilderV2() {
           setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
           setSite(current=>({...current,id:current.id||site.id||crypto.randomUUID(),properties:(current.properties??[]).map(item=>item.id===selected.id?updated:item)}));
         }
-        const message=propertyFiles.length?"Fotos reais salvas no imóvel "+(index+1)+". Galeria: "+next.length+" foto(s), capa definida. Outros imóveis e seções preservados.":action==="clear"?"Todas as fotos removidas deste imóvel. Histórico preservado.":action==="remove"?"Foto removida do imóvel "+(index+1)+".":action==="cover"?"Capa do imóvel "+(index+1)+" atualizada.":"Nenhuma alteração necessária.";
+        const message=propertyFiles.length?"Fotos reais salvas no imóvel "+(index+1)+". Galeria: "+next.length+" foto(s), capa definida. Outros imóveis e seções preservados.":action==="clear"?"Todas as fotos removidas deste imóvel. Histórico preservado.":action==="remove"?"Foto removida do imóvel "+(index+1)+".":action==="cover"?"Capa do imóvel "+(index+1)+" atualizada.":action==="reorder"?"Ordem das fotos do imóvel "+(index+1)+" atualizada.":"Nenhuma alteração necessária.";
         setMessages(prev=>[...prev,{role:"assistant",text:message}]);
         setPropertyFiles([]);setInstruction("");setGenerationError("");
       }catch(error){

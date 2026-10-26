@@ -34,10 +34,16 @@ export function photoIndexFromInstruction(instruction:string):number|undefined{
   return undefined;
 }
 export function looksLikePhotoInstruction(instruction:string):boolean{
-  const text=normalize(instruction);
-  return /\b(?:foto|fotos|imagem|imagens|capa|galeria)\b/.test(text)&&/\b(?:adicion|inclu|anex|coloc|envi|defin|torn|escolh|troqu|substitu|alter|mud|remov|retir|apag|exclu|mov|reorden|organiz)\w*/.test(text);
+  const lines=normalize(instruction).split(/[.!?\n]+/);
+  return lines.some(line=>{
+    // Constraints such as "preserve as fotos" must never override a price or text edit.
+    const actionable=line.split(/\b(?:preserv\w*|mantenh\w*|mantend\w*|sem alterar|sem mexer|nao alter\w*|nao mex\w*|nao modific\w*)\b/)[0].trim();
+    const action=/\b(?:adicion|inclu|anex|coloc|envi|defin|torn|escolh|troqu|substitu|alter|mud|remov|retir|apag|exclu|mov|reorden|organiz)\w*/;
+    const photo=/\b(?:foto|fotos|imagem|imagens|capa|galeria)\b/;
+    return photo.test(actionable)&&action.test(actionable);
+  });
 }
-export function photoAction(instruction:string,hasUpload:boolean):"add"|"replace"|"remove"|"clear"|"cover"|"help"{
+export function photoAction(instruction:string,hasUpload:boolean):"add"|"replace"|"remove"|"clear"|"cover"|"reorder"|"help"{
   const text=normalize(instruction);
   if(/\b(?:remov|retir|apag|exclu)\w*/.test(text)){
     if(/\b(?:todas|todos)\s+(?:as\s+|os\s+)?(?:fotos|imagens)\b/.test(text))return "clear";
@@ -46,6 +52,7 @@ export function photoAction(instruction:string,hasUpload:boolean):"add"|"replace
   if(hasUpload){
     return /\b(?:troqu|substitu)\w*/.test(text)?"replace":"add";
   }
+  if(/\b(?:mov|coloc|reposicion|reorden|organiz)\w*/.test(text)&&/\b(?:antes|depois)\b/.test(text)&&/\b(?:foto|imagem)\b/.test(text))return "reorder";
   if(/\b(?:capa|principal|primeira|segunda|terceira|quarta|quinta|sexta|setima|oitava|\d+)\b/.test(text)&&/\b(?:defin|torn|escolh|coloc|mov|alter|mud|troqu)\w*/.test(text))return "cover";
   return "help";
 }
