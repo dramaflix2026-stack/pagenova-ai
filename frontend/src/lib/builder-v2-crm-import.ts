@@ -16,7 +16,7 @@ type AnyObject=Record<string,unknown>;
 export type ImportedBuilderBlock={
   id:string;section:string;type:"heading"|"paragraph"|"image"|"button";
   text:string;color:string;align:"left"|"center"|"right";
-  src?:string;href?:string;forCardId?:string;userUploaded?:boolean;layout?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard";imageFit?:"cover"|"contain";
+  src?:string;href?:string;forCardId?:string;userUploaded?:boolean;imagePosition?:string;layout?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard";imageFit?:"cover"|"contain";
 };
 export type ImportedCrmSite={
   id:string;kind:"institutional";title:string;background:string;niche:string;
@@ -76,7 +76,11 @@ export function convertCrmSiteToBuilder(config:unknown,urls:Record<string,string
     const asset=obj(raw);
     const assetId=text(asset.assetId);
     const url=urls[assetId];
-    if(url)add(section,"image",text(asset.alt)||"Fotografia do estabelecimento",{src:url,userUploaded:true,...(card?{forCardId:card}:{})});
+    if(url){
+      const x=typeof asset.focalX==="number"?Math.max(0,Math.min(1,asset.focalX)):0.5;
+      const y=typeof asset.focalY==="number"?Math.max(0,Math.min(1,asset.focalY)):0.5;
+      add(section,"image",text(asset.alt)||"Fotografia do estabelecimento",{src:url,userUploaded:true,imagePosition:`${Math.round(x*100)}% ${Math.round(y*100)}%`,...(card?{forCardId:card}:{})});
+    }
   };
   const link=(value:unknown)=>{
     const action=obj(value),target=text(action.target),kind=text(action.kind);
