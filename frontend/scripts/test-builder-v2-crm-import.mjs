@@ -70,3 +70,26 @@ test("references deduplicated and site import never requests a paid generation j
  assert.match(builder,/storageKey\+":crm:"\+projectId/);
  assert.match(builder,/importReadyCrmProject\(projectId\)/);
 });
+
+test("CRM import does not invent testimonials, rating counts or stock gallery images",()=>{
+ const converted=convertCrmSiteToBuilder(source(),urls,"01KRMCRMPROJECT000000000001");
+ assert.equal(converted.socialProof.enabled,false);
+ assert.ok(converted.sectionMediaManaged.includes("galeria"));
+ assert.ok(converted.blocks.filter(b=>b.type==="image").every(b=>b.userUploaded===true));
+ assert.ok(converted.blocks.filter(b=>b.type==="image").every(b=>Object.values(urls).includes(b.src)));
+});
+test("first CRM import cannot persist an empty Site while photos are loading",()=>{
+ const page=read("src/app/app/builder-v2/page.tsx");
+ assert.match(page,/setDraftHydrated\(true\)/);
+ assert.match(page,/if\(!loaded\|\|!draftHydrated\)return/);
+ assert.match(page,/setCrmImporting\(true\)/);
+ assert.match(page,/setCrmImportError\(/);
+});
+test("new CRM template projects auto-open original Builder while legacy projects are unaffected",()=>{
+ const page=read("../modules/stavo-crm/src/client/pages/SiteProjectPage.tsx");
+ assert.match(page,/useSiteConfig\(editable/);
+ assert.match(page,/builderV2TemplateId/);
+ assert.match(page,/window\.top\?\.location\.assign\(destination\)/);
+ assert.match(page,/crmLegacy/);
+ assert.match(page,/templates\.includes\(modernSelection/);
+});
