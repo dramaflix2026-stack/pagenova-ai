@@ -33,3 +33,18 @@ test("Standard Studio route opens chat instead of experimental category selector
   assert.doesNotMatch(builder,/Ambiente experimental/);
   for(const id of ["institutional-complete","minimalist-sophisticated","modern-impactful","image-text-alternating"])assert.ok(builder.includes(id),id);
 });
+
+test("studio initial generation shares CRM wallet, trial quota and provider guard",()=>{
+ const route=read("src/app/api/builder-v2/chat/route.ts");
+ const wallet=read("src/lib/builder-v2-generation-credits.ts");
+ assert.match(route,/reserveBuilderV2Generation\(user,key\)/);
+ assert.match(route,/if \(isFresh\)/);
+ assert.match(route,/await charge\.finish\(true\)/);
+ assert.match(route,/await charge\.finish\(false\)/);
+ assert.match(wallet,/reserveTrialCredit\(admin,user\.id,"site_generation"/);
+ assert.match(wallet,/reserveCredit\(admin,account,"site_generation"/);
+ assert.match(wallet,/reservePaidAiBudget\(admin,user\.id,"crm_site_generation"\)/);
+ const editor=read("src/app/app/builder-v2/page.tsx");
+ assert.match(editor,/SiteGenerationCreditsNotice credits=\{siteCredits\}/);
+ assert.match(editor,/siteCredits\.refresh\(\)/);
+});
