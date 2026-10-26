@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 
-type MenuItem = { href: string; label: string; icon: typeof Menu; crmView?: string };
+type MenuItem = { href: string; label: string; icon: typeof Menu; crmView?: string; comingSoon?: boolean };
 
 // Studio is the PageNova entry point; CRM and Development remain separate.
  // Keep routes intact and change only the navigation presentation.
@@ -68,8 +68,8 @@ const studioItems: MenuItem[] = [
 const intelligenceItems: MenuItem[] = [{ href: "/app/chat-ai", label: "PageNova Chat AI", icon: MessageCircle }];
 
 const developmentItems: MenuItem[] = [
-  { href: "/app/aplicativos", label: "Protótipos de Aplicativos", icon: Smartphone },
-  { href: "/app/sistemas", label: "Protótipos de Sistemas", icon: Blocks },
+  { href: "/app/aplicativos", label: "Protótipos de Aplicativos", icon: Smartphone, comingSoon: true },
+  { href: "/app/sistemas", label: "Protótipos de Sistemas", icon: Blocks, comingSoon: true },
 ];
 
 function isItemActive(pathname: string, href: string, crmView: string | undefined, currentCrmView: string | null) {
@@ -141,6 +141,20 @@ function NavigationGroup({ title, description, items, theme, pathname, currentCr
       </div>
       <div className="space-y-0.5">
         {items.map((item) => {
+          if (item.comingSoon) {
+            return (
+              <div key={item.href} aria-disabled="true" title={item.label + " — Em breve"}
+                className="flex min-h-10 cursor-not-allowed items-center gap-2 rounded-xl border border-transparent px-2.5 py-2 text-sm font-medium text-white/45">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/[0.035] text-white/35">
+                  <item.icon className={compact ? "h-4 w-4" : "h-[15px] w-[15px]"} strokeWidth={1.9} />
+                </span>
+                <span className="min-w-0 flex-1 break-words leading-5">{item.label}</span>
+                <span className="shrink-0 rounded-full border border-amber-400/35 bg-amber-400/10 px-2 py-1 text-[10px] font-bold leading-none text-amber-300">
+                  Em breve
+                </span>
+              </div>
+            );
+          }
           const active = isItemActive(pathname, item.href, item.crmView, currentCrmView);
           return (
             <Link key={item.href} href={item.href} onClick={onNavigate}
@@ -348,7 +362,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
               theme="crm" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
-            <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
+            <NavigationGroup title="Desenvolvimento" description="Novidades em preparação" items={developmentItems}
               theme="development" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
           </nav>
 
@@ -383,7 +397,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="CRM & Vendas" description="Gestão comercial e prospecção" items={crmItems}
             theme="crm" pathname={pathname} currentCrmView={currentCrmView} />
-          <NavigationGroup title="Desenvolvimento" description="Modelos iniciais sem API paga" items={developmentItems}
+          <NavigationGroup title="Desenvolvimento" description="Novidades em preparação" items={developmentItems}
             theme="development" pathname={pathname} currentCrmView={currentCrmView} />
         </nav>
 
