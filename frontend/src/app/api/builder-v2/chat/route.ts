@@ -232,7 +232,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{...editingSite,extras:{...current,enabled}},summary:"Componentes atualizados pelo chat; outras seções preservadas."});
     }
   }
-  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)){
+  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)&&/(?:vincul|configur|atualiz|alter|troqu|substitu|adicion|inclu|remov|retir|exclu|ocult|escond|ativ|desativ|https?:\/\/|wa\.me\/)/i.test(instructionText)&&!/(?:crie|criar|gere|gerar|monte|construa)\s+(?:um\s+)?site\b/i.test(instructionText)){
     const oldFooter=editingSite.footer&&typeof editingSite.footer==="object"?editingSite.footer:{};
     const next={...oldFooter};
     let changed=false;
