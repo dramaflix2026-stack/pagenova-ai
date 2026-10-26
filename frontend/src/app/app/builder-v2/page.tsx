@@ -160,6 +160,24 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 export default function BuilderV2() {
   const siteCredits=useSiteGenerationCredits();
   const [site, setSite] = useState<Site>(initial);
+  useEffect(()=>{
+    if(site.cinematic?.mode!=="cinematic")return;
+    const nicheText=[site.niche,site.title].filter(Boolean).join(" ");
+    if(!/hamb[uú]rg|lanche|burger/i.test(nicheText))return;
+    let cancelled=false;
+    fetch("/api/builder-v2/videos?niche=hamburgueria",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(data=>{
+      if(cancelled||!data?.videos)return;
+      setSite(prev=>{
+        if(prev.cinematic?.mode!=="cinematic")return prev;
+        const desktopUrl=prev.cinematic.desktopUrl||data.videos.desktop||"";
+        const mobileUrl=prev.cinematic.mobileUrl||data.videos.mobile||"";
+        if(desktopUrl===prev.cinematic.desktopUrl&&mobileUrl===prev.cinematic.mobileUrl)return prev;
+        return {...prev,cinematic:{...prev.cinematic,desktopUrl,mobileUrl}};
+      });
+    }).catch(()=>{});
+    return ()=>{cancelled=true};
+  },[site.cinematic?.mode,site.niche,site.title]);
+
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
@@ -1091,8 +1109,8 @@ export default function BuilderV2() {
   <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-xs text-white">
     <LayoutTemplate size={15}/> Modelo visual <span aria-hidden="true">⌄</span>
   </summary>
-  <div className="absolute right-0 top-full z-40 mt-2 w-[min(290px,80vw)] rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
-    <div className="mb-3 grid grid-cols-2 gap-2" role="group" aria-label="Aparência do site">
+  <div className="absolute right-0 top-full z-40 mt-2 w-[min(360px,calc(100vw-44px))] max-w-[calc(100vw-44px)] rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
+    <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label="Aparência do site">
       {(["static","cinematic"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-3 py-3 text-sm font-semibold transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":"Cinematográfico"}</button>)}
     </div>
     {site.cinematic?.mode==="cinematic"&&<div className="mb-3 grid gap-2">{(["desktopUrl","mobileUrl"] as const).map(field=><label key={field} className="text-left text-xs text-white/70">{field==="desktopUrl"?"Vídeo desktop (MP4)":"Vídeo mobile (MP4)"}<input type="url" value={site.cinematic?.[field]||""} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:"cinematic",[field]:e.target.value}}))} placeholder="Link público do Banco de Vídeos" className="mt-1 w-full rounded-lg border border-white/25 bg-[#0d1713] px-2 py-2 text-xs text-white"/></label>)}</div>}
