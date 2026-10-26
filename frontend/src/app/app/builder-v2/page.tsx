@@ -1109,11 +1109,11 @@ export default function BuilderV2() {
   <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-xs text-white">
     <LayoutTemplate size={15}/> Modelo visual <span aria-hidden="true">⌄</span>
   </summary>
-  <div className="absolute right-0 top-full z-40 mt-2 w-[min(360px,calc(100vw-44px))] max-w-[calc(100vw-44px)] rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
+  <div className="absolute left-1/2 top-full z-40 mt-2 w-[min(360px,calc(100vw-40px))] max-w-[calc(100vw-40px)] -translate-x-1/2 rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
     <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-2" role="group" aria-label="Aparência do site">
-      {(["static","cinematic"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-3 py-3 text-sm font-semibold transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":"Cinematográfico"}</button>)}
+      {(["static","cinematic"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":"Cinematográfico"}</button>)}
     </div>
-    {site.cinematic?.mode==="cinematic"&&<div className="mb-3 grid gap-2">{(["desktopUrl","mobileUrl"] as const).map(field=><label key={field} className="text-left text-xs text-white/70">{field==="desktopUrl"?"Vídeo desktop (MP4)":"Vídeo mobile (MP4)"}<input type="url" value={site.cinematic?.[field]||""} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:"cinematic",[field]:e.target.value}}))} placeholder="Link público do Banco de Vídeos" className="mt-1 w-full rounded-lg border border-white/25 bg-[#0d1713] px-2 py-2 text-xs text-white"/></label>)}</div>}
+    {site.cinematic?.mode==="cinematic"&&<p className="mb-3 text-left text-xs text-white/65">O vídeo é selecionado automaticamente do Banco de Vídeos conforme o nicho. Se ainda não houver vídeo cadastrado, o site mantém a imagem estática.</p>}
     <label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
     <select id="pn-template-choice" aria-label="Escolher template visual" value={site.templateId||"institutional-complete"}
       onChange={e=>{
