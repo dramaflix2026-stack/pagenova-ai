@@ -1,7 +1,30 @@
 import { createServerClient } from "@supabase/ssr";
+import {createClient as createAdminClient} from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // Custom domains are bound only to an authenticated user's real published
+  // snapshot. Unverified/unknown hosts never receive another client's site.
+  const host=(request.headers.get("host")||"").toLowerCase().split(":")[0];
+  const customHost=Boolean(host&&host!=="pagenovaai.com.br"&&host!=="www.pagenovaai.com.br"&&
+    host!=="localhost"&&host!=="127.0.0.1"&&!host.endsWith(".vercel.app")&&
+    !host.endsWith(".pagenovaai.com.br"));
+  if(customHost&&request.nextUrl.pathname==="/"){
+    const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key=process.env.SUPABASE_SECRET_KEY;
+    if(!url||!key)return new NextResponse("Site indisponível.",{status:503});
+    try{
+      const admin=createAdminClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+      const {data,error}=await admin.from("pagenova_custom_domains")
+        .select("slug").eq("domain",host).eq("state","active").maybeSingle();
+      if(error)return new NextResponse("Site indisponível.",{status:503});
+      if(!data?.slug)return new NextResponse("Domínio ainda não conectado.",{status:404});
+      const destination=request.nextUrl.clone();
+      destination.pathname="/site/"+encodeURIComponent(data.slug);
+      destination.search="";
+      return NextResponse.rewrite(destination);
+    }catch{return new NextResponse("Falha temporária ao carregar este domínio.",{status:503});}
+  }
   // Server-rendered document language for the localized public pages.
   // Existing Supabase route protection below remains unchanged.
   if(request.nextUrl.pathname==="/en"||request.nextUrl.pathname==="/es"){
