@@ -302,14 +302,14 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const testimonialInfo=(item:Block)=>{const raw=clean(item.text).replace(/^[“"]|[”"]$/g,"").trim();const parts=raw.includes("|")?raw.split(/\s*\|\s*/).map(p=>p.trim()).filter(Boolean):raw.split(/\s+[—–]\s+/).map(p=>p.trim()).filter(Boolean);const first=parts[0]||"";const validName=/^[\p{L}.'-]+(?:\s+[\p{L}.'-]+){1,4}$/u.test(first)&&!/^depoimento/i.test(first);const name=parts.length>=3&&validName?first:"";const city=name?parts[1]:"";const message=name?parts.slice(2).join(" — "):raw.replace(/^depoimento\s*\d+\s*[:—–-]?\s*/i,"");return {name,city,message,photo:images.find(photo=>photo.id===item.id+"-photo"||photo.text===name)?.src||""};};
           const isPrinciples=/princip|diferencia|valores|filosofia/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const processPhotos=isProcess?previewBlocks.filter(b=>b.type==="image"&&!!b.src).slice(0,24):[];
-          const processCardPhotos=isProcess?distinctProcessCardPhotos({
+          const processCardPhotos:Array<Block|undefined>=isProcess?distinctProcessCardPhotos({
             cards:textItems.map(item=>({id:item.id})),
-            photos:processPhotos.concat(images.filter(photo=>!!photo.src&&!processPhotos.some(p=>p.id===photo.id))),
+            photos:[...processPhotos,...images.filter(photo=>!!photo.src&&!processPhotos.some(p=>p.id===photo.id))],
             niche:site.niche||selectedNiche,title:site.title,
             catalog:nichePhotoCatalog as Record<string,{desktop:string[];mobile:string[]}>,
             baseUrl:nichePhotoBase,crmImported:site.crmImported===true,
             appendExtra:textItems.length===3
-          }):[];
+          }).map(photo=>photo?.src?{...photo,type:"image" as const,text:photo.text||"Imagem ilustrativa",color:"#ffffff",align:"center" as const,section:group.id}:undefined):[];
           const cardText=(b:Block)=>{const parts=clean(b.text).split(/:\s|\s[—–]\s/);const description=parts.length>1?parts.slice(1).join(" — ").trim():clean(b.text);const name=parts.length>1?parts[0].trim():"";return {name,description:name&&description.toLocaleLowerCase("pt-BR").startsWith(name.toLocaleLowerCase("pt-BR"))?description.slice(name.length).replace(/^[\s,.:—–-]+/,"").trim()||description:description};};
           const safeColor=(color:string)=>{const c=readableColor(color,sectionBackground);const lightBackground=/^#(?:[cdef][0-9a-f]|f[0-9a-f]|[a-f]{3})/i.test(sectionBackground)||/^(white|#fff(?:fff)?)$/i.test(sectionBackground);if(lightBackground&&(/^#(?:[cdef][0-9a-f]|f[0-9a-f])/i.test(c)||/^(?:white|#fff(?:fff)?)$/i.test(c)))return "#26382f";const dark=/^#(?:1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(sectionBackground);return dark&&/^#(?:0[0-9a-f]|1[0-9a-f]|2[0-9a-f]|3[0-9a-f])/i.test(c)?"#f7f4eb":c;};
           const render=(b:Block)=> {
