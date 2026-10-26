@@ -349,7 +349,7 @@ export default function BuilderV2() {
   async function send() {
     const prompt = instruction.trim();
     const attachmentMode=siteCategory!=="real-estate"&&institutionalFiles.length>0
-      ?builderAttachmentIntent(prompt,site.blocks.length>0):null;
+      ?siteCategory==="restaurant"?"reference":builderAttachmentIntent(prompt,site.blocks.length>0):null;
     if(busy)return;
     if(attachmentMode==="needs-instruction"){
       setVoiceNotice("Diga onde colocar a foto ou escreva que ela é apenas uma referência.");
@@ -722,13 +722,39 @@ export default function BuilderV2() {
       }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       setSite(incoming);
-      if (!site.blocks.length || creatingNewSite) {
-        try { const illustrated=await generateVisuals(incoming,prompt);setSite(illustrated); }
-        catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
-      }
-      setGenerationError("");
-      setMessages(prev => [...prev, { role: "assistant", text: data.summary || "Alteração aplicada." }]);
-      setInstruction(""); setReference(null);setInstitutionalFiles([]);
+      let finishedSite=incoming;
+       if (!site.blocks.length || creatingNewSite) {
+         try { finishedSite=await generateVisuals(incoming,prompt);setSite(finishedSite); }
+         catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
+       }
+       let photoApplyFailed=false;
+       if(siteCategory==="institutional"&&attachmentMode==="site"&&institutionalFiles.length&&(!site.blocks.length||creatingNewSite)){
+         try{
+           const normalizedPrompt=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+           const action=/capa|banner|hero/.test(normalizedPrompt)?
+             institutionalFiles.length>1?"Coloque "+institutionalFiles.length+" fotos na capa, "+(institutionalFiles.length===2?"duplo":"triplo")+" banner":
+             "Troque a imagem da capa pela foto anexada":prompt;
+           const previewSources=institutionalFiles.map((_,i)=>"https://example.invalid/photo-"+i);
+           planInstitutionalImageEdit(finishedSite,action,previewSources);
+           const uploaded:string[]=[];
+           for(const file of institutionalFiles){
+             const form=new FormData();form.append("projectId",finishedSite.id||crypto.randomUUID());form.append("file",file);
+             const response=await fetch("/api/builder-v2/assets",{method:"POST",body:form});
+             const data=await response.json();
+             if(!response.ok||typeof data.src!=="string")throw Error(data.error||"Não foi possível armazenar a foto.");
+             uploaded.push(data.src);
+           }
+           const edit=planInstitutionalImageEdit(finishedSite,action,uploaded);
+           if(!edit)throw Error("Nenhuma fotografia foi aplicada.");
+           finishedSite=edit.site;setSite(finishedSite);setInstitutionalFiles([]);
+         }catch(error){
+           photoApplyFailed=true;
+           setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na foto.")+" O site foi criado, mas o anexo continua selecionado para reenviar."}]);
+         }
+       }else if(attachmentMode==="reference"){setInstitutionalFiles([]);}
+       setGenerationError("");
+       setMessages(prev=>[...prev,{role:"assistant",text:data.summary||"Alteração aplicada."}]);
+       setInstruction(photoApplyFailed?prompt:"");setReference(null);
     } catch (error) {
       setGenerationError(error instanceof Error ? error.message : "Falha na geração.");
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
@@ -927,7 +953,7 @@ export default function BuilderV2() {
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
 <div className="flex flex-wrap items-center gap-2">
-<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4)} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Publicar alterações":"Publicar site"}</button>
+<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4)} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
 {site.publishedUrl&&<a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="min-h-11 rounded-xl border border-lime-300/60 px-4 py-3 text-sm font-semibold text-lime-300">Ver site ↗</a>}
 {site.publishedUrl&&<button type="button" onClick={()=>void navigator.clipboard.writeText(site.publishedUrl||"")} className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80">Copiar URL</button>}
 <a href="/app/builder" className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/65">Editor anterior ↗</a>
