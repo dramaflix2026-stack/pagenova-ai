@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { BuilderV2Site, type BuilderV2SiteData } from "@/components/builder-v2-site";
+import {RealEstateTemplate} from "@/components/builder-v2-real-estate";
 import {PizzeriaTemplate,RestaurantSegmentTemplate} from "@/components/builder-v2-restaurant-templates";
 export const dynamic="force-dynamic";
 export const metadata={robots:{index:false,follow:false}};
@@ -22,5 +23,5 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   const restaurantSite=payload.site as unknown as Parameters<typeof PizzeriaTemplate>[0]["site"];
   const menu=Array.isArray((restaurantSite.restaurant||{}).menu)?restaurantSite.restaurant!.menu:[];
   const pizza=/pizza|pizzaria/i.test(niche)||menu.filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.max(2,Math.ceil(menu.length/2));
-  return <main className="min-h-screen overflow-x-hidden bg-white">{restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={payload.site} templateId={payload.site.templateId||"institutional-complete"} selectedNiche={niche} publishedMode />}</main>;
+  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""}/>:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={payload.site} templateId={payload.site.templateId||"institutional-complete"} selectedNiche={niche} publishedMode />}</main>;
 }

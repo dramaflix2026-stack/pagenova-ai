@@ -4,14 +4,13 @@ import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
-import { SiteWhatsAppButton } from "@/components/site-whatsapp-button";
+import {RealEstateTemplate,type PropertyItem} from "@/components/builder-v2-real-estate";
 import { BuilderV2PreviewFrame, type BuilderPreviewDevice } from "@/components/builder-v2-preview-frame";
 import "./motion.css";
 import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-type PropertyItem = {id:string;title:string;location:string;price:number;type:string;image:string;description?:string;bedrooms?:number; bathrooms?:number;parking?:number;area?:number};
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
 type Site = { properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
@@ -129,16 +128,6 @@ function applyInstruction(site: Site, instruction: string): { site: Site; summar
   }
   return null;
 }
-function RealEstateTemplate({properties,whatsapp}:{properties:PropertyItem[];whatsapp:string}) {
- const [filter,setFilter]=useState("Todos");
- const visible=filter==="Todos"?properties:properties.filter(p=>p.type===filter);
- const number=whatsapp.replace(/\\D/g,"");
- return <section className="pn-real-estate-preview overflow-hidden rounded-[26px] bg-[#f5f5f0] text-[#1c302c]">
-  <header className="flex items-center justify-between bg-[#153a34] px-6 py-5 text-white sm:px-10"><strong className="text-xl font-black tracking-tight">HORIZONTE<span className="text-[#d5b87a]">.</span> IMÓVEIS</strong><a href="#imoveis-v2" className="text-sm font-bold">Explorar imóveis ↓</a></header>
-  <div className="grid gap-8 bg-[#153a34] px-6 py-14 text-white sm:px-10 lg:grid-cols-2 lg:items-center lg:py-20"><div><p className="text-xs font-bold uppercase tracking-[.24em] text-[#d5b87a]">Seu próximo capítulo começa aqui</p><h2 className="mt-5 text-4xl font-black leading-tight sm:text-6xl">O lugar certo para viver novas histórias.</h2><p className="mt-5 max-w-lg text-base text-white/75">Encontre imóveis para comprar ou alugar com praticidade e atendimento personalizado.</p><a href="#imoveis-v2" className="mt-8 inline-flex rounded-full bg-[#d5b87a] px-7 py-4 font-bold text-[#17312b]">Encontrar meu imóvel →</a></div><img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1400&q=85" alt="Fachada de residência contemporânea" className="h-72 w-full rounded-3xl object-cover sm:h-[430px]" loading="lazy"/></div>
-  <div id="imoveis-v2" className="px-6 py-12 sm:px-10"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#668076]">Seleção especial</p><h3 className="mt-3 text-4xl font-black">Encontre seu imóvel</h3><div className="mt-6 flex flex-wrap gap-2">{["Todos","Venda","Aluguel"].map(t=><button key={t} type="button" onClick={()=>setFilter(t)} className={`rounded-full px-5 py-3 text-sm font-bold ${filter===t?"bg-[#153a34] text-white":"border border-[#cbd5cf] bg-white"}`}>{t}</button>)}</div><div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{visible.map(p=><article key={p.id} className="overflow-hidden rounded-2xl bg-white shadow-sm"><img src={p.image||"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80"} alt={p.title} className="h-52 w-full object-cover" loading="lazy"/><div className="p-5"><span className="rounded-full bg-[#e7eee9] px-3 py-1 text-xs font-bold">{p.type}</span><h4 className="mt-4 text-xl font-black">{p.title}</h4><p className="mt-2 text-sm text-[#62746a]">{p.location}</p>{p.description&&<p className="mt-2 text-sm text-[#62746a]">{p.description}</p>}{(p.bedrooms||p.bathrooms||p.parking||p.area)&&<p className="mt-2 text-xs font-semibold text-[#62746a]">{[p.bedrooms?`${p.bedrooms} quartos`:null,p.bathrooms?`${p.bathrooms} banheiros`:null,p.parking?`${p.parking} vagas`:null,p.area?`${p.area} m²`:null].filter(Boolean).join(" · ")}</p>}<p className="mt-4 text-2xl font-black">{p.price.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}{p.type==="Aluguel"&&<span className="text-sm font-normal">/mês</span>}</p>{number&&<a href={`https://wa.me/${number}?text=${encodeURIComponent("Olá! Tenho interesse no imóvel: "+p.title)}`} target="_blank" rel="noopener noreferrer" className="mt-5 block rounded-xl bg-[#153a34] px-4 py-3 text-center text-sm font-bold text-white">Tenho interesse ↗</a>}</div></article>)}</div>{visible.length===0&&<p className="mt-8 rounded-2xl bg-white p-8 text-center">Nenhum imóvel cadastrado nesta categoria. Cadastre seu primeiro imóvel pelo chat.</p>}</div><footer className="bg-[#153a34] px-6 py-12 text-center text-white"><h3 className="text-3xl font-black">Vamos encontrar seu próximo endereço?</h3><p className="mt-3 text-white/70">Fale com nossa equipe e descubra as melhores oportunidades.</p>{number&&<a href={`https://wa.me/${number}`} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block rounded-full bg-[#d5b87a] px-7 py-3 font-bold text-[#153a34]">Conversar no WhatsApp ↗</a>}</footer><SiteWhatsAppButton numberOrUrl={whatsapp} preview message="Olá! Vim pelo site da imobiliária e gostaria de saber mais sobre os imóveis." />
- </section>;
-}
 export default function BuilderV2() {
   const [site, setSite] = useState<Site>(initial);
   const [siteCategory,setSiteCategory] = useState<SiteCategory>("institutional");
@@ -146,7 +135,10 @@ export default function BuilderV2() {
   const [segmentScreen,setSegmentScreen] = useState(false);
   const [restaurantSegment,setRestaurantSegment] = useState("");
   const [realEstateWhatsapp,setRealEstateWhatsapp]=useState("");
-  const [properties,setProperties]=useState<PropertyItem[]>([]);
+  const properties=site.properties??[];
+  function setProperties(next:PropertyItem[]|((current:PropertyItem[])=>PropertyItem[])){
+    setSite(prev=>({...prev,properties:typeof next==="function"?next(prev.properties??[]):next}));
+  }
 
   const [categoryQuery,setCategoryQuery] = useState("");
   const [menuCategory,setMenuCategory]=useState("Pizzas");
@@ -215,7 +207,7 @@ export default function BuilderV2() {
 
   }
 
-  useEffect(() => { try { const saved = localStorage.getItem(storageKey); if (saved) { const parsed=JSON.parse(saved) as Site; setSite(parsed); if(parsed.kind) setSiteCategory(parsed.kind); if(Array.isArray(parsed.properties))setProperties(parsed.properties); if(parsed.realEstateWhatsapp)setRealEstateWhatsapp(parsed.realEstateWhatsapp); if(parsed.kind==="restaurant" && parsed.niche) setRestaurantSegment(parsed.niche); if(parsed.blocks?.length||parsed.restaurant?.menu?.length) setCategoryScreen(false); } const savedVersions = localStorage.getItem(storageKey + ":versions"); if (savedVersions) { const parsed: unknown = JSON.parse(savedVersions); if (Array.isArray(parsed)) setVersions(parsed.filter((item): item is SavedVersion => !!item && typeof item === "object" && typeof item.id === "string" && !!item.site && Array.isArray(item.site.blocks)).slice(-25)); } } catch {} setLoaded(true); }, []);
+  useEffect(() => { try { const saved = localStorage.getItem(storageKey); if (saved) { const parsed=JSON.parse(saved) as Site; setSite(parsed); if(parsed.kind) setSiteCategory(parsed.kind); if(parsed.realEstateWhatsapp)setRealEstateWhatsapp(parsed.realEstateWhatsapp); if(parsed.kind==="restaurant" && parsed.niche) setRestaurantSegment(parsed.niche); if(parsed.blocks?.length||parsed.restaurant?.menu?.length) setCategoryScreen(false); } const savedVersions = localStorage.getItem(storageKey + ":versions"); if (savedVersions) { const parsed: unknown = JSON.parse(savedVersions); if (Array.isArray(parsed)) setVersions(parsed.filter((item): item is SavedVersion => !!item && typeof item === "object" && typeof item.id === "string" && !!item.site && Array.isArray(item.site.blocks)).slice(-25)); } } catch {} setLoaded(true); }, []);
   useEffect(() => { if (!loaded) return; try { localStorage.setItem(storageKey, JSON.stringify(site)); setStorageError(""); } catch { setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações."); } }, [site, loaded]);
   useEffect(() => { if (!loaded) return; try { localStorage.setItem(storageKey + ":versions", JSON.stringify(versions)); } catch { setStorageError("O histórico atingiu o limite de armazenamento do navegador. Exclua versões antigas."); } }, [versions, loaded]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
@@ -331,7 +323,7 @@ export default function BuilderV2() {
       const deleting=/\b(remov|exclu|apag|ocult)\w*/.test(normalized)&&/\b(imovel|casa|apartamento|card)\b/.test(normalized);
       const changing=/\b(alter|mud|atualiz|troqu)\w*/.test(normalized)&&/\b(preco|valor)\b/.test(normalized);
       if(adding||deleting||changing){
-        const priceMatch=prompt.match(/R\$\s*([\d.,]+)\s*(milh(?:ao|oes|ão|ões)|mil)?/i);
+        const priceMatch=prompt.match(/R\$\s*(\d+(?:[.,]\d+)*)\s*(milh(?:ao|oes|ão|ões)|mil)?/i);
         const price=priceMatch?Number(priceMatch[1].replace(/\./g,"").replace(",","."))*(/milh/i.test(priceMatch[2]||"")?1000000:/mil/i.test(priceMatch[2]||"")?1000:1):undefined;
         const numberMatch=normalized.match(/(?:imovel|casa|apartamento|card)\s*(?:numero|n[º°.]|#)?\s*(\d{1,3})\b/);
         const numberIndex=numberMatch?Number(numberMatch[1])-1:-1;
@@ -507,7 +499,7 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(data.error || "Não foi possível editar o site.");
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       const incoming = data.site as Site;
-      if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);setProperties([]);}
+      if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
@@ -535,7 +527,7 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setProperties([]);setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4))return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
@@ -603,7 +595,7 @@ export default function BuilderV2() {
 <div role="group" aria-label="Visualizar desktop ou mobile" className="flex items-center rounded-lg border border-white/20 bg-black/20 p-1"><button type="button" aria-pressed={previewDevice==="desktop"} onClick={()=>setPreviewDevice("desktop")} className={previewDevice==="desktop"?"rounded-md bg-lime-300 px-3 py-2 text-xs font-bold text-black":"rounded-md px-3 py-2 text-xs text-white/70"}>▣ Desktop</button><button type="button" aria-pressed={previewDevice==="mobile"} onClick={()=>setPreviewDevice("mobile")} className={previewDevice==="mobile"?"rounded-md bg-lime-300 px-3 py-2 text-xs font-bold text-black":"rounded-md px-3 py-2 text-xs text-white/70"}>▯ Mobile</button></div>
 <button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
 </div></div>
-<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={site.properties||properties} whatsapp={realEstateWhatsapp}/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment}/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"}/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>
+<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} preview/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment}/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"}/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>
 <p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
