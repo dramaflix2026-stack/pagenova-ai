@@ -43,7 +43,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+type Site = { cinematic?: {mode:"static"|"cinematic";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -442,6 +442,13 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    if(siteCategory==="institutional"&&site.blocks.length>0&&/(cinematogr[aá]fic|v[ií]deo de fundo|fundo em v[ií]deo|modo est[aá]tico|sem v[ií]deo)/i.test(prompt)){
+      const disable=/(modo est[aá]tico|sem v[ií]deo|remov|desativ)/i.test(prompt);
+      setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:disable?"static":"cinematic"}}));
+      setMessages(prev=>[...prev,{role:"assistant",text:disable?"Modo estático ativado.":"Modo cinematográfico ativado. Configure os links de vídeo desktop e mobile no painel abaixo."}]);
+      setInstruction("");
+      return;
+    }
     const attachmentMode=siteCategory!=="real-estate"&&institutionalFiles.length>0
       ?siteCategory==="restaurant"?"reference":builderAttachmentIntent(prompt,site.blocks.length>0):null;
     if(busy)return;
@@ -959,6 +966,11 @@ export default function BuilderV2() {
   </div></main>;
   return <main className="pn-builder-shell pn-builder-editor min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-5 text-white sm:px-4 sm:py-8">
     <div className="mx-auto w-full min-w-0 max-w-6xl">
+      {siteCategory==="institutional"&&<section className="mb-4 rounded-2xl border-2 border-lime-300/40 bg-[#141d1a] p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-white">Aparência do site institucional</h2><p className="mt-1 text-xs text-white/60">Teste cinematográfico no Template 4 · funciona com ou sem CRM</p></div>
+        <select aria-label="Aparência do site" value={site.cinematic?.mode||"static"} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:e.target.value as "static"|"cinematic"}}))} className="rounded-lg border border-lime-300/40 bg-[#18251c] p-2 text-white"><option value="static">Estático</option><option value="cinematic">Cinematográfico</option></select></div>
+        {site.cinematic?.mode==="cinematic"&&<div className="mt-4 grid gap-3 sm:grid-cols-2">{(["desktopUrl","mobileUrl"] as const).map((field)=><label key={field} className="text-xs font-semibold text-white/70">{field==="desktopUrl"?"Vídeo desktop (MP4 público)":"Vídeo mobile (MP4 público)"}<input type="url" value={site.cinematic?.[field]||""} onChange={e=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:"cinematic",[field]:e.target.value}}))} placeholder="https://..." className="mt-2 block w-full rounded-lg border border-white/25 bg-[#09130e] px-3 py-2 text-white"/></label>)}<p className="text-xs text-white/55 sm:col-span-2">Use os links públicos do Banco de Vídeos. O Template 4 aplica o vídeo como fundo contínuo.</p></div>}
+      </section>
       <header className="pn-studio-hero relative mb-4 overflow-hidden rounded-[22px] border border-lime-300/15 px-4 py-5 sm:mb-5 sm:rounded-[26px] sm:px-9 sm:py-9">
         <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-lime-300/10 blur-[75px]" aria-hidden="true"/>
         <div className="pointer-events-none absolute -bottom-24 right-[12%] h-44 w-44 rounded-full bg-emerald-400/10 blur-[68px]" aria-hidden="true"/>
