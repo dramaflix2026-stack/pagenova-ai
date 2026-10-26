@@ -131,6 +131,32 @@ function applyInstruction(site: Site, instruction: string): { site: Site; summar
   }
   return null;
 }
+function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onStart:()=>void}) {
+  return <div aria-label="Exemplo ilustrativo de onde seu site será exibido" className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#f6f8f4] p-4 text-[#16251c] sm:p-7">
+    <div className="pointer-events-none absolute -right-14 -top-14 h-52 w-52 rounded-full bg-[#b4e6af]/45 blur-[62px]" aria-hidden="true"/>
+    <div className={"relative mx-auto overflow-hidden rounded-[17px] border border-[#dbe5dd] bg-white shadow-[0_14px_45px_rgba(18,47,33,.09)] "+(device==="mobile"?"max-w-[345px]":"max-w-[760px]")}>
+      <div className="flex items-center justify-between border-b border-[#e7eee8] px-5 py-3.5">
+        <div className="flex items-center gap-2.5"><div className="h-5 w-5 rounded-md bg-[#315d43]"/><span className="text-xs font-bold tracking-tight text-[#315041]">SEU PRÓXIMO SITE</span></div>
+        <div className="flex items-center gap-2" aria-hidden="true"><span className="h-1.5 w-7 rounded-full bg-[#d5e1d9]"/><span className="h-1.5 w-5 rounded-full bg-[#d5e1d9]"/><span className="h-5 w-5 rounded-full border border-[#dae6de]"/></div>
+      </div>
+      <div className={"relative grid items-center gap-5 p-5 sm:p-8 "+(device==="desktop"?"sm:grid-cols-[minmax(0,1.1fr)_minmax(0,.9fr)]":"")}>
+        <div className="relative z-10">
+          <span className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#e7f3e7] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[#437953]"><Sparkles size={11}/> Seu próximo projeto</span>
+          <h3 className="max-w-[390px] text-[clamp(1.35rem,4.7vw,2.05rem)] font-extrabold leading-tight tracking-[-.045em] text-[#17271d]">Aqui começa algo incrível.</h3>
+          <p className="mt-2 max-w-[370px] text-xs leading-relaxed text-[#617168] sm:text-sm">Assim que você enviar seu pedido, a prévia real aparecerá neste espaço.</p>
+          <button type="button" onClick={onStart} className="mt-4 inline-flex items-center gap-2 rounded-full bg-[#1f4831] px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-[#286041]">Começar pelo chat <ArrowRight size={14}/></button>
+        </div>
+        <div className={"relative flex items-center justify-center overflow-hidden rounded-[15px] bg-[linear-gradient(135deg,#d5e4db_0%,#b8d2c2_52%,#a6c6b1_100%)] "+(device==="mobile"?"h-32":"h-44 sm:h-48")} aria-hidden="true">
+          <div className="absolute -bottom-12 -right-6 h-44 w-44 rounded-[38px] bg-[#3e7555]/55 rotate-[-22deg]"/>
+          <div className="absolute -top-14 left-2 h-44 w-44 rounded-[45px] border-[20px] border-white/50 rotate-[24deg]"/>
+          <div className="relative flex h-16 w-16 rotate-12 items-center justify-center rounded-[22px] border border-white/70 bg-white/65 shadow-[0_16px_40px_rgba(31,70,43,.18)]"><Sparkles size={29} className="text-[#2d6a48]"/></div>
+        </div>
+      </div>
+    </div>
+    <p className="relative mt-4 text-center text-[11px] font-medium text-[#718579]">Ilustração da área de prévia · nenhum site gerado ainda</p>
+  </div>;
+}
+
 export default function BuilderV2() {
   const siteCredits=useSiteGenerationCredits();
   const [site, setSite] = useState<Site>(initial);
@@ -1005,7 +1031,7 @@ export default function BuilderV2() {
   {voiceNotice&&<p role="status" className="mt-2 rounded-lg bg-white/10 p-2 text-xs text-white/80">{voiceNotice}</p>}
   <p className="mt-2 text-left text-[11px] text-white/45">Anexe imagens pelo clipe. Para modificar o site, basta descrever a mudança.</p>
   {!crmProjectId&&<div className="mt-3"><SiteGenerationCreditsNotice credits={siteCredits}/></div>}
-</div><details className="pn-editor-tools mb-4 rounded-xl border border-white/15 bg-black/20 p-3">
+</div><details className={"pn-editor-tools mb-4 rounded-xl border border-white/15 bg-black/20 p-3 "+(!site.blocks.length?"opacity-75":"")}>
   <summary className="flex cursor-pointer list-none items-center justify-between text-left text-xs font-semibold text-white/75">Histórico e versões <span className="text-lime-300">⌄ {versions.length+cloudVersions.length}</span></summary>
   <div className="pn-editor-chat-actions mt-3 flex flex-wrap items-center gap-2">
     <button type="button" onClick={undo} disabled={!history.length||busy} className="rounded-lg border border-white/20 px-3 py-2 text-xs disabled:opacity-40">↶ Desfazer</button>
@@ -1037,8 +1063,8 @@ export default function BuilderV2() {
   </div>
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
 </div></div>
-<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>
-<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>
+{site.blocks.length>0?<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
+{site.blocks.length>0&&<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>}
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
 <div className="flex flex-wrap items-center gap-2">
