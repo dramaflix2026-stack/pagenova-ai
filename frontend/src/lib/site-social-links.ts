@@ -103,6 +103,8 @@ export function whatsappEffectFromInstruction(instruction:string):WhatsAppEffect
   if(!/(?:pisca|piscando|puls|pulse|batendo|anima|efeito|brilh|parar|desativ|deslig|tirar)\w*/.test(s))return null;
   // Restrict to the floating icon, not generic WhatsApp links or unrelated animations.
   if(!/(?:icone|botao|flutuante|fixo|canto inferior|inferior direito|icone verde|botao verde)/.test(s))return null;
+  if(/(?:preserv|mantenh)\w*[^.]{0,55}(?:botao|icone)[^.]{0,35}whats(?:app)?/.test(s))return null;
+  if(/\b(?:nao|sem)\b[^.]{0,45}(?:piscar|piscando|pulsar|pulsando|animar)/.test(s))return "none";
   if(/(?:sem\s+(?:efeito|animacao)|(?:desativ|deslig|remov|tir|parar)\w*[^.]{0,45}(?:efeito|animacao|pisca|puls)|(?:pare|parar)\s+de\s+(?:piscar|pulsar))/.test(s))return "none";
   if(/pisca|piscando/.test(s))return "blink";
   if(/puls|pulse|batendo|efeito|anima|brilh/.test(s))return "pulse";
