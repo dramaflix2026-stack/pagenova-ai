@@ -15,5 +15,5 @@ export default async function AppPage(){
   const access=await getPageNovaAccess(admin,user,true);
   if(access.kind==="trial")redirect("/app/crm?view=sites-ia");
   if(access.kind==="none")redirect(access.reason==="expired"?"/trial-expired":"/access-required");
-  redirect("/app/builder");
+  redirect("/app/builder-v2");
 }
