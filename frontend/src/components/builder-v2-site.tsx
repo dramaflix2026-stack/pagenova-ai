@@ -301,7 +301,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           const testimonials=textItems.filter(b=>clean(b.text).length>18).slice(0,6);
           const testimonialInfo=(item:Block)=>{const raw=clean(item.text).replace(/^[“"]|[”"]$/g,"").trim();const parts=raw.includes("|")?raw.split(/\s*\|\s*/).map(p=>p.trim()).filter(Boolean):raw.split(/\s+[—–]\s+/).map(p=>p.trim()).filter(Boolean);const first=parts[0]||"";const validName=/^[\p{L}.'-]+(?:\s+[\p{L}.'-]+){1,4}$/u.test(first)&&!/^depoimento/i.test(first);const name=parts.length>=3&&validName?first:"";const city=name?parts[1]:"";const message=name?parts.slice(2).join(" — "):raw.replace(/^depoimento\s*\d+\s*[:—–-]?\s*/i,"");return {name,city,message,photo:images.find(photo=>photo.id===item.id+"-photo"||photo.text===name)?.src||""};};
           const isPrinciples=/princip|diferencia|valores|filosofia/i.test(id+" "+heading.map(b=>b.text).join(" "));
-          const processPhotos=isProcess?Array.from(new Map(previewBlocks.filter(b=>b.type==="image"&&!!b.src).map(b=>[b.src,b])).values()).slice(0,12):[];
+          const processPhotos=isProcess?previewBlocks.filter(b=>b.type==="image"&&!!b.src).slice(0,24):[];
           const processCardPhotos=isProcess?distinctProcessCardPhotos({
             cards:textItems.map(item=>({id:item.id})),
             photos:processPhotos.concat(images.filter(photo=>!!photo.src&&!processPhotos.some(p=>p.id===photo.id))),
