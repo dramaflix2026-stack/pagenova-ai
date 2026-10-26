@@ -26,7 +26,10 @@ test("Navigation first shows Início with update archive and guide, not the old 
  assert.match(nav,/href:"\/app",label:"Visão geral"/);
  assert.match(nav,/href:"\/app\/atualizacoes",label:"Atualizações"/);
  assert.match(nav,/href:"\/app\/como-usar",label:"Como Usar a Plataforma"/);
- assert.ok(!nav.slice(nav.indexOf("const studioItems"),nav.indexOf("const intelligenceItems")).includes('href: "/app/como-usar"'));
+ const studioGroup=nav.slice(nav.indexOf("const studioItems"),nav.indexOf("const developmentItems"));
+ assert.ok(!studioGroup.includes('href: "/app/como-usar"'));
+ assert.ok(!studioGroup.includes('href: "/app/dominios"'));
+ assert.ok(!studioGroup.includes('href: "/app/chat-ai"'));
  assert.equal((nav.match(/NavigationGroup title="Início"/g)||[]).length,2);
  assert.match(nav,/if\(href==="\/app"\)return pathname==="\/app"/);
 });
@@ -77,4 +80,18 @@ test("Premium mobile Home is compact and prioritizes creation and resuming work"
  assert.match(home,/href="\/app\/atualizacoes"/);
  assert.match(resume,/aria-label="Continuar meu projeto"/);
  assert.match(resume,/resolvePageNovaContinueHref\(window.localStorage\)/);
+});
+
+test("Domain management and PageNova Chat AI are inside Início for mobile and desktop",()=>{
+ const nav=read("src/components/sidebar.tsx");
+ const homeGroup=nav.slice(nav.indexOf("const homeItems"),nav.indexOf("const studioItems"));
+ assert.match(homeGroup,/href:"\/app\/dominios",label:"Domínio profissional"/);
+ assert.match(homeGroup,/href:"\/app\/chat-ai",label:"PageNova Chat AI"/);
+ assert.equal((nav.match(/NavigationGroup title="Início"/g)||[]).length,2);
+ assert.doesNotMatch(nav,/NavigationGroup title="Inteligência Artificial"/);
+ assert.doesNotMatch(nav,/const intelligenceItems/);
+ const home=read("src/app/app/page.tsx");
+ assert.match(home,/href:"\/app\/dominios",icon:Globe/);
+ assert.match(home,/href:"\/app\/chat-ai",icon:MessageCircle/);
+ assert.match(home,/href="\/app\/como-usar"/);
 });
