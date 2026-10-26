@@ -92,9 +92,9 @@ test("new CRM template projects auto-open original Builder while legacy projects
  const page=read("../modules/stavo-crm/src/client/pages/SiteProjectPage.tsx");
  assert.match(page,/useSiteDraftConfig\(editable/);
  assert.match(page,/builderV2TemplateId/);
- assert.match(page,/window\.top\?\.location\.assign\(destination\)/);
+ assert.match(page,/window\.top\?\.location\.replace\('\/app\/builder-v2\?crmProject='/);
  assert.match(page,/crmLegacy/);
- assert.match(page,/templates\.includes\(modernSelection/);
+ assert.match(page,/studioTemplates\.includes\(modernSelection/);
 });
 
 test("CRM lead selection generates immediately; visual layout choice belongs in Builder after generation",()=>{
@@ -116,4 +116,27 @@ test("Lead loading feedback no longer blocks scrolling behind a full-screen moda
  assert.match(crm,/pointer-events-none fixed inset-x-0 bottom-3/);
  assert.match(crm,/pointer-events-auto w-full max-w-md/);
  assert.match(crm,/max-h-\[calc\(100dvh-2rem\)\] overflow-y-auto/);
+});
+
+test("ready CRM project never renders legacy editor before config and direct Builder handoff",()=>{
+  const project=read("../modules/stavo-crm/src/client/pages/SiteProjectPage.tsx");
+  assert.match(project,/const checkingEditor=editable&&!showLegacy&&savedConfig\.isPending/);
+  assert.match(project,/if\(openInStudio\|\|checkingEditor\|\|handoffProject\.current===projectId\)/);
+  assert.match(project,/window\.top\?\.location\.replace/);
+  assert.ok(project.indexOf("if(openInStudio||checkingEditor||handoffProject.current===projectId)")<
+    project.indexOf("if (editable) {"),"Guard must render before the old editor mounts");
+  assert.match(project,/const refreshAfterGeneration=useCallback/);
+  assert.match(project,/onCompleted=\{refreshAfterGeneration\}/);
+  assert.match(project,/if\(!showLegacy&&editable&&savedConfig\.isError\)/);
+});
+test("Builder shows one branded transition, error before loader, and transfers photos concurrently",()=>{
+  const editor=read("src/app/app/builder-v2/page.tsx");
+  assert.doesNotMatch(editor,/Carregando PageNova V2/);
+  const errorGate=editor.lastIndexOf('if(crmProjectId&&crmImportError&&!site.blocks.length)');
+  const loaderGate=editor.lastIndexOf('if(!loaded||(crmProjectId&&crmImporting))');
+  assert.ok(errorGate>0&&loaderGate>errorGate,"A failed import must not be stuck on the loader");
+  assert.match(editor,/Preparando seu site/);
+  const transport=read("src/lib/builder-v2-crm-transport.ts");
+  assert.match(transport,/Promise\.all\(referenced\.slice\(index,index\+3\)\.map\(transfer\)\)/);
+  assert.doesNotMatch(transport,/\/generate[/"']/);
 });
