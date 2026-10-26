@@ -87,7 +87,7 @@ test("first CRM import cannot persist an empty Site while photos are loading",()
 });
 test("new CRM template projects auto-open original Builder while legacy projects are unaffected",()=>{
  const page=read("../modules/stavo-crm/src/client/pages/SiteProjectPage.tsx");
- assert.match(page,/useSiteConfig\(editable/);
+ assert.match(page,/useSiteDraftConfig\(editable/);
  assert.match(page,/builderV2TemplateId/);
  assert.match(page,/window\.top\?\.location\.assign\(destination\)/);
  assert.match(page,/crmLegacy/);
