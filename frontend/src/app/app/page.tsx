@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import {createClient} from "@/lib/supabase/server";
 import {getPageNovaAccess} from "@/lib/trial/server";
-import {pagenovaUpdates,updateDatePtBr} from "@/lib/pagenova-updates";
+import {getHomePageNovaUpdates,updateDatePtBr} from "@/lib/pagenova-updates";
 import {ContinuePageNovaProject} from "@/components/continue-pagenova-project";
 
 export const dynamic="force-dynamic";
@@ -30,7 +30,7 @@ export default async function AppPage(){
   if(access.kind==="none")redirect(access.reason==="expired"?"/trial-expired":"/access-required");
 
   const studioHref=access.kind==="trial"?"/app/crm?view=sites-ia":"/app/builder-v2";
-  const latest=pagenovaUpdates.slice(0,2);
+  const latest=getHomePageNovaUpdates(2);
 
   return <main className="relative min-h-screen overflow-x-hidden bg-[#090e0b] text-white">
     <div aria-hidden="true" className="pointer-events-none absolute left-[-18rem] top-[-14rem] h-[38rem] w-[38rem] rounded-full bg-emerald-500/[.065] blur-[110px]"/>
