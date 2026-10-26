@@ -26,7 +26,7 @@ export async function importReadyCrmProject(projectId:string):Promise<ImportedCr
   const referenced=crmAssetIds(config);
   const urls:Record<string,string>={};
   // Keep the CRM hero intact. Other verified assets follow its existing order.
-  for(const assetId of referenced){
+  const transfer=async(assetId:string)=>{
     const asset=items.find(item=>item.id===assetId&&!item.deletedAt);
     if(!asset)continue;
     if(!["GOOGLE_PLACES","UPLOAD","AI_GENERATED"].includes(String(asset.source||"")))continue;
@@ -44,6 +44,12 @@ export async function importReadyCrmProject(projectId:string):Promise<ImportedCr
     if(!saved.ok)continue;
     const result=await saved.json() as {src?:string};
     if(typeof result.src==="string"&&result.src.startsWith("https://"))urls[assetId]=result.src;
+  };
+  // Image transfer previously happened strictly one by one, making a ready
+  // CRM site appear to regenerate on slow mobile connections. Three concurrent
+  // copies keep the original approved cover and photos but cut handoff latency.
+  for(let index=0;index<referenced.length;index+=3){
+    await Promise.all(referenced.slice(index,index+3).map(transfer));
   }
   return convertCrmSiteToBuilder(config,urls,projectId);
 }
