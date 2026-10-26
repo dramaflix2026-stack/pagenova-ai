@@ -20,7 +20,7 @@ export type ImportedBuilderBlock={
 };
 export type ImportedCrmSite={
   id:string;kind:"institutional";title:string;background:string;niche:string;
-  templateId:BuilderV2InstitutionalTemplate;heroPresentation:"immersive";
+  templateId:BuilderV2InstitutionalTemplate;heroPresentation:"immersive";crmImported:true;
   blocks:ImportedBuilderBlock[];
   motion:{preset:"professional"};
   footer:{instagram?:string;whatsapp?:string;showFloatingWhatsapp?:boolean};
@@ -138,7 +138,7 @@ export function convertCrmSiteToBuilder(config:unknown,urls:Record<string,string
   return {
     id:projectId,kind:"institutional",title:name,background,
     niche:text(business.niche),templateId:crmTemplateFromConfig(config),
-    heroPresentation:"immersive",blocks,motion:{preset:"professional"},
+    heroPresentation:"immersive",crmImported:true,blocks,motion:{preset:"professional"},
     socialProof:{enabled:false},
     sectionMediaManaged:["galeria"],
     footer:{
