@@ -12,6 +12,8 @@ import {
   Blocks,
   Building2,
   History,
+  House,
+  Megaphone,
   CalendarDays,
   ClipboardList,
   BookOpen,
@@ -53,6 +55,12 @@ const crmItems: MenuItem[] = [
   { href: "/app/crm?view=configuracoes", label: "Configurações do CRM", icon: Settings, crmView: "configuracoes" },
 ];
 
+const homeItems: MenuItem[] = [
+  {href:"/app",label:"Visão geral",icon:House},
+  {href:"/app/atualizacoes",label:"Atualizações",icon:Megaphone},
+  {href:"/app/como-usar",label:"Como Usar a Plataforma",icon:CircleHelp},
+];
+
 const studioItems: MenuItem[] = [
   { href: "/app/builder-v2", label: "Gerar site com IA", icon: Sparkles },
   { href: "/app/landing", label: "Criar Landing Page com IA", icon: Files },
@@ -61,7 +69,6 @@ const studioItems: MenuItem[] = [
   { href: "/app/quizzes", label: "Gerar Quiz", icon: ListChecks },
   { href: "/app/ebooks", label: "Gerar Ebooks", icon: BookOpen },
   { href: "/app/paginas", label: "Meus sites", icon: Files },
-  { href: "/app/como-usar", label: "Como usar", icon: CircleHelp },
   { href: "/app/dominios", label: "Domínio profissional", icon: Globe },
 ];
 
@@ -73,6 +80,7 @@ const developmentItems: MenuItem[] = [
 ];
 
 function isItemActive(pathname: string, href: string, crmView: string | undefined, currentCrmView: string | null) {
+  if(href==="/app")return pathname==="/app";
   if (crmView) {
     return pathname === "/app/crm" && (currentCrmView ?? "dashboard") === crmView;
   }
@@ -356,6 +364,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
           </div>
 
           <nav className="relative flex-1 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
+            <NavigationGroup title="Início" description="Novidades e aprendizado" items={homeItems}
+              theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
               theme="studio" pathname={pathname} currentCrmView={currentCrmView} onNavigate={() => setMobileOpen(false)} compact />
             <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
@@ -391,6 +401,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         </div>
 
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
+          <NavigationGroup title="Início" description="Novidades e aprendizado" items={homeItems}
+            theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="PageNova Studio" description="Sites, formulários e quizzes com IA" items={visibleStudioItems}
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
           <NavigationGroup title="Inteligência Artificial" description="Seu assistente de IA" items={intelligenceItems}
