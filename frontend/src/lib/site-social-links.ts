@@ -129,6 +129,8 @@ export function applySocialInstruction<T extends {footer?:SocialFooter}>(site:T,
   // Removal applies to a named social icon only; it never removes unrelated links.
   for(const key of networkKeys){
     if(links[key])continue;
+    // Disabling an animation is never permission to unlink WhatsApp.
+    if(key==="whatsapp"&&effect!==null)continue;
     if(new RegExp("(?:remov|retir|exclu|apag|desvincul|ocult)\\w*[^.\\n]{0,45}\\b"+key+"\\b|\\b"+key+"\\b[^.\\n]{0,35}(?:remov|exclu|apag|desvincul)\\w*","i").test(normalized)){
       removing[key]="";
     }
