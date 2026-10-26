@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import {ArrowRight,BookOpen,CheckCircle2,Clapperboard,PlayCircle,Sparkles,Users} from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 
 type GuideMode = "cloner" | "generator";
@@ -746,8 +747,8 @@ export default function ComoUsarPage() {
   return (
     <div className="min-h-full bg-[#07110e]">
       <AppHeader
-        title="Como usar"
-        description="Veja na prática como usar cada ferramenta da PageNova."
+        title="Como Usar a Plataforma"
+        description="Aprenda a criar e editar projetos com a PageNova, com guias, demonstrações e conteúdos em vídeo."
       />
 
       <style jsx global>{`
@@ -798,6 +799,60 @@ export default function ComoUsarPage() {
       `}</style>
 
       <main className="mx-auto w-full max-w-7xl px-5 py-8 md:px-7 md:py-10">
+        <section className="mb-6 overflow-hidden rounded-[26px] border border-lime-300/15 bg-[radial-gradient(circle_at_top_right,rgba(164,232,88,.12),transparent_47%),#132119] p-6 sm:p-9">
+          <span className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-lime-300"><BookOpen size={16}/> Central de aprendizado</span>
+          <h1 className="mt-3 max-w-2xl text-2xl font-extrabold tracking-tight text-white sm:text-3xl">Comece com o que você quer fazer.</h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-white/60">Tutoriais organizados por ferramenta. Os guias práticos estão disponíveis agora; os próximos vídeos aparecerão aqui quando forem publicados.</p>
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-black/15 p-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-300/10 text-lime-300"><Sparkles size={20}/></div>
+              <h2 className="mt-4 text-base font-bold text-white">Criar site pelo Studio</h2>
+              <ol className="mt-3 space-y-2 text-xs leading-5 text-white/60">
+                <li>1. Descreva o seu negócio no chat.</li>
+                <li>2. Acompanhe o site na prévia de desktop ou mobile.</li>
+                <li>3. Peça alterações e personalize o modelo visual.</li>
+              </ol>
+              <Link href="/app/builder-v2" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-lime-300 hover:text-lime-200">Abrir Gerar site com IA <ArrowRight size={14}/></Link>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-black/15 p-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-lime-300/10 text-lime-300"><Users size={20}/></div>
+              <h2 className="mt-4 text-base font-bold text-white">Gerar site a partir de um lead</h2>
+              <ol className="mt-3 space-y-2 text-xs leading-5 text-white/60">
+                <li>1. Entre em Sites com IA do CRM e importe o lead.</li>
+                <li>2. Aguarde a geração automática do site.</li>
+                <li>3. Abra o Studio e personalize o resultado pelo chat.</li>
+              </ol>
+              <Link href="/app/crm?view=sites-ia" className="mt-5 inline-flex items-center gap-1.5 text-xs font-bold text-lime-300 hover:text-lime-200">Abrir Sites com IA do CRM <ArrowRight size={14}/></Link>
+            </div>
+          </div>
+        </section>
+
+        <section aria-labelledby="guide-videos-title" className="mb-8 rounded-[24px] border border-white/10 bg-[#0e1812] p-5 sm:p-7">
+          <div className="mb-5 flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-lime-300/20 bg-lime-300/10 text-lime-300"><Clapperboard size={19}/></span>
+            <div><h2 id="guide-videos-title" className="text-lg font-bold text-white">Vídeos da plataforma</h2>
+              <p className="text-xs text-white/50">Espaço para demonstrações e aulas rápidas</p>
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {[
+              {title:"Criando seu primeiro site",description:"Do briefing à prévia."},
+              {title:"Site a partir de um lead",description:"Importação e geração no CRM."},
+              {title:"Personalizando pelo chat",description:"Alterações no Builder 2.0."}
+            ].map(video=><div key={video.title} className="overflow-hidden rounded-2xl border border-white/[.09] bg-black/15">
+              <div className="flex aspect-video items-center justify-center bg-[radial-gradient(circle_at_center,rgba(166,236,91,.15),rgba(10,22,13,.7))]">
+                <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/[.045] text-white/45"><PlayCircle size={27}/></span>
+              </div>
+              <div className="p-4">
+                <h3 className="text-sm font-semibold text-white/85">{video.title}</h3>
+                <p className="mt-1 text-xs text-white/45">{video.description}</p>
+                <p className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-amber-300"><CheckCircle2 size={13}/> Vídeo em preparação</p>
+              </div>
+            </div>)}
+          </div>
+          <p className="mt-4 text-xs leading-5 text-white/40">Ainda não há vídeos publicados nesta seção. Os tutoriais interativos abaixo já podem ser utilizados.</p>
+        </section>
+
         <section className="overflow-hidden rounded-[28px] border border-emerald-400/10 bg-[#0b1110] shadow-[0_24px_80px_rgba(0,0,0,.28)]">
           <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top_right,rgba(80,220,169,0.22),transparent_38%)] px-7 py-8 md:px-10">
             <span className="text-[11px] font-bold uppercase tracking-[0.28em] text-emerald-400">
@@ -809,8 +864,8 @@ export default function ComoUsarPage() {
             </h1>
 
             <p className="mt-3 max-w-2xl text-sm leading-6 text-white/50">
-              Escolha uma ferramenta e acompanhe o fluxo visual. Cada passo
-              reproduz a ação que você fará dentro da PageNova.
+              Confira os guias interativos do clonador e da criação de landing pages.
+              Para sites institucionais e CRM, utilize os passos rápidos acima.
             </p>
 
             <div className="mt-7 inline-flex rounded-xl border border-white/10 bg-black/30 p-1">
@@ -835,7 +890,7 @@ export default function ComoUsarPage() {
                     : "text-white/50 hover:text-white"
                 }`}
               >
-                Gerador IA
+                Landing Page IA
               </button>
             </div>
           </div>
@@ -943,7 +998,7 @@ export default function ComoUsarPage() {
                   </button>
                 ) : (
                   <Link
-                    href={mode === "cloner" ? "/app/cloner" : "/app/gerador"}
+                    href={mode === "cloner" ? "/app/cloner" : "/app/landing"}
                     className="rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
                   >
                     {mode === "cloner"
