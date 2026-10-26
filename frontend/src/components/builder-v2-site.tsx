@@ -401,6 +401,16 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
                   </div>
                   {buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{buttons.map(render)}</div>}
                 </div>:
+              isGallery&&site.sectionMediaLayouts?.[group.id]&&site.sectionMediaLayouts[group.id]!=="grid"?<div className="space-y-6">
+                {headingNode}
+                {site.sectionMediaLayouts[group.id]==="carousel"?
+                  <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5" aria-label="Carrossel de fotografias">
+                    {sectionImages.map((image,i)=><div key={image.id} className="w-[85%] shrink-0 snap-center sm:w-[58%] lg:w-[42%]">{imageNode(image,i)}</div>)}
+                  </div>:
+                  <div className="grid auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-5">
+                    {sectionImages.map((image,i)=><div key={image.id} className={"min-w-0 "+(i===0?"col-span-2 row-span-2 sm:col-span-2":"")}>{imageNode(image,i)}</div>)}
+                  </div>}
+              </div>:
               templateId==="image-text-alternating"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="mx-auto max-w-[1200px]">
                 {isGallery?<div className="space-y-8"><div className="max-w-3xl">{headingNode}</div><div className="grid gap-4 sm:grid-cols-2">{sectionImages.filter(b=>!!b.src).slice(0,4).map((b,i)=><div key={b.id} className="pn-alternate-image">{imageNode(b,i)}</div>)}</div></div>:
                 <div className={`pn-alternate-row pn-alternate-row-${index%2===0?"even":"odd"} ${index===0?"pn-alternate-hero":""}`}>
