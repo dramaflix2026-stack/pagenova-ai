@@ -1,24 +1,16 @@
 "use client";
 
-import type {CSSProperties} from "react";
+import {normalizedSocialLink,type WhatsAppEffect} from "@/lib/site-social-links";
 
 /** Resolve the business's own WhatsApp contact. Never use a PageNova number. */
 export function siteWhatsAppLink(value?:string,message?:string):string|null {
-  const raw=(value||"").trim();
-  if(!raw)return null;
-  let digits="";
-  if(/^https?:\/\//i.test(raw)){
-    try{
-      const url=new URL(raw);
-      if(!["wa.me","www.wa.me","api.whatsapp.com","web.whatsapp.com"].includes(url.hostname.toLowerCase()))return null;
-      digits=(url.hostname.toLowerCase().includes("wa.me")?url.pathname.replace(/\//g,""):url.searchParams.get("phone")||"").replace(/\D/g,"");
-    }catch{return null;}
-  }else{
-    digits=raw.replace(/\D/g,"");
-  }
-  if(digits.length<10||digits.length>15)return null;
-  const text=(message||"Olá! Vim pelo site e gostaria de mais informações.").trim();
-  return "https://wa.me/"+digits+(text?"?text="+encodeURIComponent(text):"");
+  const normalized=normalizedSocialLink("whatsapp",value||"");
+  if(!normalized)return null;
+  const url=new URL(normalized);
+  // Respect an explicitly configured WhatsApp message; otherwise reuse the
+  // message in a provided wa.me link or show the site's default greeting.
+  const greeting=(message||url.searchParams.get("text")||"Olá! Vim pelo site e gostaria de mais informações.").trim();
+  return url.origin+url.pathname+(greeting?"?text="+encodeURIComponent(greeting):"");
 }
 
 function WhatsAppMark(){
@@ -29,17 +21,18 @@ function WhatsAppMark(){
 
 /** Same WhatsApp mark in preview and public pages; placeholder is preview-only. */
 export function SiteWhatsAppButton({
-  numberOrUrl,message,preview=false,enabled=true
+  numberOrUrl,message,preview=false,enabled=true,effect="none"
 }:{
-  numberOrUrl?:string;message?:string;preview?:boolean;enabled?:boolean
+  numberOrUrl?:string;message?:string;preview?:boolean;enabled?:boolean;effect?:WhatsAppEffect
 }){
   if(!enabled)return null;
   const link=siteWhatsAppLink(numberOrUrl,message);
   if(!link&&!preview)return null;
-  const className="fixed bottom-5 right-5 z-[70] inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_5px_16px_rgba(0,0,0,.18)] ring-1 ring-white/20 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366] sm:bottom-7 sm:right-7 sm:h-14 sm:w-14";
+  const className="pn-site-whatsapp-button fixed bottom-5 right-5 z-[70] inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_5px_16px_rgba(0,0,0,.18)] ring-1 ring-white/20 transition-transform hover:scale-105 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366] sm:bottom-7 sm:right-7 sm:h-14 sm:w-14";
   const label=link?"Conversar no WhatsApp do estabelecimento":"Configure o número de WhatsApp do estabelecimento para ativar este botão";
+  const effectClass=link&&effect!=="none"?" pn-whatsapp-effect-"+effect:"";
   if(!link){
     return <span aria-label={label} role="img" title={label} className={className+" cursor-help opacity-65 grayscale-[.15]"}><WhatsAppMark/></span>;
   }
-  return <a href={link} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} className={className}><WhatsAppMark/></a>;
+  return <><style>{`\n@keyframes pn-whatsapp-pulse{0%,100%{transform:scale(1);box-shadow:0 5px 16px rgba(0,0,0,.18),0 0 0 0 rgba(37,211,102,.32)}50%{transform:scale(1.065);box-shadow:0 7px 22px rgba(0,0,0,.18),0 0 0 11px rgba(37,211,102,0)}}\n@keyframes pn-whatsapp-blink{0%,100%{opacity:1;filter:brightness(1)}50%{opacity:.64;filter:brightness(1.28)}}\n.pn-whatsapp-effect-pulse{animation:pn-whatsapp-pulse 2.2s ease-in-out infinite}\n.pn-whatsapp-effect-blink{animation:pn-whatsapp-blink 1.45s ease-in-out infinite}\n.pn-site-whatsapp-button:is(:hover,:focus-visible){animation-play-state:paused}\n@media(prefers-reduced-motion:reduce){.pn-site-whatsapp-button{animation:none!important}}\n`}</style><a href={link} target="_blank" rel="noopener noreferrer" aria-label={label} title={label} data-whatsapp-effect={effect} className={className+effectClass}><WhatsAppMark/></a></>;
 }
