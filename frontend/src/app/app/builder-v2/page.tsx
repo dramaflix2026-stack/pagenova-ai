@@ -3,7 +3,7 @@
 import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
-import {institutionalImageIntent,planInstitutionalImageEdit,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
+import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
 import {RealEstateTemplate,type PropertyItem} from "@/components/builder-v2-real-estate";
@@ -515,6 +515,28 @@ export default function BuilderV2() {
           setMessages(prev=>[...prev,{role:"assistant",text:"Item adicionado ao cadastro de produtos."}]);setInstruction("");setBusy(false);return;
         }
       }
+    }
+    if(siteCategory==="institutional"&&site.blocks.length&&/\b(?:restaur|recuper|voltar)\w*[^.]{0,75}\b(?:foto|imagem|fotografia|banner|galeria)/i.test(prompt)){
+      try{
+        const candidates=[
+          ...[...history].reverse(),
+          ...[...versions].reverse().map(v=>v.site),
+          ...cloudVersions.map(v=>v.site)
+        ].filter(snapshot=>snapshot.id===site.id);
+        let result:ReturnType<typeof restoreInstitutionalSectionImages<Site>>=null;
+        for(const candidate of candidates){
+          result=restoreInstitutionalSectionImages(site,candidate,prompt);
+          if(result)break;
+        }
+        if(!result)throw Error("Não encontrei uma versão anterior das imagens dessa seção.");
+        recordVersion(site,"Antes de restaurar fotografias");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(result.site);setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
+        setInstruction("");
+      }catch(error){
+        setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Não foi possível restaurar fotografias."}]);
+      }finally{setBusy(false);}
+      return;
     }
     if(siteCategory==="institutional"&&site.blocks.length&&(institutionalFiles.length>0||institutionalImageIntent(prompt))){
       try{
