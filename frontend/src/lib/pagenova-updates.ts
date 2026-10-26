@@ -6,12 +6,14 @@
 export type PageNovaUpdate={
   id:string;date:string;category:"Novidade"|"Melhoria"|"Correção";
   title:string;summary:string;details:readonly string[];href:string;linkLabel:string;
+  /** Only major, relevant changes appear on Início. All entries remain in the archive. */
+  featuredOnHome?:boolean;
 };
 
 export const pagenovaUpdates:readonly PageNovaUpdate[]=[
   {
     id:"2026-10-26-builder",
-    date:"2026-10-26",category:"Novidade",
+    date:"2026-10-26",category:"Novidade",featuredOnHome:true,
     title:"Builder 2.0 no PageNova Studio",
     summary:"A criação e edição de sites institucionais agora acontecem em uma conversa com IA, com prévia responsiva e quatro templates.",
     details:[
@@ -23,7 +25,7 @@ export const pagenovaUpdates:readonly PageNovaUpdate[]=[
   },
   {
     id:"2026-10-26-crm",
-    date:"2026-10-26",category:"Melhoria",
+    date:"2026-10-26",category:"Melhoria",featuredOnHome:true,
     title:"Geração de sites diretamente pelos leads do CRM",
     summary:"O CRM aproveita os dados do lead para iniciar a criação e abre o resultado para edição no Builder 2.0.",
     details:[
@@ -63,4 +65,16 @@ export function updateDatePtBr(date:string){
   const [year,month,day]=date.split("-").map(Number);
   return new Intl.DateTimeFormat("pt-BR",{day:"2-digit",month:"long",year:"numeric",timeZone:"UTC"})
     .format(new Date(Date.UTC(year,month-1,day)));
+}
+
+/** New releases can be appended or prepended: archive order is always by date. */
+export function getSortedPageNovaUpdates():PageNovaUpdate[]{
+  return [...pagenovaUpdates].sort((a,b)=>b.date.localeCompare(a.date));
+}
+
+/** Keep the welcome page short; publish every correction in the full archive. */
+export function getHomePageNovaUpdates(limit=2):PageNovaUpdate[]{
+  return getSortedPageNovaUpdates()
+    .filter(update=>update.featuredOnHome===true)
+    .slice(0,Math.max(0,limit));
 }
