@@ -64,6 +64,35 @@ export default function DominiosPage(){
   finally{setLoading(false);}
  },[]);
  useEffect(()=>{void load();},[load]);
+ useEffect(()=>{
+   // Restore previously published local Studio/CRM projects into the new
+   // server-side ownership registry. Every import is verified against the
+   // original private Supabase publication by the authenticated API.
+   const prefix="pagenova-builder-v2-private-v1";
+   const entries:Array<{projectId:string;slug:string}>=[];
+   try{
+     for(let i=0;i<window.localStorage.length&&entries.length<12;i++){
+       const key=window.localStorage.key(i);
+       if(key!==prefix&&!key?.startsWith(prefix+":crm:"))continue;
+       const raw=window.localStorage.getItem(key||"");
+       if(!raw)continue;
+       const saved=JSON.parse(raw) as {id?:unknown;publishedUrl?:unknown};
+       const id=typeof saved.id==="string"?saved.id:"";
+       const link=typeof saved.publishedUrl==="string"?saved.publishedUrl:"";
+       const match=link.match(/\/p\/(v2-[a-z0-9-]{5,80})(?:[?#]|$)/i);
+       if(/^[a-zA-Z0-9_-]{8,128}$/.test(id)&&match){
+         entries.push({projectId:id,slug:match[1].toLowerCase()});
+       }
+     }
+   }catch{/* Legacy storage may contain invalid JSON: keep working without it. */}
+   if(!entries.length)return;
+   let cancelled=false;
+   void Promise.all(entries.map(entry=>fetch("/api/domains/import",{
+     method:"POST",headers:{"Content-Type":"application/json"},
+     credentials:"same-origin",body:JSON.stringify(entry)
+   }).catch(()=>null))).then(()=>{if(!cancelled)void load();});
+   return ()=>{cancelled=true;};
+ },[load]);
  const selected=useMemo(()=>data.sites.find(item=>item.id===siteId),[data.sites,siteId]);
  const selectedBindings=useMemo(()=>data.domains.filter(item=>item.projectId===siteId),[data.domains,siteId]);
  const currentBinding=lastResult?.projectId===siteId?lastResult:selectedBindings[0]||null;
