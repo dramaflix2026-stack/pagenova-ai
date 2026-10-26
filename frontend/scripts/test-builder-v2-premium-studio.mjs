@@ -45,3 +45,38 @@ test("the welcome page includes optional examples without submitting them automa
  assert.match(page,/Escritório de arquitetura/);
  assert.match(page,/setInstruction\(example\)/);
 });
+
+test("premium welcome stays slim on phones and retains desktop presentation",()=>{
+  assert.match(page,/pn-studio-hero relative mb-4/);
+  assert.match(page,/px-4 py-5 sm:mb-5/);
+  assert.match(page,/text-\[clamp\(1\.7rem,7vw,2\.1rem\)\]/);
+  assert.match(page,/sm:text-\[clamp\(1\.95rem,5\.1vw,3\.45rem\)\]/);
+  assert.match(page,/mt-6 hidden flex-wrap/);
+  assert.match(page,/sm:flex sm:text-xs/);
+});
+test("chat input starts compact and resizes with typed or dictated content",()=>{
+  const css=readFileSync(path.join(root,"src/app/app/builder-v2/motion.css"),"utf8");
+  assert.match(page,/rows=\{2\} className="pn-chat-input/);
+  assert.match(page,/const naturalHeight=input\.scrollHeight/);
+  assert.match(page,/Math\.max\(72,Math\.min\(naturalHeight,224\)\)/);
+  assert.match(page,/input\.style\.overflowY=naturalHeight>224\?"auto":"hidden"/);
+  assert.match(page,/},\[instruction\]\)/);
+  assert.match(css,/\.pn-builder-editor \.pn-editor-chat textarea\.pn-chat-input/);
+  assert.match(css,/min-height:72px/);
+  assert.match(css,/max-height:224px/);
+});
+test("preview shortcut only appears after there is a generated site",()=>{
+  assert.match(page,/\{site\.blocks\.length>0&&<button type="button" onClick=\{\(\)=>document\.getElementById\("pn-builder-site-preview"\)/);
+  assert.match(page,/<BuilderV2EmptyPreview/);
+});
+test("history has a discreet accessible menu without a full-width bar",()=>{
+  assert.match(page,/<details className="pn-editor-tools relative shrink-0">/);
+  assert.match(page,/<summary aria-label="Histórico e versões" title="Histórico e versões"/);
+  assert.match(page,/<History size=\{16\}\/>/);
+  assert.match(page,/showVersions\?"Ocultar versões":"Ver versões"/);
+  assert.match(page,/onClick=\{undo\}/);
+  assert.match(page,/onClick=\{redo\}/);
+  assert.match(page,/onClick=\{saveNamedVersion\}/);
+  assert.match(page,/onClick=\{\(\)=>restoreVersion\(version\)\}/);
+  assert.doesNotMatch(page,/pn-editor-tools mb-4 rounded-xl border/);
+});
