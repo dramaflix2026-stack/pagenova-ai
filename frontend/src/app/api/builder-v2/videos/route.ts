@@ -25,3 +25,19 @@ export async function POST(req:NextRequest){
  const url=supabase.storage.from("site-images").getPublicUrl(path).data.publicUrl;
  return NextResponse.json({url,niche,device,path});
 }
+
+export async function GET(req:NextRequest){
+ const supabase=await createClient();
+ const {data:{user}}=await supabase.auth.getUser();
+ if(!user)return NextResponse.json({error:"Não autenticado"},{status:401});
+ const niche=(req.nextUrl.searchParams.get("niche")||"hamburgueria").toLowerCase();
+ if(!VALID_NICHES.has(niche))return NextResponse.json({videos:[]});
+ const videos:Record<string,string>={};
+ for(const device of ["desktop","mobile"]){
+  const {data,error}=await supabase.storage.from("site-images").list(user.id+"/cinematic/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+  if(error)continue;
+  const item=data?.find(file=>file.name.startsWith(device+"-")&&file.name.endsWith(".mp4"));
+  if(item)videos[device]=supabase.storage.from("site-images").getPublicUrl(user.id+"/cinematic/"+niche+"/"+item.name).data.publicUrl;
+ }
+ return NextResponse.json({videos,niche});
+}
