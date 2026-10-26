@@ -19,7 +19,7 @@ export async function POST(req:NextRequest){
  const bytes=new Uint8Array(await file.arrayBuffer());
  const ascii=(start:number,length:number)=>String.fromCharCode(...bytes.slice(start,start+length));
  if(bytes.length<12||ascii(4,4)!=="ftyp")return NextResponse.json({error:"O arquivo não é um MP4 válido."},{status:415});
- const path=user.id+"/cinematic/"+niche+"/"+device+"-"+crypto.randomUUID()+".mp4";
+ const path="cinematic-library/"+niche+"/"+device+"-"+crypto.randomUUID()+".mp4";
  const {error}=await supabase.storage.from("site-images").upload(path,bytes,{contentType:"video/mp4",cacheControl:"31536000",upsert:false});
  if(error){console.error("[cinematic-upload]",error.message);return NextResponse.json({error:"Não foi possível enviar o vídeo. Confira as permissões e o limite do Storage."},{status:502})}
  const url=supabase.storage.from("site-images").getPublicUrl(path).data.publicUrl;
@@ -34,10 +34,10 @@ export async function GET(req:NextRequest){
  if(!VALID_NICHES.has(niche))return NextResponse.json({videos:[]});
  const videos:Record<string,string>={};
  for(const device of ["desktop","mobile"]){
-  const {data,error}=await supabase.storage.from("site-images").list(user.id+"/cinematic/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+  const {data,error}=await supabase.storage.from("site-images").list("cinematic-library/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
   if(error)continue;
   const item=data?.find(file=>file.name.startsWith(device+"-")&&file.name.endsWith(".mp4"));
-  if(item)videos[device]=supabase.storage.from("site-images").getPublicUrl(user.id+"/cinematic/"+niche+"/"+item.name).data.publicUrl;
+  if(item)videos[device]=supabase.storage.from("site-images").getPublicUrl("cinematic-library/"+niche+"/"+item.name).data.publicUrl;
  }
  return NextResponse.json({videos,niche});
 }
