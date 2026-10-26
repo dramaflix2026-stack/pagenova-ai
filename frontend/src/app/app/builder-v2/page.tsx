@@ -135,6 +135,7 @@ export default function BuilderV2() {
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
+  const [draftHydrated,setDraftHydrated]=useState(false);
   const [crmImportError,setCrmImportError]=useState("");
   const [siteCategory,setSiteCategory] = useState<SiteCategory>("institutional");
   const [categoryScreen,setCategoryScreen] = useState(true);
@@ -275,12 +276,12 @@ export default function BuilderV2() {
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
     }catch{}
-    setLoaded(true);
+    if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
       void importReadyCrmProject(projectId).then(site=>{
         if(cancelled)return;
-        setSite(site as Site);setSiteCategory("institutional");
+        setSite(site as Site);setLoaded(true);setDraftHydrated(true);setSiteCategory("institutional");
         setSelectedNiche(site.niche);setCategoryScreen(false);
         setMessages([{role:"assistant",text:"Lead do CRM importado. Os quatro templates institucionais e o chat são os mesmos do PageNova Studio. A capa e as fotografias da geração original foram preservadas."}]);
       }).catch(error=>{
@@ -291,15 +292,15 @@ export default function BuilderV2() {
     return()=>{cancelled=true;};
   },[]);
   useEffect(()=>{
-    if(!loaded)return;
+    if(!loaded||!draftHydrated)return;
     try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError("");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
-  },[site,loaded,activeStorageKey]);
+  },[site,loaded,draftHydrated,activeStorageKey]);
   useEffect(()=>{
-    if(!loaded)return;
+    if(!loaded||!draftHydrated)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
     catch{setStorageError("O histórico atingiu o limite de armazenamento do navegador.");}
-  },[versions,loaded,activeStorageKey]);
+  },[versions,loaded,draftHydrated,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
