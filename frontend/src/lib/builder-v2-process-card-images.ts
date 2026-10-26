@@ -32,7 +32,7 @@ export function matchApprovedNicheBank(
       const normalizedKey=normalize(key);
       return normalizedKey.length>=5&&new RegExp("(^| )"+normalizedKey+"( |$)").test(input);
     });
-  const bank=matched&&catalog[matched];
+  const bank=matched?catalog[matched]:undefined;
   return bank?.desktop?.length>=4&&bank?.mobile?.length>=4?{name:matched!,desktop:bank.desktop,mobile:bank.mobile}:null;
 }
 
