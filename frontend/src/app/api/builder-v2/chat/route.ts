@@ -3,17 +3,18 @@ import { createClient } from "@/lib/supabase/server";
 import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BUILDER_ANNOUNCEMENT } from "@/lib/builder-v2-announcement";
 import { applyInstitutionalEdit } from "@/lib/builder-v2-institutional-edits";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
+import {applySocialInstruction,socialLinksFromInstruction} from "@/lib/site-social-links";
 
 // Social links are optional, never fabricated. The layout supports all three brands
 // automatically; only destinations explicitly supplied by the client are published.
 function socialFromBrief(brief:string){
-  const url=(brand:"instagram"|"facebook")=>brief.match(new RegExp("https?:\\/\\/(?:www\\.)?"+brand+"\\.com\\/[^\\s\\\"'<>]+","i"))?.[0]?.replace(/[),.;]+$/,"")||"";
-  const whatsappLink=brief.match(/https:\/\/wa\.me\/[0-9]{10,15}(?:\?[^\s"'<>]*)?/i)?.[0]||"";
-  const labeledPhone=brief.match(/(?:whatsapp|telefone|celular|contato)\s*(?::|é|=|-)?\s*(\+?[0-9][0-9() .-]{9,20})/i)?.[1]||"";
-  const digits=labeledPhone.replace(/\D/g,"");
-  const whatsapp=whatsappLink||(digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"");
-  return {instagram:url("instagram"),facebook:url("facebook"),whatsapp,showFloatingWhatsapp:!/\b(?:sem|remover|ocultar|desativar)\s+(?:o\s+)?(?:bot[aã]o\s+)?whatsapp\s+flutuante\b/i.test(brief)};
+  const social=socialLinksFromInstruction(brief);
+  return {
+    ...social,
+    showFloatingWhatsapp:!/\b(?:sem|remover|ocultar|desativar)\s+(?:o\s+)?(?:bot[aã]o\s+)?whatsapp\s+flutuante\b/i.test(brief)
+  };
 }
+
 export const runtime = "nodejs";
 export const maxDuration = 90;
 export async function POST(req: NextRequest) {
@@ -245,31 +246,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{...editingSite,extras:{...current,enabled}},summary:"Componentes atualizados pelo chat; outras seções preservadas."});
     }
   }
-  if(!isFresh&&Array.isArray(editingSite?.blocks)&&/(?:whatsapp|instagram|facebook|redes sociais|[ií]cones? sociais)/i.test(instructionText)&&/(?:vincul|configur|atualiz|alter|troqu|substitu|adicion|inclu|remov|retir|exclu|ocult|escond|ativ|desativ|https?:\/\/|wa\.me\/)/i.test(instructionText)&&!/(?:crie|criar|gere|gerar|monte|construa)\s+(?:um\s+)?site\b/i.test(instructionText)){
-    const oldFooter=editingSite.footer&&typeof editingSite.footer==="object"?editingSite.footer:{};
-    const next={...oldFooter};
-    let changed=false;
-    const requested=[["instagram","instagram"],["facebook","facebook"],["whatsapp","whatsapp"]] as const;
-    const wantsAll=/redes sociais|[ií]cones? sociais/i.test(instructionText);
-    const normalizeWhatsapp=(raw:string)=>{const digits=raw.replace(/[^0-9]/g,"");return digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:"";};
-    for(const [key,word] of requested){
-      if(!wantsAll&&!new RegExp(word,"i").test(instructionText))continue;
-      const removing=new RegExp("(?:remov|retir|exclu|ocult|escond).{0,40}"+word,"i").test(instructionText);
-      if(removing){next[key]="";changed=true;continue;}
-      if(key==="whatsapp"){
-        const wa=instructionText.match(new RegExp("https://(?:wa[.]me/[0-9]{10,15}|api[.]whatsapp[.]com/send[?]phone=[0-9]{10,15})[^\\s]*","i"));
-        const phone=instructionText.match(/[+]?[0-9(). -]{10,22}/);
-        const url=wa?.[0]||normalizeWhatsapp(phone?.[0]||"");
-        if(url){next.whatsapp=url;changed=true;}
-      }else{
-        const re=new RegExp("https?:\\/\\/(?:www\\.)?"+word+"\\.com\\/[^\\s\\\"'<>]+","i");
-        const url=instructionText.match(re)?.[0];
-        if(url){next[key]=url;changed=true;}
-      }
-    }
-    if(/(?:flutuante|canto inferior|bot[aã]o fixo)/i.test(instructionText)&&/whatsapp/i.test(instructionText)){next.showFloatingWhatsapp=!/(?:remov|retir|desativ|ocult|escond)/i.test(instructionText);changed=true;}
-    if(changed)return NextResponse.json({site:{...editingSite,footer:next},summary:"Redes sociais atualizadas. Ícones sem links válidos permanecem ocultos."});
-    return NextResponse.json({site:editingSite,summary:"Para ativar os ícones, envie o link do Instagram, o link do Facebook e o WhatsApp com DDD e código do país. Nenhum botão sem destino foi publicado."});
+  if(!isFresh&&Array.isArray(editingSite?.blocks)){
+    const socialEdit=applySocialInstruction(editingSite as typeof editingSite & {footer?:import("@/lib/site-social-links").SocialFooter},instructionText);
+    if(socialEdit)return NextResponse.json({site:socialEdit.site,summary:socialEdit.summary});
   }
   // Header identity is independent from the page title and remains editable via chat.
   if(!isFresh && Array.isArray(editingSite?.blocks) && /(?:cabe[cç]alho|logo|logotipo|marca|menu)/i.test(instructionText)){
