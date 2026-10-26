@@ -5,6 +5,7 @@ import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
+import {applySocialInstruction,type SocialFooter} from "@/lib/site-social-links";
 import { BuilderV2Site } from "@/components/builder-v2-site";
 import {PizzeriaTemplate,RestaurantSegmentTemplate,cleanMenuName,menuCategory} from "@/components/builder-v2-restaurant-templates";
 import {RealEstateTemplate,type PropertyItem} from "@/components/builder-v2-real-estate";
@@ -17,7 +18,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: { cnpj?: string; address?: string; email?: string; instagram?: string; facebook?: string; youtube?: string; whatsapp?: string; showMenu?: boolean } };
+type Site = { properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -71,33 +72,6 @@ const nicheGroups: Record<string,string[]> = {
 };
 const nicheNames = Object.values(nicheGroups).flat();
 const storageKey = "pagenova-builder-v2-private-v1";
-function socialLinksFromChat(message:string):Partial<NonNullable<Site["footer"]>> {
-  const result:Partial<NonNullable<Site["footer"]>>={};
-  const names=["instagram","facebook","youtube","whatsapp"] as const;
-  const urls=message.match(/https?:\/\/[^\s<>"'\u201c\u201d]+/gi)||[];
-  for(const candidate of urls){
-    const raw=candidate.replace(/[),.;!?]+$/g,"");
-    try {
-      const parsed=new URL(raw);
-      if(parsed.protocol!=="https:"&&parsed.protocol!=="http:")continue;
-      const host=parsed.hostname.toLowerCase().replace(/^www\./,"").replace(/^m\./,"");
-      const name=host==="instagram.com"||host==="instagr.am"?"instagram":host==="facebook.com"||host==="fb.com"||host==="fb.me"?"facebook":host==="youtube.com"||host==="youtu.be"?"youtube":host==="wa.me"||host==="api.whatsapp.com"||host==="web.whatsapp.com"?"whatsapp":undefined;
-      if(name)result[name]=raw.replace(/^http:/i,"https:");
-    } catch { /* Invalid URLs do not overwrite existing links. */ }
-  }
-  for(const name of names){
-    if(result[name])continue;
-    const expression=new RegExp("(?:^|[\\s,;])"+name+"\\s*(?:[:=–—-]|é|\\s+)\\s*(@?[a-zA-Z0-9._+-]{3,})","i");
-    const match=message.match(expression);
-    if(!match)continue;
-    const handle=match[1].replace(/^@/,"");
-    if(name==="instagram")result.instagram="https://www.instagram.com/"+handle+"/";
-    if(name==="facebook")result.facebook="https://www.facebook.com/"+handle;
-    if(name==="youtube"&&match[1].startsWith("@"))result.youtube="https://www.youtube.com/"+match[1];
-    if(name==="whatsapp"){const digits=handle.replace(/\D/g,"");if(digits.length>=10&&digits.length<=15)result.whatsapp="https://wa.me/"+digits;}
-  }
-  return result;
-}
 function applyInstruction(site: Site, instruction: string): { site: Site; summary: string } | null {
   const text = instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   const next: Site = JSON.parse(JSON.stringify(site));
@@ -466,11 +440,12 @@ export default function BuilderV2() {
       setMessages(prev=>[...prev,{role:"assistant",text:"A faixa de benefícios da pizzaria já apresenta três colunas com ícones e divisórias. Seu cardápio, imagens e demais seções foram preservados."}]);
       setInstruction("");setBusy(false);return;
     }
-    const socialUpdates=socialLinksFromChat(prompt);
-    if(Object.keys(socialUpdates).length>0 && site.blocks.length){
-      recordVersion(site,"Antes de vincular redes sociais");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-      setSite(prev=>({...prev,footer:{...prev.footer,...socialUpdates}}));
-      setMessages(prev=>[...prev,{role:"assistant",text:"Redes sociais vinculadas aos ícones do rodapé: "+Object.keys(socialUpdates).join(", ")+". Links preservados ao trocar de template."}]);
+    const socialEdit=site.blocks.length?applySocialInstruction(site,prompt):null;
+    if(socialEdit){
+      recordVersion(site,"Antes de atualizar ícones e links sociais");
+      setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+      setSite(socialEdit.site);
+      setMessages(prev=>[...prev,{role:"assistant",text:socialEdit.summary}]);
       setInstruction("");setBusy(false);return;
     }
     const photoCardOff=/(?:3|tr[eê]s)\s+cards?\b.{0,55}(?:processo|etapas|passos|atendimento)|(?:processo|etapas|passos|atendimento).{0,55}(?:3|tr[eê]s)\s+cards?\b|(?:remov|tir|exclu|ocult|sem)\w*.{0,35}(?:quarto|4[oº]?|foto do quarto|imagem do quarto)\s*card/i.test(prompt);
