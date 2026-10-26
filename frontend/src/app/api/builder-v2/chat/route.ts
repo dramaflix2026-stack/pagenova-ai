@@ -202,6 +202,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   }
   // Resolve simple alignment requests locally to avoid regenerating the full site.
   const instructionText=String(body.instruction);
+  // A complete site-creation brief always takes precedence over incremental editing handlers.
+  const fullSiteBrief=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instructionText);
+
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Top announcement is rendered from extras, not from a heading or CTA block.
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
@@ -327,7 +330,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }
     return NextResponse.json({site:{...editingSite,blocks},summary:"Somente a posição da seção foi alterada. Textos, cards, imagens e configurações de todas as seções foram preservados."});
   }
-  if (!isFresh && Array.isArray(editingSite?.blocks) && !explicitSectionReorder && isMotionOnlyInstruction(instructionText)) {
+  if (!isFresh && Array.isArray(editingSite?.blocks) && !explicitSectionReorder && !fullSiteBrief && isMotionOnlyInstruction(instructionText)) {
     return NextResponse.json({site:{...editingSite,motion:applySiteMotionInstruction(editingSite,instructionText)},summary:"Animações atualizadas pelo chat. Conteúdo e estrutura preservados."});
   }
   // Section-level moves are deterministic: never ask the model to relocate individual blocks.
