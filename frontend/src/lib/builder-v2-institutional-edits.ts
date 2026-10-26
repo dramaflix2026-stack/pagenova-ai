@@ -142,15 +142,35 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
      return "Segundo botão adicionado à capa, com navegação interna.";
    }};
  }
- // Navigation must be a real fragment with a real matching section ID.
- if(heroMention&&buttonMention&&/configure|configur|direcion|leva|levar|naveg|link|rolagem/i.test(norm)&&/\b(?:contato|servic)\b/i.test(norm)){
-   const target=buttonHref(blocks,/servic/.test(norm)&&!/contato/.test(norm)?"services":"contact");
-   return {description:"link do botão",run:draft=>{
-     const button=targetButton(draft,hero);
+ // Navigation must resolve the requested destination, rather than finding a
+ // keyword in the CTA label (e.g. "Conheça nossos serviços" may point to Contato).
+ // All section IDs are taken from the current site; never invent page URLs.
+ const navigationVerb=/\b(?:configur|direcion|leva|levar|rolar|role|naveg|link|destin|apont|redirecion|vincul)\w*/.test(norm);
+ const navSubject=/\b(?:se[cç][aã]o|sess[aã]o|contat\w*|servic\w*|tratament\w*|especialidad\w*)\b/.test(norm);
+ if(heroMention&&buttonMention&&navigationVerb&&navSubject){
+   const explicitSection=norm.match(/\b(?:se[cç][aã]o|sess[aã]o)\s+(?:(?:de|da|do|dos|das|chamada|intitulada)\s+)?['"“”]?(?:(?:nossos?|nossas?)\s+)?(servic\w*|tratament\w*|especialidad\w*|modalidad\w*|contat\w*|fale\s+conosco|agend\w*)\b/);
+   const destination=explicitSection?.[1]
+     ?/servic|tratament|especialidad|modalidad/.test(explicitSection[1])?"services":"contact"
+     :null;
+   // A CTA's existing text is not proof of the destination. If the section
+   // isn't explicit, use a direct "para Contato/Serviços" phrase, not global matching.
+   const directTarget=norm.match(/\b(?:para|ate|ao|a)\s+(?:(?:o|a|os|as|inicio|final|setor|area|de|do|da)\s+){0,4}(servic\w*|tratament\w*|contat\w*|agend\w*)\b/);
+   const requested=destination||(
+     directTarget?(/servic|tratament/.test(directTarget[1])?"services":"contact"):null
+   );
+   return {description:"link interno do botão",run:draft=>{
+     if(!requested)return;
+     const currentHero=chosenSection(draft,"hero");
+     const actions=draft.filter(b=>typeOf(b)==="button"&&sectionOf(b)===currentHero);
+     // Respect a named CTA when present; otherwise only use "principal".
+     const named=actions.find(b=>q.some(label=>words(label)===words(b.text)));
+     const button=named||((/\bprincipal\b/.test(norm)||actions.length===1)?actions[0]:undefined);
+     const target=chosenSection(draft,requested);
      if(!button||!target)return;
-     // The public renderer uses id="contato" even if its underlying section is named differently.
-     button.href=target===chosenSection(draft,"contact")?"#contato":"#"+target;
-     return "Botão vinculado à seção existente do próprio site.";
+     // "Contato" sections use the canonical public ID; other sections keep
+     // their actual ID (including accents/dashes), shared by preview and public.
+     button.href=requested==="contact"?"#contato":"#"+target;
+     return "Botão '"+String(button.text||"")+"' configurado para a seção "+(requested==="services"?"Serviços":"Contato")+" deste site.";
    }};
  }
  if(heroMention&&buttonMention&&/\bcantos\b|\barredond/.test(norm)&&/\b\d+\s*px\b/.test(norm)){
