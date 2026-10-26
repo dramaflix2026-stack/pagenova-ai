@@ -285,7 +285,11 @@ export default function PagesPage() {
               const pagesReady=Object.keys(site.pages||{}).filter(key=>Boolean(site.pages[key as keyof typeof site.pages])).length;
               const isCrmSite=site.id.length===26;
               const pagePreview=(!isCrmSite&&site.pages.home)?renderSitePreview(site,"home"):"";
-              const displayName=site.name?.trim()==="Sua marca"?"Site sem nome definido":site.name||"Meu site";
+              const rawName=(site.name||"").trim();
+              const brand=(site.institutional?.businessName||"").trim();
+              const invalidName=!rawName||rawName.toLowerCase()==="sua marca"||rawName.length>75||rawName.split(/\s+/).length>10;
+              const displayName=invalidName?(brand&&brand.length<70?brand:"Site institucional · "+new Date(site.createdAt).toLocaleDateString("pt-BR")):rawName;
+              const summary=(site.brief||"").trim();
               return <article key={site.id}
                 className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#142019] shadow-[0_12px_35px_rgba(0,0,0,.15)] transition hover:-translate-y-0.5 hover:border-emerald-400/40 hover:shadow-[0_22px_48px_rgba(0,0,0,.28)]">
                 <SiteHoverPreview title={displayName} html={pagePreview}
@@ -300,7 +304,7 @@ export default function PagesPage() {
                   </div>
                   <h3 className="break-words text-lg font-bold tracking-tight text-white">{displayName}</h3>
                   <p className="line-clamp-2 min-h-10 break-words text-sm leading-5 text-white/45">
-                    {site.brief||"Seu projeto pode ser revisado, editado e publicado."}
+                    {summary.length>145?summary.slice(0,142)+"…":summary||"Seu projeto pode ser revisado, editado e publicado."}
                   </p>
                   <div className="flex flex-wrap items-center gap-2 text-xs text-white/50">
                     <span>{isCrmSite?"Geração em página única":`${pagesReady} de 4 páginas disponíveis`}</span>
