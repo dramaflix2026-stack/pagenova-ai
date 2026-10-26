@@ -286,7 +286,7 @@ export default function PagesPage() {
               const isCrmSite=site.id.length===26;
               const pagePreview=(!isCrmSite&&site.pages.home)?renderSitePreview(site,"home"):"";
               const rawName=(site.name||"").trim();
-              const brand=(site.institutional?.businessName||"").trim();
+              const brand=(site.pages?.home?.heading||"").trim();
               const invalidName=!rawName||rawName.toLowerCase()==="sua marca"||rawName.length>75||rawName.split(/\s+/).length>10;
               const displayName=invalidName?(brand&&brand.length<70?brand:"Site institucional · "+new Date(site.createdAt).toLocaleDateString("pt-BR")):rawName;
               const summary=(site.brief||"").trim();
