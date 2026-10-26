@@ -1028,6 +1028,17 @@ export default function BuilderV2() {
     </div>
     <p className="text-xs text-white/50">Nicho opcional: apenas prepara uma sugestão no chat.</p>
   </div>}
+  {!site.blocks.length&&!crmProjectId&&siteCategory==="institutional"&&<div className="mt-3 border-t border-white/10 pt-3">
+    <p className="mb-2 text-left text-[11px] font-semibold text-white/50">Não sabe por onde começar? Experimente:</p>
+    <div className="flex flex-wrap gap-2">
+      {([
+        ["Clínica odontológica","Crie um site institucional premium para uma clínica odontológica, com apresentação, serviços, diferenciais e contato."],
+        ["Escritório de arquitetura","Crie um site elegante para um escritório de arquitetura, com projetos, serviços, sobre nós e contato."],
+        ["Escritório de advocacia","Crie um site profissional para um escritório de advocacia, com áreas de atuação, equipe e contato."]
+      ] as const).map(([label,example])=><button key={label} type="button" disabled={busy} onClick={()=>{setInstruction(example);composerRef.current?.focus();}}
+        className="rounded-full border border-white/15 bg-white/[.035] px-3 py-2 text-[11px] font-medium text-white/70 transition hover:border-lime-300/50 hover:text-white disabled:opacity-40">{label}</button>)}
+    </div>
+  </div>}
   {voiceNotice&&<p role="status" className="mt-2 rounded-lg bg-white/10 p-2 text-xs text-white/80">{voiceNotice}</p>}
   <p className="mt-2 text-left text-[11px] text-white/45">Anexe imagens pelo clipe. Para modificar o site, basta descrever a mudança.</p>
   {!crmProjectId&&<div className="mt-3"><SiteGenerationCreditsNotice credits={siteCredits}/></div>}
@@ -1063,8 +1074,8 @@ export default function BuilderV2() {
   </div>
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
 </div></div>
-{site.blocks.length>0?<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
-{site.blocks.length>0&&<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>}
+{(site.blocks.length>0||siteCategory!=="institutional")?<BuilderV2PreviewFrame device={previewDevice}>{siteCategory==="real-estate"?<RealEstateTemplate properties={properties} whatsapp={realEstateWhatsapp} footer={site.footer} preview/>:siteCategory==="restaurant"?(/pizzaria|pizza/i.test([restaurantSegment,site.niche,selectedNiche,site.title].filter(Boolean).join(" "))||((site.restaurant?.menu||[]).length>=2&&(site.restaurant?.menu||[]).filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.ceil((site.restaurant?.menu||[]).length/2)))?<PizzeriaTemplate site={site} segment={restaurantSegment} preview/>:<RestaurantSegmentTemplate key={restaurantSegment||site.niche} site={site} segment={restaurantSegment||site.niche||"Delivery"} preview/>:<BuilderV2Site site={site} templateId={site.templateId||"institutional-complete"} selectedNiche={selectedNiche||site.niche||""} />}</BuilderV2PreviewFrame>:<BuilderV2EmptyPreview device={previewDevice} onStart={()=>{composerRef.current?.scrollIntoView({behavior:"smooth",block:"center"});composerRef.current?.focus();}}/>}
+{(site.blocks.length>0||siteCategory!=="institutional")&&<p className="mt-3 text-left text-[11px] text-white/45">Role dentro da prévia para visualizar todo o site.</p>}
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
 <div className="flex flex-wrap items-center gap-2">
