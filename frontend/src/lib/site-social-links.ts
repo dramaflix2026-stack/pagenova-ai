@@ -111,6 +111,7 @@ export function whatsappEffectFromInstruction(instruction:string):WhatsAppEffect
 export function floatingVisibilityFromInstruction(instruction:string):boolean|null{
   const s=normal(instruction);
   if(!/(?:whats(?:app)?|icone verde|botao verde)/.test(s))return null;
+  if(whatsappEffectFromInstruction(instruction)!==null)return null;
   if(!/(?:flutuante|canto inferior|inferior direito|botao fixo|icone verde|botao verde)/.test(s))return null;
   if(/(?:remov|retir|ocult|escond|desativ)\w*[^.]{0,70}(?:botao|icone|whats)|(?:botao|icone)[^.]{0,70}(?:remov|ocult|escond)/.test(s))return false;
   if(/(?:mostr|exib|ativ|habilit|coloc|adicion)\w*[^.]{0,60}(?:botao|icone|whats)/.test(s))return true;
@@ -120,11 +121,22 @@ export function applySocialInstruction<T extends {footer?:SocialFooter}>(site:T,
   const links=socialLinksFromInstruction(instruction);
   const effect=whatsappEffectFromInstruction(instruction);
   const visible=floatingVisibilityFromInstruction(instruction);
-  const footer={...site.footer,...links,...(effect?{whatsappEffect:effect}:{}),...(visible!==null?{showFloatingWhatsapp:visible}:{})};
-  const changed=Object.keys(links).length>0||effect!==null||visible!==null;
+  const removing:Partial<SocialFooter>={};
+  const normalized=normal(instruction);
+  const networkKeys:SocialNetwork[]=["instagram","facebook","youtube","whatsapp"];
+  // Removal applies to a named social icon only; it never removes unrelated links.
+  for(const key of networkKeys){
+    if(links[key])continue;
+    if(new RegExp("(?:remov|retir|exclu|apag|desvincul|ocult)\\w*[^.\\n]{0,45}\\b"+key+"\\b|\\b"+key+"\\b[^.\\n]{0,35}(?:remov|exclu|apag|desvincul)\\w*","i").test(normalized)){
+      removing[key]="";
+    }
+  }
+  const footer={...site.footer,...removing,...links,...(effect?{whatsappEffect:effect}:{}),...(visible!==null?{showFloatingWhatsapp:visible}:{})};
+  const changed=Object.keys(links).length>0||Object.keys(removing).length>0||effect!==null||visible!==null;
   if(!changed)return null;
   const fields=[
     ...Object.keys(links).map(name=>name==="whatsapp"?"WhatsApp":name),
+    ...Object.keys(removing).map(name=>name+" removido"),
     ...(effect?["efeito do WhatsApp "+(effect==="none"?"desativado":effect==="blink"?"piscando":"pulsando")]:[]),
     ...(visible!==null?["botão flutuante "+(visible?"ativado":"oculto")]:[])
   ];
