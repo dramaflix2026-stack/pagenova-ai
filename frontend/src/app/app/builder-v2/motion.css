@@ -261,3 +261,26 @@
 
 /* Hide deprecated Builder V2 introductory banner; AI chat is the workspace entry. */
 .pn-builder-editor .pn-editor-intro { display:none!important; }
+
+
+/* Premium Studio composer: the legacy rule above forced 144px regardless
+   of content. Start compact, grow with React up to 224px, then scroll. */
+.pn-builder-editor .pn-editor-chat textarea.pn-chat-input{
+  min-height:72px;
+  max-height:224px;
+  resize:none;
+  line-height:1.55;
+  overflow-y:hidden;
+  text-align:left!important;
+}
+@media(min-width:640px){
+  .pn-builder-editor .pn-editor-chat textarea.pn-chat-input{min-height:88px}
+}
+/* Keep the discreet version menu usable with touch and keyboards. */
+.pn-builder-editor .pn-editor-tools>summary::-webkit-details-marker{display:none}
+.pn-builder-editor .pn-editor-tools>summary{list-style:none}
+.pn-builder-editor .pn-editor-tools[open]>summary{
+  border-color:rgba(190,242,100,.4);
+  color:#d8f99d;
+}
+.pn-builder-editor .pn-editor-tools>div{max-height:min(68vh,480px);overflow-y:auto}
