@@ -48,7 +48,7 @@ export function distinctProcessCardPhotos<T extends ProcessCardPhoto>({
       id:"approved-process-"+bank.name+"-"+index,
       src:baseUrl+id+".png",mobileSrc:baseUrl+bank.mobile[index]+".png",
       text:"Imagem ilustrativa do segmento",imageFit:"cover" as const
-    }:undefined).filter((image):image is ProcessCardPhoto=>!!image):[];
+    }:undefined).filter(Boolean) as ProcessCardPhoto[]:[];
   const used=new Set<string>();
   const choose=(items:Array<T|ProcessCardPhoto>)=>{
     const candidate=items.find(photo=>!!photo.src&&!used.has(photo.src));
