@@ -77,6 +77,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Keep bookmarks for existing Classic Builder projects intact. New Site
+  // generation in PageNova Studio goes to the original Builder 2.0 component.
+  if (user && pathname === "/app/builder" && !request.nextUrl.searchParams.get("project")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/app/builder-v2";
+    const redirected = NextResponse.redirect(url, 307);
+    // Preserve Supabase session refresh cookies set above.
+    response.cookies.getAll().forEach(cookie=>redirected.cookies.set(cookie));
+    return redirected;
+  }
+
   return response;
 }
 
