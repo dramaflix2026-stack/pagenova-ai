@@ -190,7 +190,7 @@ function AccessCredits({credits,loading}:{credits:SidebarCredits|null;loading:bo
     <div className="flex items-center gap-2 text-xs font-semibold text-white/80"><Wallet className="h-3.5 w-3.5 text-emerald-300"/> Créditos disponíveis</div>
     {loading?<p className="mt-2 text-xs text-white/50">Consultando saldo...</p>:
       credits?.balance?<div className="mt-2 space-y-1.5 text-xs text-white/65">
-        <div className="flex justify-between gap-2"><span>Sites com IA</span><strong className="text-emerald-200">{credits.balance.sitesRemaining??"—"}</strong></div>
+        <div className="flex justify-between gap-2"><span>Sites IA CRM</span><strong className="text-emerald-200">{credits.balance.sitesRemaining??"—"}</strong></div>
         <div className="flex justify-between gap-2"><span>Pesquisas Google</span><strong className="text-emerald-200">{credits.balance.googleRemaining??"—"}</strong></div>
       </div>:<p className="mt-2 text-xs text-white/45">Saldo indisponível no momento.</p>}
     <Link href="/app/creditos" className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-300 hover:text-emerald-200">
