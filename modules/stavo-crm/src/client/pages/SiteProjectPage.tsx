@@ -56,6 +56,16 @@ export default function SiteProjectPage() {
       actions={
         <div className="flex items-center gap-2">
           {editable ? (
+            <Button onClick={() => {
+              const url="/app/builder-v2?crmProject="+encodeURIComponent(project.id);
+              // CRM lives inside a same-origin iframe. Open the original
+              // Studio Builder at the workspace level, not inside this iframe.
+              window.top?.location.assign(url);
+            }}>
+              Abrir no Builder 2.0
+            </Button>
+          ) : null}
+          {editable ? (
             <Button variant="secondary" onClick={() => document.getElementById('site-editor-preview')?.scrollIntoView({ behavior: 'smooth' })}>
               <Eye className="h-4 w-4" aria-hidden="true" />
               Visualizar site
