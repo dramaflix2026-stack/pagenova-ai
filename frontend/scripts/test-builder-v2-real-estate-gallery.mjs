@@ -1,0 +1,69 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+import {fileURLToPath} from "node:url";
+import path from "node:path";
+import {getPropertyPhotos,withPropertyPhotos,findPropertyForPhotos,photoIndexFromInstruction,looksLikePhotoInstruction,photoAction,MAX_PHOTOS_PER_PROPERTY,MAX_PHOTOS_PER_UPLOAD} from "../src/lib/builder-v2-property-gallery.ts";
+const p1={id:"imovel-1",title:"Casa no Jardim Paulista",location:"Jardim Paulista",image:"",price:650000};
+const p2={id:"imovel-2",title:"Apartamento no Centro",location:"Centro",image:"",price:3500};
+test("Empty property does not receive fabricated photography",()=>{
+ assert.deepEqual(getPropertyPhotos(p1),[]);
+ assert.equal(MAX_PHOTOS_PER_UPLOAD,8);
+ assert.equal(MAX_PHOTOS_PER_PROPERTY,24);
+});
+test("Legacy cover and updated gallery stay synchronized without touching property data",()=>{
+ const legacy={...p1,image:"https://assets.example/a.jpg"};
+ assert.deepEqual(getPropertyPhotos(legacy),["https://assets.example/a.jpg"]);
+ const next=withPropertyPhotos(legacy,["https://assets.example/b.jpg","https://assets.example/a.jpg","https://assets.example/b.jpg"]);
+ assert.equal(next.image,"https://assets.example/b.jpg");
+ assert.deepEqual(getPropertyPhotos(next),["https://assets.example/b.jpg","https://assets.example/a.jpg"]);
+ assert.equal(next.price,650000);
+ assert.equal(next.location,"Jardim Paulista");
+ assert.equal(withPropertyPhotos(next,[]).image,"");
+});
+test("Only the intended property is selected",()=>{
+ assert.equal(findPropertyForPhotos([p1,p2],"Adicione fotos ao imóvel 2"),1);
+ assert.equal(findPropertyForPhotos([p1,p2],"Troque a capa da casa do Jardim Paulista"),0);
+ assert.equal(findPropertyForPhotos([p1,p2],"Adicione estas fotos"),-1);
+ assert.equal(findPropertyForPhotos([p1],"Adicione as fotos"),0);
+ assert.equal(findPropertyForPhotos([p1],"Adicione ao imóvel 9"),-1);
+});
+test("Portuguese numbering and cover commands are understood",()=>{
+ assert.equal(photoIndexFromInstruction("Use a segunda foto como capa"),1);
+ assert.equal(photoIndexFromInstruction("Defina a foto 3 como capa"),2);
+ assert.equal(photoIndexFromInstruction("Remova a foto de capa"),0);
+ assert.equal(photoIndexFromInstruction("Mova a terceira foto depois da foto 1"),2);
+ assert.equal(photoAction("Adicione estas fotos ao imóvel 1",true),"add");
+ assert.equal(photoAction("Substitua a foto 2 do imóvel 1",true),"replace");
+ assert.equal(photoAction("Use a foto 3 como capa do imóvel 1",false),"cover");
+ assert.equal(photoAction("Remova a foto 2",false),"remove");
+ assert.equal(photoAction("Apague todas as fotos",false),"clear");
+ assert.equal(photoAction("Mova a foto 3 depois da foto 1",false),"reorder");
+});
+test("Photo-preservation clauses do not hijack price or copy edits",()=>{
+ assert.equal(looksLikePhotoInstruction("Altere o preço do imóvel 1. Preserve todas as fotos."),false);
+ assert.equal(looksLikePhotoInstruction("Altere o preço do imóvel 1 sem mexer nas fotos"),false);
+ assert.equal(looksLikePhotoInstruction("Mantenha a foto 1 e altere o preço"),false);
+ assert.equal(looksLikePhotoInstruction("Adicione estas 6 fotos ao imóvel 1. Use a primeira como capa"),true);
+ assert.equal(looksLikePhotoInstruction("Use a segunda foto como capa do imóvel 1"),true);
+ assert.equal(looksLikePhotoInstruction("Mova a foto 3 depois da foto 1"),true);
+});
+test("Real estate photos use a scoped, authenticated upload and the public page shows gallery",()=>{
+ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+ const read=(name)=>readFileSync(path.join(root,name),"utf8");
+ const upload=read("src/app/api/builder-v2/property-photos/route.ts");
+ const editor=read("src/app/app/builder-v2/page.tsx");
+ const publicPage=read("src/app/site/[slug]/page.tsx");
+ const gallery=read("src/components/builder-v2-real-estate.tsx");
+ assert.match(upload,/supabase\.auth\.getUser\(\)/);
+ assert.match(upload,/user\.id\+"\/builder-v2\/real-estate\/"/);
+ assert.match(upload,/MAX_FILE_BYTES=4_000_000/);
+ assert.match(upload,/imageType\(bytes\)/);
+ assert.match(editor,/\/api\/builder-v2\/property-photos/);
+ assert.match(editor,/propertyFiles/);
+ assert.match(editor,/recordVersion\(site,"Antes de editar fotos do imóvel"\)/);
+ assert.match(publicPage,/RealEstateTemplate properties=\{payload\.site\.properties\|\|\[\]\}/);
+ assert.match(gallery,/role="dialog"/);
+ assert.match(gallery,/getPropertyPhotos\(p\)/);
+ assert.doesNotMatch(gallery,/p\.image\|\|"https:\/\/images\.unsplash\.com/);
+});

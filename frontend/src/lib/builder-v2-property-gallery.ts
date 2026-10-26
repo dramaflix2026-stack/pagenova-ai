@@ -37,7 +37,7 @@ export function looksLikePhotoInstruction(instruction:string):boolean{
   const lines=normalize(instruction).split(/[.!?\n]+/);
   return lines.some(line=>{
     // Constraints such as "preserve as fotos" must never override a price or text edit.
-    const actionable=line.split(/\b(?:preserv\w*|mantenh\w*|mantend\w*|sem alterar|sem mexer|nao alter\w*|nao mex\w*|nao modific\w*)\b/)[0].trim();
+    const actionable=line.split(/\b(?:preserv\w*|mantenh\w*|mantend\w*|sem alterar|sem mexer|nao alter\w*|nao mex\w*|nao modific\w*|nao (?:use|usar|coloc\w*|remov\w*|adicione))\b/)[0].trim();
     const action=/\b(?:adicion|inclu|anex|coloc|envi|defin|torn|escolh|troqu|substitu|alter|mud|remov|retir|apag|exclu|mov|reorden|organiz)\w*/;
     const photo=/\b(?:foto|fotos|imagem|imagens|capa|galeria)\b/;
     return photo.test(actionable)&&action.test(actionable);
