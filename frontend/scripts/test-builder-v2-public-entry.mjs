@@ -13,10 +13,12 @@ test("Official PageNova Studio sidebar entry opens the same Builder 2.0 as CRM",
   assert.match(crm,/\/app\/builder-v2\?crmProject=/);
   assert.doesNotMatch(sidebar,/\{ href: "\/app\/builder", label: "Gerar site com IA"/);
 });
-test("Paid account homepage opens Studio Builder 2.0, trial accounts retain CRM entry",()=>{
+test("Accounts open the new Início dashboard, with site generation shortcuts preserved",()=>{
   const page=read("src/app/app/page.tsx");
-  assert.match(page,/redirect\("\/app\/builder-v2"\)/);
-  assert.match(page,/access\.kind==="trial"\)redirect\("\/app\/crm\?view=sites-ia"\)/);
+  assert.match(page,/Bem-vindo à/);
+  assert.match(page,/getPageNovaAccess\(admin,user,true\)/);
+  assert.match(page,/access\.kind==="trial"\?"\/app\/crm\?view=sites-ia":"\/app\/builder-v2"/);
+  assert.doesNotMatch(page,/redirect\("\/app\/builder-v2"\)/);
 });
 test("Legacy generator deep links stay accessible while new generation route redirects",()=>{
   const proxy=read("src/proxy.ts");
