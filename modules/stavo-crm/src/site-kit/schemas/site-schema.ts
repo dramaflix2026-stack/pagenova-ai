@@ -623,6 +623,8 @@ export const siteSchema = z.object({
     promptVersion: z.string().max(16),
     /** Renderizacao visual escolhida; projetos antigos continuam no visual anterior. */
     templateId: z.enum(['standard', 'frigolog-universal', 'muse-editorial', 'atelier-norte', 'vertice-corporate', 'restaurant-premium', 'real-estate-premium']).optional(),
+    /** Same four Studio templates, rendered by the original Builder V2 component. */
+    builderV2TemplateId: z.enum(['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating']).optional(),
   }),
   business: businessFactsSchema,
   objective: z.object({
