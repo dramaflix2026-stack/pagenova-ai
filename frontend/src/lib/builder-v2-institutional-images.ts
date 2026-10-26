@@ -117,11 +117,13 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
     throw Error("Anexe as imagens ou indique uma alteração visual específica.");
   const updated={...site,blocks} as T;
   const findCardImage=()=>targetCard?blocks.findIndex(b=>isImage(b)&&b.forCardId===targetCard.id):-1;
+  const heroSlideTarget=section===hero&&/\b(?:segund[oa]|2[ªºa]?|terceir[oa]|3[ªºa]?)\s+(?:banner|slide|foto|imagem)|\b(?:banner|slide|foto|imagem)\s*(?:numero\s*)?[23]\b/.test(s)
+    ?(/\b(?:terceir[oa]|3[ªºa]?)\b|\b(?:banner|slide|foto|imagem)\s*(?:numero\s*)?3\b/.test(s)?2:1):undefined;
   const selectedImage=()=>{
     const index=findCardImage();
     if(index>=0)return index;
     const list=sectionImages().filter(i=>!blocks[i].forCardId);
-    return list[photoIndex??0]??-1;
+    return list[heroSlideTarget??photoIndex??0]??-1;
   };
   const changes:string[]=[];
   if(uploads.length){
@@ -143,7 +145,7 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
       }else if(replaceSlots[i]!==undefined){
         blocks[replaceSlots[i]].src=uploads[i];delete blocks[replaceSlots[i]].mobileSrc;
         blocks[replaceSlots[i]].userUploaded=true;
-      }else if(replace&&uploads.length===1&&existing>=0&&!layout){
+      }else if((replace||heroSlideTarget!==undefined&&site.heroComposition!=="single")&&uploads.length===1&&existing>=0&&(!layout||heroSlideTarget!==undefined)){
         blocks[existing].src=uploads[i];delete blocks[existing].mobileSrc;
         blocks[existing].userUploaded=true;
       }else{
