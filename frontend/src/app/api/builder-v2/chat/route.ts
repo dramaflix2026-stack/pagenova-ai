@@ -4,6 +4,7 @@ import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BU
 import { applyInstitutionalEdit } from "@/lib/builder-v2-institutional-edits";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
 import {applySocialInstruction,socialLinksFromInstruction} from "@/lib/site-social-links";
+import {reserveBuilderV2Generation,generationCreditError} from "@/lib/builder-v2-generation-credits";
 
 // Social links are optional, never fabricated. The layout supports all three brands
 // automatically; only destinations explicitly supplied by the client are published.
@@ -18,6 +19,8 @@ function socialFromBrief(brief:string){
 export const runtime = "nodejs";
 export const maxDuration = 90;
 export async function POST(req: NextRequest) {
+  const origin=req.headers.get("origin");
+  if(origin&&origin!==req.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
   const user = (await (await createClient()).auth.getUser()).data.user;
   if (!user) return NextResponse.json({error:"Faça login."},{status:401});
   const key = process.env.OPENAI_API_KEY;
@@ -39,6 +42,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // New websites are assembled in small independently validated batches.
   // Existing-site edits still use the original editing path below.
   if (isFresh) {
+    // A NEW site spends exactly one shared CRM/Studio generation credit.
+    // Existing sites never enter this branch and their edits remain free.
+    let charge:Awaited<ReturnType<typeof reserveBuilderV2Generation>>;
+    try {
+      const identity=(body.site as {id?:unknown}|undefined)?.id;
+      const key=typeof identity==="string"&&/^[a-zA-Z0-9_-]{8,120}$/.test(identity)?identity:crypto.randomUUID();
+      charge=await reserveBuilderV2Generation(user,key);
+    }catch(error){return generationCreditError(error) as NextResponse;}
     const instruction = String(body.instruction);
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
@@ -195,8 +206,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"||id==="diferenciais"?4:id==="faq"?3:1));
       if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
+      await charge.finish(true);
       return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
+      try{await charge.finish(false);}
+      catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       // Never silently publish an incomplete or generic fallback as a finished site.
       return NextResponse.json({error:"Não foi possível concluir o Template 1 com todas as seções. Seu projeto foi preservado; tente gerar novamente."},{status:502});
