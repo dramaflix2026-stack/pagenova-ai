@@ -1,5 +1,5 @@
-import { CinematicBackground, type CinematicAppearance } from "@/components/builder-v2-cinematic-background";
 "use client";
+import { CinematicBackground, type CinematicAppearance } from "@/components/builder-v2-cinematic-background";
 import type {PropertyItem} from "@/components/builder-v2-real-estate";
 import { useEffect, useRef, useState } from "react";
 import { BuilderExtras, type SiteExtras } from "@/components/builder-v2-extras";
