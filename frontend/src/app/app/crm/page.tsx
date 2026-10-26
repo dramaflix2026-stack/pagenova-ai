@@ -84,7 +84,7 @@ export default function CrmPage() {
       <main className="flex h-[calc(100vh-4rem)] min-h-[640px] flex-col overflow-hidden bg-[#070b14]">
         <iframe
           src={iframeSrc}
-          title="PageNova CRM"
+          title="Sites IA CRM — PageNova CRM"
           className="min-h-0 w-full flex-1 border-0"
           onLoad={(event) => {
             // The PageNova workspace already provides the primary navigation.
