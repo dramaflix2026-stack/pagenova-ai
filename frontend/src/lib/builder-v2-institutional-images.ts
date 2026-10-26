@@ -63,8 +63,13 @@ export function institutionalImageIntent(instruction:string,hasUploads=false){
   if(/(?:imagem|foto|fotografia)/.test(s)&&/sem\s+cort|inteir[ao]|formato\s+original/.test(s))return true;
   if(!/(?:imagem|imagens|foto|fotos|fotografia|fotografias|banner|galeria|mosaico|carrossel|enquadramento)/.test(s))return false;
   if(!hasPositiveImageAction(s)&&!/\b(duplo|triplo|duas|tres)\b/.test(s))return false;
-  if(/(?:nao|sem)\s+(?:alterar|trocar|modificar|mexer|substituir)[^\n.]{0,28}(?:imagem|foto|fotografia)/.test(s) &&
-    !/(?:troqu|substitu|adicion|inclu|coloc|remov|mova|reorden|transform)[^\n.]{0,65}(?:foto|imagem|banner|galeria)/.test(s))return false;
+  // Guard non-image edits containing "não altere a foto" or "preserve imagens".
+  // Only image-directed verbs BEFORE the protective clause can authorize an edit.
+  const protect=/(?:\b(?:nao|sem)\s+(?:alter\w*|troc\w*|modific\w*|mex\w*|substitu\w*)|\b(?:preserv\w*|mantenha|mantendo)\b)/.exec(s);
+  if(protect){
+    const prefix=s.slice(0,protect.index);
+    if(!/(?:troqu|substitu|adicion|inclu|coloc|remov|mova|reorden|transform)[^.]{0,70}(?:foto|imagem|fotografia|banner|galeria)/.test(prefix))return false;
+  }
   return true;
 }
 export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(site:T,instruction:string,uploads:string[]=[]):{site:T;summary:string}|null{
