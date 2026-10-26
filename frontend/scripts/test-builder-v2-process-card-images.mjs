@@ -61,7 +61,7 @@ test("all four existing visual templates share the same approved photo assignmen
  assert.match(renderer,/processCardPhotos\[3\]/);
  assert.doesNotMatch(renderer,/processPhotos\[i%/);
  const source=read("src/app/app/builder-v2/page.tsx");
- assert.match(source,/crmProjectId\?\{\.\.\.site,crmImported:true\}:site/);
+ assert.match(source,/setSite\(projectId\?\{\.\.\.parsed,crmImported:true\}:parsed\)/);
  const importer=read("src/lib/builder-v2-crm-import.ts");
  assert.match(importer,/crmImported:true/);
  assert.ok(matchApprovedNicheBank("Dentist", "Clínica", catalog)?.desktop.length>=4);
