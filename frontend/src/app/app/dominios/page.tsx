@@ -26,8 +26,8 @@ function siteTitle(site:PublishedSite){
  const trimmed=site.title.trim();
  // Historical AI drafts sometimes persisted a full sentence or prompt
  // in title instead of the business name. Never render it as a site label.
- const looksLikeBrief=trimmed.length>76||trimmed.split(/\\s+/).length>11||
-   /\\b(?:atende clientes|transformar casas|descreva o site|quero criar um site)\\b/i.test(trimmed);
+ const looksLikeBrief=trimmed.length>76||trimmed.split(/\s+/).length>11||
+   /\b(?:atende clientes|transformar casas|descreva o site|quero criar um site)\b/i.test(trimmed);
  if(trimmed&&!looksLikeBrief&&
    !["sua marca","novo projeto","meu site","site sem nome definido"].includes(trimmed.toLowerCase()))
    return trimmed.slice(0,76);
