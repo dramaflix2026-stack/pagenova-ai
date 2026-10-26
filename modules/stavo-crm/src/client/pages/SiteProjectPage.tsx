@@ -5,8 +5,8 @@
  * vivo; falhou -> erro com retomada; pronto/publicado -> o editor visual
  * completo, sobre esta mesma pagina.
  */
-import { ArrowLeft, Eye } from 'lucide-react';
-import { useEffect } from 'react';
+import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { formatDate } from '@shared/format';
@@ -23,6 +23,7 @@ export default function SiteProjectPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [searchParams]=useSearchParams();
+  const handoffStarted=useRef(false);
   const toast = useToast();
   const query = useSiteProject(projectId ?? null);
   const generate = useGenerateSite(projectId ?? '');
@@ -38,6 +39,10 @@ export default function SiteProjectPage() {
   const savedConfig=useSiteDraftConfig(editable ? projectId ?? null : null);
   const modernSelection=(savedConfig.data?.config as {project?:{builderV2TemplateId?:string}}|null)?.project?.builderV2TemplateId;
   const showLegacy=searchParams.get('crmLegacy')==='1';
+  const studioTemplates=['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating'];
+  const openInStudio=editable&&!showLegacy&&studioTemplates.includes(modernSelection||'');
+  const checkingEditor=editable&&!showLegacy&&savedConfig.isPending;
+  const refreshAfterGeneration=useCallback(()=>{void query.refetch();},[query.refetch]);
 
   // Hooks precisam rodar na mesma ordem em todos os renders. Antes este hook
   // ficava depois dos returns de loading/error; quando a query terminava de
@@ -49,18 +54,38 @@ export default function SiteProjectPage() {
   }, [latestJob?.status, editable, query.refetch]);
 
   useEffect(()=>{
-    // Existing projects without Builder V2 selection keep their original editor.
-    // A newly generated lead with one of the four Studio templates opens the
-    // REAL Builder component instead of the old CRM preview/editor.
-    const templates=['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating'];
-    if(!editable||!projectId||showLegacy||!templates.includes(modernSelection||''))return;
-    const destination='/app/builder-v2?crmProject='+encodeURIComponent(projectId);
-    window.top?.location.assign(destination);
-  },[editable,projectId,modernSelection,showLegacy]);
+    // Never render the old SiteEditor for new Builder V2 projects, even for a
+    // single frame while the generated CRM config is being retrieved.
+    if(!openInStudio||!projectId||handoffStarted.current)return;
+    handoffStarted.current=true;
+    window.top?.location.replace('/app/builder-v2?crmProject='+encodeURIComponent(projectId));
+  },[openInStudio,projectId]);
   
   if (query.isLoading) return <LoadingBlock label="Carregando projeto..." />;
   if (query.isError || !query.data || !project) {
     return <ErrorState message="Projeto nao encontrado ou voce nao tem acesso a ele." />;
+  }
+
+  // The config query is async. While it resolves, render only the handoff UI.
+  // Rendering SiteEditor here caused the old site to flash for a moment before
+  // useEffect redirected to the original Builder 2.0.
+  if(openInStudio||checkingEditor||handoffStarted.current){
+    return <PageBody className="mx-auto flex min-h-[65dvh] max-w-3xl items-center justify-center px-4">
+      <div role="status" aria-live="polite" className="w-full max-w-md rounded-2xl border border-primary/25 bg-surface p-7 text-center shadow-sm">
+        <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary" aria-hidden="true"/>
+        <h1 className="text-lg font-semibold text-foreground">Preparando seu site no PageNova Studio</h1>
+        <p className="mt-2 text-sm text-muted-foreground">O conteúdo, a capa e as fotos do lead estão sendo preparados para edição.</p>
+      </div>
+    </PageBody>;
+  }
+  if(!showLegacy&&editable&&savedConfig.isError){
+    return <PageBody className="mx-auto max-w-lg space-y-3 px-4 py-8">
+      <ErrorState message="Não foi possível verificar o editor deste projeto. O site gerado permanece salvo."/>
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={()=>void savedConfig.refetch()}>Tentar novamente</Button>
+        <Button variant="secondary" onClick={()=>navigate('/sites-ia/'+projectId+'?crmLegacy=1')}>Abrir editor anterior</Button>
+      </div>
+    </PageBody>;
   }
 
   const header = (
@@ -160,7 +185,7 @@ export default function SiteProjectPage() {
           <SiteProgressView
             projectId={project.id}
             jobId={latestJob.id}
-            onCompleted={() => void query.refetch()}
+            onCompleted={refreshAfterGeneration}
           />
         ) : null}
       </PageBody>
