@@ -180,6 +180,23 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         }
       }
 
+      // Ensure cinematic FAQ entries contain actual answers before saving the generated site.
+      if((body.site as {cinematic?:{mode?:string}}|undefined)?.cinematic?.mode==="cinematic"){
+        const faqBlocks=mutableBlocks.filter(b=>b.type==="paragraph"&&/faq|perguntas|d[uú]vidas/i.test(String(b.section||"")));
+        const unanswered=faqBlocks.filter(b=>{const q=String(b.text||"");const at=q.indexOf("?");return at<0||!q.slice(at+1).trim();});
+        if(unanswered.length){
+          const completion=await callAI("Complete somente respostas de perguntas frequentes para um site. Retorne JSON {answers:[{question:string,answer:string}]}. Responda em português, até 35 palavras por resposta, sem inventar horários, preços, opções de cardápio, disponibilidade, endereços ou promessas. Se um dado depender da empresa, explique como confirmar com ela.",{siteTitle:plan.title,briefing:instruction,questions:unanswered.map(b=>b.text)},1800);
+          const answers=Array.isArray(completion.answers)?completion.answers:[];
+          for(let i=0;i<unanswered.length;i++){
+            const item=answers[i] as {answer?:unknown}|undefined;
+            const answer=typeof item?.answer==="string"?cleanGeneratedCopy(item.answer).trim():"";
+            if(!answer)throw new Error("incomplete-faq");
+            const question=String(unanswered[i].text).trim();
+            unanswered[i].text=question+(question.endsWith("?")?"":"?")+" "+answer;
+          }
+        }
+      }
+
       // Default CTAs are real editable blocks. AI chat may change, move or delete them.
       for(const sectionId of ["servicos","depoimentos"]){
         if(!mutableBlocks.some(b=>b.section===sectionId&&b.type==="button")){
