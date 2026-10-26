@@ -467,6 +467,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             if(newTitle)clean.text=newTitle+separator[0]+description;
           }
         }
+        if(clean.color!==undefined)clean.colorExplicit=true;
         if(Object.keys(clean).length)changesById.set(edit.id,{...(changesById.get(edit.id)||{}),...clean});
       }
       const insertionsByAnchor=new Map<string,Array<Record<string,unknown>>>();

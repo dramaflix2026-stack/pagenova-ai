@@ -2,6 +2,7 @@
 
 import {createPortal} from "react-dom";
 import {type ReactNode,useEffect,useRef,useState} from "react";
+import {interceptPreviewFragmentNavigation} from "@/lib/builder-v2-preview-navigation";
 
 export type BuilderPreviewDevice="desktop"|"mobile";
 
@@ -59,6 +60,15 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     stylesObserver.observe(document.head,{childList:true,subtree:false});
     setPortalNode(iframeHost);
     return ()=>{stylesObserver.disconnect();setPortalNode(null);};
+  },[frameDocument]);
+
+  // Keep hash-only links inside the iframe. Without capture, about:srcdoc
+  // resolves #contato against the parent Builder URL and replaces the preview.
+  useEffect(()=>{
+    if(!frameDocument)return;
+    const onClick=(event:MouseEvent)=>{interceptPreviewFragmentNavigation(event,frameDocument);};
+    frameDocument.addEventListener("click",onClick,true);
+    return()=>frameDocument.removeEventListener("click",onClick,true);
   },[frameDocument]);
 
   const targetWidth=device==="mobile"?390:1280;
