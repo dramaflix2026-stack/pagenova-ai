@@ -33,7 +33,10 @@ test("four CRM choices are the exact existing Studio template IDs, never copies"
  const studio=read("src/components/builder-v2-site.tsx");
  for(const key of BUILDER_V2_CRM_TEMPLATES)assert.ok(studio.includes(key),key);
  const crm=read("../modules/stavo-crm/src/client/pages/SiteAiPage.tsx");
- for(const key of BUILDER_V2_CRM_TEMPLATES)assert.ok(crm.includes(key),key);
+ // The CRM does not ask which model to generate. It uses original Template 1
+ // and leaves the other three available for later switching in the Builder.
+ assert.match(crm,/builderV2TemplateId: 'institutional-complete' as const/);
+ assert.doesNotMatch(crm,/Escolher template visual/);
 });
 test("lead import preserves existing CRM-generated hero photo, copy and selected template",()=>{
  const sourceSite=source();const converted=convertCrmSiteToBuilder(sourceSite,urls,"01KRMCRMPROJECT000000000001");
@@ -92,4 +95,25 @@ test("new CRM template projects auto-open original Builder while legacy projects
  assert.match(page,/window\.top\?\.location\.assign\(destination\)/);
  assert.match(page,/crmLegacy/);
  assert.match(page,/templates\.includes\(modernSelection/);
+});
+
+test("CRM lead selection generates immediately; visual layout choice belongs in Builder after generation",()=>{
+ const page=read("../modules/stavo-crm/src/client/pages/SiteAiPage.tsx");
+ assert.match(page,/useEffect\(\(\)=>\{/);
+ assert.match(page,/autoGenerationLeadRef\.current===selectedLeadId/);
+ assert.match(page,/void createSiteDirectlyFromLead\(\)/);
+ assert.match(page,/builderV2TemplateId: 'institutional-complete' as const/);
+ assert.doesNotMatch(page,/selectedTemplateId/);
+ assert.doesNotMatch(page,/Escolha um dos modelos/);
+ assert.doesNotMatch(page,/Gerar com este template/);
+ const editor=read("src/app/app/builder-v2/page.tsx");
+ for(const template of BUILDER_V2_CRM_TEMPLATES)assert.ok(editor.includes(template));
+ assert.match(editor,/setSite\(prev=>\(\{\.\.\.prev,templateId\}\)\)/);
+});
+test("Lead loading feedback no longer blocks scrolling behind a full-screen modal",()=>{
+ const crm=read("../modules/stavo-crm/src/client/pages/SiteAiPage.tsx");
+ assert.doesNotMatch(crm,/fixed inset-0 z-\[80\]/);
+ assert.match(crm,/pointer-events-none fixed inset-x-0 bottom-3/);
+ assert.match(crm,/pointer-events-auto w-full max-w-md/);
+ assert.match(crm,/max-h-\[calc\(100dvh-2rem\)\] overflow-y-auto/);
 });
