@@ -258,7 +258,7 @@ export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templat
           
           const heroPhotoCandidate=blocks.find(b=>b.type==="image"&&!!b.src)?.src || (index===0 ? visibleSections.flatMap(section=>section.blocks).find(b=>b.type==="image"&&!!b.src)?.src : undefined);
           const multiHero=index===0&&(site.heroComposition==="duo"||site.heroComposition==="trio")&&blocks.filter(b=>b.type==="image"&&!!b.src).length>=(site.heroComposition==="duo"?2:3);
-          const immersiveHero=index===0&&(templateId==="modern-impactful"||templateId==="image-text-alternating"||site.heroPresentation!=="split")&&!!heroPhotoCandidate;
+          const immersiveHero=multiHero||(index===0&&(templateId==="modern-impactful"||templateId==="image-text-alternating"||site.heroPresentation!=="split")&&!!heroPhotoCandidate);
           const immersivePhoto=immersiveHero&&!multiHero?heroPhotoCandidate:undefined;
           const heading=blocks.filter(b=>b.type==="heading").slice(0,1);
           const images=blocks.filter(b=>b.type==="image"&&!!b.src);
