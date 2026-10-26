@@ -69,7 +69,7 @@ export default function SiteAiPage() {
   const [leadPickerOpen, setLeadPickerOpen] = useState(false);
   const [leadSearch, setLeadSearch] = useState('');
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
-  const [selectedTemplateId,setSelectedTemplateId] = useState<'frigolog-universal'|'muse-editorial'|'atelier-norte'>('frigolog-universal');
+  const [selectedTemplateId,setSelectedTemplateId] = useState<'institutional-complete'|'minimalist-sophisticated'|'modern-impactful'|'image-text-alternating'>('institutional-complete');
   const [creatingFromLead, setCreatingFromLead] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
   const [createdProjectId,setCreatedProjectId]=useState<string|null>(null);
@@ -143,7 +143,8 @@ export default function SiteAiPage() {
     setCreateError(null);
     try {
       const briefing = {
-        templateId: selectedTemplateId,
+        templateId: 'frigolog-universal' as const, // only the existing CRM image-generation/hero pipeline
+        builderV2TemplateId: selectedTemplateId, // original Builder 2.0 renderer, no copied templates
         business: {
           name: businessName,
           niche: optionalText(lead.lead.prospectingNiche) ?? optionalText(liveCategory),
@@ -316,7 +317,7 @@ export default function SiteAiPage() {
             // Fecha primeiro o seletor e so depois monta o wizard.
             // Evita duas camadas modais concorrendo no mesmo frame no mobile.
             setLeadPickerOpen(false);
-            setSelectedTemplateId('frigolog-universal');
+            setSelectedTemplateId('institutional-complete');
             setCreateError(null);
             setCreatedProjectId(null);
             setGenerateOperationKey(null);
@@ -358,50 +359,29 @@ export default function SiteAiPage() {
                       Escolha um dos modelos. A IA vai adaptar o conteúdo deste lead ao visual selecionado.
                     </p>
                   </div>
-                  <div role="group" aria-label="Escolher template visual" className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-                    <button type="button" aria-pressed={selectedTemplateId==='frigolog-universal'}
-                      onClick={()=>setSelectedTemplateId('frigolog-universal')} disabled={creatingFromLead}
-                      className={`rounded-xl border p-3 text-left transition-colors ${
-                        selectedTemplateId==='frigolog-universal'
-                          ? 'border-primary bg-primary-soft text-foreground'
-                          : 'border-border bg-card text-foreground hover:border-primary/40'
-                      }`}>
-                      <div aria-hidden="true" className="mb-3 flex h-20 flex-col rounded-lg bg-[#f4f7f5] p-2">
-                        <span className="h-2 w-10 rounded bg-[#0e5e50]"/>
-                        <div className="mt-2 flex flex-1 gap-2">
-                          <div className="w-3/5 space-y-1.5"><div className="h-2 rounded bg-[#0e5e50]"/><div className="h-2 w-4/5 rounded bg-[#0e5e50]"/><div className="h-2 w-1/2 rounded bg-[#18af8b]"/></div>
-                          <div className="flex-1 rounded bg-gradient-to-tr from-[#285e55] to-[#b4c3b8]"/>
-                        </div>
+                  <div role="group" aria-label="Escolher template visual" className="grid grid-cols-2 gap-3">
+                    {([
+                      {id:'institutional-complete',title:'01 — Institucional Completo',sub:'Template 1 do PageNova Studio'},
+                      {id:'minimalist-sophisticated',title:'02 — Minimalista Sofisticado',sub:'Template 2 do PageNova Studio'},
+                      {id:'modern-impactful',title:'03 — Moderno e Impactante',sub:'Template 3 do PageNova Studio'},
+                      {id:'image-text-alternating',title:'04 — Imagens e Textos Lado a Lado',sub:'Template 4 do PageNova Studio'},
+                    ] as const).map(option=><button key={option.id} type="button"
+                      aria-pressed={selectedTemplateId===option.id}
+                      onClick={()=>setSelectedTemplateId(option.id)} disabled={creatingFromLead}
+                      className={"rounded-xl border p-4 text-left transition-colors "+(selectedTemplateId===option.id?
+                        "border-primary bg-primary-soft text-foreground":"border-border bg-card text-foreground hover:border-primary/40")}>
+                      <div className="mb-3 flex h-16 flex-col justify-center gap-2 rounded-lg bg-[#f5f7f5] px-3" aria-hidden="true">
+                        <div className={"h-2 w-3/5 rounded "+(option.id==='modern-impactful'?"bg-[#14202a]":"bg-[#31574a]")}/>
+                        <div className="flex gap-2"><span className="h-5 w-1/2 rounded bg-[#d7ddd8]"/><span className="h-5 flex-1 rounded bg-[#b4c7bb]"/></div>
                       </div>
-                      <span className="block text-sm font-semibold">Modelo 1 · Original</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">Visual moderno e comercial</span>
-                    </button>
-                    <button type="button" aria-pressed={selectedTemplateId==='muse-editorial'}
-                      onClick={()=>setSelectedTemplateId('muse-editorial')} disabled={creatingFromLead}
-                      className={`rounded-xl border p-3 text-left transition-colors ${
-                        selectedTemplateId==='muse-editorial'
-                          ? 'border-primary bg-primary-soft text-foreground'
-                          : 'border-border bg-card text-foreground hover:border-primary/40'
-                      }`}>
-                      <div aria-hidden="true" className="mb-3 flex h-20 flex-col rounded-lg bg-[#f8f7f5] p-2">
-                        <span className="text-[22px] font-black tracking-[-.08em] text-[#222]">muse<span className="text-[#df321e]">.</span></span>
-                        <div className="mt-1 flex-1 rounded bg-gradient-to-br from-[#687a72] via-[#abafa2] to-[#e1d7bd]"/>
-                      </div>
-                      <span className="block text-sm font-semibold">Modelo 2 · Muse Editorial</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">Tipografia e portfólio visual</span>
-                    </button>
-                    <button type="button" aria-pressed={selectedTemplateId==='atelier-norte'}
-                      onClick={()=>setSelectedTemplateId('atelier-norte')} disabled={creatingFromLead}
-                      className={`rounded-xl border p-3 text-left transition-colors ${selectedTemplateId==='atelier-norte'?'border-primary bg-primary-soft text-foreground':'border-border bg-card text-foreground hover:border-primary/40'}`}>
-                      <div aria-hidden="true" className="mb-3 flex h-20 flex-col rounded-lg bg-[#f5f0e7] p-2">
-                        <span className="font-serif text-base text-[#393028]">atelier <em className="text-[#b96e51]">norte</em></span>
-                        <span className="mt-1 font-serif text-xl leading-none text-[#393028]">Design com <em className="text-[#b96e51]">alma.</em></span>
-                        <span className="mt-2 min-h-0 flex-1 rounded bg-gradient-to-br from-[#ae9a87] to-[#e6d9ca]"/>
-                      </div>
-                      <span className="block text-sm font-semibold">Modelo 3 · Atelier Norte</span>
-                      <span className="mt-1 block text-xs text-muted-foreground">Institucional sofisticado</span>
-                    </button>
+                      <span className="block text-sm font-semibold">{option.title}</span>
+                      <span className="mt-1 block text-xs text-muted-foreground">{option.sub}</span>
+                    </button>)}
                   </div>
+                  <p className="text-xs text-muted-foreground">
+                    O CRM importa os dados do lead e mantém a geração atual da capa e das fotos do Google.
+                    O visual final é exatamente o template escolhido no Builder 2.0.
+                  </p>
                   <SiteCreditsNotice compact />
                   <div className="flex flex-wrap justify-end gap-2 border-t border-border pt-3">
                     <Button type="button" variant="secondary" disabled={creatingFromLead}
