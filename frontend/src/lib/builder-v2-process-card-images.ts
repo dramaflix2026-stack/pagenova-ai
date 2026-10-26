@@ -33,7 +33,8 @@ export function matchApprovedNicheBank(
       return normalizedKey.length>=5&&new RegExp("(^| )"+normalizedKey+"( |$)").test(input);
     });
   const bank=matched?catalog[matched]:undefined;
-  return bank?.desktop?.length>=4&&bank?.mobile?.length>=4?{name:matched!,desktop:bank.desktop,mobile:bank.mobile}:null;
+  if(!matched||!bank||bank.desktop.length<4||bank.mobile.length<4)return null;
+  return {name:matched,desktop:bank.desktop,mobile:bank.mobile};
 }
 
 export function distinctProcessCardPhotos<T extends ProcessCardPhoto>({
