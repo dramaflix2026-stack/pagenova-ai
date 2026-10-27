@@ -242,3 +242,18 @@
 .pn3-root .pn3-chat-motion.pn3-motion-visible > *:nth-child(4){animation-delay:.75s!important}
 @keyframes pn3-motion-confirm{0%{opacity:.12;transform:translate3d(0,48px,0) scale(.90)}65%{opacity:1;transform:translate3d(0,-6px,0) scale(1.015)}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.pn3-root .pn3-chat-motion.pn3-motion-visible > *{animation:none!important}}
+
+/* Immersive photo gallery */
+.pn3-root .pn3-bakery-gallery{padding:clamp(65px,8vw,125px) 24px;background:#17120e;color:#f9f0df}
+.pn3-root .pn3-bakery-gallery-inner{max-width:1180px;margin:auto}
+.pn3-root .pn3-bakery-gallery-heading{max-width:650px;margin-bottom:34px}
+.pn3-root .pn3-bakery-gallery-heading span{font-size:12px;letter-spacing:.23em;color:#cda878;font-weight:700}
+.pn3-root .pn3-bakery-gallery-heading h2{font-size:clamp(34px,5vw,66px);line-height:1.07;margin:14px 0}
+.pn3-root .pn3-bakery-gallery-heading p{opacity:.76;font-size:17px}
+.pn3-root .pn3-bakery-gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.pn3-root .pn3-bakery-gallery-grid figure{margin:0;overflow:hidden;border-radius:18px;aspect-ratio:4/5;background:#32271e}
+.pn3-root .pn3-bakery-gallery-grid figure:nth-child(6n+1){grid-row:span 2;aspect-ratio:auto}
+.pn3-root .pn3-bakery-gallery-grid img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.pn3-root .pn3-bakery-gallery-grid figure:hover img{transform:scale(1.055)}
+.pn3-root .pn3-bakery-gallery-empty{opacity:.7}
+@media(max-width:700px){.pn3-root .pn3-bakery-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.pn3-root .pn3-bakery-gallery-grid figure:nth-child(6n+1){grid-row:auto;aspect-ratio:4/5}.pn3-root .pn3-bakery-gallery{padding:64px 18px}}
