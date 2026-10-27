@@ -268,7 +268,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const defaults=["Ana Souza | São Paulo - SP | Sempre encontro pães fresquinhos e atendimento acolhedor que faz meu dia melhor.","Carlos Martins | Belo Horizonte - MG | Adoro a variedade de produtos naturais e o aroma gostoso que invade a loja.","Luiza Almeida | Curitiba - PR | O ambiente é agradável e os sabores tradicionais me trazem lembranças da infância."];
       const items=Array.isArray(bakery.reviews)?[...(bakery.reviews as string[])]:defaults;
       const index=/ultimo/.test(lower)?items.length-1:/segundo/.test(lower)?1:/terceiro/.test(lower)?2:0;
-      if(/adicion|inclu/.test(lower)&&quoted.length){items.push(quoted.join(" | "));set("reviews",items);summary="Depoimento adicionado.";}
+      if(/adicion|inclu/.test(lower)&&quoted.length){const person=instruction.match(/(?:de|do|da)\s+([A-ZÀ-Ú][a-zà-ú]+(?:\s+[A-ZÀ-Ú][a-zà-ú]+)+)\s+com\s+(?:o\s+)?texto/i)?.[1];items.push((person||"Cliente da padaria")+" | Avaliação de cliente | "+quoted.join(" | "));set("reviews",items);summary="Depoimento adicionado.";}
       else if(/remov|exclu/.test(lower)&&items.length){items.splice(index,1);set("reviews",items);summary="Depoimento removido.";}
       else if(/alter|troc/.test(lower)&&replacement&&items[index]){items[index]=replacement;set("reviews",items);summary="Depoimento atualizado.";}
     }else if(/animac|efeito|movimento|parallax|zoom/.test(lower)){
