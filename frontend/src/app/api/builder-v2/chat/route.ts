@@ -242,7 +242,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // Scoped deterministic edits take priority over generic handlers: a complex prompt
   // must be applied atomically, never answered as if only one sub-step succeeded.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
-    const localized=applyInstitutionalEdit(editingSite as typeof editingSite&{blocks:Array<Record<string,unknown>>},instructionText);
+    const localized=(editingSite as typeof editingSite&{cinematic?:{mode?:string}}).cinematic?.mode==="immersive-3d"?null:applyInstitutionalEdit(editingSite as typeof editingSite&{blocks:Array<Record<string,unknown>>},instructionText);
     if(localized){
       if("error" in localized)return NextResponse.json({error:localized.error},{status:422});
       return NextResponse.json(localized);
@@ -614,6 +614,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         ...(typeof block.spacing==="number"?{spacing:Math.min(120,Math.max(0,block.spacing))}:{})};
     });
     if (incoming.blocks.length < 4 && isFresh) throw Error("incomplete");
+    if(!isFresh&&editingSite?.blocks?.length)return NextResponse.json({error:"Edição incompatível com o modelo atual. O template e todas as suas configurações foram preservados."},{status:422});
     return NextResponse.json({site:{...incoming,motion:initialSiteMotion(String(body.instruction)),extras:{enabled:{}},footer:{...socialFromBrief(String(body.instruction)),...(incoming.footer||{})}},summary:typeof output.summary==="string"?output.summary:"Site gerado e validado."});
   } catch (error) {
     console.error("[builder-v2] invalid AI response",error instanceof Error?error.message:"unknown",data?.choices?.[0]?.finish_reason);
