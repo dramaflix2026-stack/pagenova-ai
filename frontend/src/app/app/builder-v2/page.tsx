@@ -755,6 +755,34 @@ export default function BuilderV2() {
       }finally{setBusy(false);}
       return;
     }
+    if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:nova|outra|adicion|cri|inclu|remov|exclu|apag|retir).{0,35}(?:secao|sessao|bloco)|(?:secao|sessao|bloco).{0,35}(?:nova|fotos|imagens)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&!/galeria/i.test(prompt)){
+      try{
+        const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+        const extras={...(site.extras||{})} as Record<string,unknown>;
+        const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
+        const sections=Array.isArray(bakery.photoSections)?[...(bakery.photoSections as {id:string;title:string;description:string;images:string[]}[])]:[];
+        const removing=/remov|exclu|apag|retir/.test(normalized);
+        const match=normalized.match(/(?:secao|sessao|bloco)\s*(\d+)/);
+        const position=match?Number(match[1])-1:-1;
+        if(removing){if(position<0||position>=sections.length)throw Error("Indique o número da seção a remover (ex.: remova a seção 1).");sections.splice(position,1);}
+        else{
+          if(sections.length>=6)throw Error("O Template 3D permite até seis seções adicionais.");
+          if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por seção.");
+          const uploaded:string[]=[];
+          for(const file of institutionalFiles){const body=new FormData();body.append("projectId",site.id||crypto.randomUUID());body.append("file",file);const response=await fetch("/api/builder-v2/assets",{method:"POST",body});const data=await response.json();if(!response.ok||typeof data.src!=="string")throw Error(data.error||"Falha no envio da foto.");uploaded.push(data.src);}
+          const titleMatch=prompt.match(/(?:chamad[ao]|t[ií]tulo|nome)\s*[:\-]?\s*["“']([^"”']{3,90})["”']/i);
+          const title=titleMatch?.[1]||"Nossa paixão em cada detalhe";
+          const descriptionMatch=prompt.match(/(?:descri[cç][aã]o|texto)\s*[:\-]?\s*["“']([^"”']{5,280})["”']/i);
+          sections.push({id:crypto.randomUUID(),title,description:descriptionMatch?.[1]||"Conheça mais sobre o cuidado, os sabores e a dedicação que fazem parte da nossa história.",images:uploaded});
+        }
+        bakery.photoSections=sections;extras.bakery3d=bakery;
+        recordVersion(site,"Antes de editar seção com fotos 3D");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite({...site,id:site.id||crypto.randomUUID(),extras});
+        setMessages(prev=>[...prev,{role:"assistant",text:"Seções com fotos atualizadas. Total: "+sections.length+". Vídeo e demais seções preservados."}]);
+        setInstitutionalFiles([]);setInstruction("");setGenerationError("");
+      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Erro ao editar seção.")+" Site original preservado."}]);}
+      finally{setBusy(false);}return;
+    }
     if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/galeria|galeria de fotos|galeria de imagens/i.test(prompt)){
       try{
         const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
