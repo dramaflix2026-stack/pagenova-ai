@@ -234,3 +234,11 @@
 .pn3-root .pn3-chat-motion.pn3-motion-visible>*:nth-child(3){animation-delay:.36s}
 .pn3-root .pn3-chat-motion.pn3-motion-visible>*:nth-child(4){animation-delay:.54s}
 @media(prefers-reduced-motion:reduce){.pn3-root .pn3-chat-motion:not(.pn3-motion-visible)>*{opacity:1;transform:none}.pn3-root .pn3-chat-motion.pn3-motion-visible>*{animation:none}}
+
+/* Animation replay: scoped, visible movement with no dependency on mount timing. */
+.pn3-root .pn3-chat-motion.pn3-motion-visible > *{animation:pn3-motion-confirm 1.4s ease-out both!important}
+.pn3-root .pn3-chat-motion.pn3-motion-visible > *:nth-child(2){animation-delay:.25s!important}
+.pn3-root .pn3-chat-motion.pn3-motion-visible > *:nth-child(3){animation-delay:.5s!important}
+.pn3-root .pn3-chat-motion.pn3-motion-visible > *:nth-child(4){animation-delay:.75s!important}
+@keyframes pn3-motion-confirm{0%{opacity:.12;transform:translate3d(0,48px,0) scale(.90)}65%{opacity:1;transform:translate3d(0,-6px,0) scale(1.015)}100%{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.pn3-root .pn3-chat-motion.pn3-motion-visible > *{animation:none!important}}
