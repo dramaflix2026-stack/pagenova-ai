@@ -773,7 +773,9 @@ export default function BuilderV2() {
         }else{
           const title=prompt.match(/(?:t[ií]tulo|nome)\s*(?:para|por|:|=|de|da|do)?\s*["“']([^"”']{2,100})["”']/i);
           const description=prompt.match(/(?:descri[cç][aã]o|texto)\s*(?:para|por|:|=|de|da|do)?\s*["“']([^"”']{2,400})["”']/i);
-          const quoted=prompt.match(/["“\u0027]([^"”\u0027]{2,400})["”\u0027]/);\n          if(title)item.title=title[1];\n          else if(/t[ií]tulo|nome/i.test(prompt)&&quoted)item.title=quoted[1];
+          const quoted=prompt.match(/["“\u0027]([^"”\u0027]{2,400})["”\u0027]/);
+          if(title)item.title=title[1];
+          else if(/t[ií]tulo|nome/i.test(prompt)&&quoted)item.title=quoted[1];
           if(description)item.description=description[1];
           if(institutionalFiles.length){
             if(institutionalFiles.length>6)throw Error("Envie no máximo seis imagens.");
