@@ -21,7 +21,6 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const photo=(b:B)=>b.mobileSrc||b.src||"";
  // Capas exclusivas do modo 3D; demais seções continuam usando as imagens existentes.
  const bakery=/padaria|confeitaria/i.test(niche);
- const heroAssets=bakery?Array.from({length:3},(_,i)=>({desktop:`/immersive-3d/padaria/desktop-${i+1}.webp`,mobile:`/immersive-3d/padaria/mobile-${i+1}.webp`})) : [];
  const heroImage=groups[0]?.blocks.find(b=>b.type==="image"&&photo(b));
  const text=(b:B)=>b.text||"";
  const media=(b:B,index:number)=><figure className={"pn3-photo pn3-photo-"+index} key={b.id}><picture>{b.mobileSrc&&<source media="(max-width: 640px)" srcSet={b.mobileSrc}/>}<img src={b.src||b.mobileSrc||""} alt={text(b)||"Fotografia do negócio"} loading={index===0?"eager":"lazy"} /></picture></figure>;
