@@ -156,3 +156,42 @@
 .pn3-root:has(.pn3-bakery-experience)>.pn3-footer.pn3-bakery-footer-warm a{color:#563724!important;font-size:14px!important}
 .pn3-root:has(.pn3-bakery-experience)>.pn3-footer.pn3-bakery-footer-warm .pn3-bakery-mark svg{color:#87572e!important}
 @media(max-width:700px){.pn3-root .pn3-bakery-experience .pn3-bakery-order{padding:55px 20px 75px!important}.pn3-root .pn3-bakery-experience .pn3-bakery-note{padding:52px 22px 48px!important;box-shadow:0 12px 0 -5px #c8a37e,0 18px 24px #75503222!important}.pn3-bakery-note-ornament{font-size:10px;letter-spacing:.12em}.pn3-root .pn3-bakery-experience .pn3-bakery-note h2{font-size:clamp(43px,10vw,58px)}.pn3-root:has(.pn3-bakery-experience)>.pn3-footer.pn3-bakery-footer-warm{padding:55px 26px!important;align-items:center;text-align:center;flex-direction:column;justify-content:center}.pn3-root:has(.pn3-bakery-experience)>.pn3-footer.pn3-bakery-footer-warm div{justify-content:center}}
+
+
+/* Bakery reference composition: mustard ticket and reviews, neutral location */
+.pn3-root .pn3-bakery-experience .pn3-bakery-order{background:#e5e2dc!important;padding:70px clamp(20px,5vw,55px) 105px!important}
+.pn3-bakery-ticket{max-width:900px;margin:0 auto;border-radius:27px;background:#cb8b1c;color:#2d1a13;text-align:left;overflow:hidden;padding:0!important;box-shadow:none}
+.pn3-bakery-ticket-intro{padding:55px clamp(30px,6vw,70px) 44px}
+.pn3-bakery-ticket h2{font:800 clamp(40px,6vw,68px)/1.06 Arial,sans-serif!important;letter-spacing:-.055em;color:#2b170f;margin:0 0 38px}
+.pn3-bakery-ticket p{font:clamp(18px,2.3vw,26px)/1.5 Arial,sans-serif;color:#2b170f;margin:0}
+.pn3-bakery-ticket-form{position:relative;padding:54px clamp(30px,6vw,70px) 60px;border-top:7px dotted #e5e2dc;display:flex;flex-direction:column;gap:15px}
+.pn3-bakery-ticket-form:before,.pn3-bakery-ticket-form:after{content:"";position:absolute;top:-24px;width:48px;height:48px;border-radius:50%;background:#e5e2dc}
+.pn3-bakery-ticket-form:before{left:-24px}.pn3-bakery-ticket-form:after{right:-24px}
+.pn3-bakery-ticket-form strong{font:700 20px Arial,sans-serif;margin-bottom:12px}
+.pn3-bakery-ticket-form input{box-sizing:border-box;display:block;width:100%;border:0;border-radius:0;background:#e8c895;color:#281910;padding:21px 24px;font:18px Arial,sans-serif;min-height:65px}
+.pn3-bakery-ticket-form input::placeholder{color:#40291b;opacity:1}
+.pn3-bakery-ticket-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
+.pn3-bakery-ticket-actions button,.pn3-bakery-ticket-actions a{border:0;border-radius:24px;background:#2e1a12;color:#fff8ed;text-decoration:none;padding:19px 27px;font:700 18px Arial,sans-serif;cursor:pointer}
+.pn3-bakery-ticket-actions a{background:#f5eee5;color:#2e1a12}
+.pn3-root .pn3-bakery-experience .pn3-bakery-reviews{background:#cb8b1c!important;color:#2d1a13!important;padding:85px clamp(22px,5vw,55px)!important;text-align:left}
+.pn3-bakery-reviews-inner{max-width:1080px;margin:0 auto}
+.pn3-bakery-reviews h2{font:800 clamp(44px,6.4vw,80px)/1.02 Arial,sans-serif!important;letter-spacing:-.05em;color:#2d1a13;margin:0 0 24px;text-align:left}
+.pn3-bakery-reviews-subtitle{font:clamp(18px,2.3vw,25px)/1.5 Arial,sans-serif;margin:0 0 75px;color:#2d1a13}
+.pn3-root .pn3-bakery-review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px;align-items:start}
+.pn3-root .pn3-bakery-review-grid blockquote{position:relative;background:#f5f3ef!important;color:#2d1a13!important;border:0!important;border-radius:0!important;clip-path:polygon(0 2%,5% 0,10% 2%,15% 0,20% 2%,25% 0,30% 2%,35% 0,40% 2%,45% 0,50% 2%,55% 0,60% 2%,65% 0,70% 2%,75% 0,80% 2%,85% 0,90% 2%,95% 0,100% 2%,100% 98%,95% 100%,90% 98%,85% 100%,80% 98%,75% 100%,70% 98%,65% 100%,60% 98%,55% 100%,50% 98%,45% 100%,40% 98%,35% 100%,30% 98%,25% 100%,20% 98%,15% 100%,10% 98%,5% 100%,0 98%);padding:58px 42px 66px!important;margin:0 0 25px!important;box-shadow:none!important;transform:rotate(-3deg)}
+.pn3-root .pn3-bakery-review-grid blockquote:nth-child(2n){transform:rotate(3deg) translateY(32px)}
+.pn3-root .pn3-bakery-review-grid blockquote strong{display:block;font:800 clamp(20px,2.5vw,27px) Arial,sans-serif;margin-bottom:8px}
+.pn3-root .pn3-bakery-review-grid blockquote small{display:block;font:17px Arial,sans-serif;color:#675a50}
+.pn3-root .pn3-bakery-review-grid blockquote p{font:clamp(19px,2.2vw,24px)/1.5 Arial,sans-serif;color:#2d1a13;margin:35px 0 0}
+.pn3-root .pn3-bakery-experience .pn3-bakery-location{background:#e5e2dc!important;padding:65px clamp(22px,5vw,55px) 110px!important;display:block}
+.pn3-bakery-location-inner{max-width:1000px;margin:auto;display:flex;flex-direction:column;gap:22px}
+.pn3-root .pn3-bakery-location .pn3-bakery-map-placeholder{width:100%;height:350px;min-height:350px;background:#f5f3ef;border:0;border-radius:25px;overflow:hidden;padding:0}
+.pn3-bakery-map-placeholder iframe{width:100%;height:100%;border:0}
+.pn3-root .pn3-bakery-location .pn3-bakery-location-copy{background:#f5f3ef;color:#2d1a13;border-radius:26px;padding:55px clamp(30px,6vw,70px);text-align:left}
+.pn3-bakery-location-copy h2{font:800 clamp(38px,5.4vw,65px)/1.1 Arial,sans-serif!important;letter-spacing:-.045em;color:#2d1a13;margin:0 0 40px}
+.pn3-bakery-location-copy strong{display:block;font:700 20px Arial,sans-serif;margin:20px 0 8px}
+.pn3-bakery-location-copy p{font:clamp(18px,2.3vw,23px)/1.5 Arial,sans-serif;margin:0 0 18px;color:#35251d}
+.pn3-bakery-location-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.pn3-root .pn3-bakery-location-actions a{display:inline-flex;align-items:center;justify-content:center;margin:0;border-radius:23px;background:#cb8b1c;color:#291a12;font:700 17px Arial,sans-serif;padding:20px 25px}
+.pn3-root .pn3-bakery-location-actions a:nth-child(2){background:#2e1a12;color:#fff}
+@media(max-width:700px){.pn3-root .pn3-bakery-experience .pn3-bakery-order{padding:55px 18px 75px!important}.pn3-bakery-ticket-intro{padding:45px 28px 35px}.pn3-bakery-ticket-form{padding:48px 28px 45px}.pn3-bakery-ticket-actions{flex-direction:column;align-items:flex-start}.pn3-bakery-ticket-actions button,.pn3-bakery-ticket-actions a{max-width:100%;font-size:16px}.pn3-root .pn3-bakery-experience .pn3-bakery-reviews{padding:70px 25px 95px!important}.pn3-bakery-reviews-subtitle{margin-bottom:50px}.pn3-root .pn3-bakery-review-grid{grid-template-columns:1fr;gap:0}.pn3-root .pn3-bakery-review-grid blockquote{padding:45px 32px 50px!important;margin-bottom:15px!important;transform:rotate(-3deg)}.pn3-root .pn3-bakery-review-grid blockquote:nth-child(2n){transform:rotate(3deg) translateY(-5px)}.pn3-root .pn3-bakery-experience .pn3-bakery-location{padding:35px 18px 75px!important}.pn3-root .pn3-bakery-location .pn3-bakery-map-placeholder{height:260px;min-height:260px}.pn3-root .pn3-bakery-location .pn3-bakery-location-copy{padding:40px 28px}.pn3-bakery-location-actions{flex-direction:column;align-items:flex-start}}
