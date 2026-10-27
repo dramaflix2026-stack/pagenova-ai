@@ -350,7 +350,7 @@ export default function BuilderV2() {
       const saved=localStorage.getItem(key);
       if(saved){
         const parsed=JSON.parse(saved) as Site;
-        if(Array.isArray(parsed.blocks)&&parsed.blocks.length){
+        if(parsed && typeof parsed==="object" && Array.isArray(parsed.blocks) && parsed.blocks.length && parsed.blocks.every((b:unknown)=>!!b && typeof b==="object" && typeof (b as Block).type==="string") && typeof parsed.title==="string" && typeof parsed.background==="string"){
           setSite(projectId?{...parsed,crmImported:true}:parsed);
           if(parsed.kind)setSiteCategory(parsed.kind);
           if(parsed.realEstateWhatsapp)setRealEstateWhatsapp(parsed.realEstateWhatsapp);
