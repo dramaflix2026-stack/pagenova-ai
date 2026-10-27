@@ -1,6 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState,type ChangeEvent} from "react";
 import catalog from "@/lib/niche-photo-catalog.json";
+import {createClient} from "@/lib/supabase/client";
 const IMAGE_BASE="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 type Device="desktop"|"mobile";
 type Catalog=Record<string,{desktop:string[];mobile:string[]}>;
@@ -23,11 +24,15 @@ export default function BancoMidias(){
  function navigate(next:"home"|"images"|"videos"){setTab(next);setNiche("Todos");setDevice("all");setError("")}
  async function upload(uploadDevice:Device,event:ChangeEvent<HTMLInputElement>){
   const file=event.target.files?.[0];if(!file)return;setBusy(uploadDevice);setError("");
-  try{const form=new FormData();form.set("niche",uploadNiche);form.set("device",uploadDevice);form.set("file",file);
-   const response=await fetch("/api/builder-v2/videos",{method:"POST",body:form});
-   const raw=await response.text();let data:{url?:string;error?:string}={};
-   try{data=JSON.parse(raw)}catch{throw new Error(response.status===413?"Vídeo acima do limite aceito pelo servidor. Reduza o tamanho do MP4 e tente novamente.":response.status===504||response.status===502?"O servidor não concluiu o upload a tempo. Tente um arquivo menor.":`Servidor recusou o upload (HTTP ${response.status}). Verifique o limite de requisição e tente novamente.`)}
-   if(!response.ok||!data.url)throw new Error(data.error||"Erro ao enviar vídeo.");
+  try{
+   if(file.type!=="video/mp4"||file.size>45_000_000)throw new Error("Envie um MP4 de até 45 MB.");
+   const supabase=createClient();
+   const {data:{user},error:authError}=await supabase.auth.getUser();
+   if(authError||!user)throw new Error("Faça login para enviar vídeos.");
+   const path="cinematic-library/"+uploadNiche+"/"+uploadDevice+"-"+crypto.randomUUID()+".mp4";
+   const {error:storageError}=await supabase.storage.from("site-images").upload(path,file,{contentType:"video/mp4",cacheControl:"31536000",upsert:false});
+   if(storageError)throw new Error("O Storage recusou o vídeo: "+storageError.message);
+   const data={url:supabase.storage.from("site-images").getPublicUrl(path).data.publicUrl};
    const next=[...videos.filter(v=>!(v.niche===uploadNiche&&v.device===uploadDevice)),{niche:uploadNiche,device:uploadDevice,url:data.url}];
    setVideos(next);
   }catch(e){setError(e instanceof Error?e.message:"Falha no upload")}finally{setBusy(null);event.target.value=""}
