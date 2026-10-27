@@ -32,7 +32,7 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const background=warm?"#241c19":health?"#102c2b":"#152520";
  const photo=(b:B)=>b.mobileSrc||b.src||"";
  // Capas exclusivas do modo 3D; demais seções continuam usando as imagens existentes.
- const burger=/hamburg|burger|lanche/i.test(niche);
+ const burger=(site.extras as Record<string,unknown>|undefined)?.immersive3dTemplate==="hamburgueria";
  const bakery=/padaria|confeitaria/i.test(niche)||burger;
  const activeVideos=burger?{desktop:site.cinematic?.desktopUrl||burgerVideos.desktop,mobile:site.cinematic?.mobileUrl||burgerVideos.mobile}:bakeryVideos;
  const activeMenu=burger?[["Smash da Casa","Blend na chapa, cheddar derretido, picles e molho especial."],["Duplo Brasa","Dois burgers suculentos, queijo duplo e cebola caramelizada."],["Bacon Crunch","Burger artesanal, bacon crocante e maionese defumada."],["Chicken Crispy","Frango empanado crocante, coleslaw e molho da casa."],["Batata Supreme","Batatas crocantes com cheddar e bacon."],["Combo da Casa","Seu burger favorito, fritas e bebida gelada."]]:bakeryDefaultMenu;
