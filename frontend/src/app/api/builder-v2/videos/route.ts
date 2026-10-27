@@ -16,6 +16,18 @@ export async function POST(req:NextRequest){
  const supabase=await createClient();
  const {data:{user},error:authError}=await supabase.auth.getUser();
  if(authError||!user)return NextResponse.json({error:"Faça login para enviar vídeos."},{status:401});
+ if(req.headers.get("content-type")?.includes("application/json")){
+  const body=await req.json().catch(()=>null);
+  if(!body||typeof body.niche!=="string"||typeof body.device!=="string"||typeof body.password!=="string")return NextResponse.json({error:"Dados inválidos."},{status:400});
+  if(!authorized(body.password))return NextResponse.json({error:"Senha incorreta."},{status:403});
+  if(!VALID_NICHES.has(normalizeNiche(body.niche))||!["desktop","mobile"].includes(body.device))return NextResponse.json({error:"Nicho ou versão inválidos."},{status:422});
+  if(body.type!=="video/mp4"||typeof body.size!=="number"||body.size<1024||body.size>MAX_BYTES)return NextResponse.json({error:"MP4 deve ter até 45 MB."},{status:413});
+  const path="cinematic-library/"+normalizeNiche(body.niche)+"/"+body.device+"-"+crypto.randomUUID()+".mp4";
+  const storage=await getStorage();
+  const {data,error}=await storage.storage.from("site-images").createSignedUploadUrl(path);
+  if(error||!data)return NextResponse.json({error:"Não foi possível iniciar o upload."},{status:502});
+  return NextResponse.json({path,token:data.token,url:storage.storage.from("site-images").getPublicUrl(path).data.publicUrl});
+ }
  let form:FormData;
  try{form=await req.formData()}catch{return NextResponse.json({error:"Arquivo inválido."},{status:400})}
  const niche=form.get("niche"),device=form.get("device"),file=form.get("file"),password=form.get("password");
