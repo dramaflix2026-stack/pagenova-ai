@@ -49,3 +49,11 @@
 .pn3-steam-plume:nth-child(2n){filter:blur(22px);width:clamp(45px,9vw,110px)}
 @keyframes pn3-steam-rise{0%{opacity:0;transform:translate3d(0,25px,0) scale(.45) rotate(-9deg)}18%{opacity:.5}55%{opacity:.28;transform:translate3d(14px,-65px,0) scale(1.25) rotate(7deg)}100%{opacity:0;transform:translate3d(-18px,-160px,0) scale(1.8) rotate(-8deg)}}
 @media(prefers-reduced-motion:reduce){.pn3-steam-scene{display:none}}
+
+
+/* Higher-contrast steam visible in the scaled Builder preview as well as published sites. */
+.pn3-bakery-storefront .pn3-steam-scene{mix-blend-mode:normal;z-index:5;isolation:isolate}
+.pn3-bakery-storefront .pn3-steam-plume{width:clamp(55px,10vw,140px);height:clamp(160px,28vw,310px);filter:blur(11px);background:radial-gradient(ellipse at 50% 65%,rgba(255,255,249,.82) 0%,rgba(245,241,227,.55) 23%,rgba(255,255,255,.23) 46%,transparent 75%);animation-name:pn3-steam-visible;animation-timing-function:ease-out;animation-iteration-count:infinite}
+.pn3-bakery-storefront .pn3-steam-plume:nth-child(2n){filter:blur(19px)}
+@keyframes pn3-steam-visible{0%{opacity:0;transform:translate3d(0,12px,0) scale(.35) rotate(-7deg)}15%{opacity:.78}42%{opacity:.62;transform:translate3d(16px,-55px,0) scale(1.0) rotate(8deg)}70%{opacity:.38;transform:translate3d(-14px,-105px,0) scale(1.4) rotate(-5deg)}100%{opacity:0;transform:translate3d(20px,-185px,0) scale(1.9) rotate(9deg)}}
+@media(prefers-reduced-motion:reduce){.pn3-bakery-storefront .pn3-steam-scene{display:none}}
