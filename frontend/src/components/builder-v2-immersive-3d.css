@@ -310,3 +310,17 @@
 .pn3-root.pn3-variant-02 .pn3-bakery-counter-heading{position:relative;z-index:1}
 .pn3-root.pn3-variant-02 .pn3-bakery-menu-grid{gap:22px}
 @media(max-width:640px){.pn3-root.pn3-variant-02 .pn3-bakery-storefront{padding:0!important}.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div>div:last-child{padding:44px 24px 58px!important}.pn3-root.pn3-variant-02 .pn3-bakery-menu-grid{grid-template-columns:1fr!important}}
+
+/* TEMPLATE 02: editorial de tela cheia, composição própria, não é uma recoloração do Template 01. */
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront{padding:0!important;background:#11100e!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div{max-width:none!important;border-radius:0!important;background:#11100e!important;display:grid!important;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);min-height:min(90vh,850px)}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div>div:first-child{height:100%!important;min-height:680px;border-radius:0!important;grid-column:2;grid-row:1}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div>div:last-child{grid-column:1;grid-row:1;display:flex!important;justify-content:center!important;align-items:flex-start!important;text-align:left!important;padding:clamp(56px,7vw,120px)!important;gap:32px!important;background:#11100e!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront h1{font-size:clamp(58px,6vw,118px)!important;line-height:.94!important;letter-spacing:-.065em!important;text-align:left!important;color:#fff1e2!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront p{text-align:left!important;align-self:stretch;color:#d7c6b8!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-storefront a{align-self:flex-start;border-radius:2px!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-awning{display:none!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-fornada{background:#e9e1d5!important;color:#211812!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-fornada h2,.pn3-root.pn3-variant-02 .pn3-bakery-fornada p{color:#211812!important}
+.pn3-root.pn3-variant-02 .pn3-bakery-counter{background:#15110e!important}
+@media(max-width:780px){.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div{display:flex!important;flex-direction:column!important;min-height:0}.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div>div:first-child{height:62vh!important;min-height:390px!important;width:100%}.pn3-root.pn3-variant-02 .pn3-bakery-storefront>div>div:last-child{padding:46px 26px 68px!important;align-items:flex-start!important;width:100%}.pn3-root.pn3-variant-02 .pn3-bakery-storefront h1{font-size:clamp(45px,12vw,74px)!important}}
