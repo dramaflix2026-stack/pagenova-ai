@@ -34,7 +34,11 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  <div style={{maxWidth:1160,margin:"0 auto",background:"#f4f1eb",borderRadius:"24px 24px 0 0",overflow:"hidden"}}>
  <div style={{position:"relative",height:"clamp(300px,58vw,560px)",overflow:"hidden",borderRadius:"24px 24px 0 0"}}>
 {bakeryHeroAssets.map((asset,index)=><picture key={index} aria-hidden={index!==bakeryFrame} style={{position:"absolute",inset:0,display:"block",opacity:index===bakeryFrame?1:0,transition:"opacity 1.4s ease-in-out",animation:index===bakeryFrame?"pn3-bakery-kenburns 6.8s ease-out both":"none"}}><source media="(max-width: 640px)" srcSet={asset.mobileSrc}/><img src={asset.src} alt={index===bakeryFrame?"Pães e doces artesanais":""} style={{display:"block",width:"100%",height:"100%",objectFit:"cover"}} loading={index===0?"eager":"lazy"}/></picture>)}
- <div className="pn3-steam-scene" aria-hidden="true">{[0,1,2,3,4,5,6,7].map(i=><span key={i} className="pn3-steam-plume" style={{left:(12+i*10)+"%",bottom:(8+(i%3)*9)+"%",animationDelay:(i*.57)+"s",animationDuration:(3.2+(i%3)*.7)+"s"}}/>)}</div>
+ <div className="pn3-steam-scene" aria-hidden="true">
+ {[{x:29,y:71},{x:43,y:62},{x:61,y:76},{x:78,y:68}].map((p,j)=><div key={j} className="pn3-steam-origin" style={{left:p.x+"%",top:p.y+"%"}}>
+ {[0,1,2].map(i=><svg key={i} className="pn3-steam-ribbon" viewBox="0 0 70 210" preserveAspectRatio="none" style={{animationDelay:(i*.85+j*.37)+"s",animationDuration:(4.2+i*.6)+"s"}}><path d={i%2===0?"M34 205 C 2 172,65 144,31 111 S 55 51,35 5":"M33 205 C 65 171,5 139,37 103 S 13 45,32 5"} fill="none" stroke="rgba(255,255,245,.68)" strokeWidth="12" strokeLinecap="round"/></svg>)}
+ </div>)}
+ </div>
  <div aria-hidden="true" style={{position:"absolute",bottom:0,left:0,right:0,height:58,background:"repeating-linear-gradient(90deg,#321e16 0 36px,#f4f1eb 36px 72px)"}}/>
  </div>
  <div style={{padding:"clamp(38px,6vw,75px) 22px 85px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:24}}>
