@@ -27,7 +27,7 @@ export default function BancoMidias(){
  const [uploadStatus,setUploadStatus]=useState("");
  const [videoPassword,setVideoPassword]=useState("");
  const [videoStatus,setVideoStatus]=useState("");
- useEffect(()=>{if(tab!=="videos")return;let active=true;fetch("/api/builder-v2/videos?all=1",{cache:"no-store"}).then(r=>r.json()).then(data=>{if(!active)return;if(!r.ok)throw new Error(data.error||"Falha ao consultar vídeos");setVideos(Array.isArray(data.items)?data.items:[]) }).catch(()=>{if(active)setError("Não foi possível consultar a biblioteca compartilhada.")});return()=>{active=false}},[tab]);
+ useEffect(()=>{if(tab!=="videos")return;let active=true;fetch("/api/builder-v2/videos?all=1",{cache:"no-store"}).then(async r=>{const data=await r.json();if(!r.ok)throw new Error(data.error||"Falha ao consultar vídeos");return data}).then(data=>{if(!active)return;setVideos(Array.isArray(data.items)?data.items:[]) }).catch(()=>{if(active)setError("Não foi possível consultar a biblioteca compartilhada.")});return()=>{active=false}},[tab]);
  const images=useMemo(()=>Object.entries(photos).filter(([name])=>niche==="Todos"||name===niche).flatMap(([name,entry])=>(["desktop","mobile"] as const).flatMap(d=>device!=="all"&&device!==d?[]:entry[d].map((id,index)=>({name,device:d,index:index+1,url:IMAGE_BASE+id+".png"})))),[niche,device]);
  const visibleVideos=videos.filter(v=>(niche==="Todos"||v.niche===nicheKey(niche)||(nicheKey(niche)==="padaria-e-confeitaria"&&v.niche==="padaria"))&&(device==="all"||v.device===device));
  async function importImage(event:ChangeEvent<HTMLInputElement>){
