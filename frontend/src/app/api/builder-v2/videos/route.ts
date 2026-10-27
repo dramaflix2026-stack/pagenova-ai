@@ -46,7 +46,7 @@ export async function GET(req:NextRequest){
   const root=await storage.storage.from("site-images").list("cinematic-library",{limit:1000});
   if(root.error)return NextResponse.json({error:"Falha ao consultar vídeos: "+root.error.message},{status:502});
   const folderNames=(root.data||[]).filter(f=>!f.id).map(f=>f.name);
-  names=Array.from(new Set([...folderNames,...VALID_NICHES,"padaria","padaria-e-confeitaria"]));
+  names=Array.from(new Set(folderNames));
  }else names=[niche];
  const results=await Promise.all(names.map(async name=>{
   const {data,error}=await storage.storage.from("site-images").list("cinematic-library/"+name,{limit:1000,sortBy:{column:"created_at",order:"desc"}});
