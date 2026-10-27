@@ -841,7 +841,7 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
-      const incoming = data.site as Site;
+      let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}
       incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
