@@ -52,9 +52,14 @@ export default function BancoMidias(){
   const file=event.target.files?.[0];if(!file)return;setBusy(uploadDevice);setError("");setVideoStatus("");
   try{
    if(file.type!=="video/mp4"||file.size>45_000_000)throw new Error("Envie um MP4 de até 45 MB.");
-   const form=new FormData();form.set("file",file);form.set("device",uploadDevice);form.set("niche",uploadNiche);form.set("password",videoPassword);
-   const response=await fetch("/api/builder-v2/videos",{method:"POST",body:form});
-   const data=await response.json();if(!response.ok)throw new Error(data.error||"Falha ao enviar vídeo");
+   const response=await fetch("/api/builder-v2/videos",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({device:uploadDevice,niche:uploadNiche,password:videoPassword,size:file.size,type:file.type})});
+   const raw=await response.text();let data:{error?:string;path?:string;token?:string;url?:string}={};
+   try{data=JSON.parse(raw)}catch{throw new Error("Falha ao iniciar envio (HTTP "+response.status+"). Tente novamente.")}
+   if(!response.ok||!data.path||!data.token||!data.url)throw new Error(data.error||"Falha ao autorizar envio");
+   setVideoStatus("Enviando vídeo diretamente ao armazenamento...");
+   const storage=createClient();
+   const uploaded=await storage.storage.from("site-images").uploadToSignedUrl(data.path,data.token,file,{contentType:"video/mp4",cacheControl:"31536000"});
+   if(uploaded.error)throw new Error("Falha no armazenamento: "+uploaded.error.message);
    setVideos(prev=>[{niche:nicheKey(uploadNiche),device:uploadDevice,url:data.url},...prev]);
    setVideoStatus("Vídeo "+(uploadDevice==="desktop"?"desktop":"mobile")+" enviado com sucesso!");
   }catch(e){setError(e instanceof Error?e.message:"Falha no upload")}finally{setBusy(null);event.target.value=""}
