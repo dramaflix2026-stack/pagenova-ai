@@ -241,8 +241,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Scoped deterministic edits take priority over generic handlers: a complex prompt
   // must be applied atomically, never answered as if only one sub-step succeeded.
-  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
-    const localized=(editingSite as typeof editingSite&{cinematic?:{mode?:string}}).cinematic?.mode==="immersive-3d"?null:applyInstitutionalEdit(editingSite as typeof editingSite&{blocks:Array<Record<string,unknown>>},instructionText);
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length&&(editingSite as typeof editingSite&{cinematic?:{mode?:string}}).cinematic?.mode!=="immersive-3d"){
+    const localized=applyInstitutionalEdit(editingSite as typeof editingSite&{blocks:Array<Record<string,unknown>>},instructionText);
     if(localized){
       if("error" in localized)return NextResponse.json({error:localized.error},{status:422});
       return NextResponse.json(localized);
