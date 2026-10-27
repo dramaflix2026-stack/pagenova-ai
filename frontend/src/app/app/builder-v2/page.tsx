@@ -862,6 +862,8 @@ export default function BuilderV2() {
         if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento em todos os elementos. O projeto foi preservado.");
       }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
+      // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
+      if(site.cinematic?.mode==="cinematic" && incoming.cinematic?.mode!=="cinematic") incoming={...incoming,cinematic:{...site.cinematic,mode:"cinematic"}};
       setSite(incoming);
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
