@@ -271,6 +271,13 @@ export default function BuilderV2() {
   const [nicheGroup, setNicheGroup] = useState("Todos");
   const [selectedNiche, setSelectedNiche] = useState("");
   const chooseNiche = (niche:string) => {
+    // The niche picker belongs to institutional generation, not the dedicated property manager.
+    // A restored specialized draft must not hijack a fresh institutional niche flow.
+    if(/imobili[aá]ria|im[oó]veis/i.test(niche)&&siteCategory==="real-estate"){
+      setSiteCategory("institutional");
+      setSite({...initial,id:crypto.randomUUID(),kind:"institutional",niche,properties:[]});
+      setMessages([]);
+    }
     setSelectedNiche(niche);
     // Nicho é apenas conteúdo; nunca seleciona o módulo especializado de imóveis.
     if(siteCategory==="institutional")setSite(prev=>({...prev,kind:"institutional",niche,properties:[]}));
