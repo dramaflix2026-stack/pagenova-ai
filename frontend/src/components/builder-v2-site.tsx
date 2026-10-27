@@ -1,4 +1,5 @@
 "use client";
+import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { CinematicBackground, type CinematicAppearance } from "@/components/builder-v2-cinematic-background";
 import type {PropertyItem} from "@/components/builder-v2-real-estate";
 import { useEffect, useRef, useState } from "react";
@@ -47,6 +48,7 @@ const designPresets = [
 ] as const;
 
 export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"}) {
+  if(site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={site}/>;
   const previewRef=useRef<HTMLDivElement>(null);
   const [menuOpen,setMenuOpen]=useState(false);
   useEffect(()=>attachSiteMotion(previewRef.current,site.motion),[site]);
