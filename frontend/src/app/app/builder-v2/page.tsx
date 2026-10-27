@@ -163,7 +163,7 @@ export default function BuilderV2() {
   useEffect(()=>{
     if(site.cinematic?.mode!=="cinematic")return;
     const nicheText=[site.niche,site.title].filter(Boolean).join(" ");
-    const videoNiche=/pizzaria|pizza/i.test(nicheText)?"pizzaria":/hamb[uú]rg|lanche|burger/i.test(nicheText)?"hamburgueria":null;
+    const videoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(nicheText)?"odontologia":/pizzaria|pizza/i.test(nicheText)?"pizzaria":/hamb[uú]rg|lanche|burger/i.test(nicheText)?"hamburgueria":null;
     if(!videoNiche)return;
     let cancelled=false;
     fetch("/api/builder-v2/videos?niche="+videoNiche,{cache:"no-store"}).then(r=>r.ok?r.json():null).then(data=>{
