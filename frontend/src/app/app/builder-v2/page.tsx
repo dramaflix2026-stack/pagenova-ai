@@ -833,7 +833,7 @@ export default function BuilderV2() {
       setInstruction("");setBusy(false);return;
     }
     const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
-    const targetKind:SiteCategory=creatingNewSite&&/imobili[aá]ria|im[oó]veis/i.test(prompt)?"real-estate":siteCategory;
+    const targetKind:SiteCategory=siteCategory;
     const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,properties:[]}:site;
     try {
       const response = await fetch("/api/builder-v2/chat", {
