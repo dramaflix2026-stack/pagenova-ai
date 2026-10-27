@@ -170,8 +170,11 @@ export default function BuilderV2() {
       if(cancelled||!data?.videos)return;
       setSite(prev=>{
         if(prev.cinematic?.mode!=="cinematic")return prev;
-        const desktopUrl=prev.cinematic.desktopUrl||data.videos.desktop||"";
-        const mobileUrl=prev.cinematic.mobileUrl||data.videos.mobile||"";
+        const currentNicheText=[prev.niche,prev.title].filter(Boolean).join(" ");
+        const currentVideoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(currentNicheText)?"odontologia":/pizzaria|pizza/i.test(currentNicheText)?"pizzaria":/hamb[uú]rg|lanche|burger/i.test(currentNicheText)?"hamburgueria":null;
+        if(currentVideoNiche!==videoNiche)return prev;
+        const desktopUrl=data.videos.desktop||prev.cinematic.desktopUrl||"";
+        const mobileUrl=data.videos.mobile||prev.cinematic.mobileUrl||"";
         if(desktopUrl===prev.cinematic.desktopUrl&&mobileUrl===prev.cinematic.mobileUrl)return prev;
         return {...prev,cinematic:{...prev.cinematic,desktopUrl,mobileUrl}};
       });
