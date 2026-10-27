@@ -256,7 +256,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const set=(key:string,value:unknown)=>{bakery[key]=value;changed=true;};
     const hero=blocks.find(b=>b.type==="heading"&&b.section==="inicio");
     const heroButton=blocks.find(b=>b.type==="button"&&b.section==="inicio");
-    if(/(?:nome|marca|logo|logotipo|padaria)/.test(lower)&&/(?:alter|troc|mud|renome)/.test(lower)&&/(?:nome|marca|logo|logotipo)/.test(lower)&&replacement){
+    if(/(?:nome da padaria|nome do negocio|nome da empresa|marca do site|logotipo|logo da padaria)/.test(lower)&&/(?:alter|troc|mud|renome)/.test(lower)&&replacement&&!/(?:card|produto|balcao|fornada)/.test(lower)){
       header.brand=replacement;current.title=replacement;changed=true;summary="Marca atualizada em todas as áreas que utilizam a identidade do negócio.";
       if(hero&&typeof hero.text==="string"&&/padaria|pao nosso/i.test(hero.text))hero.text=replacement;
     }else if(/cor principal|cores? (?:do site|principal)|verde.oliva/.test(lower)&&/#[0-9a-f]{6}/i.test(instruction)){
@@ -275,6 +275,21 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }else if(/fornada/.test(lower)&&/card/.test(lower)&&/(?:segundo|2[oº°]?)/.test(lower)&&quoted.length){
       const cards=Array.isArray(bakery.fornadaCards)?[...(bakery.fornadaCards as Array<[string,string]>)]:[["Pão quentinho","Crosta dourada e miolo macio"],["Croissant artesanal","Camadas leves e amanteigadas"],["Doces da casa","Um carinho em cada pedaço"],["Café fresquinho","O par perfeito para seu pão"]];
       cards[1]=[quoted[0],quoted[1]||cards[1][1]];set("fornadaCards",cards);summary="Segundo card da fornada atualizado.";
+    }else if(/fornada/.test(lower)&&/card/.test(lower)&&/(?:primeiro|segundo|terceiro|quarto|1[oº°]?|2[oº°]?|3[oº°]?|4[oº°]?)/.test(lower)){
+      const index=/primeiro|1[oº°]?/.test(lower)?0:/segundo|2[oº°]?/.test(lower)?1:/terceiro|3[oº°]?/.test(lower)?2:3;
+      const cards=Array.isArray(bakery.fornadaCards)?[...(bakery.fornadaCards as Array<[string,string]>)]:[["Pão quentinho","Crosta dourada e miolo macio"],["Croissant artesanal","Camadas leves e amanteigadas"],["Doces da casa","Um carinho em cada pedaço"],["Café fresquinho","O par perfeito para seu pão"]];
+      const name=instruction.match(/card[^"“]*["“]([^"”]+)["”]/i)?.[1];
+      const description=instruction.match(/descri[cç][aã]o[^"“]*["“]([^"”]+)["”]/i)?.[1];
+      if(name||description){cards[index]=[name||cards[index][0],description||cards[index][1]];set("fornadaCards",cards);summary="Card da fornada atualizado.";}
+    }else if(/balcao/.test(lower)&&/(?:produto|card)/.test(lower)){
+      const defaults=[["Pão francês","Sai quente a cada fornada, até a hora de fechar. Tem o integral também."],["Pão na chapa","Chapa bem quente, manteiga e requeijão cremoso. Sai com café coado."],["Trança de pistache","Massa macia, creme de pistache e pistache picado por cima."],["Coxinha de queijo puxa","Frita na hora. Também em mini, para festa."],["Café da manhã","Pães, café passado na hora e tudo para começar bem o dia."],["Doces da vitrine","Bolos e delícias artesanais preparados todos os dias."]];
+      const items=Array.isArray(bakery.menu)?[...(bakery.menu as string[][])]:defaults;
+      const name=instruction.match(/(?:chamado|para)\s+["“]([^"”]+)["”]/i)?.[1];
+      const description=instruction.match(/descri[cç][aã]o\s+(?:para\s+)?["“]([^"”]+)["”]/i)?.[1];
+      const index=/segundo|2[oº°]?/.test(lower)?1:/terceiro|3[oº°]?/.test(lower)?2:/quarto|4[oº°]?/.test(lower)?3:/ultimo/.test(lower)?items.length-1:0;
+      if(/(?:adicion|inclu|novo produto)/.test(lower)&&name){items.push([name,description||""]);set("menu",items);summary="Produto adicionado ao balcão.";}
+      else if(/(?:remov|exclu|apag)/.test(lower)&&items.length){items.splice(index,1);set("menu",items);summary="Produto removido do balcão.";}
+      else if(/(?:alter|troc|mud|renome)/.test(lower)&&(name||description)&&items[index]){items[index]=[name||items[index][0],description||items[index][1]];set("menu",items);summary="Produto do balcão atualizado.";}
     }else if(/(?:balcao|balcão)/.test(lower)&&/(?:titulo|t[ií]tulo)/.test(lower)&&replacement){
       set("balcaoTitle",replacement);summary="Título do balcão atualizado.";
     }
