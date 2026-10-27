@@ -163,9 +163,10 @@ export default function BuilderV2() {
   useEffect(()=>{
     if(site.cinematic?.mode!=="cinematic")return;
     const nicheText=[site.niche,site.title].filter(Boolean).join(" ");
-    if(!/hamb[uú]rg|lanche|burger/i.test(nicheText))return;
+    const videoNiche=/pizzaria|pizza/i.test(nicheText)?"pizzaria":/hamb[uú]rg|lanche|burger/i.test(nicheText)?"hamburgueria":null;
+    if(!videoNiche)return;
     let cancelled=false;
-    fetch("/api/builder-v2/videos?niche=hamburgueria",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(data=>{
+    fetch("/api/builder-v2/videos?niche="+videoNiche,{cache:"no-store"}).then(r=>r.ok?r.json():null).then(data=>{
       if(cancelled||!data?.videos)return;
       setSite(prev=>{
         if(prev.cinematic?.mode!=="cinematic")return prev;
