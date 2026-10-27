@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useRef} from "react";
+import {useEffect,useRef,useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import {attachSiteMotion} from "@/lib/site-builder-animation";
 import {SiteWhatsAppButton} from "@/components/site-whatsapp-button";
@@ -10,6 +10,8 @@ const bakeryHeroAssets=[{"src":"https://kgbgwbodosglmonvrhyi.supabase.co/storage
 
 export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const root=useRef<HTMLDivElement>(null);
+ const [bakeryFrame,setBakeryFrame]=useState(0);
+ useEffect(()=>{if(typeof window==="undefined"||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const id=window.setInterval(()=>setBakeryFrame(v=>(v+1)%bakeryHeroAssets.length),5500);return()=>window.clearInterval(id)},[]);
  useEffect(()=>attachSiteMotion(root.current,site.motion),[site]);
  const groups:{id:string;blocks:B[]}[]=[];
  for(const block of site.blocks){const id=block.section||"inicio";let g=groups.find(x=>x.id===id);if(!g){g={id,blocks:[]};groups.push(g)}g.blocks.push(block)}
@@ -31,7 +33,7 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
   <main>{groups.map((g,i)=>{const headings=g.blocks.filter(b=>b.type==="heading"),paragraphs=g.blocks.filter(b=>b.type==="paragraph"),buttons=g.blocks.filter(b=>b.type==="button"),images=g.blocks.filter(b=>b.type==="image"&&photo(b));const hero=i===0||g.id==="inicio";if(hero&&bakery){return <section key={g.id} id={g.id} className="pn3-bakery-storefront" style={{background:"#e8e4db",color:"#321e16",padding:"12px clamp(12px,3vw,48px) 0",fontFamily:"Arial,sans-serif"}}>
  <div style={{maxWidth:1160,margin:"0 auto",background:"#f4f1eb",borderRadius:"24px 24px 0 0",overflow:"hidden"}}>
  <div style={{position:"relative",height:"clamp(300px,58vw,560px)",overflow:"hidden",borderRadius:"24px 24px 0 0"}}>
- <picture style={{display:"block",width:"100%",height:"100%"}}><source media="(max-width: 640px)" srcSet={bakeryHeroAssets[0].mobileSrc}/><img src={bakeryHeroAssets[0].src} alt="Pães e doces artesanais" style={{display:"block",width:"100%",height:"100%",objectFit:"cover"}}/></picture>
+{bakeryHeroAssets.map((asset,index)=><picture key={index} aria-hidden={index!==bakeryFrame} style={{position:"absolute",inset:0,display:"block",opacity:index===bakeryFrame?1:0,transition:"opacity 1.4s ease-in-out",animation:index===bakeryFrame?"pn3-bakery-kenburns 6.8s ease-out both":"none"}}><source media="(max-width: 640px)" srcSet={asset.mobileSrc}/><img src={asset.src} alt={index===bakeryFrame?"Pães e doces artesanais":""} style={{display:"block",width:"100%",height:"100%",objectFit:"cover"}} loading={index===0?"eager":"lazy"}/></picture>)}>
  <div aria-hidden="true" style={{position:"absolute",bottom:0,left:0,right:0,height:58,background:"repeating-linear-gradient(90deg,#321e16 0 36px,#f4f1eb 36px 72px)"}}/>
  </div>
  <div style={{padding:"clamp(38px,6vw,75px) 22px 85px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:24}}>
