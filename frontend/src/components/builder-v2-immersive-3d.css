@@ -39,3 +39,5 @@
 .pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-copy h1{font-size:clamp(42px,10vw,72px);overflow-wrap:normal}
 .pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-actions,.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-button{width:100%}
 }
+
+@keyframes pn3-bakery-kenburns{from{transform:scale(1)}to{transform:scale(1.075)}}@media(prefers-reduced-motion:reduce){.pn3-bakery-storefront picture{animation:none!important;transition:none!important}}
