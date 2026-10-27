@@ -758,11 +758,11 @@ export default function BuilderV2() {
     if(site.cinematic?.mode==="immersive-3d"&&institutionalFiles.length>0&&site.blocks.length){
       try{
         if(institutionalFiles.length!==1)throw Error("Anexe uma imagem por vez no Template 3D.");
-        const normalized=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+        const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
         const menuTarget=/balcao|produto|cardapio|menu/.test(normalized);
         if(!menuTarget)throw Error("Por enquanto, indique um produto do balcão para substituir sua foto (ex.: 'troque a imagem do produto 2').");
-        const numeric=normalized.match(/(?:produto|card|foto|imagem)\\s*(?:numero\\s*)?(\\d{1,2})/);
-        const words=normalized.match(/\\b(primeir[oa]|segund[oa]|terceir[oa]|quart[oa]|quint[oa]|sext[oa])\\b/);
+        const numeric=normalized.match(/(?:produto|card|foto|imagem)\s*(?:numero\s*)?(\d{1,2})/);
+        const words=normalized.match(/\b(primeir[oa]|segund[oa]|terceir[oa]|quart[oa]|quint[oa]|sext[oa])\b/);
         const positions:Record<string,number>={primeiro:0,primeira:0,segundo:1,segunda:1,terceiro:2,terceira:2,quarto:3,quarta:3,quinto:4,quinta:4,sexto:5,sexta:5};
         const index=numeric?Number(numeric[1])-1:words?positions[words[1]]:-1;
         if(index<0||index>11)throw Error("Indique qual produto deseja alterar (ex.: produto 2).");
