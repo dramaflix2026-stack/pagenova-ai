@@ -68,3 +68,12 @@
 @keyframes pn3-ribbon-rise{0%{opacity:0;transform:translate3d(0,16px,0) scale(.55,.7)}18%{opacity:.5}55%{opacity:.38;transform:translate3d(9px,-33px,0) scale(.9,1.05)}100%{opacity:0;transform:translate3d(-8px,-95px,0) scale(1.3,1.25)}}
 @media(max-width:640px){.pn3-steam-origin{width:43px;height:120px}.pn3-steam-ribbon{filter:blur(4px)}}
 @media(prefers-reduced-motion:reduce){.pn3-bakery-storefront .pn3-steam-scene{display:none}}
+
+
+/* Bakery 3D cinematic video: responsive source, still image fallback. */
+.pn3-bakery-storefront .pn3-bakery-video-fallback,.pn3-bakery-storefront .pn3-bakery-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pn3-bakery-storefront .pn3-bakery-video-fallback{display:block;z-index:0}
+.pn3-bakery-storefront .pn3-bakery-video{z-index:1}
+.pn3-bakery-storefront .pn3-bakery-video-mobile{display:none}
+.pn3-bakery-storefront .pn3-steam-scene{display:none!important}
+@media(max-width:640px){.pn3-bakery-storefront .pn3-bakery-video-desktop{display:none}.pn3-bakery-storefront .pn3-bakery-video-mobile{display:block}}
