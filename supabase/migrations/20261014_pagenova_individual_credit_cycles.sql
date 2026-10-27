@@ -145,8 +145,8 @@ begin
     update public.pagenova_credit_cycles set owner_id=p_owner_id where id=v.id;
   end if;
   return jsonb_build_object('active',true,'cycleId',v.id,
-    'sitesUsed',v.sites_used,'sitesLimit',40,'sitesRemaining',40-v.sites_used,
-    'googleUsed',v.google_used,'googleLimit',150,'googleRemaining',150-v.google_used,
+    'sitesUsed',v.sites_used,'sitesLimit',v.site_limit,'sitesRemaining',greatest(0,v.site_limit-v.sites_used),
+    'googleUsed',v.google_used,'googleLimit',v.google_limit,'googleRemaining',greatest(0,v.google_limit-v.google_used),
     'startedAt',v.started_at);
 end;$$;
 
