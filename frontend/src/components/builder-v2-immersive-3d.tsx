@@ -32,10 +32,10 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const background=warm?"#241c19":health?"#102c2b":"#152520";
  const photo=(b:B)=>b.mobileSrc||b.src||"";
  // Capas exclusivas do modo 3D; demais seções continuam usando as imagens existentes.
- const burger=(site.extras as Record<string,unknown>|undefined)?.immersive3dTemplate==="hamburgueria";
- const bakery=/padaria|confeitaria/i.test(niche)||burger;
- const activeVideos=burger?{desktop:site.cinematic?.desktopUrl||burgerVideos.desktop,mobile:site.cinematic?.mobileUrl||burgerVideos.mobile}:bakeryVideos;
- const activeMenu=burger?[["Smash da Casa","Blend na chapa, cheddar derretido, picles e molho especial."],["Duplo Brasa","Dois burgers suculentos, queijo duplo e cebola caramelizada."],["Bacon Crunch","Burger artesanal, bacon crocante e maionese defumada."],["Chicken Crispy","Frango empanado crocante, coleslaw e molho da casa."],["Batata Supreme","Batatas crocantes com cheddar e bacon."],["Combo da Casa","Seu burger favorito, fritas e bebida gelada."]]:bakeryDefaultMenu;
+ const burger=/hamburg/i.test(niche);
+ const bakery=true;
+ const activeVideos={desktop:site.cinematic?.desktopUrl||( /hamburg/i.test(niche)?burgerVideos.desktop:bakeryVideos.desktop),mobile:site.cinematic?.mobileUrl||(/hamburg/i.test(niche)?burgerVideos.mobile:bakeryVideos.mobile)};
+ const activeMenu=/hamburg/i.test(niche)?[["Smash da Casa","Blend na chapa, cheddar derretido, picles e molho especial."],["Duplo Brasa","Dois burgers suculentos, queijo duplo e cebola caramelizada."],["Bacon Crunch","Burger artesanal, bacon crocante e maionese defumada."],["Chicken Crispy","Frango empanado crocante, coleslaw e molho da casa."],["Batata Supreme","Batatas crocantes com cheddar e bacon."],["Combo da Casa","Seu burger favorito, fritas e bebida gelada."]]:bakeryDefaultMenu;
  const section=(terms:string[])=>groups.find(g=>terms.some(t=>g.id.toLowerCase().includes(t)||g.blocks.some(b=>b.type==="heading"&&(b.text||"").toLowerCase().includes(t))));
  const whatsapp=site.footer?.whatsapp||site.header?.ctaHref||"#contato";
  const menu:string[][]=[];
@@ -47,7 +47,7 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  reviewLines.push(...(reviews?.blocks.filter(b=>b.type==="paragraph").map(b=>b.text||"").filter(Boolean)||[]));
  const heroImages=groups[0]?.blocks.filter(b=>b.type==="image"&&photo(b)).slice(0,3)||[];
  const bakeryHeroImage=heroImages[0];
- const bakeryAssets=bakeryHeroImage?[{src:bakeryHeroImage.src||bakeryHeroAssets[0].src,mobileSrc:bakeryHeroImage.mobileSrc||bakeryHeroImage.src||bakeryHeroAssets[0].mobileSrc},...bakeryHeroAssets.slice(1)]:bakeryHeroAssets;
+ const bakeryAssets=heroImages.length?heroImages.map(b=>({src:b.src||b.mobileSrc||"",mobileSrc:b.mobileSrc||b.src||""})):bakeryHeroAssets;
  const bakeryContent=(terms:string[],fallback:string)=>{const g=section(terms);return g?.blocks.find(b=>b.type==="heading")?.text||fallback};
  const bakeryDescription=(terms:string[],fallback:string)=>{const g=section(terms);return g?.blocks.find(b=>b.type==="paragraph")?.text||fallback};
  const text=(b:B)=>b.text||"";
