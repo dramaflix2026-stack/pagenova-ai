@@ -272,6 +272,8 @@ export default function BuilderV2() {
   const [selectedNiche, setSelectedNiche] = useState("");
   const chooseNiche = (niche:string) => {
     setSelectedNiche(niche);
+    // Nicho é apenas conteúdo; nunca seleciona o módulo especializado de imóveis.
+    if(siteCategory==="institutional")setSite(prev=>({...prev,kind:"institutional",niche,properties:[]}));
     setInstruction(current => {
       const suggestion = "Crie um site profissional para um negócio do nicho de "+niche+". Utilize o template universal existente, com textos específicos para esse segmento. Priorize fotografias reais e naturais, sem avatares ou aparência artificial. Respeite minhas próximas instruções no chat.";
       return current.trim() ? current.trim()+"\\n\\n"+suggestion : suggestion;
@@ -834,7 +836,7 @@ export default function BuilderV2() {
     }
     const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
     const targetKind:SiteCategory=siteCategory;
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,properties:[]}:site;
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:selectedNiche||undefined,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -846,7 +848,7 @@ export default function BuilderV2() {
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
-      if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;}
+      if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
       incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
       incoming.heroComposition=creatingNewSite?undefined:site.heroComposition;
       incoming.heroBannerCopy=creatingNewSite?undefined:site.heroBannerCopy;
