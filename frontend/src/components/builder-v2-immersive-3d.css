@@ -57,3 +57,14 @@
 .pn3-bakery-storefront .pn3-steam-plume:nth-child(2n){filter:blur(19px)}
 @keyframes pn3-steam-visible{0%{opacity:0;transform:translate3d(0,12px,0) scale(.35) rotate(-7deg)}15%{opacity:.78}42%{opacity:.62;transform:translate3d(16px,-55px,0) scale(1.0) rotate(8deg)}70%{opacity:.38;transform:translate3d(-14px,-105px,0) scale(1.4) rotate(-5deg)}100%{opacity:0;transform:translate3d(20px,-185px,0) scale(1.9) rotate(9deg)}}
 @media(prefers-reduced-motion:reduce){.pn3-bakery-storefront .pn3-steam-scene{display:none}}
+
+
+/* Bakery steam ribbons: anchored to pastry areas instead of screen-wide white spots. */
+.pn3-bakery-storefront .pn3-steam-scene{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
+.pn3-steam-origin{position:absolute;width:clamp(28px,5.2vw,76px);height:clamp(75px,14vw,190px);transform:translate(-50%,-100%);pointer-events:none}
+.pn3-steam-ribbon{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:blur(5px);opacity:0;transform-origin:center bottom;animation:pn3-ribbon-rise 4.5s ease-out infinite}
+.pn3-steam-ribbon:nth-child(2){transform:translateX(10px)}
+.pn3-steam-ribbon:nth-child(3){transform:translateX(-9px)}
+@keyframes pn3-ribbon-rise{0%{opacity:0;transform:translate3d(0,16px,0) scale(.55,.7)}18%{opacity:.5}55%{opacity:.38;transform:translate3d(9px,-33px,0) scale(.9,1.05)}100%{opacity:0;transform:translate3d(-8px,-95px,0) scale(1.3,1.25)}}
+@media(max-width:640px){.pn3-steam-origin{width:43px;height:120px}.pn3-steam-ribbon{filter:blur(4px)}}
+@media(prefers-reduced-motion:reduce){.pn3-bakery-storefront .pn3-steam-scene{display:none}}
