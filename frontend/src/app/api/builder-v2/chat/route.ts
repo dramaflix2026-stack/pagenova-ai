@@ -272,7 +272,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       else if(/remov|exclu/.test(lower)&&items.length){items.splice(index,1);set("reviews",items);summary="Depoimento removido.";}
       else if(/alter|troc/.test(lower)&&replacement&&items[index]){items[index]=replacement;set("reviews",items);summary="Depoimento atualizado.";}
     }else if(/animac|efeito|movimento|parallax|zoom/.test(lower)){
-      const target=/fornada/.test(lower)?"fornada":/balcao|produto/.test(lower)?"balcao":/depoimento|avaliac/.test(lower)?"reviews":/rodape/.test(lower)?"footer":/todas|site inteiro|todas as secoes/.test(lower)?"all":"hero";
+      const target=/fornada/.test(lower)?"fornada":/balcao|produto/.test(lower)?"balcao":/depoimento|avaliac|testemunh/.test(lower)?"reviews":/rodape/.test(lower)?"footer":/todas|site inteiro|todas as secoes/.test(lower)?"all":"hero";
       const off=/remov|desativ|sem animac|parar/.test(lower);
       const motions={...((bakery.motions as Record<string,boolean>)||{})};motions[target]=!off;
       set("motions",motions);summary="Animação "+(off?"desativada":"ativada")+" na seção selecionada.";
