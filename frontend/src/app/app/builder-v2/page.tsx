@@ -811,7 +811,7 @@ export default function BuilderV2() {
       setInstruction(""); setBusy(false);
       return;
     }
-    if(siteCategory==="restaurant"&&hasMotionIntent(prompt)){
+    if(siteCategory==="restaurant"&&site.cinematic?.mode!=="immersive-3d"&&hasMotionIntent(prompt)){
       const updatedMotion=applySiteMotionInstruction(site,prompt);
       recordVersion(site,"Antes de alterar animações do restaurante");
       setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
