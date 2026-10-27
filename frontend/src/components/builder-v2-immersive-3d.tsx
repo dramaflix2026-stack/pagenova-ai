@@ -37,7 +37,7 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
 <picture className="pn3-bakery-video-fallback"><source media="(max-width: 640px)" srcSet={bakeryHeroAssets[0].mobileSrc}/><img src={bakeryHeroAssets[0].src} alt="Pães e doces artesanais" style={{width:"100%",height:"100%",objectFit:"cover"}}/></picture>
  <video className="pn3-bakery-video pn3-bakery-video-desktop" src={bakeryVideos.desktop} autoPlay muted loop playsInline preload="auto" aria-label="Vídeo cinematográfico da padaria para desktop"/>
  <video className="pn3-bakery-video pn3-bakery-video-mobile" src={bakeryVideos.mobile} autoPlay muted loop playsInline preload="auto" aria-label="Vídeo cinematográfico da padaria para mobile"/>
- <div aria-hidden="true" style={{position:"absolute",bottom:0,left:0,right:0,height:58,background:"repeating-linear-gradient(90deg,#321e16 0 36px,#f4f1eb 36px 72px)"}}/>
+ <div className="pn3-bakery-awning" aria-hidden="true"><div className="pn3-bakery-awning-valance"/></div>
  </div>
  <div style={{padding:"clamp(38px,6vw,75px) 22px 85px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:24}}>
  {site.header?.logoUrl&&<img src={site.header.logoUrl} alt={brand} style={{height:105,width:105,objectFit:"contain",borderRadius:"50%"}}/>}
