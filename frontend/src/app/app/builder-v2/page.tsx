@@ -787,7 +787,7 @@ export default function BuilderV2() {
             }else if(/substitu|troc/.test(normalized))item.images=uploaded;
             else item.images=[...item.images,...uploaded];
           }
-          if(!title&&!description&&!institutionalFiles.length)throw Error("Informe novo título, texto ou anexe imagens.");
+          if(!title&&!description&&!(quoted&&/t[ií]tulo|nome/i.test(prompt))&&!institutionalFiles.length)throw Error("Informe novo título, texto ou anexe imagens.");
         }
         bakery.photoSections=sections;extras.bakery3d=bakery;
         recordVersion(site,"Antes de personalizar seção 3D");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
