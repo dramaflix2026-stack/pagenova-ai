@@ -1282,7 +1282,7 @@ export default function BuilderV2() {
       {(["static","cinematic","immersive-3d"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":mode==="cinematic"?"Cinematográfico":"3D Imersivo"}</button>)}
     </div>
     {site.cinematic?.mode==="cinematic"&&<p className="mb-3 text-left text-xs text-white/65">O vídeo é selecionado automaticamente do Banco de Vídeos conforme o nicho. Se ainda não houver vídeo cadastrado, o site mantém a imagem estática.</p>}
-    <label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
+    {site.cinematic?.mode!=="immersive-3d"&&<><label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
     <select id="pn-template-choice" aria-label="Escolher template visual" value={site.templateId||"institutional-complete"}
       onChange={e=>{
         const templateId=e.target.value as "institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating";
@@ -1293,7 +1293,7 @@ export default function BuilderV2() {
       <option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option>
       <option value="modern-impactful">03 — Moderno e Impactante</option>
       <option value="image-text-alternating">04 — Imagens e Textos Lado a Lado</option>
-    </select>
+    </select></>}
   </div>
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
 </div></div>
