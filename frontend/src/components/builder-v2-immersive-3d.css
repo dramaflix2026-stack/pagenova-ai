@@ -285,3 +285,13 @@
 .pn3-burger .pn3-bakery-ticket{background:#241711!important;color:#f9eee1!important;border:1px solid #ff7b2c55}
 .pn3-burger .pn3-bakery-footer-final{background:#100c0a!important}
 .pn3-burger .pn3-bakery-video{filter:contrast(1.1) saturate(1.2)}
+
+/* Template 02 — identidade editorial cinematográfica universal; sem alterar Template 01. */
+.pn3-root.pn3-variant-02{--pn3-accent:#e6bf86;font-family:Georgia,serif}
+.pn3-variant-02 .pn3-header{border-bottom:1px solid color-mix(in srgb,var(--pn3-accent) 32%,transparent);background:color-mix(in srgb,var(--pn3-bg) 84%,transparent)}
+.pn3-variant-02 .pn3-header nav,.pn3-variant-02 .pn3-header-cta,.pn3-variant-02 button,.pn3-variant-02 input,.pn3-variant-02 textarea{font-family:var(--font-poppins),Arial,sans-serif}
+.pn3-variant-02 h1,.pn3-variant-02 h2,.pn3-variant-02 h3{font-family:Georgia,serif;letter-spacing:-.045em;font-weight:500}
+.pn3-variant-02 .pn3-bakery-product{border-radius:4px;overflow:hidden}
+.pn3-variant-02 .pn3-button,.pn3-variant-02 .pn3-header-cta{border-radius:4px}
+.pn3-variant-02 .pn3-bakery-hero img{animation-duration:27s}
+@media(max-width:640px){.pn3-variant-02 .pn3-header{padding-inline:18px}}
