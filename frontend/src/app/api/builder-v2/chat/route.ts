@@ -264,7 +264,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       set("address",replacement);summary="Endereço e mapa atualizados.";
     }else if(sectionKey==="location"&&/horario|funcionamento|domingo|sabado/.test(lower)){
       set("hours",instruction.replace(/^.*?(?:para|:|funcionamento)\s*/i,""));summary="Horários atualizados.";
-    }else if(sectionKey==="reviews"&&/adicion|inclu|remov|exclu|alter|troc/.test(lower)){
+    }else if(sectionKey==="reviews"&&!/animac|efeito|movimento|parallax|zoom/.test(lower)&&/adicion|inclu|remov|exclu|alter|troc/.test(lower)){
       const defaults=["Ana Souza | São Paulo - SP | Sempre encontro pães fresquinhos e atendimento acolhedor que faz meu dia melhor.","Carlos Martins | Belo Horizonte - MG | Adoro a variedade de produtos naturais e o aroma gostoso que invade a loja.","Luiza Almeida | Curitiba - PR | O ambiente é agradável e os sabores tradicionais me trazem lembranças da infância."];
       const items=Array.isArray(bakery.reviews)?[...(bakery.reviews as string[])]:defaults;
       const index=/ultimo/.test(lower)?items.length-1:/segundo/.test(lower)?1:/terceiro/.test(lower)?2:0;
