@@ -21,7 +21,7 @@ export async function POST(req:NextRequest){
  const isWebp=String.fromCharCode(...bytes.slice(0,4))==="RIFF"&&String.fromCharCode(...bytes.slice(8,12))==="WEBP";
  if(!isPng&&!isJpeg&&!isWebp)return NextResponse.json({error:"Use PNG, JPG ou WebP válidos."},{status:415});
  const ext=isWebp?"webp":isPng?"png":"jpg",type=isWebp?"image/webp":isPng?"image/png":"image/jpeg";
- const path="immersive-3d/"+normalize(niche)+"/"+device+"-"+crypto.randomUUID()+"."+ext;
+ const path=user.id+"/builder-v2/immersive-3d/"+normalize(niche)+"/"+device+"-"+crypto.randomUUID()+"."+ext;
  const {error}=await supabase.storage.from("site-images").upload(path,bytes,{contentType:type,upsert:false,cacheControl:"31536000"});
  if(error)return NextResponse.json({error:"Falha no Storage: "+error.message},{status:502});
  return NextResponse.json({url:supabase.storage.from("site-images").getPublicUrl(path).data.publicUrl,path});
@@ -30,8 +30,8 @@ export async function GET(req:NextRequest){
  const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();
  if(!user)return NextResponse.json({error:"Faça login."},{status:401});
  const niche=normalize(req.nextUrl.searchParams.get("niche")||"padaria-e-confeitaria");
- const {data,error}=await supabase.storage.from("site-images").list("immersive-3d/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+ const {data,error}=await supabase.storage.from("site-images").list(user.id+"/builder-v2/immersive-3d/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
  if(error)return NextResponse.json({error:error.message},{status:502});
- const items=(data||[]).filter(x=>/^(desktop|mobile)-.*\.(webp|png|jpg)$/.test(x.name)).map(x=>({device:x.name.startsWith("desktop-")?"desktop":"mobile",url:supabase.storage.from("site-images").getPublicUrl("immersive-3d/"+niche+"/"+x.name).data.publicUrl}));
+ const items=(data||[]).filter(x=>/^(desktop|mobile)-.*\.(webp|png|jpg)$/.test(x.name)).map(x=>({device:x.name.startsWith("desktop-")?"desktop":"mobile",url:supabase.storage.from("site-images").getPublicUrl(user.id+"/builder-v2/immersive-3d/"+niche+"/"+x.name).data.publicUrl}));
  return NextResponse.json({items});
 }
