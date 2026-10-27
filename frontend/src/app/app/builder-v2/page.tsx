@@ -490,7 +490,7 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
-    if(siteCategory==="institutional"&&site.blocks.length>0&&/(cinematogr[aá]fic|v[ií]deo de fundo|fundo em v[ií]deo|modo est[aá]tico|sem v[ií]deo)/i.test(prompt)){
+    if(siteCategory==="institutional"&&site.blocks.length>0&&site.cinematic?.mode!=="immersive-3d"&&/^(?:ativ[ea]|desativ[ea]|troqu[ea]|mud[ea]|coloq[ue]|defin[ae]|remov[ae]|quero)\b.{0,75}(?:modo cinematogr[aá]fico|modo est[aá]tico|v[ií]deo de fundo|fundo em v[ií]deo|sem v[ií]deo)\b/i.test(prompt)&&!/(?:preserv|mantenh|n[aã]o alter|sem alterar)/i.test(prompt)){
       const disable=/(modo est[aá]tico|sem v[ií]deo|remov|desativ)/i.test(prompt);
       setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:disable?"static":"cinematic"}}));
       setMessages(prev=>[...prev,{role:"assistant",text:disable?"Modo estático ativado.":"Modo cinematográfico ativado. O vídeo será carregado automaticamente do Banco de Vídeos quando estiver disponível para o nicho."}]);
