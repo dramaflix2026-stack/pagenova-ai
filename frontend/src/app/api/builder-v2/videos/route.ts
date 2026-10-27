@@ -39,18 +39,22 @@ export async function GET(req:NextRequest){
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)return NextResponse.json({error:"Não autenticado"},{status:401});
  const storage=await getStorage();
- const root=await storage.storage.from("site-images").list("cinematic-library",{limit:1000});
- if(root.error)return NextResponse.json({error:"Falha ao consultar vídeos: "+root.error.message},{status:502});
- const folderNames=(root.data||[]).filter(f=>!f.id).map(f=>f.name);
- const names=Array.from(new Set([...folderNames,...VALID_NICHES,"padaria","padaria-e-confeitaria"]));
+ const all=req.nextUrl.searchParams.get("all")==="1";
+ const niche=normalizeNiche(req.nextUrl.searchParams.get("niche")||"hamburgueria");
+ let names:string[];
+ if(all){
+  const root=await storage.storage.from("site-images").list("cinematic-library",{limit:1000});
+  if(root.error)return NextResponse.json({error:"Falha ao consultar vídeos: "+root.error.message},{status:502});
+  const folderNames=(root.data||[]).filter(f=>!f.id).map(f=>f.name);
+  names=Array.from(new Set([...folderNames,...VALID_NICHES,"padaria","padaria-e-confeitaria"]));
+ }else names=[niche];
  const results=await Promise.all(names.map(async name=>{
   const {data,error}=await storage.storage.from("site-images").list("cinematic-library/"+name,{limit:1000,sortBy:{column:"created_at",order:"desc"}});
   if(error)return [];
   return (data||[]).filter(f=>/^(desktop|mobile)-.*\.(mp4|webm)$/i.test(f.name)).map(f=>({niche:name,device:f.name.startsWith("desktop-")?"desktop":"mobile",url:storage.storage.from("site-images").getPublicUrl("cinematic-library/"+name+"/"+f.name).data.publicUrl}));
  }));
  const items=results.flat();
- if(req.nextUrl.searchParams.get("all")==="1")return NextResponse.json({items});
- const niche=normalizeNiche(req.nextUrl.searchParams.get("niche")||"hamburgueria");
+ if(all)return NextResponse.json({items});
  const matching=items.filter(i=>i.niche===niche);
  const videos:Record<string,string>={};
  for(const v of matching)if(!videos[v.device])videos[v.device]=v.url;
