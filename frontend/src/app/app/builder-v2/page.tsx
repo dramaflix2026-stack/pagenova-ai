@@ -759,13 +759,14 @@ export default function BuilderV2() {
       try{
         if(institutionalFiles.length!==1)throw Error("Anexe uma imagem por vez no Template 3D.");
         const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+        const heroTarget=/capa|banner|hero|imagem principal|foto principal/.test(normalized);
         const menuTarget=/balcao|produto|cardapio|menu/.test(normalized);
-        if(!menuTarget)throw Error("Por enquanto, indique um produto do balcão para substituir sua foto (ex.: 'troque a imagem do produto 2').");
+        if(!menuTarget&&!heroTarget)throw Error("Por enquanto, indique um produto do balcão para substituir sua foto (ex.: 'troque a imagem do produto 2').");
         const numeric=normalized.match(/(?:produto|card|foto|imagem)\s*(?:numero\s*)?(\d{1,2})/);
         const words=normalized.match(/\b(primeir[oa]|segund[oa]|terceir[oa]|quart[oa]|quint[oa]|sext[oa])\b/);
         const positions:Record<string,number>={primeiro:0,primeira:0,segundo:1,segunda:1,terceiro:2,terceira:2,quarto:3,quarta:3,quinto:4,quinta:4,sexto:5,sexta:5};
         const index=numeric?Number(numeric[1])-1:words?positions[words[1]]:-1;
-        if(index<0||index>11)throw Error("Indique qual produto deseja alterar (ex.: produto 2).");
+        if(!heroTarget&&(index<0||index>11))throw Error("Indique qual produto deseja alterar (ex.: produto 2).");
         const body=new FormData();body.append("projectId",site.id||crypto.randomUUID());body.append("file",institutionalFiles[0]);
         const response=await fetch("/api/builder-v2/assets",{method:"POST",body});
         const data=await response.json();
@@ -773,11 +774,11 @@ export default function BuilderV2() {
         const extras={...(site.extras||{})} as Record<string,unknown>;
         const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
         const images={...((bakery.productImages as Record<string,string>)||{})};
-        images[String(index)]=data.src;bakery.productImages=images;extras.bakery3d=bakery;
+        if(heroTarget)bakery.heroImage=data.src;else{images[String(index)]=data.src;bakery.productImages=images;}extras.bakery3d=bakery;
         recordVersion(site,"Antes de trocar foto do balcão");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite({...site,id:site.id||crypto.randomUUID(),extras});
-        setMessages(prev=>[...prev,{role:"assistant",text:"Foto do produto "+(index+1)+" substituída. Template 3D, demais imagens e conteúdo preservados."}]);
+        setMessages(prev=>[...prev,{role:"assistant",text:heroTarget?"Imagem principal da capa substituída. Vídeo cinematográfico e demais seções preservados.":"Foto do produto "+(index+1)+" substituída. Template 3D, demais imagens e conteúdo preservados."}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
       }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha ao editar foto.")+" O site original foi preservado."}]);}
       finally{setBusy(false);}
