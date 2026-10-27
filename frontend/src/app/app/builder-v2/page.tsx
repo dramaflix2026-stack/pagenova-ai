@@ -163,7 +163,7 @@ export default function BuilderV2() {
   useEffect(()=>{
     if(site.cinematic?.mode!=="cinematic")return;
     const nicheText=[site.niche,site.title].filter(Boolean).join(" ");
-    const videoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(nicheText)?"odontologia":/pizzaria|pizza/i.test(nicheText)?"pizzaria":/barbearia|barber|barbeiro/i.test(nicheText)?"barbearia":/hamb[uú]rg|lanche|burger/i.test(nicheText)?"hamburgueria":null;
+    const videoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(nicheText)?"odontologia":/pizzaria|pizza/i.test(nicheText)?"pizzaria":/imobili[aá]ria|im[oó]veis|corretor|real estate/i.test(nicheText)?"imobiliaria":/barbearia|barber|barbeiro/i.test(nicheText)?"barbearia":/hamb[uú]rg|lanche|burger/i.test(nicheText)?"hamburgueria":null;
     if(!videoNiche)return;
     let cancelled=false;
     fetch("/api/builder-v2/videos?niche="+videoNiche,{cache:"no-store"}).then(r=>r.ok?r.json():null).then(data=>{
@@ -171,7 +171,7 @@ export default function BuilderV2() {
       setSite(prev=>{
         if(prev.cinematic?.mode!=="cinematic")return prev;
         const currentNicheText=[prev.niche,prev.title].filter(Boolean).join(" ");
-        const currentVideoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(currentNicheText)?"odontologia":/pizzaria|pizza/i.test(currentNicheText)?"pizzaria":/barbearia|barber|barbeiro/i.test(currentNicheText)?"barbearia":/hamb[uú]rg|lanche|burger/i.test(currentNicheText)?"hamburgueria":null;
+        const currentVideoNiche=/odontolog|dentist|dent[aá]ri|dental/i.test(currentNicheText)?"odontologia":/pizzaria|pizza/i.test(currentNicheText)?"pizzaria":/imobili[aá]ria|im[oó]veis|corretor|real estate/i.test(currentNicheText)?"imobiliaria":/barbearia|barber|barbeiro/i.test(currentNicheText)?"barbearia":/hamb[uú]rg|lanche|burger/i.test(currentNicheText)?"hamburgueria":null;
         if(currentVideoNiche!==videoNiche)return prev;
         const desktopUrl=data.videos.desktop||prev.cinematic.desktopUrl||"";
         const mobileUrl=data.videos.mobile||prev.cinematic.mobileUrl||"";
