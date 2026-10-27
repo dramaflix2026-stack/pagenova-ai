@@ -41,3 +41,11 @@
 }
 
 @keyframes pn3-bakery-kenburns{from{transform:scale(1)}to{transform:scale(1.075)}}@media(prefers-reduced-motion:reduce){.pn3-bakery-storefront picture{animation:none!important;transition:none!important}}
+
+
+/* Lightweight steam simulation over the original photo; no video or extra requests. */
+.pn3-steam-scene{position:absolute;inset:0;z-index:2;overflow:hidden;pointer-events:none;mix-blend-mode:screen}
+.pn3-steam-plume{position:absolute;width:clamp(35px,7vw,90px);height:clamp(110px,23vw,230px);border-radius:50%;opacity:0;filter:blur(16px);background:radial-gradient(ellipse at 50% 60%,rgba(255,249,231,.40),rgba(255,247,230,.18) 38%,transparent 72%);transform-origin:center bottom;animation:pn3-steam-rise 5s ease-out infinite;will-change:transform,opacity}
+.pn3-steam-plume:nth-child(2n){filter:blur(22px);width:clamp(45px,9vw,110px)}
+@keyframes pn3-steam-rise{0%{opacity:0;transform:translate3d(0,25px,0) scale(.45) rotate(-9deg)}18%{opacity:.5}55%{opacity:.28;transform:translate3d(14px,-65px,0) scale(1.25) rotate(7deg)}100%{opacity:0;transform:translate3d(-18px,-160px,0) scale(1.8) rotate(-8deg)}}
+@media(prefers-reduced-motion:reduce){.pn3-steam-scene{display:none}}
