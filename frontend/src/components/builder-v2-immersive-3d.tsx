@@ -48,7 +48,7 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  reviewLines.push(...(reviews?.blocks.filter(b=>b.type==="paragraph").map(b=>b.text||"").filter(Boolean)||[]));
  const heroImages=groups[0]?.blocks.filter(b=>b.type==="image"&&photo(b)).slice(0,3)||[];
  const bakeryHeroImage=heroImages[0];
- const bakeryAssets=heroImages.length?heroImages.map(b=>({src:b.src||b.mobileSrc||"",mobileSrc:b.mobileSrc||b.src||""})):bakeryHeroAssets;
+ const bakeryAssets=Array.from({length:Math.max(3,heroImages.length)},(_,i)=>{const b=heroImages[i];return b?{src:b.src||b.mobileSrc||bakeryHeroAssets[i%bakeryHeroAssets.length].src,mobileSrc:b.mobileSrc||b.src||bakeryHeroAssets[i%bakeryHeroAssets.length].mobileSrc}:bakeryHeroAssets[i%bakeryHeroAssets.length];});
  const bakeryContent=(terms:string[],fallback:string)=>{const g=section(terms);return g?.blocks.find(b=>b.type==="heading")?.text||fallback};
  const bakeryDescription=(terms:string[],fallback:string)=>{const g=section(terms);return g?.blocks.find(b=>b.type==="paragraph")?.text||fallback};
  const text=(b:B)=>b.text||"";
