@@ -35,9 +35,11 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const burger=/hamburg/i.test([site.niche,site.title,site.header?.brand].filter(Boolean).join(" "));
  const nicheMismatch=burger&&/padaria|p[aã]o|p[aã]es|croissant|fornada|confeitaria|bolo|salgados/i.test(String(site.niche||"")+" "+String(site.title||""));
  const bakeryCopy=/padaria|p[aã]o|p[aã]es|croissant|fornada|confeitaria|bolo|salgados|balc[aã]o de p[aã]es/i;
- const bakery=true; // Estrutura compartilhada; o nicho não determina o layout.
  const variant=String((site.extras as Record<string,unknown>|undefined)?.immersive3dTemplate||"universal");
  const editorial=variant==="hamburgueria"||variant==="02";
+ // O template define a arquitetura; o nicho determina apenas conteúdo e mídia.
+ // Nunca renderizar o storefront e as seções de padaria no Template 2.
+ const bakery=!editorial;
  const activeVideos={desktop:site.cinematic?.desktopUrl||( /hamburg/i.test(niche)?burgerVideos.desktop:bakeryVideos.desktop),mobile:site.cinematic?.mobileUrl||(/hamburg/i.test(niche)?burgerVideos.mobile:bakeryVideos.mobile)};
  const activeMenu=/hamburg/i.test(niche)?[["Smash da Casa","Blend na chapa, cheddar derretido, picles e molho especial."],["Duplo Brasa","Dois burgers suculentos, queijo duplo e cebola caramelizada."],["Bacon Crunch","Burger artesanal, bacon crocante e maionese defumada."],["Chicken Crispy","Frango empanado crocante, coleslaw e molho da casa."],["Batata Supreme","Batatas crocantes com cheddar e bacon."],["Combo da Casa","Seu burger favorito, fritas e bebida gelada."]]:bakeryDefaultMenu;
  const section=(terms:string[])=>groups.find(g=>terms.some(t=>g.id.toLowerCase().includes(t)||g.blocks.some(b=>b.type==="heading"&&(b.text||"").toLowerCase().includes(t))));
