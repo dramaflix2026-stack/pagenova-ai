@@ -741,7 +741,7 @@ export default function BuilderV2() {
     }
     // Secondary banner copy must never be routed to image generation or modify
     // the approved first hero. Each slide owns its own text and CTA settings.
-    if(siteCategory==="institutional"&&site.blocks.length&&!institutionalFiles.length&&isScopedBannerCopyRequest(prompt)){
+    if(siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"&&site.blocks.length&&!institutionalFiles.length&&isScopedBannerCopyRequest(prompt)){
       try{
         const result=applyHeroBannerCopy(site,prompt);
         if(!result)throw Error("Não foi possível identificar uma edição do banner.");
