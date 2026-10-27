@@ -239,6 +239,48 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instructionText);
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  // Immersive 3D edits are scoped to their own editable content contract.
+  if(!isFresh&&!fullSiteBrief&&(body.site as {cinematic?:{mode?:string}}|undefined)?.cinematic?.mode==="immersive-3d"){
+    const current=body.site as {title?:string;header?:Record<string,unknown>;blocks:Array<Record<string,unknown>>;extras?:Record<string,unknown>;cinematic?:Record<string,unknown>};
+    const blocks=current.blocks.map(b=>({...b}));
+    const extras={...(current.extras||{})};
+    const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
+    const header={...(current.header||{})};
+    const instruction=instructionText;
+    const quoted=[...instruction.matchAll(/["“]([^"”]+)["”]/g)].map(m=>m[1]);
+    const replacement=instruction.match(/(?:para|por)\s+["“]([^"”]+)["”]/i)?.[1]||quoted[0];
+    const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const lower=norm(instruction);
+    let changed=false;
+    let summary="";
+    const set=(key:string,value:unknown)=>{bakery[key]=value;changed=true;};
+    const hero=blocks.find(b=>b.type==="heading"&&b.section==="inicio");
+    const heroButton=blocks.find(b=>b.type==="button"&&b.section==="inicio");
+    if(/(?:nome|marca|logo|logotipo|padaria)/.test(lower)&&/(?:alter|troc|mud|renome)/.test(lower)&&/(?:nome|marca|logo|logotipo)/.test(lower)&&replacement){
+      header.brand=replacement;current.title=replacement;changed=true;summary="Marca atualizada em todas as áreas que utilizam a identidade do negócio.";
+      if(hero&&typeof hero.text==="string"&&/padaria|pao nosso/i.test(hero.text))hero.text=replacement;
+    }else if(/cor principal|cores? (?:do site|principal)|verde.oliva/.test(lower)&&/#[0-9a-f]{6}/i.test(instruction)){
+      const color=instruction.match(/#[0-9a-f]{6}/i)![0];set("accent",color);summary="Cor de destaque aplicada aos componentes 3D.";
+    }else if(/(?:titulo|texto principal).{0,30}(?:capa|principal)|(?:capa).{0,25}titulo/.test(lower)&&replacement&&hero){
+      hero.text=replacement;changed=true;summary="Título principal da capa atualizado.";
+    }else if(/botao/.test(lower)&&/(?:capa|principal)/.test(lower)&&heroButton){
+      if(/balcao|balcão|o que tem no/.test(lower)){heroButton.href="#balcao";changed=true;}
+      const buttonText=instruction.match(/(?:texto|nome)\s+do\s+bot[aã]o[^"“]*["“]([^"”]+)["”]/i)?.[1]||(/(?:texto|nome)\s+do\s+bot[aã]o/i.test(instruction)?quoted[0]:undefined);
+      if(buttonText){heroButton.text=buttonText;changed=true;}
+      summary="Botão da capa atualizado sem modificar o template.";
+    }else if(/(?:animac|efeito|movimento)/.test(lower)){
+      set("titleMotion",!/sem animac|desativ|remov|parar/.test(lower));summary="Animação do título configurada sem alterar o modo cinematográfico.";
+    }else if(/fornada/.test(lower)&&/(?:titulo|t[ií]tulo)/.test(lower)&&replacement){
+      set("fornadaTitle",replacement);summary="Título da fornada atualizado.";
+    }else if(/fornada/.test(lower)&&/card/.test(lower)&&/(?:segundo|2[oº°]?)/.test(lower)&&quoted.length){
+      const cards=Array.isArray(bakery.fornadaCards)?[...(bakery.fornadaCards as Array<[string,string]>)]:[["Pão quentinho","Crosta dourada e miolo macio"],["Croissant artesanal","Camadas leves e amanteigadas"],["Doces da casa","Um carinho em cada pedaço"],["Café fresquinho","O par perfeito para seu pão"]];
+      cards[1]=[quoted[0],quoted[1]||cards[1][1]];set("fornadaCards",cards);summary="Segundo card da fornada atualizado.";
+    }else if(/(?:balcao|balcão)/.test(lower)&&/(?:titulo|t[ií]tulo)/.test(lower)&&replacement){
+      set("balcaoTitle",replacement);summary="Título do balcão atualizado.";
+    }
+    if(changed)return NextResponse.json({site:{...current,header,blocks,extras:{...extras,bakery3d:bakery}},summary});
+    return NextResponse.json({error:"Este comando ainda não tem uma operação segura no Template 3D. Nenhuma alteração foi aplicada."},{status:422});
+  }
   // Scoped deterministic edits take priority over generic handlers: a complex prompt
   // must be applied atomically, never answered as if only one sub-step succeeded.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length&&(editingSite as typeof editingSite&{cinematic?:{mode?:string}}).cinematic?.mode!=="immersive-3d"){
