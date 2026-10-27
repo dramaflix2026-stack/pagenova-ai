@@ -755,13 +755,13 @@ export default function BuilderV2() {
       }finally{setBusy(false);}
       return;
     }
-    if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:secao|sessao|bloco)\s*(?:extra\s*)?\d+/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&/(?:alter|edit|mud|troc|substitu|mov|posicion|reorden|foto|imagem|titulo|texto|descri)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))){
+    if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:secao|sessao|bloco)\s*(?:(?:extra|adicional)\s*)?\d+/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&/(?:alter|edit|mud|troc|substitu|mov|posicion|reorden|foto|imagem|titulo|texto|descri)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))){
       try{
         const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
         const extras={...(site.extras||{})} as Record<string,unknown>;
         const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
         const sections=Array.isArray(bakery.photoSections)?[...(bakery.photoSections as {id:string;title:string;description:string;images:string[]}[])].map(x=>({...x,images:[...x.images]})):[];
-        const target=normalized.match(/(?:secao|sessao|bloco)\s*(?:extra\s*)?(\d+)/);
+        const target=normalized.match(/(?:secao|sessao|bloco)\s*(?:(?:extra|adicional)\s*)?(\d+)/);
         const index=target?Number(target[1])-1:-1;
         if(index<0||index>=sections.length)throw Error("Indique uma seção adicional existente (ex.: seção 1).");
         const item=sections[index];
