@@ -24,7 +24,9 @@ export default function BancoMidias(){
  async function upload(uploadDevice:Device,event:ChangeEvent<HTMLInputElement>){
   const file=event.target.files?.[0];if(!file)return;setBusy(uploadDevice);setError("");
   try{const form=new FormData();form.set("niche",uploadNiche);form.set("device",uploadDevice);form.set("file",file);
-   const response=await fetch("/api/builder-v2/videos",{method:"POST",body:form});const data=await response.json();
+   const response=await fetch("/api/builder-v2/videos",{method:"POST",body:form});
+   const raw=await response.text();let data:{url?:string;error?:string}={};
+   try{data=JSON.parse(raw)}catch{throw new Error(response.status===413?"Vídeo acima do limite aceito pelo servidor. Reduza o tamanho do MP4 e tente novamente.":response.status===504||response.status===502?"O servidor não concluiu o upload a tempo. Tente um arquivo menor.":`Servidor recusou o upload (HTTP ${response.status}). Verifique o limite de requisição e tente novamente.`)}
    if(!response.ok||!data.url)throw new Error(data.error||"Erro ao enviar vídeo.");
    const next=[...videos.filter(v=>!(v.niche===uploadNiche&&v.device===uploadDevice)),{niche:uploadNiche,device:uploadDevice,url:data.url}];
    setVideos(next);
