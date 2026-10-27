@@ -268,3 +268,20 @@
 .pn3-root .pn3-bakery-custom-photos img{width:100%;height:100%;min-height:210px;max-height:430px;object-fit:cover;border-radius:18px;aspect-ratio:4/5}
 .pn3-root .pn3-bakery-custom-photos img:first-child:nth-last-child(odd){grid-column:span 2;aspect-ratio:16/9}
 @media(max-width:700px){.pn3-root .pn3-bakery-custom-inner{grid-template-columns:1fr}.pn3-root .pn3-bakery-custom-section{padding:65px 18px}.pn3-root .pn3-bakery-custom-photos img{min-height:130px}}
+
+/* Template 2 · Hamburgueria: identidade independente do Template 1 */
+.pn3-burger{background:#100e0d;color:#f9eee1;font-family:Arial,Helvetica,sans-serif}
+.pn3-burger .pn3-header{background:#15110fee;border-bottom:1px solid #ff7b2c55}
+.pn3-burger .pn3-bakery-storefront{background:#100e0d!important;color:#f9eee1!important;padding:0!important}
+.pn3-burger .pn3-bakery-storefront>div{max-width:none!important;border-radius:0!important;background:#17120f!important}
+.pn3-burger .pn3-bakery-storefront>div>div:first-child{height:clamp(420px,72vh,840px)!important;border-radius:0!important}
+.pn3-burger .pn3-bakery-storefront>div>div:nth-child(2){background:linear-gradient(145deg,#19110c,#30190e);padding:65px 22px 85px!important}
+.pn3-burger .pn3-bakery-storefront h1{color:#fff1e2!important;text-transform:uppercase;font-weight:950!important;letter-spacing:-.07em!important}
+.pn3-burger .pn3-bakery-storefront p{color:#e4cbb9!important}
+.pn3-burger .pn3-bakery-awning{display:none!important}
+.pn3-burger .pn3-bakery-fornada,.pn3-burger .pn3-bakery-counter,.pn3-burger .pn3-bakery-order,.pn3-burger .pn3-bakery-reviews,.pn3-burger .pn3-bakery-location{background:#130f0d!important;color:#f9eee1}
+.pn3-burger .pn3-bakery-feature-grid article,.pn3-burger .pn3-bakery-product{background:#251a15!important;border:1px solid #ff7b2c38!important;color:#f9eee1}
+.pn3-burger .pn3-bakery-overline{color:#ff9d5b!important;letter-spacing:.18em}
+.pn3-burger .pn3-bakery-ticket{background:#241711!important;color:#f9eee1!important;border:1px solid #ff7b2c55}
+.pn3-burger .pn3-bakery-footer-final{background:#100c0a!important}
+.pn3-burger .pn3-bakery-video{filter:contrast(1.1) saturate(1.2)}
