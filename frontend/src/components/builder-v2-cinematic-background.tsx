@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useState} from "react";
-export type CinematicAppearance={mode:"static"|"cinematic";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number};
+export type CinematicAppearance={mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number};
 export function CinematicBackground({appearance}:{appearance?:CinematicAppearance}){
  const [reduceMotion,setReduceMotion]=useState(false);
  useEffect(()=>{const query=window.matchMedia("(prefers-reduced-motion: reduce)");const update=()=>setReduceMotion(query.matches);update();query.addEventListener("change",update);return()=>query.removeEventListener("change",update)},[]);
