@@ -9,7 +9,8 @@ export default function BuilderError({ error, reset }: { error: Error & { digest
       <h1 className="text-2xl font-semibold">Não foi possível carregar o editor</h1>
       <p className="mt-3 text-sm text-white/70">Seu projeto e suas alterações salvas não foram apagados. Tente abrir novamente o editor.</p>
       <button onClick={() => reset()} className="mt-6 rounded-xl bg-lime-400 px-6 py-3 font-semibold text-black">Tentar novamente</button>
-      <p className="mt-4 text-xs text-white/45">Se persistir, informe ao suporte: {error.digest || error.name || "erro do navegador"}.</p>
+      <p className="mt-4 text-xs text-white/45">Diagnóstico: {error.name}: {error.message || "sem mensagem"} {error.digest ? `(código ${error.digest})` : ""}</p>
+      {error.stack && <details className="mt-4 text-left text-xs text-white/60"><summary className="cursor-pointer">Detalhes técnicos</summary><pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-all">{error.stack.slice(0,2200)}</pre></details>}
     </section>
   </main>;
 }
