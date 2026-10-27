@@ -47,8 +47,11 @@ const designPresets = [
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
 
-export function BuilderV2Site({site,selectedNiche="",publishedMode=false,templateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"}) {
-  if(site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={site}/>;
+export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"}){
+ if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
+ return <BuilderV2ClassicSite {...props}/>;
+}
+function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"}) {
   const previewRef=useRef<HTMLDivElement>(null);
   const [menuOpen,setMenuOpen]=useState(false);
   useEffect(()=>attachSiteMotion(previewRef.current,site.motion),[site]);
