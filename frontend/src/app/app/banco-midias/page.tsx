@@ -60,7 +60,7 @@ export default function BancoMidias(){
    const storage=createClient();
    const uploaded=await storage.storage.from("site-images").uploadToSignedUrl(data.path,data.token,file,{contentType:"video/mp4",cacheControl:"31536000"});
    if(uploaded.error)throw new Error("Falha no armazenamento: "+uploaded.error.message);
-   setVideos(prev=>[{niche:nicheKey(uploadNiche),device:uploadDevice,url:data.url},...prev]);
+   setVideos(prev=>[{niche:nicheKey(uploadNiche),device:uploadDevice,url:data.url!},...prev]);
    setVideoStatus("Vídeo "+(uploadDevice==="desktop"?"desktop":"mobile")+" enviado com sucesso!");
   }catch(e){setError(e instanceof Error?e.message:"Falha no upload")}finally{setBusy(null);event.target.value=""}
  }
