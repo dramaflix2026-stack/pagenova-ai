@@ -284,3 +284,13 @@
   color:#d8f99d;
 }
 .pn-builder-editor .pn-editor-tools>div{max-height:min(68vh,480px);overflow-y:auto}
+
+/* Immersive 3D: independent visual treatment, shared editing/publishing engine. */
+.pn-immersive-3d{perspective:1200px;isolation:isolate;overflow:clip;background:#141b19}
+.pn-immersive-3d img{transform:translateZ(0);filter:drop-shadow(0 18px 28px rgba(0,0,0,.22));transition:transform .65s cubic-bezier(.2,.7,.2,1),filter .65s}
+.pn-immersive-3d :is(article,section) img{border-radius:clamp(12px,2vw,30px)}
+.pn-immersive-3d :is(article,section):hover img{transform:translateY(-7px) scale(1.025);filter:drop-shadow(0 30px 36px rgba(0,0,0,.30))}
+.pn-immersive-3d :is(article,section){transform-style:preserve-3d}
+.pn-immersive-3d :is(article,section) :is(h1,h2,h3){letter-spacing:-.035em;text-wrap:balance}
+@media(prefers-reduced-motion:reduce){.pn-immersive-3d *{transform:none!important;transition:none!important;animation:none!important}}
+@media(hover:none){.pn-immersive-3d :is(article,section):hover img{transform:none}}
