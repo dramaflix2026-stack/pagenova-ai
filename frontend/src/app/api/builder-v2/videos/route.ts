@@ -46,7 +46,7 @@ export async function GET(req:NextRequest){
  const results=await Promise.all(names.map(async name=>{
   const {data,error}=await storage.storage.from("site-images").list("cinematic-library/"+name,{limit:1000,sortBy:{column:"created_at",order:"desc"}});
   if(error)return [];
-  return (data||[]).filter(f=>/^(desktop|mobile)-.*\\.(mp4|webm)$/i.test(f.name)).map(f=>({niche:name,device:f.name.startsWith("desktop-")?"desktop":"mobile",url:storage.storage.from("site-images").getPublicUrl("cinematic-library/"+name+"/"+f.name).data.publicUrl}));
+  return (data||[]).filter(f=>/^(desktop|mobile)-.*\.(mp4|webm)$/i.test(f.name)).map(f=>({niche:name,device:f.name.startsWith("desktop-")?"desktop":"mobile",url:storage.storage.from("site-images").getPublicUrl("cinematic-library/"+name+"/"+f.name).data.publicUrl}));
  }));
  const items=results.flat();
  if(req.nextUrl.searchParams.get("all")==="1")return NextResponse.json({items});
