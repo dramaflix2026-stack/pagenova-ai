@@ -214,3 +214,6 @@
 .pn3-bakery-footer-bottom{border-top:1px solid rgba(255,245,231,.2);max-width:1180px;margin:0 auto;padding:25px clamp(24px,5vw,65px) 34px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
 .pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-bottom span,.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-bottom a{font:14px/1.5 Arial,sans-serif;color:#e6d0b4!important}
 @media(max-width:700px){.pn3-root .pn3-bakery-experience .pn3-bakery-location{padding-bottom:30px!important}.pn3-bakery-footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:42px 22px;padding:52px 28px 42px}.pn3-bakery-footer-brand{grid-column:1/-1}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-brand p{font-size:16px}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column h3{font-size:18px}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column a{font-size:15px}.pn3-bakery-footer-bottom{padding:25px 28px 32px}}
+
+.pn3-root .pn3-bakery-title-enter{animation:pn3-title-enter .9s cubic-bezier(.2,.8,.2,1) both}@keyframes pn3-title-enter{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.pn3-root .pn3-bakery-title-enter{animation:none}}
+.pn3-root .pn3-bakery-storefront .pn3-header-cta,.pn3-root .pn3-bakery-footer-whatsapp{background:var(--pn3-accent)!important}
