@@ -176,7 +176,23 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             appended++;
             if(appended===missing)break;
           }
-          if(appended<missing)throw new Error("incomplete-cards:"+sectionId);
+          // Keep the validated layout complete even when the model returns too few cards.
+          // These editable placeholders are only used for genuinely missing cards.
+          const fallbackCards=sectionId==="servicos"?[
+            ["Atendimento personalizado","Soluções adaptadas às necessidades de cada cliente."],
+            ["Qualidade no serviço","Atenção aos detalhes em cada etapa do atendimento."],
+            ["Orientação clara","Informações objetivas para ajudar na escolha do serviço."],
+            ["Facilidade de contato","Um canal direto para esclarecer dúvidas e solicitar informações."]
+          ]:[
+            ["Atenção aos detalhes","Cuidado com cada etapa do serviço."],
+            ["Comunicação transparente","Informações claras durante o atendimento."],
+            ["Soluções sob medida","Atendimento alinhado às necessidades apresentadas."],
+            ["Experiência acolhedora","Uma jornada simples e organizada para o cliente."]
+          ];
+          for(let j=appended;j<missing;j++){
+            const [title,description]=fallbackCards[(cards.length+j)%fallbackCards.length];
+            mutableBlocks.push({id:"card-"+sectionId+"-"+crypto.randomUUID(),section:sectionId,layout:"grid",type:"paragraph",text:title+": "+description,color:"#24332e",align:"left"});
+          }
         }
       }
 
