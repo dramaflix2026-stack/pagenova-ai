@@ -755,6 +755,48 @@ export default function BuilderV2() {
       }finally{setBusy(false);}
       return;
     }
+    if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:secao|sessao|bloco)\s*(?:extra\s*)?\d+/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&/(?:alter|edit|mud|troc|substitu|mov|posicion|reorden|foto|imagem|titulo|texto|descri)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))){
+      try{
+        const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+        const extras={...(site.extras||{})} as Record<string,unknown>;
+        const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
+        const sections=Array.isArray(bakery.photoSections)?[...(bakery.photoSections as {id:string;title:string;description:string;images:string[]}[])].map(x=>({...x,images:[...x.images]})):[];
+        const target=normalized.match(/(?:secao|sessao|bloco)\s*(?:extra\s*)?(\d+)/);
+        const index=target?Number(target[1])-1:-1;
+        if(index<0||index>=sections.length)throw Error("Indique uma seção adicional existente (ex.: seção 1).");
+        const item=sections[index];
+        const move=normalized.match(/(?:posicao|lugar|ordem|para a secao|para posicao)\s*(\d+)/);
+        if(/mov|reorden|posicion/.test(normalized)&&move){
+          const to=Number(move[1])-1;
+          if(to<0||to>=sections.length)throw Error("A posição solicitada não existe.");
+          sections.splice(index,1);sections.splice(to,0,item);
+        }else{
+          const title=prompt.match(/(?:t[ií]tulo|nome)\s*(?:para|por|:|=|de|da|do)?\s*["“']([^"”']{2,100})["”']/i);
+          const description=prompt.match(/(?:descri[cç][aã]o|texto)\s*(?:para|por|:|=|de|da|do)?\s*["“']([^"”']{2,400})["”']/i);
+          if(title)item.title=title[1];
+          if(description)item.description=description[1];
+          if(institutionalFiles.length){
+            if(institutionalFiles.length>6)throw Error("Envie no máximo seis imagens.");
+            const uploaded:string[]=[];
+            for(const file of institutionalFiles){const body=new FormData();body.append("projectId",site.id||crypto.randomUUID());body.append("file",file);const response=await fetch("/api/builder-v2/assets",{method:"POST",body});const data=await response.json();if(!response.ok||typeof data.src!=="string")throw Error(data.error||"Falha no upload.");uploaded.push(data.src);}
+            const photo=normalized.match(/(?:foto|imagem)\s*(\d+)/);
+            const photoIndex=photo?Number(photo[1])-1:-1;
+            if(/substitu|troc/.test(normalized)&&photoIndex>=0){
+              if(uploaded.length!==1||photoIndex>=item.images.length)throw Error("Indique uma foto existente e anexe uma imagem.");
+              item.images[photoIndex]=uploaded[0];
+            }else if(/substitu|troc/.test(normalized))item.images=uploaded;
+            else item.images=[...item.images,...uploaded];
+          }
+          if(!title&&!description&&!institutionalFiles.length)throw Error("Informe novo título, texto ou anexe imagens.");
+        }
+        bakery.photoSections=sections;extras.bakery3d=bakery;
+        recordVersion(site,"Antes de personalizar seção 3D");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite({...site,id:site.id||crypto.randomUUID(),extras});
+        setMessages(prev=>[...prev,{role:"assistant",text:"Seção adicional atualizada. Conteúdo e vídeo cinematográfico preservados."}]);
+        setInstitutionalFiles([]);setInstruction("");setGenerationError("");
+      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na edição.")+" O site original foi preservado."}]);}
+      finally{setBusy(false);}return;
+    }
     if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:nova|outra|adicion|cri|inclu|remov|exclu|apag|retir).{0,35}(?:secao|sessao|bloco)|(?:secao|sessao|bloco).{0,35}(?:nova|fotos|imagens)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&!/galeria/i.test(prompt)){
       try{
         const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
