@@ -7,6 +7,7 @@ type Device="desktop"|"mobile";
 type Catalog=Record<string,{desktop:string[];mobile:string[]}>;
 const photos=catalog as Catalog;
 const niches=Object.keys(photos).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+const nicheKey=(name:string)=>name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const imageCount=Object.values(photos).reduce((sum,item)=>sum+item.desktop.length+item.mobile.length,0);
 type VideoItem={niche:string;device:Device;url:string};
 
@@ -20,7 +21,7 @@ export default function BancoMidias(){
  const [videos,setVideos]=useState<VideoItem[]>([]);
  useEffect(()=>{if(tab!=="videos")return;let active=true;fetch("/api/builder-v2/videos?all=1",{cache:"no-store"}).then(r=>r.json()).then(data=>{if(!active)return;setVideos(Array.isArray(data.items)?data.items:[]) }).catch(()=>{if(active)setError("Não foi possível consultar a biblioteca compartilhada.")});return()=>{active=false}},[tab]);
  const images=useMemo(()=>Object.entries(photos).filter(([name])=>niche==="Todos"||name===niche).flatMap(([name,entry])=>(["desktop","mobile"] as const).flatMap(d=>device!=="all"&&device!==d?[]:entry[d].map((id,index)=>({name,device:d,index:index+1,url:IMAGE_BASE+id+".png"})))),[niche,device]);
- const visibleVideos=videos.filter(v=>(niche==="Todos"||v.niche===niche)&&(device==="all"||v.device===device));
+ const visibleVideos=videos.filter(v=>(niche==="Todos"||v.niche===nicheKey(niche))&&(device==="all"||v.device===device));
  function navigate(next:"home"|"images"|"videos"){setTab(next);setNiche("Todos");setDevice("all");setError("")}
  async function upload(uploadDevice:Device,event:ChangeEvent<HTMLInputElement>){
   const file=event.target.files?.[0];if(!file)return;setBusy(uploadDevice);setError("");
@@ -29,11 +30,12 @@ export default function BancoMidias(){
    const supabase=createClient();
    const {data:{user},error:authError}=await supabase.auth.getUser();
    if(authError||!user)throw new Error("Faça login para enviar vídeos.");
-   const path="cinematic-library/"+uploadNiche+"/"+uploadDevice+"-"+crypto.randomUUID()+".mp4";
+   const canonicalNiche=nicheKey(uploadNiche);
+   const path="cinematic-library/"+canonicalNiche+"/"+uploadDevice+"-"+crypto.randomUUID()+".mp4";
    const {error:storageError}=await supabase.storage.from("site-images").upload(path,file,{contentType:"video/mp4",cacheControl:"31536000",upsert:false});
    if(storageError)throw new Error("O Storage recusou o vídeo: "+storageError.message);
    const data={url:supabase.storage.from("site-images").getPublicUrl(path).data.publicUrl};
-   const next=[...videos.filter(v=>!(v.niche===uploadNiche&&v.device===uploadDevice)),{niche:uploadNiche,device:uploadDevice,url:data.url}];
+   const next=[...videos.filter(v=>!(v.niche===canonicalNiche&&v.device===uploadDevice)),{niche:canonicalNiche,device:uploadDevice,url:data.url}];
    setVideos(next);
   }catch(e){setError(e instanceof Error?e.message:"Falha no upload")}finally{setBusy(null);event.target.value=""}
  }
@@ -51,7 +53,7 @@ export default function BancoMidias(){
   </div>
   {tab==="images"&&<><p className="mt-5 text-sm text-white/60">{images.length.toLocaleString("pt-BR")} imagens encontradas</p><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{images.map(photo=><article key={photo.url} className="overflow-hidden rounded-xl border border-white/20 bg-white/5"><img loading="lazy" src={photo.url} alt={photo.name+" "+photo.device+" "+photo.index} className="aspect-[4/3] w-full object-cover"/><div className="p-3"><p className="truncate text-sm font-bold">{photo.name}</p><p className="text-xs text-white/50">{photo.device==="desktop"?"Desktop":"Mobile"} · {photo.index}</p><button className="mt-2 text-xs font-bold text-lime-300" onClick={()=>void navigator.clipboard.writeText(photo.url)}>Copiar link</button></div></article>)}</div></>}
   {tab==="videos"&&<><p className="mt-5 text-sm text-white/60">{visibleVideos.length} vídeos na biblioteca compartilhada</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{visibleVideos.map(v=><article key={v.url} className="rounded-xl border border-lime-300/35 bg-white/5 p-4"><h2 className="mb-3 font-bold">{v.niche} · {v.device==="desktop"?"Desktop 16:9":"Mobile 9:16"}</h2><video src={v.url} controls muted playsInline className="max-h-80 w-full rounded-lg bg-black"/><button className="mt-3 rounded-lg border border-white/25 px-3 py-2 text-sm" onClick={()=>void navigator.clipboard.writeText(v.url)}>Copiar link público</button></article>)}</div>
-   <section className="mt-8 rounded-2xl border border-white/25 bg-white/5 p-5"><h2 className="text-xl font-bold">Adicionar vídeos</h2><p className="mt-2 text-sm text-white/60">Selecione o nicho e envie as versões desktop e mobile. Até 45 MB por arquivo.</p><label className="mt-4 block text-sm text-white/80">Nicho do vídeo <select value={uploadNiche} onChange={e=>setUploadNiche(e.target.value)} className="ml-2 max-w-full rounded-lg border border-white/25 bg-[#18221b] px-3 py-2 text-white">{niches.map(n=><option key={n} value={n.toLowerCase()}>{n}</option>)}</select></label><div className="mt-4 flex flex-wrap gap-3">{(["desktop","mobile"] as const).map(d=><label key={d} className="cursor-pointer rounded-xl bg-lime-300 px-4 py-3 font-bold text-[#142017]">{busy===d?"Enviando...":"Enviar "+(d==="desktop"?"Desktop 16:9":"Mobile 9:16")}<input className="sr-only" type="file" accept="video/mp4,.mp4" disabled={busy!==null} onChange={e=>void upload(d,e)}/></label>)}</div>{error&&<p role="alert" className="mt-4 text-red-300">{error}</p>}</section>
+   <section className="mt-8 rounded-2xl border border-white/25 bg-white/5 p-5"><h2 className="text-xl font-bold">Adicionar vídeos</h2><p className="mt-2 text-sm text-white/60">Selecione o nicho e envie as versões desktop e mobile. Até 45 MB por arquivo.</p><label className="mt-4 block text-sm text-white/80">Nicho do vídeo <select value={uploadNiche} onChange={e=>setUploadNiche(e.target.value)} className="ml-2 max-w-full rounded-lg border border-white/25 bg-[#18221b] px-3 py-2 text-white">{niches.map(n=><option key={n} value={nicheKey(n)}>{n}</option>)}</select></label><div className="mt-4 flex flex-wrap gap-3">{(["desktop","mobile"] as const).map(d=><label key={d} className="cursor-pointer rounded-xl bg-lime-300 px-4 py-3 font-bold text-[#142017]">{busy===d?"Enviando...":"Enviar "+(d==="desktop"?"Desktop 16:9":"Mobile 9:16")}<input className="sr-only" type="file" accept="video/mp4,.mp4" disabled={busy!==null} onChange={e=>void upload(d,e)}/></label>)}</div>{error&&<p role="alert" className="mt-4 text-red-300">{error}</p>}</section>
   </>}</>}
  </div></main>;
 }
