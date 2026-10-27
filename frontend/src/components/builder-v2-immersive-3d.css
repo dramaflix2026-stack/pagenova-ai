@@ -5,3 +5,37 @@
 
 /* Camadas opcionais: só são renderizadas quando o site possui imagens cadastradas. */
 .pn3-bakery-layer{position:absolute;display:block;overflow:hidden}.pn3-bakery-layer-0{inset:0}.pn3-bakery-layer-1{z-index:1;width:29%;height:49%;right:5%;bottom:7%;border:2px solid #ffffff6e;border-radius:36px;box-shadow:0 30px 70px #0008;transform:rotate(7deg);animation:pn3-bakery-float 8s ease-in-out infinite alternate}.pn3-bakery-layer-2{z-index:2;width:19%;height:32%;right:27%;top:9%;border:2px solid #ffffff6e;border-radius:25px;box-shadow:0 20px 60px #0008;transform:rotate(-9deg);animation:pn3-bakery-float 10s ease-in-out infinite alternate-reverse}.pn3-bakery-layer img{width:100%;height:100%;object-fit:cover}.pn3-bakery-shade{z-index:3;pointer-events:none}.pn3-bakery-hero .pn3-bakery-layer-1,.pn3-bakery-hero .pn3-bakery-layer-2{pointer-events:none}@keyframes pn3-bakery-float{from{translate:0 0}to{translate:0 -18px}}@media(max-width:850px){.pn3-bakery-layer-1{width:44%;height:24%;right:4%;bottom:4%;border-radius:22px}.pn3-bakery-layer-2{width:33%;height:17%;right:5%;top:7%;border-radius:17px}}@media(prefers-reduced-motion:reduce){.pn3-bakery-layer{animation:none!important}}
+
+
+/* Bakery storefront presentation: editorial photograph, awning, cream content panel. */
+.pn3-root:has(.pn3-bakery-hero){background:#e8e4db;color:#2e1c15;--pn3-accent:#d38d17;--pn3-bg:#f4f1eb}
+.pn3-root:has(.pn3-bakery-hero) .pn3-header{background:#f4f1eb;color:#2e1c15;border-bottom:1px solid #2e1c151a}
+.pn3-root:has(.pn3-bakery-hero) .pn3-brand{color:#2e1c15}
+.pn3-root:has(.pn3-bakery-hero) .pn3-section{background:#f4f1eb;color:#2e1c15}
+.pn3-root:has(.pn3-bakery-hero) .pn3-section:nth-child(even){background:#eae5dc}
+.pn3-root:has(.pn3-bakery-hero) .pn3-section:before{display:none}
+.pn3-root:has(.pn3-bakery-hero) .pn3-footer{background:#302018;color:#f4f1eb}
+.pn3-root:has(.pn3-bakery-hero) .pn3-button,.pn3-root:has(.pn3-bakery-hero) .pn3-header-cta{background:#d58c17;color:#281b15!important;box-shadow:none}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero){display:block;min-height:0;padding:0 clamp(14px,3vw,48px) 0;background:#e8e4db}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-section-inner{display:flex;flex-direction:column;gap:0;max-width:1160px;width:100%;background:#f4f1eb;border-radius:26px 26px 0 0;overflow:hidden}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-hero{position:relative;inset:auto;z-index:0;order:0;width:100%;height:clamp(260px,48vw,580px);border-radius:26px 26px 0 0;overflow:hidden}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-layer-0{inset:0;transform:none}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-layer-1,.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-layer-2{display:none}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-shade{display:none}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-layer img{animation:pn3-bakery-zoom 22s ease-in-out infinite alternate}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-hero:after{content:"";position:absolute;left:0;right:0;bottom:0;height:72px;background:repeating-linear-gradient(90deg,#321d14 0 54px,#f4f1eb 54px 108px);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-copy{order:1;max-width:none;width:100%;padding:clamp(38px,6vw,80px) clamp(22px,7vw,110px) clamp(60px,8vw,105px);text-align:center;display:flex;flex-direction:column;align-items:center}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-eyebrow{color:#a66a12;margin-bottom:18px;letter-spacing:.18em}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-copy h1{font-size:clamp(42px,8vw,105px);line-height:1.02;max-width:850px;letter-spacing:-.07em;color:#2e1c15;margin:0 0 28px}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-texts{max-width:640px}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-texts p{font-size:clamp(18px,2.2vw,27px);line-height:1.55;color:#3c2b24;opacity:1}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-actions{justify-content:center;margin-top:34px}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-button{font-size:clamp(15px,2vw,20px);padding:20px 30px;justify-content:center}
+@media(max-width:850px){
+.pn3-root .pn3-hero:has(.pn3-bakery-hero){padding:0 12px}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-hero{height:clamp(290px,68vw,480px)}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-bakery-hero:after{height:50px;background:repeating-linear-gradient(90deg,#321d14 0 25px,#f4f1eb 25px 50px)}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-copy{padding:46px 22px 65px}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-copy h1{font-size:clamp(42px,10vw,72px);overflow-wrap:normal}
+.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-actions,.pn3-root .pn3-hero:has(.pn3-bakery-hero) .pn3-button{width:100%}
+}
