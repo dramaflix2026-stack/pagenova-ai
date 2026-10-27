@@ -256,6 +256,30 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const set=(key:string,value:unknown)=>{bakery[key]=value;changed=true;};
     const hero=blocks.find(b=>b.type==="heading"&&b.section==="inicio");
     const heroButton=blocks.find(b=>b.type==="button"&&b.section==="inicio");
+    const sectionKey=/encomenda|pedido/.test(lower)?"order":/depoimento|avaliac|cliente/.test(lower)?"reviews":/localiz|enderec|horario|mapa|rota/.test(lower)?"location":/rodape/.test(lower)?"footer":null;
+    if(sectionKey&&/titulo|descricao|texto/.test(lower)&&replacement&&!/depoimento|avaliac/.test(lower)){
+      const suffix=/titulo/.test(lower)?"Title":"Description";
+      set(sectionKey+suffix,replacement);summary="Conteúdo da seção atualizado.";
+    }else if(sectionKey==="location"&&/enderec|rua|avenida|av\.|localiz/.test(lower)&&replacement){
+      set("address",replacement);summary="Endereço e mapa atualizados.";
+    }else if(sectionKey==="location"&&/horario|funcionamento|domingo|sabado/.test(lower)){
+      set("hours",instruction.replace(/^.*?(?:para|:|funcionamento)\s*/i,""));summary="Horários atualizados.";
+    }else if(sectionKey==="reviews"&&/adicion|inclu|remov|exclu|alter|troc/.test(lower)){
+      const defaults=["Ana Souza | São Paulo - SP | Sempre encontro pães fresquinhos e atendimento acolhedor que faz meu dia melhor.","Carlos Martins | Belo Horizonte - MG | Adoro a variedade de produtos naturais e o aroma gostoso que invade a loja.","Luiza Almeida | Curitiba - PR | O ambiente é agradável e os sabores tradicionais me trazem lembranças da infância."];
+      const items=Array.isArray(bakery.reviews)?[...(bakery.reviews as string[])]:defaults;
+      const index=/ultimo/.test(lower)?items.length-1:/segundo/.test(lower)?1:/terceiro/.test(lower)?2:0;
+      if(/adicion|inclu/.test(lower)&&quoted.length){items.push(quoted.join(" | "));set("reviews",items);summary="Depoimento adicionado.";}
+      else if(/remov|exclu/.test(lower)&&items.length){items.splice(index,1);set("reviews",items);summary="Depoimento removido.";}
+      else if(/alter|troc/.test(lower)&&replacement&&items[index]){items[index]=replacement;set("reviews",items);summary="Depoimento atualizado.";}
+    }else if(/animac|efeito|movimento|parallax|zoom/.test(lower)){
+      const target=/fornada/.test(lower)?"fornada":/balcao|produto/.test(lower)?"balcao":/depoimento|avaliac/.test(lower)?"reviews":/rodape/.test(lower)?"footer":/todas|site inteiro|todas as secoes/.test(lower)?"all":"hero";
+      const off=/remov|desativ|sem animac|parar/.test(lower);
+      const motions={...((bakery.motions as Record<string,boolean>)||{})};motions[target]=!off;
+      set("motions",motions);summary="Animação "+(off?"desativada":"ativada")+" na seção selecionada.";
+    }else if(sectionKey==="footer"&&/descricao|texto/.test(lower)&&replacement){
+      set("footerDescription",replacement);summary="Descrição do rodapé atualizada.";
+    }
+    if(!changed)
     if(/(?:nome da padaria|nome do negocio|nome da empresa|marca do site|logotipo|logo da padaria)/.test(lower)&&/(?:alter|troc|mud|renome)/.test(lower)&&replacement&&!/(?:card|produto|balcao|fornada)/.test(lower)){
       header.brand=replacement;current.title=replacement;changed=true;summary="Marca atualizada em todas as áreas que utilizam a identidade do negócio.";
       if(hero&&typeof hero.text==="string"&&/padaria|pao nosso/i.test(hero.text))hero.text=replacement;
