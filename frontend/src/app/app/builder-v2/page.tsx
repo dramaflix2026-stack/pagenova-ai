@@ -755,6 +755,41 @@ export default function BuilderV2() {
       }finally{setBusy(false);}
       return;
     }
+    if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/galeria|galeria de fotos|galeria de imagens/i.test(prompt)){
+      try{
+        const normalized=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+        const extras={...(site.extras||{})} as Record<string,unknown>;
+        const bakery={...((extras.bakery3d as Record<string,unknown>)||{})};
+        const existing=Array.isArray(bakery.gallery)?(bakery.gallery as string[]):[];
+        let gallery=[...existing];
+        const removing=/remov|exclu|apag|retir/.test(normalized);
+        const replace=/substitu|troqu|alter/.test(normalized);
+        const number=normalized.match(/(?:foto|imagem)\s*(?:numero\s*)?(\d{1,2})/);
+        const ordinal=normalized.match(/\b(primeir[oa]|segund[oa]|terceir[oa]|quart[oa]|quint[oa]|sext[oa])\b/);
+        const positions:Record<string,number>={primeiro:0,primeira:0,segundo:1,segunda:1,terceiro:2,terceira:2,quarto:3,quarta:3,quinto:4,quinta:4,sexto:5,sexta:5};
+        const index=number?Number(number[1])-1:ordinal?positions[ordinal[1]]:-1;
+        if(removing){
+          if(/galeria inteira|toda a galeria|todas as fotos/.test(normalized))gallery=[];
+          else if(index>=0&&index<gallery.length)gallery.splice(index,1);
+          else throw Error("Indique qual foto da galeria remover (ex.: foto 2).");
+        }else if(institutionalFiles.length){
+          if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por vez.");
+          if(replace&&(institutionalFiles.length!==1||index<0||index>=gallery.length))throw Error("Para substituir, anexe uma foto e indique uma posição existente.");
+          if(!replace&&gallery.length+institutionalFiles.length>18)throw Error("A galeria permite até 18 imagens.");
+          const uploaded:string[]=[];
+          for(const file of institutionalFiles){const body=new FormData();body.append("projectId",site.id||crypto.randomUUID());body.append("file",file);const response=await fetch("/api/builder-v2/assets",{method:"POST",body});const data=await response.json();if(!response.ok||typeof data.src!=="string")throw Error(data.error||"Falha ao enviar imagem.");uploaded.push(data.src);}
+          if(replace)gallery[index]=uploaded[0];else gallery.push(...uploaded);
+        }else if(/adicion|cri|inclu|mostr|exib/.test(normalized)){
+          bakery.galleryEnabled=true;
+        }else throw Error("Anexe imagens para adicionar ou substituir fotos da galeria.");
+        bakery.gallery=gallery;bakery.galleryEnabled=true;extras.bakery3d=bakery;
+        recordVersion(site,"Antes de editar galeria 3D");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite({...site,id:site.id||crypto.randomUUID(),extras});
+        setMessages(prev=>[...prev,{role:"assistant",text:"Galeria 3D atualizada: "+gallery.length+" foto(s). Vídeo da capa, produtos e demais seções preservados."}]);
+        setInstitutionalFiles([]);setInstruction("");setGenerationError("");
+      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na galeria.")+" Site preservado."}]);}
+      finally{setBusy(false);}return;
+    }
     if(site.cinematic?.mode==="immersive-3d"&&institutionalFiles.length>0&&site.blocks.length){
       try{
         if(institutionalFiles.length!==1)throw Error("Anexe uma imagem por vez no Template 3D.");
