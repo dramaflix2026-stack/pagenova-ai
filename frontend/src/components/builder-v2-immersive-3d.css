@@ -195,3 +195,22 @@
 .pn3-root .pn3-bakery-location-actions a{display:inline-flex;align-items:center;justify-content:center;margin:0;border-radius:23px;background:#cb8b1c;color:#291a12;font:700 17px Arial,sans-serif;padding:20px 25px}
 .pn3-root .pn3-bakery-location-actions a:nth-child(2){background:#2e1a12;color:#fff}
 @media(max-width:700px){.pn3-root .pn3-bakery-experience .pn3-bakery-order{padding:55px 18px 75px!important}.pn3-bakery-ticket-intro{padding:45px 28px 35px}.pn3-bakery-ticket-form{padding:48px 28px 45px}.pn3-bakery-ticket-actions{flex-direction:column;align-items:flex-start}.pn3-bakery-ticket-actions button,.pn3-bakery-ticket-actions a{max-width:100%;font-size:16px}.pn3-root .pn3-bakery-experience .pn3-bakery-reviews{padding:70px 25px 95px!important}.pn3-bakery-reviews-subtitle{margin-bottom:50px}.pn3-root .pn3-bakery-review-grid{grid-template-columns:1fr;gap:0}.pn3-root .pn3-bakery-review-grid blockquote{padding:45px 32px 50px!important;margin-bottom:15px!important;transform:rotate(-3deg)}.pn3-root .pn3-bakery-review-grid blockquote:nth-child(2n){transform:rotate(3deg) translateY(-5px)}.pn3-root .pn3-bakery-experience .pn3-bakery-location{padding:35px 18px 75px!important}.pn3-root .pn3-bakery-location .pn3-bakery-map-placeholder{height:260px;min-height:260px}.pn3-root .pn3-bakery-location .pn3-bakery-location-copy{padding:40px 28px}.pn3-bakery-location-actions{flex-direction:column;align-items:flex-start}}
+
+/* Bakery reference: structured footer with readable contrast and compact spacing */
+.pn3-root .pn3-bakery-experience .pn3-bakery-location{padding-bottom:48px!important}
+.pn3-root .pn3-bakery-footer-final{display:block!important;position:relative;background:#321e16!important;color:#fff5e7!important;padding:0!important;margin:0!important;text-align:left!important;border:0!important;font-family:Arial,sans-serif!important}
+.pn3-bakery-footer-final::before{content:"";display:block;height:20px;background:repeating-linear-gradient(90deg,#f2e1c6 0 28px,#321e16 28px 56px)}
+.pn3-bakery-footer-inner{max-width:1180px;margin:0 auto;padding:74px clamp(24px,5vw,65px) 65px;display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:clamp(28px,5vw,75px)}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-brand{display:flex;flex-direction:column;align-items:flex-start;gap:20px}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-brand>*{margin:0}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-brand p{font:18px/1.65 Arial,sans-serif;color:#e6d0b4;max-width:340px}
+.pn3-root .pn3-bakery-footer-final a{color:#fff5e7!important;text-decoration:none!important;opacity:1!important}
+.pn3-root .pn3-bakery-footer-final a:hover{text-decoration:underline!important}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-whatsapp{display:inline-flex!important;background:#cc8b1d!important;color:#27170f!important;border-radius:100px;padding:15px 23px;font-weight:800;align-self:flex-start}
+.pn3-bakery-footer-column{display:flex;flex-direction:column;align-items:flex-start;gap:17px}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column h3{font:800 21px/1.2 Arial,sans-serif!important;color:#f2bf6d!important;margin:0 0 12px}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column a{font:17px/1.4 Arial,sans-serif}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column p{font:16px/1.5 Arial,sans-serif;color:#e6d0b4;margin:6px 0}
+.pn3-bakery-footer-bottom{border-top:1px solid rgba(255,245,231,.2);max-width:1180px;margin:0 auto;padding:25px clamp(24px,5vw,65px) 34px;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap}
+.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-bottom span,.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-bottom a{font:14px/1.5 Arial,sans-serif;color:#e6d0b4!important}
+@media(max-width:700px){.pn3-root .pn3-bakery-experience .pn3-bakery-location{padding-bottom:30px!important}.pn3-bakery-footer-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:42px 22px;padding:52px 28px 42px}.pn3-bakery-footer-brand{grid-column:1/-1}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-brand p{font-size:16px}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column h3{font-size:18px}.pn3-root .pn3-bakery-footer-final .pn3-bakery-footer-column a{font-size:15px}.pn3-bakery-footer-bottom{padding:25px 28px 32px}}
