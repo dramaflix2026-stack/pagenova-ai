@@ -3,7 +3,8 @@ import {createClient} from "@/lib/supabase/server";
 export const runtime="nodejs";
 export const maxDuration=60;
 const MAX_BYTES=45_000_000;
-const VALID_NICHES=new Set(["hamburgueria"]);
+import catalog from "@/lib/niche-photo-catalog.json";
+const VALID_NICHES=new Set(Object.keys(catalog).map(n=>n.toLowerCase()));
 export async function POST(req:NextRequest){
  const origin=req.headers.get("origin");
  if(origin&&origin!==req.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
@@ -31,7 +32,15 @@ export async function GET(req:NextRequest){
  const {data:{user}}=await supabase.auth.getUser();
  if(!user)return NextResponse.json({error:"Não autenticado"},{status:401});
  const niche=(req.nextUrl.searchParams.get("niche")||"hamburgueria").toLowerCase();
- if(!VALID_NICHES.has(niche))return NextResponse.json({videos:[]});
+ if(req.nextUrl.searchParams.get("all")==="1"){
+  const items:{niche:string;device:string;url:string}[]=[];
+  for(const name of VALID_NICHES){
+   const {data}=await supabase.storage.from("site-images").list("cinematic-library/"+name,{limit:100,sortBy:{column:"created_at",order:"desc"}});
+   for(const device of ["desktop","mobile"]){const file=data?.find(f=>f.name.startsWith(device+"-")&&f.name.endsWith(".mp4"));if(file)items.push({niche:name,device,url:supabase.storage.from("site-images").getPublicUrl("cinematic-library/"+name+"/"+file.name).data.publicUrl});}
+  }
+  return NextResponse.json({items});
+ }
+ if(!VALID_NICHES.has(niche))return NextResponse.json({videos:{}});
  const videos:Record<string,string>={};
  for(const device of ["desktop","mobile"]){
   const {data,error}=await supabase.storage.from("site-images").list("cinematic-library/"+niche,{limit:100,sortBy:{column:"created_at",order:"desc"}});
