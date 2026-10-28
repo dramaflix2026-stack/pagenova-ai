@@ -30,7 +30,7 @@ const details:Record<string,{icon:string;description:string}>={
 export default function ConfiguradorPreview(){
 
  const [showIntro,setShowIntro]=useState(true);
- useEffect(()=>{const timer=window.setTimeout(()=>setShowIntro(false),3100);return ()=>window.clearTimeout(timer);},[]);
+ useEffect(()=>{const timer=window.setTimeout(()=>setShowIntro(false),5400);return ()=>window.clearTimeout(timer);},[]);
  const [scenario,setScenario]=useState<Scenario>("studio");
  const owned=useMemo(()=>expandEntitlements(ownedByScenario[scenario],true),[scenario]);
  const isOwned=(code:string)=>owned.includes(code);
@@ -63,6 +63,7 @@ export default function ConfiguradorPreview(){
  <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">Prévia · Sem cobranças</span>
  </header>
  <section className="py-10 sm:py-14">
+ <button type="button" onClick={()=>setShowIntro(true)} className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#b9f77a]/40 bg-[#b9f77a]/10 px-4 py-2 text-xs font-bold text-[#b9f77a] hover:bg-[#b9f77a]/20">▶ Rever apresentação · Product Intelligence</button>
 
  <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#b9f77a]">Sua plataforma, suas escolhas</span>
  <h1 className="mt-3 max-w-[760px] text-[clamp(2.2rem,4.3vw,3.8rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas.<br/><span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
@@ -111,15 +112,15 @@ export default function ConfiguradorPreview(){
  <footer className="mt-20 border-t border-white/10 pt-6 text-xs text-white/30">PageNova AI · Ambiente de demonstração</footer>
  </div>
  <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-white/10 bg-[#121a14]/95 px-5 py-3 backdrop-blur lg:hidden"><div><div className="text-[11px] text-white/45">{toolCount} ferramentas selecionadas</div><strong className="text-sm text-[#b9f77a]">{brl(quote.totalCents)}/mês*</strong></div><button type="button" disabled className="rounded-lg bg-[#b9f77a]/60 px-4 py-3 text-xs font-bold text-[#14210e]">Em preparação</button></div>
- <style jsx>{`
+ <style jsx global>{`
  @keyframes pnIntroIn {0%{opacity:0;transform:scale(1.22);filter:blur(18px)}35%{opacity:1;filter:blur(0)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.95)}}
  @keyframes pnIntroGlow {0%{opacity:0;transform:scale(.5)}45%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1.5)}}
  @keyframes pnIntroLine {0%{transform:scaleX(0);opacity:0}45%{transform:scaleX(1);opacity:1}100%{opacity:0}}
  @keyframes pnIntroSubtitle {0%,25%{opacity:0;transform:translateY(24px);letter-spacing:.8em}55%,78%{opacity:1;transform:translateY(0)}100%{opacity:0}}
- .pn-intro {animation:pnIntroIn 3.1s cubic-bezier(.2,.7,.2,1) both}
- .pn-intro-glow {background:radial-gradient(ellipse at center,rgba(45,255,96,.17),transparent 55%);animation:pnIntroGlow 3.1s ease-out both}
- .pn-intro-line {animation:pnIntroLine 3.1s ease-in-out both}
- .pn-intro-subtitle {animation:pnIntroSubtitle 3.1s ease-out both}
+ .pn-intro {animation:pnIntroIn 5.4s cubic-bezier(.2,.7,.2,1) both}
+ .pn-intro-glow {background:radial-gradient(ellipse at center,rgba(45,255,96,.17),transparent 55%);animation:pnIntroGlow 5.4s ease-out both}
+ .pn-intro-line {animation:pnIntroLine 5.4s ease-in-out both}
+ .pn-intro-subtitle {animation:pnIntroSubtitle 5.4s ease-out both}
  @media (prefers-reduced-motion:reduce){.pn-intro,.pn-intro-glow,.pn-intro-line,.pn-intro-subtitle{animation:none!important}}
  `}</style>\n </main>;
 }
