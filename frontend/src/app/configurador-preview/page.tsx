@@ -68,7 +68,7 @@ export default function ConfiguradorPreview(){
  </button>)}
  </section>}
  </section>
- <aside className="lg:sticky lg:top-6" aria-label="Resumo da assinatura">
+ <aside className="lg:sticky lg:top-6 lg:-mt-12" aria-label="Resumo da assinatura">
  <div className="rounded-2xl border border-white/10 bg-[#141e16] p-5 sm:p-6">
  <div className="flex items-center justify-between gap-2"><h2 className="text-lg font-bold">Seu pacote</h2><span className="rounded-full bg-[#b9f77a]/10 px-2.5 py-1 text-xs font-semibold text-[#b9f77a]">{toolCount} {toolCount===1?"ferramenta":"ferramentas"}</span></div>
  <p className="mt-2 text-xs leading-5 text-white/45">Personalize sua assinatura.</p>
