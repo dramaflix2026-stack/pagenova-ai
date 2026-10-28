@@ -116,6 +116,29 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   // The editor's block list is authoritative. Reordering sections must never
   // cause existing sections to disappear because of heuristic content filters.
   const visibleSections=sections.filter(group=>group.blocks.length>0);
+  // Keep the customer's explicit section order in the adaptive layout.
+  // The builder's section IDs remain intact for editing, links and publication.
+  if(adaptiveTemplate){
+    const rank=(group:typeof visibleSections[number])=>{
+      const label=(group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ")).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      if(/hero|capa|inicio/.test(label))return 0;
+      if(/sobre|historia|quem somos/.test(label))return 1;
+      if(/servic/.test(label))return 2;
+      if(/diferencia|por que escolher/.test(label))return 3;
+      if(/como funciona|processo|etapa/.test(label))return 4;
+      if(/plano|investimento|preco/.test(label))return 5;
+      if(/equipe|profissionai/.test(label))return 6;
+      if(/modalidade/.test(label))return 7;
+      if(/galeria/.test(label))return 8;
+      if(/depoimento|testemunho/.test(label))return 9;
+      if(/numero|indicador|estatistica/.test(label))return 10;
+      if(/faq|pergunta/.test(label))return 11;
+      if(/contato|fale conosco/.test(label))return 12;
+      if(/rodape|footer/.test(label))return 13;
+      return 8;
+    };
+    visibleSections.sort((a,b)=>rank(a)-rank(b));
+  }
   const heroSourceImage=visibleSections[0]?.blocks.find(b=>b.type==="image"&&!!b.src);
   const footerCandidates=visibleSections.filter(g=>!/rodape|footer|faq/i.test(g.id));
   const footerContact=footerCandidates.find(g=>/contato|agend|fale.conosco|fale-conosco/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ")));
@@ -333,6 +356,14 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 [data-pn-template="prompt-adaptive"] section:nth-of-type(3n+2) article { border-radius:10px 30px 10px 30px; }
 [data-pn-template="prompt-adaptive"] section:nth-of-type(3n+3) article { border-left:4px solid var(--pn-accent); border-top-color:#35373d; border-right-color:#35373d; border-bottom-color:#35373d; border-radius:18px; }
 [data-pn-template="prompt-adaptive"] section article img { width:100%; object-fit:cover; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="statistics"] article { border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; padding:18px 4px !important; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="statistics"] article:hover { transform:none; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="statistics"] .grid { gap:16px 32px; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="pricing"] article { border:1px solid #34363b !important; border-top:3px solid var(--pn-accent) !important; border-radius:22px !important; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="team"] article { border:0 !important; border-bottom:1px solid #35363a !important; border-radius:0 !important; box-shadow:none !important; }
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="team"] article:hover { transform:none; }
+[data-pn-template="prompt-adaptive"] section h2 { overflow-wrap:anywhere; }
+
 [data-pn-template="prompt-adaptive"] section h2 { color:#fff !important; }
 [data-pn-template="prompt-adaptive"] section form h2,[data-pn-template="prompt-adaptive"] section form p { color:#24332e; }
 
@@ -449,7 +480,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
               const label=block.text.replace(value[0]," ").replace(/^[:\s—–-]+|[:\s—–-]+$/g,"").trim();
               return {block,numeric,suffix:value[2]||"",label:label||"Indicador"};
             }).filter((item):item is NonNullable<typeof item>=>item!==null);
-            if(stats.length)return <section id={group.id} key={group.id+"-"+index} data-section-id={group.id} className="pn-institutional-section scroll-mt-20 px-6 py-16 md:px-12 md:py-24" style={{backgroundColor:sectionBackground}}>
+            if(stats.length)return <section data-pn-section-kind="statistics" id={group.id} key={group.id+"-"+index} data-section-id={group.id} className="pn-institutional-section scroll-mt-20 px-6 py-16 md:px-12 md:py-24" style={{backgroundColor:sectionBackground}}>
               <div className="mx-auto max-w-6xl">
                 {heading.map(block=><h2 key={block.id} data-block-id={block.id} className="mb-10 text-left text-3xl font-bold tracking-tight md:text-5xl" style={{color:"#ffffff"}}>{block.text}</h2>)}
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{stats.map(item=><article key={item.block.id} data-block-id={item.block.id} className="rounded-2xl border p-6 md:p-8" style={{borderColor:adaptiveColor,backgroundColor:adaptiveDark?"#17191c":"#ffffff"}}>
