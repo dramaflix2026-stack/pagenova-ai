@@ -430,12 +430,12 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           const adaptiveStatistics=adaptiveTemplate&&/n[uú]meros|indicadores|estat[ií]sticas|resultados.em.n[uú]meros/i.test(id+" "+heading.map(b=>b.text).join(" "));
           if(adaptiveStatistics){
             const stats=paragraphs.map(block=>{
-              const value=block.text.match(/(?:^|[:—–-]\\s*)(\\d{1,6}(?:[.,]\\d{1,2})?)\\s*(\\+|%|anos?|mil)?/i);
+              const value=block.text.match(/(?:^|[:—–-]\s*)(\d{1,6}(?:[.,]\d{1,2})?)\s*(\+|%|anos?|mil)?/i);
               if(!value)return null;
               const raw=value[1].replace(",",".");
               const numeric=Number(raw);
               if(!Number.isFinite(numeric))return null;
-              const label=block.text.replace(value[0]," ").replace(/^[:\\s—–-]+|[:\\s—–-]+$/g,"").trim();
+              const label=block.text.replace(value[0]," ").replace(/^[:\s—–-]+|[:\s—–-]+$/g,"").trim();
               return {block,numeric,suffix:value[2]||"",label:label||"Indicador"};
             }).filter((item):item is NonNullable<typeof item>=>item!==null);
             if(stats.length)return <section id={group.id} key={group.id+"-"+index} data-section-id={group.id} className="pn-institutional-section scroll-mt-20 px-6 py-16 md:px-12 md:py-24" style={{backgroundColor:sectionBackground}}>
