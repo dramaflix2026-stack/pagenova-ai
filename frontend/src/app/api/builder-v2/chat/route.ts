@@ -515,8 +515,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
               const card=item as Record<string,unknown>;
               const title=String(card.title||"").trim().slice(0,110);
               const description=String(card.description||"").trim().slice(0,450);
-              if(!title||!description)throw new Error("brief-repair-empty:"+name);
-              mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:title+": "+description,color:"#243043",align:"left"});
+              if(!title&&!description)continue;
+              const safeTitle=title||description.split(/[.:—–]/)[0].trim().slice(0,80)||"Item adicional";
+              const safeDescription=description||safeTitle;
+              mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:safeTitle+": "+safeDescription,color:"#ffffff",align:"left"});
             }
           }
         }
