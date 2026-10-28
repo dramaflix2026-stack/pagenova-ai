@@ -784,7 +784,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(/(?:menu|navegacao)/.test(instruction)&&/adicion|inclu|crie/.test(instruction)&&/depoiment/.test(instruction)){
       const section=editingSite.blocks.find(b=>/depoiment/.test(String(b.section||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase())||b.type==="heading"&&/depoiment/.test(String(b.text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))?.section;
       if(!section)return NextResponse.json({error:"Seção Depoimentos não encontrada; menu preservado."},{status:422});
-      const items=Array.isArray((header as {navItems?:unknown}).navItems)?[...(header as {navItems:Array<{label:string;href:string}>}).navItems]:[];
+      const existingNav=(header as Record<string,unknown>).navItems;
+      const items:Array<{label:string;href:string}>=Array.isArray(existingNav)?existingNav.filter((item:unknown):item is {label:string;href:string}=>!!item&&typeof item==="object"&&typeof (item as {label?:unknown}).label==="string"&&typeof (item as {href?:unknown}).href==="string"):[];
       if(!items.some(item=>item.href==="#"+section))items.push({label:quote||"Depoimentos",href:"#"+section});
       return NextResponse.json({site:{...editingSite,header:{...header,navItems:items}},summary:"Item Depoimentos adicionado ao menu com âncora existente."});
     }
