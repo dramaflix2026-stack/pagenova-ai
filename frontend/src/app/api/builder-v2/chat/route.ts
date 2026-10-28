@@ -405,7 +405,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Template 5 contract validation: enforce the user's explicitly stated quantities
       // without changing the legacy templates' generation pipeline.
       if(adaptiveBrief){
-        const normalized=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+        const normalized=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
         const sectionRules=[
           {terms:/servic|tratament|atividade/,id:"servicos"},
           {terms:/diferencia/,id:"diferenciais"},
@@ -417,11 +417,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           {terms:/perguntas|faq/,id:"faq"}
         ];
         const requestedCounts=new Map<string,number>();
-        const briefLines=instruction.split(/\\n+/).map(line=>line.trim()).filter(Boolean);
+        const briefLines=instruction.split(/\n+/).map(line=>line.trim()).filter(Boolean);
         for(const line of briefLines){
           const n=normalized(line);
-          const number=n.match(/\\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\\s*(\\d{1,2})\\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)/)
-            ||n.match(/\\b(\\d{1,2})\\s*(?:cards?|itens?)?\\s*(?:de\\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)/);
+          const number=n.match(/\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\s*(\d{1,2})\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)/)
+            ||n.match(/\b(\d{1,2})\s*(?:cards?|itens?)?\s*(?:de\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)/);
           if(!number)continue;
           const count=Number(number[1]);
           if(count<2||count>12)continue;
