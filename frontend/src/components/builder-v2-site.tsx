@@ -330,6 +330,12 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 [data-pn-template="prompt-adaptive"] section article h3 { font-family:inherit !important; font-weight:750; }
 [data-pn-template="prompt-adaptive"] section h2 { text-shadow:0 1px 1px rgba(0,0,0,.18); }
 [data-pn-template="prompt-adaptive"] section form { color:#24332e; }
+[data-pn-template="prompt-adaptive"] section:nth-of-type(3n+2) article { border-radius:10px 30px 10px 30px; }
+[data-pn-template="prompt-adaptive"] section:nth-of-type(3n+3) article { border-left:4px solid var(--pn-accent); border-top-color:#35373d; border-right-color:#35373d; border-bottom-color:#35373d; border-radius:18px; }
+[data-pn-template="prompt-adaptive"] section article img { width:100%; object-fit:cover; }
+[data-pn-template="prompt-adaptive"] section h2 { color:#fff !important; }
+[data-pn-template="prompt-adaptive"] section form h2,[data-pn-template="prompt-adaptive"] section form p { color:#24332e; }
+
 @media (prefers-reduced-motion:reduce){[data-pn-template="prompt-adaptive"] section article:hover{transform:none;}}
 
 `}</style>}{!site.blocks.length && <div className="flex min-h-[420px] flex-col items-center justify-center px-8 py-16 text-center"><p className="text-2xl font-bold text-slate-900">Seu site ainda não foi gerado</p><p className="mt-3 max-w-md text-slate-600">Escreva no chat, por exemplo: Faça um site premium para advogados. Depois clique em Enviar e aplicar.</p></div>}{visibleSections.map((group,index)=>{
@@ -341,7 +347,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           const theme = /advoga|jurid|direito|escritorio/i.test(site.title) ? premiumThemes.legal : /clinic|odonto|medic|saude/i.test(site.title) ? premiumThemes.health : premiumThemes.creative;
           // Incomplete editorial sections must not reserve empty space in the published page.
           if(/conte[uú]do|artigo|blog|not[ií]cia|publica[cç][aã]o/i.test(id) && blocks.filter(b=>b.type==="paragraph"&&removeVisualDirectives(b.text).trim().length>80).length<2)return null;
-          const sectionBackground=(adaptiveTemplate?(first?.background&&/^#[0-9a-f]{6}$/i.test(first.background)?first.background:(index===0?"#090909":index%2===0?"#101114":"#181818")):templateId==="image-text-alternating"?(index%2===0?"#ffffff":"#f1f6f5"):templateId==="minimalist-sophisticated" ? (index%2===0?"#ffffff":"#f7f8f5") : first?.background)||(templateId==="modern-impactful"?(index%2===0?"#12151b":"#202532"):templateId==="minimalist-sophisticated"?(index%2===0?"#f7f5f0":"#eae7df"):(index===0?theme.dark:index%2?theme.light:site.background));
+          const sectionBackground=(adaptiveTemplate?(index===0?"#090909":index%3===0?"#11151b":index%3===1?"#181818":"#0d0e11"):templateId==="image-text-alternating"?(index%2===0?"#ffffff":"#f1f6f5"):templateId==="minimalist-sophisticated" ? (index%2===0?"#ffffff":"#f7f8f5") : first?.background)||(templateId==="modern-impactful"?(index%2===0?"#12151b":"#202532"):templateId==="minimalist-sophisticated"?(index%2===0?"#f7f5f0":"#eae7df"):(index===0?theme.dark:index%2?theme.light:site.background));
 
           
           const heroPhotoCandidate=blocks.find(b=>b.type==="image"&&!!b.src)?.src || (index===0 ? visibleSections.flatMap(section=>section.blocks).find(b=>b.type==="image"&&!!b.src)?.src : undefined);
@@ -579,7 +585,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                     const featured=/mais escolhido|mais popular|recomendado|performance/i.test(card.name+" "+card.description);
                     return <article key={item.id} data-block-id={item.id} className="relative flex h-full flex-col overflow-hidden rounded-3xl border p-7 shadow-xl md:p-9" style={{backgroundColor:"#181818",borderColor:featured?adaptiveColor:"#363636"}}>
                       {featured&&<span className="mb-5 self-start rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-widest text-white" style={{backgroundColor:adaptiveColor}}>Mais escolhido</span>}
-                      <h3 className="text-2xl font-extrabold text-white">{card.name.replace(/\\s*\\(mais escolhido\\)/i,"")}</h3>
+                      <h3 className="text-2xl font-extrabold text-white">{card.name.replace(/\s*\(mais escolhido\)/i,"")}</h3>
                       <p className="mt-5 flex-1 whitespace-pre-line text-sm leading-7 text-gray-200">{card.description}</p>
                       <div className="mt-8">{buttons[i]?render(buttons[i]):<a href="#contato" className="inline-flex w-full justify-center rounded-xl px-5 py-4 font-bold text-white" style={{backgroundColor:adaptiveColor}}>Quero este plano</a>}</div>
                     </article>;
