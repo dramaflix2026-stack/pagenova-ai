@@ -495,7 +495,19 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
-          const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b))}</div>;
+          const headingNode=<div className="mb-6 max-w-3xl space-y-3 md:mb-8">{heading.map(b=>{
+            if(adaptiveTemplate){
+              const kind=id.toLowerCase();
+              const cleanTitle=/n[uú]meros|indicadores|estat[ií]sticas/.test(kind)?"Nossos números":
+                /galeria/.test(kind)?"Galeria de imagens":
+                /depoiment/.test(kind)?"Depoimentos":
+                /processo|como.funciona|etapas/.test(kind)?"Como funciona":
+                /planos|investimento|pre[cç]os/.test(kind)?"Planos e investimento":
+                b.text.replace(/\s*[—–-]\s*(?:fundo|layout|com contagem|indicadores animados|responsiv|#[0-9a-f]{6}).*$/i,"").trim();
+              return render({...b,text:cleanTitle});
+            }
+            return isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b);
+          })}</div>;
           const editorialVisuals=uniqueImages.filter(b=>!!b.src);
           const cardImage=(card:Block,i:number)=>images.find(image=>image.forCardId===card.id)||editorialVisuals[i];
           const editorialCardsForDisplay=textItems.filter(b=>b.type==="paragraph"&&b.text.trim().length>0);
