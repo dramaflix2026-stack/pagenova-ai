@@ -9,7 +9,10 @@ export async function proxy(request: NextRequest) {
   const customHost=Boolean(host&&host!=="pagenovaai.com.br"&&host!=="www.pagenovaai.com.br"&&
     host!=="localhost"&&host!=="127.0.0.1"&&!host.endsWith(".vercel.app")&&
     !host.endsWith(".pagenovaai.com.br"));
-  if(customHost&&request.nextUrl.pathname==="/"){
+  if(customHost){
+    // Customer domains serve the published homepage only. Never expose the
+    // PageNova dashboard, login, API, or another published site on this host.
+    if(request.nextUrl.pathname!=="/")return new NextResponse("Página não encontrada.",{status:404});
     const url=process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key=process.env.SUPABASE_SECRET_KEY;
     if(!url||!key)return new NextResponse("Site indisponível.",{status:503});
@@ -125,5 +128,8 @@ export const config = {
     "/forgot-password",
     "/reset-password",
     "/auth/callback",
+    // Cover customer-host routes as well as the homepage; Next internals and
+    // static assets must bypass the database lookup.
+    "/((?!api/|_next/|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)",
   ],
 };
