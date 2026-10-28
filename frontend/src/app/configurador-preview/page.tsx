@@ -76,8 +76,8 @@ export default function ConfiguradorPreview(){
  })}
  </div>
  {bundles.length>0&&<section className="mt-8" aria-label="Pacotes completos">
- <div className="mb-3 flex items-center justify-between"><h3 className="text-base font-bold">Prefere tudo junto?</h3><span className="text-xs text-white/40">Pacote completo</span></div>
- {bundles.filter(item=>!isOwned(item.code)).map(item=><button key={item.code} type="button" aria-pressed={selected.includes(item.code)} onClick={()=>toggle(item.code)} className={"flex w-full items-center gap-4 rounded-2xl border p-5 text-left transition "+(selected.includes(item.code)?"border-[#b9f77a] bg-[#1b2c1c]":"border-[#b9f77a]/20 bg-[#152017] hover:border-[#b9f77a]/50")}>
+ <div className="mb-3 flex items-center justify-between"><h3 className="text-base font-bold">Prefere tudo junto?</h3><span className="text-xs text-white/40">Pacote completo</span></div>{bundles.some(item=>(item.includedIn??[]).some(code=>isOwned(code)))&&<p className="mb-3 text-xs text-white/45">Upgrade de pacote com itens já contratados exige cálculo proporcional aprovado; indisponível nesta prévia para evitar cobrança duplicada.</p>}
+ {bundles.filter(item=>!isOwned(item.code)&&!(item.includedIn??[]).some(code=>isOwned(code))).map(item=><button key={item.code} type="button" aria-pressed={selected.includes(item.code)} onClick={()=>toggle(item.code)} className={"flex w-full items-center gap-4 rounded-2xl border p-5 text-left transition "+(selected.includes(item.code)?"border-[#b9f77a] bg-[#1b2c1c]":"border-[#b9f77a]/20 bg-[#152017] hover:border-[#b9f77a]/50")}>
  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#b9f77a]/10 text-2xl text-[#b9f77a]">✦</span>
  <span className="min-w-0 flex-1"><strong className="block text-sm font-bold">{item.title}</strong><span className="mt-1 block text-xs text-white/50">{details[item.code].description} · {brl(PREVIEW_PRICES_CENTS[item.code])}/mês (simulação)</span></span>
  <span className="shrink-0 rounded-lg bg-[#b9f77a] px-3 py-2 text-xs font-bold text-[#10200c]">{selected.includes(item.code)?"Selecionado ✓":"Selecionar"}</span>
