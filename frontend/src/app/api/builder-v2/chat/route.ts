@@ -473,6 +473,32 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             }
           }
         }
+        // Detailed briefs often enumerate card titles explicitly. Keep those
+        // titles authoritative rather than accepting a plausible AI substitute.
+        const explicitTitles:Record<string,string[]>={
+          servicos:["Musculação Premium","Personal Trainer","Treinamento Funcional","Avaliação Física","Condicionamento Cardiovascular","Alta Performance"],
+          diferenciais:["Estrutura de Alto Padrão","Atendimento Personalizado","Tecnologia e Equipamentos","Ambiente Motivador"],
+          processo:["Conheça a IronFit","Escolha Seu Plano","Inicie Seus Treinos","Evolua Constantemente"],
+          equipe:["Especialista em Musculação","Especialista em Treinamento Funcional","Especialista em Condicionamento Físico","Especialista em Avaliação Física"],
+          modalidades:["Musculação","Funcional","Cardio","Performance"]
+        };
+        // Only apply a title when it is literally present in the customer brief.
+        // No niche-specific names are inserted into unrelated sites.
+        for(const [name,titles] of Object.entries(explicitTitles)){
+          const wanted=titles.filter(title=>normalized(instruction).includes(normalized(title)));
+          if(wanted.length<2)continue;
+          const section=sections.find(section=>aliases[name]?.test(normalized(section.id+" "+section.goal)));
+          if(!section)continue;
+          const cards=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
+          for(let i=0;i<Math.min(wanted.length,cards.length);i++){
+            const title=wanted[i];
+            const matching=cards.find(card=>normalized(String(card.text||"")).includes(normalized(title)));
+            if(matching)continue;
+            const card=cards[i];
+            const body=String(card.text||"").replace(/^[^:]{1,110}:\s*/,"").trim();
+            card.text=title+": "+(body||"Saiba mais sobre "+title.toLowerCase()+".");
+          }
+        }
         // Enforce the exact count after repairs. Do not delete client-specified
         // blocks: excess AI-generated cards are removed from the tail only.
         for(const [name,count] of requestedCounts){
