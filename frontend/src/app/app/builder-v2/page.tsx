@@ -1239,9 +1239,9 @@ export default function BuilderV2() {
         className={"flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-white/85 hover:bg-white/10 disabled:opacity-40 "+(voiceListening?"border-red-400 bg-red-400/20":"border-white/20")}>
         {voiceListening?<MicOff size={19}/>:<Mic size={19}/>}
       </button>
-      {!crmProjectId&&<button type="button" aria-expanded={nicheMenuOpen} onClick={()=>setNicheMenuOpen(open=>!open)}
-        className="inline-flex h-10 min-w-0 max-w-[145px] items-center gap-1 rounded-full border border-white/20 px-3 text-xs font-medium text-white/80 hover:bg-white/10">
-        <span className="truncate">{selectedNiche||"Nicho"}</span><span aria-hidden="true">⌄</span>
+      {!crmProjectId&&<button type="button" aria-expanded={nicheMenuOpen} aria-label={selectedNiche?"Nicho selecionado: "+selectedNiche+". Alterar nicho":"Selecionar nicho do site"} onClick={()=>setNicheMenuOpen(open=>!open)}
+        className="inline-flex h-11 min-w-[132px] max-w-[210px] items-center justify-center gap-2 rounded-xl border-2 border-lime-300 bg-lime-300/15 px-3 text-sm font-extrabold text-lime-200 shadow-[0_0_0_2px_rgba(190,242,100,0.08)] transition hover:bg-lime-300/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime-300">
+        <span aria-hidden="true">◈</span><span className="truncate">{selectedNiche||"Escolher nicho"}</span><span aria-hidden="true">⌄</span>
       </button>}
       <button type="submit" disabled={busy||(!instruction.trim()&&!(siteCategory==="real-estate"&&propertyFiles.length))}
         className="ml-auto inline-flex h-10 items-center justify-center gap-2 rounded-full bg-lime-300 px-4 text-xs font-bold text-black disabled:opacity-45">
@@ -1249,6 +1249,10 @@ export default function BuilderV2() {
       </button>
     </div>
   </form>
+  {!crmProjectId&&<div className="mt-3 rounded-xl border border-lime-300/25 bg-lime-300/5 px-3 py-2 text-sm text-white/85">
+    <strong className="text-lime-200">{selectedNiche?"Nicho selecionado: "+selectedNiche:"Escolha primeiro o nicho do seu negócio"}</strong>
+    <p className="mt-1 text-xs leading-relaxed text-white/65">{selectedNiche?"Seu nicho já está definido. Agora descreva seu site ou cole um briefing completo.":"Selecionar um nicho prepara o site para seu segmento, com conteúdo e imagens adequados. Depois, basta escrever seu pedido ou colar um briefing completo."}</p>
+  </div>}
   {!crmProjectId&&nicheMenuOpen&&<div className="mt-3 space-y-2 border-t border-white/15 pt-3">
     <input aria-label="Pesquisar nichos" value={nicheQuery} onChange={e=>setNicheQuery(e.target.value)}
       placeholder="Buscar profissão ou negócio..." className="w-full rounded-lg border border-white/20 bg-black/30 p-2 text-sm text-white outline-none focus:border-lime-300"/>
