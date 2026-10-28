@@ -1,6 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
 import {authorizedForms,errorsAsResponse} from "@/lib/forms/server";
-import {checkVercelDomain,normalizeCustomerDomain,registerVercelDomain,vercelDomainAvailable} from "@/lib/pagenova-custom-domains";
+import {checkVercelDomain,normalizeCustomerDomain,registerVercelDomain,unregisterVercelDomain,vercelDomainAvailable} from "@/lib/pagenova-custom-domains";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -104,5 +104,29 @@ export async function PATCH(request:NextRequest){
       verification:state.verification,dnsInstructions:state.dnsInstructions},{headers:NO_CACHE});
   }catch(error){
     return errorsAsResponse(error)??NextResponse.json({error:"Não foi possível verificar o domínio agora."},{status:503,headers:NO_CACHE});
+  }
+}
+
+export async function DELETE(request:NextRequest){
+  const origin=request.headers.get("origin");
+  if(origin&&origin!==request.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
+  try{
+    const {admin,userId}=await authorizedForms();
+    if(!vercelDomainAvailable())return NextResponse.json({error:"Conexão indisponível."},{status:503});
+    const body=await request.json() as {domain?:unknown};
+    const domain=normalizeCustomerDomain(body.domain as string);
+    if(!domain)return NextResponse.json({error:"Domínio inválido."},{status:422});
+    const {data:existing,error:lookupError}=await admin.from("pagenova_custom_domains")
+      .select("domain").eq("domain",domain).eq("owner_id",userId).maybeSingle();
+    if(lookupError)throw lookupError;
+    if(!existing)return NextResponse.json({error:"Domínio não encontrado."},{status:404});
+    await unregisterVercelDomain(domain);
+    const {error:removeError}=await admin.from("pagenova_custom_domains")
+      .delete().eq("domain",domain).eq("owner_id",userId);
+    if(removeError)throw removeError;
+    return NextResponse.json({removed:true,domain},{headers:NO_CACHE});
+  }catch(error){
+    if(error instanceof SyntaxError)return NextResponse.json({error:"Dados inválidos."},{status:400});
+    return errorsAsResponse(error)??NextResponse.json({error:"Não foi possível desconectar o domínio."},{status:503,headers:NO_CACHE});
   }
 }
