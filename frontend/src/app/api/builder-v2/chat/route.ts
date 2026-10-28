@@ -214,14 +214,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           heroParagraphs++;
           if(heroParagraphs>1)mutableBlocks.splice(i,1);
         }
-        // Unverified testimonials must never acquire invented personal identities.
+        // Illustrative testimonials are copied only from the user's actual brief.
         const testimonialSection=sections.find(v=>/depoiment|testemunh/i.test(v.id+" "+v.goal));
-        if(testimonialSection){
-          for(const block of mutableBlocks){
-            if(block.section!==testimonialSection.id||block.type!=="paragraph")continue;
-            const content=String(block.text||"");
-            const quote=content.replace(/^(?:[A-ZÁÉÍÓÚÂÊÔÃÕ][\\p{L}]+(?:\\s+[A-ZÁÉÍÓÚÂÊÔÃÕ][\\p{L}]+){1,3}\\s*[,—–-]\\s*[^:]{2,45}:\\s*)/u,"").trim();
-            block.text="Depoimento ilustrativo: "+quote.replace(/^Depoimento ilustrativo:\\s*/i,"");
+        if(testimonialSection&&/depoimentos? demonstrativ|depoimentos? ilustrativ|sem (?:inventar )?nomes/i.test(instruction)){
+          const examples=[...instruction.matchAll(/^\s*\d+[.)]\s*["“]([^"”\n]{15,350})["”]/gm)].map(m=>m[1].trim());
+          const cards=mutableBlocks.filter(block=>block.section===testimonialSection.id&&block.type==="paragraph");
+          for(let i=0;i<cards.length;i++){
+            const text=examples[i]||String(cards[i].text||"").replace(/^[^:]{2,85}:\s*/,"");
+            cards[i].text="Depoimento ilustrativo: "+text;
           }
         }
       }
@@ -444,7 +444,19 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const generatedCopy=normalizePrices(mutableBlocks.map(b=>String(b.text||"")).join(" "));
       const missingPrices=[...new Set(priceMatches.map(m=>normalizePrices(m[0])))]
         .filter(price=>!generatedCopy.includes(price));
-      if(missingPrices.length && adaptiveBrief) { const pricing=sections.find(x=>/plan|investimento|preco/i.test(x.id)); if(pricing) for(const price of missingPrices) mutableBlocks.push({id:"adaptive-price-"+crypto.randomUUID(),section:pricing.id,layout:pricing.layout,type:"paragraph",text:price,color:"#ffffff",align:"left"}); else throw new Error("missing-requested-pricing-section"); } else if(missingPrices.length) throw new Error("missing-requested-prices:"+missingPrices.join(","));
+      if(missingPrices.length&&adaptiveBrief){
+        const pricing=sections.find(x=>/plan|investimento|preco/i.test(x.id));
+        if(!pricing)throw new Error("missing-requested-pricing-section");
+        const cards=mutableBlocks.filter(b=>b.section===pricing.id&&b.type==="paragraph");
+        // Repair a missing price inside its card, never as a detached price card.
+        for(const price of missingPrices){
+          const index=priceMatches.findIndex(match=>normalizePrices(match[0])===price);
+          const card=cards[index];
+          if(!card)throw new Error("missing-plan-card-for-price:"+price);
+          card.text=String(card.text||"")+" — "+price;
+        }
+      }else if(missingPrices.length)throw new Error("missing-requested-prices:"+missingPrices.join(","));
+
       if(absentExtras.length)throw new Error("missing-requested-sections:"+absentExtras.map(s=>s.id).join(","));
       // Template 5 contract validation: enforce the user's explicitly stated quantities
       // without changing the legacy templates' generation pipeline.
@@ -461,17 +473,24 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           {terms:/perguntas|faq/,id:"faq"}
         ];
         const requestedCounts=new Map<string,number>();
+        // Read explicit quantities from section headings and their immediate
+        // descriptions, not from unrelated numbered benefits or prices.
         const briefLines=instruction.split(/\n+/).map(line=>line.trim()).filter(Boolean);
+        let countSection="";
         for(const line of briefLines){
-          const n=normalized(line);
-          const number=n.match(/\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\s*(\d{1,2})\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)/)
-            ||n.match(/\b(\d{1,2})\s*(?:cards?|itens?)?\s*(?:de\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)/);
+          const n=normalized(line).replace(/^#+\s*/,"").replace(/\*\*/g,"");
+          if(n.length<100&&/^(?:\d+[.)]\s*)?(?:nossos?\s+)?(?:servicos?|diferenciais?|como funciona|processo|etapas?|planos?(?: e investimento)?|nossa equipe|equipe|modalidades?|depoimentos?|perguntas frequentes|faq)\b/.test(n)){
+            const rule=sectionRules.find(rule=>rule.terms.test(n));
+            if(rule)countSection=rule.id;
+          }
+          const number=n.match(/\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\s*(\d{1,2})\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)\b/)
+            ||n.match(/\b(\d{1,2})\s*(?:cards?|itens?)?\s*(?:de\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)\b/);
           if(!number)continue;
           const count=Number(number[1]);
           if(count<2||count>12)continue;
-          for(const rule of sectionRules){
-            if(rule.terms.test(n)){requestedCounts.set(rule.id,count);break;}
-          }
+          const explicit=sectionRules.find(rule=>rule.terms.test(n));
+          const category=explicit?.id||countSection;
+          if(category)requestedCounts.set(category,count);
         }
         const aliases:Record<string,RegExp>={
           servicos:/servic|tratament|atividade/,diferenciais:/diferencia/,
