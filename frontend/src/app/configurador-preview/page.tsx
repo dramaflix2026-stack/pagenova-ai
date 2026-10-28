@@ -70,10 +70,10 @@ export default function ConfiguradorPreview(){
  </div>
  <div className="pn-hero-line relative z-10 mt-4 h-px w-[min(75%,420px)] bg-gradient-to-r from-transparent via-[#b9f77a] to-transparent" />
  <span className="pn-hero-tag relative z-10 mt-3 text-[10px] font-bold uppercase tracking-[.2em] text-[#b9f77a] sm:text-sm sm:tracking-[.45em]">Product Intelligence</span>
- </div>
- <div className="mt-1 flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-3">
+ <div className="pn-hero-slogan relative z-10 mt-9 flex flex-col items-center justify-center gap-2 text-center sm:mt-12 sm:flex-row sm:gap-3">
  <h1 className="text-[clamp(1.65rem,3.1vw,2.65rem)] font-extrabold leading-[1.16] tracking-[-.04em] text-white">Escolha as ferramentas.</h1>
  <p className="text-[clamp(1.05rem,2vw,1.65rem)] font-bold leading-[1.2] tracking-[-.025em] text-[#b9f77a]">A gente simplifica o resto.</p>
+ </div>
  </div>
  </section>
  <section id="pacotes" aria-label="Escolha do pacote principal" className="pn-section-divider relative scroll-mt-24 mb-14 pt-10 lg:mb-16">
@@ -133,6 +133,8 @@ export default function ConfiguradorPreview(){
  .pn-hero-wordmark{animation:pnWordmarkReveal 1.4s cubic-bezier(.18,.8,.2,1) .45s both}
  .pn-hero-line{animation:pnHeroLine 1s ease-out 1.15s both}
  .pn-hero-tag{animation:pnHeroTag 1s ease-out 1.45s both}
+ @keyframes pnHeroSloganReveal{0%{opacity:0;transform:translateY(24px);filter:blur(8px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+ .pn-hero-slogan{animation:pnHeroSloganReveal 1.05s cubic-bezier(.2,.8,.2,1) 1.85s both}
  @keyframes pnBotWalkLeft{0%{opacity:0;transform:translateX(-95px) scale(.65)}45%{opacity:1}75%,100%{opacity:1;transform:translateX(0) scale(1)}}
  @keyframes pnBotWalkRight{0%{opacity:0;transform:translateX(95px) scale(.65)}45%{opacity:1}75%,100%{opacity:1;transform:translateX(0) scale(1)}}
  @keyframes pnBotStep{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-14deg)}}
@@ -151,7 +153,7 @@ export default function ConfiguradorPreview(){
  .pn-section-divider::before{content:"";position:absolute;top:0;left:50%;width:100vw;height:1px;transform:translateX(-50%);background:linear-gradient(90deg,transparent,rgba(185,247,122,.19) 15%,rgba(255,255,255,.22) 50%,rgba(185,247,122,.19) 85%,transparent);pointer-events:none}
  @keyframes pnTestimonialAppear{0%{opacity:0;transform:translateY(24px) rotateX(14deg)}100%{opacity:1;transform:translateY(0) rotateX(0)}}
  .pn-testimonial-card{transform-style:preserve-3d;animation:pnTestimonialAppear .8s cubic-bezier(.2,.8,.2,1) both}
- @media (prefers-reduced-motion:reduce){.pn-hero-p,.pn-hero-wordmark,.pn-hero-line,.pn-hero-tag,.pn-bot,.pn-bot-body,.pn-bot-leg,.pn-confetti-piece,.pn-testimonial-card{animation:none!important}}
+ @media (prefers-reduced-motion:reduce){.pn-hero-p,.pn-hero-wordmark,.pn-hero-line,.pn-hero-tag,.pn-hero-slogan,.pn-bot,.pn-bot-body,.pn-bot-leg,.pn-confetti-piece,.pn-testimonial-card{animation:none!important}}
  `}</style>
  </main>;
 }
