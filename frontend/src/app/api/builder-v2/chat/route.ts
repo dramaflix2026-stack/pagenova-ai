@@ -136,6 +136,27 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         sections.push({id,layout,goal:"Seção adicional solicitada pelo cliente: "+title+". "+goal+". Inclua heading e conteúdo completo; respeite dados, preços, quantidades e links fornecidos, sem inventar informações."});
         existingSectionIds.add(id);
       }
+      if(adaptiveBrief){
+        // Place extra sections in their semantic position rather than after Contact.
+        // The editor's subsequent section moves remain authoritative.
+        const sectionRank=(id:string)=>{
+          if(/inicio|hero/.test(id))return 0;
+          if(/servic/.test(id))return 10;
+          if(/sobre|historia/.test(id))return 20;
+          if(/diferencia|vantagen/.test(id))return 30;
+          if(/processo|etapas|passos|funciona|atendimento/.test(id))return 40;
+          if(/planos|precos|pricing|investimento/.test(id))return 50;
+          if(/equipe|profission|especialist/.test(id))return 60;
+          if(/modalidad|atividade/.test(id))return 70;
+          if(/galeria|imagem/.test(id))return 80;
+          if(/depoiment|testemunh/.test(id))return 90;
+          if(/numero|indicador|estatistica/.test(id))return 100;
+          if(/faq|pergunt/.test(id))return 110;
+          if(/contato|formulario/.test(id))return 120;
+          return 75;
+        };
+        sections.sort((a,b)=>sectionRank(a.id)-sectionRank(b.id));
+      }
       // Keep each parallel AI call small enough to finish within the request budget.
       const batchSize=2;
       const batches=Array.from({length:Math.ceil(sections.length/batchSize)},(_,i)=>sections.slice(i*batchSize,(i+1)*batchSize));
