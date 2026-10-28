@@ -582,7 +582,8 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                 <div className="grid items-stretch gap-6 md:grid-cols-3">
                   {textItems.filter(b=>b.type==="paragraph"&&cardText(b).description.length>8).slice(0,6).map((item,i)=>{
                     const card=cardText(item);
-                    const featured=/mais escolhido|mais popular|recomendado|performance/i.test(card.name+" "+card.description);\n                    const planName=card.name.replace(/\s*\(mais escolhido\)/i,"").replace(/^(?:diferencial|plano)\s*\d{1,2}\s*[:—–-]?\s*/i,"").trim()||"Plano "+(i+1);
+                    const featured=/mais escolhido|mais popular|recomendado|performance/i.test(card.name+" "+card.description);
+                    const planName=card.name.replace(/\s*\(mais escolhido\)/i,"").replace(/^(?:diferencial|plano)\s*\d{1,2}\s*[:—–-]?\s*/i,"").trim()||"Plano "+(i+1);
                     return <article key={item.id} data-block-id={item.id} className="relative flex h-full flex-col overflow-hidden rounded-3xl border p-7 shadow-xl md:p-9" style={{backgroundColor:"#181818",borderColor:featured?adaptiveColor:"#363636"}}>
                       {featured&&<span className="mb-5 self-start rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-widest text-white" style={{backgroundColor:adaptiveColor}}>Mais escolhido</span>}
                       <h3 className="text-2xl font-extrabold text-white">{planName}</h3>
