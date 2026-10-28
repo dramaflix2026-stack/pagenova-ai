@@ -74,12 +74,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
         {instruction},350
       );
-      // An explicit card count in the customer brief overrides Template 1 defaults.\n      const serviceCountMatch=instruction.match(/(?:servi[cç]os|atividades)\\s*(?:com|:|-)?\\s*(\\d{1,2})\\s*(?:cards?|itens?)|(?:\\b(\\d{1,2})\\s*(?:cards?|itens?)\\s*(?:de\\s+)?servi[cç]os)/i);\n      const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]):4;\n      const serviceCount=requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4;\n      // Template 1 has a deterministic structure; AI is responsible for niche-specific
+      // An explicit card count in the customer brief overrides Template 1 defaults.
+      const serviceCountMatch=instruction.match(/(?:servi[cç]os|atividades)\s*(?:com|:|-)?\s*(\d{1,2})\s*(?:cards?|itens?)|\b(\d{1,2})\s*(?:cards?|itens?)\s*(?:de\s+)?servi[cç]os/i);
+      const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]):4;
+      const serviceCount=requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4;
+      // Template 1 has a deterministic structure; AI is responsible for niche-specific
       // copy and design, not for deleting essential sections or making a gallery the hero.
       // Later edits still honor the user's chat instructions and preserve existing blocks.
       const sections: Array<{id:string;layout:string;goal:string}> = [
         {id:"inicio",layout:"hero",goal:"Capa principal do negócio, com proposta de valor clara, subtítulo e CTA para #servicos. Nunca usar galeria, nosso espaço ou equipe como título principal."},
-        {id:"servicos",layout:"grid",goal:`EXATAMENTE ${serviceCount} cards de serviços ou atividades relevantes para o segmento, com ${serviceCount} blocos paragraph separados, títulos específicos e descrições objetivas, sem inventar especializações."},
+        {id:"servicos",layout:"grid",goal:`EXATAMENTE ${serviceCount} cards de serviços ou atividades relevantes para o segmento, com ${serviceCount} blocos paragraph separados, títulos específicos e descrições objetivas, sem inventar especializações.`},
         {id:"sobre",layout:"split",goal:"Apresentação institucional do negócio com abordagem e proposta de trabalho, sem inventar histórico, estrutura, profissionais ou anos de experiência."},
         {id:"diferenciais",layout:"grid",goal:"EXATAMENTE QUATRO cards distintos com motivos para escolher o atendimento, em quatro blocos paragraph separados. Use compromissos plausíveis sem inventar resultados, equipe ou certificações."},
         {id:"processo",layout:"grid",goal:"Como funciona o atendimento ou a experiência do cliente, em três etapas objetivas e adequadas ao nicho."},
