@@ -332,6 +332,15 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-institutional-responsive [data-pn-section-kind="contact"] h2,.pn-institutional-responsive [data-pn-section-kind="contact"]>div>p{text-align:center}
 .pn-institutional-responsive [data-pn-section-kind="testimonials"]>div{max-width:100%}
 .pn-institutional-responsive [data-pn-section-kind="testimonials"] article{box-sizing:border-box}
+.pn-institutional-responsive .pn-institutional-section:not(.pn-immersive-hero) h2{margin-inline:auto;max-width:960px;text-align:center;line-height:1.15}
+.pn-institutional-responsive .pn-institutional-section:not(.pn-immersive-hero)>div>div:first-child:has(>h2){margin-inline:auto;text-align:center}
+.pn-institutional-responsive .pn-institutional-section article{border-radius:20px;overflow:hidden}
+.pn-institutional-responsive .pn-institutional-section article p{overflow-wrap:anywhere;line-height:1.7}
+.pn-institutional-responsive [data-pn-section-kind="contact"]>div>p,.pn-institutional-responsive [data-pn-section-kind="contact"]>div>div>p{max-width:760px;margin-inline:auto;text-align:center}
+.pn-institutional-responsive [data-pn-section-kind="contact"] form{justify-self:center;align-self:center}
+.pn-institutional-responsive [data-pn-section-kind="testimonials"]{overflow:hidden}
+.pn-institutional-responsive [data-pn-section-kind="testimonials"] blockquote{min-width:0}
+
 }
 @media(min-width:1024px){
 .pn-institutional-responsive .pn-institutional-section:not(.pn-immersive-hero)>div{max-width:min(100%,1280px)}
@@ -556,7 +565,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
-          const headingNode=<div className={adaptiveTemplate?"mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11":"mb-6 max-w-3xl space-y-3 md:mb-8"}>{heading.map(b=>{
+          const headingNode=<div className={adaptiveTemplate?"mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11" : "mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11"}>{heading.map(b=>{
             if(adaptiveTemplate){
               const kind=id.toLowerCase();
               const cleanTitle=/n[uú]meros|indicadores|estat[ií]sticas/.test(kind)?"Nossos números":
