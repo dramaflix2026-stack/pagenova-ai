@@ -54,14 +54,15 @@ export default function ConfiguradorPreview(){
  <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">Prévia · Sem cobranças</span>
  </header>
  <section className="py-8 sm:py-10">
- <div className="pn-hero-lockup relative mb-7 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
+ <div className="pn-hero-lockup relative mb-5 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
  <div className="pn-hero-brand relative z-10 flex max-w-full items-center justify-center gap-1.5 sm:gap-3"><span className="pn-hero-p text-[clamp(2.6rem,8vw,6.3rem)] font-black italic leading-none tracking-[-.15em] text-[#43ff65]" aria-hidden="true">P</span><strong className="text-[clamp(2.15rem,7.4vw,5.8rem)] font-black leading-none tracking-[-.08em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong></div>
  <div className="pn-hero-line relative z-10 mt-4 h-px w-[min(75%,420px)] bg-gradient-to-r from-transparent via-[#b9f77a] to-transparent" />
  <span className="pn-hero-tag relative z-10 mt-3 text-[10px] font-bold uppercase tracking-[.2em] text-[#b9f77a] sm:text-sm sm:tracking-[.45em]">Product Intelligence</span>
  </div>
- <span className="text-[10px] font-bold uppercase tracking-[.18em] text-[#b9f77a]">Sua plataforma, suas escolhas</span>
- <h1 className="mt-2 max-w-[760px] text-[clamp(1.8rem,3.5vw,3rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas. <span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
- <p className="mt-3 max-w-[590px] text-xs leading-5 text-white/55 sm:text-sm">Monte seu espaço de trabalho com as soluções certas para o seu negócio.</p>
+ <div className="mt-1 flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-3">
+ <h1 className="text-[clamp(1.65rem,3.1vw,2.65rem)] font-extrabold leading-[1.16] tracking-[-.04em] text-white">Escolha as ferramentas.</h1>
+ <p className="text-[clamp(1.05rem,2vw,1.65rem)] font-bold leading-[1.2] tracking-[-.025em] text-[#b9f77a]">A gente simplifica o resto.</p>
+ </div>
  </section>
  <section aria-label="Escolha do pacote principal" className="mb-12 rounded-[28px] border border-white/[0.12] bg-gradient-to-br from-[#18221a] via-[#121a14] to-[#101711] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:p-8 lg:mb-14">
  <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><h2 className="text-base font-bold">Escolha seu pacote principal</h2><span className="text-[11px] text-white/45">Valores mensais para novos clientes · sem cobrança nesta prévia</span></div>
