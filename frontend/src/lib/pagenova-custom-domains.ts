@@ -60,13 +60,24 @@ function extractDomainState(project:JsonObject,configuration:JsonObject):VercelD
   })).filter(v=>v.domain&&v.value);
   // Vercel can return project-specific recommended values. If absent, show
   // a link to provider instructions instead of guessing a generic record.
-  const recommendedCname=arr(configuration,"recommendedCNAME")[0];
-  const recommendedIpv4=arr(configuration,"recommendedIPv4")[0];
-  const cnameValue=typeof recommendedCname?.value==="string"?recommendedCname.value:undefined;
-  const aValue=typeof recommendedIpv4?.value==="string"?recommendedIpv4.value:undefined;
+  const recommended=(key:string):string|undefined=>{
+    const item=configuration[key];
+    const value=Array.isArray(item)?item[0]:item;
+    if(typeof value==="string")return value;
+    if(value&&typeof value==="object"&&typeof (value as JsonObject).value==="string")
+      return (value as JsonObject).value as string;
+    return undefined;
+  };
+  const cnameValue=recommended("recommendedCNAME");
+  const aValue=recommended("recommendedIPv4");
+  // Only show records for the hostname the customer actually connected.
+  // A www record is a separate domain and must never be invented here.
+  const domainName=String(project.name||"");
+  const isApex=domainName.split(".").length===2||
+    (domainName.endsWith(".com.br")&&domainName.split(".").length===3);
   const dnsInstructions={
-    ...(aValue?{a:{name:"@",value:aValue}}:{}),
-    ...(cnameValue?{cname:{name:"www",value:cnameValue}}:{})
+    ...(isApex&&aValue?{a:{name:"@",value:aValue}}:{}),
+    ...(!isApex&&domainName&&cnameValue?{cname:{name:domainName,value:cnameValue}}:{})
   };
   const verified=project.verified===true;
   const configured=verified&&configuration.misconfigured===false;
