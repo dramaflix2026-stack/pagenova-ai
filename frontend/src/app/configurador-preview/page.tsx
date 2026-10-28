@@ -55,9 +55,9 @@ export default function ConfiguradorPreview(){
  </header>
  <section className="py-8 sm:py-10">
  <div className="pn-hero-lockup relative mb-5 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
- <div className="pn-hero-brand relative z-10 flex w-full max-w-full items-center justify-center gap-2.5 sm:gap-5">
- <svg aria-hidden="true" viewBox="0 0 120 120" className="pn-hero-p h-[clamp(56px,9vw,110px)] w-[clamp(56px,9vw,110px)] shrink-0 drop-shadow-[0_0_20px_rgba(50,255,90,.25)]"><defs><linearGradient id="pnSymbolGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stopColor="#8eff5b"/><stop offset="55%" stopColor="#2efb57"/><stop offset="100%" stopColor="#77ffba"/></linearGradient></defs><path fill="url(#pnSymbolGradient)" d="M39 13h43c26 0 36 14 32 35-4 23-21 35-46 35H48l-13 24H6L36 47h38c8 0 13-4 14-10 1-6-3-9-10-9H32z"/><path fill="#20c94e" opacity=".7" d="M34 52h36L48 83H19z"/></svg>
- <strong className="whitespace-nowrap text-[clamp(1.9rem,6.9vw,5.7rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong>
+ <div className="pn-hero-brand relative z-10 flex w-full max-w-full items-center justify-center gap-3 sm:gap-6">
+ <svg aria-hidden="true" viewBox="0 0 120 120" className="pn-hero-p h-[clamp(56px,9vw,108px)] w-[clamp(56px,9vw,110px)] shrink-0 drop-shadow-[0_0_20px_rgba(50,255,90,.25)]"><defs><linearGradient id="pnSymbolGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stopColor="#8eff5b"/><stop offset="55%" stopColor="#2efb57"/><stop offset="100%" stopColor="#77ffba"/></linearGradient></defs><path fill="url(#pnSymbolGradient)" d="M39 14h42c25 0 36 13 33 34-3 22-20 35-46 35H48l-13 24H7L36 47h38c9 0 13-4 14-10 1-6-3-9-10-9H32z"/><path fill="#20c94e" opacity=".7" d="M34 52h36L48 83H19z"/></svg>
+ <strong className="pn-hero-wordmark whitespace-nowrap text-[clamp(1.9rem,6.9vw,5.7rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong>
  </div>
  <div className="pn-hero-line relative z-10 mt-4 h-px w-[min(75%,420px)] bg-gradient-to-r from-transparent via-[#b9f77a] to-transparent" />
  <span className="pn-hero-tag relative z-10 mt-3 text-[10px] font-bold uppercase tracking-[.2em] text-[#b9f77a] sm:text-sm sm:tracking-[.45em]">Product Intelligence</span>
@@ -111,12 +111,14 @@ export default function ConfiguradorPreview(){
  </div>
  <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-white/10 bg-[#121a14]/95 px-5 py-3 backdrop-blur lg:hidden"><div><div className="text-[11px] text-white/45">{toolCount} ferramentas selecionadas</div><strong className="text-sm text-[#b9f77a]">{brl(quote.totalCents)}/mês*</strong></div><button type="button" disabled className="rounded-lg bg-[#b9f77a]/60 px-4 py-3 text-xs font-bold text-[#14210e]">Em preparação</button></div>
  <style jsx global>{`
- @keyframes pnHeroReveal {0%{opacity:0;transform:translateY(30px) scale(.82);filter:blur(14px)}55%{opacity:1;filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+ @keyframes pnSymbolReveal {0%{opacity:0;transform:translateX(-35px) scale(.68) rotate(-9deg);filter:blur(14px)}70%{opacity:1;filter:blur(0)}100%{opacity:1;transform:translateX(0) scale(1) rotate(0);filter:blur(0)}}
+ @keyframes pnWordmarkReveal {0%,12%{opacity:0;transform:translateX(28px);filter:blur(10px)}100%{opacity:1;transform:translateX(0);filter:blur(0)}}
  @keyframes pnHeroLine {0%{opacity:0;transform:scaleX(0)}100%{opacity:1;transform:scaleX(1)}}
  @keyframes pnHeroTag {0%{opacity:0;transform:translateY(12px);letter-spacing:.7em}100%{opacity:1;transform:translateY(0)}}
- .pn-hero-brand{animation:pnHeroReveal 1.65s cubic-bezier(.18,.8,.2,1) both}
- .pn-hero-line{animation:pnHeroLine 1.2s ease-out .65s both}
- .pn-hero-tag{animation:pnHeroTag 1.2s ease-out .9s both}
- @media (prefers-reduced-motion:reduce){.pn-hero-brand,.pn-hero-line,.pn-hero-tag{animation:none!important}}
+ .pn-hero-p{animation:pnSymbolReveal 1.25s cubic-bezier(.18,.8,.2,1) both}
+ .pn-hero-wordmark{animation:pnWordmarkReveal 1.4s cubic-bezier(.18,.8,.2,1) .45s both}
+ .pn-hero-line{animation:pnHeroLine 1s ease-out 1.15s both}
+ .pn-hero-tag{animation:pnHeroTag 1s ease-out 1.45s both}
+ @media (prefers-reduced-motion:reduce){.pn-hero-p,.pn-hero-wordmark,.pn-hero-line,.pn-hero-tag{animation:none!important}}
  `}</style>\n </main>;
 }
