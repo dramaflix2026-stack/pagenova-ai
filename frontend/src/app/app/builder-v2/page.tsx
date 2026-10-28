@@ -989,7 +989,10 @@ export default function BuilderV2() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ site:requestSite, instruction: prompt, image: referenceForChat })
       });
-      const data = await response.json();
+      const rawResponse = await response.text();
+      let data: {error?:string|{message?:string};site?:Site;summary?:string};
+      try { data=JSON.parse(rawResponse) as typeof data; }
+      catch { throw new Error(response.status===504||response.status===503||/timeout|timed out/i.test(rawResponse)?"A geração excedeu o tempo disponível. O site original foi preservado. Tente novamente após a otimização do gerador.":"O servidor não retornou uma resposta válida. Seu projeto foi preservado."); }
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
