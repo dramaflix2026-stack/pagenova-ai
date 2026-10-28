@@ -315,10 +315,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         (!mutableBlocks.some(b=>b.section===section.id&&b.type==="heading")||
          !mutableBlocks.some(b=>b.section===section.id&&["paragraph","image","button"].includes(String(b.type)))));
       // Check explicit plan prices before accepting a completed site.
-      const priceMatches=[...instruction.matchAll(/R\\$\\s*\\d{1,5}(?:[.,]\\d{2})?/gi)];
-      const generatedCopy=mutableBlocks.map(b=>String(b.text||"")).join(" ");
-      const missingPrices=[...new Set(priceMatches.map(m=>m[0].replace(/\\s+/g,"").replace(".",",")))]
-        .filter(price=>!generatedCopy.replace(/\\s+/g,"").replace(/R\\$\\s*/g,"R$").includes(price));
+      const priceMatches=[...instruction.matchAll(/R\$\s*\d{1,5}(?:[.,]\d{2})?/gi)];
+      const normalizePrices=(value:string)=>value.replace(/\s+/g,"").replace(/\d+[.,]\d{2}/g,m=>m.replace(".",","));
+      const generatedCopy=normalizePrices(mutableBlocks.map(b=>String(b.text||"")).join(" "));
+      const missingPrices=[...new Set(priceMatches.map(m=>normalizePrices(m[0])))]
+        .filter(price=>!generatedCopy.includes(price));
       if(missingPrices.length)throw new Error("missing-requested-prices:"+missingPrices.join(","));
       if(absentExtras.length)throw new Error("missing-requested-sections:"+absentExtras.map(s=>s.id).join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
