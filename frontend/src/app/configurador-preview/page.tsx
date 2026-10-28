@@ -29,7 +29,7 @@ export default function ConfiguradorPreview(){
  const granted=useMemo(()=>expandEntitlements(selected),[selected]);
  const selectedItems=normalized.map(code=>MODULAR_CATALOG.find(item=>item.code===code)!).filter(Boolean);
  const toolCount=granted.filter(code=>!code.startsWith("bundle.")).length;
- const toggle=(code:string)=>setSelected(prev=>prev.includes(code)?prev.filter(item=>item!==code):[...prev,code]);
+ const toggle=(code:string)=>setSelected(prev=>normalizeSelection(prev.includes(code)?prev.filter(item=>item!==code):[...prev,code]));
  const tools=MODULAR_CATALOG.filter(item=>item.family===family&&!item.code.startsWith("bundle."));
  const bundles=MODULAR_CATALOG.filter(item=>item.family===family&&item.code.startsWith("bundle."));
  return <main className="min-h-screen bg-[#090e0b] text-[#f7faf6]">
@@ -52,7 +52,7 @@ export default function ConfiguradorPreview(){
  <div className="grid gap-3 sm:grid-cols-2">
  {tools.map(item=>{
  const active=selected.includes(item.code);const included=!active&&granted.includes(item.code);const disabled=item.status==="coming_soon";
- return <button key={item.code} type="button" disabled={disabled} onClick={()=>toggle(item.code)} aria-pressed={active} className={"flex min-h-[126px] items-start gap-4 rounded-2xl border p-4 text-left transition sm:p-5 "+(active?"border-[#b9f77a] bg-[#1b2c1c]":included?"border-emerald-500/35 bg-[#16251a]":"border-white/10 bg-[#121a14] hover:border-[#b9f77a]/40")+(disabled?" cursor-not-allowed opacity-45":"")}>
+ return <button key={item.code} type="button" disabled={disabled||included} onClick={()=>toggle(item.code)} aria-pressed={active||included} className={"flex min-h-[126px] items-start gap-4 rounded-2xl border p-4 text-left transition sm:p-5 "+(active?"border-[#b9f77a] bg-[#1b2c1c]":included?"border-emerald-500/35 bg-[#16251a]":"border-white/10 bg-[#121a14] hover:border-[#b9f77a]/40")+(disabled?" cursor-not-allowed opacity-45":included?" cursor-default":"")}>
  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.055] text-xl text-[#b9f77a]">{details[item.code].icon}</span>
  <span className="min-w-0 flex-1"><strong className="block text-[14px] font-bold">{item.title}</strong><span className="mt-2 block text-[12px] leading-5 text-white/45">{details[item.code].description}</span><span className="mt-2 block text-[11px] font-semibold text-[#b9f77a]">{disabled?"Em breve":included?"Incluído no pacote":active?"Selecionado":""}</span></span>
  <span className={"grid h-6 w-6 shrink-0 place-items-center rounded-md border text-sm "+(active?"border-[#b9f77a] bg-[#b9f77a] text-[#10200c]":"border-white/20 text-white/45")}>{active||included?"✓":"+"}</span>
