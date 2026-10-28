@@ -17,7 +17,7 @@ function socialFromBrief(brief:string){
 }
 
 export const runtime = "nodejs";
-export const maxDuration = 90;
+export const maxDuration = 300;
 export async function POST(req: NextRequest) {
   const origin=req.headers.get("origin");
   if(origin&&origin!==req.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
@@ -194,11 +194,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // If the model underproduces, request only the missing copy; preserve all other sections.
       for(const sectionId of ["servicos","diferenciais"]){
         const cards=mutableBlocks.filter(item=>item.section===sectionId&&item.type==="paragraph");
-        if(cards.length>4){
-          const redundant=new Set(cards.slice(4));
+        if(cards.length>targetCount){
+          const redundant=new Set(cards.slice(targetCount));
           for(let i=mutableBlocks.length-1;i>=0;i--)if(redundant.has(mutableBlocks[i]))mutableBlocks.splice(i,1);
-        }else if(cards.length<4){
-          const missing=4-cards.length;
+        }else if(cards.length<targetCount){
+          const missing=targetCount-cards.length;
           const supplement=await callAI(
             "Você completa cards específicos de um site profissional sem modificar outras seções. Retorne apenas JSON {cards:[{title:string,description:string}]}. Forneça exatamente a quantidade solicitada de novos cards, com títulos diferentes dos existentes. Descrição factual, concisa e adequada ao nicho, até 20 palavras; não invente equipe, métodos certificados, experiência, especializações, resultados, endereço ou telefone.",
             {instruction,siteTitle:plan.title,section:sectionId,existingCards:cards.map(item=>item.text),count:missing},1100
@@ -285,7 +285,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(absentExtras.length)throw new Error("missing-requested-sections:"+absentExtras.map(s=>s.id).join(","));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
-      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       try{await charge.finish(false);}
       catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
