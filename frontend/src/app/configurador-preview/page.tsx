@@ -1,3 +1,4 @@
+import HeroRobots from "./hero-robots";
 "use client";
 
 import { useMemo, useState } from "react";
@@ -62,6 +63,7 @@ export default function ConfiguradorPreview(){
  <div className="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8 lg:pb-16">
  <section id="inicio" className="scroll-mt-24 py-8 sm:py-10">
  <div className="pn-hero-lockup relative mb-5 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
+ <HeroRobots />
  <div className="pn-hero-brand relative z-10 flex w-full max-w-full items-center justify-center gap-3 sm:gap-6">
  <svg aria-hidden="true" viewBox="0 0 120 120" className="pn-hero-p h-[clamp(56px,9vw,108px)] w-[clamp(56px,9vw,110px)] shrink-0 drop-shadow-[0_0_20px_rgba(50,255,90,.25)]"><defs><linearGradient id="pnSymbolGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stopColor="#8eff5b"/><stop offset="55%" stopColor="#2efb57"/><stop offset="100%" stopColor="#77ffba"/></linearGradient></defs><path fill="url(#pnSymbolGradient)" d="M39 14h42c25 0 36 13 33 34-3 22-20 35-46 35H48l-13 24H7L36 47h38c9 0 13-4 14-10 1-6-3-9-10-9H32z"/><path fill="#20c94e" opacity=".7" d="M34 52h36L48 83H19z"/></svg>
  <strong className="pn-hero-wordmark whitespace-nowrap text-[clamp(1.9rem,6.9vw,5.7rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong>
@@ -129,7 +131,22 @@ export default function ConfiguradorPreview(){
  .pn-hero-wordmark{animation:pnWordmarkReveal 1.4s cubic-bezier(.18,.8,.2,1) .45s both}
  .pn-hero-line{animation:pnHeroLine 1s ease-out 1.15s both}
  .pn-hero-tag{animation:pnHeroTag 1s ease-out 1.45s both}
- @media (prefers-reduced-motion:reduce){.pn-hero-p,.pn-hero-wordmark,.pn-hero-line,.pn-hero-tag{animation:none!important}}
+ @keyframes pnBotWalkLeft{0%{opacity:0;transform:translateX(-95px) scale(.65)}45%{opacity:1}75%,100%{opacity:1;transform:translateX(0) scale(1)}}
+ @keyframes pnBotWalkRight{0%{opacity:0;transform:translateX(95px) scale(.65)}45%{opacity:1}75%,100%{opacity:1;transform:translateX(0) scale(1)}}
+ @keyframes pnBotStep{0%,100%{transform:rotate(12deg)}50%{transform:rotate(-14deg)}}
+ @keyframes pnBotBob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+ @keyframes pnConfettiBlast{0%,44%{opacity:0;transform:translate(0,0) rotate(0) scale(.3)}49%{opacity:1}72%{opacity:1;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1)}100%{opacity:0;transform:translate(calc(var(--dx) * 1.5),calc(var(--dy) * .1)) rotate(calc(var(--rot) * 2)) scale(.65)}}
+ .pn-bot{width:clamp(55px,9vw,116px);height:clamp(72px,12vw,145px);perspective:500px;filter:drop-shadow(0 0 12px rgba(75,255,100,.16))}
+ .pn-bot-left{left:1%;animation:pnBotWalkLeft 2.3s cubic-bezier(.2,.75,.2,1) both}
+ .pn-bot-right{right:1%;animation:pnBotWalkRight 2.3s cubic-bezier(.2,.75,.2,1) both}
+ .pn-bot-body{height:100%;width:100%;transform-style:preserve-3d;animation:pnBotBob .28s ease-in-out 7 alternate}
+ .pn-bot-leg{transform-origin:50% 78%;animation:pnBotStep .3s ease-in-out 7 alternate}
+ .pn-bot-leg-b{animation-delay:-.15s}
+ .pn-bot-eye{filter:drop-shadow(0 0 5px #43ff65)}
+ .pn-confetti-piece{position:absolute;display:block;width:6px;height:11px;border-radius:2px;opacity:0;animation:pnConfettiBlast 2.6s ease-out var(--delay) both}
+ .pn-bot-right .pn-confetti{transform:scaleX(-1);left:10%}
+ @media(max-width:640px){.pn-bot{width:45px;height:60px;bottom:5px}.pn-hero-brand{transform:scale(.83)}.pn-confetti-piece{width:4px;height:7px}}
+ @media (prefers-reduced-motion:reduce){.pn-hero-p,.pn-hero-wordmark,.pn-hero-line,.pn-hero-tag,.pn-bot,.pn-bot-body,.pn-bot-leg,.pn-confetti-piece{animation:none!important}}
  `}</style>
  </main>;
 }
