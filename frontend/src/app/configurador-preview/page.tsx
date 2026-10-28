@@ -1,6 +1,5 @@
 "use client";
 
-import HeroRobots from "./hero-robots";
 import Testimonials3D from "./testimonials-3d";
 
 import { useMemo, useState } from "react";
@@ -65,7 +64,6 @@ export default function ConfiguradorPreview(){
  <div className="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8 lg:pb-16">
  <section id="inicio" className="scroll-mt-24 py-8 sm:py-10">
  <div className="pn-hero-lockup relative mb-5 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
- <HeroRobots />
  <div className="pn-hero-brand relative z-10 flex w-full max-w-full items-center justify-center gap-3 sm:gap-6">
  <svg aria-hidden="true" viewBox="0 0 120 120" className="pn-hero-p h-[clamp(56px,9vw,108px)] w-[clamp(56px,9vw,110px)] shrink-0 drop-shadow-[0_0_20px_rgba(50,255,90,.25)]"><defs><linearGradient id="pnSymbolGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stopColor="#8eff5b"/><stop offset="55%" stopColor="#2efb57"/><stop offset="100%" stopColor="#77ffba"/></linearGradient></defs><path fill="url(#pnSymbolGradient)" d="M39 14h42c25 0 36 13 33 34-3 22-20 35-46 35H48l-13 24H7L36 47h38c9 0 13-4 14-10 1-6-3-9-10-9H32z"/><path fill="#20c94e" opacity=".7" d="M34 52h36L48 83H19z"/></svg>
  <strong className="pn-hero-wordmark whitespace-nowrap text-[clamp(1.9rem,6.9vw,5.7rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong>
