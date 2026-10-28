@@ -250,6 +250,23 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         }
       }
       const heroId=String(sections.find(v=>v.layout==="hero")?.id||"");
+      let heroSubtitleSeen=false;
+      for(let i=0;i<mutableBlocks.length;i++){
+        const block=mutableBlocks[i];
+        if(String(block.section)!==heroId||block.type!=="paragraph")continue;
+        if(heroSubtitleSeen){mutableBlocks.splice(i,1);i--;}
+        else heroSubtitleSeen=true;
+      }
+      const sectionCopy=new Set<string>();
+      for(let i=0;i<mutableBlocks.length;i++){
+        const block=mutableBlocks[i];
+        if(block.type!=="heading"&&block.type!=="paragraph")continue;
+        const normalized=String(block.text||"").toLocaleLowerCase("pt-BR").replace(/[^\p{L}\p{N}]+/gu," ").trim();
+        if(normalized.length<15)continue;
+        const key=String(block.section)+"|"+normalized;
+        if(sectionCopy.has(key)){mutableBlocks.splice(i,1);i--;}
+        else sectionCopy.add(key);
+      }
       const heroSeen=new Set<string>();
       for(let i=0;i<mutableBlocks.length;i++){
         const item=mutableBlocks[i];
