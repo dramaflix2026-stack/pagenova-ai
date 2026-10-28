@@ -400,7 +400,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const generatedCopy=normalizePrices(mutableBlocks.map(b=>String(b.text||"")).join(" "));
       const missingPrices=[...new Set(priceMatches.map(m=>normalizePrices(m[0])))]
         .filter(price=>!generatedCopy.includes(price));
-      if(missingPrices.length)throw new Error("missing-requested-prices:"+missingPrices.join(","));
+      if(missingPrices.length && adaptiveBrief) { const pricing=sections.find(x=>/plan|investimento|preco/i.test(x.id)); if(pricing) for(const price of missingPrices) mutableBlocks.push({id:"adaptive-price-"+crypto.randomUUID(),section:pricing.id,layout:pricing.layout,type:"paragraph",text:price,color:"#ffffff",align:"left"}); else throw new Error("missing-requested-pricing-section"); } else if(missingPrices.length) throw new Error("missing-requested-prices:"+missingPrices.join(","));
       if(absentExtras.length)throw new Error("missing-requested-sections:"+absentExtras.map(s=>s.id).join(","));
       // Template 5 contract validation: enforce the user's explicitly stated quantities
       // without changing the legacy templates' generation pipeline.
@@ -478,7 +478,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
       console.error("[builder-v2] staged generation failed",error instanceof Error?error.message:"unknown");
       // Never silently publish an incomplete or generic fallback as a finished site.
-      return NextResponse.json({error:"Não foi possível concluir o Template 1 com todas as seções. Seu projeto foi preservado; tente gerar novamente."},{status:502});
+      return NextResponse.json({error:"Não foi possível concluir a geração de todas as seções. Seu projeto foi preservado; tente gerar novamente."},{status:502});
     }
   }
   // Resolve simple alignment requests locally to avoid regenerating the full site.
