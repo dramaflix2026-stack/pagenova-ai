@@ -91,8 +91,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         {instruction},350
       );
       // An explicit card count in the customer brief overrides Template 1 defaults.
-      const serviceCountMatch=instruction.match(/(?:servi[cç]os|atividades)\s*(?:com|:|-)?\s*(\d{1,2})\s*(?:cards?|itens?)?|\b(\d{1,2})\s*(?:(?:cards?|itens?)\s*(?:de\s+)?)?(?:servi[cç]os|atividades)/i);
-      const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]):4;
+      const serviceSectionBrief=instruction.match(/(?:se[cç][aã]o|sess[aã]o|\\b\\d{1,2}[.)-])\\s*(?:de\\s+)?(?:nossos?\\s+)?servi[cç]os[\\s\\S]{0,260}?(?=(?:se[cç][aã]o|sess[aã]o|\\n\\s*\\d{1,2}[.)-])|$)/i)?.[0]||instruction;
+      const serviceCountMatch=serviceSectionBrief.match(/(?:exatamente|total(?:izando)?|com|ter[aã]o?|s[aã]o)\\s*(?:de\\s+)?(\\d{1,2})\\s*(?:cards?|itens?|servi[cç]os)|(?:servi[cç]os|atividades)\\s*(?:com|:|-)\\s*(\\d{1,2})|\\b(\\d{1,2})\\s*(?:cards?|itens?)?\\s*(?:de\\s+)?servi[cç]os/i);
+      const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]||serviceCountMatch[3]):4;
       const serviceCount=requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4;
       // Template 1 has a deterministic structure; AI is responsible for niche-specific
       // copy and design, not for deleting essential sections or making a gallery the hero.
