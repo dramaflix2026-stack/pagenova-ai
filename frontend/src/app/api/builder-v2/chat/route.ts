@@ -294,6 +294,57 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             // Reject an apparently successful response if any core Template 1 section vanished.
       // The fallback below is safer than publishing a three-section "complete" site.
       // The template order is fixed regardless of the model's JSON item ordering.
+      // Consolidate independent AI batches before the renderer receives the site.
+      // Preserve distinct cards while removing repeated headings, copy and CTAs.
+      const canonicalCopy=(value:unknown)=>String(value||"").normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+      const duplicateKeys=new Set<string>();
+      const headingsBySection=new Set<string>();
+      const buttonsBySection=new Map<string,number>();
+      const sectionParagraphs=new Map<string,number>();
+      const planSectionIds=new Set(sections.filter(v=>/planos|precos|pricing/i.test(v.id)).map(v=>v.id));
+      const teamSectionIds=new Set(sections.filter(v=>/equipe|profissionais|time/i.test(v.id)).map(v=>v.id));
+      const numberSectionIds=new Set(sections.filter(v=>/numeros|indicadores|resultados/i.test(v.id)).map(v=>v.id));
+      for(let i=0;i<mutableBlocks.length;i++){
+        const block=mutableBlocks[i];
+        const section=String(block.section||"");
+        const type=String(block.type||"");
+        const copy=canonicalCopy(block.text);
+        if(type==="image")continue;
+        const key=section+"|"+type+"|"+copy;
+        let remove=!!copy&&duplicateKeys.has(key);
+        if(type==="heading"){
+          if(headingsBySection.has(section))remove=true;
+          else headingsBySection.add(section);
+        }
+        if(type==="button"){
+          const count=buttonsBySection.get(section)||0;
+          const max=planSectionIds.has(section)?3:section==="inicio"?2:1;
+          if(count>=max)remove=true;
+          else if(!remove)buttonsBySection.set(section,count+1);
+        }
+        if(type==="paragraph"){
+          const count=sectionParagraphs.get(section)||0;
+          const max=planSectionIds.has(section)?3:teamSectionIds.has(section)?4:numberSectionIds.has(section)?4:section==="sobre"?2:undefined;
+          if(max!==undefined&&count>=max)remove=true;
+          else if(!remove)sectionParagraphs.set(section,count+1);
+        }
+        if(remove){mutableBlocks.splice(i,1);i--;continue;}
+        if(copy)duplicateKeys.add(key);
+      }
+      // Never let legacy green defaults override an explicitly specified brand palette.
+      const requestedRed=/#[Ee]50914|vermelh[oa]/i.test(instruction);
+      const requestedDark=/#[0]{2}0909|fundo\\s+(?:predominantemente\\s+)?preto/i.test(instruction);
+      if(requestedRed){
+        for(const block of mutableBlocks){
+          if(block.type==="button"&&/^#(?:234b3a|24332e)$/i.test(String(block.color)))block.color="#E50914";
+        }
+      }
+      if(requestedDark){
+        for(const block of mutableBlocks){
+          if(block.type==="paragraph"&&/^#(?:000000|090909|111111)$/i.test(String(block.color)))block.color="#FFFFFF";
+        }
+      }
       const canonicalIds=sections.map(section=>section.id);
       mutableBlocks.sort((a,b)=>{
         const diff=canonicalIds.indexOf(String(a.section))-canonicalIds.indexOf(String(b.section));
