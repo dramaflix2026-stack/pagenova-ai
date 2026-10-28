@@ -473,6 +473,22 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             }
           }
         }
+        // Enforce the exact count after repairs. Do not delete client-specified
+        // blocks: excess AI-generated cards are removed from the tail only.
+        for(const [name,count] of requestedCounts){
+          const section=sections.find(section=>aliases[name].test(normalized(section.id+" "+section.goal)));
+          if(!section)continue;
+          const cards=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
+          if(cards.length>count){
+            const removable=cards.slice(count);
+            for(const block of removable){
+              const index=mutableBlocks.indexOf(block);
+              if(index>=0)mutableBlocks.splice(index,1);
+            }
+          }
+          const finalCount=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph").length;
+          if(finalCount!==count)throw new Error("brief-card-count:"+name+":"+finalCount+"/"+count);
+        }
         const plans=sections.find(section=>/planos|precos|pricing/.test(normalized(section.id+" "+section.goal)));
         if(plans){
           const planCards=mutableBlocks.filter(block=>block.section===plans.id&&block.type==="paragraph");
