@@ -25,6 +25,8 @@ export const MODULAR_CATALOG: readonly CommercialModule[] = [
   {code:"development.systems",family:"development",title:"Sistemas",status:"coming_soon"},
   {code:"bundle.studio",family:"studio",title:"Estúdio completo",status:"needs_validation",includedIn:["studio.sites","studio.landing","studio.cloner","studio.forms","studio.quizzes","studio.ebooks"]},
   {code:"bundle.crm",family:"crm",title:"CRM completo",status:"needs_validation",includedIn:["crm.search","crm.leads","crm.operations"]},
+  {code:"bundle.development",family:"development",title:"Apps e Sistemas completo",status:"coming_soon",includedIn:["development.apps","development.systems"]},
+  {code:"bundle.all",family:"studio",title:"PageNova Completa",status:"coming_soon",includedIn:["studio.sites","studio.landing","studio.cloner","studio.forms","studio.quizzes","studio.ebooks","crm.search","crm.leads","crm.operations","development.apps","development.systems"]},
 ] as const;
 
 export function normalizeSelection(selected: readonly string[]): string[] {
