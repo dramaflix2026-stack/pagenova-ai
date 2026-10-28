@@ -29,18 +29,18 @@ export const MODULAR_CATALOG: readonly CommercialModule[] = [
   {code:"bundle.all",family:"studio",title:"PageNova Completa",status:"coming_soon",includedIn:["studio.sites","studio.landing","studio.cloner","studio.forms","studio.quizzes","studio.ebooks","crm.search","crm.leads","crm.operations","development.apps","development.systems"]},
 ] as const;
 
-export function normalizeSelection(selected: readonly string[]): string[] {
+export function normalizeSelection(selected: readonly string[], allowComingSoon=false): string[] {
   const catalog = new Map(MODULAR_CATALOG.map(item=>[item.code,item]));
   const unique = [...new Set(selected)];
   if (unique.some(code=>!catalog.has(code))) throw new Error("Módulo desconhecido");
-  if (unique.some(code=>catalog.get(code)?.status==="coming_soon")) throw new Error("Módulo indisponível");
+  if (!allowComingSoon && unique.some(code=>catalog.get(code)?.status==="coming_soon")) throw new Error("Módulo indisponível");
   const included = new Set(unique.flatMap(code=>catalog.get(code)?.includedIn??[]));
   return unique.filter(code=>!included.has(code));
 }
 
-export function expandEntitlements(selected: readonly string[]): string[] {
+export function expandEntitlements(selected: readonly string[], allowComingSoon=false): string[] {
   const catalog = new Map(MODULAR_CATALOG.map(item=>[item.code,item]));
-  const normalized = normalizeSelection(selected);
+  const normalized = normalizeSelection(selected,allowComingSoon);
   return [...new Set(normalized.flatMap(code=>[code,...(catalog.get(code)?.includedIn??[])]))];
 }
 
