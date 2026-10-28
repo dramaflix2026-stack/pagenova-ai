@@ -144,10 +144,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           if(/servic/.test(id))return 10;
           if(/sobre|historia/.test(id))return 20;
           if(/diferencia|vantagen/.test(id))return 30;
-          if(/processo|etapas|passos|funciona|atendimento/.test(id))return 40;
+          if(/processo|etapas|passos|funciona|atendimento/.test(id))return 35;
           if(/planos|precos|pricing|investimento/.test(id))return 50;
           if(/equipe|profission|especialist/.test(id))return 60;
-          if(/modalidad|atividade/.test(id))return 70;
+          if(/modalidad|atividade/.test(id))return 36;
           if(/galeria|imagem/.test(id))return 80;
           if(/depoiment|testemunh/.test(id))return 90;
           if(/numero|indicador|estatistica/.test(id))return 100;
