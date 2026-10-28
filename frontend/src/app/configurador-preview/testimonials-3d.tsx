@@ -9,8 +9,8 @@ const examples=[
 export default function Testimonials3D(){
  return <section id="depoimentos" aria-labelledby="testimonials-title" className="pn-section-divider relative mt-20 scroll-mt-24 overflow-hidden py-16 sm:py-20">
   <div className="mx-auto mb-10 grid max-w-[1180px] gap-6 lg:grid-cols-[220px_1fr] lg:gap-14">
-   <div className="pt-2 text-xs font-extrabold uppercase tracking-[.2em] text-[#b9f77a]">03 <span className="mx-3 text-white/35">—</span> Experiências</div>
-   <div><h2 id="testimonials-title" className="max-w-[850px] text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl">O que importa é a <span className="text-[#b9f77a]">experiência de quem usa.</span></h2><p className="mt-5 max-w-[680px] text-base leading-7 text-white/75">Um espaço para mostrar histórias de quem cria, organiza e cresce com a PageNova AI.</p><p className="mt-4 text-xs font-medium text-[#d9ffb8]">Demonstração visual: os exemplos abaixo não são avaliações reais.</p></div>
+   <div className="pt-2 text-xs font-extrabold uppercase tracking-[.2em] text-[#b9f77a]">04 <span className="mx-3 text-white/35">—</span> Experiências</div>
+   <div><h2 id="testimonials-title" className="max-w-[850px] text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl">O que importa é a <span className="text-[#b9f77a]">experiência de quem usa.</span></h2><p className="mt-5 max-w-[680px] text-base leading-7 text-white/75">Conheça a proposta da PageNova na prática.</p><p className="mt-4 text-xs font-medium text-[#d9ffb8]">Demonstração visual: os exemplos abaixo não são avaliações reais.</p></div>
   </div>
   <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-white/10 py-6" aria-label="Exemplos ilustrativos de depoimentos">
    <div className="pn-testimonials-track flex w-max gap-4 px-4 motion-reduce:animate-none">
