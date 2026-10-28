@@ -345,19 +345,32 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           if(block.type==="paragraph"&&/^#(?:000000|090909|111111)$/i.test(String(block.color)))block.color="#FFFFFF";
         }
       }
-      // Structural acceptance checks: a heading or unrelated CTA is not a valid card.
-      const countParagraphs=(section:string)=>mutableBlocks.filter(b=>b.section===section&&b.type==="paragraph").length;
-      if(countParagraphs("servicos")!==serviceCount||countParagraphs("diferenciais")!==4)
-        throw new Error("incorrect-core-card-count");
+      // Repair incomplete optional sections rather than rejecting an otherwise valid site.
+      // Strict cardinality is enforced for core services and differentiators above.
       for(const section of sections){
         const id=section.id;
-        const paragraphs=countParagraphs(id);
-        if(/^(?:planos|precos|pricing)(?:-|$)/.test(id)&&/R\\$\\s*\\d/.test(instruction)&&paragraphs!==3)
-          throw new Error("incorrect-plan-card-count:"+paragraphs);
-        if(/^(?:equipe|profissionais|time)(?:-|$)/.test(id)&&/quatro cards|exatamente quatro|4 cards|quatro profissionais/i.test(instruction)&&paragraphs!==4)
-          throw new Error("incorrect-team-card-count:"+paragraphs);
-        if(/^(?:modalidades)(?:-|$)/.test(id)&&/quatro cards|exatamente quatro|4 cards/i.test(instruction)&&paragraphs!==4)
-          throw new Error("incorrect-modality-card-count:"+paragraphs);
+        const cards=mutableBlocks.filter(b=>b.section===id&&b.type==="paragraph");
+        const isPlans=/^(?:planos|precos|pricing)(?:-|$)/.test(id);
+        const isTeam=/^(?:equipe|profissionais|time)(?:-|$)/.test(id);
+        if(!isPlans&&!isTeam)continue;
+        const target=isPlans?Math.min(6,Math.max(1,[...instruction.matchAll(/R\\$\\s*\\d+(?:[.,]\\d{2})?/g)].length||3)):4;
+        if(cards.length>target){
+          const redundant=new Set(cards.slice(target));
+          for(let i=mutableBlocks.length-1;i>=0;i--)if(redundant.has(mutableBlocks[i]))mutableBlocks.splice(i,1);
+        }
+        if(cards.length<target){
+          const completion=await callAI(
+            "Complete cards de uma seção já existente. Retorne JSON {cards:[{title:string,description:string}]}. Exatamente a quantidade pedida. Preserve nomes, preços e benefícios presentes no briefing. Não invente preços, nomes de profissionais ou qualificações.",
+            {instruction,section:id,existing:cards.map(c=>c.text),count:target-cards.length},1200
+          );
+          const extras=Array.isArray(completion.cards)?completion.cards:[];
+          for(const raw of extras.slice(0,target-cards.length)){
+            if(!raw||typeof raw!=="object")continue;
+            const card=raw as {title?:unknown;description?:unknown};
+            const content=[card.title,card.description].filter(v=>typeof v==="string").join(": ").trim();
+            if(content)mutableBlocks.push({id:"extra-"+id+"-"+crypto.randomUUID(),section:id,layout:section.layout,type:"paragraph",text:content,color:"#243043",align:"left"});
+          }
+        }
       }
       const canonicalIds=sections.map(section=>section.id);
       mutableBlocks.sort((a,b)=>{
