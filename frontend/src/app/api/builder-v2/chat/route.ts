@@ -54,20 +54,36 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
     const callAI = async (system: string, user: unknown, tokens: number) => {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method:"POST",
-        headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
-        body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:tokens,
-          response_format:{type:"json_object"},
-          messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(user)}]}),
-        signal:AbortSignal.timeout(75000)
-      });
-      if (!response.ok) throw new Error("upstream-"+response.status);
-      const data = await response.json();
-      const raw = data?.choices?.[0]?.message?.content;
-      if (data?.choices?.[0]?.finish_reason === "length") throw new Error("truncated");
-      if (typeof raw !== "string" || !raw.trim()) throw new Error("empty");
-      return JSON.parse(raw) as Record<string,unknown>;
+      // Retry transient provider failures once; never retry malformed prompts or authorization.
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          const response=await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",
+            headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
+            body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:tokens,
+              response_format:{type:"json_object"},
+              messages:[{role:"system",content:system},{role:"user",content:JSON.stringify(user)}]}),
+            signal:AbortSignal.timeout(60000)
+          });
+          if(!response.ok){
+            if(attempt===0&&(response.status===429||response.status>=500)){
+              await new Promise(resolve=>setTimeout(resolve,1200));
+              continue;
+            }
+            throw new Error("upstream-"+response.status);
+          }
+          const data=await response.json();
+          const raw=data?.choices?.[0]?.message?.content;
+          if(data?.choices?.[0]?.finish_reason==="length")throw new Error("truncated");
+          if(typeof raw!=="string"||!raw.trim())throw new Error("empty");
+          return JSON.parse(raw) as Record<string,unknown>;
+        }catch(error){
+          const transient=error instanceof Error&&(/AbortError|TimeoutError|fetch failed|network/i.test(error.name+" "+error.message));
+          if(!transient||attempt===1)throw error;
+          await new Promise(resolve=>setTimeout(resolve,1200));
+        }
+      }
+      throw new Error("ai-retries-exhausted");
     };
     try {
       const planPromise = callAI(
