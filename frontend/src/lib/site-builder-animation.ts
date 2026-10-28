@@ -144,6 +144,10 @@ export function attachSiteMotion(root: HTMLElement|null, config?: SiteMotion): (
   const ObserverClass="IntersectionObserver" in view
     ? (view as Window & typeof globalThis).IntersectionObserver
     : null;
+  // Failsafe: a stalled observer must never leave generated copy invisible.
+  const revealTimer=view.setTimeout(()=>{
+    targets.forEach(el=>{if(el.classList.contains("pn-motion-target"))el.classList.add("pn-motion-visible");});
+  },1800);
   const observers: IntersectionObserver[]=[];
   const pendingFrames: number[]=[];
   let disposed=false;
@@ -204,6 +208,7 @@ export function attachSiteMotion(root: HTMLElement|null, config?: SiteMotion): (
   });
   return ()=>{
     disposed=true;
+    view.clearTimeout(revealTimer);
     observers.forEach(observer=>observer.disconnect());
     pendingFrames.forEach(frame=>view.cancelAnimationFrame(frame));
     root.removeAttribute("data-pn-motion-continuous");
