@@ -746,6 +746,24 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(changed)return NextResponse.json({site:{...current,header,blocks,extras:{...extras,bakery3d:bakery}},summary});
     return NextResponse.json({error:"Este comando ainda não tem uma operação segura no Template 3D. Nenhuma alteração foi aplicada."},{status:422});
   }
+  // Shared header operations must precede all banner/image intent fallbacks.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const instruction=instructionText.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    const header=editingSite.header&&typeof editingSite.header==="object"?editingSite.header:{};
+    const quote=instructionText.match(/["“]([^"”]+)["”]/)?.[1];
+    if(/cabecalho|header/.test(instruction)&&/cor|fundo|background/.test(instruction)&&/#[0-9a-f]{6}/i.test(instructionText)){
+      const color=instructionText.match(/#[0-9a-f]{6}/i)![0];
+      const textColor=/#[0-9a-f]{6}/i.test(color)&&parseInt(color.slice(1,3),16)*.299+parseInt(color.slice(3,5),16)*.587+parseInt(color.slice(5,7),16)*.114<145?"#FFFFFF":"#193F31";
+      return NextResponse.json({site:{...editingSite,header:{...header,background:color,textColor}},summary:"Cor e contraste do cabeçalho atualizados."});
+    }
+    if(/(?:menu|navegacao)/.test(instruction)&&/adicion|inclu|crie/.test(instruction)&&/depoiment/.test(instruction)){
+      const section=editingSite.blocks.find(b=>/depoiment/.test(String(b.section||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase())||b.type==="heading"&&/depoiment/.test(String(b.text||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()))?.section;
+      if(!section)return NextResponse.json({error:"Seção Depoimentos não encontrada; menu preservado."},{status:422});
+      const items=Array.isArray((header as {navItems?:unknown}).navItems)?[...(header as {navItems:Array<{label:string;href:string}>}).navItems]:[];
+      if(!items.some(item=>item.href==="#"+section))items.push({label:quote||"Depoimentos",href:"#"+section});
+      return NextResponse.json({site:{...editingSite,header:{...header,navItems:items}},summary:"Item Depoimentos adicionado ao menu com âncora existente."});
+    }
+  }
   // Scoped deterministic edits take priority over generic handlers: a complex prompt
   // must be applied atomically, never answered as if only one sub-step succeeded.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length&&(editingSite as typeof editingSite&{cinematic?:{mode?:string}}).cinematic?.mode!=="immersive-3d"){
