@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { MODULAR_CATALOG, normalizeSelection, expandEntitlements } from "@/lib/commercial/modular-catalog";
 import { calculatePreviewQuote, PREVIEW_PRICES_CENTS } from "@/lib/commercial/preview-pricing";
 
@@ -29,8 +29,6 @@ const details:Record<string,{icon:string;description:string}>={
 
 export default function ConfiguradorPreview(){
 
- const [showIntro,setShowIntro]=useState(true);
- useEffect(()=>{const timer=window.setTimeout(()=>setShowIntro(false),5400);return ()=>window.clearTimeout(timer);},[]);
  const [scenario,setScenario]=useState<Scenario>("studio");
  const owned=useMemo(()=>expandEntitlements(ownedByScenario[scenario],true),[scenario]);
  const isOwned=(code:string)=>owned.includes(code);
@@ -49,25 +47,21 @@ export default function ConfiguradorPreview(){
  
 
  return <main className="min-h-screen bg-[#090e0b] text-[#f7faf6]">
- {showIntro&&<div className="pn-intro fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-[#060c08]" role="presentation" onClick={()=>setShowIntro(false)}>
- <div className="pn-intro-glow pointer-events-none absolute inset-0" />
- <div className="pn-intro-content relative z-10 flex flex-col items-center px-5 text-center">
- <div className="pn-intro-brand flex items-center gap-3 sm:gap-5"><span className="pn-intro-symbol text-[clamp(4rem,13vw,10rem)] font-black italic leading-none tracking-[-.15em] text-[#43ff65]">P</span><span className="text-[clamp(2.7rem,8vw,7.8rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></span></div>
- <div className="pn-intro-line mt-7 h-[2px] w-[min(70vw,560px)] bg-gradient-to-r from-transparent via-[#a6ff73] to-transparent" />
- <p className="pn-intro-subtitle mt-6 text-[clamp(.72rem,1.8vw,1.3rem)] font-bold uppercase tracking-[.28em] text-[#b9f77a] sm:tracking-[.52em]">Product Intelligence</p>
- </div><span className="absolute bottom-10 text-[10px] uppercase tracking-[.2em] text-white/35">Toque para continuar</span>
- </div>}
+
  <div className="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8 lg:pb-16">
  <header className="flex items-center justify-between gap-3 border-b border-white/10 py-6">
  <div className="flex items-center gap-2.5"><div className="grid h-9 w-9 place-items-center rounded-xl bg-[#b9f77a] text-lg font-black text-[#10200c]">P</div><strong className="text-lg tracking-tight">PageNova <span className="text-[#b9f77a]">AI</span></strong></div>
  <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">Prévia · Sem cobranças</span>
  </header>
- <section className="py-10 sm:py-14">
- <button type="button" onClick={()=>setShowIntro(true)} className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#b9f77a]/40 bg-[#b9f77a]/10 px-4 py-2 text-xs font-bold text-[#b9f77a] hover:bg-[#b9f77a]/20">▶ Rever apresentação · Product Intelligence</button>
-
- <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#b9f77a]">Sua plataforma, suas escolhas</span>
- <h1 className="mt-3 max-w-[760px] text-[clamp(2.2rem,4.3vw,3.8rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas.<br/><span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
- <p className="mt-4 max-w-[590px] text-sm leading-7 text-white/55 sm:text-base">Monte seu espaço de trabalho com as soluções que fazem sentido para o seu negócio.</p>
+ <section className="py-8 sm:py-10">
+ <div className="pn-hero-lockup relative mb-7 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
+ <div className="pn-hero-brand relative z-10 flex max-w-full items-center justify-center gap-1.5 sm:gap-3"><span className="pn-hero-p text-[clamp(2.6rem,8vw,6.3rem)] font-black italic leading-none tracking-[-.15em] text-[#43ff65]" aria-hidden="true">P</span><strong className="text-[clamp(2.15rem,7.4vw,5.8rem)] font-black leading-none tracking-[-.08em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong></div>
+ <div className="pn-hero-line relative z-10 mt-4 h-px w-[min(75%,420px)] bg-gradient-to-r from-transparent via-[#b9f77a] to-transparent" />
+ <span className="pn-hero-tag relative z-10 mt-3 text-[10px] font-bold uppercase tracking-[.2em] text-[#b9f77a] sm:text-sm sm:tracking-[.45em]">Product Intelligence</span>
+ </div>
+ <span className="text-[10px] font-bold uppercase tracking-[.18em] text-[#b9f77a]">Sua plataforma, suas escolhas</span>
+ <h1 className="mt-2 max-w-[760px] text-[clamp(1.8rem,3.5vw,3rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas. <span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
+ <p className="mt-3 max-w-[590px] text-xs leading-5 text-white/55 sm:text-sm">Monte seu espaço de trabalho com as soluções certas para o seu negócio.</p>
  </section>
  <section aria-label="Escolha do pacote principal" className="mb-12 rounded-[28px] border border-white/[0.12] bg-gradient-to-br from-[#18221a] via-[#121a14] to-[#101711] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)] sm:p-8 lg:mb-14">
  <div className="mb-7 flex flex-wrap items-center justify-between gap-3"><h2 className="text-base font-bold">Escolha seu pacote principal</h2><span className="text-[11px] text-white/45">Valores mensais para novos clientes · sem cobrança nesta prévia</span></div>
@@ -113,14 +107,12 @@ export default function ConfiguradorPreview(){
  </div>
  <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-white/10 bg-[#121a14]/95 px-5 py-3 backdrop-blur lg:hidden"><div><div className="text-[11px] text-white/45">{toolCount} ferramentas selecionadas</div><strong className="text-sm text-[#b9f77a]">{brl(quote.totalCents)}/mês*</strong></div><button type="button" disabled className="rounded-lg bg-[#b9f77a]/60 px-4 py-3 text-xs font-bold text-[#14210e]">Em preparação</button></div>
  <style jsx global>{`
- @keyframes pnIntroIn {0%{opacity:0;transform:scale(1.22);filter:blur(18px)}35%{opacity:1;filter:blur(0)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.95)}}
- @keyframes pnIntroGlow {0%{opacity:0;transform:scale(.5)}45%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1.5)}}
- @keyframes pnIntroLine {0%{transform:scaleX(0);opacity:0}45%{transform:scaleX(1);opacity:1}100%{opacity:0}}
- @keyframes pnIntroSubtitle {0%,25%{opacity:0;transform:translateY(24px);letter-spacing:.8em}55%,78%{opacity:1;transform:translateY(0)}100%{opacity:0}}
- .pn-intro {animation:pnIntroIn 5.4s cubic-bezier(.2,.7,.2,1) both}
- .pn-intro-glow {background:radial-gradient(ellipse at center,rgba(45,255,96,.17),transparent 55%);animation:pnIntroGlow 5.4s ease-out both}
- .pn-intro-line {animation:pnIntroLine 5.4s ease-in-out both}
- .pn-intro-subtitle {animation:pnIntroSubtitle 5.4s ease-out both}
- @media (prefers-reduced-motion:reduce){.pn-intro,.pn-intro-glow,.pn-intro-line,.pn-intro-subtitle{animation:none!important}}
+ @keyframes pnHeroReveal {0%{opacity:0;transform:translateY(30px) scale(.82);filter:blur(14px)}55%{opacity:1;filter:blur(0)}100%{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+ @keyframes pnHeroLine {0%{opacity:0;transform:scaleX(0)}100%{opacity:1;transform:scaleX(1)}}
+ @keyframes pnHeroTag {0%{opacity:0;transform:translateY(12px);letter-spacing:.7em}100%{opacity:1;transform:translateY(0)}}
+ .pn-hero-brand{animation:pnHeroReveal 1.65s cubic-bezier(.18,.8,.2,1) both}
+ .pn-hero-line{animation:pnHeroLine 1.2s ease-out .65s both}
+ .pn-hero-tag{animation:pnHeroTag 1.2s ease-out .9s both}
+ @media (prefers-reduced-motion:reduce){.pn-hero-brand,.pn-hero-line,.pn-hero-tag{animation:none!important}}
  `}</style>\n </main>;
 }
