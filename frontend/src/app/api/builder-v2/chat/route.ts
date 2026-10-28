@@ -696,7 +696,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const blocks=editingSite.blocks.map(b=>({...b}));
     const nameRequest=/(?:nome da clinica|nome da empresa|nome do consultorio|nome do negocio|marca|logotipo|logo)/.test(plain)&&/(?:altere|alterar|troque|mude|renomeie)/.test(plain)&&/(?:cabecalho|logo|marca)/.test(plain);
     if(nameRequest&&quoted){
-      return NextResponse.json({site:{...editingSite,title:quoted,header:{...(editingSite.header||{}),brand:quoted}},summary:"Nome no cabeçalho alterado para "+quoted+"; capa e demais seções preservadas."});
+      return NextResponse.json({site:{...editingSite,title:quoted,header:{...(editingSite.header||{}),brand:quoted,logoUrl:""}},summary:"Nome no cabeçalho alterado para "+quoted+"; capa e demais seções preservadas."});
     }
     const titleRequest=/(?:altere|alterar|troque|mude|substitua)/.test(plain)&&/(?:titulo principal da capa|titulo da capa|titulo principal do hero)/.test(plain)&&!/(?:cor do titulo|tamanho do titulo|fonte do titulo)/.test(plain);
     const descriptionRequest=/(?:altere|alterar|troque|mude|substitua)/.test(plain)&&/(?:descricao principal da capa|descricao da capa|subtitulo da capa)/.test(plain);
