@@ -694,6 +694,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const quoted=instruction.match(/(?:para|por)\\s*[:]?\\s*[\"“]([^\"”]+)[\"”]/i)?.[1]||instruction.match(/(?:para|por)\\s*[:]?\\s*\\n\\s*[\"“]([^\"”]+)[\"”]/i)?.[1];
     const heroSection=editingSite.blocks.find(b=>b.type==="heading"&&/^(inicio|hero|home|principal|capa)$/i.test(String(b.section||"")))?.section||editingSite.blocks.find(b=>b.type==="heading")?.section;
     const blocks=editingSite.blocks.map(b=>({...b}));
+    // Palette changes must not be mistaken for a request to replace the hero image.
+    if(/(?:altere|alterar|troque|mude|personalize|aplique)/.test(plain)&&/(?:identidade visual|paleta|cores?)/.test(plain)&&/(?:capa|hero)/.test(plain)){
+      const palette=/salvia/.test(plain)?{primary:"#77917C",background:"#F7F3EB",text:"#FFFFFF"}:/azul/.test(plain)?{primary:"#315B82",background:"#F4F7FA",text:"#FFFFFF"}:/verde/.test(plain)?{primary:"#387A58",background:"#F6F5ED",text:"#FFFFFF"}:null;
+      if(palette&&heroSection){
+        const changed=blocks.map(b=>b.section===heroSection&&b.type==="button"?{...b,color:palette.primary,colorExplicit:true}:b);
+        return NextResponse.json({site:{...editingSite,blocks:changed},summary:"Paleta da capa atualizada nos botões; imagem de fundo e outras seções preservadas."});
+      }
+    }
     const nameRequest=/(?:nome da clinica|nome da empresa|nome do consultorio|nome do negocio|marca|logotipo|logo)/.test(plain)&&/(?:altere|alterar|troque|mude|renomeie)/.test(plain)&&/(?:cabecalho|logo|marca)/.test(plain);
     if(nameRequest&&quoted){
       return NextResponse.json({site:{...editingSite,title:quoted,header:{...(editingSite.header||{}),brand:quoted}},summary:"Nome no cabeçalho alterado para "+quoted+"; capa e demais seções preservadas."});
