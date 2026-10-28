@@ -28,19 +28,19 @@ const details:Record<string,{icon:string;description:string}>={
 export default function ConfiguradorPreview(){
  const [family,setFamily]=useState<Family>("studio");
  const [scenario,setScenario]=useState<Scenario>("studio");
- const owned=useMemo(()=>expandEntitlements(ownedByScenario[scenario]),[scenario]);
+ const owned=useMemo(()=>expandEntitlements(ownedByScenario[scenario],true),[scenario]);
  const isOwned=(code:string)=>owned.includes(code);
  const [selected,setSelected]=useState<string[]>(["bundle.studio"]);
  const [expanded,setExpanded]=useState(false);
- const normalized=useMemo(()=>normalizeSelection(selected),[selected]);
- const granted=useMemo(()=>expandEntitlements(selected),[selected]);
+ const normalized=useMemo(()=>normalizeSelection(selected,true),[selected]);
+ const granted=useMemo(()=>expandEntitlements(selected,true),[selected]);
  const selectedItems=normalized.map(code=>MODULAR_CATALOG.find(item=>item.code===code)!).filter(Boolean);
  const toolCount=granted.filter(code=>!code.startsWith("bundle.")).length;
  const quote=useMemo(()=>calculatePreviewQuote(normalized),[normalized]);
  const selectedBase=baseByScenario[scenario];
  const availableTabs=tabs.filter(tab=>tab.id!==scenario&&scenario!=="all");
  const brl=(cents:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(cents/100);
- const toggle=(code:string)=>{if(isOwned(code)||code===baseByScenario[scenario])return;setSelected(prev=>normalizeSelection(prev.includes(code)?prev.filter(item=>item!==code):[...prev,code]));};
+ const toggle=(code:string)=>{if(isOwned(code)||code===baseByScenario[scenario])return;setSelected(prev=>normalizeSelection(prev.includes(code)?prev.filter(item=>item!==code):[...prev,code],true));};
  const changeScenario=(next:Scenario)=>{setScenario(next);setSelected([baseByScenario[next]]);setExpanded(false);setFamily(next==="studio"?"crm":"studio");};
  const tools=MODULAR_CATALOG.filter(item=>item.family===family&&!item.code.startsWith("bundle.")&&item.family!==scenario);
  const bundles=MODULAR_CATALOG.filter(item=>item.family===family&&item.code.startsWith("bundle.")&&item.code!==baseByScenario[scenario]&&item.code!=="bundle.all");
