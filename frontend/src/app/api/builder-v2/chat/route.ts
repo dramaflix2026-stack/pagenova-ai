@@ -345,6 +345,20 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           if(block.type==="paragraph"&&/^#(?:000000|090909|111111)$/i.test(String(block.color)))block.color="#FFFFFF";
         }
       }
+      // Structural acceptance checks: a heading or unrelated CTA is not a valid card.
+      const countParagraphs=(section:string)=>mutableBlocks.filter(b=>b.section===section&&b.type==="paragraph").length;
+      if(countParagraphs("servicos")!==serviceCount||countParagraphs("diferenciais")!==4)
+        throw new Error("incorrect-core-card-count");
+      for(const section of sections){
+        const id=section.id;
+        const paragraphs=countParagraphs(id);
+        if(/^(?:planos|precos|pricing)(?:-|$)/.test(id)&&/R\\$\\s*\\d/.test(instruction)&&paragraphs!==3)
+          throw new Error("incorrect-plan-card-count:"+paragraphs);
+        if(/^(?:equipe|profissionais|time)(?:-|$)/.test(id)&&/quatro cards|exatamente quatro|4 cards|quatro profissionais/i.test(instruction)&&paragraphs!==4)
+          throw new Error("incorrect-team-card-count:"+paragraphs);
+        if(/^(?:modalidades)(?:-|$)/.test(id)&&/quatro cards|exatamente quatro|4 cards/i.test(instruction)&&paragraphs!==4)
+          throw new Error("incorrect-modality-card-count:"+paragraphs);
+      }
       const canonicalIds=sections.map(section=>section.id);
       mutableBlocks.sort((a,b)=>{
         const diff=canonicalIds.indexOf(String(a.section))-canonicalIds.indexOf(String(b.section));
