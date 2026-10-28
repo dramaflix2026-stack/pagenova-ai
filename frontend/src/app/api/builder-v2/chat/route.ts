@@ -193,6 +193,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Template 1: the two commercial card sections always contain four distinct cards.
       // If the model underproduces, request only the missing copy; preserve all other sections.
       for(const sectionId of ["servicos","diferenciais"]){
+        const targetCount=sectionId==="servicos"?serviceCount:4;
         const cards=mutableBlocks.filter(item=>item.section===sectionId&&item.type==="paragraph");
         if(cards.length>targetCount){
           const redundant=new Set(cards.slice(targetCount));
