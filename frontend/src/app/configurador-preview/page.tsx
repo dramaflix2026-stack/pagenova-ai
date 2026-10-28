@@ -55,7 +55,10 @@ export default function ConfiguradorPreview(){
  </header>
  <section className="py-8 sm:py-10">
  <div className="pn-hero-lockup relative mb-5 flex min-h-[150px] flex-col items-center justify-center overflow-hidden rounded-[24px] border border-[#b9f77a]/15 bg-[radial-gradient(ellipse_at_center,rgba(54,255,104,.12),transparent_70%)] px-3 py-8 text-center sm:min-h-[215px] sm:py-10" aria-label="PageNova AI — Product Intelligence">
- <div className="pn-hero-brand relative z-10 flex max-w-full items-center justify-center gap-1.5 sm:gap-3"><span className="pn-hero-p text-[clamp(2.6rem,8vw,6.3rem)] font-black italic leading-none tracking-[-.15em] text-[#43ff65]" aria-hidden="true">P</span><strong className="text-[clamp(2.15rem,7.4vw,5.8rem)] font-black leading-none tracking-[-.08em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong></div>
+ <div className="pn-hero-brand relative z-10 flex w-full max-w-full items-center justify-center gap-2.5 sm:gap-5">
+ <svg aria-hidden="true" viewBox="0 0 120 120" className="pn-hero-p h-[clamp(56px,9vw,110px)] w-[clamp(56px,9vw,110px)] shrink-0 drop-shadow-[0_0_20px_rgba(50,255,90,.25)]"><defs><linearGradient id="pnSymbolGradient" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stopColor="#8eff5b"/><stop offset="55%" stopColor="#2efb57"/><stop offset="100%" stopColor="#77ffba"/></linearGradient></defs><path fill="url(#pnSymbolGradient)" d="M39 13h43c26 0 36 14 32 35-4 23-21 35-46 35H48l-13 24H6L36 47h38c8 0 13-4 14-10 1-6-3-9-10-9H32z"/><path fill="#20c94e" opacity=".7" d="M34 52h36L48 83H19z"/></svg>
+ <strong className="whitespace-nowrap text-[clamp(1.9rem,6.9vw,5.7rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></strong>
+ </div>
  <div className="pn-hero-line relative z-10 mt-4 h-px w-[min(75%,420px)] bg-gradient-to-r from-transparent via-[#b9f77a] to-transparent" />
  <span className="pn-hero-tag relative z-10 mt-3 text-[10px] font-bold uppercase tracking-[.2em] text-[#b9f77a] sm:text-sm sm:tracking-[.45em]">Product Intelligence</span>
  </div>
