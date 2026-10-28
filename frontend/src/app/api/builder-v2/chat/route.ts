@@ -673,15 +673,15 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
      /(?:segundo|outro|novo|mais um)/i.test(instructionText)&&
      /bot[aã]o/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText)){
     const blocks=editingSite.blocks.map(b=>({...b}));
-    const heroSection=String(blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"");
+    const heroSection=String(blocks.find(b=>/^(hero|capa|banner)$/i.test(String(b.section||"")))?.section||blocks.find(b=>b.type==="button")?.section||blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"");
     const buttons=blocks.filter(b=>b.type==="button"&&String(b.section)===heroSection);
-    const label=instructionText.match(/(?:texto|chamad[oa]|nome)\\s+["“]([^"”]+)["”]/i)?.[1]||
+    const label=instructionText.match(/(?:texto|chamad[oa]|nome)\s+["“]([^"”]+)["”]/i)?.[1]||
       instructionText.match(/bot[aã]o[^"“]{0,100}["“]([^"”]+)["”]/i)?.[1];
     if(!label||!buttons.length)return NextResponse.json({error:"Não identifiquei o texto ou o botão principal da capa. Nada foi alterado."},{status:422});
     const targetKind=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
     const normalized=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-    const target=blocks.find(b=>b.type==="heading"&&
-      (targetKind==="services"?/servic|tratament/.test(normalized(String(b.section)+" "+b.text)):/contat|fale conosco|agend/.test(normalized(String(b.section)+" "+b.text))))?.section;
+    const target=blocks.find(b=>
+      (targetKind==="services"?/servic|tratament/.test(normalized(String(b.section)+" "+b.text)):/contat|fale conosco|agend/.test(normalized(String(b.section)+" "+b.text)))&&String(b.section||"")!==heroSection)?.section;
     if(!target)return NextResponse.json({error:"A seção de destino não foi encontrada. Nenhuma alteração aplicada."},{status:422});
     if(buttons.some(b=>normalized(b.text)===normalized(label)))return NextResponse.json({site:editingSite,summary:"O botão já existe; nenhum elemento foi duplicado."});
     const anchor=buttons[buttons.length-1];
