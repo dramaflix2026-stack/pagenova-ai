@@ -1,26 +1,29 @@
-const examples=[
- {initials:"AM",name:"Ana Martins",text:"Uma experiência mais simples para organizar minhas ferramentas."},
- {initials:"RC",name:"Rafael Costa",text:"Tudo em um só lugar, com um visual fácil de entender."},
- {initials:"BL",name:"Beatriz Lima",text:"Gostei da liberdade de escolher apenas o que preciso."},
- {initials:"JP",name:"João Pereira",text:"Consigo visualizar minhas soluções em um só painel."},
- {initials:"CS",name:"Carla Souza",text:"A proposta de escolher cada ferramenta faz muito sentido."},
- {initials:"LM",name:"Lucas Mendes",text:"Uma forma prática de planejar as ferramentas do meu negócio."}
-];
+"use client";
+import { useState } from "react";
+
+// Os 12 arquivos devem ser publicados neste diretório, sem alterar a numeração.
+const screenshots = Array.from({length:12},(_,index)=>({
+ number:index+1,
+ src:`/testimonials/pagenova-conversa-${String(index+1).padStart(2,"0")}.webp`
+}));
+
+function ConversationCard({number,src,duplicate}:{number:number;src:string;duplicate:boolean}){
+ const [failed,setFailed]=useState(false);
+ return <div aria-hidden={duplicate} className="relative aspect-[9/16] w-[220px] shrink-0 overflow-hidden rounded-[18px] border border-white/15 bg-[#111c14] shadow-[0_12px_36px_rgba(0,0,0,.4)] sm:w-[265px] lg:w-[300px]">
+  {!failed ? <img src={src} alt={`Exemplo ilustrativo de conversa ${number} sobre a PageNova AI`} loading={duplicate?"lazy":"eager"} decoding="async" onError={()=>setFailed(true)} className="h-full w-full object-contain"/> : <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center"><span className="text-4xl font-black text-[#b9f77a]">{String(number).padStart(2,"0")}</span><span className="text-sm font-semibold text-white/80">Conversa ilustrativa em preparação</span></div>}
+ </div>;
+}
 export default function Testimonials3D(){
  return <section id="depoimentos" aria-labelledby="testimonials-title" className="pn-section-divider relative mt-20 scroll-mt-24 overflow-hidden py-16 sm:py-20">
   <div className="mx-auto mb-10 grid max-w-[1180px] gap-6 px-5 sm:px-8 lg:grid-cols-[220px_1fr] lg:gap-14">
    <div className="pt-2 text-xs font-extrabold uppercase tracking-[.2em] text-[#b9f77a]">04 <span className="mx-3 text-white/35">—</span> Experiências</div>
-   <div><h2 id="testimonials-title" className="max-w-[850px] text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl">O que importa é a <span className="text-[#b9f77a]">experiência de quem usa.</span></h2><p className="mt-5 max-w-[680px] text-base leading-7 text-white/75">Conheça a proposta da PageNova na prática.</p><p className="mt-4 text-xs font-medium text-[#d9ffb8]">Demonstração visual: os exemplos abaixo não são avaliações reais.</p></div>
+   <div><h2 id="testimonials-title" className="max-w-[850px] text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl">Veja como a <span className="text-[#b9f77a]">PageNova funciona na prática.</span></h2><p className="mt-4 text-sm font-medium text-[#d9ffb8]">Conversas demonstrativas criadas com IA. Não representam clientes nem resultados reais.</p></div>
   </div>
-  <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-white/10 py-6" aria-label="Exemplos ilustrativos de depoimentos">
-   <div className="pn-testimonials-track flex w-max gap-4 px-4 motion-reduce:animate-none">
-    {[...examples,...examples].map((sample,index)=><article key={index} aria-hidden={index>=examples.length} className="flex h-[310px] w-[235px] shrink-0 flex-col justify-between overflow-hidden rounded-[20px] border border-[#b9f77a]/25 bg-[#111c14] p-5 shadow-[0_12px_36px_rgba(0,0,0,.45)] sm:h-[350px] sm:w-[260px]">
-     <div className="flex items-center justify-between"><div className="grid h-12 w-12 place-items-center rounded-full bg-[#b9f77a] text-sm font-black text-[#10210d]">{sample.initials}</div><span className="text-xl text-[#b9f77a]" aria-hidden="true">“</span></div>
-     <p className="text-lg font-semibold leading-7 text-white">{sample.text}</p>
-     <div className="border-t border-white/15 pt-4"><strong className="block text-sm font-bold text-[#d9ffb8]">{sample.name}</strong><span className="mt-1 block text-xs text-white/70">Exemplo ilustrativo</span></div>
-    </article>)}
+  <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-white/10 py-6" aria-label="Galeria de 12 conversas ilustrativas">
+   <div className="pn-testimonials-track flex w-max gap-4 px-4">
+    {[...screenshots,...screenshots].map((item,index)=><ConversationCard key={index} {...item} duplicate={index>=screenshots.length}/>)}
    </div>
   </div>
-  <style>{`@keyframes pnTestimonialScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}.pn-testimonials-track{animation:pnTestimonialScroll 46s linear infinite}.pn-testimonials-track:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.pn-testimonials-track{animation:none}}`}</style>
+  <style>{`@keyframes pnTestimonialScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}.pn-testimonials-track{animation:pnTestimonialScroll 110s linear infinite}.pn-testimonials-track:hover{animation-play-state:paused}@media(prefers-reduced-motion:reduce){.pn-testimonials-track{animation:none;max-width:100vw;overflow-x:auto}}`}</style>
  </section>;
 }
