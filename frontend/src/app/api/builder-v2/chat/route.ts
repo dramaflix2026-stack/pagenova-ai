@@ -384,6 +384,22 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       if(heroTitle&&/^(?:nosso espa[cç]o|nossos ambientes|galeria|consult[oó]rio|nossa equipe|ambiente acolhedor)$/i.test(String(heroTitle.text).trim())){
         heroTitle.text=typeof plan.title==="string"&&plan.title.trim()?plan.title.trim():"Conheça nossa proposta";
       }
+      if(adaptiveBrief){
+        for(const section of sections){
+          const existing=mutableBlocks.filter(block=>block.section===section.id);
+          if(existing.some(block=>block.type==="heading")&&existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))continue;
+          const response=await callAI(languageRule+" Complete somente a seção indicada com dados do briefing. Responda JSON com heading e cards [{title,description}]. Não invente fatos, pessoas, depoimentos, preços ou estatísticas.",{briefing:instruction,section:section.id,goal:section.goal,existing:existing.map(block=>block.text)},1000) as Record<string,unknown>;
+          const heading=String(response.heading||"").trim();
+          const cards=Array.isArray(response.cards)?response.cards:[];
+          if(heading&&!existing.some(block=>block.type==="heading"))mutableBlocks.push({id:"adaptive-heading-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"heading",text:heading,color:"#ffffff",align:"left"});
+          if(!existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))for(const raw of cards){
+            if(!raw||typeof raw!=="object")continue;
+            const item=raw as Record<string,unknown>;
+            const title=String(item.title||"").trim(),description=String(item.description||"").trim();
+            if(title&&description)mutableBlocks.push({id:"adaptive-section-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:title+": "+description,color:"#ffffff",align:"left"});
+          }
+        }
+      }
       const coreIds=["inicio","servicos","sobre","diferenciais","processo","galeria","faq","contato"];
       const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));
       const missing=coreIds.filter(id=>!generatedIds.has(id));
