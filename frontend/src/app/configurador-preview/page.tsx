@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MODULAR_CATALOG, normalizeSelection, expandEntitlements } from "@/lib/commercial/modular-catalog";
 import { calculatePreviewQuote, PREVIEW_PRICES_CENTS } from "@/lib/commercial/preview-pricing";
 
@@ -29,6 +29,8 @@ const details:Record<string,{icon:string;description:string}>={
 
 export default function ConfiguradorPreview(){
 
+ const [showIntro,setShowIntro]=useState(true);
+ useEffect(()=>{const timer=window.setTimeout(()=>setShowIntro(false),3100);return ()=>window.clearTimeout(timer);},[]);
  const [scenario,setScenario]=useState<Scenario>("studio");
  const owned=useMemo(()=>expandEntitlements(ownedByScenario[scenario],true),[scenario]);
  const isOwned=(code:string)=>owned.includes(code);
@@ -47,16 +49,21 @@ export default function ConfiguradorPreview(){
  
 
  return <main className="min-h-screen bg-[#090e0b] text-[#f7faf6]">
+ {showIntro&&<div className="pn-intro fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-[#060c08]" role="presentation" onClick={()=>setShowIntro(false)}>
+ <div className="pn-intro-glow pointer-events-none absolute inset-0" />
+ <div className="pn-intro-content relative z-10 flex flex-col items-center px-5 text-center">
+ <div className="pn-intro-brand flex items-center gap-3 sm:gap-5"><span className="pn-intro-symbol text-[clamp(4rem,13vw,10rem)] font-black italic leading-none tracking-[-.15em] text-[#43ff65]">P</span><span className="text-[clamp(2.7rem,8vw,7.8rem)] font-black leading-none tracking-[-.075em] text-white">PageNova<span className="text-[#43ff65]">AI</span></span></div>
+ <div className="pn-intro-line mt-7 h-[2px] w-[min(70vw,560px)] bg-gradient-to-r from-transparent via-[#a6ff73] to-transparent" />
+ <p className="pn-intro-subtitle mt-6 text-[clamp(.72rem,1.8vw,1.3rem)] font-bold uppercase tracking-[.28em] text-[#b9f77a] sm:tracking-[.52em]">Product Intelligence</p>
+ </div><span className="absolute bottom-10 text-[10px] uppercase tracking-[.2em] text-white/35">Toque para continuar</span>
+ </div>}
  <div className="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8 lg:pb-16">
  <header className="flex items-center justify-between gap-3 border-b border-white/10 py-6">
  <div className="flex items-center gap-2.5"><div className="grid h-9 w-9 place-items-center rounded-xl bg-[#b9f77a] text-lg font-black text-[#10200c]">P</div><strong className="text-lg tracking-tight">PageNova <span className="text-[#b9f77a]">AI</span></strong></div>
  <span className="rounded-full border border-white/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/45">Prévia · Sem cobranças</span>
  </header>
  <section className="py-10 sm:py-14">
- <div className="pn-product-signature mb-8 flex w-fit max-w-full flex-col items-start gap-2 border-l-[3px] border-[#9ef36a] pl-4 sm:mb-9" aria-label="PageNova AI — Product Intelligence">
- <span className="flex items-center gap-2.5"><span className="pn-product-mark text-[25px] font-black italic leading-none tracking-[-.12em] text-[#a6ff73]" aria-hidden="true">P</span><strong className="text-[18px] font-black tracking-[-.055em] text-white sm:text-[20px]">PageNova<span className="text-[#35ef58]">AI</span></strong></span>
- <span className="pl-[33px] text-[9px] font-semibold uppercase tracking-[.32em] text-white/55 sm:text-[10px]">Product Intelligence</span>
- </div>
+
  <span className="text-[11px] font-bold uppercase tracking-[.18em] text-[#b9f77a]">Sua plataforma, suas escolhas</span>
  <h1 className="mt-3 max-w-[760px] text-[clamp(2.2rem,4.3vw,3.8rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas.<br/><span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
  <p className="mt-4 max-w-[590px] text-sm leading-7 text-white/55 sm:text-base">Monte seu espaço de trabalho com as soluções que fazem sentido para o seu negócio.</p>
@@ -104,5 +111,15 @@ export default function ConfiguradorPreview(){
  <footer className="mt-20 border-t border-white/10 pt-6 text-xs text-white/30">PageNova AI · Ambiente de demonstração</footer>
  </div>
  <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-white/10 bg-[#121a14]/95 px-5 py-3 backdrop-blur lg:hidden"><div><div className="text-[11px] text-white/45">{toolCount} ferramentas selecionadas</div><strong className="text-sm text-[#b9f77a]">{brl(quote.totalCents)}/mês*</strong></div><button type="button" disabled className="rounded-lg bg-[#b9f77a]/60 px-4 py-3 text-xs font-bold text-[#14210e]">Em preparação</button></div>
- <style jsx>{`\n @keyframes pnSignatureEnter { from { opacity: 0; transform: translateY(18px) scale(.96); filter: blur(6px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }\n @keyframes pnSignatureMark { from { transform: rotate(-25deg) scale(.65); } to { transform: rotate(0) scale(1); } }\n @keyframes pnSignatureGlint { 0%,55% { transform: translateX(-130%); opacity: 0; } 68% { opacity: .45; } 100% { transform: translateX(130%); opacity: 0; } }\n .pn-product-signature { animation: pnSignatureEnter 850ms cubic-bezier(.2,.8,.2,1) both; }\n .pn-product-mark { animation: pnSignatureMark 850ms cubic-bezier(.2,.8,.2,1) both; }\n\n @media (prefers-reduced-motion: reduce) { .pn-product-signature,.pn-product-mark,.pn-product-glint { animation: none !important; } }\n `}</style>\n </main>;
+ <style jsx>{`
+ @keyframes pnIntroIn {0%{opacity:0;transform:scale(1.22);filter:blur(18px)}35%{opacity:1;filter:blur(0)}75%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.95)}}
+ @keyframes pnIntroGlow {0%{opacity:0;transform:scale(.5)}45%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(1.5)}}
+ @keyframes pnIntroLine {0%{transform:scaleX(0);opacity:0}45%{transform:scaleX(1);opacity:1}100%{opacity:0}}
+ @keyframes pnIntroSubtitle {0%,25%{opacity:0;transform:translateY(24px);letter-spacing:.8em}55%,78%{opacity:1;transform:translateY(0)}100%{opacity:0}}
+ .pn-intro {animation:pnIntroIn 3.1s cubic-bezier(.2,.7,.2,1) both}
+ .pn-intro-glow {background:radial-gradient(ellipse at center,rgba(45,255,96,.17),transparent 55%);animation:pnIntroGlow 3.1s ease-out both}
+ .pn-intro-line {animation:pnIntroLine 3.1s ease-in-out both}
+ .pn-intro-subtitle {animation:pnIntroSubtitle 3.1s ease-out both}
+ @media (prefers-reduced-motion:reduce){.pn-intro,.pn-intro-glow,.pn-intro-line,.pn-intro-subtitle{animation:none!important}}
+ `}</style>\n </main>;
 }
