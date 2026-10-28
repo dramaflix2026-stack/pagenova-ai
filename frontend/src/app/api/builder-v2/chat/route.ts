@@ -685,6 +685,27 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instructionText);
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  // Atomic edits for the most common chat commands. Never interpret preservation
+  // clauses as instructions to change the layout or immersive presentation.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const instruction=instructionText;
+    const normalized=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    const plain=normalized(instruction);
+    const quoted=instruction.match(/(?:para|por)\\s*[:]?\\s*[\"“]([^\"”]+)[\"”]/i)?.[1]||instruction.match(/(?:para|por)\\s*[:]?\\s*\\n\\s*[\"“]([^\"”]+)[\"”]/i)?.[1];
+    const heroSection=editingSite.blocks.find(b=>b.type==="heading"&&/^(inicio|hero|home|principal|capa)$/i.test(String(b.section||"")))?.section||editingSite.blocks.find(b=>b.type==="heading")?.section;
+    const blocks=editingSite.blocks.map(b=>({...b}));
+    const nameRequest=/(?:nome da clinica|nome da empresa|nome do consultorio|nome do negocio|marca|logotipo|logo)/.test(plain)&&/(?:altere|alterar|troque|mude|renomeie)/.test(plain)&&/(?:cabecalho|logo|marca)/.test(plain);
+    if(nameRequest&&quoted){
+      return NextResponse.json({site:{...editingSite,title:quoted,header:{...(editingSite.header||{}),brand:quoted}},summary:"Nome no cabeçalho alterado para "+quoted+"; capa e demais seções preservadas."});
+    }
+    const titleRequest=/(?:altere|alterar|troque|mude|substitua)/.test(plain)&&/(?:titulo principal da capa|titulo da capa|titulo principal do hero)/.test(plain)&&!/(?:cor do titulo|tamanho do titulo|fonte do titulo)/.test(plain);
+    const descriptionRequest=/(?:altere|alterar|troque|mude|substitua)/.test(plain)&&/(?:descricao principal da capa|descricao da capa|subtitulo da capa)/.test(plain);
+    if((titleRequest||descriptionRequest)&&quoted&&heroSection){
+      const target=blocks.find(b=>b.section===heroSection&&b.type===(titleRequest?"heading":"paragraph"));
+      if(target){target.text=quoted;return NextResponse.json({site:{...editingSite,blocks},summary:(titleRequest?"Título":"Descrição")+" da capa atualizado(a), mantendo o restante do projeto."});}
+      return NextResponse.json({error:"Não encontrei o bloco solicitado na capa. Nenhuma alteração aplicada."},{status:422});
+    }
+  }
   // Immersive 3D edits are scoped to their own editable content contract.
   // Shared atomic hero CTA operation: never route a button request to image/banner generation.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&
