@@ -37,6 +37,7 @@ export function calculatePreviewQuote(selected:readonly string[]):PreviewQuote {
  },0);
  // Somente o pacote completo possui desconto aprovado; sem descontos progressivos fictícios.
  const discountCents=selection.includes("bundle.all")?25400:0;
+ const displaySubtotalCents=subtotalCents+discountCents;
  const discountPercent=selection.includes("bundle.all")?Math.round(25400/85100*10000)/100:0;
- return {selection,subtotalCents,discountPercent,discountCents,totalCents:subtotalCents};
+ return {selection,subtotalCents:displaySubtotalCents,discountPercent,discountCents,totalCents:subtotalCents};
 }
