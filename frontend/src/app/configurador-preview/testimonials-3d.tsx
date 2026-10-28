@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const TOTAL = 12;
+const STORAGE_API = "/api/configurador-preview/testimonials";
 const DB_NAME = "pagenova-preview-testimonials-v1";
 const STORE = "images";
 const numbers = Array.from({length:TOTAL},(_,i)=>i+1);
@@ -38,7 +39,7 @@ function ImageSlot({number,src,onUpload,disabled}:{number:number;src?:string;onU
   const file=event.target.files?.[0];event.target.value="";if(!file)return;
   if(!file.type.startsWith("image/")){setError("Selecione uma imagem.");return;}
   if(file.size>12*1024*1024){setError("Imagem muito grande (máximo 12 MB).");return;}
-  setError("");try{await onUpload(number,file);}catch{setError("Não foi possível salvar. Verifique o armazenamento do navegador.");}
+  setError("");try{await onUpload(number,file);}catch{setError("Não foi possível salvar no servidor. É necessário acesso de administrador.");}
  };
  return <article className="relative aspect-[9/16] w-[225px] shrink-0 overflow-hidden rounded-[18px] border border-white/15 bg-[#111c14] shadow-[0_12px_36px_rgba(0,0,0,.4)] sm:w-[265px] lg:w-[300px]">
   {src?<img src={src} alt={`Conversa demonstrativa ${number}`} className="h-full w-full object-contain" decoding="async"/>:<div className="flex h-full flex-col items-center justify-center gap-5 px-5 text-center"><span className="text-5xl font-black text-[#b9f77a]">{String(number).padStart(2,"0")}</span><p className="text-sm text-white/70">Adicione a conversa {number} em formato 9:16</p><button type="button" disabled={disabled} onClick={()=>input.current?.click()} className="rounded-xl bg-[#b9f77a] px-5 py-3 text-sm font-extrabold text-[#10200c] hover:bg-[#d5ffad] disabled:opacity-50">{disabled?"Salvando...":"↑ Upload da imagem"}</button><input id={`pn-upload-${number}`} ref={input} type="file" accept="image/*" className="hidden" onChange={select} aria-label={`Enviar imagem da conversa ${number}`}/>{error&&<p role="alert" className="text-xs text-red-300">{error}</p>}</div>}
@@ -49,8 +50,8 @@ export default function Testimonials3D(){
  const [busy,setBusy]=useState<number|null>(null);
  const [loaded,setLoaded]=useState(false);
  const urls=useRef<string[]>([]);
- useEffect(()=>{let cancelled=false;readSavedImages().then(saved=>{if(cancelled)return;const result:Record<number,string>={};saved.forEach((blob,number)=>{const url=URL.createObjectURL(blob);urls.current.push(url);result[number]=url;});setImages(result);}).catch(()=>{}).finally(()=>{if(!cancelled)setLoaded(true);});return()=>{cancelled=true;urls.current.forEach(url=>URL.revokeObjectURL(url));urls.current=[];};},[]);
- const onUpload=async(number:number,file:File)=>{setBusy(number);try{await saveImage(number,file);const url=URL.createObjectURL(file);urls.current.push(url);setImages(prev=>({...prev,[number]:url}));}finally{setBusy(null);}};
+ useEffect(()=>{let cancelled=false;(async()=>{const result:Record<number,string>={};try{const saved=await readSavedImages();saved.forEach((blob,number)=>{const url=URL.createObjectURL(blob);urls.current.push(url);result[number]=url;});}catch{}try{const response=await fetch(STORAGE_API,{cache:"no-store"});if(response.ok){const remote=await response.json() as {images:Record<number,string>};Object.assign(result,remote.images||{});}}catch{}if(!cancelled){setImages(result);setLoaded(true);}})();return()=>{cancelled=true;urls.current.forEach(url=>URL.revokeObjectURL(url));urls.current=[];};},[]);
+ const onUpload=async(number:number,file:File)=>{setBusy(number);try{const form=new FormData();form.set("number",String(number));form.set("file",file);const token=typeof window!=="undefined"?Object.keys(localStorage).filter(k=>k.startsWith("sb-")&&k.endsWith("-auth-token")).map(k=>{try{return JSON.parse(localStorage.getItem(k)||"{}").access_token as string;}catch{return "";}}).find(Boolean):undefined;const response=await fetch(STORAGE_API,{method:"POST",headers:token?{Authorization:`Bearer ${token}`}:{},body:form});if(!response.ok)throw new Error("Não foi possível salvar permanentemente. Entre com uma conta administradora.");const data=await response.json() as {url:string};await saveImage(number,file).catch(()=>{});setImages(prev=>({...prev,[number]:data.url}));}finally{setBusy(null);}};
  const complete=numbers.every(number=>Boolean(images[number]));
  return <section id="depoimentos" aria-labelledby="testimonials-title" className="pn-section-divider relative mt-20 scroll-mt-24 overflow-hidden py-16 sm:py-20">
   <div className="mx-auto mb-10 grid max-w-[1180px] gap-6 px-5 sm:px-8 lg:grid-cols-[220px_1fr] lg:gap-14"><div className="pt-2 text-xs font-extrabold uppercase tracking-[.2em] text-[#b9f77a]">04 <span className="mx-3 text-white/35">—</span> Experiências</div><div><h2 id="testimonials-title" className="max-w-[850px] text-4xl font-black leading-[1.12] tracking-tight text-white sm:text-5xl">Veja como a <span className="text-[#b9f77a]">PageNova funciona na prática.</span></h2><div className="mt-5 flex flex-wrap gap-2" aria-label="Escolha qual conversa enviar">{numbers.filter(number=>!images[number]).map(number=><button key={number} type="button" disabled={!loaded||busy!==null} onClick={()=>document.getElementById(`pn-upload-${number}`)?.click()} className="rounded-lg border border-[#b9f77a]/50 bg-[#b9f77a]/10 px-3 py-2 text-xs font-bold text-[#b9f77a] hover:bg-[#b9f77a]/20 disabled:opacity-40">+ Conversa {number}</button>)}</div></div></div>
