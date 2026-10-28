@@ -35,7 +35,7 @@ export function planNewKiwifyEvent(
   const orderId = typeof payload.order_id === "string" ? payload.order_id.trim() : "";
   const email = typeof payload.Customer?.email === "string"
     ? payload.Customer.email.trim().toLowerCase() : "";
-  if (!orderId || !email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))
+  if (!orderId || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
     return {action:"ignore",reason:"missing_identity"};
   const base = {orderId,email,productId:String(payload.Product?.product_id),moduleCode:mapped.code,modules:mapped.modules};
   if (event === "order_approved" || event === "subscription_renewed") {
