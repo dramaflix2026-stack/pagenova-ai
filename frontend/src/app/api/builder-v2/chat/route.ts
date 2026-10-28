@@ -689,9 +689,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // clauses as instructions to change the layout or immersive presentation.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
     const instruction=instructionText;
-    const normalized=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    const normalized=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
     const plain=normalized(instruction);
-    const quoted=instruction.match(/(?:para|por)\\s*[:]?\\s*[\"“]([^\"”]+)[\"”]/i)?.[1]||instruction.match(/(?:para|por)\\s*[:]?\\s*\\n\\s*[\"“]([^\"”]+)[\"”]/i)?.[1];
+    const quoted=instruction.match(/(?:para|por)\s*[:]?\s*[\"“]([^\"”]+)[\"”]/i)?.[1]||instruction.match(/(?:para|por)\s*[:]?\s*\n\s*[\"“]([^\"”]+)[\"”]/i)?.[1];
     const heroSection=editingSite.blocks.find(b=>b.type==="heading"&&/^(inicio|hero|home|principal|capa)$/i.test(String(b.section||"")))?.section||editingSite.blocks.find(b=>b.type==="heading")?.section;
     const blocks=editingSite.blocks.map(b=>({...b}));
     const nameRequest=/(?:nome da clinica|nome da empresa|nome do consultorio|nome do negocio|marca|logotipo|logo)/.test(plain)&&/(?:altere|alterar|troque|mude|renomeie)/.test(plain)&&/(?:cabecalho|logo|marca)/.test(plain);
