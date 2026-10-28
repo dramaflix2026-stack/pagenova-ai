@@ -81,9 +81,9 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
    }};
  }
  if(serviceMention&&/\bcard\b/.test(norm)&&/\b(?:remova|exclua|apague)\b/.test(norm)){
-   const title=q[0];if(!title||!service)return {description:"remover card",run:()=>undefined};
+   const title=q[0];const removeLast=/\b(?:ultim[oa]|final)\b/.test(norm);if((!title&&!removeLast)||!service)return {description:"remover card",run:()=>undefined};
    return {description:"remover card",run:draft=>{
-     const candidates=serviceCards(draft,service).filter(b=>words(String(b.text).split(":")[0])===words(title));
+     const candidates=removeLast?serviceCards(draft,service).slice(-1):serviceCards(draft,service).filter(b=>words(String(b.text).split(":")[0])===words(title));
      if(candidates.length!==1)return;
      const i=draft.findIndex(b=>b.id===candidates[0].id);
      if(i<0)return;
