@@ -107,7 +107,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         sections.push({id,layout,goal:"Seção adicional solicitada pelo cliente: "+title+". "+goal+". Inclua heading e conteúdo completo; respeite dados, preços, quantidades e links fornecidos, sem inventar informações."});
         existingSectionIds.add(id);
       }
-      const batchSize=4;
+      // Keep each parallel AI call small enough to finish within the request budget.\n      const batchSize=2;
       const batches=Array.from({length:Math.ceil(sections.length/batchSize)},(_,i)=>sections.slice(i*batchSize,(i+1)*batchSize));
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
