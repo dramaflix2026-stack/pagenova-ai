@@ -509,16 +509,34 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
               {briefing:instruction,section:name,sectionGoal:section.goal,missing,existing:paragraphs.map(block=>String(block.text||""))},Math.min(1600,220+missing*180)
             );
             const newCards=Array.isArray(repaired.cards)?repaired.cards:[];
-            if(newCards.length<missing)throw new Error("brief-repair-incomplete:"+name);
-            for(const item of newCards.slice(0,missing)){
-              if(!item||typeof item!=="object")throw new Error("brief-repair-invalid:"+name);
+            // Never fail the entire website because a secondary AI repair
+            // returned fewer cards than requested. Fill the remainder using
+            // section-specific names from the original customer brief.
+            const headings=instruction.split(/\n/).map(line=>line.trim())
+              .filter(line=>/^(?:[-*•]\s+|\d{1,2}[.)]\s+)/.test(line))
+              .map(line=>line.replace(/^(?:[-*•]\s+|\d{1,2}[.)]\s+)/,"").replace(/\*\*/g,"").split(/\s+[—–]\s+|:\s+/)[0].trim())
+              .filter(line=>line.length>=3&&line.length<=85);
+            const existingNames=new Set(paragraphs.map(block=>normalized(String(block.text||"").split(":")[0])));
+            let added=0;
+            for(const item of newCards){
+              if(added>=missing)break;
+              if(!item||typeof item!=="object")continue;
               const card=item as Record<string,unknown>;
               const title=String(card.title||"").trim().slice(0,110);
               const description=String(card.description||"").trim().slice(0,450);
               if(!title&&!description)continue;
               const safeTitle=title||description.split(/[.:—–]/)[0].trim().slice(0,80)||"Item adicional";
+              if(existingNames.has(normalized(safeTitle)))continue;
               const safeDescription=description||safeTitle;
               mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:safeTitle+": "+safeDescription,color:"#ffffff",align:"left"});
+              existingNames.add(normalized(safeTitle));
+              added++;
+            }
+            while(added<missing){
+              const fallback=headings.find(title=>!existingNames.has(normalized(title)))||"Etapa "+String(paragraphs.length+added+1).padStart(2,"0");
+              mutableBlocks.push({id:"adaptive-fallback-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:fallback+": "+String(section.goal||"Conheça esta etapa do nosso atendimento.").slice(0,240),color:"#ffffff",align:"left"});
+              existingNames.add(normalized(fallback));
+              added++;
             }
           }
         }
