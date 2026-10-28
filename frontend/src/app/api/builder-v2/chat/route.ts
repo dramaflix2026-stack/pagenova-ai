@@ -486,6 +486,19 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           }
         }
       }
+      // Template 5: when the customer provides exact indicator values, retain them
+      // in the editable statistics blocks instead of accepting AI substitutions.
+      if(adaptiveBrief){
+        const statSection=sections.find(section=>/n[uú]meros|estat[ií]sticas|indicadores|comunidade/i.test(section.id+" "+section.goal));
+        if(statSection){
+          const requested=[...instruction.matchAll(/(?:^|\n)\s*(?:\*\*|[-*]\s*)?(\d{1,6})\s*(\+|%)\s*(?:[—–-]|:)?\s*([^\n]{3,90})/g)].map(match=>({value:match[1]+match[2],label:match[3].replace(/\*\*/g,"").trim()})).filter(item=>/alun|profission|modalidad|satisfa|client|projeto|ano|atend/i.test(item.label));
+          if(requested.length){
+            const existing=mutableBlocks.filter(block=>block.section===statSection.id&&block.type==="paragraph");
+            for(const block of existing)mutableBlocks.splice(mutableBlocks.indexOf(block),1);
+            for(const item of requested)mutableBlocks.push({id:"adaptive-stat-"+crypto.randomUUID(),section:statSection.id,layout:statSection.layout,type:"paragraph",text:item.value+" — "+item.label,color:"#ffffff",align:"left"});
+          }
+        }
+      }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
       return NextResponse.json({site:{templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
