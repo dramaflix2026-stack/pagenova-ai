@@ -666,30 +666,33 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Immersive 3D edits are scoped to their own editable content contract.
-  // Universal transactional intent: adding a hero CTA is not adding a hero image.
-  // Run before niche/template-specific handlers, preserving every existing block.
+  // Shared atomic hero CTA operation: never route a button request to image/banner generation.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&
-     /(?:adicion|inclu|crie|coloque)/i.test(instructionText)&&
-     /(?:segundo|outro|novo|mais um)/i.test(instructionText)&&
-     /bot[aã]o/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText)){
+     /(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(instructionText)&&
+     /(?:segundo|outro|novo|mais um|adicional)/i.test(instructionText)&&
+     /bot[aã]o|\bcta\b/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText)){
     const blocks=editingSite.blocks.map(b=>({...b}));
-    const heroSection=String(blocks.find(b=>/^(hero|capa|banner)$/i.test(String(b.section||"")))?.section||blocks.find(b=>b.type==="button")?.section||blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"");
-    const buttons=blocks.filter(b=>b.type==="button"&&String(b.section)===heroSection);
-    const label=instructionText.match(/(?:texto|chamad[oa]|nome)\s+["“]([^"”]+)["”]/i)?.[1]||
-      instructionText.match(/bot[aã]o[^"“]{0,100}["“]([^"”]+)["”]/i)?.[1];
-    if(!label||!buttons.length)return NextResponse.json({error:"Não identifiquei o texto ou o botão principal da capa. Nada foi alterado."},{status:422});
-    const targetKind=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
-    const normalized=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-    const target=blocks.find(b=>
-      (targetKind==="services"?/servic|tratament/.test(normalized(String(b.section)+" "+b.text)):/contat|fale conosco|agend/.test(normalized(String(b.section)+" "+b.text)))&&String(b.section||"")!==heroSection)?.section;
-    if(!target)return NextResponse.json({error:"A seção de destino não foi encontrada. Nenhuma alteração aplicada."},{status:422});
-    if(buttons.some(b=>normalized(b.text)===normalized(label)))return NextResponse.json({site:editingSite,summary:"O botão já existe; nenhum elemento foi duplicado."});
-    const anchor=buttons[buttons.length-1];
-    const index=blocks.findIndex(b=>b.id===anchor.id);
-    const added={...anchor,id:"added-"+crypto.randomUUID(),text:label,href:"#"+target};
-    blocks.splice(index+1,0,added);
-    if(blocks.length!==editingSite.blocks.length+1||blocks.filter(b=>b.id===added.id).length!==1)return NextResponse.json({error:"Validação do novo botão falhou."},{status:422});
-    return NextResponse.json({site:{...editingSite,blocks},summary:"Segundo botão criado na capa, com âncora interna; botão anterior preservado."});
+    const norm=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const hero=blocks.find(b=>/^(hero|capa|banner|principal)$/i.test(String(b.section||"")))?.section||
+      blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section;
+    const heroSection=String(hero||"hero");
+    const existing=blocks.filter(b=>b.type==="button"&&String(b.section||"")===heroSection);
+    const label=instructionText.match(/(?:texto|nome|chamada)\s*(?:de|do|:)?\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+      instructionText.match(/bot[aã]o[^"“'‘]{0,120}["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+      instructionText.match(/["“'‘]([^"”'’]+)["”'’]/)?.[1];
+    if(!label)return NextResponse.json({error:"Informe o texto do segundo botão entre aspas. Nenhuma alteração aplicada."},{status:422});
+    const destination=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
+    const matches=destination==="services"?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
+    const target=blocks.find(b=>String(b.section||"")!==heroSection&&matches.test(norm(String(b.section||"")+" "+String(b.text||""))))?.section;
+    if(!target)return NextResponse.json({error:"Não encontrei a seção de destino no site. Nada foi alterado."},{status:422});
+    if(existing.some(b=>norm(b.text)===norm(label)))return NextResponse.json({site:editingSite,summary:"O segundo botão já existe."});
+    const anchor=existing.at(-1);
+    const anchorIndex=anchor?blocks.findIndex(b=>b.id===anchor.id):blocks.findLastIndex(b=>String(b.section||"")===heroSection);
+    if(anchorIndex<0)return NextResponse.json({error:"A capa não foi encontrada; nenhuma alteração aplicada."},{status:422});
+    const added={...(anchor||{}),id:"added-"+crypto.randomUUID(),type:"button",section:heroSection,text:label,href:"#"+target,align:anchor?.align||"left"};
+    blocks.splice(anchorIndex+1,0,added);
+    if(blocks.length!==editingSite.blocks.length+1||blocks.filter(b=>b.id===added.id).length!==1)return NextResponse.json({error:"Falha ao validar o novo botão."},{status:422});
+    return NextResponse.json({site:{...editingSite,blocks},summary:"Segundo botão adicionado à capa, preservando o conteúdo anterior e apontando para a seção existente."});
   }
   if(!isFresh&&!fullSiteBrief&&(body.site as {cinematic?:{mode?:string}}|undefined)?.cinematic?.mode==="immersive-3d"){
     const current=body.site as {title?:string;header?:Record<string,unknown>;blocks:Array<Record<string,unknown>>;extras?:Record<string,unknown>;cinematic?:Record<string,unknown>};
