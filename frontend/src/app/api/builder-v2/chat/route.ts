@@ -203,6 +203,28 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           section:sectionName,layout:sections.find(v=>v.id===sectionName)?.layout,...(b.type==="button" && typeof b.href==="string" && (/^https?:\/\//i.test(b.href)||/^#[a-z0-9-]+$/i.test(b.href))?{href:b.href}:{})};
       }).filter((b):b is NonNullable<typeof b>=>b!==null);
       const mutableBlocks: Array<Record<string,unknown>> = blocks;
+      if(adaptiveBrief){
+        // A detailed brief is a contract, not permission to invent extra hero
+        // offers or social proof. Keep its principal heading and one subtitle.
+        const heroSection=String(sections.find(v=>v.layout==="hero")?.id||"");
+        let heroParagraphs=0;
+        for(let i=mutableBlocks.length-1;i>=0;i--){
+          const block=mutableBlocks[i];
+          if(String(block.section)!==heroSection||block.type!=="paragraph")continue;
+          heroParagraphs++;
+          if(heroParagraphs>1)mutableBlocks.splice(i,1);
+        }
+        // Unverified testimonials must never acquire invented personal identities.
+        const testimonialSection=sections.find(v=>/depoiment|testemunh/i.test(v.id+" "+v.goal));
+        if(testimonialSection){
+          for(const block of mutableBlocks){
+            if(block.section!==testimonialSection.id||block.type!=="paragraph")continue;
+            const content=String(block.text||"");
+            const quote=content.replace(/^(?:[A-ZÁÉÍÓÚÂÊÔÃÕ][\\p{L}]+(?:\\s+[A-ZÁÉÍÓÚÂÊÔÃÕ][\\p{L}]+){1,3}\\s*[,—–-]\\s*[^:]{2,45}:\\s*)/u,"").trim();
+            block.text="Depoimento ilustrativo: "+quote.replace(/^Depoimento ilustrativo:\\s*/i,"");
+          }
+        }
+      }
       const heroId=String(sections.find(v=>v.layout==="hero")?.id||"");
       const heroSeen=new Set<string>();
       for(let i=0;i<mutableBlocks.length;i++){
