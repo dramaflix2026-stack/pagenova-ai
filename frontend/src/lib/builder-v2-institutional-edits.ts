@@ -67,8 +67,8 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
  // Locate a named service card, not a generic section heading.
  if(serviceMention&&/\bcard\b/.test(norm)&&/\b(?:adicione|inclua|crie)\b/.test(norm)&&!/\b(?:colunas|sombra|borda|arredond)\b/.test(norm)){
    if(!service)return {description:"adicionar card",run:()=>undefined};
-   const title=q[0]||text.match(/(?:chamad[oa]|t[ií]tulo)\s+["“]?([^,.;\n]{3,80})/i)?.[1]?.trim();
-   const description=text.match(/descri[cç][aã]o\s*['"“:]?\s*['"“]?([^'"“”\n.]{12,220})/i)?.[1]?.replace(/["”']+$/,"").trim()||q[1]||"";
+   const title=q[0]||text.split(/título\s*:/i)[1]?.split(/descrição\s*:/i)[0]?.trim()||"";
+   const description=text.split(/descrição\s*:/i)[1]?.split(/preserve/i)[0]?.trim().replace(/[.\s]+$/,"")||q[1]||"";
    if(!title||!description)return {description:"adicionar card",run:()=>undefined};
    return {description:"adicionar card",run:draft=>{
      if(serviceCards(draft,service).some(b=>words(String(b.text||"").split(":")[0])===words(title)))return "O card '"+title+"' já existe; nenhuma duplicação feita.";
