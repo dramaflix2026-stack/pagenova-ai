@@ -134,7 +134,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
       const nicheHealthcare = /cl[ií]nica|est[eé]tica facial|tratamentos est[eé]ticos|beleza|spa/i.test(instruction);
-      const results = await Promise.all(batches.map(async (batch,index) => {
+      // Bound upstream concurrency to prevent large briefs from exhausting provider limits.
+      // Preserve original batch order so section ordering stays deterministic.
+      const results:unknown[][]=new Array(batches.length);
+      const workerCount=Math.min(3,batches.length);
+      let nextBatch=0;
+      await Promise.all(Array.from({length:workerCount},async()=>{
+        while(nextBatch<batches.length){
+          const index=nextBatch++;
+          const batch=batches[index];
+          results[index]=await (async()=>{
         const generateBatch = async (selectedSections:typeof sections, tokens:number):Promise<unknown[]> => {
         const out = await callAI(
           languageRule+" Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e 1 a 5 blocos apropriados. Escreva somente conteúdo final para o visitante, nunca instruções de design ou placeholders como Título Principal Impactante, Subtítulo suave, Fundo azul-marinho, ícones dourados, Imagem a adicionar, ©2024 ou Redes Sociais (ícones). Não inclua rodapé sem dados reais. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, href string opcional para button, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste; hero fundo escuro, outras seções claras, grids com cards claros. Em grid: heading + 3 a 5 paragraphs separados, títulos curtos e descrições com até 20 palavras. EXCEÇÃO OBRIGATÓRIA: para section=servicos gere exatamente a quantidade indicada no goal; para section=diferenciais gere exatamente 4 paragraphs separados no formato Título curto: descrição. Não produza 3 nem 5 nesses dois casos. Nunca escreva Layout:, Background:, Design: ou instruções técnicas no texto público. Não invente credenciais ou resultados, nem alegue experiência comprovada, tecnologia exclusiva, resultados garantidos, eficácia, equipamentos próprios, profissionais certificados ou resultados duradouros sem fatos explícitos no briefing. Em cada grid, todos os cards devem ter título curto e descrição concreta separados por dois-pontos. Planeje variedade editorial: hero com CTA para âncora existente, serviços em grid sem imagens repetidas, história em split, diferenciais em cards, galeria, FAQ e contato com CTA somente se existir destino real. Evite prometer formulário que não existe. Em depoimentos: heading + exatamente três paragraphs separados com Nome Sobrenome | Cidade - UF | relato ilustrativo pertinente ao nicho, sem alegar testemunho real. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Nunca gere números de telefone, e-mails ou endereços a menos que estejam literalmente presentes no briefing. Não use frases de clínica em sites de arquitetura. Não transforme instruções como editorial, assimétrico, sobreposição ou colagem em títulos públicos. Texto conciso, premium e adequado ao segmento. Gere todas as seções da lista, inclusive as adicionais solicitadas. Não omita nenhuma seção adicional. Em seções de planos, mantenha cada preço e benefício informado; em horários use entradas legíveis; em equipe não invente nomes reais. Para botões, inclua href com URL externa literal fornecida pelo cliente ou âncora #id de seção existente. Não gere seções fora da lista. CRÍTICO: o briefing mistura dados do NEGÓCIO e DIREÇÃO DE ARTE. Direção de arte nunca deve aparecer como diferencial, serviço, valor ou título. Exemplo proibido: Paleta Sofisticada, Profundidade e Textura, Estética Minimalista. Não use copy genérica de clínica (possibilidades de cuidado, tratamento) para arquitetura. Cada seção deve ter conteúdo real: portfólio com heading e pelo menos 3 blocos image de src vazio e text descritivo para o gerador de imagens posterior; metodologia em etapas curtas no formato Etapa: descrição, sem repetir a mesma frase no título e no corpo. Em serviços use descrições específicas do setor. Evite headings vazios. A instrução do usuário prevalece.",
@@ -158,6 +167,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           }
         };
         return recover(batch);
+        })();
+        }
       }));
       const rawBlocks=results.flat();
       const seen=new Set<string>();
