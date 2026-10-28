@@ -70,7 +70,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return JSON.parse(raw) as Record<string,unknown>;
     };
     try {
-      const plan = await callAI(
+      const planPromise = callAI(
         languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
         {instruction},350
       );
@@ -98,6 +98,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         languageRule + " Analise o briefing de criação de site e retorne SOMENTE JSON {extraSections:[{id:string,title:string,layout:string,goal:string}]}. Liste apenas seções ADICIONAIS explicitamente pedidas pelo cliente e ainda não cobertas pelas seções padrão: início, serviços, sobre/história, diferenciais, processo/como funciona, galeria, depoimentos, FAQ e contato. Planos/preços, equipe, horários, modalidades, transformações e programas de fidelidade são exemplos de seções extras quando solicitadas. Não confunda quantidade de cards com quantidade de seções. IDs curtos, únicos, em minúsculas, sem acentos, usando hífen. layout deve ser grid, split, gallery ou banner. Preserve valores, itens, quantidades e botões mencionados no briefing dentro de goal. Se não houver extras, retorne lista vazia. Não invente solicitações.",
         {instruction,existingSections:sections.map(({id,goal})=>({id,goal}))},2400
       );
+      const plan = await planPromise;
       const requestedExtras = Array.isArray(sectionPlan.extraSections)?sectionPlan.extraSections:[];
       const existingSectionIds = new Set(sections.map(section=>section.id));
       for(const raw of requestedExtras.slice(0,20)){
