@@ -439,13 +439,35 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           const section=sections.find(section=>aliases[name].test(normalized(section.id+" "+section.goal)));
           if(!section)throw new Error("missing-brief-section:"+name);
           const paragraphs=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
-          if(paragraphs.length<count)throw new Error("brief-card-count:"+name+":"+paragraphs.length+"/"+count);
+          if(paragraphs.length<count){
+            const missing=count-paragraphs.length;
+            const repaired=await callAI(
+              languageRule+" Você repara uma seção incompleta de um site. Retorne SOMENTE JSON {cards:[{title:string,description:string}]}. Crie exatamente a quantidade de cards FALTANTES, sem repetir os existentes. Preserve literalmente os nomes, valores e especificações do briefing quando fornecidos. Não invente preços, credenciais, profissionais reais ou resultados comprovados. Textos objetivos e distintos.",
+              {briefing:instruction,section:name,sectionGoal:section.goal,missing,existing:paragraphs.map(block=>String(block.text||""))},Math.min(1600,220+missing*180)
+            );
+            const newCards=Array.isArray(repaired.cards)?repaired.cards:[];
+            if(newCards.length<missing)throw new Error("brief-repair-incomplete:"+name);
+            for(const item of newCards.slice(0,missing)){
+              if(!item||typeof item!=="object")throw new Error("brief-repair-invalid:"+name);
+              const card=item as Record<string,unknown>;
+              const title=String(card.title||"").trim().slice(0,110);
+              const description=String(card.description||"").trim().slice(0,450);
+              if(!title||!description)throw new Error("brief-repair-empty:"+name);
+              mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:title+": "+description,color:"#243043",align:"left"});
+            }
+          }
         }
         const plans=sections.find(section=>/planos|precos|pricing/.test(normalized(section.id+" "+section.goal)));
         if(plans){
           const planCards=mutableBlocks.filter(block=>block.section===plans.id&&block.type==="paragraph");
           const planButtons=mutableBlocks.filter(block=>block.section===plans.id&&block.type==="button");
-          if(planButtons.length>0&&planButtons.length<planCards.length)throw new Error("brief-plan-buttons:"+planButtons.length+"/"+planCards.length);
+          // One CTA per plan, in card order. Existing URLs take precedence.
+          if(planButtons.length>0&&planButtons.length<planCards.length){
+            const fallbackHref=String(planButtons[0].href||"#contato");
+            for(let i=planButtons.length;i<planCards.length;i++){
+              mutableBlocks.push({id:"adaptive-plan-cta-"+crypto.randomUUID(),section:plans.id,layout:plans.layout,type:"button",text:"Quero este plano",href:fallbackHref,color:"#ffffff",background:"#243043",align:"left"});
+            }
+          }
         }
       }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
