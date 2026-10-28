@@ -120,16 +120,22 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         );
         return Array.isArray(out.blocks)?out.blocks:[];
         };
-        try{return await generateBatch(batch,4500);}
-        catch(error){
-          if(!(error instanceof Error)||error.message!=="truncated")throw error;
-          // Large customer briefs may exceed output limits. Retry only the failed
-          // batch as two smaller calls; do not spend another generation credit.
-          const middle=Math.ceil(batch.length/2);
-          const halves=[batch.slice(0,middle),batch.slice(middle)];
-          const recovered=await Promise.all(halves.map(part=>generateBatch(part,3500)));
-          return recovered.flat();
-        }
+        const recover = async (part:typeof sections,depth=0):Promise<unknown[]> => {
+          try{return await generateBatch(part,depth===0?4500:3500);}
+          catch(error){
+            if(!(error instanceof Error)||error.message!=="truncated")throw error;
+            if(part.length===1){
+              // Single-section output must stay concise enough for the model limit.
+              const section=part[0];
+              const compact=part.map(v=>({...v,goal:v.goal.slice(0,500)}));
+              return await generateBatch(compact,6000);
+            }
+            const middle=Math.ceil(part.length/2);
+            const recovered=await Promise.all([recover(part.slice(0,middle),depth+1),recover(part.slice(middle),depth+1)]);
+            return recovered.flat();
+          }
+        };
+        return recover(batch);
       }));
       const rawBlocks=results.flat();
       const seen=new Set<string>();
