@@ -29,7 +29,7 @@ export type PreviewQuote=Readonly<{
 }>;
 
 export function calculatePreviewQuote(selected:readonly string[]):PreviewQuote {
- const selection=normalizeSelection(selected);
+ const selection=normalizeSelection(selected,true);
  const subtotalCents=selection.reduce((sum,code)=>{
    const price=PREVIEW_PRICES_CENTS[code];
    if(!Number.isSafeInteger(price)||price<=0)throw new Error("Preço de demonstração indisponível");
