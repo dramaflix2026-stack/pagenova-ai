@@ -231,7 +231,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const item=mutableBlocks[i];
         if(String(item.section)!==heroId||!["heading","paragraph","button"].includes(String(item.type)))continue;
         const kind=String(item.type);
-        if(heroSeen.has(kind)){mutableBlocks.splice(i,1);i--;}else heroSeen.add(kind);
+        if(heroSeen.has(kind)&&!(adaptiveBrief&&kind==="button"&&mutableBlocks.filter(block=>String(block.section)===heroId&&block.type==="button").length<=2)){mutableBlocks.splice(i,1);i--;}else heroSeen.add(kind);
       }
       const galleryPlan=sections.find(v=>v.layout==="gallery");
       const faqPlan=sections.find(v=>v.layout==="faq");
