@@ -166,7 +166,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Bound upstream concurrency to prevent large briefs from exhausting provider limits.
       // Preserve original batch order so section ordering stays deterministic.
       const results:unknown[][]=new Array(batches.length);
-      const workerCount=Math.min(1,batches.length);
+      const workerCount=Math.min(2,batches.length);
       let nextBatch=0;
       await Promise.all(Array.from({length:workerCount},async()=>{
         while(nextBatch<batches.length){
