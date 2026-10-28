@@ -689,7 +689,7 @@ export default function BuilderV2() {
     }
     const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
     const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
-    if(immersiveRequest||splitRequest){
+    if((immersiveRequest||splitRequest)&&site.blocks.length>0&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
       recordVersion(site,"Antes de alterar apresentação da capa");
       setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
       setSite(prev=>({...prev,heroPresentation:immersiveRequest?"immersive":"split"}));
