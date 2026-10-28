@@ -1183,7 +1183,7 @@ export default function BuilderV2() {
         </div>
       </header>
       <div className="grid min-w-0 grid-cols-1 items-start gap-5 xl:grid-cols-[minmax(350px,440px)_minmax(0,1fr)] xl:gap-6">
-        <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border-2 border-lime-300/45 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
+        <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border border-white/15 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
   <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-lime-300/20 bg-lime-300/10 text-lime-300"><Sparkles size={17}/></span>
   <div className="mr-auto min-w-0"><h2 className="text-left text-base font-bold tracking-tight text-white sm:text-lg">Crie com a IA</h2>
     <p className="text-left text-[11px] text-white/50">{site.blocks.length?"Continue sua criação":"Descreva o que deseja criar"}</p></div>
@@ -1207,7 +1207,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border-2 border-lime-300/70 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}{storageError && <p role="alert" className="mb-3 rounded-lg border border-amber-400/50 p-2 text-xs text-amber-200">{storageError}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea id="pn-builder-chat-input" ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
@@ -1247,12 +1247,12 @@ export default function BuilderV2() {
         <span aria-hidden="true">◈</span><span className="truncate">{selectedNiche||"Escolher nicho"}</span><span aria-hidden="true">⌄</span>
       </button>}
       <button type="submit" disabled={busy||(!instruction.trim()&&!(siteCategory==="real-estate"&&propertyFiles.length))}
-        className="ml-auto inline-flex h-10 items-center justify-center gap-2 rounded-full bg-lime-300 px-4 text-xs font-bold text-black disabled:opacity-45">
+        className="ml-auto inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-lime-300 px-5 text-sm font-bold text-black shadow-[0_5px_18px_rgba(180,245,77,.16)] transition hover:bg-lime-200 disabled:opacity-45">
         <Send size={16}/><span>{busy?"Criando...":"Enviar"}</span>
       </button>
     </div>
   </form>
-  {!crmProjectId&&<div className="mt-3 rounded-xl border border-lime-300/25 bg-lime-300/5 px-3 py-2 text-sm text-white/85">
+  {!crmProjectId&&<div className="mt-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-sm text-white/85">
     <strong className="text-lime-200">{selectedNiche?"Nicho selecionado: "+selectedNiche:"Escolha primeiro o nicho do seu negócio"}</strong>
     <p className="mt-1 text-xs leading-relaxed text-white/65">{selectedNiche?"Seu nicho já está definido. Agora descreva seu site ou cole um briefing completo.":"Selecionar um nicho prepara o site para seu segmento, com conteúdo e imagens adequados. Depois, basta escrever seu pedido ou colar um briefing completo."}</p>
   </div>}
