@@ -209,6 +209,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const cleanedText=cleanGeneratedCopy(String(b.text));
         if (forbiddenDesignCopy.test(cleanedText) && b.type!=="image") return null;
         if (designOnlyHeading.test(cleanedText)) return null;
+        // Footer navigation and social icons are rendered by dedicated components, never as AI copy.
+        if (b.type!=="image" && /(?:instagram\s*\(ícone\)|facebook\s*\(ícone\)|whatsapp\s*\(ícone\))/i.test(cleanedText)) return null;
+        if (b.type==="paragraph" && /^(?:início\s+)?sobre\s+serviços\s+projetos\s+diferenciais/i.test(cleanedText)) return null;
         if (b.type!=="image" && inventedContact.test(cleanedText) && !instruction.includes(cleanedText.match(inventedContact)?.[0] || "__missing__")) return null;
         if (nicheArchitecture && !nicheHealthcare && /possibilidades de cuidado|tratamentos est[eé]ticos|sua beleza|sess[oõ]es de tratamento/i.test(cleanedText)) return null;
         if (b.type==="paragraph" && /^(.{12,85}?)\s*:\s*\1\b/i.test(cleanedText)) return null;
