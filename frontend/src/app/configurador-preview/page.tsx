@@ -57,10 +57,10 @@ export default function ConfiguradorPreview(){
  <h1 className="mt-3 max-w-[760px] text-[clamp(2.2rem,4.3vw,3.8rem)] font-extrabold leading-[1.12] tracking-[-.045em]">Escolha as ferramentas.<br/><span className="text-[#b9f77a]">A gente simplifica o resto.</span></h1>
  <p className="mt-4 max-w-[590px] text-sm leading-7 text-white/55 sm:text-base">Monte seu espaço de trabalho com as soluções que fazem sentido para o seu negócio.</p>
  </section>
- <section aria-label="Escolha do pacote principal" className="mb-8 rounded-2xl border border-white/10 bg-[#121a14] p-4 sm:p-5">
+ <section aria-label="Escolha do pacote principal" className="mb-12 rounded-[24px] border border-white/10 bg-[#121a14] p-5 shadow-[0_18px_60px_rgba(0,0,0,0.18)] sm:p-7 lg:mb-14">
  <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-bold">Escolha seu pacote principal</h2><span className="text-[11px] text-white/45">Valores mensais para novos clientes · sem cobrança nesta prévia</span></div>
- <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
- {([{id:"studio",label:"PageNova Studio",price:20700},{id:"crm",label:"PageNova CRM",price:24700},{id:"development",label:"Apps e Sistemas",price:39700},{id:"all",label:"PageNova Completa",price:59700}] as const).map(option=><button key={option.id} type="button" onClick={()=>changeScenario(option.id)} aria-pressed={scenario===option.id} className={"rounded-xl border p-4 text-left transition "+(scenario===option.id?"border-[#b9f77a] bg-[#1b2c1c]":"border-white/10 bg-white/[0.035] hover:border-[#b9f77a]/40")}>
+ <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+ {([{id:"studio",label:"PageNova Studio",price:20700},{id:"crm",label:"PageNova CRM",price:24700},{id:"development",label:"Apps e Sistemas",price:39700},{id:"all",label:"PageNova Completa",price:59700}] as const).map(option=><button key={option.id} type="button" onClick={()=>changeScenario(option.id)} aria-pressed={scenario===option.id} className={"flex min-h-[158px] flex-col justify-between rounded-2xl border p-5 text-left shadow-[0_8px_24px_rgba(0,0,0,0.12)] transition-all duration-200 hover:-translate-y-0.5 sm:p-5 "+(scenario===option.id?"border-[#b9f77a] bg-[#1b2c1c]":"border-white/10 bg-white/[0.035] hover:border-[#b9f77a]/40")}>
  <span className="block text-sm font-bold">{option.label}</span><strong className="mt-2 block text-xl text-[#b9f77a]">{brl(option.price)}<span className="text-xs font-normal text-white/45">/mês</span></strong>
  <span className="mt-2 block text-[11px] text-white/45">{option.id==="all"?"Economize R$ 254 em relação aos 3 pacotes":option.id==="development"?"Em desenvolvimento · contratação indisponível":"Pacote principal incluído automaticamente"}</span>
  </button>)}
@@ -68,31 +68,31 @@ export default function ConfiguradorPreview(){
  {scenario==="all"&&<p className="mt-3 text-xs text-[#b9f77a]">Studio + CRM + Apps e Sistemas. Economia de R$ 254/mês (29,8%). Apps e Sistemas ainda não disponível para contratação.</p>}
  {scenario==="development"&&<p className="mt-3 text-xs text-[#b9f77a]">Apps e Sistemas está em desenvolvimento. Esta seleção é apenas uma demonstração comercial.</p>}
  </section>
- <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_318px] lg:items-start lg:gap-8">
+ <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_330px] lg:gap-10 xl:gap-12">
  <section aria-label="Escolha de ferramentas">
- <div className="mb-5 flex items-center justify-between gap-3"><h2 className="text-xl font-bold tracking-tight">{scenario==="all"?"Tudo incluído no pacote":"Adicione complementos"}</h2><span className="text-xs text-white/40">{scenario==="all"?"Sem cobrança duplicada":"Personalize seu pacote"}</span></div>
- <p className="mb-5 text-xs leading-5 text-white/45">Todos os complementos disponíveis aparecem abaixo, sem precisar abrir categorias.</p>
- <div className="grid gap-3 sm:grid-cols-2">
+ <div className="mb-6 flex flex-wrap items-center justify-between gap-3"><h2 className="text-xl font-bold tracking-tight">{scenario==="all"?"Tudo incluído no pacote":"Adicione complementos"}</h2><span className="text-xs text-white/40">{scenario==="all"?"Sem cobrança duplicada":"Personalize seu pacote"}</span></div>
+ <p className="mb-7 text-sm leading-6 text-white/45">Todos os complementos disponíveis aparecem abaixo, sem precisar abrir categorias.</p>
+ <div className="grid gap-5 sm:grid-cols-2">
  {(scenario==="all"?MODULAR_CATALOG.filter(item=>!item.code.startsWith("bundle.")):MODULAR_CATALOG.filter(item=>!item.code.startsWith("bundle.")&&item.family!==scenario)).map(item=>{
  const active=selected.includes(item.code);const included=!active&&granted.includes(item.code);const alreadyOwned=isOwned(item.code);const disabled=item.status==="coming_soon";
- return <button key={item.code} type="button" disabled={disabled||included||alreadyOwned||scenario==="all"} onClick={()=>toggle(item.code)} aria-pressed={active||included||alreadyOwned} className={"flex min-h-[126px] items-start gap-4 rounded-2xl border p-4 text-left transition sm:p-5 "+(active?"border-[#b9f77a] bg-[#1b2c1c]":included||alreadyOwned?"border-emerald-500/35 bg-[#16251a]":"border-white/10 bg-[#121a14] hover:border-[#b9f77a]/40")+(disabled?" cursor-not-allowed opacity-45":included||alreadyOwned?" cursor-default":"")}>
+ return <button key={item.code} type="button" disabled={disabled||included||alreadyOwned||scenario==="all"} onClick={()=>toggle(item.code)} aria-pressed={active||included||alreadyOwned} className={"flex min-h-[164px] items-start gap-4 rounded-2xl border p-5 text-left shadow-[0_8px_24px_rgba(0,0,0,0.10)] transition-all duration-200 hover:-translate-y-0.5 sm:p-6 "+(active?"border-[#b9f77a] bg-[#1b2c1c]":included||alreadyOwned?"border-emerald-500/35 bg-[#16251a]":"border-white/10 bg-[#121a14] hover:border-[#b9f77a]/40")+(disabled?" cursor-not-allowed opacity-45":included||alreadyOwned?" cursor-default":"")}>
  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.055] text-xl text-[#b9f77a]">{details[item.code].icon}</span>
  <span className="min-w-0 flex-1"><strong className="block text-[14px] font-bold">{item.title}</strong><span className="mt-2 block text-[12px] leading-5 text-white/45">{details[item.code].description}</span><span className="mt-2 block text-[11px] font-semibold text-white/55">{brl(PREVIEW_PRICES_CENTS[item.code])}/mês · simulação</span><span className="mt-2 block text-[11px] font-semibold text-[#b9f77a]">{included?"Incluído no pacote":disabled?"Em breve":alreadyOwned?"Já contratado":active?"Selecionado":""}</span></span>
  <span className={"grid h-6 w-6 shrink-0 place-items-center rounded-md border text-sm "+(active?"border-[#b9f77a] bg-[#b9f77a] text-[#10200c]":"border-white/20 text-white/45")}>{active||included||alreadyOwned?"✓":"+"}</span>
  </button>;
  })}
  </div>
- {scenario!=="all"&&bundles.length>0&&<section className="mt-8" aria-label="Pacotes completos">
- <div className="mb-3 flex items-center justify-between"><h3 className="text-base font-bold">Prefere tudo junto?</h3><span className="text-xs text-white/40">Pacote completo</span></div>{bundles.some(item=>(item.includedIn??[]).some(code=>isOwned(code)))&&<p className="mb-3 text-xs text-white/45">Upgrade de pacote com itens já contratados exige cálculo proporcional aprovado; indisponível nesta prévia para evitar cobrança duplicada.</p>}
- {bundles.filter(item=>!isOwned(item.code)&&!(item.includedIn??[]).some(code=>isOwned(code))).map(item=><button key={item.code} type="button" aria-pressed={selected.includes(item.code)} onClick={()=>toggle(item.code)} className={"flex w-full items-center gap-4 rounded-2xl border p-5 text-left transition "+(selected.includes(item.code)?"border-[#b9f77a] bg-[#1b2c1c]":"border-[#b9f77a]/20 bg-[#152017] hover:border-[#b9f77a]/50")}>
+ {scenario!=="all"&&bundles.length>0&&<section className="mt-12" aria-label="Pacotes completos">
+ <div className="mb-5 flex items-center justify-between"><h3 className="text-base font-bold">Prefere tudo junto?</h3><span className="text-xs text-white/40">Pacote completo</span></div>{bundles.some(item=>(item.includedIn??[]).some(code=>isOwned(code)))&&<p className="mb-3 text-xs text-white/45">Upgrade de pacote com itens já contratados exige cálculo proporcional aprovado; indisponível nesta prévia para evitar cobrança duplicada.</p>}
+ {bundles.filter(item=>!isOwned(item.code)&&!(item.includedIn??[]).some(code=>isOwned(code))).map(item=><button key={item.code} type="button" aria-pressed={selected.includes(item.code)} onClick={()=>toggle(item.code)} className={"mb-4 flex w-full min-h-[108px] items-center gap-5 rounded-2xl border p-5 text-left transition sm:p-6 "+(selected.includes(item.code)?"border-[#b9f77a] bg-[#1b2c1c]":"border-[#b9f77a]/20 bg-[#152017] hover:border-[#b9f77a]/50")}>
  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#b9f77a]/10 text-2xl text-[#b9f77a]">✦</span>
  <span className="min-w-0 flex-1"><strong className="block text-sm font-bold">{item.title}</strong><span className="mt-1 block text-xs text-white/50">{details[item.code]?.description??"Pacote de soluções PageNova"} · {brl(PREVIEW_PRICES_CENTS[item.code])}/mês (simulação)</span></span>
  <span className="shrink-0 rounded-lg bg-[#b9f77a] px-3 py-2 text-xs font-bold text-[#10200c]">{selected.includes(item.code)?"Selecionado ✓":"Selecionar"}</span>
  </button>)}
  </section>}
  </section>
- <aside className="lg:sticky lg:top-6 lg:-mt-12" aria-label="Resumo da assinatura">
- <div className="rounded-2xl border border-white/10 bg-[#141e16] p-5 sm:p-6">
+ <aside className="min-w-0 self-start lg:sticky lg:top-8" aria-label="Resumo da assinatura">
+ <div className="rounded-[24px] border border-[#b9f77a]/15 bg-[#141e16] p-6 shadow-[0_20px_70px_rgba(0,0,0,0.28)] sm:p-7">
  <div className="flex items-center justify-between gap-2"><h2 className="text-lg font-bold">Seu pacote</h2><span className="rounded-full bg-[#b9f77a]/10 px-2.5 py-1 text-xs font-semibold text-[#b9f77a]">{toolCount} {toolCount===1?"ferramenta":"ferramentas"}</span></div>
  <p className="mt-2 text-xs leading-5 text-white/45">Personalize sua assinatura. {owned.length>0?"Itens já contratados não entram na simulação de cobrança.":""}</p>
  {owned.length>0&&<div className="mt-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3"><strong className="text-xs text-[#b9f77a]">Já incluído na sua conta (simulação)</strong><p className="mt-1 text-xs text-white/55">{ownedByScenario[scenario].map(code=>MODULAR_CATALOG.find(item=>item.code===code)?.title).join(" + ")}</p></div>}
@@ -105,7 +105,7 @@ export default function ConfiguradorPreview(){
  <p className="mt-3 text-center text-[11px] text-white/35">Nenhuma cobrança será realizada nesta prévia. Contratos antigos preservados.</p>
  </aside>
  </div>
- <footer className="mt-16 border-t border-white/10 pt-6 text-xs text-white/30">PageNova AI · Ambiente de demonstração</footer>
+ <footer className="mt-20 border-t border-white/10 pt-6 text-xs text-white/30">PageNova AI · Ambiente de demonstração</footer>
  </div>
  <div className="fixed inset-x-0 bottom-0 z-20 flex items-center justify-between gap-3 border-t border-white/10 bg-[#121a14]/95 px-5 py-3 backdrop-blur lg:hidden"><div><div className="text-[11px] text-white/45">{toolCount} ferramentas selecionadas</div><strong className="text-sm text-[#b9f77a]">{brl(quote.totalCents)}/mês*</strong></div><button type="button" disabled className="rounded-lg bg-[#b9f77a]/60 px-4 py-3 text-xs font-bold text-[#14210e]">Em preparação</button></div>
  </main>;
