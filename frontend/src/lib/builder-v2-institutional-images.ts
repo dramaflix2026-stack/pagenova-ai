@@ -58,6 +58,8 @@ function newImage(section:string,src:string,card?:string):InstitutionalMediaBloc
     color:"#ffffff",align:"center",section,src,userUploaded:true,...(card?{forCardId:card}:{})};
 }
 export function institutionalImageIntent(instruction:string,hasUploads=false){
+  // A button/CTA request is never a photography request, even if its preservation clause mentions banners.
+  if(!hasUploads&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instruction)&&/bot[aã]o|\bcta\b/i.test(instruction)&&/(?:capa|hero|principal)/i.test(instruction))return false;
   const s=norm(instruction);
   if(hasUploads)return true;
   if(/(?:imagem|foto|fotografia)/.test(s)&&/sem\s+cort|inteir[ao]|formato\s+original/.test(s))return true;
