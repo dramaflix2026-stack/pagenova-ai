@@ -797,7 +797,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     // "Troque o nome da marca para PetLoVe", "Altere o texto do cabeçalho para PetLoVe".
     const renameWithOldName=instructionText.match(/(?:mude|altere|troque|substitua|renomeie|modifique|mudar|alterar|trocar)\s+(?:o|a)?\s*(?:nome(?:\s+(?:do|da)\s+(?:logo|logotipo|marca|cabe[cç]alho))?|texto(?:\s+(?:do|da)\s+(?:logo|logotipo|marca|cabe[cç]alho))?|logo(?:tipo)?|marca|identidade(?:\s+visual)?|cabe[cç]alho)\s+(?:(?:de|do|da)\s+["“”']?[^.!?\n]{1,80}?["“”']?\s+)?(?:para|por|como)\s+["“']?([^"”'\n.!?]{2,65})/i);
     const renameDirect=instructionText.match(/(?:nome|texto|marca|logo(?:tipo)?)\s+(?:(?:do|da|no|na|de)\s+)?(?:cabe[cç]alho|logo|marca)?\s*(?:para|por|como|:|é)\s*["“']?([^"”'\n.!?]{2,65})/i);
-    const rename=renameWithOldName||renameDirect;
+    // CTA labels, menu entries and header styling must never rename the brand.
+    const headerButtonIntent=/(?:bot[aã]o|\\bcta\\b)/i.test(instructionText);
+    const headerMenuIntent=/(?:item|link|op[cç][aã]o).{0,40}(?:menu|navega[cç][aã]o)|(?:menu|navega[cç][aã]o).{0,40}(?:item|link|op[cç][aã]o)/i.test(instructionText);
+    const headerStyleIntent=/(?:cor|fundo|background|contraste|tipografia)/i.test(instructionText);
+    const rename=headerButtonIntent||headerMenuIntent||headerStyleIntent?null:(renameWithOldName||renameDirect);
     const image=instructionText.match(new RegExp("https://[^\\s\\\"\x27<>]+[.](?:png|jpe?g|webp|svg)(?:[?][^\\s\\\"\x27<>]*)?","i"));
     let changed=false;
     const requestedBrand=rename?.[1]?.trim().replace(/["“”']+$/,"").trim();
@@ -812,7 +816,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     if(/(?:remov|retir|escond|ocult).{0,30}(?:logo|logotipo|imagem da marca)/i.test(instructionText)){next.logoUrl="";changed=true;}
     if(/(?:remov|retir|escond|ocult).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=false;changed=true;}
     if(/(?:mostr|ativ|exib).{0,30}cabe[cç]alho/i.test(instructionText)){next.enabled=true;changed=true;}
-    const bg=instructionText.match(/(?:fundo|background)\\s+(?:do\\s+)?cabe[cç]alho\\s+(?:para|em|:)\\s*(#[0-9a-fA-F]{6})/i);
+    const bg=instructionText.match(/(?:cor\\s+de\\s+fundo\\s+(?:do\\s+)?cabe[cç]alho|(?:fundo|background)\\s+(?:do\\s+)?cabe[cç]alho)\\s+(?:para|em|:)?\\s*(#[0-9a-fA-F]{6})/i);
     if(bg){next.background=bg[1];changed=true;}
     if(changed)return NextResponse.json({site:{...editingSite,header:next},summary:requestedBrand&&!isImageRequest?"Nome da marca no cabeçalho atualizado para "+requestedBrand+". Título principal, imagens e demais seções preservados.":"Identidade do cabeçalho atualizada. Demais seções preservadas."});
   }
