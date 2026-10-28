@@ -29,7 +29,7 @@ export function vercelDomainAvailable(){
 }
 function projectId(){return process.env.PAGENOVA_VERCEL_PROJECT_ID||process.env.VERCEL_PROJECT_ID||"";}
 function teamQuery(){const id=process.env.PAGENOVA_VERCEL_TEAM_ID;return id?"?teamId="+encodeURIComponent(id):"";}
-async function vercel(path:string,method:"GET"|"POST"="GET",body?:object):Promise<JsonObject>{
+async function vercel(path:string,method:"GET"|"POST"|"DELETE"="GET",body?:object):Promise<JsonObject>{
   const token=process.env.PAGENOVA_VERCEL_TOKEN;
   if(!token||!projectId())throw new Error("Serviço de domínios ainda não configurado.");
   const response=await fetch("https://api.vercel.com"+path+(path.includes("?")?"&":"?")+teamQuery().replace(/^\?/,""),{
@@ -88,4 +88,9 @@ export async function checkVercelDomain(domain:string):Promise<VercelDomainState
   }
   const config=await vercel("/v6/domains/"+encodeURIComponent(domain)+"/config").catch(()=>({}));
   return extractDomainState(project,config);
+}
+
+/** Remove only the project binding; never delete the customer-owned registration. */
+export async function unregisterVercelDomain(domain:string):Promise<void>{
+  await vercel("/v9/projects/"+encodeURIComponent(projectId())+"/domains/"+encodeURIComponent(domain),"DELETE");
 }
