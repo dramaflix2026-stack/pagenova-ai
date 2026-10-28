@@ -87,11 +87,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     };
     try {
       const planPromise = callAI(
-        languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
+        languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Respeite obrigatoriamente as cores e o fundo solicitados no briefing, inclusive fundos escuros. Quando não houver preferência, escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
         {instruction},350
       );
       // An explicit card count in the customer brief overrides Template 1 defaults.
-      const serviceCountMatch=instruction.match(/(?:servi[cç]os|atividades)\s*(?:com|:|-)?\s*(\d{1,2})\s*(?:cards?|itens?)|\b(\d{1,2})\s*(?:cards?|itens?)\s*(?:de\s+)?servi[cç]os/i);
+      const serviceCountMatch=instruction.match(/(?:servi[cç]os|atividades)\s*(?:com|:|-)?\s*(\d{1,2})\s*(?:cards?|itens?)?|\b(\d{1,2})\s*(?:(?:cards?|itens?)\s*(?:de\s+)?)?(?:servi[cç]os|atividades)/i);
       const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]):4;
       const serviceCount=requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4;
       // Template 1 has a deterministic structure; AI is responsible for niche-specific
