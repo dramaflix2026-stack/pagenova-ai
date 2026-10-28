@@ -5,7 +5,7 @@ import {useCallback,useEffect,useMemo,useState} from "react";
 import {
   ArrowLeft,ArrowRight,BookOpen,Check,CheckCircle2,ChevronDown,Copy,
   ExternalLink,Globe,HelpCircle,Info,Loader2,Search,ShieldCheck,
-  Sparkles,TriangleAlert,Wifi
+  Sparkles,TriangleAlert,Trash2,Wifi
 } from "lucide-react";
 import {normalizeCustomerDomain} from "@/lib/pagenova-custom-domains";
 
@@ -143,6 +143,24 @@ export default function DominiosPage(){
   }catch(e){setError(e instanceof Error?e.message:"Erro na conexão.");}
   finally{setLoadingAction(false);}
  }
+ async function disconnect(){
+  if(!currentBinding||loadingAction)return;
+  const name=currentBinding.domain;
+  if(!window.confirm("Desconectar "+name+" deste site? O registro do domínio continuará sendo seu."))return;
+  setError("");setNotice("");setLoadingAction(true);
+  try{
+   const response=await fetch("/api/domains",{
+    method:"DELETE",headers:{"Content-Type":"application/json"},credentials:"same-origin",
+    body:JSON.stringify({domain:name})
+   });
+   const body=await response.json() as {error?:string};
+   if(!response.ok)throw new Error(body.error||"Não foi possível desconectar.");
+   setLastResult(null);
+   setNotice("Domínio desconectado. O registro continua sob sua titularidade.");
+   await load();
+  }catch(e){setError(e instanceof Error?e.message:"Erro ao desconectar.");}
+  finally{setLoadingAction(false);}
+ }
  return <main className="min-h-screen bg-[#090f0b] px-4 pb-40 pt-6 text-white sm:px-7 sm:pt-10">
   <div className="mx-auto max-w-5xl">
    <Link href="/app" className="inline-flex items-center gap-2 text-xs font-semibold text-white/55 hover:text-lime-300"><ArrowLeft size={15}/> Voltar ao Início</Link>
@@ -242,6 +260,10 @@ export default function DominiosPage(){
       <span className={"rounded-full border px-3 py-1 text-xs font-semibold "+(currentBinding.state==="active"?"border-lime-300/30 text-lime-300":"border-amber-300/25 text-amber-200")}>
        {currentBinding.state==="active"?"Conectado":"Verificação pendente"}</span>
     </div>
+    <button type="button" disabled={loadingAction||!data.connectionAvailable} onClick={()=>void disconnect()}
+      className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-rose-400/25 px-3 py-2 text-xs font-semibold text-rose-200 hover:bg-rose-400/10 disabled:opacity-40">
+      <Trash2 size={15}/> Desconectar domínio
+    </button>
     {currentBinding.state==="active"?<a href={"https://"+currentBinding.domain} target="_blank" rel="noopener noreferrer"
       className="mt-4 inline-flex items-center gap-2 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-[#10200f]">Abrir meu domínio <ExternalLink size={16}/></a>:
       <div className="mt-4 space-y-3">
