@@ -47,7 +47,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+type Site = { extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "modern-impactful" | "image-text-alternating" | "prompt-adaptive"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -983,7 +983,10 @@ export default function BuilderV2() {
     }
     const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
     const targetKind:SiteCategory=siteCategory;
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:selectedNiche||undefined,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
+    const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
+    const templateForCreation=explicitTemplate?site.templateId:(detailedBrief&&targetKind==="institutional"?"prompt-adaptive":site.templateId||"institutional-complete");
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:selectedNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1297,7 +1300,7 @@ export default function BuilderV2() {
     {site.cinematic?.mode!=="immersive-3d"&&<><label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
     <select id="pn-template-choice" aria-label="Escolher template visual" value={site.templateId||"institutional-complete"}
       onChange={e=>{
-        const templateId=e.target.value as "institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating";
+        const templateId=e.target.value as NonNullable<Site["templateId"]>;
         recordVersion(site,"Antes de trocar o template");setSite(prev=>({...prev,templateId}));
       }}
       className="w-full rounded-lg border border-white/25 bg-[#1b2b23] px-3 py-3 text-sm text-white">
@@ -1305,6 +1308,7 @@ export default function BuilderV2() {
       <option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option>
       <option value="modern-impactful">03 — Moderno e Impactante</option>
       <option value="image-text-alternating">04 — Imagens e Textos Lado a Lado</option>
+      <option value="prompt-adaptive">05 — Briefing Personalizado (IA)</option>
     </select></>}
   </div>
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
