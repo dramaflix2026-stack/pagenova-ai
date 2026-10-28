@@ -869,8 +869,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   }
   const explicitSectionReorder=/(?:mova|mover|reposicione|reorganize|coloque)\s+(?:a\s+)?se[cç][aã]o/i.test(instructionText);
   if (!isFresh && Array.isArray(editingSite?.blocks) && explicitSectionReorder) {
-    const match=instructionText.match(/(?:mova|mover|reposicione|reorganize|coloque)\s+(?:a\s+)?se[cç][aã]o\s+["“]([^"”]+)["”]\s+para\s+(antes|depois)\s+d[aeo]\s+(?:se[cç][aã]o\s+)?["“]([^"”]+)["”]/i);
-    if(!match)return NextResponse.json({error:"Informe os nomes das duas seções entre aspas e a posição desejada. Nada foi alterado."},{status:422});
+    const compact=instructionText.replace(/\s+/g," ").trim();
+    const match=compact.match(/(?:mova|mover|reposicione|reorganize|coloque)\s+(?:a\s+)?se[cç][aã]o\s+["“]?(.+?)["”]?\s+para\s+(?:ficar\s+)?(?:imediatamente\s+)?(antes|depois)\s+d[aeo]\s+(?:se[cç][aã]o\s+)?["“]?(.+?)["”]?(?:\.|,|\s+preserv|\s+nao\s+alter|$)/i);
+    if(!match)return NextResponse.json({error:"Não identifiquei a origem e o destino da movimentação. Nenhuma alteração aplicada."},{status:422});
     const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
     const headings=editingSite.blocks.filter(b=>b.type==="heading"&&b.section);
     const sectionAliases:Record<string,string[]>={servicos:["nossos servicos","servicos","tratamentos","tratamentos para seu bem estar"],diferenciais:["diferenciais","nossos diferenciais","beneficios"],inicio:["inicio","capa","hero"],contato:["contato","fale conosco"],sobre:["sobre","sobre nos"]};
