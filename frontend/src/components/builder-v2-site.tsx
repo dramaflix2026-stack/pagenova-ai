@@ -81,9 +81,9 @@ function AdaptiveStatCounter({value,suffix,color}:{value:number;suffix:string;co
 function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"|"prompt-adaptive"}) {
   // Template 5 is opt-in and scoped: existing institutional, cinematic and 3D renderers remain unchanged.
   const adaptiveTemplate=templateId==="prompt-adaptive"||site.templateId==="prompt-adaptive";
-  const adaptiveColor=site.blocks.find(block=>block.type==="button"&&/^#[0-9a-f]{6}$/i.test(block.color||""))?.color
-    ||site.blocks.find(block=>block.type==="heading"&&/^#[0-9a-f]{6}$/i.test(block.color||""))?.color
-    ||"#4ade80";
+  const adaptiveColor=site.blocks.find(block=>block.type==="button"&&/^#[0-9a-f]{6}$/i.test(block.background||""))?.background
+    ||site.blocks.find(block=>block.type==="heading"&&/^#[0-9a-f]{6}$/i.test(block.color||"")&&block.color?.toLowerCase()!=="#ffffff")?.color
+    ||"#e50914";
   const adaptiveDark=/^#(?:0[0-9a-f]{5}|1[0-9a-f]{5}|2[0-9a-f]{5})$/i.test(site.background||"");
   const previewRef=useRef<HTMLDivElement>(null);
   const [menuOpen,setMenuOpen]=useState(false);
@@ -327,6 +327,12 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 [data-pn-template="prompt-adaptive"] section article a { background:var(--pn-accent); border-color:var(--pn-accent); color:#111; }
 [data-pn-template="prompt-adaptive"] section article { box-shadow:0 16px 44px rgba(0,0,0,.10); }
 [data-pn-template="prompt-adaptive"] section article:hover { transform:translateY(-3px); transition:transform .2s ease; }
+[data-pn-template="prompt-adaptive"] section article h3 { color:#f9fafb !important; font-family:inherit !important; font-weight:750; }
+[data-pn-template="prompt-adaptive"] section article p { color:#d1d5db !important; }
+[data-pn-template="prompt-adaptive"] section h2 { text-shadow:0 1px 1px rgba(0,0,0,.18); }
+[data-pn-template="prompt-adaptive"] section article a { color:#fff !important; }
+@media (prefers-reduced-motion:reduce){[data-pn-template="prompt-adaptive"] section article:hover{transform:none;}}
+
 `}</style>}{!site.blocks.length && <div className="flex min-h-[420px] flex-col items-center justify-center px-8 py-16 text-center"><p className="text-2xl font-bold text-slate-900">Seu site ainda não foi gerado</p><p className="mt-3 max-w-md text-slate-600">Escreva no chat, por exemplo: Faça um site premium para advogados. Depois clique em Enviar e aplicar.</p></div>}{visibleSections.map((group,index)=>{
           const blocks=group.blocks;
           const first=blocks[0];
@@ -600,7 +606,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
       <span>Criado com PageNova AI</span>
     </div>
   </div>
-</footer>}{<SiteWhatsAppButton numberOrUrl={site.footer?.whatsapp||site.restaurant?.whatsapp||site.realEstateWhatsapp} message={site.footer?.whatsappMessage} enabled={site.footer?.showFloatingWhatsapp!==false} effect={site.footer?.whatsappEffect} preview={!publishedMode}/>}</div></section>
+</footer>}{<SiteWhatsAppButton numberOrUrl={site.footer?.whatsapp||site.restaurant?.whatsapp||site.realEstateWhatsapp} message={site.footer?.whatsappMessage} enabled={site.footer?.showFloatingWhatsapp!==false&&(!adaptiveTemplate||!!(site.footer?.whatsapp||site.restaurant?.whatsapp||site.realEstateWhatsapp))} effect={site.footer?.whatsappEffect} preview={!publishedMode}/>}</div></section>
         </>
   );
 }
