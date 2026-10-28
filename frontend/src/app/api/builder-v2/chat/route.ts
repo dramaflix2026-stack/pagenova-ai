@@ -348,7 +348,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Consolidate independent AI batches before the renderer receives the site.
       // Preserve distinct cards while removing repeated headings, copy and CTAs.
       const canonicalCopy=(value:unknown)=>String(value||"").normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+        .replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
       const duplicateKeys=new Set<string>();
       const headingsBySection=new Set<string>();
       const buttonsBySection=new Map<string,number>();
@@ -666,6 +666,31 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Immersive 3D edits are scoped to their own editable content contract.
+  // Universal transactional intent: adding a hero CTA is not adding a hero image.
+  // Run before niche/template-specific handlers, preserving every existing block.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&
+     /(?:adicion|inclu|crie|coloque)/i.test(instructionText)&&
+     /(?:segundo|outro|novo|mais um)/i.test(instructionText)&&
+     /bot[aã]o/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText)){
+    const blocks=editingSite.blocks.map(b=>({...b}));
+    const heroSection=String(blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"");
+    const buttons=blocks.filter(b=>b.type==="button"&&String(b.section)===heroSection);
+    const label=instructionText.match(/(?:texto|chamad[oa]|nome)\\s+["“]([^"”]+)["”]/i)?.[1]||
+      instructionText.match(/bot[aã]o[^"“]{0,100}["“]([^"”]+)["”]/i)?.[1];
+    if(!label||!buttons.length)return NextResponse.json({error:"Não identifiquei o texto ou o botão principal da capa. Nada foi alterado."},{status:422});
+    const targetKind=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
+    const normalized=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+    const target=blocks.find(b=>b.type==="heading"&&
+      (targetKind==="services"?/servic|tratament/.test(normalized(String(b.section)+" "+b.text)):/contat|fale conosco|agend/.test(normalized(String(b.section)+" "+b.text))))?.section;
+    if(!target)return NextResponse.json({error:"A seção de destino não foi encontrada. Nenhuma alteração aplicada."},{status:422});
+    if(buttons.some(b=>normalized(b.text)===normalized(label)))return NextResponse.json({site:editingSite,summary:"O botão já existe; nenhum elemento foi duplicado."});
+    const anchor=buttons[buttons.length-1];
+    const index=blocks.findIndex(b=>b.id===anchor.id);
+    const added={...anchor,id:"added-"+crypto.randomUUID(),text:label,href:"#"+target};
+    blocks.splice(index+1,0,added);
+    if(blocks.length!==editingSite.blocks.length+1||blocks.filter(b=>b.id===added.id).length!==1)return NextResponse.json({error:"Validação do novo botão falhou."},{status:422});
+    return NextResponse.json({site:{...editingSite,blocks},summary:"Segundo botão criado na capa, com âncora interna; botão anterior preservado."});
+  }
   if(!isFresh&&!fullSiteBrief&&(body.site as {cinematic?:{mode?:string}}|undefined)?.cinematic?.mode==="immersive-3d"){
     const current=body.site as {title?:string;header?:Record<string,unknown>;blocks:Array<Record<string,unknown>>;extras?:Record<string,unknown>;cinematic?:Record<string,unknown>};
     const blocks=current.blocks.map(b=>({...b}));
@@ -748,7 +773,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   }
   // Shared header operations must precede all banner/image intent fallbacks.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
-    const instruction=instructionText.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+    const instruction=instructionText.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
     const header=editingSite.header&&typeof editingSite.header==="object"?editingSite.header:{};
     const quote=instructionText.match(/["“]([^"”]+)["”]/)?.[1];
     if(/cabecalho|header/.test(instruction)&&/cor|fundo|background/.test(instruction)&&/#[0-9a-f]{6}/i.test(instructionText)){
@@ -757,7 +782,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({site:{...editingSite,header:{...header,background:color,textColor}},summary:"Cor e contraste do cabeçalho atualizados."});
     }
     if(/(?:menu|navegacao)/.test(instruction)&&/adicion|inclu|crie/.test(instruction)&&/depoiment/.test(instruction)){
-      const section=editingSite.blocks.find(b=>/depoiment/.test(String(b.section||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase())||b.type==="heading"&&/depoiment/.test(String(b.text||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase()))?.section;
+      const section=editingSite.blocks.find(b=>/depoiment/.test(String(b.section||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase())||b.type==="heading"&&/depoiment/.test(String(b.text||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()))?.section;
       if(!section)return NextResponse.json({error:"Seção Depoimentos não encontrada; menu preservado."},{status:422});
       const items=Array.isArray((header as {navItems?:unknown}).navItems)?[...(header as {navItems:Array<{label:string;href:string}>}).navItems]:[];
       if(!items.some(item=>item.href==="#"+section))items.push({label:quote||"Depoimentos",href:"#"+section});
@@ -886,7 +911,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   if(!isFresh&&Array.isArray(editingSite?.blocks)&&/\\bmov(?:a|er|imente)\\b/i.test(instructionText)&&/se[cç][aã]o/i.test(instructionText)){
     const match=instructionText.match(/(?:mov(?:a|er|imente))\\s+(?:a\\s+)?se[cç][aã]o\\s+(?:completa\\s+)?["“]([^"”]+)["”][\\s\\S]*?(?:depois|ap[oó]s)\\s+(?:da\\s+)?(?:se[cç][aã]o\\s+)?["“]([^"”]+)["”]/i);
     if(match){
-      const normalize=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+      const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
       const headings=editingSite.blocks.filter(b=>b.type==="heading"&&typeof b.section==="string");
       const source=headings.find(b=>normalize(String(b.text||""))===normalize(match[1]));
       const target=headings.find(b=>normalize(String(b.text||""))===normalize(match[2]));
@@ -1081,7 +1106,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           const index=fresh.indexOf(heading);
           if(index>0){fresh.splice(index,1);fresh.unshift(heading);}
         }
-        const normalizeSection=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+        const normalizeSection=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
         const sectionHeadings=updatedBlocks.filter(b=>b.type==="heading"&&b.section);
         const namedAnchor=sectionHeadings.find(b=>normalizeSection(String(b.text||""))===normalizeSection(String(section.afterSection||"")));
         const explicitAfter=String(instructionText).match(/(?:imediatamente\\s+)?(?:logo\\s+)?ap[oó]s\\s+(?:a\\s+)?se[cç][aã]o\\s+["“]?([^"”.,\\n]+)["”]?/i);
