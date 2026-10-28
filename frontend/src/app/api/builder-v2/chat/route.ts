@@ -55,8 +55,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
     const callAI = async (system: string, user: unknown, tokens: number) => {
-      // Retry transient provider failures once; never retry malformed prompts or authorization.
-      for(let attempt=0;attempt<2;attempt++){
+      // Rate limits are transient. Respect Retry-After and use bounded backoff,
+      // while keeping the existing credit refund on final failure.
+      const delays=[1800,4500,9000];
+      for(let attempt=0;attempt<4;attempt++){
         try{
           const response=await fetch("https://api.openai.com/v1/chat/completions",{
             method:"POST",
@@ -67,8 +69,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             signal:AbortSignal.timeout(60000)
           });
           if(!response.ok){
-            if(attempt===0&&(response.status===429||response.status>=500)){
-              await new Promise(resolve=>setTimeout(resolve,1200));
+            const retryable=response.status===429||response.status>=500;
+            if(retryable&&attempt<3){
+              const retryAfter=response.headers.get("retry-after");
+              const seconds=retryAfter?Number(retryAfter):NaN;
+              const wait=Number.isFinite(seconds)&&seconds>=0?Math.min(15000,seconds*1000):delays[attempt];
+              await new Promise(resolve=>setTimeout(resolve,wait));
               continue;
             }
             throw new Error("upstream-"+response.status);
@@ -80,8 +86,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           return JSON.parse(raw) as Record<string,unknown>;
         }catch(error){
           const transient=error instanceof Error&&(/AbortError|TimeoutError|fetch failed|network/i.test(error.name+" "+error.message));
-          if(!transient||attempt===1)throw error;
-          await new Promise(resolve=>setTimeout(resolve,1200));
+          if(!transient||attempt===3)throw error;
+          await new Promise(resolve=>setTimeout(resolve,delays[attempt]));
         }
       }
       throw new Error("ai-retries-exhausted");
