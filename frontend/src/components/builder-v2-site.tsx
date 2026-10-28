@@ -605,18 +605,18 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                     }),
                     ...(site.heroBannerCopy?.[image.id]||{})
                   }))}
-                  firstAlign={heading[0]?.align||"left"}
+                  firstAlign={adaptiveTemplate?(heading[0]?.align||"center"):"center"}
                   firstContent={<>
                     {headingNode}
-                    <div className={adaptiveTemplate?"mx-auto w-full max-w-3xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center":"max-w-2xl space-y-4"}>{textItems.slice(0,3).map(render)}</div>
-                    {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="center"?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-start")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
+                    <div className={adaptiveTemplate?"mx-auto w-full max-w-3xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center":"mx-auto max-w-2xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center"}>{textItems.slice(0,3).map(render)}</div>
+                    {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="right"?"justify-end":"justify-center")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                   </>}
                 />:
               immersiveHero?
-                <div className={adaptiveTemplate?"relative z-10 mx-auto flex min-h-[450px] w-full max-w-5xl flex-col items-center justify-center gap-5 py-6 text-center sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14":"relative z-10 flex min-h-[450px] w-full max-w-4xl flex-col justify-center gap-5 py-6 text-left sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14"}>
+                <div className={adaptiveTemplate?"relative z-10 mx-auto flex min-h-[450px] w-full max-w-5xl flex-col items-center justify-center gap-5 py-6 text-center sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14":"relative z-10 mx-auto flex min-h-[450px] w-full max-w-4xl flex-col items-center justify-center gap-5 py-6 text-center sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14"}>
                   {headingNode}
-                  <div className="max-w-2xl space-y-4">{textItems.slice(0,3).map(render)}</div>
-                  {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={`flex flex-wrap items-start gap-3 ${adaptiveTemplate?"justify-center":buttons[0]?.align==="center"?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-start"}`}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
+                  <div className={adaptiveTemplate?"max-w-2xl space-y-4":"mx-auto max-w-2xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center"}>{textItems.slice(0,3).map(render)}</div>
+                  {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={`flex flex-wrap items-start gap-3 ${adaptiveTemplate?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-center"}`}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                 </div>:
               featureProcessCard?
                 <div className="mx-auto w-full max-w-6xl">
