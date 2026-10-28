@@ -50,6 +50,36 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
  const styleAdjust=/\b(?:aument|intens|suaviz|reduz)\w*/.test(norm);
  const change=/\b(?:alter|mud|troqu|substitu|deix|defin|coloc|configure|configur|centraliz|alinhe|aument|adicione|inclua|crie|remova|exclua|mova)\w*/.test(norm);
  if(!change)return null;
+ // Precise shared routing: header brand and header CTA are distinct site properties.
+ if(/\\b(?:cabecalho|header|menu)\\b/.test(norm)&&/\\b(?:alter|mud|troqu|substitu)\\w*/.test(norm)){
+   const isButton=/\\bbotao\\b|\\bcta\\b/.test(norm);
+   const isBrand=/\\b(?:nome|marca|logotipo|logo)\\b/.test(norm)&&!isButton;
+   if(isButton&&/\\b(?:texto|nome|rotulo)\\b/.test(norm)){
+     const label=q[0];if(!label)return {description:"texto do botão do cabeçalho",run:()=>undefined};
+     return {description:"texto do botão do cabeçalho",run:draft=>{
+       const button=draft.find(b=>typeOf(b)==="button"&&/header|cabecalho|menu|nav/.test(words(sectionOf(b))));
+       if(!button)return;
+       button.text=label;return "Texto do botão do cabeçalho atualizado.";
+     }};
+   }
+   if(isBrand&&q[0]){
+     return {description:"marca do cabeçalho",run:()=>undefined};
+   }
+ }
+ // Avoid treating a description request for a service as a hero/banner edit.
+ if(serviceMention&&/\\b(?:segundo|primeiro|terceiro|quarto|[1-9][oº°]?)\\b/.test(norm)&&/\\bdescri(cao|cao)\\b/.test(norm)&&/\\b(?:alter|substitu|troqu|mud)\\w*/.test(norm)){
+   const index=/segundo|\\b2/.test(norm)?1:/terceiro|\\b3/.test(norm)?2:/quarto|\\b4/.test(norm)?3:0;
+   const value=q[0];
+   return {description:"descrição do serviço",run:draft=>{
+     const section=chosenSection(draft,"services");
+     if(!section||!value)return;
+     const cards=serviceCards(draft,section);
+     if(!cards[index])return;
+     const old=String(cards[index].text||"");
+     cards[index].text=old.split(":")[0]+": "+value;
+     return "Descrição do serviço "+(index+1)+" atualizada.";
+   }};
+ }
  // Locate a named service card, not a generic section heading.
  if(serviceMention&&/\bcard\b/.test(norm)&&/\b(?:adicione|inclua|crie)\b/.test(norm)&&!/\b(?:colunas|sombra|borda|arredond)\b/.test(norm)){
    if(!service)return {description:"adicionar card",run:()=>undefined};
