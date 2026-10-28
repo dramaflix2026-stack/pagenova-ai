@@ -1,6 +1,6 @@
-/** Frente 3 — PREÇOS FICTÍCIOS para simulação visual.
+/** Frente 3 — TABELA PROPOSTA para simulação visual.
  * Não usar em checkout, webhook, cobrança, assinatura ou produção.
- * Preços e regras dependem de aprovação comercial.
+ * Valores informados pelo proprietário; não habilitam cobrança.
  */
 import {normalizeSelection} from "./modular-catalog";
 
@@ -14,8 +14,10 @@ export const PREVIEW_PRICES_CENTS: Readonly<Record<string,number>>={
  "crm.search":5900,
  "crm.leads":4900,
  "crm.operations":4900,
- "bundle.studio":14700,
- "bundle.crm":11700
+ "bundle.studio":20700,
+ "bundle.crm":24700,
+ "bundle.development":39700,
+ "bundle.all":59700
 };
 
 export type PreviewQuote=Readonly<{
@@ -33,8 +35,8 @@ export function calculatePreviewQuote(selected:readonly string[]):PreviewQuote {
    if(!Number.isSafeInteger(price)||price<=0)throw new Error("Preço de demonstração indisponível");
    return sum+price;
  },0);
- // Descontos demonstrativos por número de itens contratados; nunca cumulativos.
- const discountPercent=selection.length>=5?20:selection.length===4?15:selection.length===3?10:selection.length===2?5:0;
- const discountCents=Math.round(subtotalCents*discountPercent/100);
- return {selection,subtotalCents,discountPercent,discountCents,totalCents:subtotalCents-discountCents};
+ // Somente o pacote completo possui desconto aprovado; sem descontos progressivos fictícios.
+ const discountCents=selection.includes("bundle.all")?25400:0;
+ const discountPercent=selection.includes("bundle.all")?Math.round(25400/85100*10000)/100:0;
+ return {selection,subtotalCents,discountPercent,discountCents,totalCents:subtotalCents};
 }
