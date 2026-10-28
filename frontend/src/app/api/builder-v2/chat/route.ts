@@ -30,6 +30,7 @@ export async function POST(req: NextRequest) {
   if (typeof body.instruction !== "string" || body.instruction.length > 20000) return NextResponse.json({error:"Pedido inválido."},{status:400});
   const currentBlocks = (body.site as {blocks?:unknown[]}|undefined)?.blocks;
   const isFresh = !Array.isArray(currentBlocks) || currentBlocks.length === 0;
+  const adaptiveBrief=(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive";
   const prompt = `Você é o motor de edição PageNova Builder 2.0. A instrução do usuário prevalece sobre o template. A plataforma dispõe de modelos internos invisíveis para acelerar a criação, mas nunca exige que o usuário escolha um modelo. Se receber somente "Faça um site para advogados", "site para restaurante" ou outra descrição mínima, infira o segmento e entregue um site COMPLETO com arquitetura, identidade visual e textos adequados, sem perguntar por detalhes. O usuário pode refinar tudo depois pelo chat. Retorne APENAS JSON válido {"site":{...},"summary":"..."}.
 Esquema site: {"title":string,"background":cor CSS,"blocks":[{"id":string,"type":"heading"|"paragraph"|"button"|"image","text":string,"color":cor CSS,"align":"left"|"center"|"right","src"?:string,"href"?:string,"section"?:string,"fontSize"?:number,"radius"?:number,"spacing"?:number,"layout"?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard","background"?:string,"columns"?:number}]}.
 Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SOMENTE os elementos solicitados e mantenha rigorosamente todos os outros blocos, sua ordem e propriedades. Se o usuário pedir para trocar texto, substitua o texto exato do bloco correspondente. Se pedir cor, fonte/tamanho, espaçamento, alinhamento, botão, imagem ou reorganizar/adicionar/remover seção, execute nos blocos relevantes. Para botões, use href somente quando o usuário fornecer URL, telefone, e-mail ou âncora real; não invente destinos externos. Se o usuário pedir para trocar o link do botão, altere href e preserve o restante. Para mover uma seção, mova seus blocos em conjunto. Não se limite a modelos fixos. Cada seção pode ter layout hero, grid, split, banner, faq, gallery ou standard no primeiro bloco, além de background próprio. O primeiro bloco deve ser heading com layout e section. Para serviços e benefícios: gere um heading e 3 a 6 blocos paragraph SEPARADOS, cada um com nome e descrição curta; layout grid. Para depoimentos: gere heading e três blocos paragraph no formato Nome Sobrenome | Cidade - UF | relato ilustrativo específico do nicho; nunca apresente como avaliações verificadas. Para FAQ: gere heading e um bloco paragraph SEPARADO por pergunta, no formato "Pergunta? Resposta"; layout faq. Cada pergunta deve ter no máximo 14 palavras e cada resposta no máximo 35 palavras. Em serviços, tratamentos, etapas e diferenciais, escreva cada card como "Título curto: descrição de até 25 palavras". Quando o briefing trouxer títulos explícitos para cards, use exatamente esses títulos, palavra por palavra, na ordem indicada. Nunca parafraseie, resuma ou omita a última palavra. Preserve também todas as seções explicitamente pedidas. Não escreva um parágrafo longo por card. Não afirme que o negócio possui equipamentos, equipe, certificações, tratamentos específicos, tempo de sessão ou resultados comprovados sem o usuário informar isso. Não anuncie formulário, WhatsApp, agendamento ou canal de contato como disponível se não houver link ou integração fornecida. Evite prometer resultados garantidos. Para depoimentos, gere 3 paragraphs distintos como Nome Sobrenome | Cidade - UF | comentário demonstrativo específico do nicho; os relatos são exemplos fictícios e não devem ser apresentados como avaliações reais. Para galeria: heading e blocos image separados; layout gallery. Para equipe e estrutura: layout split com heading, texto e imagem. Não escreva instruções de design dentro do texto do site. Não crie dados de contato fictícios, nem rodapé com ano ou endereço inventados. Escolha o layout pelo nicho e permita ao usuário alterá-lo pelo chat. Nunca invente nome de empresa, escritório ou pessoa. Se o briefing não informar marca, use um título descritivo neutro. Varie realmente a composição entre seções, alternando hero, grid, split, banner e faq conforme fizer sentido; evite 10 seções com o mesmo estilo. Para um escritório de advocacia, escolha tipografia sóbria e paleta elegante (ex.: azul-marinho, marfim e dourado discreto), hero institucional, áreas de atuação em cards separados, apresentação do escritório, diferenciais factuais sem promessas, processo de atendimento, perguntas frequentes e CTA de contato. Evite linguagem mercantilista, garantia de resultados, depoimentos fictícios, especializações ou registros OAB inventados. Para outros segmentos, infira a identidade visual e estrutura adequada sem depender de palavras exatas no briefing. Evite escrever "a definir" no rodapé público: omita dados que não foram informados e use CTA genérico editável sem link fictício. Ao criar novo site, produza 7 a 10 seções relevantes, cada uma com um identificador section próprio, composição editorial de títulos curtos, descrições objetivas e CTAs adequados. Evite parágrafos enormes e repetitivos. Nunca invente endereço, telefone, e-mail, anos de experiência, depoimentos, profissionais, certificações ou URLs de imagens; omita informações não fornecidas sem mostrar "A definir". Para imagens não disponíveis, evite criar espaços vazios em excesso: priorize composição tipográfica e cards sem fotos. Se o usuário fornecer URL válida de imagem, use src; se fornecer somente referência visual, não finja ter gerado uma imagem. Quando houver imagem de referência, analise-a para aplicar as alterações visuais ou textuais solicitadas; não alegue que substituiu uma imagem se não recebeu uma URL ou arquivo utilizável. O campo summary deve explicar brevemente a ação executada em português.`;
@@ -401,6 +402,52 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         .filter(price=>!generatedCopy.includes(price));
       if(missingPrices.length)throw new Error("missing-requested-prices:"+missingPrices.join(","));
       if(absentExtras.length)throw new Error("missing-requested-sections:"+absentExtras.map(s=>s.id).join(","));
+      // Template 5 contract validation: enforce the user's explicitly stated quantities
+      // without changing the legacy templates' generation pipeline.
+      if(adaptiveBrief){
+        const normalized=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+        const sectionRules=[
+          {terms:/servic|tratament|atividade/,id:"servicos"},
+          {terms:/diferencia/,id:"diferenciais"},
+          {terms:/processo|etapas|passos|funciona/,id:"processo"},
+          {terms:/modalidad/,id:"modalidades"},
+          {terms:/equipe|profissionai|instrutor|treinador/,id:"equipe"},
+          {terms:/planos|precos|pricing/,id:"planos"},
+          {terms:/depoiment|testemunh/,id:"depoimentos"},
+          {terms:/perguntas|faq/,id:"faq"}
+        ];
+        const requestedCounts=new Map<string,number>();
+        const briefLines=instruction.split(/\\n+/).map(line=>line.trim()).filter(Boolean);
+        for(const line of briefLines){
+          const n=normalized(line);
+          const number=n.match(/\\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\\s*(\\d{1,2})\\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)/)
+            ||n.match(/\\b(\\d{1,2})\\s*(?:cards?|itens?)?\\s*(?:de\\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)/);
+          if(!number)continue;
+          const count=Number(number[1]);
+          if(count<2||count>12)continue;
+          for(const rule of sectionRules){
+            if(rule.terms.test(n)){requestedCounts.set(rule.id,count);break;}
+          }
+        }
+        const aliases:Record<string,RegExp>={
+          servicos:/servic|tratament|atividade/,diferenciais:/diferencia/,
+          processo:/processo|etapas|passos|funciona/,modalidades:/modalidad/,
+          equipe:/equipe|profissionai|instrutor|treinador/,planos:/planos|precos|pricing/,
+          depoimentos:/depoiment|testemunh/,faq:/faq|pergunt/
+        };
+        for(const [name,count] of requestedCounts){
+          const section=sections.find(section=>aliases[name].test(normalized(section.id+" "+section.goal)));
+          if(!section)throw new Error("missing-brief-section:"+name);
+          const paragraphs=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
+          if(paragraphs.length<count)throw new Error("brief-card-count:"+name+":"+paragraphs.length+"/"+count);
+        }
+        const plans=sections.find(section=>/planos|precos|pricing/.test(normalized(section.id+" "+section.goal)));
+        if(plans){
+          const planCards=mutableBlocks.filter(block=>block.section===plans.id&&block.type==="paragraph");
+          const planButtons=mutableBlocks.filter(block=>block.section===plans.id&&block.type==="button");
+          if(planButtons.length>0&&planButtons.length<planCards.length)throw new Error("brief-plan-buttons:"+planButtons.length+"/"+planCards.length);
+        }
+      }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
       return NextResponse.json({site:{templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
