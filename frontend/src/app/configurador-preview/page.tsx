@@ -38,12 +38,12 @@ export default function ConfiguradorPreview(){
  const toolCount=granted.filter(code=>!code.startsWith("bundle.")).length;
  const quote=useMemo(()=>calculatePreviewQuote(normalized),[normalized]);
  const selectedBase=baseByScenario[scenario];
- const availableTabs=tabs.filter(tab=>tab.id!==scenario&&scenario!=="all");
+ 
  const brl=(cents:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(cents/100);
  const toggle=(code:string)=>{if(isOwned(code)||code===baseByScenario[scenario])return;setSelected(prev=>normalizeSelection(prev.includes(code)?prev.filter(item=>item!==code):[...prev,code],true));};
  const changeScenario=(next:Scenario)=>{setScenario(next);setSelected([baseByScenario[next]]);setExpanded(false);setFamily(next==="studio"?"crm":"studio");};
- const tools=MODULAR_CATALOG.filter(item=>item.family===family&&!item.code.startsWith("bundle.")&&item.family!==scenario);
- const bundles=MODULAR_CATALOG.filter(item=>item.family===family&&item.code.startsWith("bundle.")&&item.code!==baseByScenario[scenario]&&item.code!=="bundle.all");
+ 
+ const bundles=MODULAR_CATALOG.filter(item=>item.code.startsWith("bundle.")&&item.code!==baseByScenario[scenario]&&item.code!=="bundle.all");
  return <main className="min-h-screen bg-[#090e0b] text-[#f7faf6]">
  <div className="mx-auto max-w-[1180px] px-5 pb-28 sm:px-8 lg:pb-16">
  <header className="flex items-center justify-between gap-3 border-b border-white/10 py-6">
@@ -69,11 +69,9 @@ export default function ConfiguradorPreview(){
  <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_318px] lg:items-start lg:gap-8">
  <section aria-label="Escolha de ferramentas">
  <div className="mb-5 flex items-center justify-between gap-3"><h2 className="text-xl font-bold tracking-tight">{scenario==="all"?"Tudo incluído no pacote":"Adicione complementos"}</h2><span className="text-xs text-white/40">{scenario==="all"?"Sem cobrança duplicada":"Personalize seu pacote"}</span></div>
- {scenario!=="all"&&<div className="mb-6 flex gap-1 rounded-xl border border-white/10 bg-[#121a14] p-1" role="tablist" aria-label="Categorias">
- {availableTabs.map(tab=><button key={tab.id} type="button" role="tab" aria-selected={family===tab.id} onClick={()=>setFamily(tab.id)} className={"flex-1 rounded-lg px-2 py-3 text-xs font-bold transition sm:text-sm "+(family===tab.id?"bg-[#b9f77a] text-[#12210e]":"text-white/50 hover:bg-white/5 hover:text-white")}>{tab.label}</button>)}
- </div>}
+ <p className="mb-5 text-xs leading-5 text-white/45">Todos os complementos disponíveis aparecem abaixo, sem precisar abrir categorias.</p>
  <div className="grid gap-3 sm:grid-cols-2">
- {(scenario==="all"?MODULAR_CATALOG.filter(item=>!item.code.startsWith("bundle.")):tools).map(item=>{
+ {(scenario==="all"?MODULAR_CATALOG.filter(item=>!item.code.startsWith("bundle.")):MODULAR_CATALOG.filter(item=>!item.code.startsWith("bundle.")&&item.family!==scenario)).map(item=>{
  const active=selected.includes(item.code);const included=!active&&granted.includes(item.code);const alreadyOwned=isOwned(item.code);const disabled=item.status==="coming_soon";
  return <button key={item.code} type="button" disabled={disabled||included||alreadyOwned||scenario==="all"} onClick={()=>toggle(item.code)} aria-pressed={active||included||alreadyOwned} className={"flex min-h-[126px] items-start gap-4 rounded-2xl border p-4 text-left transition sm:p-5 "+(active?"border-[#b9f77a] bg-[#1b2c1c]":included||alreadyOwned?"border-emerald-500/35 bg-[#16251a]":"border-white/10 bg-[#121a14] hover:border-[#b9f77a]/40")+(disabled?" cursor-not-allowed opacity-45":included||alreadyOwned?" cursor-default":"")}>
  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.055] text-xl text-[#b9f77a]">{details[item.code].icon}</span>
