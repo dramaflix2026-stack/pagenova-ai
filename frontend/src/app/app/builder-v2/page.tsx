@@ -727,7 +727,7 @@ export default function BuilderV2() {
     }
     const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
     const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
-    if((immersiveRequest||splitRequest)&&site.blocks.length>0&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
+    if((immersiveRequest||splitRequest)&&/(?:altere|alterar|mude|mudar|troque|trocar|aplique|aplicar|configure|configurar|transforme|transformar|restaure|restaurar|deixe|coloque)\s+(?:(?:somente|apenas|a|o|para|em|um|uma)\s+){0,4}(?:capa|hero|layout|apresenta[cç][aã]o)/i.test(prompt)&&site.blocks.length>0&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
       recordVersion(site,"Antes de alterar apresentação da capa");
       setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
       setSite(prev=>({...prev,heroPresentation:immersiveRequest?"immersive":"split"}));
@@ -1053,9 +1053,14 @@ export default function BuilderV2() {
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
       const requested = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" : /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" : /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
-      if (requested && /todos|todas|tudo/.test(normalized) && /textos|titulos|descricoes|paragrafos|elementos/.test(normalized)) {
+      // Validate alignment only for explicit site-wide alignment commands.
+      // "Preserve all other elements" is not a request to align every block.
+      const globalAlignmentRequest = /(?:centraliz|alinhe?|alinhamento)/.test(normalized) &&
+        /(?:todos os textos|todos os elementos|todas as secoes|site inteiro)/.test(normalized) &&
+        !/(?:preserve|mantenha|nao altere|somente|apenas)/.test(normalized);
+      if (requested && globalAlignmentRequest) {
         const relevant = incoming.blocks.filter(b=>b.type!=="image");
-        if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento em todos os elementos. O projeto foi preservado.");
+        if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento global solicitado. O projeto foi preservado.");
       }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
