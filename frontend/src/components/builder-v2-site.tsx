@@ -51,6 +51,33 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
  return <BuilderV2ClassicSite {...props}/>;
 }
+function AdaptiveStatCounter({value,suffix,color}:{value:number;suffix:string;color:string}){
+  const node=useRef<HTMLSpanElement>(null);
+  const [progress,setProgress]=useState(0);
+  useEffect(()=>{
+    const target=node.current;
+    if(!target)return;
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){setProgress(1);return;}
+    let frame=0;
+    let started=0;
+    const observer=new IntersectionObserver(entries=>{
+      if(!entries.some(entry=>entry.isIntersecting))return;
+      observer.disconnect();
+      const tick=(now:number)=>{
+        if(!started)started=now;
+        const t=Math.min(1,(now-started)/1400);
+        setProgress(1-Math.pow(1-t,3));
+        if(t<1)frame=requestAnimationFrame(tick);
+      };
+      frame=requestAnimationFrame(tick);
+    },{threshold:0.2});
+    observer.observe(target);
+    return ()=>{observer.disconnect();cancelAnimationFrame(frame);};
+  },[value]);
+  const shown=value*progress;
+  const decimals=Number.isInteger(value)?0:1;
+  return <span ref={node} className="block text-4xl font-extrabold tabular-nums md:text-5xl" style={{color}}>{shown.toLocaleString("pt-BR",{minimumFractionDigits:decimals,maximumFractionDigits:decimals})}{suffix}</span>;
+}
 function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"modern-impactful"|"image-text-alternating"|"prompt-adaptive"}) {
   // Template 5 is opt-in and scoped: existing institutional, cinematic and 3D renderers remain unchanged.
   const adaptiveTemplate=templateId==="prompt-adaptive"||site.templateId==="prompt-adaptive";
@@ -398,6 +425,29 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           const featureProcessCard=site.processImageCard!==false&&site.heroPresentation!=="split"&&index>0&&isProcess&&
             textItems.length===3&&!!heroSourceImage?.src&&/processo|etapas|passos|metodologia|como.funciona|atendimento/i.test(id);
 
+          // Template 5: render statistics from editable blocks, never from invented defaults.
+          // Keep original block IDs so editor/chat updates remain authoritative.
+          const adaptiveStatistics=adaptiveTemplate&&/n[uú]meros|indicadores|estat[ií]sticas|resultados.em.n[uú]meros/i.test(id+" "+heading.map(b=>b.text).join(" "));
+          if(adaptiveStatistics){
+            const stats=paragraphs.map(block=>{
+              const value=block.text.match(/(?:^|[:—–-]\\s*)(\\d{1,6}(?:[.,]\\d{1,2})?)\\s*(\\+|%|anos?|mil)?/i);
+              if(!value)return null;
+              const raw=value[1].replace(",",".");
+              const numeric=Number(raw);
+              if(!Number.isFinite(numeric))return null;
+              const label=block.text.replace(value[0]," ").replace(/^[:\\s—–-]+|[:\\s—–-]+$/g,"").trim();
+              return {block,numeric,suffix:value[2]||"",label:label||"Indicador"};
+            }).filter((item):item is NonNullable<typeof item>=>item!==null);
+            if(stats.length)return <section id={group.id} key={group.id+"-"+index} data-section-id={group.id} className="pn-institutional-section scroll-mt-20 px-6 py-16 md:px-12 md:py-24" style={{backgroundColor:sectionBackground}}>
+              <div className="mx-auto max-w-6xl">
+                {heading.map(block=><h2 key={block.id} data-block-id={block.id} className="mb-10 text-left text-3xl font-bold tracking-tight md:text-5xl" style={{color:adaptiveDark?"#ffffff":"#19231e"}}>{block.text}</h2>)}
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{stats.map(item=><article key={item.block.id} data-block-id={item.block.id} className="rounded-2xl border p-6 md:p-8" style={{borderColor:adaptiveColor,backgroundColor:adaptiveDark?"#17191c":"#ffffff"}}>
+                  <AdaptiveStatCounter value={item.numeric} suffix={item.suffix} color={adaptiveColor}/>
+                  <p className="mt-3 text-sm font-medium md:text-base" style={{color:adaptiveDark?"#d1d5db":"#374151"}}>{item.label}</p>
+                </article>)}</div>
+              </div>
+            </section>;
+          }
           // Skip AI-generated sections without usable customer-facing content.
           const contentParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
           if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
