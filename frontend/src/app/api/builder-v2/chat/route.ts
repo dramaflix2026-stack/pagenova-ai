@@ -729,13 +729,16 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section;
     const heroSection=String(hero||"hero");
     const existing=blocks.filter(b=>b.type==="button"&&String(b.section||"")===heroSection);
-    const label=instructionText.match(/(?:texto|nome|chamada)\s*(?:de|do|:)?\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+    const label=instructionText.match(/(?:texto|nome|chamada)\s*(?:do\s+novo\s+bot[aã]o\s*)?:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+      instructionText.match(/(?:texto|nome|chamada)\s*(?:do\s+novo\s+bot[aã]o\s*)?:\s*([^\n\r.]+)/i)?.[1]?.trim()||
       instructionText.match(/bot[aã]o[^"“'‘]{0,120}["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
       instructionText.match(/["“'‘]([^"”'’]+)["”'’]/)?.[1];
     if(!label)return NextResponse.json({error:"Informe o texto do segundo botão entre aspas. Nenhuma alteração aplicada."},{status:422});
     const destination=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
     const matches=destination==="services"?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
-    const target=blocks.find(b=>String(b.section||"")!==heroSection&&matches.test(norm(String(b.section||"")+" "+String(b.text||""))))?.section;
+    const sections=[...new Set(blocks.map(b=>String(b.section||"")).filter(Boolean))].filter(section=>section!==heroSection);
+    const target=sections.find(section=>matches.test(norm(section)))||
+      sections.find(section=>blocks.some(b=>String(b.section||"")===section&&b.type==="heading"&&matches.test(norm(b.text))));
     if(!target)return NextResponse.json({error:"Não encontrei a seção de destino no site. Nada foi alterado."},{status:422});
     if(existing.some(b=>norm(b.text)===norm(label)))return NextResponse.json({site:editingSite,summary:"O segundo botão já existe."});
     const anchor=existing.at(-1);
