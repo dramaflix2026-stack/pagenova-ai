@@ -62,7 +62,7 @@ test("fresh generation sends the reference pixels to identity and every section 
     const data=JSON.parse(typeof content==="string"?content:content[0].text);
     return !data.existingSections;
   });
-  assert.equal(visualCalls.length,6); // identity + five batches for nine sections
+  assert.equal(visualCalls.length,10); // identity + nine single-section batches
   for(const call of visualCalls){
     assert.ok(Array.isArray(call.messages[1].content));
     assert.deepEqual(call.messages[1].content[1],{type:"image_url",image_url:{url:reference,detail:"high"}});
