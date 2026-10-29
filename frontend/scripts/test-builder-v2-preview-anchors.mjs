@@ -82,7 +82,7 @@ test("iframe integration captures link clicks and renderer uses contrast resolve
  assert.match(preview,/frameDocument\.addEventListener\("click",onClick,true\)/);
  assert.match(preview,/frameDocument\.removeEventListener\("click",onClick,true\)/);
  assert.match(site,/immersiveHeroTextColor/); 
- assert.match(site,/immersiveHeroTextColor\(b\.colorExplicit\?b\.color:readableColor\(b\.color\|\|"#234638",sectionBackground\),immersiveHero,b\.colorExplicit\)/);
+ assert.match(site,/templateId==="institutional-complete"/);
  assert.match(site,/immersiveHeroTextColor\(b\.colorExplicit\?b\.color:readableColor\(b\.color\|\|"#36483e",sectionBackground\),immersiveHero,b\.colorExplicit\)/);
  assert.match(route,/clean\.colorExplicit=true/);
  assert.match(site,/<section id=\{isContact\?"contato":group\.id\}/);
