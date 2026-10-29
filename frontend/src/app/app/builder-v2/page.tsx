@@ -1168,31 +1168,8 @@ export default function BuilderV2() {
   </div></main>;
   return <main className="pn-builder-shell pn-builder-editor min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-5 text-white sm:px-4 sm:py-8">
     <div className="mx-auto w-full min-w-0 max-w-6xl">
-      <header className="pn-studio-hero relative mb-4 overflow-hidden rounded-[22px] border border-lime-300/15 px-4 py-5 sm:mb-5 sm:rounded-[26px] sm:px-9 sm:py-9">
-        <div className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-lime-300/10 blur-[75px]" aria-hidden="true"/>
-        <div className="pointer-events-none absolute -bottom-24 right-[12%] h-44 w-44 rounded-full bg-emerald-400/10 blur-[68px]" aria-hidden="true"/>
-        <div className="relative z-10">
-          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-lime-300/50 bg-lime-300/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[.13em] text-lime-300 sm:mb-4 sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs sm:tracking-[.18em]">
-            <Sparkles size={14}/> PageNova Studio <span className="mx-1 text-lime-300/40">/</span> Criação com IA
-          </div>
-          <h1 className="max-w-[790px] text-[clamp(1.7rem,7vw,2.1rem)] font-extrabold leading-[1.12] tracking-[-.052em] text-white sm:text-[clamp(1.95rem,5.1vw,3.45rem)]">
-            {site.blocks.length?"Seu site, do seu jeito.":<>Sua ideia merece um <span className="text-lime-300">site extraordinário.</span></>}
-          </h1>
-          <p className="mt-2 max-w-[640px] text-[13px] leading-[1.5] text-white/65 sm:mt-3 sm:text-base sm:leading-relaxed">
-            {site.blocks.length?"Continue criando com a IA. Edite textos, imagens e seções pela conversa e acompanhe na prévia.":"Conte sobre o seu negócio. A IA cria a primeira versão, e você aperfeiçoa tudo conversando, sem precisar programar."}
-          </p>
-          {!site.blocks.length&&<div className="mt-6 hidden flex-wrap items-center gap-x-5 gap-y-2 text-[11px] font-medium text-white/70 sm:flex sm:text-xs">
-            <span className="inline-flex items-center gap-2"><Check className="text-lime-300" size={14}/> Descreva sua ideia</span>
-            <span className="inline-flex items-center gap-2"><Check className="text-lime-300" size={14}/> Visualize em tempo real</span>
-            <span className="inline-flex items-center gap-2"><Check className="text-lime-300" size={14}/> Personalize pelo chat</span>
-          </div>}
-        </div>
-      </header>
       <div className="grid min-w-0 grid-cols-1 items-start gap-5 ">
         <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border border-white/15 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
-  <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-lime-300/20 bg-lime-300/10 text-lime-300"><Sparkles size={17}/></span>
-  <div className="mr-auto min-w-0"><h2 className="text-left text-base font-bold tracking-tight text-white sm:text-lg">Crie com a IA</h2>
-    <p className="text-left text-[11px] text-white/50">{site.blocks.length?"Continue sua criação":"Descreva o que deseja criar"}</p></div>
   {!crmProjectId&&<button type="button" onClick={()=>setCategoryScreen(true)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-white/65 transition hover:bg-white/10" title="Escolher outro tipo de site">Tipos de site</button>}
   {site.blocks.length>0&&<button type="button" onClick={newProject} disabled={busy||publishing} className="rounded-lg border border-lime-300/35 px-3 py-2 text-xs font-semibold text-lime-300 disabled:opacity-40">+ Novo site</button>}
 <details className="pn-editor-tools relative shrink-0">
@@ -1258,10 +1235,6 @@ export default function BuilderV2() {
       </button>
     </div>
   </form>
-  {!crmProjectId&&<div className="mt-3 rounded-xl border border-white/10 bg-white/[.035] px-3 py-2 text-sm text-white/85">
-    <strong className="text-lime-200">{selectedNiche?"Nicho selecionado: "+selectedNiche:"Escolha primeiro o nicho do seu negócio"}</strong>
-    <p className="mt-1 text-xs leading-relaxed text-white/65">{selectedNiche?"Seu nicho já está definido. Agora descreva seu site ou cole um briefing completo.":"Selecionar um nicho prepara o site para seu segmento, com conteúdo e imagens adequados. Depois, basta escrever seu pedido ou colar um briefing completo."}</p>
-  </div>}
   {!crmProjectId&&nicheMenuOpen&&<div className="mt-3 space-y-2 border-t border-white/15 pt-3">
     <input aria-label="Pesquisar nichos" value={nicheQuery} onChange={e=>setNicheQuery(e.target.value)}
       placeholder="Buscar profissão ou negócio..." className="w-full rounded-lg border border-white/20 bg-black/30 p-2 text-sm text-white outline-none focus:border-lime-300"/>
