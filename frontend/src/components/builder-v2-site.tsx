@@ -92,6 +92,17 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   const [menuOpen,setMenuOpen]=useState(false);
   const premiumFoodHeader=site.cinematic?.mode==="cinematic"&&/hamb[uú]rg|burger|pizz|restaurante|sushi|churrasc|cafeteria|padaria|confeitaria|doceria|gastronomi|delivery/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "));
   const [headerScrolled,setHeaderScrolled]=useState(false);
+  const premiumWellness=site.cinematic?.mode==="cinematic"&&/cl[ií]nica|sa[uú]de|m[eé]dic|odont|dent|psicolog|terapia|fisioterap|bem.estar|est[eé]tica|dermatolog|nutri[cç]|wellness|spa/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "));
+  useEffect(()=>{
+    if(!premiumWellness)return;
+    const root=previewRef.current;
+    if(!root||window.matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;
+    const targets=Array.from(root.querySelectorAll<HTMLElement>(".pn-motion-site>section:not(:first-child) h2, .pn-motion-site>section:not(:first-child) article, .pn-motion-site>section:not(:first-child) .pn-cinematic-gallery-card"));
+    const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;entry.target.classList.add("pn-wellness-visible");observer.unobserve(entry.target);}}, {threshold:.08,rootMargin:"0px 0px -20px 0px"});
+    for(const el of targets){el.classList.add("pn-wellness-reveal");observer.observe(el);}
+    return ()=>{observer.disconnect();for(const el of targets)el.classList.remove("pn-wellness-reveal","pn-wellness-visible");};
+  },[premiumWellness,site]);
+
   useEffect(()=>{if(!premiumFoodHeader)return;const onScroll=()=>setHeaderScrolled(window.scrollY>48);onScroll();window.addEventListener("scroll",onScroll,{passive:true});return ()=>window.removeEventListener("scroll",onScroll);},[premiumFoodHeader]);
   useEffect(()=>attachSiteMotion(previewRef.current,site.motion),[site]);
   useEffect(()=>{
@@ -748,6 +759,24 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness>.pn-builder-v2-footer h3{color:#d2b48a!important}
 @media(max-width:767px){.pn-cinema-wellness .pn-cine-hero{min-height:78svh!important}.pn-cinema-wellness .pn-motion-site>section:not(:first-child)::before{left:9px}.pn-cinema-wellness .pn-cinematic-gallery-card,.pn-cinema-wellness .pn-cinematic-gallery-card:nth-child(even){grid-template-columns:1fr!important}.pn-cinema-wellness .pn-cinematic-gallery-card:nth-child(even)>div:first-child{order:0}.pn-cinema-wellness .pn-motion-site>section :is(article,[data-pn-composition]>.grid>div):nth-child(even){transform:none}}
 @media(prefers-reduced-motion:reduce){.pn-cinema-wellness .pn-motion-site>section article img{transition:none!important}}
+/* Cinematic 03 second pass: gallery connections, asymmetric editorial hierarchy. */
+.pn-cinema-wellness .pn-cine-about>div{position:relative}
+.pn-cinema-wellness .pn-cine-about>div::after{content:"";position:absolute;right:2%;bottom:-25px;width:clamp(70px,11vw,155px);height:clamp(70px,11vw,155px);border:1px solid rgba(221,193,155,.35);border-radius:50% 50% 4px 50%;transform:rotate(-18deg);pointer-events:none}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition]>.grid{gap:clamp(18px,2.5vw,36px)!important}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition] article{position:relative;isolation:isolate}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition] article::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,transparent,#d2b48a,transparent);opacity:.75;pointer-events:none}
+.pn-cinema-wellness .pn-cine-differentials [data-pn-composition]>.grid{gap:clamp(20px,3vw,42px)!important}
+.pn-cinema-wellness .pn-cine-differentials [data-pn-composition] article{position:relative}
+.pn-cinema-wellness .pn-cine-differentials [data-pn-composition] article::after{content:"";position:absolute;right:24px;top:20px;width:36px;height:36px;border-top:1px solid #d2b48a;border-right:1px solid #d2b48a;border-radius:0 18px 0 0;opacity:.65;pointer-events:none}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card{position:relative;box-shadow:0 28px 65px rgba(0,0,0,.27)!important}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card::after{content:"";position:absolute;bottom:0;left:0;width:38%;height:3px;background:linear-gradient(90deg,#d2b48a,transparent);pointer-events:none}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card:nth-child(even)::after{left:auto;right:0;background:linear-gradient(270deg,#d2b48a,transparent)}
+.pn-cinema-wellness .pn-motion-site>section .pn-wellness-reveal{opacity:0;filter:blur(6px);translate:0 26px;transition:opacity .85s ease,filter .85s ease,translate .85s cubic-bezier(.18,.7,.2,1)}
+.pn-cinema-wellness .pn-motion-site>section .pn-wellness-reveal.pn-wellness-visible{opacity:1;filter:blur(0);translate:0 0}
+.pn-cinema-wellness .pn-motion-site>section article:nth-child(2n).pn-wellness-reveal{transition-delay:110ms}
+.pn-cinema-wellness .pn-motion-site>section article:nth-child(3n).pn-wellness-reveal{transition-delay:170ms}
+@media(max-width:767px){.pn-cinema-wellness .pn-cine-about>div::after{width:65px;height:65px;bottom:-12px}.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card>div:last-child{padding:22px!important}}
+@media(prefers-reduced-motion:reduce){.pn-cinema-wellness .pn-motion-site>section .pn-wellness-reveal{opacity:1!important;filter:none!important;translate:none!important;transition:none!important}}
 `}</style>}
         
         
