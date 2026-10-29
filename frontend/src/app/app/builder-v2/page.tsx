@@ -939,7 +939,7 @@ export default function BuilderV2() {
     }
     const templateCommand=/(?:tro(?:que|car|ca|que)|mude|usar|use|aplique|quero|escolha|alterar|mudar)[\\s\\S]{0,70}(?:template|modelo)[\\s\\S]{0,30}(?:\\b2\\b|\\b1\\b|minimalista|institucional)|(?:template|modelo)\\s*(?:2|1)|minimalista sofisticado|institucional completo|moderno e impactante|(?:template|modelo)\s*3/i.test(prompt);
     if(templateCommand && site.cinematic?.mode!=="immersive-3d" && !hasMotionIntent(prompt)){
-      const requested=/minimalista|(?:template|modelo)\\s*2|(?:template|modelo)[\\s\\S]{0,25}\\b2\\b/i.test(prompt)?"minimalist-sophisticated":/impactante|moderno|(?:template|modelo)\s*3|(?:template|modelo)[\s\S]{0,25}\b3\b/i.test(prompt)?"modern-impactful":/lado a lado|alternad|template 4|modelo 4/i.test(prompt)?"image-text-alternating":"institutional-complete";
+      const requested=/minimalista|(?:template|modelo)\\s*2|(?:template|modelo)[\\s\\S]{0,25}\\b2\\b/i.test(prompt)?"minimalist-sophisticated":/lado a lado|alternad|template 4|modelo 4/i.test(prompt)?"image-text-alternating":"institutional-complete";
       recordVersion(site,"Antes de trocar o template");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       setSite(prev=>({...prev,templateId:requested}));setMessages(prev=>[...prev,{role:"assistant",text:requested==="minimalist-sophisticated"?"Template alterado para Minimalista Sofisticado. Todo o conteúdo foi preservado.":requested==="modern-impactful"?"Template alterado para Moderno e Impactante. Todo o conteúdo foi preservado.":requested==="image-text-alternating"?"Template alterado para Imagens e Textos Lado a Lado. Todo o conteúdo foi preservado.":"Template alterado para Institucional Completo. Todo o conteúdo foi preservado."}]);setInstruction("");setBusy(false);return;
     }
@@ -1312,7 +1312,7 @@ export default function BuilderV2() {
       className="w-full rounded-lg border border-white/25 bg-[#1b2b23] px-3 py-3 text-sm text-white">
       <option value="institutional-complete">01 — Institucional Completo</option>
       <option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option>
-      <option value="modern-impactful">03 — Moderno e Impactante</option>
+      
       <option value="image-text-alternating">04 — Imagens e Textos Lado a Lado</option>
       <option value="prompt-adaptive">05 — Briefing Personalizado (IA)</option>
     </select></>}
