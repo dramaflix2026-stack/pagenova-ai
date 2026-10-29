@@ -1270,24 +1270,24 @@ export default function BuilderV2() {
   <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-2 rounded-lg border border-white/25 px-3 py-2 text-xs text-white">
     <LayoutTemplate size={15}/> Modelo visual <span aria-hidden="true">⌄</span>
   </summary>
-  <div className="fixed left-1/2 top-[min(36vh,300px)] z-[100] w-[calc(100vw-32px)] max-w-[360px] -translate-x-1/2 rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
+  <div className="absolute right-0 top-[calc(100%+8px)] z-[100] w-[min(360px,calc(100vw-32px))] rounded-xl border border-white/25 bg-[#17231d] p-3 shadow-2xl">
     <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-3" role="group" aria-label="Aparência do site">
-      {(["static","cinematic","immersive-3d"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode}}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":mode==="cinematic"?"Cinematográfico":"3D Imersivo"}</button>)}
+      {(["static","cinematic","immersive-3d"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode},templateId:mode==="cinematic"?"prompt-adaptive":prev.templateId}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":mode==="cinematic"?"Cinematográfico":"3D Imersivo"}</button>)}
     </div>
     {site.cinematic?.mode==="cinematic"&&<p className="mb-3 text-left text-xs text-white/65">O vídeo é selecionado automaticamente do Banco de Vídeos conforme o nicho. Se ainda não houver vídeo cadastrado, o site mantém a imagem estática.</p>}
     {site.cinematic?.mode==="immersive-3d"&&<select aria-label="Template 3D" value={String(site.extras?.immersive3dTemplate||"universal")} onChange={e=>setSite(prev=>({...prev,extras:{...(prev.extras||{}),immersive3dTemplate:e.target.value}}))}><option value="universal">01 — Universal 3D</option><option value="hamburgueria">02 — Cinematográfico Editorial (todos os nichos)</option></select>}
     {site.cinematic?.mode!=="immersive-3d"&&<><label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
-    <select id="pn-template-choice" aria-label="Escolher template visual" value={site.templateId||"institutional-complete"}
+    <select id="pn-template-choice" aria-label="Escolher template visual" value={site.cinematic?.mode==="cinematic"?"prompt-adaptive":site.templateId||"institutional-complete"}
       onChange={e=>{
         const templateId=e.target.value as NonNullable<Site["templateId"]>;
         recordVersion(site,"Antes de trocar o template");setSite(prev=>({...prev,templateId}));
       }}
       className="w-full rounded-lg border border-white/25 bg-[#1b2b23] px-3 py-3 text-sm text-white">
-      <option value="institutional-complete">01 — Institucional Completo</option>
-      <option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option>
+      {site.cinematic?.mode!=="cinematic"&&<option value="institutional-complete">01 — Institucional Completo</option>}
+      {site.cinematic?.mode!=="cinematic"&&<option value="minimalist-sophisticated">02 — Minimalista Sofisticado</option>}
       
       
-      <option value="prompt-adaptive">05 — Briefing Personalizado (IA)</option>
+      <option value="prompt-adaptive">03 — Briefing Personalizado (IA)</option>
     </select></>}
   </div>
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
