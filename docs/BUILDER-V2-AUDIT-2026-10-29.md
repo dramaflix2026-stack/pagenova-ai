@@ -53,7 +53,7 @@ A baseline documentada em `TEMPLATE_UNIVERSAL_V1_FROZEN.md` continua protegida. 
 | A02 | Regex de serviços usava `\\s`, `\\d` etc. dentro de literal de regex | Quantidade numérica podia cair no padrão de quatro | Corrigido e testado com 5, 6 e 8 serviços |
 | A03 | Diferenciais têm meta fixa de quatro e reparo fixo de quatro antes da validação adaptativa | Briefings com outra quantidade podem ser contrariados | Fase 2: contrato de cardinalidade por seção compartilhado pelos cinco templates |
 | A04 | Extração mais abrangente de contagens fica dentro de `if(adaptiveBrief)` | Templates 1–4 não têm a mesma garantia de quantidades | Fase 2: consolidar extração e validação; incluir números por extenso e limites explícitos |
-| A05 | Briefing longo pode selecionar `prompt-adaptive` quando o template atual é T1; não há distinção de T1 explicitamente escolhido nesse teste | Escolha do cliente pode ser substituída | Fase 2: registrar seleção explícita e preservar o template escolhido |
+| A05 | Briefing longo seleciona `prompt-adaptive`, enquanto a seleção de nicho parte do T1 | Comportamento intencional confirmado pelo responsável pelo produto | Preservado; retirado da lista de bugs |
 | A06 | No renderer, T5 define fundos escuros por índice da seção e vários textos claros | Paleta clara pedida pode não aparecer, mesmo com JSON correto | Fase 4: separar defaults visuais de propriedades explícitas do site |
 | A07 | T2 contém regras `!important` para cor e centralização; há regras compartilhadas que forçam títulos ao centro | Edição pode alterar os dados sem mudar o resultado visível | Fase 4: precedência de tokens/defaults e propriedades explícitas, sem nova pilha de overrides |
 | A08 | `layout` final dos blocos é substituído pelo layout do plano de seções; os renderizadores têm composições próprias | Enxergar a referência ainda não permite reproduzir toda composição | Fase 3: contrato de direção visual nos recursos já suportados; implementar apenas lacunas comprovadas |
@@ -82,7 +82,7 @@ Projeto sintético: **Clínica Horizonte QA**, nicho Psicologia. O briefing pedi
 
 | Verificação | Resultado observado no DOM renderizado |
 | --- | --- |
-| Template selecionado | **Reprovado:** T1 antes da geração, T5 após gerar, apesar do pedido de preservação |
+| Template selecionado | T1 antes da geração, T5 após briefing grande. Posteriormente confirmado pelo usuário como encaminhamento intencional; não é bug |
 | Paleta | **Reprovado:** seções predominantemente `rgb(24,24,24)`, `rgb(13,14,17)` e `rgb(17,21,27)`; títulos brancos |
 | Serviços | 4 cards na geração inicial |
 | Diferenciais | 4 cards |
@@ -102,7 +102,7 @@ Projeto sintético: **Clínica Horizonte QA**, nicho Psicologia. O briefing pedi
 
 ## Ordem de continuação e critérios de aceite
 
-1. **Contrato inicial de briefing:** unificar quantidades, seções, ordem, links e propriedades explícitas; manter defaults quando o cliente não especificar. Aceite: sites novos nos cinco templates respeitam os mesmos pedidos, inclusive quantidades por extenso e pedidos conflitantes resolvidos sem alteração silenciosa.
+1. **Contrato inicial de briefing:** unificar quantidades, seções, ordem, links e propriedades explícitas; manter defaults quando o cliente não especificar. Preservar o encaminhamento intencional de briefing grande para T5. Aceite: sites novos nos cinco templates respeitam os mesmos pedidos, inclusive quantidades por extenso e pedidos conflitantes resolvidos sem alteração silenciosa.
 2. **Referência visual:** avaliar composição real, não apenas paleta; compartilhar direção visual entre lotes e renderer sem substituir fotos do nicho. Aceite: comparação visual com referências distintas e instrução textual prevalecendo quando divergir da imagem.
 3. **Precedência visual e T2:** remover o conflito entre defaults/CSS e propriedades do cliente. Aceite: mudança de cor e alinhamento aparece na prévia e na publicação; T1 sem alteração visual nos cenários sem pedidos novos.
 4. **Chat e integridade:** executar a matriz de textos, cards, imagens, seções, CTA, FAQ e animações em sites novos e existentes; comparar diffs dos dados e resultado renderizado.
@@ -121,3 +121,40 @@ Projeto sintético: **Clínica Horizonte QA**, nicho Psicologia. O briefing pedi
 Para cada cenário: gerar → desktop/mobile → editar → salvar → F5 → reabrir → publicar → comparar. Registrar aprovado/reprovado com evidência do resultado real; mensagem da IA não é critério de aprovação.
 
 As durações do briefing continuam estimativas. A01–A12 fornecem a base técnica para revisá-las; esta auditoria não garante uma data de conclusão das sete fases.
+
+
+## Segunda entrega — contrato do T5 e testes do chat em conjunto
+
+### Decisão de produto corrigida
+
+O usuário esclareceu que selecionar um nicho parte do T1 e enviar um briefing grande encaminha ao T5, preparado para prompts longos. Essa regra continua exatamente no mesmo lugar e não foi removida. A classificação anterior desse comportamento como bug foi retirada.
+
+### Alterações implementadas
+
+- Parser por seção para múltiplas quantidades na mesma linha, números por extenso, pontuação e briefing em linhas separadas. Um número de pergunta não passa a ser a quantidade de serviços.
+- As quantidades entram nos goals antes da geração e na validação após a geração. O FAQ com itens insuficientes passa por reparo de perguntas e respostas antes da validação final. Diferenciais deixam de impor quatro quando o T5 recebeu outro pedido. FAQ sem quantidade explícita mantém quatro como default.
+- A localização de uma seção para reparar quantidades prioriza o ID da própria seção. Uma menção a `#servicos` no goal do hero não pode selecionar a capa como alvo de reparo de Serviços.
+- Em reparos do T5, falta de itens após a resposta complementar é tratada como falha; não se publica o goal interno como descrição de um card.
+- O plano da IA fornece cores globais validadas em `design`, passadas aos lotes e persistidas no site. O T5 renderiza os backgrounds do site/seções em vez de uma sequência fixa de fundos pretos. Paleta não contém CSS arbitrário: somente hexadecimais aceitos.
+- Cards e textos usam tokens herdados, com contraste adequado por fundo. Removidas as regras do T5 que forçavam branco em todos os títulos e sobrescreviam cores explícitas de cards. Cabeçalho claro recebe texto escuro legível.
+- Títulos continuam editáveis, inclusive os de seções que antes eram renomeados pelo renderer. Pedido global de alinhamento de títulos é aplicado sem alinhar os textos comuns.
+- Listas de cards do T5 deixam de truncar o inventário em oito itens. Cores explícitas, fonte, borda, raio, sombra e quantidade de colunas de serviços têm representação no renderer do T5.
+- Tipos de dados da interface e do renderer passam a aceitar os tokens opcionais; formatos existentes continuam válidos sem migração.
+
+### Validações executadas
+
+- **142 testes** de Builder V2 e animações passaram. Os novos testes executam o handler real com autenticação, créditos e provedor externo simulados. Isso não equivale a testar a qualidade semântica da IA comercial ao vivo.
+- No teste de geração nova, o provedor simulado devolve **12 perguntas e sete diferenciais**; a saída final respeita quatro perguntas e quatro diferenciais. Serviços e etapas são validados independentemente no mesmo briefing.
+- Sequência no handler real de edição: descrição da capa; adicionar, mover e remover serviço; âncora interna e URL externa; alinhamento; fonte Poppins; remover animações; mover seção inteira; renomear marca; adicionar pergunta por patch. Comparação de blocos e IDs fora do escopo, paleta e passagem por JSON.
+- **Renderer real** executado com dados editados pelo chat: cinco serviços, quatro perguntas, cor explícita de título e sombra pedida; round trip por JSON preservado.
+- Comparação do HTML do **T1 em um cenário de controle** com o renderer do commit-base: saída idêntica byte a byte. Isso é uma proteção delimitada, não uma auditoria visual de todos os nichos do T1.
+- Verificação de estilos computados em navegador headless, em **1440 px e 390 px**: seção bege `rgb(247,242,232)`, cards brancos, título azul proposital do teste `rgb(0,102,204)`, alinhamento central e sombra solicitada. Cinco cards e quatro perguntas, sem overflow horizontal. FAQ abre e fecha em ambas as larguras.
+- Gates do comando `npm run build` executados. Compilação Next.js, TypeScript e geração das páginas concluídas em uma execução limpa com dois workers locais. O limite de workers foi temporário para o ambiente de QA; `next.config.ts` foi restaurado e não integra a alteração.
+
+A verificação do renderer é reproduzível com `node scripts/verify-builder-v2-adaptive-render.cjs`. Para incluir navegador, métricas e capturas temporárias, definir `BUILDER_QA_OUTPUT` para uma pasta local de QA após o build. Esse script usa o Chromium já instalado no projeto.
+
+### Limites e continuação
+
+Esta segunda entrega ainda está no PR, sem merge em `main` e sem aplicação à produção. O teste autenticado anterior continua sendo evidência da baseline publicada; não foi apresentado como aprovação desta nova versão. É necessário executar geração paga real, anexos, salvar/reabrir em outra sessão e publicação em um deployment da versão corrigida antes da aprovação integrada.
+
+Os testes já existentes de imagens, banners, redes sociais, WhatsApp, navegação, publicação e animações passaram junto com esta rodada. Permanecem pendentes a matriz completa de novas gerações por nicho e referência visual, o envio real de formulários e a avaliação visual premium de todos os templates. As sete fases do briefing mestre não estão concluídas.

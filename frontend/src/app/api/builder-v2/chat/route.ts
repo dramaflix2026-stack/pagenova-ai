@@ -1,3 +1,4 @@
+import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BUILDER_ANNOUNCEMENT } from "@/lib/builder-v2-announcement";
@@ -57,6 +58,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       charge=await reserveBuilderV2Generation(user,key);
     }catch(error){return generationCreditError(error) as NextResponse;}
     const instruction = String(body.instruction);
+    const briefCounts=briefCardCounts(instruction);
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
     const callAI = async (system: string, user: unknown, tokens: number, useReference = false) => {
@@ -103,14 +105,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     };
     try {
       const planPromise = callAI(
-        languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string}. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Respeite obrigatoriamente as cores e o fundo solicitados no briefing, inclusive fundos escuros. Quando não houver preferência, escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
-        {instruction},350,true
+        languageRule+" Você é a PageNova AI. Responda somente JSON {title:string,background:string,design:{surface:string,text:string,muted:string,accent:string}}. Use cores hexadecimais coerentes entre si; design descreve cores de cards, texto, texto secundário e destaque. Respeite paletas claras, bege/branco e títulos verdes quando solicitados. Não imponha fundos escuros. A direção de arte se aplica ao site inteiro. Leia o briefing e identifique corretamente o segmento. Use como title o nome comercial fornecido; se não houver nome, um título neutro e específico do nicho. Não invente marcas, profissionais, credenciais ou dados de contato. Respeite obrigatoriamente as cores e o fundo solicitados no briefing, inclusive fundos escuros. Quando não houver preferência, escolha uma cor CSS de fundo clara. Não gere seções nem conteúdo nesta etapa.",
+        {instruction},650,true
       );
       // An explicit card count in the customer brief overrides Template 1 defaults.
       const serviceSectionBrief=instruction.match(/(?:se[cç][aã]o|sess[aã]o|\b\d{1,2}[.)-])\s*(?:de\s+)?(?:nossos?\s+)?servi[cç]os[\s\S]{0,260}?(?=(?:se[cç][aã]o|sess[aã]o|\n\s*\d{1,2}[.)-])|$)/i)?.[0]||instruction;
       const serviceCountMatch=serviceSectionBrief.match(/(?:exatamente|total(?:izando)?|com|ter[aã]o?|s[aã]o)\s*(?:de\s+)?(\d{1,2})\s*(?:cards?|itens?|servi[cç]os)|(?:servi[cç]os|atividades)\s*(?:com|:|-)\s*(\d{1,2})|\b(\d{1,2})\s*(?:cards?|itens?)?\s*(?:de\s+)?servi[cç]os/i);
       const requestedServiceCount=serviceCountMatch?Number(serviceCountMatch[1]||serviceCountMatch[2]||serviceCountMatch[3]):4;
-      const serviceCount=requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4;
+      const serviceCount=adaptiveBrief?(briefCounts.get("servicos")??4):(requestedServiceCount>=3&&requestedServiceCount<=12?requestedServiceCount:4);
       // Template 1 has a deterministic structure; AI is responsible for niche-specific
       // copy and design, not for deleting essential sections or making a gallery the hero.
       // Later edits still honor the user's chat instructions and preserve existing blocks.
@@ -166,6 +168,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         };
         sections.sort((a,b)=>sectionRank(a.id)-sectionRank(b.id));
       }
+      if(adaptiveBrief)for(const section of sections){
+        const count=briefCounts.get(section.id);
+        if(count)section.goal="EXATAMENTE "+count+" itens nesta seção, um bloco paragraph por item. "+section.goal.replace(/EXATAMENTE QUATRO|quatro blocos|Três relatos|três etapas|quatro perguntas/gi,"a quantidade especificada");
+      }
       // Keep each parallel AI call small enough to finish within the request budget.
       const batchSize=2;
       const batches=Array.from({length:Math.ceil(sections.length/batchSize)},(_,i)=>sections.slice(i*batchSize,(i+1)*batchSize));
@@ -184,8 +190,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           results[index]=await (async()=>{
         const generateBatch = async (selectedSections:typeof sections, tokens:number):Promise<unknown[]> => {
         const out = await callAI(
-          languageRule+" Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e a quantidade de blocos indicada no goal; quando não houver quantidade, use 1 a 5 blocos apropriados. Escreva somente conteúdo final para o visitante, nunca instruções de design ou placeholders como Título Principal Impactante, Subtítulo suave, Fundo azul-marinho, ícones dourados, Imagem a adicionar, ©2024 ou Redes Sociais (ícones). Não inclua rodapé sem dados reais. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, href string opcional para button, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste e respeite a identidade visual do briefing acima de qualquer preferência padrão. Se houver imagem de referência, use-a como direção visual: analise composição, proporções entre texto e imagem, hierarquia tipográfica, alinhamentos, espaçamento, cores e acabamento dos cards e botões; adapte-os aos layouts suportados e ao nicho. Instruções explícitas do briefing prevalecem sobre a referência. A referência não é uma foto de conteúdo: nunca a copie para src nem transcreva marcas, contatos ou textos dela. Não imponha fundo claro, verde ou fonte serifada se o cliente especificar outro estilo. Em grid: heading + exatamente a quantidade de paragraphs/cards solicitada para a seção; se não houver quantidade, use 3 a 5. Cada card deve conter título e descrição curtos. Não repita cards, títulos, parágrafos nem CTAs. Para planos, um único paragraph por plano com título, preço completo e benefícios; um botão por plano imediatamente após seu paragraph, nunca todos os botões juntos. Para contato, apenas título e texto de introdução, sem simular campos de formulário em paragraphs ou botões repetidos. EXCEÇÃO OBRIGATÓRIA: para section=servicos gere exatamente a quantidade indicada no goal; para section=diferenciais gere exatamente 4 paragraphs separados no formato Título curto: descrição. Para serviços, a quantidade indicada no goal prevalece, inclusive quando for 3, 5 ou mais cards. Nunca escreva Layout:, Background:, Design: ou instruções técnicas no texto público. Não invente credenciais ou resultados, nem alegue experiência comprovada, tecnologia exclusiva, resultados garantidos, eficácia, equipamentos próprios, profissionais certificados ou resultados duradouros sem fatos explícitos no briefing. Em cada grid, todos os cards devem ter título curto e descrição concreta separados por dois-pontos. Planeje variedade editorial: hero com CTA para âncora existente, serviços em grid sem imagens repetidas, história em split, diferenciais em cards, galeria, FAQ e contato com CTA somente se existir destino real. Evite prometer formulário que não existe. Em depoimentos: heading + exatamente três paragraphs separados com Nome Sobrenome | Cidade - UF | relato ilustrativo pertinente ao nicho, sem alegar testemunho real. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Nunca gere números de telefone, e-mails ou endereços a menos que estejam literalmente presentes no briefing. Não use frases de clínica em sites de arquitetura. Não transforme instruções como editorial, assimétrico, sobreposição ou colagem em títulos públicos. Texto conciso, premium e adequado ao segmento. Gere todas as seções da lista, inclusive as adicionais solicitadas. Não omita nenhuma seção adicional. Em seções de planos, mantenha cada preço e benefício informado; em horários use entradas legíveis; em equipe não invente nomes reais. Para botões, inclua href com URL externa literal fornecida pelo cliente ou âncora #id de seção existente. Não gere seções fora da lista. CRÍTICO: o briefing mistura dados do NEGÓCIO e DIREÇÃO DE ARTE. Direção de arte nunca deve aparecer como diferencial, serviço, valor ou título. Exemplo proibido: Paleta Sofisticada, Profundidade e Textura, Estética Minimalista. Não use copy genérica de clínica (possibilidades de cuidado, tratamento) para arquitetura. Cada seção deve ter conteúdo real: portfólio com heading e pelo menos 3 blocos image de src vazio e text descritivo para o gerador de imagens posterior; metodologia em etapas curtas no formato Etapa: descrição, sem repetir a mesma frase no título e no corpo. Em serviços use descrições específicas do setor. Evite headings vazios. A instrução do usuário prevalece.",
-          {instruction,siteTitle:plan.title,sections:selectedSections,batch:index},tokens,true
+          languageRule+" Você é o redator e designer PageNova. Retorne APENAS JSON {blocks:[...]}. Para CADA seção solicitada, gere um heading e a quantidade de blocos indicada no goal; quando não houver quantidade, use 1 a 5 blocos apropriados. Escreva somente conteúdo final para o visitante, nunca instruções de design ou placeholders como Título Principal Impactante, Subtítulo suave, Fundo azul-marinho, ícones dourados, Imagem a adicionar, ©2024 ou Redes Sociais (ícones). Não inclua rodapé sem dados reais. Campos obrigatórios de cada bloco: id string único, type heading|paragraph|button|image, text string, href string opcional para button, color string hexadecimal, align left|center|right, section id exato. No heading inicial da seção inclua layout e background. Use cores com alto contraste e respeite a identidade visual do briefing acima de qualquer preferência padrão. Se houver imagem de referência, use-a como direção visual: analise composição, proporções entre texto e imagem, hierarquia tipográfica, alinhamentos, espaçamento, cores e acabamento dos cards e botões; adapte-os aos layouts suportados e ao nicho. Instruções explícitas do briefing prevalecem sobre a referência. A referência não é uma foto de conteúdo: nunca a copie para src nem transcreva marcas, contatos ou textos dela. Não imponha fundo claro, verde ou fonte serifada se o cliente especificar outro estilo. Em grid: heading + exatamente a quantidade de paragraphs/cards solicitada para a seção; se não houver quantidade, use 3 a 5. Cada card deve conter título e descrição curtos. Não repita cards, títulos, parágrafos nem CTAs. Para planos, um único paragraph por plano com título, preço completo e benefícios; um botão por plano imediatamente após seu paragraph, nunca todos os botões juntos. Para contato, apenas título e texto de introdução, sem simular campos de formulário em paragraphs ou botões repetidos. EXCEÇÃO OBRIGATÓRIA: para section=servicos gere exatamente a quantidade indicada no goal; para section=diferenciais use a quantidade do goal, ou 4 quando não especificada, em paragraphs separados no formato Título curto: descrição. Para serviços, a quantidade indicada no goal prevalece, inclusive quando for 3, 5 ou mais cards. Nunca escreva Layout:, Background:, Design: ou instruções técnicas no texto público. Não invente credenciais ou resultados, nem alegue experiência comprovada, tecnologia exclusiva, resultados garantidos, eficácia, equipamentos próprios, profissionais certificados ou resultados duradouros sem fatos explícitos no briefing. Em cada grid, todos os cards devem ter título curto e descrição concreta separados por dois-pontos. Planeje variedade editorial: hero com CTA para âncora existente, serviços em grid sem imagens repetidas, história em split, diferenciais em cards, galeria, FAQ e contato com CTA somente se existir destino real. Evite prometer formulário que não existe. Em depoimentos: heading + a quantidade de paragraphs indicada no goal, ou três quando não especificada com Nome Sobrenome | Cidade - UF | relato ilustrativo pertinente ao nicho, sem alegar testemunho real. Em faq: heading + perguntas no formato Pergunta? Resposta. Não crie URLs fictícias, dados de contato inventados, nomes de pessoas/escritórios inventados ou imagens falsas. Nunca gere números de telefone, e-mails ou endereços a menos que estejam literalmente presentes no briefing. Não use frases de clínica em sites de arquitetura. Não transforme instruções como editorial, assimétrico, sobreposição ou colagem em títulos públicos. Texto conciso, premium e adequado ao segmento. Gere todas as seções da lista, inclusive as adicionais solicitadas. Não omita nenhuma seção adicional. Em seções de planos, mantenha cada preço e benefício informado; em horários use entradas legíveis; em equipe não invente nomes reais. Para botões, inclua href com URL externa literal fornecida pelo cliente ou âncora #id de seção existente. Não gere seções fora da lista. CRÍTICO: o briefing mistura dados do NEGÓCIO e DIREÇÃO DE ARTE. Direção de arte nunca deve aparecer como diferencial, serviço, valor ou título. Exemplo proibido: Paleta Sofisticada, Profundidade e Textura, Estética Minimalista. Não use copy genérica de clínica (possibilidades de cuidado, tratamento) para arquitetura. Cada seção deve ter conteúdo real: portfólio com heading e pelo menos 3 blocos image de src vazio e text descritivo para o gerador de imagens posterior; metodologia em etapas curtas no formato Etapa: descrição, sem repetir a mesma frase no título e no corpo. Em serviços use descrições específicas do setor. Evite headings vazios. A instrução do usuário prevalece.",
+          {instruction,siteTitle:plan.title,...(adaptiveBrief?{design:plan.design,background:plan.background}:{}),sections:selectedSections,batch:index},tokens,true
         );
         return Array.isArray(out.blocks)?out.blocks:[];
         };
@@ -301,7 +307,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Template 1: the two commercial card sections always contain four distinct cards.
       // If the model underproduces, request only the missing copy; preserve all other sections.
       for(const sectionId of ["servicos","diferenciais"]){
-        const targetCount=sectionId==="servicos"?serviceCount:4;
+        const targetCount=sectionId==="servicos"?serviceCount:adaptiveBrief?(briefCounts.get("diferenciais")??4):4;
         const cards=mutableBlocks.filter(item=>item.section===sectionId&&item.type==="paragraph");
         if(cards.length>targetCount){
           const redundant=new Set(cards.slice(targetCount));
@@ -482,8 +488,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));
       const missing=coreIds.filter(id=>!generatedIds.has(id));
       const meaningful=(id:string)=>mutableBlocks.filter(b=>b.section===id && (b.type==="paragraph" || b.type==="button" || b.type==="image")).length;
-      const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"?serviceCount:id==="diferenciais"?4:id==="faq"?3:1));
-      if(mutableBlocks.length<24||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
+      const weak=coreIds.filter(id=>meaningful(id)<(id==="servicos"?serviceCount:id==="diferenciais"?(adaptiveBrief?(briefCounts.get("diferenciais")??4):4):id==="faq"?(adaptiveBrief?0:3):1));
+      if((!adaptiveBrief&&mutableBlocks.length<24)||missing.length||weak.length)throw new Error("incomplete-site:"+[...missing,...weak].join(","));
       // Extra sections must contain meaningful content, not just a heading.
       const absentExtras=sections.filter(section=>!coreIds.includes(section.id)&&
         (!mutableBlocks.some(b=>b.section===section.id&&b.type==="heading")||
@@ -512,36 +518,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // without changing the legacy templates' generation pipeline.
       if(adaptiveBrief){
         const normalized=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-        const sectionRules=[
-          {terms:/servic|tratament|atividade/,id:"servicos"},
-          {terms:/diferencia/,id:"diferenciais"},
-          {terms:/processo|etapas|passos|funciona/,id:"processo"},
-          {terms:/modalidad/,id:"modalidades"},
-          {terms:/equipe|profissionai|instrutor|treinador/,id:"equipe"},
-          {terms:/planos|precos|pricing/,id:"planos"},
-          {terms:/depoiment|testemunh/,id:"depoimentos"},
-          {terms:/perguntas|faq/,id:"faq"}
-        ];
-        const requestedCounts=new Map<string,number>();
-        // Read explicit quantities from section headings and their immediate
-        // descriptions, not from unrelated numbered benefits or prices.
-        const briefLines=instruction.split(/\n+/).map(line=>line.trim()).filter(Boolean);
-        let countSection="";
-        for(const line of briefLines){
-          const n=normalized(line).replace(/^#+\s*/,"").replace(/\*\*/g,"");
-          if(n.length<100&&/^(?:\d+[.)]\s*)?(?:nossos?\s+)?(?:servicos?|diferenciais?|como funciona|processo|etapas?|planos?(?: e investimento)?|nossa equipe|equipe|modalidades?|depoimentos?|perguntas frequentes|faq)\b/.test(n)){
-            const rule=sectionRules.find(rule=>rule.terms.test(n));
-            if(rule)countSection=rule.id;
-          }
-          const number=n.match(/\b(?:exatamente|com|ter|terao|incluir|adicionar|conter|mostrar)?\s*(\d{1,2})\s*(?:cards?|itens?|planos?|servicos?|etapas?|passos?|profissionais?|treinadores?|modalidades?|depoimentos?|perguntas?)\b/)
-            ||n.match(/\b(\d{1,2})\s*(?:cards?|itens?)?\s*(?:de\s+)?(?:servicos?|diferenciais?|planos?|etapas?|modalidades?|depoimentos?|perguntas?)\b/);
-          if(!number)continue;
-          const count=Number(number[1]);
-          if(count<2||count>12)continue;
-          const explicit=sectionRules.find(rule=>rule.terms.test(n));
-          const category=explicit?.id||countSection;
-          if(category)requestedCounts.set(category,count);
-        }
+        const requestedCounts=new Map(briefCounts);
+        if(!requestedCounts.has("faq"))requestedCounts.set("faq",4);
         const aliases:Record<string,RegExp>={
           servicos:/servic|tratament|atividade/,diferenciais:/diferencia/,
           processo:/processo|etapas|passos|funciona/,modalidades:/modalidad/,
@@ -549,7 +527,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           depoimentos:/depoiment|testemunh/,faq:/faq|pergunt/
         };
         for(const [name,count] of requestedCounts){
-          const section=sections.find(section=>aliases[name].test(normalized(section.id+" "+section.goal)));
+          const section=(sections.find(section=>section.id===name)||sections.find(section=>aliases[name].test(normalized(section.id))));
           if(!section)throw new Error("missing-brief-section:"+name);
           const paragraphs=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
           if(paragraphs.length<count){
@@ -578,16 +556,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
               const safeTitle=title||description.split(/[.:—–]/)[0].trim().slice(0,80)||"Item adicional";
               if(existingNames.has(normalized(safeTitle)))continue;
               const safeDescription=description||safeTitle;
-              mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:safeTitle+": "+safeDescription,color:"#ffffff",align:"left"});
+              mutableBlocks.push({id:"adaptive-repair-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:name==="faq"?safeTitle.replace(/\?$/,"")+"? "+safeDescription:safeTitle+": "+safeDescription,color:"#ffffff",align:"left"});
               existingNames.add(normalized(safeTitle));
               added++;
             }
-            while(added<missing){
-              const fallback=headings.find(title=>!existingNames.has(normalized(title)))||"Etapa "+String(paragraphs.length+added+1).padStart(2,"0");
-              mutableBlocks.push({id:"adaptive-fallback-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:fallback+": "+String(section.goal||"Conheça esta etapa do nosso atendimento.").slice(0,240),color:"#ffffff",align:"left"});
-              existingNames.add(normalized(fallback));
-              added++;
-            }
+            if(added<missing)throw new Error("incomplete-card-repair:"+name);
           }
         }
         // Universal title extraction: headings followed by numbered or bullet
@@ -626,7 +599,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         for(const [name,titles] of namedItems){
           const count=requestedCounts.get(name);
           if(!count||titles.length!==count)continue;
-          const section=sections.find(section=>aliases[name]?.test(normalized(section.id+" "+section.goal)));
+          const section=(sections.find(section=>section.id===name)||sections.find(section=>aliases[name]?.test(normalized(section.id))));
           if(!section)continue;
           const cards=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
           for(let i=0;i<Math.min(count,cards.length);i++){
@@ -638,7 +611,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         // Enforce the exact count after repairs. Do not delete client-specified
         // blocks: excess AI-generated cards are removed from the tail only.
         for(const [name,count] of requestedCounts){
-          const section=sections.find(section=>aliases[name].test(normalized(section.id+" "+section.goal)));
+          const section=(sections.find(section=>section.id===name)||sections.find(section=>aliases[name].test(normalized(section.id))));
           if(!section)continue;
           const cards=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
           if(cards.length>count){
@@ -677,9 +650,15 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           }
         }
       }
+      if(adaptiveBrief){
+        const headingAlignment=briefHeadingAlignment(instruction);
+        if(headingAlignment)for(const block of mutableBlocks)if(block.type==="heading")block.align=headingAlignment;
+      }
+      const designInput=plan.design&&typeof plan.design==="object"?plan.design as Record<string,unknown>:{};
+      const design=Object.fromEntries(["surface","text","muted","accent"].flatMap(key=>hexColor(designInput[key])?[[key,designInput[key]]]:[]));
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
-      return NextResponse.json({site:{templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",...(adaptiveBrief?{design}:{}),title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       try{await charge.finish(false);}
       catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
