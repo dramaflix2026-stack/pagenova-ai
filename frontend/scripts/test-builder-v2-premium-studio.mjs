@@ -46,13 +46,10 @@ test("the welcome page includes optional examples without submitting them automa
  assert.match(page,/setInstruction\(example\)/);
 });
 
-test("premium welcome stays slim on phones and retains desktop presentation",()=>{
-  assert.match(page,/pn-studio-hero relative mb-4/);
-  assert.match(page,/px-4 py-5 sm:mb-5/);
-  assert.match(page,/text-\[clamp\(1\.7rem,7vw,2\.1rem\)\]/);
-  assert.match(page,/sm:text-\[clamp\(1\.95rem,5\.1vw,3\.45rem\)\]/);
-  assert.match(page,/mt-6 hidden flex-wrap/);
-  assert.match(page,/sm:flex sm:text-xs/);
+test("removed welcome banner stays absent and chat creation remains available",()=>{
+  assert.doesNotMatch(page,/pn-studio-hero relative mb-4/);
+  assert.match(page,/pn-editor-chat/);
+  assert.match(page,/Escolher nicho/);
 });
 test("chat input starts compact and resizes with typed or dictated content",()=>{
   const css=readFileSync(path.join(root,"src/app/app/builder-v2/motion.css"),"utf8");
