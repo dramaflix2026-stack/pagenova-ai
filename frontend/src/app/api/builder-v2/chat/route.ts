@@ -742,6 +742,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const candidates=blocks.filter(b=>b.type==="button"&&norm(b.text)===norm(named));
       const heroCandidates=candidates.filter(b=>String(b.section||"")===heroSection);
       const matches=/(?:capa|hero|principal)/i.test(instructionText)?heroCandidates:candidates;
+      if(matches.length===0&&editingSite.header&&norm(editingSite.header.ctaLabel)===norm(named)){
+        return NextResponse.json({site:{...editingSite,header:{...editingSite.header,ctaHref:url}},summary:"Link atualizado exclusivamente no botão do cabeçalho "+named+"; WhatsApp flutuante preservado."});
+      }
       if(matches.length!==1)return NextResponse.json({error:"Botão solicitado não identificado de forma única; nenhum outro elemento foi alterado."},{status:422});
       const next=blocks.map(b=>b.id===matches[0].id?{...b,href:url}:b);
       return NextResponse.json({site:{...editingSite,blocks:next},summary:"Link atualizado exclusivamente no botão "+named+"; WhatsApp flutuante preservado."});
