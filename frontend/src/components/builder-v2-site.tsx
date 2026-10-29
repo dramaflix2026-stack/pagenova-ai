@@ -164,6 +164,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-motion-site>section [class*="border-emerald"],.pn-cinematic-enabled .pn-motion-site>section [class*="border-green"]{border-color:var(--pn-cinema-accent)!important}
 .pn-cinematic-enabled .pn-motion-site>section [class*="bg-emerald"],.pn-cinematic-enabled .pn-motion-site>section [class*="bg-green"]{background-color:var(--pn-cinema-accent)!important;color:var(--pn-cinema-ink)!important}
 
+/* Contrast rules: transparent cinematic cards sit over video, so they require light ink.
+   Only genuinely light-surface cards use dark ink. Do not classify every article as white. */
+.pn-cinematic-enabled .pn-motion-site>section article:not(.pn-premium-info-card):not([class*="bg-white"]):not([class*="bg-slate-50"]) :is(h1,h2,h3,h4,p,li,blockquote,span){color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.55)!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card :is(h1,h2,h3,h4,p,li,blockquote,span){color:#24211d!important;text-shadow:none!important}
+.pn-cinematic-enabled .pn-motion-site>section article[class*="bg-white"] :is(h1,h2,h3,h4,p,li,blockquote,span),
+.pn-cinematic-enabled .pn-motion-site>section article[class*="bg-slate-50"] :is(h1,h2,h3,h4,p,li,blockquote,span){color:#24211d!important;text-shadow:none!important}
+
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
