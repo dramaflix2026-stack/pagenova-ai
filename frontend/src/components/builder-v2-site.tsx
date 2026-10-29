@@ -847,6 +847,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-cine-services .pn-editorial-text-card,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{overflow:hidden!important;border-radius:18px!important}
 .pn-cinema-wellness .pn-cine-services article :is(svg,[class*="icon"]),.pn-cinema-wellness .pn-cine-differentials article :is(svg,[class*="icon"]){background:transparent!important;box-shadow:none!important;border-radius:0!important;filter:none!important}
 @media(max-width:767px){.pn-cinema-wellness .pn-cine-services article,.pn-cinema-wellness .pn-cine-differentials article{padding:22px!important}.pn-cinema-wellness .pn-cine-services article h3,.pn-cinema-wellness .pn-cine-differentials article h3{font-size:clamp(1.45rem,6vw,2rem)!important}.pn-cinema-wellness .pn-cine-services article p,.pn-cinema-wellness .pn-cine-differentials article p{font-size:clamp(.95rem,3.6vw,1.08rem)!important}}
+/* Clinic 03: actual DOM structure is .pn-motion-site > .pn-cinema-wellness > sections. */
+.pn-motion-site:has(>.pn-cinema-wellness){background:transparent!important}
+.pn-cinema-wellness{background:transparent!important}
+.pn-cinema-wellness .pn-cine-hero{background:transparent!important;background-color:transparent!important}
+.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card::before,.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card::after,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card::before,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card::after{content:none!important;display:none!important}
+.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{border-radius:18px!important;border:1px solid rgba(215,190,152,.35)!important;box-shadow:none!important}
+.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card>span:first-child,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card>span:first-child{background:none!important;border:0!important;box-shadow:none!important;color:#d9c3a0!important}
 `}</style>}
         
         
