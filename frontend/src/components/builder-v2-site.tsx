@@ -618,6 +618,18 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article p{font-family:var(--font-poppins),Arial,sans-serif!important;font-size:clamp(.9rem,1.05vw,1rem)!important;line-height:1.6!important}
 .pn-cinema-gastronomy .pn-cinema-editorial-testimonials article{background:rgba(17,13,11,.8)!important;backdrop-filter:blur(10px);border-color:rgba(245,166,101,.4)!important}
 @media(max-width:699px){.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid{grid-template-columns:1fr!important}}
+/* Cinematic gastronomy — editorial numbered feature panels */
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid{max-width:1120px!important;gap:18px!important}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{position:relative!important;isolation:isolate;overflow:hidden!important;min-height:250px!important;padding:clamp(26px,3vw,42px)!important;border-radius:8px 30px 8px 30px!important;border:1px solid rgba(230,167,105,.4)!important;background:linear-gradient(115deg,rgba(10,10,10,.88) 0%,rgba(25,18,13,.69) 60%,rgba(68,35,20,.36) 100%)!important;box-shadow:0 22px 60px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,231,197,.13)!important;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease!important}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:linear-gradient(180deg,transparent,#eeb777 30%,#a75328 75%,transparent);opacity:.85;pointer-events:none}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article::after{content:"";position:absolute;width:190px;height:190px;right:-95px;top:-105px;border:1px solid rgba(238,183,119,.19);border-radius:50%;box-shadow:0 0 0 25px rgba(238,183,119,.035),0 0 0 55px rgba(238,183,119,.025);pointer-events:none}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:hover{transform:translateY(-5px)!important;border-color:rgba(255,197,125,.76)!important;box-shadow:0 28px 70px rgba(0,0,0,.5),0 0 30px rgba(211,113,48,.11)!important}
+.pn-cinema-gastronomy [data-pn-composition="differentials"] .pn-food-differential-emblem{width:38px!important;height:38px!important;min-height:38px!important;border-radius:11px!important;margin:0 0 15px!important;background:rgba(231,153,84,.1)!important;border:1px solid rgba(243,181,113,.5)!important;box-shadow:none!important}
+.pn-cinema-gastronomy [data-pn-composition="differentials"] .pn-food-differential-emblem span{font-size:21px!important;color:#f4bd7e!important}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article h3{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(1.5rem,2.35vw,2.15rem)!important;font-weight:600!important;letter-spacing:-.035em!important;line-height:1.13!important;color:#fff4e6!important;max-width:21ch}
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article p{max-width:48ch;font-size:clamp(.92rem,1.05vw,1rem)!important;line-height:1.7!important;color:#e2d4c4!important}
+@media(max-width:699px){.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{min-height:0!important;padding:27px!important;border-radius:8px 24px 8px 24px!important}}
+@media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{transition:none!important}.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:hover{transform:none!important}}
 `}</style>}
         
         
