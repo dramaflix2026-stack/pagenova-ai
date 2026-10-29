@@ -21,6 +21,8 @@ jobs:
           node-version: '22'
       - name: Install frontend dependencies
         run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Test Builder reference generation and prompt quantities
+        run: node --experimental-strip-types --test frontend/scripts/test-builder-v2-reference-generation.mjs
       - name: Test universal animation behavior
         run: node --test frontend/scripts/test-site-motion.mjs
       - name: Validate curated eBook recipes
