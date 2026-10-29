@@ -706,6 +706,17 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       return NextResponse.json({error:"Não encontrei o bloco solicitado na capa. Nenhuma alteração aplicada."},{status:422});
     }
   }
+
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&/(?:altere|alterar|mude|troque|substitua)/i.test(instructionText)&&/(?:link|url|endereço)/i.test(instructionText)&&/bot[aã]o/i.test(instructionText)){
+    const url=instructionText.match(/https?:\/\/[^\s"'<>]+/i)?.[0];
+    const named=instructionText.match(/bot[aã]o\s*["“]([^"”]+)["”]/i)?.[1];
+    if(url&&named){
+      const norm=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+      const targets=editingSite.blocks.filter(b=>b.type==="button"&&norm(b.text)===norm(named));
+      if(targets.length!==1)return NextResponse.json({error:"Não foi possível identificar um único botão com esse texto. Nenhuma alteração aplicada."},{status:422});
+      return NextResponse.json({site:{...editingSite,blocks:editingSite.blocks.map(b=>b===targets[0]?{...b,href:url}:b)},summary:"Link do botão atualizado; demais elementos preservados."});
+    }
+  }
   // Immersive 3D edits are scoped to their own editable content contract.
   // Shared atomic hero CTA operation: never route a button request to image/banner generation.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&
