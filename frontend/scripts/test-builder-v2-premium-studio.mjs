@@ -27,7 +27,7 @@ test("after generation three supported templates and real responsive previews st
  assert.match(page,/\(site.blocks.length>0\|\|siteCategory!=="institutional"\)\?<BuilderV2PreviewFrame device=\{previewDevice\}>/);
  assert.match(page,/BuilderV2Site site=\{site\}/);
  for(const template of ["institutional-complete","minimalist-sophisticated","prompt-adaptive"])assert.ok(page.includes(template));
- assert.match(page,/aria-label="Visualizar desktop ou mobile"/);
+ assert.match(page,/aria-label="Visualizar desktop, tablet ou mobile"/);
  assert.match(page,/setPreviewExpanded/);
  assert.match(page,/SiteGenerationCreditsNotice/);
 });
