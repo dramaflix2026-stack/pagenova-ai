@@ -291,6 +291,23 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-template-editorial .pn-editorial-layout a:not([href^="#"]){border-radius:3px!important}
 .pn-template-editorial footer{background:#101820!important;color:#fff!important;font-family:Arial,Helvetica,sans-serif!important}
 .pn-template-editorial footer p:first-child{font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important}
+/* Template 2 visual system: single forest-green heading color, centered section headings, polished cards. */
+.pn-template-editorial .pn-editorial-layout .pn-section-heading,
+.pn-template-editorial .pn-editorial-layout .pn-section-heading *{text-align:center!important}
+.pn-template-editorial .pn-editorial-layout .pn-section-heading h1,
+.pn-template-editorial .pn-editorial-layout .pn-section-heading h2,
+.pn-template-editorial .pn-editorial-layout .pn-section-heading h3,
+.pn-template-editorial .pn-editorial-layout .pn-section-heading [data-block-id]{color:#243d30!important}
+.pn-template-editorial .pn-editorial-layout .pn-section-heading{max-width:820px!important;margin-left:auto!important;margin-right:auto!important}
+.pn-template-editorial .pn-editorial-premium article,
+.pn-template-editorial .pn-editorial-about article{border-radius:20px!important;border:1px solid #dce6df!important;box-shadow:0 18px 42px rgba(25,55,40,.09)!important}
+.pn-template-editorial .pn-editorial-premium article h3{color:#243d30!important}
+.pn-template-editorial .pn-editorial-premium article>div:last-child{min-height:190px}
+.pn-template-editorial .pn-editorial-premium article img{width:100%;height:100%;object-fit:cover}
+.pn-template-editorial .pn-editorial-about>div.grid{align-items:stretch!important}
+.pn-template-editorial .pn-editorial-about>div.grid>div{min-width:0}
+.pn-template-editorial .pn-editorial-about article{min-height:0}
+.pn-template-editorial .pn-editorial-layout .pn-editorial-about h2{max-width:none!important}
 /* Template 2 desktop refinement: warm neutral palette, structured editorial hierarchy. */
 @media(min-width:1024px){
 .pn-template-editorial .pn-editorial-layout{max-width:1180px!important}
@@ -551,7 +568,8 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           const adaptivePricing=adaptiveTemplate&&/planos|pre[cç]os|pricing|investimento/i.test(id);
           const adaptiveServices=adaptiveTemplate&&isTreatments;
           const adaptiveDifferentials=adaptiveTemplate&&/diferencia|por.que|escolher/i.test(id);
-          const isDifferentials=/diferencia|por.que|vantagen|escolher|escolha|excel[eê]ncia|compromisso|jornada|valores|filosofia|hist[oó]ria|ess[eê]ncia/i.test(id+" "+heading.map(b=>b.text).join(" "));
+          const isAboutEditorial=/sobre|hist[oó]ria|quem.somos|nossa.equipe|ess[eê]ncia/i.test(id+" "+heading.map(b=>b.text).join(" "));
+          const isDifferentials=!isAboutEditorial&&/diferencia|por.que|vantagen|escolher|escolha|excel[eê]ncia|compromisso|jornada|valores|filosofia/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const editorialCards=uniqueVisualCards.filter(item=>{const card=cardText(item);return card.description.length>8;});
           const editorialTitle=(item:Block,i:number)=>{const card=cardText(item);return card.name&&!/^destaque\s*\d+$/i.test(card.name)?card.name:(isDifferentials?["Atenção aos detalhes","Experiência acolhedora","Cuidado em cada etapa","Compromisso com você","Um espaço para você"][i%5]:["Cuidado personalizado","Conheça nossos serviços","Sua experiência","Nosso atendimento"][i%4]);};
           const useEditorialGrid=!adaptiveTemplate&&visualLayout==="grid"&&(isTreatments||isDifferentials)&&editorialCards.length>=2;
@@ -699,6 +717,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
               </div>:
               templateId==="minimalist-sophisticated"&&!isTestimonials&&!isContact&&visualLayout!=="faq"&&!/faq|perguntas.frequentes/i.test(id)?<div className="pn-editorial-layout mx-auto max-w-[1320px]">
                 {index===0?<div className="grid items-center gap-7 py-5 lg:min-h-[560px] lg:grid-cols-[1.1fr_.9fr] lg:gap-16 lg:py-12"><div className="order-2 min-w-0 space-y-6 lg:order-1"><span className="block text-xs font-semibold uppercase tracking-[.35em] opacity-60">EM DESTAQUE / {String(index+1).padStart(2,"0")}</span>{headingNode}<div className="max-w-lg space-y-5">{textItems.slice(0,2).map(render)}</div><div className="flex flex-wrap gap-3">{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div></div><div className="order-1 min-h-0 lg:order-2 lg:min-h-[500px] [&_img]:h-full [&_img]:w-full [&_img]:object-cover">{sectionImages.slice(0,1).map(imageNode)}</div></div>:
+                isAboutEditorial?<div className="pn-editorial-about mx-auto max-w-6xl py-10 lg:py-16"><div className="mx-auto mb-12 max-w-4xl text-center">{headingNode}</div><div className="grid items-stretch gap-8 lg:grid-cols-[1fr_1fr]"><div className="min-h-[340px] overflow-hidden rounded-3xl bg-[#e6eee8] [&_img]:!h-full [&_img]:!w-full [&_img]:!object-cover">{uniqueImages.slice(0,1).map(imageNode)}</div><div className="flex flex-col justify-center gap-5">{editorialCardsForDisplay.slice(0,3).map((item,i)=><article key={item.id} data-block-id={item.id} className="rounded-2xl border border-[#dce6df] bg-white p-7 shadow-[0_16px_40px_rgba(25,55,40,.07)]"><div className="mb-3 text-xs font-bold tracking-[.2em] text-[#397356]">NOSSA ESSÊNCIA · {String(i+1).padStart(2,"0")}</div><div className="text-base leading-relaxed text-[#344b3c]">{render(item)}</div></article>)}</div></div><div className="mt-9 flex justify-center gap-3">{buttons.map(render)}</div></div>:
                 (isTreatments||isDifferentials||isProcess)?<div className="pn-editorial-premium mx-auto max-w-6xl py-8 lg:py-12">
                   <div className="mx-auto mb-12 max-w-4xl text-center">{headingNode}</div>
                   <div className="grid items-stretch gap-6 md:grid-cols-2 lg:grid-cols-4">
