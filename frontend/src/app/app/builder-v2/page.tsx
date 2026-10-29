@@ -1307,14 +1307,14 @@ export default function BuilderV2() {
     <style jsx global>{`
 @media (min-width:1024px) {
  .pn-app-content:has(.pn-builder-stacked) { padding-left: 0; }
- .pn-builder-stacked { padding-left: 86px; }
+ .pn-builder-stacked { padding-left: 0; }
 
  .pn-builder-stacked .pn-editor-chat { max-width:none; }
  .pn-builder-stacked .pn-studio-hero {padding-left:0;}
 }
 .pn-builder-stacked {background:radial-gradient(ellipse 65% 45% at 50% -10%,rgba(103,158,70,.12),transparent 80%),#0a100e;}
 .pn-creative-studio {gap:20px;}
-.pn-studio-masthead {padding:18px 8px 8px; text-align:left;}
+.pn-studio-masthead {padding:18px 8px 8px 68px; text-align:left;}
 .pn-studio-kicker {display:flex;align-items:center;gap:9px;color:#c5f67b;font-size:11px;font-weight:800;letter-spacing:.16em;}
 .pn-studio-kicker-sep {color:#52665a;margin:0 5px;}
 .pn-studio-masthead-row {display:flex;align-items:center;justify-content:space-between;gap:20px;}
