@@ -707,47 +707,45 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }
   }
 
-  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&/(?:altere|alterar|mude|troque|substitua)/i.test(instructionText)&&/(?:link|url|endereço)/i.test(instructionText)&&/bot[aã]o/i.test(instructionText)){
-    const url=instructionText.match(/https?:\/\/[^\s"'<>]+/i)?.[0];
-    const named=instructionText.match(/bot[aã]o\s*["“]([^"”]+)["”]/i)?.[1];
-    if(url&&named){
-      const norm=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-      const targets=editingSite.blocks.filter(b=>b.type==="button"&&norm(b.text)===norm(named));
-      if(targets.length!==1)return NextResponse.json({error:"Não foi possível identificar um único botão com esse texto. Nenhuma alteração aplicada."},{status:422});
-      return NextResponse.json({site:{...editingSite,blocks:editingSite.blocks.map(b=>b===targets[0]?{...b,href:url}:b)},summary:"Link do botão atualizado; demais elementos preservados."});
+  // Universal atomic CTA routing: resolve a concrete block before editing.
+  // Never mutate floating WhatsApp, social links, or unrelated site metadata.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&/bot[aã]o|\bcta\b/i.test(instructionText)){
+    const blocks=editingSite.blocks;
+    const norm=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+    const heroSection=String(blocks.find(b=>/^(hero|capa|banner|principal)$/i.test(String(b.section||"")))?.section||
+      blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"hero");
+    const isAdd=/(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(instructionText)&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText);
+    const isLink=/(?:altere|alterar|mude|troque|substitua)/i.test(instructionText)&&/(?:link|url|endere[cç]o)/i.test(instructionText);
+    if(isAdd){
+      const label=instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+        instructionText.match(/(?:texto|nome|chamada)\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+        [...instructionText.matchAll(/["“'‘]([^"”'’]+)["”'’]/g)].at(-1)?.[1];
+      if(!label)return NextResponse.json({error:"Informe o texto do novo botão entre aspas."},{status:422});
+      const existing=blocks.filter(b=>b.type==="button"&&String(b.section||"")===heroSection);
+      if(existing.some(b=>norm(b.text)===norm(label)))return NextResponse.json({site:editingSite,summary:"O botão solicitado já existe na capa."});
+      const isServices=/servi[cç]|tratament/i.test(instructionText);
+      const match=isServices?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
+      const sections=[...new Set(blocks.map(b=>String(b.section||"")).filter(Boolean))].filter(v=>v!==heroSection);
+      const target=sections.find(v=>match.test(norm(v)))||sections.find(v=>blocks.some(b=>b.section===v&&b.type==="heading"&&match.test(norm(b.text))));
+      if(!target)return NextResponse.json({error:"Seção de destino não encontrada; nenhuma alteração aplicada."},{status:422});
+      const anchor=existing.at(-1);
+      const index=anchor?blocks.findIndex(b=>b.id===anchor.id):blocks.findLastIndex(b=>String(b.section||"")===heroSection);
+      if(index<0)return NextResponse.json({error:"Botão ou capa não encontrados; nenhuma alteração aplicada."},{status:422});
+      const added={...(anchor||{}),id:"added-"+crypto.randomUUID(),type:"button",section:heroSection,text:label,href:"#"+target,align:anchor?.align||"left"};
+      const next=blocks.map(b=>({...b}));next.splice(index+1,0,added);
+      return NextResponse.json({site:{...editingSite,blocks:next},summary:"Segundo botão criado na capa, com destino interno. Botão original preservado."});
     }
-  }
-  // Immersive 3D edits are scoped to their own editable content contract.
-  // Shared atomic hero CTA operation: never route a button request to image/banner generation.
-  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&
-     /(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(instructionText)&&
-     /(?:segundo|outro|novo|mais um|adicional)/i.test(instructionText)&&
-     /bot[aã]o|\bcta\b/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText)){
-    const blocks=editingSite.blocks.map(b=>({...b}));
-    const norm=(v:unknown)=>String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-    const hero=blocks.find(b=>/^(hero|capa|banner|principal)$/i.test(String(b.section||"")))?.section||
-      blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section;
-    const heroSection=String(hero||"hero");
-    const existing=blocks.filter(b=>b.type==="button"&&String(b.section||"")===heroSection);
-    const label=instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-      instructionText.match(/(?:texto|nome|chamada)\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-      instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*([^\n\r]+)/i)?.[1]?.trim()||
-      [...instructionText.matchAll(/["“'‘]([^"”'’]+)["”'’]/g)].at(-1)?.[1];
-    if(!label)return NextResponse.json({error:"Informe o texto do segundo botão entre aspas. Nenhuma alteração aplicada."},{status:422});
-    const destination=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
-    const matches=destination==="services"?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
-    const sections=[...new Set(blocks.map(b=>String(b.section||"")).filter(Boolean))].filter(section=>section!==heroSection);
-    const target=sections.find(section=>matches.test(norm(section)))||
-      sections.find(section=>blocks.some(b=>String(b.section||"")===section&&b.type==="heading"&&matches.test(norm(b.text))));
-    if(!target)return NextResponse.json({error:"Não encontrei a seção de destino no site. Nada foi alterado."},{status:422});
-    if(existing.some(b=>norm(b.text)===norm(label)))return NextResponse.json({site:editingSite,summary:"O segundo botão já existe."});
-    const anchor=existing.at(-1);
-    const anchorIndex=anchor?blocks.findIndex(b=>b.id===anchor.id):blocks.findLastIndex(b=>String(b.section||"")===heroSection);
-    if(anchorIndex<0)return NextResponse.json({error:"A capa não foi encontrada; nenhuma alteração aplicada."},{status:422});
-    const added={...(anchor||{}),id:"added-"+crypto.randomUUID(),type:"button",section:heroSection,text:label,href:"#"+target,align:anchor?.align||"left"};
-    blocks.splice(anchorIndex+1,0,added);
-    if(blocks.length!==editingSite.blocks.length+1||blocks.filter(b=>b.id===added.id).length!==1)return NextResponse.json({error:"Falha ao validar o novo botão."},{status:422});
-    return NextResponse.json({site:{...editingSite,blocks},summary:"Segundo botão adicionado à capa, preservando o conteúdo anterior e apontando para a seção existente."});
+    if(isLink){
+      const url=instructionText.match(/https?:\/\/[^\s"'<>]+/i)?.[0]?.replace(/[.,;]+$/,"");
+      const named=instructionText.match(/bot[aã]o\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1];
+      if(!url||!named)return NextResponse.json({error:"Informe o nome exato do botão e a URL; nenhuma alteração aplicada."},{status:422});
+      const candidates=blocks.filter(b=>b.type==="button"&&norm(b.text)===norm(named));
+      const heroCandidates=candidates.filter(b=>String(b.section||"")===heroSection);
+      const matches=/(?:capa|hero|principal)/i.test(instructionText)?heroCandidates:candidates;
+      if(matches.length!==1)return NextResponse.json({error:"Botão solicitado não identificado de forma única; nenhum outro elemento foi alterado."},{status:422});
+      const next=blocks.map(b=>b.id===matches[0].id?{...b,href:url}:b);
+      return NextResponse.json({site:{...editingSite,blocks:next},summary:"Link atualizado exclusivamente no botão "+named+"; WhatsApp flutuante preservado."});
+    }
   }
   if(!isFresh&&!fullSiteBrief&&(body.site as {cinematic?:{mode?:string}}|undefined)?.cinematic?.mode==="immersive-3d"){
     const current=body.site as {title?:string;header?:Record<string,unknown>;blocks:Array<Record<string,unknown>>;extras?:Record<string,unknown>;cinematic?:Record<string,unknown>};
