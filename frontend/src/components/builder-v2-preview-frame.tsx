@@ -4,7 +4,7 @@ import {createPortal} from "react-dom";
 import {type ReactNode,useEffect,useRef,useState} from "react";
 import {interceptPreviewFragmentNavigation} from "@/lib/builder-v2-preview-navigation";
 
-export type BuilderPreviewDevice="desktop"|"mobile";
+export type BuilderPreviewDevice="desktop"|"tablet"|"mobile";
 
 /**
  * A real viewport preview, not just a narrow div: Tailwind media queries and
@@ -71,16 +71,16 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     return()=>frameDocument.removeEventListener("click",onClick,true);
   },[frameDocument]);
 
-  const targetWidth=device==="mobile"?390:1280;
-  const targetHeight=device==="mobile"?780:800;
+  const targetWidth=device==="mobile"?390:device==="tablet"?820:1280;
+  const targetHeight=device==="mobile"?780:device==="tablet"?900:800;
   const scale=Math.min(1,Math.max(0.08,(availableWidth-2)/targetWidth));
   const visualWidth=targetWidth*scale;
-  return <div ref={viewportRef} aria-label={device==="mobile"?"Prévia mobile do site":"Prévia desktop do site"} className="relative w-full min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#0b1110]">
+  return <div ref={viewportRef} aria-label={device==="mobile"?"Prévia mobile do site":device==="tablet"?"Prévia tablet do site":"Prévia desktop do site"} className="relative w-full min-w-0 overflow-hidden rounded-xl border border-white/10 bg-[#0b1110]">
     <div style={{position:"relative",width:"100%",height:Math.round(targetHeight*scale),minHeight:availableWidth?undefined:420}}>
       <iframe
         ref={frameRef}
         scrolling="yes"
-        title={device==="mobile"?"Visualização mobile do site":"Visualização desktop do site"}
+        title={device==="mobile"?"Visualização mobile do site":device==="tablet"?"Visualização tablet do site":"Visualização desktop do site"}
         srcDoc={'<!doctype html><html lang="pt-BR"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="pn-v2-preview-root"></div></body></html>'}
         onLoad={()=>setFrameDocument(frameRef.current?.contentDocument??null)}
         style={{
