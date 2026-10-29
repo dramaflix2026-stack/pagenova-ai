@@ -380,7 +380,15 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         </aside>
       </div>
 
-      {isBuilderPreview&&<button type="button" onClick={()=>setDesktopOpen(v=>!v)} aria-expanded={desktopOpen} aria-label={desktopOpen?"Recolher menu principal":"Expandir menu principal"} className={`fixed left-3 top-3 z-[80] hidden h-11 items-center gap-2 rounded-xl border border-emerald-400/30 bg-[#0b100d] px-3 text-sm font-semibold text-emerald-200 shadow-lg lg:flex ${desktopOpen?"translate-x-64":""}`}><Menu className="h-5 w-5"/>{desktopOpen?"Recolher menu":"Abrir menu"}</button>}
+      {isBuilderPreview&&<div className="fixed inset-y-0 left-0 z-[80] hidden w-[68px] flex-col items-center border-r border-emerald-300/15 bg-[#0e1913] py-4 shadow-[8px_0_32px_rgba(0,0,0,.18)] lg:flex">
+        <Link href="/app" aria-label="Início da PageNova AI" title="Início" className="mb-8 flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/15 bg-emerald-300/[.07] text-emerald-200"><Sparkles className="h-5 w-5"/></Link>
+        <button type="button" onClick={()=>setDesktopOpen(v=>!v)} aria-expanded={desktopOpen} aria-label={desktopOpen?"Recolher navegação":"Expandir navegação"} title={desktopOpen?"Recolher navegação":"Expandir navegação"} className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-300/[.12] text-emerald-200 transition hover:bg-emerald-300/20">{desktopOpen?<X className="h-5 w-5"/>:<LayoutDashboard className="h-5 w-5"/>}</button>
+        <div className="my-5 h-px w-8 bg-white/10"/>
+        <Link href="/app/builder-v2" title="Estúdio IA" aria-label="Estúdio IA" className="flex h-11 w-11 items-center justify-center rounded-xl bg-lime-300/15 text-lime-300"><Sparkles className="h-5 w-5"/></Link>
+        <Link href="/app/paginas" title="Meus sites" aria-label="Meus sites" className="mt-2 flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/10 hover:text-white"><Files className="h-5 w-5"/></Link>
+        <Link href="/app/banco-midias" title="Banco de mídias" aria-label="Banco de mídias" className="mt-2 flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/10 hover:text-white"><Globe className="h-5 w-5"/></Link>
+        <span className="mt-auto h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_12px_rgba(190,242,100,.7)]" aria-hidden="true"/>
+      </div>}
       {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-0 z-[39] hidden bg-black/35 lg:block"/>}
       {/* =======================================================
           DESKTOP SIDEBAR
