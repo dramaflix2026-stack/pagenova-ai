@@ -7,8 +7,7 @@
 export const BUILDER_V2_CRM_TEMPLATES=[
   "institutional-complete",
   "minimalist-sophisticated",
-  "modern-impactful",
-  "image-text-alternating"
+  "prompt-adaptive"
 ] as const;
 export type BuilderV2InstitutionalTemplate=typeof BUILDER_V2_CRM_TEMPLATES[number];
 
