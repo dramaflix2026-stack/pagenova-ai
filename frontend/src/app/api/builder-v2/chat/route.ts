@@ -173,7 +173,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(count)section.goal="EXATAMENTE "+count+" itens nesta seção, um bloco paragraph por item. "+section.goal.replace(/EXATAMENTE QUATRO|quatro blocos|Três relatos|três etapas|quatro perguntas/gi,"a quantidade especificada");
       }
       // Keep each parallel AI call small enough to finish within the request budget.
-      const batchSize=2;
+      const batchSize=1;
       const batches=Array.from({length:Math.ceil(sections.length/batchSize)},(_,i)=>sections.slice(i*batchSize,(i+1)*batchSize));
       const forbiddenDesignCopy = /(?:paleta sofisticada|tons areia|off-white|grafite e detalhes|tipografia elegante|profundidade e textura|composi[cç][oõ]es assim[eé]tricas|fotografias realistas|est[eé]tica minimalista|layout editorial|cards repetitivos)/i;
       const nicheArchitecture = /arquitet|interiores|atelier|ateli[eê]/i.test(instruction);
@@ -181,7 +181,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // Bound upstream concurrency to prevent large briefs from exhausting provider limits.
       // Preserve original batch order so section ordering stays deterministic.
       const results:unknown[][]=new Array(batches.length);
-      const workerCount=Math.min(2,batches.length);
+      const workerCount=Math.min(3,batches.length);
       let nextBatch=0;
       await Promise.all(Array.from({length:workerCount},async()=>{
         while(nextBatch<batches.length){
@@ -196,14 +196,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         return Array.isArray(out.blocks)?out.blocks:[];
         };
         const recover = async (part:typeof sections,depth=0):Promise<unknown[]> => {
-          try{return await generateBatch(part,depth===0?4500:3500);}
+          try{return await generateBatch(part,depth===0?2600:3500);}
           catch(error){
             if(!(error instanceof Error)||error.message!=="truncated")throw error;
             if(part.length===1){
               // Single-section output must stay concise enough for the model limit.
               const section=part[0];
               const compact=part.map(v=>({...v,goal:v.goal.slice(0,500)}));
-              return await generateBatch(compact,6000);
+              return await generateBatch(compact,4000);
             }
             const middle=Math.ceil(part.length/2);
             const recovered=await Promise.all([recover(part.slice(0,middle),depth+1),recover(part.slice(middle),depth+1)]);
