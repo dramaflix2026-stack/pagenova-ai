@@ -244,6 +244,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
  max-height:420px!important;object-fit:cover!important;
 }
 
+/* Universal cinematic About layout: preview and published use the same renderer. */
+.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-copy p{font-size:clamp(1rem,1.2vw,1.12rem)!important;line-height:1.75!important;color:#f5f1ea!important;text-align:left!important}
+.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-title :is(h1,h2,h3){color:#fff!important;text-align:left!important}
+.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media img{transition:transform .8s ease}
+@media(hover:hover){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media:hover img{transform:scale(1.035)}}
+@media(max-width:767px){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media{margin-top:.5rem}.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-copy p{font-size:1rem!important}}
+@media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media img{transition:none!important}}
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
@@ -638,6 +645,22 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                   {headingNode}
                   <div className={adaptiveTemplate?"max-w-2xl space-y-4":"mx-auto max-w-2xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center"}>{textItems.slice(0,3).map(render)}</div>
                   {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={`flex flex-wrap items-start gap-3 ${adaptiveTemplate?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-center"}`}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
+                </div>:
+              site.cinematic?.mode==="cinematic" && isAboutEditorial && index>0?
+                <div className="pn-cinema-about mx-auto w-full max-w-6xl py-5 md:py-12">
+                  <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-14">
+                    <div className="min-w-0 space-y-6 lg:pr-4">
+                      <span className="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[.26em] text-[#d8c2a1]"><span className="h-px w-9 bg-current"/> NOSSA ESSÊNCIA / {String(index+1).padStart(2,"0")}</span>
+                      <div className="pn-cinema-about-title [&_h2]:!text-left [&_h2]:!font-semibold [&_h2]:!tracking-tight [&_h2]:!leading-[1.12] [&_h2]:!text-[clamp(1.85rem,3.3vw,3.3rem)]">{headingNode}</div>
+                      <div className="pn-cinema-about-copy max-w-[54ch] space-y-4">{textItems.slice(0,2).map(render)}</div>
+                      {buttons.length>0&&<div className="flex flex-wrap gap-3 pt-2">{buttons.map(render)}</div>}
+                    </div>
+                    <div className="pn-cinema-about-media relative min-w-0 overflow-hidden rounded-[1.5rem] border border-white/15 bg-[#171513] shadow-[0_30px_80px_rgba(0,0,0,.3)]">
+                      <div className="aspect-[5/4] max-h-[470px] w-full overflow-hidden [&_img]:!h-full [&_img]:!w-full [&_img]:!object-cover [&_picture]:!block [&_picture]:!h-full">{uniqueImages.slice(0,1).map(imageNode)}</div>
+                      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"/>
+                      <span className="pointer-events-none absolute bottom-5 left-5 rounded-full border border-white/30 bg-black/55 px-4 py-2 text-[.65rem] font-semibold uppercase tracking-[.2em] text-white backdrop-blur-md">NOSSA ESSÊNCIA</span>
+                    </div>
+                  </div>
                 </div>:
               featureProcessCard?
                 <div className="mx-auto w-full max-w-6xl">
