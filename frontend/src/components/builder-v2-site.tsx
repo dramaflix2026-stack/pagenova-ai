@@ -291,6 +291,23 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-template-editorial .pn-editorial-layout a:not([href^="#"]){border-radius:3px!important}
 .pn-template-editorial footer{background:#101820!important;color:#fff!important;font-family:Arial,Helvetica,sans-serif!important}
 .pn-template-editorial footer p:first-child{font-family:Arial,Helvetica,sans-serif!important;font-weight:700!important}
+/* Template 2 desktop refinement: warm neutral palette, structured editorial hierarchy. */
+@media(min-width:1024px){
+.pn-template-editorial .pn-editorial-layout{max-width:1180px!important}
+.pn-template-editorial .pn-editorial-layout>div.grid:not(:first-child){grid-template-columns:minmax(260px,.76fr) minmax(0,1.24fr)!important;gap:clamp(48px,6vw,104px)!important;align-items:start}
+.pn-template-editorial .pn-editorial-layout>div.grid:not(:first-child)>div:first-child{position:relative!important;top:auto!important}
+.pn-template-editorial .pn-editorial-layout>div.grid:not(:first-child)>div:last-child{max-width:100%;min-width:0}
+.pn-template-editorial .pn-motion-site>section:not(:first-child){padding-top:clamp(76px,7vw,112px)!important;padding-bottom:clamp(76px,7vw,112px)!important}
+.pn-template-editorial .pn-editorial-layout h2{font-size:clamp(2.15rem,3.3vw,3.5rem)!important;max-width:540px;line-height:1.12!important}
+.pn-template-editorial .pn-editorial-layout article{border-radius:16px!important;box-shadow:0 12px 38px rgba(30,54,42,.065)!important;overflow:hidden}
+.pn-template-editorial .pn-editorial-layout article:hover{transform:translateY(-3px);box-shadow:0 20px 44px rgba(30,54,42,.11)!important;transition:transform .25s ease,box-shadow .25s ease}
+.pn-template-editorial .pn-editorial-layout article p{-webkit-line-clamp:unset!important;display:block!important;overflow:visible!important}
+}
+.pn-template-editorial{--pn-ink:#202b26!important}
+.pn-template-editorial .pn-editorial-layout h2{color:#24372d!important;letter-spacing:-.045em!important}
+.pn-template-editorial .pn-editorial-layout p{color:#415249}
+.pn-template-editorial .pn-editorial-layout article{border-color:#dce6df!important}
+.pn-template-editorial .pn-editorial-layout a{outline-offset:3px}
 /* Compact, readable editorial mobile rhythm; limited to Template 2. */
 .pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;gap:1rem!important;min-height:0!important}
 .pn-template-editorial .pn-editorial-layout .pn-editorial-photo-card>div:last-child>span{display:block!important;margin:0!important;line-height:1.4!important;min-height:1.4em!important;font-variant-numeric:tabular-nums!important;letter-spacing:.2em!important}
