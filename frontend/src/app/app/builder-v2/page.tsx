@@ -525,44 +525,7 @@ export default function BuilderV2() {
     setBusy(true);
     setGenerationError("");
     setMessages(prev => [...prev, { role: "user", text: prompt || "Enviar "+propertyFiles.length+" foto(s) reais do imóvel" }]);
-    // Execute second hero CTA locally before ANY image, banner or niche-specific route.
-    // This is an atomic block edit, not a media-generation request.
-    if(site.blocks.length&&/(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(prompt)&&
-       /(?:segundo|outro|novo|mais um|adicional)/i.test(prompt)&&
-       /bot[aã]o|\bcta\b/i.test(prompt)&&/(?:capa|hero|principal)/i.test(prompt)){
-      try{
-        const norm=(value:unknown)=>String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-        const label=prompt.match(/(?:texto|nome|chamada)\s*(?:de|do|:)?\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-          prompt.match(/bot[aã]o[^"“'‘]{0,120}["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-          prompt.match(/["“'‘]([^"”'’]+)["”'’]/)?.[1];
-        if(!label)throw Error("Informe o texto do botão entre aspas.");
-        const blocks=site.blocks.map(block=>({...block}));
-        const hero=blocks.find(block=>/^(hero|capa|banner|principal)$/i.test(String(block.section||"")))?.section||
-          blocks.find(block=>block.type==="heading")?.section||blocks[0]?.section;
-        if(!hero)throw Error("A capa não foi encontrada.");
-        const buttons=blocks.filter(block=>block.type==="button"&&block.section===hero);
-        if(buttons.some(block=>norm(block.text)===norm(label))){
-          setMessages(prev=>[...prev,{role:"assistant",text:"O botão já existe na capa; nenhuma duplicação realizada."}]);
-        }else{
-          const destination=/servi[cç]|tratament/i.test(prompt)?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
-          const target=blocks.find(block=>block.section!==hero&&destination.test(norm(String(block.section||"")+" "+block.text)))?.section;
-          if(!target)throw Error("A seção de destino não foi encontrada.");
-          const anchor=buttons.at(-1);
-          const index=anchor?blocks.findIndex(block=>block.id===anchor.id):blocks.findLastIndex(block=>block.section===hero);
-          if(index<0)throw Error("Não foi possível localizar a posição do botão na capa.");
-          const added={...(anchor||blocks[index]),id:"added-"+crypto.randomUUID(),type:"button" as const,section:hero,text:label,href:"#"+target};
-          blocks.splice(index+1,0,added);
-          if(blocks.length!==site.blocks.length+1||!blocks.some(block=>block.id===added.id))throw Error("A validação do novo botão falhou.");
-          recordVersion(site,"Antes de adicionar botão na capa");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
-          setSite({...site,blocks});
-          setMessages(prev=>[...prev,{role:"assistant",text:"Segundo botão adicionado à capa, com link interno para a seção solicitada. Imagens e botão anterior preservados."}]);
-        }
-        setInstruction("");setGenerationError("");
-      }catch(error){
-        setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Não foi possível adicionar o botão.")+" O site foi preservado."}]);
-      }finally{setBusy(false);}
-      return;
-    }
+    // Hero CTA creation is handled by the server-side atomic editor.
     // Image references are analyzed only; uploaded site assets are explicitly selected below.
     // Property photography is a scoped, deterministic operation; never regenerate the site to change a photo.
     const isFullGeneration=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
