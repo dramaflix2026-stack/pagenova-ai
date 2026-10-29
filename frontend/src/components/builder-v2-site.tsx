@@ -868,6 +868,14 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-cine-services .pn-editorial-text-card :is(h3,p,span){color:#f7f2ea!important;text-shadow:none!important}
 .pn-cinema-wellness .pn-cine-hero{background:rgba(4,14,22,.22)!important}
 @media(max-width:767px){.pn-cinema-wellness .pn-motion-site>section{background:rgba(6,20,30,.65)!important}.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{background:rgba(10,28,39,.94)!important}}
+/* Clinic 03: FAQ and differentials stay transparent over the existing working video. */
+.pn-cinema-wellness .pn-cine-differentials{background:rgba(7,24,35,.42)!important;background-color:rgba(7,24,35,.42)!important}
+.pn-cinema-wellness .pn-cine-differentials :is(h2,h3,p,li){color:#f7ebd9!important;text-shadow:none!important}
+.pn-cinema-wellness .pn-cine-differentials :is(article,.pn-editorial-text-card){background:rgba(8,28,41,.80)!important;background-color:rgba(8,28,41,.80)!important;color:#f7ebd9!important;border-color:rgba(218,187,144,.4)!important}
+.pn-cinema-wellness .pn-cine-differentials :is(article,.pn-editorial-text-card) :is(h3,p,span,div){color:#f7ebd9!important;text-shadow:none!important}
+.pn-cinema-wellness section:has(>.pn-cinema-faq),.pn-cinema-wellness section:has(.pn-cinema-faq){background:rgba(7,24,35,.48)!important;background-color:rgba(7,24,35,.48)!important}
+.pn-cinema-wellness section:has(.pn-cinema-faq) h2{color:#f7ebd9!important;text-shadow:none!important}
+.pn-cinema-wellness .pn-cinema-faq-premium details{background:rgba(10,20,26,.88)!important;background-color:rgba(10,20,26,.88)!important;color:#f7ebd9!important}
 `}</style>}
         
         
