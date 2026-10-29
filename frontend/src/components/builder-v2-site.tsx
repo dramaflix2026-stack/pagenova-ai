@@ -194,6 +194,27 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 }
 .pn-cinematic-enabled .pn-motion-site>section article :is([class*="border-emerald"],[class*="border-green"]){border-color:#c6a77b!important}
 
+/* Cinematic content readability: neutral opaque panels, including nested card copy. */
+.pn-cinematic-enabled .pn-motion-site>section article:not(.pn-premium-info-card){
+ background:rgba(12,12,11,.92)!important;
+ background-image:none!important;
+ border-left-color:#c6a77b!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section article:not(.pn-premium-info-card) :is(div,h1,h2,h3,h4,h5,p,span,strong,small,blockquote){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section article:not(.pn-premium-info-card) :is(p,span,small){opacity:1!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about{max-width:1080px!important;padding-top:2rem!important;padding-bottom:2rem!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid{align-items:center!important;gap:1.75rem!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid>div:first-child{min-height:0!important;max-height:400px!important;position:relative!important;top:auto!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid>div:first-child :is(img,picture){max-height:400px!important;object-fit:cover!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about p{font-size:clamp(.95rem,1.15vw,1.1rem)!important;line-height:1.65!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about h2{font-size:clamp(1.8rem,3vw,2.75rem)!important}
+@media(max-width:767px){
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid>div:first-child,
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid>div:first-child :is(img,picture){max-height:260px!important}
+}
+
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
