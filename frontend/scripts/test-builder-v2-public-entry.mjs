@@ -33,7 +33,7 @@ test("Standard Studio route opens chat instead of experimental category selector
   assert.match(builder,/useState\(false\);/);
   assert.match(builder,/setCategoryScreen\(true\)/);
   assert.doesNotMatch(builder,/Ambiente experimental/);
-  for(const id of ["institutional-complete","minimalist-sophisticated","modern-impactful","image-text-alternating"])assert.ok(builder.includes(id),id);
+  for(const id of ["institutional-complete","minimalist-sophisticated","prompt-adaptive"])assert.ok(builder.includes(id),id);
 });
 
 test("studio initial generation shares CRM wallet, trial quota and provider guard",()=>{
