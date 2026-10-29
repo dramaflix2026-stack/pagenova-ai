@@ -26,10 +26,10 @@ test("before generation show real interactive starter preview, not giant empty i
  assert.match(page,/nenhum site gerado ainda/);
  assert.match(page,/composerRef\.current\?\.focus\(\)/);
 });
-test("after generation all four original templates and real responsive previews stay intact",()=>{
+test("after generation three supported templates and real responsive previews stay intact",()=>{
  assert.match(page,/\(site.blocks.length>0\|\|siteCategory!=="institutional"\)\?<BuilderV2PreviewFrame device=\{previewDevice\}>/);
  assert.match(page,/BuilderV2Site site=\{site\}/);
- for(const template of ["institutional-complete","minimalist-sophisticated","modern-impactful","image-text-alternating"])assert.ok(page.includes(template));
+ for(const template of ["institutional-complete","minimalist-sophisticated","prompt-adaptive"])assert.ok(page.includes(template));
  assert.match(page,/aria-label="Visualizar desktop ou mobile"/);
  assert.match(page,/setPreviewExpanded/);
  assert.match(page,/SiteGenerationCreditsNotice/);
