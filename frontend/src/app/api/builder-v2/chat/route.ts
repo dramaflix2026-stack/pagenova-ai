@@ -715,7 +715,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const heroSection=String(blocks.find(b=>/^(hero|capa|banner|principal)$/i.test(String(b.section||"")))?.section||
       blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"hero");
     const isAdd=/(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(instructionText)&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText);
-    const isLink=/(?:altere|alterar|mude|troque|substitua)/i.test(instructionText)&&/(?:link|url|endere[cç]o)/i.test(instructionText);
+    const isLink=/(?:altere|alterar|mude|troque|substitua|configure|configurar|aponte|direcione|coloque|defina)/i.test(instructionText)&&/(?:link|url|endere[cç]o|https?:\/\/)/i.test(instructionText);
     if(isAdd){
       const label=instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
         instructionText.match(/(?:texto|nome|chamada)\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
