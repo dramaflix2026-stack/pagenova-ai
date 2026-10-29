@@ -1166,9 +1166,9 @@ export default function BuilderV2() {
     </section>
     <p className="mt-6 text-xs text-white/45">Os módulos especializados serão liberados progressivamente. Não geraremos uma loja ou um cardápio usando um template institucional disfarçado.</p>
   </div></main>;
-  return <main className="pn-builder-shell pn-builder-editor pn-builder-stacked min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-5 text-white sm:px-4 sm:py-8">
+  return <main className="pn-builder-shell pn-builder-editor pn-builder-stacked min-h-screen min-w-0 overflow-x-hidden bg-[#0b1110] px-3 py-4 text-white sm:px-5 sm:py-5">
     <div className="mx-auto w-full min-w-0 max-w-[1680px]">
-      <div className="grid min-w-0 grid-cols-1 items-start gap-5 ">
+      <div className="pn-creative-studio grid min-w-0 grid-cols-1 items-start gap-5 "><header className="pn-studio-masthead"><div className="pn-studio-kicker"><Sparkles size={14}/> PAGENOVA AI <span className="pn-studio-kicker-sep">/</span> CREATIVE STUDIO</div><div className="pn-studio-masthead-row"><div><h1>Crie algo extraordinário.</h1><p>Descreva sua ideia, personalize com inteligência artificial e acompanhe cada detalhe em tempo real.</p></div><div className="pn-studio-live"><span/> ESTÚDIO ATIVO</div></div></header>
         <section className="pn-editor-chat flex min-w-0 flex-col rounded-2xl border border-white/15 bg-[#141d1a] p-4 shadow-[0_14px_45px_rgba(0,0,0,.13)] sm:p-5"><div className="mb-4 flex flex-wrap items-center gap-2.5">
   {!crmProjectId&&<button type="button" onClick={()=>setCategoryScreen(true)} className="rounded-lg border border-white/15 px-3 py-2 text-xs text-white/65 transition hover:bg-white/10" title="Escolher outro tipo de site">Tipos de site</button>}
   {site.blocks.length>0&&<button type="button" onClick={newProject} disabled={busy||publishing} className="rounded-lg border border-lime-300/35 px-3 py-2 text-xs font-semibold text-lime-300 disabled:opacity-40">+ Novo site</button>}
@@ -1306,13 +1306,30 @@ export default function BuilderV2() {
     </div>
     <style jsx global>{`
 @media (min-width:1024px) {
-  .pn-builder-stacked { padding-left: 76px; }
-  .pn-app-content:has(.pn-builder-stacked) { padding-left: 0; }
-  .pn-builder-stacked .pn-editor-chat { max-width: none; }
-  .pn-builder-stacked #pn-builder-site-preview { position: relative; z-index: 0; }
-  .pn-builder-stacked .pn-editor-chat { position: relative; z-index: 1; }
-  .pn-app-content:has(.pn-builder-stacked)::before { content: 'MENU'; position: fixed; left: 0; top: 52px; bottom: 0; width: 58px; z-index: 30; display: flex; align-items: center; justify-content: center; writing-mode: vertical-rl; letter-spacing: .22em; font-size: 11px; font-weight: 800; color: #b7f36b; background: #101a15; border-right: 1px solid rgba(183,243,107,.22); pointer-events: none; }
+ .pn-app-content:has(.pn-builder-stacked) { padding-left: 0; }
+ .pn-builder-stacked { padding-left: 86px; }
+ .pn-app-content:has(.pn-builder-stacked)::before { content:""; position:fixed; top:0; bottom:0; left:0; width:68px; background:linear-gradient(180deg,#14221b,#0c1411 65%); border-right:1px solid rgba(178,245,97,.19); box-shadow:12px 0 36px rgba(0,0,0,.18); z-index:20; pointer-events:none; }
+ .pn-builder-stacked .pn-editor-chat { max-width:none; }
+ .pn-builder-stacked .pn-studio-hero {padding-left:0;}
 }
-@media (min-width:1024px) { .pn-app-content:has(.pn-builder-editor) { padding-left: 0; } .pn-builder-editor .pn-studio-hero { padding-left: 11rem; } }`}</style>
+.pn-builder-stacked {background:radial-gradient(ellipse 65% 45% at 50% -10%,rgba(103,158,70,.12),transparent 80%),#0a100e;}
+.pn-creative-studio {gap:20px;}
+.pn-studio-masthead {padding:18px 8px 8px; text-align:left;}
+.pn-studio-kicker {display:flex;align-items:center;gap:9px;color:#c5f67b;font-size:11px;font-weight:800;letter-spacing:.16em;}
+.pn-studio-kicker-sep {color:#52665a;margin:0 5px;}
+.pn-studio-masthead-row {display:flex;align-items:center;justify-content:space-between;gap:20px;}
+.pn-studio-masthead h1 {font-size:clamp(25px,2.8vw,40px);font-weight:800;letter-spacing:-.045em;line-height:1.2;margin:13px 0 8px;color:#f4faf5;}
+.pn-studio-masthead p {font-size:13px;color:#a1b3a8;line-height:1.6;max-width:720px;}
+.pn-studio-live {display:flex;align-items:center;gap:9px;white-space:nowrap;padding:10px 14px;border:1px solid rgba(187,241,127,.2);border-radius:99px;color:#d1edba;background:#17251b;font-size:10px;font-weight:800;letter-spacing:.08em;}
+.pn-studio-live span {height:7px;width:7px;border-radius:50%;background:#b7f46c;box-shadow:0 0 14px #a5ec58;}
+.pn-builder-stacked .pn-editor-chat {background:linear-gradient(150deg,rgba(30,45,35,.98),rgba(16,27,22,.99));border:1px solid rgba(190,237,175,.14);border-radius:22px;padding:clamp(18px,2.4vw,32px);box-shadow:0 22px 70px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035);}
+.pn-builder-stacked .pn-chat-composer {border-radius:18px;background:#0a1510;border-color:rgba(197,236,184,.2);box-shadow:inset 0 2px 12px rgba(0,0,0,.13);}
+.pn-builder-stacked .pn-chat-input {min-height:65px;}
+.pn-builder-stacked #pn-builder-site-preview {position:relative;z-index:0;min-width:0;}
+.pn-builder-stacked .pn-editor-chat {position:relative;z-index:1;}
+.pn-builder-stacked #pn-builder-site-preview > div {border-radius:22px;border-color:rgba(190,237,175,.14);box-shadow:0 22px 70px rgba(0,0,0,.2);}
+.pn-builder-stacked .pn-editor-publish-panel {border-radius:18px;border-color:rgba(190,237,175,.14);}
+@media(max-width:767px){.pn-studio-live{display:none}.pn-studio-masthead{padding:6px 0 2px}.pn-studio-masthead h1{font-size:27px}}
+`}</style>
   </main>;
 }
