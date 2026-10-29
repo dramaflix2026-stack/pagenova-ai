@@ -630,6 +630,21 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article p{max-width:48ch;font-size:clamp(.92rem,1.05vw,1rem)!important;line-height:1.7!important;color:#e2d4c4!important}
 @media(max-width:699px){.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{min-height:0!important;padding:27px!important;border-radius:8px 24px 8px 24px!important}}
 @media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{transition:none!important}.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:hover{transform:none!important}}
+/* Cinematic gastronomy hero: photography accents + animated brand reveal; full-page video remains intact. */
+.pn-cinema-gastronomy .pn-cine-hero{position:relative;isolation:isolate}
+.pn-cinema-gastronomy .pn-cine-hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,rgba(7,5,4,.56),rgba(7,5,4,.12) 48%,rgba(7,5,4,.52)),radial-gradient(ellipse at 50% 65%,rgba(184,87,28,.18),transparent 60%);z-index:0}
+.pn-cinema-gastronomy .pn-cine-hero>div{position:relative;z-index:1}
+.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2){color:#fff4e5!important;text-shadow:0 5px 38px rgba(0,0,0,.85),0 0 40px rgba(203,108,44,.23)!important;letter-spacing:-.045em!important;animation:pn-food-title-reveal 2.1s steps(24,end) .25s both!important}
+@keyframes pn-food-title-reveal{0%{clip-path:inset(0 100% 0 0);opacity:.8}100%{clip-path:inset(0 0 0 0);opacity:1}}
+.pn-cinema-gastronomy .pn-food-hero-gallery{display:flex;justify-content:center;align-items:center;gap:clamp(8px,1.3vw,18px);width:min(100%,740px);margin:clamp(14px,2vw,28px) auto 0;min-height:0}
+.pn-cinema-gastronomy .pn-food-hero-gallery:empty{display:none}
+.pn-cinema-gastronomy .pn-food-hero-gallery-frame{position:relative;width:clamp(95px,16vw,195px);aspect-ratio:1.45;overflow:hidden;border-radius:8px 22px 8px 22px;border:1px solid rgba(246,184,116,.55);box-shadow:0 14px 35px rgba(0,0,0,.52);transform:rotate(-3deg);animation:pn-food-photo-in .8s ease-out both}
+.pn-cinema-gastronomy .pn-food-hero-gallery-frame:nth-child(2){transform:translateY(12px) rotate(3deg);animation-delay:.18s}
+.pn-cinema-gastronomy .pn-food-hero-gallery-frame:nth-child(3){transform:rotate(-2deg);animation-delay:.32s}
+.pn-cinema-gastronomy .pn-food-hero-gallery-frame img{width:100%;height:100%;object-fit:cover}
+@keyframes pn-food-photo-in{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
+@media(max-width:699px){.pn-cinema-gastronomy .pn-food-hero-gallery-frame{width:30%;aspect-ratio:1.1}.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2){animation-duration:1.6s!important}}
+@media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2),.pn-cinema-gastronomy .pn-food-hero-gallery-frame{animation:none!important}}
 `}</style>}
         
         
@@ -992,6 +1007,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
               immersiveHero?
                 <div className={adaptiveTemplate?"relative z-10 mx-auto flex min-h-[450px] w-full max-w-5xl flex-col items-center justify-center gap-5 py-6 text-center sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14":"relative z-10 mx-auto flex min-h-[450px] w-full max-w-4xl flex-col items-center justify-center gap-5 py-6 text-center sm:min-h-[520px] sm:gap-7 lg:min-h-[590px] lg:py-14"}>
                   {headingNode}
+                  {site.cinematic?.mode==="cinematic"&&/hamb[uú]rg|burger|pizz|restaurante|sushi|churrasc|cafeteria|padaria|confeitaria|doceria|gastronomi|delivery/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))&&<div className="pn-food-hero-gallery" aria-label="Destaques visuais do cardápio">{site.blocks.filter(b=>b.type==="image"&&!!b.src&&b.src!==heroPhotoCandidate).slice(0,3).map((b,i)=><div className="pn-food-hero-gallery-frame" key={b.id}><img src={b.src} alt={b.text||`Destaque gastronômico ${i+1}`} loading={i===0?"eager":"lazy"}/></div>)}</div>}
                   <div className={adaptiveTemplate?"max-w-2xl space-y-4":"mx-auto max-w-2xl space-y-4 text-center [&_p]:!mx-auto [&_p]:!text-center"}>{textItems.slice(0,3).map(render)}</div>
                   {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={`flex flex-wrap items-start gap-3 ${adaptiveTemplate?"justify-center":buttons[0]?.align==="right"?"justify-end":"justify-center"}`}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                 </div>:
