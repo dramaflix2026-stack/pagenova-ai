@@ -377,3 +377,16 @@
 .pn3-root .pn3-bakery-feature-grid article{padding:18px!important}
 .pn3-root .pn3-bakery-feature-grid article strong{font-size:17px!important}
 }
+
+/* Cinematic bakery cover: keep video cropped within a deliberate, compact frame.
+   Applies to the published renderer and the embedded Builder preview. */
+@media(min-width:851px){
+.pn3-root .pn3-bakery-storefront>div>div:first-child{height:clamp(320px,46vh,540px)!important;min-height:0!important;max-height:540px!important;overflow:hidden!important}
+.pn3-root .pn3-bakery-storefront .pn3-bakery-video{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important}
+.pn3-root .pn3-bakery-storefront .pn3-bakery-video-fallback{object-fit:cover!important}
+.pn3-root .pn3-bakery-storefront>div>div:last-child{padding-block:clamp(28px,3vw,46px)!important}
+}
+@media(max-width:850px){
+.pn3-root .pn3-bakery-storefront>div>div:first-child{height:clamp(230px,38vh,380px)!important;min-height:0!important;overflow:hidden!important}
+.pn3-root .pn3-bakery-storefront .pn3-bakery-video{object-fit:cover!important}
+}
