@@ -254,6 +254,22 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 @media(hover:hover){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media:hover img{transform:scale(1.035)}}
 @media(max-width:767px){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media{margin-top:.5rem}.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-copy p{font-size:1rem!important}}
 @media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-cinema-about .pn-cinema-about-media img{transition:none!important}}
+/* CINEMATIC V3 — consistent premium editorial panels and legible surfaces */
+.pn-cinematic-enabled .pn-cinema-about-kicker{font-size:clamp(1.6rem,3.7vw,3rem)!important;line-height:1.12!important;letter-spacing:.015em!important;max-width:100%;text-wrap:balance}
+.pn-cinematic-enabled .pn-cinema-about-kicker>span{flex-shrink:0}
+.pn-cinematic-enabled .pn-cinema-about{padding-block:clamp(2.5rem,6vw,5.5rem)!important}
+.pn-cinematic-enabled .pn-cinema-about-copy{border-left:2px solid #c6a77b;padding-left:clamp(1rem,2vw,1.7rem)}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card{background:#f6f1e9!important;background-image:none!important;border:1px solid #d2b58c!important;box-shadow:0 14px 38px rgba(0,0,0,.24)!important;opacity:1!important;filter:none!important;transform:none;min-height:210px}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card :is(h3,p,span){color:#28221c!important;-webkit-text-fill-color:#28221c!important;text-shadow:none!important;opacity:1!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card>div{background:transparent!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card:nth-child(4n+2),.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card:nth-child(4n+3){background:#eee5d8!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card h3{font-size:clamp(1.3rem,2vw,1.8rem)!important;line-height:1.22!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card p{font-size:clamp(.95rem,1.15vw,1.06rem)!important;line-height:1.7!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card:hover{box-shadow:0 24px 52px rgba(0,0,0,.38)!important;transform:translateY(-4px)}
+.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card [aria-hidden="true"]{color:#28221c!important}
+@media(max-width:640px){.pn-cinematic-enabled .pn-cinema-about-kicker{font-size:clamp(1.5rem,6vw,2rem)!important}.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card{min-height:0}}
+@media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-motion-site>section .pn-premium-info-card:hover{transform:none}}
+
 /* Cinematic contrast and palette: universal across niches. */
 .pn-cinematic-enabled .pn-motion-site>section .pn-process-card{background:#f8f5ef!important;background-image:none!important;border-color:#c6a77b!important}
 .pn-cinematic-enabled .pn-motion-site>section .pn-process-card :is(h3,p,span){color:#24211d!important;-webkit-text-fill-color:#24211d!important;text-shadow:none!important}
@@ -760,7 +776,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                 <div className="pn-cinema-about mx-auto w-full max-w-6xl py-5 md:py-12">
                   <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-14">
                     <div className="min-w-0 space-y-6 lg:pr-4">
-                      <span className="inline-flex items-center gap-3 text-xs font-semibold uppercase tracking-[.26em] text-[#d8c2a1]"><span className="h-px w-9 bg-current"/> {String(cinematicNumber(index)).padStart(2,"0")} / NOSSA ESSÊNCIA</span>
+                      <span className="pn-cinema-about-kicker inline-flex items-center gap-3 font-bold uppercase text-[#f6e4c7]"><span className="h-px w-9 bg-current"/> {String(cinematicNumber(index)).padStart(2,"0")} / NOSSA ESSÊNCIA</span>
                       <div className="pn-cinema-about-title [&_h2]:!text-left [&_h2]:!font-semibold [&_h2]:!tracking-tight [&_h2]:!leading-[1.12] [&_h2]:!text-[clamp(1.85rem,3.3vw,3.3rem)]">{headingNode}</div>
                       <div className="pn-cinema-about-copy max-w-[54ch] space-y-4">{textItems.slice(0,2).map(render)}</div>
                       {buttons.length>0&&<div className="flex flex-wrap gap-3 pt-2">{buttons.map(render)}</div>}
