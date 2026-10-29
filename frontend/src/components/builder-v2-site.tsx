@@ -777,6 +777,22 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-motion-site>section article:nth-child(3n).pn-wellness-reveal{transition-delay:170ms}
 @media(max-width:767px){.pn-cinema-wellness .pn-cine-about>div::after{width:65px;height:65px;bottom:-12px}.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card>div:last-child{padding:22px!important}}
 @media(prefers-reduced-motion:reduce){.pn-cinema-wellness .pn-motion-site>section .pn-wellness-reveal{opacity:1!important;filter:none!important;translate:none!important;transition:none!important}}
+/* Cinematic 03 second pass: framing, connective lines and editorial visual hierarchy. */
+.pn-cinema-wellness .pn-cine-about>div{position:relative}
+.pn-cinema-wellness .pn-cine-about>div::before{content:"";position:absolute;z-index:0;top:3%;right:0;width:clamp(70px,12vw,170px);height:clamp(70px,12vw,170px);border:1px solid rgba(221,190,148,.45);border-radius:50%;pointer-events:none}
+.pn-cinema-wellness .pn-cine-about>div::after{content:"";position:absolute;top:calc(3% + 35px);right:-16px;width:clamp(70px,12vw,170px);height:clamp(70px,12vw,170px);border:1px solid rgba(221,190,148,.2);border-radius:50%;pointer-events:none}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition]>.grid,.pn-cinema-wellness .pn-cine-differentials [data-pn-composition]>.grid{gap:clamp(16px,2.3vw,34px)!important}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition] article,.pn-cinema-wellness .pn-cine-differentials [data-pn-composition] article{position:relative!important;padding:clamp(20px,2.4vw,35px)!important;min-height:240px}
+.pn-cinema-wellness .pn-cine-services [data-pn-composition] article::before,.pn-cinema-wellness .pn-cine-differentials [data-pn-composition] article::before{content:"";position:absolute;right:20px;top:20px;width:30px;height:30px;border-top:1px solid rgba(227,198,159,.65);border-right:1px solid rgba(227,198,159,.65);pointer-events:none}
+.pn-cinema-wellness .pn-cine-process [data-pn-composition]>.grid{position:relative;gap:clamp(22px,3vw,40px)!important}
+.pn-cinema-wellness .pn-cine-process [data-pn-composition]>.grid::before{content:"";position:absolute;left:50%;top:0;bottom:0;border-left:1px dashed rgba(210,180,138,.38);pointer-events:none}
+.pn-cinema-wellness .pn-cine-process [data-pn-composition] article{position:relative!important;z-index:1}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card{border-radius:2px 45px 2px 45px!important;border:1px solid rgba(210,180,138,.42)!important;backdrop-filter:blur(10px)}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card:nth-child(even){border-radius:45px 2px 45px 2px!important}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card h3{font-size:clamp(1.25rem,2vw,1.9rem)!important}
+.pn-cinema-wellness .pn-cine-hero>div{position:relative}
+.pn-cinema-wellness .pn-cine-hero>div::after{content:"";position:absolute;right:0;bottom:0;width:clamp(70px,12vw,150px);height:clamp(70px,12vw,150px);border-right:1px solid rgba(225,191,149,.65);border-bottom:1px solid rgba(225,191,149,.65);pointer-events:none}
+@media(max-width:767px){.pn-cinema-wellness .pn-cine-process [data-pn-composition]>.grid::before{left:12px}.pn-cinema-wellness .pn-cine-about>div::before,.pn-cinema-wellness .pn-cine-about>div::after{opacity:.35}.pn-cinema-wellness .pn-cine-services [data-pn-composition] article,.pn-cinema-wellness .pn-cine-differentials [data-pn-composition] article{min-height:0}}
 `}</style>}
         
         
