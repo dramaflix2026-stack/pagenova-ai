@@ -215,6 +215,33 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-motion-site>section .pn-editorial-about>div.grid>div:first-child :is(img,picture){max-height:260px!important}
 }
 
+/* Published cinematic parity: photo cards are div-based in some layouts. */
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card,
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-text-card{
+ background:#141311!important;background-image:none!important;
+ border-color:#c6a77b!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card>div:last-child,
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-text-card{
+ background:rgba(13,12,11,.96)!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card>div:last-child :is(h1,h2,h3,h4,p,span,strong,small),
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-text-card :is(h1,h2,h3,h4,p,span,strong,small){
+ color:#fff!important;-webkit-text-fill-color:#fff!important;opacity:1!important;text-shadow:none!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card [class*="border-l"],
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card [class*="bg-emerald"]{border-color:#c6a77b!important;background-color:#c6a77b!important}
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="sobre"] p,
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="historia"] p,
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="about"] p{
+ font-size:clamp(1rem,1.25vw,1.15rem)!important;line-height:1.65!important;
+}
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="sobre"] img,
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="historia"] img,
+.pn-cinematic-enabled .pn-motion-site>section[data-section-id*="about"] img{
+ max-height:420px!important;object-fit:cover!important;
+}
+
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
