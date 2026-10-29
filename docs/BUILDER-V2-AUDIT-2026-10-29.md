@@ -8,7 +8,7 @@ O fluxo de geração inicial descartava a imagem de referência: a interface a e
 
 Esta entrega cobre a auditoria inicial do caminho principal e duas correções delimitadas. As sete fases do briefing não estão concluídas. O envio correto da imagem à IA não comprova fidelidade visual: a renderização ainda tem limitações documentadas abaixo.
 
-Os testes novos executam o handler real com autenticação, faturamento e provedor de IA simulados. Não consomem créditos ou APIs pagas. A navegação real em `https://pagenovaai.com.br/app/builder-v2` apresentou a tela de login; geração, edição, F5 e publicação autenticadas ainda não foram executadas nesta sessão.
+Os testes novos executam o handler real com autenticação, faturamento e provedor de IA simulados. Não consomem créditos ou APIs pagas. Após autenticação pelo formulário seguro, foi executada geração nova do cenário A na versão em produção, seguida de adição de card, F5 e publicação. O resultado real está registrado abaixo. A publicação de QA foi criada como parte dos testes autorizados, sem vincular um domínio customizado. Isso testa a baseline publicada, não o código ainda isolado neste PR.
 
 ## Arquitetura encontrada
 
@@ -75,6 +75,30 @@ O commit-base já refatorou a pilha CSS do Template 2. Seu resultado não foi de
 As imagens dos testes são fixtures de payload. Não demonstram a qualidade de uma análise visual real. Os testes existentes misturam verificações comportamentais e inspeções de código; não substituem inspeção desktop/mobile.
 
 Referências válidas passam agora a consumir tokens de visão nas chamadas de identidade e de cada lote. Não há chamada adicional de IA. A fase 3 deve avaliar extrair uma direção visual uma vez e reutilizá-la, preservando fidelidade e reduzindo custo/latência.
+
+## Teste real da baseline publicada — cenário A
+
+Projeto sintético: **Clínica Horizonte QA**, nicho Psicologia. O briefing pediu preservar T1, usar verde-escuro/bege/branco sem azul, centralizar títulos, gerar 4 serviços/4 diferenciais/4 etapas, sobre com imagem, galeria, relatos ilustrativos, FAQ com 4 perguntas, formulário e CTA `#servicos`.
+
+| Verificação | Resultado observado no DOM renderizado |
+| --- | --- |
+| Template selecionado | **Reprovado:** T1 antes da geração, T5 após gerar, apesar do pedido de preservação |
+| Paleta | **Reprovado:** seções predominantemente `rgb(24,24,24)`, `rgb(13,14,17)` e `rgb(17,21,27)`; títulos brancos |
+| Serviços | 4 cards na geração inicial |
+| Diferenciais | 4 cards |
+| Etapas | 4 cards com imagens |
+| Títulos das seções | Centralizados nas nove seções medidas |
+| FAQ | **Reprovado:** 12 elementos `details` renderizados, para 4 perguntas solicitadas |
+| Fotos | Aplicação reportada do catálogo Psicologia; elementos de imagem presentes no DOM. Carregamento/enquadramento precisam de inspeção visual adicional |
+| Formulário | Presente como demonstração; botão desabilitado sem e-mail de destino, conforme implementação encontrada |
+| Adição de card pelo chat | Quinto serviço “Orientação de Carreira” apareceu; os quatro anteriores continuaram e o FAQ continuou com 12 perguntas |
+| Persistência após F5 | Os cinco serviços permaneceram; o FAQ permaneceu com 12 perguntas |
+| Botão interno | `href=#servicos` presente; clique manteve o iframe em `about:srcdoc`. Alinhamento final da rolagem ainda não aprovado |
+| Mobile | Alternância para a prévia mobile executada; conteúdo inspecionado no DOM. Sem aprovação visual completa |
+| Publicação | Publicado e aberto em `/site/v2-clinica-horizonte-qa-b396d91f31`; cinco serviços e 12 perguntas mantidos como na prévia |
+| Evidência visual | Captura da publicação mostra o hero com foto do nicho, conteúdo adicional de serviços dentro do hero e marca/menu brancos sobre cabeçalho claro com contraste insuficiente |
+
+**Resultado geral: reprovado.** A IA respondeu “Site completo criado em etapas e validado”, mas essa mensagem não corresponde à conformidade com o briefing. A conta de teste mostrava duas gerações disponíveis antes do teste e uma depois; os outros cinco cenários de geração nova não foram executados.
 
 ## Ordem de continuação e critérios de aceite
 
