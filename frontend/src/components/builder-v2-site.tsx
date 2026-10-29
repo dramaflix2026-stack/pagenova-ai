@@ -645,6 +645,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 @keyframes pn-food-photo-in{from{opacity:0;filter:blur(8px)}to{opacity:1;filter:blur(0)}}
 @media(max-width:699px){.pn-cinema-gastronomy .pn-food-hero-gallery-frame{width:30%;aspect-ratio:1.1}.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2){animation-duration:1.6s!important}}
 @media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2),.pn-cinema-gastronomy .pn-food-hero-gallery-frame{animation:none!important}}
+/* Gastronomy hero — one coordinated reveal for title, photographs, description and CTAs. */
+.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2){color:#f6c18c!important;background:linear-gradient(110deg,#fff0d9 0%,#ffc487 42%,#e89a55 78%,#ffe1b8 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none!important;filter:drop-shadow(0 5px 16px rgba(0,0,0,.62));animation:pn-food-title-reveal 2.1s steps(24,end) .25s both!important}
+.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery{animation:pn-food-cover-reveal 2.1s steps(24,end) .25s both!important}
+.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery-frame,.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery-frame:nth-child(2),.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery-frame:nth-child(3){animation:none!important}
+.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery~div{animation:pn-food-cover-reveal 2.1s steps(24,end) .25s both!important}
+@keyframes pn-food-cover-reveal{0%{clip-path:inset(0 100% 0 0);opacity:.8}100%{clip-path:inset(0 0 0 0);opacity:1}}
+@media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy .pn-cine-hero .pn-section-heading :is(h1,h2),.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery,.pn-cinema-gastronomy .pn-cine-hero .pn-food-hero-gallery~div{animation:none!important}}
 `}</style>}
         
         
