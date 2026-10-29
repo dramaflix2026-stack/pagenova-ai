@@ -11,7 +11,7 @@ const cover="01KRM000000000000000000001";
 const about="01KRM000000000000000000002";
 const gallery="01KRM000000000000000000003";
 const urls={[cover]:"https://cdn.example/hero.webp",[about]:"https://cdn.example/about.webp",[gallery]:"https://cdn.example/gallery.webp"};
-const source=(template="image-text-alternating")=>({
+const source=(template="prompt-adaptive")=>({
  project:{builderV2TemplateId:template,templateId:"frigolog-universal"},
  business:{name:"Clínica Sorriso",niche:"Odontologia",
   phoneE164:{value:"+55 11 99999-8888"},instagramUrl:{value:"https://www.instagram.com/clinicasorriso/"}},
@@ -27,9 +27,9 @@ const source=(template="image-text-alternating")=>({
   {id:"footer-5",type:"footer",businessName:"Clínica Sorriso"}
  ]
 });
-test("four CRM choices are the exact existing Studio template IDs, never copies",()=>{
+test("three CRM choices are the supported Builder template IDs",()=>{
  assert.deepEqual(BUILDER_V2_CRM_TEMPLATES,[
- "institutional-complete","minimalist-sophisticated","modern-impactful","image-text-alternating"]);
+ "institutional-complete","minimalist-sophisticated","prompt-adaptive"]);
  const studio=read("src/components/builder-v2-site.tsx");
  for(const key of BUILDER_V2_CRM_TEMPLATES)assert.ok(studio.includes(key),key);
  const crm=read("../modules/stavo-crm/src/client/pages/SiteAiPage.tsx");
@@ -40,7 +40,7 @@ test("four CRM choices are the exact existing Studio template IDs, never copies"
 });
 test("lead import preserves existing CRM-generated hero photo, copy and selected template",()=>{
  const sourceSite=source();const converted=convertCrmSiteToBuilder(sourceSite,urls,"01KRMCRMPROJECT000000000001");
- assert.equal(converted.templateId,"image-text-alternating");
+ assert.equal(converted.templateId,"prompt-adaptive");
  assert.equal(converted.title,"Clínica Sorriso");
  assert.equal(converted.niche,"Odontologia");
  assert.equal(converted.blocks.find(b=>b.section==="principal"&&b.type==="image").src,urls[cover]);
