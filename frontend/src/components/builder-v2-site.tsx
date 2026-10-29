@@ -346,6 +346,40 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-cine-services .pn-premium-info-card:before,
 .pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card:before{content:"";position:absolute;bottom:-45px;right:-45px;width:150px;height:150px;border-radius:50%;border:1px solid rgba(150,110,59,.24);pointer-events:none}
 @media(hover:hover){.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card:hover,.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card:hover{transform:translateY(-6px)!important;box-shadow:0 26px 50px rgba(0,0,0,.3)!important}}
+
+/* Cinematic Universal v3: visual system deliberately different from the static template.
+   Semantic section classes ensure that every niche receives the same composition. */
+.pn-cinematic-enabled .pn-motion-site>section{position:relative!important;border-top:1px solid rgba(226,192,141,.16)!important;padding-block:clamp(80px,10vw,150px)!important}
+.pn-cinematic-enabled .pn-motion-site>section:not(.pn-cine-hero):before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,rgba(5,7,7,.73),rgba(9,10,9,.42) 56%,rgba(5,7,7,.64));z-index:0}
+.pn-cinematic-enabled .pn-motion-site>section>div{position:relative;z-index:1}
+.pn-cinematic-enabled .pn-cine-hero{min-height:calc(100svh - 74px)!important;display:flex!important;align-items:center!important;text-align:left!important}
+.pn-cinematic-enabled .pn-cine-hero:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,5,5,.83),rgba(4,5,5,.48) 62%,rgba(4,5,5,.18))!important;pointer-events:none}
+.pn-cinematic-enabled .pn-cine-hero .pn-section-heading{margin-left:0!important;margin-right:auto!important;text-align:left!important;max-width:950px!important}
+.pn-cinematic-enabled .pn-cine-hero .pn-section-heading :is(h1,h2){font-size:clamp(3.2rem,7vw,7.5rem)!important;line-height:1.03!important;letter-spacing:-.065em!important;text-align:left!important;font-weight:800!important;text-wrap:balance}
+.pn-cinematic-enabled .pn-cine-hero .pn-section-heading p{text-align:left!important;max-width:620px!important;font-size:clamp(1.1rem,1.8vw,1.45rem)!important;line-height:1.7!important}
+.pn-cinematic-enabled .pn-cine-hero .pn-section-heading+div{justify-content:flex-start!important}
+.pn-cinematic-enabled .pn-cinema-section-eyebrow{font-size:clamp(1.7rem,3.5vw,3.7rem)!important;letter-spacing:-.035em!important;line-height:1.1!important;font-weight:850!important;max-width:100%!important;text-wrap:balance}
+.pn-cinematic-enabled .pn-cine-about .pn-cinema-section-eyebrow{font-size:clamp(1.7rem,3.5vw,3.7rem)!important}
+.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card{background:#171614!important;border:1px solid rgba(210,173,119,.5)!important;border-radius:6px!important;min-height:270px!important;box-shadow:0 25px 60px rgba(0,0,0,.25)!important}
+.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card:nth-child(even){background:#25211b!important;transform:translateY(25px)}
+.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card :is(h3,h4,p){color:#f5eee3!important}
+.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card span{color:#d6b681!important}
+.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card:before{border-radius:0!important;width:95px;height:95px;transform:rotate(45deg);border-color:rgba(212,173,119,.22)!important}
+.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card{background:rgba(14,15,14,.87)!important;border:0!important;border-left:3px solid #c7a06c!important;border-radius:0!important;box-shadow:none!important}
+.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card :is(h3,h4,p){color:#f4ede2!important}
+.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card span{color:#d6b681!important}
+.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card:nth-child(2),.pn-cinematic-enabled .pn-cine-differentials .pn-premium-info-card:nth-child(3){background:rgba(35,30,23,.9)!important}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card{border:0!important;border-radius:4px!important;background:#11100e!important;box-shadow:0 20px 55px rgba(0,0,0,.38)!important}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card:nth-child(even){transform:translateY(35px)}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card>div:first-child{aspect-ratio:4/5!important}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card>div:last-child{padding:30px!important;border-top:1px solid rgba(210,173,119,.5)}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card :is(h3,h4){font-size:clamp(1.3rem,2vw,2rem)!important;line-height:1.18!important;color:#fff5e5!important}
+.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card p{font-size:1rem!important;line-height:1.75!important;color:#d6d0c6!important}
+.pn-cinematic-enabled .pn-cine-gallery figure{border-radius:3px!important;border:1px solid rgba(222,184,129,.45)!important}
+.pn-cinematic-enabled .pn-cine-gallery figcaption{font-size:clamp(1.15rem,1.8vw,1.7rem)!important;line-height:1.3!important;font-weight:800!important;color:#fff5e7!important}
+.pn-cinematic-enabled .pn-cine-gallery figure img{transition:transform .8s cubic-bezier(.2,.7,.2,1),filter .8s!important}
+@media(hover:hover){.pn-cinematic-enabled .pn-cine-gallery figure:hover img{transform:scale(1.08)!important;filter:contrast(1.12)!important}}
+@media(max-width:767px){.pn-cinematic-enabled .pn-cine-hero{min-height:650px!important}.pn-cinematic-enabled .pn-cine-hero .pn-section-heading :is(h1,h2){font-size:clamp(2.7rem,10vw,4.4rem)!important}.pn-cinematic-enabled .pn-cine-services .pn-premium-info-card:nth-child(even),.pn-cinematic-enabled .pn-cine-process .pn-editorial-photo-card:nth-child(even){transform:none!important}.pn-cinematic-enabled .pn-motion-site>section{padding-block:75px!important}}
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
