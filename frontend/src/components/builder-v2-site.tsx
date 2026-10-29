@@ -262,6 +262,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-motion-site>section .pn-cinema-social-proof{animation:pn-cinema-proof-entrance .85s ease-out both}
 @keyframes pn-cinema-proof-entrance{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-social-proof{animation:none!important}}
+/* Shared cinematic editorial hierarchy and depth */
+.pn-cinematic-enabled .pn-motion-site>section .pn-section-heading h2{font-size:clamp(2rem,4vw,3.6rem)!important;line-height:1.13!important;letter-spacing:-.035em!important;color:#fff!important;text-shadow:0 3px 24px rgba(0,0,0,.35)}
+.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-section-eyebrow{animation:pn-cinema-proof-entrance .85s ease-out both}
+.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-text-card,.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card{box-shadow:0 20px 48px rgba(0,0,0,.25)!important;transition:transform .45s ease,box-shadow .45s ease}
+@media(hover:hover){.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-text-card:hover,.pn-cinematic-enabled .pn-motion-site>section .pn-editorial-photo-card:hover{transform:translateY(-5px);box-shadow:0 28px 65px rgba(0,0,0,.4)!important}}
+@media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-section-eyebrow{animation:none!important}}
+@keyframes pn-google-glow{0%,100%{filter:drop-shadow(0 0 0 transparent)}50%{filter:drop-shadow(0 0 8px rgba(251,188,5,.75))}}.pn-cinematic-enabled .pn-google-mark{animation:pn-google-glow 2.8s ease-in-out infinite}@media(prefers-reduced-motion:reduce){.pn-cinematic-enabled .pn-google-mark{animation:none!important}}
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
@@ -554,7 +561,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
             const rating=typeof proof?.rating==="number"&&proof.rating>0&&proof.rating<=5?proof.rating:4.9;
             const count=typeof proof?.reviewCount==="number"&&proof.reviewCount>0?proof.reviewCount:287;
             const isExample=!(typeof proof?.rating==="number"&&typeof proof?.reviewCount==="number");
-            const social=<div className="pn-cinema-social-proof mt-6 flex w-fit max-w-full items-center gap-3 rounded-2xl border border-white/20 bg-black/45 px-4 py-3 text-left shadow-lg backdrop-blur-md" aria-label="Google"><span aria-hidden="true" className="text-3xl font-extrabold" style={{color:"#4285F4"}}>G</span><div className="min-w-0"><p className="text-sm font-semibold text-white">Google</p>{!isExample?<><p className="text-sm font-semibold text-[#e8bd72]">{rating.toLocaleString("pt-BR",{maximumFractionDigits:1})}/5 ★★★★★</p><p className="text-xs text-white/85">{count.toLocaleString("pt-BR")} avaliações</p></>:<p className="text-xs text-white/85">Conheça nossa presença no Google</p>}</div></div>;
+            const social=<div className="pn-cinema-social-proof mt-6 flex w-fit max-w-full items-center gap-3 rounded-2xl border border-white/20 bg-black/45 px-4 py-3 text-left shadow-lg backdrop-blur-md" aria-label="Google"><span aria-hidden="true" className="pn-google-mark text-3xl font-extrabold" style={{background:"conic-gradient(#4285f4 0 25%,#34a853 25% 48%,#fbbc05 48% 70%,#ea4335 70% 88%,#4285f4 88%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>G</span><div className="min-w-0"><p className="text-sm font-semibold text-white">Google</p>{!isExample?<><p className="text-sm font-semibold text-[#e8bd72]">{rating.toLocaleString("pt-BR",{maximumFractionDigits:1})}/5 ★★★★★</p><p className="text-xs text-white/85">{count.toLocaleString("pt-BR")} avaliações</p></>:<p className="text-xs text-white/85">Conheça nossa presença no Google</p>}</div></div>;
             return <div key={b.id} className="w-full"><span className="flex w-full" style={{justifyContent:b.align==="center"?"center":b.align==="right"?"flex-end":"flex-start"}}><a data-block-id={b.id} href={b.href&&/^(https?:\/\/|mailto:|tel:|#)/.test(b.href)?b.href:(/agend|contato|convers|consulta|orçamento|saiba mais/i.test(b.text)?"#contato":undefined)} style={{backgroundColor:b.color,color:b.textColor||readableColor("#ffffff",b.color),...(typeof b.radius==="number"?{borderRadius:`${b.radius}px`}:{})}} className="inline-flex min-h-12 items-center justify-center rounded-xl px-7 py-3 text-sm font-semibold">{clean(b.text)}</a></span>{showProof&&social}</div>;
           };
           const isContact=/contato|agend|fale.conosco/i.test(id+" "+heading.map(b=>b.text).join(" "));
@@ -609,7 +616,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
-          const headingNode=<div className="pn-section-heading mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11">{heading.map(b=>{
+          const headingNode=<div className="pn-section-heading mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11">{site.cinematic?.mode==="cinematic"&&index>0&&<div className="pn-cinema-section-eyebrow mb-5 flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[.27em] text-[#dbc19b]"><span className="h-px w-9 bg-current"/> {String(index+1).padStart(2,"0")} / {isTestimonials?"VOZES DE QUEM CONFIA":isProcess?"NOSSO MÉTODO":isGallery?"NOSSO UNIVERSO":isContact?"FALE CONOSCO":/faq|perguntas/i.test(id)?"TIRE SUAS DÚVIDAS":isTreatments?"O QUE FAZEMOS":"DESCUBRA MAIS"} <span className="h-px w-9 bg-current"/></div>}{heading.map(b=>{
             if(adaptiveTemplate){
               const cleanTitle=b.text.replace(/\s*[—–-]\s*(?:fundo|layout|com contagem|indicadores animados|responsiv|#[0-9a-f]{6}).*$/i,"").trim();
               return render({...b,text:cleanTitle});
