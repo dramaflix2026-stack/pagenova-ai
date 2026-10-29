@@ -696,6 +696,28 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-food-premium-header #pn-builder-mobile-menu>a:last-child{color:#1a100b!important;margin-top:14px!important;padding:14px!important}
 @media(max-width:640px){.pn-food-premium-header>div:first-child{padding-left:18px!important;padding-right:18px!important}.pn-food-premium-header>div:first-child>a:first-child{font-size:1.1rem!important}}
 @media(prefers-reduced-motion:reduce){.pn-food-premium-header,.pn-food-premium-header>div:first-child{transition:none!important}}
+/* Cinematic gastronomy gallery: photo-led editorial tiles without nested frames. */
+.pn-cinema-gastronomy .pn-cinematic-gallery-card{display:grid!important;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)!important;gap:0!important;padding:0!important;border:1px solid rgba(222,156,95,.44)!important;border-radius:24px!important;overflow:hidden!important;background:rgba(17,13,11,.82)!important;box-shadow:0 20px 45px rgba(0,0,0,.18)!important;backdrop-filter:blur(8px)}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card>div:first-child{min-width:0!important;height:100%!important;overflow:hidden!important}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card>div:first-child :is(img,picture){display:block!important;width:100%!important;height:100%!important;min-height:245px!important;object-fit:cover!important;border-radius:0!important}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card>div:last-child{padding:clamp(16px,2.3vw,28px)!important;display:flex!important;flex-direction:column!important;justify-content:center!important;min-width:0!important}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card h3{font-family:Georgia,serif!important;font-size:clamp(1.2rem,1.8vw,1.7rem)!important;font-weight:700!important;color:#f2bd87!important;line-height:1.2!important;overflow-wrap:anywhere}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card p{font-size:clamp(.94rem,1.15vw,1.08rem)!important;line-height:1.6!important;color:#f3e9de!important;overflow-wrap:anywhere}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even){grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)!important}
+.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even)>div:first-child{order:2}
+@media(min-width:768px) and (max-width:1150px){.pn-cinema-gastronomy .pn-cinematic-gallery-card{grid-template-columns:1fr!important}.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even){grid-template-columns:1fr!important}.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even)>div:first-child{order:0}.pn-cinema-gastronomy .pn-cinematic-gallery-card>div:first-child :is(img,picture){min-height:190px!important;max-height:230px!important}}
+@media(max-width:767px){.pn-cinema-gastronomy .pn-cinematic-gallery-card{grid-template-columns:1fr!important}.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even){grid-template-columns:1fr!important}.pn-cinema-gastronomy .pn-cinematic-gallery-card:nth-child(even)>div:first-child{order:0}}
+/* Footer aligned to cinematic copper palette; keep editable navigation and social links. */
+.pn-food-premium-footer{position:relative!important;background:linear-gradient(155deg,#18110e,#0b0b0a 65%,#24150e)!important;border-top:1px solid rgba(233,163,98,.5)!important;color:#f4e6d5!important}
+.pn-food-premium-footer::before{content:"";display:block;position:absolute;left:6%;right:6%;top:0;height:1px;background:linear-gradient(90deg,transparent,#e9a66b,transparent);opacity:.65}
+.pn-food-premium-footer .pn-builder-v2-footer-main{border-color:rgba(229,163,104,.25)!important;gap:clamp(28px,4vw,65px)!important}
+.pn-food-premium-footer .pn-builder-v2-footer-main>div:first-child>div:first-child{background:linear-gradient(90deg,#e78c4e,#f4c28c)!important}
+.pn-food-premium-footer .pn-builder-v2-footer-main>div:first-child>p:first-of-type{font-family:Georgia,serif!important;color:#f4c79c!important;font-weight:700!important;font-size:clamp(1.8rem,3vw,2.8rem)!important;line-height:1.13!important}
+.pn-food-premium-footer h3{color:#e9a66b!important;letter-spacing:.2em!important}
+.pn-food-premium-footer a{transition:color .2s ease,border-color .2s ease,background .2s ease}
+.pn-food-premium-footer a:hover{color:#f8c48e!important}
+.pn-food-premium-footer .pn-builder-v2-footer-shell{max-width:1160px!important}
+@media(max-width:640px){.pn-food-premium-footer{padding:46px 24px 30px!important}.pn-food-premium-footer .pn-builder-v2-footer-main>div:first-child>p:first-of-type{font-size:1.9rem!important}}
 `}</style>}
         
         
@@ -1179,7 +1201,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
               <div className={sectionImages.length?"grid min-w-0 items-center gap-7 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] lg:gap-12":"mx-auto max-w-3xl space-y-5"}><div className="space-y-5">{heading.map(render)}{textItems.slice(0,3).map(render)}{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>{sectionImages.slice(0,1).map(imageNode)}</div>}
             </div>
           </section>;
-        })}{site.blocks.length>0&&<BuilderExtras extras={{...site.extras,enabled:{announcement:false,video:site.extras?.enabled?.video===true,comparison:site.extras?.enabled?.comparison===true,partners:site.extras?.enabled?.partners===true,pricing:site.extras?.enabled?.pricing===true,counters:site.extras?.enabled?.counters===true&&!visibleSections.some(g=>/n[uú]meros|indicadores|estat[ií]sticas|trajet[oó]ria/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))),faq:false,map:site.extras?.enabled?.map!==false&&!!site.extras?.address,popup:site.extras?.enabled?.popup!==false,backToTop:site.extras?.enabled?.backToTop!==false}}} />}{site.blocks.length>0&&<footer className="pn-builder-v2-footer px-6 py-10 text-[#f7f5ed] md:px-12 md:py-14 lg:px-16" style={{backgroundColor:adaptiveTemplate?(adaptivePalette(adaptiveColor).dark?adaptiveColor:"#24332e"):"#102a22"}}>
+        })}{site.blocks.length>0&&<BuilderExtras extras={{...site.extras,enabled:{announcement:false,video:site.extras?.enabled?.video===true,comparison:site.extras?.enabled?.comparison===true,partners:site.extras?.enabled?.partners===true,pricing:site.extras?.enabled?.pricing===true,counters:site.extras?.enabled?.counters===true&&!visibleSections.some(g=>/n[uú]meros|indicadores|estat[ií]sticas|trajet[oó]ria/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))),faq:false,map:site.extras?.enabled?.map!==false&&!!site.extras?.address,popup:site.extras?.enabled?.popup!==false,backToTop:site.extras?.enabled?.backToTop!==false}}} />}{site.blocks.length>0&&<footer className={`pn-builder-v2-footer px-6 py-10 text-[#f7f5ed] md:px-12 md:py-14 lg:px-16 ${premiumFoodHeader?"pn-food-premium-footer":""}`} style={{backgroundColor:premiumFoodHeader?"#100e0d":adaptiveTemplate?(adaptivePalette(adaptiveColor).dark?adaptiveColor:"#24332e"):"#102a22"}}>
   <div className="pn-builder-v2-footer-shell mx-auto w-full max-w-6xl">
     <div className="pn-builder-v2-footer-main grid min-w-0 items-start gap-x-12 gap-y-10 border-b border-white/15 pb-10 md:grid-cols-[minmax(0,1.65fr)_minmax(260px,.8fr)] lg:gap-x-20">
       <div className="min-w-0">
