@@ -550,7 +550,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy .pn-cinema-contact-location,.pn-cinema-gastronomy .pn-cinema-faq-premium details{border-color:rgba(237,97,56,.5)!important;background:#1b1513!important}
 .pn-cinema-gastronomy .pn-cinema-contact-location a:last-child,.pn-cinema-gastronomy .pn-cinema-contact-location button{background:#ed6138!important;color:#fff!important}
 .pn-cinema-gastronomy .pn-cinema-contact-location p,.pn-cinema-gastronomy .pn-cinema-contact-location address{color:#fff1db!important}
-@media(min-width:1024px){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article img{height:225px!important}}
+@media(min-width:1024px){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article img{height:180px!important}}
 `}</style>}
         
         
