@@ -91,6 +91,17 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   const previewRef=useRef<HTMLDivElement>(null);
   const [menuOpen,setMenuOpen]=useState(false);
   useEffect(()=>attachSiteMotion(previewRef.current,site.motion),[site]);
+  useEffect(()=>{
+    const root=previewRef.current;
+    if(!root||site.cinematic?.mode!=="cinematic"||!/hamb[uú]rg|burger|pizz|restaurante|sushi|churrasc|cafeteria|padaria|confeitaria|doceria|gastronomi|delivery/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" ")))return;
+    const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const elements=Array.from(root.querySelectorAll<HTMLElement>(".pn-motion-site>section:not(:first-child) .pn-section-heading, .pn-motion-site>section:not(:first-child) [data-pn-composition] article, .pn-motion-site>section:not(:first-child) .pn-cinema-editorial-testimonials article, .pn-motion-site>section:not(:first-child) .pn-editorial-photo-card"));
+    if(reduceMotion||!("IntersectionObserver" in window))return;
+    const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;entry.target.classList.add("pn-food-scroll-visible");observer.unobserve(entry.target);}}, {threshold:.1,rootMargin:"0px 0px -35px 0px"});
+    for(const el of elements){el.classList.add("pn-food-scroll-reveal");observer.observe(el);}
+    return ()=>{observer.disconnect();for(const el of elements){el.classList.remove("pn-food-scroll-reveal","pn-food-scroll-visible");}};
+  },[site,selectedNiche]);
+
   const stripLayoutMetadata = (value:string) => value.replace(/\b(?:hero|tratamentos?|apresenta[cç][aã]o|diferenciais|galeria|contato|faq)\s+layout\s+(?:hero|grid|split|banner|faq|gallery|standard)?\s*(?:com\s+)?(?:fundo\s+)?(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto)?/giu,"").replace(/\b(?:layout\s+(?:hero|grid|split|banner|faq|gallery|standard)|fundo\s+(?:areia(?:\s+claro)?|branco|verde|escuro|claro|preto))\b/giu,"").replace(/\s{2,}/g," ").trim();
   // Presentation metadata is not customer-facing content.
   const removeVisualDirectives = (value:string) => value
@@ -658,6 +669,13 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:nth-child(even)::after{top:auto!important;bottom:-34px!important;right:-36px!important}
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:nth-child(3)::after{right:auto!important;left:-36px!important}
 .pn-cinema-gastronomy [data-pn-composition="differentials"] .pn-food-differential-emblem{position:relative;z-index:1;background:rgba(145,79,39,.22)!important;border-color:rgba(243,181,113,.48)!important}
+/* Cinematic scroll reveal: one-time, viewport-triggered, no hero changes. */
+@media(prefers-reduced-motion:no-preference){
+.pn-cinema-gastronomy .pn-food-scroll-reveal{opacity:0;transform:translateY(22px);filter:blur(5px);transition:opacity .8s ease,transform .8s cubic-bezier(.2,.7,.2,1),filter .8s ease;will-change:opacity,transform,filter}
+.pn-cinema-gastronomy .pn-food-scroll-reveal.pn-food-scroll-visible{opacity:1;transform:translateY(0);filter:blur(0);will-change:auto}
+.pn-cinema-gastronomy [data-pn-composition]> .grid >article:nth-child(2n){transition-delay:110ms}
+.pn-cinema-gastronomy [data-pn-composition]> .grid >article:nth-child(3n){transition-delay:190ms}
+}
 `}</style>}
         
         
