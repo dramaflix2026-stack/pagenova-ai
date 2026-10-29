@@ -540,6 +540,26 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article p{font-size:1rem!important;line-height:1.75!important}
 }
 .pn-cinema-gastronomy .pn-cinema-editorial-testimonials article{border-color:rgba(237,97,56,.4)!important;border-radius:20px!important;background:rgba(21,16,14,.96)!important}
+/* Gastronomy premium dimensional cards: CSS-only 3D, accessible motion, no layout changes. */
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid{perspective:1200px!important;perspective-origin:50% 45%!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{position:relative!important;isolation:isolate!important;transform:translateZ(0)!important;transform-style:preserve-3d!important;overflow:hidden!important;border:1px solid rgba(255,154,96,.48)!important;background:linear-gradient(140deg,rgba(48,31,25,.97) 0%,rgba(19,16,15,.98) 48%,rgba(9,10,11,.99) 100%)!important;box-shadow:inset 0 1px 0 rgba(255,211,166,.18),inset 1px 0 0 rgba(255,255,255,.04),0 8px 12px rgba(0,0,0,.28),0 24px 55px rgba(0,0,0,.36)!important;transition:transform .45s cubic-bezier(.2,.75,.25,1),box-shadow .45s ease,border-color .45s ease!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article::before,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article::before{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:radial-gradient(ellipse 80% 55% at 0% 0%,rgba(255,148,74,.14),transparent 72%),linear-gradient(125deg,rgba(255,255,255,.055),transparent 35%);opacity:.85}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article::after,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article::after{content:"";position:absolute;z-index:0;pointer-events:none;inset:auto 18px 0;height:2px;background:linear-gradient(90deg,transparent,rgba(255,142,70,.78),transparent);opacity:.55}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article>div,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article>div{position:relative;z-index:1}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article h3,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article h3{color:#fff5e8!important;text-shadow:0 2px 12px rgba(0,0,0,.28)}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article p,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article p{color:#e9d9cb!important}
+@media(hover:hover) and (pointer:fine){
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article:hover,
+.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:hover{transform:translateY(-9px) rotateX(2deg) rotateY(-2deg) translateZ(18px)!important;border-color:rgba(255,169,104,.86)!important;box-shadow:inset 0 1px 0 rgba(255,230,198,.3),0 22px 34px rgba(0,0,0,.4),0 38px 75px rgba(0,0,0,.44),0 0 28px rgba(237,97,56,.14)!important}
+}
+@media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article,.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{transition:none!important;transform:none!important}}
 /* Cinematic family 02: gastronomy. Deliberately distinct from barbershop bronze/editorial. */
 .pn-cinema-gastronomy{--pn-food-accent:#ed6138;--pn-food-cream:#fff1db;font-family:var(--font-poppins),Arial,sans-serif}
 .pn-cinema-gastronomy .pn-cinema-section-eyebrow{color:#ffb07a!important;letter-spacing:.22em!important}
