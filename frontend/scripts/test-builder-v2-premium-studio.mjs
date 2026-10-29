@@ -10,11 +10,8 @@ test("CRM-only niche conditional is a real JSX conditional, never leaked text",(
  assert.match(page,/\{!crmProjectId&&<button type="button" aria-expanded=\{nicheMenuOpen\}/);
  assert.match(page,/<\/button>\}\s*<button type="submit"/);
 });
-test("official Studio opening presents a premium brand intro and clean chat",()=>{
- assert.match(page,/pn-studio-hero/);
- assert.match(page,/Sua ideia merece um/);
- assert.match(page,/site extraordinário/);
- assert.match(page,/PageNova Studio/);
+test("official Studio opening keeps functional chat without removed marketing hero",()=>{
+ assert.doesNotMatch(page,/pn-studio-hero relative mb-4/);
  assert.match(page,/aria-live="polite" className=\{site.blocks.length\|\|messages.length>1/);
  assert.match(page,/role="status">\{cloudStatus\}/);
  assert.match(page,/pn-chat-composer/);
