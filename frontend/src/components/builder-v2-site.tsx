@@ -308,6 +308,28 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-template-editorial .pn-editorial-about>div.grid>div{min-width:0}
 .pn-template-editorial .pn-editorial-about article{min-height:0}
 .pn-template-editorial .pn-editorial-layout .pn-editorial-about h2{max-width:none!important}
+/* Unified premium neutral visual language for Template 2 only. */
+.pn-template-editorial{--pn-ink:#27352e!important;--pn-accent:#526b5b!important;--pn-paper:#faf9f6!important}
+.pn-template-editorial .pn-motion-site>section:not(:first-child) h1,
+.pn-template-editorial .pn-motion-site>section:not(:first-child) h2,
+.pn-template-editorial .pn-motion-site>section:not(:first-child) h3,
+.pn-template-editorial .pn-motion-site>section:not(:first-child) .pn-section-heading [data-block-id],
+.pn-template-editorial .pn-motion-site>section:not(:first-child) .pn-section-heading *{color:#27352e!important}
+.pn-template-editorial .pn-motion-site>section:not(:first-child) .pn-section-heading{text-align:center!important;margin-left:auto!important;margin-right:auto!important}
+.pn-template-editorial .pn-motion-site>section:not(:first-child) .pn-section-heading *{text-align:center!important}
+.pn-template-editorial .pn-editorial-layout .pn-editorial-premium article,
+.pn-template-editorial .pn-editorial-layout .pn-editorial-about article{background:#fff!important;border:1px solid #e7e8e2!important;border-radius:22px!important;box-shadow:0 10px 32px rgba(27,37,30,.07)!important}
+.pn-template-editorial .pn-editorial-premium article>div:first-child:not(:last-child){color:#526b5b!important}
+.pn-template-editorial .pn-editorial-premium article h3{font-size:1.17rem!important;letter-spacing:-.025em!important;line-height:1.25!important}
+.pn-template-editorial .pn-editorial-premium article p,
+.pn-template-editorial .pn-editorial-about article p{color:#4a554d!important;line-height:1.7!important}
+.pn-template-editorial .pn-editorial-premium article:hover,
+.pn-template-editorial .pn-editorial-about article:hover{box-shadow:0 22px 50px rgba(27,37,30,.12)!important}
+.pn-template-editorial .pn-editorial-premium article img,
+.pn-template-editorial .pn-editorial-about img{border-radius:0!important;max-height:none!important}
+.pn-template-editorial .pn-editorial-about>div.grid>div:first-child{border-radius:22px!important;overflow:hidden}
+.pn-template-editorial .pn-editorial-about>div.grid>div:first-child img{height:100%!important;min-height:360px;object-fit:cover!important}
+.pn-template-editorial .pn-editorial-premium article span{color:#526b5b!important}
 /* Template 2 desktop refinement: warm neutral palette, structured editorial hierarchy. */
 @media(min-width:1024px){
 .pn-template-editorial .pn-editorial-layout{max-width:1180px!important}
