@@ -458,6 +458,32 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           }
         }
       }
+      // The niche/T1 flow also needs the existing targeted repair when About
+      // is omitted or filtered out. Never regenerate the successful sections.
+      {
+        for(const section of sections){
+          if(!adaptiveBrief&&section.id!=="sobre")continue;
+          const existing=mutableBlocks.filter(block=>block.section===section.id);
+          if(existing.some(block=>block.type==="heading")&&existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))continue;
+          const response=await callAI(languageRule+" Complete somente a seção indicada com dados do briefing. Responda JSON com heading e cards [{title,description}]. Não invente fatos, pessoas, depoimentos, preços ou estatísticas.",{briefing:instruction,section:section.id,goal:section.goal,existing:existing.map(block=>block.text)},1000) as Record<string,unknown>;
+          const safeCopy=(value:unknown)=>{
+            if(typeof value!=="string")return "";
+            const text=cleanGeneratedCopy(value).trim();
+            if(!text||forbiddenDesignCopy.test(text)||designOnlyHeading.test(text)||fabricatedContact.test(text))return "";
+            const contact=text.match(inventedContact)?.[0];
+            return contact&&!instruction.includes(contact)?"":text;
+          };
+          const heading=safeCopy(response.heading);
+          const cards=Array.isArray(response.cards)?response.cards:[];
+          if(heading&&!existing.some(block=>block.type==="heading"))mutableBlocks.push({id:"adaptive-heading-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"heading",text:heading,color:adaptiveBrief?"#ffffff":"#24332e",align:"left"});
+          if(!existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))for(const raw of cards){
+            if(!raw||typeof raw!=="object")continue;
+            const item=raw as Record<string,unknown>;
+            const title=safeCopy(item.title),description=safeCopy(item.description);
+            if(title&&description)mutableBlocks.push({id:"adaptive-section-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:section.id==="sobre"?description:title+": "+description,color:adaptiveBrief?"#ffffff":"#24332e",align:"left"});
+          }
+        }
+      }
       const canonicalIds=sections.map(section=>section.id);
       mutableBlocks.sort((a,b)=>{
         const diff=canonicalIds.indexOf(String(a.section))-canonicalIds.indexOf(String(b.section));
@@ -467,22 +493,6 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       const heroTitle=mutableBlocks.find(b=>b.section==="inicio"&&b.type==="heading");
       if(heroTitle&&/^(?:nosso espa[cç]o|nossos ambientes|galeria|consult[oó]rio|nossa equipe|ambiente acolhedor)$/i.test(String(heroTitle.text).trim())){
         heroTitle.text=typeof plan.title==="string"&&plan.title.trim()?plan.title.trim():"Conheça nossa proposta";
-      }
-      if(adaptiveBrief){
-        for(const section of sections){
-          const existing=mutableBlocks.filter(block=>block.section===section.id);
-          if(existing.some(block=>block.type==="heading")&&existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))continue;
-          const response=await callAI(languageRule+" Complete somente a seção indicada com dados do briefing. Responda JSON com heading e cards [{title,description}]. Não invente fatos, pessoas, depoimentos, preços ou estatísticas.",{briefing:instruction,section:section.id,goal:section.goal,existing:existing.map(block=>block.text)},1000) as Record<string,unknown>;
-          const heading=String(response.heading||"").trim();
-          const cards=Array.isArray(response.cards)?response.cards:[];
-          if(heading&&!existing.some(block=>block.type==="heading"))mutableBlocks.push({id:"adaptive-heading-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"heading",text:heading,color:"#ffffff",align:"left"});
-          if(!existing.some(block=>block.type==="paragraph"||block.type==="image"||block.type==="button"))for(const raw of cards){
-            if(!raw||typeof raw!=="object")continue;
-            const item=raw as Record<string,unknown>;
-            const title=String(item.title||"").trim(),description=String(item.description||"").trim();
-            if(title&&description)mutableBlocks.push({id:"adaptive-section-"+crypto.randomUUID(),section:section.id,layout:section.layout,type:"paragraph",text:title+": "+description,color:"#ffffff",align:"left"});
-          }
-        }
       }
       const coreIds=["inicio","servicos","sobre","diferenciais","processo","galeria","faq","contato"];
       const generatedIds=new Set(mutableBlocks.map(b=>String(b.section)));

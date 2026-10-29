@@ -33,9 +33,11 @@ async function generate(image,instruction="Crie um site para uma clínica de psi
       if(options.editPatch)result=options.editPatch;
       else if(input.missing&&options.repairCards)result={cards:options.repairCards};
       else if(input.existingSections)result={extraSections:[]};
+      else if(input.section==="sobre")result=options.invalidAboutRepair?{heading:"Sobre",cards:[{title:"Contato",description:"contato@clinicafalsa.com"}]}:{heading:"Sobre o atendimento",cards:[{title:"Nossa proposta",description:"Um espaço de escuta e acolhimento para compreender suas necessidades."}]};
       else if(input.sections){
         result={blocks:input.sections.flatMap(section=>{
           const heading={id:section.id+"-heading",section:section.id,type:"heading",text:section.id==="inicio"?"Clínica de Psicologia":section.id,color:"#234638",align:"center",layout:section.layout};
+          if(section.id==="sobre"&&options.omitAbout)return [];
           if(section.id==="galeria")return [heading,...[0,1,2].map(i=>({id:"gallery-"+i,section:section.id,type:"image",text:"Ambiente "+i,src:""}))];
           const count=section.id==="faq"&&options.faqCount?options.faqCount:section.id==="diferenciais"&&options.differentialsCount?options.differentialsCount:section.id==="servicos"?Number(section.goal.match(/EXATAMENTE (\d+)/)?.[1]||4):["diferenciais","faq"].includes(section.id)?4:section.id==="sobre"||section.id==="contato"||section.id==="inicio"?1:3;
           return [heading,...Array.from({length:count},(_,i)=>({id:section.id+"-card-"+i,section:section.id,type:"paragraph",text:section.id==="faq"?"Como funciona a etapa "+i+"? Entre em contato para saber mais.":"Atendimento "+i+": Conheça nossa proposta de atendimento e orientação.",color:"#234638",align:"left"}))];
@@ -186,4 +188,28 @@ test("an underproduced FAQ is repaired to the requested count with question-answ
   assert.equal(faq.length,4);
   assert.ok(faq.every(b=>b.text.includes("? ")));
   assert.deepEqual(settlements,[true]);
+});
+
+const psychologyNichePrompt="Crie um site profissional para um negócio do nicho de Psicologia. Utilize o template universal existente, com textos específicos para esse segmento. Priorize fotografias reais e naturais, sem avatares ou aparência artificial. Respeite minhas próximas instruções no chat.";
+
+test("niche generation recovers only an omitted About section before final validation",async()=>{
+  const baseline=await generate(undefined,psychologyNichePrompt);
+  const {result,calls,settlements}=await generate(undefined,psychologyNichePrompt,{omitAbout:true});
+  assert.equal(result.status,200,JSON.stringify(result.body));
+  assert.equal(result.body.site.templateId,"institutional-complete");
+  const unaffected=site=>site.blocks.filter(b=>b.section!=="sobre").map(b=>({...b,id:b.id.startsWith("cta-")?"generated-cta":b.id}));
+  assert.deepEqual(unaffected(result.body.site),unaffected(baseline.result.body.site));
+  assert.ok(result.body.site.blocks.some(b=>b.section==="sobre"&&b.type==="heading"));
+  assert.ok(result.body.site.blocks.some(b=>b.section==="sobre"&&b.type==="paragraph"&&/escuta/.test(b.text)));
+  const ids=result.body.site.blocks.map(b=>b.section);
+  assert.ok(ids.lastIndexOf("sobre")<ids.indexOf("diferenciais"));
+  assert.equal(calls.length,baseline.calls.length+1);
+  assert.deepEqual(settlements,[true]);
+});
+
+test("invalid About repair never publishes invented contact details and refunds the generation",async()=>{
+  const {result,settlements}=await generate(undefined,psychologyNichePrompt,{omitAbout:true,invalidAboutRepair:true});
+  assert.equal(result.status,502);
+  assert.equal(result.body.site,undefined);
+  assert.deepEqual(settlements,[false]);
 });
