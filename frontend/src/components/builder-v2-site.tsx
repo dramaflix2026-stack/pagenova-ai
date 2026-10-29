@@ -120,7 +120,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   // cause existing sections to disappear because of heuristic content filters.
   const visibleSections=sections.filter(group=>group.blocks.length>0);
   // The map is rendered immediately before FAQ, so count it as its own visible section.
-  const cinematicNumber=(index:number)=>index+1+(site.cinematic?.mode==="cinematic"&&visibleSections.slice(0,index).some(g=>/faq|perguntas/i.test(g.id))?1:0);
+  const cinematicNumber=(index:number)=>index+1+(site.cinematic?.mode==="cinematic"&&visibleSections.slice(0,index+1).some(g=>/faq|perguntas/i.test(g.id))?1:0);
   const cinematicMapNumber=(index:number)=>index+1;
   // Preserve the order stored in editable blocks. Chat-driven moves remain authoritative.
   const heroSourceImage=visibleSections[0]?.blocks.find(b=>b.type==="image"&&!!b.src);
