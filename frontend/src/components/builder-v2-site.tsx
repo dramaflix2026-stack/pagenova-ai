@@ -824,6 +824,21 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-motion-site>section :is(a,button):hover{filter:brightness(1.08)}
 .pn-cinema-wellness .pn-motion-site>section :is(a,button):focus-visible{outline:3px solid #e9c9a4;outline-offset:3px}
 @media(max-width:767px){.pn-cinema-wellness .pn-cine-hero{min-height:760px!important;padding-top:110px!important;padding-bottom:60px!important}.pn-cinema-wellness .pn-cine-hero h1{font-size:clamp(2.55rem,10vw,4.1rem)!important}.pn-cinema-wellness .pn-motion-site>section:not(:first-child){padding-top:55px!important;padding-bottom:55px!important}.pn-cinema-wellness .pn-cine-about img{border-radius:0 48px 0 48px!important}.pn-cinema-wellness .pn-cine-differentials article{min-height:0!important}}
+/* Clinic reference fidelity: premium header, calmer mobile reading, visual section separation. */
+.pn-cinema-wellness>header{background:rgba(248,248,246,.96)!important;color:#122b3a!important;border-bottom:1px solid rgba(19,44,56,.12)!important;box-shadow:0 7px 28px rgba(6,24,36,.09)!important}
+.pn-cinema-wellness>header :is(a,span,p){color:#122b3a!important}
+.pn-cinema-wellness>header a[href*="whatsapp"],.pn-cinema-wellness>header a[class*="bg-"]{background:#0c3b49!important;color:#fff!important;border-radius:9px!important}
+.pn-cinema-wellness>header button{color:#123746!important;border-color:rgba(18,55,70,.25)!important}
+.pn-cinema-wellness .pn-cine-hero{position:relative}
+.pn-cinema-wellness .pn-cine-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,17,26,.70),rgba(3,17,26,.42) 54%,rgba(3,17,26,.04));z-index:0;pointer-events:none}
+.pn-cinema-wellness .pn-cine-hero>div{position:relative;z-index:1}
+.pn-cinema-wellness .pn-motion-site>section:not(:first-child) .pn-section-heading{margin-bottom:clamp(25px,3vw,46px)!important}
+.pn-cinema-wellness .pn-motion-site>section:not(:first-child) :is(h2,h3){letter-spacing:-.025em!important}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card>div:first-child{min-width:0!important;overflow:hidden}
+.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card>div:first-child img{max-height:400px!important}
+.pn-cinema-wellness>.pn-builder-v2-footer{background:#0b2633!important;color:#f7f7f5!important}
+.pn-cinema-wellness>.pn-builder-v2-footer :is(h3,a){color:#f7f7f5!important}
+@media(max-width:767px){.pn-cinema-wellness .pn-cine-hero::before{background:linear-gradient(180deg,rgba(3,17,26,.55),rgba(3,17,26,.68) 65%,rgba(3,17,26,.40))}.pn-cinema-wellness .pn-motion-site>section:not(:first-child) :is(h2,h3){overflow-wrap:anywhere}.pn-cinema-wellness .pn-cine-gallery .pn-cinematic-gallery-card>div:first-child img{max-height:280px!important}}
 `}</style>}
         
         
