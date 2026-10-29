@@ -854,6 +854,20 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-cine-services .pn-editorial-text-card::before,.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card::after,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card::before,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card::after{content:none!important;display:none!important}
 .pn-cinema-wellness .pn-cine-services .pn-editorial-text-card,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{border-radius:18px!important;border:1px solid rgba(215,190,152,.35)!important;box-shadow:none!important}
 .pn-cinema-wellness .pn-cine-services .pn-editorial-text-card>span:first-child,.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card>span:first-child{background:none!important;border:0!important;box-shadow:none!important;color:#d9c3a0!important}
+/* Clinic cinematic visibility and legibility: video behind translucent full-page sections. */
+.pn-cinema-wellness{isolation:isolate!important;background:#081924!important}
+.pn-cinema-wellness .pn-cinematic-background{z-index:0!important}
+.pn-cinema-wellness .pn-motion-site{position:relative!important;z-index:1!important;background:transparent!important}
+.pn-cinema-wellness .pn-motion-site>section{background:rgba(6,20,30,.57)!important;background-color:rgba(6,20,30,.57)!important}
+.pn-cinema-wellness .pn-motion-site>section:nth-child(even){background:rgba(8,24,35,.68)!important}
+.pn-cinema-wellness .pn-motion-site>section :is(h1,h2,h3,p){text-shadow:none!important}
+.pn-cinema-wellness .pn-cine-differentials{background:rgba(7,22,32,.84)!important}
+.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{background:rgba(11,30,42,.91)!important;background-color:rgba(11,30,42,.91)!important;color:#f5f0e8!important;border-color:rgba(218,187,144,.4)!important}
+.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card :is(h3,p,span,div){color:#f5f0e8!important;text-shadow:none!important}
+.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card{background:rgba(9,27,39,.83)!important;color:#f7f2ea!important}
+.pn-cinema-wellness .pn-cine-services .pn-editorial-text-card :is(h3,p,span){color:#f7f2ea!important;text-shadow:none!important}
+.pn-cinema-wellness .pn-cine-hero{background:rgba(4,14,22,.22)!important}
+@media(max-width:767px){.pn-cinema-wellness .pn-motion-site>section{background:rgba(6,20,30,.65)!important}.pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{background:rgba(10,28,39,.94)!important}}
 `}</style>}
         
         
