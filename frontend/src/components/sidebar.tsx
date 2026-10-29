@@ -389,11 +389,11 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         <Link href="/app/banco-midias" title="Banco de mídias" aria-label="Banco de mídias" className="mt-2 flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/10 hover:text-white"><Globe className="h-5 w-5"/></Link>
         <span className="mt-auto h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_12px_rgba(190,242,100,.7)]" aria-hidden="true"/>
       </div>}
-      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-0 z-[39] hidden bg-black/35 lg:block"/>}
+      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-y-0 right-0 left-[324px] z-[39] hidden bg-transparent lg:block"/>}
       {/* =======================================================
           DESKTOP SIDEBAR
           ======================================================= */}
-      <aside className={`fixed inset-y-0 left-0 z-40 hidden w-64 ${isBuilderPreview&&!desktopOpen?"lg:!hidden":""} overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col`}>
+      <aside className={`fixed inset-y-0 z-40 hidden w-64 ${isBuilderPreview?"left-[68px] shadow-[20px_0_55px_rgba(0,0,0,.4)]": "left-0"} ${isBuilderPreview&&!desktopOpen?"lg:!hidden":""} overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col`}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(143,236,120,0.085),transparent_68%)]" />
 
         <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
