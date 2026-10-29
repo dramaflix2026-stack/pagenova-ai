@@ -560,6 +560,17 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article:hover{transform:translateY(-9px) rotateX(2deg) rotateY(-2deg) translateZ(18px)!important;border-color:rgba(255,169,104,.86)!important;box-shadow:inset 0 1px 0 rgba(255,230,198,.3),0 22px 34px rgba(0,0,0,.4),0 38px 75px rgba(0,0,0,.44),0 0 28px rgba(237,97,56,.14)!important}
 }
 @media(prefers-reduced-motion:reduce){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article,.pn-cinema-gastronomy [data-pn-composition="differentials"]>.grid>article{transition:none!important;transform:none!important}}
+/* Gastronomy photo-led premium menu, with original fixed cinematic video visible behind. */
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid{max-width:1360px!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article{padding:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;background:linear-gradient(180deg,rgba(12,10,9,.42),rgba(12,9,8,.83))!important;backdrop-filter:blur(7px)!important;-webkit-backdrop-filter:blur(7px)!important;border:1px solid rgba(247,171,86,.68)!important;border-radius:23px!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article>div:first-child:has(img){width:100%!important;aspect-ratio:4/3!important;height:auto!important;min-height:200px!important;overflow:hidden!important;border-radius:0!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article>div:first-child img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;transition:transform .6s ease!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article>div:last-child{padding:1.55rem!important;flex:1!important;display:flex!important;flex-direction:column!important;justify-content:flex-start!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article h3{font-size:clamp(1.45rem,2vw,2rem)!important;line-height:1.15!important;margin-bottom:.45rem!important}
+.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article p{font-size:.96rem!important;line-height:1.65!important}
+@media(min-width:1024px){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:1.1rem!important}.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article>div:first-child:has(img){min-height:180px!important;aspect-ratio:1/1!important}.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article{min-height:445px!important}}
+@media(min-width:640px) and (max-width:1023px){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(hover:hover) and (pointer:fine){.pn-cinema-gastronomy [data-pn-composition="services"]>.grid>article:hover img{transform:scale(1.055)!important}}
 /* Cinematic family 02: gastronomy. Deliberately distinct from barbershop bronze/editorial. */
 .pn-cinema-gastronomy{--pn-food-accent:#ed6138;--pn-food-cream:#fff1db;font-family:var(--font-poppins),Arial,sans-serif}
 .pn-cinema-gastronomy .pn-cinema-section-eyebrow{color:#ffb07a!important;letter-spacing:.22em!important}
@@ -896,7 +907,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
             return isGallery&&b.type==="heading"&&/resultados/i.test(b.text)?render({...b,text:b.text.replace(/resultados/gi,"Imagens")}):render(b);
           })}</div>;
           const editorialVisuals=uniqueImages.filter(b=>!!b.src);
-          const cardImage=(card:Block,i:number)=>isTreatments&&!treatmentHasCompletePhotos?undefined:(images.find(image=>image.forCardId===card.id)||editorialVisuals[i]);
+          const cardImage=(card:Block,i:number)=>isTreatments&&!treatmentHasCompletePhotos&&!(site.cinematic?.mode==="cinematic"&&/hamb[uú]rg|burger|pizz|restaurante|sushi|churrasc|cafeteria|padaria|confeitaria|doceria|sorveteria|marmitaria|gastronomi|delivery/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" ")))?undefined:(images.find(image=>image.forCardId===card.id)||editorialVisuals[i]);
           const editorialCardsForDisplay=textItems.filter(b=>b.type==="paragraph"&&b.text.trim().length>0);
           const editorialDescription=(item:Block)=>{
             const parsed=cardText(item);
