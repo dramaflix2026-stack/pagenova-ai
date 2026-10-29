@@ -64,7 +64,7 @@ export default async function ProductLayout({
       <MobileAppBackGuard />
       <Sidebar accessKind={access.kind} />
 
-      <div className="min-h-screen lg:pl-64">
+      <div className="pn-app-content min-h-screen lg:pl-64">
         {trial&&<div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 border-b border-emerald-400/20 bg-[#182a1c] px-4 py-3 text-center text-xs text-white/85">
           <strong className="text-emerald-200">Teste grátis de 5 dias · {daysLeft} {daysLeft===1?"dia restante":"dias restantes"}</strong>
           <span>{trial.sitesRemaining??0}/2 sites · {trial.googleRemaining??0}/5 pesquisas Google disponíveis</span>

@@ -221,6 +221,8 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const searchParams = useSearchParams();
   const currentCrmView = searchParams.get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const isBuilderPreview = pathname === "/app/builder-v2";
+  const [desktopOpen,setDesktopOpen] = useState(false);
   const [accountEmail, setAccountEmail] = useState<string>("");
   const [credits,setCredits]=useState<SidebarCredits|null>(null);
   const [creditsLoading,setCreditsLoading]=useState(true);
@@ -378,10 +380,12 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         </aside>
       </div>
 
+      {isBuilderPreview&&<button type="button" onClick={()=>setDesktopOpen(v=>!v)} aria-expanded={desktopOpen} aria-label={desktopOpen?"Recolher menu principal":"Expandir menu principal"} className={`fixed left-3 top-3 z-[80] hidden h-11 items-center gap-2 rounded-xl border border-emerald-400/30 bg-[#0b100d] px-3 text-sm font-semibold text-emerald-200 shadow-lg lg:flex ${desktopOpen?"translate-x-64":""}`}><Menu className="h-5 w-5"/>{desktopOpen?"Recolher menu":"Abrir menu"}</button>}
+      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-0 z-[39] hidden bg-black/35 lg:block"/>}
       {/* =======================================================
           DESKTOP SIDEBAR
           ======================================================= */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col">
+      <aside className={`fixed inset-y-0 left-0 z-40 hidden w-64 ${isBuilderPreview&&!desktopOpen?"lg:!hidden":""} overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col`}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(143,236,120,0.085),transparent_68%)]" />
 
         <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
