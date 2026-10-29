@@ -380,20 +380,12 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
         </aside>
       </div>
 
-      {isBuilderPreview&&<div className="fixed inset-y-0 left-0 z-[80] hidden w-[68px] flex-col items-center border-r border-emerald-300/15 bg-[#0e1913] py-4 shadow-[8px_0_32px_rgba(0,0,0,.18)] lg:flex">
-        <Link href="/app" aria-label="Início da PageNova AI" title="Início" className="mb-8 flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-300/15 bg-emerald-300/[.07] text-emerald-200"><Sparkles className="h-5 w-5"/></Link>
-        <button type="button" onClick={()=>setDesktopOpen(v=>!v)} aria-expanded={desktopOpen} aria-label={desktopOpen?"Recolher navegação":"Expandir navegação"} title={desktopOpen?"Recolher navegação":"Expandir navegação"} className="flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-300/30 bg-emerald-300/[.12] text-emerald-200 transition hover:bg-emerald-300/20">{desktopOpen?<X className="h-5 w-5"/>:<LayoutDashboard className="h-5 w-5"/>}</button>
-        <div className="my-5 h-px w-8 bg-white/10"/>
-        <Link href="/app/builder-v2" title="Estúdio IA" aria-label="Estúdio IA" className="flex h-11 w-11 items-center justify-center rounded-xl bg-lime-300/15 text-lime-300"><Sparkles className="h-5 w-5"/></Link>
-        <Link href="/app/paginas" title="Meus sites" aria-label="Meus sites" className="mt-2 flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/10 hover:text-white"><Files className="h-5 w-5"/></Link>
-        <Link href="/app/banco-midias" title="Banco de mídias" aria-label="Banco de mídias" className="mt-2 flex h-11 w-11 items-center justify-center rounded-xl text-white/55 transition hover:bg-white/10 hover:text-white"><Globe className="h-5 w-5"/></Link>
-        <span className="mt-auto h-1.5 w-1.5 rounded-full bg-lime-300 shadow-[0_0_12px_rgba(190,242,100,.7)]" aria-hidden="true"/>
-      </div>}
-      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-y-0 right-0 left-[324px] z-[39] hidden bg-transparent lg:block"/>}
+      {isBuilderPreview&&!desktopOpen&&<button type="button" onClick={()=>setDesktopOpen(true)} aria-label="Expandir navegação" title="Expandir navegação" className="fixed left-3 top-4 z-[80] hidden h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/25 bg-[#13251a] text-lime-300 shadow-[0_12px_35px_rgba(0,0,0,.35)] transition hover:bg-[#203a27] focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-300 lg:flex"><LayoutDashboard className="h-5 w-5"/></button>}
+      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-y-0 right-0 left-[256px] z-[39] hidden bg-transparent lg:block"/>}
       {/* =======================================================
           DESKTOP SIDEBAR
           ======================================================= */}
-      <aside className={`fixed inset-y-0 z-40 hidden w-64 ${isBuilderPreview?"left-[68px] shadow-[20px_0_55px_rgba(0,0,0,.4)]": "left-0"} ${isBuilderPreview&&!desktopOpen?"lg:!hidden":""} overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col`}>
+      <aside className={`fixed inset-y-0 z-40 hidden w-64 ${isBuilderPreview?"left-0 shadow-[20px_0_55px_rgba(0,0,0,.4)]": "left-0"} ${isBuilderPreview&&!desktopOpen?"lg:!hidden":""} overflow-hidden border-r border-white/[0.07] bg-[#0b100d] lg:flex lg:flex-col`}>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-[radial-gradient(circle_at_top_left,rgba(143,236,120,0.085),transparent_68%)]" />
 
         <div className="relative flex h-20 items-center border-b border-white/[0.07] px-6">
@@ -410,6 +402,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
           </Link>
         </div>
 
+        {isBuilderPreview&&<button type="button" onClick={()=>setDesktopOpen(false)} aria-label="Recolher navegação" title="Recolher navegação" className="absolute right-3 top-5 z-20 flex h-9 w-9 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white/80 hover:bg-white/10"><X className="h-4 w-4"/></button>}
         <nav className="relative flex-1 space-y-2 overflow-y-auto overscroll-contain p-3 pb-6" aria-label="Menu principal da PageNova">
           <NavigationGroup title="Início" description="Sua central PageNova" items={homeItems}
             theme="studio" pathname={pathname} currentCrmView={currentCrmView} />
