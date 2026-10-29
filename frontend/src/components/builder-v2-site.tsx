@@ -285,6 +285,24 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 @media(max-width:480px){.pn-cinematic-enabled .pn-cinema-map .pn-cinema-section-eyebrow{font-size:clamp(1.55rem,6.1vw,2rem)!important}}
 .pn-cinematic-enabled .pn-cinema-about-title :is(h1,h2,h3){font-size:clamp(1.65rem,4.4vw,3.3rem)!important;line-height:1.16!important;letter-spacing:.035em!important;font-weight:750!important;color:#f6e4c7!important}
 @media(max-width:480px){.pn-cinematic-enabled .pn-cinema-about-title :is(h1,h2,h3){font-size:clamp(1.55rem,6.1vw,2rem)!important}}
+
+/* Cinematic desktop: controlled editorial scale, not oversized headlines. */
+@media(min-width:768px){
+.pn-cinematic-enabled .pn-cinema-section-eyebrow,
+.pn-cinematic-enabled .pn-cinema-map .pn-cinema-section-eyebrow{font-size:clamp(1.65rem,2.65vw,2.55rem)!important;line-height:1.2!important;max-width:950px!important;margin-inline:auto!important}
+.pn-cinematic-enabled .pn-cinema-about-title :is(h1,h2,h3){font-size:clamp(2.1rem,3.1vw,2.95rem)!important;line-height:1.14!important}
+.pn-cinematic-enabled .pn-immersive-hero>div>div{max-width:980px!important}
+.pn-cinematic-enabled .pn-immersive-hero .pn-section-heading :is(h1,h2){font-size:clamp(3.2rem,5.2vw,5.5rem)!important;line-height:1.03!important;text-shadow:0 5px 34px rgba(0,0,0,.8)!important}
+.pn-cinematic-enabled .pn-immersive-hero .pn-section-heading{margin-bottom:1.5rem!important}
+}
+.pn-cinematic-enabled .pn-cinema-about>div>div:first-child>span:first-child{font-size:clamp(1.45rem,2.5vw,2.35rem)!important;letter-spacing:.045em!important;line-height:1.2!important;font-weight:750!important;display:flex!important;flex-wrap:wrap!important}
+.pn-cinematic-enabled .pn-static-testimonials article{min-width:0!important;max-width:100%!important}
+.pn-cinematic-enabled .pn-static-testimonials article>div:last-child{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;min-width:0!important}
+.pn-cinematic-enabled .pn-static-testimonials article>div:last-child>img{display:block!important;flex:0 0 48px!important;width:48px!important;height:48px!important;min-width:48px!important;max-width:48px!important;max-height:48px!important;aspect-ratio:1!important;border-radius:50%!important;object-fit:cover!important;position:static!important}
+.pn-cinematic-enabled .pn-static-testimonials article>div:last-child>div{flex:1 1 auto!important;min-width:0!important;width:auto!important;max-width:calc(100% - 130px)!important}
+.pn-cinematic-enabled .pn-static-testimonials article>div:last-child>div p{overflow-wrap:break-word!important;word-break:normal!important;white-space:normal!important;line-height:1.45!important}
+.pn-cinematic-enabled .pn-static-testimonials article>div:last-child>span:last-child{flex:0 0 auto!important;white-space:nowrap!important}
+@media(max-width:480px){.pn-cinematic-enabled .pn-cinema-about>div>div:first-child>span:first-child{font-size:1.3rem!important}.pn-cinematic-enabled .pn-static-testimonials article>div:last-child>span:last-child{font-size:10px!important}}
 /* Cinematic-only refinements; static appearance remains unchanged. */
 .pn-cinematic-enabled .pn-motion-site>section{background-color:rgba(10,18,14,.34)!important;background-blend-mode:multiply}
 .pn-cinematic-enabled .pn-motion-site>section :is(h1,h2,h3,p){text-wrap:pretty}
