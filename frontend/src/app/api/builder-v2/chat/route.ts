@@ -729,10 +729,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section;
     const heroSection=String(hero||"hero");
     const existing=blocks.filter(b=>b.type==="button"&&String(b.section||"")===heroSection);
-    const label=instructionText.match(/(?:texto|nome|chamada)\s*(?:do\s+novo\s+bot[aã]o\s*)?:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-      instructionText.match(/(?:texto|nome|chamada)\s*(?:do\s+novo\s+bot[aã]o\s*)?:\s*([^\n\r.]+)/i)?.[1]?.trim()||
-      instructionText.match(/bot[aã]o[^"“'‘]{0,120}["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
-      instructionText.match(/["“'‘]([^"”'’]+)["”'’]/)?.[1];
+    const label=instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+      instructionText.match(/(?:texto|nome|chamada)\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
+      instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*([^\n\r]+)/i)?.[1]?.trim()||
+      [...instructionText.matchAll(/["“'‘]([^"”'’]+)["”'’]/g)].at(-1)?.[1];
     if(!label)return NextResponse.json({error:"Informe o texto do segundo botão entre aspas. Nenhuma alteração aplicada."},{status:422});
     const destination=/servi[cç]|tratament/i.test(instructionText)?"services":"contact";
     const matches=destination==="services"?/servic|tratament|especialidad/:/contat|fale.conosco|agend/;
