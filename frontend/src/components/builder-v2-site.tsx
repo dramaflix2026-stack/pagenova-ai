@@ -882,6 +882,23 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card{background:rgba(9,26,37,.88)!important;color:#f7efe2!important}
 .pn-cinema-wellness .pn-cine-differentials .pn-editorial-text-card *{color:#f7efe2!important;text-shadow:none!important}
 .pn-cinema-wellness .pn-cine-faq-section .pn-cinema-faq-premium details{background:rgba(8,19,27,.88)!important;color:#f7efe2!important}
+/* Clinic 03: ensure uninterrupted fixed video behind differential and FAQ sections. */
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials,
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-faq-section,
+.pn-cinema-wellness .pn-motion-site>section:has(.pn-cinema-faq){
+background:transparent!important;background-color:transparent!important;background-image:none!important;
+box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials::before,
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials::after,
+.pn-cinema-wellness .pn-motion-site>section:has(.pn-cinema-faq)::before,
+.pn-cinema-wellness .pn-motion-site>section:has(.pn-cinema-faq)::after{content:none!important;display:none!important}
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials>.mx-auto,
+.pn-cinema-wellness .pn-motion-site>section:has(.pn-cinema-faq)>.mx-auto{background:transparent!important;background-image:none!important;backdrop-filter:none!important}
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials :is(h2,h3,p,li){color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials article{background:rgba(8,24,35,.86)!important;background-image:none!important}
+.pn-cinema-wellness .pn-motion-site>section.pn-cine-differentials article :is(h3,p,span){color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
+.pn-cinema-wellness .pn-motion-site>section:has(.pn-cinema-faq) h2{color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 `}</style>}
         
         
