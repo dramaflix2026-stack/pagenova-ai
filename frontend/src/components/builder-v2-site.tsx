@@ -499,6 +499,11 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
 .pn-cinematic-enabled .pn-cinema-faq-premium summary>span:last-child{color:#d8b77e!important;-webkit-text-fill-color:#d8b77e!important}
 .pn-cinematic-enabled .pn-cinema-faq-premium details>div{border-top-color:rgba(216,183,126,.35)!important;color:#dfd0b9!important;-webkit-text-fill-color:#dfd0b9!important;font-size:1rem!important;line-height:1.8!important}
 @media(max-width:767px){.pn-cinematic-enabled .pn-cinema-faq-premium details{padding:1.1rem!important}}
+
+/* About hierarchy: small section label + one editable editorial heading, never a duplicate. */
+.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-about-kicker{font-family:Arial,sans-serif!important;font-size:clamp(.72rem,.9vw,.86rem)!important;line-height:1.4!important;font-weight:800!important;letter-spacing:.19em!important;text-transform:uppercase!important;color:#d8b77e!important;-webkit-text-fill-color:#d8b77e!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-about-title .pn-section-heading{margin-bottom:0!important;text-align:left!important}
+.pn-cinematic-enabled .pn-motion-site>section .pn-cinema-about-title .pn-section-heading h2{font-family:Georgia,'Times New Roman',serif!important;font-size:clamp(2.2rem,4vw,4.25rem)!important;line-height:1.08!important;font-weight:700!important;letter-spacing:-.04em!important;text-align:left!important;text-wrap:balance}
 `}</style>}
         
         
@@ -735,7 +740,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
           const adaptiveTeam=adaptiveTemplate&&/equipe|profissionais|especialistas/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const adaptiveModalities=adaptiveTemplate&&/modalidades|atividades/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const testimonials=textItems.filter(b=>clean(b.text).length>18).slice(0,adaptiveTemplate?undefined:6);
-          const testimonialInfo=(item:Block)=>{const raw=clean(item.text).replace(/^[“"]|[”"]$/g,"").trim();const parts=raw.includes("|")?raw.split(/\s*\|\s*/).map(p=>p.trim()).filter(Boolean):raw.split(/\s+[—–]\s+/).map(p=>p.trim()).filter(Boolean);const first=parts[0]||"";const validName=/^[\p{L}.'-]+(?:\s+[\p{L}.'-]+){1,4}$/u.test(first)&&!/^depoimento/i.test(first);const name=parts.length>=3&&validName?first:"";const city=name?parts[1]:"";const message=name?parts.slice(2).join(" — "):raw.replace(/^depoimento\s*\d+\s*[:—–-]?\s*/i,"");return {name,city,message,photo:(site.blocks.filter(photo=>photo.type==="image"&&!!photo.src&&photo.section===group.id).find(photo=>photo.id===item.id+"-photo"||photo.forCardId===item.id||(!!name&&photo.text?.trim().toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR")))||images.find(photo=>photo.id===item.id+"-photo"||photo.forCardId===item.id||(!!name&&photo.text===name))||images[testimonials.indexOf(item)])?.src|| (site.cinematic?.mode==="cinematic"?`https://i.pravatar.cc/160?img=${[12,47,32,44,15,49,13,45,11,46,14,48][Math.max(0,testimonials.indexOf(item))%12]}`:"")};};
+          const testimonialInfo=(item:Block)=>{const raw=clean(item.text).replace(/^[“"]|[”"]$/g,"").trim();const parts=raw.includes("|")?raw.split(/\s*\|\s*/).map(p=>p.trim()).filter(Boolean):raw.split(/\s+[—–]\s+/).map(p=>p.trim()).filter(Boolean);const first=parts[0]||"";const validName=/^[\p{L}.'-]+(?:\s+[\p{L}.'-]+){1,4}$/u.test(first)&&!/^depoimento/i.test(first);const name=parts.length>=3&&validName?first:"";const city=name?parts[1]:"";const message=name?parts.slice(2).join(" — "):raw.replace(/^depoimento\s*\d+\s*[:—–-]?\s*/i,"");return {name,city,message,photo:(site.blocks.filter(photo=>photo.type==="image"&&!!photo.src&&photo.section===group.id).find(photo=>photo.id===item.id+"-photo"||photo.forCardId===item.id||(!!name&&photo.text?.trim().toLocaleLowerCase("pt-BR")===name.toLocaleLowerCase("pt-BR")))||images.find(photo=>photo.id===item.id+"-photo"||photo.forCardId===item.id||(!!name&&photo.text===name))||images[testimonials.indexOf(item)])?.src||""};};
           const isPrinciples=/princip|diferencia|valores|filosofia/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const isHumanizedApproach=/abordagem.humanizada|nossa.abordagem/i.test(id+" "+heading.map(b=>b.text).join(" "));
           const processPhotos=isProcess?previewBlocks.filter(b=>b.type==="image"&&!!b.src).slice(0,24):[];
@@ -865,7 +870,7 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
                 <div className="pn-cinema-about mx-auto w-full max-w-6xl py-5 md:py-12">
                   <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)] lg:gap-14">
                     <div className="min-w-0 space-y-6 lg:pr-4">
-                      <span className="pn-cinema-about-kicker inline-flex items-center gap-3 font-bold uppercase text-[#f6e4c7]"><span className="h-px w-9 bg-current"/> {String(cinematicNumber(index)).padStart(2,"0")} / {heading.map(h=>publicHeading(h.text,id)).filter(Boolean).join(" ")||"NOSSA ESSÊNCIA"}</span>
+                      <span className="pn-cinema-about-kicker inline-flex items-center gap-3 font-bold uppercase text-[#f6e4c7]"><span className="h-px w-9 bg-current"/> {String(cinematicNumber(index)).padStart(2,"0")} / {site.niche||"NOSSA HISTÓRIA"}</span>
                       <div className="pn-cinema-about-title [&_h2]:!text-left [&_h2]:!font-semibold [&_h2]:!tracking-tight [&_h2]:!leading-[1.12] [&_h2]:!text-[clamp(1.85rem,3.3vw,3.3rem)]">{headingNode}</div>
                       <div className="pn-cinema-about-copy max-w-[54ch] space-y-4">{textItems.slice(0,2).map(render)}</div>
                       {buttons.length>0&&<div className="flex flex-wrap gap-3 pt-2">{buttons.map(render)}</div>}
