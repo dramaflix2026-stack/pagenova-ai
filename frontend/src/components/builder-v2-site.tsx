@@ -1189,7 +1189,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
             // Do not cap user-authored galleries or overwrite any existing images.
             if(site.sectionMediaManaged?.includes(group.id))return existing;
             const preferred=existing.length>=4?existing:[...existing,...(borrowed?[borrowed]:[])];
-            return [...preferred,...fallback].filter((item,i,all)=>!!item.src&&all.findIndex(photo=>photo.src===item.src)===i).slice(0,Math.max(4,existing.length));
+            return [...preferred,...fallback].filter((item,i,all)=>!!item.src&&all.findIndex(photo=>photo.src===item.src)===i).slice(0,Math.max(6,existing.length));
           })():images;
           const cardItems=isGallery?galleryImages:(/servic|tratament|modalidad|procediment/i.test(id)?textItems:textItems.slice(0,6));
           const isProcess=/etapas|processo|passos|como[- ]funciona|atendimento|metodologia/i.test(id+" "+heading.map(b=>b.text).join(" "));
