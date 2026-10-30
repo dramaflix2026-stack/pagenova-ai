@@ -1261,6 +1261,24 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
           const featureProcessCard=!adaptiveTemplate&&site.processImageCard!==false&&site.heroPresentation!=="split"&&index>0&&isProcess&&
             textItems.length===3&&!!heroSourceImage?.src&&/processo|etapas|passos|metodologia|como.funciona|atendimento/i.test(id);
 
+          // Cinematic engineering cover. Preserve user-uploaded media and editable block copy.
+          if(engineeringIdentity&&index===0&&!multiHero&&site.cinematic?.mode!=="cinematic"){
+            const coverBlock=blocks.find(b=>b.type==="image"&&!!b.src);
+            const coverPhoto=coverBlock?.userUploaded?coverBlock.src:"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=2200&q=85";
+            const coverMobile=coverBlock?.userUploaded?(coverBlock.mobileSrc||coverBlock.src):coverPhoto;
+            return <section id={group.id} key={group.id+"-"+index} data-section-id={group.id} data-pn-composition="engineering-cinematic-hero" className="relative isolate flex min-h-[min(790px,90svh)] scroll-mt-20 items-center overflow-hidden bg-[#0b0f12] text-white md:min-h-[740px]">
+              <picture className="absolute inset-0 -z-20"><source media="(max-width: 767px)" srcSet={coverMobile}/><img src={coverPhoto} alt={coverBlock?.text||"Arquitetura e engenharia contemporânea"} className="h-full w-full object-cover object-center md:object-[center_42%]" loading="eager"/></picture>
+              <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#070b0f]/95 via-[#070b0f]/78 to-[#070b0f]/20 md:to-[#070b0f]/25"/>
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#070b0f]/70 via-transparent to-[#070b0f]/20"/>
+              <div className="mx-auto w-full max-w-[1440px] px-6 py-24 sm:px-10 md:py-32 lg:px-16">
+                <div className="mb-7 flex items-center gap-3 text-[10px] font-bold uppercase tracking-[.24em] text-[#f2a35e] sm:text-xs"><span className="h-px w-9 bg-[#e58a39]"/> ENGENHARIA • PROJETOS • EXECUÇÃO</div>
+                {heading.map(b=><h1 key={b.id} data-block-id={b.id} className="max-w-[920px] text-left text-[clamp(2.7rem,6.3vw,6.8rem)] font-extrabold uppercase leading-[.99] tracking-[-.055em] text-white" style={{fontFamily:b.fontFamily||undefined}}>{publicHeading(b.text,id)}</h1>)}
+                {textItems.slice(0,1).map(b=><p key={b.id} data-block-id={b.id} className="mt-7 max-w-[650px] text-left text-base leading-[1.8] text-[#e2e6e9] sm:text-lg">{clean(b.text)}</p>)}
+                <div className="mt-10 flex flex-wrap gap-3">{buttons.slice(0,2).map((b,i)=><a key={b.id} data-block-id={b.id} href={b.href||ctaHref} className={i===0?"inline-flex min-h-12 items-center justify-center rounded-sm bg-[#e58a39] px-7 py-3 text-sm font-bold text-[#0b0f12] transition hover:bg-[#f3a65f]":"inline-flex min-h-12 items-center justify-center rounded-sm border border-white/70 px-7 py-3 text-sm font-semibold text-white transition hover:bg-white/10"}>{b.text}</a>)}{buttons.length===0&&<a href={ctaHref} className="inline-flex min-h-12 items-center justify-center rounded-sm bg-[#e58a39] px-7 py-3 text-sm font-bold text-[#0b0f12]">Solicitar orçamento</a>}</div>
+              </div>
+              <div className="pointer-events-none absolute bottom-8 right-8 hidden items-center gap-3 text-[10px] font-semibold uppercase tracking-[.22em] text-white/70 md:flex">EXPLORE <span className="h-px w-12 bg-[#e58a39]"/></div>
+            </section>;
+          }
           // Template 5: render statistics from editable blocks, never from invented defaults.
           // Keep original block IDs so editor/chat updates remain authoritative.
           const adaptiveStatistics=adaptiveTemplate&&!engineeringIdentity&&/n[uú]meros|indicadores|estat[ií]sticas|resultados.em.n[uú]meros/i.test(id+" "+heading.map(b=>b.text).join(" "));
