@@ -1378,6 +1378,23 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                     {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="right"?"justify-end":"justify-center")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                   </>}
                 />:
+              healthcareStatic&&index>0&&isAboutEditorial&&!/equipe|profissionais/i.test(id+" "+heading.map(b=>b.text).join(" "))?
+                <div data-pn-composition="healthcare-about-mosaic" className="mx-auto max-w-[1240px] py-7">
+                  <div className="grid items-center gap-9 lg:grid-cols-[.92fr_1.08fr] lg:gap-14">
+                    <div className="order-2 lg:order-1">
+                      <div className="mb-5 text-xs font-semibold uppercase tracking-[.22em] text-[#558f7a]">CONHEÇA A NOSSA ESSÊNCIA</div>
+                      <div className="[&_h2]:!font-sans [&_h2]:!text-left [&_h2]:!text-[clamp(2.2rem,3.8vw,4.2rem)] [&_h2]:!font-semibold [&_h2]:!leading-[1.09] [&_h2]:!tracking-[-.045em] [&_h2]:!text-[#153d2b]">{heading.map(render)}</div>
+                      <div className="mt-7 max-w-[530px] space-y-4 [&_p]:!text-left [&_p]:!text-[15px] [&_p]:!leading-[1.8] [&_p]:!text-[#596d62]">{textItems.slice(0,2).map(render)}</div>
+                      <div className="mt-8 flex flex-wrap gap-3"><div className="rounded-2xl bg-[#e8f1ea] px-5 py-4"><span className="block text-2xl font-bold text-[#214e37]">♡</span><span className="text-xs text-[#536c5c]">Atendimento humano</span></div><div className="rounded-2xl bg-[#e8f1ea] px-5 py-4"><span className="block text-2xl font-bold text-[#214e37]">✚</span><span className="text-xs text-[#536c5c]">Cuidado integrado</span></div></div>
+                    </div>
+                    <div className="relative order-1 grid min-h-[430px] grid-cols-[1.15fr_.85fr] grid-rows-[225px_185px] gap-3 lg:order-2 lg:grid-rows-[280px_210px]">
+                      <div className="col-start-1 row-span-2 overflow-hidden rounded-[28px] bg-[#dce9df]"><img src={uniqueImages[0]?.src||"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1000&auto=format&fit=crop&q=85"} alt="Atendimento da clínica" className="h-full w-full object-cover"/></div>
+                      <div className="col-start-2 row-start-1 overflow-hidden rounded-[24px] bg-[#dce9df]"><img src={uniqueImages[1]?.src||"https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=700&auto=format&fit=crop&q=85"} alt="Equipe de saúde" className="h-full w-full object-cover"/></div>
+                      <div className="col-start-2 row-start-2 flex flex-col justify-center rounded-[24px] bg-[#dcece2] p-5"><span className="text-4xl text-[#3c8461]">✳</span><span className="mt-3 text-lg font-semibold leading-tight text-[#194631]">Cuidado que acolhe</span><span className="mt-2 text-xs leading-relaxed text-[#5b7665]">Uma experiência centrada em cada pessoa.</span></div>
+                      <div className="absolute -bottom-4 left-[7%] rounded-2xl border border-[#e5eee7] bg-white px-5 py-4 shadow-[0_15px_45px_rgba(16,60,35,.12)]"><span className="text-sm font-semibold text-[#27563b]">✚ &nbsp; Saúde com propósito</span></div>
+                    </div>
+                  </div>
+                </div>:
               healthcareStatic&&index>0&&/especialidades|nossos servi[cç]os|tratamentos/i.test(id+" "+heading.map(b=>b.text).join(" "))?
                 <div data-pn-composition="healthcare-specialties-editorial" className="mx-auto max-w-[1260px] py-6">
                   <div className="mb-9 grid gap-5 md:grid-cols-[.8fr_1.2fr] md:items-start"><span className="pt-2 text-xs font-semibold uppercase tracking-[.17em] text-[#3e8292]">COMO PODEMOS AJUDAR</span><div className="[&_h2]:!m-0 [&_h2]:!font-sans [&_h2]:!text-left [&_h2]:!text-[clamp(2rem,3.5vw,3.8rem)] [&_h2]:!font-normal [&_h2]:!leading-[1.1] [&_h2]:!tracking-[-.045em] [&_h2]:!text-[#273b42]">{heading.map(render)}</div></div>
