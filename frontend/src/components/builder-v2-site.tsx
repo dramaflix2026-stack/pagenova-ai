@@ -1263,7 +1263,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 
           // Template 5: render statistics from editable blocks, never from invented defaults.
           // Keep original block IDs so editor/chat updates remain authoritative.
-          const adaptiveStatistics=adaptiveTemplate&&/n[uú]meros|indicadores|estat[ií]sticas|resultados.em.n[uú]meros/i.test(id+" "+heading.map(b=>b.text).join(" "));
+          const adaptiveStatistics=adaptiveTemplate&&!engineeringIdentity&&/n[uú]meros|indicadores|estat[ií]sticas|resultados.em.n[uú]meros/i.test(id+" "+heading.map(b=>b.text).join(" "));
           if(adaptiveStatistics){
             const stats=paragraphs.map(block=>{
               const value=block.text.match(/(?:^|[:—–-]\s*)(\d{1,6}(?:[.,]\d{1,2})?)\s*(\+|%|anos?|mil)?/i);
@@ -1286,7 +1286,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
           }
           // Skip AI-generated sections without usable customer-facing content.
           const contentParagraphs=paragraphs.filter(b=>clean(b.text).length>35 && !isDesignInstruction(b.text));
-          if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id))return null;
+          if(!images.length && !buttons.length && contentParagraphs.length===0 && !/faq|perguntas|d[uú]vidas|contato|agend/i.test(id) && !(engineeringIdentity&&/indicadores|n[uú]meros|estat[ií]sticas|autoridade/i.test(id+" "+heading.map(b=>b.text).join(" "))))return null;
           const visibleHeading=heading.some(b=>publicHeading(b.text,id).trim().length>0);
           if(!visibleHeading && !images.length && !buttons.length) return null;
           const headingNode=<div className="pn-section-heading mx-auto mb-8 max-w-4xl space-y-3 text-center md:mb-11">{site.cinematic?.mode==="cinematic"&&index>0&&!isAboutEditorial&&<div className="pn-cinema-section-eyebrow mb-5 flex items-center justify-center gap-3 text-xs font-semibold uppercase tracking-[.27em] text-[#dbc19b]"><span className="h-px w-9 bg-current"/> {String(cinematicNumber(index)).padStart(2,"0")} / {heading.map(h=>publicHeading(h.text,id)).filter(Boolean).join(" ")|| (isTestimonials?"DEPOIMENTOS":isProcess?"NOSSO PROCESSO":isGallery?"GALERIA":isContact?"CONTATO":/faq|perguntas/i.test(id)?"PERGUNTAS FREQUENTES":"DESCUBRA MAIS")} <span className="h-px w-9 bg-current"/></div>}{(site.cinematic?.mode==="cinematic"&&index>0&&!isAboutEditorial?[]:heading).map(b=>{
