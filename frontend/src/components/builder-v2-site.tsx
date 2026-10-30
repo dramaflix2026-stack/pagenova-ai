@@ -1006,6 +1006,37 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
         <div ref={previewRef} data-pn-template={adaptiveTemplate?"prompt-adaptive":undefined} className={adaptiveTemplate?"pn-motion-site":"pn-motion-site pn-institutional-responsive"} style={{backgroundColor:site.cinematic?.mode==="cinematic"&&(site.cinematic.desktopUrl||site.cinematic.mobileUrl||(premiumWellness))?"transparent":site.background}}>{adaptiveTemplate&&<style>{`
 [data-pn-template="prompt-adaptive"] { --pn-accent: ${adaptiveColor}; --pn-surface:${adaptiveTheme.surface}; --pn-ink:${adaptiveTheme.ink}; --pn-muted:${adaptiveTheme.muted}; --pn-card-ink:${adaptiveTheme.cardInk}; --pn-card-muted:${adaptiveTheme.cardMuted}; }
 [data-pn-template="prompt-adaptive"] section { color:var(--pn-ink); }
+/* Premium editorial compositions for long-form AI briefs; scoped to Template 03. */
+[data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-premium-card,
+[data-pn-template="prompt-adaptive"] [data-pn-composition="differentials"] .pn-premium-card{
+  overflow:hidden;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease;
+  border-radius:clamp(18px,2vw,28px)!important;
+  box-shadow:0 18px 44px rgba(24,20,16,.09)!important;
+}
+[data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-premium-card:hover,
+[data-pn-template="prompt-adaptive"] [data-pn-composition="differentials"] .pn-premium-card:hover{
+  transform:translateY(-5px);box-shadow:0 25px 54px rgba(24,20,16,.16)!important;
+}
+[data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-premium-card:before,
+[data-pn-template="prompt-adaptive"] [data-pn-composition="differentials"] .pn-premium-card:before{
+  width:4px;opacity:.75;
+}
+@media(min-width:1024px){
+  [data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-adaptive-services-grid:has(> :nth-child(4):last-child){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  [data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-adaptive-services-grid:has(> :nth-child(4):last-child)>:nth-child(even){
+    transform:translateY(26px);
+  }
+  [data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-adaptive-services-grid:has(> :nth-child(4):last-child)>:nth-child(even):hover{
+    transform:translateY(20px);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  [data-pn-template="prompt-adaptive"] .pn-premium-card{transition:none!important}
+  [data-pn-template="prompt-adaptive"] .pn-premium-card:hover{transform:none!important}
+}
+
 [data-pn-template="prompt-adaptive"] section[id*="process"] ol,[data-pn-template="prompt-adaptive"] section[id*="funciona"] ol {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
 [data-pn-template="prompt-adaptive"] section :is(h1,h2,h3){overflow-wrap:anywhere}
 [data-pn-template="prompt-adaptive"] section article {min-width:0}
