@@ -1307,6 +1307,9 @@ export default function BuilderV2() {
     <style jsx global>{`
 @media (min-width:1024px) {
  .pn-app-content:has(.pn-builder-stacked) { padding-left: 0; }
+ body.pn-builder-nav-expanded .pn-app-content:has(.pn-builder-stacked) { padding-left:256px; }
+ body.pn-builder-nav-expanded .pn-builder-stacked { width:100%; }
+
  .pn-builder-stacked { padding-left: 0; }
 
  .pn-builder-stacked .pn-editor-chat { max-width:none; }\n .pn-builder-stacked .pn-studio-masthead {padding-top:8px;}
