@@ -24,14 +24,14 @@ export function briefCardCounts(instruction:string):Map<string,number>{
   // Only associate a generic card count when it is close to an explicit section
   // label, on the same line, and not separated by another section heading.
   const sectionAliases:Record<string,RegExp>={
-    servicos:/\\b(?:servicos?|tratamentos?)\\b/g,
-    diferenciais:/\\b(?:diferenciais?|vantagens?|por que (?:nos )?escolher)\\b/g,
-    processo:/\\b(?:como funciona(?: o atendimento)?|etapas? do atendimento|processo de atendimento)\\b/g,
-    faq:/\\b(?:perguntas frequentes|faq)\\b/g,
-    depoimentos:/\\b(?:depoimentos?|testemunhos?)\\b/g,
-    planos:/\\b(?:planos?)\\b/g,
-    equipe:/\\b(?:equipe|profissionais?)\\b/g,
-    modalidades:/\\b(?:modalidades?)\\b/g
+    servicos:/\b(?:servicos?|tratamentos?)\b/g,
+    diferenciais:/\b(?:diferenciais?|vantagens?|por que (?:nos )?escolher)\b/g,
+    processo:/\b(?:como funciona(?: o atendimento)?|etapas? do atendimento|processo de atendimento)\b/g,
+    faq:/\b(?:perguntas frequentes|faq)\b/g,
+    depoimentos:/\b(?:depoimentos?|testemunhos?)\b/g,
+    planos:/\b(?:planos?)\b/g,
+    equipe:/\b(?:equipe|profissionais?)\b/g,
+    modalidades:/\b(?:modalidades?)\b/g
   };
   const genericCount=new RegExp("\\b("+quantity+")\\s+(?:cards?|itens?|etapas?|passos?|perguntas?)\\b","g");
   const headings:Array<{at:number;end:number;id:string}>=[];
@@ -44,7 +44,7 @@ export function briefCardCounts(instruction:string):Map<string,number>{
     const preceding=headings.filter(h=>h.end<=at&&at-h.end<=110).at(-1);
     if(!preceding)continue;
     const between=text.slice(preceding.end,at);
-    if(/[.!?\\n]/.test(between))continue;
+    if(/[.!?\n]/.test(between))continue;
     const count=numberWords[match[1]]??Number(match[1]);
     if(count>=1&&count<=12)matches.push({at,id:preceding.id,count});
   }
