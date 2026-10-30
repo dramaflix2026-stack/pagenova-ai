@@ -49,7 +49,7 @@ export function briefCardCounts(instruction:string):Map<string,number>{
     if(count>=1&&count<=12&&!matches.some(m=>m.id===preceding.id&&m.at>=preceding.at&&m.at<=at))matches.push({at,id:preceding.id,count});
   }
   const result=new Map<string,number>();
-  for(const match of matches.sort((a,b)=>a.at-b.at))result.set(match.id,match.count);
+  for(const match of matches.sort((a,b)=>a.at-b.at)){if(!result.has(match.id))result.set(match.id,match.count);}
   return result;
 }
 
