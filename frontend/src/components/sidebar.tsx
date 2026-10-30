@@ -223,6 +223,11 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const isBuilderPreview = pathname === "/app/builder-v2";
   const [desktopOpen,setDesktopOpen] = useState(false);
+  useEffect(()=>{
+    document.body.classList.toggle("pn-builder-nav-expanded",isBuilderPreview&&desktopOpen);
+    return ()=>document.body.classList.remove("pn-builder-nav-expanded");
+  },[isBuilderPreview,desktopOpen]);
+
   const [accountEmail, setAccountEmail] = useState<string>("");
   const [credits,setCredits]=useState<SidebarCredits|null>(null);
   const [creditsLoading,setCreditsLoading]=useState(true);
@@ -381,7 +386,7 @@ export function Sidebar({accessKind="paid"}:{accessKind?:"paid"|"trial"}) {
       </div>
 
       {isBuilderPreview&&!desktopOpen&&<button type="button" onClick={()=>setDesktopOpen(true)} aria-label="Expandir navegação" title="Expandir navegação" className="fixed left-3 top-4 z-[80] hidden h-12 w-12 items-center justify-center rounded-2xl border border-emerald-300/25 bg-[#13251a] text-lime-300 shadow-[0_12px_35px_rgba(0,0,0,.35)] transition hover:bg-[#203a27] focus-visible:outline focus-visible:outline-2 focus-visible:outline-lime-300 lg:flex"><LayoutDashboard className="h-5 w-5"/></button>}
-      {isBuilderPreview&&desktopOpen&&<button type="button" aria-label="Fechar menu principal" onClick={()=>setDesktopOpen(false)} className="fixed inset-y-0 right-0 left-[256px] z-[39] hidden bg-transparent lg:block"/>}
+      
       {/* =======================================================
           DESKTOP SIDEBAR
           ======================================================= */}
