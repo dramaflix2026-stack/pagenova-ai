@@ -140,6 +140,13 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         if(!raw || typeof raw!=="object")continue;
         const item=raw as Record<string,unknown>;
         const id=String(item.id||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9-]/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"").slice(0,48);
+        // Reject semantic duplicates of canonical sections even when the model invents a new ID.
+        const semantic=String(item.title||"")+" "+id;
+        if(/(?:tratamentos?|servi[cç]os?|nossos tratamentos)/i.test(semantic)&&existingSectionIds.has("servicos"))continue;
+        if(/(?:depoimentos?|testemunhos?)/i.test(semantic)&&existingSectionIds.has("depoimentos"))continue;
+        if(/(?:galeria|portf[oó]lio)/i.test(semantic)&&existingSectionIds.has("galeria"))continue;
+        if(/(?:como funciona|etapas? do atendimento)/i.test(semantic)&&existingSectionIds.has("processo"))continue;
+        if(/(?:perguntas frequentes|faq)/i.test(semantic)&&existingSectionIds.has("faq"))continue;
         if(!id || existingSectionIds.has(id) || id.length<3)continue;
         const layout=["grid","split","gallery","banner"].includes(String(item.layout))?String(item.layout):"grid";
         const title=String(item.title||id).slice(0,100);
@@ -295,7 +302,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const galleryId=String(galleryPlan.id);
         if(!mutableBlocks.some(item=>item.section===galleryId&&item.type==="heading"))mutableBlocks.push({id:"gallery-heading",section:galleryId,layout:"gallery",type:"heading",text:"Galeria de imagens",color:"#24332e",align:"center"});
         if(!mutableBlocks.some(item=>item.section===galleryId&&item.type==="image")){
-          for(let i=0;i<3;i++)mutableBlocks.push({id:"gallery-image-"+i,section:galleryId,layout:"gallery",type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i],src:"",color:"#24332e",align:"center"});
+          const requestedGalleryCount=Number(instruction.match(/(?:galeria|galeria de imagens)[^.!?\\n]{0,110}?(?:exatamente\\s*)?(\\d{1,2})\\s*imagens?/i)?.[1]||instruction.match(/(?:exatamente\\s*)?(\\d{1,2})\\s*imagens?[^.!?\\n]{0,50}galeria/i)?.[1]||3);
+          const galleryCount=Math.max(1,Math.min(12,requestedGalleryCount));
+          for(let i=0;i<galleryCount;i++)mutableBlocks.push({id:"gallery-image-"+i,section:galleryId,layout:"gallery",type:"image",text:["Ambiente","Atendimento","Nossa atuação"][i%3],src:"",color:"#24332e",align:"center"});
         }
         const galleryBlocks=mutableBlocks.filter(item=>item.section===galleryId);
         const otherBlocks=mutableBlocks.filter(item=>item.section!==galleryId);
