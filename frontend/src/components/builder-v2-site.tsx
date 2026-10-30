@@ -1378,6 +1378,28 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                     {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="right"?"justify-end":"justify-center")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                   </>}
                 />:
+              healthcareStatic&&index>0&&isProcess?
+                <div data-pn-composition="healthcare-patient-journey" className="mx-auto w-full max-w-[1250px] py-10">
+                  <div className="mx-auto mb-14 max-w-[850px] text-center">
+                    <span className="text-xs font-semibold uppercase tracking-[.2em] text-[#659b80]">SUA JORNADA DE CUIDADO</span>
+                    <div className="mt-4 [&_h2]:!font-sans [&_h2]:!text-center [&_h2]:!text-[clamp(2.1rem,3.5vw,3.8rem)] [&_h2]:!font-semibold [&_h2]:!leading-[1.12] [&_h2]:!tracking-[-.045em] [&_h2]:!text-[#183d2b]">{heading.map(render)}</div>
+                    <p className="mt-5 text-base leading-relaxed text-[#6c7e72]">Três etapas simples para um atendimento próximo, organizado e humanizado.</p>
+                  </div>
+                  <div className="relative">
+                    <div aria-hidden="true" className="absolute left-[16.66%] right-[16.66%] top-[34px] hidden h-px bg-[#b8d1c0] md:block"/>
+                    <div className="grid gap-10 md:grid-cols-3 md:gap-7">{textItems.slice(0,3).map((item,i)=>{
+                      const card=cardText(item);
+                      const fallback=["Agendamento","Consulta personalizada","Acompanhamento contínuo"];
+                      const label=card.name&&card.name.length<65?card.name:fallback[i];
+                      return <article key={item.id} data-block-id={item.id} className="relative flex min-w-0 flex-col items-center text-center">
+                        <div className="relative z-10 flex h-[68px] w-[68px] items-center justify-center rounded-full border-[6px] border-[#f7faf7] bg-[#dcebe0] text-[25px] font-semibold text-[#28553c] shadow-[0_5px_20px_rgba(35,76,50,.08)]">{["▦","♡","✚"][i]}</div>
+                        <span className="mt-6 text-xs font-bold tracking-[.2em] text-[#77a68c]">{String(i+1).padStart(2,"0")}</span>
+                        <h3 className="mt-3 max-w-[330px] font-sans text-[clamp(1.3rem,1.7vw,1.75rem)] font-semibold leading-tight text-[#214531]">{label}</h3>
+                        <p className="mt-4 max-w-[335px] text-sm leading-[1.85] text-[#617569]">{card.description||item.text}</p>
+                      </article>;
+                    })}</div>
+                  </div>
+                </div>:
               healthcareStatic&&index>0&&isDifferentials?
                 <div data-pn-composition="healthcare-differentials-photo" className="mx-auto max-w-[1280px] py-8">
                   <div className="grid items-stretch gap-8 lg:grid-cols-[1.18fr_.92fr] lg:gap-10">
