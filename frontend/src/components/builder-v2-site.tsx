@@ -1266,22 +1266,22 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 
           // Gastronomy family / restaurant-specific Senso-inspired static hero.
           // Restrict this composition to restaurants; other food niches keep their own designs.
-          const restaurantHero=/^(restaurante|restaurant)$/i.test((site.niche||selectedNiche||"").trim())||(!site.niche&&!selectedNiche&&/\\brestaurante\\b|\\brestaurant\\b/i.test(site.title));
+          const restaurantHero=/restaurante|restaurant|cucina|trattoria|bistr[oô]|gastronomia italiana/i.test([site.niche,selectedNiche,site.title].filter(Boolean).join(" "))&&!/pizzaria|hamburgueria|cafeteria|padaria|confeitaria/i.test(site.niche||selectedNiche||"");
           if(restaurantHero&&index===0&&!multiHero&&site.cinematic?.mode!=="cinematic"){
             const photoBlock=blocks.find(b=>b.type==="image"&&!!b.src);
-            const heroPhoto=photoBlock?.src||"https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1800&q=85";
-            const mobilePhoto=photoBlock?.mobileSrc||heroPhoto;
+            const heroPhoto=photoBlock?.userUploaded?photoBlock.src:"https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1800&q=85";
+            const mobilePhoto=photoBlock?.userUploaded?(photoBlock.mobileSrc||heroPhoto):heroPhoto;
             return <section key={group.id+"-"+index} id={group.id} data-section-id={group.id} data-pn-composition="restaurant-senso-premium-hero" className="relative isolate scroll-mt-20 overflow-hidden bg-[#100e0c] text-[#f8f3e9]">
-              <div className="mx-auto grid min-h-[660px] w-full max-w-[1560px] items-center lg:min-h-[720px] lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)]">
-                <div className="relative z-10 order-2 flex flex-col justify-center px-6 pb-12 pt-10 sm:px-12 lg:order-1 lg:px-16 lg:py-24">
+              <div className="mx-auto grid min-h-[590px] w-full max-w-[1560px] items-center lg:min-h-[720px] lg:grid-cols-[minmax(0,.92fr)_minmax(0,1.08fr)]">
+                <div className="relative z-10 order-1 flex flex-col justify-center px-6 pb-8 pt-14 sm:px-12 lg:px-16 lg:py-24">
                   <div className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[.28em] text-[#c9a86e]"><span className="h-px w-7 bg-[#c9a86e]"/> GASTRONOMIA • EXPERIÊNCIA</div>
-                  {heading.map(b=><h1 key={b.id} data-block-id={b.id} className="max-w-[670px] text-left font-serif text-[clamp(2.65rem,5.1vw,5.9rem)] font-normal leading-[1.04] tracking-[-.045em] text-[#f8f3e9]">{publicHeading(b.text,id)}</h1>)}
+                  {heading.map(b=><h1 key={b.id} data-block-id={b.id} className="max-w-[670px] text-left font-serif text-[clamp(2.3rem,4.7vw,5.3rem)] font-normal leading-[1.04] tracking-[-.045em] text-[#f8f3e9]">{publicHeading(b.text,id)}</h1>)}
                   {textItems.slice(0,1).map(b=><p key={b.id} data-block-id={b.id} className="mt-7 max-w-[470px] text-left text-sm leading-[1.9] text-[#c7c0b5] sm:text-base">{clean(b.text)}</p>)}
                   <div className="mt-9 flex flex-wrap gap-3">{buttons.slice(0,2).map((b,i)=><a key={b.id} data-block-id={b.id} href={b.href|| (i===0?"#cardapio":"#sobre")} className={i===0?"inline-flex min-h-12 items-center justify-center bg-[#c9a86e] px-6 py-3 text-xs font-bold uppercase tracking-[.13em] text-[#17120c] transition hover:bg-[#e1bd80]":"inline-flex min-h-12 items-center justify-center border border-[#c9a86e]/50 px-6 py-3 text-xs font-semibold uppercase tracking-[.13em] text-[#f8f3e9] transition hover:bg-white/10"}>{b.text}</a>)}</div>
                 </div>
-                <div className="relative order-1 h-[370px] min-w-0 sm:h-[460px] lg:order-2 lg:h-full lg:min-h-[620px]">
-                  <picture className="absolute inset-0"><source media="(max-width: 767px)" srcSet={mobilePhoto}/><img src={heroPhoto} alt={photoBlock?.text||"Prato de gastronomia contemporânea"} className="h-full w-full object-cover object-center" loading="eager"/></picture>
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#100e0c] via-transparent to-transparent lg:bg-gradient-to-r lg:from-[#100e0c] lg:via-[#100e0c]/20 lg:to-transparent"/>
+                <div className="relative order-2 h-[290px] min-w-0 sm:h-[400px] lg:h-full lg:min-h-[620px]">
+                  <picture className="absolute inset-0"><source media="(max-width: 767px)" srcSet={mobilePhoto}/><img src={heroPhoto} alt={photoBlock?.text||"Prato de gastronomia contemporânea"} className="h-full w-full object-cover object-[center_55%]" loading="eager"/></picture>
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#100e0c] via-transparent to-[#100e0c]/30 lg:bg-gradient-to-r lg:from-[#100e0c] lg:via-[#100e0c]/20 lg:to-transparent"/>
                 </div>
               </div>
               <div className="border-t border-[#c9a86e]/20 bg-[#100e0c]"><div className="mx-auto grid max-w-[1440px] gap-0 px-6 py-7 sm:grid-cols-3 sm:px-12 lg:px-16">{[["✦","INGREDIENTES SELECIONADOS","Qualidade em cada detalhe"],["◇","ARTE CULINÁRIA","Cuidado em cada preparo"],["✧","EXPERIÊNCIA MEMORÁVEL","Momentos para apreciar"]].map(([icon,title,description],i)=><div key={title} className={"flex items-start gap-4 py-4 sm:px-6 "+(i>0?"border-t border-[#c9a86e]/20 sm:border-l sm:border-t-0":"")}><span className="text-2xl text-[#c9a86e]">{icon}</span><div><div className="text-[10px] font-semibold uppercase tracking-[.16em] text-[#e7d9c0]">{title}</div><p className="mt-2 text-xs leading-relaxed text-[#999084]">{description}</p></div></div>)}</div></div>
