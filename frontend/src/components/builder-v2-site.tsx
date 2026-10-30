@@ -1378,6 +1378,21 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                     {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="right"?"justify-end":"justify-center")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                   </>}
                 />:
+              healthcareStatic&&index>0&&/especialidades|nossos servi[cç]os|tratamentos/i.test(id+" "+heading.map(b=>b.text).join(" "))?
+                <div data-pn-composition="healthcare-specialties" className="mx-auto max-w-[1260px] py-5">
+                  <div className="mb-10 text-center [&_h2]:!font-sans [&_h2]:!text-[clamp(2rem,3.3vw,3.4rem)] [&_h2]:!font-bold [&_h2]:!text-[#163c2a]">{heading.map(render)}</div>
+                  <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">{(editorialCards.length?editorialCards:visualCards.length?visualCards:textItems).slice(0,4).map((item,i)=>{
+                    const card=cardText(item);
+                    const fallbackNames=["Clínica Geral","Cardiologia","Ortopedia","Neurologia"];
+                    const label=card.name&&card.name.length<48?card.name:/cardiolog|cora[cç][aã]o/i.test(item.text)?"Cardiologia":/ortoped|ossos/i.test(item.text)?"Ortopedia":/neuro|nervoso/i.test(item.text)?"Neurologia":/cl[ií]nica|preven[cç][aã]o/i.test(item.text)?"Clínica Geral":fallbackNames[i];
+                    const photos=["https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&auto=format&fit=crop&q=85"];
+                    const photo=uniqueImages[i]?.src||photos[i];
+                    return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-[24px] border border-[#e3ece6] bg-white shadow-[0_12px_35px_rgba(18,51,37,.07)] transition-transform duration-300 hover:-translate-y-1">
+                      <div className="relative aspect-[4/3] overflow-hidden bg-[#e5eee8]"><img src={photo} alt={label} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"/><span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.14em] text-[#315e43]">Especialidade {String(i+1).padStart(2,"0")}</span></div>
+                      <div className="flex flex-1 flex-col p-6"><h3 className="text-xl font-bold tracking-tight text-[#193c2b]">{label}</h3><p className="mt-3 flex-1 text-sm leading-[1.7] text-[#65776c]">{card.description||item.text}</p><a href="#contato" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#24583c]">Saiba mais <span aria-hidden="true">→</span></a></div>
+                    </article>;
+                  })}</div>
+                </div>:
               healthcareStatic&&index===0?
                 <div data-pn-composition="healthcare-carely-hero" className="relative mx-auto w-full max-w-[1500px] bg-[#fafbf9] px-5 pb-12 pt-8 text-[#10251c] sm:px-10 lg:px-16 lg:pb-20 lg:pt-16">
                   <div className="grid items-center gap-8 lg:min-h-[640px] lg:grid-cols-[minmax(0,1.04fr)_minmax(0,1fr)]">
