@@ -1006,6 +1006,17 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
         <div ref={previewRef} data-pn-template={adaptiveTemplate?"prompt-adaptive":undefined} className={adaptiveTemplate?"pn-motion-site":"pn-motion-site pn-institutional-responsive"} style={{backgroundColor:site.cinematic?.mode==="cinematic"&&(site.cinematic.desktopUrl||site.cinematic.mobileUrl||(premiumWellness))?"transparent":site.background}}>{adaptiveTemplate&&<style>{`
 [data-pn-template="prompt-adaptive"] { --pn-accent: ${adaptiveColor}; --pn-surface:${adaptiveTheme.surface}; --pn-ink:${adaptiveTheme.ink}; --pn-muted:${adaptiveTheme.muted}; --pn-card-ink:${adaptiveTheme.cardInk}; --pn-card-muted:${adaptiveTheme.cardMuted}; }
 [data-pn-template="prompt-adaptive"] section { color:var(--pn-ink); }
+/* Template 03: visual hierarchy, responsive galleries and readable social proof. */
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="testimonials"] .pn-adaptive-testimonials{max-width:1180px;margin-inline:auto;gap:clamp(16px,2vw,28px)}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="testimonials"] .pn-adaptive-testimonials blockquote{border:1px solid color-mix(in srgb,var(--pn-accent) 18%,transparent);border-radius:24px;box-shadow:0 16px 45px rgba(0,0,0,.08);padding:clamp(24px,2.4vw,38px)}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="testimonials"] .pn-adaptive-testimonials blockquote p{font-size:clamp(1rem,1.2vw,1.15rem);line-height:1.8}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] .grid>div{overflow:hidden;border-radius:24px;transition:transform .35s ease,box-shadow .35s ease}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] .grid>div:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(0,0,0,.13)}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] img{transition:transform .6s ease}
+[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] .grid>div:hover img{transform:scale(1.035)}
+@media(min-width:1280px){[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="testimonials"] .pn-adaptive-testimonials{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(prefers-reduced-motion:reduce){[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] .grid>div,[data-pn-template="prompt-adaptive"] section[data-pn-section-kind="gallery"] img{transition:none!important;transform:none!important}}
+
 /* Premium editorial compositions for long-form AI briefs; scoped to Template 03. */
 [data-pn-template="prompt-adaptive"] [data-pn-composition="services"] .pn-premium-card,
 [data-pn-template="prompt-adaptive"] [data-pn-composition="differentials"] .pn-premium-card{
