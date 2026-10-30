@@ -156,7 +156,10 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   // Preserve the order stored in editable blocks. Chat-driven moves remain authoritative.
   const heroSourceImage=visibleSections[0]?.blocks.find(b=>b.type==="image"&&!!b.src);
   const footerCandidates=visibleSections.filter(g=>!/rodape|footer|faq/i.test(g.id));
-  const engineeringIdentity=/engenharia|engenheiro|construtora|constru[cç][aã]o civil/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "));
+  // Family 2: engineering, construction and related technical trades (15 catalog niches).
+  // Resolve from the selected niche first; title is a fallback for free-form briefs.
+  const engineeringFamilyNiches=/engenharia|engenheiro|construtora|constru[cç][aã]o civil|reformas?|arquitetura|energia solar|eletricista|encanador|serralheria|vidra[cç]aria|pintura|marcenaria|m[oó]veis planejados|paisagismo|materiais de constru[cç][aã]o|seguran[cç]a eletr[oô]nica/i;
+  const engineeringIdentity=engineeringFamilyNiches.test([site.niche,selectedNiche,site.title].filter(Boolean).join(" "));
   const footerContact=footerCandidates.find(g=>/contato|agend|fale.conosco|fale-conosco/i.test(g.id+" "+g.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ")));
   const footerNavSections=[
     ...footerCandidates.filter(g=>g!==footerContact).slice(0,footerContact?4:5),
