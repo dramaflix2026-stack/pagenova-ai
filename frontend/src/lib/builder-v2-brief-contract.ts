@@ -19,6 +19,35 @@ export function briefCardCounts(instruction:string):Map<string,number>{
       if(count>=1&&count<=12)matches.push({at:match.index||0,id,count});
     }
   }
+  // Briefings frequently specify a section first and its card count afterwards:
+  // "Como funciona o atendimento: serão 4 cards, cada um com uma etapa".
+  // Only associate a generic card count when it is close to an explicit section
+  // label, on the same line, and not separated by another section heading.
+  const sectionAliases:Record<string,RegExp>={
+    servicos:/\\b(?:servicos?|tratamentos?)\\b/g,
+    diferenciais:/\\b(?:diferenciais?|vantagens?|por que (?:nos )?escolher)\\b/g,
+    processo:/\\b(?:como funciona(?: o atendimento)?|etapas? do atendimento|processo de atendimento)\\b/g,
+    faq:/\\b(?:perguntas frequentes|faq)\\b/g,
+    depoimentos:/\\b(?:depoimentos?|testemunhos?)\\b/g,
+    planos:/\\b(?:planos?)\\b/g,
+    equipe:/\\b(?:equipe|profissionais?)\\b/g,
+    modalidades:/\\b(?:modalidades?)\\b/g
+  };
+  const genericCount=new RegExp("\\b("+quantity+")\\s+(?:cards?|itens?|etapas?|passos?|perguntas?)\\b","g");
+  const headings:Array<{at:number;end:number;id:string}>=[];
+  for(const [id,pattern] of Object.entries(sectionAliases)){
+    for(const match of text.matchAll(pattern))headings.push({at:match.index||0,end:(match.index||0)+match[0].length,id});
+  }
+  headings.sort((a,b)=>a.at-b.at);
+  for(const match of text.matchAll(genericCount)){
+    const at=match.index||0;
+    const preceding=headings.filter(h=>h.end<=at&&at-h.end<=110).at(-1);
+    if(!preceding)continue;
+    const between=text.slice(preceding.end,at);
+    if(/[.!?\\n]/.test(between))continue;
+    const count=numberWords[match[1]]??Number(match[1]);
+    if(count>=1&&count<=12)matches.push({at,id:preceding.id,count});
+  }
   const result=new Map<string,number>();
   for(const match of matches.sort((a,b)=>a.at-b.at))result.set(match.id,match.count);
   return result;
