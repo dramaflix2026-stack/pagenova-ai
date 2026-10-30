@@ -1376,7 +1376,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                   </div>
                   {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className="mt-7 flex flex-wrap gap-3">{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                 </div>:
-              isGallery&&site.sectionMediaLayouts?.[group.id]&&site.sectionMediaLayouts[group.id]!=="grid"?<div className="space-y-6">
+              isGallery&&!(adaptiveTemplate&&/est[eé]tica|beleza|spa|facial|cl[ií]nica|dermatolog|wellness|cosm[eé]tic/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" ")))&&site.sectionMediaLayouts?.[group.id]&&site.sectionMediaLayouts[group.id]!=="grid"?<div className="space-y-6">
                 {headingNode}
                 {site.sectionMediaLayouts[group.id]==="carousel"?
                   <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-5" aria-label="Carrossel de fotografias">
