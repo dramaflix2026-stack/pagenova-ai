@@ -1378,6 +1378,25 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                     {(!adaptiveTemplate||!/planos|pre[cç]os|pricing/i.test(id))&&buttons.length>0&&<div className={"flex flex-wrap items-start gap-3 "+(buttons[0]?.align==="right"?"justify-end":"justify-center")}>{(adaptiveTemplate&&/planos|pre[cç]os|pricing/i.test(id)?[]:buttons).map(render)}</div>}
                   </>}
                 />:
+              healthcareStatic&&index>0&&isDifferentials?
+                <div data-pn-composition="healthcare-differentials-photo" className="mx-auto max-w-[1280px] py-8">
+                  <div className="grid items-stretch gap-8 lg:grid-cols-[1.18fr_.92fr] lg:gap-10">
+                    <div className="min-w-0">
+                      <div className="mb-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-[.2em] text-[#6b9b83]"><span className="h-px w-9 bg-[#88ae99]"/> NOSSOS DIFERENCIAIS</div>
+                      <h2 className="max-w-[760px] font-sans text-[clamp(2rem,3.3vw,3.5rem)] font-semibold leading-[1.13] tracking-[-.045em] text-[#1d4035]">Mais do que atendimento, um cuidado completo para você</h2>
+                      <p className="mt-5 max-w-[720px] text-base leading-[1.75] text-[#5c7267]">Acolhimento, profissionais qualificados e uma estrutura preparada para oferecer uma experiência de saúde personalizada.</p>
+                      <div className="mt-8 grid gap-4 sm:grid-cols-2">{(editorialCards.length?editorialCards:visualCards.length?visualCards:textItems).slice(0,4).map((item,i)=>{
+                        const card=cardText(item);
+                        const label=card.name&&card.name.length<65?card.name:["Atendimento humanizado","Profissionais especializados","Estrutura moderna","Cuidado integrado"][i];
+                        return <article key={item.id} data-block-id={item.id} className="min-w-0 rounded-[22px] border border-[#e1ebe4] bg-[#f1f6f2] p-5 sm:p-6">
+                          <div className="flex items-start gap-4"><span aria-hidden="true" className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#d9e9dd] text-2xl text-[#315d46]">{["♡","♙","▦","♢"][i]}</span><h3 className="pt-1 font-sans text-lg font-semibold leading-snug text-[#244637]">{label}</h3></div>
+                          <p className="mt-4 text-sm leading-[1.7] text-[#5b7064]">{card.description||item.text}</p>
+                        </article>;
+                      })}</div>
+                    </div>
+                    <div className="relative min-h-[430px] overflow-hidden rounded-[30px] bg-[#dce8df] lg:min-h-[650px]"><img src={uniqueImages[0]?.src||"https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1100&auto=format&fit=crop&q=85"} alt="Atendimento humanizado na clínica" className="absolute inset-0 h-full w-full object-cover"/></div>
+                  </div>
+                </div>:
               healthcareStatic&&index>0&&isAboutEditorial&&!/equipe|profissionais/i.test(id+" "+heading.map(b=>b.text).join(" "))?
                 <div data-pn-composition="healthcare-about-mosaic" className="mx-auto max-w-[1240px] py-7">
                   <div className="grid items-center gap-9 lg:grid-cols-[.92fr_1.08fr] lg:gap-14">
