@@ -264,10 +264,11 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const testimonialSection=sections.find(v=>/depoiment|testemunh/i.test(v.id+" "+v.goal));
         if(testimonialSection&&/depoimentos? demonstrativ|depoimentos? ilustrativ|sem (?:inventar )?nomes/i.test(instruction)){
           const examples=[...instruction.matchAll(/^\s*\d+[.)]\s*["“]([^"”\n]{15,350})["”]/gm)].map(m=>m[1].trim());
+          const attributedExamples=[...instruction.matchAll(/^\s*\d+[.)]\s*(?:\*\*)?([^\n—–|]{4,75}?)(?:\*\*)?\s*[—–|]\s*([^\n—–|]{3,85})\s*[—–|]\s*["“]?([^\n"”]{12,400})["”]?\s*$/gm)].map(m=>({name:m[1].trim().replace(/\*\*/g,""),city:m[2].trim(),message:m[3].trim()}));
           const cards=mutableBlocks.filter(block=>block.section===testimonialSection.id&&block.type==="paragraph");
           for(let i=0;i<cards.length;i++){
             const text=examples[i]||String(cards[i].text||"").replace(/^[^:]{2,85}:\s*/,"");
-            cards[i].text="Depoimento ilustrativo: "+text;
+            cards[i].text=attributedExamples[i]?attributedExamples[i].name+" | "+attributedExamples[i].city+" | "+attributedExamples[i].message:"Depoimento ilustrativo: "+text;
           }
         }
       }
