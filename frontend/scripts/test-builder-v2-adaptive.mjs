@@ -24,3 +24,8 @@ test("light, beige, dark and high-saturation backgrounds get readable defaults",
   assert.equal(adaptivePalette("#fff",{surface:"#111"}).cardInk,"#f5f5f5");
   assert.equal(adaptivePalette("#fff",{text:"#fff"}).ink,"#24332e");
 });
+
+test("section-first Portuguese briefs retain independent requested counts",()=>{
+  assert.deepEqual(Object.fromEntries(briefCardCounts("Como funciona o atendimento: serão 4 cards, cada um com uma etapa.")),{processo:4});
+  assert.deepEqual(Object.fromEntries(briefCardCounts("Serviços: 5 cards. Diferenciais: 4 cards. Como funciona o atendimento: 4 etapas. FAQ: 6 perguntas.")),{servicos:5,diferenciais:4,processo:4,faq:6});
+});
