@@ -1325,14 +1325,14 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                 />:
               luxuryWellnessHero?
                 <div data-pn-composition="luxury-wellness-hero" className="relative mx-auto grid w-full max-w-7xl items-center gap-0 overflow-hidden rounded-[4px] bg-[#f8f5f0] lg:min-h-[590px] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)]">
-                  <div className="relative z-10 order-2 flex flex-col items-start justify-center px-6 py-8 text-left sm:px-12 lg:order-1 lg:px-16 lg:py-16">
-                    <div className="mb-7 flex items-center gap-4 text-[10px] font-semibold uppercase tracking-[.3em] text-[#98785e]"><span className="h-px w-9 bg-[#c8a98d]"/>BELEZA · CUIDADO · BEM-ESTAR</div>
-                    <div className="max-w-[600px] [&_h1]:!font-serif [&_h1]:!font-normal [&_h1]:!leading-[1.08] [&_h1]:!tracking-[-.035em] [&_h1]:!text-[#352a24] [&_h1]:!text-left [&_h1]:!text-[clamp(2.6rem,4.3vw,4.6rem)] [&_h2]:!font-serif [&_h2]:!text-[#352a24] [&_h2]:!text-left">{headingNode}</div>
-                    <div className="mt-6 max-w-[50ch] space-y-3 [&_p]:!text-left [&_p]:!text-[#62564e] [&_p]:!leading-[1.8]">{textItems.slice(0,2).map(render)}</div>
-                    {buttons.length>0&&<div className="mt-6 flex flex-wrap items-center gap-3 [&_a]:!rounded-sm [&_a]:!px-5 [&_a]:!py-3 [&_button]:!rounded-sm [&_button]:!px-5 [&_button]:!py-3">{buttons.map(render)}</div>}
-                    <div className="mt-7 flex items-center gap-3 text-[10px] uppercase tracking-[.22em] text-[#98785e]"><span className="h-px w-12 bg-[#c8a98d]"/>UMA EXPERIÊNCIA FEITA PARA VOCÊ</div>
+                  <div className="relative z-10 order-2 flex flex-col items-start justify-center px-5 py-5 text-left sm:px-12 sm:py-9 lg:order-1 lg:px-16 lg:py-16">
+                    <div className="mb-3 flex items-center sm:mb-7 gap-4 text-[10px] font-semibold uppercase tracking-[.3em] text-[#98785e]"><span className="h-px w-9 bg-[#c8a98d]"/>BELEZA · CUIDADO · BEM-ESTAR</div>
+                    <div className="max-w-[600px] [&_h1]:!font-serif [&_h1]:!font-normal [&_h1]:!leading-[1.08] [&_h1]:!tracking-[-.035em] [&_h1]:!text-[#352a24] [&_h1]:!text-left [&_h1]:!text-[clamp(2.15rem,4.3vw,4.6rem)] [&_h2]:!font-serif [&_h2]:!text-[#352a24] [&_h2]:!text-left">{headingNode}</div>
+                    <div className="mt-3 max-w-[50ch] space-y-2 sm:mt-6 [&_p]:!text-left [&_p]:!text-[#62564e] [&_p]:!leading-[1.55] sm:[&_p]:!leading-[1.8]">{textItems.slice(0,2).map(render)}</div>
+                    {buttons.length>0&&<div className="mt-4 flex flex-wrap items-center gap-2 sm:mt-6 sm:gap-3 [&_a]:!rounded-sm [&_a]:!px-4 [&_a]:!py-2.5 sm:[&_a]:!px-5 sm:[&_a]:!py-3 [&_button]:!rounded-sm [&_button]:!px-4 [&_button]:!py-2.5 sm:[&_button]:!px-5 sm:[&_button]:!py-3">{buttons.map(render)}</div>}
+                    <div className="mt-4 flex items-center gap-3 sm:mt-7 text-[10px] uppercase tracking-[.22em] text-[#98785e]"><span className="h-px w-12 bg-[#c8a98d]"/>UMA EXPERIÊNCIA FEITA PARA VOCÊ</div>
                   </div>
-                  <div className="relative order-1 min-h-[255px] overflow-hidden bg-[#e8d9ca] sm:min-h-[350px] lg:order-2 lg:min-h-[590px]">
+                  <div className="relative order-1 min-h-[225px] overflow-hidden bg-[#e8d9ca] sm:min-h-[350px] lg:order-2 lg:min-h-[590px]">
                     <img src={heroPhotoCandidate} alt={heading[0]?.text||"Experiência de estética e bem-estar"} loading="eager" className="absolute inset-0 h-full w-full object-cover object-center"/>
                     <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#352a24]/20 via-transparent to-transparent"/>
                   </div>
