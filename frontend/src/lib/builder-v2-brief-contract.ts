@@ -46,7 +46,7 @@ export function briefCardCounts(instruction:string):Map<string,number>{
     const between=text.slice(preceding.end,at);
     if(/[.!?\n]/.test(between))continue;
     const count=numberWords[match[1]]??Number(match[1]);
-    if(count>=1&&count<=12)matches.push({at,id:preceding.id,count});
+    if(count>=1&&count<=12&&!matches.some(m=>m.id===preceding.id&&m.at>=preceding.at&&m.at<=at))matches.push({at,id:preceding.id,count});
   }
   const result=new Map<string,number>();
   for(const match of matches.sort((a,b)=>a.at-b.at))result.set(match.id,match.count);
