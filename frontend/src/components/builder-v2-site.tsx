@@ -1379,17 +1379,18 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
                   </>}
                 />:
               healthcareStatic&&index>0&&/especialidades|nossos servi[cç]os|tratamentos/i.test(id+" "+heading.map(b=>b.text).join(" "))?
-                <div data-pn-composition="healthcare-specialties" className="mx-auto max-w-[1260px] py-5">
-                  <div className="mb-10 text-center [&_h2]:!font-sans [&_h2]:!text-[clamp(2rem,3.3vw,3.4rem)] [&_h2]:!font-bold [&_h2]:!text-[#163c2a]">{heading.map(render)}</div>
-                  <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">{(editorialCards.length?editorialCards:visualCards.length?visualCards:textItems).slice(0,4).map((item,i)=>{
+                <div data-pn-composition="healthcare-specialties-editorial" className="mx-auto max-w-[1260px] py-6">
+                  <div className="mb-9 grid gap-5 md:grid-cols-[.8fr_1.2fr] md:items-start"><span className="pt-2 text-xs font-semibold uppercase tracking-[.17em] text-[#3e8292]">COMO PODEMOS AJUDAR</span><div className="[&_h2]:!m-0 [&_h2]:!font-sans [&_h2]:!text-left [&_h2]:!text-[clamp(2rem,3.5vw,3.8rem)] [&_h2]:!font-normal [&_h2]:!leading-[1.1] [&_h2]:!tracking-[-.045em] [&_h2]:!text-[#273b42]">{heading.map(render)}</div></div>
+                  <div className="grid gap-4 md:grid-cols-12">{(editorialCards.length?editorialCards:visualCards.length?visualCards:textItems).slice(0,4).map((item,i)=>{
                     const card=cardText(item);
                     const fallbackNames=["Clínica Geral","Cardiologia","Ortopedia","Neurologia"];
                     const label=card.name&&card.name.length<48?card.name:/cardiolog|cora[cç][aã]o/i.test(item.text)?"Cardiologia":/ortoped|ossos/i.test(item.text)?"Ortopedia":/neuro|nervoso/i.test(item.text)?"Neurologia":/cl[ií]nica|preven[cç][aã]o/i.test(item.text)?"Clínica Geral":fallbackNames[i];
-                    const photos=["https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&auto=format&fit=crop&q=85"];
+                    const photos=["https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=900&auto=format&fit=crop&q=85","https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=900&auto=format&fit=crop&q=85"];
                     const photo=uniqueImages[i]?.src||photos[i];
-                    return <article key={item.id} data-block-id={item.id} className="group flex min-w-0 flex-col overflow-hidden rounded-[24px] border border-[#e3ece6] bg-white shadow-[0_12px_35px_rgba(18,51,37,.07)] transition-transform duration-300 hover:-translate-y-1">
-                      <div className="relative aspect-[4/3] overflow-hidden bg-[#e5eee8]"><img src={photo} alt={label} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"/><span className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[.14em] text-[#315e43]">Especialidade {String(i+1).padStart(2,"0")}</span></div>
-                      <div className="flex flex-1 flex-col p-6"><h3 className="text-xl font-bold tracking-tight text-[#193c2b]">{label}</h3><p className="mt-3 flex-1 text-sm leading-[1.7] text-[#65776c]">{card.description||item.text}</p><a href="#contato" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#24583c]">Saiba mais <span aria-hidden="true">→</span></a></div>
+                    const image=<div className="min-h-0 overflow-hidden rounded-[5px] bg-[#dce5e9]"><img src={photo} alt={label} className="h-full min-h-[215px] w-full object-cover transition-transform duration-500 group-hover:scale-[1.035] md:min-h-[240px]"/></div>;
+                    const copy=<div className="py-1"><h3 className="text-[clamp(1.15rem,1.6vw,1.55rem)] font-medium leading-tight text-[#298095]">{label}</h3><p className="mt-2 text-sm leading-[1.65] text-[#52646d]">{card.description||item.text}</p></div>;
+                    return <article key={item.id} data-block-id={item.id} className={`group flex min-w-0 flex-col gap-4 rounded-[7px] bg-[#eaf0f3] p-5 sm:p-6 ${i===0?"md:col-span-7":i===1?"md:col-span-5":i===2?"md:col-span-6":"md:col-span-6"}`}>
+                      {i===0||i===2?<>{image}{copy}</>:<>{copy}{image}</>}
                     </article>;
                   })}</div>
                 </div>:
