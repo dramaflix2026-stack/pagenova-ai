@@ -1,5 +1,5 @@
 "use client";
-import {useRef,useState} from "react";
+import {useRef,useState,type FormEvent} from "react";
 type Props={niche:string;brand:string;contactHref?:string};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const photos=[
@@ -14,7 +14,7 @@ export function Template8HospitalityDiscover({niche,brand,contactHref}:Props){
  const labels=travel?["Descubra novos destinos","Vivências memoráveis","Cultura e encontros","Natureza e descobertas"]:nature?["Cenários naturais","Momentos de pausa","Aventuras ao ar livre","Refúgios acolhedores"]:["Ambientes inspiradores","Momentos de descanso","Paisagens para contemplar","Experiências especiais"];
  const perks=travel?[["Curadoria","Roteiros pensados para diferentes estilos de viagem."],["Flexibilidade","Experiências que respeitam o seu ritmo."],["Atenção","Cada jornada começa com uma boa conversa."],["Descoberta","Novos lugares, histórias e perspectivas."]]:nature?[["Conexão","Experiências próximas da natureza."],["Tranquilidade","Tempo para respirar e desacelerar."],["Autenticidade","Momentos que valorizam o essencial."],["Cuidado","Atenção aos detalhes da sua jornada."]]:[["Acolhimento","Uma experiência que começa nos detalhes."],["Conforto","Ambientes pensados para o seu bem-estar."],["Atmosfera","Cenários para momentos especiais."],["Atenção","Cada visita merece um cuidado único."]];
  const target=contactHref&&/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)?contactHref:undefined;
- const submit=(e:React.FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!name.trim()||!email.trim()||!interest.trim())return;const body="Olá! Gostaria de planejar uma experiência com "+brand+".\nNome: "+name+"\nE-mail: "+email+"\nInteresse: "+interest+"\nDetalhes: "+details;const href=target?.startsWith("https://wa.me/")?target+"?text="+encodeURIComponent(body):target?.startsWith("mailto:")?target+"?subject="+encodeURIComponent("Consulta de experiência — "+brand)+"&body="+encodeURIComponent(body):"mailto:"+encodeURIComponent(email)+"?subject="+encodeURIComponent("Consulta de experiência — "+brand)+"&body="+encodeURIComponent(body);if(!target){setSent(true);return;}window.location.href=href;setSent(true)};
+ const submit=(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();if(!name.trim()||!email.trim()||!interest.trim())return;const body="Olá! Gostaria de planejar uma experiência com "+brand+".\nNome: "+name+"\nE-mail: "+email+"\nInteresse: "+interest+"\nDetalhes: "+details;const href=target?.startsWith("https://wa.me/")?target+"?text="+encodeURIComponent(body):target?.startsWith("mailto:")?target+"?subject="+encodeURIComponent("Consulta de experiência — "+brand)+"&body="+encodeURIComponent(body):"mailto:"+encodeURIComponent(email)+"?subject="+encodeURIComponent("Consulta de experiência — "+brand)+"&body="+encodeURIComponent(body);if(!target){setSent(true);return;}window.location.href=href;setSent(true)};
  return <div className="pn-t8-discover">
  <style>{`
  .pn-t8-discover{background:#f7f3ec;color:#293831;font-family:Arial,Helvetica,sans-serif;width:100%;max-width:100%;overflow-x:clip}.pn-t8-discover *{box-sizing:border-box}
