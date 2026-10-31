@@ -38,6 +38,6 @@ export function Template9AutomotiveHero({brand,niche,headline,description,image,
  `}</style>
  <header className="pn-t9-header"><a className="pn-t9-brand" href="#tp9-inicio">{brand}</a><button className="pn-t9-toggle" aria-label={open?"Fechar menu":"Abrir menu"} aria-expanded={open} type="button" onClick={()=>setOpen(!open)}>{open?"Fechar ×":"Menu ☰"}</button><nav className="pn-t9-nav" data-open={open} aria-label="Menu principal"><a href="#tp9-inicio" onClick={()=>setOpen(false)}>Início</a><a href="#tp9-sobre" onClick={()=>setOpen(false)}>Sobre</a><a href="#tp9-servicos" onClick={()=>setOpen(false)}>Serviços</a><a href="#tp9-contato" onClick={()=>setOpen(false)}>Contato</a><a className="pn-t9-btn" href={contact} onClick={()=>setOpen(false)}>{d.cta} ↗</a></nav></header>
  <section className="pn-t9-hero"><img src={photo} alt={"Fotografia ilustrativa do segmento "+niche}/><div className="pn-t9-hero-inner"><span className="pn-t9-eyebrow">{niche} · excelência automotiva</span><h1 className="pn-t9-title">{headline?.trim()||d.headline}</h1><p className="pn-t9-desc">{description?.trim()||d.sub}</p><a className="pn-t9-btn" href={contact}>{d.cta} ↗</a></div><span className="pn-t9-hero-foot">Automotivo e mobilidade / 01</span></section>
- <section id="tp9-contato" style={{padding:"50px clamp(22px,7vw,110px)",background:"#15201f"}}>{contact==="#tp9-contato"?"Canais de contato ainda não configurados.":<a className="pn-t9-btn" href={contact}>Entrar em contato ↗</a>}</section>
+
  </div>;
 }
