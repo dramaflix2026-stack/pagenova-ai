@@ -52,7 +52,7 @@ export function Template7RealEstateHero({brand,niche,headline,description,image,
     <a className="pn-t7-brand" href="#inicio-tp7">{brand}</a>
     <button type="button" className="pn-t7-menu" aria-expanded={menuOpen} aria-controls="pn-t7-nav" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?"Fechar":"Menu"}</button>
     <nav className="pn-t7-nav" id="pn-t7-nav" data-open={menuOpen}>
-     <a href="#inicio-tp7" onClick={()=>setMenuOpen(false)}>Início</a><a href="#buscar-imoveis-tp7" onClick={()=>setMenuOpen(false)}>Imóveis</a><a href="#sobre" onClick={()=>setMenuOpen(false)}>Sobre nós</a><a className="pn-t7-contact" href={contactHref} onClick={()=>setMenuOpen(false)}>Fale com um especialista ↗</a>
+     <a href="#inicio-tp7" onClick={()=>setMenuOpen(false)}>Início</a><a href="#buscar-imoveis-tp7" onClick={()=>setMenuOpen(false)}>Imóveis</a><a href="#sobre-tp7" onClick={()=>setMenuOpen(false)}>Sobre nós</a><a className="pn-t7-contact" href={contactHref} onClick={()=>setMenuOpen(false)}>Fale com um especialista ↗</a>
     </nav>
    </header>
    <div className="pn-t7-main"><span className="pn-t7-eyebrow">{niche} · Seleção exclusiva</span><h1 className="pn-t7-title">{title}</h1><p className="pn-t7-description">{subtitle}</p></div>
