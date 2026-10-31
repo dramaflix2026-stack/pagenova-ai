@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, {useState} from "react";
 
 type Props={brand:string;niche:string;images:string[];aboutText?:string};
 const details:Record<string,{focus:string;story:string;values:[string,string,string,string]}>={
@@ -25,6 +25,9 @@ export function Template6RetailStory({brand,niche,images,aboutText}:Props){
  const gallery=pictures.slice(3,9).length>=3?pictures.slice(3,9):pictures.slice(0,3);
  const galleryLabels=[data.values[0],data.values[1],data.values[2],data.values[3],data.focus,"Nossa seleção"];
  const text=aboutText?.trim()||data.story;
+ const [openFaq,setOpenFaq]=useState<number|null>(0);
+ const steps=[["Explore a seleção","Descubra os produtos e novidades."],["Escolha com confiança","Confira características e opções."],["Converse com a equipe","Confirme valores e disponibilidade."],["Finalize seu pedido","Combine pagamento e entrega com a loja."]];
+ const faqs=[["Como escolher os produtos?","Explore a seleção e converse com a equipe para encontrar opções adequadas."],["Como consultar valores e disponibilidade?","Confirme preços e estoque diretamente com a loja antes da compra."],["Como funcionam entrega e retirada?","Consulte as modalidades, regiões atendidas e prazos disponíveis."],["Como funcionam trocas e devoluções?","Consulte a política vigente da loja e os direitos previstos na legislação aplicável."]];
  return <div className="pn-t6-story-root"><style>{`
 .pn-t6-story-root{color:#26231f;background:#f6f3ee;font-family:Poppins,Arial,sans-serif}.pn-t6-story-root *{box-sizing:border-box}
 .pn-t6-story-root .eyebrow{font-size:11px;font-weight:600;letter-spacing:.23em;text-transform:uppercase;color:#8c7863}
@@ -41,7 +44,7 @@ export function Template6RetailStory({brand,niche,images,aboutText}:Props){
 .pn-t6-about,.pn-t6-diff{grid-template-columns:1fr;gap:38px}.pn-t6-about-media{min-height:410px}.pn-t6-about-primary{height:390px}.pn-t6-about-secondary{height:230px}.pn-t6-diff-visual{min-height:420px}.pn-t6-diff-visual{order:2}}
 @media(max-width:520px){.pn-t6-gallery-head{display:block}.pn-t6-gallery-grid{grid-template-columns:1fr 1fr;gap:12px}.pn-t6-gallery-card:nth-child(2){margin-top:42px}.pn-t6-gallery-card:nth-child(3) img{height:300px}.pn-t6-gallery-card img{height:260px}.pn-t6-gallery-card:nth-child(2) img{height:225px}.pn-t6-voices-media,.pn-t6-voices-media img{height:320px}
 .pn-t6-about,.pn-t6-diff{padding:65px 20px}.pn-t6-about h2,.pn-t6-diff h2{font-size:clamp(42px,11vw,59px)}.pn-t6-about-media{min-height:340px}.pn-t6-about-primary{height:310px;width:80%}.pn-t6-about-secondary{height:180px;width:47%}.pn-t6-diff-visual{min-height:350px}.pn-t6-diff-list li{padding:19px 0;grid-template-columns:30px 1fr 18px}}
-@media(prefers-reduced-motion:reduce){.pn-t6-diff-visual img,.pn-t6-diff-list li{transition:none}}
+.pn-t6-process,.pn-t6-faq{padding:clamp(75px,9vw,130px) clamp(22px,6vw,100px)}.pn-t6-process{background:#f6f3ee}.pn-t6-faq{background:#e9e4dc;display:grid;grid-template-columns:1fr 1.2fr;gap:7vw}.pn-t6-process h2,.pn-t6-faq h2,.pn-t6-contact h2{font:400 clamp(42px,5vw,78px)/1.1 Georgia,serif;letter-spacing:-.05em;margin:18px 0 42px}.pn-t6-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid #b4a99c}.pn-t6-step{padding:28px 22px 15px 0;border-bottom:1px solid #b4a99c}.pn-t6-step-num{font:30px Georgia,serif;color:#947d66}.pn-t6-step h3{font-size:19px;font-weight:500;margin:32px 0 12px}.pn-t6-step p,.pn-t6-faq p{font-size:14px;line-height:1.85;color:#6b6055}.pn-t6-faq-list{border-top:1px solid #ab9e91}.pn-t6-faq-item{border-bottom:1px solid #ab9e91}.pn-t6-faq-item button{background:transparent;border:0;display:flex;justify-content:space-between;align-items:center;gap:20px;width:100%;text-align:left;padding:25px 0;color:#302b26;font:500 18px Poppins,Arial,sans-serif;cursor:pointer}.pn-t6-faq-item p{margin:0;padding:0 25px 23px 0}.pn-t6-contact{background:#211f1d;color:#f6f3ee;padding:clamp(85px,10vw,150px) clamp(22px,6vw,100px);display:grid;grid-template-columns:1fr 1fr;gap:7vw;align-items:end}.pn-t6-contact h2{color:#f6f3ee;margin-bottom:0}.pn-t6-contact p{font-size:16px;line-height:1.9;color:#c6bbae}.pn-t6-contact a{display:inline-block;border:1px solid #a99b89;color:#f6f3ee;padding:19px 28px;text-decoration:none;margin-top:15px}.pn-t6-contact a:hover{background:#37322e}@media(max-width:850px){.pn-t6-steps{grid-template-columns:repeat(2,1fr)}.pn-t6-faq,.pn-t6-contact{grid-template-columns:1fr}}@media(max-width:520px){.pn-t6-steps{grid-template-columns:1fr}.pn-t6-process,.pn-t6-faq,.pn-t6-contact{padding:68px 20px}.pn-t6-step h3{margin:16px 0 8px}}@media(prefers-reduced-motion:reduce){.pn-t6-diff-visual img,.pn-t6-diff-list li{transition:none}}
 `}</style>
 <section className="pn-t6-about" id="sobre" aria-label="Sobre a marca">
  <div className="pn-t6-about-media">{pictures[0]&&<img className="pn-t6-about-primary" src={pictures[0]} alt={`Universo visual de ${brand}`} loading="lazy"/>}{pictures[1]&&<img className="pn-t6-about-secondary" src={pictures[1]} alt={`Detalhes da curadoria de ${brand}`} loading="lazy"/>}</div>
@@ -59,5 +62,9 @@ export function Template6RetailStory({brand,niche,images,aboutText}:Props){
  <div className="pn-t6-voices-media">{(pictures[6]||pictures[1]||pictures[0])&&<img src={pictures[6]||pictures[1]||pictures[0]} alt={`Atmosfera e experiência de ${brand}`} loading="lazy"/>}</div>
  <div className="pn-t6-voices-copy"><span className="eyebrow">Experiências / {brand}</span><h2>Conexões que permanecem.</h2><div className="pn-t6-voices-mark" aria-hidden="true">“</div><blockquote>Uma boa experiência começa na escolha e permanece nos detalhes.</blockquote><p className="pn-t6-voices-note">Mensagem institucional ilustrativa. Depoimentos reais, nomes e fotografias de clientes devem ser publicados somente após autorização e fornecimento pela marca.</p></div>
 </section>
+
+<section className="pn-t6-process" id="como-comprar"><span className="eyebrow">Uma experiência simples / {niche}</span><h2>Da escolha ao seu próximo favorito.</h2><div className="pn-t6-steps">{steps.map(([name,description],i)=><div className="pn-t6-step" key={name}><span className="pn-t6-step-num">0{i+1}</span><h3>{name}</h3><p>{description}</p></div>)}</div></section>
+<section className="pn-t6-faq" id="perguntas-frequentes"><div><span className="eyebrow">Dúvidas frequentes</span><h2>Boas escolhas começam com clareza.</h2><p>Orientações para sua experiência com {brand}.</p></div><div className="pn-t6-faq-list">{faqs.map(([q,a],i)=><div className="pn-t6-faq-item" key={q}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}><span>{q}</span><span aria-hidden="true">{openFaq===i?"−":"+"}</span></button>{openFaq===i&&<p>{a}</p>}</div>)}</div></section>
+<section className="pn-t6-contact" id="fale-conosco"><div><span className="eyebrow">Vamos conversar / {brand}</span><h2>O próximo capítulo começa aqui.</h2></div><div><p>Quer conhecer melhor nossa seleção de {niche.toLowerCase()}? Fale com a equipe pelos canais oficiais da loja.</p><a href="#contato">Entre em contato ↗</a></div></section>
 </div>;
 }
