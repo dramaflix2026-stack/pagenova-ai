@@ -4,6 +4,7 @@ import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
+import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 import { resolveTemplate6Niche } from "@/lib/template6-retail-niches";
 import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche } from "@/lib/briefing-template-families";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
@@ -75,7 +76,19 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
-   const collectionImages=props.site.blocks.filter(b=>b.type==="image"&&b.src&&b.src!==heroImage).slice(0,4).map((b,i)=>({image:b.src!,title:`Destaque ${i+1}`}));
+   const photoBank=(nichePhotoCatalog as Record<string,{desktop?:string[]}>)[retailNiche]||(retailNiche==="Loja de roupas"?(nichePhotoCatalog as Record<string,{desktop?:string[]}>)["Moda feminina"]:undefined);
+   const imageBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
+   const retailLabels:Record<string,string[]>={
+     "Loja de roupas":["Coleção essencial","Peças atemporais","Elegância contemporânea","Novidades da estação"],
+     "Loja de calçados":["Clássicos","Casual premium","Novidades","Favoritos"],
+     "Joalheria e semijoias":["Colares","Brincos","Anéis","Peças especiais"],
+     "Ótica":["Armações","Óculos solares","Clássicos","Novidades"],
+     "Perfumaria e cosméticos":["Fragrâncias","Cuidados","Essenciais","Lançamentos"],
+     "Pet shop":["Acessórios","Conforto","Brinquedos","Favoritos"],
+   };
+   const labels=retailLabels[retailNiche]||["Seleção especial","Novidades","Favoritos","Nossa curadoria"];
+   const curated=(photoBank?.desktop||[]).filter(Boolean).slice(0,4);
+   const collectionImages=curated.length===4?curated.map((id,i)=>({image:imageBase+id+".png",title:labels[i]})):props.site.blocks.filter(b=>b.type==="image"&&b.src&&b.src!==heroImage).slice(0,4).map((b,i)=>({image:b.src!,title:labels[i]}));
    return <div className="pn-t6-layout"><style>{`.pn-t6-layout .pn-t6-legacy > header{display:none!important}.pn-t6-layout .pn-t6-legacy section:first-of-type{display:none!important}`}</style><Template6RetailHero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage}/><div id="produtos"><Template6RetailCollection niche={retailNiche} items={collectionImages}/></div><div className="pn-t6-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
