@@ -100,7 +100,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      const photo=props.site.blocks.find(p=>p.type==="image"&&p.section===b.section&&(p.forCardId===b.id||p.id===b.id+"-photo"))?.src;
      return {name,role,quote:quote.join(" | "),photo};
    }).filter((t):t is NonNullable<typeof t>=>t!==null);
-   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials}/>;
+   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} contact={{email:props.site.footer?.email,address:props.site.footer?.address}}/>;
  }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
