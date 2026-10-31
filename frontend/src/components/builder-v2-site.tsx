@@ -67,9 +67,10 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
  // Retail editorial hero is scoped to the explicit prompt-adaptive template only.
  // Existing Template 1 sites and other niche groups retain their original rendering.
- const retailNiche=props.selectedNiche||props.site.niche||"";
- const retailTemplate=(props.templateId||props.site.templateId)==="prompt-adaptive";
- if(retailTemplate&&isTemplate6Niche(retailNiche)){
+ const retailNiche=[props.site.niche,props.selectedNiche].find(n=>n&&isTemplate6Niche(n))||"";
+ // Template 6 is determined by its catalog niche, not by prompt length or Template 5 routing.
+ // An explicitly chosen immersive/cinematic mode still takes precedence above.
+ if(isTemplate6Niche(retailNiche)){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
