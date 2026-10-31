@@ -154,7 +154,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const firstHeading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const firstDescription=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const brand=props.site.header?.brand||props.site.title||"Agência Digital";
-   return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={props.site.niche||props.selectedNiche||"Negócios Digitais"} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp}/><div className="pn-t5-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+   return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={props.site.niche||props.selectedNiche||"Negócios Digitais"} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp}/><div className="pn-t5-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
  if(isNexora){
