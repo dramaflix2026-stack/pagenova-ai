@@ -46,7 +46,16 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   // Recover TP5 only for unmistakable AI/technology niches, leaving every
   // explicitly selected template and all other published sites untouched.
   const tp5LegacyNiche=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|marketing digital|ag[eê]ncia de marketing|neg[oó]cios digitais|agentes? de ia|desenvolvimento de software|empresa de tecnologia|saas|startup)/i.test(niche);
-  const publishedTemplateId=payload.site.templateId||
-    (tp5LegacyNiche?"prompt-adaptive":"institutional-complete");
-  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={payload.site} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
+  // Targeted recovery for the confirmed legacy Nexora TP5 publication.
+  // Its saved templateId can incorrectly be "institutional-complete".
+  // Do not override any other published project's explicit template selection.
+  const isNexoraTp5Publication=slug==="v2-nexora-intelligence-cbbcc0ec1c";
+  const publishedTemplateId=isNexoraTp5Publication?"prompt-adaptive":
+    payload.site.templateId||(tp5LegacyNiche?"prompt-adaptive":"institutional-complete");
+  const publishedSite=isNexoraTp5Publication?{
+    ...payload.site,
+    templateId:"prompt-adaptive" as const,
+    niche:"Inteligência artificial",
+  }:payload.site;
+  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
 }
