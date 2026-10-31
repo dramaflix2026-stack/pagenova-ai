@@ -12,7 +12,8 @@ const publicPage=read("src/app/site/[slug]/page.tsx");
 const publicRoute=read("src/app/p/[slug]/[[...path]]/route.ts");
 test("Editor and public page render identical template and animation layer",()=>{
  assert.match(editor,/<BuilderV2Site site=\{site\}/);
- assert.match(publicPage,/<BuilderV2Site site=\{payload.site\}/);
+ assert.match(publicPage,/<BuilderV2Site site=\{(?:payload.site|publishedSite)\}/);
+ assert.match(publicPage,/isNexoraTp5Publication/);
  assert.match(shared,/attachSiteMotion\(previewRef.current,site.motion\)/);
  assert.match(shared,/data-section-id=\{group.id\}/);
  assert.match(shared,/data-block-id=\{b.id\}/);
