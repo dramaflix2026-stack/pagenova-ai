@@ -2,6 +2,8 @@
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
+import { Template6RetailHero } from "@/components/template6-retail-hero";
+import { isTemplate6Niche } from "@/lib/template6-retail-niches";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
 import { NexoraAbout } from "@/components/template5-nexora-about";
@@ -62,6 +64,16 @@ const designPresets = [
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
+ // Retail editorial hero is scoped to the explicit prompt-adaptive template only.
+ // Existing Template 1 sites and other niche groups retain their original rendering.
+ const retailNiche=props.selectedNiche||props.site.niche||"";
+ const retailTemplate=(props.templateId||props.site.templateId)==="prompt-adaptive";
+ if(retailTemplate&&isTemplate6Niche(retailNiche)){
+   const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+   const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+   const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
+   return <div className="pn-t6-layout"><style>{`.pn-t6-layout .pn-t6-legacy > header{display:none!important}.pn-t6-layout .pn-t6-legacy section:first-of-type{display:none!important}`}</style><Template6RetailHero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage}/><div className="pn-t6-legacy" id="produtos"><BuilderV2ClassicSite {...props}/></div></div>;
+ }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
  if(isNexora){
    const headline=props.site.blocks.find(b=>b.type==="heading"&&/transforme o futuro/i.test(b.text||""))?.text||"Transforme o futuro da sua empresa com Inteligência Artificial.";
