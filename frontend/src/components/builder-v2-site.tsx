@@ -3,6 +3,7 @@ import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contr
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template5AIFuturistHero } from "@/components/template5-ai-futurist-hero";
+import { Template5AIFuturistSections } from "@/components/template5-ai-futurist-sections";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { Template9AutomotiveHero } from "@/components/template9-automotive-hero";
@@ -153,7 +154,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const firstHeading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const firstDescription=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const brand=props.site.header?.brand||props.site.title||"Agência Digital";
-   return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><div className="pn-t5-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+   return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={props.site.niche||props.selectedNiche||"Negócios Digitais"}/><div className="pn-t5-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
  if(isNexora){
