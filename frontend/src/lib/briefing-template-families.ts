@@ -1,4 +1,4 @@
-/** Six visual families nested exclusively within Estático 03 (briefing personalizado).
+/** Seven visual families nested exclusively within Estático 03 (briefing personalizado).
  * Estático 01 and 02 must never be re-routed by this registry.
  */
 export const BRIEFING_TEMPLATE_FAMILIES = [
@@ -122,9 +122,14 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
       "Loja de presentes e personalizados",
       "E-commerce multimarcas"
     ]
+  },
+  {
+    id: 7,
+    name: "Imobiliário e Alto Padrão",
+    niches: ["Imobiliárias","Corretores de imóveis","Imóveis de luxo","Lançamentos imobiliários","Incorporadoras","Condomínios residenciais","Imóveis comerciais","Locação de imóveis","Administração de imóveis","Consultoria imobiliária","Casas de alto padrão","Empreendimentos residenciais"]
   }
 ] as const;
-export type BriefingFamilyId = 1|2|3|4|5|6;
+export type BriefingFamilyId = 1|2|3|4|5|6|7;
 const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const aliases:Record<string,string>={
  "moda feminina":"Loja de roupas","moda masculina":"Loja de roupas","boutique de moda":"Loja de roupas","boutique feminina":"Loja de roupas",
@@ -133,7 +138,8 @@ const aliases:Record<string,string>={
  "eletronicos":"Loja de eletrônicos","celulares":"Loja de celulares e acessórios",
  "moveis e decoracao":"Loja de móveis e decoração","brinquedos":"Loja de brinquedos",
  "artigos esportivos":"Loja de artigos esportivos","presentes":"Loja de presentes e personalizados",
- "ecommerce multimarcas":"E-commerce multimarcas"
+ "ecommerce multimarcas":"E-commerce multimarcas",
+ "imobiliaria":"Imobiliárias","imobiliarias":"Imobiliárias","corretor de imoveis":"Corretores de imóveis","corretora de imoveis":"Corretores de imóveis","imoveis de alto padrao":"Imóveis de luxo","imoveis de luxo":"Imóveis de luxo","lancamento imobiliario":"Lançamentos imobiliários","incorporadora":"Incorporadoras","condominio residencial":"Condomínios residenciais","imoveis comerciais":"Imóveis comerciais","locacao de imoveis":"Locação de imóveis","administracao de imoveis":"Administração de imóveis","consultoria imobiliaria":"Consultoria imobiliária","casas de luxo":"Casas de alto padrão","empreendimento residencial":"Empreendimentos residenciais"
 };
 export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  const v=norm(niche||"");if(!v)return undefined;
@@ -142,6 +148,8 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  if(exact)return exact.id;
  const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
  if(retail.test(v))return 6;
+ const realEstate=/(?:^| )(?:imobiliaria|imobiliarias|corretor de imoveis|corretora de imoveis|imoveis de luxo|imoveis de alto padrao|lancamentos imobiliarios|incorporadora|incorporadoras|condominios residenciais|imoveis comerciais|locacao de imoveis|administracao de imoveis|consultoria imobiliaria|casas de alto padrao|empreendimentos residenciais)(?: |$)/;
+ if(realEstate.test(v))return 7;
  return undefined;
 }
 export function resolveBriefingFamilyFromExplicitNiche(brief:string):BriefingFamilyId|undefined{
