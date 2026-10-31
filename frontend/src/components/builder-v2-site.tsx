@@ -4,6 +4,7 @@ import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
+import { Template9AutomotiveHero } from "@/components/template9-automotive-hero";
 import { Template8HospitalitySections } from "@/components/template8-hospitality-sections";
 import { Template8HospitalityDiscover } from "@/components/template8-hospitality-discover";
 import { Template8HospitalityJourney } from "@/components/template8-hospitality-journey";
@@ -81,6 +82,15 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
  const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
+ if(isWrittenBrief&&family===9){
+   const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+   const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+   const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
+   const phone=(props.site.footer?.whatsapp||"").replace(/\D/g,"");
+   const email=props.site.footer?.email?.trim();
+   const contactHref=phone.length>=10?"https://wa.me/"+phone:(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?"mailto:"+email:undefined);
+   return <Template9AutomotiveHero brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/>;
+ }
  if(isWrittenBrief&&family===8){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
