@@ -1,0 +1,41 @@
+"use client";
+import {useState} from "react";
+type Review={name:string;quote:string;city?:string};
+type Props={brand:string;niche:string;contactHref?:string;testimonials?:Review[]};
+const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+const categories:Record<string,{steps:[string,string,string,string];photos:string[]}> = {
+"oficinas mecanicas":{steps:["Conte o problema","Avaliação do veículo","Orçamento sob consulta","Atendimento autorizado"],photos:["photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70","photo-1492144534655-ae79c964c9d7"]},
+"auto centers":{steps:["Solicite atendimento","Verificação inicial","Orientação dos serviços","Atendimento combinado"],photos:["photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2"]},
+"estetica automotiva":{steps:["Conte o objetivo","Avaliação estética","Escolha dos cuidados","Realização combinada"],photos:["photo-1492144534655-ae79c964c9d7","photo-1549317661-bd32c8ce0db2","photo-1503376780353-7e6692767b70"]},
+"detalhamento automotivo":{steps:["Conte suas expectativas","Análise das superfícies","Definição dos cuidados","Detalhamento combinado"],photos:["photo-1492144534655-ae79c964c9d7","photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2"]},
+"funilaria e pintura":{steps:["Descreva a necessidade","Avaliação da carroceria","Proposta de reparo","Execução autorizada"],photos:["photo-1486262715619-67b85e0b08d3","photo-1492144534655-ae79c964c9d7","photo-1549317661-bd32c8ce0db2"]},
+"lava-rapidos":{steps:["Escolha o cuidado","Consulte disponibilidade","Combine o serviço","Aproveite o resultado"],photos:["photo-1492144534655-ae79c964c9d7","photo-1549317661-bd32c8ce0db2","photo-1503376780353-7e6692767b70"]},
+"autoeletricas":{steps:["Relate os sinais","Avaliação elétrica","Orientação técnica","Serviço autorizado"],photos:["photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2"]},
+"lojas de pneus":{steps:["Informe seu veículo","Consulte medidas","Compare opções","Confirme a escolha"],photos:["photo-1503376780353-7e6692767b70","photo-1486262715619-67b85e0b08d3","photo-1492144534655-ae79c964c9d7"]},
+"centros de alinhamento":{steps:["Agende uma consulta","Avaliação das rodas","Orientação dos ajustes","Serviço autorizado"],photos:["photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70","photo-1492144534655-ae79c964c9d7"]},
+"oficinas de motos":{steps:["Conte a necessidade","Avaliação da moto","Orientação dos reparos","Serviço autorizado"],photos:["photo-1558981806-ec527fa84c39","photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70"]},
+"concessionarias de veiculos":{steps:["Conte o que procura","Conheça as opções","Esclareça condições","Decida com segurança"],photos:["photo-1503376780353-7e6692767b70","photo-1492144534655-ae79c964c9d7","photo-1549317661-bd32c8ce0db2"]},
+"locadoras de veiculos":{steps:["Informe sua viagem","Consulte os veículos","Confira as condições","Confirme sua locação"],photos:["photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2","photo-1492144534655-ae79c964c9d7"]}
+};
+const image=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&q=85";
+export function Template9AutomotiveExperience({brand,niche,contactHref,testimonials=[]}:Props){
+ const d=categories[normalize(niche)]||categories["auto centers"];
+ const [slide,setSlide]=useState(0);
+ const target=contactHref&&/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)?contactHref:"#tp9-contato";
+ const verified=testimonials.filter(t=>t.name?.trim()&&t.quote?.trim());
+ return <div className="pn-t9x"><style>{`
+ .pn-t9x{background:#eeeae2;color:#202b29;font-family:Arial,Helvetica,sans-serif;overflow-x:clip}.pn-t9x *{box-sizing:border-box}
+ .pn-t9x-section{padding:clamp(75px,9vw,125px) clamp(22px,6vw,90px)}.pn-t9x-wrap{max-width:1400px;margin:auto}
+ .pn-t9x-kicker{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#937d62;font-weight:700}.pn-t9x-title{font:400 clamp(42px,5.8vw,83px)/1.07 Georgia,serif;letter-spacing:-.055em;margin:25px 0 55px;overflow-wrap:break-word}
+ .pn-t9x-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}.pn-t9x-step{border-top:1px solid #9ca8a0;padding-top:22px}.pn-t9x-step small{color:#9a8264;letter-spacing:.2em}.pn-t9x-step h3{font:400 clamp(24px,2.5vw,35px)/1.18 Georgia,serif;margin:28px 0 16px}.pn-t9x-step p{font-size:14px;line-height:1.8;color:#68756f}
+ .pn-t9x-gallery{background:#101918;color:white}.pn-t9x-gallery .pn-t9x-kicker{color:#cbb797}.pn-t9x-gallery-main{position:relative;height:clamp(320px,52vw,670px);overflow:hidden}.pn-t9x-gallery-main img{width:100%;height:100%;object-fit:cover;display:block}.pn-t9x-gallery-main:after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(transparent,#050a0a99);pointer-events:none}.pn-t9x-gallery-caption{position:absolute;bottom:28px;left:30px;color:white;z-index:1;font-size:12px;letter-spacing:.1em}
+ .pn-t9x-gallery-controls{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-top:24px}.pn-t9x-gallery-controls button{width:48px;height:48px;border:1px solid #ffffff80;color:white;background:transparent;font-size:22px;cursor:pointer}.pn-t9x-gallery-controls span{font-size:12px;letter-spacing:.2em;color:#d2d9d5}
+ .pn-t9x-reviews{background:#f5f2eb}.pn-t9x-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.pn-t9x-review{padding:35px;background:white;border-top:2px solid #9e8a6e}.pn-t9x-review blockquote{margin:0 0 32px;font:400 clamp(20px,2.2vw,28px)/1.5 Georgia,serif}.pn-t9x-review span{font-size:12px;color:#63716b}.pn-t9x-empty{padding:35px 0;border-top:1px solid #c7c6bf;max-width:800px;color:#65716b;line-height:1.85}
+ @media(max-width:850px){.pn-t9x-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-t9x-review-grid{grid-template-columns:1fr}}
+ @media(max-width:480px){.pn-t9x-steps{grid-template-columns:1fr}.pn-t9x-gallery-main{height:340px}.pn-t9x-gallery-caption{left:18px;bottom:18px}}
+ `}</style>
+ <section className="pn-t9x-section" id="tp9-processo"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">05 / Como funciona</span><h2 className="pn-t9x-title">Simples em cada etapa.<br/>Cuidado do início ao fim.</h2><div className="pn-t9x-steps">{d.steps.map((step,i)=><div className="pn-t9x-step" key={step}><small>0{i+1}</small><h3>{step}</h3><p>{i===0?"Entre em contato e conte o que você precisa.":i===1?"A equipe orienta a avaliação e os próximos passos.":i===2?"Confira detalhes, condições e disponibilidade antes de decidir.":"A continuidade depende de confirmação com a empresa."}</p></div>)}</div></div></section>
+ <section className="pn-t9x-section pn-t9x-gallery" id="tp9-galeria"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">06 / Galeria automotiva</span><h2 className="pn-t9x-title">A beleza está nos detalhes.</h2><div className="pn-t9x-gallery-main"><img key={slide} src={image(d.photos[slide])} alt={"Fotografia ilustrativa "+(slide+1)+" do segmento "+niche}/><span className="pn-t9x-gallery-caption">Imagens ilustrativas · {niche}</span></div><div className="pn-t9x-gallery-controls"><span>0{slide+1} / 0{d.photos.length}</span><div><button type="button" aria-label="Imagem anterior" onClick={()=>setSlide((slide+d.photos.length-1)%d.photos.length)}>‹</button> <button type="button" aria-label="Próxima imagem" onClick={()=>setSlide((slide+1)%d.photos.length)}>›</button></div></div></div></section>
+ <section className="pn-t9x-section pn-t9x-reviews" id="tp9-depoimentos"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">07 / Experiências reais</span><h2 className="pn-t9x-title">A confiança se constrói com histórias reais.</h2>{verified.length?<div className="pn-t9x-review-grid">{verified.map((r,i)=><article className="pn-t9x-review" key={i}><blockquote>“{r.quote}”</blockquote><span>{r.name}{r.city?" · "+r.city:""}</span></article>)}</div>:<div className="pn-t9x-empty">Os depoimentos de {brand} serão exibidos aqui quando a empresa cadastrar avaliações reais e autorizadas. Não são criados nomes, notas ou relatos fictícios.</div>}</div></section>
+ </div>;
+}
