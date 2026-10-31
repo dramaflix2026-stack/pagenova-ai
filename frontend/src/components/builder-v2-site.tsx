@@ -4,7 +4,8 @@ import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
-import { resolveTemplate6Niche, inferTemplate6NicheFromBrief } from "@/lib/template6-retail-niches";
+import { resolveTemplate6Niche } from "@/lib/template6-retail-niches";
+import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche } from "@/lib/briefing-template-families";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
 import { NexoraAbout } from "@/components/template5-nexora-about";
@@ -65,11 +66,12 @@ const designPresets = [
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
- // Retail editorial hero is scoped to the explicit prompt-adaptive template only.
- // Existing Template 1 sites and other niche groups retain their original rendering.
- const retailNiche=resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||inferTemplate6NicheFromBrief([props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,3).map(b=>b.text).join(" ")].join(" "));
- // TP6 is selected by the site's primary retail niche even for long AI briefs.
- if(retailNiche){
+ // Estático 01/02 stay untouched. TP1–TP6 are internal visual families of Estático 03 only.
+ const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
+ const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
+ const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))):undefined;
+ const retailNiche=family===6?(resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||"Loja de roupas"):"";
+ if(isWrittenBrief&&family===6){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
