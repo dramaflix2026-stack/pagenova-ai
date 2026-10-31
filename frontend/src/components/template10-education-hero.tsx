@@ -3,6 +3,7 @@ import {useState} from "react";
 import {Template10EducationSections} from "@/components/template10-education-sections";
 import {Template10EducationExperience} from "@/components/template10-education-experience";
 import {Template10EducationClosing} from "@/components/template10-education-closing";
+import {Template10EducationFinal} from "@/components/template10-education-final";
 type Props={brand:string;niche:string;headline?:string;description?:string;image?:string;testimonials?:{name:string;quote:string;role?:string;photo?:string}[];contact?:{email?:string;phone?:string;address?:string;hours?:string}};
 const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const profiles:Record<string,[string,string,string]>={
@@ -29,6 +30,6 @@ export function Template10EducationHero({brand,niche,headline,description,image,
  <Template10EducationSections niche={niche} brand={brand}/>
  <Template10EducationExperience niche={niche} testimonials={testimonials}/>
  <Template10EducationClosing niche={niche} brand={brand} contact={contact}/>
- <footer id="tp10-contato" style={{padding:"35px clamp(24px,6vw,95px)",background:"#183e37",color:"white"}}>{brand} · Educação e Formação</footer>
+ <Template10EducationFinal niche={niche} brand={brand} contact={contact}/>
  </div>;
 }
