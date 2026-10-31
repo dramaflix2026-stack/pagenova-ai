@@ -5,7 +5,8 @@ type Props={brand:string;headline?:string;description?:string};
 export function Template5AIFuturistHero({brand,headline,description}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const title=headline?.trim()||"Inteligência que transforma ideias em crescimento.";
- const sub=description?.trim()||"Estratégia, tecnologia e experiências inteligentes para transformar o seu negócio.";\n const isAI=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|marketing|tecnologia|software|digital|saas|startup|ag[eê]ncia)/i.test([brand,title,sub].join(" "));
+ const sub=description?.trim()||"Estratégia, tecnologia e experiências inteligentes para transformar o seu negócio.";
+ const isAI=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|marketing|tecnologia|software|digital|saas|startup|ag[eê]ncia)/i.test([brand,title,sub].join(" "));
  return <div className="pn-t5" id="inicio"><style>{`
  .pn-t5{position:relative;isolation:isolate;overflow:hidden;min-height:780px;background:#090713;color:#f8f6ff;font-family:Inter,Poppins,Arial,sans-serif}.pn-t5 *{box-sizing:border-box}
  .pn-t5:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 75% 40%,#4320877a,transparent 44%),radial-gradient(ellipse at 18% 95%,#32186e88,transparent 55%),#090713}
