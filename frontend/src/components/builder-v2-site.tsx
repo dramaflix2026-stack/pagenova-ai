@@ -5,6 +5,7 @@ import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { Template8HospitalitySections } from "@/components/template8-hospitality-sections";
+import { Template8HospitalityDiscover } from "@/components/template8-hospitality-discover";
 import { Template7RealEstateHero } from "@/components/template7-real-estate-hero";
 import { Template7RealEstateSections } from "@/components/template7-real-estate-sections";
 import { Template7RealEstateExperience } from "@/components/template7-real-estate-experience";
@@ -84,7 +85,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
    const phone=(props.site.footer?.whatsapp||"").replace(/\\D/g,"");
    const contactHref=phone.length>=10?"https://wa.me/"+phone:(props.site.footer?.email?"mailto:"+props.site.footer.email:undefined);
-   return <><Template8HospitalityHero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><Template8HospitalitySections brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/></>;
+   return <><Template8HospitalityHero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><Template8HospitalitySections brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/><Template8HospitalityDiscover brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/></>;
  }
  if(isWrittenBrief&&family===7){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
