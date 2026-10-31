@@ -152,6 +152,10 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  const canonical=aliases[v]||niche;
  const exact=BRIEFING_TEMPLATE_FAMILIES.find(f=>f.niches.some(n=>norm(n)===norm(canonical)));
  if(exact)return exact.id;
+ // Composite AI/technology niches in long-form briefings must resolve to family 5.
+ // Prefer exact canonical matches above; do not hijack health, education or other families.
+ const technology=/(?:^| )(?:inteligencia artificial|agentes? de ia|automacao empresarial|automacao de processos|empresa de tecnologia|empresas de tecnologia|tecnologia e inovacao|desenvolvimento de software|desenvolvimento de aplicativos|agencia de marketing digital|agencias de marketing digital|consultoria empresarial|negocios digitais|saas|startup|startups)(?: |$)/;
+ if(technology.test(v))return 5;
  const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
  if(retail.test(v))return 6;
  const realEstate=/(?:^| )(?:imobiliaria|imobiliarias|corretor de imoveis|corretora de imoveis|imoveis de luxo|imoveis de alto padrao|lancamentos imobiliarios|incorporadora|incorporadoras|condominios residenciais|imoveis comerciais|locacao de imoveis|administracao de imoveis|consultoria imobiliaria|casas de alto padrao|empreendimentos residenciais)(?: |$)/;
