@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "re
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
 import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
+import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "@/lib/briefing-template-families";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
@@ -985,9 +986,13 @@ export default function BuilderV2() {
     const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
     const targetKind:SiteCategory=siteCategory;
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
+    // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
+    const explicitNiche=prompt.match(/(?:^|\\n)\\s*(?:\\*\\*)?\\s*(?:nicho|segmento)\\s*(?:\\*\\*)?\\s*:\\s*([^\\n]+)/i)?.[1]?.replace(/\\*\\*/g,"").trim();
+    const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
+    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:undefined;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=explicitTemplate?site.templateId:(detailedBrief&&targetKind==="institutional"?"prompt-adaptive":site.templateId||"institutional-complete");
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:selectedNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||selectedNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1011,7 +1016,7 @@ export default function BuilderV2() {
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=selectedNiche||undefined;}
+      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;}
       else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
