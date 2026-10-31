@@ -1,6 +1,7 @@
 "use client";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
+import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { CinematicBackground, type CinematicAppearance } from "@/components/builder-v2-cinematic-background";
 import type {PropertyItem} from "@/components/builder-v2-real-estate";
 import { useEffect, useRef, useState } from "react";
@@ -50,6 +51,12 @@ const designPresets = [
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
+ const isNexora=(props.site.templateId==="prompt-adaptive"||props.templateId==="prompt-adaptive")&&/nexora/i.test(props.site.title+" "+(props.site.header?.brand||""));
+ if(isNexora){
+   const headline=props.site.blocks.find(b=>b.type==="heading"&&/transforme o futuro/i.test(b.text||""))?.text||"Transforme o futuro da sua empresa com Inteligência Artificial.";
+   const description=props.site.blocks.find(b=>b.type==="paragraph"&&/automatize processos/i.test(b.text||""))?.text||"Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio.";
+   return <div className="pn-nexora-template-five"><style>{`.pn-nexora-template-five .pn-nexora-legacy > header{display:none!important}.pn-nexora-template-five .pn-nexora-legacy section:first-of-type{display:none!important}`}</style><NexoraTechnologyHero brand={props.site.header?.brand||"NEXORA AI"} headline={headline} description={description}/><div className="pn-nexora-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+ }
  return <BuilderV2ClassicSite {...props}/>;
 }
 function AdaptiveStatCounter({value,suffix,color}:{value:number;suffix:string;color:string}){
