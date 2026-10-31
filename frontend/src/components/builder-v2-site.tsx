@@ -69,7 +69,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  // Estático 01/02 stay untouched. TP1–TP6 are internal visual families of Estático 03 only.
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
- const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))):undefined;
+ const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
  const retailNiche=family===6?(resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||"Loja de roupas"):"";
  if(isWrittenBrief&&family===6){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
