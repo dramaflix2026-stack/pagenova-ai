@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import {Template10EducationSections} from "@/components/template10-education-sections";
 type Props={brand:string;niche:string;headline?:string;description?:string;image?:string};
 const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const profiles:Record<string,[string,string,string]>={
@@ -23,8 +24,7 @@ export function Template10EducationHero({brand,niche,headline,description,image}
  <header className="pn-t10-head"><a className="pn-t10-brand" href="#tp10-inicio">{brand}</a><button className="pn-t10-toggle" type="button" aria-label={open?"Fechar menu":"Abrir menu"} aria-expanded={open} onClick={()=>setOpen(!open)}>{open?"Fechar ×":"Menu ☰"}</button><nav className="pn-t10-nav" data-open={open}><a href="#tp10-inicio" onClick={()=>setOpen(false)}>Início</a><a href="#tp10-cursos" onClick={()=>setOpen(false)}>Formações</a><a href="#tp10-sobre" onClick={()=>setOpen(false)}>Sobre</a><a href="#tp10-diferenciais" onClick={()=>setOpen(false)}>Diferenciais</a><a className="pn-t10-cta" href="#tp10-contato" onClick={()=>setOpen(false)}>Fale conosco ↗</a></nav></header>
  <section className="pn-t10-hero" id="tp10-inicio"><div className="pn-t10-copy"><span className="pn-t10-kicker">{niche} / educação e formação</span><h1>{headline?.trim()||d[0]}</h1><p className="pn-t10-desc">{description?.trim()||d[1]}</p><a className="pn-t10-cta" href="#tp10-cursos">Conheça nossas formações ↗</a></div><div className="pn-t10-photo"><img src={photo} alt={"Fotografia ilustrativa de "+niche}/><span className="pn-t10-caption">Aprendizagem e possibilidades / 01</span></div></section>
  <div className="pn-t10-strip"><span>Educação com identidade</span><span>Aprendizado · Desenvolvimento · Possibilidades</span></div>
- <section id="tp10-cursos" style={{padding:"75px clamp(24px,6vw,95px)"}}><span className="pn-t10-kicker">Nossas formações</span><h2 style={{font:"400 clamp(35px,5vw,65px) Georgia,serif",margin:"20px 0"}}>Uma jornada para cada objetivo.</h2><p style={{lineHeight:1.8,color:"#61716a"}}>As próximas seções serão definidas conforme o nicho e o modelo visual aprovado.</p></section>
- <section id="tp10-sobre" aria-label="Sobre a instituição" /><section id="tp10-diferenciais" aria-label="Diferenciais" />
+ <Template10EducationSections niche={niche} brand={brand}/>
  <section id="tp10-contato" style={{padding:"35px clamp(24px,6vw,95px)",background:"#183e37",color:"white"}}>Os canais oficiais de contato serão exibidos quando cadastrados.</section>
  </div>;
 }
