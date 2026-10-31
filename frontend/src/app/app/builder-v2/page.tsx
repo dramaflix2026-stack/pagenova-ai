@@ -987,7 +987,7 @@ export default function BuilderV2() {
     const targetKind:SiteCategory=siteCategory;
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
-    const explicitNiche=prompt.match(/(?:^|\\n)\\s*(?:\\*\\*)?\\s*(?:nicho|segmento)\\s*(?:\\*\\*)?\\s*:\\s*([^\\n]+)/i)?.[1]?.replace(/\\*\\*/g,"").trim();
+    const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:undefined;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
