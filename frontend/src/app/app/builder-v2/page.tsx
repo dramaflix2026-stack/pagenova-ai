@@ -938,7 +938,10 @@ export default function BuilderV2() {
       finally {setBusy(false);}
       return;
     }
-    const templateCommand=/(?:tro(?:que|car|ca|que)|mude|usar|use|aplique|quero|escolha|alterar|mudar)[\\s\\S]{0,70}(?:template|modelo)[\\s\\S]{0,30}(?:\\b2\\b|\\b1\\b|minimalista|institucional)|(?:template|modelo)\\s*(?:2|1)|minimalista sofisticado|institucional completo/i.test(prompt);
+    // Template changes are explicit short commands, never a phrase inside a full site briefing.
+    // In particular, "não reutilize ... templates" must not trigger a template switch.
+    const templateCommand=/^\s*(?:(?:por favor[,\s]*)?(?:troque|trocar|mude|mudar|altere|alterar|aplique|aplicar|selecione|selecionar|escolha|escolher|use|usar)\s+(?:(?:o|para|pro|ao|meu|site|visual|modelo|template|de|do|da|n[úu]mero)\s+){0,7}(?:template|modelo|minimalista|institucional)|(?:template|modelo)\s*(?:0?[12]|minimalista|institucional)\b)/i.test(prompt.trim()) && prompt.trim().length<=160 && prompt.trim().split(/\r?\n/).length<=2 && !/\b(?:n[aã]o|nunca|sem)\s+(?:reutiliz|utiliz|us|alter|troc|mud)/i.test(prompt);
+
     if(templateCommand && site.cinematic?.mode!=="immersive-3d" && !hasMotionIntent(prompt)){
       const requested=/minimalista|(?:template|modelo)\\s*2|(?:template|modelo)[\\s\\S]{0,25}\\b2\\b/i.test(prompt)?"minimalist-sophisticated":"institutional-complete";
       recordVersion(site,"Antes de trocar o template");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
