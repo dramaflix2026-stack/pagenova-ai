@@ -87,8 +87,14 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
  // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
- const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
- const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
+ // Explicitly selected static templates 01/02 must retain their own renderers.
+ // Older published briefings can lack templateId; recover TP5 only from a
+ // strongly identifiable AI/technology niche, not from the project title alone.
+ const briefingText=props.site.blocks.filter(b=>b.type==="paragraph").slice(0,8).map(b=>b.text||"").join("\n");
+ const declaredFamily=resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(briefingText);
+ const aiBriefingNiche=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|ag[eê]ncia de marketing|marketing digital|neg[oó]cios digitais|desenvolvimento de software|empresa de tecnologia|agentes? de ia|saas|startup)/i.test([props.site.niche,props.selectedNiche].filter(Boolean).join(" "));
+ const isWrittenBrief=activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
+ const family=isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
