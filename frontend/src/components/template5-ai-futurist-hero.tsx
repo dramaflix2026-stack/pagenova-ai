@@ -5,7 +5,7 @@ type Props={brand:string;headline?:string;description?:string};
 export function Template5AIFuturistHero({brand,headline,description}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const title=headline?.trim()||"Inteligência que transforma ideias em crescimento.";
- const sub=description?.trim()||"Estratégia, marketing e automação inteligente para criar novas possibilidades para o seu negócio.";
+ const sub=description?.trim()||"Estratégia, tecnologia e experiências inteligentes para transformar o seu negócio.";\n const isAI=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|marketing|tecnologia|software|digital|saas|startup|ag[eê]ncia)/i.test([brand,title,sub].join(" "));
  return <div className="pn-t5" id="inicio"><style>{`
  .pn-t5{position:relative;isolation:isolate;overflow:hidden;min-height:780px;background:#090713;color:#f8f6ff;font-family:Inter,Poppins,Arial,sans-serif}.pn-t5 *{box-sizing:border-box}
  .pn-t5:before{content:"";position:absolute;inset:0;z-index:-2;background:radial-gradient(ellipse at 75% 40%,#4320877a,transparent 44%),radial-gradient(ellipse at 18% 95%,#32186e88,transparent 55%),#090713}
@@ -31,8 +31,30 @@ export function Template5AIFuturistHero({brand,headline,description}:Props){
  @keyframes pn-t5-float{50%{transform:translateY(-17px) rotate(-13deg)}}
  @media(max-width:900px){.pn-t5-hero{grid-template-columns:1fr;gap:0;padding-top:75px;padding-bottom:95px}.pn-t5-copy{max-width:780px}.pn-t5-art{min-height:400px}.pn-t5-orb{max-width:310px}.pn-t5-links{gap:15px}.pn-t5-links>a:not(.pn-t5-navcta){display:none}}
  @media(max-width:600px){.pn-t5-nav{height:72px;padding:0 20px}.pn-t5-logo{max-width:65%}.pn-t5-toggle{display:block}.pn-t5-links{display:none;position:absolute;top:72px;left:12px;right:12px;padding:20px;border:1px solid #ffffff24;border-radius:15px;background:#140d25;flex-direction:column;align-items:stretch;box-shadow:0 20px 50px #0008}.pn-t5-links[data-open="true"]{display:flex}.pn-t5-links>a:not(.pn-t5-navcta){display:block}.pn-t5-links .pn-t5-navcta{text-align:center}.pn-t5-hero{padding:65px 20px 88px}.pn-t5 h1{font-size:clamp(40px,10.5vw,60px)}.pn-t5-eyebrow{font-size:10px}.pn-t5-art{min-height:320px}.pn-t5-orb{max-width:260px}.pn-t5-chip{bottom:8%;left:0}.pn-t5-foot{left:20px;right:20px;font-size:9px}}
+
+ /* TP5 option 2: premium split editorial header + image-led futuristic cover */
+ .pn-t5{background:#080611}
+ .pn-t5-nav{height:92px;border-bottom:1px solid #c7a0f52b}
+ .pn-t5-logo{letter-spacing:-.045em}
+ .pn-t5-mark{width:39px;height:39px;border-radius:13px;box-shadow:0 0 30px #a44df55c}
+ .pn-t5-hero{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(24px,3vw,55px);padding-top:74px;padding-bottom:110px;min-height:740px}
+ .pn-t5-copy{max-width:720px}
+ .pn-t5 h1{font-size:clamp(48px,5.2vw,82px);line-height:1.045;letter-spacing:-.064em}
+ .pn-t5-sub{max-width:535px}
+ .pn-t5-primary{background:#ad77ff;color:#12071d}
+ .pn-t5-art{min-height:535px;border:1px solid #bd87ff4d;border-radius:30px;overflow:hidden;background:#1a102b;box-shadow:0 30px 90px #0009,0 0 70px #853be41d}
+ .pn-t5-art:after{inset:0;z-index:0;opacity:1;mask-image:none;border-radius:0;background:linear-gradient(180deg,#08061110 0%,#13092030 42%,#080611d9 100%),url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1400&q=85") center/cover no-repeat}
+ .pn-t5-art:before{z-index:1}
+ .pn-t5-orbit{z-index:2;width:78%;border-color:#e3b9ff4d}
+ .pn-t5-orbit:nth-child(2){width:67%}
+ .pn-t5-orb{z-index:2;width:min(58%,310px);opacity:.9}
+ .pn-t5-chip{z-index:3;left:6%;bottom:7%;padding:17px 20px;border-radius:15px;background:#140d28e6}
+ .pn-t5-chip b{font-size:15px}
+ .pn-t5-foot{bottom:29px}
+ @media(max-width:900px){.pn-t5-hero{grid-template-columns:1fr;gap:28px;padding-top:58px}.pn-t5-art{min-height:420px}.pn-t5-copy{max-width:700px}}
+ @media(max-width:600px){.pn-t5-nav{height:76px}.pn-t5-links{top:76px}.pn-t5-hero{padding:54px 20px 94px;gap:32px}.pn-t5 h1{font-size:clamp(38px,10vw,57px);letter-spacing:-.055em}.pn-t5-sub{font-size:16px;line-height:1.65}.pn-t5-actions{gap:11px}.pn-t5-primary,.pn-t5-secondary{min-height:51px}.pn-t5-art{min-height:335px;border-radius:23px}.pn-t5-orb{width:min(62%,240px)}.pn-t5-chip{left:5%;bottom:6%;padding:12px 14px}.pn-t5-chip b{font-size:12px}.pn-t5-chip small{font-size:10px}.pn-t5-foot{bottom:23px;letter-spacing:.08em}}
  @media(prefers-reduced-motion:reduce){.pn-t5-orb{animation:none}}
  `}</style>
  <header className="pn-t5-nav"><a className="pn-t5-logo" href="#inicio"><span className="pn-t5-mark" aria-hidden="true"/><span>{brand}</span></a><button type="button" className="pn-t5-toggle" aria-expanded={menuOpen} aria-controls="pn-t5-menu" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?"Fechar ×":"Menu ☰"}</button><nav id="pn-t5-menu" className="pn-t5-links" data-open={menuOpen} aria-label="Navegação principal"><a href="#solucoes" onClick={()=>setMenuOpen(false)}>Soluções</a><a href="#sobre" onClick={()=>setMenuOpen(false)}>Sobre</a><a href="#projetos" onClick={()=>setMenuOpen(false)}>Projetos</a><a href="#contato" onClick={()=>setMenuOpen(false)}>Contato</a><a className="pn-t5-navcta" href="#contato" onClick={()=>setMenuOpen(false)}>Iniciar projeto ↗</a></nav></header>
- <main className="pn-t5-hero"><div className="pn-t5-copy"><span className="pn-t5-eyebrow">Marketing, automação e inteligência artificial</span><h1>{title}</h1><p className="pn-t5-sub">{sub}</p><div className="pn-t5-actions"><a href="#contato" className="pn-t5-primary">Vamos conversar <span aria-hidden="true">↗</span></a><a href="#solucoes" className="pn-t5-secondary">Explorar soluções <span aria-hidden="true">→</span></a></div></div><div className="pn-t5-art" aria-hidden="true"><div className="pn-t5-orbit"/><div className="pn-t5-orbit"/><div className="pn-t5-orb"/><div className="pn-t5-chip"><b>Inteligência em movimento</b><small>Estratégia + criatividade + automação</small></div></div><div className="pn-t5-foot"><span>Ideias conectadas ao futuro</span><span>Explore o que vem a seguir ↓</span></div></main></div>;
+ <main className="pn-t5-hero"><div className="pn-t5-copy"><span className="pn-t5-eyebrow">{isAI?"Marketing, automação e inteligência artificial":"Experiências, inovação e novas possibilidades"}</span><h1>{title}</h1><p className="pn-t5-sub">{sub}</p><div className="pn-t5-actions"><a href="#contato" className="pn-t5-primary">Vamos conversar <span aria-hidden="true">↗</span></a><a href="#solucoes" className="pn-t5-secondary">Explorar soluções <span aria-hidden="true">→</span></a></div></div><div className="pn-t5-art" aria-hidden="true"><div className="pn-t5-orbit"/><div className="pn-t5-orbit"/><div className="pn-t5-orb"/><div className="pn-t5-chip"><b>{isAI?"Inteligência em movimento":"Sua marca em destaque"}</b><small>{isAI?"Estratégia + criatividade + automação":"Experiência + identidade + inovação"}</small></div></div><div className="pn-t5-foot"><span>Ideias conectadas ao futuro</span><span>Explore o que vem a seguir ↓</span></div></main></div>;
 }
