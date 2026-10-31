@@ -42,5 +42,11 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   const restaurantSite=payload.site as unknown as Parameters<typeof PizzeriaTemplate>[0]["site"];
   const menu=Array.isArray((restaurantSite.restaurant||{}).menu)?restaurantSite.restaurant!.menu:[];
   const pizza=/pizza|pizzaria/i.test(niche)||menu.filter(item=>/pizza|mussarela|calabresa|portuguesa|pepperoni|catupiry|marguerita|quatro queijos/i.test(item.name+" "+item.category)).length>=Math.max(2,Math.ceil(menu.length/2));
-  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={payload.site} templateId={payload.site.templateId||"institutional-complete"} selectedNiche={niche} publishedMode />}</main>;
+  // Legacy AI/marketing briefings may have been published without templateId.
+  // Recover TP5 only for unmistakable AI/technology niches, leaving every
+  // explicitly selected template and all other published sites untouched.
+  const tp5LegacyNiche=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|marketing digital|ag[eê]ncia de marketing|neg[oó]cios digitais|agentes? de ia|desenvolvimento de software|empresa de tecnologia|saas|startup)/i.test(niche);
+  const publishedTemplateId=payload.site.templateId||
+    (tp5LegacyNiche?"prompt-adaptive":"institutional-complete");
+  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={payload.site} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
 }
