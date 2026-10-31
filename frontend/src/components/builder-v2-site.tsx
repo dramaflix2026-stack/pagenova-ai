@@ -93,8 +93,9 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const briefingText=props.site.blocks.filter(b=>b.type==="paragraph").slice(0,8).map(b=>b.text||"").join("\n");
  const declaredFamily=resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(briefingText);
  const aiBriefingNiche=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|ag[eê]ncia de marketing|marketing digital|neg[oó]cios digitais|desenvolvimento de software|empresa de tecnologia|agentes? de ia|saas|startup)/i.test([props.site.niche,props.selectedNiche].filter(Boolean).join(" "));
- const isWrittenBrief=activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
- const family=isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
+ const isNexoraTp5Project=/\bnexora(?:\s+(?:intelligence|ai))?\b/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" ")) && /nexora/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
+ const isWrittenBrief=isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
+ const family=isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
