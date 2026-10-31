@@ -45,11 +45,12 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  .pn-t5-about{position:relative;background:linear-gradient(135deg,#100b21,#080712 68%);border-top:1px solid #ffffff10}
  .pn-t5-about-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(36px,6vw,90px);align-items:center}
  .pn-t5-about-copy h2{font-size:clamp(40px,5.3vw,76px)}.pn-t5-about-copy p{font-size:clamp(15px,1.4vw,18px);line-height:1.8;color:#bdb5cf;max-width:570px}.pn-t5-about-line{width:85px;height:3px;background:linear-gradient(90deg,#b278ff,#e0b3ff);margin:30px 0}
+ .pn-t5-about-art{background:linear-gradient(180deg,#09071318,#09071355),url("https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1100&q=85") center/cover no-repeat;border-radius:25px;border:1px solid #9e6bd34d;overflow:hidden}
  .pn-t5-about-art{min-height:480px;position:relative;display:grid;place-items:center;isolation:isolate}
  .pn-t5-about-art:before{content:"";position:absolute;width:78%;aspect-ratio:1;background:radial-gradient(circle,#7433d588,transparent 67%);filter:blur(28px);z-index:-1}
- .pn-t5-sculpture{width:min(72%,360px);aspect-ratio:1;border-radius:45% 55% 35% 65%/60% 35% 65% 40%;background:conic-gradient(from 45deg,#271048,#c894ff,#4c1e9b,#efc7ff,#4e2297,#b676f8,#271048);box-shadow:inset -30px -20px 55px #150a35,inset 22px 20px 38px #fff6,0 0 70px #9c52ef5e;transform:rotate(-25deg);animation:pn-t5-about-float 9s ease-in-out infinite}
+ .pn-t5-sculpture{opacity:.25;mix-blend-mode:screen;width:min(72%,360px);aspect-ratio:1;border-radius:45% 55% 35% 65%/60% 35% 65% 40%;background:conic-gradient(from 45deg,#271048,#c894ff,#4c1e9b,#efc7ff,#4e2297,#b676f8,#271048);box-shadow:inset -30px -20px 55px #150a35,inset 22px 20px 38px #fff6,0 0 70px #9c52ef5e;transform:rotate(-25deg);animation:pn-t5-about-float 9s ease-in-out infinite}
  .pn-t5-sculpture:after{content:"";display:block;position:absolute;inset:25%;border:25px solid #180b39a8;border-top-color:#f0d3ff;border-radius:50% 40% 60% 40%;box-shadow:0 0 30px #f5bfff66}
- .pn-t5-art-caption{position:absolute;bottom:28px;left:0;right:0;display:flex;justify-content:space-between;gap:14px;color:#c2aedf;font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-top:1px solid #ffffff2c;padding-top:17px}
+ .pn-t5-art-caption{padding-left:20px;padding-right:20px;background:#09071399;position:absolute;bottom:28px;left:0;right:0;display:flex;justify-content:space-between;gap:14px;color:#c2aedf;font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-top:1px solid #ffffff2c;padding-top:17px}
 
  .pn-t5-diff{background:radial-gradient(ellipse at 85% 15%,#4b207438,transparent 45%),#0b0918;border-top:1px solid #ffffff12}
  .pn-t5-diff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:44px}
@@ -79,6 +80,10 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  .pn-t5-gallery{background:linear-gradient(160deg,#100b21,#090813);border-top:1px solid #ffffff12}
  .pn-t5-gallery-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:45px}
  .pn-t5-gallery-item{position:relative;isolation:isolate;overflow:hidden;min-height:310px;border:1px solid #ffffff23;border-radius:22px;background:radial-gradient(circle at 76% 28%,#9c65f24b,transparent 42%),linear-gradient(135deg,#26143d,#0d0b19);padding:30px;display:flex;flex-direction:column;justify-content:space-between}
+ .pn-t5-gallery-item{background-image:linear-gradient(180deg,#10091a35 0%,#0c091acc 78%,#090713f5 100%),url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85")!important;background-position:center!important;background-size:cover!important}
+ .pn-t5-gallery-item:nth-child(2){background-image:linear-gradient(180deg,#10091a35,#090713ee),url("https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=85")!important}
+ .pn-t5-gallery-item:nth-child(3){background-image:linear-gradient(180deg,#10091a35,#090713ee),url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=85")!important}
+ .pn-t5-gallery-item>div{position:relative;z-index:2}.pn-t5-gallery-item:after{opacity:.25}
  .pn-t5-gallery-item:nth-child(1){grid-row:span 2;min-height:650px}.pn-t5-gallery-item:nth-child(3){background:radial-gradient(circle at 70% 20%,#6939d080,transparent 50%),#130e24}
  .pn-t5-gallery-item:after{content:"";position:absolute;z-index:-1;width:250px;height:250px;border:38px solid #c99bff4d;border-radius:38% 62% 55% 45%;right:-70px;top:25%;transform:rotate(35deg);box-shadow:0 0 65px #a15aff3b}
  .pn-t5-gallery-item:nth-child(2):after{border-radius:50%;border-width:60px}.pn-t5-gallery-item:nth-child(3):after{border-radius:15%;transform:rotate(55deg)}
