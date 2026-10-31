@@ -3,6 +3,7 @@ import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contr
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
+import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { Template7RealEstateHero } from "@/components/template7-real-estate-hero";
 import { Template7RealEstateSections } from "@/components/template7-real-estate-sections";
 import { Template7RealEstateExperience } from "@/components/template7-real-estate-experience";
@@ -76,6 +77,14 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
  const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
+ if(isWrittenBrief&&family===8){
+   const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+   const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+   const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
+   const phone=(props.site.footer?.whatsapp||"").replace(/\\D/g,"");
+   const contactHref=phone.length>=10?"https://wa.me/"+phone:(props.site.footer?.email?"mailto:"+props.site.footer.email:undefined);
+   return <Template8HospitalityHero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/>;
+ }
  if(isWrittenBrief&&family===7){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
