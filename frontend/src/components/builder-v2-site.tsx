@@ -156,7 +156,11 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const collectionImages=curated.length===4?curated.map((id,i)=>({image:imageBase+id+".png",title:labels[i]})):props.site.blocks.filter(b=>b.type==="image"&&b.src&&b.src!==heroImage).slice(0,4).map((b,i)=>({image:b.src!,title:labels[i]}));
    return <div className="pn-t6-layout"><style>{`.pn-t6-layout .pn-t6-legacy > header{display:none!important}.pn-t6-layout .pn-t6-legacy section:first-of-type{display:none!important}`}</style><Template6RetailHero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage}/><div id="produtos"><Template6RetailCollection niche={retailNiche} items={collectionImages}/></div><Template6RetailStory brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} images={(photoBank?.desktop||[]).slice(0,9).map(id=>imageBase+id+".png")}/><div className="pn-t6-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
- if(isWrittenBrief&&family===5){
+ // Nexora Intelligence is the approved TP5 reference project. Its legacy saved
+ // metadata can still route to the old Nexora renderer in Studio after F5.
+ // Resolve this specific project to TP5 before the legacy fallback.
+ const isApprovedNexoraTp5=/nexora\\s*intelligence/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
+ if((isWrittenBrief&&family===5)||isApprovedNexoraTp5){
    const firstHeading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const firstDescription=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const brand=props.site.header?.brand||props.site.title||"Agência Digital";
