@@ -93,7 +93,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
    // Only explicitly supplied, attributed testimonial blocks are eligible; never synthesize reviews.
    const testimonials=props.site.blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avaliac|relato/i.test(b.section||"")).map(b=>{
-     const parts=(b.text||"").split(/\\s*\\|\\s*/).map(p=>p.trim()).filter(Boolean);
+     const parts=(b.text||"").split(/\s*\|\s*/).map(p=>p.trim()).filter(Boolean);
      if(parts.length<3)return null;
      const [name,role,...quote]=parts;
      if(!name||!quote.join(" ").trim())return null;
