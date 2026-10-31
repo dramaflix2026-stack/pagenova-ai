@@ -354,7 +354,7 @@ export default function BuilderV2() {
         if(parsed && typeof parsed==="object" && Array.isArray(parsed.blocks) && parsed.blocks.length && parsed.blocks.every((b:unknown)=>!!b && typeof b==="object" && typeof (b as Block).type==="string") && typeof parsed.title==="string" && typeof parsed.background==="string"){
           // Keep the Studio draft aligned with the already-published TP5 site after F5.
           // Scope the migration to Nexora; never rewrite other templates or user drafts.
-          const isNexoraTp5=/nexora[\\s-]+intelligence/i.test(parsed.title||"")||
+          const isNexoraTp5=/nexora[\s-]+intelligence/i.test(parsed.title||"")||
             /v2-nexora-intelligence-cbbcc0ec1c/i.test(parsed.publishedUrl||"");
           const hydratedSite=isNexoraTp5&&parsed.templateId!=="prompt-adaptive"
             ?{...parsed,templateId:"prompt-adaptive" as const,niche:parsed.niche||"Inteligência artificial"}
