@@ -21,8 +21,8 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  ["É possível acompanhar a evolução?", "Sim. O processo prevê alinhamentos e pontos de validação para acompanhar as entregas."],
  ["Como solicitar uma proposta?", "Envie uma mensagem pelo canal de contato disponibilizado nesta página para iniciar a conversa."]
  ];
- const digits=(whatsapp||"").replace(/\\D/g,"");
- const validEmail=Boolean(email&&/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email));
+ const digits=(whatsapp||"").replace(/\D/g,"");
+ const validEmail=Boolean(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
  const validWhatsapp=digits.length>=10&&digits.length<=15;
  const editorial=[
  {eyebrow:"Experiência pensada para pessoas",quote:"Uma parceria de verdade começa quando cada ideia é ouvida, compreendida e transformada em possibilidades.",caption:"Nosso compromisso com cada projeto"},
@@ -128,6 +128,27 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  @keyframes pn-t5-about-float{50%{transform:translateY(-13px) rotate(-19deg)}}
  @media(max-width:950px){.pn-t5-bento{grid-template-columns:1fr 1fr;grid-template-rows:auto}.pn-t5-tile:first-child{grid-row:auto;min-height:320px}.pn-t5-tile:nth-child(2){grid-column:auto}.pn-t5-tile{min-height:245px}.pn-t5-about-grid{grid-template-columns:1fr}.pn-t5-about-art{min-height:380px}}
  @media(max-width:580px){.pn-t5-bento{grid-template-columns:1fr;gap:12px;margin-top:32px}.pn-t5-tile{min-height:215px;border-radius:18px}.pn-t5-tile:first-child{min-height:280px}.pn-t5-about-art{min-height:310px}.pn-t5-art-caption{font-size:9px}.pn-t5-sculpture{max-width:235px}}
+
+ /* TP5-specific contrast and editorial layout. Do not allow Builder theme
+    selectors or inherited green accents to override the approved palette. */
+ .pn-t5-sections .pn-t5-tile h3,.pn-t5-sections .pn-t5-diff-card h3,
+ .pn-t5-sections .pn-t5-gallery-item h3,.pn-t5-sections .pn-t5-process-step h3,
+ .pn-t5-sections .pn-t5-end-brand{color:#f8f4ff!important}
+ .pn-t5-sections .pn-t5-tile p,.pn-t5-sections .pn-t5-diff-card p,
+ .pn-t5-sections .pn-t5-gallery-item p,.pn-t5-sections .pn-t5-process-step p{color:#d3c9e5!important}
+ .pn-t5-sections .pn-t5-diff-num,.pn-t5-sections .pn-t5-gallery-tag{color:#d6b6ff!important}
+ .pn-t5-sections .pn-t5-diff-card{background:linear-gradient(145deg,#2c1b48,#130e25 82%)!important}
+ .pn-t5-sections .pn-t5-diff-card:nth-child(2),.pn-t5-sections .pn-t5-diff-card:nth-child(5){background:linear-gradient(145deg,#41275f,#1b1232 85%)!important}
+ .pn-t5-sections .pn-t5-diff-card h3,.pn-t5-sections .pn-t5-diff-card p{position:relative;z-index:1}
+ .pn-t5-sections .pn-t5-end-button{color:#180b2e!important;background:#e8d4ff!important}
+ .pn-t5-sections .pn-t5-contact-panel button{color:#170a2b!important}
+ @media(max-width:580px){
+  .pn-t5-sections h2{font-size:clamp(32px,8.1vw,42px);line-height:1.12;letter-spacing:-.045em}
+  .pn-t5-sections .pn-t5-voices-quote{font-size:clamp(28px,7.1vw,39px);line-height:1.23;letter-spacing:-.04em}
+  .pn-t5-sections .pn-t5-about-copy h2,.pn-t5-sections .pn-t5-end-cta h2{font-size:clamp(32px,8.1vw,42px)}
+  .pn-t5-sections .pn-t5-diff-card{min-height:200px}
+  .pn-t5-sections .pn-t5-wrap{padding-top:76px;padding-bottom:76px}
+ }
  @media(prefers-reduced-motion:reduce){.pn-t5-sculpture{animation:none}.pn-t5-tile{transition:none}}
  `}</style>
  <section id="solucoes" aria-label="Nossas soluções"><div className="pn-t5-wrap"><span className="pn-t5-kicker">01 / Soluções inteligentes</span><h2>Possibilidades que vão além do convencional.</h2><p className="pn-t5-lead">{d.intro}</p><div className="pn-t5-bento">{d.services.map(([name,desc,symbol],i)=><article className="pn-t5-tile" key={name}><span className="pn-t5-tile-index">0{i+1} / 04</span>{i===0?<div className="pn-t5-tile-art" aria-hidden="true"/>:null}<span className="pn-t5-tile-icon" aria-hidden="true">{symbol}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div></div></section>
