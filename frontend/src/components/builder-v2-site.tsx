@@ -70,7 +70,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const retailNiche=[props.site.niche,props.selectedNiche].find(n=>n&&isTemplate6Niche(n))||"";
  // Template 6 is determined by its catalog niche, not by prompt length or Template 5 routing.
  // An explicitly chosen immersive/cinematic mode still takes precedence above.
- if(isTemplate6Niche(retailNiche)){
+ if(isTemplate6Niche(retailNiche) && (props.templateId||props.site.templateId)!=="prompt-adaptive"){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
