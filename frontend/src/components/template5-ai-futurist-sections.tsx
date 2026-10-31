@@ -1,6 +1,6 @@
 "use client";
 import {useState} from "react";
-type Props={brand:string;niche:string;summary?:string};
+type Props={brand:string;niche:string;summary?:string;email?:string;whatsapp?:string};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 function resolve(niche:string){
  const n=normalize(niche);
@@ -9,9 +9,21 @@ function resolve(niche:string){
  if(/automac|inteligencia artificial|ia\b|chatbot|agentes/.test(n))return {label:"Automação & IA",intro:"Inteligência artificial aplicada à rotina, à comunicação e aos processos.",services:[["Agentes Inteligentes","Experiências assistidas por IA adaptadas ao contexto.","✦"],["Fluxos Automatizados","Processos conectados com menos tarefas repetitivas.","⌘"],["Integrações","Sistemas e informações trabalhando em conjunto.","◈"],["Análise Inteligente","Dados organizados para apoiar melhores decisões.","↗"]],about:"Inteligência que aproxima possibilidades.",description:"Exploramos automação e IA com visão prática, priorizando experiências claras, processos conectados e evolução responsável."};
  return {label:"Negócios Digitais",intro:"Estratégia, tecnologia e criatividade para novas experiências digitais.",services:[["Estratégia Digital","Planejamento para posicionar soluções e oportunidades.","✦"],["Experiências Digitais","Interfaces e jornadas pensadas para pessoas.","◈"],["Automação","Processos conectados para operações mais fluidas.","⌘"],["Inteligência de Dados","Informações que apoiam decisões e evolução.","↗"]],about:"Ideias conectadas. Futuro em construção.",description:"Combinamos estratégia, criação e tecnologia para desenhar soluções digitais relevantes para cada negócio."};
 }
-export function Template5AIFuturistSections({brand,niche,summary}:Props){
+export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}:Props){
  const d=resolve(niche);
  const [active,setActive]=useState(0);
+ const [expanded,setExpanded]=useState<number|null>(0);
+ const [contactStatus,setContactStatus]=useState("");
+ const faqs=[
+ ["Como funciona o primeiro contato?", "Começamos entendendo seus objetivos e o contexto do projeto. Depois alinhamos os próximos passos e o formato de atendimento."],
+ ["As soluções são personalizadas?", `Sim. A proposta é considerar as particularidades de cada projeto na área de ${d.label.toLowerCase()}.`],
+ ["Como é definido o prazo?", "O cronograma depende do escopo, da complexidade e das etapas combinadas. Os prazos são alinhados antes da execução."],
+ ["É possível acompanhar a evolução?", "Sim. O processo prevê alinhamentos e pontos de validação para acompanhar as entregas."],
+ ["Como solicitar uma proposta?", "Envie uma mensagem pelo canal de contato disponibilizado nesta página para iniciar a conversa."]
+ ];
+ const digits=(whatsapp||"").replace(/\\D/g,"");
+ const validEmail=Boolean(email&&/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email));
+ const validWhatsapp=digits.length>=10&&digits.length<=15;
  const editorial=[
  {eyebrow:"Experiência pensada para pessoas",quote:"Uma parceria de verdade começa quando cada ideia é ouvida, compreendida e transformada em possibilidades.",caption:"Nosso compromisso com cada projeto"},
  {eyebrow:"Clareza em cada etapa",quote:"Boas soluções nascem de conversas transparentes, decisões conscientes e uma jornada que faz sentido.",caption:"Nossa forma de trabalhar"},
@@ -75,6 +87,25 @@ export function Template5AIFuturistSections({brand,niche,summary}:Props){
  .pn-t5-gallery-note{color:#a89cbd;font-size:12px;line-height:1.6;margin-top:20px}
  @media(max-width:850px){.pn-t5-voices-shell{grid-template-columns:1fr}.pn-t5-voices-controls{justify-content:flex-start}.pn-t5-gallery-item:nth-child(1){min-height:460px}}
  @media(max-width:580px){.pn-t5-gallery-grid{grid-template-columns:1fr;gap:13px;margin-top:30px}.pn-t5-gallery-item,.pn-t5-gallery-item:nth-child(1){grid-row:auto;min-height:320px;padding:25px}.pn-t5-voices-controls button{width:52px;height:52px}}
+
+ .pn-t5-faq{background:linear-gradient(150deg,#0d091a,#130c24);border-top:1px solid #ffffff14}
+ .pn-t5-faq-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(35px,6vw,90px);align-items:start}
+ .pn-t5-faq-list{border-top:1px solid #ffffff35}
+ .pn-t5-faq-item{border-bottom:1px solid #ffffff30}
+ .pn-t5-faq-trigger{display:flex;align-items:center;justify-content:space-between;gap:20px;width:100%;padding:27px 0;border:0;background:none;color:#f6f1ff;text-align:left;font:600 clamp(17px,1.8vw,23px)/1.4 Inter,Poppins,Arial,sans-serif;cursor:pointer}
+ .pn-t5-faq-trigger span:last-child{flex:none;display:grid;place-items:center;width:35px;height:35px;border:1px solid #a774ff77;border-radius:50%;color:#d2a8ff;font-size:22px}
+ .pn-t5-faq-answer{margin:0 35px 25px 0;max-width:570px;color:#c8bed8;font-size:15px;line-height:1.8}
+ .pn-t5-contact{background:radial-gradient(circle at 78% 25%,#7536a04a,transparent 45%),#090714;border-top:1px solid #ffffff15}
+ .pn-t5-contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,6vw,85px);align-items:center}
+ .pn-t5-contact-panel{padding:clamp(25px,3.5vw,48px);border-radius:26px;border:1px solid #c69bff5c;background:linear-gradient(135deg,#a879ff21,#ffffff09 50%,#8d48dc13);box-shadow:0 20px 65px #0005,inset 0 1px #ffffff20;backdrop-filter:blur(18px)}
+ .pn-t5-contact-panel label{display:block;color:#d9cbed;font-size:13px;margin-bottom:8px}
+ .pn-t5-contact-panel input,.pn-t5-contact-panel textarea{width:100%;background:#0e0b1bc9;border:1px solid #b38bff4b;border-radius:12px;color:#fff;font:inherit;font-size:15px;padding:15px;margin-bottom:19px;outline:none}
+ .pn-t5-contact-panel input:focus,.pn-t5-contact-panel textarea:focus{border-color:#caa4ff;box-shadow:0 0 0 3px #9b62e52b}
+ .pn-t5-contact-panel textarea{resize:vertical;min-height:125px}
+ .pn-t5-contact-panel button{width:100%;padding:17px 22px;background:#a66cf1;color:#100a1c;font-weight:750;border:0;border-radius:12px;cursor:pointer}
+ .pn-t5-contact-panel button:disabled{opacity:.5;cursor:not-allowed}
+ .pn-t5-contact-hint{color:#c6b8d8;font-size:13px;line-height:1.7;margin-top:15px}
+ @media(max-width:850px){.pn-t5-faq-layout,.pn-t5-contact-layout{grid-template-columns:1fr}}
  @keyframes pn-t5-about-float{50%{transform:translateY(-13px) rotate(-19deg)}}
  @media(max-width:950px){.pn-t5-bento{grid-template-columns:1fr 1fr;grid-template-rows:auto}.pn-t5-tile:first-child{grid-row:auto;min-height:320px}.pn-t5-tile:nth-child(2){grid-column:auto}.pn-t5-tile{min-height:245px}.pn-t5-about-grid{grid-template-columns:1fr}.pn-t5-about-art{min-height:380px}}
  @media(max-width:580px){.pn-t5-bento{grid-template-columns:1fr;gap:12px;margin-top:32px}.pn-t5-tile{min-height:215px;border-radius:18px}.pn-t5-tile:first-child{min-height:280px}.pn-t5-about-art{min-height:310px}.pn-t5-art-caption{font-size:9px}.pn-t5-sculpture{max-width:235px}}
@@ -99,5 +130,8 @@ export function Template5AIFuturistSections({brand,niche,summary}:Props){
 
  <section id="depoimentos" className="pn-t5-voices" aria-label="Nossa visão e compromisso"><div className="pn-t5-wrap"><span className="pn-t5-kicker">05 / Nossa filosofia</span><div className="pn-t5-voices-shell"><div aria-live="polite"><h2>O que orienta cada experiência.</h2><span className="pn-t5-kicker">{editorial[active].eyebrow}</span><p className="pn-t5-voices-quote">{editorial[active].quote}</p><p className="pn-t5-voices-credit">{editorial[active].caption} · {brand}</p><div className="pn-t5-voices-counter">0{active+1} / 03</div></div><div className="pn-t5-voices-controls"><button type="button" aria-label="Anterior" onClick={()=>setActive((active+editorial.length-1)%editorial.length)}>←</button><button type="button" aria-label="Próximo" onClick={()=>setActive((active+1)%editorial.length)}>→</button></div></div></div></section>
  <section id="portfolio" className="pn-t5-gallery" aria-label="Galeria de soluções"><div className="pn-t5-wrap"><span className="pn-t5-kicker">06 / Áreas de atuação</span><h2>Ideias em diferentes dimensões.</h2><p className="pn-t5-lead">Uma galeria conceitual de possibilidades para {d.label.toLowerCase()}, sem apresentar projetos fictícios como trabalhos realizados.</p><div className="pn-t5-gallery-grid">{d.services.slice(0,3).map(([name,desc],i)=><article className="pn-t5-gallery-item" key={name}><span className="pn-t5-gallery-tag">Exploração 0{i+1}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div><p className="pn-t5-gallery-note">Apresentação conceitual. Substitua por cases, fotografias e resultados reais da marca quando disponíveis.</p></div></section>
+
+ <section id="perguntas-frequentes" className="pn-t5-faq" aria-label="Perguntas frequentes"><div className="pn-t5-wrap pn-t5-faq-layout"><div><span className="pn-t5-kicker">07 / Perguntas frequentes</span><h2>Respostas claras. Novas possibilidades.</h2><p className="pn-t5-lead">Tudo o que você precisa saber para iniciar uma conversa com a {brand}.</p></div><div className="pn-t5-faq-list">{faqs.map(([question,answer],i)=><div className="pn-t5-faq-item" key={question}><h3 style={{margin:0}}><button className="pn-t5-faq-trigger" type="button" aria-expanded={expanded===i} aria-controls={`pn-t5-faq-answer-${i}`} onClick={()=>setExpanded(expanded===i?null:i)}><span>{question}</span><span aria-hidden="true">{expanded===i?"−":"+"}</span></button></h3><p id={`pn-t5-faq-answer-${i}`} className="pn-t5-faq-answer" hidden={expanded!==i}>{answer}</p></div>)}</div></div></section>
+ <section id="contato" className="pn-t5-contact" aria-label="Entre em contato"><div className="pn-t5-wrap pn-t5-contact-layout"><div><span className="pn-t5-kicker">08 / Vamos conversar</span><h2>O próximo capítulo começa aqui.</h2><p className="pn-t5-lead">Conte sua ideia para a {brand}. Vamos explorar as possibilidades de {d.label.toLowerCase()} para seu projeto.</p></div><div className="pn-t5-contact-panel"><form onSubmit={e=>{e.preventDefault();const data=new FormData(e.currentTarget);const name=String(data.get("name")||"").trim();const sender=String(data.get("sender")||"").trim();const message=String(data.get("message")||"").trim();if(!name||!sender||!message)return;const body=`Olá, sou ${name}. Meu contato: ${sender}.\n\n${message}`;if(validWhatsapp){window.open(`https://wa.me/${digits}?text=${encodeURIComponent(body)}`,"_blank","noopener,noreferrer");setContactStatus("O WhatsApp foi aberto com sua mensagem. Confirme o envio no aplicativo.");}else if(validEmail){window.location.href=`mailto:${email}?subject=${encodeURIComponent("Contato pelo site — "+brand)}&body=${encodeURIComponent(body)}`;setContactStatus("Seu aplicativo de e-mail foi aberto. Confirme o envio por lá.");}}}><label htmlFor="pn-t5-contact-name">Seu nome</label><input id="pn-t5-contact-name" name="name" autoComplete="name" required placeholder="Como podemos chamar você?"/><label htmlFor="pn-t5-contact-sender">E-mail ou telefone</label><input id="pn-t5-contact-sender" name="sender" required placeholder="Seu melhor contato"/><label htmlFor="pn-t5-contact-message">Conte sobre seu projeto</label><textarea id="pn-t5-contact-message" name="message" required placeholder="O que você gostaria de construir?"/><button type="submit" disabled={!validWhatsapp&&!validEmail}>Iniciar conversa ↗</button><p className="pn-t5-contact-hint" role="status">{contactStatus||(!validWhatsapp&&!validEmail?"Configure o WhatsApp ou e-mail da empresa para habilitar o envio.":"A mensagem será preparada no seu WhatsApp ou aplicativo de e-mail. O envio depende da sua confirmação.")}</p></form></div></div></section>
  </div>;
 }
