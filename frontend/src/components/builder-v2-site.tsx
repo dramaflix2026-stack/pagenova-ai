@@ -9,6 +9,7 @@ import { Template9AutomotiveSections } from "@/components/template9-automotive-s
 import { Template9AutomotiveExperience } from "@/components/template9-automotive-experience";
 import { Template9AutomotiveClosing } from "@/components/template9-automotive-closing";
 import { Template9AutomotiveFinal } from "@/components/template9-automotive-final";
+import { Template10EducationHero } from "@/components/template10-education-hero";
 import { Template8HospitalitySections } from "@/components/template8-hospitality-sections";
 import { Template8HospitalityDiscover } from "@/components/template8-hospitality-discover";
 import { Template8HospitalityJourney } from "@/components/template8-hospitality-journey";
@@ -86,6 +87,12 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
  const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
+ if(isWrittenBrief&&family===10){
+   const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+   const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+   const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
+   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage}/>;
+ }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
