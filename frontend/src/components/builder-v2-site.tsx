@@ -2,6 +2,7 @@
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
+import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { CinematicBackground, type CinematicAppearance } from "@/components/builder-v2-cinematic-background";
 import type {PropertyItem} from "@/components/builder-v2-real-estate";
 import { useEffect, useRef, useState } from "react";
@@ -55,7 +56,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(isNexora){
    const headline=props.site.blocks.find(b=>b.type==="heading"&&/transforme o futuro/i.test(b.text||""))?.text||"Transforme o futuro da sua empresa com Inteligência Artificial.";
    const description=props.site.blocks.find(b=>b.type==="paragraph"&&/automatize processos/i.test(b.text||""))?.text||"Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio.";
-   return <div className="pn-nexora-template-five"><style>{`.pn-nexora-template-five .pn-nexora-legacy > header{display:none!important}.pn-nexora-template-five .pn-nexora-legacy section:first-of-type{display:none!important}`}</style><NexoraTechnologyHero brand={props.site.header?.brand||"NEXORA AI"} headline={/transforme o futuro da sua empresa com intelig[eê]ncia artificial[.!]?/i.test(headline)?"Automatize a complexidade. Escale exponencialmente.":headline} description={description==="Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio."?"A plataforma operacional unificada da Nexora otimiza processos, dos dados às decisões, para alcançar mais eficiência e crescimento.":description}/><div className="pn-nexora-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+   return <div className="pn-nexora-template-five"><style>{`.pn-nexora-template-five .pn-nexora-legacy > header{display:none!important}.pn-nexora-template-five .pn-nexora-legacy section:first-of-type{display:none!important}`}</style><NexoraTechnologyHero brand={props.site.header?.brand||"NEXORA AI"} headline={/transforme o futuro da sua empresa com intelig[eê]ncia artificial[.!]?/i.test(headline)?"Automatize a complexidade. Escale exponencialmente.":headline} description={description==="Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio."?"A plataforma operacional unificada da Nexora otimiza processos, dos dados às decisões, para alcançar mais eficiência e crescimento.":description}/><NexoraIndicators/><div className="pn-nexora-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
  return <BuilderV2ClassicSite {...props}/>;
 }
