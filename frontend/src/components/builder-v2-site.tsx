@@ -51,7 +51,7 @@ const designPresets = [
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
- const isNexora=(props.site.templateId==="prompt-adaptive"||props.templateId==="prompt-adaptive")&&/nexora/i.test(props.site.title+" "+(props.site.header?.brand||""));
+ const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
  if(isNexora){
    const headline=props.site.blocks.find(b=>b.type==="heading"&&/transforme o futuro/i.test(b.text||""))?.text||"Transforme o futuro da sua empresa com Inteligência Artificial.";
    const description=props.site.blocks.find(b=>b.type==="paragraph"&&/automatize processos/i.test(b.text||""))?.text||"Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio.";
