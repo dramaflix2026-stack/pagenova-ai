@@ -6,5 +6,19 @@ return <section className="nx5cta" id="vamos-comecar" aria-labelledby="nx5cta-ti
 @media(max-width:700px){.nx5cta{min-height:580px;padding:105px 18px}.nx5cta-portal{width:100vw;height:72vw;max-height:400px}.nx5cta h2{font-size:clamp(43px,9vw,65px)}.nx5cta-desc{font-size:14px}.nx5cta-actions{gap:10px}.nx5cta-primary,.nx5cta-secondary{min-height:49px;padding:0 18px}}
 @media(max-width:440px){.nx5cta{min-height:560px}.nx5cta-portal{width:125vw;height:105vw;opacity:.72}.nx5cta h2{font-size:44px}.nx5cta-actions{flex-direction:column;align-items:stretch}.nx5cta-primary,.nx5cta-secondary{width:100%}.nx5cta-foot{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.nx5cta-primary,.nx5cta-secondary{transition:none}}
+
+.nx5cta-stars{animation:nx5cta-twinkle 3.8s ease-in-out infinite alternate,nx5cta-stardrift 24s linear infinite}
+.nx5cta-portal{animation:nx5cta-glow 4s ease-in-out infinite alternate}
+.nx5cta-portal:before{animation:nx5cta-pulse 3.2s ease-in-out infinite alternate}
+.nx5cta-portal:after{animation:nx5cta-pulse 4.8s ease-in-out infinite alternate-reverse}
+.nx5cta-rays{animation:nx5cta-rotate 22s linear infinite}
+.nx5cta-kicker:before{animation:nx5cta-twinkle 1.4s ease-in-out infinite alternate}
+@keyframes nx5cta-twinkle{from{opacity:.32}to{opacity:1}}
+@keyframes nx5cta-stardrift{from{background-position:13px 27px,71px 48px}to{background-position:136px 148px,-108px 217px}}
+@keyframes nx5cta-glow{from{opacity:.62;filter:drop-shadow(0 0 5px #9a4cff40)}to{opacity:1;filter:drop-shadow(0 0 23px #b56cffb0)}}
+@keyframes nx5cta-pulse{from{opacity:.35}to{opacity:1}}
+@keyframes nx5cta-rotate{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@media(max-width:700px){.nx5cta-stars{animation:nx5cta-twinkle 5s ease-in-out infinite alternate}.nx5cta-rays{animation:none}}
+@media(prefers-reduced-motion:reduce){.nx5cta-stars,.nx5cta-portal,.nx5cta-portal:before,.nx5cta-portal:after,.nx5cta-rays,.nx5cta-kicker:before{animation:none!important}}
 `}</style><div className="nx5cta-stars" aria-hidden="true"/><div className="nx5cta-rays" aria-hidden="true"/><div className="nx5cta-portal" aria-hidden="true"/><div className="nx5cta-content"><span className="nx5cta-kicker">O FUTURO COMEÇA AGORA</span><h2 id="nx5cta-title">Sua próxima grande ideia <em>merece acontecer.</em></h2><p className="nx5cta-desc">Transforme desafios em possibilidades. Vamos construir uma experiência digital que acompanha a ambição do seu negócio.</p><div className="nx5cta-actions"><a className="nx5cta-primary" href="#contato">Começar um projeto <span aria-hidden="true">↗</span></a><a className="nx5cta-secondary" href="#projetos">Explorar possibilidades <span aria-hidden="true">→</span></a></div><div className="nx5cta-foot">ESTRATÉGIA <span>✦</span> TECNOLOGIA <span>✦</span> EVOLUÇÃO</div></div></section>;
 }
