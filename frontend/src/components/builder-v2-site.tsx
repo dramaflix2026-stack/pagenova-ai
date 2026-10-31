@@ -4,7 +4,7 @@ import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
-import { isTemplate6Niche } from "@/lib/template6-retail-niches";
+import { resolveTemplate6Niche, inferTemplate6NicheFromBrief } from "@/lib/template6-retail-niches";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
 import { NexoraAbout } from "@/components/template5-nexora-about";
@@ -67,10 +67,9 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
  // Retail editorial hero is scoped to the explicit prompt-adaptive template only.
  // Existing Template 1 sites and other niche groups retain their original rendering.
- const retailNiche=[props.site.niche,props.selectedNiche].find(n=>n&&isTemplate6Niche(n))||"";
- // Template 6 is determined by its catalog niche, not by prompt length or Template 5 routing.
- // An explicitly chosen immersive/cinematic mode still takes precedence above.
- if(isTemplate6Niche(retailNiche) && (props.templateId||props.site.templateId)!=="prompt-adaptive"){
+ const retailNiche=resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||inferTemplate6NicheFromBrief([props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,3).map(b=>b.text).join(" ")].join(" "));
+ // TP6 is selected by the site's primary retail niche even for long AI briefs.
+ if(retailNiche){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
