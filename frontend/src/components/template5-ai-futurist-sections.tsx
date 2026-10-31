@@ -52,21 +52,33 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  .pn-t5-sculpture:after{content:"";display:block;position:absolute;inset:25%;border:25px solid #180b39a8;border-top-color:#f0d3ff;border-radius:50% 40% 60% 40%;box-shadow:0 0 30px #f5bfff66}
  .pn-t5-art-caption{padding-left:20px;padding-right:20px;background:#09071399;position:absolute;bottom:28px;left:0;right:0;display:flex;justify-content:space-between;gap:14px;color:#c2aedf;font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-top:1px solid #ffffff2c;padding-top:17px}
 
- .pn-t5-diff{background:radial-gradient(ellipse at 85% 15%,#4b207438,transparent 45%),#0b0918;border-top:1px solid #ffffff12}
- .pn-t5-diff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:44px}
- .pn-t5-diff-card{position:relative;min-height:270px;display:flex;flex-direction:column;justify-content:space-between;padding:30px;border:1px solid #a975ff45;border-radius:22px;background:linear-gradient(155deg,#24163b,#120d24 75%);box-shadow:inset 0 1px #e5d1ff19,0 12px 42px #0003;overflow:hidden}
- .pn-t5-diff-card:before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:radial-gradient(circle at 90% 0%,#a06cff27,transparent 55%)}
- .pn-t5-diff-card:nth-child(2),.pn-t5-diff-card:nth-child(5){background:linear-gradient(145deg,#32204f,#140e27)}
- .pn-t5-diff-num{font-size:12px;letter-spacing:.17em;color:#bd9ce9}.pn-t5-diff-glyph{font-size:35px;color:#c79cff;text-shadow:0 0 24px #a569ff}
- .pn-t5-diff-card h3{font-size:clamp(21px,2vw,28px);letter-spacing:-.04em;line-height:1.15;margin:14px 0 10px}.pn-t5-diff-card p{font-size:14px;line-height:1.7;color:#c7bdd7;margin:0}
- .pn-t5-process{background:linear-gradient(180deg,#0b0918,#100b20);border-top:1px solid #ffffff10}
- .pn-t5-process-layout{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(35px,6vw,90px);align-items:start}
- .pn-t5-process-intro{position:sticky;top:38px}.pn-t5-process-list{position:relative;padding-left:38px;border-left:1px solid #8953d66b}
- .pn-t5-process-step{position:relative;padding:4px 0 65px}.pn-t5-process-step:last-child{padding-bottom:0}
- .pn-t5-process-step:before{content:"";position:absolute;left:-46px;top:11px;width:15px;height:15px;border-radius:50%;background:#d7b4ff;box-shadow:0 0 0 7px #7e45cb33,0 0 28px #ae69ff}
- .pn-t5-process-step>span{font-size:12px;letter-spacing:.2em;color:#b48be5}.pn-t5-process-step h3{font-size:clamp(27px,3vw,42px);line-height:1.12;letter-spacing:-.05em;margin:14px 0}.pn-t5-process-step p{max-width:510px;color:#c1b7d3;font-size:16px;line-height:1.75;margin:0}
- @media(max-width:950px){.pn-t5-diff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-t5-process-layout{grid-template-columns:1fr}.pn-t5-process-intro{position:static}}
- @media(max-width:580px){.pn-t5-diff-grid{grid-template-columns:1fr;gap:12px;margin-top:30px}.pn-t5-diff-card{min-height:210px;padding:25px}.pn-t5-process-list{margin-left:8px}.pn-t5-process-step{padding-bottom:45px}}
+ .pn-t5-diff{background:radial-gradient(ellipse at 70% 0%,#51228535,transparent 48%),#080712;border-top:1px solid #ffffff12}
+ .pn-t5-diff-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:48px}
+ .pn-t5-diff-card{position:relative;isolation:isolate;min-height:355px;display:flex;flex-direction:column;justify-content:space-between;padding:27px 24px;border:1px solid #ad7af23d;border-radius:22px;background:linear-gradient(155deg,#1a132b,#0d0b19 78%);overflow:hidden;transition:transform .3s ease,border-color .3s ease,box-shadow .3s ease}
+ .pn-t5-diff-card:hover{transform:translateY(-7px);border-color:#bb8affaa;box-shadow:0 18px 52px #05030d,0 0 40px #8745d82a}
+ .pn-t5-diff-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 39%,#8440e83c,transparent 52%);z-index:-1;pointer-events:none}
+ .pn-t5-diff-num{font-size:11px;letter-spacing:.17em;color:#c2a7eb}
+ .pn-t5-diff-art{height:158px;display:grid;place-items:center;perspective:450px}
+ .pn-t5-diff-object{width:102px;height:102px;display:grid;place-items:center;position:relative;border-radius:25px;background:linear-gradient(135deg,#d9b9ff 0%,#9251ee 30%,#51229c 65%,#1b0d40 100%);box-shadow:inset 7px 7px 15px #f2d5ff88,inset -12px -14px 24px #1d0649cc,15px 19px 25px #0009,0 0 38px #8c4beb7a;transform:rotate(-16deg) rotateY(-21deg);animation:pn-t5-object-float 5s ease-in-out infinite}
+ .pn-t5-diff-card:nth-child(2) .pn-t5-diff-object{border-radius:35% 65% 48% 52%;transform:rotate(24deg) rotateY(24deg);animation-delay:-1s}
+ .pn-t5-diff-card:nth-child(3) .pn-t5-diff-object{border-radius:19px;transform:rotate(18deg) rotateX(18deg);animation-delay:-2s}
+ .pn-t5-diff-card:nth-child(4) .pn-t5-diff-object{border-radius:50%;transform:rotate(-14deg) rotateY(-24deg);animation-delay:-3s}
+ .pn-t5-diff-glyph{font-size:53px;color:#f6e9ff;text-shadow:0 3px 13px #321065;font-weight:600}
+ .pn-t5-diff-card h3{font-size:clamp(21px,2vw,27px);letter-spacing:-.045em;line-height:1.18;margin:0 0 10px;color:#faf6ff}.pn-t5-diff-card p{font-size:14px;line-height:1.65;color:#cfc4de;margin:0}
+ @keyframes pn-t5-object-float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+ .pn-t5-process{background:radial-gradient(ellipse at 52% 60%,#401d7335,transparent 65%),#0b0918;border-top:1px solid #ffffff10}
+ .pn-t5-process-layout{display:block}.pn-t5-process-intro{max-width:850px}
+ .pn-t5-process-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:55px;perspective:1100px}
+ .pn-t5-process-step{position:relative;isolation:isolate;min-height:370px;padding:32px 28px;border:1px solid #b38bff47;border-radius:24px;background:linear-gradient(155deg,#201337,#0e0b1d 75%);box-shadow:0 22px 65px #0007,inset 0 1px #f3ddff20;overflow:hidden;transition:transform .3s ease,border-color .3s ease}
+ .pn-t5-process-step:nth-child(1){transform:translateY(20px) rotateY(7deg)}.pn-t5-process-step:nth-child(2){transform:translateY(-8px) scale(1.035);border-color:#bd8dff9c;z-index:2;background:radial-gradient(circle at 50% 34%,#6d39c455,transparent 55%),linear-gradient(145deg,#271640,#0d0a1c)}.pn-t5-process-step:nth-child(3){transform:translateY(20px) rotateY(-7deg)}
+ .pn-t5-process-step:hover{transform:translateY(-14px) scale(1.02);border-color:#d4b5ff}
+ .pn-t5-process-step:before{content:"";position:absolute;inset:auto -35px -120px;width:260px;height:260px;border:38px solid #a76bf426;border-radius:42%;transform:rotate(35deg);pointer-events:none;z-index:-1}
+ .pn-t5-process-step>span{font-size:11px;letter-spacing:.2em;color:#d0aeff}.pn-t5-process-art{height:155px;display:grid;place-items:center;font-size:90px;font-weight:800;letter-spacing:-.1em;color:#b57aff;text-shadow:0 0 42px #8c4ff3,4px 8px #2a124f}
+ .pn-t5-process-step h3{font-size:clamp(23px,2.4vw,32px);line-height:1.14;letter-spacing:-.05em;margin:12px 0}.pn-t5-process-step p{color:#cfc3e0;font-size:14px;line-height:1.7;margin:0}
+ @media(max-width:1000px){.pn-t5-diff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-t5-process-list{gap:14px}.pn-t5-process-step{padding:25px 20px}}
+ @media(max-width:700px){.pn-t5-process-list{grid-template-columns:1fr;gap:16px;margin-top:30px}.pn-t5-process-step,.pn-t5-process-step:nth-child(1),.pn-t5-process-step:nth-child(2),.pn-t5-process-step:nth-child(3){min-height:280px;transform:none}.pn-t5-process-art{height:100px;font-size:65px}}
+ @media(max-width:580px){.pn-t5-diff-grid{grid-template-columns:1fr;gap:14px;margin-top:30px}.pn-t5-diff-card{min-height:275px}.pn-t5-diff-art{height:120px}.pn-t5-diff-object{width:85px;height:85px}.pn-t5-diff-glyph{font-size:44px}}
+ @media(prefers-reduced-motion:reduce){.pn-t5-diff-object{animation:none}.pn-t5-diff-card,.pn-t5-process-step{transition:none}}
 
  .pn-t5-voices{background:radial-gradient(ellipse at 12% 48%,#50237a3a,transparent 55%),#0c0918;border-top:1px solid #ffffff13}
  .pn-t5-voices-shell{display:grid;grid-template-columns:minmax(0,1fr) 175px;gap:32px;align-items:end}
@@ -183,18 +195,16 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  <section id="sobre" className="pn-t5-about" aria-label="Sobre a empresa"><div className="pn-t5-wrap pn-t5-about-grid"><div className="pn-t5-about-copy"><span className="pn-t5-kicker">02 / Sobre a marca</span><h2>{d.about}</h2><div className="pn-t5-about-line"/><p>{summary?.trim()&&summary.trim().length<450?summary:d.description}</p><p>Conheça a proposta da {brand} e descubra como novas ideias podem se transformar em experiências digitais relevantes.</p></div><div className="pn-t5-about-art" aria-label="Escultura digital abstrata em violeta"><div className="pn-t5-sculpture"/><div className="pn-t5-art-caption"><span>{d.label}</span><span>Human + intelligence</span></div></div></div></section>
 
  <section id="diferenciais" className="pn-t5-diff" aria-label="Nossos diferenciais"><div className="pn-t5-wrap"><span className="pn-t5-kicker">03 / O que nos diferencia</span><h2>Uma nova perspectiva para cada desafio.</h2><p className="pn-t5-lead">O que torna a experiência da {brand} especial em {d.label.toLowerCase()}.</p><div className="pn-t5-diff-grid">{[
- ["Visão estratégica","Cada solução começa com entendimento do contexto, dos objetivos e das pessoas.","✧"],
- ["Criatividade aplicada","Ideias originais conectadas à realidade e às necessidades de cada projeto.","✳"],
- ["Tecnologia inteligente","Ferramentas e recursos digitais escolhidos para simplificar e evoluir.","⌘"],
- ["Experiência centrada em pessoas","Jornadas intuitivas, comunicação clara e atenção aos detalhes.","◈"],
- ["Evolução contínua","Acompanhamento das mudanças e espaço para melhorar cada entrega.","↗"],
- ["Soluções sob medida",`Abordagens alinhadas ao universo de ${d.label.toLowerCase()}, sem fórmulas genéricas.`,"✦"]
- ].map(([name,desc,glyph],i)=><article className="pn-t5-diff-card" key={name}><div><span className="pn-t5-diff-num">0{i+1} / 06</span><div className="pn-t5-diff-glyph" aria-hidden="true">{glyph}</div></div><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div></div></section>
- <section id="como-funciona" className="pn-t5-process" aria-label="Como funciona"><div className="pn-t5-wrap pn-t5-process-layout"><div className="pn-t5-process-intro"><span className="pn-t5-kicker">04 / Nossa jornada</span><h2>Do primeiro contato à próxima conquista.</h2><p className="pn-t5-lead">Uma jornada clara, colaborativa e adaptada às necessidades de cada projeto.</p></div><div className="pn-t5-process-list">{[
- ["Entendemos seu cenário",`Conversamos sobre os objetivos, desafios e oportunidades no universo de ${d.label.toLowerCase()}.`],
- ["Desenhamos a solução","Transformamos as prioridades em uma proposta com etapas, entregas e direcionamento visual."],
- ["Criamos e evoluímos","Colocamos o plano em prática, validamos os resultados e identificamos novas oportunidades de melhoria."]
- ].map(([name,desc],i)=><article className="pn-t5-process-step" key={name}><span>ETAPA 0{i+1}</span><h3>{name}</h3><p>{desc}</p></article>)}</div></div></section>
+ ["Estratégia conectada",`Decisões orientadas pelos objetivos reais de cada projeto em ${d.label.toLowerCase()}.`,"◇"],
+ ["Integração inteligente","Tecnologias e processos que trabalham juntos, com menos fricção.","✣"],
+ ["Soluções sob medida","Cada entrega considera as necessidades e a identidade de cada negócio.","▣"],
+ ["Evolução contínua","Uma visão de longo prazo, com espaço para aprender e aprimorar.","✦"]
+ ].map(([name,desc,glyph],i)=><article className="pn-t5-diff-card" key={name}><span className="pn-t5-diff-num">DIFERENCIAL 0{i+1}</span><div className="pn-t5-diff-art" aria-hidden="true"><div className="pn-t5-diff-object"><span className="pn-t5-diff-glyph">{glyph}</span></div></div><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div></div></section>
+ <section id="como-funciona" className="pn-t5-process" aria-label="Como trabalhamos"><div className="pn-t5-wrap pn-t5-process-layout"><div className="pn-t5-process-intro"><span className="pn-t5-kicker">04 / Nossa jornada</span><h2>Da primeira conversa à próxima conquista.</h2><p className="pn-t5-lead">Três etapas claras, com tecnologia, colaboração e atenção ao contexto de cada projeto.</p></div><div className="pn-t5-process-list">{[
+ ["Imersão & diagnóstico",`Entendemos os objetivos, o público e os desafios de ${d.label.toLowerCase()}.`],
+ ["Estratégia & criação","Desenhamos a solução, definimos as prioridades e construímos a experiência."],
+ ["Entrega & evolução","Validamos as entregas e identificamos oportunidades de melhoria contínua."]
+ ].map(([name,desc],i)=><article className="pn-t5-process-step" key={name}><span>ETAPA 0{i+1} / 03</span><div className="pn-t5-process-art" aria-hidden="true">0{i+1}</div><h3>{name}</h3><p>{desc}</p></article>)}</div></div></section>
 
  <section id="depoimentos" className="pn-t5-voices" aria-label="Nossa visão e compromisso"><div className="pn-t5-wrap"><span className="pn-t5-kicker">05 / Nossa filosofia</span><div className="pn-t5-voices-shell"><div aria-live="polite"><h2>O que orienta cada experiência.</h2><span className="pn-t5-kicker">{editorial[active].eyebrow}</span><p className="pn-t5-voices-quote">{editorial[active].quote}</p><p className="pn-t5-voices-credit">{editorial[active].caption} · {brand}</p><div className="pn-t5-voices-counter">0{active+1} / 03</div></div><div className="pn-t5-voices-controls"><button type="button" aria-label="Anterior" onClick={()=>setActive((active+editorial.length-1)%editorial.length)}>←</button><button type="button" aria-label="Próximo" onClick={()=>setActive((active+1)%editorial.length)}>→</button></div></div></div></section>
  <section id="portfolio" className="pn-t5-gallery" aria-label="Galeria de soluções"><div className="pn-t5-wrap"><span className="pn-t5-kicker">06 / Áreas de atuação</span><h2>Ideias em diferentes dimensões.</h2><p className="pn-t5-lead">Conheça as possibilidades que conectam tecnologia, estratégia e inovação em {d.label.toLowerCase()}.</p><div className="pn-t5-gallery-grid">{d.services.slice(0,3).map(([name,desc],i)=><article className="pn-t5-gallery-item" key={name}><span className="pn-t5-gallery-tag">Exploração 0{i+1}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div><p className="pn-t5-gallery-note">Apresentação conceitual. Substitua por cases, fotografias e resultados reais da marca quando disponíveis.</p></div></section>
