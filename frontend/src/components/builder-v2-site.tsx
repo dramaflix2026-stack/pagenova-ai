@@ -3,6 +3,7 @@ import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contr
 import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template6RetailHero } from "@/components/template6-retail-hero";
+import { Template7RealEstateHero } from "@/components/template7-real-estate-hero";
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
 import { Template6RetailStory } from "@/components/template6-retail-story";
 import { resolveTemplate6Niche } from "@/lib/template6-retail-niches";
@@ -67,10 +68,19 @@ const designPresets = [
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d")return <BuilderV2Immersive3D site={props.site}/>;
- // Estático 01/02 stay untouched. TP1–TP6 are internal visual families of Estático 03 only.
+ // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  const isWrittenBrief=activeStaticTemplate==="prompt-adaptive";
  const family=isWrittenBrief?(resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(props.site.blocks.filter(b=>b.type==="paragraph").slice(0,4).map(b=>b.text).join("\n"))||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))):undefined;
+ if(isWrittenBrief&&family===7){
+   const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+   const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+   const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
+   const rawWhatsapp=props.site.realEstateWhatsapp||props.site.footer?.whatsapp||"";
+   const whatsappDigits=rawWhatsapp.replace(/\D/g,"");
+   const contactHref=whatsappDigits.length>=10?"https://wa.me/"+whatsappDigits:(props.site.header?.ctaHref||"#contato");
+   return <div className="pn-t7-layout"><style>{`.pn-t7-layout .pn-t7-legacy > header{display:none!important}.pn-t7-layout .pn-t7-legacy section:first-of-type{display:none!important}`}</style><Template7RealEstateHero brand={props.site.header?.brand||props.site.title||"Imobiliária"} niche={props.site.niche||props.selectedNiche||"Imobiliárias"} headline={heading} description={intro} image={heroImage} properties={props.site.properties||[]} contactHref={contactHref}/><div className="pn-t7-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+ }
  const retailNiche=family===6?(resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||"Loja de roupas"):"";
  if(isWrittenBrief&&family===6){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
