@@ -51,6 +51,6 @@ export function Template8HospitalityHero({brand,niche,headline,description,image
   <div className="pn-t8-bottom"><div className="pn-t8-controls"><button type="button" aria-label="Destino anterior" onClick={()=>setSlide(x=>(x+photos.length-1)%photos.length)}>‹</button><span className="pn-t8-count">0{slide+1} / 0{photos.length}</span><button type="button" aria-label="Próximo destino" onClick={()=>setSlide(x=>(x+1)%photos.length)}>›</button></div><span className="pn-t8-scroll">Role para descobrir ↓</span></div>
  </section>
  <section className="pn-t8-next" id="tp8-experiencias">Cada destino tem uma história. A próxima pode ser a sua.</section>
- <section id="tp8-contato" style={{padding:"34px 22px",background:"#233332",textAlign:"center"}}><p style={{margin:"0 0 14px",fontSize:13}}>Seu próximo momento especial começa com uma conversa.</p><a className="pn-t8-primary" href={destination==="#tp8-contato"?"#inicio-tp8":destination}>{destination==="#tp8-contato"?"Informações de contato em configuração":"Falar com nossa equipe ↗"}</a></section>
+
  </div>;
 }
