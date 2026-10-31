@@ -136,20 +136,16 @@ const aliases:Record<string,string>={
  "ecommerce multimarcas":"E-commerce multimarcas"
 };
 export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
- const v=norm(niche||"");if(!v)return;
+ const v=norm(niche||"");if(!v)return undefined;
  const canonical=aliases[v]||niche;
- const found=BRIEFING_TEMPLATE_FAMILIES.find(f=>f.niches.some(n=>norm(n)===norm(canonical)));
- if(found)return found.id;
- // Accept descriptive niche labels such as "Boutique de moda feminina premium".
- const retailSignals=[
-  /\\b(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)\\b/,
-  /\\bmoda feminina\\b/,/\\bmoda masculina\\b/,/\\bjoalheria\\b/,/\\bsemijoias\\b/,
-  /\\bperfumaria\\b/,/\\bpet shop\\b/,/\\bfloricultura\\b/,/\\bpapelaria\\b/,/\\botica\\b/,
-  /\\be commerce multimarcas\\b/
- ];
- return retailSignals.some(rx=>rx.test(v))?6:undefined;
+ const exact=BRIEFING_TEMPLATE_FAMILIES.find(f=>f.niches.some(n=>norm(n)===norm(canonical)));
+ if(exact)return exact.id;
+ const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
+ if(retail.test(v))return 6;
+ return undefined;
 }
 export function resolveBriefingFamilyFromExplicitNiche(brief:string):BriefingFamilyId|undefined{
- const match=brief.match(/(?:^|\\n)\\s*(?:\\*\\*)?\\s*(?:nicho|segmento)\\s*(?:\\*\\*)?\\s*:\\s*([^\\n]+)/i);
- return match?resolveBriefingFamily(match[1].replace(/\\*\\*/g,"").trim()):undefined;
+ const line=brief.split(/\r?\n/).find(l=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(l));
+ if(!line)return undefined;
+ return resolveBriefingFamily(line.replace(/^.*?:/,"").replace(/\*\*/g,"").trim());
 }
