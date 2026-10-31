@@ -6,6 +6,7 @@ import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { Template9AutomotiveHero } from "@/components/template9-automotive-hero";
 import { Template9AutomotiveSections } from "@/components/template9-automotive-sections";
+import { Template9AutomotiveExperience } from "@/components/template9-automotive-experience";
 import { Template8HospitalitySections } from "@/components/template8-hospitality-sections";
 import { Template8HospitalityDiscover } from "@/components/template8-hospitality-discover";
 import { Template8HospitalityJourney } from "@/components/template8-hospitality-journey";
@@ -90,7 +91,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const phone=(props.site.footer?.whatsapp||"").replace(/\D/g,"");
    const email=props.site.footer?.email?.trim();
    const contactHref=phone.length>=10?"https://wa.me/"+phone:(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?"mailto:"+email:undefined);
-   return  <><Template9AutomotiveHero brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><Template9AutomotiveSections brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} contactHref={contactHref}/></>;
+   return  <><Template9AutomotiveHero brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><Template9AutomotiveSections brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} contactHref={contactHref}/><Template9AutomotiveExperience brand={props.site.header?.brand||props.site.title||"Automotivo"} niche={props.site.niche||props.selectedNiche||"Auto centers"} contactHref={contactHref}/></>;
  }
  if(isWrittenBrief&&family===8){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
