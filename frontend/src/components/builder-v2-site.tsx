@@ -91,7 +91,16 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
-   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage}/>;
+   // Only explicitly supplied, attributed testimonial blocks are eligible; never synthesize reviews.
+   const testimonials=props.site.blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avaliac|relato/i.test(b.section||"")).map(b=>{
+     const parts=(b.text||"").split(/\\s*\\|\\s*/).map(p=>p.trim()).filter(Boolean);
+     if(parts.length<3)return null;
+     const [name,role,...quote]=parts;
+     if(!name||!quote.join(" ").trim())return null;
+     const photo=props.site.blocks.find(p=>p.type==="image"&&p.section===b.section&&(p.forCardId===b.id||p.id===b.id+"-photo"))?.src;
+     return {name,role,quote:quote.join(" | "),photo};
+   }).filter((t):t is NonNullable<typeof t>=>t!==null);
+   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials}/>;
  }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
