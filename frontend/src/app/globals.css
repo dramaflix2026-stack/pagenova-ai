@@ -1858,3 +1858,15 @@ body footer.pn-builder-v2-footer .pn-builder-v2-footer-legal {
     gap:12px 24px !important;
   }
 }
+
+
+/* Premium, accessible scrollbars for PageNova pages and embedded site previews.
+   Native scrolling remains intact, including mouse, touch and keyboard. */
+:root{scrollbar-color:#64758b55 transparent;scrollbar-width:thin}
+html{scrollbar-gutter:stable}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#7d8ea68c,#53667c99);border:2px solid transparent;border-radius:999px;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#83dfe4,#a17ce8);background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}
+@media(max-width:767px){html{scrollbar-gutter:auto}::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{border:0;background:#7b8ba777}}
