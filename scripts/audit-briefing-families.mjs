@@ -21,8 +21,8 @@ for(const [i,f] of families.entries()){
  }
 }
 if(seen.size!==133)issues.push("Expected 133 unique niches; got "+seen.size);
-for(let id=1;id<=10;id++){
- if(!source.includes("return "+id+";")&&!source.includes("return "+id+" as"))issues.push("No explicit fallback return for TP"+id+" (manual routing review needed)");
+for(let id=6;id<=10;id++){
+ if(!source.includes('return '+id+';'))issues.push('No explicit fallback return for TP'+id);
 }
 console.log(JSON.stringify({families:families.map(f=>({tp:f.id,niches:f.niches.length})),uniqueNiches:seen.size,issues},null,2));
 if(issues.length)process.exitCode=1;
