@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import type {CSSProperties} from "react";
 type Props={brand:string;niche:string;summary?:string;email?:string;whatsapp?:string};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 function resolve(niche:string){
@@ -11,7 +12,6 @@ function resolve(niche:string){
 }
 export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}:Props){
  const d=resolve(niche);
- const [active,setActive]=useState(0);
  const [expanded,setExpanded]=useState<number|null>(0);
  const [contactStatus,setContactStatus]=useState("");
  const faqs=[
@@ -24,11 +24,6 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  const digits=(whatsapp||"").replace(/\D/g,"");
  const validEmail=Boolean(email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
  const validWhatsapp=digits.length>=10&&digits.length<=15;
- const editorial=[
- {eyebrow:"Experiência pensada para pessoas",quote:"Uma parceria de verdade começa quando cada ideia é ouvida, compreendida e transformada em possibilidades.",caption:"Nosso compromisso com cada projeto"},
- {eyebrow:"Clareza em cada etapa",quote:"Boas soluções nascem de conversas transparentes, decisões conscientes e uma jornada que faz sentido.",caption:"Nossa forma de trabalhar"},
- {eyebrow:"Evolução como princípio",quote:"O melhor resultado não é um ponto final. É uma base sólida para continuar construindo o futuro.",caption:"Nossa visão de longo prazo"}
- ];
  return <div className="pn-t5-sections"><style>{`
  .pn-t5-sections{background:#0a0815;color:#f7f3ff;font-family:Inter,Poppins,Arial,sans-serif;overflow:hidden}.pn-t5-sections *{box-sizing:border-box}
  .pn-t5-wrap{max-width:1320px;margin:auto;padding:clamp(85px,9vw,145px) clamp(20px,5vw,76px)}
@@ -80,31 +75,26 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  @media(max-width:580px){.pn-t5-diff-grid{grid-template-columns:1fr;gap:14px;margin-top:30px}.pn-t5-diff-card{min-height:275px}.pn-t5-diff-art{height:120px}.pn-t5-diff-object{width:85px;height:85px}.pn-t5-diff-glyph{font-size:44px}}
  @media(prefers-reduced-motion:reduce){.pn-t5-diff-object{animation:none}.pn-t5-diff-card,.pn-t5-process-step{transition:none}}
 
- .pn-t5-voices{background:radial-gradient(ellipse at 12% 48%,#50237a3a,transparent 55%),#0c0918;border-top:1px solid #ffffff13}
- .pn-t5-voices-shell{display:grid;grid-template-columns:minmax(0,1fr) 175px;gap:32px;align-items:end}
- .pn-t5-voices-quote{font-size:clamp(31px,4.4vw,64px);line-height:1.17;letter-spacing:-.055em;font-weight:600;max-width:990px;margin:45px 0 30px;text-wrap:balance}
- .pn-t5-voices-quote:before{content:"“";display:block;color:#ae77ff;font-size:90px;line-height:.65;margin-bottom:15px}
- .pn-t5-voices-credit{color:#bfa9dc;font-size:13px;letter-spacing:.08em;text-transform:uppercase}
- .pn-t5-voices-controls{display:flex;gap:12px;justify-content:flex-end;padding-bottom:8px}
- .pn-t5-voices-controls button{width:62px;height:62px;border-radius:50%;border:1px solid #b98aff66;background:#221434;color:#f6efff;font-size:24px;cursor:pointer;transition:background .2s}
- .pn-t5-voices-controls button:hover,.pn-t5-voices-controls button:focus-visible{background:#6736a4;outline:2px solid #c9a2ff;outline-offset:2px}
- .pn-t5-voices-counter{margin-top:35px;color:#a38ebd;font-size:12px;letter-spacing:.2em}
- .pn-t5-gallery{background:linear-gradient(160deg,#100b21,#090813);border-top:1px solid #ffffff12}
- .pn-t5-gallery-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;margin-top:45px}
- .pn-t5-gallery-item{position:relative;isolation:isolate;overflow:hidden;min-height:310px;border:1px solid #ffffff23;border-radius:22px;background:radial-gradient(circle at 76% 28%,#9c65f24b,transparent 42%),linear-gradient(135deg,#26143d,#0d0b19);padding:30px;display:flex;flex-direction:column;justify-content:space-between}
- .pn-t5-gallery-item{background-image:linear-gradient(180deg,#10091a35 0%,#0c091acc 78%,#090713f5 100%),url("https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85")!important;background-position:center!important;background-size:cover!important}
- .pn-t5-gallery-item:nth-child(2){background-image:linear-gradient(180deg,#10091a35,#090713ee),url("https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=85")!important}
- .pn-t5-gallery-item:nth-child(3){background-image:linear-gradient(180deg,#10091a35,#090713ee),url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=900&q=85")!important}
- .pn-t5-gallery-item>div{position:relative;z-index:2}.pn-t5-gallery-item:after{opacity:.25}
- .pn-t5-gallery-item:nth-child(1){grid-row:span 2;min-height:650px}.pn-t5-gallery-item:nth-child(3){background:radial-gradient(circle at 70% 20%,#6939d080,transparent 50%),#130e24}
- .pn-t5-gallery-item:after{content:"";position:absolute;z-index:-1;width:250px;height:250px;border:38px solid #c99bff4d;border-radius:38% 62% 55% 45%;right:-70px;top:25%;transform:rotate(35deg);box-shadow:0 0 65px #a15aff3b}
- .pn-t5-gallery-item:nth-child(2):after{border-radius:50%;border-width:60px}.pn-t5-gallery-item:nth-child(3):after{border-radius:15%;transform:rotate(55deg)}
- .pn-t5-gallery-tag{align-self:flex-start;padding:9px 13px;border:1px solid #d2aaff66;border-radius:999px;background:#0b081b88;color:#e2d2ff;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
- .pn-t5-gallery-item h3{font-size:clamp(27px,3vw,43px);letter-spacing:-.055em;line-height:1.12;margin:0 0 10px}.pn-t5-gallery-item p{font-size:14px;line-height:1.7;color:#d2c5e5;max-width:340px;margin:0}
- .pn-t5-gallery-note{color:#a89cbd;font-size:12px;line-height:1.6;margin-top:20px}
- @media(max-width:850px){.pn-t5-voices-shell{grid-template-columns:1fr}.pn-t5-voices-controls{justify-content:flex-start}.pn-t5-gallery-item:nth-child(1){min-height:460px}}
- @media(max-width:580px){.pn-t5-gallery-grid{grid-template-columns:1fr;gap:13px;margin-top:30px}.pn-t5-gallery-item,.pn-t5-gallery-item:nth-child(1){grid-row:auto;min-height:320px;padding:25px}.pn-t5-voices-controls button{width:52px;height:52px}}
-
+ .pn-t5-voices{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 52% 52%,#4d218057,transparent 52%),#080711;border-top:1px solid #ffffff12}
+ .pn-t5-voices:before{content:"";position:absolute;width:520px;height:520px;border:1px solid #b886ff2b;border-radius:50%;right:-170px;top:0;box-shadow:0 0 0 70px #9a54eb08,0 0 0 145px #9a54eb07;pointer-events:none}
+ .pn-t5-voices-shell{position:relative;max-width:1050px;padding:35px 0 20px}
+ .pn-t5-voices-manifesto{font-size:clamp(40px,7.1vw,105px);font-weight:760;line-height:1.03;letter-spacing:-.075em;color:#f7f1ff;margin:40px 0 34px;text-wrap:balance}
+ .pn-t5-voices-manifesto em{font-style:normal;color:#c496ff;text-shadow:0 0 55px #9244ed69}
+ .pn-t5-voices-credit{font-size:13px;line-height:1.8;color:#c9b8df;max-width:660px}
+ .pn-t5-voices-rule{height:1px;max-width:750px;background:linear-gradient(90deg,#c18aff99,#b17aff10);margin:45px 0 25px}
+ .pn-t5-voices-bottom{display:flex;align-items:center;gap:20px;justify-content:space-between;color:#b39bcf;font-size:11px;letter-spacing:.17em;text-transform:uppercase}
+ .pn-t5-gallery{background:linear-gradient(155deg,#0d0a1c,#080712);border-top:1px solid #ffffff14}
+ .pn-t5-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px;margin-top:48px}
+ .pn-t5-gallery-item{position:relative;isolation:isolate;overflow:hidden;min-height:400px;border:1px solid #aa80e94a;border-radius:23px;background:#1c1430;display:flex;flex-direction:column;justify-content:space-between;padding:28px;transition:transform .3s ease,border-color .3s ease}
+ .pn-t5-gallery-item:hover{transform:translateY(-6px);border-color:#c69dffb0}
+ .pn-t5-gallery-item:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#0c071733 10%,#09071350 40%,#090713f5 100%),var(--pn-t5-gallery-image) center/cover no-repeat;filter:saturate(.7)}
+ .pn-t5-gallery-item:after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(circle at 75% 15%,#8e3af03d,transparent 55%)}
+ .pn-t5-gallery-item:nth-child(1){min-height:490px}.pn-t5-gallery-item:nth-child(2){margin-top:48px}.pn-t5-gallery-item:nth-child(3){margin-top:-48px}.pn-t5-gallery-item:nth-child(4){min-height:490px}
+ .pn-t5-gallery-tag{align-self:flex-start;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#e5d3ff;border:1px solid #dfc3ff65;border-radius:100px;padding:10px 14px;background:#140b2799}
+ .pn-t5-gallery-item h3{font-size:clamp(26px,3vw,39px);line-height:1.13;letter-spacing:-.05em;margin:0 0 12px;color:#fff}.pn-t5-gallery-item p{font-size:14px;line-height:1.7;color:#ded4e9;margin:0;max-width:440px}
+ .pn-t5-gallery-note{font-size:12px;line-height:1.7;color:#ad9ac7;margin-top:25px}
+ @media(max-width:700px){.pn-t5-gallery-grid{grid-template-columns:1fr;gap:15px;margin-top:30px}.pn-t5-gallery-item,.pn-t5-gallery-item:nth-child(1),.pn-t5-gallery-item:nth-child(4){min-height:330px}.pn-t5-gallery-item:nth-child(2),.pn-t5-gallery-item:nth-child(3){margin-top:0}.pn-t5-voices-manifesto{margin:30px 0}}
+ @media(prefers-reduced-motion:reduce){.pn-t5-gallery-item{transition:none}}
  .pn-t5-faq{background:linear-gradient(150deg,#0d091a,#130c24);border-top:1px solid #ffffff14}
  .pn-t5-faq-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:clamp(35px,6vw,90px);align-items:start}
  .pn-t5-faq-list{border-top:1px solid #ffffff35}
@@ -206,8 +196,8 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  ["Entrega & evolução","Validamos as entregas e identificamos oportunidades de melhoria contínua."]
  ].map(([name,desc],i)=><article className="pn-t5-process-step" key={name}><span>ETAPA 0{i+1} / 03</span><div className="pn-t5-process-art" aria-hidden="true">0{i+1}</div><h3>{name}</h3><p>{desc}</p></article>)}</div></div></section>
 
- <section id="depoimentos" className="pn-t5-voices" aria-label="Nossa visão e compromisso"><div className="pn-t5-wrap"><span className="pn-t5-kicker">05 / Nossa filosofia</span><div className="pn-t5-voices-shell"><div aria-live="polite"><h2>O que orienta cada experiência.</h2><span className="pn-t5-kicker">{editorial[active].eyebrow}</span><p className="pn-t5-voices-quote">{editorial[active].quote}</p><p className="pn-t5-voices-credit">{editorial[active].caption} · {brand}</p><div className="pn-t5-voices-counter">0{active+1} / 03</div></div><div className="pn-t5-voices-controls"><button type="button" aria-label="Anterior" onClick={()=>setActive((active+editorial.length-1)%editorial.length)}>←</button><button type="button" aria-label="Próximo" onClick={()=>setActive((active+1)%editorial.length)}>→</button></div></div></div></section>
- <section id="portfolio" className="pn-t5-gallery" aria-label="Galeria de soluções"><div className="pn-t5-wrap"><span className="pn-t5-kicker">06 / Áreas de atuação</span><h2>Ideias em diferentes dimensões.</h2><p className="pn-t5-lead">Conheça as possibilidades que conectam tecnologia, estratégia e inovação em {d.label.toLowerCase()}.</p><div className="pn-t5-gallery-grid">{d.services.slice(0,3).map(([name,desc],i)=><article className="pn-t5-gallery-item" key={name}><span className="pn-t5-gallery-tag">Exploração 0{i+1}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div><p className="pn-t5-gallery-note">Apresentação conceitual. Substitua por cases, fotografias e resultados reais da marca quando disponíveis.</p></div></section>
+ <section id="depoimentos" className="pn-t5-voices" aria-label="Nossa filosofia"><div className="pn-t5-wrap"><span className="pn-t5-kicker">05 / Nossa filosofia</span><div className="pn-t5-voices-shell"><h2 className="pn-t5-voices-manifesto">O futuro não se espera.<br/><em>Ele se constrói.</em></h2><p className="pn-t5-voices-credit">Na {brand}, acreditamos em ideias que conectam pessoas, estratégia e tecnologia. Em {d.label.toLowerCase()}, nossa visão é transformar complexidade em possibilidades reais, com clareza e responsabilidade.</p><div className="pn-t5-voices-rule"/><div className="pn-t5-voices-bottom"><span>Manifesto da marca</span><span>{d.label} · {brand}</span></div></div></div></section>
+ <section id="portfolio" className="pn-t5-gallery" aria-label="Áreas de atuação e soluções conceituais"><div className="pn-t5-wrap"><span className="pn-t5-kicker">06 / Possibilidades em destaque</span><h2>Ideias em diferentes dimensões.</h2><p className="pn-t5-lead">Quatro frentes de atuação em {d.label.toLowerCase()}, apresentadas visualmente para explorar possibilidades — sem atribuir projetos ou resultados fictícios à {brand}.</p><div className="pn-t5-gallery-grid">{d.services.slice(0,4).map(([name,desc],i)=><article className="pn-t5-gallery-item" key={name} style={{"--pn-t5-gallery-image":`url("${["https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1100&q=85","https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1100&q=85","https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1100&q=85","https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1100&q=85"][i]}")`} as CSSProperties}><span className="pn-t5-gallery-tag">Área de atuação 0{i+1}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div><p className="pn-t5-gallery-note">Imagens ilustrativas e apresentação conceitual. Não representam trabalhos executados, clientes ou resultados comprovados.</p></div></section>
 
  <section id="perguntas-frequentes" className="pn-t5-faq" aria-label="Perguntas frequentes"><div className="pn-t5-wrap pn-t5-faq-layout"><div><span className="pn-t5-kicker">07 / Perguntas frequentes</span><h2>Respostas claras. Novas possibilidades.</h2><p className="pn-t5-lead">Tudo o que você precisa saber para iniciar uma conversa com a {brand}.</p></div><div className="pn-t5-faq-list">{faqs.map(([question,answer],i)=><div className="pn-t5-faq-item" key={question}><h3 style={{margin:0}}><button className="pn-t5-faq-trigger" type="button" aria-expanded={expanded===i} aria-controls={`pn-t5-faq-answer-${i}`} onClick={()=>setExpanded(expanded===i?null:i)}><span>{question}</span><span aria-hidden="true">{expanded===i?"−":"+"}</span></button></h3><p id={`pn-t5-faq-answer-${i}`} className="pn-t5-faq-answer" hidden={expanded!==i}>{answer}</p></div>)}</div></div></section>
  <section id="contato" className="pn-t5-contact" aria-label="Entre em contato"><div className="pn-t5-wrap pn-t5-contact-layout"><div><span className="pn-t5-kicker">08 / Vamos conversar</span><h2>O próximo capítulo começa aqui.</h2><p className="pn-t5-lead">Conte sua ideia para a {brand}. Vamos explorar as possibilidades de {d.label.toLowerCase()} para seu projeto.</p></div><div className="pn-t5-contact-panel"><form onSubmit={e=>{e.preventDefault();const data=new FormData(e.currentTarget);const name=String(data.get("name")||"").trim();const sender=String(data.get("sender")||"").trim();const message=String(data.get("message")||"").trim();if(!name||!sender||!message)return;const body=`Olá, sou ${name}. Meu contato: ${sender}.\n\n${message}`;if(validWhatsapp){window.open(`https://wa.me/${digits}?text=${encodeURIComponent(body)}`,"_blank","noopener,noreferrer");setContactStatus("O WhatsApp foi aberto com sua mensagem. Confirme o envio no aplicativo.");}else if(validEmail){window.location.href=`mailto:${email}?subject=${encodeURIComponent("Contato pelo site — "+brand)}&body=${encodeURIComponent(body)}`;setContactStatus("Seu aplicativo de e-mail foi aberto. Confirme o envio por lá.");}}}><label htmlFor="pn-t5-contact-name">Seu nome</label><input id="pn-t5-contact-name" name="name" autoComplete="name" required placeholder="Como podemos chamar você?"/><label htmlFor="pn-t5-contact-sender">E-mail ou telefone</label><input id="pn-t5-contact-sender" name="sender" required placeholder="Seu melhor contato"/><label htmlFor="pn-t5-contact-message">Conte sobre seu projeto</label><textarea id="pn-t5-contact-message" name="message" required placeholder="O que você gostaria de construir?"/><button type="submit" disabled={!validWhatsapp&&!validEmail}>Iniciar conversa ↗</button><p className="pn-t5-contact-hint" role="status">{contactStatus||(!validWhatsapp&&!validEmail?"Configure o WhatsApp ou e-mail da empresa para habilitar o envio.":"A mensagem será preparada no seu WhatsApp ou aplicativo de e-mail. O envio depende da sua confirmação.")}</p></form></div></div></section>
