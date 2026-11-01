@@ -312,3 +312,7 @@
   -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
 }
 .tp1-new .tp1-new-visual.tp1-burger-clean img{-webkit-mask-image:none!important;mask-image:none!important}
+
+
+/* Actual edge-connected dark-pixel removal is performed by the TP1 canvas cutout. */
+.tp1-new .tp1-new-visual.tp1-burger-feather img{-webkit-mask-image:none!important;mask-image:none!important;mix-blend-mode:normal!important;filter:none!important}
