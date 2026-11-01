@@ -3,7 +3,7 @@ import {useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-hero.css";
 const mediaBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
-const images=["f8eada23-211a-47a7-b96f-6d3bf2d2c217","d96c66fe-0e41-4edf-b1aa-facbcbfbe420","a33f5384-69b3-4be1-883d-9e8732ab98c2"];
+const images=["immersive-3d/hamburgueria/desktop-01aba17a-3ca1-406e-b6f2-71a457c03bec","immersive-3d/hamburgueria/desktop-cbfeb17f-adcd-4f0c-b41b-d5ee31be6a1c","immersive-3d/hamburgueria/desktop-1b29a80f-521e-4528-931d-6de86e26136d"];
 export function BuilderV2TP1Hero({site}:{site:BuilderV2SiteData}){
  const [active,setActive]=useState(0);
  const brand=site.header?.brand||site.title||"Burger";
