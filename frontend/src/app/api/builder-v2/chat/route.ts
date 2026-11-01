@@ -529,14 +529,20 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         .filter(price=>!generatedCopy.includes(price));
       if(missingPrices.length&&adaptiveBrief){
         const pricing=sections.find(x=>/plan|investimento|preco/i.test(x.id));
-        if(!pricing)throw new Error("missing-requested-pricing-section");
-        const cards=mutableBlocks.filter(b=>b.section===pricing.id&&b.type==="paragraph");
-        // Repair a missing price inside its card, never as a detached price card.
-        for(const price of missingPrices){
-          const index=priceMatches.findIndex(match=>normalizePrices(match[0])===price);
-          const card=cards[index];
-          if(!card)throw new Error("missing-plan-card-for-price:"+price);
-          card.text=String(card.text||"")+" — "+price;
+        // Property listing prices are not subscription-plan prices. The TP7 renderer
+        // owns property cards, so do not reject a real-estate briefing for lacking
+        // an unrelated pricing/plans section.
+        const realEstateBrief=/(?:^|\n)\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:\s*(?:imobili[aá]ri|corretor(?:a)? de im[oó]veis|im[oó]veis|incorporador|condom[ií]nios|empreendimentos)/im.test(instruction)||/TP\s*7\b|fam[ií]lia visual\s*:\s*TP\s*7/i.test(instruction);
+        if(!pricing&&!realEstateBrief)throw new Error("missing-requested-pricing-section");
+        if(pricing){
+          const cards=mutableBlocks.filter(b=>b.section===pricing.id&&b.type==="paragraph");
+          // Repair missing plan prices only when a real pricing section exists.
+          for(const price of missingPrices){
+            const index=priceMatches.findIndex(match=>normalizePrices(match[0])===price);
+            const card=cards[index];
+            if(!card)throw new Error("missing-plan-card-for-price:"+price);
+            card.text=String(card.text||"")+" — "+price;
+          }
         }
       }else if(missingPrices.length)throw new Error("missing-requested-prices:"+missingPrices.join(","));
 
