@@ -369,3 +369,27 @@
  .tp1-new .tp1-new-menu-photo>img{width:86%!important;max-width:86%;transform:translate3d(0,0,0) rotateX(var(--menu-rx,0deg)) rotateY(var(--menu-ry,0deg)) scale(.94)!important;transform-origin:50% 50%}
  .tp1-new .tp1-new-menu-photo.tp1-menu-touch-active>img{transition:transform .12s ease-out!important}
 }
+
+
+/* Immersive differentiation section: separate perspective layers without altering composition. */
+.tp1-new .tp1-diff-immersive .tp1-diff-masthead{perspective:1100px;transform-style:preserve-3d;touch-action:pan-y}
+.tp1-new .tp1-diff-immersive .tp1-diff-title-first{transform:translate3d(calc(var(--diff-x,0) * -7px),calc(var(--diff-y,0) * -4px),12px) translateX(-3%);transition:transform .25s ease-out}
+.tp1-new .tp1-diff-immersive .tp1-diff-title-second{transform:translate3d(calc(var(--diff-x,0) * 9px),calc(var(--diff-y,0) * 5px),26px) translateX(2%);transition:transform .25s ease-out}
+.tp1-new .tp1-diff-immersive .tp1-diff-seal{translate:calc(var(--diff-x,0) * 13px) calc(var(--diff-y,0) * -10px);transition:translate .25s ease-out}
+.tp1-new .tp1-diff-immersive .tp1-diff-side-left{translate:calc(var(--diff-x,0) * -15px) calc(var(--diff-y,0) * 8px)}
+.tp1-new .tp1-diff-immersive .tp1-diff-side-right{translate:calc(var(--diff-x,0) * 15px) calc(var(--diff-y,0) * -8px)}
+.tp1-new .tp1-diff-immersive .tp1-diff-side-photo{transition:translate .25s ease-out}
+@keyframes tp1-diff-seal-float{0%,100%{rotate:-3deg}50%{rotate:5deg}}
+@media(prefers-reduced-motion:no-preference){
+ .tp1-new .tp1-diff-immersive .tp1-diff-seal{animation:tp1-diff-seal-float 5.5s ease-in-out infinite}
+ .tp1-new .tp1-diff-immersive .tp1-diff-photos figure img{transition:transform .7s ease,filter .7s ease}
+}
+@media(max-width:760px){
+ .tp1-new .tp1-diff-immersive .tp1-diff-tabs{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:14px;row-gap:10px;padding:17px 8px;overflow:visible}
+ .tp1-new .tp1-diff-immersive .tp1-diff-tabs span{flex:0 1 auto;white-space:normal;font-size:clamp(9px,2.4vw,12px);line-height:1.4;letter-spacing:0;text-align:center}
+ .tp1-new .tp1-diff-immersive .tp1-diff-masthead{overflow:visible}
+}
+@media(prefers-reduced-motion:reduce){
+ .tp1-new .tp1-diff-immersive .tp1-diff-title-first,.tp1-new .tp1-diff-immersive .tp1-diff-title-second{transition:none!important}
+ .tp1-new .tp1-diff-immersive .tp1-diff-seal{animation:none!important}
+}
