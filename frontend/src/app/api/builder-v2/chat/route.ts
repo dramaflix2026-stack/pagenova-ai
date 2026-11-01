@@ -154,11 +154,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         sections.push({id,layout,goal:"Seção adicional solicitada pelo cliente: "+title+". "+goal+". Inclua heading e conteúdo completo; respeite dados, preços, quantidades e links fornecidos, sem inventar informações."});
         existingSectionIds.add(id);
       }
-      // The section-planning model can omit an explicitly requested team section.
-      // Recover it from the original brief before generating section content.
-      if(adaptiveBrief && /(?:^|\\n)\\s*(?:\\d+[.)]\\s*|[-*]\\s*)?(?:\\*\\*)?(?:nossa equipe|equipe m[eé]dica|equipe de profissionais)(?:\\*\\*)?\\s*[:—–-]/im.test(instruction)
-        && !sections.some(section=>/equipe|profissionai|time/i.test(section.id))){
-        sections.push({id:"equipe",layout:"grid",goal:"Nossa equipe: apresentar quatro perfis profissionais ilustrativos, sem inventar nomes, registros ou qualificações reais. Cada perfil deve ter heading e paragraph próprios, claramente marcados como ilustrativos."});
+      // The section planner is probabilistic; the explicit briefing contract is not.
+      // A requested team section must exist even if the planner omits it or uses
+      // a nonstandard label. Use the same count detector as final validation.
+      if(adaptiveBrief && briefCounts.has("equipe")
+        && !sections.some(section=>/equipe|profissionai|time|staff|team/i.test(section.id+" "+section.goal))){
+        sections.push({id:"equipe",layout:"grid",goal:"Nossa equipe: apresentar exatamente "+(briefCounts.get("equipe")||4)+" perfis profissionais ilustrativos, sem inventar nomes, registros ou qualificações reais. Cada perfil deve ter conteúdo próprio e identificação como exemplo ilustrativo."});
       }
       if(adaptiveBrief){
         // Place extra sections in their semantic position rather than after Contact.
@@ -549,7 +550,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         const aliases:Record<string,RegExp>={
           servicos:/servic|tratament|atividade/,diferenciais:/diferencia/,
           processo:/processo|etapas|passos|funciona/,modalidades:/modalidad/,
-          equipe:/equipe|profissionai|instrutor|treinador/,planos:/planos|precos|pricing/,
+          equipe:/equipe|profissionai|instrutor|treinador|time|staff|team/,planos:/planos|precos|pricing/,
           depoimentos:/depoiment|testemunh/,faq:/faq|pergunt/
         };
         for(const [name,count] of requestedCounts){
