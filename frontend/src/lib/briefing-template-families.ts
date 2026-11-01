@@ -135,7 +135,7 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
 export type BriefingFamilyId = 1|2|3|4|5|6|7|8|9|10;
 const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const aliases:Record<string,string>={
- "moda feminina":"Loja de roupas","moda masculina":"Loja de roupas","boutique de moda":"Loja de roupas","boutique feminina":"Loja de roupas",
+ "moda feminina":"Loja de roupas","moda masculina":"Loja de roupas","moda e acessorios premium":"Loja de roupas","moda e acessorios":"Loja de roupas","moda e acessorios de luxo":"Loja de roupas","marca de moda":"Loja de roupas","marca de moda e acessorios":"Loja de roupas","boutique de moda":"Loja de roupas","boutique feminina":"Loja de roupas",
  "calcados":"Loja de calçados","joalheria":"Joalheria e semijoias","semijoias":"Joalheria e semijoias",
  "cosmeticos":"Perfumaria e cosméticos","perfumaria":"Perfumaria e cosméticos",
  "eletronicos":"Loja de eletrônicos","celulares":"Loja de celulares e acessórios",
