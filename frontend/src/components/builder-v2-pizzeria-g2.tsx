@@ -67,6 +67,26 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       <a className="g2-essence-cta" href={order}>Viva essa experiência <span aria-hidden="true">↗</span></a>
     </div>
   </section>
+  <section className="g2-process" aria-labelledby="g2-process-title">
+    <div className="g2-process-intro"><span className="g2-process-kicker">04 / NOSSO PROCESSO</span><h2 id="g2-process-title">O segredo do <em>nosso sabor.</em></h2><p>Uma jornada artesanal em três momentos. Do primeiro toque na massa até o calor do forno.</p></div>
+    <div className="g2-process-stages">
+      <article className="g2-process-stage g2-process-stage-featured">
+        <div className="g2-process-photo"><img src="https://www.gardenahotels.com/typo3temp/_processed_/csm_Medel-restaurant-pizza-gardenahotels-Dolomites-lunch-dinner-bar-pizzeria-meat-grill-dry_age-homemade-wholemeal_f9365b29f3.jpg" alt="Mãos abrindo a massa artesanal com farinha suspensa no ar" loading="lazy"/></div>
+        <div className="g2-process-gradient"/>
+        <div className="g2-process-caption"><span>01 <i/> O COMEÇO</span><h3>A massa é a alma.</h3><p>O cuidado começa nas mãos, com tempo, textura e dedicação em cada movimento.</p></div>
+      </article>
+      <article className="g2-process-stage">
+        <div className="g2-process-photo"><img src="https://images.pexels.com/photos/1435907/pexels-photo-1435907.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Ingredientes frescos selecionados para preparar a pizza" loading="lazy"/></div>
+        <div className="g2-process-gradient"/>
+        <div className="g2-process-caption"><span>02 <i/> A ESCOLHA</span><h3>Ingredientes que inspiram.</h3><p>Sabores, aromas e combinações escolhidos para criar uma experiência especial.</p></div>
+      </article>
+      <article className="g2-process-stage">
+        <div className="g2-process-photo"><img src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Pizza assada com borda dourada" loading="lazy"/></div>
+        <div className="g2-process-gradient"/>
+        <div className="g2-process-caption"><span>03 <i/> O GRANDE FINAL</span><h3>O calor transforma.</h3><p>É no forno que o trabalho artesanal ganha aroma, cor e personalidade.</p></div>
+      </article>
+    </div>
+  </section>
   <div id="contato"/>
   </main>
  </div>;
