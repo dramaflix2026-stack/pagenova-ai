@@ -1,5 +1,5 @@
-import {template10Photo} from "@/components/template10-education-sections";
 "use client";
+import {template10Photo} from "@/components/template10-education-sections";
 import {useState} from "react";
 type Props={niche:string;brand:string;contact?:{email?:string;phone?:string;address?:string;hours?:string}};
 const n=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
