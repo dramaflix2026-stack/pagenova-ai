@@ -993,13 +993,14 @@ export default function BuilderV2() {
       setMessages(prev=>[...prev,{role:"assistant",text:"Não consegui identificar uma edição localizada segura para esse pedido. Nenhuma alteração foi aplicada."}]);
       setInstruction("");setBusy(false);return;
     }
-    const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:(?:um|uma|novo|nova)\s+)?(?:site|pagina|página|landing page)\b/i.test(prompt);
+    const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:(?:um|uma|novo|nova|totalmente|projeto|do zero)\s+){0,5}(?:site|pagina|página|landing page|projeto)\b/i.test(prompt)||/(?:projeto totalmente novo|gerar um novo site|criar um novo site|não copiar textos|nao copiar textos)/i.test(prompt);
     const targetKind:SiteCategory=siteCategory;
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
     const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
-    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:undefined;
+    const inferredNiche=/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
+    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(explicitNiche||inferredNiche);
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
