@@ -335,7 +335,7 @@
  .tp1-new .tp1-hero-depth:active{animation-play-state:paused}
 }
 @media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth>img{animation:none!important}}
-\n@media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth{animation:none!important}}\n
+
 
 /* Fix mobile 3D: float the wrapper, not the image, so touch tilt's transform is never overridden. */
 @media(hover:none) and (pointer:coarse){
