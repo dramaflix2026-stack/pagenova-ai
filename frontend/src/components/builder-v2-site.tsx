@@ -1,6 +1,5 @@
 "use client";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
-import { BuilderV2Immersive3D } from "@/components/builder-v2-immersive-3d";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template5AIFuturistHero } from "@/components/template5-ai-futurist-hero";
@@ -85,7 +84,7 @@ const designPresets = [
 ] as const;
 
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
- if(props.site.cinematic?.mode==="immersive-3d"){const variant=String((props.site.extras as Record<string,unknown>|undefined)?.immersive3dTemplate||"universal");return <BuilderV2TP1Hero site={props.site}/>;}
+ if(props.site.cinematic?.mode==="immersive-3d"){return <BuilderV2TP1Hero site={props.site}/>;}
  // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  // Explicitly selected static templates 01/02 must retain their own renderers.
