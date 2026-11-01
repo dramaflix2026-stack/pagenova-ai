@@ -1902,3 +1902,13 @@ html{scrollbar-gutter:stable}
 .pn-clinic-footer[class*="bg-[#f8f5f0]"] span { -webkit-text-fill-color:initial; }
 .pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f6ecdd\]\/75 { color:#62564e !important; }
 .pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f6ecdd\]\/55 { color:#827266 !important; }
+
+
+.pn-clinic-footer.pn-editorial-footer { background-color:#f8f5f0!important;color:#493a31!important;border-color:#d8c6b4!important; }
+.pn-clinic-footer.pn-editorial-footer h3,
+.pn-clinic-footer.pn-editorial-footer p,
+.pn-clinic-footer.pn-editorial-footer span,
+.pn-clinic-footer.pn-editorial-footer nav,
+.pn-clinic-footer.pn-editorial-footer a { color:#493a31!important; }
+.pn-clinic-footer.pn-editorial-footer a:hover { color:#8d6b42!important; }
+.pn-clinic-footer.pn-editorial-footer > div > div > div:last-child { border-color:#d8c6b4; }
