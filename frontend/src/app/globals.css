@@ -1889,3 +1889,16 @@ html{scrollbar-gutter:stable}
 [data-pn-composition="luxury-editorial-testimonials"] blockquote footer { background: transparent !important; color: #493a31 !important; }
 [data-pn-composition="luxury-editorial-testimonials"] blockquote footer span { color: #493a31 !important; }
 [data-pn-composition="luxury-editorial-testimonials"] blockquote footer span span:last-child { color: #75685d !important; }
+
+
+/* Editorial wellness footer: light brand palette with readable typography. */
+.pn-clinic-footer:has(a[href="#inicio"]) { color:#493a31; }
+.pn-clinic-footer.bg-\[\#f8f5f0\] { background:#f8f5f0; }
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f8eee0\],
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f6ecdd\] { color:#493a31 !important; }
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] a,
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] p,
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] h3,
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] span { -webkit-text-fill-color:initial; }
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f6ecdd\]\/75 { color:#62564e !important; }
+.pn-clinic-footer[class*="bg-[#f8f5f0]"] .text-\[\#f6ecdd\]\/55 { color:#827266 !important; }
