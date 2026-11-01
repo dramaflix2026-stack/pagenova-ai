@@ -26,7 +26,7 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
    <div className="g2-hero-shade" aria-hidden="true"/>
    <div className="g2-hero-content"><span className="g2-kicker">TRADIÇÃO · FORNO · PAIXÃO</span><h1>{title}</h1><p>{subtitle}</p><a className="g2-hero-cta" href="#produtos">Explorar cardápio <span aria-hidden="true">→</span></a></div>
   </section>
-  <section id="produtos" className="g2-next-section"><span>✳ NOSSO CARDÁPIO</span><h2>Sabores que contam histórias.</h2><p>Próxima seção em desenvolvimento.</p></section>
+  <div id="produtos" aria-hidden="true"/>
   <div id="sobre"/><div id="contato"/>
   </main>
  </div>;
