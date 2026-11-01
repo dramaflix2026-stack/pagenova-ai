@@ -1,5 +1,5 @@
-import {template10Photo} from "@/components/template10-education-sections";
 "use client";
+import {template10Photo} from "@/components/template10-education-sections";
 import {useState} from "react";
 import {Template10EducationSections} from "@/components/template10-education-sections";
 import {Template10EducationExperience} from "@/components/template10-education-experience";
