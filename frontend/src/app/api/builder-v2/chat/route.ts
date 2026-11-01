@@ -154,6 +154,12 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         sections.push({id,layout,goal:"Seção adicional solicitada pelo cliente: "+title+". "+goal+". Inclua heading e conteúdo completo; respeite dados, preços, quantidades e links fornecidos, sem inventar informações."});
         existingSectionIds.add(id);
       }
+      // The section-planning model can omit an explicitly requested team section.
+      // Recover it from the original brief before generating section content.
+      if(adaptiveBrief && /(?:^|\\n)\\s*(?:\\d+[.)]\\s*|[-*]\\s*)?(?:\\*\\*)?(?:nossa equipe|equipe m[eé]dica|equipe de profissionais)(?:\\*\\*)?\\s*[:—–-]/im.test(instruction)
+        && !sections.some(section=>/equipe|profissionai|time/i.test(section.id))){
+        sections.push({id:"equipe",layout:"grid",goal:"Nossa equipe: apresentar quatro perfis profissionais ilustrativos, sem inventar nomes, registros ou qualificações reais. Cada perfil deve ter heading e paragraph próprios, claramente marcados como ilustrativos."});
+      }
       if(adaptiveBrief){
         // Place extra sections in their semantic position rather than after Contact.
         // The editor's subsequent section moves remain authoritative.
