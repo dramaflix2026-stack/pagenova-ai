@@ -64,3 +64,24 @@
 .g2-hero-image{height:70%;inset:auto -1% 0 -1%;width:102%}
 .g2-hero-image img{object-position:72% 46%}
 }
+
+/* Layered 2.5D pizza hero: independent motion, masked lifted slice, warm ambience. */
+.g2-hero-aura{position:absolute;z-index:-2;right:0;bottom:4%;width:65%;height:68%;pointer-events:none;background:radial-gradient(ellipse at 70% 52%,#e05b152b 0%,#9a270b0c 43%,transparent 72%);animation:g2-aura-breathe 7s ease-in-out infinite}
+.g2-hero-foreground{position:absolute;inset:0 0 0 32%;z-index:-1;overflow:hidden;pointer-events:none;clip-path:polygon(45% 0,100% 0,100% 69%,77% 69%,68% 54%,52% 45%,45% 35%);filter:drop-shadow(-18px 18px 24px #0008)}
+.g2-hero-foreground img{width:100%;height:100%;display:block;object-fit:cover;object-position:54% center;transform:translate3d(0,0,0) scale(1.075);animation:g2-slice-depth 7s ease-in-out infinite}
+.g2-hero-image img{animation:g2-base-depth 10s ease-in-out infinite}
+.g2-hero-content{animation:g2-copy-enter .9s ease-out both}
+@keyframes g2-base-depth{0%,100%{transform:scale(1.025) translateY(0)}50%{transform:scale(1.05) translateY(-5px)}}
+@keyframes g2-slice-depth{0%,100%{transform:scale(1.075) translate3d(0,0,0)}50%{transform:scale(1.11) translate3d(-5px,-13px,0)}}
+@keyframes g2-aura-breathe{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:1;transform:scale(1.07)}}
+@keyframes g2-copy-enter{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){
+.g2-hero-foreground{inset:auto -2% 0 -2%;height:69%;width:104%;clip-path:polygon(48% 0,100% 0,100% 78%,83% 78%,75% 66%,57% 58%,48% 39%)}
+.g2-hero-foreground img{object-position:70% 48%}
+.g2-hero-aura{right:-8%;bottom:5%;width:100%;height:55%}
+}
+@media(max-width:430px){
+.g2-hero-foreground{inset:auto -1% 0 -1%;height:70%;width:102%}
+.g2-hero-foreground img{object-position:72% 46%}
+}
+@media(prefers-reduced-motion:reduce){.g2-hero-aura,.g2-hero-image img,.g2-hero-foreground img,.g2-hero-content{animation:none}}
