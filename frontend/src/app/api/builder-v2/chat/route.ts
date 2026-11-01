@@ -158,7 +158,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       // A requested team section must exist even if the planner omits it or uses
       // a nonstandard label. Use the same count detector as final validation.
       if(adaptiveBrief && briefCounts.has("equipe")
-        && !sections.some(section=>/equipe|profissionai|time|staff|team/i.test(section.id+" "+section.goal))){
+        && !sections.some(section=>/equipe|profissionai|time|staff|team/i.test(section.id))){
         sections.push({id:"equipe",layout:"grid",goal:"Nossa equipe: apresentar exatamente "+(briefCounts.get("equipe")||4)+" perfis profissionais ilustrativos, sem inventar nomes, registros ou qualificações reais. Cada perfil deve ter conteúdo próprio e identificação como exemplo ilustrativo."});
       }
       if(adaptiveBrief){
@@ -554,7 +554,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
           depoimentos:/depoiment|testemunh/,faq:/faq|pergunt/
         };
         for(const [name,count] of requestedCounts){
-          const section=(sections.find(section=>section.id===name)||sections.find(section=>aliases[name].test(normalized(section.id))));
+          const section=(sections.find(section=>section.id===name)||sections.find(section=>aliases[name]?.test(normalized(section.id))));
           if(!section)throw new Error("missing-brief-section:"+name);
           const paragraphs=mutableBlocks.filter(block=>block.section===section.id&&block.type==="paragraph");
           if(paragraphs.length<count){
