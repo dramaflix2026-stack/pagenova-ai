@@ -51,7 +51,23 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       </article>)}
     </div>
   </section>
-  <div id="sobre"/><div id="contato"/>
+  <section id="sobre" className="g2-essence" aria-labelledby="g2-essence-title">
+    <div className="g2-essence-visual">
+      <div className="g2-essence-photo" role="img" aria-label="Pizza artesanal com queijo derretido e ingredientes frescos" style={{backgroundImage:`url("${pizzaImage}")`}}/>
+      <div className="g2-essence-sparks" aria-hidden="true"><i/><i/><i/><i/><i/><i/><i/><i/></div>
+      <div className="g2-essence-seal" aria-hidden="true"><span>FEITO COM</span><strong>♥</strong><span>PAIXÃO</span></div>
+      <span className="g2-essence-photo-caption">O SABOR COMEÇA NO CUIDADO</span>
+    </div>
+    <div className="g2-essence-copy">
+      <span className="g2-essence-eyebrow">03 / NOSSA ESSÊNCIA</span>
+      <h2 id="g2-essence-title">A arte de fazer <em>com as mãos.</em></h2>
+      <span className="g2-essence-rule" aria-hidden="true"/>
+      <p className="g2-essence-lead">Não é apenas sobre pizza. É sobre o tempo, o cuidado e a paixão por cada detalhe.</p>
+      <p>Da massa ao forno, cada etapa é um convite para apreciar o verdadeiro sabor de uma experiência artesanal. Uma tradição que se sente em cada fatia.</p>
+      <a className="g2-essence-cta" href={order}>Viva essa experiência <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+  <div id="contato"/>
   </main>
  </div>;
 }
