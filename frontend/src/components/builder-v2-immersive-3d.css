@@ -390,3 +390,21 @@
 .pn3-root .pn3-bakery-storefront>div>div:first-child{height:clamp(230px,38vh,380px)!important;min-height:0!important;overflow:hidden!important}
 .pn3-root .pn3-bakery-storefront .pn3-bakery-video{object-fit:cover!important}
 }
+
+/* TP1 3D — cinematic premium identity. Scoped to TP1, never TP2 or static templates. */
+.pn3-root.pn3-tp1-premium{background:#0e0d0b;color:#f5eee2}
+.pn3-tp1-premium .pn3-header{background:rgba(12,11,10,.9)!important;border-bottom:1px solid rgba(238,212,163,.18)!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.pn3-tp1-premium .pn3-header a{color:#f6f0e5!important}
+.pn3-tp1-premium .pn3-header-cta{border:1px solid rgba(239,195,119,.7)!important;background:linear-gradient(120deg,#e5aa55,#f7d79d)!important;color:#20150d!important;border-radius:999px!important;font-weight:800!important;box-shadow:0 9px 32px rgba(226,154,61,.18)}
+.pn3-tp1-premium .pn3-bakery-storefront{background:#0e0d0b!important;color:#f7f0e5!important;padding:clamp(12px,2vw,32px)!important}
+.pn3-tp1-premium .pn3-bakery-storefront>div{background:#15110e!important;border-radius:22px!important;border:1px solid rgba(242,205,153,.17);box-shadow:0 32px 100px rgba(0,0,0,.42)}
+.pn3-tp1-premium .pn3-tp1-stage{height:clamp(380px,64vw,760px)!important;border-radius:20px 20px 0 0!important;isolation:isolate}
+.pn3-tp1-premium .pn3-tp1-stage:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(7,6,5,.08) 30%,rgba(7,6,5,.62) 100%);z-index:3}
+.pn3-tp1-premium .pn3-tp1-hero-copy{position:relative;background:radial-gradient(ellipse at 50% -40%,rgba(211,141,65,.19),transparent 62%),#15110e!important;padding:clamp(38px,6vw,80px) 24px clamp(50px,8vw,110px)!important;gap:20px!important}
+.pn3-tp1-premium .pn3-tp1-hero-copy:before{content:"ARTESANAL  /  EXPERIÊNCIA  /  SABOR";display:block;font-size:clamp(10px,1vw,13px);font-weight:800;letter-spacing:.3em;color:#e8bd79;margin-bottom:10px}
+.pn3-tp1-premium .pn3-tp1-hero-copy h1{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(48px,7.6vw,108px)!important;line-height:1.01!important;font-weight:600!important;letter-spacing:-.045em!important;color:#fff6e8!important;text-wrap:balance;text-shadow:0 8px 30px rgba(0,0,0,.16)}
+.pn3-tp1-premium .pn3-tp1-hero-copy p{color:#d6c7b5!important;max-width:690px!important;font-size:clamp(16px,1.8vw,22px)!important}
+.pn3-tp1-premium .pn3-tp1-hero-copy a{background:linear-gradient(120deg,#d89947,#f1c986)!important;color:#24170d!important;border-radius:999px!important;box-shadow:0 14px 40px rgba(220,149,55,.22);transition:transform .25s ease,box-shadow .25s ease}
+@media(hover:hover){.pn3-tp1-premium .pn3-tp1-hero-copy a:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(220,149,55,.38)}}
+@media(max-width:640px){.pn3-tp1-premium .pn3-tp1-stage{height:clamp(340px,56vh,610px)!important}.pn3-tp1-premium .pn3-tp1-hero-copy{padding:38px 20px 62px!important}.pn3-tp1-premium .pn3-tp1-hero-copy:before{font-size:9px;letter-spacing:.18em}.pn3-tp1-premium .pn3-tp1-hero-copy h1{font-size:clamp(44px,12vw,68px)!important}.pn3-tp1-premium .pn3-header{gap:8px!important}}
+@media(prefers-reduced-motion:reduce){.pn3-tp1-premium .pn3-tp1-hero-copy a{transition:none!important}}
