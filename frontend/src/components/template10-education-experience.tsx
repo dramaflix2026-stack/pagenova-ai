@@ -1,5 +1,5 @@
-import {template10Photo} from "@/components/template10-education-sections";
 "use client";
+import {template10Photo} from "@/components/template10-education-sections";
 import {useState} from "react";
 type Testimonial={name:string;quote:string;role?:string;photo?:string};
 type Props={niche:string;testimonials?:Testimonial[]};
