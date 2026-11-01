@@ -1,5 +1,5 @@
-import {template10Photo} from "@/components/template10-education-sections";
 "use client";
+import {template10Photo} from "@/components/template10-education-sections";
 type Props={brand:string;niche:string;contact?:{email?:string;phone?:string;address?:string;hours?:string}};
 const norm=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const themes:Record<string,[string,string,string]>={
