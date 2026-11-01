@@ -59,17 +59,17 @@ export function BuilderV2Immersive3D({site}:{site:BuilderV2SiteData}){
  const bakeryDescription=(terms:string[],fallback:string)=>{const g=section(terms);const value=g?.blocks.find(b=>b.type==="paragraph")?.text;return burger&&bakeryCopy.test(value||"")?fallback:value||fallback};
  const text=(b:B)=>b.text||"";
  const media=(b:B,index:number)=><figure className={"pn3-photo pn3-photo-"+index} key={b.id}><picture>{b.mobileSrc&&<source media="(max-width: 640px)" srcSet={b.mobileSrc}/>}<img src={b.src||b.mobileSrc||""} alt={text(b)||"Fotografia do negócio"} loading={index===0?"eager":"lazy"} /></picture></figure>;
- return <div ref={root} className={"pn3-root pn-motion-site pn3-variant-"+(editorial?"02":"01")+(burger?" pn3-burger":"")} style={{"--pn3-accent":burger?"#ff7b2c":accent,"--pn3-bg":burger?"#100e0d":background} as React.CSSProperties}>
+ return <div ref={root} className={"pn3-root pn-motion-site pn3-variant-"+(editorial?"02":"01")+(burger?" pn3-burger":"")+(bakery?" pn3-tp1-premium":"")} style={{"--pn3-accent":burger?"#ff7b2c":accent,"--pn3-bg":burger?"#100e0d":background} as React.CSSProperties}>
   {site.header?.enabled!==false&&<header className="pn3-header"><a href="#inicio" className="pn3-brand">{site.header?.logoUrl?<img src={site.header.logoUrl} alt={brand}/>:!burger?<BakeryMark brand={brand}/>:<span className="pn3-brand-name">{brand}</span>}</a><nav aria-label="Navegação">{nav.map(g=><a key={g.id} href={"#"+g.id}>{text(g.blocks.find(b=>b.type==="heading")||g.blocks[0]).slice(0,24)}</a>)}</nav><a className="pn3-header-cta" href={site.header?.ctaHref||"#contato"}>{site.header?.ctaLabel||"Entre em contato"} ↗</a></header>}
   <main>{groups.map((g,i)=>{const headings=g.blocks.filter(b=>b.type==="heading"),paragraphs=g.blocks.filter(b=>b.type==="paragraph"),buttons=g.blocks.filter(b=>b.type==="button"),images=g.blocks.filter(b=>b.type==="image"&&photo(b));const hero=i===0||g.id==="inicio";if(hero&&bakery){return <section key={g.id} id={g.id} className="pn3-bakery-storefront" style={{background:"#e8e4db",color:"#321e16",padding:"12px clamp(12px,3vw,48px) 0",fontFamily:"Arial,sans-serif"}}>
  <div style={{maxWidth:1160,margin:"0 auto",background:"#f4f1eb",borderRadius:"24px 24px 0 0",overflow:"hidden"}}>
- <div style={{position:"relative",height:"clamp(300px,58vw,560px)",overflow:"hidden",borderRadius:"24px 24px 0 0"}}>
+ <div className="pn3-tp1-stage" style={{position:"relative",height:"clamp(300px,58vw,560px)",overflow:"hidden",borderRadius:"24px 24px 0 0"}}>
 <picture className="pn3-bakery-video-fallback"><source media="(max-width: 640px)" srcSet={bakeryAssets[0].mobileSrc}/><img src={bakeryEdits.heroImage||bakeryAssets[0].src} alt={burger?"Hambúrgueres artesanais":"Pães e doces artesanais"} style={{width:"100%",height:"100%",objectFit:"cover"}}/></picture>
  <video className="pn3-bakery-video pn3-bakery-video-desktop" src={activeVideos.desktop} autoPlay muted loop playsInline preload="auto" aria-label="Vídeo cinematográfico do estabelecimento para desktop"/>
  <video className="pn3-bakery-video pn3-bakery-video-mobile" src={activeVideos.mobile} autoPlay muted loop playsInline preload="auto" aria-label="Vídeo cinematográfico do estabelecimento para mobile"/>
  <div className="pn3-bakery-awning" aria-hidden="true"><div className="pn3-bakery-awning-valance"/></div>
  </div>
- <div style={{padding:"clamp(38px,6vw,75px) 22px 85px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:24}}>
+ <div className="pn3-tp1-hero-copy" style={{padding:"clamp(38px,6vw,75px) 22px 85px",textAlign:"center",display:"flex",flexDirection:"column",alignItems:"center",gap:24}}>
  {site.header?.logoUrl&&<img src={site.header.logoUrl} alt={brand} style={{height:105,width:105,objectFit:"contain",borderRadius:"50%"}}/>}
  <h1 className={bakeryEdits.titleMotion?"pn3-bakery-title-enter":undefined} style={{fontSize:"clamp(42px,8vw,90px)",lineHeight:1.04,letterSpacing:"-.055em",fontWeight:900,maxWidth:780,margin:0,color:"#321e16"}}>{headings[0]?.text||brand}</h1>
  {paragraphs.map(b=><p key={b.id} style={{fontSize:"clamp(19px,2.2vw,26px)",lineHeight:1.5,maxWidth:660,margin:0}}>{text(b)}</p>)}
