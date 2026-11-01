@@ -166,3 +166,41 @@
  .tp1-new .tp1-diff-photos figure{flex:0 0 79%;height:clamp(230px,62vw,350px);scroll-snap-align:center;border-radius:10px}
  .tp1-new .tp1-diff-photos figcaption{font-size:11px;left:17px;bottom:17px;letter-spacing:.05em}
 }
+
+
+/* TP1 — approved cinematic testimonials; never display invented review identities or ratings */
+.tp1-new .tp1-reviews{position:relative;background:#0e0c0b;color:#fff;padding:clamp(70px,8vw,120px) clamp(18px,5vw,80px);overflow:hidden}
+.tp1-new .tp1-reviews:before{content:"";position:absolute;right:-12%;top:-24%;width:50vw;height:50vw;background:radial-gradient(circle,#ff8b1719,transparent 68%);pointer-events:none}
+.tp1-new .tp1-reviews-heading{position:relative;max-width:1200px;margin:0 auto 44px}
+.tp1-new .tp1-reviews-eyebrow{display:block;color:#ff990f;font-size:12px;font-weight:900;letter-spacing:.23em;margin-bottom:22px}
+.tp1-new .tp1-reviews-heading h2{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(52px,7.2vw,108px);line-height:.94;letter-spacing:-.035em;margin:0 0 18px;color:#f7f0e6}
+.tp1-new .tp1-reviews-heading h2 em{color:#ff970c;font-style:normal}
+.tp1-new .tp1-reviews-heading>p{font-size:16px;line-height:1.6;color:#c4bcb3;max-width:570px}
+.tp1-new .tp1-reviews-track{position:relative;max-width:1200px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.tp1-new .tp1-review-card{position:relative;min-height:425px;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;background-color:#241b14;background-size:cover;background-position:center;border:1px solid #ffffff22;border-radius:18px;overflow:hidden;box-shadow:0 16px 50px #0006}
+.tp1-new .tp1-review-quote-mark{font-family:Georgia,serif;color:#ff970c;font-size:95px;line-height:.55}
+.tp1-new .tp1-review-card blockquote{font-family:Georgia,serif;font-size:clamp(19px,1.8vw,26px);line-height:1.35;margin:22px 0 30px;color:#fff}
+.tp1-new .tp1-review-author{display:flex;gap:13px;align-items:center;border-top:1px solid #ffffff55;padding-top:19px}
+.tp1-new .tp1-review-author img,.tp1-new .tp1-review-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;display:grid;place-items:center;background:#ff990f;color:#1b1309;font-weight:900}
+.tp1-new .tp1-review-author strong{display:block;font-size:14px;color:#fff}
+.tp1-new .tp1-review-author small{display:block;font-size:12px;color:#d4cbc0;margin-top:3px}
+.tp1-new .tp1-reviews-empty{position:relative;max-width:1200px;margin:auto;display:grid;grid-template-columns:1.08fr 1fr;min-height:380px;overflow:hidden;border-radius:20px;background:#21170f;border:1px solid #ff990f38}
+.tp1-new .tp1-reviews-empty-image{min-height:380px;overflow:hidden}
+.tp1-new .tp1-reviews-empty-image img{display:block;width:100%;height:100%;object-fit:cover}
+.tp1-new .tp1-reviews-empty-content{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:clamp(25px,5vw,70px);background:linear-gradient(120deg,#24180f,#110f0d)}
+.tp1-new .tp1-reviews-empty-content>span:first-child{font-size:11px;letter-spacing:.16em;font-weight:900;color:#ff990f}
+.tp1-new .tp1-reviews-empty-content h3{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(33px,3.8vw,59px);line-height:1.04;margin:23px 0 17px;color:#f9eee0}
+.tp1-new .tp1-reviews-empty-content p{font-size:15px;color:#c9bcb0;line-height:1.6;margin:0 0 28px}
+.tp1-new .tp1-reviews-pending{display:inline-flex;border:1px solid #ff990f77;border-radius:50px;padding:12px 18px;color:#ffb34a;font-size:12px;font-weight:800}
+@media(max-width:760px){
+.tp1-new .tp1-reviews{padding:65px 18px 72px}
+.tp1-new .tp1-reviews-heading{margin-bottom:28px}
+.tp1-new .tp1-reviews-heading h2{font-size:clamp(43px,10.4vw,70px)}
+.tp1-new .tp1-reviews-heading>p{font-size:13px}
+.tp1-new .tp1-reviews-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;gap:13px;padding-bottom:10px}
+.tp1-new .tp1-review-card{flex:0 0 87%;min-height:410px;scroll-snap-align:center;padding:25px}
+.tp1-new .tp1-reviews-empty{grid-template-columns:1fr}
+.tp1-new .tp1-reviews-empty-image{min-height:225px;height:225px}
+.tp1-new .tp1-reviews-empty-content{padding:30px 25px 35px}
+.tp1-new .tp1-reviews-empty-content h3{font-size:clamp(35px,9vw,54px)}
+}
