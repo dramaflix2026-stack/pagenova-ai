@@ -204,3 +204,30 @@
 .tp1-new .tp1-reviews-empty-content{padding:30px 25px 35px}
 .tp1-new .tp1-reviews-empty-content h3{font-size:clamp(35px,9vw,54px)}
 }
+
+
+/* TP1 3D — approved split-photo FAQ, black/orange cinematic */
+.tp1-new .tp1-faq{background:#15110e;color:#f8f0e5;padding:clamp(75px,8vw,130px) clamp(18px,5vw,80px)}
+.tp1-new .tp1-faq-inner{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(35px,6vw,100px);max-width:1320px;margin:0 auto;align-items:center}
+.tp1-new .tp1-faq-photo{height:clamp(510px,53vw,730px);position:relative;overflow:hidden;border-radius:15px;background:#24180d}
+.tp1-new .tp1-faq-photo:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#000c);pointer-events:none}
+.tp1-new .tp1-faq-photo>img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s}
+.tp1-new .tp1-faq-photo:hover>img{transform:scale(1.035)}
+.tp1-new .tp1-faq-photo-label{position:absolute;bottom:38px;left:38px;right:38px;z-index:2}
+.tp1-new .tp1-faq-photo-label span{display:block;color:#ff9b18;font-weight:900;letter-spacing:.16em;font-size:12px;margin-bottom:14px}
+.tp1-new .tp1-faq-photo-label strong{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(35px,3.5vw,56px);line-height:.98;display:block;max-width:420px}
+.tp1-new .tp1-faq-kicker{display:block;color:#ff990f;font-size:12px;letter-spacing:.2em;font-weight:900;margin-bottom:22px}
+.tp1-new .tp1-faq-content h2{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(49px,5.6vw,87px);line-height:.93;letter-spacing:-.035em;margin:0 0 22px}
+.tp1-new .tp1-faq-content h2 em{font-style:normal;color:#ff990f}
+.tp1-new .tp1-faq-lead{font-size:15px;color:#bcb2a8;line-height:1.7;max-width:480px;margin:0 0 34px}
+.tp1-new .tp1-faq-list{border-top:1px solid #504036}
+.tp1-new .tp1-faq-item{border-bottom:1px solid #504036}
+.tp1-new .tp1-faq-item summary{display:flex;align-items:center;gap:17px;cursor:pointer;list-style:none;padding:23px 0;color:#f8eee2}
+.tp1-new .tp1-faq-item summary::-webkit-details-marker{display:none}
+.tp1-new .tp1-faq-index{font-size:11px;font-weight:900;color:#ff990f;letter-spacing:.1em}
+.tp1-new .tp1-faq-question{flex:1;font-size:clamp(14px,1.2vw,18px);font-weight:800;line-height:1.4}
+.tp1-new .tp1-faq-plus{display:grid;place-items:center;width:34px;height:34px;flex:none;border:1px solid #7c5a39;border-radius:50%;color:#ff990f;font-size:24px;font-weight:400;transition:transform .2s,background .2s}
+.tp1-new .tp1-faq-item[open] .tp1-faq-plus{transform:rotate(45deg);background:#ff990f;color:#17100b;border-color:#ff990f}
+.tp1-new .tp1-faq-item>p{padding:0 48px 24px 35px;margin:0;color:#c4b8ab;font-size:14px;line-height:1.7}
+.tp1-new .tp1-faq-cta{display:inline-flex;align-items:center;justify-content:center;gap:28px;margin-top:32px;padding:17px 28px;background:#ff990f;border-radius:50px;color:#1b130c!important;font-weight:900;font-size:12px;letter-spacing:.07em;text-decoration:none}
+@media(max-width:800px){.tp1-new .tp1-faq{padding:70px 18px}.tp1-new .tp1-faq-inner{grid-template-columns:1fr;gap:42px}.tp1-new .tp1-faq-photo{height:clamp(300px,78vw,480px)}.tp1-new .tp1-faq-photo-label{bottom:25px;left:25px;right:25px}.tp1-new .tp1-faq-photo-label strong{font-size:clamp(32px,8vw,49px)}.tp1-new .tp1-faq-content h2{font-size:clamp(48px,10vw,75px)}.tp1-new .tp1-faq-lead{font-size:14px}.tp1-new .tp1-faq-item summary{gap:12px;padding:19px 0}.tp1-new .tp1-faq-item>p{padding:0 32px 20px 25px}}
