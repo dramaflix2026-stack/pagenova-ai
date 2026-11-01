@@ -1001,8 +1001,8 @@ export default function BuilderV2() {
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:undefined;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
-    const templateForCreation=creatingNewSite?"prompt-adaptive":(site.templateId||"institutional-complete");
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||selectedNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
