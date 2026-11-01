@@ -434,3 +434,33 @@
 @media(hover:hover) and (prefers-reduced-motion:no-preference){.pn3-tp1-premium .pn3-tp1-story:hover .pn3-tp1-story-media img{transform:scale(1.055)}}
 @media(max-width:800px){.pn3-tp1-premium .pn3-tp1-story{grid-template-columns:1fr}.pn3-tp1-premium .pn3-tp1-story-media{min-height:340px}.pn3-tp1-premium .pn3-tp1-story-copy{padding:48px 24px 65px}.pn3-tp1-premium .pn3-tp1-story-copy h2{font-size:clamp(38px,10vw,60px)}}
 @media(prefers-reduced-motion:reduce){.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-product,.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-photo img,.pn3-tp1-premium .pn3-tp1-story-media img{transition:none!important;transform:none!important}}
+
+
+/* Approved TP1 3D only: floating differentiators and immersive vertical journey */
+.pn3-tp1-premium .pn3-tp1-differentials{background:radial-gradient(ellipse at 55% 5%,rgba(212,143,57,.16),transparent 65%),#100d0b;padding:clamp(68px,9vw,132px) clamp(20px,5vw,80px);color:#f6ecdf}
+.pn3-tp1-premium .pn3-tp1-differentials-inner{max-width:1380px;margin:auto}
+.pn3-tp1-premium .pn3-tp1-differentials h2{font:500 clamp(43px,5vw,82px)/1.06 Georgia,serif;letter-spacing:-.04em;max-width:820px;margin:22px 0 72px;color:#fff1dc}
+.pn3-tp1-premium .pn3-tp1-differentials-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2vw,28px);perspective:1100px}
+.pn3-tp1-premium .pn3-tp1-differential{min-width:0;background:linear-gradient(145deg,#2b2119,#18120e);border:1px solid rgba(237,185,113,.23);border-radius:25px;padding:clamp(20px,2.5vw,36px);box-shadow:0 28px 55px rgba(0,0,0,.3);transform-style:preserve-3d;transition:transform .45s ease,box-shadow .45s ease}
+.pn3-tp1-premium .pn3-tp1-differential-object{display:grid;place-items:center;width:116px;height:116px;margin:0 auto 36px;border-radius:34%;background:radial-gradient(circle at 28% 22%,#ffe0a3,#bf7e37 46%,#694020 80%);box-shadow:inset -12px -16px 26px rgba(59,28,7,.48),inset 6px 7px 15px rgba(255,241,207,.65),0 20px 36px rgba(0,0,0,.45);transform:translateZ(34px) rotate(-9deg);animation:pn3Tp1Float 5s ease-in-out infinite}
+.pn3-tp1-premium .pn3-tp1-differential:nth-child(even) .pn3-tp1-differential-object{animation-delay:-2.5s;transform:translateZ(34px) rotate(9deg)}
+.pn3-tp1-premium .pn3-tp1-differential-object span{font-size:49px;color:#fff5df;text-shadow:0 4px 12px rgba(80,37,9,.65)}
+.pn3-tp1-premium .pn3-tp1-differential small{color:#d7aa6d;font-size:10px;font-weight:800;letter-spacing:.18em}
+.pn3-tp1-premium .pn3-tp1-differential h3{font:500 clamp(24px,2vw,34px)/1.16 Georgia,serif;color:#fff0d9;margin:18px 0}
+.pn3-tp1-premium .pn3-tp1-differential p{color:#c9b7a4;line-height:1.65;font-size:15px;margin:0}
+@keyframes pn3Tp1Float{0%,100%{translate:0 0}50%{translate:0 -13px}}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.pn3-tp1-premium .pn3-tp1-differential:hover{transform:translateY(-13px) rotateX(4deg);box-shadow:0 38px 65px rgba(0,0,0,.5)}}
+.pn3-tp1-premium .pn3-tp1-journey{background:#1a130f;color:#f5e9d7;padding:clamp(70px,10vw,140px) clamp(20px,6vw,100px);display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(40px,8vw,120px)}
+.pn3-tp1-premium .pn3-tp1-journey-intro{position:sticky;top:110px;align-self:start}
+.pn3-tp1-premium .pn3-tp1-journey-intro h2{font:500 clamp(44px,5.4vw,86px)/1.05 Georgia,serif;letter-spacing:-.05em;color:#fff1dc;margin:24px 0}
+.pn3-tp1-premium .pn3-tp1-journey-intro p{font-size:18px;line-height:1.75;color:#d4bfaa;max-width:420px}
+.pn3-tp1-premium .pn3-tp1-journey-steps{border-left:1px solid rgba(234,182,106,.36);padding-left:clamp(22px,4vw,64px)}
+.pn3-tp1-premium .pn3-tp1-journey-step{position:relative;min-height:250px;padding:15px 0 55px;display:grid;grid-template-columns:88px 1fr;gap:22px;border-bottom:1px solid rgba(235,190,129,.15)}
+.pn3-tp1-premium .pn3-tp1-journey-step:before{content:"";position:absolute;left:calc(-1 * clamp(22px,4vw,64px) - 5px);top:25px;width:9px;height:9px;border-radius:50%;background:#edbb77;box-shadow:0 0 22px rgba(240,177,85,.7)}
+.pn3-tp1-premium .pn3-tp1-journey-number{font:500 52px/1 Georgia,serif;color:#e5b879}
+.pn3-tp1-premium .pn3-tp1-journey-step h3{font:500 clamp(28px,3vw,44px)/1.13 Georgia,serif;color:#fff1dc;margin:0 0 20px}
+.pn3-tp1-premium .pn3-tp1-journey-step p{font-size:16px;line-height:1.75;color:#d0bba7;margin:0}
+.pn3-tp1-premium .pn3-tp1-journey-star{position:absolute;right:0;bottom:30px;color:#b88648;font-size:24px}
+@media(max-width:1050px){.pn3-tp1-premium .pn3-tp1-differentials-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn3-tp1-premium .pn3-tp1-journey{grid-template-columns:1fr}.pn3-tp1-premium .pn3-tp1-journey-intro{position:static}}
+@media(max-width:580px){.pn3-tp1-premium .pn3-tp1-differentials-grid{grid-template-columns:1fr}.pn3-tp1-premium .pn3-tp1-differentials h2{margin-bottom:38px}.pn3-tp1-premium .pn3-tp1-differential{display:grid;grid-template-columns:94px 1fr;column-gap:18px;align-items:center}.pn3-tp1-premium .pn3-tp1-differential-object{width:82px;height:82px;margin:0;grid-row:span 3}.pn3-tp1-premium .pn3-tp1-differential-object span{font-size:36px}.pn3-tp1-premium .pn3-tp1-differential h3{margin:10px 0}.pn3-tp1-premium .pn3-tp1-journey-step{grid-template-columns:60px 1fr;gap:14px;min-height:220px}.pn3-tp1-premium .pn3-tp1-journey-number{font-size:39px}}
+@media(prefers-reduced-motion:reduce){.pn3-tp1-premium .pn3-tp1-differential-object{animation:none!important;translate:0 0!important}.pn3-tp1-premium .pn3-tp1-differential{transition:none!important}}
