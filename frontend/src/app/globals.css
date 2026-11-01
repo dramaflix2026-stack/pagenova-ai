@@ -1870,3 +1870,22 @@ html{scrollbar-gutter:stable}
 ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#83dfe4,#a17ce8);background-clip:padding-box}
 ::-webkit-scrollbar-corner{background:transparent}
 @media(max-width:767px){html{scrollbar-gutter:auto}::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-thumb{border:0;background:#7b8ba777}}
+
+
+/* TP1 editorial mobile refinements: scoped to the existing premium compositions. */
+@media (max-width: 639px) {
+  [data-pn-composition="editorial-gallery-3d"] > .grid { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; }
+  [data-pn-composition="editorial-gallery-3d"] a[data-block-id] { min-height: 345px; }
+  [data-pn-composition="editorial-gallery-3d"] a[data-block-id] > div:last-child { padding: 12px; gap: 6px; }
+  [data-pn-composition="editorial-gallery-3d"] a[data-block-id] h3 { font-size: clamp(16px,4vw,21px); line-height: 1.16; overflow-wrap: anywhere; }
+  [data-pn-composition="editorial-gallery-3d"] a[data-block-id] p { font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+  [data-pn-composition="editorial-gallery-3d"] a[data-block-id] span { letter-spacing: .07em; overflow-wrap: anywhere; }
+  [data-pn-composition="luxury-art-gallery"] .grid.grid-cols-3 { gap: 10px; }
+  [data-pn-composition="luxury-art-gallery"] .space-y-14 { display: grid; gap: 28px; }
+  [data-pn-composition="luxury-art-gallery"] .mt-7 { margin-top: 16px; }
+  [data-pn-composition="luxury-art-gallery"] .font-serif { font-size: clamp(25px,7vw,39px); }
+  [data-pn-composition="luxury-editorial-testimonials"] blockquote { width: min(76vw,380px); }
+}
+[data-pn-composition="luxury-editorial-testimonials"] blockquote footer { background: transparent !important; color: #493a31 !important; }
+[data-pn-composition="luxury-editorial-testimonials"] blockquote footer span { color: #493a31 !important; }
+[data-pn-composition="luxury-editorial-testimonials"] blockquote footer span span:last-child { color: #75685d !important; }
