@@ -87,6 +87,15 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       </article>
     </div>
   </section>
+  <section className="g2-gallery" aria-labelledby="g2-gallery-title">
+    <div className="g2-gallery-heading"><div><span className="g2-gallery-kicker">05 / MOMENTOS QUE FICAM</span><h2 id="g2-gallery-title">Uma experiência <em>além do sabor.</em></h2></div><p>Um olhar de perto para os detalhes que fazem cada encontro inesquecível.</p></div>
+    <div className="g2-gallery-mosaic">
+      <figure className="g2-gallery-tile g2-gallery-tile-main"><img src={pizzaImage} alt="Pizza artesanal com queijo derretido" loading="lazy"/><figcaption><span>01 / NOSSA ASSINATURA</span><strong>O sabor em primeiro plano.</strong></figcaption></figure>
+      <figure className="g2-gallery-tile g2-gallery-tile-top"><img src="https://images.pexels.com/photos/1435907/pexels-photo-1435907.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Ingredientes frescos" loading="lazy"/><figcaption><span>02 / INGREDIENTES</span><strong>Escolhas que fazem a diferença.</strong></figcaption></figure>
+      <figure className="g2-gallery-tile g2-gallery-tile-bottom"><img src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Pizza artesanal assada" loading="lazy"/><figcaption><span>03 / TRADIÇÃO</span><strong>Feita para compartilhar.</strong></figcaption></figure>
+      <figure className="g2-gallery-tile g2-gallery-tile-wide"><img src="https://www.gardenahotels.com/typo3temp/_processed_/csm_Medel-restaurant-pizza-gardenahotels-Dolomites-lunch-dinner-bar-pizzeria-meat-grill-dry_age-homemade-wholemeal_f9365b29f3.jpg" alt="Preparo artesanal da pizza" loading="lazy"/><figcaption><span>04 / NOSSA ESSÊNCIA</span><strong>O cuidado está em cada detalhe.</strong></figcaption></figure>
+    </div>
+  </section>
   <div id="contato"/>
   </main>
  </div>;
