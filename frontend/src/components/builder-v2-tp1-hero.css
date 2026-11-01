@@ -361,3 +361,11 @@
 .tp1-new .tp1-new-menu-photo.tp1-menu-touch-active>img{transition:transform .09s linear;animation-play-state:paused}
 @media(hover:hover) and (pointer:fine){.tp1-new .tp1-new-menu-item:hover .tp1-new-menu-photo>img{transform:translate3d(0,-3px,24px) rotateY(5deg) rotateX(2deg)}}
 @media(prefers-reduced-motion:reduce){.tp1-new .tp1-new-menu-photo>img{animation:none!important;transform:none!important;transition:none!important}.tp1-new .tp1-new-menu-item{transition:none!important;translate:none!important;opacity:1!important}}
+
+
+/* Keep the entire burger inside its visual canvas during mobile touch rotation. */
+@media(max-width:760px){
+ .tp1-new .tp1-new-menu-photo{overflow:hidden!important;perspective:1400px}
+ .tp1-new .tp1-new-menu-photo>img{width:86%!important;max-width:86%;transform:translate3d(0,0,0) rotateX(var(--menu-rx,0deg)) rotateY(var(--menu-ry,0deg)) scale(.94)!important;transform-origin:50% 50%}
+ .tp1-new .tp1-new-menu-photo.tp1-menu-touch-active>img{transition:transform .12s ease-out!important}
+}
