@@ -3,7 +3,7 @@ import {useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-pizzeria-g2.css";
 
-const pizzaImage="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/e5457f49-a586-4892-af46-e3a752ad1ef2.png";
+const pizzaImage="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/pizzaria/desktop-3ca9141d-3308-4022-97e6-11ec7344b7da.png";
 
 export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
  const [open,setOpen]=useState(false);
