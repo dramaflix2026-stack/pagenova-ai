@@ -533,7 +533,19 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
         // owns property cards, so do not reject a real-estate briefing for lacking
         // an unrelated pricing/plans section.
         const realEstateBrief=/(?:^|\n)\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:\s*(?:imobili[aá]ri|corretor(?:a)? de im[oó]veis|im[oó]veis|incorporador|condom[ií]nios|empreendimentos)/im.test(instruction)||/TP\s*7\b|fam[ií]lia visual\s*:\s*TP\s*7/i.test(instruction);
-        if(!pricing&&!realEstateBrief)throw new Error("missing-requested-pricing-section");
+        const gastronomyBrief=/(?:pizzaria|pizza|hamburgueria|hamb[uú]rguer|restaurante|cafeteria|padaria|confeitaria|marmitaria|churrascaria|sorveteria|doceria|a[cç]a[ií]|food truck)/i.test(instruction);
+        // Food menu item prices belong to the cardapio/services section, not a SaaS pricing-plan section.
+        // Keep exact user-supplied prices; never invent prices or require an unrelated 'planos' section.
+        if(!pricing&&!realEstateBrief&&!gastronomyBrief)throw new Error("missing-requested-pricing-section");
+        if(!pricing&&gastronomyBrief){
+          const menuSection=sections.find(x=>/cardapio|menu|produto|servic|especialidade/i.test(x.id))||sections.find(x=>x.id==="servicos");
+          if(!menuSection)throw new Error("missing-menu-section-for-prices");
+          for(const price of missingPrices){
+            const sourceLine=instruction.split(/\r?\n/).find(line=>normalizePrices(line).includes(price))||"";
+            const label=sourceLine.replace(/R\$\s*\d{1,5}(?:[.,]\d{2})?/gi,"").replace(/^[\s*#\-:]+|[\s*#\-:]+$/g,"").slice(0,100);
+            mutableBlocks.push({id:"menu-price-"+crypto.randomUUID(),section:menuSection.id,layout:menuSection.layout,type:"paragraph",text:(label?label+" — ":"")+price,color:"#24332e",align:"left"});
+          }
+        }
         if(pricing){
           const cards=mutableBlocks.filter(b=>b.section===pricing.id&&b.type==="paragraph");
           // Repair missing plan prices only when a real pricing section exists.
