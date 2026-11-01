@@ -29,7 +29,8 @@ export function BuilderV2TP1Hero({site}:{site:BuilderV2SiteData}){
  const faqBlocks=site.blocks.filter(b=>/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||""));
  const faqItems=faqBlocks.filter(b=>b.type==="heading").map((b,i)=>{const answer=faqBlocks.find(p=>p.type==="paragraph"&&(p.section===b.section)&&p.id!==b.id&&faqBlocks.indexOf(p)>faqBlocks.indexOf(b)&&!faqBlocks.slice(faqBlocks.indexOf(b)+1,faqBlocks.indexOf(p)).some(x=>x.type==="heading"));return {question:b.text,answer:answer?.text||""};}).filter(item=>item.question.trim()&&item.answer.trim());
  const defaultFaq=[{question:"Como faço para realizar um pedido?",answer:"Entre em contato pelo canal de pedidos indicado nesta página para consultar as opções disponíveis."},{question:"Quais são os horários de atendimento?",answer:"Consulte os horários atualizados diretamente com a hamburgueria antes de visitar ou fazer seu pedido."},{question:"Vocês trabalham com entrega ou retirada?",answer:"Consulte diretamente a disponibilidade de entrega ou retirada e as condições para sua região."},{question:"Onde posso consultar o cardápio?",answer:"Confira a seção Nosso Cardápio nesta página ou entre em contato para confirmar os itens disponíveis."}];
- const displayedFaq=faqItems.length?faqItems:defaultFaq;
+ const validFaq=faqItems.filter(item=>!/^(perguntas frequentes|faq|d[uú]vidas)$/i.test(item.question.trim()));
+ const displayedFaq=[...validFaq,...defaultFaq.filter(item=>!validFaq.some(existing=>existing.question.toLocaleLowerCase("pt-BR")===item.question.toLocaleLowerCase("pt-BR")))].slice(0,8);
  const contactAddress=(site.extras?.address||site.footer?.address||"").trim();
  const contactEmail=(site.footer?.email||"").trim();
  const contactWhatsapp=(site.restaurant?.whatsapp||"").replace(/\D/g,"");
