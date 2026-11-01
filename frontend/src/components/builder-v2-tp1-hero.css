@@ -231,3 +231,32 @@
 .tp1-new .tp1-faq-item>p{padding:0 48px 24px 35px;margin:0;color:#c4b8ab;font-size:14px;line-height:1.7}
 .tp1-new .tp1-faq-cta{display:inline-flex;align-items:center;justify-content:center;gap:28px;margin-top:32px;padding:17px 28px;background:#ff990f;border-radius:50px;color:#1b130c!important;font-weight:900;font-size:12px;letter-spacing:.07em;text-decoration:none}
 @media(max-width:800px){.tp1-new .tp1-faq{padding:70px 18px}.tp1-new .tp1-faq-inner{grid-template-columns:1fr;gap:42px}.tp1-new .tp1-faq-photo{height:clamp(300px,78vw,480px)}.tp1-new .tp1-faq-photo-label{bottom:25px;left:25px;right:25px}.tp1-new .tp1-faq-photo-label strong{font-size:clamp(32px,8vw,49px)}.tp1-new .tp1-faq-content h2{font-size:clamp(48px,10vw,75px)}.tp1-new .tp1-faq-lead{font-size:14px}.tp1-new .tp1-faq-item summary{gap:12px;padding:19px 0}.tp1-new .tp1-faq-item>p{padding:0 32px 20px 25px}}
+
+
+/* TP1 — Qitchen-inspired contact: cinematic photo + information, no invented details */
+.tp1-new .tp1-contact{background:#0f0d0c;color:#f8f0e7;padding:clamp(60px,7vw,110px) clamp(18px,4vw,72px)}
+.tp1-new .tp1-contact-grid{max-width:1380px;margin:auto;display:grid;grid-template-columns:1fr 1fr;min-height:clamp(570px,58vw,760px);gap:14px}
+.tp1-new .tp1-contact-visual{position:relative;overflow:hidden;background:#25170d;border-radius:14px}
+.tp1-new .tp1-contact-visual>img{position:absolute;width:100%;height:100%;object-fit:cover;inset:0;transition:transform .6s}
+.tp1-new .tp1-contact-visual:hover>img{transform:scale(1.04)}
+.tp1-new .tp1-contact-visual:after{content:"";position:absolute;inset:35% 0 0;background:linear-gradient(transparent,#000c)}
+.tp1-new .tp1-contact-visual-copy{position:absolute;z-index:2;bottom:clamp(28px,5vw,65px);left:clamp(24px,4vw,55px);right:25px}
+.tp1-new .tp1-contact-visual-copy span{display:block;color:#ff9b1c;font-size:12px;font-weight:900;letter-spacing:.16em;margin-bottom:20px}
+.tp1-new .tp1-contact-visual-copy strong{display:block;max-width:550px;font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(42px,5vw,80px);line-height:.94;letter-spacing:-.02em}
+.tp1-new .tp1-contact-panel{background:#1c1713;border:1px solid #443225;border-radius:14px;padding:clamp(30px,5vw,76px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.tp1-new .tp1-contact-kicker{font-size:12px;letter-spacing:.2em;font-weight:900;color:#ff9b1c;margin-bottom:22px}
+.tp1-new .tp1-contact-panel h2{font-family:Impact,'Arial Black',Arial,sans-serif;font-size:clamp(49px,5.3vw,85px);line-height:.91;margin:0 0 23px;letter-spacing:-.03em}
+.tp1-new .tp1-contact-panel h2 em{color:#ff9b1c;font-style:normal}
+.tp1-new .tp1-contact-panel>p{font-size:15px;line-height:1.7;color:#c4b7a9;max-width:470px;margin:0 0 24px}
+.tp1-new .tp1-contact-details{width:100%;border-top:1px solid #574538;margin-bottom:27px}
+.tp1-new .tp1-contact-detail{border-bottom:1px solid #574538;padding:17px 0;display:flex;flex-direction:column;gap:8px}
+.tp1-new .tp1-contact-detail>span{font-size:11px;font-weight:900;letter-spacing:.13em;color:#ff9b1c}
+.tp1-new .tp1-contact-detail strong{font-size:15px;line-height:1.55;font-weight:600;color:#f4e8da;overflow-wrap:anywhere}
+.tp1-new .tp1-contact-detail a{font-size:12px;font-weight:900;color:#f9b35b;text-decoration:none;overflow-wrap:anywhere}
+.tp1-new .tp1-contact-button{display:inline-flex;justify-content:center;align-items:center;gap:25px;border-radius:50px;background:#ff990f;color:#1b130c!important;font-size:12px;font-weight:900;letter-spacing:.06em;padding:19px 29px;text-decoration:none}
+.tp1-new .tp1-contact-map{max-width:1380px;margin:20px auto 0;border:1px solid #4e3522;border-radius:14px;overflow:hidden}
+.tp1-new .tp1-contact-map-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#201811;padding:21px 26px}
+.tp1-new .tp1-contact-map-heading span{font-size:11px;font-weight:900;letter-spacing:.15em;color:#ff990f}
+.tp1-new .tp1-contact-map-heading strong{font-size:15px;letter-spacing:.07em}
+.tp1-new .tp1-contact-map iframe{width:100%;height:380px;border:0;display:block;filter:grayscale(.4)}
+@media(max-width:800px){.tp1-new .tp1-contact{padding:65px 17px}.tp1-new .tp1-contact-grid{grid-template-columns:1fr;gap:12px}.tp1-new .tp1-contact-visual{height:clamp(340px,95vw,520px)}.tp1-new .tp1-contact-visual-copy strong{font-size:clamp(42px,10vw,68px)}.tp1-new .tp1-contact-panel{padding:35px 26px 42px}.tp1-new .tp1-contact-panel h2{font-size:clamp(52px,11vw,75px)}.tp1-new .tp1-contact-map iframe{height:280px}.tp1-new .tp1-contact-map-heading{padding:19px 18px}}
