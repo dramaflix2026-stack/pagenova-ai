@@ -316,3 +316,12 @@
 
 /* Actual edge-connected dark-pixel removal is performed by the TP1 canvas cutout. */
 .tp1-new .tp1-new-visual.tp1-burger-feather img{-webkit-mask-image:none!important;mask-image:none!important;mix-blend-mode:normal!important;filter:none!important}
+
+
+/* TP1 immersive hero: preserve approved composition and photography, add real perspective interaction. */
+.tp1-new .tp1-hero-depth{perspective:1100px;transform-style:preserve-3d;overflow:visible;position:relative;isolation:isolate}
+.tp1-new .tp1-hero-depth>img{transform:translate3d(var(--burger-x,0px),var(--burger-y,0px),0) rotateX(var(--burger-rx,0deg)) rotateY(var(--burger-ry,0deg)) translateZ(22px);transform-origin:center center;transform-style:preserve-3d;backface-visibility:hidden;transition:transform .38s cubic-bezier(.2,.75,.2,1);will-change:transform}
+.tp1-new .tp1-new-thumb{transition:transform .3s ease,box-shadow .3s ease}
+@media(hover:hover) and (pointer:fine){.tp1-new .tp1-new-thumb:hover{transform:translateY(-5px) rotateX(5deg);box-shadow:0 10px 25px rgba(0,0,0,.28)}}
+@media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth>img{transform:none!important;transition:none!important;will-change:auto}.tp1-new .tp1-new-thumb{transition:none!important}}
+@media(hover:none){.tp1-new .tp1-hero-depth>img{will-change:auto}}
