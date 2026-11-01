@@ -302,3 +302,13 @@
 .tp1-new .tp1-new-visual{isolation:isolate;background:transparent!important}
 .tp1-new .tp1-new-visual img{mix-blend-mode:screen!important;filter:contrast(1.18) saturate(1.08)!important;background:transparent!important}
 .tp1-new .tp1-new-thumb img{mix-blend-mode:screen;filter:contrast(1.12) saturate(1.08)}
+
+
+/* Remove visible black rectangular edges on hero slides 2/3; leave approved slide 1 untouched. */
+.tp1-new .tp1-new-visual.tp1-burger-feather img{
+  mix-blend-mode:screen!important;
+  -webkit-mask-image:radial-gradient(ellipse 73% 68% at 50% 50%,#000 58%,rgba(0,0,0,.96) 71%,rgba(0,0,0,.55) 85%,transparent 100%);
+  mask-image:radial-gradient(ellipse 73% 68% at 50% 50%,#000 58%,rgba(0,0,0,.96) 71%,rgba(0,0,0,.55) 85%,transparent 100%);
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+}
+.tp1-new .tp1-new-visual.tp1-burger-clean img{-webkit-mask-image:none!important;mask-image:none!important}
