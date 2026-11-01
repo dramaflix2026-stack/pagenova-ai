@@ -20,7 +20,7 @@ export function BuilderV2TP1Hero({site}:{site:BuilderV2SiteData}){
  ];
  const cards=menuItems.length?menuItems.map((item,i)=>({id:item.id,name:item.name,description:item.description,price:item.price,image:item.image||mediaBase+images[i%images.length]+".png"})):fallbackMenu;
  const formatPrice=(price:number|null)=>typeof price==="number"&&Number.isFinite(price)?new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(price):null;
- const storyImage=site.blocks.find(b=>b.type==="image"&&typeof b.src==="string"&&b.src)?.src||mediaBase+images[0]+".png";
+ const storyImage=mediaBase+"immersive-3d/hamburgueria/desktop-0a605e99-b32e-49ed-86bd-70817c30f3ff.png";
  const storyParagraphs=site.blocks.filter(b=>b.type==="paragraph"&&typeof b.text==="string"&&b.text.trim().length>65);
  const storyText=storyParagraphs.length>1?storyParagraphs[1].text:"Acreditamos que um hambúrguer especial começa muito antes da primeira mordida. Está na escolha dos ingredientes, no cuidado com cada preparo e no prazer de reunir pessoas em torno de uma boa experiência.";
  const featurePhotos=site.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src as string);
