@@ -345,3 +345,19 @@
  .tp1-new .tp1-hero-depth.tp1-touch-tilting>img{transition:transform .07s linear!important}
 }
 @media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth{animation:none!important}.tp1-new .tp1-hero-depth>img{transition:none!important}}
+
+
+/* Menu depth: preserve existing card composition and photographs. */
+.tp1-new .tp1-new-menu-photo{perspective:1050px;transform-style:preserve-3d;overflow:visible;touch-action:pan-y}
+.tp1-new .tp1-new-menu-photo>img{transform:translate3d(var(--menu-x,0px),0,0) rotateX(var(--menu-rx,0deg)) rotateY(var(--menu-ry,0deg)) translateZ(18px);transform-origin:center;backface-visibility:hidden;transition:transform .36s cubic-bezier(.2,.75,.2,1);will-change:transform}
+@keyframes tp1-menu-burger-float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+@media(prefers-reduced-motion:no-preference){
+ .tp1-new .tp1-new-menu-photo>img{animation:tp1-menu-burger-float 5.2s ease-in-out infinite}
+ .tp1-new .tp1-new-menu-item:nth-child(2) .tp1-new-menu-photo>img{animation-delay:-1.7s}
+ .tp1-new .tp1-new-menu-item:nth-child(3) .tp1-new-menu-photo>img{animation-delay:-3.4s}
+ .tp1-new .tp1-new-menu-item{transition:opacity .65s ease,translate .65s ease}
+ @supports(selector(:has(*))){.tp1-new .tp1-new-menu-item:not(.tp1-menu-in-view){opacity:.85;translate:0 12px}}
+}
+.tp1-new .tp1-new-menu-photo.tp1-menu-touch-active>img{transition:transform .09s linear;animation-play-state:paused}
+@media(hover:hover) and (pointer:fine){.tp1-new .tp1-new-menu-item:hover .tp1-new-menu-photo>img{transform:translate3d(0,-3px,24px) rotateY(5deg) rotateX(2deg)}}
+@media(prefers-reduced-motion:reduce){.tp1-new .tp1-new-menu-photo>img{animation:none!important;transform:none!important;transition:none!important}.tp1-new .tp1-new-menu-item{transition:none!important;translate:none!important;opacity:1!important}}
