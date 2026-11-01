@@ -993,7 +993,7 @@ export default function BuilderV2() {
       setMessages(prev=>[...prev,{role:"assistant",text:"Não consegui identificar uma edição localizada segura para esse pedido. Nenhuma alteração foi aplicada."}]);
       setInstruction("");setBusy(false);return;
     }
-    const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
+    const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:(?:um|uma|novo|nova)\s+)?(?:site|pagina|página|landing page)\b/i.test(prompt);
     const targetKind:SiteCategory=siteCategory;
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
@@ -1026,7 +1026,7 @@ export default function BuilderV2() {
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;}
+      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;}
       else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
