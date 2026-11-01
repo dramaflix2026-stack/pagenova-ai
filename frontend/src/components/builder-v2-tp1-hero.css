@@ -84,3 +84,36 @@
 .tp1-new-benefits-editorial .tp1-new-benefits-photo:after{content:"";position:absolute;inset:50% 0 0;background:linear-gradient(transparent,#000b);pointer-events:none}
 .tp1-new-benefits-editorial .tp1-new-benefits-photo>span{position:absolute;bottom:18px;left:18px;z-index:1;color:#fff;font-size:12px;font-weight:900;letter-spacing:.09em}
 @media(max-width:760px){.tp1-new-benefits.tp1-new-benefits-editorial{padding:75px 18px 80px}.tp1-new-benefits-editorial .tp1-new-benefits-display{padding:12px 0 20px}.tp1-new-benefits-editorial .tp1-new-benefits-display h2{font-size:clamp(47px,12vw,91px);margin:30px auto 22px;letter-spacing:-.075em}.tp1-new-benefits-editorial .tp1-new-benefits-seal{top:-45px;width:70px;height:70px;font-size:17px}.tp1-new-benefits-editorial .tp1-new-benefits-seal small{font-size:7px}.tp1-new-benefits-editorial .tp1-new-benefits-caption{flex-direction:column;gap:16px;margin-top:25px}.tp1-new-benefits-editorial .tp1-new-benefits-caption a{min-width:210px;padding:15px 22px}.tp1-new-benefits-editorial .tp1-new-benefits-caption p{text-align:center;font-size:12px}.tp1-new-benefits-editorial .tp1-new-benefits-categories{overflow-x:auto;justify-content:flex-start;gap:24px;margin-top:30px;scrollbar-width:none}.tp1-new-benefits-editorial .tp1-new-benefits-categories span{font-size:9px}.tp1-new-benefits-editorial .tp1-new-benefits-photo-strip{gap:6px}.tp1-new-benefits-editorial .tp1-new-benefits-photo{height:clamp(160px,48vw,290px)}.tp1-new-benefits-editorial .tp1-new-benefits-photo>span{left:7px;bottom:10px;font-size:8px;letter-spacing:0}}
+
+/* TP1 rebuilt reference composition. Scoped v2 rules intentionally supersede the rejected design. */
+.tp1-new .tp1-new-story{padding-top:clamp(45px,5vw,80px);padding-bottom:clamp(48px,5vw,85px);gap:clamp(24px,4vw,60px)}
+.tp1-new .tp1-new-story-visual{padding-bottom:14px}
+.tp1-new .tp1-new-story-photo{height:clamp(310px,34vw,480px)}
+.tp1-new .tp1-new-story-copy h2{font-size:clamp(36px,4.1vw,62px);margin:14px 0 18px}
+.tp1-new .tp1-new-story-copy p{line-height:1.65;margin-bottom:10px}
+.tp1-new .tp1-new-story-link{margin-top:12px}
+.tp1-new .tp1-new-benefits-v2{padding:clamp(55px,6vw,85px) clamp(16px,5vw,70px) clamp(45px,5vw,75px);background:#121116}
+.tp1-new .tp1-diff-inner{max-width:1320px;margin:auto}
+.tp1-new .tp1-diff-masthead{position:relative;isolation:isolate;min-height:clamp(340px,42vw,570px);padding:clamp(65px,7vw,105px) 0 38px;text-align:center}
+.tp1-new .tp1-diff-masthead h2{position:relative;z-index:2;margin:0;font-family:Arial,Helvetica,sans-serif;font-size:clamp(66px,10.7vw,158px);font-weight:1000;line-height:.82;letter-spacing:-.085em;color:#f8ebd4;text-transform:uppercase}
+.tp1-new .tp1-diff-masthead h2>span{display:block}
+.tp1-new .tp1-diff-title-second{position:relative}
+.tp1-new .tp1-diff-title-second:after{content:"";position:absolute;z-index:-1;width:18%;height:33%;top:28%;left:31%;background:#ec554b;transform:rotate(-13deg)}
+.tp1-new .tp1-diff-seal{position:absolute;z-index:4;top:0;left:50%;transform:translateX(-50%) rotate(-11deg);display:flex;flex-direction:column;align-items:center;justify-content:center;width:clamp(75px,8vw,108px);height:clamp(75px,8vw,108px);border-radius:50%;background:#ffd52b;color:#18131a;box-shadow:0 0 0 5px #121116,0 0 0 7px #ffd52b}
+.tp1-new .tp1-diff-seal>span{font-size:32px;line-height:1}
+.tp1-new .tp1-diff-seal small{font-size:8px;line-height:1.2;letter-spacing:.07em;font-weight:900}
+.tp1-new .tp1-diff-side-photo{position:absolute;z-index:1;top:25%;width:clamp(90px,15vw,210px);height:clamp(105px,17vw,225px);border-radius:50%;overflow:hidden;border:5px solid #1a171c}
+.tp1-new .tp1-diff-side-photo img{width:100%;height:100%;object-fit:cover}
+.tp1-new .tp1-diff-side-left{left:-9%;transform:rotate(-15deg)}
+.tp1-new .tp1-diff-side-right{right:-9%;transform:rotate(15deg)}
+.tp1-new .tp1-diff-under{position:relative;z-index:3;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(20px,3vw,45px);max-width:700px;margin:34px auto 0;text-align:left}
+.tp1-new .tp1-diff-under a{display:flex;align-items:center;justify-content:center;gap:20px;padding:16px 20px;background:#ffd12c;border-radius:999px;color:#17131b!important;font-size:12px;font-weight:900;white-space:nowrap}
+.tp1-new .tp1-diff-under p{margin:0;font-size:12px;line-height:1.65;color:#b8b4bb}
+.tp1-new .tp1-diff-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border-top:1px solid #343038;border-bottom:1px solid #343038;margin:20px 0 12px;padding:19px 0;text-align:center}
+.tp1-new .tp1-diff-tabs span{color:#e6d9c5;font-size:clamp(9px,1vw,12px);font-weight:800;letter-spacing:.08em}
+.tp1-new .tp1-diff-photos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.tp1-new .tp1-diff-photos figure{position:relative;overflow:hidden;margin:0;height:clamp(225px,26vw,380px);background:#272228}
+.tp1-new .tp1-diff-photos figure img{width:100%;height:100%;object-fit:cover;display:block}
+.tp1-new .tp1-diff-photos figure:after{content:"";position:absolute;inset:55% 0 0;background:linear-gradient(transparent,#000b)}
+.tp1-new .tp1-diff-photos figcaption{position:absolute;z-index:2;bottom:16px;left:16px;font-size:11px;font-weight:900;letter-spacing:.08em;color:white}
+@media(max-width:760px){.tp1-new .tp1-new-story{padding-top:38px;padding-bottom:43px;gap:30px}.tp1-new .tp1-new-story-photo{height:clamp(265px,75vw,390px)}.tp1-new .tp1-new-story-copy h2{font-size:clamp(38px,9vw,54px)}.tp1-new .tp1-new-benefits-v2{padding:62px 16px 55px}.tp1-new .tp1-diff-masthead{min-height:0;padding:40px 0 18px}.tp1-new .tp1-diff-masthead h2{font-size:clamp(47px,12vw,92px);letter-spacing:-.075em;line-height:.88}.tp1-new .tp1-diff-seal{top:-38px;width:68px;height:68px}.tp1-new .tp1-diff-seal>span{font-size:22px}.tp1-new .tp1-diff-seal small{font-size:6px}.tp1-new .tp1-diff-side-photo{top:8%;width:70px;height:75px;border-width:3px;opacity:.85}.tp1-new .tp1-diff-side-left{left:-45px}.tp1-new .tp1-diff-side-right{right:-45px}.tp1-new .tp1-diff-under{grid-template-columns:1fr 1fr;gap:12px;margin-top:24px}.tp1-new .tp1-diff-under a{font-size:9px;padding:13px 9px;gap:7px}.tp1-new .tp1-diff-under p{font-size:10px;line-height:1.4}.tp1-new .tp1-diff-tabs{margin-top:24px;gap:7px;padding:13px 0}.tp1-new .tp1-diff-tabs span{font-size:8px;letter-spacing:0}.tp1-new .tp1-diff-photos{gap:5px}.tp1-new .tp1-diff-photos figure{height:clamp(165px,48vw,245px)}.tp1-new .tp1-diff-photos figcaption{bottom:8px;left:6px;font-size:7px;letter-spacing:0}}
