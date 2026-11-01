@@ -325,3 +325,13 @@
 @media(hover:hover) and (pointer:fine){.tp1-new .tp1-new-thumb:hover{transform:translateY(-5px) rotateX(5deg);box-shadow:0 10px 25px rgba(0,0,0,.28)}}
 @media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth>img{transform:none!important;transition:none!important;will-change:auto}.tp1-new .tp1-new-thumb{transition:none!important}}
 @media(hover:none){.tp1-new .tp1-hero-depth>img{will-change:auto}}
+
+
+/* Mobile 3D: floating product at rest; touching it temporarily controls its perspective. */
+@keyframes tp1-burger-mobile-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-11px,0)}}
+@media(hover:none) and (pointer:coarse){
+ .tp1-new .tp1-hero-depth{touch-action:pan-y;overflow:visible}
+ .tp1-new .tp1-hero-depth>img{animation:tp1-burger-mobile-float 4.8s ease-in-out infinite;transform:translate3d(var(--burger-x,0px),var(--burger-y,0px),0) rotateX(var(--burger-rx,0deg)) rotateY(var(--burger-ry,0deg)) translateZ(22px)}
+ .tp1-new .tp1-hero-depth:active>img{animation:none}
+}
+@media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth>img{animation:none!important}}
