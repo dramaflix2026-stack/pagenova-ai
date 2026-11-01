@@ -22,7 +22,9 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
   </header>
   {open&&<nav className="g2-mobile-menu" aria-label="Menu móvel">{links.map(([label,href])=><a href={href} key={href} onClick={()=>setOpen(false)}>{label}</a>)}</nav>}
   <main><section id="inicio" className="g2-hero">
+   <div className="g2-hero-aura" aria-hidden="true"/>
    <div className="g2-hero-image" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
+   <div className="g2-hero-foreground" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
    <div className="g2-hero-shade" aria-hidden="true"/>
    <div className="g2-hero-content"><span className="g2-kicker">TRADIÇÃO · FORNO · PAIXÃO</span><h1>{title}</h1><p>{subtitle}</p><a className="g2-hero-cta" href="#produtos">Explorar cardápio <span aria-hidden="true">→</span></a></div>
   </section>
