@@ -408,3 +408,29 @@
 @media(hover:hover){.pn3-tp1-premium .pn3-tp1-hero-copy a:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(220,149,55,.38)}}
 @media(max-width:640px){.pn3-tp1-premium .pn3-tp1-stage{height:clamp(340px,56vh,610px)!important}.pn3-tp1-premium .pn3-tp1-hero-copy{padding:38px 20px 62px!important}.pn3-tp1-premium .pn3-tp1-hero-copy:before{font-size:9px;letter-spacing:.18em}.pn3-tp1-premium .pn3-tp1-hero-copy h1{font-size:clamp(44px,12vw,68px)!important}.pn3-tp1-premium .pn3-header{gap:8px!important}}
 @media(prefers-reduced-motion:reduce){.pn3-tp1-premium .pn3-tp1-hero-copy a{transition:none!important}}
+
+
+/* TP1 3D approved sections: floating products + cinematic behind-the-scenes story */
+.pn3-tp1-premium .pn3-tp1-products{background:radial-gradient(ellipse at 50% 12%,rgba(202,139,64,.13),transparent 58%),#110e0c!important}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-grid{perspective:1100px;gap:clamp(20px,3vw,38px)!important}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-product{position:relative;overflow:visible!important;background:linear-gradient(150deg,#28201a,#15110e)!important;border:1px solid rgba(241,196,129,.22)!important;border-radius:26px!important;box-shadow:0 24px 45px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.06);transform-style:preserve-3d;transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s ease}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-photo{overflow:visible!important;isolation:isolate;transform:translateZ(24px)}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-photo img{object-fit:contain!important;filter:drop-shadow(0 22px 20px rgba(0,0,0,.48));transition:transform .5s cubic-bezier(.2,.8,.2,1);transform:translateY(-9px) scale(1.04)}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-copy{position:relative;z-index:2;transform:translateZ(12px)}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-copy h3{color:#fff0d9!important}
+.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-copy p{color:#d3c0a9!important}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-product:hover{transform:translateY(-12px) rotateX(3deg) rotateY(-3deg);box-shadow:0 38px 70px rgba(0,0,0,.55)}.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-product:hover .pn3-bakery-menu-photo img{transform:translateY(-22px) scale(1.1)}}
+.pn3-tp1-premium .pn3-tp1-story{display:grid;grid-template-columns:1.08fr .92fr;min-height:590px;background:#19130f;color:#f6eee2;overflow:hidden}
+.pn3-tp1-premium .pn3-tp1-story-media{position:relative;min-height:500px;overflow:hidden;isolation:isolate}
+.pn3-tp1-premium .pn3-tp1-story-media picture,.pn3-tp1-premium .pn3-tp1-story-media img{display:block;width:100%;height:100%}
+.pn3-tp1-premium .pn3-tp1-story-media img{position:absolute;inset:0;object-fit:cover;filter:brightness(.8) saturate(.85);transition:transform 1.2s ease}
+.pn3-tp1-premium .pn3-tp1-story-media:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 40%,rgba(16,11,8,.5));pointer-events:none}
+.pn3-tp1-premium .pn3-tp1-story-stamp{position:absolute;left:clamp(22px,4vw,60px);bottom:40px;z-index:2;color:#f4d49b;letter-spacing:.2em;font-size:12px;font-weight:700}
+.pn3-tp1-premium .pn3-tp1-story-stamp span{font-size:24px;margin-left:12px}
+.pn3-tp1-premium .pn3-tp1-story-copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:26px;padding:clamp(42px,7vw,110px)}
+.pn3-tp1-premium .pn3-tp1-story-copy h2{font:500 clamp(42px,4.8vw,76px)/1.08 Georgia,serif;letter-spacing:-.045em;color:#fff0da;margin:0}
+.pn3-tp1-premium .pn3-tp1-story-copy p{font-size:clamp(16px,1.35vw,20px);line-height:1.8;color:#d4c5b1;margin:0;max-width:580px}
+.pn3-tp1-premium .pn3-tp1-story-copy>a{display:inline-flex;gap:16px;color:#f1c88b;border-bottom:1px solid rgba(241,200,139,.6);padding-bottom:12px;text-decoration:none;font-size:14px;font-weight:700}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.pn3-tp1-premium .pn3-tp1-story:hover .pn3-tp1-story-media img{transform:scale(1.055)}}
+@media(max-width:800px){.pn3-tp1-premium .pn3-tp1-story{grid-template-columns:1fr}.pn3-tp1-premium .pn3-tp1-story-media{min-height:340px}.pn3-tp1-premium .pn3-tp1-story-copy{padding:48px 24px 65px}.pn3-tp1-premium .pn3-tp1-story-copy h2{font-size:clamp(38px,10vw,60px)}}
+@media(prefers-reduced-motion:reduce){.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-product,.pn3-tp1-premium .pn3-tp1-products .pn3-bakery-menu-photo img,.pn3-tp1-premium .pn3-tp1-story-media img{transition:none!important;transform:none!important}}
