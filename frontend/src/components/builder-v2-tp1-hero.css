@@ -336,3 +336,12 @@
 }
 @media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth>img{animation:none!important}}
 \n@media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth{animation:none!important}}\n
+
+/* Fix mobile 3D: float the wrapper, not the image, so touch tilt's transform is never overridden. */
+@media(hover:none) and (pointer:coarse){
+ .tp1-new .tp1-hero-depth{animation:tp1-burger-mobile-float 4.8s ease-in-out infinite;touch-action:pan-y}
+ .tp1-new .tp1-hero-depth>img{animation:none!important;transform:translate3d(var(--burger-x,0px),var(--burger-y,0px),22px) rotateX(var(--burger-rx,0deg)) rotateY(var(--burger-ry,0deg))!important;transition:transform .12s ease-out!important;pointer-events:none}
+ .tp1-new .tp1-hero-depth.tp1-touch-tilting{animation-play-state:paused}
+ .tp1-new .tp1-hero-depth.tp1-touch-tilting>img{transition:transform .07s linear!important}
+}
+@media(prefers-reduced-motion:reduce){.tp1-new .tp1-hero-depth{animation:none!important}.tp1-new .tp1-hero-depth>img{transition:none!important}}
