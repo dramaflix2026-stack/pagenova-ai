@@ -1002,7 +1002,12 @@ export default function BuilderV2() {
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:undefined;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||selectedNiche||undefined,templateId:templateForCreation,properties:[]}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    const isGastronomy3d=/hamburg|burger|pizzaria|pizza|padaria|confeitaria|cafeteria|gastronomia|lanchonete|restaurante|doceria/.test(normalizedNiche);
+    const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
+    const auto3d=creatingNewSite&&(explicitly3d||site.cinematic?.mode==="immersive-3d");
+    const auto3dTemplate=isGastronomy3d?"universal":"hamburgueria";
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1026,7 +1031,7 @@ export default function BuilderV2() {
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;}
+      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||explicitNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;if(auto3d){incoming.cinematic={...incoming.cinematic,mode:"immersive-3d"};incoming.extras={...(incoming.extras||{}),immersive3dTemplate:auto3dTemplate};}}
       else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
@@ -1290,7 +1295,7 @@ export default function BuilderV2() {
       {(["static","cinematic","immersive-3d"] as const).map(mode=><button key={mode} type="button" aria-pressed={(site.cinematic?.mode||"static")===mode} onClick={()=>setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode},templateId:mode==="cinematic"?"prompt-adaptive":prev.templateId}))} className={`rounded-lg border px-2 py-3 text-sm font-semibold break-words whitespace-normal transition ${(site.cinematic?.mode||"static")===mode?"border-lime-300 bg-lime-300 text-black":"border-white/25 bg-[#0d1713] text-white"}`}>{mode==="static"?"Estático":mode==="cinematic"?"Cinematográfico":"3D Imersivo"}</button>)}
     </div>
     {site.cinematic?.mode==="cinematic"&&<p className="mb-3 text-left text-xs text-white/65">O vídeo é selecionado automaticamente do Banco de Vídeos conforme o nicho. Se ainda não houver vídeo cadastrado, o site mantém a imagem estática.</p>}
-    {site.cinematic?.mode==="immersive-3d"&&<select aria-label="Template 3D" value={String(site.extras?.immersive3dTemplate||"universal")} onChange={e=>setSite(prev=>({...prev,extras:{...(prev.extras||{}),immersive3dTemplate:e.target.value}}))}><option value="universal">01 — Gastronomia 3D (hamburgueria, padaria, pizzaria, cafeteria e confeitaria)</option><option value="hamburgueria">02 — Cinematográfico Editorial (todos os nichos)</option></select>}
+    
     {site.cinematic?.mode!=="immersive-3d"&&<><label htmlFor="pn-template-choice" className="mb-2 block text-left text-xs text-white/65">Escolha o template</label>
     <select id="pn-template-choice" aria-label="Escolher template visual" value={site.cinematic?.mode==="cinematic"?"prompt-adaptive":site.templateId||"institutional-complete"}
       onChange={e=>{
