@@ -85,3 +85,11 @@
 .g2-hero-foreground img{object-position:72% 46%}
 }
 @media(prefers-reduced-motion:reduce){.g2-hero-aura,.g2-hero-image img,.g2-hero-foreground img,.g2-hero-content{animation:none}}
+
+/* Final polish: remove the diagonal mask seam without changing the hero composition. */
+.g2-hero-foreground{clip-path:none;mask-image:radial-gradient(ellipse 39% 39% at 78% 38%,#000 20%,#000b 52%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 39% 39% at 78% 38%,#000 20%,#000b 52%,transparent 100%)}
+@media(max-width:900px){
+.g2-hero{min-height:550px}
+.g2-hero-foreground{clip-path:none;mask-image:radial-gradient(ellipse 38% 35% at 77% 39%,#000 15%,#0008 52%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 38% 35% at 77% 39%,#000 15%,#0008 52%,transparent 100%)}
+}
+@media(max-width:430px){.g2-hero{min-height:520px}}
