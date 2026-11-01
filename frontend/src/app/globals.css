@@ -1880,7 +1880,7 @@ html{scrollbar-gutter:stable}
   [data-pn-composition="editorial-gallery-3d"] a[data-block-id] h3 { font-size: clamp(16px,4vw,21px); line-height: 1.16; overflow-wrap: anywhere; }
   [data-pn-composition="editorial-gallery-3d"] a[data-block-id] p { font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
   [data-pn-composition="editorial-gallery-3d"] a[data-block-id] span { letter-spacing: .07em; overflow-wrap: anywhere; }
-  [data-pn-composition="luxury-art-gallery"] .grid.grid-cols-3 { gap: 10px; }
+  [data-pn-composition="luxury-art-gallery"] .grid.grid-cols-3 { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
   [data-pn-composition="luxury-art-gallery"] .space-y-14 { display: grid; gap: 28px; }
   [data-pn-composition="luxury-art-gallery"] .mt-7 { margin-top: 16px; }
   [data-pn-composition="luxury-art-gallery"] .font-serif { font-size: clamp(25px,7vw,39px); }
