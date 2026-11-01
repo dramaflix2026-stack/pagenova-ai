@@ -296,3 +296,9 @@
 .tp1-new footer.tp1-footer .tp1-footer-bottom{border-top:1px solid #1b120b66}
 @media(max-width:850px){.tp1-new footer.tp1-footer .tp1-footer-marquee{margin-top:52px}.tp1-new footer.tp1-footer .tp1-footer-marquee span{font-size:clamp(38px,10vw,80px)}.tp1-new footer.tp1-footer .tp1-footer-info{display:grid;grid-template-columns:1fr 1fr;gap:24px}.tp1-new footer.tp1-footer .tp1-footer-info nav a{padding:4px 0}.tp1-new footer.tp1-footer .tp1-footer-bottom{padding-top:18px}}
 @media(max-width:480px){.tp1-new footer.tp1-footer{padding:55px 22px 25px}.tp1-new footer.tp1-footer .tp1-footer-info{grid-template-columns:1fr}.tp1-new footer.tp1-footer .tp1-footer-intro h2{font-size:clamp(48px,12vw,70px)}.tp1-new footer.tp1-footer .tp1-footer-marquee span{font-size:clamp(38px,10vw,56px)}}
+
+
+/* Hero burger cutout compositing: black source pixels visually disappear over gradient */
+.tp1-new .tp1-new-visual{isolation:isolate;background:transparent!important}
+.tp1-new .tp1-new-visual img{mix-blend-mode:screen!important;filter:contrast(1.18) saturate(1.08)!important;background:transparent!important}
+.tp1-new .tp1-new-thumb img{mix-blend-mode:screen;filter:contrast(1.12) saturate(1.08)}
