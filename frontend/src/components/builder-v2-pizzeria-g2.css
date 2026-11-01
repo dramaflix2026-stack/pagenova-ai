@@ -143,3 +143,28 @@
 @media(max-width:900px){.g2-essence{grid-template-columns:1fr}.g2-essence-visual{min-height:480px}.g2-essence-visual:after{background:linear-gradient(0deg,#0c0908 0%,transparent 35%),radial-gradient(circle at 50% 45%,transparent 20%,#08050455 100%)}.g2-essence-copy{padding:55px 7vw 80px}.g2-essence-copy h2{font-size:clamp(43px,8vw,67px)}}
 @media(max-width:600px){.g2-essence-visual{min-height:390px}.g2-essence-photo{background-position:69% center}.g2-essence-seal{top:24px;left:22px;width:93px;height:93px}.g2-essence-seal span{font-size:7px}.g2-essence-seal strong{font-size:22px}.g2-essence-photo-caption{left:22px;bottom:30px;font-size:9px}.g2-essence-copy{padding:48px 23px 74px}.g2-essence-copy h2{font-size:clamp(41px,10vw,56px)}.g2-essence-copy p{font-size:14px}.g2-essence-eyebrow{margin-bottom:21px}}
 @media(prefers-reduced-motion:reduce){.g2-essence-photo,.g2-essence-sparks i{animation:none}.g2-essence-cta{transition:none}}
+
+/* G2 section 04 — full cinematic three-stage process reference. */
+.g2-process{background:#080707;padding:clamp(85px,9vw,145px) clamp(20px,5vw,86px) clamp(95px,10vw,155px);overflow:hidden;border-top:1px solid #ffffff13}
+.g2-process-intro{text-align:center;max-width:800px;margin:0 auto 58px}
+.g2-process-kicker{display:block;color:#e9835c;font-size:11px;letter-spacing:.27em;font-weight:700;margin-bottom:22px}
+.g2-process-intro h2{font-size:clamp(44px,6vw,86px);letter-spacing:-.065em;line-height:1.04;font-weight:600;margin:0 0 24px}
+.g2-process-intro h2 em{font-family:Georgia,serif;color:#f0a17b;font-weight:400}
+.g2-process-intro p{color:#c1b1aa;line-height:1.7;font-size:16px;max-width:530px;margin:0 auto}
+.g2-process-stages{display:grid;grid-template-columns:1.18fr 1fr 1fr;gap:18px;max-width:1450px;margin:0 auto}
+.g2-process-stage{min-width:0;min-height:540px;position:relative;isolation:isolate;overflow:hidden;border-radius:14px;background:#1b120f;border:1px solid #ffffff20;transition:transform .45s ease,box-shadow .45s ease}
+.g2-process-stage-featured{min-height:610px;margin-top:-35px}
+.g2-process-photo{position:absolute;inset:0;z-index:-2;overflow:hidden}
+.g2-process-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.04);transition:transform .9s cubic-bezier(.2,.8,.2,1);filter:saturate(.88) contrast(1.12)}
+.g2-process-stage-featured .g2-process-photo img{object-position:48% center}
+.g2-process-gradient{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#0004 0%,transparent 32%,#0c0807b8 70%,#080605f5 100%)}
+.g2-process-stage:hover{transform:translateY(-9px);box-shadow:0 30px 65px #000a}
+.g2-process-stage:hover img{transform:scale(1.11)}
+.g2-process-caption{position:absolute;bottom:0;left:0;right:0;padding:clamp(24px,3vw,43px)}
+.g2-process-caption>span{display:flex;align-items:center;gap:12px;color:#f0a17b;font-size:10px;font-weight:700;letter-spacing:.19em;margin-bottom:19px}
+.g2-process-caption>span i{width:28px;height:1px;background:#e36b40}
+.g2-process-caption h3{font-size:clamp(25px,2.7vw,39px);line-height:1.08;letter-spacing:-.05em;font-weight:600;margin:0 0 13px}
+.g2-process-caption p{font-size:13px;line-height:1.65;color:#dfd0c9;margin:0;max-width:320px}
+@media(max-width:1000px){.g2-process-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.g2-process-stage-featured{grid-column:1/-1;margin-top:0;min-height:540px}.g2-process-stage{min-height:480px}.g2-process-stage-featured .g2-process-photo img{object-position:center 42%}}
+@media(max-width:600px){.g2-process{padding:76px 18px 95px}.g2-process-intro{text-align:left;margin-bottom:36px}.g2-process-intro h2{font-size:clamp(43px,10.5vw,58px)}.g2-process-intro p{font-size:14px}.g2-process-stages{grid-template-columns:1fr;gap:17px}.g2-process-stage,.g2-process-stage-featured{grid-column:auto;min-height:465px}.g2-process-stage-featured{min-height:520px}.g2-process-caption{padding:27px}.g2-process-caption h3{font-size:32px}}
+@media(prefers-reduced-motion:reduce){.g2-process-stage,.g2-process-photo img{transition:none}.g2-process-stage:hover{transform:none}}
