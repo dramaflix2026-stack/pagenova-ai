@@ -35,3 +35,30 @@ export function BuilderV2TP6Model2Hero({brand,niche,headline,description,image,c
  <section id="inicio" className="tp6m2-hero"><div className="tp6m2-copy"><span className="tp6m2-kicker"><span className="tp6m2-dot"/> {c.tag} <span className="tp6m2-line"/></span><h1>{headline||c.title}</h1><p>{description||c.description}</p><a className="tp6m2-action" href={ctaHref||"#produtos"}>{c.cta}<span aria-hidden="true">↗</span></a><div className="tp6m2-footnote"><span>01 / 02</span><span>CURADORIA & ESTILO</span></div></div><div className="tp6m2-visual">{primary?<img className="tp6m2-main-image" src={primary} alt={"Fotografia principal de "+niche}/>:<div className="tp6m2-placeholder" aria-label="Imagem de campanha pendente"/>}<div className="tp6m2-visual-tag">ESSENCIAIS<br/>DA ESTAÇÃO <span>↗</span></div>{secondary&&<div className="tp6m2-secondary"><img src={secondary} alt={"Detalhe da coleção de "+niche}/></div>}<div className="tp6m2-vertical">DESIGN • CURADORIA • EXPERIÊNCIA</div></div></section>
  </div>;
 }
+
+const retailCollections:Record<string,string[]>={
+"Loja de roupas":["Essenciais","Novidades","Looks da estação","Acessórios"],
+"Loja de calçados":["Casual","Clássicos","Esportivos","Novidades"],
+"Joalheria e semijoias":["Colares","Anéis","Brincos","Peças especiais"],
+"Ótica":["Armações","Óculos solares","Clássicos","Novidades"],
+"Perfumaria e cosméticos":["Fragrâncias","Cuidados com a pele","Maquiagem","Essenciais"],
+"Pet shop":["Acessórios","Brinquedos","Conforto","Cuidados"],
+"Loja de eletrônicos":["Tecnologia","Áudio","Acessórios","Novidades"],
+"Loja de celulares e acessórios":["Celulares","Capas","Carregadores","Acessórios"],
+"Loja de móveis e decoração":["Sala de estar","Quarto","Decoração","Ambientes"],
+"Floricultura":["Buquês","Arranjos","Plantas","Presentes"],
+"Papelaria":["Cadernos","Escrita","Organização","Criatividade"],
+"Loja de brinquedos":["Criatividade","Jogos","Primeira infância","Presentes"],
+"Loja de artigos esportivos":["Treino","Corrida","Acessórios","Performance"],
+"Loja de presentes e personalizados":["Presentes","Personalizados","Ocasiões","Favoritos"],
+"E-commerce multimarcas":["Destaques","Novidades","Seleção especial","Favoritos"]
+};
+export function BuilderV2TP6Model2GalleryAndJourney({niche,photos,ctaHref}:{niche:string;photos:string[];ctaHref?:string}){
+ const collections=retailCollections[niche]||retailCollections["E-commerce multimarcas"];
+ const steps=[
+  {number:"01",title:"Explore a seleção",description:"Navegue pelas coleções e encontre opções que combinam com o que você procura."},
+  {number:"02",title:"Escolha seu favorito",description:"Confira os detalhes e as informações disponíveis antes de decidir."},
+  {number:"03",title:"Entre em contato",description:"Use o canal de atendimento disponibilizado pela loja para consultar compra, pagamento e entrega."}
+ ];
+ return <><section id="produtos" className="tp6m2-gallery" aria-labelledby="tp6m2-gallery-title"><div className="tp6m2-section-eyebrow"><span>04 / NOSSA CURADORIA</span><span>DESCUBRA AS COLEÇÕES</span></div><div className="tp6m2-gallery-heading"><h2 id="tp6m2-gallery-title">Encontre o seu próximo favorito<span>.</span></h2><p>Uma seleção visual para conhecer os destaques de {niche.toLocaleLowerCase("pt-BR")}.</p></div><div className="tp6m2-mosaic">{collections.map((label,i)=><a className={"tp6m2-mosaic-card tp6m2-mosaic-card-"+i} href={ctaHref||"#contato"} key={label}>{photos.length>0?<img src={photos[i%photos.length]} alt={"Imagem ilustrativa da coleção "+label} loading="lazy"/>:<div className="tp6m2-mosaic-empty" aria-label="Fotografia da coleção não cadastrada"/>}<span className="tp6m2-mosaic-caption"><span>{String(i+1).padStart(2,"0")} / {label}</span><span aria-hidden="true">↗</span></span></a>)}</div></section><section id="como-comprar" className="tp6m2-journey" aria-labelledby="tp6m2-journey-title"><div className="tp6m2-section-eyebrow"><span>05 / SUA EXPERIÊNCIA</span><span>SIMPLES EM CADA ETAPA</span></div><div className="tp6m2-journey-intro"><h2 id="tp6m2-journey-title">Do primeiro olhar à sua escolha<span>.</span></h2><p>Três passos para descobrir produtos e falar com a loja, sem complicação.</p></div><div className="tp6m2-journey-list">{steps.map(step=><div className="tp6m2-journey-step" key={step.number}><span className="tp6m2-journey-number">{step.number}</span><div><h3>{step.title}</h3><p>{step.description}</p></div><span className="tp6m2-journey-arrow" aria-hidden="true">↗</span></div>)}</div><a className="tp6m2-journey-cta" href={ctaHref||"#contato"}>Conheça a seleção <span aria-hidden="true">↗</span></a></section></>;
+}
