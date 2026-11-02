@@ -1,3 +1,4 @@
+import { getTP6Model2InternetPhotos } from "@/lib/tp6-model2-internet-photos";
 "use client";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
@@ -241,11 +242,8 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      "Pet shop":["Acessórios","Conforto","Brinquedos","Favoritos"],
    };
    return <TP6LayoutChooser site={props.site} publishedMode={props.publishedMode} onVariantChange={props.onVariantChange}>{variant=>{   if(variant==="02"){
-     const catalog=(nichePhotoCatalog as Record<string,{desktop?:string[]}>);
-     const ids=catalog[retailNiche]?.desktop||catalog["Moda feminina"]?.desktop||[];
-     const photoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
-     const photos=ids.slice(0,4).map(id=>photoBase+id+".png");
-     return <div data-tp6-family="retail" data-tp6-variant="02"><BuilderV2TP6Model2Hero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage} ctaHref={props.site.header?.ctaHref} photos={photos}/><BuilderV2TP6Model2Sections brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} photos={photos}/><BuilderV2TP6Model2GalleryAndJourney niche={retailNiche} photos={photos} ctaHref={props.site.header?.ctaHref}/><BuilderV2TP6Model2TestimonialsAndFAQ niche={retailNiche} blocks={props.site.blocks} contactHref={props.site.header?.ctaHref}/><BuilderV2TP6Model2ContactNewsletter niche={retailNiche} photos={photos} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/><BuilderV2TP6Model2StoreInfoFooter brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address} cnpj={props.site.footer?.cnpj}/></div>;
+     const photos=getTP6Model2InternetPhotos(retailNiche);
+     return <div data-tp6-family="retail" data-tp6-variant="02"><BuilderV2TP6Model2Hero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={photos[0]} ctaHref={props.site.header?.ctaHref} photos={photos}/><BuilderV2TP6Model2Sections brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} photos={photos}/><BuilderV2TP6Model2GalleryAndJourney niche={retailNiche} photos={photos} ctaHref={props.site.header?.ctaHref}/><BuilderV2TP6Model2TestimonialsAndFAQ niche={retailNiche} blocks={props.site.blocks} contactHref={props.site.header?.ctaHref}/><BuilderV2TP6Model2ContactNewsletter niche={retailNiche} photos={photos} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/><BuilderV2TP6Model2StoreInfoFooter brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address} cnpj={props.site.footer?.cnpj}/></div>;
    }
    const labels=retailLabels[retailNiche]||["Seleção especial","Novidades","Favoritos","Nossa curadoria"];
    const curated=(photoBank?.desktop||[]).filter(Boolean).slice(0,4);
