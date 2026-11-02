@@ -419,3 +419,15 @@
 @keyframes g2-specialty-float{0%,100%{transform:translate3d(0,var(--g2-card-shift),45px) scale(1.11)}50%{transform:translate3d(0,-21px,65px) scale(1.14)}}
 @media(max-width:700px){.g2-pizzeria .g2-specialty-card{transform:none}.g2-pizzeria .g2-specialty-lift{animation-duration:8s}.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-specialty-card,.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transition:none}.g2-pizzeria .g2-specialty-lift{animation:none;transform:translate3d(0,-8px,0) scale(1.08)}}
+
+/* Hero mobile seam fix: single continuous pizza layer, no rectangular image overlap. */
+.g2-pizzeria .g2-hero-stage .g2-hero-image{overflow:hidden;border-radius:0;animation:g2-hero-pizza-levitate 9s ease-in-out infinite}
+.g2-pizzeria .g2-hero-stage .g2-hero-image img{mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 47%,#000d 65%,transparent 91%);-webkit-mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 47%,#000d 65%,transparent 91%)}
+.g2-pizzeria .g2-hero-shade{pointer-events:none}
+@media(max-width:700px){
+.g2-pizzeria .g2-hero{background:#080707}
+.g2-pizzeria .g2-hero-stage{inset:auto -7% 1% -7%;width:114%;height:66%;overflow:hidden}
+.g2-pizzeria .g2-hero-stage .g2-hero-image{inset:0;overflow:hidden}
+.g2-pizzeria .g2-hero-stage .g2-hero-image img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 43%,#000e 64%,transparent 90%);-webkit-mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 43%,#000e 64%,transparent 90%)}
+.g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 9%,#080707ef 22%,#08070755 40%,transparent 58%,#08070788 100%)}
+}
