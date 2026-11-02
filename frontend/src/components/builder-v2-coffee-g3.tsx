@@ -45,7 +45,6 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       <div className="g3-photo-frame">
        <img className="g3-coffee-photo" src="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-80f9ae64-79f1-4fcd-a55f-b8b4c9c52fa9.png" alt="Dois copos Aurora Coffee, tampa suspensa, explosão de café e grãos flutuantes" loading="eager"/>
       </div>
-      {beanPositions.map(([x,y,r],i)=><span className={"g3-bean g3-bean-"+i} key={i} style={{"--bx":x+"%","--by":y+"%","--br":r+"deg","--bd":(i%4)*-.6+"s"} as CSSProperties} aria-hidden="true"/>)}
       <div className="g3-origin">TORRA ARTESANAL <span>·</span> AROMA INCONFUNDÍVEL</div>
      </div>
     </section>
