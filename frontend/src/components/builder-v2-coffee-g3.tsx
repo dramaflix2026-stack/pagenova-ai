@@ -7,6 +7,7 @@ import "./builder-v2-coffee-g3.css";
 export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const [testimonialIndex,setTestimonialIndex]=useState(0);
+ const [openFaq,setOpenFaq]=useState<number|null>(0);
  const [motion,setMotion]=useState({x:0,y:0});
  const frame=useRef<number|null>(null);
  const title=site.header?.brand||site.title||"United Coffee";
@@ -116,6 +117,26 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
        <div className="g3-testimonials-controls"><span aria-label={"Depoimento demonstrativo "+(testimonialIndex+1)+" de 3"}>0{testimonialIndex+1} <span className="g3-testimonials-divider">/</span> 03</span><div><button type="button" aria-label="Depoimento anterior" onClick={()=>setTestimonialIndex(i=>(i+2)%3)}>←</button><button type="button" aria-label="Próximo depoimento" onClick={()=>setTestimonialIndex(i=>(i+1)%3)}>→</button></div></div>
       </div>
       <p className="g3-testimonials-footnote">Exemplos de apresentação. Substitua por depoimentos autorizados antes da publicação para clientes finais.</p>
+     </section>
+    <section className="g3-faq" id="faq" aria-labelledby="g3-faq-title">
+      <div className="g3-faq-intro">
+       <p className="g3-faq-kicker">✦ PERGUNTAS FREQUENTES</p>
+       <h2 id="g3-faq-title">Tudo sobre a sua <em>próxima pausa.</em></h2>
+       <p>Reunimos algumas respostas para ajudar você a conhecer melhor a experiência da cafeteria.</p>
+       <span className="g3-faq-detail" aria-hidden="true">CAFÉ • CONVERSAS • BONS MOMENTOS</span>
+      </div>
+      <div className="g3-faq-list">
+       {[
+        {question:"Como posso conhecer o cardápio?",answer:"Explore a seção Nossas Especialidades nesta página. Para consultar o cardápio completo e a disponibilidade dos itens, entre em contato com a cafeteria."},
+        {question:"A cafeteria oferece opções de bebidas diferentes?",answer:"A seleção apresentada nesta página é ilustrativa. Consulte a cafeteria para confirmar as bebidas e opções disponíveis no momento."},
+        {question:"É possível fazer pedidos antecipados?",answer:"As condições para pedidos antecipados dependem do estabelecimento. Entre em contato diretamente para verificar se esse serviço está disponível."},
+        {question:"É necessário reservar uma mesa?",answer:"A política de reservas pode variar. Consulte a cafeteria antes da visita para confirmar se são aceitas reservas."},
+        {question:"Onde encontro o endereço e os horários?",answer:"O endereço e o horário de funcionamento devem ser confirmados diretamente com a cafeteria. Essas informações não foram fornecidas para este modelo."}
+       ].map((item,index)=><div className={"g3-faq-item"+(openFaq===index?" is-open":"")} key={item.question}>
+        <h3><button type="button" aria-expanded={openFaq===index} aria-controls={"g3-faq-answer-"+index} id={"g3-faq-question-"+index} onClick={()=>setOpenFaq(current=>current===index?null:index)}><span className="g3-faq-number">0{index+1}</span><span className="g3-faq-question">{item.question}</span><span className="g3-faq-toggle" aria-hidden="true">{openFaq===index?"−":"+"}</span></button></h3>
+        <div className="g3-faq-answer" id={"g3-faq-answer-"+index} role="region" aria-labelledby={"g3-faq-question-"+index} hidden={openFaq!==index}><p>{item.answer}</p></div>
+       </div>)}
+      </div>
      </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
