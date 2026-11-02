@@ -999,7 +999,7 @@ export default function BuilderV2() {
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
     const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
-    const inferredNiche=/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
+    const inferredNiche=/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(explicitNiche||inferredNiche);
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
