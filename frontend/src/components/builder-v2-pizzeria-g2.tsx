@@ -58,7 +58,6 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
      <div className="g2-hero-stage-glow"/>
      <div className="g2-hero-stage-shadow"/>
      <div className="g2-hero-image"><img src={pizzaImage} alt=""/></div>
-     <div className="g2-hero-foreground"><img src={pizzaImage} alt=""/></div>
      <div className="g2-hero-stage-spark g2-hero-stage-spark-one"/>
      <div className="g2-hero-stage-spark g2-hero-stage-spark-two"/>
    </div>
