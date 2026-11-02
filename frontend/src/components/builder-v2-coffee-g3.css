@@ -105,3 +105,16 @@
  .g3-photo-stage{width:calc(100% + 34px);margin-left:-17px;margin-right:-17px}
  .g3-photo-frame{width:150%;margin-left:-25%}
 }
+
+/* G3 Nossa Essência — editorial split with cinematic coffee-roasting artwork */
+.g3-essence{display:grid;grid-template-columns:1.08fr .92fr;align-items:center;gap:clamp(30px,5vw,85px);padding:clamp(70px,8vw,120px) clamp(22px,5vw,82px);background:radial-gradient(ellipse at 18% 40%,#58321e55,transparent 60%),#1c100c;scroll-margin-top:20px}
+.g3-essence-art{position:relative;min-width:0;overflow:hidden;border-radius:16px;box-shadow:0 35px 85px #090302a8;border:1px solid #d3a57835;transform:perspective(1100px) rotateY(3deg);transition:transform .5s ease}
+.g3-essence-art:hover{transform:perspective(1100px) rotateY(0deg) translateY(-5px)}
+.g3-essence-art img{display:block;width:100%;height:clamp(350px,42vw,590px);object-fit:cover;object-position:center}
+.g3-essence-copy{max-width:560px}.g3-essence-eyebrow{font:11px Arial,sans-serif;letter-spacing:.25em;color:#d4a47d;margin:0 0 26px}
+.g3-essence-copy h2{font:400 clamp(36px,4.1vw,64px)/1.13 Georgia,serif;letter-spacing:-.045em;color:#f2ddc6;margin:0 0 27px}
+.g3-essence-copy h2 em{font-weight:400;color:#d6a37e}
+.g3-essence-copy>p:not(.g3-essence-eyebrow){font:clamp(14px,1.25vw,17px)/1.85 Arial,sans-serif;color:#c8ad9b;margin:0 0 30px}
+.g3-essence-copy>span{display:inline-block;border-top:1px solid #b88a6755;padding-top:23px;color:#e4bb92;font:10px Arial,sans-serif;letter-spacing:.25em}
+@media(max-width:700px){.g3-essence{grid-template-columns:1fr;gap:35px;padding:64px 20px 78px}.g3-essence-art{transform:none;border-radius:12px}.g3-essence-art:hover{transform:none}.g3-essence-art img{height:auto;aspect-ratio:4/3;object-fit:cover}.g3-essence-copy h2{font-size:clamp(36px,8vw,50px)}.g3-essence-copy>p:not(.g3-essence-eyebrow){font-size:14px}}
+@media(prefers-reduced-motion:reduce){.g3-essence-art{transition:none}}
