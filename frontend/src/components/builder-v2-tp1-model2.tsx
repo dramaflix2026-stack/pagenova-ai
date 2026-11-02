@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-model2.css";
 
@@ -64,6 +64,9 @@ const galleryCatalog=[
 ] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
+ const [testimonialSlide,setTestimonialSlide]=useState(0);
+ const [testimonialPaused,setTestimonialPaused]=useState(false);
+ useEffect(()=>{if(testimonialPaused)return;const timer=setInterval(()=>setTestimonialSlide(previous=>(previous+1)%3),6500);return()=>clearInterval(timer)},[testimonialPaused]);
  const niche=site.niche||"Beleza e Serviços Premium";
  const photo=photoSet.find(item=>item.pattern.test(niche))||photoSet[photoSet.length-1];
  const essencePhotoMap:Record<string,{essence:string;detail:string}>={
@@ -126,6 +129,16 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    <div className="tp1v2-gallery-heading"><div><span className="tp1v2-gallery-kicker">06 / GALERIA DE EXPERIÊNCIAS</span><h2 id="tp1v2-gallery-heading">Momentos que <em>inspiram.</em></h2></div><p>Um olhar visual sobre o universo de {niche.toLowerCase()}. Fotografias ilustrativas de experiências e ambientes.</p></div>
    <div className="tp1v2-gallery-mosaic">{gallery.ids.map((id,index)=><figure className={`tp1v2-gallery-tile tp1v2-gallery-tile-${index+1}`} key={index}><img src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1300`} alt={`Fotografia ilustrativa de ${niche}: ${gallery.labels[index]}`} loading="lazy"/><figcaption><span>0{index+1} / {gallery.labels[index]}</span><span aria-hidden="true">↗</span></figcaption></figure>)}</div>
    <div className="tp1v2-gallery-bottom"><span>IMAGENS ILUSTRATIVAS • FOTOGRAFIA REAL</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
+  </section>
+  <section className="tp1v2-testimonials" id="depoimentos" aria-labelledby="tp1v2-testimonials-heading">
+   <div className="tp1v2-testimonials-top"><div><span className="tp1v2-testimonials-kicker">07 / DEPOIMENTOS DOS CLIENTES</span><h2 id="tp1v2-testimonials-heading">Histórias que <em>merecem ser ouvidas.</em></h2></div><p>Um espaço reservado para experiências autênticas de quem conhece nosso trabalho em {niche.toLowerCase()}.</p></div>
+   <div className="tp1v2-testimonials-shell" onMouseEnter={()=>setTestimonialPaused(true)} onMouseLeave={()=>setTestimonialPaused(false)} onFocus={()=>setTestimonialPaused(true)} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))setTestimonialPaused(false)}}>
+    <div className="tp1v2-testimonials-track" style={{transform:`translateX(-${testimonialSlide*100}%)`}} aria-live="off">
+     {[0,1,2].map(index=><article className="tp1v2-testimonial-card" key={index} aria-hidden={testimonialSlide!==index}><div className="tp1v2-testimonial-card-top"><span className="tp1v2-testimonial-icon" aria-hidden="true">“</span><span>ESPAÇO PARA DEPOIMENTO AUTÊNTICO</span></div><div className="tp1v2-testimonial-empty"><span>0{index+1}</span><h3>Uma história real começa aqui.</h3><p>Este espaço receberá um depoimento verdadeiro, autorizado pelo cliente. Nenhuma avaliação, nome ou nota foi inventada.</p></div><div className="tp1v2-testimonial-person"><span className="tp1v2-testimonial-avatar" aria-hidden="true">✳</span><div><strong>Depoimento ainda não cadastrado</strong><span>Conteúdo demonstrativo • {niche}</span></div></div></article>)}
+    </div>
+    <div className="tp1v2-testimonials-controls"><div className="tp1v2-testimonials-dots" aria-label="Selecionar depoimento">{[0,1,2].map(index=><button type="button" key={index} className={testimonialSlide===index?"is-active":""} aria-label={`Ver espaço de depoimento ${index+1}`} aria-current={testimonialSlide===index?"true":undefined} onClick={()=>setTestimonialSlide(index)}/>)}</div><div className="tp1v2-testimonials-arrows"><button type="button" aria-label="Depoimento anterior" onClick={()=>setTestimonialSlide(index=>(index+2)%3)}>←</button><button type="button" aria-label="Próximo depoimento" onClick={()=>setTestimonialSlide(index=>(index+1)%3)}>→</button></div></div>
+   </div>
+   <p className="tp1v2-testimonials-note">Os depoimentos serão exibidos quando houver relatos reais fornecidos e autorizados pelos clientes.</p>
   </section>
  </div>;
 }
