@@ -48,6 +48,22 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       <div className="g3-origin">TORRA ARTESANAL <span>·</span> AROMA INCONFUNDÍVEL</div>
      </div>
     </section>
+    <section className="g3-specialties" id="cardapio" aria-labelledby="g3-specialties-title">
+      <div className="g3-specialties-heading">
+       <div><p className="g3-specialties-eyebrow"><span/> SELEÇÃO DA CASA</p><h2 id="g3-specialties-title">Nossas <em>especialidades.</em></h2></div>
+       <p>Uma seleção de sabores para transformar cada pausa em um momento especial.</p>
+      </div>
+      <div className="g3-specialties-grid">
+       {[
+        {name:"Cappuccino Premium",description:"Uma experiência cremosa, intensa e delicada a cada gole.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-b614d27d-f66a-45a9-87a2-394460ed52d5.png",number:"01"},
+        {name:"Frappuccino de Caramelo",description:"Uma combinação refrescante de café, suavidade e caramelo.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-66bb2780-abd6-4a7d-9f0a-f8b2046e62e9.png",number:"02"},
+        {name:"Latte Macchiato",description:"Camadas de sabor e aroma em uma criação especial.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-841e3cd8-fe94-4a5c-8bc5-0559d28177a6.png",number:"03"}
+       ].map((item,index)=><article className={"g3-specialty-card"+(index===1?" g3-specialty-featured":"")} key={item.number}>
+        <div className="g3-specialty-visual"><span className="g3-specialty-number">{item.number} / 03</span><img src={item.image} alt={item.name+" — composição 3D da cafeteria"} loading="lazy"/><span className="g3-specialty-glow" aria-hidden="true"/></div>
+        <div className="g3-specialty-info"><div><h3>{item.name}</h3><p>{item.description}</p></div><a href={destination} aria-label={"Conhecer "+item.name}>↗</a></div>
+       </article>)}
+      </div>
+     </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
