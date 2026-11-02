@@ -71,7 +71,7 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
     </div>
     <div className="g2-specialties-grid">
       {specialties.map((item,index)=><article className="g2-specialty-card" key={item.tag}>
-        <div className="g2-specialty-media"><div className="g2-specialty-depth" aria-hidden="true"/><img className="g2-specialty-photo" src={specialtyImages[index]} alt={item.name} loading="lazy"/><div className="g2-specialty-lift" aria-hidden="true"><img src={specialtyImages[index]} alt="" loading="lazy"/></div><span className="g2-specialty-index">{item.tag}</span></div>
+        <div className="g2-specialty-media"><img className="g2-specialty-photo" src={specialtyImages[index]} alt={item.name} loading="lazy"/><span className="g2-specialty-index">{item.tag}</span></div>
         <div className="g2-specialty-info"><div><h3>{item.name}</h3><p>{item.detail}</p></div><a href={order} aria-label={`Consultar ${item.name}`} className="g2-specialty-link">↗</a></div>
       </article>)}
     </div>
