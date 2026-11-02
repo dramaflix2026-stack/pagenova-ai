@@ -2,6 +2,7 @@
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
+import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
 import { Template5AIFuturistHero } from "@/components/template5-ai-futurist-hero";
 import { Template5AIFuturistSections } from "@/components/template5-ai-futurist-sections";
@@ -88,6 +89,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
   if(/pizzaria|pizza/i.test(nicheText))return <BuilderV2PizzeriaG2 site={props.site}/>;
+  if(/cafeteria|coffee\s*shop|café|cafe\b/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
   return <BuilderV2TP1Hero site={props.site}/>;
  }
  // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
