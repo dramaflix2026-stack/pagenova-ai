@@ -35,3 +35,25 @@
 .g3-coffee-photo{width:100%;height:100%;display:block;object-fit:cover;object-position:center;filter:drop-shadow(0 25px 30px #0008)}
 @media(max-width:700px){.g3-photo-stage{min-height:365px!important}.g3-photo-frame{width:115%;margin-left:-4%;aspect-ratio:1.25}.g3-coffee-photo{object-fit:cover}}
 @media(max-width:390px){.g3-photo-stage{min-height:315px!important}}
+
+/* G3 mobile reference fidelity: keep the entire product composition visible and the copy compact. */
+.g3-photo-stage .g3-origin{display:none}
+@media(max-width:700px){
+ .g3-hero{padding:30px 22px 24px;gap:14px}
+ .g3-hero h1{font-size:clamp(35px,7.8vw,49px);line-height:1.12;letter-spacing:-.055em;margin-bottom:17px}
+ .g3-mini-cup{width:38px;height:34px;font-size:23px}
+ .g3-description{font-size:13px;line-height:1.65;margin-bottom:19px}
+ .g3-eyebrow{font-size:8px;letter-spacing:.18em;margin-bottom:18px}
+ .g3-buttons a{min-height:42px;padding:0 14px;font-size:10px}
+ .g3-photo-stage{min-height:0!important;width:100%;max-width:none;margin:4px 0 0;overflow:visible}
+ .g3-photo-frame{width:100%;margin:0;aspect-ratio:1.42;overflow:visible;mask-image:none;-webkit-mask-image:none;transform:none}
+ .g3-coffee-photo{width:100%;height:100%;object-fit:contain;object-position:center}
+ .g3-photo-light{inset:12% 4%}
+ .g3-header{height:70px}
+}
+@media(max-width:390px){
+ .g3-hero{padding-left:17px;padding-right:17px}
+ .g3-hero h1{font-size:clamp(32px,8.2vw,38px)}
+ .g3-buttons{gap:7px}
+ .g3-buttons a{padding:0 11px;gap:7px}
+}
