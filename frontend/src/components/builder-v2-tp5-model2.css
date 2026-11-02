@@ -29,3 +29,29 @@
 .da-root .da-section{padding:62px 0}
 }
 @container (max-width:650px){.da-root .da-hero{min-height:0}}
+
+/* Photographic compositions layered into the architectural design. */
+.da-root .da-menu-toggle{display:none}
+.da-root .da-photo-stage{position:relative;min-height:470px}
+.da-root .da-photo-stage>.da-visual{height:470px}
+.da-root .da-photo{position:absolute;display:block;object-fit:cover;z-index:1;border-radius:20px;box-shadow:0 24px 60px #0b225d44}
+.da-root .da-photo-hero{width:67%;height:58%;top:22%;left:17%;transform:rotate(-4deg);border:7px solid #ffffffb8}
+.da-root .da-photo-solution{width:76%;height:55%;top:13%;left:12%;border:6px solid #ffffffb8}
+.da-root .da-photo-about{width:70%;height:62%;top:17%;left:16%;transform:rotate(4deg);border:7px solid #ffffffad}
+.da-root .da-photo-workflow{width:70%;height:49%;top:11%;left:15%;border:6px solid #ffffffb8}
+.da-root .da-photo-project{width:66%;height:57%;top:9%;left:17%;border:8px solid #ffffffb8;transform:rotate(-3deg)}
+.da-root .da-photo-location{width:75%;height:68%;top:11%;left:12%;border:7px solid #ffffffb8}
+@media(max-width:900px){
+.da-root .da-header{position:relative}
+.da-root .da-header nav{display:none;position:absolute;top:100%;left:0;right:0;z-index:20;padding:22px;background:#fff;box-shadow:0 18px 30px #11254a29;flex-direction:column;gap:20px}
+.da-root .da-header nav.is-open{display:flex}
+.da-root .da-menu-toggle{display:inline-flex;align-items:center;justify-content:center;order:3;border:1px solid #d8e1f2;background:#fff;color:#122347;border-radius:12px;width:43px;height:43px;font-size:22px}
+.da-root .da-header>.da-button{margin-left:auto}
+}
+@media(max-width:600px){
+.da-root .da-photo-hero{width:73%;height:56%;left:14%;top:23%}
+.da-root .da-photo-stage{min-height:310px}
+.da-root .da-photo-stage>.da-visual{height:310px;min-height:310px}
+.da-root .da-header>.da-button{padding:10px 11px;font-size:10px}
+.da-root .da-menu-toggle{width:38px;height:38px}
+}
