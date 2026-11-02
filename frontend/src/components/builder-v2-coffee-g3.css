@@ -57,3 +57,30 @@
  .g3-buttons{gap:7px}
  .g3-buttons a{padding:0 11px;gap:7px}
 }
+
+/* G3 specialties — three distinct 3D artworks, premium raised center card. */
+.g3-specialties{position:relative;padding:clamp(66px,8vw,118px) clamp(22px,5vw,82px) clamp(75px,9vw,135px);background:radial-gradient(ellipse at 48% 42%,#56302155,transparent 68%),linear-gradient(180deg,#1d100d,#26140f 54%,#190d0b);isolation:isolate;scroll-margin-top:25px}
+.g3-specialties-heading{display:flex;align-items:end;justify-content:space-between;gap:35px;margin-bottom:clamp(40px,5vw,70px)}
+.g3-specialties-eyebrow{font:10px Arial,sans-serif;letter-spacing:.24em;color:#d7a77f;margin:0 0 17px}
+.g3-specialties-eyebrow span{display:inline-block;width:21px;height:1px;background:#d7a77f;vertical-align:middle;margin-right:9px}
+.g3-specialties h2{font:400 clamp(37px,4.5vw,67px)/1.1 Georgia,serif;letter-spacing:-.045em;color:#f2d7b8;margin:0}
+.g3-specialties h2 em{font-weight:400;color:#d9a57e}
+.g3-specialties-heading>p{max-width:290px;color:#bba28f;font:14px/1.75 Arial,sans-serif;margin:0 0 3px}
+.g3-specialties-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:clamp(14px,2vw,28px);padding-top:28px}
+.g3-specialty-card{min-width:0;position:relative;display:flex;flex-direction:column;background:linear-gradient(160deg,#3a231b,#291710 70%);border:1px solid #d4a77b33;border-radius:24px;overflow:hidden;box-shadow:0 26px 60px #09030266;transition:transform .45s cubic-bezier(.2,.8,.2,1),border-color .3s,box-shadow .3s}
+.g3-specialty-card:hover{transform:translateY(-13px);border-color:#dfb1877a;box-shadow:0 38px 70px #09030299}
+.g3-specialty-featured{transform:translateY(-28px);background:linear-gradient(160deg,#4b2c20,#2e1a13 75%);border-color:#c89b705e;box-shadow:0 34px 80px #09030299}
+.g3-specialty-featured:hover{transform:translateY(-39px)}
+.g3-specialty-visual{position:relative;aspect-ratio:4/4.3;overflow:hidden;background:radial-gradient(ellipse at 50% 70%,#8d583333,transparent 68%),#291812}
+.g3-specialty-visual img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .7s cubic-bezier(.2,.8,.2,1);position:relative;z-index:1}
+.g3-specialty-card:hover .g3-specialty-visual img{transform:scale(1.065)}
+.g3-specialty-number{position:absolute;z-index:3;top:19px;left:21px;padding:7px 12px;border-radius:100px;background:#20100bbf;border:1px solid #e4b99055;color:#f1d2b4;font:10px Arial,sans-serif;letter-spacing:.13em}
+.g3-specialty-glow{position:absolute;z-index:2;pointer-events:none;inset:auto 0 0;height:22%;background:linear-gradient(transparent,#2c1812c9)}
+.g3-specialty-info{padding:23px 22px 26px;display:flex;justify-content:space-between;align-items:center;gap:15px;flex:1}
+.g3-specialty-info h3{font:400 clamp(19px,1.7vw,26px)/1.2 Georgia,serif;color:#f2d8ba;margin:0 0 9px}
+.g3-specialty-info p{font:12px/1.6 Arial,sans-serif;color:#bfa696;margin:0;max-width:280px}
+.g3-specialty-info>a{display:grid;place-items:center;flex-shrink:0;width:40px;height:40px;border-radius:50%;border:1px solid #d2a37c80;background:#79513a4a;font:21px Arial,sans-serif;transition:background .25s,transform .25s}
+.g3-specialty-info>a:hover{background:#8b5c3e;transform:rotate(45deg)}
+@media(max-width:850px){.g3-specialties{padding:65px 25px 85px}.g3-specialties-grid{gap:12px}.g3-specialty-info{padding:16px 13px 20px}.g3-specialty-info>a{width:32px;height:32px}.g3-specialty-info h3{font-size:19px}.g3-specialty-info p{font-size:11px}}
+@media(max-width:700px){.g3-specialties{padding:62px 20px 75px}.g3-specialties-heading{display:block;margin-bottom:26px}.g3-specialties h2{font-size:clamp(36px,8.2vw,48px)}.g3-specialties-heading>p{margin-top:17px;max-width:360px;font-size:13px}.g3-specialties-grid{grid-template-columns:1fr;gap:20px;padding-top:0;max-width:470px;margin:0 auto}.g3-specialty-card,.g3-specialty-featured{transform:none;border-radius:22px}.g3-specialty-card:hover,.g3-specialty-featured:hover{transform:translateY(-5px)}.g3-specialty-visual{aspect-ratio:4/3.4}.g3-specialty-info{padding:20px}.g3-specialty-info h3{font-size:24px}.g3-specialty-info p{font-size:12px}.g3-specialty-info>a{width:42px;height:42px}}
+@media(prefers-reduced-motion:reduce){.g3-specialty-card,.g3-specialty-visual img,.g3-specialty-info>a{transition:none!important}}
