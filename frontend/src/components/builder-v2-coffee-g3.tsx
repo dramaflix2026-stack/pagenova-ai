@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import type {CSSProperties,PointerEvent} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-coffee-g3.css";
+import {normalizedSocialLink,whatsappDigits} from "@/lib/site-social-links";
 
 export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
@@ -12,13 +13,17 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const frame=useRef<number|null>(null);
  const title=site.header?.brand||site.title||"United Coffee";
  const brand=/caf[eé]|coffee|espresso|gr[aã]o/i.test(title)?title:"United Coffee";
- const nav=[{label:"Início",href:"#inicio"},{label:"Sobre",href:"#sobre"},{label:"Cardápio",href:"#cardapio"},{label:"Galeria",href:"#galeria"},{label:"Contato",href:"#contato"}];
+ const nav=[{label:"Início",href:"#inicio"},{label:"Sobre",href:"#sobre"},{label:"Cardápio",href:"#cardapio"},{label:"Galeria",href:"#nosso-espaco"},{label:"Contato",href:"#contato"}];
  const contactPhoneRaw=site.restaurant?.whatsapp?.replace(/\D/g,"")||"";
  const contactPhone=contactPhoneRaw.length>=10&&contactPhoneRaw.length<=15?contactPhoneRaw:"";
  const contactEmailRaw=site.footer?.email?.trim()||"";
  const contactEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmailRaw)?contactEmailRaw:"";
  const contactAddress=site.footer?.address?.trim()||"";
  const contactHref=contactPhone?"https://wa.me/"+contactPhone:contactEmail?"mailto:"+contactEmail:null;
+ const footerSocial=(["instagram","facebook","youtube"] as const).map(name=>({name,href:normalizedSocialLink(name,site.footer?.[name]||"")})).filter((item):item is {name:"instagram"|"facebook"|"youtube";href:string}=>Boolean(item.href));
+ const footerWhatsapp=normalizedSocialLink("whatsapp",site.footer?.whatsapp||site.restaurant?.whatsapp||"");
+ const footerEmail=contactEmail;
+ const footerAddress=contactAddress;
  const destination=site.header?.ctaHref||site.blocks.find(b=>b.type==="button"&&b.href)?.href||"#cardapio";
  const move=(event:PointerEvent<HTMLDivElement>)=>{
    if(event.pointerType==="touch")return;
@@ -159,6 +164,15 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       </div>
      </section>
    </main>
+   <footer className="g3-footer" aria-label="Rodapé da cafeteria">
+    <div className="g3-footer-top">
+     <div className="g3-footer-brand"><a href="#inicio" aria-label="Voltar ao início">{brand}</a><p>Pequenos momentos. Grandes experiências. Um convite para apreciar cada pausa.</p></div>
+     <nav className="g3-footer-col" aria-label="Navegação do rodapé"><h2>EXPLORE</h2><a href="#inicio">Início</a><a href="#sobre">Nossa Essência</a><a href="#cardapio">Especialidades</a><a href="#nosso-espaco">Nosso Espaço</a><a href="#faq">Perguntas Frequentes</a></nav>
+     <div className="g3-footer-col"><h2>CONTATO</h2><a href="#contato">Fale conosco</a>{footerEmail?<a href={"mailto:"+footerEmail}>{footerEmail}</a>:null}{footerWhatsapp?<a href={footerWhatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>:null}{footerAddress?<p className="g3-footer-address">{footerAddress}</p>:null}</div>
+     <div className="g3-footer-col"><h2>ACOMPANHE</h2>{footerSocial.length||footerWhatsapp?<>{footerSocial.map(item=><a href={item.href} target="_blank" rel="noopener noreferrer" key={item.name}>{item.name==="instagram"?"Instagram":item.name==="facebook"?"Facebook":"YouTube"}</a>)}{footerWhatsapp?<a href={footerWhatsapp} target="_blank" rel="noopener noreferrer">WhatsApp</a>:null}</>:<p className="g3-footer-muted">Redes sociais ainda não cadastradas.</p>}</div>
+    </div>
+    <div className="g3-footer-bottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><a href="#inicio">VOLTAR AO TOPO ↑</a></div>
+   </footer>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
  </div>;
