@@ -37,7 +37,15 @@ dining:["photo-1517248135467-4c7edcad34c4","photo-1414235077428-338989a2e8c0","p
 const questions=[["Como conhecer o cardápio?","Explore as especialidades desta página e consulte o estabelecimento para informações atualizadas."],["Como fazer um pedido?","Entre em contato pelos canais oficiais cadastrados pela empresa."],["Há opções para restrições alimentares?","Consulte a equipe sobre ingredientes e disponibilidade antes de pedir."],["Quais são os horários de atendimento?","Confirme os horários diretamente com o estabelecimento."],["É possível solicitar encomendas?","Consulte previamente a disponibilidade com a equipe."]];
 export function BuilderV2TP3Model3({site}:{site:BuilderV2SiteData}){
  const [special,setSpecial]=useState(0),[step,setStep]=useState(0),[quote,setQuote]=useState(0),[faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[message,setMessage]=useState(""),[notice,setNotice]=useState("");
- const niche=site.niche||"Restaurante",config=niches.find(c=>c[0].test(niche))||niches[13],brand=site.header?.brand||site.title||"Gastronomia",images=external[config[3]]||external.dining;
+ const brand=site.header?.brand||site.title||"Gastronomia";
+ // The builder can retain a stale niche (e.g. "Cafeteria") when a new brief creates
+ // a burger brand. Detect explicit food category in brand/title and original brief first.
+ const identity=[site.header?.brand,site.title].filter(Boolean).join(" ");
+ const briefing=site.blocks.filter(b=>b.type==="heading"||b.type==="paragraph").slice(0,8).map(b=>b.text||"").join(" ");
+ const strongBrandMatch=niches.find(c=>c[0].test(identity));
+ const strongBriefMatch=niches.find(c=>c[0].test(briefing));
+ const config=strongBrandMatch||strongBriefMatch||niches.find(c=>c[0].test(site.niche||""))||niches[13];
+ const niche=config[1],images=external[config[3]]||external.dining;
  // External editorial imagery only; the builder's internal image bank is deliberately not consulted.
  const photo=(i:number)=>"https://images.unsplash.com/"+images[i%images.length]+"?auto=format&fit=crop&w=1600&q=85";
  const headline=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text||"Uma experiência além do sabor.";
