@@ -431,3 +431,17 @@
 .g2-pizzeria .g2-hero-stage .g2-hero-image img{object-fit:contain;object-position:center;mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 43%,#000e 64%,transparent 90%);-webkit-mask-image:radial-gradient(ellipse 49% 43% at 50% 52%,#000 43%,#000e 64%,transparent 90%)}
 .g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 9%,#080707ef 22%,#08070755 40%,transparent 58%,#08070788 100%)}
 }
+
+/* Hero mobile seam repair: a single photographic layer, no rectangular clip or duplicate slice. */
+.g2-pizzeria .g2-hero-stage{overflow:visible}
+.g2-pizzeria .g2-hero-stage .g2-hero-image{overflow:visible!important;border-radius:0;animation:none!important;transform:none!important}
+.g2-pizzeria .g2-hero-stage .g2-hero-image img{display:block;object-fit:contain;object-position:center;animation:g2-hero-pizza-levitate 9s ease-in-out infinite!important;mask-image:radial-gradient(ellipse 48% 43% at 50% 52%,#000 44%,#000f 58%,#000b 71%,transparent 94%);-webkit-mask-image:radial-gradient(ellipse 48% 43% at 50% 52%,#000 44%,#000f 58%,#000b 71%,transparent 94%)}
+.g2-pizzeria .g2-hero-stage .g2-hero-foreground{display:none!important}
+.g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 7%,#080707eb 21%,#08070738 40%,transparent 60%,#080707 100%)}
+@media(max-width:900px){
+.g2-pizzeria .g2-hero-stage{inset:auto -7% 0 -7%;width:114%;height:67%;overflow:visible!important}
+.g2-pizzeria .g2-hero-stage .g2-hero-image{inset:0;width:100%;height:100%;overflow:visible!important}
+.g2-pizzeria .g2-hero-stage .g2-hero-image img{mask-image:radial-gradient(ellipse 48% 44% at 50% 52%,#000 40%,#000f 57%,#0009 72%,transparent 94%);-webkit-mask-image:radial-gradient(ellipse 48% 44% at 50% 52%,#000 40%,#000f 57%,#0009 72%,transparent 94%)}
+}
+@media(max-width:430px){.g2-pizzeria .g2-hero-stage{inset:auto -9% 0 -9%;width:118%;height:67%}}
+@media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-hero-stage .g2-hero-image img{animation:none!important}}
