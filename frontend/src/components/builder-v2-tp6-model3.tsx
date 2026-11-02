@@ -35,21 +35,21 @@ const retailValues:Record<string,[string,string,string,string]>={
 export function BuilderV2TP6Model3AboutAndValues({brand,niche,photos}:{brand:string;niche:string;photos:string[]}){
  const title=editorialTopics[niche]||editorialTopics["E-commerce multimarcas"];
  const [v1,d1,v2,d2]=retailValues[niche]||["Curadoria","Uma seleção apresentada com atenção à identidade visual.","Descoberta","Um jeito simples de explorar categorias e encontrar opções."];
- const values=[{n:"01",title:v1,desc:d1},{n:"02",title:v2,desc:d2},{n:"03",title:"Identidade",desc:"Uma experiência visual alinhada ao universo de "+niche.toLocaleLowerCase("pt-BR")+"."},{n:"04",title:"Experiência",desc:"Navegação responsiva e caminhos claros para conhecer a seleção."}];
+ const values=[{n:"01",title:v1,desc:d1},{n:"02",title:v2,desc:d2},{n:"03",title:"Identidade",desc:"Uma seleção conectada ao universo de "+niche.toLocaleLowerCase("pt-BR")+"."},{n:"04",title:"Experiência",desc:"Categorias e detalhes organizados para facilitar sua escolha."}];
  return <div className="tp6m3 tp6m3-sections">
   <section className="tp6m3-about" id="sobre" aria-labelledby="tp6m3-about-title">
    <div className="tp6m3-section-meta"><span>02 / SOBRE A MARCA</span><span>UM OLHAR EDITORIAL</span></div>
    <h2 id="tp6m3-about-title" className="tp6m3-about-heading">{title}<span className="tp6m3-period">.</span></h2>
    <div className="tp6m3-about-layout">
-    <div className="tp6m3-about-photo-one">{photos[2]&&<img src={photos[2]} alt={"Fotografia editorial de "+niche} loading="lazy"/>}<span>01 — PERSPECTIVA</span></div>
-    <div className="tp6m3-about-center"><span className="tp6m3-about-label">NOSSA VISÃO / {brand}</span><p>Na {brand}, o universo de {niche.toLocaleLowerCase("pt-BR")} ganha uma apresentação própria: visual, contemporânea e feita para explorar novas possibilidades.</p><p>Cada imagem e cada detalhe ajudam a contar a proposta da marca, sem perder a simplicidade de encontrar o que você procura.</p><a href="#produtos">EXPLORE A SELEÇÃO <span aria-hidden="true">↗</span></a></div>
-    <div className="tp6m3-about-photo-two">{photos[3]&&<img src={photos[3]} alt={"Detalhes de "+niche} loading="lazy"/>}<span>02 — DETALHES</span></div>
+    <div className="tp6m3-about-photo-one">{(photos[4]||photos[2])&&<img src={photos[4]||photos[2]} alt={"Fotografia editorial de "+niche} loading="lazy"/>}<span>01 — PERSPECTIVA</span></div>
+    <div className="tp6m3-about-center"><span className="tp6m3-about-label">NOSSA VISÃO / {brand}</span><p>Na {brand}, cada escolha revela uma nova forma de expressar seu estilo. Descubra peças de {niche.toLocaleLowerCase("pt-BR")} para diferentes gostos e ocasiões.</p><p>Explore combinações, encontre seus favoritos e descubra detalhes que fazem a diferença.</p><a href="#produtos">EXPLORE A SELEÇÃO <span aria-hidden="true">↗</span></a></div>
+    <div className="tp6m3-about-photo-two">{(photos[5]||photos[3])&&<img src={photos[5]||photos[3]} alt={"Detalhes de "+niche} loading="lazy"/>}<span>02 — DETALHES</span></div>
    </div>
    <div className="tp6m3-about-watermark" aria-hidden="true">EDITORIAL / 03</div>
   </section>
   <section className="tp6m3-values" id="diferenciais" aria-labelledby="tp6m3-values-title">
    <div className="tp6m3-section-meta"><span>03 / NOSSOS DIFERENCIAIS</span><span>O QUE ORIENTA A EXPERIÊNCIA</span></div>
-   <div className="tp6m3-values-heading"><h2 id="tp6m3-values-title">O QUE NOS<br/>MOVE<span>.</span></h2><p>Quatro princípios para apresentar produtos, facilitar descobertas e dar personalidade à experiência de navegação.</p></div>
+   <div className="tp6m3-values-heading"><h2 id="tp6m3-values-title">O QUE NOS<br/>MOVE<span>.</span></h2><p>Quatro maneiras de descobrir peças, explorar estilos e encontrar o que combina com você.</p></div>
    <div className="tp6m3-values-grid">{values.map(v=><article key={v.n} className="tp6m3-value"><span className="tp6m3-value-number">{v.n}</span><div><h3>{v.title}</h3><p>{v.desc}</p></div><span className="tp6m3-value-arrow" aria-hidden="true">↗</span></article>)}</div>
    <div className="tp6m3-values-bottom"><span>IDENTIDADE / CLAREZA / EXPERIÊNCIA</span><span>03 — 03</span></div>
   </section>
@@ -75,7 +75,7 @@ const model3Collections:Record<string,[string,string,string,string]>={
 };
 export function BuilderV2TP6Model3GalleryAndJourney({niche,photos,ctaHref}:{niche:string;photos:string[];ctaHref?:string}){
  const collections=model3Collections[niche]||model3Collections["E-commerce multimarcas"];
- const steps=[{n:"01",title:"Explore as coleções",description:"Conheça as categorias disponíveis e descubra as opções apresentadas pela loja."},{n:"02",title:"Veja os detalhes",description:"Confira descrições, imagens e informações fornecidas sobre os produtos."},{n:"03",title:"Escolha como prosseguir",description:"Utilize o canal de contato ou o caminho de compra disponibilizado pela loja."}];
+ const steps=[{n:"01",title:"Explore as coleções",description:"Navegue pelas categorias e encontre as peças que mais combinam com seu estilo."},{n:"02",title:"Veja os detalhes",description:"Observe as fotos, compare os detalhes e conheça melhor cada item."},{n:"03",title:"Escolha como prosseguir",description:"Escolheu uma peça? Confira as opções disponíveis ou fale com a loja para saber mais."}];
  return <div className="tp6m3 tp6m3-collections-journey">
   <section className="tp6m3-collections" id="produtos" aria-labelledby="tp6m3-collections-title">
    <div className="tp6m3-section-meta"><span>04 / COLEÇÕES</span><span>EXPLORE O UNIVERSO DA MARCA</span></div>
@@ -84,7 +84,7 @@ export function BuilderV2TP6Model3GalleryAndJourney({niche,photos,ctaHref}:{nich
   </section>
   <section className="tp6m3-how" id="como-comprar" aria-labelledby="tp6m3-how-title">
    <div className="tp6m3-section-meta"><span>05 / COMO COMPRAR</span><span>UMA JORNADA SIMPLES</span></div>
-   <div className="tp6m3-how-heading"><h2 id="tp6m3-how-title">DO OLHAR<br/>À ESCOLHA<span>.</span></h2><p>Três passos para explorar a seleção e encontrar o próximo caminho, sem presumir políticas de venda ou disponibilidade.</p></div>
+   <div className="tp6m3-how-heading"><h2 id="tp6m3-how-title">DO OLHAR<br/>À ESCOLHA<span>.</span></h2><p>Descubra suas peças favoritas em três passos simples.</p></div>
    <div className="tp6m3-how-list">{steps.map(step=><div key={step.n} className="tp6m3-how-step"><span className="tp6m3-how-num">{step.n}</span><div className="tp6m3-how-text"><h3>{step.title}</h3><p>{step.description}</p></div><span className="tp6m3-how-arrow" aria-hidden="true">↗</span></div>)}</div>
    <a className="tp6m3-how-cta" href={ctaHref||"#contato"}>CONHECER A SELEÇÃO <span aria-hidden="true">↗</span></a>
   </section>
