@@ -149,6 +149,13 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const isNexoraTp5Project=/nexora\s*(?:intelligence|ai)/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
  const isWrittenBrief=explicitTp4||isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
  const family=isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
+ // A medical briefing can be incorrectly persisted as TP1 (beauty) by the generator.
+ // The explicitly requested healthcare identity must win over stale niche metadata.
+ const healthIdentity=[props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
+ const strongMedicalIdentity=/(?:aura\s*medical|cl[ií]nica\s*m[eé]dica|consult[oó]rio\s*m[eé]dico|laborat[oó]rio\s*(?:de\s*)?an[aá]lises|odontologia|odontol[oó]gica|vit ra\s*lab|vitra\s*lab)/i.test(healthIdentity);
+ if(strongMedicalIdentity&&(activeStaticTemplate==="prompt-adaptive"||isWrittenBrief)){
+   return <TP4LayoutChooser site={{...props.site,briefingLayoutVariant:"02"}} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
+ }
  if(isWrittenBrief&&family===1){
    return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
