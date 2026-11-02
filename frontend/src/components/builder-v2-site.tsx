@@ -170,7 +170,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  // strongly identifiable AI/technology niche, not from the project title alone.
  const briefingText=props.site.blocks.filter(b=>b.type==="paragraph").slice(0,8).map(b=>b.text||"").join("\n");
  const explicitBriefingText=[...props.site.blocks.filter(b=>b.type==="paragraph"||b.type==="heading").slice(0,24).map(b=>b.text||""),props.site.title].join("\n");
- const explicitTp7Model2=/(?:TP7\s*[-—:]?\s*Modelo\s*0?2|TP7\s*[-—:]?\s*Imobili[aá]rio|fam[ií]lia\s*TP7|Modelo\s*0?2\s*\(?Cinematogr[aá]fico Premium\)?|AUREA\s+RESIDENCES)/i.test(explicitBriefingText);
+ const explicitTp7Model2=/(?:TP7\s*[-—:]?\s*Modelo\s*0?2|Modelo\s*0?2\s*\(?Cinematogr[aá]fico Premium\)?|AUREA\s+RESIDENCES)/i.test(explicitBriefingText);
  const explicitTp4=/(?:TP4\s*[-—:]?\s*Sa[uú]de Integrada|Fam[ií]lia\s*:\s*TP4|Nicho\s*:\s*(?:Cl[ií]nica m[eé]dica|Consult[oó]rio m[eé]dico|Cl[ií]nica odontol[oó]gica|Laborat[oó]rio de an[aá]lises cl[ií]nicas))/i.test(explicitBriefingText);
  const explicitTp4Model2=explicitTp4&&/(?:Modelo\s*:\s*0?2|Modelo\s*0?2\s*[-—:]\s*Minimalist Clinical Prestige|Minimalist Clinical Prestige)/i.test(explicitBriefingText);
  const declaredFamily=explicitTp4?4:(resolveBriefingFamilyFromExplicitNiche(explicitBriefingText)||resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(briefingText));
