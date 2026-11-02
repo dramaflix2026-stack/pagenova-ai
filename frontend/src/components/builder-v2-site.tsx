@@ -9,6 +9,7 @@ import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
 import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
 import { BuilderV2TP4Model2 } from "@/components/builder-v2-tp4-model2";
 import { BuilderV2TP4Model3 } from "@/components/builder-v2-tp4-model3";
+import { BuilderV2TP5Model2 } from "@/components/builder-v2-tp5-model2";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
@@ -238,6 +239,10 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const firstHeading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const firstDescription=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const brand=props.site.header?.brand||props.site.title||"Agência Digital";
+   const tp5BriefText=[props.site.title,props.site.header?.brand,...props.site.blocks.filter(b=>b.type==="heading"||b.type==="paragraph").slice(0,24).map(b=>b.text||"")].join(" ");
+   const explicitModel2=/(?:TP5.{0,55}Modelo\\s*0?2|Modelo\\s*0?2.{0,55}Digital Architecture|Digital Architecture)/i.test(tp5BriefText);
+   const tp5Variant=props.site.briefingLayoutVariant==="02"||explicitModel2?"02":"01";
+   if(tp5Variant==="02")return <div data-tp5-family="technology-digital" data-tp5-variant="02"><BuilderV2TP5Model2 brand={brand} niche={props.site.niche||props.selectedNiche||"Tecnologia e Negócios Digitais"} headline={firstHeading} description={firstDescription} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} blocks={props.site.blocks} address={props.site.footer?.address}/></div>;
    return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={props.site.niche||props.selectedNiche||"Negócios Digitais"} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp}/></div>;
  }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
