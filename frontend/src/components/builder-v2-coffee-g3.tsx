@@ -13,6 +13,12 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const title=site.header?.brand||site.title||"United Coffee";
  const brand=/caf[eé]|coffee|espresso|gr[aã]o/i.test(title)?title:"United Coffee";
  const nav=[{label:"Início",href:"#inicio"},{label:"Sobre",href:"#sobre"},{label:"Cardápio",href:"#cardapio"},{label:"Galeria",href:"#galeria"},{label:"Contato",href:"#contato"}];
+ const contactPhoneRaw=site.restaurant?.whatsapp?.replace(/\\D/g,"")||"";
+ const contactPhone=contactPhoneRaw.length>=10&&contactPhoneRaw.length<=15?contactPhoneRaw:"";
+ const contactEmailRaw=site.footer?.email?.trim()||"";
+ const contactEmail=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(contactEmailRaw)?contactEmailRaw:"";
+ const contactAddress=site.footer?.address?.trim()||"";
+ const contactHref=contactPhone?"https://wa.me/"+contactPhone:contactEmail?"mailto:"+contactEmail:null;
  const destination=site.header?.ctaHref||site.blocks.find(b=>b.type==="button"&&b.href)?.href||"#cardapio";
  const move=(event:PointerEvent<HTMLDivElement>)=>{
    if(event.pointerType==="touch")return;
@@ -136,6 +142,20 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
         <h3><button type="button" aria-expanded={openFaq===index} aria-controls={"g3-faq-answer-"+index} id={"g3-faq-question-"+index} onClick={()=>setOpenFaq(current=>current===index?null:index)}><span className="g3-faq-number">0{index+1}</span><span className="g3-faq-question">{item.question}</span><span className="g3-faq-toggle" aria-hidden="true">{openFaq===index?"−":"+"}</span></button></h3>
         <div className="g3-faq-answer" id={"g3-faq-answer-"+index} role="region" aria-labelledby={"g3-faq-question-"+index} hidden={openFaq!==index}><p>{item.answer}</p></div>
        </div>)}
+      </div>
+     </section>
+    <section className="g3-contact" id="contato" aria-labelledby="g3-contact-title">
+      <div className="g3-contact-photo"><img src="https://images.pexels.com/photos/20621909/pexels-photo-20621909.jpeg?auto=compress&cs=tinysrgb&w=1400" alt="Interior aconchegante de cafeteria com mesa de madeira próxima à janela" loading="lazy"/><span className="g3-contact-photo-caption">✦ UMA PAUSA COM MAIS SABOR</span></div>
+      <div className="g3-contact-content">
+       <p className="g3-contact-kicker">✦ ENTRE EM CONTATO</p>
+       <h2 id="g3-contact-title">O próximo café <em>pode ser especial.</em></h2>
+       <p className="g3-contact-description">Quer saber mais sobre a experiência, o cardápio ou planejar sua visita? Fale com a cafeteria pelos canais disponíveis.</p>
+       {contactPhone||contactEmail||contactAddress?<div className="g3-contact-details">
+        {contactPhone?<div><span>WHATSAPP</span><strong>+{contactPhone}</strong></div>:null}
+        {contactEmail?<div><span>E-MAIL</span><strong>{contactEmail}</strong></div>:null}
+        {contactAddress?<div><span>ENDEREÇO</span><strong>{contactAddress}</strong></div>:null}
+       </div>:<p className="g3-contact-unavailable">Os dados de contato ainda não foram cadastrados. Configure um WhatsApp ou e-mail válido para habilitar o botão de contato.</p>}
+       {contactHref?<a className="g3-contact-button" href={contactHref} target={contactPhone?"_blank":undefined} rel={contactPhone?"noopener noreferrer":undefined}>{contactPhone?"Conversar pelo WhatsApp":"Enviar um e-mail"}<span aria-hidden="true">↗</span></a>:null}
       </div>
      </section>
    </main>
