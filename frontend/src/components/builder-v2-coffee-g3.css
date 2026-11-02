@@ -84,3 +84,24 @@
 @media(max-width:850px){.g3-specialties{padding:65px 25px 85px}.g3-specialties-grid{gap:12px}.g3-specialty-info{padding:16px 13px 20px}.g3-specialty-info>a{width:32px;height:32px}.g3-specialty-info h3{font-size:19px}.g3-specialty-info p{font-size:11px}}
 @media(max-width:700px){.g3-specialties{padding:62px 20px 75px}.g3-specialties-heading{display:block;margin-bottom:26px}.g3-specialties h2{font-size:clamp(36px,8.2vw,48px)}.g3-specialties-heading>p{margin-top:17px;max-width:360px;font-size:13px}.g3-specialties-grid{grid-template-columns:1fr;gap:20px;padding-top:0;max-width:470px;margin:0 auto}.g3-specialty-card,.g3-specialty-featured{transform:none;border-radius:22px}.g3-specialty-card:hover,.g3-specialty-featured:hover{transform:translateY(-5px)}.g3-specialty-visual{aspect-ratio:4/3.4}.g3-specialty-info{padding:20px}.g3-specialty-info h3{font-size:24px}.g3-specialty-info p{font-size:12px}.g3-specialty-info>a{width:42px;height:42px}}
 @media(prefers-reduced-motion:reduce){.g3-specialty-card,.g3-specialty-visual img,.g3-specialty-info>a{transition:none!important}}
+
+/* G3 hero: immersive art direction — hero artwork is the visual focal point. */
+@media(min-width:701px){
+ .g3-hero{grid-template-columns:47% 53%;min-height:690px}
+ .g3-photo-stage{min-height:580px}
+ .g3-photo-frame{width:158%;margin-left:-12%;aspect-ratio:1.42;mask-image:radial-gradient(ellipse 70% 75% at 53% 50%,#000 68%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 70% 75% at 53% 50%,#000 68%,transparent 100%)}
+ .g3-coffee-photo{object-fit:cover}
+}
+@media(max-width:700px){
+ .g3-hero{padding-bottom:0;gap:0}
+ .g3-hero-copy{z-index:8}
+ .g3-description{margin-bottom:15px}
+ .g3-photo-stage{width:calc(100% + 44px);max-width:none;margin:-8px -22px -8px;min-height:0!important;overflow:hidden;isolation:isolate}
+ .g3-photo-frame{width:142%;margin:0 0 0 -21%;aspect-ratio:1.35;overflow:hidden;transform:none;mask-image:radial-gradient(ellipse 66% 78% at 50% 51%,#000 70%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 66% 78% at 50% 51%,#000 70%,transparent 100%)}
+ .g3-coffee-photo{object-fit:cover;object-position:center;filter:drop-shadow(0 25px 28px #0006)}
+ .g3-photo-light{inset:0;background:radial-gradient(ellipse at 50% 50%,#9b522d40,transparent 74%)}
+}
+@media(max-width:390px){
+ .g3-photo-stage{width:calc(100% + 34px);margin-left:-17px;margin-right:-17px}
+ .g3-photo-frame{width:150%;margin-left:-25%}
+}
