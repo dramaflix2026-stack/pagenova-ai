@@ -1,0 +1,10 @@
+"use client";
+import "./builder-v2-tp7-model3-footer.css";
+type Footer={address?:string;email?:string;whatsapp?:string;cnpj?:string};
+export function BuilderV2TP7Model3Footer({brand,niche,footer}:{brand:string;niche:string;footer:Footer}){
+ const digits=(footer.whatsapp||"").replace(/\D/g,"");
+ const wa=digits.length>=10&&digits.length<=15?"https://wa.me/"+digits:null;
+ const email=footer.email&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(footer.email)?footer.email:null;
+ const links=[["Início","#inicio-tp7"],["Sobre nós","#sobre-tp7"],["Diferenciais","#diferenciais-tp7"],["Imóveis em Destaque","#imoveis-tp7"],["Nossa Experiência","#experiencia-tp7"],["Depoimentos","#experiencias-tp7"],["Perguntas Frequentes","#faq-tp7"],["Entre em Contato","#contato-tp7"],["Localização","#localizacao-tp7"]];
+ return <footer id="rodape-tp7" className="tp7m3-footer"><div className="tp7m3-footer-meta"><span>10 / RODAPÉ PREMIUM</span><a href="#inicio-tp7">VOLTAR AO TOPO ↑</a></div><div className="tp7m3-footer-top"><div className="tp7m3-footer-intro"><span>{niche.toLocaleUpperCase("pt-BR")}</span><h2>Novas perspectivas <i>começam aqui.</i></h2><p>Explore espaços, imagens e possibilidades com um olhar contemporâneo.</p><a href="#contato-tp7" className="tp7m3-footer-cta">VAMOS CONVERSAR <span aria-hidden="true">↗</span></a></div><nav className="tp7m3-footer-nav" aria-label="Navegação do rodapé"><h3>EXPLORE</h3>{links.map(([label,href])=><a key={href} href={href}>{label}</a>)}</nav><div className="tp7m3-footer-contact"><h3>CONTATO</h3>{wa&&<a href={wa} target="_blank" rel="noopener noreferrer">WHATSAPP ↗</a>}{email&&<a href={"mailto:"+email}>{email}</a>}{footer.address?.trim()&&<p>{footer.address.trim()}</p>}{footer.cnpj?.trim()&&<p>CNPJ: {footer.cnpj.trim()}</p>}{!wa&&!email&&!footer.address?.trim()&&<p>Informações de contato ainda não cadastradas.</p>}</div></div><div className="tp7m3-footer-wordmark">{brand}</div><div className="tp7m3-footer-bottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>ESPAÇOS / ARQUITETURA / PERSPECTIVAS</span><a href="#inicio-tp7">↑ TOPO</a></div></footer>;
+}
