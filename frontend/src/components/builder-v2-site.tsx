@@ -88,8 +88,10 @@ const designPresets = [
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
-  if(/pizzaria|pizza/i.test(nicheText))return <BuilderV2PizzeriaG2 site={props.site}/>;
+  if(/cafeteria|coffee\s*shop|café|cafe\b/i.test(props.site.niche||""))return <BuilderV2CoffeeG3 site={props.site}/>;
+  if(/pizzaria|pizza/i.test(props.site.niche||""))return <BuilderV2PizzeriaG2 site={props.site}/>;
   if(/cafeteria|coffee\s*shop|café|cafe\b/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
+  if(/pizzaria|pizza/i.test(nicheText))return <BuilderV2PizzeriaG2 site={props.site}/>;
   return <BuilderV2TP1Hero site={props.site}/>;
  }
  // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
