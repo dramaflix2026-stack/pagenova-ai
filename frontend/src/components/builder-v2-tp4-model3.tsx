@@ -26,7 +26,7 @@ export function BuilderV2TP4Model3({site}:{site:BuilderV2SiteData}){
  const match=catalogs.find(c=>c[0].test(site.niche||""))||catalogs.find(c=>c[0].test(identity));
  const specialty=match?.[1]||"Atendimento médico";
  const services=match?.[2]||["Consultas","Orientação clínica","Acompanhamento"];
- const images=[...(match?.[3]||medical),...extra.filter(x=>!(match?.[3]||medical).includes(x))];
+ const images=[...(match?.[3]||medical),...extra.filter(x=>!([...((match?.[3]||medical) as readonly string[])]).includes(x))];
  const image=(n:number)=>url(images[n%images.length]);
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text||"O cuidado evolui com você.";
  const intro=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text||"Uma experiência de atendimento que valoriza a escuta, a clareza e cada etapa da sua jornada.";
