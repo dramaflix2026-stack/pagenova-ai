@@ -453,3 +453,18 @@
 .g2-pizzeria .g2-specialty-lift,.g2-pizzeria .g2-specialty-depth{display:none!important}
 @media(hover:hover) and (pointer:fine){.g2-pizzeria .g2-specialty-card:hover .g2-specialty-media>.g2-specialty-photo{transform:scale(1.025)!important}}
 @media(max-width:900px),(prefers-reduced-motion:reduce){.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transform:none!important;animation:none!important;transition:none!important}}
+
+/* Gallery: restrained cinematic depth; no vertical levitation or duplicate imagery. */
+.g2-pizzeria .g2-gallery-tile{transform:none!important;transform-style:flat;box-shadow:inset 0 0 0 1px #ffffff12,0 14px 35px #0005;contain:paint}
+.g2-pizzeria .g2-gallery-tile img{transform:scale(1.035)!important;transform-origin:center center;transition:transform 1.15s cubic-bezier(.22,.7,.2,1),filter .85s ease!important;will-change:auto}
+.g2-pizzeria .g2-gallery-tile::before{content:"";position:absolute;z-index:1;inset:0;pointer-events:none;background:radial-gradient(ellipse at 52% 35%,#fff1 0%,transparent 58%),linear-gradient(120deg,#0005,transparent 35%,#0003 100%);opacity:.6;transition:opacity .8s ease}
+.g2-pizzeria .g2-gallery-tile::after{z-index:2}
+.g2-pizzeria .g2-gallery-tile figcaption{z-index:3;text-shadow:0 2px 14px #000b}
+@media(hover:hover) and (pointer:fine){
+.g2-pizzeria .g2-gallery-tile:hover img{transform:scale(1.075)!important;filter:saturate(1.04) contrast(1.1)}
+.g2-pizzeria .g2-gallery-tile:hover::before{opacity:.85}
+}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
+.g2-pizzeria .g2-gallery-tile img,.g2-pizzeria .g2-gallery-tile:hover img{transform:scale(1.035)!important;animation:none!important;transition:none!important}
+.g2-pizzeria .g2-gallery-tile::before{transition:none}
+}
