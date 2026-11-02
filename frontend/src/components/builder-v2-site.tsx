@@ -1,5 +1,5 @@
-import { getTP6Model2InternetPhotos } from "@/lib/tp6-model2-internet-photos";
 "use client";
+import { getTP6Model2InternetPhotos } from "@/lib/tp6-model2-internet-photos";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
