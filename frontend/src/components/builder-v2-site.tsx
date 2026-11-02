@@ -7,6 +7,7 @@ import { BuilderV2TP2Model2 } from "@/components/builder-v2-tp2-model2";
 import { BuilderV2TP2Model3 } from "@/components/builder-v2-tp2-model3";
 import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
 import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
+import { BuilderV2TP4Model2 } from "@/components/builder-v2-tp4-model2";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
@@ -117,6 +118,13 @@ function TP3LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  {variant==="03"?<BuilderV2TP3Model3 site={site}/>:variant==="02"?<BuilderV2TP3Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
+function TP4LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
+ const [variant,setVariant]=useState<"01"|"02"|"03">(site.briefingLayoutVariant==="02"?"02":"01");
+ return <div data-tp4-family="saude-integrada" data-tp4-variant={variant}>
+ {!publishedMode?<div role="group" aria-label="Escolher modelo da família Saúde Integrada" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f2eee6",color:"#343b36"}}><strong>Saúde Integrada · Layout</strong>{(["01","02"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #8b958b",background:variant===v?"#465b51":"#fff",color:variant===v?"#fff":"#343b36",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
+ {variant==="02"?<BuilderV2TP4Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+ </div>;
+}
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
@@ -146,6 +154,9 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  }
  if(isWrittenBrief&&family===3){
    return <TP3LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
+ }
+ if(isWrittenBrief&&family===4){
+   return <TP4LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
