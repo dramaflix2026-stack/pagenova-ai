@@ -18,6 +18,12 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Beleza e Serviços Premium";
  const photo=photoSet.find(item=>item.pattern.test(niche))||photoSet[photoSet.length-1];
+ const essencePhotoMap:Record<string,{essence:string;detail:string}>={
+  "Fotografia profissional":{essence:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/3062545/pexels-photo-3062545.jpeg?auto=compress&cs=tinysrgb&w=800"},
+  "Psicologia e terapias":{essence:"https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/17640381/pexels-photo-17640381.jpeg?auto=compress&cs=tinysrgb&w=800"}
+ };
+ const essencePhotos=essencePhotoMap[niche]||{essence:"https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/7446659/pexels-photo-7446659.jpeg?auto=compress&cs=tinysrgb&w=800"};
+ const photoWithEssence={...photo,...essencePhotos};
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||photo.fallback;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
@@ -34,6 +40,18 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   <section className="tp1v2-hero" aria-labelledby="tp1v2-heading">
    <div className="tp1v2-copy"><div className="tp1v2-eyebrow"><span className="tp1v2-line"/> {photo.eyebrow}</div><h1 id="tp1v2-heading">{heading}</h1><p>{description}</p><div className="tp1v2-actions">{safeHref?<a className="tp1v2-primary" href={safeHref}>{cta} <span aria-hidden="true">↗</span></a>:null}<a className="tp1v2-secondary" href="#sobre">Conheça nosso espaço <span aria-hidden="true">→</span></a></div><div className="tp1v2-index"><span>01</span><span className="tp1v2-index-rule"/><span>BELEZA & SERVIÇOS PREMIUM</span></div></div>
    <div className="tp1v2-visual"><div className="tp1v2-visual-back" aria-hidden="true"/><figure className="tp1v2-primary-photo"><img src={photo.photo} alt={"Fotografia ilustrativa de "+niche} loading="eager"/></figure><figure className="tp1v2-secondary-photo"><img src={photo.secondary} alt={"Ambiente ou detalhe ilustrativo de "+niche} loading="lazy"/></figure><div className="tp1v2-vertical-note">BEAUTY • WELLNESS • EXPERIENCE</div><div className="tp1v2-photo-caption">UMA NOVA PERSPECTIVA SOBRE O CUIDADO <span>✳</span></div></div>
+  </section>
+  <section className="tp1v2-essence" id="sobre" aria-labelledby="tp1v2-essence-heading">
+   <div className="tp1v2-essence-top"><span className="tp1v2-essence-kicker"><span aria-hidden="true">✳</span> NOSSA ESSÊNCIA</span><span className="tp1v2-essence-counter">02 / O QUE NOS MOVE</span></div>
+   <div className="tp1v2-essence-grid">
+    <div className="tp1v2-essence-art">
+     <div className="tp1v2-essence-arch" aria-hidden="true"/>
+     <figure className="tp1v2-essence-main"><img src={photoWithEssence.essence} alt={"Fotografia real ilustrativa do atendimento em "+niche} loading="lazy"/></figure>
+     <figure className="tp1v2-essence-detail"><img src={photoWithEssence.detail} alt={"Detalhe fotográfico ilustrativo de "+niche} loading="lazy"/></figure>
+     <span className="tp1v2-essence-artnote">CUIDAR É UMA FORMA DE ARTE</span>
+    </div>
+    <div className="tp1v2-essence-copy"><span className="tp1v2-essence-mini">NOSSA FILOSOFIA <span aria-hidden="true">—</span> {niche}</span><h2 id="tp1v2-essence-heading">A beleza está <em>nos detalhes.</em></h2><div className="tp1v2-essence-rule"/><p>Na {brand}, cada experiência é pensada para acolher, respeitar a individualidade e valorizar o que torna cada pessoa única.</p><p>Unimos atenção, sensibilidade e uma atmosfera cuidadosamente preparada para transformar o cuidado em um momento especial.</p><a className="tp1v2-essence-link" href="#contato">Entre em contato <span aria-hidden="true">↗</span></a><div className="tp1v2-essence-signature">ESSÊNCIA <span aria-hidden="true">✳</span> PROPÓSITO</div></div>
+   </div>
   </section>
  </div>;
 }
