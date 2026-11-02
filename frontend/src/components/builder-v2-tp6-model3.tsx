@@ -55,3 +55,38 @@ export function BuilderV2TP6Model3AboutAndValues({brand,niche,photos}:{brand:str
   </section>
  </div>;
 }
+
+const model3Collections:Record<string,[string,string,string,string]>={
+"Loja de roupas":["Essenciais","Looks","Acessórios","Novidades"],
+"Loja de calçados":["Casual","Clássicos","Esportivos","Novidades"],
+"Joalheria e semijoias":["Colares","Brincos","Anéis","Peças especiais"],
+"Ótica":["Armações","Óculos de sol","Clássicos","Novidades"],
+"Perfumaria e cosméticos":["Fragrâncias","Skincare","Maquiagem","Essenciais"],
+"Pet shop":["Brinquedos","Conforto","Acessórios","Cuidados"],
+"Loja de eletrônicos":["Áudio","Tecnologia","Acessórios","Destaques"],
+"Loja de celulares e acessórios":["Celulares","Capas","Carregadores","Acessórios"],
+"Loja de móveis e decoração":["Sala","Quarto","Objetos","Ambientes"],
+"Floricultura":["Buquês","Arranjos","Plantas","Presentes"],
+"Papelaria":["Cadernos","Escrita","Organização","Criatividade"],
+"Loja de brinquedos":["Jogos","Criatividade","Infantil","Presentes"],
+"Loja de artigos esportivos":["Treino","Corrida","Equipamentos","Acessórios"],
+"Loja de presentes e personalizados":["Presentes","Personalizados","Ocasiões","Favoritos"],
+"E-commerce multimarcas":["Destaques","Novidades","Favoritos","Seleção"]
+};
+export function BuilderV2TP6Model3GalleryAndJourney({niche,photos,ctaHref}:{niche:string;photos:string[];ctaHref?:string}){
+ const collections=model3Collections[niche]||model3Collections["E-commerce multimarcas"];
+ const steps=[{n:"01",title:"Explore as coleções",description:"Conheça as categorias disponíveis e descubra as opções apresentadas pela loja."},{n:"02",title:"Veja os detalhes",description:"Confira descrições, imagens e informações fornecidas sobre os produtos."},{n:"03",title:"Escolha como prosseguir",description:"Utilize o canal de contato ou o caminho de compra disponibilizado pela loja."}];
+ return <div className="tp6m3 tp6m3-collections-journey">
+  <section className="tp6m3-collections" id="produtos" aria-labelledby="tp6m3-collections-title">
+   <div className="tp6m3-section-meta"><span>04 / COLEÇÕES</span><span>EXPLORE O UNIVERSO DA MARCA</span></div>
+   <div className="tp6m3-collections-heading"><h2 id="tp6m3-collections-title">NOSSA<br/>SELEÇÃO<span>.</span></h2><p>Um olhar sobre as categorias de {niche.toLocaleLowerCase("pt-BR")}.</p></div>
+   <div className="tp6m3-mosaic">{collections.map((name,i)=><a href={ctaHref||"#contato"} key={name} className={"tp6m3-mosaic-item tp6m3-mosaic-item-"+(i+1)} aria-label={"Explorar "+name}>{photos[i%photos.length]?<img src={photos[i%photos.length]} alt={"Fotografia ilustrativa de "+name+" — "+niche} loading="lazy"/>:<div className="tp6m3-mosaic-placeholder"/>}<span className="tp6m3-mosaic-shade"/><span className="tp6m3-mosaic-top">0{i+1} / 04 <span aria-hidden="true">↗</span></span><span className="tp6m3-mosaic-title">{name}</span></a>)}</div>
+  </section>
+  <section className="tp6m3-how" id="como-comprar" aria-labelledby="tp6m3-how-title">
+   <div className="tp6m3-section-meta"><span>05 / COMO COMPRAR</span><span>UMA JORNADA SIMPLES</span></div>
+   <div className="tp6m3-how-heading"><h2 id="tp6m3-how-title">DO OLHAR<br/>À ESCOLHA<span>.</span></h2><p>Três passos para explorar a seleção e encontrar o próximo caminho, sem presumir políticas de venda ou disponibilidade.</p></div>
+   <div className="tp6m3-how-list">{steps.map(step=><div key={step.n} className="tp6m3-how-step"><span className="tp6m3-how-num">{step.n}</span><div className="tp6m3-how-text"><h3>{step.title}</h3><p>{step.description}</p></div><span className="tp6m3-how-arrow" aria-hidden="true">↗</span></div>)}</div>
+   <a className="tp6m3-how-cta" href={ctaHref||"#contato"}>CONHECER A SELEÇÃO <span aria-hidden="true">↗</span></a>
+  </section>
+ </div>;
+}
