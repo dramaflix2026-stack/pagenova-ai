@@ -72,14 +72,8 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
        <p>Precisão na extração, cuidado em cada detalhe e o tempo certo para revelar aromas e sabores únicos.</p>
        <a className="g3-secret-link" href="#cardapio">Descubra nossas especialidades <span aria-hidden="true">↗</span></a>
       </div>
-      <div className="g3-secret-scene" role="img" aria-label="Representação estilizada de café sendo extraído em uma xícara">
-       <div className="g3-secret-halo" aria-hidden="true"/>
-       <div className="g3-secret-spout" aria-hidden="true"/>
-       <div className="g3-secret-stream" aria-hidden="true"/>
-       <div className="g3-secret-steam g3-secret-steam-a" aria-hidden="true"/>
-       <div className="g3-secret-steam g3-secret-steam-b" aria-hidden="true"/>
-       <div className="g3-secret-cup" aria-hidden="true"><div className="g3-secret-crema"/></div>
-       <div className="g3-secret-saucer" aria-hidden="true"/>
+      <div className="g3-secret-scene g3-secret-photo" role="img" aria-label="Fotografia real de espresso sendo extraído de uma máquina de café">
+       <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Machine_pouring_coffee_%28Unsplash%29.jpg" alt="Extração real de espresso em xícara de porcelana" loading="lazy"/>
       </div>
      </section>
    </main>
