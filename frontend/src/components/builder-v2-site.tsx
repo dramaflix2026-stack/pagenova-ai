@@ -9,6 +9,7 @@ import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
 import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
 import { BuilderV2TP4Model2 } from "@/components/builder-v2-tp4-model2";
 import { BuilderV2TP4Model3 } from "@/components/builder-v2-tp4-model3";
+import { BuilderV2TP6Model2Hero } from "@/components/builder-v2-tp6-model2";
 import { BuilderV2TP5Model2 } from "@/components/builder-v2-tp5-model2";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
@@ -236,6 +237,13 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      "Perfumaria e cosméticos":["Fragrâncias","Cuidados","Essenciais","Lançamentos"],
      "Pet shop":["Acessórios","Conforto","Brinquedos","Favoritos"],
    };
+   if(props.site.briefingLayoutVariant==="02"){
+     const catalog=(nichePhotoCatalog as Record<string,{desktop?:string[]}>);
+     const ids=catalog[retailNiche]?.desktop||catalog["Moda feminina"]?.desktop||[];
+     const photoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
+     const photos=ids.slice(0,4).map(id=>photoBase+id+".png");
+     return <div data-tp6-family="retail" data-tp6-variant="02"><BuilderV2TP6Model2Hero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage} ctaHref={props.site.header?.ctaHref} photos={photos}/></div>;
+   }
    const labels=retailLabels[retailNiche]||["Seleção especial","Novidades","Favoritos","Nossa curadoria"];
    const curated=(photoBank?.desktop||[]).filter(Boolean).slice(0,4);
    const collectionImages=curated.length===4?curated.map((id,i)=>({image:imageBase+id+".png",title:labels[i]})):props.site.blocks.filter(b=>b.type==="image"&&b.src&&b.src!==heroImage).slice(0,4).map((b,i)=>({image:b.src!,title:labels[i]}));
