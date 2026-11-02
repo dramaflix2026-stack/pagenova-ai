@@ -21,8 +21,16 @@ const demoTestimonials=[
  "Cada detalhe da experiência merece ser lembrado, do primeiro aroma à última fatia.",
  "O encontro perfeito entre tradição, ingredientes e momentos à mesa."
 ];
+const faqItems=[
+ {question:"Como posso fazer meu pedido?",answer:"Use o botão Fazer meu pedido para acessar o canal de atendimento configurado pela pizzaria."},
+ {question:"Onde encontro o cardápio?",answer:"Explore a seção Nossas Especialidades ou entre em contato para consultar o cardápio atualizado."},
+ {question:"Vocês oferecem entrega ou retirada?",answer:"As modalidades de atendimento dependem da pizzaria. Consulte a equipe pelo canal de pedidos para confirmar a disponibilidade."},
+ {question:"É possível personalizar uma pizza?",answer:"Consulte a equipe sobre ingredientes, alterações e opções disponíveis antes de finalizar o pedido."},
+ {question:"Quais são os horários de funcionamento?",answer:"Os horários são definidos por cada estabelecimento. Entre em contato para confirmar o atendimento no dia desejado."}
+];
 export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
  const [open,setOpen]=useState(false);
+ const [faqOpen,setFaqOpen]=useState<number|null>(0);
  const [testimonialIndex,setTestimonialIndex]=useState(0);
  useEffect(()=>{if(typeof window==="undefined"||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const timer=window.setInterval(()=>setTestimonialIndex(i=>(i+1)%demoTestimonials.length),6500);return ()=>window.clearInterval(timer)},[]);
  const brand=site.header?.brand||site.title||"Pizzaria Artesanal";
@@ -139,6 +147,25 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-a" aria-hidden="true"/>
       <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-b" aria-hidden="true"/>
       <div className="g2-order-cta-orbit" aria-hidden="true"/>
+    </div>
+  </section>
+  <section className="g2-faq" aria-labelledby="g2-faq-title">
+    <div className="g2-faq-photo">
+      <img src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Pizza artesanal recém-assada em destaque" loading="lazy"/>
+      <div className="g2-faq-photo-shade"/>
+      <span className="g2-faq-photo-label">TRADIÇÃO EM CADA DETALHE <span aria-hidden="true">↗</span></span>
+    </div>
+    <div className="g2-faq-content">
+      <span className="g2-faq-eyebrow">08 / ESTAMOS AQUI PARA AJUDAR</span>
+      <h2 id="g2-faq-title">Perguntas <em>frequentes.</em></h2>
+      <p className="g2-faq-lead">Tudo o que você precisa saber antes de viver a próxima experiência.</p>
+      <div className="g2-faq-accordion">
+        {faqItems.map((item,index)=><div className={"g2-faq-item"+(faqOpen===index?" g2-faq-item-open":"")} key={item.question}>
+          <h3><button type="button" aria-expanded={faqOpen===index} aria-controls={`g2-faq-answer-${index}`} onClick={()=>setFaqOpen(current=>current===index?null:index)}><span>{String(index+1).padStart(2,"0")}</span><strong>{item.question}</strong><i aria-hidden="true">{faqOpen===index?"−":"+"}</i></button></h3>
+          <div id={`g2-faq-answer-${index}`} className="g2-faq-answer" hidden={faqOpen!==index}><p>{item.answer}</p></div>
+        </div>)}
+      </div>
+      <a href={order} className="g2-faq-contact">Ainda tem dúvidas? Fale conosco <span aria-hidden="true">↗</span></a>
     </div>
   </section>
   <div id="contato"/>
