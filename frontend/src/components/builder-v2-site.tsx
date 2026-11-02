@@ -6,6 +6,7 @@ import { BuilderV2TP1Model3Hero } from "@/components/builder-v2-tp1-model3";
 import { BuilderV2TP2Model2 } from "@/components/builder-v2-tp2-model2";
 import { BuilderV2TP2Model3 } from "@/components/builder-v2-tp2-model3";
 import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
+import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
@@ -110,10 +111,10 @@ function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  </div>;
 }
 function TP3LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
- const [variant,setVariant]=useState<"01"|"02">(site.briefingLayoutVariant==="02"?"02":"01");
+ const [variant,setVariant]=useState<"01"|"02"|"03">(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");
  return <div data-tp3-family="gastronomy-premium" data-tp3-variant={variant}>
- {!publishedMode?<div role="group" aria-label="Escolher modelo da família Gastronomia Premium" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f9e9d2",color:"#242019"}}><strong>Gastronomia Premium · Layout</strong>{(["01","02"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #333",background:variant===v?"#242019":"#fff",color:variant===v?"#fff":"#242019",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="02"?<BuilderV2TP3Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+ {!publishedMode?<div role="group" aria-label="Escolher modelo da família Gastronomia Premium" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f9e9d2",color:"#242019"}}><strong>Gastronomia Premium · Layout</strong>{(["01","02","03"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #333",background:variant===v?"#242019":"#fff",color:variant===v?"#fff":"#242019",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
+ {variant==="03"?<BuilderV2TP3Model3 site={site}/>:variant==="02"?<BuilderV2TP3Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
