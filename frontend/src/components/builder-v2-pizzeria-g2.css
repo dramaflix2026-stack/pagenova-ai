@@ -273,3 +273,30 @@
 @media(max-width:1050px){.g2-faq{grid-template-columns:42% 58%}.g2-faq-content{padding:65px 35px}.g2-faq h2{font-size:clamp(45px,5vw,64px)}}
 @media(max-width:700px){.g2-faq{grid-template-columns:1fr}.g2-faq-photo{min-height:400px;max-height:500px}.g2-faq-photo-label{bottom:27px;left:25px;font-size:9px}.g2-faq-content{padding:68px 22px 82px}.g2-faq h2{font-size:clamp(46px,10vw,61px)}.g2-faq-lead{font-size:14px;margin-bottom:28px}.g2-faq-item button{padding:19px 0;gap:12px}.g2-faq-item button strong{font-size:15px}.g2-faq-answer p{margin-left:25px}}
 @media(prefers-reduced-motion:reduce){.g2-faq-photo>img{transition:none}}
+
+/* G2 section 09 — cinematic contact and location */
+.g2-contact{display:grid;grid-template-columns:49% 51%;min-height:770px;background:#0b0908;border-top:1px solid #ffffff1a}
+.g2-contact-visual{position:relative;isolation:isolate;min-height:770px;overflow:hidden;background:#25130e}
+.g2-contact-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.83) contrast(1.08);transition:transform 1.2s ease}
+.g2-contact-visual:hover>img{transform:scale(1.05)}
+.g2-contact-visual-shade{position:absolute;inset:0;background:linear-gradient(180deg,#0b070640 0%,transparent 36%,#0b0706dc 100%)}
+.g2-contact-visual-caption{position:absolute;bottom:55px;left:clamp(25px,5vw,80px);right:clamp(25px,5vw,80px);display:flex;flex-direction:column;gap:16px}
+.g2-contact-visual-caption span{color:#f3b08a;font-size:10px;letter-spacing:.23em;font-weight:700}
+.g2-contact-visual-caption strong{color:#fff4ed;font-size:clamp(30px,3.1vw,48px);line-height:1.12;letter-spacing:-.05em;font-weight:550;max-width:530px}
+.g2-contact-content{padding:clamp(75px,8vw,130px) clamp(35px,7vw,115px);display:flex;flex-direction:column;justify-content:center}
+.g2-contact-kicker{color:#ed996f;font-size:11px;font-weight:700;letter-spacing:.23em;margin-bottom:23px}
+.g2-contact h2{font-size:clamp(48px,5.4vw,82px);line-height:1.04;letter-spacing:-.067em;font-weight:600;margin:0 0 25px}
+.g2-contact h2 em{font-family:Georgia,serif;color:#f0a17b;font-weight:400}
+.g2-contact-intro{font-size:16px;color:#c6b4aa;line-height:1.75;max-width:460px;margin:0 0 39px}
+.g2-contact-details{border-top:1px solid #ffffff2b;max-width:520px}
+.g2-contact-detail{display:flex;align-items:flex-start;gap:19px;padding:22px 0;border-bottom:1px solid #ffffff2b}
+.g2-contact-detail-icon{display:grid;place-items:center;width:43px;height:43px;flex-shrink:0;border:1px solid #ef986b55;border-radius:50%;font-size:23px;color:#f0a17b}
+.g2-contact-detail strong{display:block;color:#fff0e7;font-size:16px;font-weight:600;margin:2px 0 7px}
+.g2-contact-detail p,.g2-contact-detail a{margin:0;color:#c6b4aa;font-size:14px;line-height:1.65;overflow-wrap:anywhere}
+.g2-contact-detail a:hover{color:#f3a67b}
+.g2-contact-button{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;background:#e66a32;color:#150b06!important;text-decoration:none;font-size:15px;font-weight:800;border-radius:4px;padding:18px 25px;align-self:flex-start;margin-top:34px;transition:transform .25s,box-shadow .25s}
+.g2-contact-button:hover{transform:translateY(-3px);box-shadow:0 15px 35px #e66a3245}
+.g2-contact-bottom{display:block;color:#9d8276;font-size:10px;letter-spacing:.18em;margin-top:33px}
+@media(max-width:1000px){.g2-contact{grid-template-columns:45% 55%}.g2-contact-content{padding:65px 35px}.g2-contact h2{font-size:clamp(45px,5vw,65px)}}
+@media(max-width:700px){.g2-contact{grid-template-columns:1fr}.g2-contact-visual{min-height:450px}.g2-contact-visual-caption{bottom:33px;left:25px;right:25px}.g2-contact-visual-caption strong{font-size:33px}.g2-contact-content{padding:68px 22px 85px}.g2-contact h2{font-size:clamp(46px,10vw,61px)}.g2-contact-intro{font-size:14px;margin-bottom:27px}.g2-contact-detail{padding:19px 0}.g2-contact-button{width:100%}}
+@media(prefers-reduced-motion:reduce){.g2-contact-visual>img,.g2-contact-button{transition:none}}
