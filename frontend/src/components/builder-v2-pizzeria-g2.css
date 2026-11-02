@@ -350,3 +350,22 @@
  .g2-pizzeria .g2-contact-visual{min-height:380px}
  .g2-pizzeria .g2-faq-photo{min-height:360px}
 }
+
+/* G2 CTA: dimensional photographic scene, no cartoon ingredient shapes */
+.g2-pizzeria .g2-order-cta-scene{isolation:isolate;transform-style:preserve-3d;perspective:950px;overflow:visible}
+.g2-pizzeria .g2-order-cta-halo{inset:12% 2%;background:radial-gradient(ellipse,#f1844140 0%,#b5421918 40%,transparent 73%);filter:blur(32px)}
+.g2-pizzeria .g2-order-cta-shadow{position:absolute;z-index:0;width:76%;height:24%;left:12%;bottom:8%;border-radius:50%;background:#000b;filter:blur(35px);transform:rotate(-13deg)}
+.g2-pizzeria .g2-order-cta-backplate,.g2-pizzeria .g2-order-cta-foreground{position:absolute;inset:0;pointer-events:none;transform-style:preserve-3d}
+.g2-pizzeria .g2-order-cta-backplate{z-index:1;opacity:.23;filter:blur(18px) saturate(1.4);transform:translate3d(0,16px,-100px) scale(1.06)}
+.g2-pizzeria .g2-order-cta-backplate img{width:100%;height:100%;object-fit:contain;mask-image:radial-gradient(ellipse 43% 36% at 50% 50%,#000 30%,transparent 90%)}
+.g2-pizzeria .g2-order-cta-pizza{z-index:2;transform-style:preserve-3d;filter:drop-shadow(0 30px 35px #000b);animation:g2-pizza-depth 7s ease-in-out infinite}
+.g2-pizzeria .g2-order-cta-pizza img{mask-image:radial-gradient(ellipse 48% 43% at 50% 51%,#000 70%,transparent 99%)}
+.g2-pizzeria .g2-order-cta-foreground{z-index:3;animation:g2-foreground-depth 7s ease-in-out infinite}
+.g2-pizzeria .g2-order-cta-foreground img{width:100%;height:100%;object-fit:contain;clip-path:polygon(45% 28%,100% 4%,100% 72%,65% 70%);mask-image:radial-gradient(ellipse 43% 42% at 72% 44%,#000 25%,transparent 90%);filter:drop-shadow(0 15px 14px #0009)}
+.g2-pizzeria .g2-order-cta-light{position:absolute;z-index:4;width:7px;height:7px;background:#ffc18b;border-radius:50%;box-shadow:0 0 25px 8px #e9783655;animation:g2-ember-rise 6s ease-in-out infinite}
+.g2-pizzeria .g2-order-cta-light-a{top:20%;right:18%}.g2-pizzeria .g2-order-cta-light-b{bottom:22%;left:13%;animation-delay:-3s;scale:.65}
+@keyframes g2-pizza-depth{0%,100%{transform:translate3d(-50%,-50%,30px) rotate(-11deg) rotateY(-3deg)}50%{transform:translate3d(-50%,-54%,65px) rotate(-8deg) rotateY(4deg)}}
+@keyframes g2-foreground-depth{0%,100%{transform:translate3d(0,0,85px)}50%{transform:translate3d(2%,-3%,120px)}}
+@keyframes g2-ember-rise{0%,100%{opacity:.3;transform:translateY(12px)}50%{opacity:.95;transform:translateY(-15px)}}
+@media(max-width:700px){.g2-pizzeria .g2-order-cta-scene{overflow:hidden;perspective:650px}.g2-pizzeria .g2-order-cta-pizza{width:100%;left:50%;top:50%}.g2-pizzeria .g2-order-cta-foreground img{object-fit:contain}.g2-pizzeria .g2-order-cta-shadow{bottom:13%}}
+@media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-order-cta-pizza{animation:none;transform:translate3d(-50%,-50%,30px) rotate(-11deg)}.g2-pizzeria .g2-order-cta-foreground,.g2-pizzeria .g2-order-cta-light{animation:none}}
