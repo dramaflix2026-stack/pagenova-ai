@@ -208,3 +208,27 @@
 @keyframes g3-quote-appear{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:700px){.g3-testimonials{padding:72px 20px 65px}.g3-testimonials-heading{margin-bottom:35px}.g3-testimonials h2{font-size:clamp(40px,10vw,56px)}.g3-testimonials-feature{padding:38px 0 22px}.g3-testimonials-mark{font-size:85px}.g3-testimonials-quote{min-height:275px}.g3-testimonials-quote blockquote{font-size:clamp(22px,6vw,31px);line-height:1.5}.g3-testimonials-disclaimer{font-size:11px}.g3-testimonials-controls button{width:45px;height:45px}}
 @media(prefers-reduced-motion:reduce){.g3-testimonials-quote blockquote{animation:none}.g3-testimonials-controls button{transition:none}}
+
+/* G3 — FAQ editorial split */
+.g3-faq{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(45px,7vw,115px);padding:110px clamp(24px,7vw,108px) 125px;background:#1a100c;color:#f5e7d5}
+.g3-faq-intro{align-self:start;position:sticky;top:100px}
+.g3-faq-kicker{font:600 11px Arial,sans-serif;letter-spacing:.24em;color:#dca77a;margin:0 0 25px}
+.g3-faq h2{font:400 clamp(44px,5vw,76px)/1.1 Georgia,serif;letter-spacing:-.052em;color:#f8e8d4;margin:0 0 24px}
+.g3-faq h2 em{font-weight:400;color:#e7b080}
+.g3-faq-intro>p:not(.g3-faq-kicker){max-width:390px;color:#c9af9c;font:15px/1.85 Arial,sans-serif;margin:0 0 43px}
+.g3-faq-detail{display:block;font:10px Arial,sans-serif;letter-spacing:.17em;color:#a77c60}
+.g3-faq-list{border-top:1px solid #b98b6b66;min-width:0}
+.g3-faq-item{border-bottom:1px solid #b98b6b66}
+.g3-faq-item h3{margin:0;font:inherit}
+.g3-faq-item button{width:100%;display:flex;align-items:center;gap:19px;text-align:left;background:transparent;border:0;color:#f3dfc8;padding:28px 0;cursor:pointer}
+.g3-faq-number{align-self:flex-start;padding-top:5px;font:11px Arial,sans-serif;letter-spacing:.07em;color:#c59772;flex:none}
+.g3-faq-question{flex:1;font:400 clamp(18px,2vw,25px)/1.35 Georgia,serif;transition:color .2s}
+.g3-faq-item button:hover .g3-faq-question,.g3-faq-item.is-open .g3-faq-question{color:#f0b989}
+.g3-faq-toggle{width:32px;height:32px;display:grid;place-items:center;flex:none;border:1px solid #bb8c6a77;border-radius:50%;font:22px/1 Arial,sans-serif;color:#e8b587}
+.g3-faq-item button:focus-visible{outline:2px solid #efbd8e;outline-offset:4px}
+.g3-faq-answer{padding:0 54px 27px 35px}
+.g3-faq-answer[hidden]{display:none}
+.g3-faq-answer p{font:14px/1.85 Arial,sans-serif;color:#cbb3a0;margin:0;max-width:530px}
+@media(max-width:850px){.g3-faq{grid-template-columns:1fr;gap:35px;padding:75px 25px 85px}.g3-faq-intro{position:static}.g3-faq-intro>p:not(.g3-faq-kicker){margin-bottom:15px}.g3-faq-detail{display:none}}
+@media(max-width:540px){.g3-faq{padding:65px 20px 72px;gap:30px}.g3-faq h2{font-size:clamp(41px,10vw,57px)}.g3-faq-item button{gap:12px;padding:23px 0}.g3-faq-question{font-size:19px}.g3-faq-toggle{width:29px;height:29px;font-size:20px}.g3-faq-answer{padding:0 35px 24px 26px}.g3-faq-answer p{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.g3-faq-question{transition:none}}
