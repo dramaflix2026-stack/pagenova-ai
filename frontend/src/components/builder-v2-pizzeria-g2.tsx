@@ -195,5 +195,13 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
   </section>
 
   </main>
+  <footer className="g2-premium-footer" aria-label="Rodapé da pizzaria">
+    <div className="g2-footer-top">
+      <div className="g2-footer-intro"><span className="g2-footer-kicker">O SABOR DE BONS MOMENTOS</span><h2>Até a próxima <em>fatia.</em></h2><p>Tradição, cuidado e paixão em cada detalhe. Uma experiência para compartilhar.</p>{contactHref&&<a className="g2-footer-order" href={contactHref}>{whatsappHref?"Peça pelo WhatsApp":"Fazer um pedido"} <span aria-hidden="true">↗</span></a>}</div>
+      <div className="g2-footer-links"><div><h3>Explore</h3><a href="#inicio">Início</a><a href="#produtos">Especialidades</a><a href="#sobre">Nossa essência</a><a href="#contato">Contato</a></div><div><h3>Contato</h3>{contactAddress&&<p>{contactAddress}</p>}{contactEmail&&<a href={`mailto:${contactEmail}`}>{contactEmail}</a>}{whatsappHref&&<a href={whatsappHref}>WhatsApp ↗</a>}{!contactAddress&&!contactEmail&&!whatsappHref&&<p>Informações disponíveis mediante cadastro.</p>}</div></div>
+    </div>
+    <div className="g2-footer-wordmark" aria-label={brand}>{brand}</div>
+    <div className="g2-footer-bottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>FEITO COM PAIXÃO <span aria-hidden="true">✳</span> SERVIDO COM SABOR</span><a href="#inicio">Voltar ao topo ↑</a></div>
+  </footer>
  </div>;
 }
