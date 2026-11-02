@@ -13,10 +13,10 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const title=site.header?.brand||site.title||"United Coffee";
  const brand=/caf[eé]|coffee|espresso|gr[aã]o/i.test(title)?title:"United Coffee";
  const nav=[{label:"Início",href:"#inicio"},{label:"Sobre",href:"#sobre"},{label:"Cardápio",href:"#cardapio"},{label:"Galeria",href:"#galeria"},{label:"Contato",href:"#contato"}];
- const contactPhoneRaw=site.restaurant?.whatsapp?.replace(/\\D/g,"")||"";
+ const contactPhoneRaw=site.restaurant?.whatsapp?.replace(/\D/g,"")||"";
  const contactPhone=contactPhoneRaw.length>=10&&contactPhoneRaw.length<=15?contactPhoneRaw:"";
  const contactEmailRaw=site.footer?.email?.trim()||"";
- const contactEmail=/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(contactEmailRaw)?contactEmailRaw:"";
+ const contactEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmailRaw)?contactEmailRaw:"";
  const contactAddress=site.footer?.address?.trim()||"";
  const contactHref=contactPhone?"https://wa.me/"+contactPhone:contactEmail?"mailto:"+contactEmail:null;
  const destination=site.header?.ctaHref||site.blocks.find(b=>b.type==="button"&&b.href)?.href||"#cardapio";
