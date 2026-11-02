@@ -26,6 +26,7 @@ import { Template5AIFuturistSections } from "@/components/template5-ai-futurist-
 import { Template6RetailHero } from "@/components/template6-retail-hero";
 import { Template8HospitalityHero } from "@/components/template8-hospitality-hero";
 import { BuilderV2TP8Model2Hero } from "@/components/builder-v2-tp8-model2-hero";
+import { BuilderV2TP8Model2Sections } from "@/components/builder-v2-tp8-model2-sections";
 import { Template9AutomotiveHero } from "@/components/template9-automotive-hero";
 import { Template9AutomotiveSections } from "@/components/template9-automotive-sections";
 import { Template9AutomotiveExperience } from "@/components/template9-automotive-experience";
@@ -235,7 +236,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
    const phone=(props.site.footer?.whatsapp||"").replace(/\D/g,"");
    const contactHref=phone.length>=10?"https://wa.me/"+phone:(props.site.footer?.email?"mailto:"+props.site.footer.email:undefined);
-   if(props.site.briefingLayoutVariant==="02")return <BuilderV2TP8Model2Hero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/>;
+   if(props.site.briefingLayoutVariant==="02")return <><BuilderV2TP8Model2Hero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><BuilderV2TP8Model2Sections brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"}/></>;
    return <><Template8HospitalityHero brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} headline={heading} description={intro} image={heroImage} contactHref={contactHref}/><Template8HospitalitySections brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/><Template8HospitalityDiscover brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/><Template8HospitalityJourney brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} contactHref={contactHref}/><Template8HospitalityClosing brand={props.site.header?.brand||props.site.title||"Hospitalidade"} niche={props.site.niche||props.selectedNiche||"Hotéis"} address={props.site.footer?.address} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} contactHref={contactHref}/></>;
  }
  if(isWrittenBrief&&family===7){
