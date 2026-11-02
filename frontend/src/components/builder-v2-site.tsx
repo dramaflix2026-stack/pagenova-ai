@@ -89,26 +89,26 @@ const designPresets = [
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
 
-function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
+function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  const [variant,setVariant]=useState<"01"|"02"|"03">((site.briefingLayoutVariant==="03"||site.briefingLayoutVariant==="02")?site.briefingLayoutVariant:"01");
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
   {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Beleza e Serviços Premium" style={{display:"flex",justifyContent:"center",gap:10,padding:"12px 18px",background:"#e8e2d8",color:"#283027",fontFamily:"Arial,sans-serif",fontSize:12}}>
    <span style={{alignSelf:"center",fontWeight:700,marginRight:7}}>Beleza Premium · Layout</span>
-   <button type="button" aria-pressed={variant==="01"} onClick={()=>setVariant("01")} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="01"?"#364237":"#fffaf3",color:variant==="01"?"#fff":"#364237",cursor:"pointer"}}>Modelo 01</button>
-   <button type="button" aria-pressed={variant==="02"} onClick={()=>setVariant("02")} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="02"?"#364237":"#fffaf3",color:variant==="02"?"#fff":"#364237",cursor:"pointer"}}>Modelo 02</button>
-   <button type="button" aria-pressed={variant==="03"} onClick={()=>setVariant("03")} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="03"?"#171717":"#fffaf3",color:variant==="03"?"#fff":"#364237",cursor:"pointer"}}>Modelo 03</button>
+   <button type="button" aria-pressed={variant==="01"} onClick={()=>{setVariant("01");onVariantChange?.("01");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="01"?"#364237":"#fffaf3",color:variant==="01"?"#fff":"#364237",cursor:"pointer"}}>Modelo 01</button>
+   <button type="button" aria-pressed={variant==="02"} onClick={()=>{setVariant("02");onVariantChange?.("02");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="02"?"#364237":"#fffaf3",color:variant==="02"?"#fff":"#364237",cursor:"pointer"}}>Modelo 02</button>
+   <button type="button" aria-pressed={variant==="03"} onClick={()=>{setVariant("03");onVariantChange?.("03");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="03"?"#171717":"#fffaf3",color:variant==="03"?"#fff":"#364237",cursor:"pointer"}}>Modelo 03</button>
   </div>:null}
   {variant==="03"?<BuilderV2TP1Model3Hero site={site}/>:variant==="02"?<BuilderV2TP1Model2Hero site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
-function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
+function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  const [variant,setVariant]=useState<"01"|"02"|"03">(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");
  return <div data-tp2-family="engineering-corporate" data-tp2-variant={variant}>
- {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Engenharia e Corporativo" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:14,background:"#e9e7e0",color:"#202729",fontSize:12}}><strong>Engenharia e Corporativo · Layout</strong>{(["01","02","03"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>setVariant(v)} style={{border:"1px solid #aaa",padding:"9px 16px",background:variant===v?"#202729":"#fff",color:variant===v?"#fff":"#202729",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
+ {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Engenharia e Corporativo" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:14,background:"#e9e7e0",color:"#202729",fontSize:12}}><strong>Engenharia e Corporativo · Layout</strong>{(["01","02","03"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{border:"1px solid #aaa",padding:"9px 16px",background:variant===v?"#202729":"#fff",color:variant===v?"#fff":"#202729",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
  {variant==="03"?<BuilderV2TP2Model3 site={site}/>:variant==="02"?<BuilderV2TP2Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
-export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
+export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
   if(/cafeteria|coffee\s*shop|café|cafe\b/i.test([props.site.header?.brand,props.site.title,props.selectedNiche].filter(Boolean).join(" "))||/aurora\s*coffee/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
@@ -130,10 +130,10 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const isWrittenBrief=isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
  const family=isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  if(isWrittenBrief&&family===1){
-   return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate}/>;
+   return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===2){
-   return <TP2LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate}/>;
+   return <TP2LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
