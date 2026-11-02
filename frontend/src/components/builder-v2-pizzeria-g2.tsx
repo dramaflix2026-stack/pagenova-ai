@@ -6,9 +6,9 @@ import "./builder-v2-pizzeria-g2.css";
 const pizzaImage="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/pizzaria/desktop-3ca9141d-3308-4022-97e6-11ec7344b7da.png";
 
 const specialtyImages=[
- "https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/pizzaria/desktop-3ca9141d-3308-4022-97e6-11ec7344b7da.png",
- "https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/pizzaria/desktop-4675570d-8b66-49cd-b451-bb354b4c6d25.png",
- "https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/pizzaria/desktop-927bbda7-1fef-4795-b1d4-87869b122f5f.png"
+ "https://images.pexels.com/photos/825661/pexels-photo-825661.jpeg?auto=compress&cs=tinysrgb&w=1400",
+ "https://images.pexels.com/photos/2619967/pexels-photo-2619967.jpeg?auto=compress&cs=tinysrgb&w=1400",
+ "https://images.pexels.com/photos/2147491/pexels-photo-2147491.jpeg?auto=compress&cs=tinysrgb&w=1400"
 ];
 const specialties=[
  {name:"Clássicos da casa",detail:"O sabor que transforma qualquer encontro em uma ocasião especial.",tag:"01 / TRADIÇÃO"},
@@ -170,7 +170,7 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
           <div id={`g2-faq-answer-${index}`} className="g2-faq-answer" hidden={faqOpen!==index}><p>{item.answer}</p></div>
         </div>)}
       </div>
-      <a href={order} className="g2-faq-contact">Ainda tem dúvidas? Fale conosco <span aria-hidden="true">↗</span></a>
+      <a href={contactHref||"#contato"} className="g2-faq-contact">Ainda tem dúvidas? {contactHref?"Fale conosco":"Veja como entrar em contato"} <span aria-hidden="true">↗</span></a>
     </div>
   </section>
   <section id="contato" className="g2-contact" aria-labelledby="g2-contact-title">
@@ -187,7 +187,7 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
         {contactAddress&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">⌖</span><div><strong>Onde estamos</strong><p>{contactAddress}</p></div></div>}
         {contactEmail&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✉</span><div><strong>E-mail</strong><a href={`mailto:${contactEmail}`}>{contactEmail}</a></div></div>}
         {whatsappHref&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✆</span><div><strong>WhatsApp</strong><p>Fale com nossa equipe pelo WhatsApp.</p></div></div>}
-        {!contactAddress&&!contactEmail&&!whatsappHref&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✦</span><div><strong>Vamos conversar?</strong><p>Os dados de contato e localização aparecerão aqui quando forem cadastrados.</p></div></div>}
+        {!contactAddress&&!contactEmail&&!whatsappHref&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✦</span><div><strong>Uma experiência especial</strong><p>Conheça nossas especialidades e descubra o sabor da nossa cozinha.</p><a href="#produtos">Explorar especialidades ↗</a></div></div>}
       </div>
       {contactHref&&<a className="g2-contact-button" href={contactHref}>{whatsappHref?"Conversar pelo WhatsApp":"Entrar em contato"} <span aria-hidden="true">↗</span></a>}
       <span className="g2-contact-bottom">FEITO COM PAIXÃO · PARA MOMENTOS ESPECIAIS</span>
@@ -198,9 +198,9 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
   <footer className="g2-premium-footer" aria-label="Rodapé da pizzaria">
     <div className="g2-footer-top">
       <div className="g2-footer-intro"><span className="g2-footer-kicker">O SABOR DE BONS MOMENTOS</span><h2>Até a próxima <em>fatia.</em></h2><p>Tradição, cuidado e paixão em cada detalhe. Uma experiência para compartilhar.</p>{contactHref&&<a className="g2-footer-order" href={contactHref}>{whatsappHref?"Peça pelo WhatsApp":"Fazer um pedido"} <span aria-hidden="true">↗</span></a>}</div>
-      <div className="g2-footer-links"><div><h3>Explore</h3><a href="#inicio">Início</a><a href="#produtos">Especialidades</a><a href="#sobre">Nossa essência</a><a href="#contato">Contato</a></div><div><h3>Contato</h3>{contactAddress&&<p>{contactAddress}</p>}{contactEmail&&<a href={`mailto:${contactEmail}`}>{contactEmail}</a>}{whatsappHref&&<a href={whatsappHref}>WhatsApp ↗</a>}{!contactAddress&&!contactEmail&&!whatsappHref&&<p>Informações disponíveis mediante cadastro.</p>}</div></div>
+      <div className="g2-footer-links"><div><h3>Explore</h3><a href="#inicio">Início</a><a href="#produtos">Especialidades</a><a href="#sobre">Nossa essência</a><a href="#contato">Contato</a></div><div><h3>Contato</h3>{contactAddress&&<p>{contactAddress}</p>}{contactEmail&&<a href={`mailto:${contactEmail}`}>{contactEmail}</a>}{whatsappHref&&<a href={whatsappHref}>WhatsApp ↗</a>}{!contactAddress&&!contactEmail&&!whatsappHref&&<a href="#produtos">Conheça nossas especialidades ↗</a>}</div></div>
     </div>
-    <div className="g2-footer-wordmark" aria-label={brand}>{brand}</div>
+    <div className="g2-footer-wordmark" aria-label={brand}><span>{brand}</span></div>
     <div className="g2-footer-bottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>FEITO COM PAIXÃO <span aria-hidden="true">✳</span> SERVIDO COM SABOR</span><a href="#inicio">Voltar ao topo ↑</a></div>
   </footer>
  </div>;
