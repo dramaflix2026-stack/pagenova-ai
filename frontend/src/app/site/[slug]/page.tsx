@@ -51,6 +51,7 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   // Do not override any other published project's explicit template selection.
   const isNexoraTp5Publication=slug==="v2-nexora-intelligence-cbbcc0ec1c";
   const publishedTemplateId=isNexoraTp5Publication?"prompt-adaptive":
+    payload.site.briefingLayoutVariant?"prompt-adaptive":
     payload.site.templateId||(tp5LegacyNiche?"prompt-adaptive":"institutional-complete");
   const publishedSite=isNexoraTp5Publication?{
     ...payload.site,
