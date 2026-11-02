@@ -1,6 +1,7 @@
 "use client";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
+import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
@@ -63,7 +64,7 @@ function cinematicFaqAnswer(question:string):string {
 const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
 
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; mobileFontSize?: number; fontFamily?: string; textColor?: string; colorExplicit?: boolean; radius?: number; cardBorderWidth?: number; cardBorderColor?: string; cardShadow?: string; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
-export type BuilderV2SiteData = { design?:AdaptiveDesign; cinematic?: CinematicAppearance; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; kind?: "institutional" | "restaurant" | "real-estate" | "catalog"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: "single" | "duo" | "trio"; heroBannerCopy?: Record<string,{title?:string;description?:string;buttonText?:string;buttonHref?:string}>; sectionMediaLayouts?: Record<string,"grid" | "mosaic" | "carousel">; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; restaurant?: {whatsapp?:string;menu?:{id:string;name:string;description:string;price:number;category:string;image?:string}[]}; realEstateWhatsapp?:string; properties?:PropertyItem[]; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean; navItems?: Array<{label:string;href:string}> }; extras?: SiteExtras; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+export type BuilderV2SiteData = { design?:AdaptiveDesign; cinematic?: CinematicAppearance; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"; kind?: "institutional" | "restaurant" | "real-estate" | "catalog"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: "single" | "duo" | "trio"; heroBannerCopy?: Record<string,{title?:string;description?:string;buttonText?:string;buttonHref?:string}>; sectionMediaLayouts?: Record<string,"grid" | "mosaic" | "carousel">; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; restaurant?: {whatsapp?:string;menu?:{id:string;name:string;description:string;price:number;category:string;image?:string}[]}; realEstateWhatsapp?:string; properties?:PropertyItem[]; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean; navItems?: Array<{label:string;href:string}> }; extras?: SiteExtras; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 const premiumThemes = {
   legal: {dark:"#101d33",accent:"#c9b782",light:"#f7f5ef"},
   health: {dark:"#164b3b",accent:"#d7e9df",light:"#f6f9f7"},
@@ -85,6 +86,17 @@ const designPresets = [
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
 
+function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
+ const [variant,setVariant]=useState<"01"|"02">(site.briefingLayoutVariant||"01");
+ return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
+  {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Beleza e Serviços Premium" style={{display:"flex",justifyContent:"center",gap:10,padding:"12px 18px",background:"#e8e2d8",color:"#283027",fontFamily:"Arial,sans-serif",fontSize:12}}>
+   <span style={{alignSelf:"center",fontWeight:700,marginRight:7}}>Beleza Premium · Layout</span>
+   <button type="button" aria-pressed={variant==="01"} onClick={()=>setVariant("01")} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="01"?"#364237":"#fffaf3",color:variant==="01"?"#fff":"#364237",cursor:"pointer"}}>Modelo 01</button>
+   <button type="button" aria-pressed={variant==="02"} onClick={()=>setVariant("02")} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="02"?"#364237":"#fffaf3",color:variant==="02"?"#fff":"#364237",cursor:"pointer"}}>Modelo 02</button>
+  </div>:null}
+  {variant==="02"?<BuilderV2TP1Model2Hero site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+ </div>;
+}
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
@@ -106,6 +118,9 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const isNexoraTp5Project=/nexora\s*(?:intelligence|ai)/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
  const isWrittenBrief=isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
  const family=isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
+ if(isWrittenBrief&&family===1){
+   return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate}/>;
+ }
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
