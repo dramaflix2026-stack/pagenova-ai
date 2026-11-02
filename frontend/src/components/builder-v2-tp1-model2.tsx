@@ -26,6 +26,18 @@ const serviceCatalog=[
  {match:/dermatolog/i,items:[["Avaliação dermatológica","Cuidado especializado com a pele.","5659049"],["Cuidados faciais","Atenção às necessidades da pele.","3985332"],["Orientação preventiva","Informação e acompanhamento.","5659009"]]},
  {match:/est[eé]tica|beleza/i,items:[["Estética facial","Cuidado para valorizar a beleza natural.","29692111"],["Rituais para a pele","Um momento de atenção e bem-estar.","7446667"],["Tratamentos personalizados","Uma experiência de cuidado individual.","3985332"]]}
 ] as const;
+const differentiators=[
+ {pattern:/fotograf/i,image:"3584996",items:[["Olhar autoral","Uma direção visual atenta à identidade de cada projeto."],["Experiência acolhedora","Um processo conduzido com escuta e cuidado."],["Detalhes que importam","Atenção à luz, à composição e à expressão."],["Narrativas singulares","Imagens que valorizam histórias e momentos."]]},
+ {pattern:/maquiagem/i,image:"3373736",items:[["Beleza individual","Produções pensadas para valorizar sua expressão."],["Escuta e sensibilidade","Preferências e referências guiam cada escolha."],["Acabamento cuidadoso","Atenção às texturas, aos tons e aos detalhes."],["Experiência especial","Um momento de cuidado antes de cada ocasião."]]},
+ {pattern:/psicolog|terapia/i,image:"4101143",items:[["Escuta respeitosa","Atenção à individualidade de cada pessoa."],["Acolhimento","Um ambiente pensado para conversas com tranquilidade."],["Abordagem personalizada","Acompanhamento orientado às necessidades apresentadas."],["Respeito ao processo","Cuidado com o ritmo e os limites de cada jornada."]]},
+ {pattern:/fisioterap/i,image:"4506109",items:[["Atenção individual","Um olhar cuidadoso para cada necessidade."],["Movimento consciente","Valorização da mobilidade e do bem-estar."],["Acompanhamento próximo","Diálogo e orientação ao longo do processo."],["Ambiente acolhedor","Conforto e tranquilidade durante o atendimento."]]},
+ {pattern:/odontolog/i,image:"6627534",items:[["Olhar individualizado","Atenção às necessidades e preferências de cada paciente."],["Cuidado nos detalhes","Planejamento com foco na harmonia do sorriso."],["Atendimento acolhedor","Uma experiência pautada em escuta e respeito."],["Orientação clara","Informações acessíveis para decisões conscientes."]]},
+ {pattern:/sal[aã]o|cabel/i,image:"3993449",items:[["Estilo pessoal","Beleza alinhada à identidade de cada pessoa."],["Atendimento próximo","Escuta atenta antes de cada transformação."],["Detalhes de acabamento","Cuidado com textura, forma e movimento."],["Atmosfera especial","Um espaço para dedicar tempo a si."]]},
+ {pattern:/consultoria de imagem/i,image:"1926769",items:[["Identidade em primeiro lugar","Escolhas visuais conectadas à sua personalidade."],["Curadoria intencional","Atenção a combinações, cores e proporções."],["Escuta personalizada","Objetivos e preferências orientam o processo."],["Autenticidade","Estilo como extensão de quem você é."]]},
+ {pattern:/spa|bem.est[aá]r/i,image:"9335966",items:[["Pausa consciente","Tempo reservado para desacelerar."],["Atmosfera acolhedora","Ambientes pensados para conforto e tranquilidade."],["Rituais de cuidado","Experiências dedicadas ao bem-estar."],["Atenção aos sentidos","Detalhes que convidam à reconexão."]]},
+ {pattern:/dermatolog/i,image:"5659049",items:[["Atenção à pele","Cuidado orientado às necessidades individuais."],["Escuta cuidadosa","Um atendimento que considera suas dúvidas."],["Orientação clara","Informações acessíveis sobre opções de cuidado."],["Ambiente acolhedor","Tranquilidade e respeito em cada etapa."]]},
+ {pattern:/est[eé]tica|beleza/i,image:"3985332",items:[["Beleza individual","Valorizamos as características de cada pessoa."],["Cuidado personalizado","Atenção às suas preferências e necessidades."],["Ambiente sofisticado","Conforto e delicadeza em cada detalhe."],["Experiência acolhedora","Um momento reservado ao seu bem-estar."]]}
+] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Beleza e Serviços Premium";
@@ -37,6 +49,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const essencePhotos=essencePhotoMap[niche]||{essence:"https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/7446659/pexels-photo-7446659.jpeg?auto=compress&cs=tinysrgb&w=800"};
  const photoWithEssence={...photo,...essencePhotos};
  const serviceItems=(serviceCatalog.find(group=>group.match.test(niche))||serviceCatalog[serviceCatalog.length-1]).items;
+ const difference=(differentiators.find(item=>item.pattern.test(niche))||differentiators[differentiators.length-1]);
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||photo.fallback;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
@@ -70,6 +83,13 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    <div className="tp1v2-services-top"><div><span className="tp1v2-services-kicker">03 — NOSSAS ESPECIALIDADES</span><h2 id="tp1v2-services-heading">Cuidado que se <em>revela.</em></h2></div><p>Conheça algumas das experiências que fazem parte do universo de {niche.toLowerCase()}.</p></div>
    <div className="tp1v2-services-grid">{serviceItems.map(([name,description,imageId],index)=><article className="tp1v2-service-card" key={name}><div className="tp1v2-service-image"><img src={`https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1000`} alt={`Fotografia ilustrativa: ${name}`} loading="lazy"/><span className="tp1v2-service-number">0{index+1}</span></div><div className="tp1v2-service-info"><div><h3>{name}</h3><p>{description}</p></div><span className="tp1v2-service-arrow" aria-hidden="true">↗</span></div></article>)}</div>
    <div className="tp1v2-services-bottom"><span>ATENÇÃO A CADA DETALHE</span><span>✳</span><span>{brand}</span></div>
+  </section>
+  <section className="tp1v2-differences" id="diferenciais" aria-labelledby="tp1v2-differences-heading">
+   <div className="tp1v2-differences-label"><span>04 / NOSSOS DIFERENCIAIS</span><span>O QUE NOS TORNA ÚNICOS</span></div>
+   <div className="tp1v2-differences-grid">
+    <div className="tp1v2-differences-photo"><img src={`https://images.pexels.com/photos/${difference.image}/pexels-photo-${difference.image}.jpeg?auto=compress&cs=tinysrgb&w=1500`} alt={`Fotografia real ilustrativa de ${niche}`} loading="lazy"/><span className="tp1v2-differences-photo-note">CADA DETALHE TEM SEU VALOR <span aria-hidden="true">✳</span></span></div>
+    <div className="tp1v2-differences-content"><span className="tp1v2-differences-eyebrow">NOSSA FORMA DE CUIDAR</span><h2 id="tp1v2-differences-heading">Uma experiência <em>feita para você.</em></h2><p className="tp1v2-differences-intro">Na {brand}, acreditamos que uma experiência especial começa na atenção aos detalhes.</p><div className="tp1v2-differences-list">{difference.items.map(([title,description],index)=><article className="tp1v2-difference" key={title}><span className="tp1v2-difference-number">0{index+1}</span><div><h3>{title}</h3><p>{description}</p></div><span className="tp1v2-difference-symbol" aria-hidden="true">✳</span></article>)}</div></div>
+   </div>
   </section>
  </div>;
 }
