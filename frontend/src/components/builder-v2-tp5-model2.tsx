@@ -1,6 +1,5 @@
 "use client";
 import {useState} from "react";
-import nichePhotoCatalog from "@/lib/niche-photo-catalog.json";
 import "./builder-v2-tp5-model2.css";
 type Entry={type:string;text?:string;section?:string;src?:string};
 type Props={brand:string;niche:string;headline?:string;description?:string;email?:string;whatsapp?:string;blocks:Entry[];address?:string};
@@ -19,13 +18,8 @@ function profile(niche:string){
 export function BuilderV2TP5Model2({brand,niche,headline,description,email,whatsapp,blocks,address}:Props){
  const services=profile(niche);
  const [menuOpen,setMenuOpen]=useState(false);
- const catalog=nichePhotoCatalog as Record<string,{desktop?:string[];mobile?:string[]}>;
- const category=/marketing|publicidade/i.test(niche)?"Marketing digital":/consultoria financeira|contab|seguro/i.test(niche)?"Consultoria financeira":/consultoria|recursos humanos/i.test(niche)?"Consultoria empresarial":"Tecnologia";
- const bank=catalog[category]?.desktop||catalog["Tecnologia"]?.desktop||[];
- const uploaded=blocks.filter(b=>b.type==="image"&&b.src?.trim()).map(b=>b.src!.trim());
- const imageBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
- const photos=[...uploaded,...bank.map(id=>id.startsWith("http")?id:imageBase+id+".png")];
- const photo=(index:number,kind:string)=>photos.length?<img className={"da-photo da-photo-"+kind} src={photos[index%photos.length]} alt={"Imagem ilustrativa de "+niche} loading={index===0?"eager":"lazy"}/>:null;
+ const curatedPhotos=["https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1400&q=85","https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=1400&q=85","https://images.unsplash.com/photo-1497366858526-0766cadbe8fa?w=1400&q=85","https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&q=85","https://images.unsplash.com/photo-1497366216548-37526070297c?w=1400&q=85","https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=1400&q=85"];
+ const photo=(index:number,kind:string)=><img className={"da-photo da-photo-"+kind} src={curatedPhotos[index%curatedPhotos.length]} alt="Fotografia ilustrativa de arquitetura e espaços de trabalho" loading={index===0?"eager":"lazy"}/>;
  const [active,setActive]=useState(0),[step,setStep]=useState(0),[adv,setAdv]=useState(0),[faq,setFaq]=useState<number|null>(0),[quote,setQuote]=useState(0);
  const [name,setName]=useState(""),[reply,setReply]=useState(""),[message,setMessage]=useState(""),[status,setStatus]=useState("");
  const [signup,setSignup]=useState(""),[signupStatus,setSignupStatus]=useState("");
