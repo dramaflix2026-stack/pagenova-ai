@@ -215,3 +215,32 @@
 @keyframes g2-testimonials-reveal{from{opacity:0;transform:translateY(13px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:600px){.g2-testimonials{min-height:640px;padding:85px 19px}.g2-testimonials h2{font-size:clamp(40px,10vw,54px);margin-bottom:36px}.g2-testimonials-mark{font-size:85px}.g2-testimonials-quote{font-size:clamp(24px,6.5vw,31px);min-height:5.3em}.g2-testimonials-disclaimer{font-size:10px}.g2-testimonials-controls button{width:44px;height:44px}}
 @media(prefers-reduced-motion:reduce){.g2-testimonials-backdrop,.g2-testimonials-quote{animation:none}.g2-testimonials-controls button{transition:none}}
+
+.g2-order-cta{position:relative;isolation:isolate;overflow:hidden;min-height:650px;display:grid;grid-template-columns:1fr 1.08fr;align-items:center;background:radial-gradient(ellipse at 78% 50%,#492115,#1b0f0b 42%,#0c0908 85%);padding:80px 6%;border-top:1px solid #ffffff20}
+.g2-order-cta-grain{position:absolute;inset:0;z-index:-1;opacity:.15;background-image:radial-gradient(#f9bb87 0.7px,transparent 1px);background-size:8px 8px}
+.g2-order-cta-content{z-index:5;max-width:650px}
+.g2-order-cta-eyebrow{color:#f4a17a;font-size:11px;font-weight:700;letter-spacing:.25em}
+.g2-order-cta h2{font-size:clamp(50px,6.2vw,95px);line-height:1.03;letter-spacing:-.07em;margin:24px 0}
+.g2-order-cta h2 em{font-family:Georgia,serif;color:#f3a67b;font-weight:400}
+.g2-order-cta-content>p{max-width:430px;color:#d4c1b8;line-height:1.75;margin-bottom:30px}
+.g2-order-cta-button{display:inline-flex;align-items:center;gap:42px;background:#e66a32;color:#160a05!important;padding:18px 27px;border-radius:5px;text-decoration:none;font-weight:800;transition:transform .3s}
+.g2-order-cta-button:hover{transform:translateY(-4px)}
+.g2-order-cta-footnote{display:block;margin-top:28px;color:#bda39a;font-size:10px;letter-spacing:.18em}
+.g2-order-cta-scene{height:550px;position:relative;perspective:1000px}
+.g2-order-cta-halo{position:absolute;inset:12%;border-radius:50%;background:radial-gradient(circle,#e46a3355,transparent 67%);filter:blur(25px)}
+.g2-order-cta-pizza{position:absolute;z-index:2;width:100%;aspect-ratio:1;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-12deg);filter:drop-shadow(0 40px 35px #000b);animation:g2-order-float 6s ease-in-out infinite}
+.g2-order-cta-pizza img{width:100%;height:100%;object-fit:contain;mask-image:radial-gradient(ellipse 49% 47% at 51% 51%,#000 64%,transparent 99%)}
+.g2-order-cta-orbit{position:absolute;z-index:1;width:84%;height:58%;left:8%;top:21%;border:1px solid #ee9e6560;border-radius:50%;transform:rotate(-25deg)}
+.g2-order-cta-ingredient{position:absolute;z-index:4;display:block;filter:drop-shadow(5px 10px 6px #0009);animation:g2-ingredient-float 5s ease-in-out infinite alternate}
+.g2-order-cta-tomato{width:65px;height:65px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#ffbd87,#e83c1c 40%,#8a170b 90%)}
+.g2-order-cta-tomato:before{content:"";position:absolute;width:30px;height:20px;top:-7px;left:17px;background:#4b812d;clip-path:polygon(50% 70%,0 0,35% 40%,50% 0,65% 40%,100% 0)}
+.g2-order-cta-tomato-a{top:8%;right:19%}.g2-order-cta-tomato-b{bottom:10%;left:10%;scale:.7;animation-delay:-2s}
+.g2-order-cta-leaf{width:78px;height:43px;border-radius:0 85% 0 85%;background:linear-gradient(125deg,#9ac64b,#376e2b 60%,#183b1b)}
+.g2-order-cta-leaf-a{top:17%;left:9%;rotate:42deg}.g2-order-cta-leaf-b{bottom:16%;right:8%;rotate:-55deg;animation-delay:-1.5s}.g2-order-cta-leaf-c{top:4%;left:43%;rotate:85deg;scale:.65}
+.g2-order-cta-pepper{width:53px;height:53px;border-radius:50%;border:12px solid #d0ad47;transform:rotateX(55deg)}
+.g2-order-cta-pepper-a{top:35%;right:1%}.g2-order-cta-pepper-b{bottom:5%;left:42%;scale:.7;animation-delay:-2.5s}
+@keyframes g2-order-float{0%,100%{transform:translate(-50%,-50%) rotate(-12deg)}50%{transform:translate(-50%,-53%) rotate(-9deg)}}
+@keyframes g2-ingredient-float{from{translate:0 0}to{translate:9px -17px}}
+@media(max-width:950px){.g2-order-cta{padding:70px 4%}.g2-order-cta-scene{height:430px}.g2-order-cta h2{font-size:clamp(44px,6vw,68px)}}
+@media(max-width:700px){.g2-order-cta{display:flex;flex-direction:column;align-items:stretch;padding:75px 20px 30px}.g2-order-cta h2{font-size:clamp(48px,11vw,67px)}.g2-order-cta-scene{height:370px;width:100%;margin-top:20px}.g2-order-cta-pizza{max-width:430px}.g2-order-cta-tomato{width:45px;height:45px}.g2-order-cta-tomato:before{left:9px}.g2-order-cta-leaf{width:50px;height:29px}.g2-order-cta-pepper{width:40px;height:40px;border-width:9px}}
+@media(prefers-reduced-motion:reduce){.g2-order-cta-pizza,.g2-order-cta-ingredient{animation:none}}
