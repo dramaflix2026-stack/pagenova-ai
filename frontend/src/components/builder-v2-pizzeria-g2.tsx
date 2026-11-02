@@ -119,6 +119,28 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       </div>
     </div>
   </section>
+  <section className="g2-order-cta" aria-labelledby="g2-order-cta-title">
+    <div className="g2-order-cta-grain" aria-hidden="true"/>
+    <div className="g2-order-cta-content">
+      <span className="g2-order-cta-eyebrow">07 / DIRETO DO NOSSO FORNO</span>
+      <h2 id="g2-order-cta-title">Seu próximo momento <em>começa aqui.</em></h2>
+      <p>Ingredientes escolhidos com carinho, massa artesanal e aquele sabor que transforma qualquer ocasião.</p>
+      <a className="g2-order-cta-button" href={order}>Fazer meu pedido <span aria-hidden="true">↗</span></a>
+      <span className="g2-order-cta-footnote">FEITO COM PAIXÃO · SERVIDO COM SABOR</span>
+    </div>
+    <div className="g2-order-cta-scene" aria-label="Composição visual imersiva com pizza artesanal e ingredientes flutuantes" role="img">
+      <div className="g2-order-cta-halo" aria-hidden="true"/>
+      <div className="g2-order-cta-pizza" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
+      <span className="g2-order-cta-ingredient g2-order-cta-tomato g2-order-cta-tomato-a" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-tomato g2-order-cta-tomato-b" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-a" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-b" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-c" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-a" aria-hidden="true"/>
+      <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-b" aria-hidden="true"/>
+      <div className="g2-order-cta-orbit" aria-hidden="true"/>
+    </div>
+  </section>
   <div id="contato"/>
   </main>
  </div>;
