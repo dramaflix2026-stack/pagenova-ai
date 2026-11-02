@@ -127,6 +127,17 @@ function TP4LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  {variant==="03"?<BuilderV2TP4Model3 site={site}/>:variant==="02"?<BuilderV2TP4Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
+function TP5LayoutChooser({site,selectedNiche,publishedMode,onVariantChange,initialVariant}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;onVariantChange?:(variant:"01"|"02"|"03")=>void;initialVariant:"01"|"02"}){
+ const [variant,setVariant]=useState<"01"|"02">(initialVariant);
+ const brand=site.header?.brand||site.title||"Agência Digital";
+ const firstHeading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
+ const firstDescription=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+ return <div data-tp5-family="technology-digital" data-tp5-variant={variant}>
+ {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Tecnologia e Negócios Digitais" style={{display:"flex",gap:10,padding:"14px 12px",alignItems:"center",justifyContent:"center",flexWrap:"wrap",background:"#eef3ff",color:"#15213a",fontFamily:"Arial,sans-serif",fontSize:12}}>
+ <strong>TP5 · Modelo visual</strong>{(["01","02"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"10px 16px",border:"1px solid #98addf",borderRadius:9,background:variant===v?"#2358e8":"#fff",color:variant===v?"#fff":"#15213a",cursor:"pointer",fontWeight:700}}>Modelo {v}{v==="02"?" · Digital Architecture":""}</button>)}</div>:null}
+ {variant==="02"?<BuilderV2TP5Model2 brand={brand} niche={site.niche||selectedNiche||"Tecnologia e Negócios Digitais"} headline={firstHeading} description={firstDescription} email={site.footer?.email} whatsapp={site.footer?.whatsapp} blocks={site.blocks} address={site.footer?.address}/>:<div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={site.niche||selectedNiche||"Negócios Digitais"} email={site.footer?.email} whatsapp={site.footer?.whatsapp}/></div>}
+ </div>;
+}
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
@@ -243,8 +254,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const explicitModel2=/(?:TP5.{0,55}Modelo\\s*0?2|Modelo\\s*0?2.{0,55}Digital Architecture|Digital Architecture)/i.test(tp5BriefText);
    const isAxiomDigital=/\baxiom\s*digital\b/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
    const tp5Variant=props.site.briefingLayoutVariant==="02"||explicitModel2||isAxiomDigital?"02":"01";
-   if(tp5Variant==="02")return <div data-tp5-family="technology-digital" data-tp5-variant="02"><BuilderV2TP5Model2 brand={brand} niche={props.site.niche||props.selectedNiche||"Tecnologia e Negócios Digitais"} headline={firstHeading} description={firstDescription} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp} blocks={props.site.blocks} address={props.site.footer?.address}/></div>;
-   return <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={props.site.niche||props.selectedNiche||"Negócios Digitais"} email={props.site.footer?.email} whatsapp={props.site.footer?.whatsapp}/></div>;
+   return <TP5LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} onVariantChange={props.onVariantChange} initialVariant={tp5Variant}/>;
  }
  const isNexora=/nexora\s*ai/i.test([props.site.title,props.site.header?.brand,props.site.niche].filter(Boolean).join(" "));
  if(isNexora){
