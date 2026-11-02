@@ -38,6 +38,11 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
  const title=raw.toLocaleLowerCase("pt-BR").replace(/^./,c=>c.toLocaleUpperCase("pt-BR"));
  const subtitle=site.blocks?.find(b=>b.type==="paragraph")?.text||"Massa de fermentação lenta, ingredientes selecionados e pizzas artesanais preparadas com paixão.";
  const order=site.header?.ctaHref||site.blocks?.find(b=>b.type==="button"&&b.href&&!b.href.startsWith("#"))?.href||"#contato";
+ const contactAddress=site.footer?.address?.trim();
+ const contactEmail=site.footer?.email?.trim();
+ const whatsappDigits=site.restaurant?.whatsapp?.replace(/\D/g,"")||"";
+ const whatsappHref=whatsappDigits.length>=10&&whatsappDigits.length<=13?`https://wa.me/${whatsappDigits}`:null;
+ const contactHref=whatsappHref||((order&&order!=="#contato")?order:null);
  const links=[["Início","#inicio"],["Cardápio","#produtos"],["Sobre nós","#sobre"],["Contato","#contato"]];
  return <div className="g2-pizzeria">
   <header className="g2-header">
@@ -168,7 +173,27 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       <a href={order} className="g2-faq-contact">Ainda tem dúvidas? Fale conosco <span aria-hidden="true">↗</span></a>
     </div>
   </section>
-  <div id="contato"/>
+  <section id="contato" className="g2-contact" aria-labelledby="g2-contact-title">
+    <div className="g2-contact-visual">
+      <img src="https://images.pexels.com/photos/262978/pexels-photo-262978.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Interior acolhedor de restaurante com iluminação quente" loading="lazy"/>
+      <div className="g2-contact-visual-shade"/>
+      <div className="g2-contact-visual-caption"><span>09 / UMA EXPERIÊNCIA PARA RECORDAR</span><strong>O melhor momento é aquele que compartilhamos.</strong></div>
+    </div>
+    <div className="g2-contact-content">
+      <span className="g2-contact-kicker">VENHA VIVER ESSA EXPERIÊNCIA</span>
+      <h2 id="g2-contact-title">Estamos esperando <em>por você.</em></h2>
+      <p className="g2-contact-intro">Um bom encontro merece uma pizza especial. Entre em contato e descubra como viver essa experiência.</p>
+      <div className="g2-contact-details">
+        {contactAddress&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">⌖</span><div><strong>Onde estamos</strong><p>{contactAddress}</p></div></div>}
+        {contactEmail&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✉</span><div><strong>E-mail</strong><a href={`mailto:${contactEmail}`}>{contactEmail}</a></div></div>}
+        {whatsappHref&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✆</span><div><strong>WhatsApp</strong><p>Fale com nossa equipe pelo WhatsApp.</p></div></div>}
+        {!contactAddress&&!contactEmail&&!whatsappHref&&<div className="g2-contact-detail"><span className="g2-contact-detail-icon" aria-hidden="true">✦</span><div><strong>Vamos conversar?</strong><p>Os dados de contato e localização aparecerão aqui quando forem cadastrados.</p></div></div>}
+      </div>
+      {contactHref&&<a className="g2-contact-button" href={contactHref}>{whatsappHref?"Conversar pelo WhatsApp":"Entrar em contato"} <span aria-hidden="true">↗</span></a>}
+      <span className="g2-contact-bottom">FEITO COM PAIXÃO · PARA MOMENTOS ESPECIAIS</span>
+    </div>
+  </section>
+
   </main>
  </div>;
 }
