@@ -6,6 +6,7 @@ import "./builder-v2-coffee-g3.css";
 
 export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
+ const [testimonialIndex,setTestimonialIndex]=useState(0);
  const [motion,setMotion]=useState({x:0,y:0});
  const frame=useRef<number|null>(null);
  const title=site.header?.brand||site.title||"United Coffee";
@@ -99,6 +100,22 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
         {src:"https://images.pexels.com/photos/35448607/pexels-photo-35448607.jpeg?auto=compress&cs=tinysrgb&w=950",alt:"Canto iluminado de cafeteria com cadeiras de madeira",label:"Sua pausa favorita"}
        ].map((item,index)=><figure className={"g3-space-tile g3-space-tile-"+(index+1)} key={item.src}><img src={item.src} alt={item.alt} loading="lazy"/><figcaption><span>0{index+1} / 04</span><strong>{item.label}</strong></figcaption></figure>)}
       </div>
+     </section>
+    <section className="g3-testimonials" id="depoimentos" aria-labelledby="g3-testimonials-title">
+      <div className="g3-testimonials-heading"><p>✦ HISTÓRIAS QUE INSPIRAM</p><h2 id="g3-testimonials-title">Momentos que <em>ficam na memória.</em></h2></div>
+      <div className="g3-testimonials-feature">
+       <span className="g3-testimonials-mark" aria-hidden="true">“</span>
+       <div className="g3-testimonials-quote" aria-live="polite">
+        <blockquote key={testimonialIndex}>{[
+         "Uma pausa no meio do dia, o aroma do café recém-preparado e um ambiente que convida a ficar mais um pouco.",
+         "O cuidado aparece nos pequenos detalhes: na temperatura da xícara, no aroma e na forma como cada café é servido.",
+         "Um lugar para conversar sem pressa, apreciar novos sabores e transformar o café em um momento especial."
+        ][testimonialIndex]}</blockquote>
+        <p className="g3-testimonials-disclaimer">Texto ilustrativo para demonstração do layout — não representa uma avaliação real de cliente.</p>
+       </div>
+       <div className="g3-testimonials-controls"><span aria-label={"Depoimento demonstrativo "+(testimonialIndex+1)+" de 3"}>0{testimonialIndex+1} <span className="g3-testimonials-divider">/</span> 03</span><div><button type="button" aria-label="Depoimento anterior" onClick={()=>setTestimonialIndex(i=>(i+2)%3)}>←</button><button type="button" aria-label="Próximo depoimento" onClick={()=>setTestimonialIndex(i=>(i+1)%3)}>→</button></div></div>
+      </div>
+      <p className="g3-testimonials-footnote">Exemplos de apresentação. Substitua por depoimentos autorizados antes da publicação para clientes finais.</p>
      </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
