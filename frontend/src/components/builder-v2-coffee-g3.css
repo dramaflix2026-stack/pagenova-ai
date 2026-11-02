@@ -150,3 +150,19 @@
 .g3-secret-photo:hover img{transform:scale(1.035)}
 @media(max-width:700px){.g3-secret-photo{height:auto;aspect-ratio:4/3;width:100%;margin-top:30px;border-radius:12px}.g3-secret-photo img{height:100%;object-position:center}}
 @media(prefers-reduced-motion:reduce){.g3-secret-photo img{transition:none}}
+
+/* G3 — Experiência Aurora: cinematic café atmosphere */
+.g3-experience{position:relative;isolation:isolate;display:flex;align-items:center;min-height:clamp(620px,68vw,820px);overflow:hidden;background:#1d110c;padding:100px clamp(26px,7vw,110px)}
+.g3-experience-photo,.g3-experience-shade{position:absolute;inset:0;z-index:-2}
+.g3-experience-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 52%;filter:brightness(.78) saturate(.84);transform:scale(1.025)}
+.g3-experience-shade{z-index:-1;background:linear-gradient(90deg,rgba(14,8,6,.91) 0%,rgba(17,9,6,.76) 40%,rgba(17,9,6,.12) 100%),linear-gradient(0deg,rgba(14,8,6,.42),transparent 45%)}
+.g3-experience-content{position:relative;max-width:650px;color:#f7e9d7}
+.g3-experience-eyebrow{color:#edba89;font:600 11px/1.4 Arial,sans-serif;letter-spacing:.28em;margin:0 0 27px}
+.g3-experience h2{font:400 clamp(51px,6.4vw,94px)/1.05 Georgia,serif;letter-spacing:-.055em;margin:0 0 27px;color:#fff0dc;text-wrap:balance}
+.g3-experience h2 em{font-weight:400;color:#eab587}
+.g3-experience-content>p:not(.g3-experience-eyebrow){font:16px/1.9 Arial,sans-serif;color:#f1dccc;max-width:490px;margin:0 0 34px}
+.g3-experience-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:32px;padding:17px 23px;border:1px solid #edbb8b;color:#fff0dd!important;font:600 12px Arial,sans-serif;letter-spacing:.035em;background:#24140b77;transition:background .2s,transform .2s}
+.g3-experience-cta:hover{background:#8a563b88;transform:translateY(-2px)}
+.g3-experience-side-note{position:absolute;right:clamp(25px,4vw,60px);bottom:34px;color:#f2d4b4;font:10px Arial,sans-serif;letter-spacing:.23em}
+@media(max-width:700px){.g3-experience{min-height:680px;padding:85px 24px 95px;align-items:flex-end}.g3-experience-photo img{object-position:58% center;filter:brightness(.72) saturate(.85)}.g3-experience-shade{background:linear-gradient(0deg,#110906f2 0%,#110906c9 39%,#1109061c 95%)}.g3-experience h2{font-size:clamp(47px,11vw,68px)}.g3-experience-eyebrow{font-size:10px;letter-spacing:.2em}.g3-experience-content>p:not(.g3-experience-eyebrow){font-size:14px;line-height:1.75}.g3-experience-side-note{right:auto;left:24px;bottom:25px;font-size:8px;letter-spacing:.15em}}
+@media(prefers-reduced-motion:reduce){.g3-experience-cta{transition:none}}
