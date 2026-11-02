@@ -76,6 +76,10 @@ const faqCatalog=[
 ] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
+ const [contactName,setContactName]=useState("");
+ const [contactDetails,setContactDetails]=useState("");
+ const [contactMessage,setContactMessage]=useState("");
+ const [contactFeedback,setContactFeedback]=useState("");
  const [faqOpen,setFaqOpen]=useState<number|null>(0);
  const [testimonialSlide,setTestimonialSlide]=useState(0);
  const [testimonialPaused,setTestimonialPaused]=useState(false);
@@ -99,6 +103,20 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const rawHref=site.header?.ctaHref?.trim()||site.blocks.find(b=>b.type==="button"&&b.href)?.href?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=site.header?.ctaLabel?.trim()||"Fale com a equipe";
+ const contactEmail=site.footer?.email?.trim()||"";
+ const validContactEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)?contactEmail:null;
+ const contactWhatsappRaw=site.footer?.whatsapp||site.restaurant?.whatsapp||"";
+ const contactWhatsappDigits=contactWhatsappRaw.replace(/\D/g,"");
+ const validWhatsapp=contactWhatsappDigits.length>=10&&contactWhatsappDigits.length<=15?contactWhatsappDigits:null;
+ const contactChannel=validWhatsapp?"whatsapp":validContactEmail?"email":null;
+ const sendContact=(event:React.FormEvent<HTMLFormElement>)=>{
+  event.preventDefault();
+  if(!contactName.trim()||!contactDetails.trim()||!contactMessage.trim()){setContactFeedback("Preencha todos os campos antes de continuar.");return;}
+  if(!contactChannel){setContactFeedback("O responsável pelo site ainda não configurou um canal para receber mensagens.");return;}
+  const body=["Olá! Gostaria de entrar em contato sobre "+niche+".","Nome: "+contactName.trim(),"Contato: "+contactDetails.trim(),"Mensagem: "+contactMessage.trim()].join("\n");
+  if(validWhatsapp){const url="https://wa.me/"+validWhatsapp+"?text="+encodeURIComponent(body);const opened=window.open(url,"_blank","noopener,noreferrer");setContactFeedback(opened?"Abrimos o WhatsApp para você revisar e enviar a mensagem.":"Se o WhatsApp não abriu, permita janelas pop-up ou utilize o contato disponível.");return;}
+  if(validContactEmail){window.location.href="mailto:"+validContactEmail+"?subject="+encodeURIComponent("Contato pelo site — "+brand)+"&body="+encodeURIComponent(body);setContactFeedback("Abrimos o aplicativo de e-mail para você revisar e enviar a mensagem. O envio ainda depende da sua confirmação.");}
+ };
  return <div className="tp1v2" id="inicio">
   <header className="tp1v2-header">
    <a className="tp1v2-brand" href="#inicio">{brand}<span className="tp1v2-brand-dot">.</span></a>
@@ -160,6 +178,11 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
     <div className="tp1v2-faq-questions">{faqItems.map(([question,answer],index)=><article className={`tp1v2-faq-item ${faqOpen===index?"is-open":""}`} key={question}><h3><button type="button" aria-expanded={faqOpen===index} aria-controls={`tp1v2-faq-answer-${index}`} id={`tp1v2-faq-question-${index}`} onClick={()=>setFaqOpen(previous=>previous===index?null:index)}><span className="tp1v2-faq-number">0{index+1}</span><span className="tp1v2-faq-question-text">{question}</span><span className="tp1v2-faq-toggle" aria-hidden="true">{faqOpen===index?"−":"+"}</span></button></h3><div id={`tp1v2-faq-answer-${index}`} role="region" aria-labelledby={`tp1v2-faq-question-${index}`} hidden={faqOpen!==index}><p>{answer}</p></div></article>)}</div>
    </div>
    <div className="tp1v2-faq-footer"><span>ATENÇÃO A CADA PERGUNTA</span><span>{brand}</span></div>
+  </section>
+  <section className="tp1v2-contact" id="contato" aria-labelledby="tp1v2-contact-heading">
+   <div className="tp1v2-contact-layout"><div className="tp1v2-contact-intro"><span className="tp1v2-contact-kicker">09 / ENTRE EM CONTATO</span><h2 id="tp1v2-contact-heading">Sua próxima experiência <em>começa aqui.</em></h2><p>Conte-nos como podemos ajudar com {niche.toLowerCase()}. Vamos adorar conhecer o que você procura.</p><div className="tp1v2-contact-decor" aria-hidden="true">✳</div><span className="tp1v2-contact-signature">{brand}</span></div>
+    <div className="tp1v2-contact-panel"><span className="tp1v2-contact-panel-kicker">VAMOS CONVERSAR?</span><h3>Envie sua mensagem</h3><p>Preencha os campos abaixo para iniciar uma conversa com nossa equipe.</p><form onSubmit={sendContact}><label htmlFor="tp1v2-contact-name">Seu nome</label><input id="tp1v2-contact-name" autoComplete="name" required maxLength={120} value={contactName} onChange={event=>setContactName(event.target.value)} placeholder="Como podemos chamar você?"/><label htmlFor="tp1v2-contact-details">Seu telefone ou e-mail</label><input id="tp1v2-contact-details" autoComplete="email" required maxLength={180} value={contactDetails} onChange={event=>setContactDetails(event.target.value)} placeholder="Seu melhor contato"/><label htmlFor="tp1v2-contact-message">Como podemos ajudar?</label><textarea id="tp1v2-contact-message" required maxLength={2000} rows={4} value={contactMessage} onChange={event=>setContactMessage(event.target.value)} placeholder="Conte um pouco sobre o que você precisa"/><button type="submit" disabled={!contactChannel}>{contactChannel==="whatsapp"?"Continuar pelo WhatsApp":contactChannel==="email"?"Continuar por e-mail":"Canal de envio não configurado"} <span aria-hidden="true">↗</span></button>{contactFeedback&&<p className="tp1v2-contact-feedback" role="status">{contactFeedback}</p>}{!contactChannel&&<p className="tp1v2-contact-feedback" role="status">O responsável pelo site precisa configurar um WhatsApp ou e-mail para habilitar o envio.</p>}<small>O formulário abre o canal configurado para revisão e envio. Não confirma entrega automaticamente.</small></form></div>
+   </div>
   </section>
  </div>;
 }
