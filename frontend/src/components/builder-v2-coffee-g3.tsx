@@ -55,11 +55,11 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       </div>
       <div className="g3-specialties-grid">
        {[
-        {name:"Cappuccino Premium",description:"Uma experiência cremosa, intensa e delicada a cada gole.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-b614d27d-f66a-45a9-87a2-394460ed52d5.png",number:"01"},
-        {name:"Frappuccino de Caramelo",description:"Uma combinação refrescante de café, suavidade e caramelo.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-66bb2780-abd6-4a7d-9f0a-f8b2046e62e9.png",number:"02"},
-        {name:"Latte Macchiato",description:"Camadas de sabor e aroma em uma criação especial.",image:"https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-841e3cd8-fe94-4a5c-8bc5-0559d28177a6.png",number:"03"}
+        {name:"Cappuccino Premium",description:"Uma experiência cremosa, intensa e delicada a cada gole.",image:"https://images.pexels.com/photos/5112651/pexels-photo-5112651.jpeg?auto=compress&cs=tinysrgb&w=1100",number:"01"},
+        {name:"Frappuccino de Caramelo",description:"Uma combinação refrescante de café, suavidade e caramelo.",image:"https://images.pexels.com/photos/15086187/pexels-photo-15086187.jpeg?auto=compress&cs=tinysrgb&w=1100",number:"02"},
+        {name:"Latte Macchiato",description:"Camadas de sabor e aroma em uma criação especial.",image:"https://images.pexels.com/photos/16147917/pexels-photo-16147917.jpeg?auto=compress&cs=tinysrgb&w=1100",number:"03"}
        ].map((item,index)=><article className={"g3-specialty-card"+(index===1?" g3-specialty-featured":"")} key={item.number}>
-        <div className="g3-specialty-visual"><span className="g3-specialty-number">{item.number} / 03</span><img src={item.image} alt={item.name+" — composição 3D da cafeteria"} loading="lazy"/><span className="g3-specialty-glow" aria-hidden="true"/></div>
+        <div className="g3-specialty-visual"><span className="g3-specialty-number">{item.number} / 03</span><img src={item.image} alt={item.name+" — fotografia real de café"} loading="lazy"/><span className="g3-specialty-glow" aria-hidden="true"/></div>
         <div className="g3-specialty-info"><div><h3>{item.name}</h3><p>{item.description}</p></div><a href={destination} aria-label={"Conhecer "+item.name}>↗</a></div>
        </article>)}
       </div>
