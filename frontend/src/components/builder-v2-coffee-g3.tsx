@@ -65,6 +65,23 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       </div>
      </section>
 <section className="g3-essence" id="sobre"><div className="g3-essence-art"><img src="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-02240d6c-5928-49e6-a19a-3cc756ba78e0.png" alt="Grãos de café na torra artesanal" loading="lazy"/></div><div className="g3-essence-copy"><p className="g3-essence-eyebrow">NOSSA ESSÊNCIA</p><h2>O café começa <em>muito antes</em> da primeira xícara.</h2><p>Da seleção dos grãos ao cuidado com a torra, cada detalhe transforma o café em uma experiência cheia de aroma, textura e significado.</p><span>ORIGEM · CUIDADO · PAIXÃO</span></div></section>
+    <section className="g3-secret" id="segredo" aria-labelledby="g3-secret-title">
+      <div className="g3-secret-content">
+       <p className="g3-secret-kicker">✦ O SEGREDO DO NOSSO CAFÉ</p>
+       <h2 id="g3-secret-title">Não é só café.<br/><em>É um ritual.</em></h2>
+       <p>Precisão na extração, cuidado em cada detalhe e o tempo certo para revelar aromas e sabores únicos.</p>
+       <a className="g3-secret-link" href="#cardapio">Descubra nossas especialidades <span aria-hidden="true">↗</span></a>
+      </div>
+      <div className="g3-secret-scene" role="img" aria-label="Representação estilizada de café sendo extraído em uma xícara">
+       <div className="g3-secret-halo" aria-hidden="true"/>
+       <div className="g3-secret-spout" aria-hidden="true"/>
+       <div className="g3-secret-stream" aria-hidden="true"/>
+       <div className="g3-secret-steam g3-secret-steam-a" aria-hidden="true"/>
+       <div className="g3-secret-steam g3-secret-steam-b" aria-hidden="true"/>
+       <div className="g3-secret-cup" aria-hidden="true"><div className="g3-secret-crema"/></div>
+       <div className="g3-secret-saucer" aria-hidden="true"/>
+      </div>
+     </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
