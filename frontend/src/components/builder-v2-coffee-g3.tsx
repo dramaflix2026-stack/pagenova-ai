@@ -76,6 +76,19 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Machine_pouring_coffee_%28Unsplash%29.jpg" alt="Extração real de espresso em xícara de porcelana" loading="lazy"/>
       </div>
      </section>
+    <section className="g3-experience" id="experiencia" aria-labelledby="g3-experience-title">
+      <div className="g3-experience-photo">
+       <img src="https://images.pexels.com/photos/1833769/pexels-photo-1833769.jpeg?auto=compress&cs=tinysrgb&w=2000" alt="Interior aconchegante de cafeteria com madeira e iluminação quente" loading="lazy"/>
+      </div>
+      <div className="g3-experience-shade" aria-hidden="true"/>
+      <div className="g3-experience-content">
+       <p className="g3-experience-eyebrow">✦ EXPERIÊNCIA AURORA</p>
+       <h2 id="g3-experience-title">Um lugar para <em>sentir o momento.</em></h2>
+       <p>Entre aromas, encontros e pequenos detalhes, cada pausa ganha um novo significado. Mais do que servir café, queremos criar momentos que merecem ser vividos.</p>
+       <a href="#cardapio" className="g3-experience-cta">Explore nossos sabores <span aria-hidden="true">↗</span></a>
+      </div>
+      <span className="g3-experience-side-note" aria-hidden="true">ACONCHEGO · AROMA · EXPERIÊNCIA</span>
+     </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
