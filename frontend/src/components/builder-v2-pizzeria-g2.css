@@ -168,3 +168,29 @@
 @media(max-width:1000px){.g2-process-stages{grid-template-columns:repeat(2,minmax(0,1fr))}.g2-process-stage-featured{grid-column:1/-1;margin-top:0;min-height:540px}.g2-process-stage{min-height:480px}.g2-process-stage-featured .g2-process-photo img{object-position:center 42%}}
 @media(max-width:600px){.g2-process{padding:76px 18px 95px}.g2-process-intro{text-align:left;margin-bottom:36px}.g2-process-intro h2{font-size:clamp(43px,10.5vw,58px)}.g2-process-intro p{font-size:14px}.g2-process-stages{grid-template-columns:1fr;gap:17px}.g2-process-stage,.g2-process-stage-featured{grid-column:auto;min-height:465px}.g2-process-stage-featured{min-height:520px}.g2-process-caption{padding:27px}.g2-process-caption h3{font-size:32px}}
 @media(prefers-reduced-motion:reduce){.g2-process-stage,.g2-process-photo img{transition:none}.g2-process-stage:hover{transform:none}}
+
+/* Section 05 — asymmetrical editorial cinematic gallery */
+.g2-gallery{padding:clamp(80px,9vw,140px) clamp(20px,5vw,86px) clamp(90px,10vw,150px);background:radial-gradient(ellipse at 60% 0,#26130d 0,#0c0908 35%,#080707 85%);border-top:1px solid #ffffff18}
+.g2-gallery-heading{max-width:1450px;margin:0 auto 52px;display:flex;align-items:end;justify-content:space-between;gap:45px}
+.g2-gallery-kicker{display:block;color:#ef956d;font-size:11px;letter-spacing:.23em;font-weight:700;margin-bottom:20px}
+.g2-gallery-heading h2{max-width:800px;font-size:clamp(45px,5.8vw,85px);line-height:1.04;letter-spacing:-.065em;font-weight:600;margin:0}
+.g2-gallery-heading h2 em{font-family:Georgia,serif;font-weight:400;color:#f0a17b}
+.g2-gallery-heading p{color:#b9aaa3;line-height:1.75;font-size:15px;max-width:310px;margin:0 0 8px}
+.g2-gallery-mosaic{max-width:1450px;margin:auto;display:grid;grid-template-columns:1.22fr .78fr;grid-template-rows:290px 290px 330px;gap:17px}
+.g2-gallery-tile{margin:0;position:relative;overflow:hidden;isolation:isolate;border-radius:10px;background:#1d110d;border:1px solid #ffffff18}
+.g2-gallery-tile-main{grid-row:1/3;grid-column:1}
+.g2-gallery-tile-top{grid-row:1;grid-column:2}
+.g2-gallery-tile-bottom{grid-row:2;grid-column:2}
+.g2-gallery-tile-wide{grid-row:3;grid-column:1/3}
+.g2-gallery-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.025);transition:transform .9s cubic-bezier(.2,.8,.2,1),filter .6s;filter:saturate(.9) contrast(1.09)}
+.g2-gallery-tile-main img{object-position:65% 50%}
+.g2-gallery-tile-wide img{object-position:center 48%}
+.g2-gallery-tile:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0004 0%,transparent 38%,#090605c9 100%);pointer-events:none}
+.g2-gallery-tile:hover img{transform:scale(1.09);filter:saturate(1.1) contrast(1.12)}
+.g2-gallery-tile figcaption{position:absolute;bottom:0;left:0;right:0;z-index:1;padding:clamp(22px,3vw,42px);display:flex;flex-direction:column;gap:9px}
+.g2-gallery-tile figcaption span{color:#f4aa82;font-size:10px;font-weight:700;letter-spacing:.2em}
+.g2-gallery-tile figcaption strong{font-size:clamp(20px,2.2vw,34px);font-weight:600;letter-spacing:-.045em;line-height:1.1}
+.g2-gallery-tile-main figcaption strong{font-size:clamp(27px,3vw,46px)}
+@media(max-width:900px){.g2-gallery-heading{align-items:start;flex-direction:column;gap:17px}.g2-gallery-heading p{max-width:580px}.g2-gallery-mosaic{grid-template-rows:240px 240px 270px}}
+@media(max-width:600px){.g2-gallery{padding:72px 18px 96px}.g2-gallery-heading{margin-bottom:34px}.g2-gallery-heading h2{font-size:clamp(42px,10vw,57px)}.g2-gallery-heading p{font-size:13px}.g2-gallery-mosaic{grid-template-columns:1fr 1fr;grid-template-rows:390px 230px 265px;gap:11px}.g2-gallery-tile-main{grid-column:1/3;grid-row:1}.g2-gallery-tile-top{grid-column:1;grid-row:2}.g2-gallery-tile-bottom{grid-column:2;grid-row:2}.g2-gallery-tile-wide{grid-column:1/3;grid-row:3}.g2-gallery-tile figcaption{padding:17px}.g2-gallery-tile figcaption span{font-size:8px}.g2-gallery-tile figcaption strong{font-size:17px}.g2-gallery-tile-main figcaption strong{font-size:28px}.g2-gallery-tile-wide figcaption strong{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.g2-gallery-tile img{transition:none}}
