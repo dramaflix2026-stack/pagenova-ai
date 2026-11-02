@@ -37,7 +37,7 @@ import { Template7RealEstateContact } from "@/components/template7-real-estate-c
 import { Template7RealEstateFooter } from "@/components/template7-real-estate-footer";
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
 import { Template6RetailStory } from "@/components/template6-retail-story";
-import { resolveTemplate6Niche } from "@/lib/template6-retail-niches";
+import { resolveTemplate6Niche, inferTemplate6NicheFromBrief } from "@/lib/template6-retail-niches";
 import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche } from "@/lib/briefing-template-families";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
@@ -97,6 +97,7 @@ const designPresets = [
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
 
+function TP6LayoutChooser({site,publishedMode,onVariantChange,children}:{site:BuilderV2SiteData;publishedMode?:boolean;onVariantChange?:(variant:"01"|"02"|"03")=>void;children:(variant:"01"|"02")=>React.ReactNode}){const [variant,setVariant]=useState<"01"|"02">(site.briefingLayoutVariant==="02"?"02":"01");useEffect(()=>{setVariant(site.briefingLayoutVariant==="02"?"02":"01")},[site.briefingLayoutVariant,site.id]);return <div>{!publishedMode&&<div role="group" aria-label="Escolher modelo visual TP6 Varejo e Lojas" style={{display:"flex",gap:10,alignItems:"center",justifyContent:"center",padding:14,background:"#e8e6df",color:"#191919",flexWrap:"wrap"}}><strong>TP6 · Varejo e Lojas</strong>{(["01","02"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v)}} style={{padding:"10px 17px",border:"1px solid #777",background:variant===v?"#191919":"#fff",color:variant===v?"#fff":"#191919",fontWeight:700}}>Modelo {v}</button>)}</div>}{children(variant)}</div>}
 function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  const [variant,setVariant]=useState<"01"|"02"|"03">((site.briefingLayoutVariant==="03"||site.briefingLayoutVariant==="02")?site.briefingLayoutVariant:"01");
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
@@ -224,7 +225,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const contactHref=whatsappDigits.length>=10?"https://wa.me/"+whatsappDigits:"#contato-tp7";
    return <div className="pn-t7-layout"><style>{`.pn-t7-layout{width:100%;max-width:100%;min-width:0;overflow-x:clip}.pn-t7-layout,.pn-t7-layout *{box-sizing:border-box}.pn-t7-layout section,.pn-t7-layout footer,.pn-t7-layout header{max-width:100%}.pn-t7-layout img{max-width:100%}.pn-t7-layout h1,.pn-t7-layout h2,.pn-t7-layout h3,.pn-t7-layout p{overflow-wrap:break-word}.pn-t7-layout .pn-t7-legacy > header{display:none!important}.pn-t7-layout .pn-t7-legacy section:first-of-type{display:none!important}@media(max-width:600px){.pn-t7-layout .pn-t7-about h2{font-size:clamp(38px,10vw,53px)}.pn-t7-layout .pn-t7-differences h2{font-size:clamp(38px,10vw,53px)}.pn-t7-layout .pn-t7-feature h2{font-size:clamp(36px,9vw,50px)}.pn-t7-layout .pn-t7-diff-item h3{font-size:clamp(21px,6vw,26px)}.pn-t7-layout .pn-t7-footer-brand{overflow-wrap:anywhere}}`}</style><Template7RealEstateHero brand={props.site.header?.brand||props.site.title||"Imobiliária"} niche={props.site.niche||props.selectedNiche||"Imobiliárias"} headline={heading} description={intro} image={heroImage} properties={props.site.properties||[]} contactHref={contactHref}/><Template7RealEstateSections brand={props.site.header?.brand||props.site.title||"Imobiliária"} niche={props.site.niche||props.selectedNiche||"Imobiliárias"} properties={props.site.properties||[]} images={props.site.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!)} contactHref={contactHref}/><Template7RealEstateExperience niche={props.site.niche||props.selectedNiche||"Imobiliárias"} properties={props.site.properties||[]} images={props.site.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!)} contactHref={contactHref}/><Template7RealEstateContact brand={props.site.header?.brand||props.site.title||"Imobiliária"} niche={props.site.niche||props.selectedNiche||"Imobiliárias"} contact={{address:props.site.footer?.address,email:props.site.footer?.email,whatsapp:rawWhatsapp,ctaHref:props.site.header?.ctaHref}} image={props.site.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!).at(-1)}/><Template7RealEstateFooter brand={props.site.header?.brand||props.site.title||"Imobiliária"} niche={props.site.niche||props.selectedNiche||"Imobiliárias"} footer={{address:props.site.footer?.address,email:props.site.footer?.email,whatsapp:rawWhatsapp,cnpj:props.site.footer?.cnpj}}/></div>;
  }
- const retailNiche=family===6?(resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||"Loja de roupas"):"";
+ const retailNiche=family===6?(resolveTemplate6Niche(props.site.niche||"")||resolveTemplate6Niche(props.selectedNiche||"")||inferTemplate6NicheFromBrief([props.site.title,props.site.header?.brand,...props.site.blocks.filter(b=>b.type==="heading"||b.type==="paragraph").slice(0,8).map(b=>b.text||"")].join(" "))||"Loja de roupas"):"";
  if(isWrittenBrief&&family===6){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
@@ -239,7 +240,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      "Perfumaria e cosméticos":["Fragrâncias","Cuidados","Essenciais","Lançamentos"],
      "Pet shop":["Acessórios","Conforto","Brinquedos","Favoritos"],
    };
-   if(props.site.briefingLayoutVariant==="02"){
+   return <TP6LayoutChooser site={props.site} publishedMode={props.publishedMode} onVariantChange={props.onVariantChange}>{variant=>{   if(variant==="02"){
      const catalog=(nichePhotoCatalog as Record<string,{desktop?:string[]}>);
      const ids=catalog[retailNiche]?.desktop||catalog["Moda feminina"]?.desktop||[];
      const photoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/";
@@ -250,6 +251,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const curated=(photoBank?.desktop||[]).filter(Boolean).slice(0,4);
    const collectionImages=curated.length===4?curated.map((id,i)=>({image:imageBase+id+".png",title:labels[i]})):props.site.blocks.filter(b=>b.type==="image"&&b.src&&b.src!==heroImage).slice(0,4).map((b,i)=>({image:b.src!,title:labels[i]}));
    return <div className="pn-t6-layout"><style>{`.pn-t6-layout .pn-t6-legacy > header{display:none!important}.pn-t6-layout .pn-t6-legacy section:first-of-type{display:none!important}`}</style><Template6RetailHero brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} headline={heading} description={intro} image={heroImage}/><div id="produtos"><Template6RetailCollection niche={retailNiche} items={collectionImages}/></div><Template6RetailStory brand={props.site.header?.brand||props.site.title||retailNiche} niche={retailNiche} images={(photoBank?.desktop||[]).slice(0,9).map(id=>imageBase+id+".png")}/><div className="pn-t6-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
+   }}</TP6LayoutChooser>;
  }
  // Nexora Intelligence is the approved TP5 reference project. Its legacy saved
  // metadata can still route to the old Nexora renderer in Studio after F5.
