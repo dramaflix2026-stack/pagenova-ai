@@ -50,6 +50,18 @@ const journeyCatalog=[
  {pattern:/dermatolog/i,steps:[["Agendamento","Organizamos seu primeiro atendimento."],["Avaliação","Conversamos sobre histórico, dúvidas e necessidades."],["Orientação","Apresentamos opções de cuidado conforme avaliação."],["Acompanhamento","Combinamos os próximos passos quando indicados."]]},
  {pattern:/est[eé]tica|beleza/i,steps:[["Primeiro contato","Conhecemos seus objetivos e preferências."],["Avaliação","Entendemos suas necessidades individuais."],["Atendimento","Realizamos a experiência de cuidado planejada."],["Acompanhamento","Orientamos os próximos passos quando necessários."]]}
 ] as const;
+const galleryCatalog=[
+ {pattern:/fotograf/i,ids:["3584996","3062545","3373736","1926769","2113855"],labels:["Retratos","Olhares","Composição","Expressão","Detalhes"]},
+ {pattern:/maquiagem/i,ids:["3373736","2113855","3993449","3992874","1926769"],labels:["Produção","Detalhes","Beleza","Estilo","Expressão"]},
+ {pattern:/psicolog|terapia/i,ids:["4101143","17640381","6899549","7750099","3985332"],labels:["Acolhimento","Escuta","Ambiente","Conforto","Bem-estar"]},
+ {pattern:/fisioterap/i,ids:["4506109","6111616","4506109","6899549","4101143"],labels:["Movimento","Atenção","Cuidado","Ambiente","Bem-estar"]},
+ {pattern:/odontolog/i,ids:["6627534","3845810","5659009","7750099","5069589"],labels:["Sorrisos","Cuidado","Detalhes","Ambiente","Experiência"]},
+ {pattern:/sal[aã]o|cabel/i,ids:["3993449","3992874","7750099","3373736","2113855"],labels:["Estilo","Transformação","Ambiente","Beleza","Detalhes"]},
+ {pattern:/consultoria de imagem/i,ids:["1926769","3373736","2113855","934070","3062545"],labels:["Identidade","Estilo","Expressão","Curadoria","Detalhes"]},
+ {pattern:/spa|bem.est[aá]r/i,ids:["7446662","3985332","6899549","7446659","7750099"],labels:["Relaxamento","Rituais","Ambiente","Cuidado","Conforto"]},
+ {pattern:/dermatolog/i,ids:["5659009","5069589","3985332","6899549","7446659"],labels:["Cuidado com a pele","Tratamentos","Atenção","Ambiente","Bem-estar"]},
+ {pattern:/est[eé]tica|beleza/i,ids:["29692111","7446662","3985332","6899549","7446659"],labels:["Cuidado facial","Experiência","Tratamento","Ambiente","Detalhes"]}
+] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Beleza e Serviços Premium";
@@ -63,6 +75,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const serviceItems=(serviceCatalog.find(group=>group.match.test(niche))||serviceCatalog[serviceCatalog.length-1]).items;
  const difference=(differentiators.find(item=>item.pattern.test(niche))||differentiators[differentiators.length-1]);
  const journey=(journeyCatalog.find(item=>item.pattern.test(niche))||journeyCatalog[journeyCatalog.length-1]).steps;
+ const gallery=(galleryCatalog.find(item=>item.pattern.test(niche))||galleryCatalog[galleryCatalog.length-1]);
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||photo.fallback;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
@@ -108,6 +121,11 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    <div className="tp1v2-journey-intro"><span className="tp1v2-journey-eyebrow">05 / COMO FUNCIONA O ATENDIMENTO</span><h2 id="tp1v2-journey-heading">Cada etapa, <em>um cuidado especial.</em></h2><p>Uma jornada pensada para acolher você do primeiro contato aos próximos passos.</p></div>
    <ol className="tp1v2-journey-steps">{journey.map(([title,description],index)=><li className="tp1v2-journey-step" key={title}><div className="tp1v2-journey-marker"><span>0{index+1}</span><span className="tp1v2-journey-dot" aria-hidden="true"/></div><h3>{title}</h3><p>{description}</p></li>)}</ol>
    <div className="tp1v2-journey-footer"><span>UMA EXPERIÊNCIA COM PROPÓSITO</span><span aria-hidden="true">✳</span><span>{niche}</span></div>
+  </section>
+  <section className="tp1v2-gallery" id="galeria" aria-labelledby="tp1v2-gallery-heading">
+   <div className="tp1v2-gallery-heading"><div><span className="tp1v2-gallery-kicker">06 / GALERIA DE EXPERIÊNCIAS</span><h2 id="tp1v2-gallery-heading">Momentos que <em>inspiram.</em></h2></div><p>Um olhar visual sobre o universo de {niche.toLowerCase()}. Fotografias ilustrativas de experiências e ambientes.</p></div>
+   <div className="tp1v2-gallery-mosaic">{gallery.ids.map((id,index)=><figure className={`tp1v2-gallery-tile tp1v2-gallery-tile-${index+1}`} key={index}><img src={`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1300`} alt={`Fotografia ilustrativa de ${niche}: ${gallery.labels[index]}`} loading="lazy"/><figcaption><span>0{index+1} / {gallery.labels[index]}</span><span aria-hidden="true">↗</span></figcaption></figure>)}</div>
+   <div className="tp1v2-gallery-bottom"><span>IMAGENS ILUSTRATIVAS • FOTOGRAFIA REAL</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
   </section>
  </div>;
 }
