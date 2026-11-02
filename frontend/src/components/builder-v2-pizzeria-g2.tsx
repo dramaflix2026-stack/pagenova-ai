@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-pizzeria-g2.css";
 
@@ -16,8 +16,15 @@ const specialties=[
  {name:"Experiência artesanal",detail:"Uma celebração da pizza, do primeiro aroma à última fatia.",tag:"03 / PAIXÃO"}
 ];
 
+const demoTestimonials=[
+ "Uma noite especial começa com bons sabores e termina com memórias para compartilhar.",
+ "Cada detalhe da experiência merece ser lembrado, do primeiro aroma à última fatia.",
+ "O encontro perfeito entre tradição, ingredientes e momentos à mesa."
+];
 export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
  const [open,setOpen]=useState(false);
+ const [testimonialIndex,setTestimonialIndex]=useState(0);
+ useEffect(()=>{if(typeof window==="undefined"||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;const timer=window.setInterval(()=>setTestimonialIndex(i=>(i+1)%demoTestimonials.length),6500);return ()=>window.clearInterval(timer)},[]);
  const brand=site.header?.brand||site.title||"Pizzaria Artesanal";
  const raw=site.blocks?.find(b=>b.type==="heading")?.text||"A tradição italiana em cada fatia.";
  const title=raw.toLocaleLowerCase("pt-BR").replace(/^./,c=>c.toLocaleUpperCase("pt-BR"));
@@ -94,6 +101,22 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       <figure className="g2-gallery-tile g2-gallery-tile-top"><img src="https://images.pexels.com/photos/1435907/pexels-photo-1435907.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Ingredientes frescos" loading="lazy"/><figcaption><span>02 / INGREDIENTES</span><strong>Escolhas que fazem a diferença.</strong></figcaption></figure>
       <figure className="g2-gallery-tile g2-gallery-tile-bottom"><img src="https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Pizza artesanal assada" loading="lazy"/><figcaption><span>03 / TRADIÇÃO</span><strong>Feita para compartilhar.</strong></figcaption></figure>
       <figure className="g2-gallery-tile g2-gallery-tile-wide"><img src="https://www.gardenahotels.com/typo3temp/_processed_/csm_Medel-restaurant-pizza-gardenahotels-Dolomites-lunch-dinner-bar-pizzeria-meat-grill-dry_age-homemade-wholemeal_f9365b29f3.jpg" alt="Preparo artesanal da pizza" loading="lazy"/><figcaption><span>04 / NOSSA ESSÊNCIA</span><strong>O cuidado está em cada detalhe.</strong></figcaption></figure>
+    </div>
+  </section>
+  <section className="g2-testimonials" aria-labelledby="g2-testimonials-title">
+    <div className="g2-testimonials-backdrop" aria-hidden="true"/>
+    <div className="g2-testimonials-overlay" aria-hidden="true"/>
+    <div className="g2-testimonials-inner">
+      <span className="g2-testimonials-kicker">06 / VOZES E MEMÓRIAS</span>
+      <h2 id="g2-testimonials-title">Momentos que <em>merecem ser contados.</em></h2>
+      <div className="g2-testimonials-mark" aria-hidden="true">“</div>
+      <blockquote className="g2-testimonials-quote" key={testimonialIndex}>{demoTestimonials[testimonialIndex]}</blockquote>
+      <p className="g2-testimonials-disclaimer">Texto ilustrativo de apresentação — não representa uma avaliação real de cliente.</p>
+      <div className="g2-testimonials-controls" aria-label="Navegar entre textos ilustrativos">
+        <button type="button" aria-label="Texto anterior" onClick={()=>setTestimonialIndex(i=>(i+demoTestimonials.length-1)%demoTestimonials.length)}>←</button>
+        <span aria-live="polite">{String(testimonialIndex+1).padStart(2,"0")} <i/> {String(demoTestimonials.length).padStart(2,"0")}</span>
+        <button type="button" aria-label="Próximo texto" onClick={()=>setTestimonialIndex(i=>(i+1)%demoTestimonials.length)}>→</button>
+      </div>
     </div>
   </section>
   <div id="contato"/>
