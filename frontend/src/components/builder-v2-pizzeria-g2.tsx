@@ -141,17 +141,14 @@ export function BuilderV2PizzeriaG2({site}:{site:BuilderV2SiteData}){
       <a className="g2-order-cta-button" href={order}>Fazer meu pedido <span aria-hidden="true">↗</span></a>
       <span className="g2-order-cta-footnote">FEITO COM PAIXÃO · SERVIDO COM SABOR</span>
     </div>
-    <div className="g2-order-cta-scene" aria-label="Composição visual imersiva com pizza artesanal e ingredientes flutuantes" role="img">
+    <div className="g2-order-cta-scene" aria-label="Pizza artesanal em composição tridimensional com camadas, iluminação e movimento" role="img">
       <div className="g2-order-cta-halo" aria-hidden="true"/>
+      <div className="g2-order-cta-shadow" aria-hidden="true"/>
+      <div className="g2-order-cta-backplate" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
       <div className="g2-order-cta-pizza" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
-      <span className="g2-order-cta-ingredient g2-order-cta-tomato g2-order-cta-tomato-a" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-tomato g2-order-cta-tomato-b" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-a" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-b" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-leaf g2-order-cta-leaf-c" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-a" aria-hidden="true"/>
-      <span className="g2-order-cta-ingredient g2-order-cta-pepper g2-order-cta-pepper-b" aria-hidden="true"/>
-      <div className="g2-order-cta-orbit" aria-hidden="true"/>
+      <div className="g2-order-cta-foreground" aria-hidden="true"><img src={pizzaImage} alt=""/></div>
+      <span className="g2-order-cta-light g2-order-cta-light-a" aria-hidden="true"/>
+      <span className="g2-order-cta-light g2-order-cta-light-b" aria-hidden="true"/>
     </div>
   </section>
   <section className="g2-faq" aria-labelledby="g2-faq-title">
