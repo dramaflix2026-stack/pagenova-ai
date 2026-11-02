@@ -78,7 +78,12 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
       "Cardiologia",
       "Pediatria",
       "Neurologia",
-      "Saúde integrada"
+      "Saúde integrada",
+      "Radiologia",
+      "Ginecologia e obstetrícia",
+      "Dermatologia clínica",
+      "Centro de diagnóstico por imagem",
+      "Clínica oftalmológica"
     ]
   },
   {
