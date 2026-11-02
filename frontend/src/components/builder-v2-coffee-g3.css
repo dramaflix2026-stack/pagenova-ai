@@ -143,3 +143,10 @@
 @keyframes g3-steam-rise{50%{transform:translateY(-28px) translateX(12px);opacity:.25}}
 @media(max-width:700px){.g3-secret{display:flex;flex-direction:column;align-items:stretch;min-height:0;padding:65px 22px 30px}.g3-secret:before{background:linear-gradient(#0c060677,transparent 85%)}.g3-secret h2{font-size:clamp(43px,10vw,64px)}.g3-secret-kicker{font-size:9px;margin-bottom:20px}.g3-secret-content>p:not(.g3-secret-kicker){font-size:13px;margin-bottom:20px}.g3-secret-scene{height:350px;width:100%;max-width:440px;align-self:center;margin-top:12px}.g3-secret-spout{height:75px}.g3-secret-stream{top:69px;height:132px;width:8px}.g3-secret-cup{top:51%}.g3-secret-saucer{bottom:11%}.g3-secret-cup:after{border-width:13px}}
 @media(prefers-reduced-motion:reduce){.g3-secret-stream,.g3-secret-steam{animation:none!important}}
+
+/* Real licensed coffee extraction photo replaces temporary CSS illustration */
+.g3-secret-photo{height:clamp(390px,43vw,610px);overflow:hidden;border-radius:14px;border:1px solid #d5a77a33;box-shadow:0 30px 75px #0009;filter:none}
+.g3-secret-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:54% center;filter:contrast(1.06) saturate(.93);transition:transform .7s ease}
+.g3-secret-photo:hover img{transform:scale(1.035)}
+@media(max-width:700px){.g3-secret-photo{height:auto;aspect-ratio:4/3;width:100%;margin-top:30px;border-radius:12px}.g3-secret-photo img{height:100%;object-position:center}}
+@media(prefers-reduced-motion:reduce){.g3-secret-photo img{transition:none}}
