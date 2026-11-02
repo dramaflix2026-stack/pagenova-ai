@@ -89,6 +89,17 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       </div>
       <span className="g3-experience-side-note" aria-hidden="true">ACONCHEGO · AROMA · EXPERIÊNCIA</span>
      </section>
+    <section className="g3-space" id="nosso-espaco" aria-labelledby="g3-space-title">
+      <div className="g3-space-heading"><div><p className="g3-space-eyebrow">✦ NOSSO ESPAÇO</p><h2 id="g3-space-title">Cada canto, <em>um convite.</em></h2></div><p>Ambientes acolhedores, detalhes que encantam e a atmosfera perfeita para aproveitar o seu café.</p></div>
+      <div className="g3-space-gallery">
+       {[
+        {src:"https://images.pexels.com/photos/31927547/pexels-photo-31927547.jpeg?auto=compress&cs=tinysrgb&w=1400",alt:"Cafeteria acolhedora com mesas de madeira e luz quente",label:"Um ambiente para ficar"},
+        {src:"https://images.pexels.com/photos/37797299/pexels-photo-37797299.jpeg?auto=compress&cs=tinysrgb&w=950",alt:"Mesas e cadeiras em cafeteria aconchegante",label:"Detalhes que acolhem"},
+        {src:"https://images.pexels.com/photos/31365006/pexels-photo-31365006.jpeg?auto=compress&cs=tinysrgb&w=950",alt:"Balcão e mobiliário de madeira em café acolhedor",label:"Nosso jeito de receber"},
+        {src:"https://images.pexels.com/photos/35448607/pexels-photo-35448607.jpeg?auto=compress&cs=tinysrgb&w=950",alt:"Canto iluminado de cafeteria com cadeiras de madeira",label:"Sua pausa favorita"}
+       ].map((item,index)=><figure className={"g3-space-tile g3-space-tile-"+(index+1)} key={item.src}><img src={item.src} alt={item.alt} loading="lazy"/><figcaption><span>0{index+1} / 04</span><strong>{item.label}</strong></figcaption></figure>)}
+      </div>
+     </section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
