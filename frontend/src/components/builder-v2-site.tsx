@@ -4,6 +4,7 @@ import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
 import { BuilderV2TP1Model3Hero } from "@/components/builder-v2-tp1-model3";
 import { BuilderV2TP2Model2 } from "@/components/builder-v2-tp2-model2";
+import { BuilderV2TP2Model3 } from "@/components/builder-v2-tp2-model3";
 import { BuilderV2PizzeriaG2 } from "@/components/builder-v2-pizzeria-g2";
 import { BuilderV2CoffeeG3 } from "@/components/builder-v2-coffee-g3";
 import { NexoraTechnologyHero } from "@/components/template5-nexora-hero";
@@ -101,10 +102,10 @@ function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId}:{site:Bu
  </div>;
 }
 function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
- const [variant,setVariant]=useState<"01"|"02">(site.briefingLayoutVariant==="02"?"02":"01");
+ const [variant,setVariant]=useState<"01"|"02"|"03">(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");
  return <div data-tp2-family="engineering-corporate" data-tp2-variant={variant}>
- {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Engenharia e Corporativo" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:14,background:"#e9e7e0",color:"#202729",fontSize:12}}><strong>Engenharia e Corporativo · Layout</strong>{(["01","02"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>setVariant(v)} style={{border:"1px solid #aaa",padding:"9px 16px",background:variant===v?"#202729":"#fff",color:variant===v?"#fff":"#202729",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="02"?<BuilderV2TP2Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+ {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Engenharia e Corporativo" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:14,background:"#e9e7e0",color:"#202729",fontSize:12}}><strong>Engenharia e Corporativo · Layout</strong>{(["01","02","03"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>setVariant(v)} style={{border:"1px solid #aaa",padding:"9px 16px",background:variant===v?"#202729":"#fff",color:variant===v?"#fff":"#202729",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
+ {variant==="03"?<BuilderV2TP2Model3 site={site}/>:variant==="02"?<BuilderV2TP2Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
