@@ -64,6 +64,7 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
        </article>)}
       </div>
      </section>
+<section className="g3-essence" id="sobre"><div className="g3-essence-art"><img src="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-02240d6c-5928-49e6-a19a-3cc756ba78e0.png" alt="Grãos de café na torra artesanal" loading="lazy"/></div><div className="g3-essence-copy"><p className="g3-essence-eyebrow">NOSSA ESSÊNCIA</p><h2>O café começa <em>muito antes</em> da primeira xícara.</h2><p>Da seleção dos grãos ao cuidado com a torra, cada detalhe transforma o café em uma experiência cheia de aroma, textura e significado.</p><span>ORIGEM · CUIDADO · PAIXÃO</span></div></section>
    </main>
    <div className="g3-ticker" aria-label="Destaques da cafeteria"><span>CAFÉ SELECIONADO</span><span>✦</span><span>TORRA ARTESANAL</span><span>✦</span><span>FEITO COM PAIXÃO</span><span>✦</span><span>EXPERIÊNCIA PREMIUM</span></div>
   </div>
