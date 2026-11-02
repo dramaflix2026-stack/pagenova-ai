@@ -88,6 +88,7 @@ const designPresets = [
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
+  if(/cafeteria|coffee\s*shop|café|cafe\b/i.test([props.site.header?.brand,props.site.title,props.selectedNiche].filter(Boolean).join(" "))||/aurora\s*coffee/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
   if(/cafeteria|coffee\s*shop|café|cafe\b/i.test(props.site.niche||""))return <BuilderV2CoffeeG3 site={props.site}/>;
   if(/pizzaria|pizza/i.test(props.site.niche||""))return <BuilderV2PizzeriaG2 site={props.site}/>;
   if(/cafeteria|coffee\s*shop|café|cafe\b/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
