@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import type {CSSProperties,PointerEvent} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-coffee-g3.css";
-import {normalizedSocialLink,whatsappDigits} from "@/lib/site-social-links";
+import {normalizedSocialLink} from "@/lib/site-social-links";
 
 export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
