@@ -24,3 +24,34 @@ export function BuilderV2TP6Model3Hero({brand,niche,headline,description,photos,
   </section>
  </div>
 }
+const editorialTopics:Record<string,string>={"Loja de roupas":"MODA QUE EXPRESSA","Loja de calçados":"CADA PASSO TEM HISTÓRIA","Joalheria e semijoias":"DETALHES QUE FALAM","Ótica":"NOVAS FORMAS DE VER","Perfumaria e cosméticos":"BELEZA EM MOVIMENTO","Pet shop":"CUIDADO COM PERSONALIDADE","Loja de eletrônicos":"TECNOLOGIA COM IDENTIDADE","Loja de celulares e acessórios":"CONEXÕES DO COTIDIANO","Loja de móveis e decoração":"ESPAÇOS QUE CONTAM","Floricultura":"FLORES E SIGNIFICADOS","Papelaria":"IDEIAS QUE GANHAM VIDA","Loja de brinquedos":"O MUNDO DA IMAGINAÇÃO","Loja de artigos esportivos":"MOVIMENTO QUE INSPIRA","Loja de presentes e personalizados":"GESTOS QUE PERMANECEM","E-commerce multimarcas":"UM UNIVERSO DE ESCOLHAS"};
+const retailValues:Record<string,[string,string,string,string]>={
+"Pet shop":["Bem-estar","Escolhas para diferentes necessidades dos pets.","Variedade","Categorias organizadas para explorar com facilidade."],
+"Loja de eletrônicos":["Tecnologia","Uma seleção para descobrir soluções do cotidiano.","Clareza","Informações acessíveis para comparar alternativas."],
+"Loja de celulares e acessórios":["Conexão","Opções para diferentes formas de se conectar.","Praticidade","Uma navegação simples por produtos e acessórios."],
+"Floricultura":["Expressão","Composições para diferentes ocasiões e sentimentos.","Descoberta","Inspiração para encontrar o arranjo desejado."],
+"Joalheria e semijoias":["Detalhes","Peças que complementam diferentes estilos.","Expressão","Escolhas que acompanham momentos e identidades."]
+};
+export function BuilderV2TP6Model3AboutAndValues({brand,niche,photos}:{brand:string;niche:string;photos:string[]}){
+ const title=editorialTopics[niche]||editorialTopics["E-commerce multimarcas"];
+ const [v1,d1,v2,d2]=retailValues[niche]||["Curadoria","Uma seleção apresentada com atenção à identidade visual.","Descoberta","Um jeito simples de explorar categorias e encontrar opções."];
+ const values=[{n:"01",title:v1,desc:d1},{n:"02",title:v2,desc:d2},{n:"03",title:"Identidade",desc:"Uma experiência visual alinhada ao universo de "+niche.toLocaleLowerCase("pt-BR")+"."},{n:"04",title:"Experiência",desc:"Navegação responsiva e caminhos claros para conhecer a seleção."}];
+ return <div className="tp6m3 tp6m3-sections">
+  <section className="tp6m3-about" id="sobre" aria-labelledby="tp6m3-about-title">
+   <div className="tp6m3-section-meta"><span>02 / SOBRE A MARCA</span><span>UM OLHAR EDITORIAL</span></div>
+   <h2 id="tp6m3-about-title" className="tp6m3-about-heading">{title}<span className="tp6m3-period">.</span></h2>
+   <div className="tp6m3-about-layout">
+    <div className="tp6m3-about-photo-one">{photos[2]&&<img src={photos[2]} alt={"Fotografia editorial de "+niche} loading="lazy"/>}<span>01 — PERSPECTIVA</span></div>
+    <div className="tp6m3-about-center"><span className="tp6m3-about-label">NOSSA VISÃO / {brand}</span><p>Na {brand}, o universo de {niche.toLocaleLowerCase("pt-BR")} ganha uma apresentação própria: visual, contemporânea e feita para explorar novas possibilidades.</p><p>Cada imagem e cada detalhe ajudam a contar a proposta da marca, sem perder a simplicidade de encontrar o que você procura.</p><a href="#produtos">EXPLORE A SELEÇÃO <span aria-hidden="true">↗</span></a></div>
+    <div className="tp6m3-about-photo-two">{photos[3]&&<img src={photos[3]} alt={"Detalhes de "+niche} loading="lazy"/>}<span>02 — DETALHES</span></div>
+   </div>
+   <div className="tp6m3-about-watermark" aria-hidden="true">EDITORIAL / 03</div>
+  </section>
+  <section className="tp6m3-values" id="diferenciais" aria-labelledby="tp6m3-values-title">
+   <div className="tp6m3-section-meta"><span>03 / NOSSOS DIFERENCIAIS</span><span>O QUE ORIENTA A EXPERIÊNCIA</span></div>
+   <div className="tp6m3-values-heading"><h2 id="tp6m3-values-title">O QUE NOS<br/>MOVE<span>.</span></h2><p>Quatro princípios para apresentar produtos, facilitar descobertas e dar personalidade à experiência de navegação.</p></div>
+   <div className="tp6m3-values-grid">{values.map(v=><article key={v.n} className="tp6m3-value"><span className="tp6m3-value-number">{v.n}</span><div><h3>{v.title}</h3><p>{v.desc}</p></div><span className="tp6m3-value-arrow" aria-hidden="true">↗</span></article>)}</div>
+   <div className="tp6m3-values-bottom"><span>IDENTIDADE / CLAREZA / EXPERIÊNCIA</span><span>03 — 03</span></div>
+  </section>
+ </div>;
+}
