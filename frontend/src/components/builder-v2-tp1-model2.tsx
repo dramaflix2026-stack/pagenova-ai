@@ -14,6 +14,18 @@ const photoSet=[
  {pattern:/spa|bem.est[aá]r/i,photo:"https://images.pexels.com/photos/9335966/pexels-photo-9335966.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/11774389/pexels-photo-11774389.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"RITUAIS DE BEM-ESTAR",fallback:"Seu momento de reconexão."},
  {pattern:/dermatolog|est[eé]tica|beleza/i,photo:"https://images.pexels.com/photos/5659049/pexels-photo-5659049.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/6899549/pexels-photo-6899549.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"CUIDADO E ESTÉTICA",fallback:"O cuidado começa em você."}
 ];
+const serviceCatalog=[
+ {match:/fotograf/i,items:[["Retratos autorais","Imagens que revelam personalidade.","3584996"],["Ensaios especiais","Registros para momentos importantes.","3062545"],["Fotografia de marca","Uma linguagem visual própria.","3373736"]]},
+ {match:/maquiagem/i,items:[["Maquiagem social","Beleza para ocasiões especiais.","3373736"],["Produção de beleza","Acabamentos com personalidade.","2113855"],["Beleza para eventos","Uma produção para o seu momento.","3993449"]]},
+ {match:/psicolog|terapia/i,items:[["Atendimento individual","Um espaço de escuta e acolhimento.","4101143"],["Acompanhamento terapêutico","Cuidado construído com respeito.","17640381"],["Bem-estar emocional","Atenção à sua jornada pessoal.","3985332"]]},
+ {match:/fisioterap/i,items:[["Avaliação funcional","Atenção às necessidades de movimento.","4506109"],["Terapia manual","Cuidado individualizado.","6111616"],["Mobilidade e bem-estar","Acompanhamento para sua rotina.","4506109"]]},
+ {match:/odontolog/i,items:[["Estética do sorriso","Cuidado com a harmonia do sorriso.","6627534"],["Avaliação odontológica","Atenção individual desde o primeiro encontro.","3845810"],["Cuidado preventivo","Acompanhamento para saúde bucal.","6627534"]]},
+ {match:/sal[aã]o|cabel/i,items:[["Corte e estilo","Expressão em cada detalhe.","3993449"],["Tratamentos capilares","Cuidado dedicado aos fios.","3992874"],["Produção especial","Beleza para momentos únicos.","3373736"]]},
+ {match:/consultoria de imagem/i,items:[["Identidade visual pessoal","Estilo alinhado à sua essência.","1926769"],["Curadoria de guarda-roupa","Escolhas com intenção.","934070"],["Consultoria de estilo","Sua imagem como expressão.","3373736"]]},
+ {match:/spa|bem.est[aá]r/i,items:[["Rituais de relaxamento","Pausas para renovar o equilíbrio.","9335966"],["Massagens","Um momento dedicado ao bem-estar.","11774389"],["Cuidados faciais","Atenção delicada à pele.","7446667"]]},
+ {match:/dermatolog/i,items:[["Avaliação dermatológica","Cuidado especializado com a pele.","5659049"],["Cuidados faciais","Atenção às necessidades da pele.","3985332"],["Orientação preventiva","Informação e acompanhamento.","5659009"]]},
+ {match:/est[eé]tica|beleza/i,items:[["Estética facial","Cuidado para valorizar a beleza natural.","29692111"],["Rituais para a pele","Um momento de atenção e bem-estar.","7446667"],["Tratamentos personalizados","Uma experiência de cuidado individual.","3985332"]]}
+] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Beleza e Serviços Premium";
@@ -24,6 +36,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  };
  const essencePhotos=essencePhotoMap[niche]||{essence:"https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/7446659/pexels-photo-7446659.jpeg?auto=compress&cs=tinysrgb&w=800"};
  const photoWithEssence={...photo,...essencePhotos};
+ const serviceItems=(serviceCatalog.find(group=>group.match.test(niche))||serviceCatalog[serviceCatalog.length-1]).items;
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||photo.fallback;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
@@ -52,6 +65,11 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
     </div>
     <div className="tp1v2-essence-copy"><span className="tp1v2-essence-mini">NOSSA FILOSOFIA <span aria-hidden="true">—</span> {niche}</span><h2 id="tp1v2-essence-heading">A beleza está <em>nos detalhes.</em></h2><div className="tp1v2-essence-rule"/><p>Na {brand}, cada experiência é pensada para acolher, respeitar a individualidade e valorizar o que torna cada pessoa única.</p><p>Unimos atenção, sensibilidade e uma atmosfera cuidadosamente preparada para transformar o cuidado em um momento especial.</p><a className="tp1v2-essence-link" href="#contato">Entre em contato <span aria-hidden="true">↗</span></a><div className="tp1v2-essence-signature">ESSÊNCIA <span aria-hidden="true">✳</span> PROPÓSITO</div></div>
    </div>
+  </section>
+  <section className="tp1v2-services" id="servicos" aria-labelledby="tp1v2-services-heading">
+   <div className="tp1v2-services-top"><div><span className="tp1v2-services-kicker">03 — NOSSAS ESPECIALIDADES</span><h2 id="tp1v2-services-heading">Cuidado que se <em>revela.</em></h2></div><p>Conheça algumas das experiências que fazem parte do universo de {niche.toLowerCase()}.</p></div>
+   <div className="tp1v2-services-grid">{serviceItems.map(([name,description,imageId],index)=><article className="tp1v2-service-card" key={name}><div className="tp1v2-service-image"><img src={`https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1000`} alt={`Fotografia ilustrativa: ${name}`} loading="lazy"/><span className="tp1v2-service-number">0{index+1}</span></div><div className="tp1v2-service-info"><div><h3>{name}</h3><p>{description}</p></div><span className="tp1v2-service-arrow" aria-hidden="true">↗</span></div></article>)}</div>
+   <div className="tp1v2-services-bottom"><span>ATENÇÃO A CADA DETALHE</span><span>✳</span><span>{brand}</span></div>
   </section>
  </div>;
 }
