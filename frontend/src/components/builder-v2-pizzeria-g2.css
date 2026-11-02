@@ -399,3 +399,23 @@
 .g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 6%,#080707eb 19%,#0807078c 34%,transparent 58%,#080707a3 100%)}
 }
 @media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-hero-stage-glow,.g2-pizzeria .g2-hero-stage .g2-hero-image,.g2-pizzeria .g2-hero-stage .g2-hero-foreground,.g2-pizzeria .g2-hero-stage-spark{animation:none!important}}
+
+/* Three specialty cards: photographic depth layers and 3D tilt, without cartoon ingredients */
+.g2-pizzeria .g2-specialties-grid{perspective:1300px}
+.g2-pizzeria .g2-specialty-card{transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.25,1),box-shadow .55s;will-change:transform;isolation:isolate}
+.g2-pizzeria .g2-specialty-card:nth-child(1){--g2-card-angle:-3deg;--g2-card-shift:-9px}
+.g2-pizzeria .g2-specialty-card:nth-child(2){--g2-card-angle:3deg;--g2-card-shift:-14px}
+.g2-pizzeria .g2-specialty-card:nth-child(3){--g2-card-angle:-2deg;--g2-card-shift:-11px}
+.g2-pizzeria .g2-specialty-media{position:relative;isolation:isolate;perspective:850px;overflow:hidden;background:#160c09}
+.g2-pizzeria .g2-specialty-depth{position:absolute;inset:12% 8% 0;border-radius:50%;background:radial-gradient(ellipse,#f36d343c,transparent 70%);filter:blur(22px);transform:translateZ(-40px);pointer-events:none}
+.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{position:relative;z-index:1;display:block;width:100%;height:100%;object-fit:cover;transform:scale(1.07) rotate(var(--g2-card-angle));transition:transform .65s ease;filter:contrast(1.08) saturate(1.13)}
+.g2-pizzeria .g2-specialty-lift{position:absolute;z-index:2;inset:0;pointer-events:none;overflow:hidden;mask-image:radial-gradient(ellipse 35% 37% at 52% 49%,#000 24%,#000a 55%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 35% 37% at 52% 49%,#000 24%,#000a 55%,transparent 100%);transform:translate3d(0,var(--g2-card-shift),45px) scale(1.11);filter:drop-shadow(0 20px 16px #0009);animation:g2-specialty-float 7s ease-in-out infinite}
+.g2-pizzeria .g2-specialty-lift img{width:100%;height:100%;object-fit:cover;display:block;transform:scale(1.07) rotate(var(--g2-card-angle))}
+.g2-pizzeria .g2-specialty-card:nth-child(2) .g2-specialty-lift{animation-delay:-2s}
+.g2-pizzeria .g2-specialty-card:nth-child(3) .g2-specialty-lift{animation-delay:-4s}
+.g2-pizzeria .g2-specialty-index{z-index:4}
+.g2-pizzeria .g2-specialty-info{position:relative;z-index:4}
+@media(hover:hover){.g2-pizzeria .g2-specialty-card:hover{transform:translateY(-9px) rotateY(-4deg) rotateX(3deg);box-shadow:0 28px 60px #0009}.g2-pizzeria .g2-specialty-card:nth-child(2):hover{transform:translateY(-9px) rotateY(4deg) rotateX(3deg)}.g2-pizzeria .g2-specialty-card:hover .g2-specialty-media>.g2-specialty-photo{transform:scale(1.14) rotate(var(--g2-card-angle))}.g2-pizzeria .g2-specialty-card:hover .g2-specialty-lift{animation-play-state:paused;transform:translate3d(0,-20px,75px) scale(1.17)}}
+@keyframes g2-specialty-float{0%,100%{transform:translate3d(0,var(--g2-card-shift),45px) scale(1.11)}50%{transform:translate3d(0,-21px,65px) scale(1.14)}}
+@media(max-width:700px){.g2-pizzeria .g2-specialty-card{transform:none}.g2-pizzeria .g2-specialty-lift{animation-duration:8s}.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transform:scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-specialty-card,.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transition:none}.g2-pizzeria .g2-specialty-lift{animation:none;transform:translate3d(0,-8px,0) scale(1.08)}}
