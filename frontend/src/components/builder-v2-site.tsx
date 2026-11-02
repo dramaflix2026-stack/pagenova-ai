@@ -141,10 +141,13 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  // Older published briefings can lack templateId; recover TP5 only from a
  // strongly identifiable AI/technology niche, not from the project title alone.
  const briefingText=props.site.blocks.filter(b=>b.type==="paragraph").slice(0,8).map(b=>b.text||"").join("\n");
- const declaredFamily=resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(briefingText);
+ const explicitBriefingText=[...props.site.blocks.filter(b=>b.type==="paragraph"||b.type==="heading").slice(0,24).map(b=>b.text||""),props.site.title].join("\n");
+ const explicitTp4=/(?:TP4\s*[-—:]?\s*Sa[uú]de Integrada|Fam[ií]lia\s*:\s*TP4|Nicho\s*:\s*(?:Cl[ií]nica m[eé]dica|Consult[oó]rio m[eé]dico|Cl[ií]nica odontol[oó]gica|Laborat[oó]rio de an[aá]lises cl[ií]nicas))/i.test(explicitBriefingText);
+ const explicitTp4Model2=explicitTp4&&/(?:Modelo\s*:\s*0?2|Modelo\s*0?2\s*[-—:]\s*Minimalist Clinical Prestige|Minimalist Clinical Prestige)/i.test(explicitBriefingText);
+ const declaredFamily=explicitTp4?4:(resolveBriefingFamilyFromExplicitNiche(explicitBriefingText)||resolveBriefingFamily(props.site.niche||"")||resolveBriefingFamily(props.selectedNiche||"")||resolveBriefingFamilyFromExplicitNiche(briefingText));
  const aiBriefingNiche=/(?:intelig[eê]ncia artificial|automa[cç][aã]o|ag[eê]ncia de marketing|marketing digital|neg[oó]cios digitais|desenvolvimento de software|empresa de tecnologia|agentes? de ia|saas|startup)/i.test([props.site.niche,props.selectedNiche].filter(Boolean).join(" "));
  const isNexoraTp5Project=/nexora\s*(?:intelligence|ai)/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
- const isWrittenBrief=isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
+ const isWrittenBrief=explicitTp4||isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
  const family=isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  if(isWrittenBrief&&family===1){
    return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
@@ -156,7 +159,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    return <TP3LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===4){
-   return <TP4LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
+   return <TP4LayoutChooser site={explicitTp4Model2?{...props.site,briefingLayoutVariant:"02"}:props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===10){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
