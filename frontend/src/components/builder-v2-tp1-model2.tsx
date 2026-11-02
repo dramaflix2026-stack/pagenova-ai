@@ -38,6 +38,18 @@ const differentiators=[
  {pattern:/dermatolog/i,image:"5659049",items:[["Atenção à pele","Cuidado orientado às necessidades individuais."],["Escuta cuidadosa","Um atendimento que considera suas dúvidas."],["Orientação clara","Informações acessíveis sobre opções de cuidado."],["Ambiente acolhedor","Tranquilidade e respeito em cada etapa."]]},
  {pattern:/est[eé]tica|beleza/i,image:"3985332",items:[["Beleza individual","Valorizamos as características de cada pessoa."],["Cuidado personalizado","Atenção às suas preferências e necessidades."],["Ambiente sofisticado","Conforto e delicadeza em cada detalhe."],["Experiência acolhedora","Um momento reservado ao seu bem-estar."]]}
 ] as const;
+const journeyCatalog=[
+ {pattern:/fotograf/i,steps:[["Primeiro contato","Conversamos sobre o estilo, o objetivo e a ocasião."],["Planejamento","Definimos referências, cenário e proposta visual."],["Ensaio","Criamos imagens com direção e atenção aos detalhes."],["Entrega","Organizamos e compartilhamos os registros combinados."]]},
+ {pattern:/maquiagem/i,steps:[["Primeiro contato","Conhecemos a ocasião e suas preferências."],["Inspiração","Alinhamos referências, cores e estilo."],["Produção","Realizamos a maquiagem com atenção aos detalhes."],["Finalização","Conferimos o resultado e orientamos sobre os cuidados."]]},
+ {pattern:/psicolog|terapia/i,steps:[["Primeiro contato","Esclarecemos dúvidas sobre o atendimento."],["Acolhimento","Conversamos sobre suas necessidades e expectativas."],["Acompanhamento","Conduzimos encontros respeitando seu processo."],["Continuidade","Reavaliamos juntos o percurso e os próximos passos."]]},
+ {pattern:/fisioterap/i,steps:[["Primeiro contato","Entendemos sua demanda e agendamos o encontro."],["Avaliação","Conhecemos suas necessidades e objetivos."],["Atendimento","Conduzimos o cuidado de forma individualizada."],["Acompanhamento","Observamos a evolução e ajustamos a orientação."]]},
+ {pattern:/odontolog/i,steps:[["Agendamento","Escolha um horário para o primeiro encontro."],["Avaliação","Conversamos sobre suas necessidades e expectativas."],["Planejamento","Apresentamos possibilidades de cuidado."],["Acompanhamento","Orientamos os próximos passos conforme a avaliação."]]},
+ {pattern:/sal[aã]o|cabel/i,steps:[["Agendamento","Escolha o momento ideal para seu atendimento."],["Conversa inicial","Alinhamos estilo, referências e expectativas."],["Experiência","Realizamos o serviço com atenção aos detalhes."],["Finalização","Conferimos o resultado e compartilhamos orientações."]]},
+ {pattern:/consultoria de imagem/i,steps:[["Primeiro contato","Conhecemos suas necessidades e objetivos."],["Descoberta","Conversamos sobre estilo, rotina e referências."],["Curadoria","Organizamos sugestões alinhadas à sua identidade."],["Aplicação","Apoiamos a incorporação das escolhas ao cotidiano."]]},
+ {pattern:/spa|bem.est[aá]r/i,steps:[["Agendamento","Escolha sua experiência e o melhor horário."],["Recepção","Acolhemos você em um ambiente tranquilo."],["Ritual","Dedicamos atenção ao momento de bem-estar."],["Despedida","Encerramos com orientações para prolongar o cuidado."]]},
+ {pattern:/dermatolog/i,steps:[["Agendamento","Organizamos seu primeiro atendimento."],["Avaliação","Conversamos sobre histórico, dúvidas e necessidades."],["Orientação","Apresentamos opções de cuidado conforme avaliação."],["Acompanhamento","Combinamos os próximos passos quando indicados."]]},
+ {pattern:/est[eé]tica|beleza/i,steps:[["Primeiro contato","Conhecemos seus objetivos e preferências."],["Avaliação","Entendemos suas necessidades individuais."],["Atendimento","Realizamos a experiência de cuidado planejada."],["Acompanhamento","Orientamos os próximos passos quando necessários."]]}
+] as const;
 export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Beleza e Serviços Premium";
@@ -50,6 +62,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const photoWithEssence={...photo,...essencePhotos};
  const serviceItems=(serviceCatalog.find(group=>group.match.test(niche))||serviceCatalog[serviceCatalog.length-1]).items;
  const difference=(differentiators.find(item=>item.pattern.test(niche))||differentiators[differentiators.length-1]);
+ const journey=(journeyCatalog.find(item=>item.pattern.test(niche))||journeyCatalog[journeyCatalog.length-1]).steps;
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||photo.fallback;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
@@ -90,6 +103,11 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
     <div className="tp1v2-differences-photo"><img src={`https://images.pexels.com/photos/${difference.image}/pexels-photo-${difference.image}.jpeg?auto=compress&cs=tinysrgb&w=1500`} alt={`Fotografia real ilustrativa de ${niche}`} loading="lazy"/><span className="tp1v2-differences-photo-note">CADA DETALHE TEM SEU VALOR <span aria-hidden="true">✳</span></span></div>
     <div className="tp1v2-differences-content"><span className="tp1v2-differences-eyebrow">NOSSA FORMA DE CUIDAR</span><h2 id="tp1v2-differences-heading">Uma experiência <em>feita para você.</em></h2><p className="tp1v2-differences-intro">Na {brand}, acreditamos que uma experiência especial começa na atenção aos detalhes.</p><div className="tp1v2-differences-list">{difference.items.map(([title,description],index)=><article className="tp1v2-difference" key={title}><span className="tp1v2-difference-number">0{index+1}</span><div><h3>{title}</h3><p>{description}</p></div><span className="tp1v2-difference-symbol" aria-hidden="true">✳</span></article>)}</div></div>
    </div>
+  </section>
+  <section className="tp1v2-journey" id="como-funciona" aria-labelledby="tp1v2-journey-heading">
+   <div className="tp1v2-journey-intro"><span className="tp1v2-journey-eyebrow">05 / COMO FUNCIONA O ATENDIMENTO</span><h2 id="tp1v2-journey-heading">Cada etapa, <em>um cuidado especial.</em></h2><p>Uma jornada pensada para acolher você do primeiro contato aos próximos passos.</p></div>
+   <ol className="tp1v2-journey-steps">{journey.map(([title,description],index)=><li className="tp1v2-journey-step" key={title}><div className="tp1v2-journey-marker"><span>0{index+1}</span><span className="tp1v2-journey-dot" aria-hidden="true"/></div><h3>{title}</h3><p>{description}</p></li>)}</ol>
+   <div className="tp1v2-journey-footer"><span>UMA EXPERIÊNCIA COM PROPÓSITO</span><span aria-hidden="true">✳</span><span>{niche}</span></div>
   </section>
  </div>;
 }
