@@ -133,8 +133,7 @@ function TP5LayoutChooser({site,selectedNiche,publishedMode,onVariantChange,init
  const firstHeading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
  const firstDescription=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
  return <div data-tp5-family="technology-digital" data-tp5-variant={variant}>
- {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Tecnologia e Negócios Digitais" style={{display:"flex",gap:10,padding:"14px 12px",alignItems:"center",justifyContent:"center",flexWrap:"wrap",background:"#eef3ff",color:"#15213a",fontFamily:"Arial,sans-serif",fontSize:12}}>
- <strong>TP5 · Modelo visual</strong>{(["01","02"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"10px 16px",border:"1px solid #98addf",borderRadius:9,background:variant===v?"#2358e8":"#fff",color:variant===v?"#fff":"#15213a",cursor:"pointer",fontWeight:700}}>Modelo {v}{v==="02"?" · Digital Architecture":""}</button>)}</div>:null}
+
  {variant==="02"?<BuilderV2TP5Model2 brand={brand} niche={site.niche||selectedNiche||"Tecnologia e Negócios Digitais"} headline={firstHeading} description={firstDescription} email={site.footer?.email} whatsapp={site.footer?.whatsapp} blocks={site.blocks} address={site.footer?.address}/>:<div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={site.niche||selectedNiche||"Negócios Digitais"} email={site.footer?.email} whatsapp={site.footer?.whatsapp}/></div>}
  </div>;
 }
