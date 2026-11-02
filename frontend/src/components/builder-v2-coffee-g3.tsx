@@ -41,11 +41,12 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       <p className="g3-description">Cada grão conta uma história. Descubra o prazer de um café preparado com tempo, cuidado e paixão.</p>
       <div className="g3-buttons"><a className="g3-button-main" href="#cardapio">Explorar cardápio <span>↗</span></a><a className="g3-button-secondary" href={destination}>Fazer pedido <span>↗</span></a></div>
      </div>
-     <div className="g3-stage" aria-label="Composição tridimensional de copos de café e grãos suspensos">
-      <div className="g3-stage-aura"/>
-      <div className="g3-splash" aria-hidden="true"><i/><i/><i/><i/><i/><i/><i/></div>
-      <div className="g3-cup g3-cup-back" aria-hidden="true"><div className="g3-cup-lid"/><div className="g3-cup-body"><div className="g3-cup-sleeve"><b>UNITED</b><small>COFFEE</small></div></div><div className="g3-cup-base"/></div>
-      <div className="g3-cup g3-cup-front" aria-hidden="true"><div className="g3-cup-lid"/><div className="g3-cup-body"><div className="g3-cup-sleeve"><b>{brand}</b><small>COFFEE ROASTERS</small></div></div><div className="g3-cup-base"/></div>
+     <div className="g3-stage g3-photo-stage" aria-label="Café especial com latte art e grãos em composição cinematográfica">
+      <div className="g3-photo-light" aria-hidden="true"/>
+      <div className="g3-photo-frame">
+       <img className="g3-coffee-photo" src="https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Xícara de café artesanal com latte art" loading="eager"/>
+      </div>
+      <div className="g3-photo-orbit" aria-hidden="true"/>
       {beanPositions.map(([x,y,r],i)=><span className={"g3-bean g3-bean-"+i} key={i} style={{"--bx":x+"%","--by":y+"%","--br":r+"deg","--bd":(i%4)*-.6+"s"} as CSSProperties} aria-hidden="true"/>)}
       <div className="g3-origin">TORRA ARTESANAL <span>·</span> AROMA INCONFUNDÍVEL</div>
      </div>
