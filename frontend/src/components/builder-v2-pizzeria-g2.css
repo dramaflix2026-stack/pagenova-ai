@@ -445,3 +445,11 @@
 }
 @media(max-width:430px){.g2-pizzeria .g2-hero-stage{inset:auto -9% 0 -9%;width:118%;height:67%}}
 @media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-hero-stage .g2-hero-image img{animation:none!important}}
+
+/* G2 specialty motion correction: a single photograph, no rising/ghost overlay. */
+.g2-pizzeria .g2-specialty-card,.g2-pizzeria .g2-specialty-card:hover{transform:none!important;transform-style:flat!important;will-change:auto!important}
+.g2-pizzeria .g2-specialty-media{perspective:none!important;isolation:auto!important}
+.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transform:none!important;animation:none!important;filter:contrast(1.04) saturate(1.08);transition:transform .55s ease!important}
+.g2-pizzeria .g2-specialty-lift,.g2-pizzeria .g2-specialty-depth{display:none!important}
+@media(hover:hover) and (pointer:fine){.g2-pizzeria .g2-specialty-card:hover .g2-specialty-media>.g2-specialty-photo{transform:scale(1.025)!important}}
+@media(max-width:900px),(prefers-reduced-motion:reduce){.g2-pizzeria .g2-specialty-media>.g2-specialty-photo{transform:none!important;animation:none!important;transition:none!important}}
