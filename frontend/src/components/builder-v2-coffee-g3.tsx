@@ -4,7 +4,6 @@ import type {CSSProperties,PointerEvent} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-coffee-g3.css";
 
-const beanPositions=[[-29,-34,-28],[-12,-50,21],[21,-40,39],[37,-14,-19],[-37,12,30],[26,28,-35],[-7,39,16],[43,43,44],[-44,-13,-32]] as const;
 export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
  const [menuOpen,setMenuOpen]=useState(false);
  const [motion,setMotion]=useState({x:0,y:0});
@@ -41,12 +40,11 @@ export function BuilderV2CoffeeG3({site}:{site:BuilderV2SiteData}){
       <p className="g3-description">Cada grão conta uma história. Descubra o prazer de um café preparado com tempo, cuidado e paixão.</p>
       <div className="g3-buttons"><a className="g3-button-main" href="#cardapio">Explorar cardápio <span>↗</span></a><a className="g3-button-secondary" href={destination}>Fazer pedido <span>↗</span></a></div>
      </div>
-     <div className="g3-stage g3-photo-stage" aria-label="Café especial com latte art e grãos em composição cinematográfica">
+     <div className="g3-stage g3-photo-stage" aria-label="Composição tridimensional cinematográfica de copos e café Aurora Coffee">
       <div className="g3-photo-light" aria-hidden="true"/>
       <div className="g3-photo-frame">
-       <img className="g3-coffee-photo" src="https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=1600" alt="Xícara de café artesanal com latte art" loading="eager"/>
+       <img className="g3-coffee-photo" src="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object/public/site-images/3a405182-e509-4c1b-ab4b-d16a21049f18/builder-v2/immersive-3d/cafeteria/desktop-80f9ae64-79f1-4fcd-a55f-b8b4c9c52fa9.png" alt="Dois copos Aurora Coffee, tampa suspensa, explosão de café e grãos flutuantes" loading="eager"/>
       </div>
-      <div className="g3-photo-orbit" aria-hidden="true"/>
       {beanPositions.map(([x,y,r],i)=><span className={"g3-bean g3-bean-"+i} key={i} style={{"--bx":x+"%","--by":y+"%","--br":r+"deg","--bd":(i%4)*-.6+"s"} as CSSProperties} aria-hidden="true"/>)}
       <div className="g3-origin">TORRA ARTESANAL <span>·</span> AROMA INCONFUNDÍVEL</div>
      </div>
