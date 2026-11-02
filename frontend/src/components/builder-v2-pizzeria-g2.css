@@ -369,3 +369,33 @@
 @keyframes g2-ember-rise{0%,100%{opacity:.3;transform:translateY(12px)}50%{opacity:.95;transform:translateY(-15px)}}
 @media(max-width:700px){.g2-pizzeria .g2-order-cta-scene{overflow:hidden;perspective:650px}.g2-pizzeria .g2-order-cta-pizza{width:100%;left:50%;top:50%}.g2-pizzeria .g2-order-cta-foreground img{object-fit:contain}.g2-pizzeria .g2-order-cta-shadow{bottom:13%}}
 @media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-order-cta-pizza{animation:none;transform:translate3d(-50%,-50%,30px) rotate(-11deg)}.g2-pizzeria .g2-order-cta-foreground,.g2-pizzeria .g2-order-cta-light{animation:none}}
+
+/* G2 hero depth rebuild: independent perspective stage, floating pizza and lifted slice */
+.g2-pizzeria .g2-hero{isolation:isolate;background:radial-gradient(ellipse at 77% 62%,#32150d 0%,#120b09 38%,#080707 76%);min-height:730px}
+.g2-pizzeria .g2-hero-stage{position:absolute;z-index:-1;inset:0 0 0 35%;pointer-events:none;perspective:1050px;transform-style:preserve-3d;overflow:visible}
+.g2-pizzeria .g2-hero-stage-glow{position:absolute;inset:13% -4% 4%;background:radial-gradient(ellipse at 53% 57%,#d84f214a,transparent 63%);filter:blur(27px);animation:g2-aura-breathe 7s ease-in-out infinite}
+.g2-pizzeria .g2-hero-stage-shadow{position:absolute;z-index:0;left:14%;bottom:7%;width:79%;height:24%;border-radius:50%;background:#000c;filter:blur(38px);transform:rotate(-14deg)}
+.g2-pizzeria .g2-hero-stage .g2-hero-image{position:absolute;z-index:1;inset:0;width:100%;height:100%;overflow:visible;transform-style:preserve-3d;animation:g2-hero-pizza-levitate 7s ease-in-out infinite}
+.g2-pizzeria .g2-hero-stage .g2-hero-image img{width:100%;height:100%;object-fit:contain;object-position:center;animation:none!important;filter:drop-shadow(0 25px 35px #000c);mask-image:radial-gradient(ellipse 49% 45% at 50% 51%,#000 62%,#000e 74%,transparent 99%)}
+.g2-pizzeria .g2-hero-stage .g2-hero-foreground{position:absolute;z-index:2;inset:0;width:100%;height:100%;overflow:visible;clip-path:none;mask-image:radial-gradient(ellipse 26% 31% at 73% 33%,#000 22%,#000e 52%,transparent 94%);-webkit-mask-image:radial-gradient(ellipse 26% 31% at 73% 33%,#000 22%,#000e 52%,transparent 94%);filter:drop-shadow(-16px 24px 22px #000b);animation:g2-hero-slice-levitate 6s ease-in-out infinite}
+.g2-pizzeria .g2-hero-stage .g2-hero-foreground img{width:100%;height:100%;object-fit:contain;object-position:center;animation:none!important;transform:none!important}
+.g2-pizzeria .g2-hero-stage-spark{position:absolute;z-index:3;width:5px;height:5px;border-radius:50%;background:#ffd4a0;box-shadow:0 0 20px 5px #e7683259;animation:g2-ember-rise 5s ease-in-out infinite}
+.g2-pizzeria .g2-hero-stage-spark-one{right:24%;top:22%}
+.g2-pizzeria .g2-hero-stage-spark-two{left:22%;bottom:24%;animation-delay:-2.5s}
+.g2-pizzeria .g2-hero-shade{z-index:-1;background:linear-gradient(90deg,#080707 0%,#080707fa 20%,#080707ba 39%,#08070718 64%,transparent 84%)}
+.g2-pizzeria .g2-hero-content{z-index:3}
+@keyframes g2-hero-pizza-levitate{0%,100%{transform:translate3d(0,7px,0) rotateY(-8deg) rotateZ(-3deg)}50%{transform:translate3d(0,-13px,48px) rotateY(2deg) rotateZ(-1deg)}}
+@keyframes g2-hero-slice-levitate{0%,100%{transform:translate3d(0,-5px,48px) rotateZ(-2deg)}50%{transform:translate3d(9px,-32px,95px) rotateZ(1deg)}}
+@media(max-width:900px){
+.g2-pizzeria .g2-hero{min-height:740px;align-items:flex-start;padding-top:45px}
+.g2-pizzeria .g2-hero-stage{inset:auto -8% -3% -8%;width:116%;height:70%;perspective:780px}
+.g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 8%,#080707e8 20%,#0807077a 37%,transparent 55%,#080707b0 100%)}
+.g2-pizzeria .g2-hero-stage .g2-hero-foreground{mask-image:radial-gradient(ellipse 24% 29% at 73% 33%,#000 20%,#000e 51%,transparent 93%);-webkit-mask-image:radial-gradient(ellipse 24% 29% at 73% 33%,#000 20%,#000e 51%,transparent 93%)}
+}
+@media(max-width:430px){
+.g2-pizzeria .g2-hero{min-height:670px;padding:30px 20px 0}
+.g2-pizzeria .g2-hero-stage{height:66%;inset:auto -10% 0 -10%;width:120%}
+.g2-pizzeria .g2-hero-content{max-width:100%}
+.g2-pizzeria .g2-hero-shade{background:linear-gradient(180deg,#080707 0%,#080707 6%,#080707eb 19%,#0807078c 34%,transparent 58%,#080707a3 100%)}
+}
+@media(prefers-reduced-motion:reduce){.g2-pizzeria .g2-hero-stage-glow,.g2-pizzeria .g2-hero-stage .g2-hero-image,.g2-pizzeria .g2-hero-stage .g2-hero-foreground,.g2-pizzeria .g2-hero-stage-spark{animation:none!important}}
