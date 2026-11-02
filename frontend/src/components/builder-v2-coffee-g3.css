@@ -232,3 +232,28 @@
 @media(max-width:850px){.g3-faq{grid-template-columns:1fr;gap:35px;padding:75px 25px 85px}.g3-faq-intro{position:static}.g3-faq-intro>p:not(.g3-faq-kicker){margin-bottom:15px}.g3-faq-detail{display:none}}
 @media(max-width:540px){.g3-faq{padding:65px 20px 72px;gap:30px}.g3-faq h2{font-size:clamp(41px,10vw,57px)}.g3-faq-item button{gap:12px;padding:23px 0}.g3-faq-question{font-size:19px}.g3-faq-toggle{width:29px;height:29px;font-size:20px}.g3-faq-answer{padding:0 35px 24px 26px}.g3-faq-answer p{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.g3-faq-question{transition:none}}
+
+/* G3 — cinematic contact */
+.g3-contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);background:#24150f;color:#f6e8d6;min-height:660px;overflow:hidden}
+.g3-contact-photo{position:relative;min-height:660px;overflow:hidden;background:#3a271c}
+.g3-contact-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(19,10,7,.65),transparent 48%),linear-gradient(90deg,transparent 75%,rgba(24,13,9,.25))}
+.g3-contact-photo img{display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center;transition:transform .8s ease}
+.g3-contact-photo:hover img{transform:scale(1.035)}
+.g3-contact-photo-caption{position:absolute;bottom:36px;left:clamp(24px,5vw,70px);z-index:1;color:#f5d6b6;font:600 10px Arial,sans-serif;letter-spacing:.23em}
+.g3-contact-content{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:85px clamp(28px,6vw,105px)}
+.g3-contact-kicker{font:600 11px Arial,sans-serif;letter-spacing:.25em;color:#dfa97c;margin:0 0 25px}
+.g3-contact h2{font:400 clamp(44px,5vw,78px)/1.08 Georgia,serif;letter-spacing:-.05em;color:#fff0df;margin:0 0 25px;max-width:660px}
+.g3-contact h2 em{color:#e9b082;font-weight:400}
+.g3-contact-description{font:15px/1.85 Arial,sans-serif;color:#cdb29e;max-width:440px;margin:0 0 33px}
+.g3-contact-details{width:100%;max-width:450px;border-top:1px solid #ad80605c;margin:0 0 28px}
+.g3-contact-details>div{display:flex;flex-direction:column;gap:9px;border-bottom:1px solid #ad80605c;padding:15px 0}
+.g3-contact-details span{font:600 10px Arial,sans-serif;letter-spacing:.2em;color:#d6a47d}
+.g3-contact-details strong{font:400 15px/1.5 Arial,sans-serif;color:#f2dfcb;overflow-wrap:anywhere}
+.g3-contact-unavailable{font:13px/1.8 Arial,sans-serif;color:#c9a88d;max-width:410px;border-left:2px solid #bd865e;padding:0 0 0 17px;margin:0 0 28px}
+.g3-contact-button{display:inline-flex;align-items:center;justify-content:space-between;gap:38px;min-height:55px;background:#dfaa7d;color:#27170f!important;padding:15px 24px;text-decoration:none!important;font:600 12px Arial,sans-serif;letter-spacing:.07em;transition:background .2s,transform .2s}
+.g3-contact-button:hover{background:#f2c49c;transform:translateY(-2px)}
+.g3-contact-button:focus-visible{outline:2px solid #fff0dc;outline-offset:4px}
+.g3-contact-button span{font-size:20px;font-weight:400}
+@media(max-width:900px){.g3-contact{grid-template-columns:1fr}.g3-contact-photo{min-height:440px}.g3-contact-content{padding:70px 7vw 80px}.g3-contact h2{max-width:680px}}
+@media(max-width:550px){.g3-contact-photo{min-height:340px}.g3-contact-content{padding:62px 22px 70px}.g3-contact h2{font-size:clamp(43px,11vw,58px)}.g3-contact-description{font-size:14px}.g3-contact-photo-caption{bottom:24px;left:22px}}
+@media(prefers-reduced-motion:reduce){.g3-contact-photo img,.g3-contact-button{transition:none}}
