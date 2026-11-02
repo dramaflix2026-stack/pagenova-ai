@@ -7,14 +7,22 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref}:{niche:s
  const reviews:Review[]=reviewBlocks.filter(b=>b.type==="paragraph"&&b.text?.trim()).map(b=>({quote:b.text!.trim()}));
  const faqBlocks=blocks.filter(b=>/faq|perguntas.frequentes|d[uú]vidas/i.test(b.section||"")||b.layout==="faq");
  const pairs:{q:string;a:string}[]=[];
- for(let i=0;i<faqBlocks.length;i++){const b=faqBlocks[i],next=faqBlocks[i+1];if(b.type==="heading"&&b.text?.trim()&&next?.type==="paragraph"&&next.text?.trim())pairs.push({q:b.text.trim(),a:next.text.trim()});}
+ const isQuestion=(t:string)=>t.trim().endsWith("?")&&!/^(perguntas frequentes|faq|dúvidas frequentes)\b/i.test(t.trim());
+ for(let i=0;i<faqBlocks.length;i++){
+  const b=faqBlocks[i],next=faqBlocks[i+1];
+  const q=(b.text||"").trim();
+  if((b.type==="heading"||b.type==="paragraph")&&isQuestion(q)&&next?.type==="paragraph"&&next.text?.trim()&&!isQuestion(next.text)){
+   pairs.push({q,a:next.text.trim()});
+  }
+ }
+ const subject=niche.toLocaleLowerCase("pt-BR");
  const defaults=[
- {q:"Como posso explorar os produtos?",a:"Você pode navegar pelas categorias apresentadas nesta página e consultar as informações disponíveis de cada produto."},
- {q:"Como tirar dúvidas sobre um item?",a:"Consulte o canal de atendimento informado pela loja para esclarecer características, opções e disponibilidade."},
- {q:"Onde encontro informações sobre pagamento e entrega?",a:"As formas de pagamento, os prazos e as condições de entrega precisam ser confirmados diretamente com a loja."},
- {q:"Como saber quais opções de "+niche.toLocaleLowerCase("pt-BR")+" estão disponíveis?",a:"Explore as coleções exibidas e consulte a loja para verificar o catálogo e a disponibilidade atual."}
+ {q:"Como encontrar as peças que combinam comigo?",a:"Explore as coleções por categoria e observe as fotos e os detalhes de cada peça para descobrir suas favoritas."},
+ {q:"Posso saber mais sobre os materiais e características?",a:"Consulte a descrição de cada item. Para informações adicionais, envie sua dúvida à loja pelo canal de contato disponível."},
+ {q:"Como consultar a disponibilidade de um produto?",a:"Escolha o item desejado e entre em contato com a loja para confirmar as opções disponíveis."},
+ {q:"Onde posso esclarecer dúvidas antes de escolher?",a:"Use a seção Entre em Contato para falar com a equipe e obter informações sobre "+subject+"."}
  ];
- const questions=pairs.length?pairs:defaults;
+ const questions=pairs.length>=2?pairs:defaults;
  return <div className="tp6m3 tp6m3-reviews-faq">
  <section className="tp6m3-reviews" id="depoimentos" aria-labelledby="tp6m3-reviews-title">
   <div className="tp6m3-section-meta"><span>06 / EXPERIÊNCIAS</span><span>DEPOIMENTOS DOS CLIENTES</span></div>
@@ -23,7 +31,7 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref}:{niche:s
  </section>
  <section className="tp6m3-faq" id="faq" aria-labelledby="tp6m3-faq-title">
   <div className="tp6m3-section-meta"><span>07 / PERGUNTAS FREQUENTES</span><span>INFORMAÇÃO SEM COMPLICAÇÃO</span></div>
-  <div className="tp6m3-faq-layout"><div className="tp6m3-faq-intro"><span className="tp6m3-faq-eyebrow">PRECISA DE AJUDA?</span><h2 id="tp6m3-faq-title">PERGUNTAS<br/>FREQUENTES<span>.</span></h2><p>Encontre orientações gerais sobre a experiência de explorar a seleção.</p>{contactHref&&<a href={contactHref}>FALAR COM A LOJA <span aria-hidden="true">↗</span></a>}</div>
+  <div className="tp6m3-faq-layout"><div className="tp6m3-faq-intro"><span className="tp6m3-faq-eyebrow">PRECISA DE AJUDA?</span><h2 id="tp6m3-faq-title">PERGUNTAS<br/>FREQUENTES<span>.</span></h2><p>Encontre respostas para suas dúvidas e descubra como escolher com mais segurança.</p>{contactHref&&<a href={contactHref}>FALAR COM A LOJA <span aria-hidden="true">↗</span></a>}</div>
   <div className="tp6m3-faq-list">{questions.map((item,i)=><details key={i} className="tp6m3-faq-item"><summary><span className="tp6m3-faq-number">{String(i+1).padStart(2,"0")}</span><span className="tp6m3-faq-question">{item.q}</span><span className="tp6m3-faq-icon" aria-hidden="true">+</span></summary><p>{item.a}</p></details>)}</div></div>
  </section></div>;
 }
