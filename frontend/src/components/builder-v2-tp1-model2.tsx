@@ -2,6 +2,7 @@
 import {useEffect,useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-model2.css";
+import {normalizedSocialLink} from "@/lib/site-social-links";
 
 const photoSet=[
  {pattern:/fotograf|photograph/i,photo:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/3062545/pexels-photo-3062545.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"FOTOGRAFIA AUTORAL",fallback:"Histórias que merecem ser vistas."},
@@ -109,6 +110,9 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const contactWhatsappDigits=contactWhatsappRaw.replace(/\D/g,"");
  const validWhatsapp=contactWhatsappDigits.length>=10&&contactWhatsappDigits.length<=15?contactWhatsappDigits:null;
  const contactChannel=validWhatsapp?"whatsapp":validContactEmail?"email":null;
+ const footerSocial=(["instagram","facebook","youtube","whatsapp"] as const).map(name=>({name,url:normalizedSocialLink(name,site.footer?.[name]||"")})).filter((item):item is {name:"instagram"|"facebook"|"youtube"|"whatsapp";url:string}=>Boolean(item.url));
+ const footerNav=[{label:"Início",href:"#inicio"},{label:"Sobre nós",href:"#sobre"},{label:"Especialidades",href:"#servicos"},{label:"Diferenciais",href:"#diferenciais"},{label:"Experiências",href:"#galeria"},{label:"Nossa trajetória",href:"#trajetoria"},{label:"Contato",href:"#contato"}];
+ const footerAddress=site.footer?.address?.trim()||"";
  const sendContact=(event:React.FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!contactName.trim()||!contactDetails.trim()||!contactMessage.trim()){setContactFeedback("Preencha todos os campos antes de continuar.");return;}
@@ -196,5 +200,19 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    </div>
    <div className="tp1v2-history-footer"><span>UMA TRAJETÓRIA EM CONSTRUÇÃO</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
   </section>
+  <footer className="tp1v2-footer" id="rodape" aria-label="Rodapé da empresa">
+   <div className="tp1v2-footer-top"><span>11 / UMA HISTÓRIA DE CUIDADO</span><a href="#inicio">VOLTAR AO TOPO <span aria-hidden="true">↗</span></a></div>
+   <div className="tp1v2-footer-main">
+    <div className="tp1v2-footer-intro"><span className="tp1v2-footer-kicker">BELEZA • CUIDADO • EXPERIÊNCIA</span><h2>O próximo capítulo <em>começa com você.</em></h2><p>Descubra um espaço dedicado a {niche.toLowerCase()}, com atenção às pessoas e aos detalhes.</p><a className="tp1v2-footer-cta" href="#contato">Vamos conversar <span aria-hidden="true">↗</span></a></div>
+    <div className="tp1v2-footer-columns">
+     <nav aria-label="Navegação do rodapé"><h3>EXPLORE</h3>{footerNav.map(item=><a key={item.href} href={item.href}>{item.label}</a>)}</nav>
+     <div className="tp1v2-footer-info"><h3>ENCONTRE-NOS</h3>{footerAddress&&<address>{footerAddress}</address>}{validContactEmail&&<a href={`mailto:${validContactEmail}`}>{validContactEmail}</a>}{validWhatsapp&&<a href={`https://wa.me/${validWhatsapp}`} target="_blank" rel="noopener noreferrer">Conversar pelo WhatsApp ↗</a>}{!footerAddress&&!validContactEmail&&!validWhatsapp&&<p>Informações de contato ainda não cadastradas.</p>}
+      {footerSocial.length>0&&<div className="tp1v2-footer-social"><h3>ACOMPANHE</h3>{footerSocial.map(item=><a key={item.name} href={item.url} target="_blank" rel="noopener noreferrer" aria-label={`Abrir ${item.name} da empresa`}>{item.name}<span aria-hidden="true">↗</span></a>)}</div>}
+     </div>
+    </div>
+   </div>
+   <div className="tp1v2-footer-wordmark" aria-label={brand}>{brand}</div>
+   <div className="tp1v2-footer-bottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>{niche}</span><a href="#inicio">VOLTAR AO INÍCIO ↑</a></div>
+  </footer>
  </div>;
 }
