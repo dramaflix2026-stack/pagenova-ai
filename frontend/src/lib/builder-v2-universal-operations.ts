@@ -41,6 +41,9 @@ export function applyUniversalOperations<T extends UniversalSite>(site:T,operati
    blocks.splice(index,1);changedIds.push(op.blockId);
   }else if(op.action==="add"){
    if(!op.block?.id||!op.block.type||indexOf(op.block.id)>=0)return fail("Novo bloco inválido ou duplicado.");
+   if(typeof op.block.href==="string"&&!safeUrl(op.block.href))return fail("Link inseguro no novo bloco.");
+   if(typeof op.block.src==="string"&&!safeUrl(op.block.src,true))return fail("Imagem insegura no novo bloco.");
+   if(typeof op.block.mobileSrc==="string"&&!safeUrl(op.block.mobileSrc,true))return fail("Imagem mobile insegura no novo bloco.");
    const index=op.afterId===undefined?blocks.length:indexOf(op.afterId)+1;
    if(op.afterId!==undefined&&index===0)return fail("Âncora não encontrada.");
    blocks.splice(index,0,{...op.block});changedIds.push(op.block.id);
