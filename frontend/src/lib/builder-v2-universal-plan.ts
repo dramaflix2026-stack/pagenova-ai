@@ -15,6 +15,9 @@ export function universalInstructionClauses(instruction:string):string[]{
   if(numbered&&instruction.slice(start,i).trim()){
    clauses.push(instruction.slice(start,i).trim());i+=numbered[0].length-1;start=i+1;continue;
   }
+  // "Na seção X, altere..." is a single command: the comma is part of its target.
+  const prefix=instruction.slice(start,i).trim().replace(/^\d{1,2}[.)]\s*/,"");
+  if(char===","&&/^na\s+se[cç][aã]o\s+[^,]{1,100}$/i.test(prefix))continue;
   const match=instruction.slice(i).match(boundary);
   if(match&&instruction.slice(start,i).trim()){
    clauses.push(instruction.slice(start,i).trim());i+=match[0].length-1;start=i+1;
