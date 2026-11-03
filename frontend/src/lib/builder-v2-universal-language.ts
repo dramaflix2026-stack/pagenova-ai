@@ -178,7 +178,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  const clauses=universalInstructionClauses(actionableInstruction)
   .map(clause=>clause.replace(/^\s*\d{1,2}[.)]\s*/,"").trim())
   .filter(clause=>!/^quero\s+(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)\s+(?:no|neste|nesse)\s+site\b[^:]*:?\s*$/i.test(clause))
-  .filter(clause=>! /^(?:n[aã]o\s+altere|preserve|mantenha)\s+(?:todas?\s+)?(?:as\s+)?(?:outras?\s+)?(?:informa[cç][oõ]es|se[cç][oõ]es|imagens|cores|anima[cç][oõ]es|design|restante|demais)\b/i.test(clause));
+  .filter(clause=>! /^(?:n[aã]o\s+altere|preserve|mantenha)\b/i.test(clause));
  if(clauses.length>20)return {ok:false,error:"Divida o pedido em até 20 alterações por mensagem. Nenhuma alteração aplicada."};
  let current=site;const changedIds:string[]=[];
  for(const clause of clauses){
