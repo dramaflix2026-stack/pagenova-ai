@@ -45,6 +45,7 @@ test("actual TP3 models preserve section removals and reordering in preview and 
 test("TP3 edited FAQ never resurrects preset questions when its paragraph is empty",()=>{
  for(const variant of ["02","03"]){
   const site={...fixture(),niche:"Restaurante",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks=site.blocks.filter(block=>block.id!=="question");
   site.blocks.push({id:"faq-edited",type:"paragraph",section:"faq",text:"",color:"#111",align:"left"});
   for(const publishedMode of [false,true]){
    const $=render(site,publishedMode);
