@@ -128,3 +128,26 @@ test("ambiguous visible headings must never remove a section",()=>{
  assert.equal(result?.ok,false);
  assert.deepEqual(original,before);
 });
+
+test("change image by ID without touching other blocks",()=>{
+ const original=site();original.blocks.push({id:"photo",type:"image",section:"hero",src:"https://example.com/old.jpg"});
+ const result=applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id photo para https://example.com/new.jpg");
+ assert.equal(result?.ok,true);if(!result?.ok)return;
+ assert.equal(result.site.blocks.at(-1).src,"https://example.com/new.jpg");
+ assert.equal(original.blocks.at(-1).src,"https://example.com/old.jpg");
+});
+test("reject unsafe image URLs and wrong block types",()=>{
+ const original=site();
+ assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id h para https://example.com/photo.jpg")?.ok,false);
+ assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id h para javascript:alert(1)"),null);
+});
+test("edit block color and alignment",()=>{
+ const color=applyUniversalNaturalLanguage(site(),"Altere a cor do bloco id h para #111111");
+ assert.equal(color?.ok,true);if(color?.ok)assert.equal(color.site.blocks[0].color,"#111111");
+ const alignment=applyUniversalNaturalLanguage(site(),"Altere o alinhamento do bloco id h para centro");
+ assert.equal(alignment?.ok,true);if(alignment?.ok)assert.equal(alignment.site.blocks[0].align,"center");
+});
+test("edit button label by its unique current text",()=>{
+ const result=applyUniversalNaturalLanguage(site(),'Troque o texto do botão "Contato" para "Fale conosco"');
+ assert.equal(result?.ok,true);if(result?.ok)assert.equal(result.site.blocks[1].text,"Fale conosco");
+});
