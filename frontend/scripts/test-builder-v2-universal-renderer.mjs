@@ -188,8 +188,8 @@ test("TP2 model 02 and 03 bind editable hero title, description and CTA in previ
   for(const publishedMode of [false,true]){
    const $=render(site,publishedMode);
    assert.match($('[data-universal-section="inicio"]').text(),/Descrição personalizada da capa/);
-   assert.equal($('[data-block-id="tp2-hero-cta"]').attr("href"),"/contato?origem=tp2");
-   assert.match($('[data-block-id="tp2-hero-cta"]').text(),/Solicitar proposta/);
+   assert.equal($('[data-block-id="cta"]').attr("href"),"/contato?origem=tp2");
+   assert.match($('[data-block-id="cta"]').text(),/Solicitar proposta/);
   }
  }
 });
