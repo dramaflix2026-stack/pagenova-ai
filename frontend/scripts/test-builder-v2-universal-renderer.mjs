@@ -157,3 +157,24 @@ test("TP2 model 02 renders universal removal and movement in preview and public 
   assert.equal($("header").length,1);
  }
 });
+
+test("TP2 model 03 preserves section removal and movement after reload in preview and public output",async()=>{
+ const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
+ const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:"03"};
+ site.blocks.push({id:"tp2m3-about",type:"heading",section:"sobre",text:"Sobre"},
+  {id:"tp2m3-services",type:"heading",section:"servicos",text:"Especialidades"},
+  {id:"tp2m3-gallery",type:"heading",section:"galeria",text:"Galeria"});
+ const result=applyUniversalOperations(site,[
+  {action:"remove-section",sectionId:"servicos"},
+  {action:"move-section",sectionId:"galeria",beforeSectionId:"sobre"}
+ ]);
+ assert.equal(result.ok,true,result.error);
+ if(!result.ok)return;
+ for(const publishedMode of [false,true]){
+  const $=render(JSON.parse(JSON.stringify(result.site)),publishedMode);
+  assert.equal($('[data-universal-section="servicos"]').length,0);
+  const order=$('[data-universal-section]').map((_,node)=>$(node).attr("data-universal-section")).get();
+  assert.ok(order.indexOf("galeria")>=0&&order.indexOf("galeria")<order.indexOf("sobre"));
+  assert.equal($("header").length,1);
+ }
+});
