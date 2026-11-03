@@ -666,3 +666,16 @@ test("publishing preserves universal section events in the persisted snapshot",(
  assert.deepEqual(payload.site.universalSectionEvents,site.universalSectionEvents);
  assert.equal(payload.site.blocks[0].text,"Título");
 });
+
+test("shared universal section resolver recognizes common labels without depending on a template family",async()=>{
+ const {resolveUniversalSection}=await import("../src/lib/builder-v2-universal-targets.ts");
+ const site={blocks:["inicio","sobre","servicos","diferenciais","como-funciona","projetos","galeria","numeros","depoimentos","faq","contato","trajetoria","rodape"].map(section=>({id:section,section,type:"heading",text:section}))};
+ for(const [label,expected] of [
+  ["Nossos diferenciais","diferenciais"],["Como funciona","como-funciona"],
+  ["Nosso processo","como-funciona"],["Projetos em destaque","projetos"],
+  ["Resultados e números","numeros"],["Indicadores","numeros"],
+  ["Nossa trajetória","trajetoria"],["Nossa história","trajetoria"],
+  ["Perguntas frequentes","faq"],["Rodapé premium","rodape"]
+ ])assert.equal(resolveUniversalSection(site,label),expected,label);
+ assert.equal(resolveUniversalSection(site,"Seção inexistente"),null);
+});
