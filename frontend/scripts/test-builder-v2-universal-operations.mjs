@@ -779,3 +779,17 @@ test("universal chat rejects more than twenty natural-language changes without m
  assert.match(result.error,/20 altera/i);
  assert.equal(JSON.stringify(original),before,"oversized batch must not change input");
 });
+
+test("builder UI and chat endpoint use one shared site creation classifier",async()=>{
+ const {isFullSiteCreationBrief}=await import("../src/lib/builder-v2-universal-plan.ts");
+ assert.equal(isFullSiteCreationBrief("Crie um site para uma clínica"),true);
+ assert.equal(isFullSiteCreationBrief("Desenvolva um site profissional"),true);
+ assert.equal(isFullSiteCreationBrief("Altere o texto da capa"),false);
+ assert.equal(isFullSiteCreationBrief("Mova a galeria antes do FAQ"),false);
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const route=readFileSync(new URL("../src/app/api/builder-v2/chat/route.ts",import.meta.url),"utf8");
+ assert.match(page,/import \{isFullSiteCreationBrief\} from "@\/lib\/builder-v2-universal-plan"/);
+ assert.match(route,/import \{isFullSiteCreationBrief\} from "@\/lib\/builder-v2-universal-plan"/);
+ assert.match(page,/isFullSiteCreationBrief\(prompt\)/);
+ assert.match(route,/isFullSiteCreationBrief\(instructionText\)/);
+});
