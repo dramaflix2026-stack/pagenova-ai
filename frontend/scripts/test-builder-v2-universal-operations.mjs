@@ -76,3 +76,13 @@ test("new blocks reject unsafe destinations without mutating the site",()=>{
   assert.equal(result.ok,false);assert.deepEqual(original,snapshot);
  }
 });
+
+test("editor accepts existing-site edits with fewer than four blocks",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(editor,/creatingNewSite\s*\?\s*data\.site\.blocks\.length\s*<\s*4\s*:\s*data\.site\.blocks\.length\s*<\s*1/);
+});
+test("shared preview renderer preserves section order from edited blocks",()=>{
+ const renderer=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");
+ assert.match(renderer,/const sections = previewBlocks\.reduce/);
+ assert.match(renderer,/else acc\.push\(\{id,blocks:\[block\]\}\)/);
+});
