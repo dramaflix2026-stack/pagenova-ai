@@ -107,3 +107,24 @@ test("unknown section moves fail atomically",()=>{
  assert.equal(result?.ok,false);
  assert.deepEqual(original,site());
 });
+
+test("remove section by its visible heading",()=>{
+ const result=applyUniversalNaturalLanguage(site(),"Remova a seção Serviços");
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.deepEqual(result.site.blocks.map(b=>b.id),["h","cta","f"]);
+});
+test("move section by its visible heading",()=>{
+ const result=applyUniversalNaturalLanguage(site(),"Mova a seção Serviços depois da seção FAQ");
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.deepEqual(result.site.blocks.map(b=>b.id),["h","cta","f","s","c1"]);
+});
+test("ambiguous visible headings must never remove a section",()=>{
+ const original=site();
+ original.blocks.push({id:"duplicate",type:"heading",section:"second-services",text:"Serviços"});
+ const before=structuredClone(original);
+ const result=applyUniversalNaturalLanguage(original,"Remova a seção Serviços");
+ assert.equal(result?.ok,false);
+ assert.deepEqual(original,before);
+});
