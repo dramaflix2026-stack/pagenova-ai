@@ -174,27 +174,27 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
 
 /** Structured multi-line brief for a named three-card section. All changes commit atomically. */
 function applyStructuredSectionBrief<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const clean=(value:string)=>value.replace(/^[\\s*"“”']+|[\\s*"“”']+$/g,"").trim();
- const norm=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
- const heading=instruction.match(/(?:^|\\n)\\s*(?:1[.)]\\s*)?(?:nova\\s+se[cç][aã]o\\s*[—–:-]\\s*|adicione\\s+uma\\s+nova\\s+se[cç][aã]o\\s+chamada\\s+)[“"]?([^\\n"”]+?)[”"]?\\s*(?:\\n|$)/i);
+ const clean=(value:string)=>value.replace(/^[\s*"“”']+|[\s*"“”']+$/g,"").trim();
+ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const heading=instruction.match(/(?:^|\n)\s*(?:1[.)]\s*)?(?:nova\s+se[cç][aã]o\s*[—–:-]\s*|adicione\s+uma\s+nova\s+se[cç][aã]o\s+chamada\s+)[“"]?([^\n"”]+?)[”"]?\s*(?:\n|$)/i);
  if(!heading)return null;
  const name=clean(heading[1]).replace(/[.]+$/,"");
- const anchor=instruction.match(/(?:imediatamente\\s+)?ap[oó]s\\s+a\\s+se[cç][aã]o\\s+[“"]([^"”]+)[”"]/i);
+ const anchor=instruction.match(/(?:imediatamente\s+)?ap[oó]s\s+a\s+se[cç][aã]o\s+[“"]([^"”]+)[”"]/i);
  if(!anchor)return {ok:false,error:"Indique a seção após a qual a nova seção deve aparecer. Nenhuma alteração aplicada."};
  const anchorId=resolveUniversalSection(site,anchor[1]);
  if(!anchorId)return {ok:false,error:"Seção de referência não encontrada ou ambígua. Nenhuma alteração aplicada."};
  const sectionId="custom-"+norm(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"A seção solicitada já existe. Nenhuma alteração aplicada."};
- const description=instruction.match(/(?:^|\\n)\\s*Descri[cç][aã]o\\s*:\\s*([^\\n]+)/i)?.[1]?.trim();
- const cards=[...instruction.matchAll(/(?:^|\\n)\\s*(?:\\*\\*)?Card\\s+([123])\\s*[—–:-]\\s*([^\\n*]+)(?:\\*\\*)?\\s*\\n+([^\\n]+)/gi)];
+ const description=instruction.match(/(?:^|\n)\s*Descri[cç][aã]o\s*:\s*([^\n]+)/i)?.[1]?.trim();
+ const cards=[...instruction.matchAll(/(?:^|\n)\s*(?:\*\*)?Card\s+([123])\s*[—–:-]\s*([^\n*]+)(?:\*\*)?\s*\n+([^\n]+)/gi)];
  if(cards.length!==3||new Set(cards.map(m=>m[1])).size!==3||!description)return {ok:false,error:"Informe a descrição e os três cards com título e texto, cada um em linhas separadas. Nenhuma alteração aplicada."};
  const titles=cards.sort((a,b)=>Number(a[1])-Number(b[1])).map(m=>clean(m[2]));
  const details=cards.map(m=>clean(m[3]));
- const rename=instruction.match(/(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+do\\s+segundo\\s+card\\s+de\\s+[“"]([^"”]+)[”"]\\s+para\\s+[“"]([^"”]+)[”"]/i);
+ const rename=instruction.match(/(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+do\s+segundo\s+card\s+de\s+[“"]([^"”]+)[”"]\s+para\s+[“"]([^"”]+)[”"]/i);
  if(rename){if(norm(titles[1])!==norm(rename[1]))return {ok:false,error:"O título original do segundo card não corresponde ao briefing. Nenhuma alteração aplicada."};titles[1]=rename[2];}
- const replaceThird=instruction.match(/(?:no\\s+terceiro\\s+card|do\\s+terceiro\\s+card)[\\s\\S]*?(?:descri[cç][aã]o\\s+por\\s*:\\s*|descri[cç][aã]o\\s+para\\s*:\\s*)[“"]([^"”]+)[”"]/i);
+ const replaceThird=instruction.match(/(?:no\s+terceiro\s+card|do\s+terceiro\s+card)[\s\S]*?(?:descri[cç][aã]o\s+por\s*:\s*|descri[cç][aã]o\s+para\s*:\s*)[“"]([^"”]+)[”"]/i);
  if(replaceThird)details[2]=replaceThird[1];
- const wantsNavy=/azul-marinho/i.test(instruction)&&/fundo\\s+(?:dos\\s+)?(?:tr[eê]s\\s+)?cards/i.test(instruction);
+ const wantsNavy=/azul-marinho/i.test(instruction)&&/fundo\s+(?:dos\s+)?(?:tr[eê]s\s+)?cards/i.test(instruction);
  const blocks:UniversalOperation[]=[];
  const last=site.blocks.filter(b=>b.section===anchorId).at(-1);
  if(!last)return {ok:false,error:"Seção de referência sem blocos. Nenhuma alteração aplicada."};
