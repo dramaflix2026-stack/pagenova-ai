@@ -121,7 +121,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const differencesBlocks=site.blocks.filter(b=>/^(?:diferenciais|differences|differentials)$/i.test(b.section||""));
  const differencesHeading=differencesBlocks.find(b=>b.type==="heading");
  const differencesDescription=differencesBlocks.find(b=>b.type==="paragraph");
- const differencesImage=differencesBlocks.find(b=>b.type==="image"&&b.src?.trim());
+ const differencesImage=differencesBlocks.find(b=>b.type==="image");
  const rawHref=heroButton?.href?.trim()||site.header?.ctaHref?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=heroButton?.text?.trim()||site.header?.ctaLabel?.trim()||"Fale com a equipe";
