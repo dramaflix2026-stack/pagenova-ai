@@ -43,6 +43,28 @@ export function BuilderV2TP10Model2({brand,niche,email,phone,address,reviews=[],
 .tp10m2 .cardsHead h2{margin:12px 0 0!important;line-height:1.08!important;overflow-wrap:anywhere}
 @media(max-width:850px){.tp10m2 .cardsHead{display:grid!important;grid-template-columns:1fr!important;gap:16px!important}.tp10m2 .cardsHead h2{font-size:clamp(2.1rem,8vw,3.5rem)!important}.tp10m2 .cardsHead p{max-width:100%!important;line-height:1.6!important}.tp10m2 .courseGrid{margin-top:26px!important}}
 @media(max-width:480px){.tp10m2 .cardsHead{gap:14px!important}.tp10m2 .cardsHead h2{font-size:clamp(2rem,9vw,2.75rem)!important}.tp10m2 .courseGrid{margin-top:22px!important}}
+
+/* TP10 mobile rhythm audit 2026-11 */
+.tp10m2{overflow-x:clip}
+.tp10m2 .section,.tp10m2 .difference,.tp10m2 .hero{box-sizing:border-box}
+.tp10m2 .section h2,.tp10m2 .hero h1,.tp10m2 .difference h2{overflow-wrap:break-word}
+.tp10m2 .section img,.tp10m2 .hero img,.tp10m2 .difference img{max-width:100%}
+@media(max-width:850px){
+.tp10m2 .section{padding-top:clamp(42px,8vw,72px);padding-bottom:clamp(42px,8vw,72px)}
+.tp10m2 .about,.tp10m2 .cards{gap:clamp(20px,5vw,36px)}
+.tp10m2 .cardsHead{width:100%;min-width:0}
+.tp10m2 .cardsHead>*{min-width:0}
+.tp10m2 .cardsHead h2{max-width:100%;word-break:normal!important;overflow-wrap:break-word!important}
+.tp10m2 .cardsHead p{margin-top:0!important}
+.tp10m2 .courseGrid{gap:18px}
+}
+@media(max-width:480px){
+.tp10m2 .section{padding-top:44px;padding-bottom:44px}
+.tp10m2 .cardsHead{gap:12px!important}
+.tp10m2 .cardsHead h2{font-size:clamp(1.85rem,8vw,2.55rem)!important;line-height:1.13!important}
+.tp10m2 .cardsHead p{font-size:clamp(.94rem,3.8vw,1.05rem);line-height:1.55!important}
+.tp10m2 .courseGrid{margin-top:20px!important;gap:16px}
+}
 `}
 </style>
 <header className="header"><a href="#tp10m2-home" className="brand">{brand}</a><button className="toggle" onClick={()=>setMenu(!menu)} aria-expanded={menu}>☰ Menu</button><nav className={"links"+(menu?" open":"")}><a href="#tp10m2-about" onClick={()=>setMenu(false)}>Instituição</a><a href="#tp10m2-courses" onClick={()=>setMenu(false)}>Programas</a><a href="#tp10m2-gallery" onClick={()=>setMenu(false)}>Experiências</a><a href="#tp10m2-contact" onClick={()=>setMenu(false)}>Contato</a></nav></header>
