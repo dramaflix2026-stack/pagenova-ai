@@ -369,13 +369,16 @@ export default function BuilderV2() {
           hasDraft=true;
         }else throw new Error("Invalid saved draft");
       }
+    }catch{setDraftRecoveryFailed(true);setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. O salvamento automático foi suspenso para proteger os dados anteriores.");}
+    try{
       const savedVersions=localStorage.getItem(key+":versions");
       if(savedVersions){
         const parsed:unknown=JSON.parse(savedVersions);
-        if(Array.isArray(parsed))setVersions(parsed.filter((v):v is SavedVersion=>
+        if(!Array.isArray(parsed))throw new Error("Invalid saved history");
+        setVersions(parsed.filter((v):v is SavedVersion=>
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
-    }catch{setDraftRecoveryFailed(!hasDraft);setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. O salvamento automático foi suspenso para proteger os dados anteriores.");}
+    }catch{setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
     if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
