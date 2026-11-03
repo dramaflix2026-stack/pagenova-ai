@@ -234,3 +234,27 @@ test("TP2 models preserve independent service card title and image bindings in p
   }
  }
 });
+
+test("TP2 gallery uses only gallery image slots and keeps their identities across both render modes",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-gallery-title",type:"heading",section:"galeria",text:"Nossa galeria exclusiva"},
+   {id:"tp2-gallery-desc",type:"paragraph",section:"galeria",text:"Projetos ilustrados pela equipe"},
+   {id:"tp2-gallery-image-1",type:"image",section:"galeria",src:"https://example.com/gallery-1.jpg"},
+   {id:"tp2-gallery-image-2",type:"image",section:"galeria",src:""},
+   {id:"tp2-gallery-image-3",type:"image",section:"galeria",src:"https://example.com/gallery-3.jpg"},
+   {id:"tp2-other-image",type:"image",section:"sobre",src:"https://example.com/about.jpg"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const gallery=$('[data-universal-section="galeria"]');
+   assert.match(gallery.text(),/Nossa galeria exclusiva/);
+   assert.match(gallery.text(),/Projetos ilustrados pela equipe/);
+   assert.equal(gallery.find('[data-block-id="tp2-gallery-image-1"]').attr("src"),"https://example.com/gallery-1.jpg");
+   assert.equal(gallery.find('[data-block-id="tp2-gallery-image-2"]').length,1);
+   assert.equal(gallery.find('[data-block-id="tp2-gallery-image-3"]').attr("src"),"https://example.com/gallery-3.jpg");
+   assert.equal(gallery.find('[data-block-id="tp2-other-image"]').length,0);
+  }
+ }
+});
