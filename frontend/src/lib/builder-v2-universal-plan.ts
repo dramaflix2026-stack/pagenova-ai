@@ -1,5 +1,5 @@
 /** Quote-aware boundaries shared by the editor and API. */
-const verb="(?:altere|troque|mude|substitua|remova|exclua|apague|mova|reposicione|coloque|adicione|crie|deixe|defina|configure|centralize|alinhe|torne|inclua|preserve|mantenha)";
+const verb="(?:altere|troque|mude|substitua|remova|exclua|apague|mova|reposicione|coloque|adicione|crie|faca|faça|deixe|defina|configure|centralize|alinhe|torne|inclua|preserve|mantenha)";
 const boundary=new RegExp("^(?:[,;]\\s*(?:e\\s+)?|\\s+e\\s+|\\r?\\n\\s*(?:\\d+[.)]\\s*)?)(?="+verb+"\\b)","i");
 
 /** Split only command boundaries outside quotes. URLs, punctuation and copy stay intact. */
