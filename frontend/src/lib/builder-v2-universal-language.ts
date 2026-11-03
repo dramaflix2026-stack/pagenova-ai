@@ -91,6 +91,42 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
  return null;
 }
 
+/** Resolve visible editor labels without guessing when multiple blocks match. */
+function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):UniversalResult<T>|null{
+ const text=raw.trim().replace(/\.$/,"");
+ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const fail=(label:string):UniversalResult<T>=>({ok:false,error:"Não foi possível identificar um único elemento para: "+label+". Nenhuma alteração aplicada."});
+ const update=(candidates:typeof site.blocks,value:string,label:string)=>{
+  if(candidates.length!==1)return fail(label);
+  return applyUniversalOperations(site,[{action:"update",blockId:candidates[0].id,changes:{text:value}}]);
+ };
+ const hero=resolveUniversalSection(site,"capa");
+ const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+principal\s+(?:da\s+)?capa\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
+ if(heroTitle)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="heading"),heroTitle[1],"título principal da capa"):fail("capa");
+ const primaryButton=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
+ if(primaryButton)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="button"),primaryButton[1],"botão principal"):fail("capa");
+ const namedTitle=text.match(/^(?:na\s+se[cç][aã]o\s+(.+?),\s*)?(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
+ if(namedTitle){
+  const section=namedTitle[1]?resolveUniversalSection(site,namedTitle[1]):null;
+  if(namedTitle[1]&&!section)return fail(namedTitle[1]);
+  return update(site.blocks.filter(b=>b.type==="heading"&&norm(String(b.text||""))===norm(namedTitle[2])&&(!section||b.section===section)),namedTitle[3],namedTitle[2]);
+ }
+ const namedDescription=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+diferencial\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
+ if(namedDescription){
+  const section=resolveUniversalSection(site,"nossos diferenciais");
+  if(!section)return fail("Nossos Diferenciais");
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const matching=blocks.filter(b=>norm(String(b.text||"")).includes(norm(namedDescription[1])));
+  if(matching.length!==1)return fail(namedDescription[1]);
+  const block=matching[0];
+  const current=String(block.text||"");
+  const separator=current.indexOf(":");
+  const next=separator>=0?current.slice(0,separator+1)+" "+namedDescription[2]:namedDescription[2];
+  return applyUniversalOperations(site,[{action:"update",blockId:block.id,changes:{text:next}}]);
+ }
+ return null;
+}
+
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const actionableInstruction=instruction.replace(/^\s*quero\s+(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)\s+(?:no|neste|nesse)\s+site[^\r\n]*[.:]?\s*/i,"").trim();
@@ -102,7 +138,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  let current=site;const changedIds:string[]=[];
  for(const clause of clauses){
   // ID and quoted-label commands remain backward compatible.
-  const result=applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
+  const result=applyVisibleEditorCommand(current,clause)||applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
   if(!result){
    if(clauses.length===1)return null;
    return {ok:false,error:"Não foi possível interpretar com segurança uma parte do pedido: “"+clause+"”. Nenhuma alteração aplicada. Detalhe o elemento, conteúdo ou destino desejado."};
