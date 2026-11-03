@@ -1,5 +1,5 @@
-import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 "use client";
+import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
