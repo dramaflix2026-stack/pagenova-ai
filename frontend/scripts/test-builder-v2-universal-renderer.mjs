@@ -368,3 +368,29 @@ test("TP2 FAQ uses editable question-answer pairs and preserves accordion contro
   }
  }
 });
+
+test("TP2 history chapter content and images remain independently editable in both variants",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-history-title",type:"heading",section:"trajetoria",text:"Nossa evolução"},
+   {id:"tp2-history-chapter-1",type:"heading",section:"trajetoria",text:"Primeira etapa"},
+   {id:"tp2-history-chapter-2",type:"heading",section:"trajetoria",text:"Segunda etapa"},
+   {id:"tp2-history-desc-1",type:"paragraph",section:"trajetoria",text:"Nossa origem"},
+   {id:"tp2-history-desc-2",type:"paragraph",section:"trajetoria",text:"Nosso futuro"},
+   {id:"tp2-history-image-1",type:"image",section:"trajetoria",src:"https://example.com/history-one.jpg"},
+   {id:"tp2-history-image-2",type:"image",section:"trajetoria",src:""}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="trajetoria"]');
+   assert.match(section.text(),/Nossa evolução/);
+   assert.equal(section.find('[data-block-id="tp2-history-chapter-1"]').text(),"Primeira etapa");
+   assert.equal(section.find('[data-block-id="tp2-history-chapter-2"]').text(),"Segunda etapa");
+   assert.equal(section.find('[data-block-id="tp2-history-desc-1"]').text(),"Nossa origem");
+   assert.equal(section.find('[data-block-id="tp2-history-desc-2"]').text(),"Nosso futuro");
+   assert.equal(section.find('[data-block-id="tp2-history-image-1"]').attr("src"),"https://example.com/history-one.jpg");
+   assert.equal(section.find('[data-block-id="tp2-history-image-2"]').length,1);
+  }
+ }
+});
