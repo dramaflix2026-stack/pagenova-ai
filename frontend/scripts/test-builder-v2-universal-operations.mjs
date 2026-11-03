@@ -503,3 +503,13 @@ test("TP1 model 02 uses customer hero image and universal FAQ without changing i
  assert.match(component,/const faqItems=universalFaqItems\(site\.blocks,/);
  assert.match(component,/faqItems\.map\(\(\[question,answer\],index\)/);
 });
+
+test("TP1 model 02 renders customer images in about and gallery sections",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const aboutImages=aboutBlocks\.filter/);
+ assert.match(component,/const galleryImages=galleryBlocks\.filter/);
+ assert.match(component,/aboutImages\[0\]\?\.src\|\|photoWithEssence\.essence/);
+ assert.match(component,/aboutImages\[1\]\?\.src\|\|photoWithEssence\.detail/);
+ assert.match(component,/galleryImages\[index\]\?\.src\|\|/);
+ assert.match(component,/universalBlockProps\(galleryImages\[index\]\)/);
+});
