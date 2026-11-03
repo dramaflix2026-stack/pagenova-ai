@@ -182,8 +182,9 @@ test("TP2 model 03 preserves section removal and movement after reload in previe
 test("TP2 model 02 and 03 bind editable hero title, description and CTA in preview and public output",()=>{
  for(const variant of ["02","03"]){
   const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
-  site.blocks.push({id:"tp2-hero-description",type:"paragraph",section:"inicio",text:"Descrição personalizada da capa"},
-   {id:"tp2-hero-cta",type:"button",section:"inicio",text:"Solicitar proposta",href:"/contato?origem=tp2"});
+  site.blocks.find(block=>block.id==="intro").text="Descrição personalizada da capa";
+  const cta=site.blocks.find(block=>block.id==="cta");
+  cta.text="Solicitar proposta";cta.href="/contato?origem=tp2";
   for(const publishedMode of [false,true]){
    const $=render(site,publishedMode);
    assert.match($('[data-universal-section="inicio"]').text(),/Descrição personalizada da capa/);
