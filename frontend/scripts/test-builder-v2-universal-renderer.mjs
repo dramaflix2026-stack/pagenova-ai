@@ -349,6 +349,7 @@ test("TP2 contact heading and image edits preserve the existing functional form 
 test("TP2 FAQ uses editable question-answer pairs and preserves accordion controls",()=>{
  for(const variant of ["02","03"]){
   const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks=site.blocks.filter(block=>!/faq|pergunt|duvidas|dúvidas/i.test(block.section||""));
   site.blocks.push(
    {id:"tp2-faq-title",type:"heading",section:"faq",text:"Dúvidas sobre nossos serviços"},
    {id:"tp2-faq-item-1",type:"paragraph",section:"faq",text:"Vocês fazem vistoria? Sim, mediante agendamento."},
