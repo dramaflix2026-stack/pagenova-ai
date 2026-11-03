@@ -270,3 +270,14 @@ test("font size edit validates supported range",()=>{
  const bad=applyUniversalNaturalLanguage(site(),"Defina o tamanho da fonte do bloco id h para 200px");
  assert.equal(bad?.ok,false);
 });
+
+test("universal editor rejects invalid mobile typography, columns and borders",()=>{
+ const original=site();const before=structuredClone(original);
+ for(const changes of [{mobileFontSize:4},{mobileFontSize:200},{columns:0},{columns:13},{columns:2.5},{cardBorderWidth:-1},{cardBorderWidth:25}]){
+  const result=applyUniversalOperations(original,[{action:"update",blockId:"h",changes}]);
+  assert.equal(result.ok,false);
+  assert.deepEqual(original,before);
+ }
+ const valid=applyUniversalOperations(original,[{action:"update",blockId:"h",changes:{mobileFontSize:16,columns:3,cardBorderWidth:2}}]);
+ assert.equal(valid.ok,true);
+});
