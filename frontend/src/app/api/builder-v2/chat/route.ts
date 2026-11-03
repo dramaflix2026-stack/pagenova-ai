@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const image = ["data:image/png;base64,", "data:image/jpeg;base64,", "data:image/webp;base64,"]
     .some(prefix => imageInput.startsWith(prefix)) && imageInput.length < 3000000 ? imageInput : null;
   const currentBlocks = (body.site as {blocks?:unknown[]}|undefined)?.blocks;
-  const isFresh = !Array.isArray(currentBlocks) || currentBlocks.length === 0;
+  const isFresh = isFullSiteCreationBrief(String(body.instruction||"")) || !Array.isArray(currentBlocks) || currentBlocks.length === 0;
   const adaptiveBrief=(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive";
   const prompt = `Você é o motor de edição PageNova Builder 2.0. A instrução do usuário prevalece sobre o template. A plataforma dispõe de modelos internos invisíveis para acelerar a criação, mas nunca exige que o usuário escolha um modelo. Se receber somente "Faça um site para advogados", "site para restaurante" ou outra descrição mínima, infira o segmento e entregue um site COMPLETO com arquitetura, identidade visual e textos adequados, sem perguntar por detalhes. O usuário pode refinar tudo depois pelo chat. Retorne APENAS JSON válido {"site":{...},"summary":"..."}.
 Esquema site: {"title":string,"background":cor CSS,"blocks":[{"id":string,"type":"heading"|"paragraph"|"button"|"image","text":string,"color":cor CSS,"align":"left"|"center"|"right","src"?:string,"href"?:string,"section"?:string,"fontSize"?:number,"radius"?:number,"spacing"?:number,"layout"?:"hero"|"grid"|"split"|"banner"|"faq"|"gallery"|"standard","background"?:string,"columns"?:number}]}.
