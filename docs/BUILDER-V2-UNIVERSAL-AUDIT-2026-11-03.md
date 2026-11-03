@@ -43,7 +43,7 @@ O editor agora processa comandos combinados em português de maneira atômica, a
 ### Conteúdo factual e publicação
 
 - A geração deixou de solicitar depoimentos fictícios. O filtro final descarta relatos/atribuições que não constam do briefing, mesmo depois dos reparos de cardinalidade.
-- Testes cobrem relato fornecido, atribuição inventada e geração sem relatos cadastrados.
+- Testes cobrem relato fornecido, atribuição inventada, recombinação indevida de fatos separados e geração sem relatos cadastrados. O relato completo com atribuição deve constar do briefing.
 - Botão de publicação liberado para um ou mais blocos válidos; snapshot e renderização pública mantêm o contrato existente.
 - Formulários, bancos e integrações existentes não foram modificados para simular sucesso.
 
@@ -51,8 +51,8 @@ O editor agora processa comandos combinados em português de maneira atômica, a
 
 | Verificação | Resultado e alcance |
 | --- | --- |
-| Regressão `test-builder-v2-*.mjs` | 201 testes, zero falhas/skips no estado final |
-| Gates existentes antes de instalação/build do CRM | Todos aprovados; 246 casos Node no conjunto final, além de smoke/runtime de formulários, quiz, créditos e isolamento em memória |
+| Regressão `test-builder-v2-*.mjs` | 202 testes, zero falhas/skips no estado final |
+| Gates existentes antes de instalação/build do CRM | Todos aprovados; 247 casos Node no conjunto final, além de smoke/runtime de formulários, quiz, créditos e isolamento em memória |
 | Handler real: geração nova seguida de edição | Aprovado para os três IDs estáticos; autenticação, cobrança e provedor simulados |
 | Pedido combinado | Imagem + título + botões + remoção de depoimentos + galeria + FAQ; rollback integral em ambiguidade/erro |
 | React real dos clássicos | Prévia e público: texto, estilo, links, remoção e ordem |

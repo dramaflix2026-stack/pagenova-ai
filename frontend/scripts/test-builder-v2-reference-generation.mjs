@@ -278,3 +278,11 @@ test("fresh generation discards testimonial copy the customer never supplied",as
  assert.equal(result.body.site.blocks.filter(b=>b.section==="depoimentos"&&b.type==="paragraph").length,0);
  assert.ok(result.body.site.blocks.some(b=>b.section==="depoimentos"&&b.type==="heading"));
 });
+
+test("separate facts cannot be recombined into an invented testimonial attribution",async()=>{
+ const instruction="Crie um site de restaurante. Nome da responsável: Pessoa QA. Localidade: Cidade QA. Frase institucional: Atendimento prestativo e cuidadoso em cada etapa.";
+ const invented="Pessoa QA | Cidade QA | Atendimento prestativo e cuidadoso em cada etapa";
+ const result=await generate(undefined,instruction,{templateId:"prompt-adaptive",testimonialCopy:invented});
+ assert.equal(result.result.status,200);
+ assert.equal(result.result.body.site.blocks.some(b=>b.text===invented),false);
+});

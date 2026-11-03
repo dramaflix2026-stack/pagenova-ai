@@ -710,8 +710,8 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       for(let index=mutableBlocks.length-1;index>=0;index--){
         const block=mutableBlocks[index];
         if(block.type!=="paragraph"||!/depoiment|testimonial|avalia[cç]|testemunh|reviews?/i.test(String(block.section)))continue;
-        const parts=String(block.text||"").split("|").map(suppliedCopy).filter(Boolean);
-        if(!parts.length||parts.some(part=>!sourceCopy.includes(" "+part+" ")))mutableBlocks.splice(index,1);
+        const copy=suppliedCopy(String(block.text||"").replace(/^Depoimento ilustrativo:\s*/i,""));
+        if(!copy||!sourceCopy.includes(" "+copy+" "))mutableBlocks.splice(index,1);
       }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
