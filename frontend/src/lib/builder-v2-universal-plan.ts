@@ -17,3 +17,10 @@ export function universalInstructionClauses(instruction:string):string[]{
  clauses.push(instruction.slice(start).trim());
  return clauses.filter(Boolean);
 }
+
+/** Shared creation intent classifier for Builder UI and chat API.
+ * A complete site brief is distinct from a request to edit an existing site.
+ */
+export function isFullSiteCreationBrief(instruction:string):boolean{
+ return /(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instruction);
+}
