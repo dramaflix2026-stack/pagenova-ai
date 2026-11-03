@@ -93,7 +93,8 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const clauses=universalInstructionClauses(instruction)
+ const actionableInstruction=instruction.replace(/^\s*quero\s+(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)\s+(?:no|neste|nesse)\s+site[^\r\n]*[.:]?\s*/i,"").trim();
+ const clauses=universalInstructionClauses(actionableInstruction)
   .map(clause=>clause.replace(/^\s*\d{1,2}[.)]\s*/,"").trim())
   .filter(clause=>!/^quero\s+(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)\s+(?:no|neste|nesse)\s+site\b[^:]*:?\s*$/i.test(clause))
   .filter(clause=>! /^(?:preserve|mantenha)\s+(?:todas?\s+)?(?:as\s+)?(?:outras?\s+)?(?:informa[cç][oõ]es|se[cç][oõ]es|imagens|cores|anima[cç][oõ]es|design|restante|demais)\b/i.test(clause));
