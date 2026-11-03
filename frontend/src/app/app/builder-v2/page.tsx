@@ -286,7 +286,7 @@ export default function BuilderV2() {
     // Direct niche selection is a creation intent, not an edit to an old project.
     // The family resolver is the single source of truth for both picker and briefings.
     setSite(prev=>({...initial,id:crypto.randomUUID(),kind:"institutional",niche,templateId:family?"prompt-adaptive":"institutional-complete",briefingLayoutVariant:"01",properties:[],cinematic:{...prev.cinematic,mode:"static"}}));
-    setInstruction("Crie um novo site para o nicho: "+niche+". "+(family?"Use a família visual TP"+family+" e o Modelo 01 aprovado para esse nicho. ":"")+"Use fotografias adequadas ao nicho, textos específicos, navegação funcional e informações reais somente quando cadastradas. Não invente avaliações, endereços, horários ou contatos.");
+    setInstruction("Crie um novo site profissional para "+niche+". Use fotografias adequadas ao segmento, textos específicos e navegação funcional. Caso eu não informe o nome da empresa, use somente uma identificação comercial genérica do segmento, sem códigos internos. Não invente avaliações, endereços, horários ou contatos.");
     setNicheMenuOpen(false);
     setNicheQuery("");
     setMessages([]);
