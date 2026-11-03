@@ -564,3 +564,12 @@ test("TP1 service card images ignore blank URL strings without shifting slots",(
  const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
  assert.match(component,/servicesBlocks\.filter\(b=>b\.type==="image"\)\[index\]\?\.src\?\.trim\(\)\|\|/);
 });
+
+test("TP1 about and gallery images keep stable media slots and blank URL fallbacks",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const aboutImages=aboutBlocks\.filter\(b=>b\.type==="image"\)/);
+ assert.match(component,/const galleryImages=galleryBlocks\.filter\(b=>b\.type==="image"\)/);
+ assert.match(component,/aboutImages\[0\]\?\.src\?\.trim\(\)/);
+ assert.match(component,/aboutImages\[1\]\?\.src\?\.trim\(\)/);
+ assert.match(component,/galleryImages\[index\]\?\.src\?\.trim\(\)/);
+});
