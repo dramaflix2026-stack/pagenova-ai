@@ -309,6 +309,7 @@ export default function BuilderV2() {
   useEffect(()=>{setPreviewDevice(window.innerWidth>=1024?"desktop":"mobile");},[]);
   useEffect(()=>{if(!previewExpanded)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setPreviewExpanded(false);};document.addEventListener("keydown",onKey);return()=>document.removeEventListener("keydown",onKey);},[previewExpanded]);
   const [storageError, setStorageError] = useState("");
+  const [draftRecoveryFailed,setDraftRecoveryFailed]=useState(false);
   const [cloudStatus, setCloudStatus] = useState("Carregando histórico na nuvem...");
   const [cloudVersions, setCloudVersions] = useState<SavedVersion[]>([]);
   useEffect(() => {
@@ -366,7 +367,7 @@ export default function BuilderV2() {
           if(parsed.kind==="restaurant"&&parsed.niche)setRestaurantSegment(parsed.niche);
           setCategoryScreen(false);
           hasDraft=true;
-        }
+        }else throw new Error("Invalid saved draft");
       }
       const savedVersions=localStorage.getItem(key+":versions");
       if(savedVersions){
@@ -374,7 +375,7 @@ export default function BuilderV2() {
         if(Array.isArray(parsed))setVersions(parsed.filter((v):v is SavedVersion=>
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
-    }catch{setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. Verifique o armazenamento local.");}
+    }catch{setDraftRecoveryFailed(!hasDraft);setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. O salvamento automático foi suspenso para proteger os dados anteriores.");}
     if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
@@ -391,10 +392,10 @@ export default function BuilderV2() {
     return()=>{cancelled=true;};
   },[]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated)return;
+    if(!loaded||!draftHydrated||draftRecoveryFailed)return;
     try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
-  },[site,loaded,draftHydrated,activeStorageKey]);
+  },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
     if(!loaded||!draftHydrated)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
