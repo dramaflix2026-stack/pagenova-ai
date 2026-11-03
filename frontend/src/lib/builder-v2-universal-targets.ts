@@ -39,7 +39,7 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
  const move=text.match(/^(?:mova|reposicione|coloque)\s+(?:(?:a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s+(?:para\s+)?(antes|depois|ap[oó]s)\s+(?:(?:da|do|de|a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s*\.?$/i);
  if(move){
   const source=resolveUniversalSection(site,unquote(move[1])),destination=resolveUniversalSection(site,unquote(move[3]));
-  if(!source||!destination||source===destination)return fail();
+  if(!source||!destination||source===destination)return fail("Não foi possível localizar as duas seções para movimentação: origem "+unquote(move[1])+"; destino "+unquote(move[3])+". Nenhuma alteração aplicada.");
   if(norm(move[2])==="antes")return apply([{action:"move-section",sectionId:source,beforeSectionId:destination}]);
   let after=destination;
   return apply([{action:"move-section",sectionId:source,afterSectionId:after}]);
