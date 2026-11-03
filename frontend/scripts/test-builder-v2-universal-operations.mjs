@@ -618,3 +618,12 @@ test("universal chat edits survive JSON persistence and follow-up edits across a
   assert.equal(original.blocks.find(b=>b.id==="h").text,"Original");
  }
 });
+
+test("Builder chat preserves universal section history when legacy AI omits it",()=>{
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(page,/incoming\.universalSectionEvents=creatingNewSite\?undefined:\(incoming\.universalSectionEvents\?\?site\.universalSectionEvents\)/);
+ const existing={universalSectionEvents:[{action:"move",section:{id:"services"},after:{id:"faq"}}]};
+ const incoming={title:"Edited by AI"};
+ const merged={...incoming,universalSectionEvents:incoming.universalSectionEvents??existing.universalSectionEvents};
+ assert.deepEqual(merged.universalSectionEvents,existing.universalSectionEvents);
+});
