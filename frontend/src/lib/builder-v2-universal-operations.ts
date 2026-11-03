@@ -78,7 +78,7 @@ export function applyUniversalOperations<T extends UniversalSite>(site:T,operati
    if(Object.keys(properties).length){const error=validateChanges(properties);if(error)return fail(error);}
    const index=op.afterId===undefined?blocks.length:indexOf(op.afterId)+1;
    if(op.afterId!==undefined&&index===0)return fail("Âncora não encontrada.");
-   if(op.block.type==="heading"&&op.block.section&&sectionEvents.some(event=>event.action==="remove"&&event.section.id===op.block.section))sectionEvents.push({action:"restore",section:{id:op.block.section,...(op.block.text?{label:op.block.text}:{})}});
+   if(op.block.section&&sectionEvents.some(event=>event.section.id===op.block.section&&event.action==="remove")&&!sectionEvents.some(event=>event.section.id===op.block.section&&event.action==="restore"))sectionEvents.push({action:"restore",section:{id:op.block.section,...(op.block.type==="heading"&&op.block.text?{label:op.block.text}:{})}});
    blocks.splice(index,0,{text:"",color:"#171c19",align:"left",...op.block,...(op.block.color!==undefined?{colorExplicit:true}:{})});changedIds.push(op.block.id);
   }else if(op.action==="move"){
    const index=indexOf(op.blockId);
