@@ -178,7 +178,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    </div>
   </section>
   <section className="tp1v2-journey" id="como-funciona" aria-labelledby="tp1v2-journey-heading">
-   <div className="tp1v2-journey-intro"><span className="tp1v2-journey-eyebrow">05 / COMO FUNCIONA O ATENDIMENTO</span><h2 id="tp1v2-journey-heading">Cada etapa, <em>um cuidado especial.</em></h2><p>Uma jornada pensada para acolher você do primeiro contato aos próximos passos.</p></div>
+   <div className="tp1v2-journey-intro"><span className="tp1v2-journey-eyebrow">05 / COMO FUNCIONA O ATENDIMENTO</span><h2 id="tp1v2-journey-heading">{site.blocks.find(b=>b.section==="como-funciona"&&b.type==="heading")?.text||<>Cada etapa, <em>um cuidado especial.</em></>}</h2><p>Uma jornada pensada para acolher você do primeiro contato aos próximos passos.</p></div>
    <ol className="tp1v2-journey-steps">{journey.map(([title,description],index)=><li className="tp1v2-journey-step" key={title}><div className="tp1v2-journey-marker"><span>0{index+1}</span><span className="tp1v2-journey-dot" aria-hidden="true"/></div><h3>{title}</h3><p>{description}</p></li>)}</ol>
    <div className="tp1v2-journey-footer"><span>UMA EXPERIÊNCIA COM PROPÓSITO</span><span aria-hidden="true">✳</span><span>{niche}</span></div>
   </section>
