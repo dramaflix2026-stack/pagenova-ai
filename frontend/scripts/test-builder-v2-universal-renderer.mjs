@@ -325,3 +325,23 @@ test("TP2 project showcase renders editable text and independent image slots in 
   }
  }
 });
+
+test("TP2 contact heading and image edits preserve the existing functional form in both models",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-contact-title",type:"heading",section:"contato",text:"Solicite atendimento especializado"},
+   {id:"tp2-contact-image",type:"image",section:"contato",src:"https://example.com/contact.jpg"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="contato"]');
+   assert.match(section.text(),/Solicite atendimento especializado/);
+   assert.equal(section.find('[data-block-id="tp2-contact-image"]').attr("src"),"https://example.com/contact.jpg");
+   assert.equal(section.find("form").length,1);
+   assert.equal(section.find("input").length,2);
+   assert.equal(section.find("textarea").length,1);
+   assert.equal(section.find('button[type="submit"]').length,1);
+  }
+ }
+});
