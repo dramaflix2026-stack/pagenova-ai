@@ -277,3 +277,29 @@ test("TP2 differences preserve individually editable card headings across model 
   }
  }
 });
+
+test("TP2 process steps preserve separate titles descriptions and image slots across both models",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-process-title",type:"heading",section:"como-funciona",text:"Nosso processo personalizado"},
+   {id:"tp2-process-step-1",type:"heading",section:"como-funciona",text:"Diagnóstico inicial"},
+   {id:"tp2-process-step-2",type:"heading",section:"como-funciona",text:"Planejamento técnico"},
+   {id:"tp2-process-desc-1",type:"paragraph",section:"como-funciona",text:"Analisamos o contexto."},
+   {id:"tp2-process-desc-2",type:"paragraph",section:"como-funciona",text:"Definimos o escopo."},
+   {id:"tp2-process-img-1",type:"image",section:"como-funciona",src:"https://example.com/step-1.jpg"},
+   {id:"tp2-process-img-2",type:"image",section:"como-funciona",src:""}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="como-funciona"]');
+   assert.match(section.text(),/Nosso processo personalizado/);
+   assert.equal(section.find('[data-block-id="tp2-process-step-1"]').text(),"Diagnóstico inicial");
+   assert.equal(section.find('[data-block-id="tp2-process-step-2"]').text(),"Planejamento técnico");
+   assert.equal(section.find('[data-block-id="tp2-process-desc-1"]').text(),"Analisamos o contexto.");
+   assert.equal(section.find('[data-block-id="tp2-process-desc-2"]').text(),"Definimos o escopo.");
+   assert.equal(section.find('[data-block-id="tp2-process-img-1"]').attr("src"),"https://example.com/step-1.jpg");
+   assert.equal(section.find('[data-block-id="tp2-process-img-2"]').length,1);
+  }
+ }
+});
