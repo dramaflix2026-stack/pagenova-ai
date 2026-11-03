@@ -7,9 +7,9 @@ export function BuilderV2TP3Model1({site}:{site:BuilderV2SiteData}){
  const niche=(site.niche||name).toLowerCase();
  const bakery=/padaria|pães|panific|bakery/.test(niche);
  const labels=bakery?["Pães artesanais","Croissants","Pães especiais","Café da manhã"]:["Especialidade da casa","Sabores selecionados","Nossa cozinha","Experiências"];
- const contact=site.extras?.whatsapp?.trim();
+ const contact=site.footer?.whatsapp?.trim();
  const address=site.extras?.address?.trim();
- const desc=site.blocks.find(b=>b.type==="text"&&b.text?.trim())?.text||"Sabores preparados com atenção, tradição e ingredientes selecionados.";
+ const desc=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text||"Sabores preparados com atenção, tradição e ingredientes selecionados.";
  return <main data-tp3-model="01" className="w-full overflow-hidden bg-[#faf6ef] text-[#30261c]">
  <header className="flex items-center justify-between gap-4 border-b border-[#e4d6c5] bg-[#fffaf2] px-6 py-6 md:px-[7%]"><strong className="font-serif text-2xl font-bold md:text-3xl">{name}</strong><nav className="hidden gap-8 text-sm md:flex"><a href="#especialidades">Especialidades</a><a href="#historia">Nossa história</a><a href="#contato">Contato</a></nav><a href="#especialidades" className="rounded-full border border-[#8a6b47] px-4 py-2 text-xs font-semibold">Conhecer</a></header>
  <section className="grid min-h-[560px] items-center bg-[#eee0cd] md:grid-cols-2"><div className="order-2 px-7 py-12 md:order-1 md:px-[12%]"><span className="text-xs font-bold uppercase tracking-[.25em] text-[#926e45]">Tradição e sabor</span><h1 className="my-6 font-serif text-5xl leading-[1.06] tracking-tight md:text-7xl">{bakery?"O sabor de cada manhã.":"Experiências para saborear."}</h1><p className="max-w-lg text-base leading-8 text-[#625345]">{desc}</p><a className="mt-8 inline-flex rounded-full bg-[#382a1c] px-7 py-4 text-sm font-semibold text-white" href="#especialidades">Descubra nossas especialidades</a></div><div className="order-1 h-[340px] md:order-2 md:h-full md:min-h-[560px]"><img className="h-full w-full object-cover" src={image(0)} alt={bakery?"Pães artesanais frescos":"Fotografia gastronômica"} onError={e=>{e.currentTarget.onerror=null;e.currentTarget.src=image(1);}}/></div></section>
