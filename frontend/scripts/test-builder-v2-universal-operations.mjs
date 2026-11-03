@@ -521,3 +521,11 @@ test("TP1 model 02 binds about and gallery text to section-scoped blocks",()=>{
  assert.match(component,/galleryHeading\?\.text\?\.trim\(\)/);
  assert.match(component,/galleryDescription\?\.text\?\.trim\(\)/);
 });
+
+test("TP1 model 02 services, differentiators and journey use universal text bindings",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ for(const name of ["servicesHeading","servicesDescription","differencesHeading","differencesDescription","differencesImage"])assert.ok(component.includes("universalBlockProps("+name+")"),name);
+ assert.match(component,/id="tp1v2-journey-heading" \{\.\.\.universalBlockProps\(/);
+ assert.match(component,/b\.section==="como-funciona"&&b\.type==="heading"/);
+ assert.match(component,/b\.section==="como-funciona"&&b\.type==="paragraph"/);
+});
