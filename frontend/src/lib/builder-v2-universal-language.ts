@@ -111,6 +111,12 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
  const hero=resolveUniversalSection(site,"capa");
  const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+principal\s+(?:da\s+)?capa\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(heroTitle)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="heading"),heroTitle[1],"título principal da capa"):fail("capa");
+ const namedPrimaryButton=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+de\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”](?:,?\s+preservando\s+o\s+link\s+e\s+a\s+anima[cç][aã]o\s+existentes?)?\.?$/i);
+ if(namedPrimaryButton){
+  if(!hero)return fail("capa");
+  const buttons=site.blocks.filter(b=>b.section===hero&&b.type==="button"&&norm(String(b.text||""))===norm(namedPrimaryButton[1]));
+  return update(buttons,namedPrimaryButton[2],"botão principal da capa");
+ }
  const primaryButton=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(primaryButton)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="button"),primaryButton[1],"botão principal"):fail("capa");
  const namedTitle=text.match(/^(?:na\s+se[cç][aã]o\s+(.+?),\s*)?(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
