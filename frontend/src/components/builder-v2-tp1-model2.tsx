@@ -108,11 +108,11 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const heroButton=heroBlocks.find(b=>b.type==="button")||site.blocks.find(b=>b.type==="button"&&b.href);
  const heroImage=heroBlocks.find(b=>b.type==="image"&&b.src?.trim());
  const aboutBlocks=site.blocks.filter(b=>/^(?:sobre|about|essencia|nossa-essencia)$/i.test(b.section||""));
- const aboutImages=aboutBlocks.filter(b=>b.type==="image"&&b.src?.trim());
+ const aboutImages=aboutBlocks.filter(b=>b.type==="image");
  const aboutHeading=aboutBlocks.find(b=>b.type==="heading");
  const aboutParagraphs=aboutBlocks.filter(b=>b.type==="paragraph");
  const galleryBlocks=site.blocks.filter(b=>/^(?:galeria|gallery|portfolio)$/i.test(b.section||""));
- const galleryImages=galleryBlocks.filter(b=>b.type==="image"&&b.src?.trim());
+ const galleryImages=galleryBlocks.filter(b=>b.type==="image");
  const galleryHeading=galleryBlocks.find(b=>b.type==="heading");
  const galleryDescription=galleryBlocks.find(b=>b.type==="paragraph");
  const servicesBlocks=site.blocks.filter(b=>/^(?:servicos|services|especialidades)$/i.test(b.section||""));
