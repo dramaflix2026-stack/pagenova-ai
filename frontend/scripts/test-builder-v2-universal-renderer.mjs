@@ -345,3 +345,25 @@ test("TP2 contact heading and image edits preserve the existing functional form 
   }
  }
 });
+
+test("TP2 FAQ uses editable question-answer pairs and preserves accordion controls",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-faq-title",type:"heading",section:"faq",text:"Dúvidas sobre nossos serviços"},
+   {id:"tp2-faq-item-1",type:"paragraph",section:"faq",text:"Vocês fazem vistoria? Sim, mediante agendamento."},
+   {id:"tp2-faq-item-2",type:"paragraph",section:"faq",text:"Como solicitar proposta? Entre em contato pelos canais cadastrados."}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="faq"]');
+   assert.match(section.text(),/Dúvidas sobre nossos serviços/);
+   assert.equal(section.find('[data-block-id="tp2-faq-item-1"]').length,1);
+   assert.equal(section.find('[data-block-id="tp2-faq-item-2"]').length,1);
+   assert.match(section.text(),/Vocês fazem vistoria\?/);
+   assert.match(section.text(),/Como solicitar proposta\?/);
+   assert.equal(section.find('button[aria-expanded]').length,2);
+   assert.doesNotMatch(section.text(),/Como solicitar um orçamento\?/);
+  }
+ }
+});
