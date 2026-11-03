@@ -627,3 +627,13 @@ test("Builder chat preserves universal section history when legacy AI omits it",
  const merged={...incoming,universalSectionEvents:incoming.universalSectionEvents??existing.universalSectionEvents};
  assert.deepEqual(merged.universalSectionEvents,existing.universalSectionEvents);
 });
+
+test("TP1 model 02 renders approved sections through universal remove/reorder wrapper",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/import \{UniversalTemplateSections\} from "\.\/builder-v2-universal-sections"/);
+ assert.match(component,/<UniversalTemplateSections site=\{site\}>/);
+ assert.match(component,/<\/UniversalTemplateSections>/);
+ for(const section of ["inicio","sobre","servicos","diferenciais","como-funciona","galeria","depoimentos","faq","contato","trajetoria","rodape"]){
+  assert.ok(component.includes('data-universal-section="'+section+'"'),"missing section "+section);
+ }
+});
