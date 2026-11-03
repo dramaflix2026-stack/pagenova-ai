@@ -482,3 +482,15 @@ test("latest removal takes precedence over earlier restore events",()=>{
  assert.equal(result.ok,true);
  if(result.ok)assert.equal(result.site.universalSectionEvents.at(-1).action,"restore");
 });
+
+test("TP1 model 02 hero uses section-scoped universal copy and button bindings",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const heroBlocks=site\.blocks\.filter/);
+ assert.match(component,/const headingBlock=heroBlocks\.find/);
+ assert.match(component,/const descriptionBlock=heroBlocks\.find/);
+ assert.match(component,/const heroButton=heroBlocks\.find/);
+ assert.match(component,/universalBlockProps\(headingBlock\)/);
+ assert.match(component,/universalBlockProps\(descriptionBlock\)/);
+ assert.match(component,/universalBlockProps\(heroButton,true\)/);
+ assert.match(component,/<UniversalTypographyRules\/>/);
+});
