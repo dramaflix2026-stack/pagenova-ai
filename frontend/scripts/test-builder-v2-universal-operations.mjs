@@ -696,3 +696,20 @@ test("universal section resolver refuses ambiguous aliases and prioritizes exact
  assert.equal(result?.ok,false,"ambiguous movement must be rejected");
  assert.equal(JSON.stringify(site),before,"ambiguous instruction must not mutate the original");
 });
+
+test("named-language section moves use the same universal operations and survive JSON reload",async()=>{
+ const {applyUniversalNamedLanguage}=await import("../src/lib/builder-v2-universal-targets.ts");
+ const site={templateId:"prompt-adaptive",blocks:[
+  {id:"about-heading",type:"heading",section:"sobre",text:"Sobre a empresa"},
+  {id:"process-heading",type:"heading",section:"como-funciona",text:"Nosso processo"},
+  {id:"gallery-heading",type:"heading",section:"galeria",text:"Galeria"}
+ ]};
+ const moved=applyUniversalNamedLanguage(site,"Mova galeria antes de nosso processo");
+ assert.equal(moved?.ok,true,moved?.error);
+ if(!moved?.ok)return;
+ const reloaded=JSON.parse(JSON.stringify(moved.site));
+ assert.equal(reloaded.universalSectionEvents?.at(-1)?.action,"move");
+ assert.equal(reloaded.universalSectionEvents?.at(-1)?.section?.id,"galeria");
+ assert.equal(reloaded.universalSectionEvents?.at(-1)?.before?.id,"como-funciona");
+ assert.equal(site.universalSectionEvents,undefined,"original site must remain immutable");
+});
