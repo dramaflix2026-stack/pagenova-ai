@@ -86,3 +86,24 @@ test("shared preview renderer preserves section order from edited blocks",()=>{
  assert.match(renderer,/const sections = previewBlocks\.reduce/);
  assert.match(renderer,/else acc\.push\(\{id,blocks:\[block\]\}\)/);
 });
+
+test("natural language removes an explicit section without altering others",()=>{
+ const original=site();
+ const result=applyUniversalNaturalLanguage(original,"Remova a seção id services");
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.deepEqual(result.site.blocks.map(b=>b.id),["h","cta","f"]);
+ assert.equal(original.blocks.length,5);
+});
+test("natural language moves an explicit section after another",()=>{
+ const result=applyUniversalNaturalLanguage(site(),"Mova a seção id hero depois da seção id faq");
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.deepEqual(result.site.blocks.map(b=>b.id),["s","c1","f","h","cta"]);
+});
+test("unknown section moves fail atomically",()=>{
+ const original=site();
+ const result=applyUniversalNaturalLanguage(original,"Mova a seção id hero depois da seção id inexistente");
+ assert.equal(result?.ok,false);
+ assert.deepEqual(original,site());
+});
