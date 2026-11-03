@@ -177,3 +177,10 @@ test("server publication accepts valid edited sites with fewer than four blocks"
  assert.match(route,/site:snapshot/);
  assert.match(route,/storage\.upload\(slug\+"\.json"/);
 });
+
+test("public site renderer accepts the same minimum block count as publication API",()=>{
+ const page=readFileSync(new URL("../src/app/site/[slug]/page.tsx",import.meta.url),"utf8");
+ assert.match(page,/payload\.site\.blocks\.length<1/);
+ assert.doesNotMatch(page,/payload\.site\.blocks\.length<4/);
+ assert.match(page,/<BuilderV2Site site=\{publishedSite\}/);
+});
