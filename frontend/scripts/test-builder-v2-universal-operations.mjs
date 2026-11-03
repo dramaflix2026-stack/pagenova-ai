@@ -151,3 +151,15 @@ test("edit button label by its unique current text",()=>{
  const result=applyUniversalNaturalLanguage(site(),'Troque o texto do botão "Contato" para "Fale conosco"');
  assert.equal(result?.ok,true);if(result?.ok)assert.equal(result.site.blocks[1].text,"Fale conosco");
 });
+
+test("chat response preserves explicit hero and media settings",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ for(const key of ["heroPresentation","heroComposition","heroBannerCopy","sectionMediaLayouts","sectionMediaManaged"]){
+  assert.ok(editor.includes("incoming."+key+"??site."+key),key+" should retain server changes");
+ }
+});
+test("builder draft is persisted and rehydrated from the active storage key",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(editor,/localStorage\.setItem\(activeStorageKey,JSON\.stringify\(site\)\)/);
+ assert.match(editor,/localStorage\.getItem\(key\)/);
+});
