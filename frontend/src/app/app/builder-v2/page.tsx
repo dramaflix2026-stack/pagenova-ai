@@ -1019,7 +1019,7 @@ export default function BuilderV2() {
       catch { throw new Error(response.status===504||response.status===503||/timeout|timed out/i.test(rawResponse)?"A geração excedeu o tempo disponível. O site original foi preservado. Tente novamente após a otimização do gerador.":"O servidor não retornou uma resposta válida. Seu projeto foi preservado."); }
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
-      if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
+      if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
