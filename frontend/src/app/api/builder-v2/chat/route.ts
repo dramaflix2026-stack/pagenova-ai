@@ -1,3 +1,4 @@
+import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
 import {applyUniversalOperations, type UniversalOperation} from "@/lib/builder-v2-universal-operations";
 import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
@@ -731,6 +732,18 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(!result.ok)return NextResponse.json({error:result.error},{status:422});
     return NextResponse.json({site:result.site,summary:"Alterações estruturadas aplicadas: "+result.changedIds.length+" bloco(s).",changedIds:result.changedIds});
+  }
+  // Deterministic natural-language edits are scoped to uniquely identified
+  // blocks and work independently of the selected visual template.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const result=applyUniversalNaturalLanguage(
+      editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>},
+      instructionText
+    );
+    if(result){
+      if(!result.ok)return NextResponse.json({error:result.error},{status:422});
+      return NextResponse.json({site:result.site,summary:"Elemento identificado e atualizado sem modificar outros blocos.",changedIds:result.changedIds});
+    }
   }
   // Atomic edits for the most common chat commands. Never interpret preservation
   // clauses as instructions to change the layout or immersive presentation.
