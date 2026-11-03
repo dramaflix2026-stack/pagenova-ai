@@ -88,7 +88,7 @@ const designPresets = [
  {id:"commerce",match:/loja|moda|produto|ecommerce|roupa/i,hero:"split",card:"soft",accent:"#e2a86c"},
  {id:"general",match:/.*/,hero:"editorial",card:"bordered",accent:"#c9b782"}
 ] as const;
-const nicheGroups: Record<string,string[]> = {
+const legacyNicheGroups: Record<string,string[]> = {
   "Saúde e bem-estar": ["Clínica médica","Odontologia","Psicologia","Fisioterapia","Nutrição","Estética","Dermatologia","Academia","Pilates","Veterinária","Farmácia","Oftalmologia","Terapia ocupacional","Fonoaudiologia","Quiropraxia","Clínica de exames","Clínica de vacinação"],
   "Beleza": ["Barbearia","Salão de beleza","Manicure","Maquiagem","Spa","Cabeleireiro","Design de sobrancelhas","Depilação","Massoterapia","Tatuagem","Estúdio de unhas","Clínica capilar"],
   "Profissionais": ["Advocacia","Contabilidade","Consultoria empresarial","Arquitetura","Engenharia","Marketing digital","Agência de publicidade","Tecnologia","Corretora de seguros","Recursos humanos","Fotografia","Assessoria de imprensa","Consultoria financeira","Despachante","Tradução"],
@@ -100,7 +100,11 @@ const nicheGroups: Record<string,string[]> = {
   "Turismo": ["Hotel","Pousada","Agência de viagens","Turismo local","Aluguel por temporada","Camping","Resort","Guia turístico"],
   "Outros": ["Agronegócio","ONG","Associação","Serviços financeiros","Personal trainer","Consultoria de imagem","Lavanderia","Segurança eletrônica","Gráfica","Serviços gerais","Organização de eventos","Coworking","Assistência técnica"]
 };
-const nicheNames = Object.values(nicheGroups).flat();
+const nicheGroups: Record<string,string[]> = Object.fromEntries([
+  ...BRIEFING_TEMPLATE_FAMILIES.map(f=>["TP"+f.id+" · "+f.name,[...f.niches]] as [string,string[]]),
+  ["Outros nichos",Object.values(legacyNicheGroups).flat().filter(n=>!resolveBriefingFamily(n))]
+]);
+const nicheNames = [...new Set(Object.values(nicheGroups).flat())];
 const storageKey = "pagenova-builder-v2-private-v1";
 function applyInstruction(site: Site, instruction: string): { site: Site; summary: string } | null {
   const text = instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -276,21 +280,16 @@ export default function BuilderV2() {
   const [nicheGroup, setNicheGroup] = useState("Todos");
   const [selectedNiche, setSelectedNiche] = useState("");
   const chooseNiche = (niche:string) => {
-    // The niche picker belongs to institutional generation, not the dedicated property manager.
-    // A restored specialized draft must not hijack a fresh institutional niche flow.
-    if(/imobili[aá]ria|im[oó]veis/i.test(niche)&&siteCategory==="real-estate"){
-      setSiteCategory("institutional");
-      setSite({...initial,id:crypto.randomUUID(),kind:"institutional",niche,properties:[]});
-      setMessages([]);
-    }
+    const family=resolveBriefingFamily(niche);
     setSelectedNiche(niche);
-    // Nicho é apenas conteúdo; nunca seleciona o módulo especializado de imóveis.
-    if(siteCategory==="institutional")setSite(prev=>({...prev,kind:"institutional",niche,properties:[]}));
-    setInstruction(current => {
-      const suggestion = "Crie um site profissional para um negócio do nicho de "+niche+". Utilize o template universal existente, com textos específicos para esse segmento. Priorize fotografias reais e naturais, sem avatares ou aparência artificial. Respeite minhas próximas instruções no chat.";
-      return current.trim() ? current.trim()+"\\n\\n"+suggestion : suggestion;
-    });
+    setSiteCategory("institutional");
+    // Direct niche selection is a creation intent, not an edit to an old project.
+    // The family resolver is the single source of truth for both picker and briefings.
+    setSite(prev=>({...initial,id:crypto.randomUUID(),kind:"institutional",niche,templateId:family?"prompt-adaptive":"institutional-complete",briefingLayoutVariant:"01",properties:[],cinematic:{...prev.cinematic,mode:"static"}}));
+    setInstruction("Crie um novo site para o nicho: "+niche+". "+(family?"Use a família visual TP"+family+" e o Modelo 01 aprovado para esse nicho. ":"")+"Use fotografias adequadas ao nicho, textos específicos, navegação funcional e informações reais somente quando cadastradas. Não invente avaliações, endereços, horários ou contatos.");
     setNicheMenuOpen(false);
+    setNicheQuery("");
+    setMessages([]);
   };
 
   const [loaded, setLoaded] = useState(false);
@@ -1002,13 +1001,13 @@ export default function BuilderV2() {
     const inferredNiche=/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(explicitNiche||inferredNiche);
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
-    const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
+    const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const isGastronomy3d=/hamburg|burger|pizzaria|pizza|padaria|confeitaria|cafeteria|gastronomia|lanchonete|restaurante|doceria/.test(normalizedNiche);
     const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
     const auto3d=creatingNewSite&&(explicitly3d||site.cinematic?.mode==="immersive-3d");
     const auto3dTemplate=isGastronomy3d?"universal":"hamburgueria";
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1267,7 +1266,7 @@ export default function BuilderV2() {
       {nicheNames.filter(n=>(nicheGroup==="Todos"||nicheGroups[nicheGroup]?.includes(n))&&n.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"").includes(nicheQuery.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,""))).map(n=>
         <button type="button" key={n} onClick={()=>chooseNiche(n)} className="rounded-lg border border-white/10 p-2 text-left text-xs text-white/90 hover:border-lime-300 hover:bg-white/10">{n}</button>)}
     </div>
-    <p className="text-xs text-white/50">Nicho opcional: apenas prepara uma sugestão no chat.</p>
+    <p className="text-xs text-white/50">Ao escolher um nicho TP1–TP10, o site será gerado na família correspondente.</p>
   </div>}
   {!site.blocks.length&&!crmProjectId&&siteCategory==="institutional"&&<div className="mt-3 border-t border-white/10 pt-3">
     <p className="mb-2 text-left text-[11px] font-semibold text-white/50">Não sabe por onde começar? Experimente:</p>
