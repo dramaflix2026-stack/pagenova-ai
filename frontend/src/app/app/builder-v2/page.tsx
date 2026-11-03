@@ -1023,11 +1023,12 @@ export default function BuilderV2() {
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
-      incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
-      incoming.heroComposition=creatingNewSite?undefined:site.heroComposition;
-      incoming.heroBannerCopy=creatingNewSite?undefined:site.heroBannerCopy;
-      incoming.sectionMediaLayouts=creatingNewSite?undefined:site.sectionMediaLayouts;
-      incoming.sectionMediaManaged=creatingNewSite?undefined:site.sectionMediaManaged;
+      // Keep explicit chat edits to visual settings; inherit previous values only when omitted.
+      incoming.heroPresentation=creatingNewSite?undefined:(incoming.heroPresentation??site.heroPresentation);
+      incoming.heroComposition=creatingNewSite?undefined:(incoming.heroComposition??site.heroComposition);
+      incoming.heroBannerCopy=creatingNewSite?undefined:(incoming.heroBannerCopy??site.heroBannerCopy);
+      incoming.sectionMediaLayouts=creatingNewSite?undefined:(incoming.sectionMediaLayouts??site.sectionMediaLayouts);
+      incoming.sectionMediaManaged=creatingNewSite?undefined:(incoming.sectionMediaManaged??site.sectionMediaManaged);
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
