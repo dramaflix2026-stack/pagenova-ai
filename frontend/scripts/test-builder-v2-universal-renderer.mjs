@@ -258,3 +258,22 @@ test("TP2 gallery uses only gallery image slots and keeps their identities acros
   }
  }
 });
+
+test("TP2 differences preserve individually editable card headings across model 02 and 03",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-differences-title",type:"heading",section:"diferenciais",text:"Nossos diferenciais personalizados"},
+   {id:"tp2-difference-1",type:"heading",section:"diferenciais",text:"Atendimento dedicado"},
+   {id:"tp2-difference-2",type:"heading",section:"diferenciais",text:"Processos transparentes"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="diferenciais"]');
+   assert.match(section.text(),/Nossos diferenciais personalizados/);
+   assert.equal(section.find('[data-block-id="tp2-difference-1"]').text(),"Atendimento dedicado");
+   assert.equal(section.find('[data-block-id="tp2-difference-2"]').text(),"Processos transparentes");
+   assert.equal(section.find("h3").length,4);
+  }
+ }
+});
