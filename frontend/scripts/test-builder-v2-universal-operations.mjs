@@ -713,3 +713,10 @@ test("named-language section moves use the same universal operations and survive
  assert.equal(reloaded.universalSectionEvents?.at(-1)?.before?.id,"como-funciona");
  assert.equal(site.universalSectionEvents,undefined,"original site must remain immutable");
 });
+
+test("chat endpoint prioritizes explicit universal operation batches over full-site brief wording",()=>{
+ const route=readFileSync(new URL("../src/app/api/builder-v2/chat/route.ts",import.meta.url),"utf8");
+ assert.match(route,/if\(!isFresh&&body\.universalOperations!==undefined\)/);
+ assert.doesNotMatch(route,/if\(!isFresh&&!fullSiteBrief&&body\.universalOperations!==undefined\)/);
+ assert.match(route,/if\(!isFresh&&!fullSiteBrief&&Array\.isArray\(editingSite\?\.blocks\)/);
+});
