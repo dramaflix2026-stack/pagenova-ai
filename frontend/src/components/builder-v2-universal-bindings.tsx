@@ -20,9 +20,11 @@ export function UniversalTypographyRules(){
  return <style>{`[data-pn-edit-desktop="true"]{font-size:var(--pn-edit-desktop-size)!important}@media(max-width:767px){[data-pn-edit-mobile="true"]{font-size:var(--pn-edit-mobile-size)!important}}`}</style>;
 }
 export function universalFaqItems(blocks:UniversalBlock[],fallback:readonly (readonly string[])[]):readonly (readonly string[])[]{
- const entries=blocks.filter(b=>b.type==="paragraph"&&/faq|pergunt|duvidas|dúvidas/i.test(b.section||"")).flatMap(block=>{
+ const faqBlocks=blocks.filter(b=>/faq|pergunt|duvidas|dúvidas/i.test(b.section||""));
+ const entries=faqBlocks.filter(b=>b.type==="paragraph").flatMap(block=>{
   const text=String(block.text||"").trim(),index=text.indexOf("?");
   return index>0&&text.slice(index+1).trim()?[[text.slice(0,index+1),text.slice(index+1).trim()]]:[];
  });
- return entries.length?entries:fallback;
+ // An explicitly edited FAQ must never silently resurrect template fallback questions.
+ return faqBlocks.length?entries:fallback;
 }
