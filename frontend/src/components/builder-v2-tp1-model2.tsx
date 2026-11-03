@@ -109,8 +109,12 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const heroImage=heroBlocks.find(b=>b.type==="image"&&b.src?.trim());
  const aboutBlocks=site.blocks.filter(b=>/^(?:sobre|about|essencia|nossa-essencia)$/i.test(b.section||""));
  const aboutImages=aboutBlocks.filter(b=>b.type==="image"&&b.src?.trim());
+ const aboutHeading=aboutBlocks.find(b=>b.type==="heading");
+ const aboutParagraphs=aboutBlocks.filter(b=>b.type==="paragraph");
  const galleryBlocks=site.blocks.filter(b=>/^(?:galeria|gallery|portfolio)$/i.test(b.section||""));
  const galleryImages=galleryBlocks.filter(b=>b.type==="image"&&b.src?.trim());
+ const galleryHeading=galleryBlocks.find(b=>b.type==="heading");
+ const galleryDescription=galleryBlocks.find(b=>b.type==="paragraph");
  const rawHref=heroButton?.href?.trim()||site.header?.ctaHref?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=heroButton?.text?.trim()||site.header?.ctaLabel?.trim()||"Fale com a equipe";
@@ -151,7 +155,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
      <figure className="tp1v2-essence-detail"><img src={aboutImages[1]?.src||photoWithEssence.detail} alt={aboutImages[1]?.src?"Detalhe fornecido pelo cliente":"Detalhe fotográfico ilustrativo de "+niche} loading="lazy" {...universalBlockProps(aboutImages[1])}/></figure>
      <span className="tp1v2-essence-artnote">CUIDAR É UMA FORMA DE ARTE</span>
     </div>
-    <div className="tp1v2-essence-copy"><span className="tp1v2-essence-mini">NOSSA FILOSOFIA <span aria-hidden="true">—</span> {niche}</span><h2 id="tp1v2-essence-heading">A beleza está <em>nos detalhes.</em></h2><div className="tp1v2-essence-rule"/><p>Na {brand}, cada experiência é pensada para acolher, respeitar a individualidade e valorizar o que torna cada pessoa única.</p><p>Unimos atenção, sensibilidade e uma atmosfera cuidadosamente preparada para transformar o cuidado em um momento especial.</p><a className="tp1v2-essence-link" href="#contato">Entre em contato <span aria-hidden="true">↗</span></a><div className="tp1v2-essence-signature">ESSÊNCIA <span aria-hidden="true">✳</span> PROPÓSITO</div></div>
+    <div className="tp1v2-essence-copy"><span className="tp1v2-essence-mini">NOSSA FILOSOFIA <span aria-hidden="true">—</span> {niche}</span><h2 id="tp1v2-essence-heading" {...universalBlockProps(aboutHeading)}>{aboutHeading?.text?.trim()||<>A beleza está <em>nos detalhes.</em></>}</h2><div className="tp1v2-essence-rule"/><p {...universalBlockProps(aboutParagraphs[0])}>{aboutParagraphs[0]?.text?.trim()||`Na ${brand}, cada experiência é pensada para acolher, respeitar a individualidade e valorizar o que torna cada pessoa única.`}</p><p {...universalBlockProps(aboutParagraphs[1])}>{aboutParagraphs[1]?.text?.trim()||"Unimos atenção, sensibilidade e uma atmosfera cuidadosamente preparada para transformar o cuidado em um momento especial."}</p><a className="tp1v2-essence-link" href="#contato">Entre em contato <span aria-hidden="true">↗</span></a><div className="tp1v2-essence-signature">ESSÊNCIA <span aria-hidden="true">✳</span> PROPÓSITO</div></div>
    </div>
   </section>
   <section className="tp1v2-services" id="servicos" aria-labelledby="tp1v2-services-heading">
@@ -172,7 +176,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    <div className="tp1v2-journey-footer"><span>UMA EXPERIÊNCIA COM PROPÓSITO</span><span aria-hidden="true">✳</span><span>{niche}</span></div>
   </section>
   <section className="tp1v2-gallery" id="galeria" aria-labelledby="tp1v2-gallery-heading">
-   <div className="tp1v2-gallery-heading"><div><span className="tp1v2-gallery-kicker">06 / GALERIA DE EXPERIÊNCIAS</span><h2 id="tp1v2-gallery-heading">Momentos que <em>inspiram.</em></h2></div><p>Um olhar visual sobre o universo de {niche.toLowerCase()}. Fotografias ilustrativas de experiências e ambientes.</p></div>
+   <div className="tp1v2-gallery-heading"><div><span className="tp1v2-gallery-kicker">06 / GALERIA DE EXPERIÊNCIAS</span><h2 id="tp1v2-gallery-heading" {...universalBlockProps(galleryHeading)}>{galleryHeading?.text?.trim()||<>Momentos que <em>inspiram.</em></>}</h2></div><p {...universalBlockProps(galleryDescription)}>{galleryDescription?.text?.trim()||`Um olhar visual sobre o universo de ${niche.toLowerCase()}. Fotografias ilustrativas de experiências e ambientes.`}</p></div>
    <div className="tp1v2-gallery-mosaic">{gallery.ids.map((id,index)=><figure className={`tp1v2-gallery-tile tp1v2-gallery-tile-${index+1}`} key={index}><img src={galleryImages[index]?.src||`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1300`} alt={galleryImages[index]?.src?"Imagem da galeria fornecida pelo cliente":`Fotografia ilustrativa de ${niche}: ${gallery.labels[index]}`} loading="lazy" {...universalBlockProps(galleryImages[index])}/><figcaption><span>0{index+1} / {gallery.labels[index]}</span><span aria-hidden="true">↗</span></figcaption></figure>)}</div>
    <div className="tp1v2-gallery-bottom"><span>IMAGENS ILUSTRATIVAS • FOTOGRAFIA REAL</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
   </section>
