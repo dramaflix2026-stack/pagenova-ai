@@ -24,7 +24,8 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
   if(event.action==="restore"){visible.add(source);continue;}
   if(event.action!=="move")continue;
   const target=keyFor(event.before||event.after);
-  if((event.before||event.after)&&(!target||target===source))continue;
+  if((event.before||event.after)&&(!target||target===source||!visible.has(target)))continue;
+  // Removed sections are not valid movement anchors; retain the last safe order.
   order.splice(order.indexOf(source),1);
   const index=target?order.indexOf(target)+(event.after?1:0):0;
   order.splice(index,0,source);
