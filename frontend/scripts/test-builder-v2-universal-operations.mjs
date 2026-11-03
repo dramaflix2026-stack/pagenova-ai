@@ -184,3 +184,11 @@ test("public site renderer accepts the same minimum block count as publication A
  assert.doesNotMatch(page,/payload\.site\.blocks\.length<4/);
  assert.match(page,/<BuilderV2Site site=\{publishedSite\}/);
 });
+
+test("TP3 model 01 hero consumes edited heading, image and CTA blocks",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp3-model1.tsx",import.meta.url),"utf8");
+ assert.match(component,/heroHeading\|\|/);
+ assert.match(component,/src=\{heroImage\|\|image\(0\)\}/);
+ assert.match(component,/href=\{heroButton\?\.href\|\|"#especialidades"\}/);
+ assert.match(component,/heroButton\?\.text\|\|/);
+});
