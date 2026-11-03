@@ -679,3 +679,20 @@ test("shared universal section resolver recognizes common labels without dependi
  ])assert.equal(resolveUniversalSection(site,label),expected,label);
  assert.equal(resolveUniversalSection(site,"Seção inexistente"),null);
 });
+
+test("universal section resolver refuses ambiguous aliases and prioritizes exact section labels",async()=>{
+ const {resolveUniversalSection,applyUniversalNamedLanguage}=await import("../src/lib/builder-v2-universal-targets.ts");
+ const site={blocks:[
+  {id:"gallery-a",type:"heading",section:"galeria",text:"Galeria"},
+  {id:"gallery-b",type:"heading",section:"gallery",text:"Fotos da empresa"},
+  {id:"about",type:"heading",section:"sobre",text:"Nossa história"},
+  {id:"history",type:"heading",section:"trajetoria",text:"Nossa trajetória"}
+ ]};
+ assert.equal(resolveUniversalSection(site,"fotos"),null,"two gallery aliases must not pick an arbitrary section");
+ assert.equal(resolveUniversalSection(site,"galeria"),"galeria","exact ID must win over a second alias");
+ assert.equal(resolveUniversalSection(site,"nossa história"),"sobre","exact heading must win over history alias");
+ const before=JSON.stringify(site);
+ const result=applyUniversalNamedLanguage(site,"Mova fotos antes de sobre");
+ assert.equal(result?.ok,false,"ambiguous movement must be rejected");
+ assert.equal(JSON.stringify(site),before,"ambiguous instruction must not mutate the original");
+});
