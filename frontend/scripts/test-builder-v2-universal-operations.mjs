@@ -513,3 +513,11 @@ test("TP1 model 02 renders customer images in about and gallery sections",()=>{
  assert.match(component,/galleryImages\[index\]\?\.src\|\|/);
  assert.match(component,/universalBlockProps\(galleryImages\[index\]\)/);
 });
+
+test("TP1 model 02 binds about and gallery text to section-scoped blocks",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ for(const name of ["aboutHeading","aboutParagraphs","galleryHeading","galleryDescription"])assert.ok(component.includes("universalBlockProps("+name+(name==="aboutParagraphs"?"[0]":"")+")")||name==="aboutParagraphs"&&component.includes("universalBlockProps(aboutParagraphs[1])"),name);
+ assert.match(component,/aboutHeading\?\.text\?\.trim\(\)/);
+ assert.match(component,/galleryHeading\?\.text\?\.trim\(\)/);
+ assert.match(component,/galleryDescription\?\.text\?\.trim\(\)/);
+});
