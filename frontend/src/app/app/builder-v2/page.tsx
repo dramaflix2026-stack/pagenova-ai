@@ -1120,10 +1120,10 @@ export default function BuilderV2() {
       const response=await fetch("/api/builder-v2/publish",{
         method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({site:current})
       });
-      const data=await response.json() as {url?:string;error?:string};
+      const data=await response.json() as {url?:string;error?:string;notice?:string};
       if(!response.ok||!data.url)throw new Error(data.error||"Não foi possível publicar o site.");
       setSite(previous=>previous.id===current.id?{...previous,publishedUrl:data.url}:previous);
-      setPublishNotice("Site publicado! Acesse o link público para conferir o resultado.");
+      setPublishNotice(data.notice||"Site publicado! Acesse o link público para conferir o resultado.");
     }catch(error){setPublishError(error instanceof Error?error.message:"Falha na publicação. Seu site foi preservado.");}
     finally{setPublishing(false);}
   }
