@@ -830,3 +830,22 @@ test("section targeting prioritizes exact stable IDs over duplicate visible head
  assert.equal(resolveUniversalSection(current,"Galeria"),"gallery");
  assert.equal(resolveUniversalSection(current,"projects"),"projects");
 });
+
+test("universal removal supports uniquely identified sections without deleting unrelated content",()=>{
+ const original={blocks:[
+  {id:"h",type:"heading",section:"hero",text:"Capa"},
+  {id:"a",type:"heading",section:"about",text:"Sobre nós"},
+  {id:"p",type:"paragraph",section:"about",text:"Nossa história"},
+  {id:"f",type:"heading",section:"faq",text:"Perguntas frequentes"}
+ ]};
+ const result=applyUniversalNaturalLanguage(original,"Remova a seção Sobre nós");
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.equal(result.site.blocks.some(b=>b.section==="about"),false);
+ assert.equal(result.site.blocks.some(b=>b.section==="hero"),true);
+ assert.equal(result.site.blocks.some(b=>b.section==="faq"),true);
+ assert.equal(original.blocks.length,4);
+ const missing=applyUniversalNaturalLanguage(original,"Remova a seção inexistente");
+ assert.equal(missing?.ok,false);
+ assert.equal(original.blocks.length,4);
+});
