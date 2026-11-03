@@ -720,3 +720,25 @@ test("chat endpoint prioritizes explicit universal operation batches over full-s
  assert.doesNotMatch(route,/if\(!isFresh&&!fullSiteBrief&&body\.universalOperations!==undefined\)/);
  assert.match(route,/if\(!isFresh&&!fullSiteBrief&&Array\.isArray\(editingSite\?\.blocks\)/);
 });
+
+test("multi-clause universal chat edits commit atomically and preserve existing section events",()=>{
+ const original={templateId:"prompt-adaptive",blocks:[
+  {id:"about-title",type:"heading",section:"sobre",text:"Sobre a empresa"},
+  {id:"footer-message",type:"paragraph",section:"rodape",text:"Mensagem original"},
+  {id:"gallery-title",type:"heading",section:"galeria",text:"Galeria"}
+ ],universalSectionEvents:[{action:"move",section:{id:"galeria",label:"Galeria"},before:{id:"sobre",label:"Sobre"}}]};
+ const snapshot=JSON.stringify(original);
+ const good=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Altere o texto "Mensagem original" para "Fale conosco"');
+ assert.equal(good?.ok,true,good?.error);
+ if(!good?.ok)return;
+ assert.equal(good.site.blocks.find(b=>b.id==="about-title").text,"Nossa essência");
+ assert.equal(good.site.blocks.find(b=>b.id==="footer-message").text,"Fale conosco");
+ assert.deepEqual(good.site.universalSectionEvents,original.universalSectionEvents);
+ assert.equal(JSON.stringify(original),snapshot,"input must not be mutated");
+ const bad=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Faça uma edição completamente desconhecida');
+ assert.equal(bad?.ok,false,"unsupported second clause must reject entire request");
+ assert.equal(JSON.stringify(original),snapshot,"failed request must not mutate input");
+ const missing=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Altere o texto "Inexistente" para "Novo"');
+ assert.equal(missing?.ok,false,"missing second target must reject entire request");
+ assert.equal(JSON.stringify(original),snapshot,"failed target must not mutate input");
+});
