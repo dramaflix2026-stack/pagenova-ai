@@ -68,3 +68,11 @@ test("unsafe CTA URL is never accepted",()=>{
  const result=applyUniversalNaturalLanguage(site(),'Altere o link do botão "Contato" para "javascript:alert(1)"');
  assert.equal(result,null);
 });
+
+test("new blocks reject unsafe destinations without mutating the site",()=>{
+ const original=site();const snapshot=structuredClone(original);
+ for(const block of [{id:"bad1",type:"button",href:"javascript:alert(1)"},{id:"bad2",type:"image",src:"javascript:alert(1)"}]){
+  const result=applyUniversalOperations(original,[{action:"add",block}]);
+  assert.equal(result.ok,false);assert.deepEqual(original,snapshot);
+ }
+});
