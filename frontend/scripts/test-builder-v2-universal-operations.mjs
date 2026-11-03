@@ -769,3 +769,13 @@ test("compound parser preserves quoted punctuation, URLs and edit text while spl
   'Configure o link do botão "Contato" para https://example.com/a?x=1&y=2'
  ]);
 });
+
+test("universal chat rejects more than twenty natural-language changes without mutating the site",()=>{
+ const original={blocks:[{id:"hero",type:"heading",section:"hero",text:"Título original"}]};
+ const before=JSON.stringify(original);
+ const instructions=Array.from({length:21},(_,i)=>'Altere o texto "Título original" para "Título '+i+'"').join("; ");
+ const result=applyUniversalNaturalLanguage(original,instructions);
+ assert.equal(result?.ok,false,"oversized batch must be rejected");
+ assert.match(result.error,/20 altera/i);
+ assert.equal(JSON.stringify(original),before,"oversized batch must not change input");
+});
