@@ -392,7 +392,7 @@ export default function BuilderV2() {
   },[]);
   useEffect(()=>{
     if(!loaded||!draftHydrated)return;
-    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError("");}
+    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
   },[site,loaded,draftHydrated,activeStorageKey]);
   useEffect(()=>{
