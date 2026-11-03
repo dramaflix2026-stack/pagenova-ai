@@ -20,6 +20,32 @@ export function BuilderV2TP8Model3({brand,niche,headline,description,image,conta
  const questions=[["Como posso conhecer as opções disponíveis?","Explore as experiências apresentadas e entre em contato para consultar as opções disponíveis."],["Como solicitar uma proposta?","Utilize os canais de contato cadastrados para solicitar informações e disponibilidade."],["Posso personalizar minha experiência?","Entre em contato com a equipe para verificar possibilidades de personalização."],["Onde encontro informações sobre valores e condições?","Os valores e condições devem ser confirmados diretamente com a equipe."]];
  const action=(label:string,cls="")=>contact?<a className={"tp8m3-button "+cls} href={contact}>{label}<span aria-hidden="true"> ↗</span></a>:null;
  return <div className="tp8m3" data-tp8-model="03">
+ <style>{`/* Critical layout fallback: keeps the independent TP8 Model 03 composed inside Builder preview and published sites, even before deferred styles load. */
+ .tp8m3{font-family:Georgia,serif;background:#f5f1e9;color:#182823;overflow:hidden}
+ .tp8m3 *{box-sizing:border-box}
+ .tp8m3 .tp8m3-nav{position:absolute;z-index:3;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:20px 5%;color:#fff}
+ .tp8m3 .tp8m3-nav nav{display:flex;gap:24px}
+ .tp8m3 .tp8m3-hero{position:relative;min-height:85svh;color:#fff}
+ .tp8m3 .tp8m3-heroimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+ .tp8m3 .tp8m3-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0b1b17b8,#0b1b1730)}
+ .tp8m3 .tp8m3-hero-content{position:absolute;z-index:1;left:8%;top:50%;transform:translateY(-40%);max-width:760px}
+ .tp8m3 .tp8m3-hero h1{font-size:clamp(3.4rem,8vw,8rem);line-height:1.02}
+ .tp8m3 .tp8m3-hero p{max-width:550px}
+ .tp8m3 .tp8m3-section{padding:7rem 7%}
+ .tp8m3 .tp8m3-about,.tp8m3 .tp8m3-difference,.tp8m3 .tp8m3-faq,.tp8m3 .tp8m3-contact,.tp8m3 .tp8m3-location{display:grid;grid-template-columns:1fr 1fr;gap:6%;align-items:center}
+ .tp8m3 .tp8m3-about-media,.tp8m3 .tp8m3-difference-photo,.tp8m3 .tp8m3-contact-photo{height:550px}
+ .tp8m3 .tp8m3-about-media img,.tp8m3 .tp8m3-difference-photo img,.tp8m3 .tp8m3-contact-photo img{width:100%;height:100%;object-fit:cover}
+ .tp8m3 .tp8m3-mosaic,.tp8m3 .tp8m3-gallerygrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+ .tp8m3 .tp8m3-service{height:330px;position:relative}
+ .tp8m3 .tp8m3-service img,.tp8m3 .tp8m3-gallerygrid img{width:100%;height:100%;object-fit:cover}
+ .tp8m3 .tp8m3-service>div{position:absolute;bottom:20px;left:20px;color:white}
+ .tp8m3 .tp8m3-gallerygrid button{height:270px;padding:0;border:0;overflow:hidden}
+ .tp8m3 .tp8m3-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+ .tp8m3 .tp8m3-steps img{width:100%;height:230px;object-fit:cover}
+ .tp8m3 .tp8m3-testimonial{padding:7rem 12%;text-align:center;background:#20372d;color:#fff}
+ .tp8m3 .tp8m3-footer{padding:5rem 7%;background:#172820;color:white;display:grid;grid-template-columns:2fr 1fr 1fr;gap:30px}
+ @media(max-width:767px){.tp8m3 .tp8m3-nav nav{display:none}.tp8m3 .tp8m3-hero{min-height:720px}.tp8m3 .tp8m3-hero-content{left:7%;right:7%}.tp8m3 .tp8m3-section{padding:4rem 6%}.tp8m3 .tp8m3-about,.tp8m3 .tp8m3-difference,.tp8m3 .tp8m3-faq,.tp8m3 .tp8m3-contact,.tp8m3 .tp8m3-location{grid-template-columns:1fr}.tp8m3 .tp8m3-mosaic,.tp8m3 .tp8m3-gallerygrid,.tp8m3 .tp8m3-steps{grid-template-columns:1fr 1fr}.tp8m3 .tp8m3-footer{grid-template-columns:1fr}.tp8m3 .tp8m3-about-media,.tp8m3 .tp8m3-difference-photo,.tp8m3 .tp8m3-contact-photo{height:350px}}
+ `}</style>
  <header className="tp8m3-nav"><a href="#inicio" className="tp8m3-logo">{brand}</a><nav aria-label="Navegação principal"><a href="#sobre">Sobre</a><a href="#experiencias">Experiências</a><a href="#galeria">Galeria</a><a href="#contato">Contato</a></nav>{action("Fale conosco","tp8m3-navcta")}</header>
  <section id="inicio" className="tp8m3-hero"><img src={image||library[0]} alt={"Vista de "+niche} className="tp8m3-heroimg"/><div className="tp8m3-shade"/><div className="tp8m3-hero-content"><span className="tp8m3-eyebrow">HOSPITALIDADE • EXPERIÊNCIAS</span><h1>{headline||"Momentos que merecem ser vividos"}</h1><p>{description||"Descubra experiências cuidadosamente pensadas para transformar cada instante em uma memória especial."}</p>{action("Explore nossas experiências")}</div><a className="tp8m3-scroll" href="#sobre">DESCUBRA MAIS ↓</a></section>
  <section id="sobre" className="tp8m3-section tp8m3-about"><div className="tp8m3-about-media"><Photo index={1} alt={"Ambiente de "+niche}/><span className="tp8m3-photo-caption">UMA NOVA PERSPECTIVA SOBRE EXPERIÊNCIAS</span></div><div className="tp8m3-copy"><span className="tp8m3-kicker">01 / NOSSA ESSÊNCIA</span><h2>O extraordinário está nos detalhes.</h2><p>Na {brand}, acreditamos que cada experiência merece atenção, cuidado e autenticidade. Nossa proposta é conectar pessoas a momentos memoráveis, com um olhar especial para cada detalhe.</p><a className="tp8m3-textlink" href="#experiencias">Conheça nossas experiências ↗</a></div></section>
