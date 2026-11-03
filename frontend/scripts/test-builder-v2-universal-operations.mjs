@@ -637,3 +637,13 @@ test("TP1 model 02 renders approved sections through universal remove/reorder wr
   assert.ok(component.includes('data-universal-section="'+section+'"'),"missing section "+section);
  }
 });
+
+test("salon niche aliases route consistently to TP1 without redirecting other families",async()=>{
+ const {resolveBriefingFamily}=await import("../src/lib/briefing-template-families.ts");
+ for(const niche of ["Salão de beleza","Salão de beleza feminino","Salão de beleza masculino","Salão de beleza premium"]){
+  assert.equal(resolveBriefingFamily(niche),1,niche);
+ }
+ assert.equal(resolveBriefingFamily("Clínica médica"),4);
+ assert.equal(resolveBriefingFamily("Restaurante"),3);
+ assert.equal(resolveBriefingFamily("Loja de roupas"),6);
+});
