@@ -22,8 +22,8 @@ test("Editor and public page render identical template and animation layer",()=>
 test("Publishing requires paid authorization and same-origin POST",()=>{
  assert.match(publish,/authorizedForms\(\)/);
  assert.match(publish,/origin && origin !== request.nextUrl.origin|origin&&origin!==request.nextUrl.origin/);
- assert.match(publish,/site.blocks.length<4/);
- assert.match(publish,/!site.blocks.some\(b=>b.type==="heading"\)/);
+ assert.match(publish,/site\.blocks\.length<1/);
+ assert.doesNotMatch(publish,/!site\.blocks\.some\(b=>b\.type==="heading"\)/);
  assert.match(publish,/upsert,cacheControl:"0"/);
 });
 test("Publication uses owner+project isolation and preserves stable links",()=>{

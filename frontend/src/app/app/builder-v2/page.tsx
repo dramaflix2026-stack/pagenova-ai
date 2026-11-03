@@ -1,4 +1,6 @@
 "use client";
+import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
+import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
@@ -48,7 +50,7 @@ const nichePhotoBase="https://kgbgwbodosglmonvrhyi.supabase.co/storage/v1/object
 type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; text: string; color: string; align: "left" | "center" | "right"; src?: string; mobileSrc?: string; forCardId?: string; imageFit?: "contain" | "cover"; imagePosition?: string; userUploaded?: boolean; section?: string; fontSize?: number; radius?: number; spacing?: number; href?: string; layout?: "hero" | "grid" | "split" | "banner" | "faq" | "gallery" | "standard"; background?: string; columns?: number };
 type MenuItem = {id:string;name:string;description:string;price:number;category:string;image?:string};
 type RestaurantData = {whatsapp:string;menu:MenuItem[]};
-type Site = { design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
+type Site = { universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:import("@/lib/builder-v2-brief-contract").AdaptiveDesign; extras?:Record<string,unknown>; cinematic?: {mode:"static"|"cinematic"|"immersive-3d";desktopUrl?:string;mobileUrl?:string;posterUrl?:string;overlay?:number}; properties?:PropertyItem[]; realEstateWhatsapp?:string; kind?:SiteCategory; restaurant?:RestaurantData; restaurantContent?:{menuTitle?:string;menuSubtitle?:string;footerTitle?:string;footerCentered?:boolean;footerSpacious?:boolean}; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; heroComposition?: HeroComposition; heroBannerCopy?: Record<string,HeroBannerCopy>; sectionMediaLayouts?: Record<string,MediaLayout>; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 type SiteCategory = "institutional" | "restaurant" | "real-estate" | "catalog";
 const restaurantSegments = [
   {id:"pizzaria",name:"Pizzaria",description:"Pizzas, bordas, tamanhos e combos"},
@@ -307,6 +309,8 @@ export default function BuilderV2() {
   useEffect(()=>{setPreviewDevice(window.innerWidth>=1024?"desktop":"mobile");},[]);
   useEffect(()=>{if(!previewExpanded)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setPreviewExpanded(false);};document.addEventListener("keydown",onKey);return()=>document.removeEventListener("keydown",onKey);},[previewExpanded]);
   const [storageError, setStorageError] = useState("");
+  const [draftRecoveryFailed,setDraftRecoveryFailed]=useState(false);
+  const [historyRecoveryFailed,setHistoryRecoveryFailed]=useState(false);
   const [cloudStatus, setCloudStatus] = useState("Carregando histórico na nuvem...");
   const [cloudVersions, setCloudVersions] = useState<SavedVersion[]>([]);
   useEffect(() => {
@@ -364,15 +368,18 @@ export default function BuilderV2() {
           if(parsed.kind==="restaurant"&&parsed.niche)setRestaurantSegment(parsed.niche);
           setCategoryScreen(false);
           hasDraft=true;
-        }
+        }else throw new Error("Invalid saved draft");
       }
+    }catch{setDraftRecoveryFailed(true);setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. O salvamento automático foi suspenso para proteger os dados anteriores.");}
+    try{
       const savedVersions=localStorage.getItem(key+":versions");
       if(savedVersions){
         const parsed:unknown=JSON.parse(savedVersions);
-        if(Array.isArray(parsed))setVersions(parsed.filter((v):v is SavedVersion=>
+        if(!Array.isArray(parsed))throw new Error("Invalid saved history");
+        setVersions(parsed.filter((v):v is SavedVersion=>
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
-    }catch{}
+    }catch{setHistoryRecoveryFailed(true);setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
     if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
@@ -389,15 +396,15 @@ export default function BuilderV2() {
     return()=>{cancelled=true;};
   },[]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated)return;
-    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError("");}
+    if(!loaded||!draftHydrated||draftRecoveryFailed)return;
+    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
-  },[site,loaded,draftHydrated,activeStorageKey]);
+  },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated)return;
+    if(!loaded||!draftHydrated||historyRecoveryFailed)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
     catch{setStorageError("O histórico atingiu o limite de armazenamento do navegador.");}
-  },[versions,loaded,draftHydrated,activeStorageKey]);
+  },[versions,loaded,draftHydrated,historyRecoveryFailed,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
@@ -501,6 +508,25 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    if(busy)return;
+    // Resolve universal batches before any legacy shortcut can consume only one clause.
+    if(site.blocks.length&&!isFullSiteCreationBrief(prompt)){
+      const compound=splitUniversalInstructions(prompt).length>1;
+      const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
+      const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
+      if(result||(compound&&hasAttachments)){
+        setMessages(prev=>[...prev,{role:"user",text:prompt}]);
+        if(!result||!result.ok){
+          setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
+          return;
+        }
+        recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(result.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
+        return;
+      }
+    }
+
     if(siteCategory==="institutional"&&site.blocks.length>0&&site.cinematic?.mode!=="immersive-3d"&&/^(?:ativ[ea]|desativ[ea]|troqu[ea]|mud[ea]|coloq[ue]|defin[ae]|remov[ae]|quero)\b.{0,75}(?:modo cinematogr[aá]fico|modo est[aá]tico|v[ií]deo de fundo|fundo em v[ií]deo|sem v[ií]deo)\b/i.test(prompt)&&!/(?:preserv|mantenh|n[aã]o alter|sem alterar)/i.test(prompt)){
       const disable=/(modo est[aá]tico|sem v[ií]deo|remov|desativ)/i.test(prompt);
       setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:disable?"static":"cinematic"}}));
@@ -520,7 +546,7 @@ export default function BuilderV2() {
       return;
     }
     if(!prompt && !(siteCategory==="real-estate"&&propertyFiles.length))return;
-    if((!site.blocks.length||/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt))&&siteCredits.exhausted){
+    if((!site.blocks.length||isFullSiteCreationBrief(prompt))&&siteCredits.exhausted){
       setGenerationError("Você utilizou todas as gerações disponíveis neste ciclo. Continue editando um site existente ou aguarde a renovação.");return;
     }
     let referenceForChat=reference;
@@ -535,7 +561,7 @@ export default function BuilderV2() {
     // Hero CTA creation is handled by the server-side atomic editor.
     // Image references are analyzed only; uploaded site assets are explicitly selected below.
     // Property photography is a scoped, deterministic operation; never regenerate the site to change a photo.
-    const isFullGeneration=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
+    const isFullGeneration=isFullSiteCreationBrief(prompt);
     const photoIntent=propertyFiles.length>0||looksLikePhotoInstruction(prompt);
     const isSiteHeroPhoto=/\b(?:capa|imagem|foto)\s+(?:principal\s+)?(?:do|da)\s+(?:site|home|p[aá]gina|hero)\b/i.test(prompt);
     if(siteCategory==="real-estate"&&site.kind==="real-estate"&&!isFullGeneration&&!isSiteHeroPhoto&&photoIntent){
@@ -697,7 +723,7 @@ export default function BuilderV2() {
     }
     const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
     const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
-    if((immersiveRequest||splitRequest)&&/(?:altere|alterar|mude|mudar|troque|trocar|aplique|aplicar|configure|configurar|transforme|transformar|restaure|restaurar|deixe|coloque)\s+(?:(?:somente|apenas|a|o|para|em|um|uma)\s+){0,4}(?:capa|hero|layout|apresenta[cç][aã]o)/i.test(prompt)&&site.blocks.length>0&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
+    if((immersiveRequest||splitRequest)&&/(?:altere|alterar|mude|mudar|troque|trocar|aplique|aplicar|configure|configurar|transforme|transformar|restaure|restaurar|deixe|coloque)\s+(?:(?:somente|apenas|a|o|para|em|um|uma)\s+){0,4}(?:capa|hero|layout|apresenta[cç][aã]o)/i.test(prompt)&&site.blocks.length>0&&!isFullSiteCreationBrief(prompt)){
       recordVersion(site,"Antes de alterar apresentação da capa");
       setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
       setSite(prev=>({...prev,heroPresentation:immersiveRequest?"immersive":"split"}));
@@ -1019,15 +1045,17 @@ export default function BuilderV2() {
       catch { throw new Error(response.status===504||response.status===503||/timeout|timed out/i.test(rawResponse)?"A geração excedeu o tempo disponível. O site original foi preservado. Tente novamente após a otimização do gerador.":"O servidor não retornou uma resposta válida. Seu projeto foi preservado."); }
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
-      if (!Array.isArray(data.site?.blocks) || data.site.blocks.length < 4) throw new Error("A IA não entregou um site completo. Nenhum resultado parcial foi aplicado.");
+      if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
-      incoming.heroPresentation=creatingNewSite?undefined:site.heroPresentation;
-      incoming.heroComposition=creatingNewSite?undefined:site.heroComposition;
-      incoming.heroBannerCopy=creatingNewSite?undefined:site.heroBannerCopy;
-      incoming.sectionMediaLayouts=creatingNewSite?undefined:site.sectionMediaLayouts;
-      incoming.sectionMediaManaged=creatingNewSite?undefined:site.sectionMediaManaged;
+      // Keep explicit chat edits to visual settings; inherit previous values only when omitted.
+      incoming.heroPresentation=creatingNewSite?undefined:(incoming.heroPresentation??site.heroPresentation);
+      incoming.heroComposition=creatingNewSite?undefined:(incoming.heroComposition??site.heroComposition);
+      incoming.heroBannerCopy=creatingNewSite?undefined:(incoming.heroBannerCopy??site.heroBannerCopy);
+      incoming.universalSectionEvents=creatingNewSite?undefined:(incoming.universalSectionEvents??site.universalSectionEvents);
+      incoming.sectionMediaLayouts=creatingNewSite?undefined:(incoming.sectionMediaLayouts??site.sectionMediaLayouts);
+      incoming.sectionMediaManaged=creatingNewSite?undefined:(incoming.sectionMediaManaged??site.sectionMediaManaged);
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
@@ -1089,7 +1117,7 @@ export default function BuilderV2() {
   }
   function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
-    if(publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4))return;
+    if(publishing||busy||site.blocks.length<1)return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
     setPublishing(true);setPublishError("");setPublishNotice("");
     setSite(current);
@@ -1097,10 +1125,10 @@ export default function BuilderV2() {
       const response=await fetch("/api/builder-v2/publish",{
         method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({site:current})
       });
-      const data=await response.json() as {url?:string;error?:string};
+      const data=await response.json() as {url?:string;error?:string;notice?:string};
       if(!response.ok||!data.url)throw new Error(data.error||"Não foi possível publicar o site.");
       setSite(previous=>previous.id===current.id?{...previous,publishedUrl:data.url}:previous);
-      setPublishNotice("Site publicado! Acesse o link público para conferir o resultado.");
+      setPublishNotice(data.notice||"Site publicado! Acesse o link público para conferir o resultado.");
     }catch(error){setPublishError(error instanceof Error?error.message:"Falha na publicação. Seu site foi preservado.");}
     finally{setPublishing(false);}
   }
@@ -1321,7 +1349,7 @@ export default function BuilderV2() {
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
 <div className="flex flex-wrap items-center gap-2">
-<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4)} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
+<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||site.blocks.length<1} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
 {site.publishedUrl&&<a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="min-h-11 rounded-xl border border-lime-300/60 px-4 py-3 text-sm font-semibold text-lime-300">Ver site ↗</a>}
 {site.publishedUrl&&<button type="button" onClick={()=>void navigator.clipboard.writeText(site.publishedUrl||"")} className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80">Copiar URL</button>}
 <a href="/app/builder" className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/65">Editor anterior ↗</a>

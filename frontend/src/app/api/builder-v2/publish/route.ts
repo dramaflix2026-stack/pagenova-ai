@@ -37,7 +37,7 @@ export async function POST(request:NextRequest) {
       typeof site.id!=="string"||site.id.length<8||site.id.length>128||
       typeof site.title!=="string"||!site.title.trim()||site.title.length>160||
       typeof site.background!=="string"||site.blocks.length>160||
-      (site.kind!=="restaurant"&&(site.blocks.length<4||!site.blocks.some(b=>b.type==="heading")))){
+      (site.blocks.length<1||site.blocks.length>160)){
     return NextResponse.json({error:"Gere um site completo antes de publicar."},{status:422});
   }
   const ids=new Set<string>();

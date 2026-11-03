@@ -84,7 +84,7 @@ test("CRM import does not invent testimonials, rating counts or stock gallery im
 test("first CRM import cannot persist an empty Site while photos are loading",()=>{
  const page=read("src/app/app/builder-v2/page.tsx");
  assert.match(page,/setDraftHydrated\(true\)/);
- assert.match(page,/if\(!loaded\|\|!draftHydrated\)return/);
+ assert.match(page,/if\(!loaded\|\|!draftHydrated\|\|draftRecoveryFailed\)return/);
  assert.match(page,/setCrmImporting\(true\)/);
  assert.match(page,/setCrmImportError\(/);
 });
