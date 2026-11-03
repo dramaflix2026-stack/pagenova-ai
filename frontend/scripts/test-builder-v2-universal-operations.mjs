@@ -192,3 +192,13 @@ test("TP3 model 01 hero consumes edited heading, image and CTA blocks",()=>{
  assert.match(component,/href=\{heroButton\?\.href\|\|"#especialidades"\}/);
  assert.match(component,/heroButton\?\.text\|\|/);
 });
+
+test("TP3 model 01 uses section-scoped editable content with design fallbacks",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp3-model1.tsx",import.meta.url),"utf8");
+ assert.match(component,/const specialtyBlocks=sectionBlocks/);
+ assert.match(component,/const historyBlocks=sectionBlocks/);
+ assert.match(component,/const galleryBlocks=sectionBlocks/);
+ assert.match(component,/specialtyImages\[i\]\|\|image\(i\+1\)/);
+ assert.match(component,/sectionText\(historyBlocks,"paragraph"\)/);
+ assert.match(component,/galleryImages\[\[6,7,3\]\.indexOf\(i\)\]/);
+});
