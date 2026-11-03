@@ -755,3 +755,17 @@ test("compound instruction parser recognizes faça as a boundary and refuses uns
  assert.equal(result?.ok,false,"unknown second instruction must reject the entire request");
  assert.equal(original.blocks[0].text,"Sobre a empresa","first instruction must not leak into original");
 });
+
+test("compound parser preserves quoted punctuation, URLs and edit text while splitting independent commands",async()=>{
+ const {universalInstructionClauses}=await import("../src/lib/builder-v2-universal-plan.ts");
+ const request='Altere o texto "Sobre; e faça algo" para "Sobre; e crie conexões"; Mova galeria antes de sobre';
+ assert.deepEqual(universalInstructionClauses(request),[
+  'Altere o texto "Sobre; e faça algo" para "Sobre; e crie conexões"',
+  'Mova galeria antes de sobre'
+ ]);
+ const multiline='Altere o texto "Início" para "Bem-vindo"\n2. Configure o link do botão "Contato" para https://example.com/a?x=1&y=2';
+ assert.deepEqual(universalInstructionClauses(multiline),[
+  'Altere o texto "Início" para "Bem-vindo"',
+  'Configure o link do botão "Contato" para https://example.com/a?x=1&y=2'
+ ]);
+});
