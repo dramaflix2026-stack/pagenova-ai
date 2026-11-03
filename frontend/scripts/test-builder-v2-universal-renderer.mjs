@@ -193,3 +193,22 @@ test("TP2 model 02 and 03 bind editable hero title, description and CTA in previ
   }
  }
 });
+
+test("TP2 model 02 and 03 render edited about heading, paragraph and image without changing their section structure",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-about-title",type:"heading",section:"sobre",text:"Nossa engenharia personalizada"},
+   {id:"tp2-about-text",type:"paragraph",section:"sobre",text:"Descrição exclusiva da empresa"},
+   {id:"tp2-about-image",type:"image",section:"sobre",src:"https://example.com/about-custom.jpg"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const about=$('[data-universal-section="sobre"]');
+   assert.match(about.text(),/Nossa engenharia personalizada/);
+   assert.match(about.text(),/Descrição exclusiva da empresa/);
+   assert.equal(about.find('[data-block-id="tp2-about-image"]').attr("src"),"https://example.com/about-custom.jpg");
+   assert.equal(about.find('[data-block-id="tp2-about-title"]').length,1);
+  }
+ }
+});
