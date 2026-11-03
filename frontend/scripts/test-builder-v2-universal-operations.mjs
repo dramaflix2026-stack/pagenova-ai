@@ -587,3 +587,34 @@ test("TP1 differentiator image retains editable block identity without a URL",()
  assert.match(component,/universalBlockProps\(differencesImage\)/);
  assert.match(component,/differencesImage\?\.src\|\|/);
 });
+
+test("universal chat edits survive JSON persistence and follow-up edits across all template variants",()=>{
+ for(const variant of ["01","02","03"]){
+  const original=site();
+  original.briefingLayoutVariant=variant;
+  const edited=applyUniversalOperations(original,[
+   {action:"update",blockId:"h",changes:{text:"Capa personalizada",fontSize:48}},
+   {action:"update",blockId:"cta",changes:{href:"https://example.com/contato?source=builder"}},
+   {action:"add",block:{id:"img-custom",type:"image",section:"hero",src:"https://example.com/hero.webp"},afterId:"cta"},
+   {action:"move-section",sectionId:"services",afterSectionId:"faq"}
+  ]);
+  assert.equal(edited.ok,true,"initial edit failed for "+variant);
+  if(!edited.ok)continue;
+  const reloaded=JSON.parse(JSON.stringify(edited.site));
+  assert.equal(reloaded.briefingLayoutVariant,variant);
+  assert.equal(reloaded.blocks.find(b=>b.id==="h").text,"Capa personalizada");
+  assert.equal(reloaded.blocks.find(b=>b.id==="h").fontSize,48);
+  assert.equal(reloaded.blocks.find(b=>b.id==="cta").href,"https://example.com/contato?source=builder");
+  assert.equal(reloaded.blocks.find(b=>b.id==="img-custom").src,"https://example.com/hero.webp");
+  assert.equal(reloaded.universalSectionEvents.at(-1).action,"move");
+  const followUp=applyUniversalNaturalLanguage(reloaded,'Troque o texto "Capa personalizada" por "Capa final"');
+  assert.equal(followUp?.ok,true,"follow-up failed for "+variant);
+  if(followUp?.ok){
+   assert.equal(followUp.site.blocks.find(b=>b.id==="h").text,"Capa final");
+   assert.equal(followUp.site.blocks.find(b=>b.id==="img-custom").src,"https://example.com/hero.webp");
+   assert.equal(followUp.site.blocks.find(b=>b.id==="cta").href,"https://example.com/contato?source=builder");
+   assert.deepEqual(followUp.site.universalSectionEvents,reloaded.universalSectionEvents);
+  }
+  assert.equal(original.blocks.find(b=>b.id==="h").text,"Original");
+ }
+});
