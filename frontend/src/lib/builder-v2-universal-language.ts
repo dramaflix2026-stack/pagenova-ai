@@ -67,6 +67,17 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   const result=property==="color"?{color:value}:{align:({esquerda:"left",centro:"center",direita:"right"} as Record<string,string>)[align]||align};
   return applyUniversalOperations(site,[{action:"update",blockId:style[1],changes:result}]);
  }
+ const blockLink=text.match(/^(?:altere|troque|mude|configure)\s+(?:o\s+)?link\s+(?:do\s+)?(?:bot[aã]o\s+)?(?:bloco\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para|por)\s+["“”']?([^\s"“”']+)["“”']?\s*$/i);
+ if(blockLink){
+  const block=site.blocks.find(b=>b.id===blockLink[1]);
+  if(!block||block.type!=="button")return {ok:false,error:"Botão indicado não encontrado. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"update",blockId:block.id,changes:{href:blockLink[2]}}]);
+ }
+ const fontSize=text.match(/^(?:altere|troque|mude|configure|defina)\s+(?:o\s+)?tamanho\s+(?:da\s+)?fonte\s+(?:do\s+)?(?:bloco\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para|como)\s+(\d{1,3})(?:px)?\s*$/i);
+ if(fontSize){
+  if(!site.blocks.some(b=>b.id===fontSize[1]))return {ok:false,error:"Bloco indicado não encontrado. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"update",blockId:fontSize[1],changes:{fontSize:Number(fontSize[2])}}]);
+ }
  const buttonLabel=text.match(/^(?:altere|troque|mude|substitua)\s+(?:o\s+)?texto\s+(?:do\s+)?bot[aã]o\s+["“”']([^"“”']+)["“”']\s+(?:para|por)\s+["“”']([^"“”']+)["“”']\s*\.?$/i);
  if(buttonLabel){
   const candidates=site.blocks.filter(b=>b.type==="button"&&normalized(String(b.text||""))===normalized(buttonLabel[1]));
