@@ -1,4 +1,5 @@
 "use client";
+import { BuilderV2TP10Model2 } from "@/components/builder-v2-tp10-model2";
 import { BuilderV2TP9Model3 } from "@/components/builder-v2-tp9-model3";
 import { BuilderV2TP6Model3StoreFooter } from "./builder-v2-tp6-model3-store-footer";
 import { BuilderV2TP6Model3ContactNewsletter } from "./builder-v2-tp6-model3-contact-newsletter";
@@ -233,6 +234,12 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      const photo=props.site.blocks.find(p=>p.type==="image"&&p.section===b.section&&(p.forCardId===b.id||p.id===b.id+"-photo"))?.src;
      return {name,role,quote:quote.join(" | "),photo};
    }).filter((t):t is NonNullable<typeof t>=>t!==null);
+   if(props.site.briefingLayoutVariant==="02"){
+     const reviews=testimonials.map(t=>({name:t.name,role:t.role,quote:t.quote}));
+     const faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const p=(b.text||"").split(/\s*\|\s*/);return p.length>=2&&p[0].trim()&&p.slice(1).join(" | ").trim()?{question:p[0].trim(),answer:p.slice(1).join(" | ").trim()}:null}).filter((v):v is {question:string;answer:string}=>v!==null);
+     const gallery=props.site.blocks.filter(b=>b.type==="image"&&b.src&&(/galeria|portfolio|portfólio|ambiente|experi[eê]ncia/i.test(b.section||"")||b.layout==="gallery")).map(b=>b.src!).filter(Boolean);
+     return <BuilderV2TP10Model2 brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
+   }
    return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} contact={{email:props.site.footer?.email,address:props.site.footer?.address}}/>;
  }
  if(isWrittenBrief&&family===9){
