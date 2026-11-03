@@ -1,4 +1,5 @@
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
+import {resolveUniversalSection} from "../src/lib/builder-v2-universal-targets.ts";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -817,4 +818,15 @@ test("sequential universal edits survive reload and retain previous content and 
  assert.equal(publishedSnapshot.universalSectionEvents?.at(-1)?.action,"move");
  assert.equal(original.blocks[0].text,"Título original");
  assert.equal(original.blocks[1].href,"#contato");
+});
+
+test("section targeting prioritizes exact stable IDs over duplicate visible headings",()=>{
+ const current={blocks:[
+  {id:"a",type:"heading",section:"gallery",text:"Galeria"},
+  {id:"b",type:"heading",section:"projects",text:"Gallery"},
+  {id:"c",type:"heading",section:"about",text:"Sobre"}
+ ]};
+ assert.equal(resolveUniversalSection(current,"gallery"),"gallery");
+ assert.equal(resolveUniversalSection(current,"Galeria"),"gallery");
+ assert.equal(resolveUniversalSection(current,"projects"),"projects");
 });
