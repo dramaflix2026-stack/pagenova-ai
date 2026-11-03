@@ -6,7 +6,7 @@ const aliases:Record<string,string[]>={
  services:["services","servicos","nossos servicos","especialidades","nossas especialidades"],
  differences:["diferenciais","nossos diferenciais","diferencas","diferentials","differences"],
  process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas"],
- projects:["projetos","nossos projetos","projetos em destaque","portfolio de projetos","projects"],
+ projects:["projetos","nossos projetos","projetos em destaque","portfolio de projetos","portfolio","portfólio","obras","nossas obras","cases","projetos realizados","projects"],
  numbers:["numeros","resultados","resultados e numeros","metricas","indicadores","numbers"],
  history:["trajetoria","nossa trajetoria","historia","nossa historia","history"],
  testimonials:["testimonials","depoimentos","depoimentos dos clientes","avaliacoes"],
@@ -25,7 +25,19 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
  if(direct.length)return direct.length===1?direct[0]:null;
  const family=Object.values(aliases).find(names=>names.includes(target));
  const matches=family?sections.filter(id=>family.includes(norm(id))||site.blocks.some(b=>b.section===id&&b.type==="heading"&&family.includes(norm(String(b.text||""))))):[];
- return matches.length===1?matches[0]:null;
+ if(matches.length===1)return matches[0];
+ if(matches.length>1)return null;
+ // Renderer sections can carry generated IDs and editorial headings rather than
+ // canonical alias IDs. Resolve only when exactly one section shares a family keyword.
+ if(family){
+  const keywords=family.filter(name=>name.length>=5&&!["projects","differences","diferentials"].includes(name));
+  const fuzzy=sections.filter(id=>{
+   const headings=site.blocks.filter(b=>b.section===id&&b.type==="heading").map(b=>norm(String(b.text||"")));
+   return [norm(id),...headings].some(value=>keywords.some(keyword=>value.includes(keyword)||keyword.includes(value)&&value.length>=6));
+  });
+  if(fuzzy.length===1)return fuzzy[0];
+ }
+ return null;
 }
 const unquote=(value:string)=>value.trim().replace(/^["“']|["”']$/g,"");
 const color=(value:string)=>({preto:"#000000",pretos:"#000000",preta:"#000000",branco:"#ffffff",brancos:"#ffffff",branca:"#ffffff",vermelho:"#ff0000",azul:"#0000ff"} as Record<string,string>)[norm(value)]||(/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)?value:null);
