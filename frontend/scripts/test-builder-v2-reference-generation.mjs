@@ -215,3 +215,22 @@ test("invalid About repair never publishes invented contact details and refunds 
   assert.equal(result.body.site,undefined);
   assert.deepEqual(settlements,[false]);
 });
+
+test("fresh sites then combined chat edits use the actual endpoint without a model rewrite",async()=>{
+ for(const templateId of ["institutional-complete","minimalist-sophisticated","prompt-adaptive"]){
+  const generated=await generate(undefined,'Crie um site completo para uma clínica de psicologia com capa, serviços, sobre, diferenciais, FAQ e contato. Não invente contatos ou depoimentos.',{templateId});
+  assert.equal(generated.result.status,200,JSON.stringify(generated.result.body));
+  const site=generated.result.body.site,before=structuredClone(site);
+  const result=await generate(undefined,'Altere o título da capa para "Atendimento com escuta" e mova FAQ para antes do contato',{site});
+  assert.equal(result.result.status,200,JSON.stringify(result.result.body));
+  const after=result.result.body.site;
+  assert.equal(result.calls.length,0,"Deterministic edits must not call or rewrite through the model");
+  assert.equal(after.blocks.find(b=>b.section==="inicio"&&b.type==="heading").text,"Atendimento com escuta");
+  const sections=[...new Set(after.blocks.map(b=>b.section))];
+  assert.equal(sections.indexOf("faq"),sections.indexOf("contato")-1);
+  for(const block of before.blocks.filter(b=>b.id!=="inicio-heading"))assert.deepEqual(after.blocks.find(b=>b.id===block.id),block);
+  assert.equal(after.templateId,before.templateId);assert.deepEqual(after.design,before.design);assert.deepEqual(site,before);
+  const rejected=await generate(undefined,'Altere o título da capa para "Não salvar" e adicione uma galeria',{site});
+  assert.equal(rejected.result.status,422);assert.equal(rejected.result.body.site,undefined);assert.equal(rejected.calls.length,0);
+ }
+});

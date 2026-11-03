@@ -742,7 +742,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(result){
       if(!result.ok)return NextResponse.json({error:result.error},{status:422});
-      return NextResponse.json({site:result.site,summary:"Elemento identificado e atualizado sem modificar outros blocos.",changedIds:result.changedIds});
+      return NextResponse.json({site:result.site,summary:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados.",changedIds:result.changedIds});
     }
   }
   // Atomic edits for the most common chat commands. Never interpret preservation

@@ -1,7 +1,35 @@
+import {applyUniversalNamedLanguage} from "./builder-v2-universal-targets.ts";
 import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type UniversalResult} from "./builder-v2-universal-operations.ts";
+
+/** Split only at a command boundary outside quoted customer copy. */
+export function splitUniversalInstructions(instruction:string):string[]{
+ let quote="";let masked="";
+ for(let i=0;i<instruction.length;i++){
+  const c=instruction[i];
+  if(quote){if(c===quote||(quote==="“"&&c==="”"))quote="";masked+="_";}
+  else if(c==='"'||c==="“"||(c==="'"&&!/\p{L}/u.test(instruction[i-1]||" "))){quote=c;masked+="_";}
+  else masked+=c;
+ }
+ const boundary=/(?:[,;]\s*(?:e\s+)?|\s+e\s+|\n+)(?=(?:altere|troque|mude|substitua|remova|exclua|apague|mova|reposicione|coloque|deixe|torne|adicione|crie|inclua|defina|configure|centralize|preserve|mantenha)\b)/gi;
+ const parts:string[]=[];let start=0;
+ for(const match of masked.matchAll(boundary)){parts.push(instruction.slice(start,match.index).trim());start=match.index+match[0].length;}
+ parts.push(instruction.slice(start).trim());return parts.filter(Boolean);
+}
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const clauses=splitUniversalInstructions(instruction);
+ if(clauses.length>1){
+  if(clauses.length>50)return {ok:false,error:"Lote de edição excede o limite de 50 pedidos."};
+  let current=site;const changedIds=new Set<string>();
+  for(let i=0;i<clauses.length;i++){
+   const result=applyUniversalNaturalLanguage(current,clauses[i]);
+   if(!result||!result.ok)return {ok:false,error:"Pedido "+(i+1)+": "+(result&&!result.ok?result.error:"Comando não identificado com segurança.")+" Nenhuma alteração do lote foi aplicada."};
+   current=result.site;result.changedIds.forEach(id=>changedIds.add(id));
+  }
+  return {ok:true,site:current,changedIds:[...changedIds]};
+ }
+ const named=applyUniversalNamedLanguage(site,instruction);if(named)return named;
  const normalized=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
  const text=instruction.trim();
  const q=[...text.matchAll(/["“”']([^"“”'\n]+)["“”']/g)].map(m=>m[1].trim());

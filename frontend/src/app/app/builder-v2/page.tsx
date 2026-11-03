@@ -1,4 +1,5 @@
 "use client";
+import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
@@ -501,6 +502,25 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    if(busy)return;
+    // Resolve universal batches before any legacy shortcut can consume only one clause.
+    if(site.blocks.length&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
+      const compound=splitUniversalInstructions(prompt).length>1;
+      const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
+      const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
+      if(result||(compound&&hasAttachments)){
+        setMessages(prev=>[...prev,{role:"user",text:prompt}]);
+        if(!result||!result.ok){
+          setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
+          return;
+        }
+        recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(result.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
+        return;
+      }
+    }
+
     if(siteCategory==="institutional"&&site.blocks.length>0&&site.cinematic?.mode!=="immersive-3d"&&/^(?:ativ[ea]|desativ[ea]|troqu[ea]|mud[ea]|coloq[ue]|defin[ae]|remov[ae]|quero)\b.{0,75}(?:modo cinematogr[aá]fico|modo est[aá]tico|v[ií]deo de fundo|fundo em v[ií]deo|sem v[ií]deo)\b/i.test(prompt)&&!/(?:preserv|mantenh|n[aã]o alter|sem alterar)/i.test(prompt)){
       const disable=/(modo est[aá]tico|sem v[ií]deo|remov|desativ)/i.test(prompt);
       setSite(prev=>({...prev,cinematic:{...prev.cinematic,mode:disable?"static":"cinematic"}}));
@@ -1322,7 +1342,7 @@ export default function BuilderV2() {
 </div><section aria-label="Publicação e links" className="pn-editor-publish-panel mt-4 rounded-xl border border-white/15 bg-[#141d1a] p-4 text-white">
 <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-left text-sm font-bold">Publicação</h2><span className="text-xs text-white/55">{site.publishedUrl?"Site publicado":"Rascunho"}</span></div>
 <div className="flex flex-wrap items-center gap-2">
-<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||(siteCategory!=="restaurant"&&site.blocks.length<4)} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
+<button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||site.blocks.length<1} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
 {site.publishedUrl&&<a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="min-h-11 rounded-xl border border-lime-300/60 px-4 py-3 text-sm font-semibold text-lime-300">Ver site ↗</a>}
 {site.publishedUrl&&<button type="button" onClick={()=>void navigator.clipboard.writeText(site.publishedUrl||"")} className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80">Copiar URL</button>}
 <a href="/app/builder" className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/65">Editor anterior ↗</a>
