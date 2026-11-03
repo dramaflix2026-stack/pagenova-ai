@@ -30,11 +30,13 @@ const photoIds:Record<string,string[]>={
     "1608248543803-ba4f8c70ae0b",
     "1547887538-e3a2f32cb1cc"
   ],
+  // Curadoria por categoria: acessórios (coleira/guia), conforto (caminha),
+  // brinquedos (cachorro brincando) e favoritos (ração).
   "Pet shop": [
-    "1450778869180-41d0601e046e",
-    "1583511655857-d19b40a7a54e",
-    "1583337130417-3346a1be7dee",
-    "1601758228041-f3b2795255f1"
+    "1577447278822-37801be21738",
+    "1657414066378-12c1523b9701",
+    "1589924749359-9697080c3577",
+    "1764249453850-faace6e57444"
   ],
   "Loja de eletrônicos": [
     "1498049794561-7780e7231661",
