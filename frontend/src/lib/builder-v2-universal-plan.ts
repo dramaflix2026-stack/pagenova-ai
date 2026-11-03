@@ -9,6 +9,12 @@ export function universalInstructionClauses(instruction:string):string[]{
   const char=instruction[i];
   if(quote){if(char===quote||(quote==="“"&&char==="”"))quote="";continue;}
   if(char==='"'||char==="“"||(char==="'"&&!/\p{L}/u.test(instruction[i-1]||" "))){quote=char;continue;}
+  // Numbered commands may be pasted as one paragraph by mobile keyboards.
+  // Split at "2. Altere" or "3. Na seção ..., altere", never inside quotes.
+  const numbered=instruction.slice(i).match(/^\s+(?:\d{1,2}[.)])\s+(?=(?:na\s+se[cç][aã]o\s+[^,]{1,100},\s*)?(?:altere|troque|mude|substitua|mova|reposicione|coloque|remova|adicione|crie|defina)\b)/i);
+  if(numbered&&instruction.slice(start,i).trim()){
+   clauses.push(instruction.slice(start,i).trim());i+=numbered[0].length-1;start=i+1;continue;
+  }
   const match=instruction.slice(i).match(boundary);
   if(match&&instruction.slice(start,i).trim()){
    clauses.push(instruction.slice(start,i).trim());i+=match[0].length-1;start=i+1;
