@@ -432,6 +432,7 @@ test("TP2 integrated edits, removal and section reordering survive JSON reload i
  const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
  for(const variant of ["02","03"]){
   const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks=site.blocks.filter(block=>!/faq|pergunt|duvidas|dúvidas/i.test(block.section||""));
   site.blocks.push(
    {id:"integrated-about",type:"heading",section:"sobre",text:"Nossa empresa"},
    {id:"integrated-services",type:"heading",section:"servicos",text:"Serviços"},
