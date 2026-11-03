@@ -109,7 +109,12 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
  if(namedTitle){
   const section=namedTitle[1]?resolveUniversalSection(site,namedTitle[1]):null;
   if(namedTitle[1]&&!section)return fail(namedTitle[1]);
-  return update(site.blocks.filter(b=>b.type==="heading"&&norm(String(b.text||""))===norm(namedTitle[2])&&(!section||b.section===section)),namedTitle[3],namedTitle[2]);
+  const candidates=site.blocks.filter(b=>(b.type==="heading"||b.type==="paragraph")&&(!section||b.section===section)&&norm(String(b.text||"").split(/:\s|\s[—–]\s/)[0])===norm(namedTitle[2]));
+  if(candidates.length!==1)return fail(namedTitle[2]);
+  const block=candidates[0],original=String(block.text||"");
+  const separator=original.match(/:\s|\s[—–]\s/);
+  const next=separator?namedTitle[3]+original.slice((separator.index||0)):namedTitle[3];
+  return applyUniversalOperations(site,[{action:"update",blockId:block.id,changes:{text:next}}]);
  }
  const namedDescription=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+diferencial\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(namedDescription){
