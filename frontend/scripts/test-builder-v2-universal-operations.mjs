@@ -546,3 +546,10 @@ test("TP1 model 02 service and differentiator cards have editable content",()=>{
  assert.match(component,/b\.id!==differencesHeading\?\.id/);
  assert.match(component,/b\.id!==differencesDescription\?\.id/);
 });
+
+test("TP1 model 02 journey cards bind individual text and typography",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/tp1v2-journey-steps/);
+ assert.match(component,/universalBlockProps\(site\.blocks\.filter\(b=>b\.section==="como-funciona"/);
+ assert.match(component,/b\.id!==site\.blocks\.find\(x=>x\.section==="como-funciona"/);
+});
