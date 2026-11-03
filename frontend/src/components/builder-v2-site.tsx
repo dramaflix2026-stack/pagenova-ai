@@ -1440,6 +1440,22 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 [data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] .pn-engineering-editorial-icon{display:grid;place-items:center;width:40px;height:40px;border:1px solid #bd8035;border-radius:0;color:#d9953c;font-size:23px}
 [data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] .pn-engineering-editorial-rule{display:block;width:34px;height:2px;background:#cf913d;margin:0 0 20px}
 @media(max-width:767px){[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] article.pn-engineering-editorial-card{min-height:0!important;padding:26px 24px 30px!important}[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] .pn-engineering-editorial-meta{margin-bottom:22px}}
+/* Semantic TP2 compositions: isolated from generic adaptive card skin. */
+[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] [data-pn-composition^="TP2-"] article{
+  background:#202226!important;background-image:none!important;
+  border:1px solid #383b40!important;border-radius:4px!important;
+  box-shadow:none!important;color:#fff!important;transform:none!important;
+  min-height:0!important;
+}
+[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] [data-pn-composition^="TP2-"] article h3{
+  color:#fff!important;font-size:clamp(1.15rem,2.5vw,1.4rem)!important;
+}
+[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] [data-pn-composition^="TP2-"] article p{
+  color:#c8cbce!important;font-size:.95rem!important;line-height:1.7!important;
+}
+[data-pn-template="prompt-adaptive"] section[data-pn-engineering-editorial="true"] [data-pn-composition^="TP2-"] article:hover{
+  background:#292b2f!important;border-color:#8b714f!important;
+}
 /* Generated engineering sections must retain the editorial canvas and card hierarchy. */
 [data-pn-template="prompt-adaptive"] section[data-pn-custom-engineering="true"]{background:#0b0f12!important;background-image:none!important;color:#f6f6f4!important}
 [data-pn-template="prompt-adaptive"] section[data-pn-custom-engineering="true"] [data-pn-composition="universal-custom-section"]{background:transparent!important}
