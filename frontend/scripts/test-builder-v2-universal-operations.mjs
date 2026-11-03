@@ -252,3 +252,21 @@ test("safe image edit is applied atomically",()=>{
  assert.equal(result?.ok,true);
  if(result?.ok)assert.equal(result.site.blocks.find(b=>b.id==="photo").src,"https://example.com/new.png");
 });
+
+test("explicit block link updates preserve query parameters",()=>{
+ const url="https://example.com/order?src=chat&plan=1";
+ const result=applyUniversalNaturalLanguage(site(),"Altere o link do botão id cta para "+url);
+ assert.equal(result?.ok,true);
+ if(result?.ok)assert.equal(result.site.blocks.find(b=>b.id==="cta").href,url);
+});
+test("explicit block link refuses unsafe destination",()=>{
+ const result=applyUniversalNaturalLanguage(site(),"Altere o link do botão id cta para javascript:alert(1)");
+ assert.equal(result?.ok,false);
+});
+test("font size edit validates supported range",()=>{
+ const good=applyUniversalNaturalLanguage(site(),"Defina o tamanho da fonte do bloco id h para 48px");
+ assert.equal(good?.ok,true);
+ if(good?.ok)assert.equal(good.site.blocks.find(b=>b.id==="h").fontSize,48);
+ const bad=applyUniversalNaturalLanguage(site(),"Defina o tamanho da fonte do bloco id h para 200px");
+ assert.equal(bad?.ok,false);
+});
