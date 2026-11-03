@@ -223,6 +223,9 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    return <TP4LayoutChooser site={explicitTp4Model2?{...props.site,briefingLayoutVariant:"02"}:props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===10){
+   // Internal template identifiers must never become public-facing brand copy.
+   const rawBrand=props.site.header?.brand||props.site.title||"Instituição de ensino";
+   const cleanBrand=rawBrand.replace(/\\s*(?:[-–—|:]\\s*)?(?:TP\\s*\\d{1,2}|fam[ií]lia\\s*TP\\s*\\d{1,2}|modelo\\s*0?[123])\\b/gi,"").replace(/\\s{2,}/g," ").trim()||(props.site.niche||props.selectedNiche||"Instituição de ensino");
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
    const intro=props.site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
    const heroImage=props.site.blocks.find(b=>b.type==="image"&&b.src)?.src;
@@ -239,15 +242,15 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
      const reviews=testimonials.map(t=>({name:t.name,role:t.role,quote:t.quote}));
      const faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const p=(b.text||"").split(/\s*\|\s*/);return p.length>=2&&p[0].trim()&&p.slice(1).join(" | ").trim()?{question:p[0].trim(),answer:p.slice(1).join(" | ").trim()}:null}).filter((v):v is {question:string;answer:string}=>v!==null);
      const gallery=props.site.blocks.filter(b=>b.type==="image"&&b.src&&(/galeria|portfolio|portfólio|ambiente|experi[eê]ncia/i.test(b.section||"")||b.layout==="gallery")).map(b=>b.src!).filter(Boolean);
-     return <BuilderV2TP10Model3 brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
+     return <BuilderV2TP10Model3 brand={cleanBrand} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
    }
    if(props.site.briefingLayoutVariant==="02"){
      const reviews=testimonials.map(t=>({name:t.name,role:t.role,quote:t.quote}));
      const faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const p=(b.text||"").split(/\s*\|\s*/);return p.length>=2&&p[0].trim()&&p.slice(1).join(" | ").trim()?{question:p[0].trim(),answer:p.slice(1).join(" | ").trim()}:null}).filter((v):v is {question:string;answer:string}=>v!==null);
      const gallery=props.site.blocks.filter(b=>b.type==="image"&&b.src&&(/galeria|portfolio|portfólio|ambiente|experi[eê]ncia/i.test(b.section||"")||b.layout==="gallery")).map(b=>b.src!).filter(Boolean);
-     return <BuilderV2TP10Model2 brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
+     return <BuilderV2TP10Model2 brand={cleanBrand} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
    }
-   return <Template10EducationHero brand={props.site.header?.brand||props.site.title||"Instituição de ensino"} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} contact={{email:props.site.footer?.email,address:props.site.footer?.address}}/>;
+   return <Template10EducationHero brand={cleanBrand} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} contact={{email:props.site.footer?.email,address:props.site.footer?.address}}/>;
  }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
