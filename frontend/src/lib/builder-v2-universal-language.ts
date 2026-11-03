@@ -100,6 +100,32 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
   if(candidates.length!==1)return fail(label);
   return applyUniversalOperations(site,[{action:"update",blockId:candidates[0].id,changes:{text:value}}]);
  };
+ const newSection=text.match(/^adicione\s+uma\s+nova\s+se[cç][aã]o\s+chamada\s+["“]([^"”]+)["”],?\s+imediatamente\s+depois\s+da\s+se[cç][aã]o\s+["“]([^"”]+)["”],?\s+com\s+um\s+t[ií]tulo,\s+uma\s+breve\s+introdu[cç][aã]o\s+e\s+tr[eê]s\s+cards:\s*(.+?)(?:\.\s*utilize\s+textos\s+profissionais(?:\s+e\s+preserve\s+a\s+identidade\s+visual\s+do\s+site)?)?\.?$/i);
+ if(newSection){
+  const anchorSection=resolveUniversalSection(site,newSection[2]);
+  if(!anchorSection)return fail("seção de referência "+newSection[2]);
+  const labels=newSection[3].replace(/\.$/,"").split(/\s*,\s*|\s+e\s+/i).map(v=>v.trim()).filter(Boolean);
+  if(labels.length!==3)return fail("três cards de "+newSection[1]);
+  const sectionId="custom-"+norm(newSection[1]).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  if(site.blocks.some(b=>b.section===sectionId))return fail("seção já existente "+newSection[1]);
+  const descriptions:Record<string,string>={
+   "modelagem bim":"Modelagem integrada para coordenar disciplinas, visualizar soluções e reduzir incompatibilidades durante o desenvolvimento dos projetos.",
+   "planejamento digital":"Ferramentas digitais para organizar etapas, acompanhar cronogramas e apoiar decisões técnicas com maior precisão.",
+   "gestao de projetos":"Acompanhamento estruturado de escopo, prazos e entregas para promover eficiência e transparência na execução."
+  };
+  const id=(n:number)=>sectionId+"-"+n;
+  const blocks=[
+   {id:id(0),type:"heading",section:sectionId,text:newSection[1]},
+   {id:id(1),type:"paragraph",section:sectionId,text:"Tecnologia e planejamento integrados para desenvolver projetos com precisão, eficiência e colaboração."},
+   ...labels.map((label,i)=>({id:id(i+2),type:"paragraph",section:sectionId,text:label+": "+(descriptions[norm(label)]||"Soluções técnicas aplicadas com planejamento, colaboração e foco na qualidade das entregas.")}))
+  ];
+  const last=site.blocks.filter(b=>b.section===anchorSection).at(-1);
+  if(!last)return fail(newSection[2]);
+  const operations:UniversalOperation[]=[];
+  let afterId=last.id;
+  for(const block of blocks){operations.push({action:"add",block,afterId});afterId=block.id;}
+  return applyUniversalOperations(site,operations);
+ }
  const colorCards=text.match(/^(?:altere|troque|mude|substitua)\s+a\s+cor\s+de\s+fundo\s+dos\s+(?:quatro|4|todos\s+os)\s+cards\s+da\s+se[cç][aã]o\s+["“]?([^"”]+?)["”]?\s+de\s+.+?\s+para\s+.+?\(?(#[0-9a-f]{6})\)?/i);
  if(colorCards){
   const section=resolveUniversalSection(site,colorCards[1]);
