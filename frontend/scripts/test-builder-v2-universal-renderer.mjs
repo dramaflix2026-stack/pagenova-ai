@@ -212,3 +212,25 @@ test("TP2 model 02 and 03 render edited about heading, paragraph and image witho
   }
  }
 });
+
+test("TP2 models preserve independent service card title and image bindings in preview and published render",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-services-heading",type:"heading",section:"servicos",text:"Soluções da empresa"},
+   {id:"tp2-service-card-1",type:"heading",section:"servicos",text:"Projeto personalizado A"},
+   {id:"tp2-service-card-2",type:"heading",section:"servicos",text:"Projeto personalizado B"},
+   {id:"tp2-service-image-1",type:"image",section:"servicos",src:"https://example.com/first.jpg"},
+   {id:"tp2-service-image-2",type:"image",section:"servicos",src:"https://example.com/second.jpg"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="servicos"]');
+   assert.match(section.text(),/Soluções da empresa/);
+   assert.equal(section.find('[data-block-id="tp2-service-card-1"]').text(),"Projeto personalizado A");
+   assert.equal(section.find('[data-block-id="tp2-service-card-2"]').text(),"Projeto personalizado B");
+   assert.equal(section.find('[data-block-id="tp2-service-image-1"]').attr("src"),"https://example.com/first.jpg");
+   assert.equal(section.find('[data-block-id="tp2-service-image-2"]').attr("src"),"https://example.com/second.jpg");
+  }
+ }
+});
