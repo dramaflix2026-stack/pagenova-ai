@@ -169,3 +169,11 @@ test("publishing supports a valid existing site after section removal",()=>{
  assert.match(editor,/if\(publishing\|\|busy\|\|site\.blocks\.length<1\)return;/);
  assert.match(editor,/body:JSON\.stringify\(\{site:current\}\)/);
 });
+
+test("server publication accepts valid edited sites with fewer than four blocks",()=>{
+ const route=readFileSync(new URL("../src/app/api/builder-v2/publish/route.ts",import.meta.url),"utf8");
+ assert.doesNotMatch(route,/site\.blocks\.length<4/);
+ assert.match(route,/site\.blocks\.length<1/);
+ assert.match(route,/site:snapshot/);
+ assert.match(route,/storage\.upload\(slug\+"\.json"/);
+});
