@@ -742,3 +742,16 @@ test("multi-clause universal chat edits commit atomically and preserve existing 
  assert.equal(missing?.ok,false,"missing second target must reject entire request");
  assert.equal(JSON.stringify(original),snapshot,"failed target must not mutate input");
 });
+
+test("compound instruction parser recognizes faça as a boundary and refuses unsupported partial edits",async()=>{
+ const {universalInstructionClauses}=await import("../src/lib/builder-v2-universal-plan.ts");
+ const request='Altere o texto "Sobre a empresa" para "Nossa essência"; Faça uma edição completamente desconhecida';
+ assert.deepEqual(universalInstructionClauses(request),[
+  'Altere o texto "Sobre a empresa" para "Nossa essência"',
+  "Faça uma edição completamente desconhecida"
+ ]);
+ const original={blocks:[{id:"about",type:"heading",section:"sobre",text:"Sobre a empresa"}]};
+ const result=applyUniversalNaturalLanguage(original,request);
+ assert.equal(result?.ok,false,"unknown second instruction must reject the entire request");
+ assert.equal(original.blocks[0].text,"Sobre a empresa","first instruction must not leak into original");
+});
