@@ -461,3 +461,39 @@ test("TP2 integrated edits, removal and section reordering survive JSON reload i
   }
  }
 });
+
+test("TP2 sequential natural-language edits preserve removed sections, reordered gallery and updated content",async()=>{
+ const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
+ const {applyUniversalNaturalLanguage}=await import("../src/lib/builder-v2-universal-language.ts");
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-sequential-about",type:"heading",section:"sobre",text:"Nossa empresa"},
+   {id:"tp2-sequential-services",type:"heading",section:"servicos",text:"Nossos serviços"},
+   {id:"tp2-sequential-gallery",type:"heading",section:"galeria",text:"Nossa galeria"},
+   {id:"tp2-sequential-footer",type:variant==="02"?"paragraph":"heading",section:"rodape",text:"Vamos conversar"}
+  );
+  const layout=applyUniversalOperations(site,[
+   {action:"remove-section",sectionId:"servicos"},
+   {action:"move-section",sectionId:"galeria",beforeSectionId:"sobre"}
+  ]);
+  assert.equal(layout.ok,true,layout.error);
+  if(!layout.ok)continue;
+  const first=applyUniversalNaturalLanguage(JSON.parse(JSON.stringify(layout.site)),'Altere o texto "Nossa empresa" para "Quem somos"');
+  assert.equal(first?.ok,true,first?.error);
+  if(!first?.ok)continue;
+  const second=applyUniversalNaturalLanguage(JSON.parse(JSON.stringify(first.site)),'Altere o texto "Vamos conversar" para "Fale com nossa equipe"');
+  assert.equal(second?.ok,true,second?.error);
+  if(!second?.ok)continue;
+  const reloaded=JSON.parse(JSON.stringify(second.site));
+  assert.equal(site.blocks.find(b=>b.id==="tp2-sequential-about").text,"Nossa empresa","original fixture must remain unchanged");
+  for(const publishedMode of [false,true]){
+   const $=render(reloaded,publishedMode);
+   assert.equal($('[data-universal-section="servicos"]').length,0);
+   const order=$('[data-universal-section]').map((_,node)=>$(node).attr("data-universal-section")).get();
+   assert.ok(order.indexOf("galeria")<order.indexOf("sobre"));
+   assert.equal($('[data-universal-section="sobre"] [data-block-id="tp2-sequential-about"]').text(),"Quem somos");
+   assert.equal($('[data-universal-section="rodape"] [data-block-id="tp2-sequential-footer"]').text(),"Fale com nossa equipe");
+  }
+ }
+});
