@@ -1,3 +1,4 @@
+import {readFileSync} from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {applyUniversalOperations} from "../src/lib/builder-v2-universal-operations.ts";
@@ -28,4 +29,11 @@ test("reject unsafe links and immutable ids",()=>{
 test("section movement preserves the order of its blocks",()=>{
  const result=applyUniversalOperations(site(),[{action:"move-section",sectionId:"hero",afterSectionId:"faq"}]);
  assert.equal(result.ok,true);if(result.ok)assert.deepEqual(result.site.blocks.map(b=>b.id),["s","c1","f","h","cta"]);
+});
+
+test("chat route dispatches structured operations before legacy edits",()=>{
+ const source=readFileSync(new URL("../src/app/api/builder-v2/chat/route.ts",import.meta.url),"utf8");
+ assert.ok(source.includes("applyUniversalOperations("));
+ assert.ok(source.indexOf("if(!isFresh&&!fullSiteBrief&&body.universalOperations!==undefined)")<source.indexOf("// Atomic edits for the most common chat commands."));
+ assert.match(source,/if\(!result\.ok\)return NextResponse\.json\(\{error:result\.error\},\{status:422\}\)/);
 });
