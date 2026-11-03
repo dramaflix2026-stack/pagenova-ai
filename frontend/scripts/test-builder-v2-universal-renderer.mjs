@@ -413,3 +413,17 @@ test("TP2 numbers and testimonials headings are editable without inventing metri
   }
  }
 });
+
+test("TP2 footer headline edits preserve brand and never create unregistered contact details",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push({id:"tp2-footer-headline",type:variant==="02"?"paragraph":"heading",section:"rodape",text:"Construímos o próximo capítulo juntos"});
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const footer=$('[data-universal-section="rodape"]');
+   assert.equal(footer.find('[data-block-id="tp2-footer-headline"]').text(),"Construímos o próximo capítulo juntos");
+   assert.ok(footer.text().includes(site.title),"brand must remain in footer");
+   assert.equal(footer.find('a[href^="mailto:"]').length,0,"missing email must not be fabricated");
+  }
+ }
+});
