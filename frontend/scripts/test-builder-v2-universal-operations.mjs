@@ -494,3 +494,12 @@ test("TP1 model 02 hero uses section-scoped universal copy and button bindings",
  assert.match(component,/universalBlockProps\(heroButton,true\)/);
  assert.match(component,/<UniversalTypographyRules\/>/);
 });
+
+test("TP1 model 02 uses customer hero image and universal FAQ without changing its composition",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const heroImage=heroBlocks\.find/);
+ assert.match(component,/src=\{heroImage\?\.src\|\|photo\.photo\}/);
+ assert.match(component,/universalBlockProps\(heroImage\)/);
+ assert.match(component,/const faqItems=universalFaqItems\(site\.blocks,/);
+ assert.match(component,/faqItems\.map\(\(\[question,answer\],index\)/);
+});
