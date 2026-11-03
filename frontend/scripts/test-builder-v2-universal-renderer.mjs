@@ -427,3 +427,36 @@ test("TP2 footer headline edits preserve brand and never create unregistered con
   }
  }
 });
+
+test("TP2 integrated edits, removal and section reordering survive JSON reload in preview and public output",async()=>{
+ const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"integrated-about",type:"heading",section:"sobre",text:"Nossa empresa"},
+   {id:"integrated-services",type:"heading",section:"servicos",text:"Serviços"},
+   {id:"integrated-gallery",type:"heading",section:"galeria",text:"Galeria"},
+   {id:"integrated-faq-title",type:"heading",section:"faq",text:"Perguntas iniciais"},
+   {id:"integrated-faq-pair",type:"paragraph",section:"faq",text:"Qual é o prazo? O prazo depende do projeto."},
+   {id:"integrated-footer",type:variant==="02"?"paragraph":"heading",section:"rodape",text:"Mensagem original"}
+  );
+  const changed=applyUniversalOperations(site,[
+   {action:"update",blockId:"integrated-faq-title",changes:{text:"Perguntas personalizadas"}},
+   {action:"update",blockId:"integrated-footer",changes:{text:"Mensagem final personalizada"}},
+   {action:"remove-section",sectionId:"servicos"},
+   {action:"move-section",sectionId:"galeria",beforeSectionId:"sobre"}
+  ]);
+  assert.equal(changed.ok,true,changed.error);
+  if(!changed.ok)continue;
+  const reloaded=JSON.parse(JSON.stringify(changed.site));
+  for(const publishedMode of [false,true]){
+   const $=render(reloaded,publishedMode);
+   assert.equal($('[data-universal-section="servicos"]').length,0);
+   const order=$('[data-universal-section]').map((_,node)=>$(node).attr("data-universal-section")).get();
+   assert.ok(order.indexOf("galeria")<order.indexOf("sobre"));
+   assert.equal($('[data-universal-section="faq"] [data-block-id="integrated-faq-title"]').text(),"Perguntas personalizadas");
+   assert.equal($('[data-universal-section="rodape"] [data-block-id="integrated-footer"]').text(),"Mensagem final personalizada");
+   assert.equal($('[data-universal-section="contato"] form').length,1);
+  }
+ }
+});
