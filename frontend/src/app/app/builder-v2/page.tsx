@@ -1,3 +1,4 @@
+import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 "use client";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
@@ -504,7 +505,7 @@ export default function BuilderV2() {
     const prompt = instruction.trim();
     if(busy)return;
     // Resolve universal batches before any legacy shortcut can consume only one clause.
-    if(site.blocks.length&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
+    if(site.blocks.length&&!isFullSiteCreationBrief(prompt)){
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
       const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
@@ -540,7 +541,7 @@ export default function BuilderV2() {
       return;
     }
     if(!prompt && !(siteCategory==="real-estate"&&propertyFiles.length))return;
-    if((!site.blocks.length||/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt))&&siteCredits.exhausted){
+    if((!site.blocks.length||isFullSiteCreationBrief(prompt))&&siteCredits.exhausted){
       setGenerationError("Você utilizou todas as gerações disponíveis neste ciclo. Continue editando um site existente ou aguarde a renovação.");return;
     }
     let referenceForChat=reference;
@@ -555,7 +556,7 @@ export default function BuilderV2() {
     // Hero CTA creation is handled by the server-side atomic editor.
     // Image references are analyzed only; uploaded site assets are explicitly selected below.
     // Property photography is a scoped, deterministic operation; never regenerate the site to change a photo.
-    const isFullGeneration=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt);
+    const isFullGeneration=isFullSiteCreationBrief(prompt);
     const photoIntent=propertyFiles.length>0||looksLikePhotoInstruction(prompt);
     const isSiteHeroPhoto=/\b(?:capa|imagem|foto)\s+(?:principal\s+)?(?:do|da)\s+(?:site|home|p[aá]gina|hero)\b/i.test(prompt);
     if(siteCategory==="real-estate"&&site.kind==="real-estate"&&!isFullGeneration&&!isSiteHeroPhoto&&photoIntent){
@@ -717,7 +718,7 @@ export default function BuilderV2() {
     }
     const immersiveRequest=/(?:imagem|foto|fotografia).{0,60}(?:fundo|background)|(?:fundo|background).{0,60}(?:imagem|foto|fotografia)|capa imersiva|hero imersiv[oa]/i.test(prompt);
     const splitRequest=/(?:capa|layout|hero).{0,35}(?:dividid[oa]|split)|(?:texto|imagem).{0,40}(?:lado a lado|ao lado)/i.test(prompt);
-    if((immersiveRequest||splitRequest)&&/(?:altere|alterar|mude|mudar|troque|trocar|aplique|aplicar|configure|configurar|transforme|transformar|restaure|restaurar|deixe|coloque)\s+(?:(?:somente|apenas|a|o|para|em|um|uma)\s+){0,4}(?:capa|hero|layout|apresenta[cç][aã]o)/i.test(prompt)&&site.blocks.length>0&&!/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(prompt)){
+    if((immersiveRequest||splitRequest)&&/(?:altere|alterar|mude|mudar|troque|trocar|aplique|aplicar|configure|configurar|transforme|transformar|restaure|restaurar|deixe|coloque)\s+(?:(?:somente|apenas|a|o|para|em|um|uma)\s+){0,4}(?:capa|hero|layout|apresenta[cç][aã]o)/i.test(prompt)&&site.blocks.length>0&&!isFullSiteCreationBrief(prompt)){
       recordVersion(site,"Antes de alterar apresentação da capa");
       setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
       setSite(prev=>({...prev,heroPresentation:immersiveRequest?"immersive":"split"}));
