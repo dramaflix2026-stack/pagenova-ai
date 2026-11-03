@@ -211,3 +211,16 @@ test("TP3 models 02 and 03 honor customer hero imagery and CTA",()=>{
  assert.match(third,/heroImage\|\|photo\(0\)/);
  assert.match(third,/href=\{heroButton\?\.href\|\|"#especialidades"\}/);
 });
+
+test("TP3 models 02 and 03 render section-scoped customer imagery",()=>{
+ const second=readFileSync(new URL("../src/components/builder-v2-tp3-model2.tsx",import.meta.url),"utf8");
+ const third=readFileSync(new URL("../src/components/builder-v2-tp3-model3.tsx",import.meta.url),"utf8");
+ for(const component of [second,third]){
+  assert.match(component,/const aboutImages=sectionImages/);
+  assert.match(component,/const specialtyImages=sectionImages/);
+  assert.match(component,/const galleryImages=sectionImages/);
+  assert.match(component,/aboutImages\[0\]\|\|photo\(1\)/);
+ }
+ assert.match(second,/galleryImages\[i\]\|\|photo\(i\+6\)/);
+ assert.match(third,/specialtyImages\[special\]\|\|photo\(special\+2\)/);
+});
