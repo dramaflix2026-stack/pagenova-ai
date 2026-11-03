@@ -59,3 +59,18 @@ test("TP3 edited FAQ never resurrects preset questions when its paragraph is emp
   }
  }
 });
+
+test("universal adapter keeps every specialized section when identifiers collide",async()=>{
+ const {createRequire}=await import("node:module");
+ const require=createRequire(import.meta.url);
+ const React=require("react");
+ const {renderToStaticMarkup}=require("react-dom/server");
+ const {UniversalTemplateSections}=require("../src/components/builder-v2-universal-sections.tsx");
+ const section=(id,content)=>React.createElement("section",{"data-universal-section":id},content);
+ const site={universalSectionEvents:[{action:"move",section:{id:"sobre"},before:{id:"inicio"}}]};
+ const html=renderToStaticMarkup(React.createElement(UniversalTemplateSections,{site},section("inicio","Primeira capa"),section("inicio","Segunda capa"),section("sobre","Sobre")));
+ assert.match(html,/Primeira capa/);
+ assert.match(html,/Segunda capa/);
+ assert.ok(html.indexOf("Primeira capa")<html.indexOf("Segunda capa"));
+ assert.ok(html.indexOf("Segunda capa")<html.indexOf("Sobre"));
+});
