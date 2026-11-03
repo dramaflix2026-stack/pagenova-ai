@@ -310,6 +310,7 @@ export default function BuilderV2() {
   useEffect(()=>{if(!previewExpanded)return;const onKey=(e:KeyboardEvent)=>{if(e.key==="Escape")setPreviewExpanded(false);};document.addEventListener("keydown",onKey);return()=>document.removeEventListener("keydown",onKey);},[previewExpanded]);
   const [storageError, setStorageError] = useState("");
   const [draftRecoveryFailed,setDraftRecoveryFailed]=useState(false);
+  const [historyRecoveryFailed,setHistoryRecoveryFailed]=useState(false);
   const [cloudStatus, setCloudStatus] = useState("Carregando histórico na nuvem...");
   const [cloudVersions, setCloudVersions] = useState<SavedVersion[]>([]);
   useEffect(() => {
@@ -378,7 +379,7 @@ export default function BuilderV2() {
         setVersions(parsed.filter((v):v is SavedVersion=>
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
-    }catch{setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
+    }catch{setHistoryRecoveryFailed(true);setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
     if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
@@ -400,10 +401,10 @@ export default function BuilderV2() {
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
   },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated)return;
+    if(!loaded||!draftHydrated||historyRecoveryFailed)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
     catch{setStorageError("O histórico atingiu o limite de armazenamento do navegador.");}
-  },[versions,loaded,draftHydrated,activeStorageKey]);
+  },[versions,loaded,draftHydrated,historyRecoveryFailed,activeStorageKey]);
   function recordVersion(previous: Site, label: string) { if (!previous.blocks.length) return; const snapshot = structuredClone(previous); setVersions(prev => [...prev.slice(-24), { id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, at: new Date().toISOString(), label, site: snapshot }]); void saveCloudVersion(snapshot, label); }
   function restoreVersion(version: SavedVersion) { if (busy || !window.confirm(`Restaurar a versão de ${new Date(version.at).toLocaleString("pt-BR")}? A versão atual será guardada no histórico.`)) return; recordVersion(site, "Antes da restauração"); setHistory(prev=>[...prev.slice(-19),site]); setRedoHistory([]); setSite(structuredClone(version.site)); setMessages(prev=>[...prev,{role:"assistant",text:"Versão restaurada com sucesso."}]); setShowVersions(false); }
   function applyGlobalAlignment(current: Site, prompt: string): {site: Site; summary: string} | null {
