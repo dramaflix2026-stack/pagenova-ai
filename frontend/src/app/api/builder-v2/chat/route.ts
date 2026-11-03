@@ -730,10 +730,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:um\s+)?site\b/i.test(instructionText);
 
   const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
-  // Structured, template-independent edit batches use the same transactional
+  // Explicit structured operations take precedence over ambiguous wording in the instruction.\n  // Structured, template-independent edit batches use the same transactional
   // validator across all site modes. Legacy natural-language handlers remain
   // untouched until their migration is covered by renderer regression tests.
-  if(!isFresh&&!fullSiteBrief&&body.universalOperations!==undefined){
+  if(!isFresh&&body.universalOperations!==undefined){
     if(!editingSite||!Array.isArray(editingSite.blocks))
       return NextResponse.json({error:"Site inválido para edição."},{status:422});
     const result=applyUniversalOperations(
