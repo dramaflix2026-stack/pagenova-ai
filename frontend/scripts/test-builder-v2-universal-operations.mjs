@@ -862,3 +862,10 @@ test("publication warning from API is shown instead of unconditional success",()
  assert.match(publish,/notice:"Site publicado\. A atualização da lista de domínios/);
  assert.match(editor,/setPublishNotice\(data\.notice\|\|/);
 });
+
+test("unreadable local draft cannot be overwritten by autosave",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(editor,/else throw new Error\("Invalid saved draft"\)/);
+ assert.match(editor,/setDraftRecoveryFailed\(!hasDraft\)/);
+ assert.match(editor,/if\(!loaded\|\|!draftHydrated\|\|draftRecoveryFailed\)return;/);
+});
