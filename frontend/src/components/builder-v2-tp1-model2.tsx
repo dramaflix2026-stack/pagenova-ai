@@ -118,6 +118,10 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const servicesBlocks=site.blocks.filter(b=>/^(?:servicos|services|especialidades)$/i.test(b.section||""));
  const servicesHeading=servicesBlocks.find(b=>b.type==="heading");
  const servicesDescription=servicesBlocks.find(b=>b.type==="paragraph");
+ const differencesBlocks=site.blocks.filter(b=>/^(?:diferenciais|differences|differentials)$/i.test(b.section||""));
+ const differencesHeading=differencesBlocks.find(b=>b.type==="heading");
+ const differencesDescription=differencesBlocks.find(b=>b.type==="paragraph");
+ const differencesImage=differencesBlocks.find(b=>b.type==="image"&&b.src?.trim());
  const rawHref=heroButton?.href?.trim()||site.header?.ctaHref?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=heroButton?.text?.trim()||site.header?.ctaLabel?.trim()||"Fale com a equipe";
@@ -169,8 +173,8 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   <section className="tp1v2-differences" id="diferenciais" aria-labelledby="tp1v2-differences-heading">
    <div className="tp1v2-differences-label"><span>04 / NOSSOS DIFERENCIAIS</span><span>O QUE NOS TORNA ÚNICOS</span></div>
    <div className="tp1v2-differences-grid">
-    <div className="tp1v2-differences-photo"><img src={`https://images.pexels.com/photos/${difference.image}/pexels-photo-${difference.image}.jpeg?auto=compress&cs=tinysrgb&w=1500`} alt={`Fotografia real ilustrativa de ${niche}`} loading="lazy"/><span className="tp1v2-differences-photo-note">CADA DETALHE TEM SEU VALOR <span aria-hidden="true">✳</span></span></div>
-    <div className="tp1v2-differences-content"><span className="tp1v2-differences-eyebrow">NOSSA FORMA DE CUIDAR</span><h2 id="tp1v2-differences-heading">Uma experiência <em>feita para você.</em></h2><p className="tp1v2-differences-intro">Na {brand}, acreditamos que uma experiência especial começa na atenção aos detalhes.</p><div className="tp1v2-differences-list">{difference.items.map(([title,description],index)=><article className="tp1v2-difference" key={title}><span className="tp1v2-difference-number">0{index+1}</span><div><h3>{title}</h3><p>{description}</p></div><span className="tp1v2-difference-symbol" aria-hidden="true">✳</span></article>)}</div></div>
+    <div className="tp1v2-differences-photo"><img src={differencesImage?.src||`https://images.pexels.com/photos/${difference.image}/pexels-photo-${difference.image}.jpeg?auto=compress&cs=tinysrgb&w=1500`} {...universalBlockProps(differencesImage)} alt={`Fotografia real ilustrativa de ${niche}`} loading="lazy"/><span className="tp1v2-differences-photo-note">CADA DETALHE TEM SEU VALOR <span aria-hidden="true">✳</span></span></div>
+    <div className="tp1v2-differences-content"><span className="tp1v2-differences-eyebrow">NOSSA FORMA DE CUIDAR</span><h2 id="tp1v2-differences-heading" {...universalBlockProps(differencesHeading)}>{differencesHeading?.text?.trim()||<>Uma experiência <em>feita para você.</em></>}</h2><p className="tp1v2-differences-intro" {...universalBlockProps(differencesDescription)}>{differencesDescription?.text?.trim()||`Na ${brand}, acreditamos que uma experiência especial começa na atenção aos detalhes.`}</p><div className="tp1v2-differences-list">{difference.items.map(([title,description],index)=><article className="tp1v2-difference" key={title}><span className="tp1v2-difference-number">0{index+1}</span><div><h3>{title}</h3><p>{description}</p></div><span className="tp1v2-difference-symbol" aria-hidden="true">✳</span></article>)}</div></div>
    </div>
   </section>
   <section className="tp1v2-journey" id="como-funciona" aria-labelledby="tp1v2-journey-heading">
