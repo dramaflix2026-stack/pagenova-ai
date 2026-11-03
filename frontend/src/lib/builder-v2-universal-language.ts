@@ -24,6 +24,29 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  if(removeSection)return applyUniversalOperations(site,[{action:"remove-section",sectionId:removeSection[1]}]);
  const moveSection=text.match(/^(?:mova|mover|reposicione)\s+(?:a\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s*\.?$/i);
  if(moveSection)return applyUniversalOperations(site,[{action:"move-section",sectionId:moveSection[1],afterSectionId:moveSection[2]}]);
+ const resolveSection=(label:string):{id:string}|{error:string}=>{
+  const target=normalized(label).replace(/^(?:a|o)\s+/,"");
+  const ids=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v.trim()))];
+  const candidates=ids.filter(id=>{
+   const title=site.blocks.find(b=>b.section===id&&b.type==="heading")?.text||"";
+   return normalized(id)===target||normalized(title)===target;
+  });
+  if(candidates.length!==1)return {error:candidates.length?"Seção ambígua. Nenhuma alteração aplicada.":"Seção não encontrada. Nenhuma alteração aplicada."};
+  return {id:candidates[0]};
+ };
+ const namedRemove=text.match(/^(?:remova|exclua|apague)\s+(?:a\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s*\.?$/i);
+ if(namedRemove&&!/^id\s+/i.test(namedRemove[1])){
+  const section=resolveSection(namedRemove[1]);
+  if("error" in section)return {ok:false,error:section.error};
+  return applyUniversalOperations(site,[{action:"remove-section",sectionId:section.id}]);
+ }
+ const namedMove=text.match(/^(?:mova|reposicione|coloque)\s+(?:a\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s+(?:para\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s*\.?$/i);
+ if(namedMove&&!/^id\s+/i.test(namedMove[1])){
+  const source=resolveSection(namedMove[1]),destination=resolveSection(namedMove[2]);
+  if("error" in source)return {ok:false,error:source.error};
+  if("error" in destination)return {ok:false,error:destination.error};
+  return applyUniversalOperations(site,[{action:"move-section",sectionId:source.id,afterSectionId:destination.id}]);
+ }
  const link=text.match(/^(?:altere|troque|mude|configure)\s+(?:o\s+)?link\s+(?:do\s+)?bot[aã]o\s+["“”']([^"“”']+)["“”']\s+(?:para|por)\s+["“”']?(https?:\/\/[^\s"“”']+|mailto:[^\s"“”']+|tel:[^\s"“”']+|#[^\s"“”']+|\/[^\s"“”']+)["“”']?\s*$/i);
  if(link){
   const candidates=site.blocks.filter(b=>b.type==="button"&&normalized(String(b.text||""))===normalized(link[1]));
