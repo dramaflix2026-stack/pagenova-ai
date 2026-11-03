@@ -40,6 +40,7 @@ async function generate(image,instruction="Crie um site para uma clínica de psi
         result={blocks:input.sections.flatMap(section=>{
           const heading={id:section.id+"-heading",section:section.id,type:"heading",text:section.id==="inicio"?"Clínica de Psicologia":section.id,color:"#234638",align:"center",layout:section.layout};
           if(section.id==="sobre"&&options.omitAbout)return [];
+          if(section.id==="depoimentos"&&options.testimonialCopy)return [heading,{id:"supplied-testimonial",section:section.id,type:"paragraph",text:options.testimonialCopy,color:"#234638",align:"left"}];
           if(section.id==="galeria")return [heading,...[0,1,2].map(i=>({id:"gallery-"+i,section:section.id,type:"image",text:"Ambiente "+i,src:""}))];
           const count=section.id==="faq"&&options.faqCount?options.faqCount:section.id==="diferenciais"&&options.differentialsCount?options.differentialsCount:section.id==="servicos"?Number(section.goal.match(/EXATAMENTE (\d+)/)?.[1]||4):["diferenciais","faq"].includes(section.id)?4:section.id==="sobre"||section.id==="contato"||section.id==="inicio"?1:3;
           return [heading,...Array.from({length:count},(_,i)=>({id:section.id+"-card-"+i,section:section.id,type:"paragraph",text:section.id==="faq"?"Como funciona a etapa "+i+"? Entre em contato para saber mais.":"Atendimento "+i+": Conheça nossa proposta de atendimento e orientação.",color:"#234638",align:"left"}))];
@@ -214,6 +215,42 @@ test("invalid About repair never publishes invented contact details and refunds 
   assert.equal(result.status,502);
   assert.equal(result.body.site,undefined);
   assert.deepEqual(settlements,[false]);
+});
+
+test("fresh generation never returns model-invented testimonial copy",async()=>{
+ const generated=await generate(undefined,"Crie um site institucional completo para um restaurante.",{templateId:"prompt-adaptive"});
+ assert.equal(generated.result.status,200);
+ assert.equal(generated.result.body.site.blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avalia[cç]/i.test(b.section)).length,0);
+});
+
+test("real chat handler applies a supported combined edit without a model rewrite",async()=>{
+ const generated=await generate(undefined,"Crie um site completo de psicologia com FAQ.",{templateId:"prompt-adaptive"});
+ assert.equal(generated.result.status,200);
+ const original=generated.result.body.site,before=structuredClone(original);
+ original.blocks.push({id:"provided-image",type:"image",section:"inicio",text:"",color:"#fff",align:"center",src:"https://example.com/old.png"});
+ const result=await generate(undefined,'Troque a imagem da capa por https://example.com/new.png, troque o título da capa para "Capa atualizada" e mova o FAQ para antes do contato',{site:original});
+ assert.equal(result.result.status,200,JSON.stringify(result.result.body));assert.equal(result.calls.length,0);
+ assert.equal(result.result.body.site.blocks.find(b=>b.id==="provided-image").src,"https://example.com/new.png");
+ assert.equal(result.result.body.site.blocks.find(b=>b.id==="inicio-heading").text,"Capa atualizada");
+ assert.deepEqual(original.blocks.slice(0,-1),before.blocks);
+});
+
+test("real AI patch handler shares URL and typography validation",async()=>{
+ const site={title:"QA",background:"#fff",blocks:[{id:"title",type:"heading",text:"QA",section:"inicio"},{id:"description",type:"paragraph",text:"Texto",section:"inicio"},{id:"button",type:"button",text:"Contato",section:"inicio",href:"#contato"},{id:"contact",type:"heading",text:"Contato",section:"contato"}]};
+ for(const changes of [{href:"javascript:alert(1)"},{href:"/\\evil.example"},{fontSize:200},{mobileFontSize:2}]){
+  const before=structuredClone(site);
+  const edited=await generate(undefined,"Personalize exclusivamente o elemento selecionado conforme o contexto.",{site,editPatch:{edits:[{id:"button",changes}]}});
+  assert.equal(edited.result.status,422,JSON.stringify(changes));assert.deepEqual(site,before);
+ }
+});
+
+test("fresh generation retains supplied testimony and rejects invented attribution",async()=>{
+ const testimony="Pessoa QA | Cidade QA | Atendimento prestativo e cuidadoso em cada etapa";
+ const instruction="Crie um site de restaurante. Depoimento cadastrado: "+testimony;
+ const supplied=await generate(undefined,instruction,{templateId:"prompt-adaptive",testimonialCopy:testimony});
+ assert.equal(supplied.result.status,200);assert.ok(supplied.result.body.site.blocks.some(b=>b.text===testimony));
+ const invented=await generate(undefined,instruction,{templateId:"prompt-adaptive",testimonialCopy:testimony.replace("Pessoa QA","Pessoa inventada")});
+ assert.equal(invented.result.status,200);assert.equal(invented.result.body.site.blocks.some(b=>b.text.includes("Pessoa inventada")),false);
 });
 
 test("fresh sites then combined chat edits use the actual endpoint without a model rewrite",async()=>{

@@ -23,7 +23,7 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
 const unquote=(value:string)=>value.trim().replace(/^["“']|["”']$/g,"");
 const color=(value:string)=>({preto:"#000000",pretos:"#000000",preta:"#000000",branco:"#ffffff",brancos:"#ffffff",branca:"#ffffff",vermelho:"#ff0000",azul:"#0000ff"} as Record<string,string>)[norm(value)]||(/^#(?:[0-9a-f]{3}|[0-9a-f]{4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.test(value)?value:null);
 export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const text=instruction.trim();
+ const text=instruction.trim().replace(/\.$/,"");
  if(/(?:bloco|elemento|se[cç][aã]o)\s+(?:com\s+)?id\s+/i.test(text))return null;
  const fail=(message="Identifique uma única seção ou elemento. Nenhuma alteração aplicada."):UniversalResult<T>=>({ok:false,error:message});
  const apply=(ops:UniversalOperation[])=>applyUniversalOperations(site,ops);
@@ -33,6 +33,7 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
  if(move){
   const source=resolveUniversalSection(site,unquote(move[1])),destination=resolveUniversalSection(site,unquote(move[3]));
   if(!source||!destination||source===destination)return fail();
+  if(norm(move[2])==="antes")return apply([{action:"move-section",sectionId:source,beforeSectionId:destination}]);
   let after=destination;
   if(norm(move[2])==="antes"){
    const order=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>!!v&&v!==source))];
@@ -64,10 +65,10 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
  }
  const buttons=text.match(/^(?:deixe|torne)\s+(?:todos\s+)?os\s+bot[oõ]es\s+(.+)$/i);
  if(buttons){const c=color(unquote(buttons[1]));if(!c)return fail("Cor não reconhecida.");const targets=site.blocks.filter(b=>b.type==="button");return targets.length?apply(targets.map(b=>({action:"update",blockId:b.id,changes:{color:c}}))):fail();}
- const gallery=text.match(/^(?:adicione|crie|inclua)\s+uma\s+galeria(?:\s+(?:com|usando)\s+(.+))?$/i);
+ const gallery=text.match(/^(?:adicione|crie|inclua)\s+uma\s+galeria(?:\s+["“]([^"”]+)["”])?(?:\s+(?:com|usando)\s+(.+))?$/i);
  if(gallery){
-  if(!gallery[1])return fail("Informe as URLs das imagens da nova galeria. Nenhuma alteração aplicada.");
-  const urls=gallery[1].split(/\s*,\s*|\s+/).filter(Boolean).map(unquote);
+  if(!gallery[2])return fail("Informe as URLs das imagens da nova galeria. Nenhuma alteração aplicada.");
+  const urls=gallery[2].split(/\s*,\s*|\s+/).filter(Boolean).map(unquote);
   if(urls.length>18)return fail("A galeria permite até 18 imagens.");
   const existing=resolveUniversalSection(site,"galeria");
   if(existing||site.blocks.some(b=>norm(b.section||"") === "galeria"))return fail("Já existe uma galeria. Indique se deseja acrescentar ou substituir imagens.");
@@ -77,7 +78,7 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
   const previous=contact?order[order.indexOf(contact)-1]:order.at(-1);
   const last=site.blocks.filter(b=>b.section===previous).at(-1)?.id;
   const heading=unique("universal-gallery-heading");
-  const ops:UniversalOperation[]=[{action:"add",block:{id:heading,type:"heading",text:"Galeria",section:"galeria",layout:"gallery"},afterId:last}];
+  const ops:UniversalOperation[]=[{action:"add",block:{id:heading,type:"heading",text:gallery[1]||"Galeria",section:"galeria",layout:"gallery"},afterId:last}];
   let after=heading;
   urls.forEach((src,i)=>{const id=unique("universal-gallery-image-"+i);ops.push({action:"add",block:{id,type:"image",text:"",src,section:"galeria",layout:"gallery"},afterId:after});after=id;});
   return apply(ops);

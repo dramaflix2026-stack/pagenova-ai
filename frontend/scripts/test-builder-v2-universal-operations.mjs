@@ -282,6 +282,99 @@ test("universal editor rejects invalid mobile typography, columns and borders",(
  assert.equal(valid.ok,true);
 });
 
+function completeSite(){
+ return {...site(),motion:{enabled:true},cinematic:{mode:"immersive-3d",videoUrl:"https://example.com/approved.mp4"},header:{brand:"Marca cadastrada"},footer:{address:"Endereço fornecido"},blocks:[
+  {id:"h",type:"heading",section:"hero",text:"Original",color:"#fff",align:"left"},
+  {id:"description",type:"paragraph",section:"hero",text:"Descrição anterior"},
+  {id:"photo",type:"image",section:"hero",src:"https://example.com/approved.png",mobileSrc:"https://example.com/mobile.png"},
+  {id:"cta",type:"button",section:"hero",text:"Contato",href:"#contact"},
+  {id:"s",type:"heading",section:"services",text:"Serviços"},
+  {id:"card",type:"paragraph",section:"services",text:"Projeto: descrição cadastrada"},
+  {id:"testimonials",type:"heading",section:"testimonials",text:"Depoimentos dos clientes"},
+  {id:"review",type:"paragraph",section:"testimonials",text:"Relato fornecido pelo cliente"},
+  {id:"f",type:"heading",section:"faq",text:"Perguntas frequentes"},
+  {id:"answer",type:"paragraph",section:"faq",text:"Como funciona? Consulte a equipe."},
+  {id:"contact",type:"heading",section:"contact",text:"Entre em contato"}
+ ]};
+}
+
+test("semantic Portuguese edit batch applies every clause and preserves unrelated content in all identities",()=>{
+ for(const templateId of ["institutional-complete","minimalist-sophisticated","prompt-adaptive"]){
+  for(const mode of ["static","cinematic","immersive-3d"]){
+   const original=completeSite();original.templateId=templateId;original.cinematic.mode=mode;
+   const before=structuredClone(original);
+   const result=applyUniversalNaturalLanguage(original,'Troque a imagem da capa por https://example.com/new.png, altere o título da capa para "Uma nova experiência", deixe os botões pretos, remova os depoimentos, adicione uma galeria com https://example.com/gallery.png e mova o FAQ para antes do contato');
+   assert.equal(result?.ok,true,result?.error);if(!result?.ok)continue;
+   assert.equal(result.site.blocks.find(b=>b.id==="h").text,"Uma nova experiência");
+   assert.equal(result.site.blocks.find(b=>b.id==="photo").src,"https://example.com/new.png");
+   assert.equal(result.site.blocks.find(b=>b.id==="photo").mobileSrc,original.blocks[2].mobileSrc);
+   assert.equal(result.site.blocks.find(b=>b.id==="cta").color,"#000000");
+   assert.equal(result.site.blocks.some(b=>b.section==="testimonials"),false);
+   assert.ok(result.site.blocks.some(b=>b.layout==="gallery"));
+   assert.ok(result.site.blocks.findIndex(b=>b.id==="f")<result.site.blocks.findIndex(b=>b.id==="contact"));
+   for(const key of ["motion","cinematic","header","footer","templateId"])assert.deepEqual(result.site[key],original[key]);
+   assert.deepEqual(result.site.blocks.find(b=>b.id==="card"),original.blocks.find(b=>b.id==="card"));
+   assert.deepEqual(original,before);
+   assert.deepEqual(JSON.parse(JSON.stringify(result.site)),result.site);
+  }
+ }
+});
+test("batch failure or unsupported clause never commits partial edits",()=>{
+ for(const suffix of ['remova a seção inexistente','deixe tudo lindo','troque a imagem da capa por javascript:alert(1)']){
+  const original=completeSite(),before=structuredClone(original);
+  const result=applyUniversalNaturalLanguage(original,'Troque o título da capa para "Novo" e '+suffix);
+  assert.equal(result?.ok,false);assert.deepEqual(original,before);
+ }
+});
+test("quoted copy and full URLs are not split into commands",()=>{
+ const result=applyUniversalNaturalLanguage(completeSite(),'Troque o título da capa para "Crie, altere e deixe sua marca; mova ideias" e altere o link do botão "Contato" para "https://example.com/path?a=1&b=2#contato"');
+ assert.equal(result?.ok,true,result?.error);
+ if(result?.ok){assert.equal(result.site.blocks[0].text,"Crie, altere e deixe sua marca; mova ideias");assert.equal(result.site.blocks.find(b=>b.id==="cta").href,"https://example.com/path?a=1&b=2#contato");}
+});
+test("semantic section resolver refuses duplicate aliases and ambiguous image targets",()=>{
+ const original=completeSite();original.blocks.push({id:"h2",type:"heading",section:"capa",text:"Outra capa"});
+ assert.equal(applyUniversalNaturalLanguage(original,'Troque o título da capa para "Novo"')?.ok,true); // Exact section ID is explicit.
+ original.blocks.push({id:"photo2",type:"image",section:"hero",src:"https://example.com/other.png"});
+ assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do hero por https://example.com/new.png")?.ok,false);
+ original.blocks.push({id:"more-faq",type:"heading",section:"questions",text:"Dúvidas frequentes"});
+ for(const block of original.blocks)if(block.section==="faq")block.section="questions-first";
+ assert.equal(applyUniversalNaturalLanguage(original,"Remova a seção FAQ")?.ok,false);
+});
+test("semantic typography supports desktop and mobile without touching other sections",()=>{
+ const original=completeSite();
+ const result=applyUniversalNaturalLanguage(original,'Defina a fonte do título da capa para Poppins; defina o tamanho da fonte do título da capa para 64px; defina o tamanho da fonte mobile do título da capa para 32px; defina o alinhamento do título da capa para centro');
+ assert.equal(result?.ok,true,result?.error);if(!result?.ok)return;
+ assert.equal(result.site.blocks[0].fontFamily,"Poppins");assert.equal(result.site.blocks[0].fontSize,64);assert.equal(result.site.blocks[0].mobileFontSize,32);assert.equal(result.site.blocks[0].align,"center");
+ assert.deepEqual(result.site.blocks.slice(1),original.blocks.slice(1));
+});
+test("new gallery uses provided images only and produces publishable block fields",()=>{
+ const result=applyUniversalNaturalLanguage(completeSite(),'Adicione uma galeria "Projetos reais" com https://example.com/a.png https://example.com/b.png');
+ assert.equal(result?.ok,true,result?.error);if(!result?.ok)return;
+ const added=result.site.blocks.filter(b=>b.section==="galeria");assert.equal(added.length,3);assert.equal(added[0].text,"Projetos reais");
+ for(const block of added){assert.equal(typeof block.text,"string");assert.equal(typeof block.color,"string");assert.equal(block.align,"left");}
+ assert.equal(applyUniversalNaturalLanguage(completeSite(),"Adicione uma galeria com javascript:alert(1)")?.ok,false);
+});
+test("untrusted structured operations return validation errors rather than throwing",()=>{
+ for(const operations of [[null],[{}],[1],[{action:"update",blockId:"h",changes:[]}],[{action:"update",blockId:"h",changes:{text:{bad:true}}}],[{action:"update",blockId:"cta",changes:{href:42}}],[{action:"add",block:{id:"bad",type:"script"}}],[{action:"add",block:{id:"bad",type:"heading",fontSize:200}}]]){
+  assert.doesNotThrow(()=>assert.equal(applyUniversalOperations(completeSite(),operations).ok,false));
+ }
+});
+test("URL normalization bypasses fail for added and updated media and links",()=>{
+ for(const value of ["/\\evil.example/a","https://example.com/\npath","//evil.example/a","https://user:password@example.com/a"," https://example.com/a","javascript:alert(1)"]){
+  for(const key of ["src","mobileSrc","href"]){
+   assert.equal(applyUniversalOperations(completeSite(),[{action:"update",blockId:"photo",changes:{[key]:value}}]).ok,false,value);
+   assert.equal(applyUniversalOperations(completeSite(),[{action:"add",block:{id:"new",type:"image",[key]:value}}]).ok,false,value);
+  }
+ }
+});
+test("section movement before anchor is atomic and retains whole-section order",()=>{
+ const original=completeSite();
+ const result=applyUniversalNaturalLanguage(original,"Mova o contato para antes do FAQ");
+ assert.equal(result?.ok,true,result?.error);if(!result?.ok)return;
+ assert.deepEqual(result.site.blocks.slice(-3).map(b=>b.id),["contact","f","answer"]);
+ assert.equal(applyUniversalOperations(original,[{action:"move-section",sectionId:"hero",beforeSectionId:"hero"}]).ok,false);
+});
+
 test("runtime JSON validation rejects malformed operations atomically",()=>{
  const original=site(),before=structuredClone(original);
  for(const op of [null,42,[],{action:"update",blockId:"h",changes:{text:42}},{action:"update",blockId:"cta",changes:{href:null}},{action:"add",block:{id:"new",type:"script",text:"oops"}},{action:"add",block:{id:"new",type:"heading",fontSize:900}},{action:"add",block:{id:"new",type:"image",src:[]}}]){
@@ -297,13 +390,13 @@ test("URLs reject backslash redirects, controls, malformed hosts and credentials
   assert.equal(applyUniversalOperations(site(),[{action:"update",blockId:"cta",changes:{href}}]).ok,true,href);
  }
 });
-const completeSite=()=>({...site(),cinematic:{mode:"immersive-3d",desktopUrl:"https://example.com/video.mp4"},extras:{bakery3d:{heroImage:"https://example.com/3d.png"}},blocks:[
+const remoteCompleteSite=()=>({...site(),cinematic:{mode:"immersive-3d",desktopUrl:"https://example.com/video.mp4"},extras:{bakery3d:{heroImage:"https://example.com/3d.png"}},blocks:[
  ...site().blocks,{id:"image",type:"image",section:"hero",src:"https://example.com/old.jpg"},
  {id:"reviews",type:"heading",section:"testimonials",text:"Depoimentos"},
  {id:"contact",type:"heading",section:"contact",text:"Entre em contato"}
 ]});
 test("combined natural language applies every clause and preserves visual identity",()=>{
- const original=completeSite(),before=structuredClone(original);
+ const original=remoteCompleteSite(),before=structuredClone(original);
  const result=applyUniversalNaturalLanguage(original,'Troque a imagem da capa por https://example.com/new.jpg, altere o título da capa para "Nova capa", deixe os botões pretos, remova os depoimentos, adicione uma galeria com https://example.com/g1.jpg https://example.com/g2.jpg e mova o FAQ para antes do contato');
  assert.equal(result?.ok,true,JSON.stringify(result));if(!result?.ok)return;
  assert.equal(result.site.blocks.find(b=>b.id==="image").src,"https://example.com/new.jpg");
@@ -319,7 +412,7 @@ test("combined natural language applies every clause and preserves visual identi
  const restored=JSON.parse(JSON.stringify(result.site));assert.deepEqual(restored,result.site);
 });
 test("unsupported or ambiguous clause rolls back the entire combined request",()=>{
- const original=completeSite(),before=structuredClone(original);
+ const original=remoteCompleteSite(),before=structuredClone(original);
  for(const instruction of ['Altere o título da capa para "Changed" e adicione uma galeria','Altere o título da capa para "Changed", remova os depoimentos e configure algo desconhecido']){
   const result=applyUniversalNaturalLanguage(original,instruction);assert.equal(result?.ok,false);assert.deepEqual(original,before);
  }
@@ -327,11 +420,11 @@ test("unsupported or ambiguous clause rolls back the entire combined request",()
  assert.equal(applyUniversalNaturalLanguage(original,'Altere o título da capa para "Changed" e troque a imagem da capa por https://example.com/new.jpg')?.ok,false);
 });
 test("quoted customer copy containing verbs and commas is never split",()=>{
- const result=applyUniversalNaturalLanguage(completeSite(),'Altere o título da capa para "Descubra, crie e mude seu futuro" e remova os depoimentos');
+ const result=applyUniversalNaturalLanguage(remoteCompleteSite(),'Altere o título da capa para "Descubra, crie e mude seu futuro" e remova os depoimentos');
  assert.equal(result?.ok,true);if(result?.ok)assert.equal(result.site.blocks[0].text,"Descubra, crie e mude seu futuro");
 });
 test("named section matching refuses collisions and respects exact headings",()=>{
- const original=completeSite();original.blocks.push({id:"other-faq",type:"heading",section:"other-faq",text:"Perguntas frequentes"});
+ const original=remoteCompleteSite();original.blocks.push({id:"other-faq",type:"heading",section:"other-faq",text:"Perguntas frequentes"});
  // A precise ID is stronger than a broad alias; a duplicated visible title is ambiguous.
  assert.equal(applyUniversalNaturalLanguage(original,"Mova FAQ antes do contato")?.ok,true);
  original.blocks.push({id:"other-faq2",type:"heading",section:"other-faq2",text:"Perguntas frequentes"});
@@ -346,4 +439,23 @@ test("universal dispatcher precedes editor shortcuts and edited short sites can 
  const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  assert.ok(editor.indexOf("const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt)")<editor.indexOf("const socialEdit="));
  assert.match(editor,/disabled=\{publishing\|\|busy\|\|site\.blocks\.length<1\}/);
+});
+
+test("structural renderer events persist through JSON and roll back with failed batches",()=>{
+ const original=completeSite();
+ const removed=applyUniversalOperations(original,[{action:"remove-section",sectionId:"faq"}]);
+ assert.equal(removed.ok,true);if(!removed.ok)return;
+ assert.deepEqual(removed.site.universalSectionEvents,[{action:"remove",section:{id:"faq",label:"Perguntas frequentes"}}]);
+ assert.deepEqual(JSON.parse(JSON.stringify(removed.site)),removed.site);
+ const restored=applyUniversalOperations(removed.site,[{action:"add",block:{id:"faq-restored",type:"heading",section:"faq",text:"FAQ atualizado"}}]);
+ assert.equal(restored.ok,true);if(restored.ok)assert.equal(restored.site.universalSectionEvents.at(-1).action,"restore");
+ const before=structuredClone(removed.site);
+ assert.equal(applyUniversalOperations(removed.site,[{action:"move-section",sectionId:"hero",beforeSectionId:"contact"},{action:"remove",blockId:"missing"}]).ok,false);
+ assert.deepEqual(removed.site,before);
+});
+test("JSON objects cannot masquerade as layout, alignment or image fit",()=>{
+ for(const key of ["align","layout","imageFit","fontFamily","color"]){
+  const changes=JSON.parse('{"'+key+'":{"toString":"center"}}');
+  assert.doesNotThrow(()=>assert.equal(applyUniversalOperations(completeSite(),[{action:"update",blockId:"h",changes}]).ok,false));
+ }
 });

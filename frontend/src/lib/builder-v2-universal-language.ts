@@ -1,35 +1,10 @@
-import {applyUniversalNamedLanguage} from "./builder-v2-universal-targets.ts";
+import {universalInstructionClauses} from "./builder-v2-universal-plan.ts";
+import {applyUniversalNamedLanguage,resolveUniversalSection} from "./builder-v2-universal-targets.ts";
+export {universalInstructionClauses as splitUniversalInstructions} from "./builder-v2-universal-plan.ts";
 import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type UniversalResult} from "./builder-v2-universal-operations.ts";
 
-/** Split only at a command boundary outside quoted customer copy. */
-export function splitUniversalInstructions(instruction:string):string[]{
- let quote="";let masked="";
- for(let i=0;i<instruction.length;i++){
-  const c=instruction[i];
-  if(quote){if(c===quote||(quote==="“"&&c==="”"))quote="";masked+="_";}
-  else if(c==='"'||c==="“"||(c==="'"&&!/\p{L}/u.test(instruction[i-1]||" "))){quote=c;masked+="_";}
-  else masked+=c;
- }
- const boundary=/(?:[,;]\s*(?:e\s+)?|\s+e\s+|\n+)(?=(?:altere|troque|mude|substitua|remova|exclua|apague|mova|reposicione|coloque|deixe|torne|adicione|crie|inclua|defina|configure|centralize|preserve|mantenha)\b)/gi;
- const parts:string[]=[];let start=0;
- for(const match of masked.matchAll(boundary)){parts.push(instruction.slice(start,match.index).trim());start=match.index+match[0].length;}
- parts.push(instruction.slice(start).trim());return parts.filter(Boolean);
-}
-
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
-export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const clauses=splitUniversalInstructions(instruction);
- if(clauses.length>1){
-  if(clauses.length>50)return {ok:false,error:"Lote de edição excede o limite de 50 pedidos."};
-  let current=site;const changedIds=new Set<string>();
-  for(let i=0;i<clauses.length;i++){
-   const result=applyUniversalNaturalLanguage(current,clauses[i]);
-   if(!result||!result.ok)return {ok:false,error:"Pedido "+(i+1)+": "+(result&&!result.ok?result.error:"Comando não identificado com segurança.")+" Nenhuma alteração do lote foi aplicada."};
-   current=result.site;result.changedIds.forEach(id=>changedIds.add(id));
-  }
-  return {ok:true,site:current,changedIds:[...changedIds]};
- }
- const named=applyUniversalNamedLanguage(site,instruction);if(named)return named;
+function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const normalized=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
  const text=instruction.trim();
  const q=[...text.matchAll(/["“”']([^"“”'\n]+)["“”']/g)].map(m=>m[1].trim());
@@ -52,16 +27,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  if(removeSection)return applyUniversalOperations(site,[{action:"remove-section",sectionId:removeSection[1]}]);
  const moveSection=text.match(/^(?:mova|mover|reposicione)\s+(?:a\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s*\.?$/i);
  if(moveSection)return applyUniversalOperations(site,[{action:"move-section",sectionId:moveSection[1],afterSectionId:moveSection[2]}]);
- const resolveSection=(label:string):{id:string}|{error:string}=>{
-  const target=normalized(label).replace(/^(?:a|o)\s+/,"");
-  const ids=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v.trim()))];
-  const candidates=ids.filter(id=>{
-   const title=site.blocks.find(b=>b.section===id&&b.type==="heading")?.text||"";
-   return normalized(id)===target||normalized(title)===target;
-  });
-  if(candidates.length!==1)return {error:candidates.length?"Seção ambígua. Nenhuma alteração aplicada.":"Seção não encontrada. Nenhuma alteração aplicada."};
-  return {id:candidates[0]};
- };
+ const resolveSection=(label:string):{id:string}|{error:string}=>{const id=resolveUniversalSection(site,label);return id?{id}:{error:"Seção não encontrada ou ambígua. Nenhuma alteração aplicada."};};
  const namedRemove=text.match(/^(?:remova|exclua|apague)\s+(?:a\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s*\.?$/i);
  if(namedRemove&&!/^id\s+/i.test(namedRemove[1])){
   const section=resolveSection(namedRemove[1]);
@@ -77,7 +43,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  }
  // Recognized image edits must not bypass validation by falling into a legacy handler.
  const imageIntent=text.match(/^(?:altere|troque|mude|substitua)\s+(?:a\s+)?imagem\s+(?:do\s+)?(?:bloco\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para|por)\s+(.+)$/i);
- if(imageIntent&&!/^(?:https:\/\/[^\s"'“”]+|\/[^\s"'“”]+)["“”']?\s*$/.test(imageIntent[2].trim()))return {ok:false,error:"Endereço de imagem inválido ou inseguro. Nenhuma alteração aplicada."};
+ if(imageIntent&&!/^(?:https:\/\/[^\s"'“”]+|\/[^\s"'“”]+)["“”']?\s*$/.test(imageIntent[2].trim().replace(/^["“”']|["“”']$/g,"")))return {ok:false,error:"Endereço de imagem inválido ou inseguro. Nenhuma alteração aplicada."};
  const image=text.match(/^(?:altere|troque|mude|substitua)\s+(?:a\s+)?imagem\s+(?:do\s+)?(?:bloco\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para|por)\s+["“”']?(https:\/\/[^\s"“”']+|\/[^\s"“”']+)["“”']?\s*$/i);
  if(image){
   const block=site.blocks.find(b=>b.id===image[1]);
@@ -123,4 +89,22 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  }
  void q;
  return null;
+}
+
+/** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
+export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const clauses=universalInstructionClauses(instruction);
+ if(clauses.length>20)return {ok:false,error:"Divida o pedido em até 20 alterações por mensagem. Nenhuma alteração aplicada."};
+ let current=site;const changedIds:string[]=[];
+ for(const clause of clauses){
+  // ID and quoted-label commands remain backward compatible.
+  const result=applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
+  if(!result){
+   if(clauses.length===1)return null;
+   return {ok:false,error:"Não foi possível interpretar com segurança uma parte do pedido: “"+clause+"”. Nenhuma alteração aplicada. Detalhe o elemento, conteúdo ou destino desejado."};
+  }
+  if(!result.ok)return result;
+  current=result.site;changedIds.push(...result.changedIds);
+ }
+ return changedIds.length?{ok:true,site:current,changedIds:[...new Set(changedIds)]}:null;
 }
