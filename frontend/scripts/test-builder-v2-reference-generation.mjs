@@ -234,3 +234,10 @@ test("fresh sites then combined chat edits use the actual endpoint without a mod
   assert.equal(rejected.result.status,422);assert.equal(rejected.result.body.site,undefined);assert.equal(rejected.calls.length,0);
  }
 });
+
+test("fresh generation discards testimonial copy the customer never supplied",async()=>{
+ const {result}=await generate(undefined,'Crie um site completo para uma clínica de psicologia. Não invente depoimentos.',{templateId:"prompt-adaptive"});
+ assert.equal(result.status,200,JSON.stringify(result.body));
+ assert.equal(result.body.site.blocks.filter(b=>b.section==="depoimentos"&&b.type==="paragraph").length,0);
+ assert.ok(result.body.site.blocks.some(b=>b.section==="depoimentos"&&b.type==="heading"));
+});
