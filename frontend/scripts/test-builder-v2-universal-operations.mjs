@@ -66,7 +66,7 @@ test("CTA link keeps full HTTPS URL including query and fragment",()=>{
 });
 test("unsafe CTA URL is never accepted",()=>{
  const result=applyUniversalNaturalLanguage(site(),'Altere o link do botão "Contato" para "javascript:alert(1)"');
- assert.equal(result,null);
+ assert.equal(result?.ok,false);
 });
 
 test("new blocks reject unsafe destinations without mutating the site",()=>{
@@ -237,4 +237,18 @@ test("TP3 models 02 and 03 bind section-scoped copy without losing fallback layo
   assert.match(component,/specialtiesTitle\|\|/);
  }
  assert.match(second,/galleryTitle\|\|/);
+});
+
+test("unsafe image edit never falls through to the legacy chat engine",()=>{
+ const original=site();original.blocks.push({id:"photo",type:"image",section:"hero",src:"https://example.com/safe.png"});
+ const before=structuredClone(original);
+ const result=applyUniversalNaturalLanguage(original,'Troque a imagem do bloco id photo para javascript:alert(1)');
+ assert.equal(result?.ok,false);
+ assert.deepEqual(original,before);
+});
+test("safe image edit is applied atomically",()=>{
+ const original=site();original.blocks.push({id:"photo",type:"image",section:"hero",src:"https://example.com/old.png"});
+ const result=applyUniversalNaturalLanguage(original,'Troque a imagem do bloco id photo para https://example.com/new.png');
+ assert.equal(result?.ok,true);
+ if(result?.ok)assert.equal(result.site.blocks.find(b=>b.id==="photo").src,"https://example.com/new.png");
 });
