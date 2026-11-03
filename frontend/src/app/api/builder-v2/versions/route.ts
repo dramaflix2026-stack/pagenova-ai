@@ -10,7 +10,7 @@ export async function GET() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) return NextResponse.json({ error: "Faça login." }, { status: 401 });
   const { data, error } = await supabase.from("pagenova_builder_versions")
-    .select("id,label,site,created_at").eq("project_id", projectId)
+    .select("id,label,site,created_at").eq("user_id", user.id).eq("project_id", projectId)
     .order("created_at", { ascending: false }).limit(25);
   if (error) return NextResponse.json({ error: "Não foi possível carregar o histórico na nuvem." }, { status: 503 });
   return NextResponse.json({ versions: (data ?? []).map(v => ({ id: v.id, label: v.label, site: v.site, at: v.created_at })) });
