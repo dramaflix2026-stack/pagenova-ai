@@ -9,6 +9,10 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
  const nodes=Children.toArray(children);
  const keyOf=(node:ReactNode)=>isValidElement<{"data-universal-section"?:string}>(node)?node.props["data-universal-section"]:undefined;
  const sectionNodes=nodes.filter(node=>keyOf(node));
+ // Duplicate section identifiers make reordering ambiguous. Preserve the approved
+ // composition instead of silently dropping one of the React sections.
+ const keys=sectionNodes.map(node=>keyOf(node)!);
+ if(new Set(keys).size!==keys.length)return <>{children}</>;
  const byKey=new Map(sectionNodes.map(node=>[keyOf(node)!,node]));
  const inventory={blocks:[...byKey.keys()].map(id=>({id,section:id,type:"heading",text:id}))};
  const keyFor=(reference?:UniversalSectionReference)=>reference&&typeof reference.id==="string"&&(resolveUniversalSection(inventory,reference.id)||(typeof reference.label==="string"?resolveUniversalSection(inventory,reference.label):null));
