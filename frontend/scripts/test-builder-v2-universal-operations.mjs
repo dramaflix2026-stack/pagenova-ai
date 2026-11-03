@@ -735,7 +735,7 @@ test("multi-clause universal chat edits commit atomically and preserve existing 
  assert.equal(good.site.blocks.find(b=>b.id==="footer-message").text,"Fale conosco");
  assert.deepEqual(good.site.universalSectionEvents,original.universalSectionEvents);
  assert.equal(JSON.stringify(original),snapshot,"input must not be mutated");
- const bad=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Faça uma edição completamente desconhecida');
+ const bad=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Altere algo completamente desconhecido');
  assert.equal(bad?.ok,false,"unsupported second clause must reject entire request");
  assert.equal(JSON.stringify(original),snapshot,"failed request must not mutate input");
  const missing=applyUniversalNaturalLanguage(original,'Altere o texto "Sobre a empresa" para "Nossa essência"; Altere o texto "Inexistente" para "Novo"');
