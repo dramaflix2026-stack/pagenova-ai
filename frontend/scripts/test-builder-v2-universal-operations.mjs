@@ -559,3 +559,8 @@ test("TP1 service images preserve card index even with an empty image source",()
  assert.match(component,/servicesBlocks\.filter\(b=>b\.type==="image"\)\[index\]/);
  assert.doesNotMatch(component,/servicesBlocks\.filter\(b=>b\.type==="image"&&b\.src\?\.trim\(\)\)\[index\]/);
 });
+
+test("TP1 service card images ignore blank URL strings without shifting slots",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/servicesBlocks\.filter\(b=>b\.type==="image"\)\[index\]\?\.src\?\.trim\(\)\|\|/);
+});
