@@ -19,7 +19,9 @@ const aliases:Record<string,string[]>={
 export function resolveUniversalSection(site:UniversalSite,label:string):string|null{
  const target=norm(label).replace(/^(?:a|o)\s+/,"");
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
- const direct=sections.filter(id=>norm(id)===target||site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===target));
+ const exactIds=sections.filter(id=>norm(id)===target);
+ if(exactIds.length)return exactIds.length===1?exactIds[0]:null;
+ const direct=sections.filter(id=>site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===target));
  if(direct.length)return direct.length===1?direct[0]:null;
  const family=Object.values(aliases).find(names=>names.includes(target));
  const matches=family?sections.filter(id=>family.includes(norm(id))||site.blocks.some(b=>b.section===id&&b.type==="heading"&&family.includes(norm(String(b.text||""))))):[];
