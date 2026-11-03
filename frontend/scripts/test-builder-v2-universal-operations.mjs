@@ -1,3 +1,4 @@
+import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 import {readFileSync} from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -36,4 +37,22 @@ test("chat route dispatches structured operations before legacy edits",()=>{
  assert.ok(source.includes("applyUniversalOperations("));
  assert.ok(source.indexOf("if(!isFresh&&!fullSiteBrief&&body.universalOperations!==undefined)")<source.indexOf("// Atomic edits for the most common chat commands."));
  assert.match(source,/if\(!result\.ok\)return NextResponse\.json\(\{error:result\.error\},\{status:422\}\)/);
+});
+
+test("quoted text changes only its unique block across template variants",()=>{
+ for(const variant of ["01","02","03"]){
+  const original=site();original.briefingLayoutVariant=variant;
+  const result=applyUniversalNaturalLanguage(original,'Troque o texto "Original" por "Nova capa"');
+  assert.equal(result?.ok,true);
+  if(result?.ok){assert.equal(result.site.blocks[0].text,"Nova capa");assert.deepEqual(result.site.blocks[1],original.blocks[1]);}
+ }
+});
+test("ambiguous text refuses to guess and preserves source",()=>{
+ const original=site();original.blocks.push({id:"duplicate",type:"heading",section:"other",text:"Original"});
+ const before=structuredClone(original);
+ const result=applyUniversalNaturalLanguage(original,'Troque o texto "Original" por "Novo"');
+ assert.equal(result?.ok,false);assert.deepEqual(original,before);
+});
+test("unknown instructions fall through without inventing edits",()=>{
+ assert.equal(applyUniversalNaturalLanguage(site(),"Deixe o site mais premium"),null);
 });
