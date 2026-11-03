@@ -93,7 +93,7 @@ test("universal section adapter does not anchor a move to a removed section",asy
 
 test("TP1 model 02 actual preview/public render honors removal, movement and reload",async()=>{
  const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
- const site={...fixture(),niche:"Salão de beleza",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
+ const site={...fixture(),niche:"Salão de beleza premium",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
  site.blocks.push(
   {id:"tp1-about",type:"heading",section:"sobre",text:"Sobre a marca",color:"#111",align:"left"},
   {id:"tp1-services",type:"heading",section:"servicos",text:"Serviços",color:"#111",align:"left"},
