@@ -100,6 +100,14 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
   if(candidates.length!==1)return fail(label);
   return applyUniversalOperations(site,[{action:"update",blockId:candidates[0].id,changes:{text:value}}]);
  };
+ const colorCards=text.match(/^(?:altere|troque|mude|substitua)\s+a\s+cor\s+de\s+fundo\s+dos\s+(?:quatro|4|todos\s+os)\s+cards\s+da\s+se[cç][aã]o\s+["“]?([^"”]+?)["”]?\s+de\s+.+?\s+para\s+.+?\(?(#[0-9a-f]{6})\)?/i);
+ if(colorCards){
+  const section=resolveUniversalSection(site,colorCards[1]);
+  if(!section)return fail(colorCards[1]);
+  const cards=site.blocks.filter(b=>b.section===section&&b.type==="paragraph"&&/[:—–]/.test(String(b.text||"")));
+  if(cards.length!==4)return fail("quatro cards da seção "+colorCards[1]);
+  return applyUniversalOperations(site,cards.map(b=>({action:"update" as const,blockId:b.id,changes:{background:colorCards[2]}})));
+ }
  const hero=resolveUniversalSection(site,"capa");
  const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+principal\s+(?:da\s+)?capa\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(heroTitle)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="heading"),heroTitle[1],"título principal da capa"):fail("capa");
