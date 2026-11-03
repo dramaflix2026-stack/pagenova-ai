@@ -139,7 +139,7 @@ test("change image by ID without touching other blocks",()=>{
 test("reject unsafe image URLs and wrong block types",()=>{
  const original=site();
  assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id h para https://example.com/photo.jpg")?.ok,false);
- assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id h para javascript:alert(1)"),null);
+ assert.equal(applyUniversalNaturalLanguage(original,"Troque a imagem do bloco id h para javascript:alert(1)")?.ok,false);
 });
 test("edit block color and alignment",()=>{
  const color=applyUniversalNaturalLanguage(site(),"Altere a cor do bloco id h para #111111");
