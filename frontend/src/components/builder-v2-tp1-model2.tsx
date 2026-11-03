@@ -158,7 +158,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    <div className="tp1v2-essence-grid">
     <div className="tp1v2-essence-art">
      <div className="tp1v2-essence-arch" aria-hidden="true"/>
-     <figure className="tp1v2-essence-main"><img src={aboutImages[0]?.src||photoWithEssence.essence} alt={aboutImages[0]?.src?"Imagem fornecida pelo cliente":"Fotografia ilustrativa do atendimento em "+niche} loading="lazy" {...universalBlockProps(aboutImages[0])}/></figure>
+     <figure className="tp1v2-essence-main"><img src={aboutImages[0]?.src?.trim()||photoWithEssence.essence} alt={aboutImages[0]?.src?"Imagem fornecida pelo cliente":"Fotografia ilustrativa do atendimento em "+niche} loading="lazy" {...universalBlockProps(aboutImages[0])}/></figure>
      <figure className="tp1v2-essence-detail"><img src={aboutImages[1]?.src||photoWithEssence.detail} alt={aboutImages[1]?.src?"Detalhe fornecido pelo cliente":"Detalhe fotográfico ilustrativo de "+niche} loading="lazy" {...universalBlockProps(aboutImages[1])}/></figure>
      <span className="tp1v2-essence-artnote">CUIDAR É UMA FORMA DE ARTE</span>
     </div>
