@@ -1,5 +1,5 @@
-import { BuilderV2TP9Model3 } from "@/components/builder-v2-tp9-model3";
 "use client";
+import { BuilderV2TP9Model3 } from "@/components/builder-v2-tp9-model3";
 import { BuilderV2TP6Model3StoreFooter } from "./builder-v2-tp6-model3-store-footer";
 import { BuilderV2TP6Model3ContactNewsletter } from "./builder-v2-tp6-model3-contact-newsletter";
 import { BuilderV2TP6Model3ReviewsFAQ } from "./builder-v2-tp6-model3-reviews-faq";
