@@ -56,3 +56,15 @@ test("ambiguous text refuses to guess and preserves source",()=>{
 test("unknown instructions fall through without inventing edits",()=>{
  assert.equal(applyUniversalNaturalLanguage(site(),"Deixe o site mais premium"),null);
 });
+
+test("CTA link keeps full HTTPS URL including query and fragment",()=>{
+ const original=site();
+ const url="https://example.com/agendar?origem=site&campanha=abc#contato";
+ const result=applyUniversalNaturalLanguage(original,'Altere o link do botão "Contato" para "'+url+'"');
+ assert.equal(result?.ok,true);
+ if(result?.ok)assert.equal(result.site.blocks.find(b=>b.id==="cta").href,url);
+});
+test("unsafe CTA URL is never accepted",()=>{
+ const result=applyUniversalNaturalLanguage(site(),'Altere o link do botão "Contato" para "javascript:alert(1)"');
+ assert.equal(result,null);
+});
