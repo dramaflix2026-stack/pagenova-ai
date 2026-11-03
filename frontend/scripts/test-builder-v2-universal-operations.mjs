@@ -224,3 +224,17 @@ test("TP3 models 02 and 03 render section-scoped customer imagery",()=>{
  assert.match(second,/galleryImages\[i\]\|\|photo\(i\+6\)/);
  assert.match(third,/specialtyImages\[special\]\|\|photo\(special\+2\)/);
 });
+
+test("TP3 models 02 and 03 bind section-scoped copy without losing fallback layout",()=>{
+ const second=readFileSync(new URL("../src/components/builder-v2-tp3-model2.tsx",import.meta.url),"utf8");
+ const third=readFileSync(new URL("../src/components/builder-v2-tp3-model3.tsx",import.meta.url),"utf8");
+ for(const component of [second,third]){
+  assert.match(component,/const aboutTitle=sectionText/);
+  assert.match(component,/const aboutDescription=sectionText/);
+  assert.match(component,/const specialtiesTitle=sectionText/);
+  assert.match(component,/aboutTitle\|\|/);
+  assert.match(component,/aboutDescription\|\|/);
+  assert.match(component,/specialtiesTitle\|\|/);
+ }
+ assert.match(second,/galleryTitle\|\|/);
+});
