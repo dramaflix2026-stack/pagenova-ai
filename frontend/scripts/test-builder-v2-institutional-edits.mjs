@@ -161,3 +161,10 @@ test("renderer uses all service cards; styles and links are actually rendered",(
  assert.match(api,/const localized=applyInstitutionalEdit/);
  assert.ok(api.indexOf("const localized=applyInstitutionalEdit")<api.indexOf("if(!isFresh&&Array.isArray(editingSite?.blocks)&&/cards?"));
 });
+
+test("numbered service description edits change only the selected card",()=>{
+ const original=fixture();
+ const updated=edit(original,"Altere a descrição do segundo serviço para 'Novo atendimento especializado'. Preserve os demais serviços.");
+ assert.equal(get(updated,"service-1").text,"Design de Interiores: Novo atendimento especializado");
+ for(const block of original.blocks.filter(b=>b.id!=="service-1"))assert.deepEqual(get(updated,block.id),block);
+});
