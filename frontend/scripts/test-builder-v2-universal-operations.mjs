@@ -580,3 +580,10 @@ test("TP1 hero keeps the image block identity when its source is empty",()=>{
  assert.match(component,/universalBlockProps\(heroImage\)/);
  assert.match(component,/heroImage\?\.src\|\|photo\.photo/);
 });
+
+test("TP1 differentiator image retains editable block identity without a URL",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const differencesImage=differencesBlocks\.find\(b=>b\.type==="image"\)/);
+ assert.match(component,/universalBlockProps\(differencesImage\)/);
+ assert.match(component,/differencesImage\?\.src\|\|/);
+});
