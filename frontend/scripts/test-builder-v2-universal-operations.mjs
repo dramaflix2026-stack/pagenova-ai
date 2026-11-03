@@ -793,3 +793,28 @@ test("builder UI and chat endpoint use one shared site creation classifier",asyn
  assert.match(page,/isFullSiteCreationBrief\(prompt\)/);
  assert.match(route,/isFullSiteCreationBrief\(instructionText\)/);
 });
+
+test("sequential universal edits survive reload and retain previous content and section events",()=>{
+ const original={templateId:"prompt-adaptive",blocks:[
+  {id:"hero-title",type:"heading",section:"hero",text:"Título original"},
+  {id:"contact-button",type:"button",section:"contato",text:"Contato",href:"#contato"},
+  {id:"gallery-title",type:"heading",section:"galeria",text:"Galeria"},
+  {id:"about-title",type:"heading",section:"sobre",text:"Sobre nós"}
+ ]};
+ const first=applyUniversalNaturalLanguage(original,'Altere o texto "Título original" para "Nova identidade"');
+ assert.equal(first?.ok,true,first?.error);
+ if(!first?.ok)return;
+ const reloaded=JSON.parse(JSON.stringify(first.site));
+ const second=applyUniversalNaturalLanguage(reloaded,'Altere o link do botão "Contato" para https://example.com/contato');
+ assert.equal(second?.ok,true,second?.error);
+ if(!second?.ok)return;
+ const third=applyUniversalNaturalLanguage(second.site,'Mova galeria antes de sobre');
+ assert.equal(third?.ok,true,third?.error);
+ if(!third?.ok)return;
+ const publishedSnapshot=JSON.parse(JSON.stringify(third.site));
+ assert.equal(publishedSnapshot.blocks.find(b=>b.id==="hero-title").text,"Nova identidade");
+ assert.equal(publishedSnapshot.blocks.find(b=>b.id==="contact-button").href,"https://example.com/contato");
+ assert.equal(publishedSnapshot.universalSectionEvents?.at(-1)?.action,"move");
+ assert.equal(original.blocks[0].text,"Título original");
+ assert.equal(original.blocks[1].href,"#contato");
+});
