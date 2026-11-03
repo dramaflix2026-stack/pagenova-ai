@@ -106,7 +106,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const descriptionBlock=heroBlocks.find(b=>b.type==="paragraph")||site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim());
  const description=descriptionBlock?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
  const heroButton=heroBlocks.find(b=>b.type==="button")||site.blocks.find(b=>b.type==="button"&&b.href);
- const heroImage=heroBlocks.find(b=>b.type==="image"&&b.src?.trim());
+ const heroImage=heroBlocks.find(b=>b.type==="image");
  const aboutBlocks=site.blocks.filter(b=>/^(?:sobre|about|essencia|nossa-essencia)$/i.test(b.section||""));
  const aboutImages=aboutBlocks.filter(b=>b.type==="image");
  const aboutHeading=aboutBlocks.find(b=>b.type==="heading");
