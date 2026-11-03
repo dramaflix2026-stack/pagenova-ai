@@ -394,3 +394,22 @@ test("TP2 history chapter content and images remain independently editable in bo
   }
  }
 });
+
+test("TP2 numbers and testimonials headings are editable without inventing metrics or reviews",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-metrics-title",type:"heading",section:"numeros",text:"Indicadores verificáveis"},
+   {id:"tp2-testimonials-title",type:"heading",section:"depoimentos",text:"Experiências compartilhadas"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const numbers=$('[data-universal-section="numeros"]');
+   const testimonials=$('[data-universal-section="depoimentos"]');
+   assert.equal(numbers.find('[data-block-id="tp2-metrics-title"]').text(),"Indicadores verificáveis");
+   assert.equal(testimonials.find('[data-block-id="tp2-testimonials-title"]').text(),"Experiências compartilhadas");
+   assert.equal(numbers.find("strong").length,0);
+   assert.equal(testimonials.find("blockquote").length,0);
+  }
+ }
+});
