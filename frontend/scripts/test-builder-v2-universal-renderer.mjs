@@ -90,3 +90,28 @@ test("universal section adapter does not anchor a move to a removed section",asy
  const $=(await import("cheerio")).load(html);
  assert.deepEqual($("[data-universal-section]").map((_,node)=>$(node).attr("data-universal-section")).get(),["inicio","galeria","contato"]);
 });
+
+test("TP1 model 02 actual preview/public render honors removal, movement and reload",async()=>{
+ const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
+ const site={...fixture(),niche:"Salão de beleza",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
+ site.blocks.push(
+  {id:"tp1-about",type:"heading",section:"sobre",text:"Sobre a marca",color:"#111",align:"left"},
+  {id:"tp1-services",type:"heading",section:"servicos",text:"Serviços",color:"#111",align:"left"},
+  {id:"tp1-gallery",type:"heading",section:"galeria",text:"Galeria",color:"#111",align:"left"}
+ );
+ const result=applyUniversalOperations(site,[
+  {action:"remove-section",sectionId:"servicos"},
+  {action:"move-section",sectionId:"galeria",beforeSectionId:"sobre"}
+ ]);
+ assert.equal(result.ok,true,result.error);
+ if(!result.ok)return;
+ const restored=JSON.parse(JSON.stringify(result.site));
+ for(const publishedMode of [false,true]){
+  const $=render(restored,publishedMode);
+  assert.equal($('[data-universal-section="servicos"]').length,0);
+  assert.equal($('[data-universal-section="galeria"]').length,1);
+  assert.equal($('[data-universal-section="sobre"]').length,1);
+  const order=$('[data-universal-section]').map((_,el)=>$(el).attr("data-universal-section")).get();
+  assert.ok(order.indexOf("galeria")<order.indexOf("sobre"),"gallery must precede about in TP1 "+publishedMode);
+ }
+});
