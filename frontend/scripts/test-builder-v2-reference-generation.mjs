@@ -10,6 +10,7 @@ import {briefCardCounts,briefHeadingAlignment,hexColor} from "../src/lib/builder
 import {applyInstitutionalEdit} from "../src/lib/builder-v2-institutional-edits.ts";
 import {applyUniversalOperations} from "../src/lib/builder-v2-universal-operations.ts";
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
+import {isFullSiteCreationBrief} from "../src/lib/builder-v2-universal-plan.ts";
 import {applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT} from "../src/lib/builder-v2-announcement.ts";
 import {applySocialInstruction} from "../src/lib/site-social-links.ts";
 import {isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction} from "../src/lib/site-builder-animation.ts";
@@ -21,11 +22,11 @@ const reference="data:image/png;base64,iVBORw0KGgo=";
 async function generate(image,instruction="Crie um site para uma clínica de psicologia seguindo a referência visual.",options={}){
   const calls=[];
   const settlements=[];
-  const handler=new Function("NextResponse","createClient","reserveBuilderV2Generation","initialSiteMotion","socialLinksFromInstruction","briefCardCounts","briefHeadingAlignment","hexColor","applyInstitutionalEdit","applyAnnouncementTextInstruction","referencesTopAnnouncement","DEFAULT_BUILDER_ANNOUNCEMENT","applySocialInstruction","isMotionOnlyInstruction","hasMotionIntent","applySiteMotionInstruction","applyUniversalOperations","applyUniversalNaturalLanguage","fetch",executable+"\nreturn POST;")(
+  const handler=new Function("NextResponse","createClient","reserveBuilderV2Generation","initialSiteMotion","socialLinksFromInstruction","briefCardCounts","briefHeadingAlignment","hexColor","applyInstitutionalEdit","applyAnnouncementTextInstruction","referencesTopAnnouncement","DEFAULT_BUILDER_ANNOUNCEMENT","applySocialInstruction","isMotionOnlyInstruction","hasMotionIntent","applySiteMotionInstruction","applyUniversalOperations","applyUniversalNaturalLanguage","isFullSiteCreationBrief","fetch",executable+"\nreturn POST;")(
     {json:(body,options={})=>({body,status:options.status||200})},
     async()=>({auth:{getUser:async()=>({data:{user:{id:"test-owner"}}})}}),
     async()=>({finish:async success=>settlements.push(success)}),
-    ()=>({preset:"professional"}),()=>({}),briefCardCounts,briefHeadingAlignment,hexColor,applyInstitutionalEdit,applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT,applySocialInstruction,isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction,applyUniversalOperations,applyUniversalNaturalLanguage,
+    ()=>({preset:"professional"}),()=>({}),briefCardCounts,briefHeadingAlignment,hexColor,applyInstitutionalEdit,applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT,applySocialInstruction,isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction,applyUniversalOperations,applyUniversalNaturalLanguage,isFullSiteCreationBrief,
     async(_url,fetchOptions)=>{
       const payload=JSON.parse(fetchOptions.body);
       calls.push(payload);
