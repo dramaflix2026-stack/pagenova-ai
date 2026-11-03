@@ -35,6 +35,7 @@ export function applyUniversalOperations<T extends UniversalSite>(site:T,operati
    if(typeof changes.mobileSrc==="string"&&!safeUrl(changes.mobileSrc,true))return fail("Imagem mobile insegura.");
    if(changes.mobileFontSize!==undefined&&(!Number.isFinite(changes.mobileFontSize)||Number(changes.mobileFontSize)<8||Number(changes.mobileFontSize)>160))return fail("Tamanho mobile inválido.");
    if(changes.columns!==undefined&&(!Number.isInteger(changes.columns)||Number(changes.columns)<1||Number(changes.columns)>12))return fail("Número de colunas inválido.");
+   if(changes.cardBorderWidth!==undefined&&(!Number.isFinite(changes.cardBorderWidth)||Number(changes.cardBorderWidth)<0||Number(changes.cardBorderWidth)>24))return fail("Borda inválida.");
    if(changes.fontSize!==undefined&&(!Number.isFinite(changes.fontSize)||changes.fontSize<8||changes.fontSize>160))return fail("Tamanho inválido.");
    if(changes.align!==undefined&&!["left","center","right"].includes(String(changes.align)))return fail("Alinhamento inválido.");
    blocks[index]={...blocks[index],...changes};changedIds.push(op.blockId);
