@@ -51,7 +51,7 @@ function prepareOperation(input:string,blocks:InstitutionalBlock[]):Operation|nu
  const change=/\b(?:alter|mud|troqu|substitu|deix|defin|coloc|configure|configur|centraliz|alinhe|aument|adicione|inclua|crie|remova|exclua|mova)\w*/.test(norm);
  if(!change)return null;
  // Scope service descriptions before the generic AI path, without touching banners.
- if(serviceMention&&/\\b(?:primeiro|segundo|terceiro|quarto|[1-9][oº°]?)\\b/.test(norm)&&/\\bdescricao\\b/.test(norm)&&/\\b(?:alter|substitu|troqu|mud)\\w*/.test(norm)){
+ if(serviceMention&&/\b(?:primeiro|segundo|terceiro|quarto|[1-9][oº°]?)\b/.test(norm)&&/\bdescricao\b/.test(norm)&&/\b(?:alter|substitu|troqu|mud)\w*/.test(norm)){
    const index=/segundo|\\b2/.test(norm)?1:/terceiro|\\b3/.test(norm)?2:/quarto|\\b4/.test(norm)?3:0;
    const value=q[0];
    return {description:"descrição do serviço",run:draft=>{
