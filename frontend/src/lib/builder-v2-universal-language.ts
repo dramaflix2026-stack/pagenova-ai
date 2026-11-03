@@ -20,6 +20,10 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  }
  const remove=text.match(/^(?:remova|exclua|apague)\s+(?:o\s+)?(?:bloco|elemento)\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s*\.?$/i);
  if(remove)return applyUniversalOperations(site,[{action:"remove",blockId:remove[1]}]);
+ const removeSection=text.match(/^(?:remova|exclua|apague)\\s+(?:a\\s+)?se[cç][aã]o\\s+(?:com\\s+)?id\\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\\s*\\.?$/i);
+ if(removeSection)return applyUniversalOperations(site,[{action:"remove-section",sectionId:removeSection[1]}]);
+ const moveSection=text.match(/^(?:mova|mover|reposicione)\\s+(?:a\\s+)?se[cç][aã]o\\s+(?:com\\s+)?id\\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\\s+(?:para\\s+)?(?:depois|ap[oó]s)\\s+(?:da\\s+)?se[cç][aã]o\\s+(?:com\\s+)?id\\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\\s*\\.?$/i);
+ if(moveSection)return applyUniversalOperations(site,[{action:"move-section",sectionId:moveSection[1],afterSectionId:moveSection[2]}]);
  const link=text.match(/^(?:altere|troque|mude|configure)\s+(?:o\s+)?link\s+(?:do\s+)?bot[aã]o\s+["“”']([^"“”']+)["“”']\s+(?:para|por)\s+["“”']?(https?:\/\/[^\s"“”']+|mailto:[^\s"“”']+|tel:[^\s"“”']+|#[^\s"“”']+|\/[^\s"“”']+)["“”']?\s*$/i);
  if(link){
   const candidates=site.blocks.filter(b=>b.type==="button"&&normalized(String(b.text||""))===normalized(link[1]));
