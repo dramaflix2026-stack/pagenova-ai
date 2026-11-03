@@ -537,3 +537,12 @@ test("TP1 model 02 contact introduction uses universal editing without changing 
  assert.match(component,/b\.section==="contato"&&b\.type==="paragraph"/);
  assert.match(component,/onSubmit=\{sendContact\}/);
 });
+
+test("TP1 model 02 service and differentiator cards have editable content",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/servicesBlocks\.filter\(b=>b\.type==="image"/);
+ assert.match(component,/b\.id!==servicesHeading\?\.id/);
+ assert.match(component,/b\.id!==servicesDescription\?\.id/);
+ assert.match(component,/b\.id!==differencesHeading\?\.id/);
+ assert.match(component,/b\.id!==differencesDescription\?\.id/);
+});
