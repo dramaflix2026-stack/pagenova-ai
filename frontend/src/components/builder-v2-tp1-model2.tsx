@@ -115,6 +115,9 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const galleryImages=galleryBlocks.filter(b=>b.type==="image"&&b.src?.trim());
  const galleryHeading=galleryBlocks.find(b=>b.type==="heading");
  const galleryDescription=galleryBlocks.find(b=>b.type==="paragraph");
+ const servicesBlocks=site.blocks.filter(b=>/^(?:servicos|services|especialidades)$/i.test(b.section||""));
+ const servicesHeading=servicesBlocks.find(b=>b.type==="heading");
+ const servicesDescription=servicesBlocks.find(b=>b.type==="paragraph");
  const rawHref=heroButton?.href?.trim()||site.header?.ctaHref?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=heroButton?.text?.trim()||site.header?.ctaLabel?.trim()||"Fale com a equipe";
@@ -159,7 +162,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
    </div>
   </section>
   <section className="tp1v2-services" id="servicos" aria-labelledby="tp1v2-services-heading">
-   <div className="tp1v2-services-top"><div><span className="tp1v2-services-kicker">03 — NOSSAS ESPECIALIDADES</span><h2 id="tp1v2-services-heading">Cuidado que se <em>revela.</em></h2></div><p>Conheça algumas das experiências que fazem parte do universo de {niche.toLowerCase()}.</p></div>
+   <div className="tp1v2-services-top"><div><span className="tp1v2-services-kicker">03 — NOSSAS ESPECIALIDADES</span><h2 id="tp1v2-services-heading" {...universalBlockProps(servicesHeading)}>{servicesHeading?.text?.trim()||<>Cuidado que se <em>revela.</em></>}</h2></div><p {...universalBlockProps(servicesDescription)}>{servicesDescription?.text?.trim()||`Conheça algumas das experiências que fazem parte do universo de ${niche.toLowerCase()}.`}</p></div>
    <div className="tp1v2-services-grid">{serviceItems.map(([name,description,imageId],index)=><article className="tp1v2-service-card" key={name}><div className="tp1v2-service-image"><img src={`https://images.pexels.com/photos/${imageId}/pexels-photo-${imageId}.jpeg?auto=compress&cs=tinysrgb&w=1000`} alt={`Fotografia ilustrativa: ${name}`} loading="lazy"/><span className="tp1v2-service-number">0{index+1}</span></div><div className="tp1v2-service-info"><div><h3>{name}</h3><p>{description}</p></div><span className="tp1v2-service-arrow" aria-hidden="true">↗</span></div></article>)}</div>
    <div className="tp1v2-services-bottom"><span>ATENÇÃO A CADA DETALHE</span><span>✳</span><span>{brand}</span></div>
   </section>
