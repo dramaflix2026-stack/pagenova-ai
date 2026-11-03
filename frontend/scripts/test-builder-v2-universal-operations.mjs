@@ -855,3 +855,10 @@ test("non-section removal instructions remain available to legacy animation hand
  assert.equal(applyUniversalNaturalLanguage(original,"Remova as animações do site inteiro."),null);
  assert.equal(applyUniversalNaturalLanguage(original,"Remova o vídeo de fundo"),null);
 });
+
+test("publication warning from API is shown instead of unconditional success",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const publish=readFileSync(new URL("../src/app/api/builder-v2/publish/route.ts",import.meta.url),"utf8");
+ assert.match(publish,/notice:"Site publicado\. A atualização da lista de domínios/);
+ assert.match(editor,/setPublishNotice\(data\.notice\|\|/);
+});
