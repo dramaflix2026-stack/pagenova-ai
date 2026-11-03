@@ -163,3 +163,9 @@ test("builder draft is persisted and rehydrated from the active storage key",()=
  assert.match(editor,/localStorage\.setItem\(activeStorageKey,JSON\.stringify\(site\)\)/);
  assert.match(editor,/localStorage\.getItem\(key\)/);
 });
+
+test("publishing supports a valid existing site after section removal",()=>{
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(editor,/if\(publishing\|\|busy\|\|site\.blocks\.length<1\)return;/);
+ assert.match(editor,/body:JSON\.stringify\(\{site:current\}\)/);
+});
