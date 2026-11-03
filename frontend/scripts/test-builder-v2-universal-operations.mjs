@@ -849,3 +849,9 @@ test("universal removal supports uniquely identified sections without deleting u
  assert.equal(missing?.ok,false);
  assert.equal(original.blocks.length,4);
 });
+
+test("non-section removal instructions remain available to legacy animation handlers",()=>{
+ const original=site();
+ assert.equal(applyUniversalNaturalLanguage(original,"Remova as animações do site inteiro."),null);
+ assert.equal(applyUniversalNaturalLanguage(original,"Remova o vídeo de fundo"),null);
+});
