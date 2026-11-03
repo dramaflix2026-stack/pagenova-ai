@@ -202,3 +202,12 @@ test("TP3 model 01 uses section-scoped editable content with design fallbacks",(
  assert.match(component,/sectionText\(historyBlocks,"paragraph"\)/);
  assert.match(component,/galleryImages\[\[6,7,3\]\.indexOf\(i\)\]/);
 });
+
+test("TP3 models 02 and 03 honor customer hero imagery and CTA",()=>{
+ const second=readFileSync(new URL("../src/components/builder-v2-tp3-model2.tsx",import.meta.url),"utf8");
+ const third=readFileSync(new URL("../src/components/builder-v2-tp3-model3.tsx",import.meta.url),"utf8");
+ assert.match(second,/src=\{heroImage\|\|photo\(0\)\}/);
+ assert.match(second,/href=\{heroButton\?\.href\|\|"#sabores"\}/);
+ assert.match(third,/heroImage\|\|photo\(0\)/);
+ assert.match(third,/href=\{heroButton\?\.href\|\|"#especialidades"\}/);
+});
