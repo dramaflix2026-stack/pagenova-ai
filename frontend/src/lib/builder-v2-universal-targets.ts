@@ -34,7 +34,7 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
  if(/(?:bloco|elemento|se[cç][aã]o)\s+(?:com\s+)?id\s+/i.test(text))return null;
  const fail=(message="Identifique uma única seção ou elemento. Nenhuma alteração aplicada."):UniversalResult<T>=>({ok:false,error:message});
  const apply=(ops:UniversalOperation[])=>applyUniversalOperations(site,ops);
- const remove=text.match(/^(?:remova|exclua|apague)\s+(?:(?:a|o|os|as)\s+)?(?:se[cç][aã]o\s+)?(depoimentos|avalia[cç][oõ]es|galeria|FAQ|perguntas frequentes)\s*\.?$/i);
+ const remove=text.match(/^(?:remova|exclua|apague)\s+(?:(?:a|o|os|as)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s*\.?$/i);
  if(remove){const id=resolveUniversalSection(site,remove[1]);return id?apply([{action:"remove-section",sectionId:id}]):fail();}
  const move=text.match(/^(?:mova|reposicione|coloque)\s+(?:(?:a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s+(?:para\s+)?(antes|depois|ap[oó]s)\s+(?:(?:da|do|de|a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s*\.?$/i);
  if(move){
@@ -42,10 +42,6 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
   if(!source||!destination||source===destination)return fail();
   if(norm(move[2])==="antes")return apply([{action:"move-section",sectionId:source,beforeSectionId:destination}]);
   let after=destination;
-  if(norm(move[2])==="antes"){
-   const order=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>!!v&&v!==source))];
-   after=order[order.indexOf(destination)-1];
-  }
   return apply([{action:"move-section",sectionId:source,afterSectionId:after}]);
  }
  const copy=text.match(/^(?:altere|troque|mude|substitua)\s+(?:o|a)\s+(t[ií]tulo|descri[cç][aã]o|subt[ií]tulo|imagem)\s+(?:da|do)\s+(?:se[cç][aã]o\s+)?(.+?)\s+(?:para|por)\s+(.+)$/i);
