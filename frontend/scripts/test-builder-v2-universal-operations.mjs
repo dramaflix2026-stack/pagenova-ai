@@ -573,3 +573,10 @@ test("TP1 about and gallery images keep stable media slots",()=>{
  assert.match(component,/aboutImages\[1\]\?\.src/);
  assert.match(component,/galleryImages\[index\]\?\.src/);
 });
+
+test("TP1 hero keeps the image block identity when its source is empty",()=>{
+ const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
+ assert.match(component,/const heroImage=heroBlocks\.find\(b=>b\.type==="image"\)/);
+ assert.match(component,/universalBlockProps\(heroImage\)/);
+ assert.match(component,/heroImage\?\.src\|\|photo\.photo/);
+});
