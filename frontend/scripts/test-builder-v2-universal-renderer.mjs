@@ -303,3 +303,25 @@ test("TP2 process steps preserve separate titles descriptions and image slots ac
   }
  }
 });
+
+test("TP2 project showcase renders editable text and independent image slots in preview and public output",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Engenharia",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push(
+   {id:"tp2-project-title",type:"heading",section:"projetos",text:"Portfólio personalizado"},
+   {id:"tp2-project-description",type:"paragraph",section:"projetos",text:"Conheça nossos projetos selecionados"},
+   {id:"tp2-project-image-1",type:"image",section:"projetos",src:"https://example.com/project-one.jpg"},
+   {id:"tp2-project-image-2",type:"image",section:"projetos",src:""},
+   {id:"tp2-project-image-3",type:"image",section:"projetos",src:"https://example.com/project-three.jpg"}
+  );
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(site)),publishedMode);
+   const section=$('[data-universal-section="projetos"]');
+   assert.match(section.text(),/Portfólio personalizado/);
+   assert.match(section.text(),/Conheça nossos projetos selecionados/);
+   assert.equal(section.find('[data-block-id="tp2-project-image-1"]').attr("src"),"https://example.com/project-one.jpg");
+   assert.equal(section.find('[data-block-id="tp2-project-image-2"]').length,1);
+   assert.equal(section.find('[data-block-id="tp2-project-image-3"]').attr("src"),"https://example.com/project-three.jpg");
+  }
+ }
+});
