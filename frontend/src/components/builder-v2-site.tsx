@@ -198,7 +198,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const isNexoraTp5Project=/nexora\s*(?:intelligence|ai)/i.test([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
  const isWrittenBrief=explicitTp7Model3||explicitTp7Model2||explicitTp4||isNexoraTp5Project||activeStaticTemplate==="prompt-adaptive"||(!props.templateId&&!props.site.templateId&&aiBriefingNiche);
  const tp9Identity=[props.site.niche,props.selectedNiche,props.site.title,props.site.header?.brand].filter(Boolean).join(" ");
- const explicitTp9=/(?:TP9|automotiv|auto\\s*center|autoel[eé]tric|oficina\\s*(?:mec[aâ]nica|de\\s*motos)|funilaria|lava[-\\s]?r[aá]pido|pneus|alinhamento|concession[aá]ria|locadora\\s*de\\s*ve[ií]culos|detailing|detail)/i.test(tp9Identity);
+ const explicitTp9=/(?:TP9|automotiv|auto\s*center|autoel[eé]tric|oficina\s*(?:mec[aâ]nica|de\s*motos)|funilaria|lava[-\s]?r[aá]pido|pneus|alinhamento|concession[aá]ria|locadora\s*de\s*ve[ií]culos|detailing|detail)/i.test(tp9Identity);
  const family=explicitTp9&&isWrittenBrief?9:explicitTp7Model3?7:explicitTp7Model2?7:isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  // A medical briefing can be incorrectly persisted as TP1 (beauty) by the generator.
  // The explicitly requested healthcare identity must win over stale niche metadata.
