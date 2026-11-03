@@ -206,18 +206,18 @@ function applyStructuredSectionBrief<T extends UniversalSite>(site:T,instruction
 
 /** Atomic edit of an existing numbered process: rename a step and append another. */
 function applyProcessStepRevision<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const norm=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
- const sectionMatch=instruction.match(/(?:na|no)\\s+se[cç][aã]o\\s+["“]([^"”]+)["”]/i);
- const rename=instruction.match(/(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+da\\s+segunda\\s+etapa\\s+de\\s+["“]([^"”]+)["”]\\s+para\\s+["“]([^"”]+)["”]/i);
- const addition=instruction.match(/adicione\\s+uma\\s+quinta\\s+etapa\\s+chamada\\s+["“]([^"”]+)["”]\\s*,?\\s+com\\s+a\\s+descri[cç][aã]o\\s*:\\s*["“]([^"”]+)["”]/i);
+ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const sectionMatch=instruction.match(/(?:na|no)\s+se[cç][aã]o\s+["“]([^"”]+)["”]/i);
+ const rename=instruction.match(/(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+da\s+segunda\s+etapa\s+de\s+["“]([^"”]+)["”]\s+para\s+["“]([^"”]+)["”]/i);
+ const addition=instruction.match(/adicione\s+uma\s+quinta\s+etapa\s+chamada\s+["“]([^"”]+)["”]\s*,?\s+com\s+a\s+descri[cç][aã]o\s*:\s*["“]([^"”]+)["”]/i);
  if(!sectionMatch||!rename||!addition)return null;
  const sectionId=resolveUniversalSection(site,sectionMatch[1]);
  if(!sectionId)return {ok:false,error:"Seção de processo não encontrada ou ambígua. Nenhuma alteração aplicada."};
  const blocks=site.blocks.filter(b=>b.section===sectionId);
- const steps=blocks.filter(b=>b.type==="paragraph"&&/^\\s*[^:：—–]+\\s*[:：—–]\\s*\\S/.test(String(b.text||"")));
+ const steps=blocks.filter(b=>b.type==="paragraph"&&/^\s*[^:：—–]+\s*[:：—–]\s*\S/.test(String(b.text||"")));
  if(steps.length!==4)return {ok:false,error:"Esperadas quatro etapas existentes na seção indicada. Nenhuma alteração aplicada."};
  const original=String(steps[1].text||"");
- const match=original.match(/^\\s*([^:：—–]+)(\\s*[:：—–]\\s*)([\\s\\S]*)$/);
+ const match=original.match(/^\s*([^:：—–]+)(\s*[:：—–]\s*)([\s\S]*)$/);
  if(!match||norm(match[1])!==norm(rename[1]))return {ok:false,error:"O título da segunda etapa não corresponde ao informado. Nenhuma alteração aplicada."};
  if(steps.some(b=>norm(String(b.text||"").split(/[:：—–]/)[0])===norm(addition[1])))return {ok:false,error:"A quinta etapa já existe. Nenhuma alteração aplicada."};
  const newId=sectionId+"-step-"+Date.now().toString(36);
