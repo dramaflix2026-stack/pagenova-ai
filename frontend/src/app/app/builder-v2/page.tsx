@@ -374,7 +374,7 @@ export default function BuilderV2() {
         if(Array.isArray(parsed))setVersions(parsed.filter((v):v is SavedVersion=>
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
-    }catch{}
+    }catch{setStorageError("Não foi possível recuperar o rascunho salvo neste navegador. Verifique o armazenamento local.");}
     if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
