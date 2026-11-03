@@ -647,3 +647,9 @@ test("salon niche aliases route consistently to TP1 without redirecting other fa
  assert.equal(resolveBriefingFamily("Restaurante"),3);
  assert.equal(resolveBriefingFamily("Loja de roupas"),6);
 });
+
+test("cloud version history is explicitly scoped to the authenticated user",()=>{
+ const route=readFileSync(new URL("../src/app/api/builder-v2/versions/route.ts",import.meta.url),"utf8");
+ assert.match(route,/\.select\("id,label,site,created_at"\)\.eq\("user_id", user\.id\)\.eq\("project_id", projectId\)/);
+ assert.match(route,/user_id: user\.id, project_id: projectId/);
+});
