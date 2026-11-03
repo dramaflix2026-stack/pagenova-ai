@@ -36,7 +36,7 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   if(error||!data)notFound();
   let payload:{version?:number;site?:BuilderV2SiteData};
   try{payload=JSON.parse(await data.text());}catch{notFound();}
-  if(payload.version!==2||!payload.site||!Array.isArray(payload.site.blocks)||(payload.site.kind!=="restaurant"&&payload.site.blocks.length<4))notFound();
+  if(payload.version!==2||!payload.site||!Array.isArray(payload.site.blocks)||payload.site.blocks.length<1)notFound();
   const restaurant=payload.site.kind==="restaurant";
   const niche=payload.site.niche||"";
   const restaurantSite=payload.site as unknown as Parameters<typeof PizzeriaTemplate>[0]["site"];
