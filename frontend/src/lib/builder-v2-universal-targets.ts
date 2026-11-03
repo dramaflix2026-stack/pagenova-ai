@@ -35,7 +35,7 @@ export function applyUniversalNamedLanguage<T extends UniversalSite>(site:T,inst
  const fail=(message="Identifique uma única seção ou elemento. Nenhuma alteração aplicada."):UniversalResult<T>=>({ok:false,error:message});
  const apply=(ops:UniversalOperation[])=>applyUniversalOperations(site,ops);
  const remove=text.match(/^(?:remova|exclua|apague)\s+(?:(?:a|o|os|as)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s*\.?$/i);
- if(remove){const id=resolveUniversalSection(site,remove[1]);return id?apply([{action:"remove-section",sectionId:id}]):fail();}
+ if(remove){const id=resolveUniversalSection(site,remove[1]);if(!id&&!/\\bse[cç][aã]o\\b/i.test(text))return null;return id?apply([{action:"remove-section",sectionId:id}]):fail();}
  const move=text.match(/^(?:mova|reposicione|coloque)\s+(?:(?:a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s+(?:para\s+)?(antes|depois|ap[oó]s)\s+(?:(?:da|do|de|a|o)\s+)?(?:se[cç][aã]o\s+)?(.+?)\s*\.?$/i);
  if(move){
   const source=resolveUniversalSection(site,unquote(move[1])),destination=resolveUniversalSection(site,unquote(move[3]));
