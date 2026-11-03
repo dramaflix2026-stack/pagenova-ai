@@ -74,3 +74,19 @@ test("universal adapter keeps every specialized section when identifiers collide
  assert.ok(html.indexOf("Primeira capa")<html.indexOf("Segunda capa"));
  assert.ok(html.indexOf("Segunda capa")<html.indexOf("Sobre"));
 });
+
+test("universal section adapter does not anchor a move to a removed section",async()=>{
+ const {createRequire}=await import("node:module");
+ const require=createRequire(import.meta.url);
+ const React=require("react");
+ const {renderToStaticMarkup}=require("react-dom/server");
+ const {UniversalTemplateSections}=require("../src/components/builder-v2-universal-sections.tsx");
+ const section=(id)=>React.createElement("section",{"data-universal-section":id},id);
+ const site={universalSectionEvents:[
+  {action:"remove",section:{id:"sobre"}},
+  {action:"move",section:{id:"contato"},before:{id:"sobre"}}
+ ]};
+ const html=renderToStaticMarkup(React.createElement(UniversalTemplateSections,{site},section("inicio"),section("sobre"),section("galeria"),section("contato")));
+ const $=(await import("cheerio")).load(html);
+ assert.deepEqual($("[data-universal-section]").map((_,node)=>$(node).attr("data-universal-section")).get(),["inicio","galeria","contato"]);
+});
