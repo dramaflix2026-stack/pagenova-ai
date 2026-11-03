@@ -199,7 +199,7 @@ function applyStructuredSectionBrief<T extends UniversalSite>(site:T,instruction
  const last=site.blocks.filter(b=>b.section===anchorId).at(-1);
  if(!last)return {ok:false,error:"Seção de referência sem blocos. Nenhuma alteração aplicada."};
  let afterId=last.id;
- const entries=[{type:"heading",text:name},{type:"paragraph",text:description},...titles.map((title,i)=>({type:"paragraph",text:title+": "+details[i],...(wantsNavy?{background:"#14243b",color:"#ffffff",colorExplicit:true,textColor:"#e5e7eb"}:{})}))];
+ const entries=[{type:"heading",text:name},{type:"paragraph",text:description},...titles.map((title,i)=>({type:"paragraph",text:title+": "+details[i],...(wantsNavy?{background:"#14243b",color:"#ffffff",textColor:"#e5e7eb"}:{})}))];
  for(let i=0;i<entries.length;i++){const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};blocks.push({action:"add",block,afterId});afterId=block.id;}
  return applyUniversalOperations(site,blocks);
 }
