@@ -41,3 +41,20 @@ test("actual TP3 models preserve section removals and reordering in preview and 
   }
  }
 });
+
+test("TP3 edited FAQ never resurrects preset questions when its paragraph is empty",()=>{
+ for(const variant of ["02","03"]){
+  const site={...fixture(),niche:"Restaurante",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  site.blocks.push({id:"faq-edited",type:"paragraph",section:"faq",text:"",color:"#111",align:"left"});
+  for(const publishedMode of [false,true]){
+   const $=render(site,publishedMode);
+   assert.equal($('[data-universal-section="faq"] article, [data-universal-section="faq"] .tp3m3-faq-item').length,0,"empty edited FAQ must not restore presets");
+  }
+  site.blocks[site.blocks.length-1].text="Posso reservar? Entre em contato para confirmar.";
+  for(const publishedMode of [false,true]){
+   const $=render(site,publishedMode);
+   assert.equal($('[data-universal-section="faq"] article, [data-universal-section="faq"] .tp3m3-faq-item').length,1);
+   assert.match($('[data-universal-section="faq"]').text(),/Posso reservar\?/);
+  }
+ }
+});
