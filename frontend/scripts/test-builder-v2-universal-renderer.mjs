@@ -115,3 +115,24 @@ test("TP1 model 02 actual preview/public render honors removal, movement and rel
   assert.ok(order.indexOf("galeria")<order.indexOf("sobre"),"gallery must precede about in TP1 "+publishedMode);
  }
 });
+
+test("TP1 model 02 keeps removed sections hidden after follow-up AI edit and reload",async()=>{
+ const {applyUniversalOperations}=await import("../src/lib/builder-v2-universal-operations.ts");
+ const {applyUniversalNaturalLanguage}=await import("../src/lib/builder-v2-universal-language.ts");
+ const site={...fixture(),niche:"Salão de beleza premium",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
+ site.blocks.push({id:"about-title",type:"heading",section:"sobre",text:"Sobre a empresa",color:"#111",align:"left"},
+  {id:"service-title",type:"heading",section:"servicos",text:"Serviços oferecidos",color:"#111",align:"left"});
+ const removed=applyUniversalOperations(site,[{action:"remove-section",sectionId:"servicos"}]);
+ assert.equal(removed.ok,true,removed.error);
+ if(!removed.ok)return;
+ const edited=applyUniversalNaturalLanguage(removed.site,'Altere o texto "Sobre a empresa" para "Nossa essência"');
+ assert.equal(edited?.ok,true,edited?.error);
+ if(!edited?.ok)return;
+ const reloaded=JSON.parse(JSON.stringify(edited.site));
+ for(const publishedMode of [false,true]){
+  const $=render(reloaded,publishedMode);
+  assert.equal($('[data-universal-section="servicos"]').length,0,"removed services must remain hidden");
+  assert.equal($('[data-universal-section="sobre"]').length,1);
+  assert.match($('[data-universal-section="sobre"]').text(),/Nossa essência/);
+ }
+});
