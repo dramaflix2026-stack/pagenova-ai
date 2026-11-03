@@ -653,3 +653,16 @@ test("cloud version history is explicitly scoped to the authenticated user",()=>
  assert.match(route,/\.select\("id,label,site,created_at"\)\.eq\("user_id", user\.id\)\.eq\("project_id", projectId\)/);
  assert.match(route,/user_id: user\.id, project_id: projectId/);
 });
+
+test("publishing preserves universal section events in the persisted snapshot",()=>{
+ const route=readFileSync(new URL("../src/app/api/builder-v2/publish/route.ts",import.meta.url),"utf8");
+ assert.match(route,/const snapshot:BuilderV2SiteData=JSON\.parse\(JSON\.stringify\(site\)\)/);
+ assert.match(route,/site:snapshot,publishedAt/);
+ const site={id:"publish-test",title:"Site teste",blocks:[{id:"hero",type:"heading",section:"inicio",text:"Título"}],
+  universalSectionEvents:[{action:"remove",section:{id:"servicos"}},{action:"move",section:{id:"galeria"},before:{id:"sobre"}}]};
+ const snapshot=JSON.parse(JSON.stringify(site));
+ delete snapshot.publishedUrl;
+ const payload=JSON.parse(JSON.stringify({version:2,ownerId:"owner",projectId:site.id,name:site.title,site:snapshot,publishedAt:"2026-11-03T00:00:00Z"}));
+ assert.deepEqual(payload.site.universalSectionEvents,site.universalSectionEvents);
+ assert.equal(payload.site.blocks[0].text,"Título");
+});
