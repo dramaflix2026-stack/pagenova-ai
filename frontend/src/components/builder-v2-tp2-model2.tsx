@@ -3,6 +3,7 @@ import {useState,type FormEvent} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp2-model2.css";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
+import {universalBlockProps} from "./builder-v2-universal-bindings";
 const photos=["photo-1600607687939-ce8a6c25118c","photo-1600585154340-be6161a56a0c","photo-1600566753190-17f0baa2a6c3","photo-1600607687920-4e2a09cf159d","photo-1487958449943-2429e8be8625","photo-1511818966892-d7d671e672a2","photo-1497366754035-f200968a6e72","photo-1600607687644-c7171b42498f","photo-1613977257363-707ba9348227","photo-1600566753086-00f18fb6b3ea","photo-1600585154526-990dced4db0d","photo-1518005020951-eccb494ad742","photo-1497366811353-6870744d04b2","photo-1600566752355-35792bedcfea","photo-1616486338812-3dadae4b4ace"];
 const pic=(i:number)=>"https://images.unsplash.com/"+photos[(i+photos.length)%photos.length]+"?auto=format&fit=crop&w=1400&q=82";
 const categories=[
@@ -29,6 +30,10 @@ export function BuilderV2TP2Model2({site}:{site:BuilderV2SiteData}){
  const services=categories.find(([rx])=>rx.test(niche))?.[1]||categories[0][1];
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
+ const heroBlocks=site.blocks.filter(b=>/^(inicio|hero|home|capa)$/i.test(b.section||""));
+ const heroHeading=heroBlocks.find(b=>b.type==="heading");
+ const heroDescription=heroBlocks.find(b=>b.type==="paragraph");
+ const heroButton=heroBlocks.find(b=>b.type==="button");
  const supplied=site.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!);
  const image=(i:number)=>supplied[i]||pic(i);
  const phone=(site.footer?.whatsapp||"").replace(/\D/g,""),email=site.footer?.email?.trim()||"";
@@ -41,7 +46,7 @@ export function BuilderV2TP2Model2({site}:{site:BuilderV2SiteData}){
  return <div className="tp2m2" id="inicio">
  <header className="tp2m2-header"><a href="#inicio" className="tp2m2-brand">{brand}</a><nav>{links.map(([t,h])=><a key={h} href={h}>{t}</a>)}</nav><a className="tp2m2-header-cta" href="#contato">Iniciar conversa ↗</a></header>
  <UniversalTemplateSections site={site}>
- <section data-universal-section="inicio" className="tp2m2-hero" style={{backgroundImage:"linear-gradient(90deg,rgba(10,15,18,.86),rgba(10,15,18,.18)),url('"+image(0)+"')"}}><div className="tp2m2-hero-copy"><span className="tp2m2-overline">01 / DESIGN • PRECISÃO • PROPÓSITO</span><h1>{heading||"O futuro começa com um projeto bem pensado."}</h1><p>{description||"Soluções de "+niche.toLowerCase()+" com atenção aos detalhes e às necessidades de cada projeto."}</p><a className="tp2m2-button" href="#especialidades">Explore nossas soluções ↗</a></div><span className="tp2m2-hero-side">ARQUITETURA EDITORIAL / 02</span></section>
+ <section data-universal-section="inicio" className="tp2m2-hero" style={{backgroundImage:"linear-gradient(90deg,rgba(10,15,18,.86),rgba(10,15,18,.18)),url('"+image(0)+"')"}}><div className="tp2m2-hero-copy"><span className="tp2m2-overline">01 / DESIGN • PRECISÃO • PROPÓSITO</span><h1 {...universalBlockProps(heroHeading)}>{heroHeading?.text||heading||"O futuro começa com um projeto bem pensado."}</h1><p {...universalBlockProps(heroDescription)}>{heroDescription?.text||description||"Soluções de "+niche.toLowerCase()+" com atenção aos detalhes e às necessidades de cada projeto."}</p><a className="tp2m2-button" href={heroButton?.href||"#especialidades"} {...universalBlockProps(heroButton)}>{heroButton?.text||"Explore nossas soluções ↗"}</a></div><span className="tp2m2-hero-side">ARQUITETURA EDITORIAL / 02</span></section>
  <section data-universal-section="sobre" className="tp2m2-section tp2m2-about" id="sobre"><div className="tp2m2-label">02 / SOBRE A EMPRESA</div><div className="tp2m2-about-grid"><img src={image(1)} alt="Referência visual do setor" loading="lazy"/><div><span className="tp2m2-kicker">NOSSA ESSÊNCIA</span><h2>Uma visão que transforma <em>ideias em possibilidades.</em></h2><p>Em cada demanda, valorizamos o diálogo, a organização e o cuidado com as decisões que moldam o resultado.</p><p>Conheça uma abordagem orientada às necessidades de cada cliente, do primeiro contato às próximas etapas.</p><a href="#contato" className="tp2m2-link">Converse com nossa equipe ↗</a></div></div></section>
  <section data-universal-section="servicos" className="tp2m2-section" id="especialidades"><div className="tp2m2-label">03 / NOSSAS ESPECIALIDADES</div><div className="tp2m2-title"><span className="tp2m2-kicker">O QUE FAZEMOS</span><h2>Conhecimento aplicado. <em>Detalhes que importam.</em></h2></div><div className="tp2m2-services">{services.map((s,i)=><article key={s}><div className="tp2m2-photo"><img src={image(i+2)} alt={"Fotografia ilustrativa: "+s} loading="lazy"/><span>0{i+1}</span></div><h3>{s}</h3><p>Uma solução planejada conforme o contexto e as necessidades de cada demanda.</p></article>)}</div></section>
  <section data-universal-section="diferenciais" className="tp2m2-section tp2m2-manifesto"><div className="tp2m2-label">04 / NOSSOS DIFERENCIAIS</div><div className="tp2m2-manifesto-grid"><h2>O que nos define <em>está na maneira de fazer.</em></h2><div className="tp2m2-values">{[["01","Escuta e contexto"],["02","Planejamento consciente"],["03","Atenção aos detalhes"],["04","Comunicação clara"]].map(([n,t])=><div key={n}><b>{n}</b><h3>{t}</h3></div>)}</div></div></section>
