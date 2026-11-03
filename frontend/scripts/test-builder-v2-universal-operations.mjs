@@ -459,3 +459,26 @@ test("JSON objects cannot masquerade as layout, alignment or image fit",()=>{
   assert.doesNotThrow(()=>assert.equal(applyUniversalOperations(completeSite(),[{action:"update",blockId:"h",changes}]).ok,false));
  }
 });
+
+test("adding a paragraph restores a previously removed section",()=>{
+ const removed=applyUniversalOperations(site(),[{action:"remove-section",sectionId:"services"}]);
+ assert.equal(removed.ok,true);
+ if(!removed.ok)return;
+ const restored=applyUniversalOperations(removed.site,[{action:"add",block:{id:"new-service",type:"paragraph",section:"services",text:"Serviço novo"}}]);
+ assert.equal(restored.ok,true);
+ if(!restored.ok)return;
+ assert.equal(restored.site.blocks.find(b=>b.id==="new-service")?.text,"Serviço novo");
+ assert.equal(restored.site.universalSectionEvents?.at(-1)?.action,"restore");
+ assert.equal(restored.site.universalSectionEvents?.at(-1)?.section.id,"services");
+});
+test("latest removal takes precedence over earlier restore events",()=>{
+ const original=site();
+ original.universalSectionEvents=[
+  {action:"remove",section:{id:"services"}},
+  {action:"restore",section:{id:"services"}},
+  {action:"remove",section:{id:"services"}}
+ ];
+ const result=applyUniversalOperations(original,[{action:"add",block:{id:"new-service",type:"paragraph",section:"services",text:"Novo"}}]);
+ assert.equal(result.ok,true);
+ if(result.ok)assert.equal(result.site.universalSectionEvents.at(-1).action,"restore");
+});
