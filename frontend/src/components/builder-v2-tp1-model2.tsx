@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-model2.css";
 import {normalizedSocialLink} from "@/lib/site-social-links";
-import {universalBlockProps,UniversalTypographyRules} from "./builder-v2-universal-bindings";
+import {universalBlockProps,UniversalTypographyRules,universalFaqItems} from "./builder-v2-universal-bindings";
 
 const photoSet=[
  {pattern:/fotograf|photograph/i,photo:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/3062545/pexels-photo-3062545.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"FOTOGRAFIA AUTORAL",fallback:"Histórias que merecem ser vistas."},
@@ -98,7 +98,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const difference=(differentiators.find(item=>item.pattern.test(niche))||differentiators[differentiators.length-1]);
  const journey=(journeyCatalog.find(item=>item.pattern.test(niche))||journeyCatalog[journeyCatalog.length-1]).steps;
  const gallery=(galleryCatalog.find(item=>item.pattern.test(niche))||galleryCatalog[galleryCatalog.length-1]);
- const faqItems=(faqCatalog.find(group=>group.pattern.test(niche))||faqCatalog[faqCatalog.length-1]).items;
+ const faqItems=universalFaqItems(site.blocks,(faqCatalog.find(group=>group.pattern.test(niche))||faqCatalog[faqCatalog.length-1]).items);
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
  const heroBlocks=site.blocks.filter(b=>/^(?:inicio|hero|home|capa)$/i.test(b.section||""));
  const headingBlock=heroBlocks.find(b=>b.type==="heading")||site.blocks.find(b=>b.type==="heading"&&b.text?.trim());
@@ -106,6 +106,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const descriptionBlock=heroBlocks.find(b=>b.type==="paragraph")||site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim());
  const description=descriptionBlock?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
  const heroButton=heroBlocks.find(b=>b.type==="button")||site.blocks.find(b=>b.type==="button"&&b.href);
+ const heroImage=heroBlocks.find(b=>b.type==="image"&&b.src?.trim());
  const rawHref=heroButton?.href?.trim()||site.header?.ctaHref?.trim()||"";
  const safeHref=rawHref.startsWith("#")||/^https:\/\//i.test(rawHref)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(rawHref)?rawHref:null;
  const cta=heroButton?.text?.trim()||site.header?.ctaLabel?.trim()||"Fale com a equipe";
@@ -135,7 +136,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   </header>
   <section className="tp1v2-hero" aria-labelledby="tp1v2-heading">
    <div className="tp1v2-copy"><div className="tp1v2-eyebrow"><span className="tp1v2-line"/> {photo.eyebrow}</div><h1 id="tp1v2-heading" {...universalBlockProps(headingBlock)}>{heading}</h1><p {...universalBlockProps(descriptionBlock)}>{description}</p><div className="tp1v2-actions">{safeHref?<a className="tp1v2-primary" href={safeHref} {...universalBlockProps(heroButton,true)}>{cta} <span aria-hidden="true">↗</span></a>:null}<a className="tp1v2-secondary" href="#sobre">Conheça nosso espaço <span aria-hidden="true">→</span></a></div><div className="tp1v2-index"><span>01</span><span className="tp1v2-index-rule"/><span>BELEZA & SERVIÇOS PREMIUM</span></div></div>
-   <div className="tp1v2-visual"><div className="tp1v2-visual-back" aria-hidden="true"/><figure className="tp1v2-primary-photo"><img src={photo.photo} alt={"Fotografia ilustrativa de "+niche} loading="eager"/></figure><figure className="tp1v2-secondary-photo"><img src={photo.secondary} alt={"Ambiente ou detalhe ilustrativo de "+niche} loading="lazy"/></figure><div className="tp1v2-vertical-note">BEAUTY • WELLNESS • EXPERIENCE</div><div className="tp1v2-photo-caption">UMA NOVA PERSPECTIVA SOBRE O CUIDADO <span>✳</span></div></div>
+   <div className="tp1v2-visual"><div className="tp1v2-visual-back" aria-hidden="true"/><figure className="tp1v2-primary-photo"><img src={heroImage?.src||photo.photo} alt={heroImage?.src?"Imagem da capa fornecida pelo cliente":"Fotografia ilustrativa de "+niche} loading="eager" {...universalBlockProps(heroImage)}/></figure><figure className="tp1v2-secondary-photo"><img src={photo.secondary} alt={"Ambiente ou detalhe ilustrativo de "+niche} loading="lazy"/></figure><div className="tp1v2-vertical-note">BEAUTY • WELLNESS • EXPERIENCE</div><div className="tp1v2-photo-caption">UMA NOVA PERSPECTIVA SOBRE O CUIDADO <span>✳</span></div></div>
   </section>
   <section className="tp1v2-essence" id="sobre" aria-labelledby="tp1v2-essence-heading">
    <div className="tp1v2-essence-top"><span className="tp1v2-essence-kicker"><span aria-hidden="true">✳</span> NOSSA ESSÊNCIA</span><span className="tp1v2-essence-counter">02 / O QUE NOS MOVE</span></div>
