@@ -432,7 +432,7 @@ export default function BuilderV2() {
       }).catch(error=>{
         if(cancelled)return;
         setCrmImportError(error instanceof Error?error.message:"Falha ao importar projeto CRM.");
-      }).finally(()=>{if(!cancelled)setCrmImporting(false);});
+      }).finally(()=>{if(!cancelled){setCrmImporting(false);setStorageProjectReady(true);}});
     }
     return()=>{cancelled=true;};
   },[]);
