@@ -6,6 +6,7 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
     "id": 1,
     "name": "Beleza e Serviços Premium",
     "niches": [
+      "Barbearia",
       "Clínica de estética",
       "Dermatologia",
       "SPA e bem-estar",
@@ -140,6 +141,7 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
 export type BriefingFamilyId = 1|2|3|4|5|6|7|8|9|10;
 const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
 const aliases:Record<string,string>={
+ "barbearia premium masculina":"Barbearia","barbearia premium":"Barbearia","barbershop":"Barbearia","barber shop":"Barbearia",
  "salao de beleza":"Salão de beleza premium","salao de beleza feminino":"Salão de beleza premium","salao de beleza masculino":"Salão de beleza premium",
  "moda feminina":"Loja de roupas","moda masculina":"Loja de roupas","moda e acessorios premium":"Loja de roupas","moda e acessorios":"Loja de roupas","moda e acessorios de luxo":"Loja de roupas","marca de moda":"Loja de roupas","marca de moda e acessorios":"Loja de roupas","boutique de moda":"Loja de roupas","boutique feminina":"Loja de roupas",
  "calcados":"Loja de calçados","joalheria":"Joalheria e semijoias","semijoias":"Joalheria e semijoias",
@@ -160,6 +162,7 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  if(exact)return exact.id;
  // Composite AI/technology niches in long-form briefings must resolve to family 5.
  // Prefer exact canonical matches above; do not hijack health, education or other families.
+ if(/(?:^| )(?:barbearia|barbeiro|barbershop|barber shop)(?: |$)/.test(v))return 1;
  const technology=/(?:^| )(?:inteligencia artificial|agentes? de ia|automacao empresarial|automacao de processos|empresa de tecnologia|empresas de tecnologia|tecnologia e inovacao|desenvolvimento de software|desenvolvimento de aplicativos|agencia de marketing digital|agencias de marketing digital|consultoria empresarial|negocios digitais|saas|startup|startups)(?: |$)/;
  if(technology.test(v))return 5;
  const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
