@@ -228,8 +228,34 @@ function applyProcessStepRevision<T extends UniversalSite>(site:T,instruction:st
  return applyUniversalOperations(site,operations);
 }
 
+/** Remove and reorder process steps in a single atomic transaction. */
+function applyProcessStepReorder<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const sectionMatch=instruction.match(/(?:na|no)\s+se[cç][aã]o\s+["“]([^"”]+)["”]/i);
+ const removal=instruction.match(/remova\s+a\s+etapa\s+["“]([^"”]+)["”]/i);
+ const movement=instruction.match(/mova\s+a\s+etapa\s+["“]([^"”]+)["”]\s+para\s+a\s+primeira\s+posi[cç][aã]o/i);
+ if(!sectionMatch||!removal||!movement)return null;
+ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const sectionId=resolveUniversalSection(site,sectionMatch[1]);
+ if(!sectionId)return {ok:false,error:"Seção de processo não encontrada ou ambígua. Nenhuma alteração aplicada."};
+ const blocks=site.blocks.filter(b=>b.section===sectionId);
+ const steps=blocks.filter(b=>b.type==="paragraph"&&/^\s*[^:：—–]+\s*[:：—–]\s*\S/.test(String(b.text||"")));
+ const matches=(title:string)=>steps.filter(b=>norm(String(b.text||"").split(/[:：—–]/)[0])===norm(title));
+ const removeMatches=matches(removal[1]),moveMatches=matches(movement[1]);
+ if(removeMatches.length!==1||moveMatches.length!==1||removeMatches[0].id===moveMatches[0].id)return {ok:false,error:"Etapas não identificadas de forma única. Nenhuma alteração aplicada."};
+ if(steps.length!==5)return {ok:false,error:"Esperadas cinco etapas antes da reorganização. Nenhuma alteração aplicada."};
+ const firstIndex=site.blocks.findIndex(b=>b.id===steps[0].id);
+ const anchor=site.blocks[firstIndex-1];
+ if(!anchor||anchor.section!==sectionId)return {ok:false,error:"Âncora da primeira etapa não encontrada. Nenhuma alteração aplicada."};
+ return applyUniversalOperations(site,[
+  {action:"remove",blockId:removeMatches[0].id},
+  {action:"move",blockId:moveMatches[0].id,afterId:anchor.id}
+ ]);
+}
+
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const processReorder=applyProcessStepReorder(site,instruction);
+ if(processReorder)return processReorder;
  const processRevision=applyProcessStepRevision(site,instruction);
  if(processRevision)return processRevision;
  const structured=applyStructuredSectionBrief(site,instruction);
