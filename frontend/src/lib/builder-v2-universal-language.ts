@@ -301,6 +301,15 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
    {action:"update",blockId:paragraphs[0].id,changes:{text:description}}
   ]);
  }
+ // Universal hero CTA label-only edit: preserve the existing URL and all other properties.
+ const heroCtaRequest=instruction.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+["“]([^"”]+)["”"]\s*\.?\s*(?:(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
+ if(heroCtaRequest){
+  const hero=resolveUniversalSection(site,"capa");
+  if(!hero)return {ok:false,error:"Não foi possível localizar a capa. Nenhuma alteração aplicada."};
+  const buttons=site.blocks.filter(b=>b.section===hero&&b.type==="button");
+  if(buttons.length!==1)return {ok:false,error:"Não foi possível identificar um único botão principal na capa. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"update",blockId:buttons[0].id,changes:{text:heroCtaRequest[1]}}]);
+ }
  const actionableInstruction=instruction.replace(/^\s*quero\s+(?:(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)|personalizar|editar|modificar)\s+(?:(?:no|neste|nesse|o)\s+)?site[^:\r\n]{0,160}:\s*/i,"").trim();
  // Preservation sentences are constraints, not mutations. Remove them only at
  // sentence boundaries so an action containing "preservando" stays intact.
