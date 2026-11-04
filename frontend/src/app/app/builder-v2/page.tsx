@@ -195,6 +195,7 @@ export default function BuilderV2() {
   },[site.cinematic?.mode,site.niche,site.title]);
 
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
+  const [libraryProjectId,setLibraryProjectId]=useState<string|null>(null);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
   const [draftHydrated,setDraftHydrated]=useState(false);
@@ -345,9 +346,13 @@ export default function BuilderV2() {
 
   useEffect(()=>{
     let cancelled=false;
-    const crm=new URLSearchParams(window.location.search).get("crmProject");
+    const params=new URLSearchParams(window.location.search);
+    const libraryId=params.get("project");
+    const validLibraryId=libraryId&&/^[a-zA-Z0-9_-]{12,80}$/.test(libraryId)?libraryId:null;
+    setLibraryProjectId(validLibraryId);
+    const crm=params.get("crmProject");
     const projectId=crm&&/^[a-zA-Z0-9_-]{20,40}$/.test(crm)?crm:null;
-    const key=projectId?storageKey+":crm:"+projectId:storageKey;
+    const key=validLibraryId?storageKey+":project:"+validLibraryId:projectId?storageKey+":crm:"+projectId:storageKey;
     setActiveStorageKey(key);
     setCrmProjectId(projectId);
     let hasDraft=false;
@@ -384,7 +389,7 @@ export default function BuilderV2() {
     // The full draft can exceed localStorage's small quota (especially with images).
     // Hydrate the IndexedDB copy before enabling autosave, so F5 cannot overwrite it
     // with the initial empty React state. Keep the legacy localStorage copy intact.
-    if(!projectId||hasDraft){
+    if(!projectId||hasDraft||validLibraryId){
       void readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key)
         .then(saved=>{
           if(cancelled)return;
@@ -420,6 +425,10 @@ export default function BuilderV2() {
     // Both retain the complete Site, including variant, images and edited blocks.
     void savePageNovaProject("builder-draft:"+activeStorageKey,{site,updatedAt:Date.now()})
       .catch(()=>setStorageError("Não foi possível salvar o rascunho no armazenamento local. Verifique o espaço disponível."));
+    if(site.blocks.length>0&&site.id){
+      void savePageNovaProject("builder-v2-site:"+site.id,{kind:"builder-v2-site",id:site.id,title:site.title,site,updatedAt:Date.now()})
+        .catch(()=>setStorageError("Não foi possível adicionar o site à biblioteca local."));
+    }
     try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
   },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
@@ -1139,7 +1148,7 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setLibraryProjectId(newId);setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||site.blocks.length<1)return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
