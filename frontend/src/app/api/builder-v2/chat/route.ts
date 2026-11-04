@@ -23,8 +23,16 @@ function socialFromBrief(brief:string){
 export const runtime = "nodejs";
 export const maxDuration = 300;
 export async function POST(req: NextRequest) {
+  // Railway's internal request URL may differ from the public browser origin.
+  // Accept only explicitly configured first-party origins, never arbitrary forwarded hosts.
   const origin=req.headers.get("origin");
-  if(origin&&origin!==req.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
+  const trustedOrigins=new Set([
+    req.nextUrl.origin,
+    "https://www.pagenovaai.com.br",
+    "https://pagenovaai.com.br",
+    "https://pagenova-frontend-production.up.railway.app",
+  ]);
+  if(origin&&!trustedOrigins.has(origin))return NextResponse.json({error:"Origem não autorizada."},{status:403});
   const user = (await (await createClient()).auth.getUser()).data.user;
   if (!user) return NextResponse.json({error:"Faça login."},{status:401});
   const key = process.env.OPENAI_API_KEY;
