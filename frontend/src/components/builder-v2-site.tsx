@@ -1465,16 +1465,16 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 [data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] ol{
  border-left:2px solid #b78245!important;list-style:none!important;
 }
-[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] article.pn-process-timeline-card{
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] div.pn-process-timeline-card{
  background:#202226!important;background-image:none!important;
  border:1px solid #373b3e!important;border-left:1px solid #373b3e!important;
  border-radius:4px!important;box-shadow:none!important;transform:none!important;
  min-height:0!important;color:#fff!important;
 }
-[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] article.pn-process-timeline-card h3{
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] div.pn-process-timeline-card h3{
  color:#fff!important;font-size:clamp(1.1rem,3vw,1.4rem)!important;
 }
-[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] article.pn-process-timeline-card p{
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] div.pn-process-timeline-card p{
  color:#c8cbce!important;line-height:1.7!important;
 }
 [data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] .pn-process-timeline-kicker{
