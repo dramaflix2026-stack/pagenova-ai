@@ -394,6 +394,10 @@ export default function BuilderV2() {
         const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key);
         const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId):null;
         // A direct library link must recover its own project, not the last opened site.
+        if(validLibraryId&&!library?.site&&!draft?.site){
+          // Do not replace an unavailable existing project with an empty draft.
+          throw new Error("Projeto não encontrado no armazenamento deste navegador.");
+        }
         return library?.site?library:draft;
       })()
         .then(saved=>{
@@ -407,7 +411,13 @@ export default function BuilderV2() {
             setCategoryScreen(false);
           }
         })
-        .catch(()=>{/* Existing localStorage draft remains available. */})
+        .catch(()=>{
+          if(cancelled)return;
+          if(validLibraryId&&!hasDraft){
+            setDraftRecoveryFailed(true);
+            setStorageError("Não foi possível recuperar este projeto neste navegador. Nenhum dado anterior será substituído.");
+          }
+        })
         .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);}});
     }
     if(projectId&&!hasDraft){
