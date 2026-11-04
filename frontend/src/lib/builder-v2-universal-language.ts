@@ -252,8 +252,27 @@ function applyProcessStepReorder<T extends UniversalSite>(site:T,instruction:str
  ]);
 }
 
+/** Layout-only commands must never fall through to image-edit heuristics. */
+function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const requestsLayout=/\b(?:altere|mude|troque|transforme|converta)\b[\s\S]{0,110}\blayout\b/i.test(instruction);
+ const requestsTimeline=/linha do tempo vertical|timeline vertical/i.test(instruction);
+ if(!requestsLayout||!requestsTimeline)return null;
+ const sectionMatch=instruction.match(/(?:na|no)\s+se[cç][aã]o\s+["“]([^"”]+)["”]/i);
+ if(!sectionMatch)return {ok:false,error:"Informe a seção que receberá a linha do tempo. Nenhuma alteração aplicada."};
+ const sectionId=resolveUniversalSection(site,sectionMatch[1]);
+ if(!sectionId)return {ok:false,error:"Seção não encontrada ou ambígua. Nenhuma alteração aplicada."};
+ const heading=site.blocks.find(b=>b.section===sectionId&&b.type==="heading");
+ const steps=site.blocks.filter(b=>b.section===sectionId&&b.type==="paragraph"&&/^\s*[^:：—–]+\s*[:：—–]\s*\S/.test(String(b.text||"")));
+ if(!heading||steps.length<2)return {ok:false,error:"Seção sem título ou etapas suficientes para a linha do tempo. Nenhuma alteração aplicada."};
+ const numberMatch=instruction.match(/numera[cç][aã]o\s+0?1\s+a\s+0?(\d+)/i);
+ if(numberMatch&&Number(numberMatch[1])!==steps.length)return {ok:false,error:"A quantidade de etapas não corresponde à numeração solicitada. Nenhuma alteração aplicada."};
+ return applyUniversalOperations(site,[{action:"update",blockId:heading.id,changes:{layout:"timeline-vertical"}}]);
+}
+
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const timelineLayout=applyProcessTimelineLayout(site,instruction);
+ if(timelineLayout)return timelineLayout;
  const processReorder=applyProcessStepReorder(site,instruction);
  if(processReorder)return processReorder;
  const processRevision=applyProcessStepRevision(site,instruction);
