@@ -234,3 +234,25 @@ await test('owned IndexedDB project cannot be overwritten by another logged-in a
     assert.deepEqual(await readPageNovaProject(id),original);
   }finally{stopB();globalThis.window=previous.window;globalThis.localStorage=previous.localStorage;globalThis.fetch=previous.fetch;}
 });
+
+await test('IndexedDB reads hide another account projects without deleting originals',async()=>{
+  const previous=globalThis.window;
+  const {startProjectSync}=await import('../src/lib/project-sync.ts');
+  const events=new EventTarget();
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:()=>1};
+  const id='private-read-idb',original={id,name:'Private A',pages:{home:{title:'Only A'}}};
+  const stopA=startProjectSync('read-owner-a');
+  try{
+    await claimLocalSource('read-owner-a',`indexeddb:${id}`);
+    await savePageNovaProject(id,original);
+    assert.deepEqual(await readPageNovaProject(id),original);
+  }finally{stopA();}
+  const stopB=startProjectSync('read-owner-b');
+  try{
+    assert.equal(await readPageNovaProject(id),null);
+    const {listPageNovaProjects}=await import('../src/lib/pagenova-project-store.ts');
+    assert.ok(!(await listPageNovaProjects()).some(x=>x.id===id));
+  }finally{stopB();globalThis.window=previous;}
+  assert.deepEqual(await readPageNovaProject(id),original);
+});
