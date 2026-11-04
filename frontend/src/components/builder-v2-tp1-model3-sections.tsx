@@ -31,8 +31,9 @@ const editorialPhotos=[
  "photo-1496747611176-843222e1e57c",
  "photo-1524250502761-1ac6f2e30d43"
 ];
-const img=(id:string)=>{const n=Number(id);const photo=editorialPhotos[Number.isFinite(n)?Math.abs(n)%editorialPhotos.length:0];return `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=1200&q=82`;};
+const img=(id:string)=>{if(id.startsWith("barber-")){const n=id.slice(7);return `https://images.pexels.com/photos/${n}/pexels-photo-${n}.jpeg?auto=compress&cs=tinysrgb&w=1200`; }const n=Number(id);const photo=editorialPhotos[Number.isFinite(n)?Math.abs(n)%editorialPhotos.length:0];return `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=1200&q=82`;};
 const configs=[
+ {match:/barbearia|barbeiro|barbershop|barber shop/i,services:["Corte masculino","Barba completa","Corte e barba","Acabamento e contornos"],photos:["barber-7518731","barber-4625645","barber-7518746","barber-5584458"],noun:"barbearia masculina",about:"Cortes, barba e atendimento personalizado com técnica e atenção aos detalhes."},
  {match:/consultoria de imagem|consultor.*imagem|personal stylist/i,services:["Análise de estilo","Coloração pessoal","Curadoria de guarda-roupa","Personal shopper"],photos:["0","1","2","3"],noun:"imagem e estilo",about:"Uma consultoria de imagem que valoriza a individualidade e transforma escolhas em expressão pessoal."},
  {match:/fotograf/i,services:["Retratos autorais","Ensaios pessoais","Fotografia de marca","Direção criativa"],photos:["4","5","6","7"],noun:"fotografia",about:"Imagens com intenção, sensibilidade e um olhar atento à história de cada pessoa."},
  {match:/maquiagem/i,services:["Maquiagem social","Beleza editorial","Produção para eventos","Consultoria de maquiagem"],photos:["8","9","10","11"],noun:"maquiagem",about:"Produções que respeitam sua personalidade e celebram a beleza em suas diferentes formas."},
