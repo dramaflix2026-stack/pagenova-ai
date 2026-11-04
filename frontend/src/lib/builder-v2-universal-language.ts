@@ -271,7 +271,7 @@ function applyProcessStepReorder<T extends UniversalSite>(site:T,instruction:str
  // Place the moved step immediately before the first remaining step, without moving the heading or introduction.
  const first=remaining.find(b=>b.id!==moved[0].id);
  if(!first)return {ok:false,error:"Etapa de referência não encontrada. Nenhuma alteração aplicada."};
- const firstIndex=site.blocks.findIndex(b=>b.id===first.id);
+ const firstIndex=site.blocks.findIndex(b=>b.id===steps[0].id);
  const previous=site.blocks[firstIndex-1];
  if(!previous||previous.section!==sectionId)return {ok:false,error:"Posição inicial da seção não identificada. Nenhuma alteração aplicada."};
  return applyUniversalOperations(site,[
