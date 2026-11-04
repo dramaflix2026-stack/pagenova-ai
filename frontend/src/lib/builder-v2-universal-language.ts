@@ -283,6 +283,24 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  if(processRevision)return processRevision;
  const structured=applyStructuredSectionBrief(site,instruction);
  if(structured)return structured;
+ // Atomic two-field hero restoration/edit, independent of visual template.
+ // Explicit field labels prevent the description from ever being written into a heading.
+ const heroFields=/\b(?:na\s+capa|capa\s+do\s+site|hero)\b/i.test(instruction)
+  &&/\bt[ií]tulo\s+principal\s*:/i.test(instruction)
+  &&/\bdescri[cç][aã]o\s+(?:abaixo\s+do\s+t[ií]tulo|da\s+capa)?\s*:/i.test(instruction);
+ if(heroFields){
+  const title=instruction.match(/t[ií]tulo\s+principal\s*:\s*["“]([^"”]+)["”]/i)?.[1];
+  const description=instruction.match(/descri[cç][aã]o\s+(?:abaixo\s+do\s+t[ií]tulo|da\s+capa)?\s*:\s*["“]([^"”]+)["”]/i)?.[1];
+  const hero=resolveUniversalSection(site,"capa");
+  if(!title||!description||!hero)return {ok:false,error:"Informe título e descrição entre aspas e identifique a capa. Nenhuma alteração aplicada."};
+  const headings=site.blocks.filter(b=>b.section===hero&&b.type==="heading");
+  const paragraphs=site.blocks.filter(b=>b.section===hero&&b.type==="paragraph");
+  if(headings.length!==1||paragraphs.length!==1)return {ok:false,error:"Não foi possível identificar um único título e uma única descrição na capa. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[
+   {action:"update",blockId:headings[0].id,changes:{text:title}},
+   {action:"update",blockId:paragraphs[0].id,changes:{text:description}}
+  ]);
+ }
  const actionableInstruction=instruction.replace(/^\s*quero\s+(?:(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)|personalizar|editar|modificar)\s+(?:(?:no|neste|nesse|o)\s+)?site[^:\r\n]{0,160}:\s*/i,"").trim();
  // Preservation sentences are constraints, not mutations. Remove them only at
  // sentence boundaries so an action containing "preservando" stays intact.
