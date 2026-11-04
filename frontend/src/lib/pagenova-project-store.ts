@@ -1,4 +1,5 @@
 import {validProjectShape} from "./project-sync-contract.ts";
+import {currentBackupUser} from "./project-sync.ts";
 export const PAGENOVA_PROJECT_DB = "pagenova-projects";
 export const PAGENOVA_PROJECT_STORE = "projects";
 export const PAGENOVA_PROJECT_DB_VERSION = 1;
@@ -38,13 +39,15 @@ export async function savePageNovaProject(
   project: unknown,
 ): Promise<void> {
   const snapshot = structuredClone(project);
+  // Bind the save event to the account active when the edit was initiated.
+  const initiatingUserId = typeof window !== "undefined" ? currentBackupUser() : null;
   let created = false;
   const previous = pendingProjectWrites.get(id);
   const save = (previous ? previous.catch(() => undefined) : Promise.resolve())
     .then(async () => { created = await withProjectWriteLock(id,()=>writePageNovaProject(id, snapshot)); });
   pendingProjectWrites.set(id, save);
   try { await save;
-    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("pagenova-project-saved", {detail:{id,project:snapshot,created}}));
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("pagenova-project-saved", {detail:{id,project:snapshot,created,initiatingUserId}}));
   }
   finally { if (pendingProjectWrites.get(id) === save) pendingProjectWrites.delete(id); }
 }
