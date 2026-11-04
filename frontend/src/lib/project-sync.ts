@@ -1,9 +1,10 @@
-import { captureBackup, claimLocalSource, localRevisions, prepareUpload, acknowledgeUpload, blockUpload } from "./project-sync-local.ts";
+import { captureBackup, claimLocalSource, localRevisions, prepareUpload, acknowledgeUpload, blockUpload, markLegacySource } from "./project-sync-local.ts";
 import { validBackupPayload, type BackupKind } from "./project-sync-contract.ts";
 import { listPageNovaProjectEntries } from "./pagenova-project-store.ts";
 let owner:string|null=null;
 let stopped=false;
 let running:Promise<void>|null=null;
+let flushAgain=false;
 const STUDIO="pagenova-builder-v2-private-v1";
 export function currentBackupUser(){return owner;}
 export function syncNotice(message:string){window.dispatchEvent(new CustomEvent("pagenova-sync-status",{detail:message}));}
@@ -12,6 +13,7 @@ export async function backupLocalProject(projectId:string,kind:BackupKind,payloa
   const snapshot=structuredClone(payload);
   if(!userId)return;
   if(!validBackupPayload(snapshot,kind))throw Error("Cópia inválida ou com arquivo local não serializável. Original preservado.");
+  if(archive||hydrating)await markLegacySource(projectId);
   if(!await claimLocalSource(userId,projectId))throw Error("Este projeto local está vinculado a outra conta.");
   await captureBackup(userId,projectId,kind,snapshot,archive,hydrating);
   if(owner===userId)void flushBackups();
@@ -28,6 +30,7 @@ export async function migrateLocalProjects(userId:string){
   for(const key of keys){
     if(stopped||owner!==userId)return;
     // Claim the source slot as well as each project identity, before reading it.
+    await markLegacySource(key);
     if(!await claimLocalSource(userId,key))continue;
     try{
       const raw=localStorage.getItem(key);let site=null;
@@ -43,7 +46,7 @@ export async function migrateLocalProjects(userId:string){
   }
 }
 export function flushBackups():Promise<void>{
-  if(running)return running;
+  if(running){flushAgain=true;return running;}
   const userId=owner;
   if(!userId||stopped)return Promise.resolve();
   const run=async():Promise<void>=>{
@@ -68,7 +71,7 @@ export function flushBackups():Promise<void>{
   // The lock spans network requests across tabs; local capture never waits for it.
   const task:Promise<void>=(navigator.locks?navigator.locks.request(`pagenova-sync:${userId}`,run).then(()=>undefined):run())
     .catch(()=>syncNotice("Sem conexão com a nuvem — alterações locais preservadas; nova tentativa automática."))
-    .finally(()=>{running=null;});
+    .finally(()=>{running=null;if(flushAgain){flushAgain=false;void flushBackups();}});
   running=task;
   return task;
 }
@@ -81,7 +84,9 @@ export function startProjectSync(userId:string){
       .catch(()=>syncNotice("Backup local pendente. Os projetos originais foram preservados."))
       .finally(()=>{scanning=false;});
   };
-  const edited=(event:Event)=>{const d=(event as CustomEvent).detail;void backupLocalProject(`indexeddb:${d.id}`,"indexeddb",d.project).catch(()=>syncNotice("Não foi possível criar a cópia de segurança local."));};
+  const edited=(event:Event)=>{const d=(event as CustomEvent).detail;
+    void (async()=>{if(d.created!==true)await markLegacySource(`indexeddb:${d.id}`);await backupLocalProject(`indexeddb:${d.id}`,"indexeddb",d.project);})()
+      .catch(()=>syncNotice("Cópia local preservada; envio não confirmado. Abra Backups para verificar conta, formato e pendências."));};
   tick();const timer=window.setInterval(tick,30000);
   window.addEventListener("online",tick);window.addEventListener("focus",tick);window.addEventListener("pagenova-project-saved",edited);
   return()=>{stopped=true;owner=null;clearInterval(timer);window.removeEventListener("online",tick);window.removeEventListener("focus",tick);window.removeEventListener("pagenova-project-saved",edited);};

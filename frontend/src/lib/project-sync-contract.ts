@@ -14,8 +14,7 @@ function jsonCompatible(value:unknown,ancestors=new Set<object>()):boolean {
   const valid=Object.values(value).every(v=>jsonCompatible(v,ancestors));
   ancestors.delete(value);return valid;
 }
-export function validBackupPayload(value: unknown, kind: BackupKind): value is BackupPayload {
-  if(!jsonCompatible(value))return false;
+export function validProjectShape(value: unknown, kind: BackupKind): value is BackupPayload {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
   const p = value as BackupPayload;
   if (kind === "studio") return typeof p.title === "string" && typeof p.background === "string" &&
@@ -26,6 +25,9 @@ export function validBackupPayload(value: unknown, kind: BackupKind): value is B
     p.kind === "booking-workspace" && Array.isArray(p.services) && Array.isArray(p.reservations) ||
     typeof p.generatedHtml === "string" && p.generatedHtml.trim().length > 0 ||
     Array.isArray(p.blocks) && p.blocks.length > 0 || !!p.pages && typeof p.pages === "object" && Object.keys(p.pages).length > 0);
+}
+export function validBackupPayload(value:unknown,kind:BackupKind):value is BackupPayload {
+  return jsonCompatible(value)&&validProjectShape(value,kind);
 }
 export function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;

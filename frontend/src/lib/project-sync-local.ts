@@ -99,3 +99,24 @@ export async function blockUpload(revision:LocalRevision):Promise<void>{
     tx.objectStore("revisions").put({...revision,status:"blocked"});done(undefined);
   });
 }
+
+const LEGACY_PENDING="__pagenova_legacy_pending__";
+/** Unowned legacy data is quarantined until the account explicitly claims it. */
+export async function markLegacySource(source:string):Promise<void>{
+ await transaction<void>(["owners"],"readwrite",(tx,done)=>{
+  const store=tx.objectStore("owners"),r=store.get(source);
+  r.onsuccess=()=>{if(!r.result)store.add(LEGACY_PENDING,source);done(undefined);};
+ });
+}
+export async function localSourceOwner(source:string):Promise<string|null>{
+ return transaction(["owners"],"readonly",(tx,done)=>{const r=tx.objectStore("owners").get(source);r.onsuccess=()=>done(r.result??null);});
+}
+export function isUnclaimedOwner(owner:string|null){return owner===null||owner===LEGACY_PENDING;}
+export async function approveLegacySources(userId:string,sources:string[]):Promise<number>{
+ return transaction(["owners"],"readwrite",(tx,done)=>{
+  const store=tx.objectStore("owners");let approved=0;
+  for(const source of new Set(sources)){const r=store.get(source);r.onsuccess=()=>{if(!r.result||r.result===LEGACY_PENDING){store.put(userId,source);approved++;}};}
+  // All get callbacks precede transaction completion; count is read by a final queued request.
+  const last=store.get("__approval_count_sentinel__");last.onsuccess=()=>done(approved);
+ });
+}

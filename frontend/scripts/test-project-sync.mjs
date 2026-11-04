@@ -118,6 +118,11 @@ await test('network failure does not block legacy local saves; retry drains dura
     stored.set(slot+':crm:corrupt:versions',JSON.stringify([{site:site('Recovered historical')} ]));
     globalThis.localStorage={...Object.fromEntries(stored),getItem:k=>stored.get(k)??null};
     const before=JSON.stringify([...stored]);
+    await migrateLocalProjects('offline-user');
+    const {pendingLegacySources}=await import('../src/lib/project-portable-recovery.ts');
+    const {approveLegacySources}=await import('../src/lib/project-sync-local.ts');
+    assert.equal((await localRevisions('offline-user')).filter(r=>r.projectId.startsWith('studio:legacy:')).length,0);
+    await approveLegacySources('offline-user',await pendingLegacySources('offline-user'));
     await migrateLocalProjects('offline-user');await migrateLocalProjects('offline-user');
     assert.equal(JSON.stringify([...stored]),before);
     const imported=(await localRevisions('offline-user')).filter(r=>r.projectId.startsWith('studio:legacy:'));

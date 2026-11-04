@@ -1,5 +1,7 @@
 # PageNova AI — homologação final do backup automático
 
+> Atualização posterior: [recuperação e ativação segura](builder-backup-activation-20261104.md). Consulte o relatório novo para números, mudanças de propriedade e bloqueios atuais.
+
 Data: 04/11/2026. Branch: `feature/builder-v2-safe-cloud-sync-20261104`. PR: [#15](https://github.com/dramaflix2026-stack/pagenova-ai/pull/15).
 
 **Decisão: homologação parcial; NÃO liberar Production.** Nenhum merge, deploy, migração real, alteração de domínio ou provisionamento pago foi executado. Não foram copiados dados nem credenciais de Production para testes.
