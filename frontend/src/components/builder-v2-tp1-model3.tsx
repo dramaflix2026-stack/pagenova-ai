@@ -5,6 +5,7 @@ import "./builder-v2-tp1-model3.css";
 import {BuilderV2TP1Model3Sections} from "./builder-v2-tp1-model3-sections";
 
 const niches=[
+ {pattern:/barbearia|barbeiro|barbershop|barber shop/i,label:"BARBEARIA MASCULINA",headline:"Seu estilo merece excelência.",description:"Cortes precisos, barba impecável e atendimento personalizado.",image:"https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Barbeiro profissional realizando corte masculino"},
  {pattern:/consultoria de imagem|consultor(?:a|ia).*imagem|personal stylist/i,label:"CONSULTORIA DE IMAGEM",headline:"Sua imagem. Sua essência. Seu estilo.",description:"Uma experiência de estilo construída a partir de quem você é.",image:"https://images.pexels.com/photos/9775892/pexels-photo-9775892.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Editorial de moda com composição sofisticada"},
  {pattern:/fotograf/i,label:"FOTOGRAFIA PROFISSIONAL",headline:"Histórias vistas por outro olhar.",description:"Fotografia com identidade, intenção e sensibilidade.",image:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Ensaio fotográfico editorial"},
  {pattern:/maquiagem/i,label:"ESTÚDIO DE MAQUIAGEM",headline:"A beleza está nos detalhes.",description:"Expressão pessoal e criatividade em cada produção.",image:"https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Maquiagem editorial em retrato"},
