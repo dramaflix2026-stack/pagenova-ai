@@ -283,30 +283,43 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   const section=resolveUniversalSection(site,"serviços");
   if(!section)return {ok:false,error:"Seção de serviços não identificada. Nenhuma alteração aplicada."};
   const blocks=site.blocks.filter(b=>b.section===section);
-  const paragraphs=blocks.filter(b=>b.type==="paragraph"&&/^[^:：—–]+[:：—–]\s*\S/.test(String(b.text||"")));
+  // Renderer contract: first paragraph is section intro; card titles are separate headings.
+  const allParagraphs=blocks.filter(b=>b.type==="paragraph");
+  const paragraphs=allParagraphs.slice(1);
   const headings=blocks.filter(b=>b.type==="heading").slice(1);
+  const sectionHeading=blocks.find(b=>b.type==="heading");
   const ordinal=(word:string)=>({primeiro:0,segundo:1,terceiro:2,quarto:3} as Record<string,number>)[word.toLowerCase()];
   const ops:UniversalOperation[]=[];
-  const seen=new Map<string,string>();
-  const titleTargets=new Map<number,string>();
-  for(const match of cardTitle){
-   const index=ordinal(match[1]),block=paragraphs[index]||headings[index];
-   if(!block)return {ok:false,error:"Card "+(index+1)+" não encontrado. Nenhuma alteração aplicada."};
-   const current=String(block.text||"");
-   const sep=current.match(/^([^:：—–]+)(\s*[:：—–]\s*)([\s\S]*)$/);
-   const next=sep?match[2]+sep[2]+sep[3]:match[2];
-   titleTargets.set(index,block.id);seen.set(block.id,next);
-  }
+  const titles=new Map<number,string>();
+  const descriptions=new Map<number,string>();
+  for(const match of cardTitle)titles.set(ordinal(match[1]),match[2]);
   for(const match of cardDescription){
    const index=/desse\s+mesmo/i.test(match[0])?(cardTitle.length?ordinal(cardTitle[0][1]):-1):ordinal(match[0].match(/(?:primeiro|segundo|terceiro|quarto)/i)?.[0]||"");
-   const block=paragraphs[index];
-   if(!block)return {ok:false,error:"Descrição do card não identificada. Nenhuma alteração aplicada."};
-   const current=seen.get(block.id)||String(block.text||"");
-   const sep=current.match(/^([^:：—–]+)(\s*[:：—–]\s*)([\s\S]*)$/);
-   if(!sep)return {ok:false,error:"Descrição do card sem estrutura reconhecida. Nenhuma alteração aplicada."};
-   seen.set(block.id,sep[1]+sep[2]+match[1]);
+   descriptions.set(index,match[1]);
   }
-  for(const [blockId,value] of seen)ops.push({action:"update",blockId,changes:{text:value}});
+  for(const [index,value] of descriptions){
+   if(index<0||!paragraphs[index])return {ok:false,error:"Descrição do card "+(index+1)+" não encontrada. Nenhuma alteração aplicada."};
+   ops.push({action:"update",blockId:paragraphs[index].id,changes:{text:value}});
+  }
+  // Materialize missing card-heading overrides in ordinal order, without modifying intro.
+  if(titles.size){
+   if(!sectionHeading)return {ok:false,error:"Título da seção não encontrado. Nenhuma alteração aplicada."};
+   const max=Math.max(...titles.keys());
+   let afterId=sectionHeading.id;
+   for(let index=0;index<=max;index++){
+    const heading=headings[index];
+    if(heading){
+     if(titles.has(index))ops.push({action:"update",blockId:heading.id,changes:{text:titles.get(index)!}});
+     afterId=heading.id;
+    }else{
+     const id="universal-service-card-title-"+index+"-"+Date.now().toString(36);
+     const label=titles.get(index)||String(paragraphs[index]?.text||"").split(":")[0].trim();
+     if(!label)return {ok:false,error:"Título do card "+(index+1)+" não identificado. Nenhuma alteração aplicada."};
+     ops.push({action:"add",afterId,block:{id,type:"heading",section,text:label}});
+     afterId=id;
+    }
+   }
+  }
   return applyUniversalOperations(site,ops);
  }
  const timelineLayout=applyProcessTimelineLayout(site,instruction);
