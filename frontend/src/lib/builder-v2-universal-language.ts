@@ -176,6 +176,53 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
  return null;
 }
 
+/** Natural language section creation, without requiring a rigid numbered briefing. */
+function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const request=instruction.match(/\b(?:adicione|crie|inclua)\s+uma\s+nova\s+se[cç][aã]o\s+(?:chamada|denominada)\s+["“]([^"”]+)["”]/i);
+ if(!request)return null;
+ const name=request[1].trim();
+ const before=instruction.match(/\b(?:imediatamente\s+)?antes\s+da\s+se[cç][aã]o\s+(?:de\s+)?["“]?([^"”.\n]+)["”]?/i);
+ const after=instruction.match(/\b(?:imediatamente\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:de\s+)?["“]?([^"”.\n]+)["”]?/i);
+ const destination=before||after;
+ if(!destination)return {ok:false,error:"Indique a seção de referência para posicionar a nova seção."};
+ const target=resolveUniversalSection(site,destination[1].trim());
+ if(!target)return {ok:false,error:"Seção de referência não encontrada. Nenhuma alteração aplicada."};
+ const sectionId="custom-"+normalize(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+ if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
+ const title=instruction.match(/\bT[ií]tulo\s*:\s*["“]([^"”]+)["”]/i)?.[1];
+ const description=instruction.match(/\bDescri[cç][aã]o\s*:\s*["“]([^"”]+)["”]/i)?.[1];
+ const cards=instruction.match(/\b(?:crie|adicione)\s+tr[eê]s\s+cards?\s+com\s+os\s+t[ií]tulos?\s+["“]([^"”]+)["”]\s*,\s*["“]([^"”]+)["”]\s+e\s+["“]([^"”]+)["”]/i);
+ if(!title||!description||!cards)return {ok:false,error:"Informe título, descrição e os três títulos dos cards. Nenhuma alteração aplicada."};
+ const targetIndex=site.blocks.findIndex(b=>b.section===target);
+ if(targetIndex<0)return {ok:false,error:"Seção de referência sem blocos."};
+ const beforeIndex=before?targetIndex:site.blocks.findLastIndex(b=>b.section===target)+1;
+ const previous=site.blocks[beforeIndex-1];
+ if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
+ const details=[
+  "Atendimento dedicado a cortes masculinos e acabamentos personalizados.",
+  "Cuidados com a barba, modelagem e atenção aos detalhes.",
+  "Uma experiência de atendimento atencioso e individualizado."
+ ];
+ const imageIds=["7518731","19050581","7518740"];
+ const entries=[
+  {type:"heading",text:title},
+  {type:"paragraph",text:description},
+  ...cards.slice(1).flatMap((card,i)=>[
+   {type:"heading",text:card},
+   {type:"paragraph",text:details[i]},
+   {type:"image",src:"https://images.pexels.com/photos/"+imageIds[i]+"/pexels-photo-"+imageIds[i]+".jpeg?auto=compress&cs=tinysrgb&w=1000"}
+  ])
+ ];
+ let afterId=previous.id;
+ const operations:UniversalOperation[]=[];
+ for(let i=0;i<entries.length;i++){
+  const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
+  operations.push({action:"add",block,afterId});afterId=block.id;
+ }
+ return applyUniversalOperations(site,operations);
+}
+
 /** Structured multi-line brief for a named three-card section. All changes commit atomically. */
 function applyStructuredSectionBrief<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const clean=(value:string)=>value.replace(/^[\s*"“”']+|[\s*"“”']+$/g,"").trim();
@@ -379,6 +426,8 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  if(processReorder)return processReorder;
  const processRevision=applyProcessStepRevision(site,instruction);
  if(processRevision)return processRevision;
+ const naturalSection=applyNaturalSectionCreation(site,instruction);
+ if(naturalSection)return naturalSection;
  const structured=applyStructuredSectionBrief(site,instruction);
  if(structured)return structured;
  // Atomic two-field hero restoration/edit, independent of visual template.
