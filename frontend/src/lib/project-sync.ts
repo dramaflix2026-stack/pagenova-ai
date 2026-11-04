@@ -85,7 +85,13 @@ export function startProjectSync(userId:string){
       .finally(()=>{scanning=false;});
   };
   const edited=(event:Event)=>{const d=(event as CustomEvent).detail;
-    void (async()=>{if(d.created!==true)await markLegacySource(`indexeddb:${d.id}`);await backupLocalProject(`indexeddb:${d.id}`,"indexeddb",d.project);})()
+    if(stopped||owner!==userId)return;
+    void (async()=>{
+      if(d.created!==true)await markLegacySource(`indexeddb:${d.id}`);
+      // An in-flight event must not be captured under a different account after logout/login.
+      if(stopped||owner!==userId)return;
+      await backupLocalProject(`indexeddb:${d.id}`,"indexeddb",d.project);
+    })()
       .catch(()=>syncNotice("Cópia local preservada; envio não confirmado. Abra Backups para verificar conta, formato e pendências."));};
   tick();const timer=window.setInterval(tick,30000);
   window.addEventListener("online",tick);window.addEventListener("focus",tick);window.addEventListener("pagenova-project-saved",edited);
