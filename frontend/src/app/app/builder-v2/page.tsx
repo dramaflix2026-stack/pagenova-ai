@@ -455,7 +455,7 @@ export default function BuilderV2() {
       void savePageNovaProject("builder-v2-site:"+site.id,{kind:"builder-v2-site",id:site.id,title:site.title,site,updatedAt:Date.now()})
         .catch(()=>setStorageError("Não foi possível adicionar o site à biblioteca local."));
     }
-    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
+    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
   },[site,loaded,draftHydrated,storageProjectReady,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
