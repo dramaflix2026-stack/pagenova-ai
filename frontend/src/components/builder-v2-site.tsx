@@ -165,12 +165,6 @@ function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  const [variant,setVariant]=useState<"01"|"02"|"03">((site.briefingLayoutVariant==="03"||site.briefingLayoutVariant==="02")?site.briefingLayoutVariant:"01");
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01")},[site.briefingLayoutVariant]);
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
-  {!publishedMode?<div role="group" aria-label="Escolher modelo visual da família Beleza e Serviços Premium" style={{display:"flex",justifyContent:"center",gap:10,padding:"12px 18px",background:"#e8e2d8",color:"#283027",fontFamily:"Arial,sans-serif",fontSize:12}}>
-   
-   <button type="button" aria-pressed={variant==="01"} onClick={()=>{setVariant("01");onVariantChange?.("01");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="01"?"#364237":"#fffaf3",color:variant==="01"?"#fff":"#364237",cursor:"pointer"}}>Modelo 01</button>
-   <button type="button" aria-pressed={variant==="02"} onClick={()=>{setVariant("02");onVariantChange?.("02");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="02"?"#364237":"#fffaf3",color:variant==="02"?"#fff":"#364237",cursor:"pointer"}}>Modelo 02</button>
-   <button type="button" aria-pressed={variant==="03"} onClick={()=>{setVariant("03");onVariantChange?.("03");}} style={{border:"1px solid #b5a897",padding:"9px 14px",background:variant==="03"?"#171717":"#fffaf3",color:variant==="03"?"#fff":"#364237",cursor:"pointer"}}>Modelo 03</button>
-  </div>:null}
   {variant==="03"?<BuilderV2TP1Model3Hero site={site}/>:variant==="02"?<BuilderV2TP1Model2Hero site={site}/>:/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<TP1BarbershopModel1 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
