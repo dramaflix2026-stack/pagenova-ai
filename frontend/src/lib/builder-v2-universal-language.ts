@@ -302,6 +302,17 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   ]);
  }
  // Universal hero CTA label-only edit: preserve the existing URL and all other properties.
+ const heroButtonColor=instruction.match(/^(?:altere|troque|mude|defina)\s+a\s+cor\s+de\s+fundo\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+(?:preto\s*)?\(?\s*(#[0-9a-f]{3,8})\s*\)?\.?(?:\s+(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
+ if(heroButtonColor){
+  const hero=resolveUniversalSection(site,"capa");
+  if(!hero)return {ok:false,error:"Não foi possível localizar a capa. Nenhuma alteração aplicada."};
+  const buttons=site.blocks.filter(b=>b.section===hero&&b.type==="button");
+  const primary=buttons.filter(b=>["primary","principal","main"].includes(String(b.role||b.variant||b.ctaRole||"").toLowerCase()));
+  const linked=buttons.filter(b=>typeof b.href==="string"&&b.href.trim()&&!b.href.startsWith("#"));
+  const target=primary.length===1?primary[0]:linked.length===1?linked[0]:buttons[0];
+  if(!target)return {ok:false,error:"Botão principal da capa não encontrado. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"update",blockId:target.id,changes:{background:heroButtonColor[1]}}]);
+ }
  const heroCtaRequest=instruction.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+["“]([^"”]+)["”"]\s*\.?\s*(?:(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
  if(heroCtaRequest){
   const hero=resolveUniversalSection(site,"capa");
