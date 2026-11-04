@@ -1,6 +1,6 @@
+"use client";
 import {universalBlockProps,UniversalTypographyRules} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
-"use client";
 import { resolveVisualComposition } from "@/lib/builder-v2-visual-compositions";
 import { BuilderV2VerticalTimeline } from "@/components/builder-v2-vertical-timeline";
 import { EngineeringEditorialCards } from "@/components/builder-v2-engineering-editorial-cards";
