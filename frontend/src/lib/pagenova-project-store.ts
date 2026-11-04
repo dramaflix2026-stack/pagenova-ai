@@ -100,6 +100,10 @@ export async function readPageNovaProject<T>(
 ): Promise<T | null> {
   // A refresh or preview opened during a pending edit must see the latest save.
   await pendingProjectWrites.get(id);
+  if (typeof window !== "undefined") {
+    const user = currentBackupUser();
+    if (!user || await localSourceOwner(`indexeddb:${id}`) !== user) return null;
+  }
   return readRawPageNovaProject<T>(id);
 }
 
@@ -124,6 +128,14 @@ async function readRawPageNovaProject<T>(id:string):Promise<T|null>{
 }
 
 export async function listPageNovaProjects<T>(): Promise<T[]> {
+  const user = typeof window !== "undefined" ? currentBackupUser() : null;
+  if (typeof window !== "undefined" && !user) return [];
+  if (user) {
+    const entries = await listPageNovaProjectEntries<T>();
+    const visible:T[] = [];
+    for (const entry of entries) if (await localSourceOwner(`indexeddb:${String(entry.key)}`) === user) visible.push(entry.project);
+    return visible;
+  }
   const db = await openPageNovaProjectDb();
   try {
     return await new Promise<T[]>((resolve, reject) => {
