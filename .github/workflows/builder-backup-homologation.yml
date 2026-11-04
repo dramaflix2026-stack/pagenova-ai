@@ -23,6 +23,8 @@ jobs:
           node-version: '24'
       - name: Install test dependencies
         run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Exercise persistent browser profiles with synthetic fixtures
+        run: npm run test:project-sync:browser --prefix frontend
       - name: Start fresh local Supabase without hosted credentials
         shell: bash
         run: |

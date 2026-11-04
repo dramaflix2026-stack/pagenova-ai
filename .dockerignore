@@ -5,5 +5,5 @@
 **/.env.*
 **/*.log
 **/*.tsbuildinfo
-supabase/.temp
+**/supabase/.temp
 .qa

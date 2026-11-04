@@ -12,7 +12,9 @@
     "test:integration": "node scripts/test-publishing-flows-runtime.mjs",
     "test:cloner-integration": "node scripts/test-cloner-integration.mjs",
     "test:commercial": "node --test scripts/test-commercial-access.mjs",
-    "test:project-sync": "node --experimental-strip-types --test scripts/test-project-sync.mjs scripts/test-project-sync-api.mjs"
+    "test:project-sync": "node --experimental-strip-types --test scripts/test-project-sync.mjs scripts/test-project-sync-api.mjs",
+    "test:project-sync:browser": "node --experimental-strip-types scripts/test-project-sync-browser.mjs",
+    "test:project-sync:supabase": "node scripts/test-project-sync-supabase.mjs verify"
   },
   "dependencies": {
     "@sparticuz/chromium": "^153.0.0",

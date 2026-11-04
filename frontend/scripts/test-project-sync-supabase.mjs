@@ -67,7 +67,7 @@ const executablePath=process.env.PAGENOVA_QA_CHROMIUM_EXECUTABLE??await chromium
 const profileRoot=await mkdtemp(path.join(tmpdir(),'pagenova-real-supabase-qa-'));
 const launch=dir=>playwright.launchPersistentContext(dir,{executablePath,args:chromium.args,headless:true,viewport:{width:1280,height:900}});
 let ctxA=await launch(path.join(profileRoot,'a')),ctxB=await launch(path.join(profileRoot,'b'));
-const cookies=who=>who.jar.map(c=>({name:c.name,value:c.value,url:app,sameSite:'Lax'}));
+const cookies=who=>who.jar.map(c=>({name:c.name,value:c.value,url:app,sameSite:'Lax',expires:Math.floor(Date.now()/1000)+(c.options?.maxAge??3600)}));
 await ctxA.addCookies(cookies(a));await ctxB.addCookies(cookies(a)); // same owner, two physical browser profiles
 const legacy={id:crypto.randomUUID(),name:'Legacy synthetic '+crypto.randomUUID(),kind:'institutional-site',pages:{home:{title:'Preserved'}},unknown:{retained:true}};
 const draft=site('Builder synthetic QA');const key='pagenova-builder-v2-private-v1';

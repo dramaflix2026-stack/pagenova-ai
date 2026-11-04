@@ -1,5 +1,7 @@
 # Builder 2.0: backup automático e recuperação segura
 
+Resultados atuais da missão final: [relatório de homologação](builder-backup-homologation-20261104.md). As seções abaixo preservam o histórico das implementações anteriores.
+
 Data: 04/11/2026. Branch: `feature/builder-v2-safe-cloud-sync-20261104`.
 Base: `main` em `190cabd075fa0afeed8d8e658f2b0572a0343277`.
 
