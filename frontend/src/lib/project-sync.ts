@@ -5,6 +5,7 @@ let owner:string|null=null;
 let stopped=false;
 let running:Promise<void>|null=null;
 let flushAgain=false;
+let activeSyncSession=0;
 const STUDIO="pagenova-builder-v2-private-v1";
 export function currentBackupUser(){return owner;}
 export function syncNotice(message:string){window.dispatchEvent(new CustomEvent("pagenova-sync-status",{detail:message}));}
@@ -76,24 +77,25 @@ export function flushBackups():Promise<void>{
   return task;
 }
 export function startProjectSync(userId:string){
+  const session=++activeSyncSession;
   owner=userId;stopped=false;
   let scanning=false;
   const tick=()=>{
-    if(scanning)return;scanning=true;
-    void migrateLocalProjects(userId).then(()=>flushBackups())
+    if(scanning||session!==activeSyncSession||stopped||owner!==userId)return;scanning=true;
+    void migrateLocalProjects(userId).then(()=>{if(session===activeSyncSession&&owner===userId&&!stopped)return flushBackups();})
       .catch(()=>syncNotice("Backup local pendente. Os projetos originais foram preservados."))
       .finally(()=>{scanning=false;});
   };
   const edited=(event:Event)=>{const d=(event as CustomEvent).detail;
-    if(stopped||owner!==userId)return;
+    if(stopped||owner!==userId||session!==activeSyncSession)return;
     void (async()=>{
       if(d.created!==true)await markLegacySource(`indexeddb:${d.id}`);
       // An in-flight event must not be captured under a different account after logout/login.
-      if(stopped||owner!==userId)return;
+      if(stopped||owner!==userId||session!==activeSyncSession)return;
       await backupLocalProject(`indexeddb:${d.id}`,"indexeddb",d.project);
     })()
       .catch(()=>syncNotice("Cópia local preservada; envio não confirmado. Abra Backups para verificar conta, formato e pendências."));};
   tick();const timer=window.setInterval(tick,30000);
   window.addEventListener("online",tick);window.addEventListener("focus",tick);window.addEventListener("pagenova-project-saved",edited);
-  return()=>{stopped=true;owner=null;clearInterval(timer);window.removeEventListener("online",tick);window.removeEventListener("focus",tick);window.removeEventListener("pagenova-project-saved",edited);};
+  return()=>{if(session===activeSyncSession){stopped=true;owner=null;}clearInterval(timer);window.removeEventListener("online",tick);window.removeEventListener("focus",tick);window.removeEventListener("pagenova-project-saved",edited);};
 }
