@@ -256,3 +256,18 @@ await test('IndexedDB reads hide another account projects without deleting origi
   }finally{stopB();globalThis.window=previous;}
   assert.deepEqual(await readPageNovaProject(id),original);
 });
+
+await test('new local project is owned before save resolves; unclaimed legacy original cannot be silently adopted',async()=>{
+  const events=new EventTarget(),previous=globalThis.window;
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:()=>1};
+  const {startProjectSync}=await import('../src/lib/project-sync.ts');
+  const {localSourceOwner}=await import('../src/lib/project-sync-local.ts');
+  const stop=startProjectSync('new-project-owner');
+  try{
+    const id='new-project-claim-before-event';
+    await savePageNovaProject(id,{id,name:'New',pages:{home:{title:'New'}}});
+    assert.equal(await localSourceOwner(`indexeddb:${id}`),'new-project-owner');
+    assert.ok(await readPageNovaProject(id));
+  }finally{stop();globalThis.window=previous;}
+});
