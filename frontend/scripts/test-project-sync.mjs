@@ -172,3 +172,24 @@ await test('an older hydrated draft cannot inherit a newer cloud acknowledgement
   assert.equal(outgoing.sentBase,null);
   assert.ok((await localRevisions(user)).some(r=>r.payload.title==='Newest synced'));
 });
+
+await test('stale session cleanup cannot disable a newer account session',async()=>{
+  const events=new EventTarget();
+  const originalWindow=globalThis.window,originalLocalStorage=globalThis.localStorage,originalFetch=globalThis.fetch;
+  const intervals=new Map();let nextInterval=0;
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:(fn)=>{intervals.set(++nextInterval,fn);return nextInterval;},
+    clearInterval:(id)=>intervals.delete(id)};
+  globalThis.localStorage={getItem:()=>null};
+  globalThis.fetch=async(_url,options)=>{const b=JSON.parse(options.body);return Response.json({userId:b.userId,revision:b.operationId,conflict:false});};
+  const {startProjectSync,backupLocalProject,currentBackupUser,flushBackups}=await import('../src/lib/project-sync.ts');
+  const stopOld=startProjectSync('session-old');
+  const stopNew=startProjectSync('session-new');
+  try{
+    stopOld();
+    assert.equal(currentBackupUser(),'session-new');
+    await backupLocalProject('studio:session-new','studio',site('Still active'));
+    await flushBackups();
+    assert.ok((await localRevisions('session-new')).some(x=>x.projectId==='studio:session-new'&&x.status==='synced'));
+  }finally{stopNew();globalThis.window=originalWindow;globalThis.localStorage=originalLocalStorage;globalThis.fetch=originalFetch;}
+});
