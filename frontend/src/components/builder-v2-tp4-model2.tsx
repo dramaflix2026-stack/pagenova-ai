@@ -49,7 +49,7 @@ const editorialExtras=[
  "photo-1551601651-2a8555f1a136",
  "photo-1581056771107-24ca5f033842"
 ];
-const picture=(id:string,w=1400)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w="+w+"&q=85";
+const picture=(id:string,w=1400)=>id.startsWith("https://")?id+(id.includes("?")?"&":"?")+"auto=compress&cs=tinysrgb&w="+w:"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w="+w+"&q=85";
 export function BuilderV2TP4Model2({site}:{site:BuilderV2SiteData}){
  const [service,setService]=useState(0),[step,setStep]=useState(0),[quote,setQuote]=useState(0),[faq,setFaq]=useState<number|null>(null),[name,setName]=useState(""),[contact,setContact]=useState(""),[message,setMessage]=useState(""),[formError,setFormError]=useState("");
  const brand=site.header?.brand||site.title||"Clínica";
