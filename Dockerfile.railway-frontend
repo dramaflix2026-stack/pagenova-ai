@@ -1,0 +1,10 @@
+FROM node:24-bookworm-slim
+WORKDIR /workspace
+COPY . .
+WORKDIR /workspace/frontend
+RUN npm ci
+RUN npm run build
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+EXPOSE 8000
+CMD ["sh", "-c", "npx next start -H 0.0.0.0 -p ${PORT:-8000}"]
