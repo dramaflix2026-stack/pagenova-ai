@@ -315,7 +315,10 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
    if(primary.length===1)return applyUniversalOperations(site,[{action:"update",blockId:primary[0].id,changes:{text:heroCtaRequest[1]}}]);
    const linked=buttons.filter(b=>typeof b.href==="string"&&b.href.trim()&&!b.href.startsWith("#"));
    if(linked.length===1)return applyUniversalOperations(site,[{action:"update",blockId:linked[0].id,changes:{text:heroCtaRequest[1]}}]);
-   return {ok:false,error:"Há múltiplos botões principais possíveis na capa. Identifique o texto atual para evitar alterar o botão errado."};
+   // TP1 Model 02 renders heroBlocks.find(type === "button") as its primary CTA.
+   // Match that renderer contract: first button within the resolved hero section.
+   // Secondary hardcoded anchor links are not universal button blocks.
+   return applyUniversalOperations(site,[{action:"update",blockId:buttons[0].id,changes:{text:heroCtaRequest[1]}}]);
   }
   // Some approved templates render the hero CTA from site.header when no hero button block exists.
   // Materialize a section-scoped override instead of changing header.ctaLabel globally.
