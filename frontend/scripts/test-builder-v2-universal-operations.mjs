@@ -867,11 +867,11 @@ test("unreadable local draft cannot be overwritten by autosave",()=>{
  const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
  assert.match(editor,/else throw new Error\("Invalid saved draft"\)/);
  assert.match(editor,/setDraftRecoveryFailed\(true\)/);
- assert.match(editor,/if\(!loaded\|\|!draftHydrated\|\|draftRecoveryFailed\)return;/);
+ assert.match(editor,/if\(!loaded\|\|!draftHydrated\|\|!storageProjectReady\|\|draftRecoveryFailed\)return;/);
 });
 
 test("history recovery warning remains visible after successful draft autosave",()=>{
  const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
- assert.match(editor,/previous\.startsWith\("Não foi possível recuperar o histórico"\)/);
+ assert.match(editor,/previous\.startsWith\("Não foi possível"\)/);
  assert.match(editor,/if\(!loaded\|\|!draftHydrated\|\|historyRecoveryFailed\)return;/);
 });
