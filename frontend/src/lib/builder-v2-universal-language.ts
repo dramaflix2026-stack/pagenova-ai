@@ -275,6 +275,40 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // Atomic service-card copy edits: map visible ordinal cards, not the section introduction.
+ const serviceCopy=/\\b(?:se[cç][aã]o\\s+(?:de\\s+)?servi[cç]os|card\\s+(?:da\\s+)?se[cç][aã]o\\s+(?:de\\s+)?servi[cç]os)\\b/i.test(instruction);
+ const cardTitle=[...instruction.matchAll(/(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+do\\s+(primeiro|segundo|terceiro|quarto)\\s+card\\s+(?:para|por)\\s+["“]([^"”]+)["”]/gi)];
+ const cardDescription=[...instruction.matchAll(/(?:altere|troque|mude|substitua)\\s+a\\s+descri[cç][aã]o\\s+(?:desse\\s+mesmo|do\\s+(?:primeiro|segundo|terceiro|quarto))\\s+card\\s+(?:para|por)\\s+["“]([^"”]+)["”]/gi)];
+ if(serviceCopy&&(cardTitle.length||cardDescription.length)){
+  const section=resolveUniversalSection(site,"serviços");
+  if(!section)return {ok:false,error:"Seção de serviços não identificada. Nenhuma alteração aplicada."};
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const paragraphs=blocks.filter(b=>b.type==="paragraph"&&/^[^:：—–]+[:：—–]\\s*\\S/.test(String(b.text||"")));
+  const headings=blocks.filter(b=>b.type==="heading").slice(1);
+  const ordinal=(word:string)=>({primeiro:0,segundo:1,terceiro:2,quarto:3} as Record<string,number>)[word.toLowerCase()];
+  const ops:UniversalOperation[]=[];
+  const seen=new Map<string,string>();
+  const titleTargets=new Map<number,string>();
+  for(const match of cardTitle){
+   const index=ordinal(match[1]),block=paragraphs[index]||headings[index];
+   if(!block)return {ok:false,error:"Card "+(index+1)+" não encontrado. Nenhuma alteração aplicada."};
+   const current=String(block.text||"");
+   const sep=current.match(/^([^:：—–]+)(\\s*[:：—–]\\s*)([\\s\\S]*)$/);
+   const next=sep?match[2]+sep[2]+sep[3]:match[2];
+   titleTargets.set(index,block.id);seen.set(block.id,next);
+  }
+  for(const match of cardDescription){
+   const index=/desse\\s+mesmo/i.test(match[0])?(cardTitle.length?ordinal(cardTitle[0][1]):-1):ordinal(match[0].match(/(?:primeiro|segundo|terceiro|quarto)/i)?.[0]||"");
+   const block=paragraphs[index];
+   if(!block)return {ok:false,error:"Descrição do card não identificada. Nenhuma alteração aplicada."};
+   const current=seen.get(block.id)||String(block.text||"");
+   const sep=current.match(/^([^:：—–]+)(\\s*[:：—–]\\s*)([\\s\\S]*)$/);
+   if(!sep)return {ok:false,error:"Descrição do card sem estrutura reconhecida. Nenhuma alteração aplicada."};
+   seen.set(block.id,sep[1]+sep[2]+match[1]);
+  }
+  for(const [blockId,value] of seen)ops.push({action:"update",blockId,changes:{text:value}});
+  return applyUniversalOperations(site,ops);
+ }
  const timelineLayout=applyProcessTimelineLayout(site,instruction);
  if(timelineLayout)return timelineLayout;
  const processReorder=applyProcessStepReorder(site,instruction);
