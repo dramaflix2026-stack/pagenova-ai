@@ -21,6 +21,7 @@ import { BuilderV2TP2Model3 } from "@/components/builder-v2-tp2-model3";
 import { BuilderV2TP3Model1 } from "@/components/builder-v2-tp3-model1";
 import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
 import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
+import { BuilderV2TP4Model1 } from "@/components/builder-v2-tp4-model1";
 import { BuilderV2TP4Model2 } from "@/components/builder-v2-tp4-model2";
 import { BuilderV2TP4Model3 } from "@/components/builder-v2-tp4-model3";
 import { BuilderV2TP6Model2StoreInfoFooter } from "@/components/builder-v2-tp6-model2-store-footer";
@@ -192,7 +193,7 @@ function TP4LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  const [variant,setVariant]=useState<"01"|"02"|"03">(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");
  return <div data-tp4-family="saude-integrada" data-tp4-variant={variant}>
  {!publishedMode?<div role="group" aria-label="Escolher modelo da família Saúde Integrada" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f2eee6",color:"#343b36"}}>{(["01","02","03"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #8b958b",background:variant===v?"#465b51":"#fff",color:variant===v?"#fff":"#343b36",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="03"?<BuilderV2TP4Model3 site={site}/>:variant==="02"?<BuilderV2TP4Model2 site={site}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+ {variant==="03"?<BuilderV2TP4Model3 site={site}/>:variant==="02"?<BuilderV2TP4Model2 site={site}/>:<BuilderV2TP4Model1 site={site}/>}
  </div>;
 }
 function TP5LayoutChooser({site,selectedNiche,publishedMode,onVariantChange,initialVariant}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;onVariantChange?:(variant:"01"|"02"|"03")=>void;initialVariant:"01"|"02"}){
