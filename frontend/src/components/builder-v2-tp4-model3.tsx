@@ -26,7 +26,7 @@ export function BuilderV2TP4Model3({site}:{site:BuilderV2SiteData}){
  const match=catalogs.find(c=>c[0].test(site.niche||""))||catalogs.find(c=>c[0].test(identity));
  const specialty=match?.[1]||"Atendimento médico";
  const services=match?.[2]||["Consultas","Orientação clínica","Acompanhamento"];
- const images=[...(match?.[3]||medical),...extra.filter(x=>!([...((match?.[3]||medical) as readonly string[])]).includes(x))];
+ const images=[...new Set([...(match?.[3]||medical),...(/odontol|dent/i.test(identity)?["photo-1606811971618-4486d14f3f99","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc"]:[]),...extra])];
  const image=(n:number)=>url(images[n%images.length]);
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text||"O cuidado evolui com você.";
  const intro=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text||"Uma experiência de atendimento que valoriza a escuta, a clareza e cada etapa da sua jornada.";
