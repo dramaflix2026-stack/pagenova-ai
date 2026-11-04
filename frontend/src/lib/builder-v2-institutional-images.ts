@@ -100,7 +100,8 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   const cardHeadings=sectionHeadings.slice(1);
   const paragraphs=blocks.filter(b=>sectionOf(b)===section&&isCard(b)&&b.text.trim().length>0);
   // The first paragraph is the section introduction, not card 1.
-  const cardParagraphs=paragraphs.slice(1);
+  const hasSectionIntro=paragraphs.length>3||/^(?:conheca|descubra|explore|oferecemos|nossos servicos|saiba mais)\b/.test(norm(paragraphs[0]?.text||""));
+  const cardParagraphs=hasSectionIntro?paragraphs.slice(1):paragraphs;
   const targetCard=cardIndex!==undefined?(cardHeadings[cardIndex]||cardParagraphs[cardIndex]):undefined;
   if(cardRequest&&!targetCard)throw Error("Não encontrei esse card na seção indicada. Nenhuma imagem foi alterada.");
   const mobileOnly=/\b(?:somente|apenas|so)\s+(?:no\s+|a\s+|para\s+)?mobile\b|\bimagem\s+mobile\b|\bfoto\s+mobile\b/.test(s)&&!/\bdesktop\b/.test(s);
