@@ -514,7 +514,8 @@ export default function BuilderV2() {
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
       const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
-      if(result||(compound&&hasAttachments)){
+      const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
+      if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
         if(!result||!result.ok){
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
