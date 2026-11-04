@@ -443,6 +443,10 @@ export default function BuilderV2() {
   },[]);
   useEffect(()=>{
     if(!loaded||!draftHydrated||!storageProjectReady||draftRecoveryFailed)return;
+    // Prevent an old site snapshot from being written into the next site's key
+    // during React's state transition after newProject() or AI generation.
+    const selectedId=new URLSearchParams(window.location.search).get("project");
+    if(selectedId&&(site.id!==selectedId||activeStorageKey!==storageKey+":project:"+selectedId))return;
     // IndexedDB is the primary durable store; localStorage is a legacy fallback.
     // Both retain the complete Site, including variant, images and edited blocks.
     void savePageNovaProject("builder-draft:"+activeStorageKey,{site,updatedAt:Date.now()})
@@ -453,7 +457,7 @@ export default function BuilderV2() {
     }
     try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
-  },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
+  },[site,loaded,draftHydrated,storageProjectReady,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
     if(!loaded||!draftHydrated||historyRecoveryFailed)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
