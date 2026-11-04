@@ -193,3 +193,23 @@ await test('stale session cleanup cannot disable a newer account session',async(
     assert.ok((await localRevisions('session-new')).some(x=>x.projectId==='studio:session-new'&&x.status==='synced'));
   }finally{stopNew();globalThis.window=originalWindow;globalThis.localStorage=originalLocalStorage;globalThis.fetch=originalFetch;}
 });
+
+await test('delayed save event from logged-out account is not captured by newly logged-in account',async()=>{
+  const events=new EventTarget();
+  const previous={window:globalThis.window,localStorage:globalThis.localStorage,fetch:globalThis.fetch};
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:()=>1};
+  globalThis.localStorage={getItem:()=>null};
+  globalThis.fetch=async(_url,options)=>{const b=JSON.parse(options.body);return Response.json({userId:b.userId,revision:b.operationId,conflict:false});};
+  const {startProjectSync,flushBackups}=await import('../src/lib/project-sync.ts');
+  const stopA=startProjectSync('event-owner-a');stopA();
+  const stopB=startProjectSync('event-owner-b');
+  try{
+    events.dispatchEvent(new CustomEvent('pagenova-project-saved',{detail:{
+      id:'delayed-from-a',created:true,initiatingUserId:'event-owner-a',
+      project:{id:'delayed-from-a',pages:{home:{title:'Sensitive A'}}}
+    }}));
+    await flushBackups();
+    assert.equal((await localRevisions('event-owner-b')).filter(x=>x.projectId==='indexeddb:delayed-from-a').length,0);
+  }finally{stopB();globalThis.window=previous.window;globalThis.localStorage=previous.localStorage;globalThis.fetch=previous.fetch;}
+});
