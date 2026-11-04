@@ -7,6 +7,7 @@ import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,Histo
 import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
 import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "@/lib/briefing-template-families";
+import {readPageNovaProject,savePageNovaProject} from "@/lib/pagenova-project-store";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
@@ -380,7 +381,25 @@ export default function BuilderV2() {
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
     }catch{setHistoryRecoveryFailed(true);setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
-    if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
+    // The full draft can exceed localStorage's small quota (especially with images).
+    // Hydrate the IndexedDB copy before enabling autosave, so F5 cannot overwrite it
+    // with the initial empty React state. Keep the legacy localStorage copy intact.
+    if(!projectId||hasDraft){
+      void readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key)
+        .then(saved=>{
+          if(cancelled)return;
+          if(saved?.site&&Array.isArray(saved.site.blocks)&&saved.site.blocks.length&&
+             typeof saved.site.title==="string"&&typeof saved.site.background==="string"){
+            setSite(saved.site);
+            if(saved.site.kind)setSiteCategory(saved.site.kind);
+            if(saved.site.realEstateWhatsapp)setRealEstateWhatsapp(saved.site.realEstateWhatsapp);
+            if(saved.site.kind==="restaurant"&&saved.site.niche)setRestaurantSegment(saved.site.niche);
+            setCategoryScreen(false);
+          }
+        })
+        .catch(()=>{/* Existing localStorage draft remains available. */})
+        .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);}});
+    }
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
       void importReadyCrmProject(projectId).then(site=>{
@@ -397,6 +416,10 @@ export default function BuilderV2() {
   },[]);
   useEffect(()=>{
     if(!loaded||!draftHydrated||draftRecoveryFailed)return;
+    // IndexedDB is the primary durable store; localStorage is a legacy fallback.
+    // Both retain the complete Site, including variant, images and edited blocks.
+    void savePageNovaProject("builder-draft:"+activeStorageKey,{site,updatedAt:Date.now()})
+      .catch(()=>setStorageError("Não foi possível salvar o rascunho no armazenamento local. Verifique o espaço disponível."));
     try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
   },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
