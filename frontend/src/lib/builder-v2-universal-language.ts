@@ -307,8 +307,20 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   const hero=resolveUniversalSection(site,"capa");
   if(!hero)return {ok:false,error:"Não foi possível localizar a capa. Nenhuma alteração aplicada."};
   const buttons=site.blocks.filter(b=>b.section===hero&&b.type==="button");
-  if(buttons.length!==1)return {ok:false,error:"Não foi possível identificar um único botão principal na capa. Nenhuma alteração aplicada."};
-  return applyUniversalOperations(site,[{action:"update",blockId:buttons[0].id,changes:{text:heroCtaRequest[1]}}]);
+  if(buttons.length===1)return applyUniversalOperations(site,[{action:"update",blockId:buttons[0].id,changes:{text:heroCtaRequest[1]}}]);
+  if(buttons.length>1)return {ok:false,error:"Há mais de um botão na capa. Identifique o botão atual para evitar alterar o elemento errado."};
+  // Some approved templates render the hero CTA from site.header when no hero button block exists.
+  // Materialize a section-scoped override instead of changing header.ctaLabel globally.
+  const header=site.header as {ctaLabel?:unknown;ctaHref?:unknown}|undefined;
+  const href=typeof header?.ctaHref==="string"?header.ctaHref.trim():"";
+  const originalLabel=typeof header?.ctaLabel==="string"?header.ctaLabel.trim():"";
+  if(!originalLabel||!href)return {ok:false,error:"O botão da capa não possui um bloco editável nem um CTA configurado. Nenhuma alteração aplicada."};
+  const existingIds=new Set(site.blocks.map(b=>b.id));
+  let id="universal-hero-primary-cta",suffix=1;
+  while(existingIds.has(id))id="universal-hero-primary-cta-"+suffix++;
+  const anchor=site.blocks.filter(b=>b.section===hero).at(-1);
+  if(!anchor)return {ok:false,error:"A capa não possui blocos editáveis. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"add",afterId:anchor.id,block:{id,type:"button",section:hero,text:heroCtaRequest[1],href}}]);
  }
  const actionableInstruction=instruction.replace(/^\s*quero\s+(?:(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)|personalizar|editar|modificar)\s+(?:(?:no|neste|nesse|o)\s+)?site[^:\r\n]{0,160}:\s*/i,"").trim();
  // Preservation sentences are constraints, not mutations. Remove them only at
