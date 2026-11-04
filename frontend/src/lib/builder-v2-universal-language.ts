@@ -308,7 +308,15 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   if(!hero)return {ok:false,error:"Não foi possível localizar a capa. Nenhuma alteração aplicada."};
   const buttons=site.blocks.filter(b=>b.section===hero&&b.type==="button");
   if(buttons.length===1)return applyUniversalOperations(site,[{action:"update",blockId:buttons[0].id,changes:{text:heroCtaRequest[1]}}]);
-  if(buttons.length>1)return {ok:false,error:"Há mais de um botão na capa. Identifique o botão atual para evitar alterar o elemento errado."};
+  if(buttons.length>1){
+   // Primary CTA is the first actionable button in hero document order.
+   // Prefer explicit semantic roles when supplied by a renderer.
+   const primary=buttons.filter(b=>["primary","principal","main"].includes(String(b.role||b.variant||b.ctaRole||"").toLowerCase()));
+   if(primary.length===1)return applyUniversalOperations(site,[{action:"update",blockId:primary[0].id,changes:{text:heroCtaRequest[1]}}]);
+   const linked=buttons.filter(b=>typeof b.href==="string"&&b.href.trim()&&!b.href.startsWith("#"));
+   if(linked.length===1)return applyUniversalOperations(site,[{action:"update",blockId:linked[0].id,changes:{text:heroCtaRequest[1]}}]);
+   return {ok:false,error:"Há múltiplos botões principais possíveis na capa. Identifique o texto atual para evitar alterar o botão errado."};
+  }
   // Some approved templates render the hero CTA from site.header when no hero button block exists.
   // Materialize a section-scoped override instead of changing header.ctaLabel globally.
   const header=site.header as {ctaLabel?:unknown;ctaHref?:unknown}|undefined;
