@@ -195,6 +195,7 @@ export default function BuilderV2() {
   },[site.cinematic?.mode,site.niche,site.title]);
 
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
+  const [storageProjectReady,setStorageProjectReady]=useState(false);
   const [libraryProjectId,setLibraryProjectId]=useState<string|null>(null);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
@@ -354,6 +355,7 @@ export default function BuilderV2() {
     const projectId=crm&&/^[a-zA-Z0-9_-]{20,40}$/.test(crm)?crm:null;
     const key=validLibraryId?storageKey+":project:"+validLibraryId:projectId?storageKey+":crm:"+projectId:storageKey;
     setActiveStorageKey(key);
+    setStorageProjectReady(false);
     setCrmProjectId(projectId);
     let hasDraft=false;
     try{
@@ -418,7 +420,7 @@ export default function BuilderV2() {
             setStorageError("Não foi possível recuperar este projeto neste navegador. Nenhum dado anterior será substituído.");
           }
         })
-        .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);}});
+        .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);setStorageProjectReady(true);}});
     }
     if(projectId&&!hasDraft){
       setCrmImporting(true);setCrmImportError("");
@@ -435,7 +437,7 @@ export default function BuilderV2() {
     return()=>{cancelled=true;};
   },[]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated||draftRecoveryFailed)return;
+    if(!loaded||!draftHydrated||!storageProjectReady||draftRecoveryFailed)return;
     // IndexedDB is the primary durable store; localStorage is a legacy fallback.
     // Both retain the complete Site, including variant, images and edited blocks.
     void savePageNovaProject("builder-draft:"+activeStorageKey,{site,updatedAt:Date.now()})
