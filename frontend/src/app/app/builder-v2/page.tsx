@@ -1085,9 +1085,11 @@ export default function BuilderV2() {
     const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
     const inferredNiche=/(?:barbearia|barbeiro|barbershop)/i.test(prompt)?"Barbearia":/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
-    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(inferredNiche||explicitNiche);
+    const detectedFamily=briefFamily||resolveBriefingFamily(prompt.slice(0,2500));
+    const detectedNiche=detectedFamily===8?(/pousad/i.test(prompt)?"Pousadas":/resort/i.test(prompt)?"Resorts":/chal[eé]|cabana/i.test(prompt)?"Chalés e cabanas":/hotel/i.test(prompt)?"Hotéis boutique":undefined):undefined;
+    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(inferredNiche||detectedNiche||explicitNiche);
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
-    const templateForCreation=creatingNewSite?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
+    const templateForCreation=shouldCreateProject?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const isGastronomy3d=/hamburg|burger|pizzaria|pizza|padaria|confeitaria|cafeteria|gastronomia|lanchonete|restaurante|doceria/.test(normalizedNiche);
     const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
