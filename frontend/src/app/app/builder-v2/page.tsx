@@ -390,7 +390,12 @@ export default function BuilderV2() {
     // Hydrate the IndexedDB copy before enabling autosave, so F5 cannot overwrite it
     // with the initial empty React state. Keep the legacy localStorage copy intact.
     if(!projectId||hasDraft||validLibraryId){
-      void readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key)
+      void (async()=>{
+        const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key);
+        const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId):null;
+        // A direct library link must recover its own project, not the last opened site.
+        return library?.site?library:draft;
+      })()
         .then(saved=>{
           if(cancelled)return;
           if(saved?.site&&Array.isArray(saved.site.blocks)&&saved.site.blocks.length&&
