@@ -96,8 +96,12 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
   }
   const cardRequest=s.match(new RegExp("(?:card|cartao)\\s*(?:numero\\s*)?"+ordinalPattern+"|"+ordinalPattern+"\\s*(?:card|cartao)"));
   const cardIndex=numberWord(cardRequest?.[1]||cardRequest?.[2]);
+  const sectionHeadings=blocks.filter(b=>sectionOf(b)===section&&b.type==="heading");
+  const cardHeadings=sectionHeadings.slice(1);
   const paragraphs=blocks.filter(b=>sectionOf(b)===section&&isCard(b)&&b.text.trim().length>0);
-  const targetCard=cardIndex!==undefined?paragraphs[cardIndex]:undefined;
+  // The first paragraph is the section introduction, not card 1.
+  const cardParagraphs=paragraphs.slice(1);
+  const targetCard=cardIndex!==undefined?(cardHeadings[cardIndex]||cardParagraphs[cardIndex]):undefined;
   if(cardRequest&&!targetCard)throw Error("Não encontrei esse card na seção indicada. Nenhuma imagem foi alterada.");
   const mobileOnly=/\b(?:somente|apenas|so)\s+(?:no\s+|a\s+|para\s+)?mobile\b|\bimagem\s+mobile\b|\bfoto\s+mobile\b/.test(s)&&!/\bdesktop\b/.test(s);
   const imageMention=s.match(new RegExp("(?:foto|imagem|fotografia)\\s*(?:numero\\s*)?"+ordinalPattern+"|"+ordinalPattern+"\\s*(?:foto|imagem|fotografia)"));
@@ -142,8 +146,17 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
         blocks[existing].userUploaded=true;
       }else if(targetCard){
         const assigned=findCardImage();
+        // Visual cards are rendered by image position, not by forCardId. Keep the requested ordinal slot.
+        const positional=sectionImages().filter(index=>!blocks[index].forCardId);
+        const slot=positional[cardIndex!];
         if(assigned>=0){blocks[assigned].src=uploads[i];delete blocks[assigned].mobileSrc;blocks[assigned].userUploaded=true;}
-        else blocks.push(newImage(section,uploads[i],targetCard.id));
+        else if(slot!==undefined){blocks[slot].src=uploads[i];delete blocks[slot].mobileSrc;blocks[slot].userUploaded=true;}
+        else {
+          const image=newImage(section,uploads[i]);
+          const last=blocks.findLastIndex(b=>sectionOf(b)===section);
+          const insertAt=positional.length?positional[positional.length-1]+1:last+1;
+          blocks.splice(insertAt,0,image);
+        }
       }else if(replaceSlots[i]!==undefined){
         blocks[replaceSlots[i]].src=uploads[i];delete blocks[replaceSlots[i]].mobileSrc;
         blocks[replaceSlots[i]].userUploaded=true;
