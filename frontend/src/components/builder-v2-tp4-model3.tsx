@@ -26,8 +26,8 @@ export function BuilderV2TP4Model3({site}:{site:BuilderV2SiteData}){
  const match=catalogs.find(c=>c[0].test(site.niche||""))||catalogs.find(c=>c[0].test(identity));
  const specialty=match?.[1]||"Atendimento médico";
  const services=match?.[2]||["Consultas","Orientação clínica","Acompanhamento"];
- const images=/odontol|dent/i.test(identity)?["photo-1606811971618-4486d14f3f99","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc"]:[...new Set([...(match?.[3]||medical),...extra])];
- const image=(n:number)=>url(images[n%images.length]);
+ const images=/odontol|dent/i.test(identity)?["https://images.pexels.com/photos/4269944/pexels-photo-4269944.jpeg","https://images.pexels.com/photos/9062525/pexels-photo-9062525.jpeg","https://images.pexels.com/photos/6501925/pexels-photo-6501925.jpeg","https://images.pexels.com/photos/3845766/pexels-photo-3845766.jpeg","https://images.pexels.com/photos/305568/pexels-photo-305568.jpeg","https://images.pexels.com/photos/6627534/pexels-photo-6627534.jpeg","https://images.pexels.com/photos/6812540/pexels-photo-6812540.jpeg","https://images.pexels.com/photos/5998474/pexels-photo-5998474.jpeg"]:[...new Set([...(match?.[3]||medical),...extra])];
+ const image=(n:number)=>{const source=images[n%images.length];return source.startsWith("https://")?source+"?auto=compress&cs=tinysrgb&w=1600":url(source);};
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text||"O cuidado evolui com você.";
  const intro=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text||"Uma experiência de atendimento que valoriza a escuta, a clareza e cada etapa da sua jornada.";
  const testimonials=site.blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avaliac|relato/i.test(b.section||"")).map(b=>(b.text||"").split(/\s*\|\s*/)).filter(p=>p.length>=3&&p[0]&&p[2]);
