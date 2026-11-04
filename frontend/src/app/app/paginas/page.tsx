@@ -12,6 +12,8 @@ import { listPageNovaProjects } from "@/lib/pagenova-project-store";
 import { renderSitePreview, type SiteProject } from "@/lib/site-builder";
 import { SiteHoverPreview } from "@/components/site-hover-preview";
 
+type BuilderV2LibraryProject = {kind:"builder-v2-site";id:string;title:string;updatedAt:number;site:{title:string;blocks:unknown[];niche?:string;briefingLayoutVariant?:string}};
+
 type CloneProject = {
   id: string;
   sourceUrl: string;
@@ -116,6 +118,7 @@ export default function PagesPage() {
   const [projects, setProjects] =
     useState<CloneProject[]>([]);
   const [sites, setSites] = useState<SiteProject[]>([]);
+  const [studioSites,setStudioSites]=useState<BuilderV2LibraryProject[]>([]);
 
   const [loaded, setLoaded] =
     useState(false);
@@ -149,10 +152,12 @@ export default function PagesPage() {
   }, [loadProjects]);
 
   useEffect(() => {
-    listPageNovaProjects<SiteProject>().then((saved) =>
-      setSites(saved.filter((item) => item?.kind === "institutional-site")
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)))
-    ).catch(() => setSites([]));
+    listPageNovaProjects<SiteProject|BuilderV2LibraryProject>().then((saved) => {
+      setSites(saved.filter((item):item is SiteProject => item?.kind === "institutional-site")
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)));
+      setStudioSites(saved.filter((item):item is BuilderV2LibraryProject => item?.kind === "builder-v2-site"&&!!item.id&&Array.isArray((item as BuilderV2LibraryProject).site?.blocks))
+        .sort((a,b)=>b.updatedAt-a.updatedAt));
+    }).catch(() => {setSites([]);setStudioSites([]);});
   }, []);
 
   function openProject(
@@ -269,6 +274,19 @@ export default function PagesPage() {
       />
 
       <main className="mx-auto max-w-7xl px-6 py-10 lg:px-10">
+        {studioSites.length > 0 && <section className="mb-10">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 className="text-xl font-bold text-white sm:text-2xl">Projetos do PageNova Studio</h2><p className="mt-1 text-sm text-white/45">Sites gerados com IA, salvos como rascunho para continuar a edição.</p></div>
+            <Link href="/app/builder-v2" className="rounded-xl border border-emerald-400/30 px-4 py-2.5 text-sm font-semibold text-emerald-200">+ Gerar site com IA</Link>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{studioSites.map(project=><article key={project.id} className="rounded-[22px] border border-white/10 bg-[#142019] p-5">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">Studio · Rascunho</span>
+            <h3 className="mt-3 break-words text-lg font-bold text-white">{project.title||"Site sem título"}</h3>
+            <p className="mt-2 text-sm text-white/50">{project.site.niche||"Site criado com inteligência artificial"} · {project.site.blocks.length} blocos</p>
+            <p className="mt-2 text-xs text-white/40">Última alteração: {new Date(project.updatedAt).toLocaleString("pt-BR")}</p>
+            <Link href={"/app/builder-v2?project="+encodeURIComponent(project.id)} className="mt-5 flex justify-center rounded-xl bg-emerald-400 px-4 py-3 text-sm font-bold text-[#14220f]">Continuar editando</Link>
+          </article>)}</div>
+        </section>}
         {sites.length > 0 && <section className="mb-10">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div>
@@ -329,7 +347,7 @@ export default function PagesPage() {
               Carregando páginas...
             </p>
           </div>
-        ) : projects.length === 0 && sites.length === 0 ? (
+        ) : projects.length === 0 && sites.length === 0 && studioSites.length === 0 ? (
           <div className="flex min-h-[420px] items-center justify-center rounded-3xl border border-dashed border-white/10 bg-white/[0.015] p-8 text-center">
             <div>
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-2xl text-neutral-500">

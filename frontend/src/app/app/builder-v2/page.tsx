@@ -7,6 +7,7 @@ import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,Histo
 import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
 import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "@/lib/briefing-template-families";
+import {readPageNovaProject,savePageNovaProject} from "@/lib/pagenova-project-store";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
@@ -194,6 +195,7 @@ export default function BuilderV2() {
   },[site.cinematic?.mode,site.niche,site.title]);
 
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
+  const [storageProjectReady,setStorageProjectReady]=useState(false);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
   const [draftHydrated,setDraftHydrated]=useState(false);
@@ -344,10 +346,14 @@ export default function BuilderV2() {
 
   useEffect(()=>{
     let cancelled=false;
-    const crm=new URLSearchParams(window.location.search).get("crmProject");
+    const params=new URLSearchParams(window.location.search);
+    const libraryId=params.get("project");
+    const validLibraryId=libraryId&&/^[a-zA-Z0-9_-]{12,80}$/.test(libraryId)?libraryId:null;
+    const crm=params.get("crmProject");
     const projectId=crm&&/^[a-zA-Z0-9_-]{20,40}$/.test(crm)?crm:null;
-    const key=projectId?storageKey+":crm:"+projectId:storageKey;
+    const key=validLibraryId?storageKey+":project:"+validLibraryId:projectId?storageKey+":crm:"+projectId:storageKey;
     setActiveStorageKey(key);
+    setStorageProjectReady(false);
     setCrmProjectId(projectId);
     let hasDraft=false;
     try{
@@ -380,8 +386,48 @@ export default function BuilderV2() {
           !!v&&typeof v==="object"&&typeof v.id==="string"&&!!v.site&&Array.isArray(v.site.blocks)).slice(-25));
       }
     }catch{setHistoryRecoveryFailed(true);setStorageError(previous=>previous||"Não foi possível recuperar o histórico de versões. O rascunho principal foi preservado.");}
-    if(!projectId||hasDraft){setLoaded(true);setDraftHydrated(true);}
-    if(projectId&&!hasDraft){
+    // The full draft can exceed localStorage's small quota (especially with images).
+    // Hydrate the IndexedDB copy before enabling autosave, so F5 cannot overwrite it
+    // with the initial empty React state. Keep the legacy localStorage copy intact.
+    if(!projectId||hasDraft||validLibraryId){
+      void (async()=>{
+        const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key);
+        const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId):null;
+        // A direct library link must recover its own project, not the last opened site.
+        // Prefer the newest complete snapshot; an older IndexedDB write must
+        // never replace a newer localStorage draft after an interrupted save.
+        const localRaw=localStorage.getItem(key);
+        let localSite:Site|null=null;
+        if(localRaw){try{const parsed=JSON.parse(localRaw) as Site;if(Array.isArray(parsed.blocks)&&parsed.blocks.length&&typeof parsed.title==="string")localSite=parsed;}catch{/* handled by legacy recovery */}}
+        if(validLibraryId){
+          if(library?.site)return library;
+          if(draft?.site&&draft.site.id===validLibraryId)return draft;
+          if(localSite?.id===validLibraryId)return {site:localSite,updatedAt:0};
+          throw new Error("Projeto selecionado não encontrado.");
+        }
+        return draft?.site?draft:localSite?{site:localSite,updatedAt:0}:null;
+      })()
+        .then(saved=>{
+          if(cancelled)return;
+          if(saved?.site&&Array.isArray(saved.site.blocks)&&saved.site.blocks.length&&
+             typeof saved.site.title==="string"&&typeof saved.site.background==="string"){
+            setSite(saved.site);
+            if(saved.site.kind)setSiteCategory(saved.site.kind);
+            if(saved.site.realEstateWhatsapp)setRealEstateWhatsapp(saved.site.realEstateWhatsapp);
+            if(saved.site.kind==="restaurant"&&saved.site.niche)setRestaurantSegment(saved.site.niche);
+            setCategoryScreen(false);
+          }
+        })
+        .catch(()=>{
+          if(cancelled)return;
+          if(validLibraryId&&!hasDraft){
+            setDraftRecoveryFailed(true);
+            setStorageError("Não foi possível recuperar este projeto neste navegador. Nenhum dado anterior será substituído.");
+          }
+        })
+        .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);setStorageProjectReady(true);}});
+    }
+    if(projectId&&!hasDraft&&!validLibraryId){
       setCrmImporting(true);setCrmImportError("");
       void importReadyCrmProject(projectId).then(site=>{
         if(cancelled)return;
@@ -391,15 +437,27 @@ export default function BuilderV2() {
       }).catch(error=>{
         if(cancelled)return;
         setCrmImportError(error instanceof Error?error.message:"Falha ao importar projeto CRM.");
-      }).finally(()=>{if(!cancelled)setCrmImporting(false);});
+      }).finally(()=>{if(!cancelled){setCrmImporting(false);setStorageProjectReady(true);}});
     }
     return()=>{cancelled=true;};
   },[]);
   useEffect(()=>{
-    if(!loaded||!draftHydrated||draftRecoveryFailed)return;
-    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível recuperar o rascunho")||previous.startsWith("Não foi possível recuperar o histórico")?previous:"");}
+    if(!loaded||!draftHydrated||!storageProjectReady||draftRecoveryFailed)return;
+    // Prevent an old site snapshot from being written into the next site's key
+    // during React's state transition after newProject() or AI generation.
+    const selectedId=new URLSearchParams(window.location.search).get("project");
+    if(selectedId&&(site.id!==selectedId||activeStorageKey!==storageKey+":project:"+selectedId))return;
+    // IndexedDB is the primary durable store; localStorage is a legacy fallback.
+    // Both retain the complete Site, including variant, images and edited blocks.
+    void savePageNovaProject("builder-draft:"+activeStorageKey,{site,updatedAt:Date.now()})
+      .catch(()=>setStorageError("Não foi possível salvar o rascunho no armazenamento local. Verifique o espaço disponível."));
+    if(site.blocks.length>0&&site.id){
+      void savePageNovaProject("builder-v2-site:"+site.id,{kind:"builder-v2-site",id:site.id,title:site.title,site,updatedAt:Date.now()})
+        .catch(()=>setStorageError("Não foi possível adicionar o site à biblioteca local."));
+    }
+    try{localStorage.setItem(activeStorageKey,JSON.stringify(site));setStorageError(previous=>previous.startsWith("Não foi possível")?previous:"");}
     catch{setStorageError("Não foi possível salvar o site neste navegador. Libere espaço para evitar perda de alterações.");}
-  },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
+  },[site,loaded,draftHydrated,storageProjectReady,draftRecoveryFailed,activeStorageKey]);
   useEffect(()=>{
     if(!loaded||!draftHydrated||historyRecoveryFailed)return;
     try{localStorage.setItem(activeStorageKey+":versions",JSON.stringify(versions));}
@@ -1047,6 +1105,13 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
+      // Every successful generation gets a stable project URL and its own draft key.
+      // Never assign this URL until the server returns a complete valid site.
+      if(creatingNewSite&&!crmProjectId){
+        const generatedId=requestSite.id!;
+        window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(generatedId));
+        setActiveStorageKey(storageKey+":project:"+generatedId);
+      }
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
@@ -1116,7 +1181,7 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); setSite({...initial,id:crypto.randomUUID(),kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||site.blocks.length<1)return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
