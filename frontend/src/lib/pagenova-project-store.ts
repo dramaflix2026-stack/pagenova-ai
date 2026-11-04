@@ -113,7 +113,9 @@ export async function readPageNovaProject<T>(
   await pendingProjectWrites.get(id);
   if (typeof window !== "undefined") {
     const user = currentBackupUser();
-    if (!user || await localSourceOwner(`indexeddb:${id}`) !== user) return null;
+    if (!user || await localSourceOwner(`indexeddb:${id}`) !== user || currentBackupUser() !== user) return null;
+    const project = await readRawPageNovaProject<T>(id);
+    return currentBackupUser() === user ? project : null;
   }
   return readRawPageNovaProject<T>(id);
 }
@@ -145,7 +147,7 @@ export async function listPageNovaProjects<T>(): Promise<T[]> {
     const entries = await listPageNovaProjectEntries<T>();
     const visible:T[] = [];
     for (const entry of entries) if (await localSourceOwner(`indexeddb:${String(entry.key)}`) === user) visible.push(entry.project);
-    return visible;
+    return currentBackupUser() === user ? visible : [];
   }
   const db = await openPageNovaProjectDb();
   try {
