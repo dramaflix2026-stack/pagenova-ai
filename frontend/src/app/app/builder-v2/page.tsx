@@ -1078,6 +1078,7 @@ export default function BuilderV2() {
       setInstruction("");setBusy(false);return;
     }
     const creatingNewSite=/(?:crie|criar|gere|gerar|monte|construa|desenvolva)\s+(?:(?:um|uma|novo|nova|totalmente|projeto|do zero)\s+){0,5}(?:site|pagina|página|landing page|projeto)\b/i.test(prompt)||/(?:projeto totalmente novo|gerar um novo site|criar um novo site|não copiar textos|nao copiar textos)/i.test(prompt);
+    const shouldCreateProject=creatingNewSite||site.blocks.length===0;
     const targetKind:SiteCategory=siteCategory;
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
@@ -1092,7 +1093,7 @@ export default function BuilderV2() {
     const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
     const auto3d=creatingNewSite&&(explicitly3d||site.cinematic?.mode==="immersive-3d");
     const auto3dTemplate=isGastronomy3d?"universal":"hamburgueria";
-    const requestSite=creatingNewSite?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const requestSite=shouldCreateProject?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1107,13 +1108,13 @@ export default function BuilderV2() {
       if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
       // Every successful generation gets a stable project URL and its own draft key.
       // Never assign this URL until the server returns a complete valid site.
-      if(creatingNewSite&&!crmProjectId){
+      if(shouldCreateProject&&!crmProjectId){
         const generatedId=requestSite.id!;
         window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(generatedId));
         setActiveStorageKey(storageKey+":project:"+generatedId);
       }
       let incoming = data.site as Site;
-      if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
+      if(shouldCreateProject){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
       // Keep explicit chat edits to visual settings; inherit previous values only when omitted.
       incoming.heroPresentation=creatingNewSite?undefined:(incoming.heroPresentation??site.heroPresentation);
@@ -1173,6 +1174,15 @@ export default function BuilderV2() {
            setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na foto.")+" O site foi criado, mas o anexo continua selecionado para reenviar."}]);
          }
        }else if(attachmentMode==="reference"){setInstitutionalFiles([]);}
+       if(shouldCreateProject&&!crmProjectId&&finishedSite.id&&finishedSite.blocks.length){
+         const projectKey=storageKey+":project:"+finishedSite.id;
+         try{
+           await savePageNovaProject("builder-v2-site:"+finishedSite.id,{kind:"builder-v2-site",id:finishedSite.id,title:finishedSite.title,site:finishedSite,updatedAt:Date.now()});
+           await savePageNovaProject("builder-draft:"+projectKey,{site:finishedSite,updatedAt:Date.now()});
+         }catch{
+           setStorageError("O site foi gerado, mas não foi possível confirmar seu salvamento neste navegador. Não atualize a página.");
+         }
+       }
        setGenerationError("");
        setMessages(prev=>[...prev,{role:"assistant",text:data.summary||"Alteração aplicada."}]);
        setInstruction(photoApplyFailed?prompt:"");setReference(null);
