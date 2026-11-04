@@ -87,7 +87,7 @@ export function startProjectSync(userId:string){
       .finally(()=>{scanning=false;});
   };
   const edited=(event:Event)=>{const d=(event as CustomEvent).detail;
-    if(stopped||owner!==userId||session!==activeSyncSession)return;
+    if(stopped||owner!==userId||session!==activeSyncSession||d.initiatingUserId!==userId)return;
     void (async()=>{
       if(d.created!==true)await markLegacySource(`indexeddb:${d.id}`);
       // An in-flight event must not be captured under a different account after logout/login.
