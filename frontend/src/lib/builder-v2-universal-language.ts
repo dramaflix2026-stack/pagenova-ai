@@ -313,6 +313,15 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   if(!target)return {ok:false,error:"Botão principal da capa não encontrado. Nenhuma alteração aplicada."};
   return applyUniversalOperations(site,[{action:"update",blockId:target.id,changes:{background:heroButtonColor[1]}}]);
  }
+ const heroImageUrl=instruction.match(/^(?:substitua|troque|altere|mude)\s+somente\s+a\s+imagem\s+principal\s+da\s+capa(?:\s+do\s+site)?\s+pela\s+fotografia\s+dispon[ií]vel\s+nesta\s+url\s*:\s*(https:\/\/[^\s]+)(?:\s+(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
+ if(heroImageUrl){
+  const hero=resolveUniversalSection(site,"capa");
+  if(!hero)return {ok:false,error:"Não foi possível localizar a capa. Nenhuma alteração aplicada."};
+  const images=site.blocks.filter(b=>b.section===hero&&b.type==="image");
+  if(!images.length)return {ok:false,error:"Imagem principal da capa não encontrada. Nenhuma alteração aplicada."};
+  const src=heroImageUrl[1].replace(/[.,;]+$/,"");
+  return applyUniversalOperations(site,[{action:"update",blockId:images[0].id,changes:{src}}]);
+ }
  const heroCtaRequest=instruction.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+["“]([^"”]+)["”"]\s*\.?\s*(?:(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
  if(heroCtaRequest){
   const hero=resolveUniversalSection(site,"capa");
