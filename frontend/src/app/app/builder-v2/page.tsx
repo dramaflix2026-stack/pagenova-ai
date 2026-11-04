@@ -196,7 +196,6 @@ export default function BuilderV2() {
 
   const [activeStorageKey,setActiveStorageKey]=useState(storageKey);
   const [storageProjectReady,setStorageProjectReady]=useState(false);
-  const [libraryProjectId,setLibraryProjectId]=useState<string|null>(null);
   const [crmProjectId,setCrmProjectId]=useState<string|null>(null);
   const [crmImporting,setCrmImporting]=useState(false);
   const [draftHydrated,setDraftHydrated]=useState(false);
@@ -350,7 +349,6 @@ export default function BuilderV2() {
     const params=new URLSearchParams(window.location.search);
     const libraryId=params.get("project");
     const validLibraryId=libraryId&&/^[a-zA-Z0-9_-]{12,80}$/.test(libraryId)?libraryId:null;
-    setLibraryProjectId(validLibraryId);
     const crm=params.get("crmProject");
     const projectId=crm&&/^[a-zA-Z0-9_-]{20,40}$/.test(crm)?crm:null;
     const key=validLibraryId?storageKey+":project:"+validLibraryId:projectId?storageKey+":crm:"+projectId:storageKey;
@@ -396,10 +394,6 @@ export default function BuilderV2() {
         const draft=await readPageNovaProject<{site:Site;updatedAt:number}>("builder-draft:"+key);
         const library=validLibraryId?await readPageNovaProject<{site:Site;updatedAt:number}>("builder-v2-site:"+validLibraryId):null;
         // A direct library link must recover its own project, not the last opened site.
-        if(validLibraryId&&!library?.site&&!draft?.site){
-          // Do not replace an unavailable existing project with an empty draft.
-          throw new Error("Projeto não encontrado no armazenamento deste navegador.");
-        }
         // Prefer the newest complete snapshot; an older IndexedDB write must
         // never replace a newer localStorage draft after an interrupted save.
         const localRaw=localStorage.getItem(key);
@@ -433,7 +427,7 @@ export default function BuilderV2() {
         })
         .finally(()=>{if(!cancelled){setLoaded(true);setDraftHydrated(true);setStorageProjectReady(true);}});
     }
-    if(projectId&&!hasDraft){
+    if(projectId&&!hasDraft&&!validLibraryId){
       setCrmImporting(true);setCrmImportError("");
       void importReadyCrmProject(projectId).then(site=>{
         if(cancelled)return;
@@ -1112,7 +1106,6 @@ export default function BuilderV2() {
       if(creatingNewSite&&!crmProjectId){
         const generatedId=requestSite.id!;
         window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(generatedId));
-        setLibraryProjectId(generatedId);
         setActiveStorageKey(storageKey+":project:"+generatedId);
       }
       let incoming = data.site as Site;
@@ -1184,7 +1177,7 @@ export default function BuilderV2() {
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
   }
-  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setLibraryProjectId(newId);setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
+  function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||site.blocks.length<1)return;
     const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
