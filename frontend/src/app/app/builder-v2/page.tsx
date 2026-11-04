@@ -2,6 +2,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
+import { backupLocalProject, studioProjectId } from "@/lib/project-sync";
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
 import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
@@ -313,6 +314,16 @@ export default function BuilderV2() {
   const [historyRecoveryFailed,setHistoryRecoveryFailed]=useState(false);
   const [cloudStatus, setCloudStatus] = useState("Carregando histórico na nuvem...");
   const [cloudVersions, setCloudVersions] = useState<SavedVersion[]>([]);
+  useEffect(()=>{
+    const status=(event:Event)=>setCloudStatus((event as CustomEvent<string>).detail);
+    window.addEventListener("pagenova-sync-status",status);
+    return()=>window.removeEventListener("pagenova-sync-status",status);
+  },[]);
+  useEffect(()=>{
+    if(!loaded||!draftHydrated||draftRecoveryFailed||!site.blocks.length)return;
+    void backupLocalProject(studioProjectId(site,activeStorageKey),"studio",site)
+      .catch(()=>setCloudStatus("Não foi possível criar o backup local. Rascunho original preservado."));
+  },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
   useEffect(() => {
     let active = true;
     fetch("/api/builder-v2/versions", { cache: "no-store" }).then(async response => {
@@ -1195,7 +1206,7 @@ export default function BuilderV2() {
   </main>;
   if(segmentScreen) return <main className="pn-builder-shell pn-builder-selection min-h-screen bg-[#0b1110] px-4 py-10 text-white"><div className="pn-segment-content mx-auto max-w-5xl"><button type="button" onClick={()=>{setSegmentScreen(false);setCategoryScreen(true);}} className="mb-8 rounded-lg border border-white/20 px-4 py-2 text-sm">← Voltar aos tipos de site</button><p className="text-xs font-bold uppercase tracking-widest text-lime-300">Restaurante e Delivery</p><h1 className="mt-3 text-3xl font-bold sm:text-4xl">Qual é o seu tipo de negócio?</h1><p className="mt-3 text-sm text-white/60">Escolha o segmento para preparar o cadastro de produtos. Os templates visuais serão selecionados em outra etapa.</p><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{restaurantSegments.map(segment=><button key={segment.id} type="button" onClick={()=>{setRestaurantSegment(segment.name);setSelectedNiche(segment.name);setSiteCategory("restaurant");setSite(prev=>({...prev,kind:"restaurant",niche:segment.name,restaurant:prev.kind==="restaurant"&&prev.niche===segment.name?(prev.restaurant||{whatsapp:"",menu:[]}):{whatsapp:"",menu:[]},blocks:prev.kind==="restaurant"&&prev.niche===segment.name?prev.blocks:[],templateId:prev.kind==="restaurant"&&prev.niche===segment.name?prev.templateId:undefined}));setSegmentScreen(false);setCategoryScreen(false);}} className="rounded-2xl border border-white/20 bg-white/[.04] p-6 text-left hover:border-lime-300 hover:bg-lime-300/10"><h2 className="text-xl font-bold">{segment.name}</h2><p className="mt-3 text-sm text-white/60">{segment.description}</p><span className="mt-6 inline-block text-sm font-semibold text-lime-300">Selecionar →</span></button>)}</div></div></main>;
   if(categoryScreen) return <main className="pn-builder-shell pn-builder-selection min-h-screen bg-[#0b1110] px-4 py-8 text-white sm:py-12"><div className="mx-auto max-w-[1600px]">
-    <div className="pn-selection-heading mb-10"><p className="mb-3 text-xs font-bold uppercase tracking-[.2em] text-lime-300">PageNova AI · Criação de sites</p><h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl">Que tipo de site vamos criar?</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">Escolha a finalidade do seu projeto. O chat com IA e o editor serão os mesmos; cada categoria terá os recursos próprios do seu negócio.</p></div>
+    <div className="pn-selection-heading mb-10"><p className="mb-3 text-xs font-bold uppercase tracking-[.2em] text-lime-300">PageNova AI · Criação de sites</p><h1 className="max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl">Que tipo de site vamos criar?</h1><p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/65 sm:text-base">Escolha a finalidade do seu projeto. O chat com IA e o editor serão os mesmos; cada categoria terá os recursos próprios do seu negócio.</p><a href="/app/builder-v2/backups" className="mt-4 inline-block text-sm text-lime-300 underline">Recuperar projetos salvos</a></div>
     <section aria-label="Tipos de site disponíveis" className="rounded-2xl border border-white/10 bg-[#101915] p-3 sm:p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 text-left">
@@ -1234,7 +1245,7 @@ export default function BuilderV2() {
       <button type="button" onClick={()=>setShowVersions(v=>!v)} aria-expanded={showVersions} className="rounded-lg border border-lime-300/50 px-3 py-2 text-xs text-lime-300">{showVersions?"Ocultar versões":"Ver versões"}</button>
       <button type="button" onClick={saveNamedVersion} disabled={!site.blocks.length||busy} className="rounded-lg border border-lime-300/50 px-3 py-2 text-xs text-lime-300 disabled:opacity-40">Salvar versão</button>
     </div>
-    {showVersions && <div className="mb-3 max-h-64 overflow-y-auto rounded-xl border border-white/20 p-3"><p className="mb-2 text-xs text-white/70">Versões locais e na nuvem. Salve uma versão nomeada antes de aprovar alterações.</p>{(versions.length + cloudVersions.length)===0 ? <p className="text-xs text-white/60">Nenhuma versão anterior ainda.</p> : [...cloudVersions, ...[...versions].reverse()].map(version=><div key={version.id} className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2"><div className="min-w-0"><p className="text-xs">{version.label}</p><p className="text-[11px] text-white/60">{new Date(version.at).toLocaleString("pt-BR")}</p></div><button type="button" disabled={busy} onClick={()=>restoreVersion(version)} className="rounded-md border border-lime-300/50 px-2 py-1 text-xs text-lime-300 disabled:opacity-40">Restaurar</button></div>)}</div>}
+    {showVersions && <div className="mb-3 max-h-64 overflow-y-auto rounded-xl border border-white/20 p-3"><p className="mb-2 text-xs text-white/70">Versões locais e na nuvem. Salve uma versão nomeada antes de aprovar alterações. <a href="/app/builder-v2/backups" className="text-lime-300 underline">Recuperar projetos e backups automáticos</a></p>{(versions.length + cloudVersions.length)===0 ? <p className="text-xs text-white/60">Nenhuma versão anterior ainda.</p> : [...cloudVersions, ...[...versions].reverse()].map(version=><div key={version.id} className="mb-2 flex items-center justify-between gap-2 border-b border-white/10 pb-2"><div className="min-w-0"><p className="text-xs">{version.label}</p><p className="text-[11px] text-white/60">{new Date(version.at).toLocaleString("pt-BR")}</p></div><button type="button" disabled={busy} onClick={()=>restoreVersion(version)} className="rounded-md border border-lime-300/50 px-2 py-1 text-xs text-lime-300 disabled:opacity-40">Restaurar</button></div>)}</div>}
   </div>
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}

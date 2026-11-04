@@ -31,11 +31,14 @@ export async function savePageNovaProject(
   id: string,
   project: unknown,
 ): Promise<void> {
+  const snapshot = structuredClone(project);
   const previous = pendingProjectWrites.get(id);
   const save = (previous ? previous.catch(() => undefined) : Promise.resolve())
-    .then(() => writePageNovaProject(id, project));
+    .then(() => writePageNovaProject(id, snapshot));
   pendingProjectWrites.set(id, save);
-  try { await save; }
+  try { await save;
+    if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("pagenova-project-saved", {detail:{id,project:snapshot}}));
+  }
   finally { if (pendingProjectWrites.get(id) === save) pendingProjectWrites.delete(id); }
 }
 
@@ -123,4 +126,17 @@ export async function deletePageNovaProject(
   } finally {
     db.close();
   }
+}
+
+/** Read-only migration inventory. Keep original keys and records untouched. */
+export async function listPageNovaProjectEntries<T>(): Promise<Array<{key:IDBValidKey;project:T}>> {
+  await Promise.all([...pendingProjectWrites.values()]);
+  const db=await openPageNovaProjectDb();
+  try{return await new Promise((resolve,reject)=>{
+    const tx=db.transaction(PAGENOVA_PROJECT_STORE,"readonly");
+    const entries:Array<{key:IDBValidKey;project:T}>=[];
+    const r=tx.objectStore(PAGENOVA_PROJECT_STORE).openCursor();
+    r.onsuccess=()=>{const c=r.result;if(c){entries.push({key:c.key,project:c.value});c.continue();}};
+    tx.oncomplete=()=>resolve(entries);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+  });}finally{db.close();}
 }
