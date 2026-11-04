@@ -135,6 +135,10 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
   return applyUniversalOperations(site,cards.map(b=>({action:"update" as const,blockId:b.id,changes:{background:colorCards[2]}})));
  }
  const hero=resolveUniversalSection(site,"capa");
+ // Shared hero targeting: a description beneath the heading is a paragraph, never a heading.
+ // Preservation clauses are stripped by applyUniversalNaturalLanguage before this handler.
+ const heroCopy=text.match(/^(?:altere|troque|mude|substitua)\\s+a\\s+(?:descri[cç][aã]o|subt[ií]tulo)\\s+(?:(?:logo\\s+)?abaixo\\s+do\\s+t[ií]tulo\\s+principal\\s+|principal\\s+)?(?:da\\s+)?capa\\s+(?:para|por)\\s+["“]([^"”]+)["”"]\\s*\\.?$/i);
+ if(heroCopy)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="paragraph"),heroCopy[1],"descrição da capa"):fail("capa");
  const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+principal\s+(?:da\s+)?capa\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(heroTitle)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="heading"),heroTitle[1],"título principal da capa"):fail("capa");
  const namedPrimaryButton=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+de\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”](?:,?\s+preservando\s+o\s+link\s+e\s+a\s+anima[cç][aã]o\s+existentes?)?\.?$/i);
