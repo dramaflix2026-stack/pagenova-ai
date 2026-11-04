@@ -400,7 +400,18 @@ export default function BuilderV2() {
           // Do not replace an unavailable existing project with an empty draft.
           throw new Error("Projeto não encontrado no armazenamento deste navegador.");
         }
-        return library?.site?library:draft;
+        // Prefer the newest complete snapshot; an older IndexedDB write must
+        // never replace a newer localStorage draft after an interrupted save.
+        const localRaw=localStorage.getItem(key);
+        let localSite:Site|null=null;
+        if(localRaw){try{const parsed=JSON.parse(localRaw) as Site;if(Array.isArray(parsed.blocks)&&parsed.blocks.length&&typeof parsed.title==="string")localSite=parsed;}catch{/* handled by legacy recovery */}}
+        if(validLibraryId){
+          if(library?.site)return library;
+          if(draft?.site&&draft.site.id===validLibraryId)return draft;
+          if(localSite?.id===validLibraryId)return {site:localSite,updatedAt:0};
+          throw new Error("Projeto selecionado não encontrado.");
+        }
+        return draft?.site?draft:localSite?{site:localSite,updatedAt:0}:null;
       })()
         .then(saved=>{
           if(cancelled)return;
