@@ -213,3 +213,24 @@ await test('delayed save event from logged-out account is not captured by newly 
     assert.equal((await localRevisions('event-owner-b')).filter(x=>x.projectId==='indexeddb:delayed-from-a').length,0);
   }finally{stopB();globalThis.window=previous.window;globalThis.localStorage=previous.localStorage;globalThis.fetch=previous.fetch;}
 });
+
+await test('owned IndexedDB project cannot be overwritten by another logged-in account',async()=>{
+  const events=new EventTarget();
+  const previous={window:globalThis.window,localStorage:globalThis.localStorage,fetch:globalThis.fetch};
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:()=>1};
+  globalThis.localStorage={getItem:()=>null};
+  globalThis.fetch=async(_url,options)=>{const b=JSON.parse(options.body);return Response.json({userId:b.userId,revision:b.operationId,conflict:false});};
+  const {startProjectSync}=await import('../src/lib/project-sync.ts');
+  const id='account-owned-idb',original={id,name:'Account A',pages:{home:{title:'Original'}}};
+  const stopA=startProjectSync('idb-owner-a');
+  try{
+    await claimLocalSource('idb-owner-a',`indexeddb:${id}`);
+    await savePageNovaProject(id,original);
+  }finally{stopA();}
+  const stopB=startProjectSync('idb-owner-b');
+  try{
+    await assert.rejects(savePageNovaProject(id,{id,name:'Account B',pages:{home:{title:'Overwrite'}}}),/outra conta/);
+    assert.deepEqual(await readPageNovaProject(id),original);
+  }finally{stopB();globalThis.window=previous.window;globalThis.localStorage=previous.localStorage;globalThis.fetch=previous.fetch;}
+});
