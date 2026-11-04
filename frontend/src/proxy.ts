@@ -7,7 +7,7 @@ export async function proxy(request: NextRequest) {
   // snapshot. Unverified/unknown hosts never receive another client's site.
   const host=(request.headers.get("host")||"").toLowerCase().split(":")[0];
   const customHost=Boolean(host&&host!=="pagenovaai.com.br"&&host!=="www.pagenovaai.com.br"&&
-    host!=="localhost"&&host!=="127.0.0.1"&&!host.endsWith(".vercel.app")&&
+    host!=="localhost"&&host!=="127.0.0.1"&&host!=="pagenova-frontend-production.up.railway.app"&&!host.endsWith(".vercel.app")&&
     !host.endsWith(".pagenovaai.com.br"));
   if(customHost){
     // Customer domains serve the published homepage only. Never expose the
