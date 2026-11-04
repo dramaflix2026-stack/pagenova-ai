@@ -771,9 +771,9 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }
     // Target only the requested mutation, not preservation constraints such as
     // "Mantenha o título" appearing later in the same instruction.
-    const action=plain.split(/(?:\\.|\\n)\\s*(?:mantenha|preserve|nao altere)\\b/)[0].trim();
-    const titleRequest=/^(?:altere|alterar|troque|mude|substitua)\\s+o\\s+titulo\\s+(?:principal\\s+)?(?:da\\s+capa|do\\s+hero)\\s+(?:para|por)\\b/.test(action);
-    const descriptionRequest=/^(?:altere|alterar|troque|mude|substitua)\\s+a\\s+(?:descricao|subtitulo)\\s+(?:(?:logo\\s+)?abaixo\\s+do\\s+titulo\\s+principal\\s+|principal\\s+)?(?:da\\s+)?capa\\s+(?:para|por)\\b/.test(action);
+    const action=plain.split(/(?:\.|\n)\s*(?:mantenha|preserve|nao altere)\b/)[0].trim();
+    const titleRequest=/^(?:altere|alterar|troque|mude|substitua)\s+o\s+titulo\s+(?:principal\s+)?(?:da\s+capa|do\s+hero)\s+(?:para|por)\b/.test(action);
+    const descriptionRequest=/^(?:altere|alterar|troque|mude|substitua)\s+a\s+(?:descricao|subtitulo)\s+(?:(?:logo\s+)?abaixo\s+do\s+titulo\s+principal\s+|principal\s+)?(?:da\s+)?capa\s+(?:para|por)\b/.test(action);
     if((titleRequest||descriptionRequest)&&quoted&&heroSection){
       const target=blocks.find(b=>b.section===heroSection&&b.type===(titleRequest?"heading":"paragraph"));
       if(target){target.text=quoted;return NextResponse.json({site:{...editingSite,blocks},summary:(titleRequest?"Título":"Descrição")+" da capa atualizado(a), mantendo o restante do projeto."});}
