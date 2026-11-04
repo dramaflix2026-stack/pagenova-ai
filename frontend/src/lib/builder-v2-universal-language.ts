@@ -294,6 +294,38 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
   const id="universal-services-intro-"+Date.now().toString(36);
   return applyUniversalOperations(site,[{action:"add",afterId:heading.id,block:{id,type:"paragraph",section,text:value}}]);
  }
+ // Resolve natural-language card repair requests atomically, before splitting context sentences.
+ const serviceRepair=/\b(?:servi[cç]os|primeiros?\s+cards?)\b/i.test(instruction)
+  &&/\b(?:primeiro|segundo)\s+card\b/i.test(instruction)
+  &&/\b(?:substitua|defina|altere)\b/i.test(instruction);
+ const titleReplacement=instruction.match(/(?:substitua|troque|altere)\s+o\s+t[ií]tulo\s+["“]([^"”]+)["”]\s+(?:por|para)\s+["“]([^"”]+)["”]/i);
+ const descriptionReplacement=instruction.match(/(?:a\s+)?descri[cç][aã]o\s+atual\s+(?:por|para)\s+["“]([^"”]+)["”]/i);
+ const secondTitle=instruction.match(/(?:no\s+segundo\s+card|segundo\s+card)[^.]*?(?:defina|altere|troque|substitua)\s+o\s+t[ií]tulo\s+(?:como|para|por)\s+["“]([^"”]+)["”]/i);
+ if(serviceRepair&&(titleReplacement||descriptionReplacement||secondTitle)){
+  const section=resolveUniversalSection(site,"serviços");
+  if(!section)return {ok:false,error:"Seção de serviços não encontrada. Nenhuma alteração aplicada."};
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const sectionHeading=blocks.find(b=>b.type==="heading");
+  const headings=blocks.filter(b=>b.type==="heading"&&b.id!==sectionHeading?.id);
+  const intro=blocks.find(b=>b.type==="paragraph");
+  const descriptions=blocks.filter(b=>b.type==="paragraph"&&b.id!==intro?.id);
+  const ops:UniversalOperation[]=[];
+  if(titleReplacement){
+   const target=headings[0];
+   if(!target)return {ok:false,error:"Título do primeiro card não encontrado. Nenhuma alteração aplicada."};
+   if(target.text!==titleReplacement[1]&&target.text!==titleReplacement[2])return {ok:false,error:"Título atual do primeiro card não corresponde ao solicitado. Nenhuma alteração aplicada."};
+   ops.push({action:"update",blockId:target.id,changes:{text:titleReplacement[2]}});
+  }
+  if(descriptionReplacement){
+   if(!descriptions[0])return {ok:false,error:"Descrição do primeiro card não encontrada. Nenhuma alteração aplicada."};
+   ops.push({action:"update",blockId:descriptions[0].id,changes:{text:descriptionReplacement[1]}});
+  }
+  if(secondTitle){
+   if(!headings[1])return {ok:false,error:"Título do segundo card não encontrado. Nenhuma alteração aplicada."};
+   ops.push({action:"update",blockId:headings[1].id,changes:{text:secondTitle[1]}});
+  }
+  return applyUniversalOperations(site,ops);
+ }
  // Atomic service-card copy edits: map visible ordinal cards, not the section introduction.
  const serviceCopy=/\b(?:se[cç][aã]o\s+(?:de\s+)?servi[cç]os|card\s+(?:da\s+)?se[cç][aã]o\s+(?:de\s+)?servi[cç]os)\b/i.test(instruction);
  const cardTitle=[...instruction.matchAll(/(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+do\s+(primeiro|segundo|terceiro|quarto)\s+card\s+(?:para|por)\s+["“]([^"”]+)["”]/gi)];
