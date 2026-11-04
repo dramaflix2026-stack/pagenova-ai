@@ -275,6 +275,25 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // Explicit section introduction must not fall through to generic paragraph/card selection.
+ const introRequest=/\b(?:par[aá]grafo\s+introdut[oó]rio|texto\s+introdut[oó]rio)\b/i.test(instruction)
+  &&/\b(?:se[cç][aã]o\s+(?:de\s+)?servi[cç]os|servi[cç]os)\b/i.test(instruction);
+ if(introRequest){
+  const section=resolveUniversalSection(site,"serviços");
+  const value=instruction.match(/\b(?:para|por)\s*:\s*["“]([^"”]+)["”]/i)?.[1]
+   ||instruction.match(/\b(?:para|por)\s*:\s*([\s\S]*?)(?=\.\s*(?:N[aã]o\s+altere|Mantenha|Preserve)\b|$)/i)?.[1]?.trim().replace(/^["“]|["”]\s*$/g,"");
+  if(!section||!value)return {ok:false,error:"Não foi possível identificar a introdução e o texto solicitado. Nenhuma alteração aplicada."};
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const heading=blocks.find(b=>b.type==="heading");
+  if(!heading)return {ok:false,error:"Título da seção de serviços não encontrado. Nenhuma alteração aplicada."};
+  // Section introduction is anchored immediately after the section heading.
+  const index=site.blocks.findIndex(b=>b.id===heading.id);
+  const following=site.blocks.slice(index+1).find(b=>b.section===section&&b.type==="paragraph");
+  const candidate=following&&(!/^[^:]{2,60}:\s+\S/.test(String(following.text||"")))?following:null;
+  if(candidate)return applyUniversalOperations(site,[{action:"update",blockId:candidate.id,changes:{text:value}}]);
+  const id="universal-services-intro-"+Date.now().toString(36);
+  return applyUniversalOperations(site,[{action:"add",afterId:heading.id,block:{id,type:"paragraph",section,text:value}}]);
+ }
  // Atomic service-card copy edits: map visible ordinal cards, not the section introduction.
  const serviceCopy=/\b(?:se[cç][aã]o\s+(?:de\s+)?servi[cç]os|card\s+(?:da\s+)?se[cç][aã]o\s+(?:de\s+)?servi[cç]os)\b/i.test(instruction);
  const cardTitle=[...instruction.matchAll(/(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+do\s+(primeiro|segundo|terceiro|quarto)\s+card\s+(?:para|por)\s+["“]([^"”]+)["”]/gi)];
