@@ -152,10 +152,9 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
         if(assigned>=0){blocks[assigned].src=uploads[i];delete blocks[assigned].mobileSrc;blocks[assigned].userUploaded=true;}
         else if(slot!==undefined){blocks[slot].src=uploads[i];delete blocks[slot].mobileSrc;blocks[slot].userUploaded=true;}
         else {
-          const image=newImage(section,uploads[i]);
-          const last=blocks.findLastIndex(b=>sectionOf(b)===section);
-          const insertAt=positional.length?positional[positional.length-1]+1:last+1;
-          blocks.splice(insertAt,0,image);
+          // A card without a positional photo still needs an explicit card binding.
+          // Do not overwrite the last existing card image or shift its ordinal.
+          blocks.push(newImage(section,uploads[i],targetCard.id));
         }
       }else if(replaceSlots[i]!==undefined){
         blocks[replaceSlots[i]].src=uploads[i];delete blocks[replaceSlots[i]].mobileSrc;
