@@ -238,7 +238,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
  const healthIdentity=[props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
  const strongMedicalIdentity=/(?:aura\s*medical|cl[ií]nica\s*m[eé]dica|consult[oó]rio\s*m[eé]dico|laborat[oó]rio\s*(?:de\s*)?an[aá]lises|odontologia|odontol[oó]gica|vit ra\s*lab|vitra\s*lab)/i.test(healthIdentity);
  if(strongMedicalIdentity&&(activeStaticTemplate==="prompt-adaptive"||isWrittenBrief)){
-   return <TP4LayoutChooser site={{...props.site,briefingLayoutVariant:"02"}} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
+   return <TP4LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
  }
  if(isWrittenBrief&&family===1){
    return <TP1LayoutChooser site={props.site} selectedNiche={props.selectedNiche} publishedMode={props.publishedMode} templateId={activeStaticTemplate} onVariantChange={props.onVariantChange}/>;
