@@ -1480,6 +1480,18 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 [data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] [data-pn-composition="universal-process-timeline"] .pn-process-timeline-kicker{
  color:#e2a35d!important;
 }
+/* Preserve heading contrast after an AI-requested timeline layout change. */
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] .pn-section-heading :is(h1,h2,h3){
+ color:#f6f6f4!important;-webkit-text-fill-color:#f6f6f4!important;
+ text-shadow:none!important;
+}
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] .pn-section-heading p{
+ color:#c8cbce!important;
+}
+/* The next engineering section must not expose the old white page canvas at the seam. */
+[data-pn-template="prompt-adaptive"] section[data-pn-process-timeline="true"] + section.pn-institutional-section{
+ background-color:#0b0f12!important;
+}
 /* Existing TP2 differentials share the same flat editorial card treatment. */
 [data-pn-template="prompt-adaptive"] section[data-pn-engineering-differentials="true"] article{
   background:#202226!important;background-image:none!important;
