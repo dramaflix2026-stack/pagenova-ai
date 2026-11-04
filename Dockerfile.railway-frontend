@@ -1,3 +1,4 @@
+# Railway frontend: full monorepo context required for CRM integration tests
 FROM node:24-bookworm-slim
 WORKDIR /workspace
 COPY . .
