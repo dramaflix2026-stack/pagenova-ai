@@ -163,6 +163,9 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  // Composite AI/technology niches in long-form briefings must resolve to family 5.
  // Prefer exact canonical matches above; do not hijack health, education or other families.
  if(/(?:^| )(?:barbearia|barbeiro|barbershop|barber shop)(?: |$)/.test(v))return 1;
+ // AI-generated projects often retain the business name (e.g. "Atlas Engenharia")
+ // instead of an exact catalog niche. Recognize engineering without changing the stored niche.
+ if(/(?:^| )(?:engenharia|engenheiro|engenheira|projetos? estruturais?|consultoria tecnica de engenharia|gerenciamento de obras)(?: |$)/.test(v))return 2;
  const technology=/(?:^| )(?:inteligencia artificial|agentes? de ia|automacao empresarial|automacao de processos|empresa de tecnologia|empresas de tecnologia|tecnologia e inovacao|desenvolvimento de software|desenvolvimento de aplicativos|agencia de marketing digital|agencias de marketing digital|consultoria empresarial|negocios digitais|saas|startup|startups)(?: |$)/;
  if(technology.test(v))return 5;
  const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
