@@ -1,6 +1,6 @@
 import {validProjectShape} from "./project-sync-contract.ts";
 import {currentBackupUser} from "./project-sync.ts";
-import {localSourceOwner, isUnclaimedOwner} from "./project-sync-local.ts";
+import {localSourceOwner, isUnclaimedOwner, claimLocalSource, markLegacySource} from "./project-sync-local.ts";
 export const PAGENOVA_PROJECT_DB = "pagenova-projects";
 export const PAGENOVA_PROJECT_STORE = "projects";
 export const PAGENOVA_PROJECT_DB_VERSION = 1;
@@ -49,9 +49,20 @@ export async function savePageNovaProject(
       if(typeof window!=="undefined"){
         const activeUser=currentBackupUser();
         if(initiatingUserId!==activeUser)throw new Error("A conta mudou durante o salvamento. Projeto anterior preservado.");
-        const sourceOwner=await localSourceOwner(`indexeddb:${id}`);
+        const source=`indexeddb:${id}`;
+        const sourceOwner=await localSourceOwner(source);
         if(!isUnclaimedOwner(sourceOwner)&&sourceOwner!==activeUser)
           throw new Error("Este projeto pertence a outra conta. Original preservado.");
+        // Never silently adopt an existing unclaimed project from an older session.
+        if(isUnclaimedOwner(sourceOwner)){
+          const existing=await readRawPageNovaProject(id);
+          if(existing!==null){
+            await markLegacySource(source);
+            throw new Error("Projeto antigo sem proprietário confirmado. Recupere uma cópia antes de editar.");
+          }
+          if(!activeUser||!await claimLocalSource(activeUser,source))
+            throw new Error("Não foi possível vincular o novo projeto à conta atual.");
+        }
       }
       return writePageNovaProject(id,snapshot);
     }); });
