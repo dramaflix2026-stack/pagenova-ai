@@ -7,6 +7,7 @@ import {universalBlockProps,UniversalTypographyRules,universalFaqItems} from "./
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 
 const photoSet=[
+ {pattern:/barbearia|barbeiro|barbershop|barber shop/i,photo:"https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/4625645/pexels-photo-4625645.jpeg?auto=compress&cs=tinysrgb&w=1600",eyebrow:"BARBEARIA MASCULINA",fallback:"Seu estilo merece excelência."},
  {pattern:/fotograf|photograph/i,photo:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/3062545/pexels-photo-3062545.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"FOTOGRAFIA AUTORAL",fallback:"Histórias que merecem ser vistas."},
  {pattern:/maquiagem|makeup/i,photo:"https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/2113855/pexels-photo-2113855.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"BELEZA E EXPRESSÃO",fallback:"Sua beleza, sua assinatura."},
  {pattern:/psicolog|terapia/i,photo:"https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/17640381/pexels-photo-17640381.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"ACOLHIMENTO E CUIDADO",fallback:"Um espaço para você."},
@@ -18,6 +19,7 @@ const photoSet=[
  {pattern:/dermatolog|est[eé]tica|beleza/i,photo:"https://images.pexels.com/photos/5659049/pexels-photo-5659049.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/6899549/pexels-photo-6899549.jpeg?auto=compress&cs=tinysrgb&w=850",eyebrow:"CUIDADO E ESTÉTICA",fallback:"O cuidado começa em você."}
 ];
 const serviceCatalog=[
+ {match:/barbearia|barbeiro|barbershop|barber shop/i,items:[["Corte Masculino","Cortes clássicos e modernos com precisão.","7518731"],["Barba Completa","Modelagem e acabamento para sua barba.","4625645"],["Corte e Barba","Cuidado masculino completo.","7518746"],["Acabamento e Contornos","Detalhes e contornos precisos.","5584458"]]},
  {match:/fotograf/i,items:[["Retratos autorais","Imagens que revelam personalidade.","3584996"],["Ensaios especiais","Registros para momentos importantes.","3062545"],["Fotografia de marca","Uma linguagem visual própria.","3373736"]]},
  {match:/maquiagem/i,items:[["Maquiagem social","Beleza para ocasiões especiais.","3373736"],["Produção de beleza","Acabamentos com personalidade.","2113855"],["Beleza para eventos","Uma produção para o seu momento.","3993449"]]},
  {match:/psicolog|terapia/i,items:[["Atendimento individual","Um espaço de escuta e acolhimento.","4101143"],["Acompanhamento terapêutico","Cuidado construído com respeito.","17640381"],["Bem-estar emocional","Atenção à sua jornada pessoal.","3985332"]]},
@@ -94,7 +96,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   "Psicologia e terapias":{essence:"https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/17640381/pexels-photo-17640381.jpeg?auto=compress&cs=tinysrgb&w=800"}
  };
  const essencePhotos=essencePhotoMap[niche]||{essence:"https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/7446659/pexels-photo-7446659.jpeg?auto=compress&cs=tinysrgb&w=800"};
- const photoWithEssence={...photo,...essencePhotos};
+ const photoWithEssence=/barbearia|barbeiro|barbershop|barber shop/i.test(niche)?{...photo,essence:"https://images.pexels.com/photos/7518740/pexels-photo-7518740.jpeg?auto=compress&cs=tinysrgb&w=1600",detail:"https://images.pexels.com/photos/19050581/pexels-photo-19050581.jpeg?auto=compress&cs=tinysrgb&w=1600"}:{...photo,...essencePhotos};
  const serviceItems=(serviceCatalog.find(group=>group.match.test(niche))||serviceCatalog[serviceCatalog.length-1]).items;
  const difference=(differentiators.find(item=>item.pattern.test(niche))||differentiators[differentiators.length-1]);
  const journey=(journeyCatalog.find(item=>item.pattern.test(niche))||journeyCatalog[journeyCatalog.length-1]).steps;
