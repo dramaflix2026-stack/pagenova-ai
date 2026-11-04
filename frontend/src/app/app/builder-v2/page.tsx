@@ -1084,6 +1084,14 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
+      // Every successful generation gets a stable project URL and its own draft key.
+      // Never assign this URL until the server returns a complete valid site.
+      if(creatingNewSite&&!crmProjectId){
+        const generatedId=requestSite.id!;
+        window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(generatedId));
+        setLibraryProjectId(generatedId);
+        setActiveStorageKey(storageKey+":project:"+generatedId);
+      }
       let incoming = data.site as Site;
       if(creatingNewSite){incoming.kind=targetKind;incoming.properties=[];incoming.id=requestSite.id;setSiteCategory(targetKind);}
       if(!creatingNewSite&&siteCategory==="real-estate"&&site.kind==="real-estate"){incoming.kind="real-estate";incoming.properties=site.properties;incoming.realEstateWhatsapp=site.realEstateWhatsapp;}else{incoming.kind=siteCategory;if(siteCategory==="institutional")incoming.properties=[];}
