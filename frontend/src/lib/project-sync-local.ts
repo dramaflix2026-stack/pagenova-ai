@@ -1,7 +1,7 @@
 import { backupDigest, validBackupPayload, type BackupKind, type BackupPayload } from "./project-sync-contract.ts";
 export type LocalRevision = {
   operationId:string; userId:string; projectId:string; kind:BackupKind; payload:BackupPayload;
-  hash:string; at:string; status:"pending"|"synced"|"conflict"; archive:boolean;
+  hash:string; at:string; status:"pending"|"synced"|"conflict"|"blocked"; archive:boolean;
   sentBase?:string|null; sequence:number;
 };
 type Head = {userId:string;projectId:string;hash?:string;baseRevision:string|null;conflict:boolean;sequence?:number};
@@ -31,18 +31,19 @@ export async function claimLocalSource(userId:string,source:string):Promise<bool
   });
 }
 const captures = new Map<string,Promise<void>>();
-export function captureBackup(userId:string,projectId:string,kind:BackupKind,payload:unknown,archive=false):Promise<void>{
+export function captureBackup(userId:string,projectId:string,kind:BackupKind,payload:unknown,archive=false,hydrating=false):Promise<void>{
   const snapshot=structuredClone(payload);
   const key=`${userId}:${projectId}`;
   const pending=(captures.get(key)??Promise.resolve()).catch(()=>undefined)
-    .then(()=>writeBackup(userId,projectId,kind,snapshot,archive));
+    .then(()=>writeBackup(userId,projectId,kind,snapshot,archive,hydrating));
   captures.set(key,pending);
   return pending.finally(()=>{if(captures.get(key)===pending)captures.delete(key);});
 }
-async function writeBackup(userId:string,projectId:string,kind:BackupKind,payload:unknown,archive=false):Promise<void>{
+async function writeBackup(userId:string,projectId:string,kind:BackupKind,payload:unknown,archive=false,hydrating=false):Promise<void>{
   // Clone BEFORE the first await: React state or mutable legacy objects can change.
   const snapshot=structuredClone(payload);
   if(!validBackupPayload(snapshot,kind))return;
+  if(!await claimLocalSource(userId,projectId))throw Error("Este projeto local pertence a outra conta.");
   const hash=await backupDigest({userId,projectId,payload:snapshot});
   await transaction<void>(["heads","revisions"],"readwrite",(tx,done)=>{
     const heads=tx.objectStore("heads");const r=heads.get([userId,projectId]);
@@ -56,7 +57,9 @@ async function writeBackup(userId:string,projectId:string,kind:BackupKind,payloa
       existing.onsuccess=()=>{
         if(!existing.result)revisions.add({operationId:op,userId,projectId,kind,payload:snapshot,hash,
           at:new Date().toISOString(),status:"pending",archive,sequence:(head.sequence??0)+1} satisfies LocalRevision);
-        heads.put({...head,hash:archive?head.hash:hash,sequence:(head.sequence??0)+1});done(undefined);
+        const staleView=hydrating && !!head.hash && head.hash!==hash;
+        heads.put({...head,hash:archive?head.hash:hash,sequence:(head.sequence??0)+1,
+          baseRevision:staleView?null:head.baseRevision,conflict:staleView||head.conflict});done(undefined);
       };
     };
   });
@@ -71,7 +74,7 @@ export async function prepareUpload(revision:LocalRevision):Promise<LocalRevisio
     const r=tx.objectStore("heads").get([revision.userId,revision.projectId]);
     r.onsuccess=()=>{
       const head:Head=r.result??{baseRevision:null};
-      const outgoing={...revision,sentBase:revision.sentBase===undefined?head.baseRevision:revision.sentBase};
+      const outgoing={...revision,sentBase:revision.sentBase===undefined?(head.conflict?null:head.baseRevision):revision.sentBase};
       tx.objectStore("revisions").put(outgoing);done(outgoing);
     };
   });
@@ -84,8 +87,15 @@ export async function acknowledgeUpload(revision:LocalRevision,result:{revision:
     r.onsuccess=()=>{
       const head:Head=r.result??{userId:revision.userId,projectId:revision.projectId,baseRevision:null,conflict:false};
       // Imported historical snapshots never advance the sync baseline.
-      if(!revision.archive)heads.put({...head,baseRevision:result.conflict?head.baseRevision:result.revision,conflict:result.conflict||head.conflict});
+      if(!revision.archive)heads.put({...head,baseRevision:result.conflict||head.conflict?head.baseRevision:result.revision,conflict:result.conflict||head.conflict});
       done(undefined);
     };
+  });
+}
+
+/** A permanent size/validation rejection must not starve unrelated projects. */
+export async function blockUpload(revision:LocalRevision):Promise<void>{
+  await transaction<void>(["revisions"],"readwrite",(tx,done)=>{
+    tx.objectStore("revisions").put({...revision,status:"blocked"});done(undefined);
   });
 }

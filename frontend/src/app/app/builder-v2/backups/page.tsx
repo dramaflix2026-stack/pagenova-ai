@@ -2,7 +2,7 @@
 import {useRouter} from "next/navigation";
 import {useEffect,useState} from "react";
 import {type CloudBackup,validBackupPayload} from "@/lib/project-sync-contract";
-import {captureBackup,localRevisions,type LocalRevision} from "@/lib/project-sync-local";
+import {captureBackup,claimLocalSource,localRevisions,type LocalRevision} from "@/lib/project-sync-local";
 import {backupLocalProject,studioProjectId,currentBackupUser} from "@/lib/project-sync";
 import {savePageNovaProject} from "@/lib/pagenova-project-store";
 type Item=Omit<CloudBackup,"payload">&{local?:LocalRevision};
@@ -44,6 +44,7 @@ export default function BackupRecovery(){
     if(!window.confirm(`Recuperar “${item.title}” como novo projeto? O projeto atual será guardado antes.`))return;
     setBusy(true);
     try{
+      if(currentBackupUser()!==user)throw Error("A conta mudou. Atualize a página.");
       let payload=item.local?.payload;
       if(!payload){const r=await fetch(`/api/builder-v2/projects?revision=${item.revision}`,{cache:"no-store"});
         if(!r.ok)throw Error("Não foi possível baixar a revisão.");
@@ -56,9 +57,10 @@ export default function BackupRecovery(){
           // Raw original survives even if it is malformed and cannot be parsed.
           localStorage.setItem(`${key}:recovery-original:${crypto.randomUUID()}`,current);
           let site;try{site=JSON.parse(current);}catch{/* raw original remains intact */}
-          if(site)await captureBackup(user,studioProjectId(site,key),"studio",site);
+          if(site && await claimLocalSource(user,studioProjectId(site,key)))await captureBackup(user,studioProjectId(site,key),"studio",site);
         }
         await captureBackup(user,`studio:${id}`,"studio",copy);
+        if(currentBackupUser()!==user)throw Error("A conta mudou. A cópia foi preservada sem substituir o rascunho ativo.");
         localStorage.setItem(key,JSON.stringify(copy));
         router.push("/app/builder-v2");
       }else{
@@ -76,7 +78,7 @@ export default function BackupRecovery(){
     <p role="status" className="my-4 text-sm text-white/70">{notice}</p>
     <button type="button" disabled={busy} onClick={()=>void load()} className="mb-4 rounded-lg border border-white/20 px-4 py-2 disabled:opacity-40">Atualizar projetos</button>
     <div className="space-y-3">{items.map(item=><article key={item.revision} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/15 bg-white/5 p-4">
-      <div><h2 className="font-semibold">{item.title}</h2><p className="text-xs text-white/60">{new Date(item.created_at).toLocaleString("pt-BR")} · {item.local?"Cópia local":"Nuvem"}{item.conflict?" · Versão preservada em conflito/histórico":""}</p></div>
+      <div><h2 className="font-semibold">{item.title}</h2><p className="text-xs text-white/60">{new Date(item.created_at).toLocaleString("pt-BR")} · {item.local?.status==="blocked"?"Cópia local · envio recusado":item.local?"Cópia local":"Nuvem"}{item.conflict?" · Versão preservada em conflito/histórico":""}</p></div>
       <div className="flex gap-2"><button disabled={busy} onClick={()=>void load(item.project_id)} className="rounded-lg border border-white/20 px-3 py-2 text-sm disabled:opacity-40">Ver versões</button><button disabled={busy} onClick={()=>void restore(item)} className="rounded-lg bg-lime-300 px-3 py-2 text-sm font-bold text-black disabled:opacity-40">Recuperar cópia</button></div>
     </article>)}</div>
   </main>;

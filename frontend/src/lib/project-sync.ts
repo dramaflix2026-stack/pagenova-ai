@@ -1,4 +1,4 @@
-import { captureBackup, claimLocalSource, localRevisions, prepareUpload, acknowledgeUpload } from "./project-sync-local.ts";
+import { captureBackup, claimLocalSource, localRevisions, prepareUpload, acknowledgeUpload, blockUpload } from "./project-sync-local.ts";
 import { validBackupPayload, type BackupKind } from "./project-sync-contract.ts";
 import { listPageNovaProjectEntries } from "./pagenova-project-store.ts";
 let owner:string|null=null;
@@ -7,34 +7,38 @@ let running:Promise<void>|null=null;
 const STUDIO="pagenova-builder-v2-private-v1";
 export function currentBackupUser(){return owner;}
 export function syncNotice(message:string){window.dispatchEvent(new CustomEvent("pagenova-sync-status",{detail:message}));}
-export async function backupLocalProject(projectId:string,kind:BackupKind,payload:unknown,archive=false){
+export async function backupLocalProject(projectId:string,kind:BackupKind,payload:unknown,archive=false,hydrating=false){
   const userId=owner;
   const snapshot=structuredClone(payload);
   if(!userId)return;
   if(!validBackupPayload(snapshot,kind))throw Error("Cópia inválida ou com arquivo local não serializável. Original preservado.");
   if(!await claimLocalSource(userId,projectId))throw Error("Este projeto local está vinculado a outra conta.");
-  await captureBackup(userId,projectId,kind,snapshot,archive);
+  await captureBackup(userId,projectId,kind,snapshot,archive,hydrating);
   if(owner===userId)void flushBackups();
 }
 export function studioProjectId(site:{id?:string},key:string){return `studio:${site.id||`legacy:${key}`}`;}
 export async function migrateLocalProjects(userId:string){
   for(const entry of await listPageNovaProjectEntries<unknown>()){
     if(stopped||owner!==userId)return;
-    try{await backupLocalProject(`indexeddb:${String(entry.key)}`,"indexeddb",entry.project,true);}catch{syncNotice("Um projeto local não pôde ser migrado. Original preservado.");}
+    try{await backupLocalProject(`indexeddb:${String(entry.key)}`,"indexeddb",entry.project,true,true);}catch{syncNotice("Um projeto local não pôde ser migrado. Original preservado.");}
   }
-  const keys=Object.keys(localStorage).filter(k=>k===STUDIO||k.startsWith(STUDIO+":crm:"));
-  for(const key of keys.filter(k=>!k.endsWith(":versions"))){
+  const keys=new Set(Object.keys(localStorage)
+    .filter(k=>k===STUDIO||k===STUDIO+":versions"||k.startsWith(STUDIO+":crm:"))
+    .map(k=>k.endsWith(":versions")?k.slice(0,-9):k));
+  for(const key of keys){
     if(stopped||owner!==userId)return;
     // Claim the source slot as well as each project identity, before reading it.
     if(!await claimLocalSource(userId,key))continue;
     try{
-      const raw=localStorage.getItem(key);const site=raw?JSON.parse(raw):null;
+      const raw=localStorage.getItem(key);let site=null;
+      try{site=raw?JSON.parse(raw):null;}catch{syncNotice("Rascunho ilegível preservado; recuperando as versões antigas disponíveis.");}
       let versions:unknown=[];
       try{versions=JSON.parse(localStorage.getItem(key+":versions")||"[]");}catch{syncNotice("Histórico inválido; rascunho original preservado.");}
       if(Array.isArray(versions))for(const v of versions){
-        if(v?.site)await backupLocalProject(studioProjectId(v.site,key),"studio",v.site,true);
+        try{if(v?.site)await backupLocalProject(studioProjectId(v.site,key),"studio",v.site,true);}
+        catch{syncNotice("Uma versão antiga não pôde ser copiada. As demais continuam sendo migradas.");}
       }
-      if(site)await backupLocalProject(studioProjectId(site,key),"studio",site,true);
+      if(site)await backupLocalProject(studioProjectId(site,key),"studio",site,true,true);
     }catch{syncNotice("Um rascunho não pôde ser copiado. Original preservado.");}
   }
 }
@@ -49,6 +53,11 @@ export function flushBackups():Promise<void>{
       const response:Response=await fetch("/api/builder-v2/projects",{method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({userId,projectId:outgoing.projectId,operationId:outgoing.operationId,
           baseRevision:outgoing.sentBase,kind:outgoing.kind,payload:outgoing.payload,archive:outgoing.archive}),signal:AbortSignal.timeout(20000)});
+      if(response.status===413||response.status===422){
+        await blockUpload(outgoing);
+        syncNotice("Uma cópia foi recusada por tamanho ou validação. Mantida neste dispositivo; os demais projetos continuam sincronizando.");
+        continue;
+      }
       if(!response.ok)throw Error("cloud unavailable");
       const result:{userId:string;revision:string;conflict:boolean}=await response.json();
       if(result.userId!==userId||typeof result.conflict!=="boolean")throw Error("Account changed");

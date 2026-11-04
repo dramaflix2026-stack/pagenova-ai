@@ -30,7 +30,7 @@ Implementação na branch isolada, com testes locais aprovados. Não publicada e
 
 ## Validação executada
 
-`npm run test:project-sync`: **10 testes aprovados**. IndexedDB via fake-indexeddb; SQL real via Postgres/WASM (PGlite); handlers de API reais transpilados com adaptador de autenticação/banco simulado.
+`npm run test:project-sync`: **13 testes aprovados na revisão atual**. IndexedDB via fake-indexeddb; SQL real via Postgres/WASM (PGlite); handlers de API reais transpilados com adaptador de autenticação/banco simulado.
 
 | Cenário | Resultado |
 | --- | --- |
@@ -46,7 +46,7 @@ Implementação na branch isolada, com testes locais aprovados. Não publicada e
 | API: login obrigatório, origem, conta, payload e falha de serviço | Aprovado |
 | ESLint dos novos arquivos | Aprovado |
 | TypeScript após geração de tipos/utilitários | Aprovado |
-| Build completo `npm run build` | Aprovado: 311 testes Node em 24 execuções, além dos validadores/runtime existentes e compilação Next.js |
+| `npm run build` na revisão atual | 318 testes Node aprovados, além dos validadores existentes; etapa final Turbopack bloqueada por conexão ao baixar as fontes Geist |
 | Teste OpenAI pelo chat autenticado na Railway | Bloqueado pelo acesso expirado da sessão disponível |
 | Dois dispositivos reais + atualização/fechamento durante envio | Pendente no ambiente de homologação |
 | Políticas via REST do Supabase hospedado | Pendente: migração ainda não aplicada |
@@ -69,3 +69,39 @@ O build completo inicial usou a primeira versão dos seis testes locais; após a
 3. Em dois perfis de navegador, criar, editar simultaneamente, ficar offline, recarregar durante um envio e restaurar revisões. Conferir payloads e todos os originais antes/depois.
 4. Executar uma edição real pelo chat na Railway com OpenAI, confirmar persistência após F5 e recuperação no segundo perfil. Não consumir geração de site novo para um teste de edição.
 5. Somente após aprovação dessas verificações, aplicar a migração aditiva ao Supabase de Production e publicar a aplicação. Caso falhe a aplicação, voltar o código; manter tabelas e revisões. Nunca fazer rollback com DROP/TRUNCATE ou limpeza de IndexedDB.
+
+## Continuação e revisão final — 04/11/2026
+
+A branch existente e o PR #15 foram reaproveitados. Antes desta revisão, a árvore de trabalho estava limpa e o código local correspondia ao commit remoto `e6b36a3ae8968ad34fcd987ba17d924e4ed80fee`. Foram revisados os 15 arquivos da entrega anterior; não foi necessário recriar o projeto nem refazer a implementação.
+
+Correções adicionais da revisão:
+
+- A propriedade local agora é conferida dentro do próprio armazenamento de backups, inclusive quando a captura é chamada diretamente pela recuperação. Um projeto já vinculado à conta A não pode ser enfileirado para a conta B.
+- A recuperação no Studio verifica troca de conta antes de iniciar e antes de ativar a cópia. Se o rascunho atual pertence a outra conta, seu texto bruto é preservado localmente, sem enviá-lo à nuvem da conta atual.
+- Históricos sem rascunho principal também são encontrados. Um rascunho ilegível ou uma versão inválida não bloqueia a migração das demais versões válidas; os originais permanecem intactos.
+- A API recusa JSON nulo, escalar ou array com HTTP 400, em vez de falhar ao acessar seus campos.
+- Uma revisão recusada permanentemente por tamanho/validação (HTTP 413/422) fica preservada com estado local `blocked`; a fila continua enviando os outros projetos. A recuperação identifica essa cópia como envio recusado. O limite atual de envio é 20 MB por revisão; arquivos maiores exigem um mecanismo de assets/chunks antes de sua liberação.
+
+A suíte específica passou a **13 testes aprovados**, incluindo os novos cenários. O teste de Postgres também confirma a aceitação de um projeto legado válido pela RPC, além da recusa de um projeto vazio.
+
+O primeiro build repetido encontrou cache inválido do Turbopack. Na tentativa seguinte, o instalador legado FRIGOLOG recusou seus próprios arquivos já gerados e modificados pelos patches do build anterior. Esses dois artefatos transitórios foram movidos para scratch e o build foi executado a partir de arquivos gerados limpos. Não houve mudança no instalador, nos templates aprovados nem em seus conteúdos versionados. Uma execução em checkout limpo evita esses resíduos.
+
+### Preparação da Railway e estado remoto confirmado
+
+- Plano revisável: `ops/builder-backup-railway-preview-plan.json`. É um plano, não uma configuração ativa nem um comando de deploy.
+- Dockerfile existente: `Dockerfile.railway-frontend`; contexto monorepo `/`, Node 24, `npm ci`, build integral, porta 8000 e healthcheck `/api/health`.
+- Preview deve usar um serviço/ambiente separado, esta branch e um Supabase isolado. Não reutilizar o serviço público nem alterar seus domínios durante a homologação.
+- Conferência remota: `pagenova-frontend` continua em `main`, sem alterações pendentes, deployment `492dec42-04d9-438d-9ff1-83b43c1df534` em SUCCESS. As cinco variáveis necessárias estão cadastradas por nome; nenhum valor foi exposto.
+- Supabase hospedado: ambas as tabelas de backup ainda estão ausentes. Não há branch de desenvolvimento existente nesse projeto. Não foi provisionada infraestrutura com custo adicional nem aplicada migração de Production.
+- Portanto, a implementação está disponível para homologação; a liberação para Production continua **não aprovada**. Permanecem necessárias a validação REST/RLS em Supabase isolado, a conferência dos projetos reais na origem do Chrome e os testes autenticados entre dispositivos e com OpenAI na Railway.
+
+Proteção adicional contra regressão na abertura: a primeira hidratação do Studio é arquivada, sem avançar o apontador remoto. A leitura de um estado local diferente do último snapshot confirmado invalida a revisão-base conhecida. Edições feitas a partir dessa visão antiga passam a conflito, em vez de usar a confirmação de uma versão que não foi carregada na tela. Confirmações atrasadas não removem essa proteção. O mesmo tratamento vale para o snapshot atual importado do IndexedDB. Um teste específico reproduz rascunho antigo + confirmação mais nova + confirmação atrasada + nova edição e verifica que a base enviada continua nula, impedindo substituir um apontador já existente.
+
+### Resultado de compilação desta continuação
+
+- `npm run test:project-sync`: 13/13 aprovados.
+- Suíte chamada por `npm run build`: 318 testes Node aprovados, mais os validadores/runtime existentes. A etapa final com Turbopack falhou ao buscar arquivos WOFF2 de `fonts.gstatic.com`; não foram substituídas fontes nem alterado o layout para contornar a falha.
+- `next typegen` seguido de `tsc --noEmit --incremental false`: aprovado.
+- ESLint nos módulos de sincronização, API e recuperação modificados: aprovado.
+- Foi executada também a compilação Next.js com Webpack, usando as mesmas fontes reais e sem mocks, para verificar o código com outro compilador. A compilação completa com Webpack, incluindo TypeScript e geração de rotas, foi aprovada.
+- A Railway segue usando o Dockerfile original, que executa o build padrão. A compilação desse caminho ainda deve ser conferida no preview, além dos testes autenticados pendentes.

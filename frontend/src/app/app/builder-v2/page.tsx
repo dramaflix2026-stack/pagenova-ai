@@ -319,9 +319,13 @@ export default function BuilderV2() {
     window.addEventListener("pagenova-sync-status",status);
     return()=>window.removeEventListener("pagenova-sync-status",status);
   },[]);
+  const backupHydratedKey=useRef<string|null>(null);
   useEffect(()=>{
-    if(!loaded||!draftHydrated||draftRecoveryFailed||!site.blocks.length)return;
-    void backupLocalProject(studioProjectId(site,activeStorageKey),"studio",site)
+    if(!loaded||!draftHydrated||draftRecoveryFailed)return;
+    const hydrating=backupHydratedKey.current!==activeStorageKey;
+    backupHydratedKey.current=activeStorageKey;
+    if(!site.blocks.length)return;
+    void backupLocalProject(studioProjectId(site,activeStorageKey),"studio",site,hydrating,hydrating)
       .catch(()=>setCloudStatus("Não foi possível criar o backup local. Rascunho original preservado."));
   },[site,loaded,draftHydrated,draftRecoveryFailed,activeStorageKey]);
   useEffect(() => {

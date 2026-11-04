@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
   let body;
   try{raw=await request.text();if(new TextEncoder().encode(raw).length>20_000_000)return json({error:"Backup muito grande."},413);body=JSON.parse(raw);}
   catch{return json({error:"Backup inválido."},400);}
+  if(!body||typeof body!=="object"||Array.isArray(body))return json({error:"Backup inválido."},400);
   // userId binds durable queues to the authenticated identity, including after account switching.
   if(body.userId!==user.id) return json({error:"A conta mudou. Cópia local preservada."},409);
   if(typeof body.projectId!=="string"||body.projectId.length<1||body.projectId.length>240||

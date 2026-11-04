@@ -33,6 +33,8 @@ await test('rapid saves preserve order and content, with duplicate migration and
   assert.equal(await claimLocalSource('rapid','source-1'),true);
   assert.equal(await claimLocalSource('other','source-1'),false);
   assert.equal((await localRevisions('other')).length,0);
+  await assert.rejects(captureBackup('other','studio:rapid','studio',site('Wrong account')));
+  assert.equal((await localRevisions('other')).length,0);
 });
 await test('legacy IndexedDB originals and keys remain byte-for-byte intact during migration',async()=>{
   const legacy={id:'original-project',name:'Existing customer',pages:{home:{title:'Home'}},createdAt:'2026-10-01',unknown:{must:'survive'}};
@@ -74,10 +76,13 @@ await test('Postgres CAS, immutable revisions, restore, idempotence, RLS, anonym
     await assert.rejects(call(crypto.randomUUID(),second,{title:'Empty',background:'#fff',blocks:[]}));
     await assert.rejects(db.query('select public.pagenova_save_project($1,$2,$3,$4,$5,$6)',
       ['indexeddb:empty',crypto.randomUUID(),null,'indexeddb',JSON.stringify({id:'empty',pages:{}}),'Empty']));
+    const legacy=await db.query('select public.pagenova_save_project($1,$2,$3,$4,$5,$6,$7) result',
+      ['indexeddb:valid',crypto.randomUUID(),null,'indexeddb',JSON.stringify({id:'valid',pages:{home:{title:'Legacy'}}}),'Legacy',true]);
+    assert.equal(legacy.rows[0].result.conflict,true);
     await assert.rejects(db.exec(`delete from public.pagenova_project_revisions`));
     await assert.rejects(db.exec(`update public.pagenova_cloud_projects set title='overwrite'`));
     const restore=crypto.randomUUID();assert.equal((await call(restore,second,site('Cloud original'))).conflict,false);
-    assert.equal((await db.query('select * from public.pagenova_project_revisions')).rows.length,4);
+    assert.equal((await db.query('select * from public.pagenova_project_revisions')).rows.length,5);
     await db.exec(`select set_config('request.jwt.claim.sub','${b}',false)`);
     assert.equal((await db.query('select * from public.pagenova_project_revisions')).rows.length,0);
     assert.equal((await db.query('select * from public.pagenova_cloud_projects')).rows.length,0);
@@ -108,14 +113,57 @@ await test('network failure does not block legacy local saves; retry drains dura
     const slot='pagenova-builder-v2-private-v1';
     const stored=new Map([[slot,JSON.stringify(site('Legacy studio'))],[slot+':versions',JSON.stringify([{site:site('Historical studio')}])]]);
     globalThis.localStorage={...Object.fromEntries(stored),getItem:k=>stored.get(k)??null};
+    stored.set(slot+':crm:orphan:versions',JSON.stringify([{site:{title:'Invalid',blocks:[]}},{site:site('Orphan version')} ]));
+    stored.set(slot+':crm:corrupt','{corrupted');
+    stored.set(slot+':crm:corrupt:versions',JSON.stringify([{site:site('Recovered historical')} ]));
+    globalThis.localStorage={...Object.fromEntries(stored),getItem:k=>stored.get(k)??null};
     const before=JSON.stringify([...stored]);
     await migrateLocalProjects('offline-user');await migrateLocalProjects('offline-user');
     assert.equal(JSON.stringify([...stored]),before);
     const imported=(await localRevisions('offline-user')).filter(r=>r.projectId.startsWith('studio:legacy:'));
-    assert.equal(imported.length,2);assert.ok(imported.every(r=>r.archive));
+    assert.equal(imported.length,4);assert.ok(imported.every(r=>r.archive));
     online=true;await flushBackups();
     assert.ok(uploads.length>0);
     assert.ok((await localRevisions('offline-user')).every(x=>x.status!=='pending'));
     assert.deepEqual(await readPageNovaProject(project.id),project);
   }finally{stop();delete globalThis.window;}
+});
+
+await test('permanent upload rejection preserves the snapshot and does not block other projects',async()=>{
+  const events=new EventTarget();
+  globalThis.window={addEventListener:events.addEventListener.bind(events),removeEventListener:events.removeEventListener.bind(events),
+    dispatchEvent:events.dispatchEvent.bind(events),setInterval:()=>1};
+  globalThis.localStorage={};
+  globalThis.fetch=async(_url,options)=>{
+    const body=JSON.parse(options.body);
+    return body.projectId==='studio:a-rejected'?Response.json({error:'too large'},{status:413}):
+      Response.json({userId:body.userId,revision:body.operationId,conflict:false});
+  };
+  const {startProjectSync,backupLocalProject,flushBackups}=await import('../src/lib/project-sync.ts');
+  const stop=startProjectSync('rejected-user');
+  try{
+    await backupLocalProject('studio:a-rejected','studio',site('Retained locally'));
+    await backupLocalProject('studio:b-valid','studio',site('Valid cloud backup'));
+    await flushBackups();await flushBackups();
+    const records=await localRevisions('rejected-user');
+    assert.equal(records.find(r=>r.projectId==='studio:a-rejected').status,'blocked');
+    assert.equal(records.find(r=>r.projectId==='studio:a-rejected').payload.title,'Retained locally');
+    assert.equal(records.find(r=>r.projectId==='studio:b-valid').status,'synced');
+  }finally{stop();delete globalThis.window;}
+});
+
+await test('an older hydrated draft cannot inherit a newer cloud acknowledgement',async()=>{
+  const user='stale-view-user',project='studio:stale-view';
+  await captureBackup(user,project,'studio',site('Newest synced'));
+  const latest=(await localRevisions(user))[0];
+  const sent=await prepareUpload(latest);
+  await acknowledgeUpload(sent,{revision:sent.operationId,conflict:false});
+  await captureBackup(user,project,'studio',site('Old local view'),true,true);
+  // A delayed duplicate acknowledgement must not reset the invalidated baseline.
+  await acknowledgeUpload(sent,{revision:sent.operationId,conflict:false});
+  await captureBackup(user,project,'studio',site('Edited from old local view'));
+  const edited=(await localRevisions(user)).find(r=>r.payload.title==='Edited from old local view');
+  const outgoing=await prepareUpload(edited);
+  assert.equal(outgoing.sentBase,null);
+  assert.ok((await localRevisions(user)).some(r=>r.payload.title==='Newest synced'));
 });

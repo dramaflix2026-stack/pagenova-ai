@@ -40,3 +40,8 @@ await test('API service failures do not acknowledge a save',async()=>{
   const response=await POST(request(body()));assert.equal(response.status,503);
   assert.equal((await response.json()).revision,undefined);
 });
+
+await test('API handles null and scalar JSON without accepting a backup',async()=>{
+  globalThis.__projectSyncDb=db();
+  for(const value of [null,[],"invalid",42])assert.equal((await POST(request(value))).status,400);
+});
