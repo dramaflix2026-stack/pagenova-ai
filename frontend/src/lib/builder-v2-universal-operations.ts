@@ -45,7 +45,7 @@ function validateChanges(changes:Record<string,unknown>):string|null {
   if(value!==undefined&&(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max||(key==="columns"&&!Number.isInteger(value))))return "Valor inválido: "+key;
  }
  if(changes.align!==undefined&&!["left","center","right"].includes(String(changes.align)))return "Alinhamento inválido.";
- if(changes.layout!==undefined&&!["hero","grid","split","banner","faq","gallery","standard"].includes(String(changes.layout)))return "Layout inválido.";
+ if(changes.layout!==undefined&&!["hero","grid","split","banner","faq","gallery","standard","timeline-vertical"].includes(String(changes.layout)))return "Layout inválido.";
  if(changes.imageFit!==undefined&&!["cover","contain"].includes(String(changes.imageFit)))return "Ajuste de imagem inválido.";
  return null;
 }
