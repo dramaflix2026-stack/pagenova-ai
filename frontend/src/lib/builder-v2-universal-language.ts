@@ -252,38 +252,8 @@ function applyProcessStepReorder<T extends UniversalSite>(site:T,instruction:str
  ]);
 }
 
-/** Remove and reorder named process steps in one validated transaction. */
-function applyProcessStepReorder<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
- const sectionMatch=instruction.match(/(?:na|no)\s+se[cç][aã]o\s+["“]([^"”]+)["”]/i);
- const removeMatch=instruction.match(/remova\s+a\s+etapa\s+["“]([^"”]+)["”]/i);
- const moveMatch=instruction.match(/mova\s+a\s+etapa\s+["“]([^"”]+)["”]\s+para\s+a\s+primeira\s+posi[cç][aã]o/i);
- if(!sectionMatch||!removeMatch||!moveMatch)return null;
- const sectionId=resolveUniversalSection(site,sectionMatch[1]);
- if(!sectionId)return {ok:false,error:"Seção de processo não encontrada ou ambígua. Nenhuma alteração aplicada."};
- const blocks=site.blocks.filter(b=>b.section===sectionId);
- const steps=blocks.filter(b=>b.type==="paragraph"&&/^\s*[^:：—–]+\s*[:：—–]\s*\S/.test(String(b.text||"")));
- const byTitle=(title:string)=>steps.filter(b=>norm(String(b.text||"").split(/[:：—–]/)[0])===norm(title));
- const removed=byTitle(removeMatch[1]),moved=byTitle(moveMatch[1]);
- if(removed.length!==1||moved.length!==1||removed[0].id===moved[0].id)return {ok:false,error:"Etapas não identificadas de forma única. Nenhuma alteração aplicada."};
- const remaining=steps.filter(b=>b.id!==removed[0].id);
- if(remaining.length<2)return {ok:false,error:"Etapas insuficientes para reorganizar. Nenhuma alteração aplicada."};
- // Place the moved step immediately before the first remaining step, without moving the heading or introduction.
- const first=remaining.find(b=>b.id!==moved[0].id);
- if(!first)return {ok:false,error:"Etapa de referência não encontrada. Nenhuma alteração aplicada."};
- const firstIndex=site.blocks.findIndex(b=>b.id===steps[0].id);
- const previous=site.blocks[firstIndex-1];
- if(!previous||previous.section!==sectionId)return {ok:false,error:"Posição inicial da seção não identificada. Nenhuma alteração aplicada."};
- return applyUniversalOperations(site,[
-  {action:"remove",blockId:removed[0].id},
-  {action:"move",blockId:moved[0].id,afterId:previous.id}
- ]);
-}
-
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const processReorder=applyProcessStepReorder(site,instruction);
- if(processReorder)return processReorder;
  const processReorder=applyProcessStepReorder(site,instruction);
  if(processReorder)return processReorder;
  const processRevision=applyProcessStepRevision(site,instruction);
