@@ -1,5 +1,6 @@
 import {validProjectShape} from "./project-sync-contract.ts";
 import {currentBackupUser} from "./project-sync.ts";
+import {localSourceOwner, isUnclaimedOwner} from "./project-sync-local.ts";
 export const PAGENOVA_PROJECT_DB = "pagenova-projects";
 export const PAGENOVA_PROJECT_STORE = "projects";
 export const PAGENOVA_PROJECT_DB_VERSION = 1;
@@ -44,7 +45,16 @@ export async function savePageNovaProject(
   let created = false;
   const previous = pendingProjectWrites.get(id);
   const save = (previous ? previous.catch(() => undefined) : Promise.resolve())
-    .then(async () => { created = await withProjectWriteLock(id,()=>writePageNovaProject(id, snapshot)); });
+    .then(async () => { created = await withProjectWriteLock(id,async()=>{
+      if(typeof window!=="undefined"){
+        const activeUser=currentBackupUser();
+        if(initiatingUserId!==activeUser)throw new Error("A conta mudou durante o salvamento. Projeto anterior preservado.");
+        const sourceOwner=await localSourceOwner(`indexeddb:${id}`);
+        if(!isUnclaimedOwner(sourceOwner)&&sourceOwner!==activeUser)
+          throw new Error("Este projeto pertence a outra conta. Original preservado.");
+      }
+      return writePageNovaProject(id,snapshot);
+    }); });
   pendingProjectWrites.set(id, save);
   try { await save;
     if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("pagenova-project-saved", {detail:{id,project:snapshot,created,initiatingUserId}}));
