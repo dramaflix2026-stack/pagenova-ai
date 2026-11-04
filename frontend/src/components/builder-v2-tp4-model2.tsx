@@ -57,7 +57,7 @@ export function BuilderV2TP4Model2({site}:{site:BuilderV2SiteData}){
  const match=specialties.find(s=>s[0].test(site.niche||""))||specialties.find(s=>s[0].test(identity))||specialties[specialties.length-1];
  const [specialty,services,key]=[match[1],match[2],match[3]];
  const photos=imageSets[key]||imageSets.medical;
- const photoPool=key==="dentistry"?["photo-1606811971618-4486d14f3f99","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc"]:[...new Set([...photos,...editorialExtras])];
+ const photoPool=key==="dentistry"?["photo-1606811971618-4486d14f3f99","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc","https://images.pexels.com/photos/4269944/pexels-photo-4269944.jpeg","https://images.pexels.com/photos/9062525/pexels-photo-9062525.jpeg","https://images.pexels.com/photos/6501925/pexels-photo-6501925.jpeg","https://images.pexels.com/photos/3845766/pexels-photo-3845766.jpeg","https://images.pexels.com/photos/305568/pexels-photo-305568.jpeg","https://images.pexels.com/photos/6627534/pexels-photo-6627534.jpeg"]:[...new Set([...photos,...editorialExtras])];
  const img=(n:number,w=1400)=>picture(photoPool[n%photoPool.length],w);
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
  const intro=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
