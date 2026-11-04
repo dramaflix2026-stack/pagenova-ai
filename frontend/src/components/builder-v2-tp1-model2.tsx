@@ -56,6 +56,7 @@ const journeyCatalog=[
  {pattern:/est[eé]tica|beleza/i,steps:[["Primeiro contato","Conhecemos seus objetivos e preferências."],["Avaliação","Entendemos suas necessidades individuais."],["Atendimento","Realizamos a experiência de cuidado planejada."],["Acompanhamento","Orientamos os próximos passos quando necessários."]]}
 ] as const;
 const galleryCatalog=[
+ {pattern:/barbearia|barbeiro|barbershop|barber shop/i,ids:["19050581","7518740","4625645","7518746","5584458"],labels:["Barba e acabamento","Ferramentas de precisão","Corte masculino","Técnica do barbeiro","Detalhes do atendimento"]},
  {pattern:/fotograf/i,ids:["3584996","3062545","3373736","1926769","2113855"],labels:["Retratos","Olhares","Composição","Expressão","Detalhes"]},
  {pattern:/maquiagem/i,ids:["3373736","2113855","3993449","3992874","1926769"],labels:["Produção","Detalhes","Beleza","Estilo","Expressão"]},
  {pattern:/psicolog|terapia/i,ids:["4101143","17640381","6899549","7750099","3985332"],labels:["Acolhimento","Escuta","Ambiente","Conforto","Bem-estar"]},
