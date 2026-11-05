@@ -5,6 +5,20 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const bannerIntent=/^(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?faixa\s+horizontal\b/i.test(instruction);
+ if(bannerIntent){
+  const anchors=instruction.match(/entre\s+(?:as\s+)?se[cç][oõ]es\s+(.+?)\s+e\s+(.+?)(?:[,.;]|$)/i);
+  const message=instruction.match(/["“]([^"”]{1,300})["”]/);
+  const bg=instruction.match(/fundo[^#]{0,70}(#[0-9a-f]{6})/i);
+  if(!anchors||!message||!bg)return {ok:false,error:"Informe as seções, texto entre aspas e cor da faixa. Nenhuma alteração aplicada."};
+  const first=resolveUniversalSection(site,anchors[1].trim());
+  const second=resolveUniversalSection(site,anchors[2].trim());
+  if(!first||!second||first===second)return {ok:false,error:"Não foi possível localizar as seções de referência. Nenhuma alteração aplicada."};
+  const raw=(site as Record<string,unknown>).universalBanners;
+  const existing=Array.isArray(raw)?raw:[];
+  const id="universal-banner-"+(existing.length+1);
+  return {ok:true,site:{...site,universalBanners:[...existing,{id,afterSection:first,beforeSection:second,text:message[1],backgroundColor:bg[1],textColor:"#FFFFFF"}]},changedIds:[id]};
+ }
  const sectionBackground=instruction.match(/^(?:na\s+)?se[cç][aã]o\s+(.+?),?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+(#[0-9a-f]{6})/i)
   ||instruction.match(/^altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(#[0-9a-f]{6})/i);
  if(sectionBackground){

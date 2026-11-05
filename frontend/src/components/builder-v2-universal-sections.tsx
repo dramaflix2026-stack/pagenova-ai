@@ -3,7 +3,7 @@ import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string}>;universalSectionEvents?:UniversalSectionEvent[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{section?:string;type?:string;background?:string;color?:string}[]};children:ReactNode}){
+export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{section?:string;type?:string;background?:string;color?:string}[]};children:ReactNode}){
  const events=site.universalSectionEvents;
 
  const nodes=Children.toArray(children);
@@ -46,6 +46,16 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
   order.splice(index,0,source);
  }
  const sorted=order.filter(key=>visible.has(key)).map(key=>byKey.get(key)!);
- let slot=0;
- return <>{nodes.flatMap(node=>keyOf(node)?(slot<sorted.length?[sorted[slot++]]:[]):[node])}</>;
+ const banners=Array.isArray(site.universalBanners)?site.universalBanners:[];
+ const withBanners:ReactNode[]=[];
+ for(let i=0;i<sorted.length;i++){
+  const node=sorted[i],section=keyOf(node)!;
+  withBanners.push(node);
+  for(const banner of banners){
+   if(banner.afterSection!==section||keyOf(sorted[i+1])!==banner.beforeSection)continue;
+   if(!/^#[0-9a-f]{6}$/i.test(banner.backgroundColor)||typeof banner.text!=="string")continue;
+   withBanners.push(<section key={banner.id} data-universal-section={banner.id} style={{backgroundColor:banner.backgroundColor,color:banner.textColor||"#FFFFFF",padding:"clamp(3rem,7vw,6rem) 7%",textAlign:"center",width:"100%"}}><p style={{fontSize:"clamp(1.4rem,3vw,2.8rem)",lineHeight:1.3,margin:0}}>{banner.text}</p></section>);
+  }
+ }
+ return <>{withBanners}</>;
 }
