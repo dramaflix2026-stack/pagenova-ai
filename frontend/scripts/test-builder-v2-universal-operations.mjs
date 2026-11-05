@@ -875,3 +875,25 @@ test("history recovery warning remains visible after successful draft autosave",
  assert.match(editor,/previous\.startsWith\("Não foi possível"\)/);
  assert.match(editor,/if\(!loaded\|\|!draftHydrated\|\|historyRecoveryFailed\)return;/);
 });
+
+test("hero heading and description are edited together across all three visual variants",()=>{
+ for(const variant of ["01","02","03"]){
+  const original={templateId:"tp2",briefingLayoutVariant:variant,blocks:[
+   {id:"hero-h",type:"heading",section:"hero",text:"Título original"},
+   {id:"hero-p",type:"paragraph",section:"hero",text:"Descrição original"},
+   {id:"hero-cta",type:"button",section:"hero",text:"Conheça",href:"#servicos"},
+   {id:"about-h",type:"heading",section:"about",text:"Sobre"}
+  ]};
+  const snapshot=structuredClone(original);
+  const instruction='Altere o título principal da capa para "Projetamos espaços que inspiram novas histórias" e a descrição da capa para "Desenvolvemos projetos de arquitetura e interiores que combinam elegância, conforto e funcionalidade." Não altere imagens, botões ou outras seções.';
+  const result=applyUniversalNaturalLanguage(original,instruction);
+  assert.equal(result?.ok,true,result?.error);
+  if(!result?.ok)continue;
+  assert.equal(result.changedIds.length,2);
+  assert.equal(result.site.blocks[0].text,"Projetamos espaços que inspiram novas histórias");
+  assert.equal(result.site.blocks[1].text,"Desenvolvemos projetos de arquitetura e interiores que combinam elegância, conforto e funcionalidade.");
+  assert.deepEqual(result.site.blocks.slice(2),original.blocks.slice(2));
+  assert.equal(result.site.briefingLayoutVariant,variant);
+  assert.deepEqual(original,snapshot);
+ }
+});
