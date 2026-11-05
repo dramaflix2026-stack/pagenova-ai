@@ -26,3 +26,5 @@ test("creation persists recognized family niche",()=>{
 });
 
 test("TP2 TP3 TP4 follow the parent model selection",()=>{const renderer=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");for(const n of [2,3,4]){const section=renderer.split(`function TP${n}LayoutChooser`)[1]?.split("function ")[0]||"";assert.match(section,/useEffect\(\(\)=>\{setVariant\(site\.briefingLayoutVariant/);}});
+
+test("TP2 models render three distinct components without legacy fallback",()=>{const renderer=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");const section=renderer.split("function TP2LayoutChooser")[1].split("function TP3LayoutChooser")[0];for(const name of ["BuilderV2TP2Model1","BuilderV2TP2Model2","BuilderV2TP2Model3"])assert.ok(section.includes("<"+name+" site={site}/>"),name);assert.ok(!section.includes("<BuilderV2ClassicSite"),"TP2 cannot silently render legacy template");});
