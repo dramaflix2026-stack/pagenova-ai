@@ -1,11 +1,11 @@
-import {Children,isValidElement,type ReactNode} from "react";
+import {Children,cloneElement,isValidElement,type CSSProperties,type ReactNode} from "react";
 import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children}:{site:{universalSectionEvents?:UniversalSectionEvent[]};children:ReactNode}){
+export function UniversalTemplateSections({site,children}:{site:{universalSectionEvents?:UniversalSectionEvent[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{section?:string;type?:string;background?:string;color?:string}[]};children:ReactNode}){
  const events=site.universalSectionEvents;
- if(!Array.isArray(events)||!events.length)return <>{children}</>;
+
  const nodes=Children.toArray(children);
  const keyOf=(node:ReactNode)=>isValidElement<{"data-universal-section"?:string}>(node)?node.props["data-universal-section"]:undefined;
  const sectionNodes=nodes.filter(node=>keyOf(node));
@@ -13,11 +13,23 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
  // composition instead of silently dropping one of the React sections.
  const keys=sectionNodes.map(node=>keyOf(node)!);
  if(new Set(keys).size!==keys.length)return <>{children}</>;
- const byKey=new Map(sectionNodes.map(node=>[keyOf(node)!,node]));
+ const decorated=sectionNodes.map(node=>{
+  const key=keyOf(node)!;
+  if(!isValidElement<{style?:CSSProperties}>(node))return node;
+  const background=site.blocks?.find(block=>block.section===key&&typeof block.background==="string")?.background;
+  const explicitMotion=site.motion?.sections?.[key];
+  const style=background?{...node.props.style,backgroundColor:background}:node.props.style;
+  return cloneElement(node,{
+   ...({"data-section-id":key} as object),
+   ...(explicitMotion?.effect&&explicitMotion.effect!=="none"?{"data-pn-motion-auto":""}:{}),
+   ...(style?{style}:{})
+  });
+ });
+ const byKey=new Map(decorated.map(node=>[keyOf(node)!,node]));
  const inventory={blocks:[...byKey.keys()].map(id=>({id,section:id,type:"heading",text:id}))};
  const keyFor=(reference?:UniversalSectionReference)=>reference&&typeof reference.id==="string"&&(resolveUniversalSection(inventory,reference.id)||(typeof reference.label==="string"?resolveUniversalSection(inventory,reference.label):null));
  const order=[...byKey.keys()],visible=new Set(order);
- for(const event of events){
+ for(const event of Array.isArray(events)?events:[]){
   if(!event||!event.section||typeof event.section.id!=="string")continue;
   const source=keyFor(event.section);if(!source)continue;
   if(event.action==="remove"){visible.delete(source);continue;}
