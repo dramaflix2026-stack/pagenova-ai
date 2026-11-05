@@ -923,3 +923,37 @@ test("universal hero edit matrix: 10 template families x 3 variants x section al
   }
  }
 });
+
+test("universal image, CTA and section removal preserve unrelated blocks across 30 visual variants",()=>{
+ for(let family=1;family<=10;family++){
+  for(const variant of ["01","02","03"]){
+   const original={templateId:"tp"+family,briefingLayoutVariant:variant,blocks:[
+    {id:"hero-h",type:"heading",section:"hero",text:"Título"},
+    {id:"hero-p",type:"paragraph",section:"hero",text:"Descrição"},
+    {id:"hero-img",type:"image",section:"hero",src:"https://example.com/old.jpg"},
+    {id:"hero-btn",type:"button",section:"hero",text:"Contato",href:"#contato"},
+    {id:"about-h",type:"heading",section:"about",text:"Sobre"},
+    {id:"about-p",type:"paragraph",section:"about",text:"Sobre nós"},
+    {id:"faq-h",type:"heading",section:"faq",text:"FAQ"}
+   ]};
+   const imageResult=applyUniversalNaturalLanguage(original,"Substitua somente a imagem principal da capa pela fotografia disponível nesta URL: https://example.com/new.jpg");
+   assert.equal(imageResult?.ok,true,"image tp"+family+" model"+variant+": "+imageResult?.error);
+   if(!imageResult?.ok)continue;
+   assert.equal(imageResult.site.blocks[2].src,"https://example.com/new.jpg");
+   assert.deepEqual(imageResult.site.blocks.filter(b=>b.id!=="hero-img"),original.blocks.filter(b=>b.id!=="hero-img"));
+   const ctaResult=applyUniversalNaturalLanguage(imageResult.site,'Altere o texto do botão principal da capa para "Solicitar orçamento"');
+   assert.equal(ctaResult?.ok,true,"CTA tp"+family+" model"+variant+": "+ctaResult?.error);
+   if(!ctaResult?.ok)continue;
+   assert.equal(ctaResult.site.blocks[3].text,"Solicitar orçamento");
+   assert.equal(ctaResult.site.blocks[3].href,"#contato");
+   const removal=applyUniversalNaturalLanguage(ctaResult.site,"Remova a seção Sobre");
+   assert.equal(removal?.ok,true,"remove tp"+family+" model"+variant+": "+removal?.error);
+   if(!removal?.ok)continue;
+   assert.equal(removal.site.blocks.some(b=>b.section==="about"),false);
+   assert.equal(removal.site.blocks.some(b=>b.section==="faq"),true);
+   assert.equal(removal.site.briefingLayoutVariant,variant);
+   assert.equal(removal.site.templateId,original.templateId);
+   assert.equal(original.blocks[2].src,"https://example.com/old.jpg");
+  }
+ }
+});
