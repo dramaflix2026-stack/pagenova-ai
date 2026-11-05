@@ -984,3 +984,11 @@ test("universal add and reorder section operations preserve 30 template identiti
   assert.deepEqual(original.blocks.map(b=>b.id),["hero","about","about-body","faq"]);
  }
 });
+
+test("TP2 model 1 routes all ten rendered sections through universal event ordering",()=>{
+ const renderer=readFileSync(new URL("../src/components/builder-v2-tp2-model1.tsx",import.meta.url),"utf8");
+ assert.match(renderer,/<UniversalTemplateSections site=\{site\}>/);
+ for(const section of ["inicio","sobre","servicos","projetos","processo","diferenciais","experiencia","faq","informacoes","contato"]){
+  assert.match(renderer,new RegExp('data-universal-section="'+section+'"'));
+ }
+});
