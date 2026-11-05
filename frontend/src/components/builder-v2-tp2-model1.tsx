@@ -1,6 +1,5 @@
 "use client";
 import type {BuilderV2SiteData} from "./builder-v2-site";
-import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {universalBlockProps} from "./builder-v2-universal-bindings";
 const images=[
 "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85",
@@ -27,6 +26,5 @@ export function BuilderV2TP2Model1({site}:{site:BuilderV2SiteData}){
  <section id="processo" className="px-7 py-24 md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">04 / Nossa abordagem</span><h2 className="mt-5 text-4xl font-semibold md:text-6xl">Do conceito à realização</h2><div className="mt-12 grid gap-8 md:grid-cols-3">{["Escuta e diagnóstico","Conceito e planejamento","Desenvolvimento e acompanhamento"].map((t,i)=><div key={t} className="border-t border-[#222]/25 pt-5"><span className="text-xs">ETAPA 0{i+1}</span><h3 className="mt-5 text-xl font-semibold">{t}</h3></div>)}</div></section>
  <section id="contato" className="bg-[#222a25] px-7 py-24 text-[#f7f5f0] md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">05 / Contato</span><h2 className="mt-6 max-w-3xl text-4xl font-semibold md:text-6xl">Vamos conversar sobre seu projeto?</h2>{contact!=="#contato"?<a href={contact} className="mt-10 inline-block border-b border-white pb-3 text-sm font-semibold uppercase tracking-widest">Entrar em contato ↗</a>:<p className="mt-8 text-sm text-white/75">Adicione um canal de contato no editor para habilitar este botão.</p>}</section></main>
  <footer className="flex flex-wrap items-center justify-between gap-4 bg-[#171d19] px-7 py-8 text-sm text-white/75 md:px-14"><strong className="text-white">{brand}</strong><span>© {new Date().getFullYear()} {brand}</span></footer>
- <UniversalTemplateSections site={site}/>
  </div>;
 }
