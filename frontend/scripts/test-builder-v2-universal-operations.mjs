@@ -992,3 +992,20 @@ test("TP2 model 1 routes all ten rendered sections through universal event order
   assert.match(renderer,new RegExp('data-universal-section="'+section+'"'));
  }
 });
+
+test("universal hotel section move resolves accommodations aliases without touching other blocks",()=>{
+ const site={templateId:"tp8",briefingLayoutVariant:"03",blocks:[
+  {id:"hero",type:"heading",section:"inicio",text:"Refúgio"},
+  {id:"rooms",type:"heading",section:"chales",text:"Nossos chalés"},
+  {id:"rooms-p",type:"paragraph",section:"chales",text:"Acomodações"},
+  {id:"diff",type:"heading",section:"diferenciais",text:"Diferenciais"},
+  {id:"faq",type:"heading",section:"faq",text:"Perguntas frequentes"}
+ ]};
+ const result=applyUniversalNaturalLanguage(site,"Mova a seção Diferenciais para antes da seção Acomodações.");
+ assert.equal(result?.ok,true,result?.error);
+ if(result?.ok){
+  assert.deepEqual(result.site.blocks.map(b=>b.id),["hero","diff","rooms","rooms-p","faq"]);
+  assert.equal(result.site.briefingLayoutVariant,"03");
+  assert.equal(result.site.universalSectionEvents.at(-1).before.id,"chales");
+ }
+});
