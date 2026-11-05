@@ -897,3 +897,29 @@ test("hero heading and description are edited together across all three visual v
   assert.deepEqual(original,snapshot);
  }
 });
+
+test("universal hero edit matrix: 10 template families x 3 variants x section aliases",()=>{
+ const sectionIds=["hero","inicio","capa"];
+ const instruction='Altere o título principal da capa para "Novo título" e a descrição da capa para "Nova descrição". Não altere outras seções.';
+ for(let family=1;family<=10;family++){
+  for(const variant of ["01","02","03"]){
+   for(const section of sectionIds){
+    const original={templateId:"tp"+family,briefingLayoutVariant:variant,blocks:[
+     {id:"h",type:"heading",section,text:"Título original"},
+     {id:"p",type:"paragraph",section,text:"Descrição original"},
+     {id:"cta",type:"button",section,text:"Saiba mais",href:"#contato"},
+     {id:"other",type:"heading",section:"about",text:"Sobre"}
+    ]};
+    const result=applyUniversalNaturalLanguage(original,instruction);
+    assert.equal(result?.ok,true,"family="+family+" variant="+variant+" section="+section+" "+result?.error);
+    if(!result?.ok)continue;
+    assert.equal(result.changedIds.length,2);
+    assert.equal(result.site.blocks[0].text,"Novo título");
+    assert.equal(result.site.blocks[1].text,"Nova descrição");
+    assert.deepEqual(result.site.blocks.slice(2),original.blocks.slice(2));
+    assert.equal(result.site.templateId,original.templateId);
+    assert.equal(result.site.briefingLayoutVariant,variant);
+   }
+  }
+ }
+});
