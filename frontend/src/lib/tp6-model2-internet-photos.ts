@@ -4,6 +4,15 @@ const photoIds:Record<string,string[]>={
     "1445205170230-053b83016050",
     "1483985988355-763728e1935b",
     "1490481651871-ab68de25d43d",
+    "1509631179647-0177331693ae",
+    "1539109136881-3be0616acf4b",
+    "1529139574466-a303027c1d8b",
+    "1515886657613-9f3515b0c78f",
+    "1483985988355-763728e1935b",
+    "1483985988355-763728e1935b",
+    "1496747611176-843222e1e57c",
+    "1525507119028-ed4c629a60a3",
+    "1469334031218-e382a71b716b",
     "1483985988355-763728e1935b"
   ],
   "Loja de calçados": [
@@ -93,4 +102,11 @@ const photoIds:Record<string,string[]>={
     "1555041469-a586c61ea9bc"
   ]
 };
-export function getTP6Model2InternetPhotos(niche:string):string[]{return (photoIds[niche]||photoIds["E-commerce multimarcas"]).map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`)}
+export function getTP6Model2InternetPhotos(niche:string, variant:"01"|"02"|"03"="02"):string[]{
+  const pool=[...new Set(photoIds[niche]||photoIds["E-commerce multimarcas"])];
+  // Each model receives its own deterministic editorial selection. For short niche
+  // catalogs, rotate the order without inventing URLs or using the PageNova bank.
+  const start=variant==="01"?0:variant==="02"?4:8;
+  const selected=Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
+  return selected.map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`);
+}
