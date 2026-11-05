@@ -15,7 +15,7 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
  if(new Set(keys).size!==keys.length)return <>{children}</>;
  const decorated=sectionNodes.map(node=>{
   const key=keyOf(node)!;
-  if(!isValidElement<{style?:CSSProperties}>(node))return node;
+  if(!isValidElement<{style?:CSSProperties;children?:ReactNode}>(node))return node;
   const background=site.universalSectionStyles?.[key]?.backgroundColor??site.blocks?.find(block=>block.section===key&&typeof block.background==="string")?.background;
   const headingColor=site.universalSectionStyles?.[key]?.headingColor;
   const explicitMotion=site.motion?.sections?.[key];
