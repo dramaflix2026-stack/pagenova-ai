@@ -5,8 +5,8 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const sectionBackground=instruction.match(/^(?:na\\s+)?se[cç][aã]o\\s+(.+?),?\\s+altere\\s+(?:somente\\s+)?a\\s+cor\\s+de\\s+fundo\\s+para\\s+(#[0-9a-f]{6})/i)
-  ||instruction.match(/^altere\\s+(?:somente\\s+)?a\\s+cor\\s+de\\s+fundo\\s+da\\s+se[cç][aã]o\\s+(.+?)\\s+para\\s+(#[0-9a-f]{6})/i);
+ const sectionBackground=instruction.match(/^(?:na\s+)?se[cç][aã]o\s+(.+?),?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+(#[0-9a-f]{6})/i)
+  ||instruction.match(/^altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(#[0-9a-f]{6})/i);
  if(sectionBackground){
   const section=resolveUniversalSection(site,sectionBackground[1]);
   if(!section)return {ok:false,error:"Seção "+sectionBackground[1]+" não encontrada. Nenhuma alteração aplicada."};
