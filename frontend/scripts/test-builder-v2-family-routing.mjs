@@ -9,7 +9,7 @@ test("ten families with unique ids and niches",()=>{
  assert.equal(families.length,10);
  assert.deepEqual(families.map(f=>f.id),[1,2,3,4,5,6,7,8,9,10]);
  const all=families.flatMap(f=>f.niches);
- assert.equal(new Set(all.map(n=>n.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase())).size,all.length);
+ assert.equal(new Set(all.map(n=>n.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase())).size,all.length);
  console.log("Registered niches:",all.length,"(commercial target: 133; reconcile separately)");
 });
 test("every registered niche resolves to its own family",()=>{
@@ -24,3 +24,5 @@ test("creation persists recognized family niche",()=>{
  assert.match(page,/detectedFamily\?BRIEFING_TEMPLATE_FAMILIES\.find/);
  assert.match(page,/briefingLayoutVariant:site\.briefingLayoutVariant\|\|"01"/);
 });
+
+test("TP2 TP3 TP4 follow the parent model selection",()=>{const renderer=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");for(const n of [2,3,4]){const section=renderer.split(`function TP${n}LayoutChooser`)[1]?.split("function ")[0]||"";assert.match(section,/useEffect\(\(\)=>\{setVariant\(site\.briefingLayoutVariant/);}});
