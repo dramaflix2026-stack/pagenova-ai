@@ -4,6 +4,7 @@ const aliases:Record<string,string[]>={
  hero:["hero","capa","inicio","home","principal","banner"],
  about:["about","sobre","sobre nos","sobre a empresa","nossa essencia","essencia"],
  services:["services","servicos","nossos servicos","especialidades","nossas especialidades"],
+ accommodations:["acomodacoes","acomodacao","nossas acomodacoes","hospedagens","hospedagem","quartos","suites","chales","chalés","rooms","accommodations","stays"],
  differences:["diferenciais","nossos diferenciais","diferencas","diferentials","differences"],
  process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas"],
  projects:["projetos","nossos projetos","projetos em destaque","portfolio de projetos","portfolio","portfólio","obras","nossas obras","cases","projetos realizados","projects"],
