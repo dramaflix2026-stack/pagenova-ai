@@ -1,0 +1,78 @@
+name: Builder backup isolated homologation
+on:
+  push:
+    branches: [feature/builder-v2-safe-cloud-sync-20261104]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: builder-backup-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  isolated-docker:
+    # Standard public Linux runners are free. Never run this job on a private repo.
+    if: github.event.repository.private == false
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install test dependencies
+        run: npm ci --prefix frontend --ignore-scripts --no-audit --no-fund
+      - name: Exercise persistent browser profiles with synthetic fixtures
+        run: npm run test:project-sync:browser --prefix frontend
+      - name: Start fresh local Supabase without hosted credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pagenova-backup-qa"
+          npx --yes supabase@2.81.3 init --workdir "$RUNNER_TEMP/pagenova-backup-qa"
+          python3 - <<'PY'
+          import os,re
+          p=os.environ['RUNNER_TEMP']+'/pagenova-backup-qa/supabase/config.toml'
+          s=open(p).read()
+          s=re.sub(r'^project_id = .*$', 'project_id = "pagenova-backup-qa"',s,flags=re.M)
+          open(p,'w').write(s)
+          PY
+          mkdir -p "$RUNNER_TEMP/pagenova-backup-qa/supabase/migrations"
+          cp supabase/migrations/20261104160714_builder_project_safe_cloud_sync.sql "$RUNNER_TEMP/pagenova-backup-qa/supabase/migrations/"
+          npx --yes supabase@2.81.3 start --workdir "$RUNNER_TEMP/pagenova-backup-qa" --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > "$RUNNER_TEMP/supabase-start.log" 2>&1
+          npx --yes supabase@2.81.3 status --workdir "$RUNNER_TEMP/pagenova-backup-qa" -o json > "$RUNNER_TEMP/pagenova-qa-status.json"
+          docker exec -i supabase_db_pagenova-backup-qa psql -U postgres -d postgres -v ON_ERROR_STOP=1 < frontend/scripts/fixtures/project-sync-qa.sql
+          node frontend/scripts/test-project-sync-supabase.mjs env "$RUNNER_TEMP/pagenova-qa-status.json" "$RUNNER_TEMP/pagenova-qa.env"
+      - name: Build exact Railway Dockerfile with synthetic public configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/pagenova-qa.env"
+          docker build -f Dockerfile.railway-frontend -t pagenova-backup-qa:tested \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+            --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" .
+      - name: Start isolated app and test real Auth, API, RLS and recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run -d --network host --name pagenova-backup-app --env-file "$RUNNER_TEMP/pagenova-qa.env" pagenova-backup-qa:tested
+          for attempt in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8000/api/health >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:8000/api/health
+          set -a
+          source "$RUNNER_TEMP/pagenova-qa.env"
+          set +a
+          node frontend/scripts/test-project-sync-supabase.mjs verify
+      - name: Failure diagnostics without environment values
+        if: failure()
+        run: |
+          docker logs --tail 60 pagenova-backup-app 2>/dev/null || true
+          docker ps --format '{{.Names}} {{.Status}}'
+      - name: Stop disposable containers
+        if: always()
+        run: |
+          docker rm -f pagenova-backup-app 2>/dev/null || true
+          npx --yes supabase@2.81.3 stop --workdir "$RUNNER_TEMP/pagenova-backup-qa" --no-backup || true

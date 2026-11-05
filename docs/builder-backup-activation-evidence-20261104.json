@@ -1,0 +1,42 @@
+{
+  "date_utc": "2026-11-04T17:48:56.952628+00:00",
+  "starting_commit": "d733618c974bcdf80fe7bc562ce33db88100735d",
+  "sync_tests": 19,
+  "sync_passed": 19,
+  "full_suite_tests": 324,
+  "full_suite_runs": 24,
+  "chromium_scenarios": [
+    "PASS real IndexedDB creation and automatic backup",
+    "PASS F5 preserves original data",
+    "PASS two browser profiles retain conflicts without replacing newer head",
+    "PASS offline save survives closing and reopening browser process",
+    "PASS recovery into other profile uses new key and keeps its original",
+    "PASS lost HTTP acknowledgement plus process restart retries idempotently",
+    "PASS account switching cannot upload previous owner projects",
+    "PASS standalone exporter reads original origin and preserves file bytes without network upload",
+    "PASS portable import crosses origins, preserves original IDs/assets, is idempotent and never overwrites destination",
+    "PASS empty local overwrite is refused; explicit synthetic deletion verifies recovery copy and rejects wrong account"
+  ],
+  "commands_exit_zero": [
+    "npm run test:project-sync",
+    "Chromium harness with executable override",
+    "npm run build",
+    "npx next build (final source)",
+    "npx tsc --noEmit --incremental false",
+    "npm run lint"
+  ],
+  "limits": [
+    "Browser HTTP authentication is a fixture, not Supabase Auth/PostgREST",
+    "Postgres is PGlite/WASM, not live Supabase",
+    "Docker unavailable and CI billing blocked",
+    "Production not changed, personal Chrome not accessed"
+  ],
+  "log_sha256": {
+    "sync": "0e6d7b5093f2a79d83abbbbc1daae2d7a6133e0c9efda8f0f46c2a56127a4f03",
+    "chromium": "f0717e2af2305ab55950f7db33b055522603eaf8e3048c4fdd8e5358a2f90773",
+    "full_build": "76935b783e28e394aed229bf7bba236c7cf124786babae432968e5639b912e2e",
+    "final_next_build": "2e0f8c03978aea7ad81757c9ea8a0a49b77c19694d9ec6d69f1d10384de91379",
+    "tsc": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+    "eslint": "430200f00ef3e2c073789bbfdc3a818b2ddf4578eed107dc75aafb1547225a1f"
+  }
+}

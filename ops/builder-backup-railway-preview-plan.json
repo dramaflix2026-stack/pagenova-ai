@@ -1,0 +1,28 @@
+{
+  "purpose": "Reviewed preview plan only; this file does not deploy or modify Railway",
+  "repository": "dramaflix2026-stack/pagenova-ai",
+  "sourceBranch": "feature/builder-v2-safe-cloud-sync-20261104",
+  "target": "A separate preview service and non-production environment; no production domains",
+  "rootDirectory": "/",
+  "dockerfilePath": "Dockerfile.railway-frontend",
+  "startCommand": "npx next start -H 0.0.0.0 -p 8000",
+  "healthcheckPath": "/api/health",
+  "port": 8000,
+  "requiredVariables": [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_SECRET_KEY",
+    "OPENAI_API_KEY",
+    "PORT"
+  ],
+  "database": "Isolated Supabase test project/branch, with the additive backup migration applied",
+  "productionGate": [
+    "Authenticate with a test account with valid access",
+    "Verify Supabase REST grants and RLS with two distinct users",
+    "Compare counts and payloads of all local originals before and after migration",
+    "Exercise two browser profiles, concurrent edits, offline restart and recovery",
+    "Verify a real OpenAI chat edit and persistence after refresh",
+    "Only then apply the additive production migration and release the reviewed commit"
+  ],
+  "rollback": "Roll back application only. Retain all backup tables, immutable revisions and original local databases. Never DROP, TRUNCATE, or clear IndexedDB."
+}
