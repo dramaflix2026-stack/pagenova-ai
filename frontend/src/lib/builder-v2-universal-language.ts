@@ -322,6 +322,23 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // Handle explicitly quoted hero heading/description edits before generic matching.
+ // Accept "somente", optional "da capa", preservation clauses and paired requests.
+ const heroTitleEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?o\s+t[ií]tulo\s+principal(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i);
+ const heroDescriptionEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?a\s+descri[cç][aã]o(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i);
+ if(heroTitleEdit||heroDescriptionEdit){
+  const hero=resolveUniversalSection(site,"capa");
+  if(!hero)return {ok:false,error:"Capa não encontrada. Nenhuma alteração aplicada."};
+  const heroBlocks=site.blocks.filter(b=>b.section===hero);
+  const heading=heroBlocks.find(b=>b.type==="heading");
+  const description=heroBlocks.find(b=>b.type==="paragraph");
+  if((heroTitleEdit&&!heading)||(heroDescriptionEdit&&!description))
+   return {ok:false,error:"Título ou descrição da capa não encontrado. Nenhuma alteração aplicada."};
+  const operations:UniversalOperation[]=[];
+  if(heroTitleEdit&&heading)operations.push({action:"update",blockId:heading.id,changes:{text:heroTitleEdit[1]}});
+  if(heroDescriptionEdit&&description)operations.push({action:"update",blockId:description.id,changes:{text:heroDescriptionEdit[1]}});
+  return applyUniversalOperations(site,operations);
+ }
  // Explicit section introduction must not fall through to generic paragraph/card selection.
  const introRequest=/\b(?:par[aá]grafo\s+introdut[oó]rio|texto\s+introdut[oó]rio)\b/i.test(instruction)
   &&/\b(?:se[cç][aã]o\s+(?:de\s+)?servi[cç]os|servi[cç]os)\b/i.test(instruction);
