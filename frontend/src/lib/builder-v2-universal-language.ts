@@ -325,7 +325,8 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,in
  // Handle explicitly quoted hero heading/description edits before generic matching.
  // Accept "somente", optional "da capa", preservation clauses and paired requests.
  const heroTitleEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?o\s+t[ií]tulo\s+principal(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i);
- const heroDescriptionEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?a\s+descri[cç][aã]o(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i)\n  ||(heroTitleEdit?instruction.match(/\be\s+a\s+descri[cç][aã]o(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i):null);
+ const heroDescriptionEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?a\s+descri[cç][aã]o(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i)
+  ||(heroTitleEdit?instruction.match(/\be\s+a\s+descri[cç][aã]o(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i):null);
  if(heroTitleEdit||heroDescriptionEdit){
   const hero=resolveUniversalSection(site,"capa");
   if(!hero)return {ok:false,error:"Capa não encontrada. Nenhuma alteração aplicada."};
