@@ -14,6 +14,15 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   const styles=existing&&typeof existing==="object"&&!Array.isArray(existing)?existing as Record<string,unknown>:{};
   return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...((styles[section]&&typeof styles[section]==="object")?styles[section] as object:{}),backgroundColor:sectionBackground[2]}}},changedIds:["section-style:"+section]};
  }
+ const sectionHeadings=instruction.match(/^na\s+se[cç][aã]o\s+(.+?),?\s+altere\s+(?:todos\s+)?os\s+t[ií]tulos\s+para\s+(?:a\s+)?cor\s+(?:[\p{L}-]+\s+)?(#[0-9a-f]{6})/iu)
+  ||instruction.match(/^altere\s+(?:a\s+)?cor\s+(?:de\s+)?(?:todos\s+)?os\s+t[ií]tulos\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(?:[\p{L}-]+\s+)?(#[0-9a-f]{6})/iu);
+ if(sectionHeadings){
+  const section=resolveUniversalSection(site,sectionHeadings[1].trim().replace(/,$/,""));
+  if(!section)return {ok:false,error:"Seção não encontrada. Nenhuma alteração aplicada."};
+  const existing=(site as Record<string,unknown>).universalSectionStyles;
+  const styles=existing&&typeof existing==="object"&&!Array.isArray(existing)?existing as Record<string,unknown>:{};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...((styles[section]&&typeof styles[section]==="object")?styles[section] as object:{}),headingColor:sectionHeadings[2]}}},changedIds:["section-heading-color:"+section]};
+ }
  const normalized=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
  const text=instruction.trim();
  const q=[...text.matchAll(/["“”']([^"“”'\n]+)["“”']/g)].map(m=>m[1].trim());
