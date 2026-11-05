@@ -957,3 +957,30 @@ test("universal image, CTA and section removal preserve unrelated blocks across 
   }
  }
 });
+
+test("universal add and reorder section operations preserve 30 template identities",()=>{
+ for(let family=1;family<=10;family++)for(const variant of ["01","02","03"]){
+  const original={templateId:"tp"+family,briefingLayoutVariant:variant,blocks:[
+   {id:"hero",type:"heading",section:"hero",text:"Capa"},
+   {id:"about",type:"heading",section:"about",text:"Sobre"},
+   {id:"about-body",type:"paragraph",section:"about",text:"Descrição"},
+   {id:"faq",type:"heading",section:"faq",text:"FAQ"}
+  ]};
+  const added=applyUniversalOperations(original,[
+   {action:"add",block:{id:"new-section-heading",type:"heading",section:"services",text:"Serviços"},afterId:"about-body"},
+   {action:"add",block:{id:"new-section-body",type:"paragraph",section:"services",text:"Serviço novo"},afterId:"new-section-heading"}
+  ]);
+  assert.equal(added.ok,true,"add tp"+family+" model"+variant+": "+added.error);
+  if(!added.ok)continue;
+  assert.deepEqual(added.site.blocks.map(b=>b.id),["hero","about","about-body","new-section-heading","new-section-body","faq"]);
+  const moved=applyUniversalOperations(added.site,[{action:"move-section",sectionId:"services",beforeSectionId:"about"}]);
+  assert.equal(moved.ok,true,"move tp"+family+" model"+variant+": "+moved.error);
+  if(!moved.ok)continue;
+  assert.deepEqual(moved.site.blocks.map(b=>b.id),["hero","new-section-heading","new-section-body","about","about-body","faq"]);
+  assert.equal(moved.site.universalSectionEvents.at(-1).action,"move");
+  assert.equal(moved.site.universalSectionEvents.at(-1).before.id,"about");
+  assert.equal(moved.site.templateId,original.templateId);
+  assert.equal(moved.site.briefingLayoutVariant,variant);
+  assert.deepEqual(original.blocks.map(b=>b.id),["hero","about","about-body","faq"]);
+ }
+});
