@@ -57,5 +57,6 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
    withBanners.push(<section key={banner.id} data-universal-section={banner.id} style={{backgroundColor:banner.backgroundColor,color:banner.textColor||"#FFFFFF",padding:"clamp(3rem,7vw,6rem) 7%",textAlign:"center",width:"100%"}}><p style={{fontSize:"clamp(1.4rem,3vw,2.8rem)",lineHeight:1.3,margin:0}}>{banner.text}</p></section>);
   }
  }
- return <>{withBanners}</>;
+ let slot=0;
+ return <>{nodes.flatMap(node=>keyOf(node)?(slot===0?[...withBanners].map(item=>item):slot++,[]):[node])}</>;
 }
