@@ -1,0 +1,32 @@
+"use client";
+import type {BuilderV2SiteData} from "./builder-v2-site";
+import {UniversalTemplateSections} from "./builder-v2-universal-sections";
+import {universalBlockProps} from "./builder-v2-universal-bindings";
+const images=[
+"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85",
+"https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1100&q=85",
+"https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1100&q=85",
+"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1100&q=85"];
+export function BuilderV2TP2Model1({site}:{site:BuilderV2SiteData}){
+ const brand=site.header?.brand||site.title||"Estúdio";
+ const blocks=site.blocks||[];
+ const headings=blocks.filter(b=>b.type==="heading");
+ const paragraphs=blocks.filter(b=>b.type==="paragraph");
+ const media=blocks.filter(b=>b.type==="image"&&b.src?.trim());
+ const photo=(i:number)=>media[i]?.src||images[i%images.length];
+ const contact=site.footer?.email?"mailto:"+site.footer.email:site.footer?.phone?"https://wa.me/"+site.footer.phone.replace(/\D/g,""):"#contato";
+ const services=["Projeto e planejamento","Ambientes personalizados","Consultoria e acompanhamento"];
+ return <div data-tp2-model="01" className="w-full overflow-hidden bg-[#f7f5f0] text-[#222621]" style={{fontFamily:"'Poppins',sans-serif"}}>
+ <header className="flex items-center justify-between gap-4 border-b border-[#232822]/15 px-6 py-5 md:px-14"><strong className="text-lg tracking-[.13em] uppercase">{brand}</strong><a className="text-xs font-semibold uppercase tracking-widest" href="#contato">Contato ↗</a></header>
+ <main><section id="inicio" className="grid min-h-[680px] grid-cols-1 md:grid-cols-2">
+ <div className="flex flex-col justify-center px-7 py-20 md:px-14"><span className="mb-9 text-xs font-semibold uppercase tracking-[.28em] text-[#8c785b]">Arquitetura • Design • Projetos</span><h1 className="max-w-2xl text-5xl font-semibold leading-[1.08] tracking-tight md:text-7xl" {...universalBlockProps(headings[0])}>{headings[0]?.text||brand}</h1><p className="mt-8 max-w-lg text-base leading-8 text-[#59615b]" {...universalBlockProps(paragraphs[0])}>{paragraphs[0]?.text||"Espaços pensados com propósito, funcionalidade e identidade."}</p><a href="#servicos" className="mt-10 w-fit border-b border-[#242824] pb-2 text-xs font-semibold uppercase tracking-[.2em]">Conheça nosso trabalho ↗</a></div>
+ <div className="relative min-h-[460px]"><img className="absolute inset-0 h-full w-full object-cover" src={photo(0)} alt="Referência visual de arquitetura e interiores" {...universalBlockProps(media[0])}/></div></section>
+ <section id="sobre" className="grid gap-10 border-b border-[#222]/10 px-7 py-24 md:grid-cols-[1fr_2fr] md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">01 / Nossa essência</span><div><h2 className="max-w-3xl text-4xl font-semibold leading-tight md:text-6xl" {...universalBlockProps(headings[1])}>{headings[1]?.text||"Design que transforma a maneira de viver."}</h2><p className="mt-8 max-w-2xl text-lg leading-8 text-[#626963]" {...universalBlockProps(paragraphs[1])}>{paragraphs[1]?.text||"Cada projeto nasce da escuta, do cuidado com os detalhes e de soluções pensadas para cada contexto."}</p></div></section>
+ <section id="servicos" className="px-7 py-24 md:px-14"><div className="mb-12 flex flex-wrap items-end justify-between gap-6"><div><span className="text-xs font-bold uppercase tracking-[.2em]">02 / Especialidades</span><h2 className="mt-4 text-4xl font-semibold md:text-6xl">O que fazemos</h2></div><span className="max-w-xs text-sm text-[#626963]">Soluções adaptadas ao seu projeto e às suas necessidades.</span></div><div className="grid gap-5 md:grid-cols-3">{services.map((fallback,i)=><article key={i} className="border-t border-[#222]/25 pt-5"><span className="text-xs tracking-widest">0{i+1}</span><h3 className="mt-6 text-2xl font-semibold" {...universalBlockProps(headings[i+2])}>{headings[i+2]?.text||fallback}</h3><p className="mt-4 leading-7 text-[#626963]" {...universalBlockProps(paragraphs[i+2])}>{paragraphs[i+2]?.text||"Uma abordagem personalizada para cada etapa."}</p></article>)}</div></section>
+ <section id="projetos" className="bg-[#e8e4dc] px-7 py-24 md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">03 / Inspiração visual</span><h2 className="mb-12 mt-4 text-4xl font-semibold md:text-6xl">Espaços e possibilidades</h2><div className="grid gap-5 md:grid-cols-2">{[1,2,3].map((i)=><figure key={i} className={i===3?"md:col-span-2":""}><img className="h-[360px] w-full object-cover md:h-[460px]" src={photo(i)} alt={"Referência arquitetônica "+i} loading="lazy" {...universalBlockProps(media[i])}/></figure>)}</div><p className="mt-5 text-xs text-[#626963]">Imagens ilustrativas de referência. Não representam necessariamente projetos executados pela empresa.</p></section>
+ <section id="processo" className="px-7 py-24 md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">04 / Nossa abordagem</span><h2 className="mt-5 text-4xl font-semibold md:text-6xl">Do conceito à realização</h2><div className="mt-12 grid gap-8 md:grid-cols-3">{["Escuta e diagnóstico","Conceito e planejamento","Desenvolvimento e acompanhamento"].map((t,i)=><div key={t} className="border-t border-[#222]/25 pt-5"><span className="text-xs">ETAPA 0{i+1}</span><h3 className="mt-5 text-xl font-semibold">{t}</h3></div>)}</div></section>
+ <section id="contato" className="bg-[#222a25] px-7 py-24 text-[#f7f5f0] md:px-14"><span className="text-xs font-bold uppercase tracking-[.2em]">05 / Contato</span><h2 className="mt-6 max-w-3xl text-4xl font-semibold md:text-6xl">Vamos conversar sobre seu projeto?</h2>{contact!=="#contato"?<a href={contact} className="mt-10 inline-block border-b border-white pb-3 text-sm font-semibold uppercase tracking-widest">Entrar em contato ↗</a>:<p className="mt-8 text-sm text-white/75">Adicione um canal de contato no editor para habilitar este botão.</p>}</section></main>
+ <footer className="flex flex-wrap items-center justify-between gap-4 bg-[#171d19] px-7 py-8 text-sm text-white/75 md:px-14"><strong className="text-white">{brand}</strong><span>© {new Date().getFullYear()} {brand}</span></footer>
+ <UniversalTemplateSections site={site}/>
+ </div>;
+}
