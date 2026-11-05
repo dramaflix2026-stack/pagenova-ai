@@ -11,7 +11,8 @@
     "test:motion": "node --test scripts/test-site-motion.mjs",
     "test:integration": "node scripts/test-publishing-flows-runtime.mjs",
     "test:cloner-integration": "node scripts/test-cloner-integration.mjs",
-    "test:commercial": "node --test scripts/test-commercial-access.mjs"
+    "test:commercial": "node --test scripts/test-commercial-access.mjs",
+    "test:builder-families": "node --experimental-strip-types --test scripts/test-builder-v2-family-routing.mjs"
   },
   "dependencies": {
     "@sparticuz/chromium": "^153.0.0",
