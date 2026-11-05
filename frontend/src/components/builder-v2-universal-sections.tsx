@@ -3,7 +3,7 @@ import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string}>;universalSectionEvents?:UniversalSectionEvent[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{section?:string;type?:string;background?:string;color?:string}[]};children:ReactNode}){
+export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string}>;universalSectionEvents?:UniversalSectionEvent[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{section?:string;type?:string;background?:string;color?:string}[]};children:ReactNode}){
  const events=site.universalSectionEvents;
 
  const nodes=Children.toArray(children);
@@ -17,12 +17,15 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
   const key=keyOf(node)!;
   if(!isValidElement<{style?:CSSProperties}>(node))return node;
   const background=site.universalSectionStyles?.[key]?.backgroundColor??site.blocks?.find(block=>block.section===key&&typeof block.background==="string")?.background;
+  const headingColor=site.universalSectionStyles?.[key]?.headingColor;
   const explicitMotion=site.motion?.sections?.[key];
   const style=background?{...node.props.style,backgroundColor:background}:node.props.style;
+  const headingOverride=headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?<style key={"universal-heading-"+key}>{`[data-universal-section="${key}"] h1,[data-universal-section="${key}"] h2,[data-universal-section="${key}"] h3{color:${headingColor}!important}`}</style>:null;
   return cloneElement(node,{
    ...({"data-section-id":key} as object),
    ...(explicitMotion?.effect&&explicitMotion.effect!=="none"?{"data-pn-motion-auto":""}:{}),
-   ...(style?{style}:{})
+   ...(style?{style}:{}),
+   ...(headingOverride?{children:<>{node.props.children}{headingOverride}</>}: {})
   });
  });
  const byKey=new Map(decorated.map(node=>[keyOf(node)!,node]));
