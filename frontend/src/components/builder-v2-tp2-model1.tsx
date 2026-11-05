@@ -13,7 +13,7 @@ export function BuilderV2TP2Model1({site}:{site:BuilderV2SiteData}){
  const paragraphs=blocks.filter(b=>b.type==="paragraph");
  const media=blocks.filter(b=>b.type==="image"&&b.src?.trim());
  const photo=(i:number)=>media[i]?.src||images[i%images.length];
- const contact=site.footer?.email?"mailto:"+site.footer.email:site.footer?.phone?"https://wa.me/"+site.footer.phone.replace(/\D/g,""):"#contato";
+ const contact=site.footer?.email?"mailto:"+site.footer.email:site.footer?.whatsapp||"#contato";
  const services=["Projeto e planejamento","Ambientes personalizados","Consultoria e acompanhamento"];
  return <div data-tp2-model="01" className="w-full overflow-hidden bg-[#f7f5f0] text-[#222621]" style={{fontFamily:"'Poppins',sans-serif"}}>
  <header className="flex items-center justify-between gap-4 border-b border-[#232822]/15 px-6 py-5 md:px-14"><strong className="text-lg tracking-[.13em] uppercase">{brand}</strong><a className="text-xs font-semibold uppercase tracking-widest" href="#contato">Contato ↗</a></header>
