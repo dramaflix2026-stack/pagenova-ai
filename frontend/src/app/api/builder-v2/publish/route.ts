@@ -57,11 +57,24 @@ export async function POST(request:NextRequest) {
   const suffix=site.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,10).toLowerCase();
   const baseSlug=`v2-${slugify(site.title)}-${suffix}`;
   const scoped=createHash("sha256").update(userId+":"+site.id).digest("hex").slice(0,12);
-  await ensureBucket(admin);
+  try{await ensureBucket(admin);}
+  catch(error){
+    console.error("[builder-v2/publish] storage bucket unavailable",error);
+    return NextResponse.json({error:"O armazenamento de publicação está indisponível. Tente novamente em instantes."},{status:503});
+  }
   const storage=admin.storage.from(BUCKET);
   let slug=baseSlug,upsert=false;
   for(let attempt=0;attempt<2;attempt++){
-    const {data:existing,error:readError}=await storage.download(slug+".json");
+    let existing:Blob|null=null;
+    let readError:{message:string}|null=null;
+    try{
+      const result=await storage.download(slug+".json");
+      existing=result.data;
+      readError=result.error;
+    }catch(error){
+      console.error("[builder-v2/publish] storage lookup unavailable",error);
+      return NextResponse.json({error:"Não foi possível acessar o armazenamento. Tente novamente."},{status:503});
+    }
     if(existing){
       let owned=false;
       try{
