@@ -230,6 +230,39 @@ function TP5LayoutChooser({site,selectedNiche,publishedMode,onVariantChange,init
  <div className="pn-t5-layout"><style>{`.pn-t5-layout .pn-t5-legacy > header{display:none!important}.pn-t5-layout .pn-t5-legacy section:first-of-type{display:none!important}.pn-t5-layout .pn-t5-legacy footer{display:none!important}`}</style><Template5AIFuturistHero brand={brand} headline={firstHeading} description={firstDescription}/><Template5AIFuturistSections brand={brand} niche={niche} email={site.footer?.email} whatsapp={site.footer?.whatsapp}/></div>}
  </div>;
 }
+function UnknownNicheBriefingLayout({site}:{site:BuilderV2SiteData}) {
+ const variant=site.briefingLayoutVariant||"01";
+ const sections=new Map<string,Block[]>();
+ for(const block of site.blocks){const name=(block.section||"Apresentação").trim()||"Apresentação";if(!sections.has(name))sections.set(name,[]);sections.get(name)!.push(block);}
+ const entries=[...sections.entries()];
+ const brand=site.header?.brand||site.title||"";
+ const dark=variant==="02";
+ const editorial=variant==="03";
+ const background=dark?"#16261e":editorial?"#eee9df":"#f7f4ed";
+ const ink=dark?"#f5f0e6":"#26372b";
+ const accent="#b89b65";
+ const renderBlock=(block:Block)=>block.type==="image"&&block.src?
+  <img key={block.id} src={block.src} alt={block.text||""} loading="lazy" className={editorial?"w-full aspect-[4/5] object-cover":dark?"w-full aspect-video object-cover":"w-full aspect-[16/10] object-cover"} style={{objectPosition:block.imagePosition||"center"}}/>:
+  block.type==="heading"?<h2 key={block.id} className={editorial?"text-4xl md:text-6xl font-serif leading-tight":dark?"text-3xl md:text-5xl font-semibold leading-tight":"text-3xl md:text-5xl font-serif leading-tight"}>{block.text}</h2>:
+  block.type==="paragraph"?<p key={block.id} className="text-base md:text-lg leading-relaxed opacity-85 whitespace-pre-line">{block.text}</p>:
+  block.type==="button"?<a key={block.id} href={block.href||"#contato"} className="inline-flex w-fit rounded-sm border px-6 py-3 font-semibold" style={{borderColor:accent,color:ink}}>{block.text||"Saiba mais"}</a>:null;
+ return <main data-pn-unknown-niche-layout={variant} style={{background,color:ink,fontFamily:"inherit"}}>
+  <header className={editorial?"px-6 md:px-16 py-9 border-b flex items-center justify-between":dark?"px-6 md:px-14 py-8 flex items-center justify-between border-b border-white/20":"px-6 md:px-14 py-7 flex items-center justify-between"} style={{borderColor:accent}}>
+   <strong className={editorial?"text-2xl font-serif":"text-xl font-semibold"}>{brand}</strong>
+   <nav className="flex flex-wrap gap-4 text-sm">{entries.slice(0,5).map(([name],i)=><a key={name} href={"#pn-brief-section-"+i}>{name}</a>)}</nav>
+  </header>
+  {entries.map(([name,blocks],index)=><section id={"pn-brief-section-"+index} key={name} className={editorial?"px-6 md:px-20 py-16 md:py-28 border-b":dark?"px-6 md:px-16 py-16 md:py-24 border-b border-white/10":"px-6 md:px-14 py-14 md:py-24"} style={{background:dark?(index%2?"#22382c":"#16261e"):editorial?(index%2?"#e4dccd":"#eee9df"):(index%2?"#eae5d9":"#f7f4ed"),borderColor:accent}}>
+    <div className={editorial?"max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-[.75fr_1.25fr] gap-10 md:gap-20 items-start":dark?"max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center":"max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-center"}>
+     <div className={editorial?"md:sticky md:top-12":dark?"md:col-start-1":"md:col-span-4"}>
+      <span className="block text-xs tracking-[.25em] uppercase mb-5" style={{color:accent}}>{String(index+1).padStart(2,"0")} / {name}</span>
+      {index===0&&<p className={editorial?"text-2xl font-serif":"text-xl font-semibold"}>{brand}</p>}
+     </div>
+     <div className={editorial?"space-y-7":dark?"space-y-7":"md:col-span-8 space-y-7"}>{blocks.map(renderBlock)}</div>
+    </div>
+   </section>)}
+  <footer className="px-6 md:px-14 py-10 text-sm border-t" style={{borderColor:accent}}>{brand}{site.footer?.email&&<a className="ml-5 underline" href={"mailto:"+site.footer.email}>{site.footer.email}</a>}</footer>
+ </main>;
+}
 export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
@@ -385,6 +418,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const description=props.site.blocks.find(b=>b.type==="paragraph"&&/automatize processos/i.test(b.text||""))?.text||"Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio.";
    return <div className="pn-nexora-template-five"><style>{`.pn-nexora-template-five .pn-nexora-legacy > header{display:none!important}.pn-nexora-template-five .pn-nexora-legacy section:first-of-type{display:none!important}`}</style><NexoraTechnologyHero brand={props.site.header?.brand||"NEXORA AI"} headline={/transforme o futuro da sua empresa com intelig[eê]ncia artificial[.!]?/i.test(headline)?"Automatize a complexidade. Escale exponencialmente.":headline} description={description==="Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio."?"A plataforma operacional unificada da Nexora otimiza processos, dos dados às decisões, para alcançar mais eficiência e crescimento.":description}/><NexoraIndicators/><NexoraSolutions/><NexoraAbout/><NexoraDifferentials/><NexoraJourney/><NexoraProjects/><NexoraTestimonials/><NexoraFaq/><NexoraCta/><NexoraContact/><NexoraFooter/><div className="pn-nexora-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
+ if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&!family)return <UnknownNicheBriefingLayout site={props.site}/>;
  return <BuilderV2ClassicSite {...props}/>;
 }
 function AdaptiveStatCounter({value,suffix,color}:{value:number;suffix:string;color:string}){
