@@ -219,3 +219,20 @@
  .tp1m1 .tp1m1-map-details .tp1m1-contact-address{font-size:12px}
  .tp1m1 .tp1m1-map-link{font-size:10px}
 }
+
+
+/* TP1 makeup identity: dusty rose editorial palette. Barbershop remains untouched. */
+.tp1m1[data-tp1-model1="makeup"]{--tp1m1-bg:#191419;--tp1m1-panel:#241a20;--tp1m1-line:#674850;--tp1m1-gold:#d8a6b1;--tp1m1-cream:#fff4f1;--tp1m1-muted:#d4bdc3}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-header{background:#171117;border-bottom-color:#764650}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-header-cta{border-color:#bb8794}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero{background-color:#251a23}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-about{background:#191419}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-services,.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience{background:#261c23}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-differences,.tp1m1[data-tp1-model1="makeup"] .tp1m1-gallery{background:#191419}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq{background:#241b23}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact{background:#e7c5c9;color:#2d2028}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact .tp1m1-eyebrow{color:#70404d}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact-copy>p{color:#684f56}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer{background:#140f14;border-top-color:#7a4e5b}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service{background:#1b161a}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-button-gold{color:#29141c!important}
