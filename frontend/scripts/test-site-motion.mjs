@@ -128,3 +128,78 @@ test("DOM motion engine uses the embedded preview viewport rather than the paren
   assert.equal(classes.has("pn-motion-target"),false,"mobile suppression must use iframe width");
   stop();
 });
+
+test("universal scroll boundary covers all early-return template families and immersive modes",()=>{
+  const renderer=readFileSync(path.join(root,"src/components/builder-v2-site.tsx"),"utf8");
+  const boundary=readFileSync(path.join(root,"src/components/builder-v2-universal-scroll-motion.tsx"),"utf8");
+  const css=readFileSync(path.join(root,"src/components/builder-v2-universal-scroll-reveal.css"),"utf8");
+  assert.ok(renderer.includes("return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>"));
+  assert.ok(renderer.includes("function BuilderV2SiteContent(props:BuilderV2SiteProps)"));
+  assert.ok(renderer.includes("attachSiteMotion(previewRef.current,site.motion)"),"existing classic animation engine is preserved");
+  assert.ok(boundary.includes("display")===false || css.includes("display:contents"),"motion boundary must not alter layout boxes");
+  assert.ok(css.includes("prefers-reduced-motion:reduce"));
+});
+
+test("universal scroll observer reveals section headings without clobbering interactive transforms",()=>{
+  const universalSource=readFileSync(path.join(root,"src/lib/universal-site-scroll-reveal.ts"),"utf8");
+  const js=ts.transpileModule(universalSource,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}});
+  const moduleExports={};
+  vm.runInNewContext(js.outputText,{exports:moduleExports,module:{exports:moduleExports},console});
+  const {attachUniversalScrollReveal}=moduleExports;
+
+  const observed=[],states=new Map(),classes=new Set();
+  let handler;
+  class FakeObserver {
+    constructor(callback){handler=callback;}
+    observe(el){observed.push(el);}
+    unobserve(){}
+    disconnect(){}
+  }
+  const view={
+    IntersectionObserver:FakeObserver,
+    innerHeight:600,
+    matchMedia:()=>({matches:false}),
+    getComputedStyle:()=>({display:"block",visibility:"visible",opacity:"1",position:"static"}),
+    requestAnimationFrame:()=>1,
+    cancelAnimationFrame:()=>{}
+  };
+  const heading={
+    isConnected:true,
+    dataset:{},
+    style:{transform:"",opacity:"",setProperty:(k,v)=>states.set(k,v),removeProperty:k=>states.delete(k)},
+    classList:{add:(...values)=>values.forEach(value=>classes.add(value)),remove:(...values)=>values.forEach(value=>classes.delete(value))},
+    closest:()=>null,
+    matches:(selector)=>selector.split(",").map(value=>value.trim()).includes("h2"),
+    getAttribute:()=>null,
+    removeAttribute:()=>{},
+    hasAttribute:()=>false,
+    getBoundingClientRect:()=>({top:1000,bottom:1050})
+  };
+  const section={
+    id:"servicos",
+    closest:()=>null,
+    getAttribute:()=>null,
+    querySelectorAll:()=>[heading]
+  };
+  const document={defaultView:view};
+  const rootElement={ownerDocument:document,querySelectorAll:()=>[section]};
+  const stop=attachUniversalScrollReveal(rootElement,{preset:"professional"});
+  assert.equal(observed.length,1,"offscreen heading must wait for scrolling");
+  assert.equal(heading.dataset.pnGlobalScrollReveal,"fade-up");
+  assert.ok(classes.has("pn-global-scroll-reveal"));
+  handler([{target:heading,isIntersecting:true}]);
+  assert.ok(classes.has("pn-global-scroll-visible"),"heading must reveal after entering the viewport");
+  stop();
+  assert.equal(classes.has("pn-global-scroll-reveal"),false,"cleanup must reset node state");
+
+  heading.style.transform="rotateY(12deg)";
+  observed.length=0;
+  const stopTilt=attachUniversalScrollReveal(rootElement,{preset:"professional"});
+  assert.equal(observed.length,0,"existing 3D tilt must be left untouched");
+  stopTilt();
+
+  heading.style.transform="";
+  const disabled=attachUniversalScrollReveal(rootElement,{preset:"none"});
+  assert.equal(observed.length,0,"opt-out disables universal effects");
+  disabled();
+});
