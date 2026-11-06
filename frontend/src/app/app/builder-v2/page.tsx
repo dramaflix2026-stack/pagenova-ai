@@ -1423,8 +1423,6 @@ export default function BuilderV2() {
 </details>}<button type="button" onClick={()=>setPreviewExpanded(v=>!v)} className="rounded-lg border border-white/25 px-3 py-2 text-xs">{previewExpanded?"✕ Fechar":"⛶ Ampliar"}</button>
 </div></div>
 {siteCategory==="institutional"&&site.templateId==="prompt-adaptive"&&(() => {
- const family=resolveBriefingFamily(site.niche||"")||resolveBriefingFamily(selectedNiche||"")||resolveBriefingFamily(site.title||"");
- if(!family)return null;
  return <div role="group" aria-label="Modelos visuais" className="mt-3 flex w-full flex-wrap items-center justify-center gap-2">
  {(["01","02","03"] as const).map(v=><button key={v} type="button" aria-pressed={(site.briefingLayoutVariant||"01")===v} onClick={()=>{recordVersion(site,"Antes de trocar modelo visual");setSite(prev=>({...prev,briefingLayoutVariant:v}));}} className={`min-w-0 flex-1 rounded-lg border px-4 py-3 text-xs font-semibold sm:flex-none sm:px-8 ${(site.briefingLayoutVariant||"01")===v?"border-lime-300 bg-lime-300 text-black":"border-white/30 bg-[#15211c] text-white"}`}>Modelo {Number(v)}</button>)}
  </div>;
