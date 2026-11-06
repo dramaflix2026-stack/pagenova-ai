@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { BuilderV2SiteData } from "./builder-v2-site";
 import { universalBlockProps, UniversalTypographyRules } from "./builder-v2-universal-bindings";
 import { UniversalTemplateSections } from "./builder-v2-universal-sections";
@@ -41,7 +42,10 @@ const FAQ = [
   { question: "Posso enviar uma referência do corte?", answer: "Você pode conversar com a equipe sobre o estilo desejado e consultar a possibilidade de enviar uma referência." },
 ];
 
-export function BuilderV2TP1Model1({ site }: { site: BuilderV2SiteData }) {
+const DEMO_ADDRESS = "Avenida Paulista, 1578 — Bela Vista, São Paulo/SP";
+
+export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: BuilderV2SiteData; publishedMode?: boolean }) {
+  const [showWhatsAppNotice, setShowWhatsAppNotice] = useState(false);
   const brand = site.header?.brand || site.title || "Barbearia";
   const getBlock = (section: string, type: string, index = 0) =>
     site.blocks.filter((item) => item.section === section && item.type === type)[index];
@@ -52,9 +56,11 @@ export function BuilderV2TP1Model1({ site }: { site: BuilderV2SiteData }) {
   const phone = site.footer?.whatsapp?.replace(/\D/g, "") || "";
   const whatsappHref = phone.length >= 10 ? `https://wa.me/${phone}` : undefined;
   const email = site.footer?.email?.trim();
-  const contactHref = whatsappHref || (email ? `mailto:${email}` : undefined);
   const address = site.footer?.address?.trim() || site.extras?.address?.trim();
-  const mapSrc = address ? `https://www.google.com/maps?q=${encodeURIComponent(address)}&output=embed` : undefined;
+  const usingDemoAddress = !address && !publishedMode;
+  const displayAddress = address || (usingDemoAddress ? DEMO_ADDRESS : undefined);
+  const mapSrc = displayAddress ? `https://www.google.com/maps?q=${encodeURIComponent(displayAddress)}&output=embed` : undefined;
+  const mapHref = displayAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayAddress)}` : undefined;
 
   return (
     <div className="tp1m1" data-tp1-model1="barbershop">
@@ -192,24 +198,34 @@ export function BuilderV2TP1Model1({ site }: { site: BuilderV2SiteData }) {
             <span className="tp1m1-eyebrow">07 <span className="tp1m1-eyebrow-line" /> ENTRE EM CONTATO</span>
             <h2 {...universalBlockProps(getBlock("contato", "heading"))}>{copy("contato", "heading", "Seu próximo corte começa aqui.")}</h2>
             <p>Entre em contato para conhecer a disponibilidade de horários, serviços e valores.</p>
-            {contactHref ? (
-              <a className="tp1m1-button tp1m1-button-dark" href={contactHref} target={whatsappHref ? "_blank" : undefined} rel={whatsappHref ? "noopener noreferrer" : undefined}>
-                {whatsappHref ? "CONVERSAR NO WHATSAPP" : "ENVIAR E-MAIL"} <span aria-hidden="true">↗</span>
+            {whatsappHref ? (
+              <a className="tp1m1-button tp1m1-whatsapp-button" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
               </a>
             ) : (
-              <span className="tp1m1-contact-notice">Cadastre um telefone ou e-mail para habilitar o agendamento.</span>
+              <button className="tp1m1-button tp1m1-whatsapp-button" type="button" onClick={() => setShowWhatsAppNotice(true)}>
+                FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
+              </button>
             )}
+            {!whatsappHref && showWhatsAppNotice && (
+              <p className="tp1m1-whatsapp-notice" role="status">Este botão é demonstrativo. Cadastre o número real de WhatsApp no editor para ativar o atendimento.</p>
+            )}
+            {email && <a className="tp1m1-contact-email" href={`mailto:${email}`}>Ou entre em contato por e-mail ↗</a>}
           </div>
           <div className="tp1m1-contact-panel">
             {mapSrc ? (
               <>
-                <iframe title="Localização cadastrada da barbearia" src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-                <p className="tp1m1-contact-address">{address}</p>
+                <iframe title={usingDemoAddress ? "Mapa demonstrativo de localização" : "Localização cadastrada da barbearia"} src={mapSrc} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+                <div className="tp1m1-map-details">
+                  <span className="tp1m1-map-label">{usingDemoAddress ? "ENDEREÇO DEMONSTRATIVO" : "NOSSO ENDEREÇO"}</span>
+                  <p className="tp1m1-contact-address">{displayAddress}</p>
+                  {usingDemoAddress && <p className="tp1m1-map-disclaimer">Exemplo para visualizar o layout. Substitua pelo endereço real antes de publicar.</p>}
+                  {mapHref && <a className="tp1m1-map-link" href={mapHref} target="_blank" rel="noopener noreferrer">ABRIR NO GOOGLE MAPS <span aria-hidden="true">↗</span></a>}
+                </div>
               </>
             ) : (
-              <div className="tp1m1-location-placeholder"><span aria-hidden="true">◎</span><strong>LOCALIZAÇÃO</strong><p>Consulte o endereço diretamente com a equipe. Nenhuma localização foi cadastrada.</p></div>
+              <div className="tp1m1-location-placeholder"><span aria-hidden="true">◎</span><strong>LOCALIZAÇÃO</strong><p>Cadastre o endereço real para exibir o mapa e o trajeto.</p></div>
             )}
-            {whatsappHref && <a className="tp1m1-contact-mini" href={whatsappHref} target="_blank" rel="noopener noreferrer">WHATSAPP <span aria-hidden="true">↗</span></a>}
           </div>
         </section>
       </UniversalTemplateSections>
