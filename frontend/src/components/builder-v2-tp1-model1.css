@@ -200,3 +200,22 @@
  .tp1m1-hero-bottom>span{display:none}
 }
 @media(prefers-reduced-motion:reduce){.tp1m1-service,.tp1m1-service img,.tp1m1-button,.tp1m1-header-cta,.tp1m1-gallery-grid img{transition:none!important}}
+
+/* Contact section: visible map/address/WhatsApp in test previews; no fake WhatsApp target. */
+.tp1m1 .tp1m1-whatsapp-button{border:0;cursor:pointer;background:#167f46;color:#fff!important;min-height:54px;border-radius:7px;box-shadow:0 8px 18px rgba(19,84,42,.13);margin-top:15px;max-width:100%;font-family:inherit}
+.tp1m1 .tp1m1-whatsapp-button:hover{background:#106d39}
+.tp1m1 .tp1m1-whatsapp-notice{font-size:12px;line-height:1.65;color:#3c2b1c;margin:14px 0 0;max-width:440px;font-weight:650}
+.tp1m1 .tp1m1-contact-email{display:block;margin-top:15px;color:#3b2b19;text-decoration:underline;text-underline-offset:4px;font-size:12px;font-weight:600}
+.tp1m1 .tp1m1-map-details{padding:15px 5px 6px}
+.tp1m1 .tp1m1-map-label{font-size:10px;letter-spacing:.16em;color:var(--tp1m1-gold);font-weight:800}
+.tp1m1 .tp1m1-map-details .tp1m1-contact-address{padding:8px 0 0;color:#eee6d7;font-size:14px;line-height:1.6}
+.tp1m1 .tp1m1-map-disclaimer{color:#c7b9a8;font-size:11px;line-height:1.6;margin:10px 0}
+.tp1m1 .tp1m1-map-link{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:14px 0 3px;border-top:1px solid rgba(216,180,125,.3);margin-top:15px;color:var(--tp1m1-gold);font-size:11px;font-weight:800;letter-spacing:.06em}
+.tp1m1 .tp1m1-map-link span{font-size:17px}
+@media(max-width:650px){
+ .tp1m1 .tp1m1-whatsapp-button{width:100%;min-height:50px;font-size:12px}
+ .tp1m1 .tp1m1-contact-panel{padding:10px}
+ .tp1m1 .tp1m1-map-details{padding:15px 6px 7px}
+ .tp1m1 .tp1m1-map-details .tp1m1-contact-address{font-size:12px}
+ .tp1m1 .tp1m1-map-link{font-size:10px}
+}
