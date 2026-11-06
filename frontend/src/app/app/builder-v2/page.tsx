@@ -1204,11 +1204,22 @@ export default function BuilderV2() {
     setPublishing(true);setPublishError("");setPublishNotice("");
     setSite(current);
     try{
-      const response=await fetch("/api/builder-v2/publish",{
-        method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({site:current})
-      });
-      const data=await response.json() as {url?:string;error?:string;notice?:string};
-      if(!response.ok||!data.url)throw new Error(data.error||"Não foi possível publicar o site.");
+      const payload=JSON.stringify({site:current});
+      let response:Response|undefined;
+      for(let attempt=0;attempt<2;attempt++){
+        try{
+          response=await fetch("/api/builder-v2/publish",{
+            method:"POST",headers:{"Content-Type":"application/json"},body:payload,
+            credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(45000)
+          });
+          break;
+        }catch(error){
+          if(attempt===1)throw new Error("Não foi possível conectar ao serviço de publicação. Verifique a conexão e tente novamente. Seu projeto permanece salvo.");
+        }
+      }
+      if(!response)throw new Error("Serviço de publicação indisponível.");
+      const data=await response.json().catch(()=>null) as {url?:string;error?:string;notice?:string}|null;
+      if(!response.ok||!data?.url)throw new Error(data?.error||("Falha no serviço de publicação (HTTP "+response.status+"). Tente novamente."));
       setSite(previous=>previous.id===current.id?{...previous,publishedUrl:data.url}:previous);
       setPublishNotice(data.notice||"Site publicado! Acesse o link público para conferir o resultado.");
     }catch(error){setPublishError(error instanceof Error?error.message:"Falha na publicação. Seu site foi preservado.");}
