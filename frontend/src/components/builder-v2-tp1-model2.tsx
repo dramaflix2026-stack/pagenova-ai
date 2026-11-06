@@ -149,7 +149,7 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   if(validWhatsapp){const url="https://wa.me/"+validWhatsapp+"?text="+encodeURIComponent(body);const opened=window.open(url,"_blank","noopener,noreferrer");setContactFeedback(opened?"Abrimos o WhatsApp para você revisar e enviar a mensagem.":"Se o WhatsApp não abriu, permita janelas pop-up ou utilize o contato disponível.");return;}
   if(validContactEmail){window.location.href="mailto:"+validContactEmail+"?subject="+encodeURIComponent("Contato pelo site — "+brand)+"&body="+encodeURIComponent(body);setContactFeedback("Abrimos o aplicativo de e-mail para você revisar e enviar a mensagem. O envio ainda depende da sua confirmação.");}
  };
- return <div className="tp1v2" id="inicio"><UniversalTypographyRules/>
+ return <div className="tp1v2" id="inicio" data-tp1-niche={isMakeup?"makeup":undefined}><UniversalTypographyRules/>
   <header className="tp1v2-header">
    <a className="tp1v2-brand" href="#inicio">{brand}<span className="tp1v2-brand-dot">.</span></a>
    <button className="tp1v2-menu-toggle" type="button" aria-label={menuOpen?"Fechar menu":"Abrir menu"} aria-expanded={menuOpen} onClick={()=>setMenuOpen(!menuOpen)}>{menuOpen?"Fechar":"Menu"} <span aria-hidden="true">{menuOpen?"×":"☰"}</span></button>
