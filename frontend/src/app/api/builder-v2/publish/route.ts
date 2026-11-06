@@ -22,9 +22,17 @@ async function ensureBucket(admin:Awaited<ReturnType<typeof authorizedForms>>["a
 }
 type PublishInput={site?:BuilderV2SiteData};
 export async function POST(request:NextRequest) {
+  // Railway's reverse proxy may expose the public Host while NextRequest.nextUrl
+  // resolves to the internal service origin. Validate against the actual Host.
   const origin=request.headers.get("origin");
-  if(origin&&origin!==request.nextUrl.origin)
-    return NextResponse.json({error:"Origem não autorizada."},{status:403});
+  if(origin){
+    let originHost="";
+    try{originHost=new URL(origin).host.toLowerCase();}catch{}
+    const requestHost=(request.headers.get("host")||"").toLowerCase();
+    const resolvedHost=request.nextUrl.host.toLowerCase();
+    if(!originHost||(originHost!==requestHost&&originHost!==resolvedHost))
+      return NextResponse.json({error:"Origem não autorizada."},{status:403});
+  }
   let access:Awaited<ReturnType<typeof authorizedForms>>;
   try{access=await authorizedForms();}
   catch(error){return errorsAsResponse(error);}
