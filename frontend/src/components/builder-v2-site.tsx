@@ -20,6 +20,7 @@ import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
 import { UniversalSiteScrollMotion } from "@/components/builder-v2-universal-scroll-motion";
 import { BuilderV2TP1Model1 } from "@/components/builder-v2-tp1-model1";
+import {isTP1MakeupSite,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import { BuilderV2TP1Model3Hero } from "@/components/builder-v2-tp1-model3";
 import { BuilderV2TP2Model1 } from "@/components/builder-v2-tp2-model1";
 import { BuilderV2TP2Model2 } from "@/components/builder-v2-tp2-model2";
@@ -149,8 +150,10 @@ function TP6LayoutChooser({site,publishedMode,onVariantChange,children}:{site:Bu
 function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
  const [variant,setVariant]=useState<"01"|"02"|"03">((site.briefingLayoutVariant==="03"||site.briefingLayoutVariant==="02")?site.briefingLayoutVariant:"01");
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01")},[site.briefingLayoutVariant]);
+ const isMakeup=isTP1MakeupSite(site,selectedNiche);
+ const scopedSite=isMakeup?prepareTP1MakeupSite(site,selectedNiche):site;
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
-  {variant==="03"?<BuilderV2TP1Model3Hero site={site}/>:variant==="02"?<BuilderV2TP1Model2Hero site={site}/>:/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={site} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+  {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
 function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
