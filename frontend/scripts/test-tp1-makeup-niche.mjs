@@ -81,5 +81,5 @@ test("all template variants share correct makeup route and no demo map is expose
  assert.equal(m2.includes("Avenida Paulista, 1000"),false);
  const page=readFileSync(path.join(root,"src/app/app/builder-v2/page.tsx"),"utf8");
  assert.ok(page.includes('effectiveBriefNiche=creatingMakeupSite?"Estúdio de Maquiagem":briefNiche'));
- assert.ok(page.includes("prepareTP1MakeupSite(await generateVisuals(incoming,prompt),selectedNiche)"));
+ assert.ok(page.includes("finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,selectedNiche)"));
 });

@@ -1157,7 +1157,7 @@ export default function BuilderV2() {
       setSite(incoming);
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
-         try { finishedSite=prepareTP1MakeupSite(await generateVisuals(incoming,prompt),selectedNiche);setSite(finishedSite); }
+         try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,selectedNiche);setSite(finishedSite); }
          catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
        }
        let photoApplyFailed=false;
