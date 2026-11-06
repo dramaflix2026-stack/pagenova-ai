@@ -33,6 +33,8 @@ export async function POST(request:NextRequest) {
     if(!originHost||(originHost!==requestHost&&originHost!==resolvedHost))
       return NextResponse.json({error:"Origem não autorizada."},{status:403});
   }
+  const publicOrigin=origin&&new URL(origin).host.toLowerCase()===(request.headers.get("host")||"").toLowerCase()
+    ?new URL(origin).origin:request.nextUrl.origin;
   let access:Awaited<ReturnType<typeof authorizedForms>>;
   try{access=await authorizedForms();}
   catch(error){return errorsAsResponse(error);}
@@ -110,11 +112,11 @@ export async function POST(request:NextRequest) {
   },{onConflict:"owner_id,project_id"});
   if(indexError){
     console.error("[pagenova/domains] publication index error",indexError.code);
-    return NextResponse.json({slug,url:`${request.nextUrl.origin}/p/${slug}`,publishedAt,
+    return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt,
       notice:"Site publicado. A atualização da lista de domínios está temporariamente indisponível."
     });
   }
   await admin.from("pagenova_custom_domains").update({slug,updated_at:publishedAt})
     .eq("owner_id",userId).eq("project_id",site.id);
-  return NextResponse.json({slug,url:`${request.nextUrl.origin}/p/${slug}`,publishedAt});
+  return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt});
 }
