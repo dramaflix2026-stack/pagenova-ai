@@ -74,3 +74,6 @@
 @media(max-width:950px){.tp1v2-footer-main{grid-template-columns:1fr;gap:65px}.tp1v2-footer-columns{max-width:650px}.tp1v2-footer-wordmark{font-size:clamp(65px,12vw,135px)}}
 @media(max-width:560px){.tp1v2-footer{padding:28px 21px 25px}.tp1v2-footer-top{font-size:8px}.tp1v2-footer-main{padding:70px 0;gap:55px}.tp1v2-footer-intro h2{font-size:clamp(46px,11vw,65px)}.tp1v2-footer-columns{grid-template-columns:1fr 1fr;gap:20px}.tp1v2-footer-columns a,.tp1v2-footer-info p,.tp1v2-footer-info address{font-size:12px}.tp1v2-footer-wordmark{font-size:clamp(48px,11vw,85px);padding-bottom:22px}.tp1v2-footer-bottom{font-size:9px;gap:12px}}
 @media(prefers-reduced-motion:reduce){.tp1v2-footer-cta{transition:none}}
+
+/* Keep long business names fully readable on mobile. */
+@media(max-width:760px){.tp1v2-footer-wordmark{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;font-size:clamp(24px,6.4vw,48px)!important;line-height:1.05!important;letter-spacing:-.045em!important;text-overflow:unset!important}}
