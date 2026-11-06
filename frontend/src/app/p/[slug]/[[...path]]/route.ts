@@ -124,7 +124,7 @@ export async function GET(
       const stored=JSON.parse(await data.text()) as {version?:number;site?:{blocks?:unknown}};
       if(stored.version!==2||!Array.isArray(stored.site?.blocks))return new NextResponse("Página não encontrada.",{status:404});
     }catch{return new NextResponse("Página indisponível.",{status:500});}
-    return NextResponse.redirect(new URL("/site/"+encodeURIComponent(slug),_request.url),307);
+    return NextResponse.redirect(new URL("/site/"+encodeURIComponent(slug),"https://www.pagenovaai.com.br"),307);
   }
 
   // New Sites com IA are published and stored by Railway. Proxy the public
