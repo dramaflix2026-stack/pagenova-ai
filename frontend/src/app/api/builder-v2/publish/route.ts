@@ -33,8 +33,9 @@ export async function POST(request:NextRequest) {
     if(!originHost||(originHost!==requestHost&&originHost!==resolvedHost))
       return NextResponse.json({error:"Origem não autorizada."},{status:403});
   }
-  const publicOrigin=origin&&new URL(origin).host.toLowerCase()===(request.headers.get("host")||"").toLowerCase()
-    ?new URL(origin).origin:request.nextUrl.origin;
+  // Never return request.nextUrl.origin: Railway may resolve it as 0.0.0.0:8000.
+  // All published sites have a stable publicly reachable canonical domain.
+  const publicOrigin="https://pagenovaai.com.br";
   let access:Awaited<ReturnType<typeof authorizedForms>>;
   try{access=await authorizedForms();}
   catch(error){return errorsAsResponse(error);}
