@@ -531,12 +531,14 @@ test("TP1 model 02 services, differentiators and journey use universal text bind
  assert.match(component,/b\.section==="como-funciona"&&b\.type==="paragraph"/);
 });
 
-test("TP1 model 02 contact introduction uses universal editing without changing form submission",()=>{
+test("TP1 model 02 contact introduction keeps universal editing with map and WhatsApp",()=>{
  const component=readFileSync(new URL("../src/components/builder-v2-tp1-model2.tsx",import.meta.url),"utf8");
  assert.match(component,/id="tp1v2-contact-heading" \{\.\.\.universalBlockProps\(/);
  assert.match(component,/b\.section==="contato"&&b\.type==="heading"/);
  assert.match(component,/b\.section==="contato"&&b\.type==="paragraph"/);
- assert.match(component,/onSubmit=\{sendContact\}/);
+ assert.match(component,/title="Mapa demonstrativo de localização"/);
+ assert.match(component,/VISITE OU FALE CONOSCO/);
+ assert.match(component,/https:\/\/wa\.me\//);
 });
 
 test("TP1 model 02 service and differentiator cards have editable content",()=>{
