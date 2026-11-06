@@ -13,12 +13,11 @@
 .pn-global-scroll-root .pn-global-scroll-reveal.pn-global-scroll-visible {
   opacity:1;
   translate:0 0;
-  scale:1;
   animation:pn-global-scroll-up var(--pn-global-scroll-duration,650ms) cubic-bezier(.17,1,.3,1) var(--pn-global-scroll-delay,0ms) both;
 }
 .pn-global-scroll-root .pn-global-scroll-reveal.pn-global-scroll-visible[data-pn-global-scroll-reveal="fade-left"] {animation-name:pn-global-scroll-left}
 .pn-global-scroll-root .pn-global-scroll-reveal.pn-global-scroll-visible[data-pn-global-scroll-reveal="fade-right"] {animation-name:pn-global-scroll-right}
-.pn-global-scroll-root .pn-global-scroll-reveal.pn-global-scroll-visible[data-pn-global-scroll-reveal="zoom"] {animation-name:pn-global-scroll-zoom}
+.pn-global-scroll-root .pn-global-scroll-reveal.pn-global-scroll-visible[data-pn-global-scroll-reveal="zoom"] {scale:1;animation-name:pn-global-scroll-zoom}
 @keyframes pn-global-scroll-up {from{opacity:0;translate:0 22px}to{opacity:1;translate:0 0}}
 @keyframes pn-global-scroll-left {from{opacity:0;translate:-22px 0}to{opacity:1;translate:0 0}}
 @keyframes pn-global-scroll-right {from{opacity:0;translate:22px 0}to{opacity:1;translate:0 0}}
