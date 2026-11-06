@@ -18,6 +18,7 @@ import { getTP6Model2InternetPhotos } from "@/lib/tp6-model2-internet-photos";
 import {adaptivePalette, type AdaptiveDesign} from "@/lib/builder-v2-brief-contract";
 import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
+import { UniversalSiteScrollMotion } from "@/components/builder-v2-universal-scroll-motion";
 import { BuilderV2TP1Model1 } from "@/components/builder-v2-tp1-model1";
 import { BuilderV2TP1Model3Hero } from "@/components/builder-v2-tp1-model3";
 import { BuilderV2TP2Model1 } from "@/components/builder-v2-tp2-model1";
@@ -239,7 +240,15 @@ function UnknownNicheBriefingLayout({site}:{site:BuilderV2SiteData}) {
   <footer className="px-6 md:px-14 py-10 text-sm border-t" style={{borderColor:accent}}>{brand}{site.footer?.email&&<a className="ml-5 underline" href={"mailto:"+site.footer.email}>{site.footer.email}</a>}</footer>
  </main>;
 }
-export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
+type BuilderV2SiteProps={site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void};
+
+/** All 3 model variants in every niche enter through this universal motion boundary.
+ *  The classic renderer keeps its existing block-specific motion system intact. */
+export function BuilderV2Site(props:BuilderV2SiteProps){
+ return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>;
+}
+
+function BuilderV2SiteContent(props:BuilderV2SiteProps){
  if(props.site.cinematic?.mode==="immersive-3d"){
   const nicheText=[props.site.niche,props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
   if(/cafeteria|coffee\s*shop|café|cafe\b/i.test([props.site.header?.brand,props.site.title,props.selectedNiche].filter(Boolean).join(" "))||/aurora\s*coffee/i.test(nicheText))return <BuilderV2CoffeeG3 site={props.site}/>;
