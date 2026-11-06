@@ -536,7 +536,9 @@ test("TP1 model 02 contact introduction keeps universal editing with map and Wha
  assert.match(component,/id="tp1v2-contact-heading" \{\.\.\.universalBlockProps\(/);
  assert.match(component,/b\.section==="contato"&&b\.type==="heading"/);
  assert.match(component,/b\.section==="contato"&&b\.type==="paragraph"/);
- assert.match(component,/title="Mapa demonstrativo de localização"/);
+ assert.match(component,/title="Localização cadastrada da empresa"/);
+ assert.match(component,/encodeURIComponent\(footerAddress\)/);
+ assert.doesNotMatch(component,/Avenida Paulista, 1000/,"No fabricated map address is permitted");
  assert.match(component,/VISITE OU FALE CONOSCO/);
  assert.match(component,/https:\/\/wa\.me\//);
 });
