@@ -5,7 +5,8 @@
  * makeup brief was generated. Repair ONLY the rendering projection; never
  * mutate saved customer data or overwrite a user-uploaded photograph.
  */
-import type {BuilderV2SiteData} from "@/components/builder-v2-site";
+type MakeupBlock={id:string;type:"heading"|"paragraph"|"button"|"image";text:string;section?:string;src?:string;mobileSrc?:string;userUploaded?:boolean};
+type MakeupSite={title:string;niche?:string;header?:{brand?:string;ctaLabel?:string;navItems?:Array<{label:string;href:string}>};blocks:MakeupBlock[]};
 
 export const MAKEUP_RE = /maquiag(?:em|ens)|maquiador(?:a|es|as)?|make[\s-]?up/i;
 export const MAKEUP_PHOTOS = [
@@ -77,7 +78,7 @@ const sectionKey=(section?:string)=>{
  return s;
 };
 
-export function isTP1MakeupSite(site:BuilderV2SiteData,selectedNiche?:string):boolean {
+export function isTP1MakeupSite(site:MakeupSite,selectedNiche?:string):boolean {
  const brand=[site.header?.brand,site.title,selectedNiche].filter(Boolean).join(" ");
  if(MAKEUP_RE.test(brand))return true;
  // When the visible brand belongs to a different industry, do not re-route it
@@ -86,7 +87,7 @@ export function isTP1MakeupSite(site:BuilderV2SiteData,selectedNiche?:string):bo
  return MAKEUP_RE.test(site.niche||"");
 }
 
-export function prepareTP1MakeupSite(site:BuilderV2SiteData,selectedNiche?:string):BuilderV2SiteData {
+export function prepareTP1MakeupSite<T extends MakeupSite>(site:T,selectedNiche?:string):T {
  if(!isTP1MakeupSite(site,selectedNiche))return site;
  const counts:Record<string,number>={};
  const imageCounts:Record<string,number>={};
@@ -128,5 +129,5 @@ export function prepareTP1MakeupSite(site:BuilderV2SiteData,selectedNiche?:strin
    navItems:site.header.navItems?.map(item=>BARBER_COPY.test(item.label)?{...item,label:"Serviços"}:item)}:undefined;
  // No update to site.blocks in database: this is a safe render projection for
  // this exact explicit niche, including sites already generated before the fix.
- return {...site,niche:"Estúdio de Maquiagem",header,blocks:normalizedBlocks};
+ return {...site,niche:"Estúdio de Maquiagem",header,blocks:normalizedBlocks} as T;
 }
