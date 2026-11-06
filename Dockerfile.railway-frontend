@@ -10,7 +10,17 @@ ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
-RUN npm run build
+# Capture the complete build output so the actual failing command is visible
+# even when Railway truncates high-volume test output.
+RUN set -eu; \
+    if npm run build > /tmp/pagenova-build.log 2>&1; then \
+      tail -n 35 /tmp/pagenova-build.log; \
+    else \
+      status=$?; \
+      echo "=== PAGENOVA BUILD FAILED: LAST 200 LINES ==="; \
+      tail -n 200 /tmp/pagenova-build.log; \
+      exit "$status"; \
+    fi
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 EXPOSE 8000
