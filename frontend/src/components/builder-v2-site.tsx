@@ -2,6 +2,7 @@
 import {universalBlockProps,UniversalTypographyRules} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {MemoriaVivaModel1} from "./builder-v2-memoria-viva-model1";
+import {MemoriaVivaModel2} from "./builder-v2-memoria-viva-model2";
 import { resolveVisualComposition } from "@/lib/builder-v2-visual-compositions";
 import { BuilderV2VerticalTimeline } from "@/components/builder-v2-vertical-timeline";
 import { EngineeringEditorialCards } from "@/components/builder-v2-engineering-editorial-cards";
@@ -419,6 +420,7 @@ export function BuilderV2Site(props:{site:BuilderV2SiteData;selectedNiche?:strin
    const description=props.site.blocks.find(b=>b.type==="paragraph"&&/automatize processos/i.test(b.text||""))?.text||"Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio.";
    return <div className="pn-nexora-template-five"><style>{`.pn-nexora-template-five .pn-nexora-legacy > header{display:none!important}.pn-nexora-template-five .pn-nexora-legacy section:first-of-type{display:none!important}`}</style><NexoraTechnologyHero brand={props.site.header?.brand||"NEXORA AI"} headline={/transforme o futuro da sua empresa com intelig[eê]ncia artificial[.!]?/i.test(headline)?"Automatize a complexidade. Escale exponencialmente.":headline} description={description==="Automatize processos, conecte sistemas e acelere resultados com soluções inteligentes desenvolvidas para o seu negócio."?"A plataforma operacional unificada da Nexora otimiza processos, dos dados às decisões, para alcançar mais eficiência e crescimento.":description}/><NexoraIndicators/><NexoraSolutions/><NexoraAbout/><NexoraDifferentials/><NexoraJourney/><NexoraProjects/><NexoraTestimonials/><NexoraFaq/><NexoraCta/><NexoraContact/><NexoraFooter/><div className="pn-nexora-legacy"><BuilderV2ClassicSite {...props}/></div></div>;
  }
+ if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&!family&&props.site.briefingLayoutVariant==="02"&&/ateli[eê]\s+mem[oó]ria\s+viva/i.test([props.site.title,props.site.header?.brand].join(" ")))return <MemoriaVivaModel2 site={props.site}/>;
  if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&!family&&(!props.site.briefingLayoutVariant||props.site.briefingLayoutVariant==="01")&&/ateli[eê]\s+mem[oó]ria\s+viva/i.test([props.site.title,props.site.header?.brand].join(" ")))return <MemoriaVivaModel1 site={props.site}/>;
  if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&!family)return <UnknownNicheBriefingLayout site={props.site}/>;
  return <BuilderV2ClassicSite {...props}/>;
