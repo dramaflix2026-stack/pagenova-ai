@@ -27,6 +27,7 @@ function canAnimate(element: HTMLElement, view: Window): boolean {
   const style = view.getComputedStyle?.(element);
   if (style && (
     style.display === "none" || style.visibility === "hidden" || style.opacity === "0" ||
+    (style.transform && style.transform !== "none") || (style.animationName && style.animationName !== "none") ||
     style.position === "fixed" || style.position === "sticky" || style.position === "absolute"
   )) return false;
   return true;
