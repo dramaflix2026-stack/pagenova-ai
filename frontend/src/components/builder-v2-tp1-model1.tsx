@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import type { BuilderV2SiteData } from "./builder-v2-site";
 import { universalBlockProps, UniversalTypographyRules } from "./builder-v2-universal-bindings";
 import { UniversalTemplateSections } from "./builder-v2-universal-sections";
