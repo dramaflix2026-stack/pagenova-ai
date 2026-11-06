@@ -16,7 +16,7 @@ const isOneOf = (element: HTMLElement, selector: string) => element.matches(sele
 
 function canAnimate(element: HTMLElement, view: Window): boolean {
   if (!element.isConnected || element.closest(EXISTING_ANIMATION_SELECTOR)) return false;
-  if (element.closest("header,nav,dialog,[hidden],[aria-hidden='true']")) return false;
+  if (element.closest("header,nav,dialog,details:not([open]),[hidden],[aria-hidden='true']")) return false;
   if (isOneOf(element,"script,style,iframe,video,svg,button,input,textarea,select")) return false;
   if (isOneOf(element,"h2,h3,p") && element.closest("article,figure,blockquote")) return false;
   if (isOneOf(element,"img") && element.closest("article,figure,a,picture,button")) return false;
@@ -49,7 +49,9 @@ function chooseEffect(element: HTMLElement, rule: MotionRule | undefined): Motio
 export function attachUniversalScrollReveal(root: HTMLElement | null, config?: SiteMotion): () => void {
   if (!root) return () => {};
   const view=root.ownerDocument.defaultView;
-  if (!view || !view.IntersectionObserver || config?.preset==="none") return () => {};
+  if (!view || config?.preset==="none") return () => {};
+  const ObserverClass=(view as Window & typeof globalThis).IntersectionObserver;
+  if (!ObserverClass) return () => {};
   if (view.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return () => {};
   const mobile = view.matchMedia?.("(max-width: 767px)").matches ?? false;
   if (mobile && config?.mobile==="none") return () => {};
@@ -64,7 +66,7 @@ export function attachUniversalScrollReveal(root: HTMLElement | null, config?: S
     el.classList.add("pn-global-scroll-visible");
     observer.unobserve(el);
   };
-  const observer = new view.IntersectionObserver((entries)=>{
+  const observer = new ObserverClass((entries)=>{
     entries.forEach(entry=>{if(entry.isIntersecting)shown(entry.target as HTMLElement);});
   },{threshold:0.07,rootMargin:"0px 0px -24px 0px"});
 
@@ -122,7 +124,7 @@ export function attachUniversalScrollReveal(root: HTMLElement | null, config?: S
 
   scan();
   // Handles AI edits that insert/reorder sections after initial hydration.
-  const MutationObserverClass=view.MutationObserver;
+  const MutationObserverClass=(view as Window & typeof globalThis).MutationObserver;
   const changes=MutationObserverClass ? new MutationObserverClass((records)=>{
     if(!records.some(record=>record.type==="childList" && (record.addedNodes.length || record.removedNodes.length)))return;
     if(refreshFrame)view.cancelAnimationFrame(refreshFrame);
