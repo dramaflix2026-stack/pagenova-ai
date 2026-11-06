@@ -35,7 +35,7 @@ export async function POST(request:NextRequest) {
   }
   // Never return request.nextUrl.origin: Railway may resolve it as 0.0.0.0:8000.
   // All published sites have a stable publicly reachable canonical domain.
-  const publicOrigin="https://pagenovaai.com.br";
+  const publicOrigin="https://www.pagenovaai.com.br";
   let access:Awaited<ReturnType<typeof authorizedForms>>;
   try{access=await authorizedForms();}
   catch(error){return errorsAsResponse(error);}
