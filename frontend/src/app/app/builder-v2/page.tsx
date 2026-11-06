@@ -1,5 +1,6 @@
 "use client";
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
+import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
@@ -411,7 +412,7 @@ export default function BuilderV2() {
           if(cancelled)return;
           if(saved?.site&&Array.isArray(saved.site.blocks)&&saved.site.blocks.length&&
              typeof saved.site.title==="string"&&typeof saved.site.background==="string"){
-            setSite(saved.site);
+            setSite(prepareTP1MakeupSite(saved.site,saved.site.niche));
             if(saved.site.kind)setSiteCategory(saved.site.kind);
             if(saved.site.realEstateWhatsapp)setRealEstateWhatsapp(saved.site.realEstateWhatsapp);
             if(saved.site.kind==="restaurant"&&saved.site.niche)setRestaurantSegment(saved.site.niche);
@@ -1084,7 +1085,7 @@ export default function BuilderV2() {
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
     const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
     const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
-    const inferredNiche=/(?:barbearia|barbeiro|barbershop)/i.test(prompt)?"Barbearia":/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
+    const inferredNiche=MAKEUP_RE.test(prompt)?"Estúdio de Maquiagem":/(?:barbearia|barbeiro|barbershop)/i.test(prompt)?"Barbearia":/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
     const educationBrief=/(?:instituto|escola|institui[cç][aã]o de ensino|centro de forma[cç][aã]o).{0,180}(?:cursos?|ensino|capacita[cç][aã]o|forma[cç][aã]o)|(?:cursos? profissionalizantes?|capacita[cç][aã]o profissional|matr[ií]culas?|metodologia de ensino)/i.test(prompt);
     const realEstateBrief=/(?:imobili[aá]ria|consultoria imobili[aá]ria|corretora de im[oó]veis|im[oó]veis de (?:luxo|alto padr[aã]o)|compra e venda de im[oó]veis)/i.test(prompt);
     const retailBrief=/(?:boutique de moda|moda feminina|loja de roupas|loja de moda|boutique feminina|cole[cç][oõ]es? de roupas|alfaiataria feminina)/i.test(prompt);
@@ -1092,6 +1093,9 @@ export default function BuilderV2() {
     const detectedFamily=briefFamily||(realEstateBrief?7:educationBrief?10:retailBrief?6:technologyBrief?5:/(?:arquitetura|arquiteto|arquitetônica|design de interiores|projetos residenciais|projetos comerciais)/i.test(prompt)?2:/(?:barbearia|barbeiro|salão de beleza|spa e bem-estar|estúdio de maquiagem|consultoria de imagem)/i.test(prompt)?1:/(?:restaurante|pizzaria|hamburgueria|cafeteria|padaria|confeitaria|marmitaria|sorveteria|churrascaria|doceria|food truck)/i.test(prompt)?3:/(?:clínica médica|consultório médico|clínica odontológica|laboratório de análises|centro de diagnóstico|clínica de exames|saúde integrada)/i.test(prompt)?4:resolveBriefingFamily(prompt.slice(0,2500)));
     const detectedNiche=detectedFamily===5?(/marketing digital|ag[eê]ncia de marketing/i.test(prompt)&&!/intelig[eê]ncia artificial|agentes? de ia/i.test(prompt)?"Agências de marketing digital":"Inteligência artificial"):detectedFamily===6?(/joalheria|semijoias/i.test(prompt)?"Joalheria e semijoias":/cal[cç]ados|sapatos/i.test(prompt)?"Loja de calçados":"Loja de roupas"):detectedFamily===7?(/imobili[aá]ria|corretora de im[oó]veis/i.test(prompt)?"Imobiliárias":/consultoria imobili[aá]ria/i.test(prompt)?"Consultoria imobiliária":/casas? de (?:luxo|alto padr[aã]o)/i.test(prompt)?"Casas de alto padrão":"Imóveis de luxo"):detectedFamily===8?(/pousad/i.test(prompt)?"Pousadas":/resort/i.test(prompt)?"Resorts":/chal[eé]|cabana/i.test(prompt)?"Chalés e cabanas":/hotel/i.test(prompt)?"Hotéis boutique":undefined):detectedFamily===9?(/est[eé]tica automotiva|auto studio|detalhamento automotivo|vitrifica[cç][aã]o|polimento t[eé]cnico/i.test(prompt)?"Estética automotiva":/oficina|mec[aâ]nica/i.test(prompt)?"Oficinas mecânicas":/lava.r[aá]pido/i.test(prompt)?"Lava-rápidos":/concession[aá]ria/i.test(prompt)?"Concessionárias de veículos":undefined):detectedFamily===10?(/cursos? profissionalizantes?|capacita[cç][aã]o profissional|desenvolvimento de carreiras/i.test(prompt)?"Cursos profissionalizantes":/idiomas/i.test(prompt)?"Escolas de idiomas":/escola/i.test(prompt)?"Escolas particulares":"Cursos profissionalizantes"):undefined;
     const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(inferredNiche||detectedNiche||(detectedFamily===2?(/arquitetur|design de interiores/i.test(prompt)?"Arquitetura":"Engenharia"):undefined)||explicitNiche||(detectedFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===detectedFamily)?.niches[0]:undefined));
+    // The active makeup brief outranks stale category selection from a previous site.
+    const creatingMakeupSite=shouldCreateProject&&MAKEUP_RE.test([explicitNiche,prompt].filter(Boolean).join(" "));
+    const effectiveBriefNiche=creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=shouldCreateProject?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
@@ -1099,7 +1103,7 @@ export default function BuilderV2() {
     const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
     const auto3d=creatingNewSite&&(explicitly3d||site.cinematic?.mode==="immersive-3d");
     const auto3dTemplate=isGastronomy3d?"universal":"hamburgueria";
-    const requestSite=shouldCreateProject?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:briefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const requestSite=shouldCreateProject?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:effectiveBriefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
@@ -1132,7 +1136,7 @@ export default function BuilderV2() {
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=briefNiche||explicitNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;if(auto3d){incoming.cinematic={...incoming.cinematic,mode:"immersive-3d"};incoming.extras={...(incoming.extras||{}),immersive3dTemplate:auto3dTemplate};}}
+      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=effectiveBriefNiche||explicitNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;if(auto3d){incoming.cinematic={...incoming.cinematic,mode:"immersive-3d"};incoming.extras={...(incoming.extras||{}),immersive3dTemplate:auto3dTemplate};}}
       else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
       else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
@@ -1149,10 +1153,11 @@ export default function BuilderV2() {
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
+      incoming=prepareTP1MakeupSite(incoming,selectedNiche);
       setSite(incoming);
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
-         try { finishedSite=await generateVisuals(incoming,prompt);setSite(finishedSite); }
+         try { finishedSite=prepareTP1MakeupSite(await generateVisuals(incoming,prompt),selectedNiche);setSite(finishedSite); }
          catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
        }
        let photoApplyFailed=false;
@@ -1200,7 +1205,7 @@ export default function BuilderV2() {
   function newProject() { if (busy || publishing) return; recordVersion(site, "Antes de criar novo site");setHistory([]);setRedoHistory([]); const newId=crypto.randomUUID();window.history.replaceState(null,"","/app/builder-v2?project="+encodeURIComponent(newId));setActiveStorageKey(storageKey+":project:"+newId);setSite({...initial,id:newId,kind:siteCategory,properties:[]});setPublishError("");setPublishNotice("");setSelectedNiche(""); setMessages([{role:"assistant",text:"Novo projeto iniciado. Descreva o site que deseja criar."}]); setInstruction(""); setReference(null);setPropertyFiles([]);setInstitutionalFiles([]);setVoiceNotice(""); setGenerationError(""); }
   async function publishSite() {
     if(publishing||busy||site.blocks.length<1)return;
-    const current:Site={...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties};
+    const current:Site=prepareTP1MakeupSite({...site,kind:siteCategory,id:site.id||crypto.randomUUID(),niche:site.niche||restaurantSegment||selectedNiche||undefined,realEstateWhatsapp:siteCategory==="real-estate"?realEstateWhatsapp:site.realEstateWhatsapp,properties:siteCategory==="real-estate"?properties:site.properties},selectedNiche);
     setPublishing(true);setPublishError("");setPublishNotice("");
     setSite(current);
     try{
