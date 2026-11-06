@@ -10,17 +10,43 @@ type MakeupSite={title:string;niche?:string;header?:{brand?:string;ctaLabel?:str
 
 export const MAKEUP_RE = /maquiag(?:em|ens)|maquiador(?:a|es|as)?|make[\s-]?up/i;
 export const MAKEUP_PHOTOS = [
- "https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=1600",
+ "https://images.pexels.com/photos/6954214/pexels-photo-6954214.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/12346564/pexels-photo-12346564.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/7510157/pexels-photo-7510157.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/7881276/pexels-photo-7881276.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/8394923/pexels-photo-8394923.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/33607402/pexels-photo-33607402.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/11041338/pexels-photo-11041338.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/12957390/pexels-photo-12957390.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/32388554/pexels-photo-32388554.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/29588093/pexels-photo-29588093.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/31455821/pexels-photo-31455821.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/5655050/pexels-photo-5655050.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/10188480/pexels-photo-10188480.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/11951518/pexels-photo-11951518.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/7510147/pexels-photo-7510147.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/11219295/pexels-photo-11219295.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/12957391/pexels-photo-12957391.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/30089119/pexels-photo-30089119.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/37356607/pexels-photo-37356607.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/37356602/pexels-photo-37356602.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/19893107/pexels-photo-19893107.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/29611519/pexels-photo-29611519.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/36496720/pexels-photo-36496720.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/37377913/pexels-photo-37377913.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/33986816/pexels-photo-33986816.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/35983913/pexels-photo-35983913.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/37710475/pexels-photo-37710475.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/38765476/pexels-photo-38765476.jpeg?auto=compress&cs=tinysrgb&w=1200",
+ "https://images.pexels.com/photos/3373736/pexels-photo-3373736.jpeg?auto=compress&cs=tinysrgb&w=1200",
  "https://images.pexels.com/photos/2113855/pexels-photo-2113855.jpeg?auto=compress&cs=tinysrgb&w=1200",
  "https://images.pexels.com/photos/3992874/pexels-photo-3992874.jpeg?auto=compress&cs=tinysrgb&w=1200",
  "https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1200",
  "https://images.pexels.com/photos/7446659/pexels-photo-7446659.jpeg?auto=compress&cs=tinysrgb&w=1200",
  "https://images.pexels.com/photos/3993449/pexels-photo-3993449.jpeg?auto=compress&cs=tinysrgb&w=1200",
- "https://images.pexels.com/photos/6899549/pexels-photo-6899549.jpeg?auto=compress&cs=tinysrgb&w=1200",
- "https://images.pexels.com/photos/3985334/pexels-photo-3985334.jpeg?auto=compress&cs=tinysrgb&w=1200"
 ] as const;
 export const MAKEUP_GALLERY_PHOTOS = [
- MAKEUP_PHOTOS[3],MAKEUP_PHOTOS[1],MAKEUP_PHOTOS[4],MAKEUP_PHOTOS[2]
+ MAKEUP_PHOTOS[10],MAKEUP_PHOTOS[11],MAKEUP_PHOTOS[12],MAKEUP_PHOTOS[13]
 ];
 
 const OLD_BARBER_PHOTOS = /(?:pexels-photo-|\/photos\/)(?:7518731|4625645|7518740|7518746|5584458|19050581|3998429|2076930|1813272|1805600)(?:\D|$)|photo-(?:1506794778202-cad84cf45f1d|1500648767791-00dcc994a43e|1507003211169-0a1dd7228f2d)/i;
