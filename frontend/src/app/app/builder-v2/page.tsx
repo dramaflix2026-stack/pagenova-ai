@@ -1204,12 +1204,11 @@ export default function BuilderV2() {
     setPublishing(true);setPublishError("");setPublishNotice("");
     setSite(current);
     try{
-      const payload=JSON.stringify({site:current});
       let response:Response|undefined;
       for(let attempt=0;attempt<2;attempt++){
         try{
           response=await fetch("/api/builder-v2/publish",{
-            method:"POST",headers:{"Content-Type":"application/json"},body:payload,
+            method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({site:current}),
             credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(45000)
           });
           break;
