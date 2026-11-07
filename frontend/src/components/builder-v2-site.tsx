@@ -169,7 +169,7 @@ function TP3LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");},[site.briefingLayoutVariant,site.id]);
  return <div data-tp3-family="gastronomy-premium" data-tp3-variant={variant}>
  {false?<div role="group" aria-label="Escolher modelo da família Gastronomia Premium" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f9e9d2",color:"#242019"}}>{(["01","02","03"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #333",background:variant===v?"#242019":"#fff",color:variant===v?"#fff":"#242019",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="03"?<BuilderV2TP3Model3 site={site}/>:variant==="02"?<BuilderV2TP3Model2 site={site}/>:<BuilderV2TP3Model1 site={site}/>}
+ {variant==="03"?<BuilderV2TP3Model3 site={site} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP3Model2 site={site} publishedMode={publishedMode}/>:<BuilderV2TP3Model1 site={site} publishedMode={publishedMode}/>}
  </div>;
 }
 function TP4LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
