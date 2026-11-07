@@ -49,20 +49,24 @@ const brazilianTruckPhotos:Record<number,string>={
  10:px(40646780), // burger ingredients, Brazilian food photographer
  11:px(36554034), // cheeseburger and beverage, Recife photographer
  12:px(9897458), // Brazilian food truck in Porto de Galinhas
- 13:px(30461216), // street food in São Paulo
+ 13:px(30461198), // São Paulo street food cooking on a griddle
  14:px(5920741), // handing a burger at food truck
  15:px(15211938), // Brazilian hamburger food stand
- 16:px(40646657), // burger from a Brazilian photographer
- 17:px(6763221), // fruit juice instead of an unrelated meal
+ 17:px(6414118), // juice drink, distinct from specialties
  18:px(17655293), // food truck service
- 19:px(37245457), // burger grill
- 20:px(9897458), // Brazil food truck evening atmosphere
- 21:px(36392071), // food truck in Rio de Janeiro
- 22:px(40646662), // hamburger from a Brazilian photographer
- 23:px(5920744), // friends eating at the food truck
+ 19:px(36392071), // food truck in Rio de Janeiro
+ 20:px(36846946), // Brazilian street drink stand in São Paulo
+ 21:px(5920744), // visitors eating at food truck
+ 23:px(35650313), // Brazilian food cart
 };
 export const truckPhotoBrazil=(slot:number)=>brazilianTruckPhotos[slot]||truckPhoto(slot);
-export const truckBeverageFallback=()=>px(6414118); // distinct second verified juice photo
+export const truckBeverageFallback=()=>px(6414118); // second verified juice photo
+export const truckMenuPhoto=(name:string,slot:number)=>{
+ const title=name.toLocaleLowerCase("pt-BR");
+ if(/bebida|refri|suco|refrigerante|água|agua|limonada|vitamina|chá|cha|milkshake|milk shake/.test(title))return px(slot%2===0?8679400:6414118);
+ if(/batata|frita|porção|porcao|porções|petisco|acompanhamento/.test(title))return truckPhoto(4);
+ return truckPhotoBrazil(slot);
+};
 export const truckLabels=["Hambúrgueres artesanais","Combos e lanches","Porções e acompanhamentos","Bebidas e refrescos"];
 export const truckFaq=[
  ["Como faço um pedido?","Confira as opções apresentadas e entre em contato pelo canal oficial da empresa. Valores, cardápio e disponibilidade devem ser confirmados antes de finalizar."],
