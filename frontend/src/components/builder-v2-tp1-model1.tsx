@@ -92,6 +92,15 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
   const displayAddress = address || (usingDemoAddress ? DEMO_ADDRESS : undefined);
   const mapSrc = displayAddress ? `https://www.google.com/maps?q=${encodeURIComponent(displayAddress)}&output=embed` : undefined;
   const mapHref = displayAddress ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayAddress)}` : undefined;
+  const whatsappAction = whatsappHref ? (
+    <a className="tp1m1-button tp1m1-whatsapp-button" href={whatsappHref} target="_blank" rel="noopener noreferrer">
+      FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
+    </a>
+  ) : !publishedMode ? (
+    <button className="tp1m1-button tp1m1-whatsapp-button" type="button" onClick={() => setShowWhatsAppNotice(true)}>
+      FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
+    </button>
+  ) : null;
 
   return (
     <div className="tp1m1" data-tp1-model1={isMakeup?"makeup":"barbershop"}>
@@ -106,7 +115,7 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
           id="inicio"
           data-universal-section="inicio"
           className="tp1m1-hero"
-          style={{ backgroundImage: `linear-gradient(90deg, rgba(9,9,8,.86), rgba(9,9,8,.42) 65%, rgba(9,9,8,.18)), linear-gradient(0deg, rgba(9,9,8,.68), transparent 54%), url("${image("inicio", photos[0])}")` }}
+          style={{ backgroundImage: isMakeup ? `linear-gradient(90deg, rgba(249,247,243,.98) 0%, rgba(249,247,243,.89) 40%, rgba(249,247,243,.50) 72%, rgba(249,247,243,.10) 100%), url("${image("inicio", photos[0])}")` : `linear-gradient(90deg, rgba(9,9,8,.86), rgba(9,9,8,.42) 65%, rgba(9,9,8,.18)), linear-gradient(0deg, rgba(9,9,8,.68), transparent 54%), url("${image("inicio", photos[0])}")` }}
         >
           <div className="tp1m1-hero-inner">
             <span className="tp1m1-eyebrow tp1m1-hero-eyebrow"><i /> {isMakeup?"MAQUIAGEM · BELEZA · EXPRESSÃO":"BARBEARIA · ESTILO · PRECISÃO"}</span>
@@ -229,16 +238,8 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
             <span className="tp1m1-eyebrow">07 <span className="tp1m1-eyebrow-line" /> ENTRE EM CONTATO</span>
             <h2 {...universalBlockProps(getBlock("contato", "heading"))}>{copy("contato", "heading", isMakeup?"Sua próxima produção começa aqui.":"Seu próximo corte começa aqui.")}</h2>
             <p>Entre em contato para conhecer a disponibilidade de horários, serviços e valores.</p>
-            {whatsappHref ? (
-              <a className="tp1m1-button tp1m1-whatsapp-button" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-                FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
-              </a>
-            ) : (
-              <button className="tp1m1-button tp1m1-whatsapp-button" type="button" onClick={() => setShowWhatsAppNotice(true)}>
-                FALAR PELO WHATSAPP <span aria-hidden="true">↗</span>
-              </button>
-            )}
-            {!whatsappHref && showWhatsAppNotice && (
+            {!isMakeup && whatsappAction}
+            {!isMakeup && !whatsappHref && showWhatsAppNotice && (
               <p className="tp1m1-whatsapp-notice" role="status">Este botão é demonstrativo. Cadastre o número real de WhatsApp no editor para ativar o atendimento.</p>
             )}
             {email && <a className="tp1m1-contact-email" href={`mailto:${email}`}>Ou entre em contato por e-mail ↗</a>}
@@ -256,6 +257,10 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
               </>
             ) : (
               <div className="tp1m1-location-placeholder"><span aria-hidden="true">◎</span><strong>LOCALIZAÇÃO</strong><p>Cadastre o endereço real para exibir o mapa e o trajeto.</p></div>
+            )}
+            {isMakeup && whatsappAction}
+            {isMakeup && !whatsappHref && showWhatsAppNotice && (
+              <p className="tp1m1-whatsapp-notice" role="status">Botão demonstrativo: cadastre o número real de WhatsApp para ativar o atendimento.</p>
             )}
           </div>
         </section>
