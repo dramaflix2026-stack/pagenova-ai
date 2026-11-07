@@ -4,7 +4,7 @@ import {universalBlockProps,UniversalTypographyRules,universalFaqItems} from "./
 import {useState,type FormEvent} from "react";
 import type {BuilderV2SiteData} from "./builder-v2-site";
 import "./builder-v2-tp3-model3.css";
-import {isFoodTruck,truckPhoto,FoodTruckNumbers,FoodTruckTestimonials,FoodTruckLocation,FoodTruckPremiumFooter} from "./builder-v2-tp3-foodtruck";
+import {isFoodTruck,truckPhoto,truckPhotoBrazil,FoodTruckNumbers,FoodTruckTestimonials,FoodTruckLocation,FoodTruckPremiumFooter} from "./builder-v2-tp3-foodtruck";
 const niches=[
 [/pizzaria|pizza/i,"Pizzaria",["Pizzas artesanais","Pizzas especiais","Entradas","Sobremesas"],"pizza"],
 [/hamb[uú]rg|burger/i,"Hamburgueria",["Burgers autorais","Combos","Acompanhamentos","Bebidas"],"burger"],
