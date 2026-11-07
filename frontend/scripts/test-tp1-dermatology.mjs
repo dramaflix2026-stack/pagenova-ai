@@ -46,4 +46,6 @@ test("model 3 uses dermatologist photography for every section, never generic fa
  assert.ok(catalog.includes("7446661"));
  assert.ok(catalog.includes("40594081"));
  assert.ok(read("src/components/builder-v2-tp1-model3.tsx").includes("getDermatologyInternetPhoto(0)"));
+ assert.ok(read("src/components/builder-v2-tp1-model3.tsx").includes('data-tp1-clinical={dermatology?"dermatology":undefined}'));
+ assert.ok(read("src/components/builder-v2-tp1-model3-sections.css").includes('[data-tp1-clinical="dermatology"]'));
 });

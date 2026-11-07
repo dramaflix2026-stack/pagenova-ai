@@ -31,7 +31,7 @@ export function BuilderV2TP1Model3Hero({site,publishedMode=false}:{site:BuilderV
  const suppliedHero=site.blocks.find(b=>b.type==="image"&&b.src&&b.userUploaded&&/^https:\/\//i.test(b.src))?.src;
  const image=dermatology?(suppliedHero||getDermatologyInternetPhoto(0)):(site.blocks.find(b=>b.type==="image"&&b.src&&/^https:\/\//i.test(b.src))?.src||content.image);
  const cta=site.header?.ctaLabel?.trim()||"Agende uma conversa";
- return <div className="tp1m3" id="inicio" data-tp1-model="03">
+ return <div className="tp1m3" id="inicio" data-tp1-model="03" data-tp1-clinical={dermatology?"dermatology":undefined}>
   <header className="tp1m3-header">
    <a className="tp1m3-logo" href="#inicio">{brand}<span aria-hidden="true">.</span></a>
    <button className="tp1m3-menu-button" type="button" aria-expanded={menuOpen} aria-controls="tp1m3-menu" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?"Fechar":"Menu"} <span aria-hidden="true">{menuOpen?"×":"☰"}</span></button>
