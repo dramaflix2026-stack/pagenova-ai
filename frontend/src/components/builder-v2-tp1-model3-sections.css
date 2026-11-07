@@ -2,3 +2,47 @@
 /* Barber editorial mobile QA: consistent compact review portraits and uncut brand. */
 .tp1m3-testimonial-visual{display:none!important}.tp1m3-testimonial-layout{grid-template-columns:minmax(0,1fr)!important;gap:0!important}.tp1m3-testimonial-quotes{max-height:none!important;overflow:visible!important;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.tp1m3-testimonial-quotes blockquote{min-width:0;padding:24px;border:1px solid #c5bcb1;margin:0;background:#f7f4ee}.tp1m3-testimonial-quotes blockquote>span{font-size:44px;line-height:.8}.tp1m3-testimonial-quotes blockquote p{font-size:clamp(18px,2vw,25px);line-height:1.45}.tp1m3-testimonial-quotes footer{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.tp1m3-testimonial-quotes footer img{width:46px;height:46px;flex:0 0 46px;object-fit:cover;border-radius:50%}.tp1m3-testimonial-quotes footer div{display:flex;flex-direction:column;gap:5px;min-width:0}.tp1m3-footer-brand{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.04!important;letter-spacing:-.045em!important;font-size:clamp(28px,6vw,85px)!important;overflow:visible!important}.tp1m3-footer h2{overflow-wrap:break-word}.tp1m3-history-image img,.tp1m3-process-photo img{object-position:center;object-fit:cover}
 @media(max-width:740px){.tp1m3-testimonial-quotes{grid-template-columns:minmax(0,1fr);gap:16px}.tp1m3-testimonial-quotes blockquote{padding:20px}.tp1m3-footer-brand{font-size:clamp(25px,6vw,48px)!important;margin:40px 0 25px!important}.tp1m3-footer-content{margin:55px 0!important}.tp1m3-footer h2{font-size:clamp(34px,9vw,55px)!important}.tp1m3-history-chapter{margin:35px 0 55px!important}.tp1m3-process-photo,.tp1m3-history-image img{height:300px!important}.tp1m3-testimonial-quotes blockquote p{font-size:21px}}
+
+
+/* TP1 makeup M3: legible independent card content, without modifying other niches. */
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-grid{align-items:stretch}
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-card{
+ display:flex;flex-direction:column;min-width:0;overflow:hidden;
+ background:#fffdfa;border:1px solid #e5dfd8;border-radius:22px;
+ box-shadow:0 16px 35px rgba(35,55,45,.08);
+}
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-image{flex:0 0 auto}
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body{
+ min-width:0;flex:1;box-sizing:border-box;padding:26px 25px 30px;
+ display:flex;flex-direction:column;gap:12px;
+}
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body h3{
+ margin:0;color:#243c32;font:400 clamp(21px,2vw,29px)/1.26 Georgia,serif;
+ letter-spacing:-.028em;overflow-wrap:break-word;
+}
+.tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body p{
+ margin:0;color:#546d62;font:400 clamp(13px,1.15vw,15px)/1.72 "Poppins",Arial,sans-serif;
+ overflow-wrap:break-word;min-width:0;
+}
+.tp1m3-contact .tp1m3-whatsapp-action{
+ display:flex;align-items:center;justify-content:center;gap:12px;
+ width:100%;min-height:54px;box-sizing:border-box;padding:16px 20px;
+ border:0;border-radius:10px;background:#25d366;color:#113822;
+ text-decoration:none;text-align:center;cursor:pointer;
+ font:800 13px/1.4 "Poppins",Arial,sans-serif;
+}
+.tp1m3-contact .tp1m3-whatsapp-action:hover{background:#1fc15c}
+.tp1m3-contact .tp1m3-makeup-location iframe{max-width:100%}
+@media(max-width:740px){
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-card{border-radius:20px}
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-image{height:clamp(235px,68vw,335px)}
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body{padding:23px 24px 27px;gap:11px}
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body h3{font-size:clamp(23px,6vw,29px);line-height:1.26}
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-body p{font-size:14px;line-height:1.68}
+ .tp1m3-contact .tp1m3-makeup-location iframe{height:235px!important}
+ .tp1m3-contact .tp1m3-whatsapp-action{font-size:12px;min-height:51px}
+}
+@media(max-width:420px){
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-card{width:100%}
+ .tp1m3-services[data-tp1-niche="makeup"] .tp1m3-service-image{height:clamp(240px,73vw,320px)}
+}

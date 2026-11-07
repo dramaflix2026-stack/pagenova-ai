@@ -82,8 +82,9 @@ const faqCatalog=[
  {pattern:/dermatolog/i,items:[["Como funciona a primeira consulta?","A consulta permite apresentar suas dúvidas e receber uma avaliação individual do profissional."],["Posso conversar sobre diferentes opções de cuidado?","Sim. As opções adequadas dependem da avaliação e da orientação profissional."],["Os resultados são iguais para todas as pessoas?","Não. Cada caso possui características próprias, e resultados não podem ser garantidos."],["Como agendar um atendimento?","Entre em contato para verificar horários e informações sobre a consulta."]]},
  {pattern:/est[eé]tica|beleza/i,items:[["Como funciona o primeiro atendimento?","O primeiro contato permite conversar sobre seus objetivos e conhecer as opções disponíveis."],["Os cuidados são personalizados?","A proposta é considerar suas necessidades e preferências durante a orientação."],["Como saber qual serviço escolher?","Converse com a equipe para conhecer as características de cada serviço e suas indicações."],["Como consultar valores e horários?","Entre em contato para obter informações atualizadas antes de agendar."]]}
 ] as const;
-export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
+export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [menuOpen,setMenuOpen]=useState(false);
+ const [showDemoWhatsappHelp,setShowDemoWhatsappHelp]=useState(false);
  const [contactName,setContactName]=useState("");
  const [contactDetails,setContactDetails]=useState("");
  const [contactMessage,setContactMessage]=useState("");
@@ -141,6 +142,8 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
  const footerSocial=(["instagram","facebook","youtube","whatsapp"] as const).map(name=>({name,url:normalizedSocialLink(name,site.footer?.[name]||"")})).filter((item):item is {name:"instagram"|"facebook"|"youtube"|"whatsapp";url:string}=>Boolean(item.url));
  const footerNav=[{label:"Início",href:"#inicio"},{label:"Sobre nós",href:"#sobre"},{label:"Especialidades",href:"#servicos"},{label:"Diferenciais",href:"#diferenciais"},{label:"Experiências",href:"#galeria"},{label:"Nossa trajetória",href:"#trajetoria"},{label:"Contato",href:"#contato"}];
  const footerAddress=site.footer?.address?.trim()||"";
+ const makeupDemoAddress="Avenida Paulista, 1578 — Bela Vista, São Paulo/SP";
+ const showMakeupDemoMap=isMakeup&&!publishedMode&&!footerAddress;
  const sendContact=(event:React.FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!contactName.trim()||!contactDetails.trim()||!contactMessage.trim()){setContactFeedback("Preencha todos os campos antes de continuar.");return;}
@@ -226,7 +229,34 @@ export function BuilderV2TP1Model2Hero({site}:{site:BuilderV2SiteData}){
   </section>}
   <section data-universal-section="contato" className="tp1v2-contact" id="contato" aria-labelledby="tp1v2-contact-heading">
    <div className="tp1v2-contact-layout"><div className="tp1v2-contact-intro"><span className="tp1v2-contact-kicker">09 / ENTRE EM CONTATO</span><h2 id="tp1v2-contact-heading" {...universalBlockProps(site.blocks.find(b=>b.section==="contato"&&b.type==="heading"))}>{site.blocks.find(b=>b.section==="contato"&&b.type==="heading")?.text||<>Sua próxima experiência <em>começa aqui.</em></>}</h2><p {...universalBlockProps(site.blocks.find(b=>b.section==="contato"&&b.type==="paragraph"))}>{site.blocks.find(b=>b.section==="contato"&&b.type==="paragraph")?.text||`Conte-nos como podemos ajudar com ${niche.toLowerCase()}. Vamos adorar conhecer o que você procura.`}</p><div className="tp1v2-contact-decor" aria-hidden="true">✳</div><span className="tp1v2-contact-signature">{brand}</span></div>
-    <div className="tp1v2-contact-panel"><span className="tp1v2-contact-panel-kicker">VISITE OU FALE CONOSCO</span><h3>Localização e WhatsApp</h3><div style={{display:"grid",gap:18,width:"100%",minWidth:0}}>{footerAddress? <><iframe title="Localização cadastrada da empresa" src={`https://www.google.com/maps?q=${encodeURIComponent(footerAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{width:"100%",height:280,border:0,borderRadius:14}}/><address style={{margin:0,fontSize:15,lineHeight:1.6}}>{footerAddress}</address><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(footerAddress)}`} target="_blank" rel="noopener noreferrer" style={{color:"inherit",textDecoration:"underline"}}>Abrir no Google Maps ↗</a></>:<p style={{margin:0,fontSize:15,lineHeight:1.6}}>O endereço será exibido quando cadastrado pelo estúdio.</p>}{validWhatsapp?<a href={`https://wa.me/${validWhatsapp}`} target="_blank" rel="noopener noreferrer" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"17px 22px",borderRadius:10,background:"#25D366",color:"#102315",fontWeight:800,textDecoration:"none"}}>Conversar pelo WhatsApp ↗</a>:<span role="status" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",padding:"17px 22px",borderRadius:10,background:"#dbe0d5",color:"#314036",fontWeight:700}}>WhatsApp disponível após cadastrar o número</span>}</div></div>
+    <div className="tp1v2-contact-panel"><span className="tp1v2-contact-panel-kicker">VISITE OU FALE CONOSCO</span><h3>Localização e WhatsApp</h3><div style={{display:"grid",gap:14,width:"100%",minWidth:0}}>
+     {footerAddress ? (
+       <>
+         <iframe title="Localização cadastrada da empresa" src={`https://www.google.com/maps?q=${encodeURIComponent(footerAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
+         <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.7}}>{footerAddress}</address>
+         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(footerAddress)}`} target="_blank" rel="noopener noreferrer" style={{color:"inherit",fontSize:12,textDecoration:"underline",textUnderlineOffset:3}}>Ver rota no Google Maps ↗</a>
+       </>
+     ) : showMakeupDemoMap ? (
+       <>
+         <iframe title="Mapa demonstrativo de localização do estúdio" src={`https://www.google.com/maps?q=${encodeURIComponent(makeupDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
+         <span style={{fontSize:10,letterSpacing:".13em",fontWeight:800,color:"#876a51"}}>ENDEREÇO DEMONSTRATIVO</span>
+         <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.65,fontWeight:600}}>{makeupDemoAddress}</address>
+         <small style={{fontSize:11,lineHeight:1.55,color:"#6b716b"}}>Endereço ilustrativo para prévia. Cadastre a localização real antes de publicar.</small>
+       </>
+     ) : (
+       <p style={{margin:0,fontSize:14,lineHeight:1.65}}>O endereço será exibido quando cadastrado pelo estúdio.</p>
+     )}
+     {validWhatsapp ? (
+       <a href={`https://wa.me/${validWhatsapp}`} target="_blank" rel="noopener noreferrer" className="tp1v2-contact-whatsapp-action">Falar pelo WhatsApp ↗</a>
+     ) : isMakeup&&!publishedMode ? (
+       <>
+         <button type="button" className="tp1v2-contact-whatsapp-action" onClick={()=>setShowDemoWhatsappHelp(true)}>Falar pelo WhatsApp ↗</button>
+         {showDemoWhatsappHelp && <p role="status" style={{fontSize:12,lineHeight:1.6,margin:0,color:"#526052"}}>Prévia demonstrativa: cadastre um número real de WhatsApp para ativar este botão.</p>}
+       </>
+     ) : (
+       <span role="status" style={{fontSize:12,color:"#59665d"}}>WhatsApp ainda não cadastrado.</span>
+     )}
+   </div></div>
    </div>
   </section>
   <style dangerouslySetInnerHTML={{__html:".tp1v2-history{background:#f4efe7!important;color:#303b32!important;padding:clamp(75px,9vw,145px) clamp(22px,6vw,105px) 45px!important;scroll-margin-top:80px}.tp1v2-history *{box-sizing:border-box}.tp1v2-history-heading{max-width:1510px;margin:0 auto clamp(50px,7vw,105px)!important;display:flex!important;align-items:end;justify-content:space-between;gap:45px}.tp1v2-history-kicker{font:700 11px Arial,sans-serif!important;letter-spacing:.2em;color:#a28263}.tp1v2-history-heading h2{font:400 clamp(47px,5.5vw,88px)/1.06 Georgia,serif!important;letter-spacing:-.055em;margin:22px 0 0!important;max-width:850px}.tp1v2-history-heading h2 em{color:#ac8969;font-weight:400}.tp1v2-history-heading>p{max-width:355px;margin:0 0 6px!important;font:14px/1.85 Arial,sans-serif!important;color:#777b72}.tp1v2-history-line{max-width:1510px;margin:auto;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(16px,2.4vw,40px)}.tp1v2-history-item{min-width:0}.tp1v2-history-index{height:75px;border-bottom:1px solid #c8b9a8;position:relative;display:flex;align-items:flex-start}.tp1v2-history-index>span:first-child{font:400 54px/.95 Georgia,serif!important;color:#ae9174;letter-spacing:-.07em}.tp1v2-history-dot{position:absolute;bottom:-6px;left:0;width:11px;height:11px;border:2px solid #a88a6b;border-radius:50%;background:#f4efe7}.tp1v2-history-image{height:clamp(220px,29vw,440px);margin:30px 0 24px!important;overflow:hidden;background:#dfd4c6}.tp1v2-history-item:nth-child(even) .tp1v2-history-image{margin-top:70px!important}.tp1v2-history-image img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .65s ease}.tp1v2-history-copy>span{font:700 10px Arial,sans-serif!important;letter-spacing:.18em;color:#a38263}.tp1v2-history-copy h3{font:400 clamp(25px,2.5vw,38px)/1.14 Georgia,serif!important;letter-spacing:-.03em;margin:13px 0!important}.tp1v2-history-copy p{font:13px/1.8 Arial,sans-serif!important;color:#757b71;margin:0!important;max-width:300px}.tp1v2-history-footer{max-width:1510px;margin:90px auto 0!important;padding-top:23px;border-top:1px solid #d2c6b9;display:flex!important;justify-content:space-between;gap:15px;font:700 10px Arial,sans-serif!important;letter-spacing:.16em;color:#948575}.tp1v2-history-footer>span:nth-child(2){font-size:23px;color:#a98a6d}@media(max-width:980px){.tp1v2-history-line{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:55px}.tp1v2-history-image{height:380px}.tp1v2-history-item:nth-child(even) .tp1v2-history-image{margin-top:30px!important}.tp1v2-history-heading{align-items:start;flex-direction:column;gap:18px}}@media(max-width:580px){.tp1v2-history{padding:75px 20px 35px!important}.tp1v2-history-heading h2{font-size:clamp(44px,10vw,62px)!important}.tp1v2-history-line{grid-template-columns:1fr;gap:45px}.tp1v2-history-index{height:65px}.tp1v2-history-index>span:first-child{font-size:48px!important}.tp1v2-history-image{height:clamp(320px,95vw,480px);margin:23px 0!important}.tp1v2-history-item:nth-child(even) .tp1v2-history-image{margin-top:23px!important}.tp1v2-history-copy h3{font-size:32px!important}.tp1v2-history-footer{margin-top:70px!important;font-size:8px!important;flex-wrap:wrap}}@media(prefers-reduced-motion:reduce){.tp1v2-history-image img{transition:none}}"}}/>

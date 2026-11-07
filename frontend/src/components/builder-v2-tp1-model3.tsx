@@ -17,7 +17,7 @@ const niches=[
  {pattern:/psicolog|terapias/i,label:"PSICOLOGIA E TERAPIAS",headline:"Um espaço para ser você.",description:"Escuta, acolhimento e respeito à sua trajetória.",image:"https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Ambiente acolhedor de terapia"},
  {pattern:/est[eé]tica/i,label:"CLÍNICA DE ESTÉTICA",headline:"Beleza que respeita sua essência.",description:"Uma experiência de cuidado e atenção aos detalhes.",image:"https://images.pexels.com/photos/3985332/pexels-photo-3985332.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Atendimento em clínica de estética"}
 ];
-export function BuilderV2TP1Model3Hero({site}:{site:BuilderV2SiteData}){
+export function BuilderV2TP1Model3Hero({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [menuOpen,setMenuOpen]=useState(false);
  const niche=site.niche||"Consultoria de imagem";
  const content=niches.find(item=>item.pattern.test(niche))||niches[0];
@@ -38,6 +38,6 @@ export function BuilderV2TP1Model3Hero({site}:{site:BuilderV2SiteData}){
   <main><section className="tp1m3-hero" aria-labelledby="tp1m3-title">
    <div className="tp1m3-hero-copy"><div className="tp1m3-eyebrow"><span/> {content.label} <span className="tp1m3-edition">/ EDIÇÃO 03</span></div><h1 id="tp1m3-title">{heading}</h1><p>{description}</p><div className="tp1m3-hero-links">{href?<a href={href} className="tp1m3-primary">{cta} <span aria-hidden="true">↗</span></a>:<a href="mailto:" className="tp1m3-primary tp1m3-disabled" onClick={e=>e.preventDefault()} aria-disabled="true">Contato a configurar</a>}<span className="tp1m3-note">ESTILO É EXPRESSÃO.</span></div><div className="tp1m3-bottom-line"><span>ESTÉTICA • IDENTIDADE • EXPERIÊNCIA</span><span>01 / 11</span></div></div>
    <div className="tp1m3-hero-photo"><img src={image} alt={content.alt} fetchPriority="high"/><span className="tp1m3-photo-caption">UMA NOVA PERSPECTIVA SOBRE {content.label}</span><span className="tp1m3-photo-mark" aria-hidden="true">✳</span></div>
-  </section><BuilderV2TP1Model3Sections site={site} brand={brand}/></main>
+  </section><BuilderV2TP1Model3Sections site={site} brand={brand} publishedMode={publishedMode}/></main>
  </div>;
 }

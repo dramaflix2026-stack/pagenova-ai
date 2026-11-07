@@ -221,18 +221,107 @@
 }
 
 
-/* TP1 makeup identity: dusty rose editorial palette. Barbershop remains untouched. */
-.tp1m1[data-tp1-model1="makeup"]{--tp1m1-bg:#191419;--tp1m1-panel:#241a20;--tp1m1-line:#674850;--tp1m1-gold:#d8a6b1;--tp1m1-cream:#fff4f1;--tp1m1-muted:#d4bdc3}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-header{background:#171117;border-bottom-color:#764650}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-header-cta{border-color:#bb8794}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero{background-color:#251a23}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-about{background:#191419}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-services,.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience{background:#261c23}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-differences,.tp1m1[data-tp1-model1="makeup"] .tp1m1-gallery{background:#191419}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq{background:#241b23}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact{background:#e7c5c9;color:#2d2028}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact .tp1m1-eyebrow{color:#70404d}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact-copy>p{color:#684f56}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer{background:#140f14;border-top-color:#7a4e5b}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-service{background:#1b161a}
-.tp1m1[data-tp1-model1="makeup"] .tp1m1-button-gold{color:#29141c!important}
+/* MAKEUP MODEL 1 — restrained ivory / champagne editorial redesign.
+ * Strictly scoped: barber design and Model 2/3 remain unchanged. */
+.tp1m1[data-tp1-model1="makeup"]{
+ --tp1m1-bg:#faf8f4;
+ --tp1m1-panel:#fffdfa;
+ --tp1m1-line:#d8cabe;
+ --tp1m1-gold:#9d7557;
+ --tp1m1-cream:#283b33;
+ --tp1m1-muted:#68756f;
+ background:#faf8f4;
+ color:#283b33;
+}
+.tp1m1[data-tp1-model1="makeup"] h1,
+.tp1m1[data-tp1-model1="makeup"] h2,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body h3,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-difference h3,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience-grid h3{
+ font-family:Georgia,"Times New Roman",serif;
+ font-weight:400;
+ letter-spacing:-.045em;
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-header{
+ background:#fffdfa; color:#30413a; border-bottom:1px solid #e8e1d7;
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-brand{letter-spacing:-.04em}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-header-cta{border-color:#bda489;color:#30413a}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-header-cta:hover{background:#30463c;color:#fff}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero{
+ background-color:#f6f0e8;
+ min-height:clamp(570px,76svh,840px);
+ color:#20392e;
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero h1{
+ font-size:clamp(47px,6.1vw,94px);
+ line-height:1.07;
+ letter-spacing:-.057em;
+ max-width:12ch;
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero-description{color:#4e5a53}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-hero-bottom{color:#516259}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-button-gold{background:#29463a;color:#fff!important}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-button-gold:hover{background:#446052}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-about{background:#fffefa}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-about-photo:before{border-color:#c7ab8f}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-text-link{border-color:#b3967b}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-services{background:#f4efe8}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service{
+ background:#fffdfa;
+ border:1px solid #e0d6cb;
+ border-radius:13px;
+ box-shadow:0 10px 28px rgba(51,57,46,.045);
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service-photo{background:#e8e3db}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body{padding:26px 19px 29px}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body h3{color:#293b32;font-size:clamp(19px,1.7vw,25px)}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body p{color:#64716b;font-size:13px}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-differences{background:#fffefa}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-difference-list{border-top-color:#cbb89f}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-difference{border-bottom-color:#e2d8cc}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-difference p{color:#68756f}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience{background:#ecefe9}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience-grid article{border-top-color:#baa58e}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-experience-grid p{color:#627069}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-gallery{background:#fffefa}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-gallery-note{color:#707a71}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq{background:#f5f0e8}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq-items{border-top-color:#b7a186}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq-items details{border-bottom-color:#e0d2c0}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-faq-items details>p{color:#60716b}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact{background:#e6e8de;color:#283b33}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact .tp1m1-eyebrow{color:#906d53}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact-copy>p{color:#526358}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-contact-panel{
+ background:#fffdfa; border:1px solid #d9ded5; color:#314138;
+ box-shadow:0 16px 32px rgba(49,65,54,.055);
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-map-details .tp1m1-contact-address{color:#314138}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-map-disclaimer{color:#727c72}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-map-link{border-top-color:#e6ddd2}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-location-placeholder{background:#f1f2ed}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-location-placeholder p{color:#60716a}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer{
+ background:#30463b; border-top:1px solid #9caa9c; color:#f7f7ef;
+}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer .tp1m1-eyebrow{color:#e4c6a9}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-intro strong{font-family:Georgia,serif;font-weight:400;letter-spacing:-.04em}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-intro p,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer nav a,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-contact a,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-contact p{color:#e0e6dc}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer h3,
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-bottom a{color:#e4c6a9}
+.tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-bottom{border-top-color:#66776b;color:#d6e1d6}
+@media(max-width:650px){
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-hero{min-height:540px;padding-top:74px}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-hero h1{font-size:clamp(41px,10.3vw,52px);max-width:12ch}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-section{padding:62px 22px}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-section h2{font-size:clamp(34px,8.5vw,44px);letter-spacing:-.04em}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body{padding:17px 13px 21px}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body h3{font-size:clamp(17px,4.5vw,20px)}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-service-body p{font-size:12px;line-height:1.62}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-footer{padding:50px 22px 21px}
+ .tp1m1[data-tp1-model1="makeup"] .tp1m1-footer-intro strong{font-size:clamp(28px,7vw,38px)}
+}
