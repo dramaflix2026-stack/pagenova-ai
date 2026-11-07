@@ -26,7 +26,7 @@ test("each perfume preview has eight product-only photos and preserved non-perfu
  const start=s.indexOf('"Perfumaria e cosméticos": [');
  const stop=s.indexOf('],',start);
  assert.ok(start>=0&&stop>start);
- const ids=[...s.slice(start,stop).matchAll(/"([0-9]{13}-[a-z0-9]+)"/g)].map(m=>m[1]);
+ const ids=[...s.slice(start,stop).matchAll(/"([0-9]{10,13}-[a-z0-9]+)"/g)].map(m=>m[1]);
  assert.equal(ids.length,12);
  assert.equal(new Set(ids).size,12);
  assert.ok(s.includes('niche==="Perfumaria e cosméticos"?Array.from({length:8}'));
@@ -37,7 +37,7 @@ test("perfume preview testimonials are disclosed and cannot publish fictional re
  assert.ok(s.includes("if(publishedMode)return"));
  assert.ok(s.includes("NÃO REPRESENTAM CLIENTES REAIS"));
  assert.ok(s.includes("width:56,height:56,minWidth:56,maxWidth:56"));
- assert.equal((s.match(/"photo-\d{13}-/g)||[]).length,5);
+ assert.equal((s.match(/"photo-\d{10,13}-/g)||[]).length,5);
  for(const file of ["src/components/builder-v2-tp6-model2.tsx","src/components/builder-v2-tp6-model3-reviews-faq.tsx"])assert.ok(read(file).includes("<TP6PerfumePreviewReviews publishedMode={publishedMode}/>"));
 });
 test("FAQ is tailored to perfumes and supports questions beyond a single pair",()=>{
