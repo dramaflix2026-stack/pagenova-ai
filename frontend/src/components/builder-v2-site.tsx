@@ -161,7 +161,7 @@ function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");},[site.briefingLayoutVariant,site.id]);
  return <div data-tp2-family="engineering-corporate" data-tp2-variant={variant}>
  {false?<div role="group" aria-label="Escolher modelo visual da família Engenharia e Corporativo" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:10,padding:14,background:"#e9e7e0",color:"#202729",fontSize:12}}>{(["01","02","03"] as const).map(v=><button type="button" key={v} aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{border:"1px solid #aaa",padding:"9px 16px",background:variant===v?"#202729":"#fff",color:variant===v?"#fff":"#202729",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="03"?<BuilderV2TP2Model3 site={site}/>:variant==="02"?<BuilderV2TP2Model2 site={site}/>:<BuilderV2TP2Model1 site={site}/>}
+ {variant==="03"?<BuilderV2TP2Model3 site={site}/>:variant==="02"?<BuilderV2TP2Model2 site={site}/>:<BuilderV2TP2Model1 site={site} publishedMode={publishedMode}/>}
  </div>;
 }
 function TP3LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
