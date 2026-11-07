@@ -1,8 +1,9 @@
 "use client";
 import "./builder-v2-tp6-model3-reviews-faq.css";
+import {TP6PerfumePreviewReviews} from "./tp6-perfume-preview-reviews";
 type Block={id?:string;type:string;text?:string;section?:string;layout?:string};
 type Review={quote:string;name?:string};
-export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref}:{niche:string;blocks:Block[];contactHref?:string}){
+export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,publishedMode=false}:{niche:string;blocks:Block[];contactHref?:string;publishedMode?:boolean}){
  const reviewBlocks=blocks.filter(b=>/depoiment|testimonial|avalia[cç][aã]o/i.test(b.section||""));
  const reviews:Review[]=reviewBlocks.filter(b=>b.type==="paragraph"&&b.text?.trim()).map(b=>({quote:b.text!.trim()}));
  const faqBlocks=blocks.filter(b=>/faq|perguntas.frequentes|d[uú]vidas/i.test(b.section||"")||b.layout==="faq");
@@ -22,12 +23,19 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref}:{niche:s
  {q:"Como consultar a disponibilidade de um produto?",a:"Escolha o item desejado e entre em contato com a loja para confirmar as opções disponíveis."},
  {q:"Onde posso esclarecer dúvidas antes de escolher?",a:"Use a seção Entre em Contato para falar com a equipe e obter informações sobre "+subject+"."}
  ];
- const questions=pairs.length>=2?pairs:defaults;
+ const questions=niche==="Perfumaria e cosméticos"&&pairs.length<4?[
+ {q:"Como identificar uma fragrância adequada?",a:"Consulte as notas e famílias olfativas dos perfumes e peça orientação à equipe."},
+ {q:"Quais cuidados com a pele a loja oferece?",a:"Verifique as linhas e características dos cosméticos disponíveis antes da compra."},
+ {q:"Posso consultar opções de maquiagem?",a:"Confira a seleção e confirme cores, acabamentos, ingredientes e estoque com a loja."},
+ {q:"Há sugestões de perfumes para presente?",a:"Converse com a equipe sobre a preferência olfativa e a disponibilidade de kits."},
+ {q:"Como funcionam pagamento e entrega?",a:"Consulte diretamente os meios de pagamento, regiões atendidas e prazos vigentes."},
+ {q:"Como funcionam trocas e devoluções?",a:"Confira a política informada pela loja e os direitos previstos na legislação aplicável."}
+ ]:pairs.length>=2?pairs:defaults;
  return <div className="tp6m3 tp6m3-reviews-faq">
  <section className="tp6m3-reviews" id="depoimentos" aria-labelledby="tp6m3-reviews-title">
   <div className="tp6m3-section-meta"><span>06 / EXPERIÊNCIAS</span><span>DEPOIMENTOS DOS CLIENTES</span></div>
   <div className="tp6m3-reviews-heading"><h2 id="tp6m3-reviews-title">QUEM<br/>CONTA<span>.</span></h2><p>Um espaço para experiências compartilhadas por clientes, quando cadastradas pela loja.</p></div>
-  {reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<div className="tp6m3-reviews-empty"><span className="tp6m3-review-quote" aria-hidden="true">“</span><div><h3>Histórias reais merecem espaço.</h3><p>Os depoimentos aparecerão aqui quando a loja cadastrar avaliações autênticas de clientes.</p></div><span>AGUARDANDO DEPOIMENTOS</span></div>}
+  {niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<div className="tp6m3-reviews-empty"><span className="tp6m3-review-quote" aria-hidden="true">“</span><div><h3>Histórias reais merecem espaço.</h3><p>Os depoimentos aparecerão aqui quando a loja cadastrar avaliações autênticas de clientes.</p></div><span>AGUARDANDO DEPOIMENTOS</span></div>}
  </section>
  <section className="tp6m3-faq" id="faq" aria-labelledby="tp6m3-faq-title">
   <div className="tp6m3-section-meta"><span>07 / PERGUNTAS FREQUENTES</span><span>INFORMAÇÃO SEM COMPLICAÇÃO</span></div>
