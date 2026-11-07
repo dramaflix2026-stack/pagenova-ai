@@ -15,7 +15,7 @@ test("dermatology visual components parse as TSX",()=>{
 test("model 1 removes only repeated dermatology process-photo section",()=>{
  const s=read("src/components/builder-v2-site.tsx");
  assert.ok(s.includes("const dermatologyModel1="));
- assert.ok(s.includes("const processPhotos=allVisibleSections"));
+ assert.ok(s.includes("const clinicalProcessHeading="));
  assert.ok(s.includes("const hasClinicalProcess="));
  assert.ok(s.includes("repeatedChoiceTimeline&&cards>=3"));
  assert.ok(!s.includes("photos.filter(src=>pool.has(src)).length>=2"));
