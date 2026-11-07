@@ -33,8 +33,7 @@ const materialPhotoIds=[
  11461860, // moving bricks
  9762091, // brick stock work
  12327261, // precast concrete stock
- 29872037, // concrete and brick texture
- 37432685 // additional stock material illustration
+ 29872037 // concrete and brick texture
 ] as const;
 export const materialPhoto=(index:number,model=1)=> {
  const shift=model===1?0:model===2?9:17;
