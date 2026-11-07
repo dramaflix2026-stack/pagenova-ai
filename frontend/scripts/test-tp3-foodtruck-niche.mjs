@@ -38,8 +38,13 @@ test("animated counts never invent business metrics",()=>{
  const s=shared();
  assert.ok(s.includes("IntersectionObserver"));
  assert.ok(s.includes("prefers-reduced-motion"));
- assert.ok(s.includes("não representam vendas, clientes"));
- assert.ok(s.includes("Etapas para consultar seu pedido"));
+ assert.ok(s.includes("indicadores ilustrativos da prévia")||s.includes("Indicadores ilustrativos da prévia"));
+ assert.ok(s.includes("não serão publicados sem dados reais"));
+ assert.ok(s.includes("publishedMode"));
+ assert.ok(s.includes("Pedidos servidos"));
+ assert.ok(s.includes("Eventos atendidos"));
+ assert.ok(s.includes("Avaliação positiva"));
+ assert.ok(s.includes("Aguardando dados reais")||s.includes("Dado ainda não informado"));
 });
 test("five fictional photo testimonials and no false endorsements",()=>{
  const s=shared();
@@ -61,7 +66,40 @@ test("M1 has full supporting sections, M2 is consistent, M3 has six gallery imag
  const m1=read("src/components/builder-v2-tp3-model1.tsx");
  for(const t of ["FoodTruckExtraModel1","FoodTruckFaq","FoodTruckTestimonials","FoodTruckLocation"])assert.ok(m1.includes(t),t);
  const m2=read("src/components/builder-v2-tp3-model2.tsx");
- for(const t of ["truckPhoto(i+12)","truckPhoto(i+19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
+ for(const t of ["truckPhotoBrazil(i+12)","truckPhotoBrazil(i+19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
  const m3=read("src/components/builder-v2-tp3-model3.tsx");
  for(const t of ["[13,14,15,16,17,18]","truckPhoto(19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m3.includes(t),t);
+});
+
+test("Mobile Food Truck reviews have fixed avatar dimensions without collapsing reviewer names",()=>{
+ const code=shared();
+ assert.ok(code.includes("width:56,height:56,minWidth:56,maxWidth:56"));
+ assert.ok(code.includes('flex:"0 0 56px"'));
+ assert.ok(code.includes('maxWidth:"calc(100% - 70px)"'));
+ assert.ok(code.includes('wordBreak:"normal"'));
+ for(const i of [2,3])assert.ok(read("src/components/builder-v2-tp3-model"+i+".tsx").includes("<FoodTruckTestimonials"),"M"+i);
+});
+test("Beverage category does not reuse a burger photo and published pages cannot show illustrative KPIs",()=>{
+ const src=shared();
+ const m2=read("src/components/builder-v2-tp3-model2.tsx");
+ const m3=read("src/components/builder-v2-tp3-model3.tsx");
+ assert.ok(src.includes("5:px(6763221)"));
+ assert.ok(src.includes("truckBeverageFallback"));
+ assert.ok(src.includes("truckMenuPhoto"));
+ assert.ok(m2.includes("truckPhotoBrazil(i+2)"));
+ assert.ok(m2.includes("truckMenuPhoto(m.name,i+6)"));
+ assert.ok(m2.includes("i===3?truckBeverageFallback()"));
+ assert.ok(m2.includes("<FoodTruckNumbers data={metrics} publishedMode={publishedMode} dark/>"));
+ assert.ok(m3.includes("<FoodTruckNumbers data={numbers} publishedMode={publishedMode}/>"));
+ assert.ok(src.includes("const preview=!parsed.length&&!publishedMode"));
+});
+test("Editorial Brazilian photo replacements are unique across the M2 photo slots",()=>{
+ const src=shared();
+ const existing=src.slice(src.indexOf("const truckPhotos=["),src.indexOf("];",src.indexOf("const truckPhotos=[")));
+ const existingIds=[...existing.matchAll(/(?:us\("([^"]+)"\)|px\((\d+)\))/g)].map(m=>m[1]||m[2]);
+ const override=src.slice(src.indexOf("const brazilianTruckPhotos:"),src.indexOf("};",src.indexOf("const brazilianTruckPhotos:")));
+ const overriden=new Map([...override.matchAll(/(\d+):px\((\d+)\)/g)].map(m=>[Number(m[1]),m[2]]));
+ const slots=[0,1,...Array.from({length:21},(_,i)=>i+2)];
+ const values=slots.map(i=>overriden.get(i)||existingIds[i]);
+ assert.equal(new Set(values).size,values.length,"distinct photos throughout M2");
 });
