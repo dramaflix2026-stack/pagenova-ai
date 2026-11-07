@@ -199,7 +199,7 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
    <div className="tp1v2-gallery-mosaic">{gallery.ids.map((id,index)=><figure className={`tp1v2-gallery-tile tp1v2-gallery-tile-${index+1}`} key={index}><img src={galleryImages[index]?.src||(isMakeup?MAKEUP_PHOTOS[22+index]:`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1300`)} alt={galleryImages[index]?.src?"Imagem da galeria fornecida pelo cliente":`Fotografia ilustrativa de ${niche}: ${gallery.labels[index]}`} loading="lazy" {...universalBlockProps(galleryImages[index])}/><figcaption><span>0{index+1} / {gallery.labels[index]}</span><span aria-hidden="true">↗</span></figcaption></figure>)}</div>
    <div className="tp1v2-gallery-bottom"><span>IMAGENS ILUSTRATIVAS • FOTOGRAFIA REAL</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
   </section>
-  <TP1FamilyTestimonials site={site} publishedMode={publishedMode} model="02"/>
+  <div data-universal-section="depoimentos"><TP1FamilyTestimonials site={site} publishedMode={publishedMode} model="02"/></div>
   <section data-universal-section="faq" className="tp1v2-faq" id="faq" aria-labelledby="tp1v2-faq-heading">
    <div className="tp1v2-faq-layout">
     <div className="tp1v2-faq-intro"><span className="tp1v2-faq-kicker">08 / PERGUNTAS FREQUENTES</span><h2 id="tp1v2-faq-heading">Tudo o que você <em>precisa saber.</em></h2><p>Respostas para as principais dúvidas sobre nossos atendimentos em {niche.toLowerCase()}.</p><span className="tp1v2-faq-decoration" aria-hidden="true">✳</span></div>
