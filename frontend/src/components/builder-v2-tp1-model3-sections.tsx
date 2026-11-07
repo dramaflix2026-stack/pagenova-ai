@@ -100,13 +100,13 @@ export function BuilderV2TP1Model3Sections({site,brand,publishedMode=false}:{sit
   <section className="tp1m3-section tp1m3-contact" id="contato" aria-labelledby="tp1m3-contact-title"><div className="tp1m3-section-top"><span>09 / ENTRE EM CONTATO</span><span>VAMOS CONVERSAR</span></div><div className="tp1m3-contact-layout"><div className="tp1m3-contact-photo"><img onError={e=>recoverNichePhoto(e.currentTarget)} src={img(isMakeup?config.photos[17]:config.match.test("barbearia")?config.photos[19]:isDermatology||isAesthetic?config.photos[16]:String((configs.indexOf(config)*4+21)%editorialPhotos.length))} alt={`Fotografia editorial ilustrativa de ${config.noun}`} loading="lazy"/></div><div className="tp1m3-contact-copy"><span className="tp1m3-kicker">O PRÓXIMO PASSO</span><h2 id="tp1m3-contact-title">Sua próxima história <em>começa aqui.</em></h2><p>Conte um pouco sobre o que você procura. A mensagem será preparada para envio pelo canal cadastrado.</p><div className="tp1m3-makeup-location" style={{display:"grid",gap:14,width:"100%",minWidth:0}}>
    {realAddress ? (
       <>
-        <iframe title="Localização cadastrada do estúdio" src={`https://www.google.com/maps?q=${encodeURIComponent(realAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:265,border:0,borderRadius:10}}/>
+        <iframe title="Localização cadastrada da empresa" src={`https://www.google.com/maps?q=${encodeURIComponent(realAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:265,border:0,borderRadius:10}}/>
         <address style={{fontStyle:"normal",fontSize:14,lineHeight:1.65}}>{realAddress}</address>
         <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(realAddress)}`} target="_blank" rel="noopener noreferrer" style={{fontSize:12,textDecoration:"underline",textUnderlineOffset:3,color:"inherit"}}>Ver endereço no Google Maps ↗</a>
       </>
    ) : previewMakeupAddress ? (
       <>
-        <iframe title="Mapa demonstrativo do estúdio de maquiagem" src={`https://www.google.com/maps?q=${encodeURIComponent(makeupDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:265,border:0,borderRadius:10}}/>
+        <iframe title="Mapa demonstrativo de localização, não corresponde à empresa" src={`https://www.google.com/maps?q=${encodeURIComponent(makeupDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:265,border:0,borderRadius:10}}/>
         <span style={{fontSize:10,letterSpacing:".14em",fontWeight:800,color:"#9e8067"}}>ENDEREÇO DEMONSTRATIVO</span>
         <address style={{fontStyle:"normal",fontSize:14,lineHeight:1.6,color:"#34473d",fontWeight:600}}>{makeupDemoAddress}</address>
         <small style={{fontSize:11,lineHeight:1.5,color:"#68736a"}}>Exemplo para visualização. Substitua pelo endereço real antes de publicar.</small>

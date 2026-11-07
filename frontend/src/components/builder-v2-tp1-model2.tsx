@@ -222,10 +222,10 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
        </>
      ) : showDemoMap ? (
        <>
-         <iframe title="Mapa demonstrativo de localização, não corresponde à clínica" src={`https://www.google.com/maps?q=${encodeURIComponent(previewDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
+         <iframe title="Mapa de endereço demonstrativo, não corresponde à empresa" src={`https://www.google.com/maps?q=${encodeURIComponent(previewDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
          <span style={{fontSize:10,letterSpacing:".13em",fontWeight:800,color:"#876a51"}}>ENDEREÇO FICTÍCIO • SOMENTE NA PRÉVIA</span>
          <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.65,fontWeight:600}}>{previewDemoAddress}</address>
-         <small style={{fontSize:11,lineHeight:1.55,color:"#6b716b"}}>Localização real usada apenas como exemplo de mapa; não representa o endereço da clínica. Cadastre o endereço verdadeiro antes de publicar.</small>
+         <small style={{fontSize:11,lineHeight:1.55,color:"#6b716b"}}>Localização demonstrativa: não representa o endereço da empresa. Cadastre o endereço verdadeiro antes de publicar.</small>
        </>
      ) : (
        <p style={{margin:0,fontSize:14,lineHeight:1.65}}>O endereço será exibido quando cadastrado pela clínica ou empresa.</p>

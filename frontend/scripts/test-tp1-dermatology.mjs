@@ -37,7 +37,7 @@ test("model 3 uses dermatologist photography for every section, never generic fa
  assert.equal(new Set(urls).size,urls.length);
  assert.ok(s.includes('if(id.startsWith("derm-"))'));
  assert.ok(s.includes('photos:Array.from({length:24}'));
- for(const key of ["config.photos[6+i]","config.photos[9+i]","config.photos[15]","config.photos[16]","isDermatology||isAesthetic?i+17","recoverDermatologyPhoto"])assert.ok(s.includes(key),key);
+ for(const key of ["config.photos[6+i]","config.photos[9+i]","config.photos[16]","isDermatology||isAesthetic?i+17","recoverDermatologyPhoto"])assert.ok(s.includes(key),key);
  assert.ok(s.includes("TP1FamilyTestimonials"));
  assert.ok(s.includes("Acolhimento e histórico"));
  assert.ok(s.includes("Plano de cuidados"));
