@@ -95,6 +95,7 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
  useEffect(()=>{if(testimonialPaused)return;const timer=setInterval(()=>setTestimonialSlide(previous=>(previous+1)%3),6500);return()=>clearInterval(timer)},[testimonialPaused]);
  const niche=site.niche||"Beleza e Serviços Premium";
  const isMakeup=MAKEUP_RE.test(niche);
+ const isDermatology=/dermatolog/i.test([niche,site.title,site.header?.brand].filter(Boolean).join(" "));
  const photo=photoSet.find(item=>item.pattern.test(niche))||photoSet[photoSet.length-1];
  const essencePhotoMap:Record<string,{essence:string;detail:string}>={
   "Fotografia profissional":{essence:"https://images.pexels.com/photos/3584996/pexels-photo-3584996.jpeg?auto=compress&cs=tinysrgb&w=1300",detail:"https://images.pexels.com/photos/3062545/pexels-photo-3062545.jpeg?auto=compress&cs=tinysrgb&w=800"},
@@ -142,8 +143,8 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
  const footerSocial=(["instagram","facebook","youtube","whatsapp"] as const).map(name=>({name,url:normalizedSocialLink(name,site.footer?.[name]||"")})).filter((item):item is {name:"instagram"|"facebook"|"youtube"|"whatsapp";url:string}=>Boolean(item.url));
  const footerNav=[{label:"Início",href:"#inicio"},{label:"Sobre nós",href:"#sobre"},{label:"Especialidades",href:"#servicos"},{label:"Diferenciais",href:"#diferenciais"},{label:"Experiências",href:"#galeria"},{label:"Nossa trajetória",href:"#trajetoria"},{label:"Contato",href:"#contato"}];
  const footerAddress=site.footer?.address?.trim()||"";
- const makeupDemoAddress="Avenida Paulista, 1578 — Bela Vista, São Paulo/SP";
- const showMakeupDemoMap=isMakeup&&!publishedMode&&!footerAddress;
+ const previewDemoAddress="Avenida Paulista, 1578 — Bela Vista, São Paulo/SP";
+ const showDemoMap=(isMakeup||isDermatology)&&!publishedMode&&!footerAddress;
  const sendContact=(event:React.FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!contactName.trim()||!contactDetails.trim()||!contactMessage.trim()){setContactFeedback("Preencha todos os campos antes de continuar.");return;}
@@ -236,19 +237,19 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
          <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.7}}>{footerAddress}</address>
          <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(footerAddress)}`} target="_blank" rel="noopener noreferrer" style={{color:"inherit",fontSize:12,textDecoration:"underline",textUnderlineOffset:3}}>Ver rota no Google Maps ↗</a>
        </>
-     ) : showMakeupDemoMap ? (
+     ) : showDemoMap ? (
        <>
-         <iframe title="Mapa demonstrativo de localização do estúdio" src={`https://www.google.com/maps?q=${encodeURIComponent(makeupDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
-         <span style={{fontSize:10,letterSpacing:".13em",fontWeight:800,color:"#876a51"}}>ENDEREÇO DEMONSTRATIVO</span>
-         <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.65,fontWeight:600}}>{makeupDemoAddress}</address>
-         <small style={{fontSize:11,lineHeight:1.55,color:"#6b716b"}}>Endereço ilustrativo para prévia. Cadastre a localização real antes de publicar.</small>
+         <iframe title="Mapa demonstrativo de localização, não corresponde à clínica" src={`https://www.google.com/maps?q=${encodeURIComponent(previewDemoAddress)}&output=embed`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" style={{display:"block",width:"100%",height:280,border:0,borderRadius:10}}/>
+         <span style={{fontSize:10,letterSpacing:".13em",fontWeight:800,color:"#876a51"}}>ENDEREÇO FICTÍCIO • SOMENTE NA PRÉVIA</span>
+         <address style={{fontStyle:"normal",margin:0,fontSize:14,lineHeight:1.65,fontWeight:600}}>{previewDemoAddress}</address>
+         <small style={{fontSize:11,lineHeight:1.55,color:"#6b716b"}}>Localização real usada apenas como exemplo de mapa; não representa o endereço da clínica. Cadastre o endereço verdadeiro antes de publicar.</small>
        </>
      ) : (
-       <p style={{margin:0,fontSize:14,lineHeight:1.65}}>O endereço será exibido quando cadastrado pelo estúdio.</p>
+       <p style={{margin:0,fontSize:14,lineHeight:1.65}}>O endereço será exibido quando cadastrado pela clínica ou empresa.</p>
      )}
      {validWhatsapp ? (
        <a href={`https://wa.me/${validWhatsapp}`} target="_blank" rel="noopener noreferrer" className="tp1v2-contact-whatsapp-action">Falar pelo WhatsApp ↗</a>
-     ) : isMakeup&&!publishedMode ? (
+     ) : (isMakeup||isDermatology)&&!publishedMode ? (
        <>
          <button type="button" className="tp1v2-contact-whatsapp-action" onClick={()=>setShowDemoWhatsappHelp(true)}>Falar pelo WhatsApp ↗</button>
          {showDemoWhatsappHelp && <p role="status" style={{fontSize:12,lineHeight:1.6,margin:0,color:"#526052"}}>Prévia demonstrativa: cadastre um número real de WhatsApp para ativar este botão.</p>}

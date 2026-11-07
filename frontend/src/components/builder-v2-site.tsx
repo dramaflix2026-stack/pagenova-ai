@@ -516,7 +516,21 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   // The editor's block list is authoritative. Reordering sections must never
   // cause existing sections to disappear because of heuristic content filters.
   const engineeringContactRemoval=/engenharia|engenheiro|construtora|constru[cç][aã]o civil/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "));
-  const visibleSections=sections.filter(group=>group.blocks.length>0&&!(engineeringContactRemoval&&/^(contato|contact|fale[-_ ]?conosco)(?:[-_ ].*)?$/i.test(group.id.trim())));
+
+  const allVisibleSections=sections.filter(group=>group.blocks.length>0&&!(engineeringContactRemoval&&/^(contato|contact|fale[-_ ]?conosco)(?:[-_ ].*)?$/i.test(group.id.trim())));
+  // Dermatology / Modelo 1: the briefing may supply two separate four-card
+  // "etapas do atendimento" compositions with the SAME clinical photographs.
+  // Preserve the first complete section, never delete distinct content or
+  // sections explicitly edited with different photographs.
+  const dermatologyModel1=/dermatolog/i.test([site.niche,selectedNiche,site.title,site.header?.brand].filter(Boolean).join(" "))&&(!site.briefingLayoutVariant||site.briefingLayoutVariant==="01");
+  const processPhotos=allVisibleSections.filter(group=>/como.?funciona|etapas|passo.?a.?passo|processo/i.test(group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))).map(group=>new Set(group.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!.split("?")[0])));
+  const visibleSections=dermatologyModel1?allVisibleSections.filter(group=>{
+    const label=group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ");
+    if(!/por.?que.?escolher|por.?que.?nos.?escolher|nossos diferenciais/i.test(label))return true;
+    const photos=group.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!.split("?")[0]);
+    // Deduplicate only the repeated four-step photo composition.
+    return !photos.length||!processPhotos.some(pool=>photos.filter(src=>pool.has(src)).length>=2);
+  }):allVisibleSections;
   // The map is rendered immediately before FAQ, so count it as its own visible section.
   const cinematicNumber=(index:number)=>index+1+(site.cinematic?.mode==="cinematic"&&!!site.extras?.address?.trim()&&visibleSections.slice(0,index+1).some(g=>/faq|perguntas/i.test(g.id))?1:0);
   const cinematicMapNumber=(index:number)=>index+1;

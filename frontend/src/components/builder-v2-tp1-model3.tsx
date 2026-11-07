@@ -3,6 +3,7 @@ import {useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-model3.css";
 import {BuilderV2TP1Model3Sections} from "./builder-v2-tp1-model3-sections";
+import {getDermatologyInternetPhoto} from "@/lib/tp1-dermatology-photos";
 
 const niches=[
  {pattern:/barbearia|barbeiro|barbershop|barber shop/i,label:"BARBEARIA MASCULINA",headline:"Seu estilo merece excelência.",description:"Cortes precisos, barba impecável e atendimento personalizado.",image:"https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Barbeiro profissional realizando corte masculino"},
@@ -26,7 +27,9 @@ export function BuilderV2TP1Model3Hero({site,publishedMode=false}:{site:BuilderV
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||content.description;
  const raw=site.header?.ctaHref?.trim()||site.blocks.find(b=>b.type==="button"&&b.href)?.href?.trim()||"";
  const href=/^https:\/\//i.test(raw)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(raw)||/^#[a-z\w-]+$/i.test(raw)?raw:null;
- const image=site.blocks.find(b=>b.type==="image"&&b.src&&/^https:\/\//i.test(b.src))?.src||content.image;
+ const dermatology=/dermatolog/i.test([site.niche,site.title,site.header?.brand].filter(Boolean).join(" "));
+ const suppliedHero=site.blocks.find(b=>b.type==="image"&&b.src&&b.userUploaded&&/^https:\/\//i.test(b.src))?.src;
+ const image=dermatology?(suppliedHero||getDermatologyInternetPhoto(0)):(site.blocks.find(b=>b.type==="image"&&b.src&&/^https:\/\//i.test(b.src))?.src||content.image);
  const cta=site.header?.ctaLabel?.trim()||"Agende uma conversa";
  return <div className="tp1m3" id="inicio" data-tp1-model="03">
   <header className="tp1m3-header">
@@ -36,7 +39,7 @@ export function BuilderV2TP1Model3Hero({site,publishedMode=false}:{site:BuilderV
    {href?<a className="tp1m3-header-action" href={href}>{cta}<span aria-hidden="true">↗</span></a>:<span className="tp1m3-header-action is-disabled" aria-label="Link de agendamento não configurado">Contato a configurar</span>}
   </header>
   <main><section className="tp1m3-hero" aria-labelledby="tp1m3-title">
-   <div className="tp1m3-hero-copy"><div className="tp1m3-eyebrow"><span/> {content.label} <span className="tp1m3-edition">/ EDIÇÃO 03</span></div><h1 id="tp1m3-title">{heading}</h1><p>{description}</p><div className="tp1m3-hero-links">{href?<a href={href} className="tp1m3-primary">{cta} <span aria-hidden="true">↗</span></a>:<a href="mailto:" className="tp1m3-primary tp1m3-disabled" onClick={e=>e.preventDefault()} aria-disabled="true">Contato a configurar</a>}<span className="tp1m3-note">ESTILO É EXPRESSÃO.</span></div><div className="tp1m3-bottom-line"><span>ESTÉTICA • IDENTIDADE • EXPERIÊNCIA</span><span>01 / 11</span></div></div>
+   <div className="tp1m3-hero-copy"><div className="tp1m3-eyebrow"><span/> {content.label} <span className="tp1m3-edition">/ EDIÇÃO 03</span></div><h1 id="tp1m3-title">{heading}</h1><p>{description}</p><div className="tp1m3-hero-links">{href?<a href={href} className="tp1m3-primary">{cta} <span aria-hidden="true">↗</span></a>:<a href="mailto:" className="tp1m3-primary tp1m3-disabled" onClick={e=>e.preventDefault()} aria-disabled="true">Contato a configurar</a>}<span className="tp1m3-note">{dermatology?"SAÚDE DA PELE • CUIDADO INDIVIDUAL":"ESTILO É EXPRESSÃO."}</span></div><div className="tp1m3-bottom-line"><span>{dermatology?"DERMATOLOGIA • SAÚDE • CUIDADO":"ESTÉTICA • IDENTIDADE • EXPERIÊNCIA"}</span><span>01 / 11</span></div></div>
    <div className="tp1m3-hero-photo"><img src={image} alt={content.alt} fetchPriority="high"/><span className="tp1m3-photo-caption">UMA NOVA PERSPECTIVA SOBRE {content.label}</span><span className="tp1m3-photo-mark" aria-hidden="true">✳</span></div>
   </section><BuilderV2TP1Model3Sections site={site} brand={brand} publishedMode={publishedMode}/></main>
  </div>;
