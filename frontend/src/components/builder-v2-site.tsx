@@ -153,7 +153,7 @@ function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  const isMakeup=isTP1MakeupSite(site,selectedNiche);
  const scopedSite=isMakeup?prepareTP1MakeupSite(site,selectedNiche):site;
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
-  {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+  {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite} publishedMode={publishedMode}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
  </div>;
 }
 function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
