@@ -1,5 +1,4 @@
 "use client";
-import {useState} from "react";
 import "./builder-v2-tp2-construction.css";
 
 export const isConstructionMaterials=(...parts:(string|undefined|null)[])=>/materiais?\s+(?:de|para)\s+constru[cç][aã]o|loja\s+de\s+materiais|dep[oó]sito\s+de\s+materiais|materiais\s+para\s+obra/i.test(parts.filter(Boolean).join(" "));
@@ -35,7 +34,7 @@ const materialPhotoIds=[
  9762091, // brick stock work
  12327261, // precast concrete stock
  29872037, // concrete and brick texture
- 32913796 // construction measurement alternate framing
+ 37432685 // additional stock material illustration
 ] as const;
 export const materialPhoto=(index:number,model=1)=> {
  const shift=model===1?0:model===2?9:17;
@@ -86,7 +85,6 @@ export function MaterialProof({variant=2}:{variant?:2|3}){
  </div>;
 }
 export function MaterialTestimonials({provided=[],variant=2}:{provided?:string[][];variant?:2|3}){
- const [index,setIndex]=useState(0);
  const real=provided.map((t,i)=>({name:t[0],role:t[1]||"Cliente · relato cadastrado",quote:t.slice(2).join(" | "),portrait:portrait([27066067,30004315,33614428,13999482,6413499][i%5]),demo:false}));
  const items:Testimonial[]=[...real,...materialDemoTestimonials.slice(0,Math.max(0,5-real.length))];
  const viewCount=items.length;
