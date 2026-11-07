@@ -33,11 +33,20 @@ const photoIds:Record<string,string[]>={
     "1473496169904-658ba7c44d8a",
     "1517841905240-472988babdf9"
   ],
+  // Dedicated perfume, skincare and makeup catalogue. Never borrow fashion images.
   "Perfumaria e cosméticos": [
-    "1596462502278-27bfdc403348",
-    "1522335789203-aabd1fc54bc9",
-    "1608248543803-ba4f8c70ae0b",
-    "1547887538-e3a2f32cb1cc"
+    "1541643600914-78b084683601", // perfume bottle
+    "1596462502278-27bfdc403348", // makeup/cosmetics
+    "1608248543803-ba4f8c70ae0b", // skincare
+    "1522335789203-aabd1fc54bc9", // beauty cosmetics
+    "1592945403244-b3fbafd7f539", // fragrances
+    "1620916566398-39f1143ab7be", // skin care
+    "1611930022073-b7a4ba5fcccd", // makeup
+    "1547887538-e3a2f32cb1cc", // beauty products
+    "1601049541289-9b1b7bbbfe19", // fragrance
+    "1594035910387-fea47794261f", // cosmetics
+    "1571781926291-c477ebfd024b", // perfume
+    "1556228578-0d85b1a4d571" // skin care bottles
   ],
   // Curadoria por categoria: acessórios (coleira/guia), conforto (caminha),
   // brinquedos (cachorro brincando) e favoritos (ração).
@@ -107,6 +116,6 @@ export function getTP6Model2InternetPhotos(niche:string, variant:"01"|"02"|"03"=
   // Each model receives its own deterministic editorial selection. For short niche
   // catalogs, rotate the order without inventing URLs or using the PageNova bank.
   const start=variant==="01"?0:variant==="02"?4:8;
-  const selected=Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
+  const selected=niche==="Perfumaria e cosméticos"?Array.from({length:8},(_,i)=>pool[(start+i)%pool.length]):Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
   return selected.map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`);
 }
