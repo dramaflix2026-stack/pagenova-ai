@@ -33,20 +33,20 @@ const photoIds:Record<string,string[]>={
     "1473496169904-658ba7c44d8a",
     "1517841905240-472988babdf9"
   ],
-  // Dedicated perfume, skincare and makeup catalogue. Never borrow fashion images.
+  // Internet photos mapped by product meaning, never inherited from apparel.
   "Perfumaria e cosméticos": [
-    "1541643600914-78b084683601", // perfume bottle
-    "1596462502278-27bfdc403348", // makeup/cosmetics
-    "1608248543803-ba4f8c70ae0b", // skincare
-    "1522335789203-aabd1fc54bc9", // beauty cosmetics
-    "1592945403244-b3fbafd7f539", // fragrances
-    "1620916566398-39f1143ab7be", // skin care
-    "1611930022073-b7a4ba5fcccd", // makeup
-    "1547887538-e3a2f32cb1cc", // beauty products
-    "1601049541289-9b1b7bbbfe19", // fragrance
-    "1594035910387-fea47794261f", // cosmetics
-    "1571781926291-c477ebfd024b", // perfume
-    "1556228578-0d85b1a4d571" // skin care bottles
+    "1541643600914-78b084683601", // 0 perfume bottle
+    "1596462502278-27bfdc403348", // 1 beauty/cosmetics
+    "1608248543803-ba4f8c70ae0b", // 2 skincare
+    "1522335789203-aabd1fc54bc9", // 3 makeup/beauty
+    "1592945403244-b3fbafd7f539", // 4 perfume
+    "1620916566398-39f1143ab7be", // 5 serum and skin care
+    "1616703386292-a1e346b976d7", // 6 face makeup
+    "1615634260167-c8cdede054de", // 7 perfumery
+    "1594035910387-fea47794261f", // 8 fragrance bottle
+    "1560129986-baba295cf72c", // 9 lipstick
+    "1556228453-efd6c1ff04f6", // 10 skin care
+    "1585386959984-a415522316f9" // 11 perfume
   ],
   // Curadoria por categoria: acessórios (coleira/guia), conforto (caminha),
   // brinquedos (cachorro brincando) e favoritos (ração).
