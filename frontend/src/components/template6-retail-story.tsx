@@ -1,5 +1,6 @@
 "use client";
 import React, {useState} from "react";
+import {handleTP6RetailImageError} from "@/lib/tp6-model2-internet-photos";
 
 type Props={brand:string;niche:string;images:string[];aboutText?:string};
 const details:Record<string,{focus:string;story:string;values:[string,string,string,string]}>={
@@ -52,19 +53,19 @@ export function Template6RetailStory({brand,niche,images,aboutText}:Props){
 @media(prefers-reduced-motion:reduce){.pn-t6-diff-visual img,.pn-t6-diff-list li{transition:none}}
 `}</style>
 <section className="pn-t6-about" id="sobre" aria-label="Sobre a marca">
- <div className="pn-t6-about-media">{pictures[0]&&<img className="pn-t6-about-primary" src={pictures[0]} alt={`Universo visual de ${brand}`} loading="lazy"/>}{pictures[1]&&<img className="pn-t6-about-secondary" src={pictures[1]} alt={`Detalhes da curadoria de ${brand}`} loading="lazy"/>}</div>
+ <div className="pn-t6-about-media">{pictures[0]&&<img className="pn-t6-about-primary" src={pictures[0]} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,0)} alt={`Universo visual de ${brand}`} loading="lazy"/>}{pictures[1]&&<img className="pn-t6-about-secondary" src={pictures[1]} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,1)} alt={`Detalhes da curadoria de ${brand}`} loading="lazy"/>}</div>
  <div className="pn-t6-about-copy"><span className="eyebrow">A essência da marca / {niche}</span><h2>{data.focus}<span style={{color:"#a28c73"}}>.</span></h2><p>{text}</p><div className="pn-t6-about-sign">{brand}</div></div>
 </section>
 <section className="pn-t6-diff" id="diferenciais" aria-label="Nossos diferenciais">
  <div><span className="eyebrow">O que nos torna especiais</span><h2>O cuidado está nos detalhes.</h2><ol className="pn-t6-diff-list">{data.values.map((value,i)=><li key={value}><span className="pn-t6-diff-num">0{i+1}</span><span className="pn-t6-diff-name">{value}</span><span className="pn-t6-diff-arrow" aria-hidden="true">↗</span></li>)}</ol></div>
- <div className="pn-t6-diff-visual">{pictures[2]&&<img src={pictures[2]} alt={`Seleção especial de ${brand}`} loading="lazy"/>}</div>
+ <div className="pn-t6-diff-visual">{pictures[2]&&<img src={pictures[2]} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,2)} alt={`Seleção especial de ${brand}`} loading="lazy"/>}</div>
 </section>
 <section className="pn-t6-gallery" id="galeria" aria-label="Galeria editorial">
  <div className="pn-t6-gallery-head"><div><span className="eyebrow">Universo da marca / {niche}</span><h2>Uma seleção com identidade.</h2></div><p className="pn-t6-gallery-intro">Explore os detalhes, as escolhas e a estética que fazem parte do universo de {brand}.</p></div>
- <div className="pn-t6-gallery-grid">{gallery.slice(0,3).map((src,i)=><figure className="pn-t6-gallery-card" key={i}><img src={src} alt={`${niche}: ${galleryLabels[i]}`} loading="lazy"/><figcaption>0{i+1} / {galleryLabels[i]}</figcaption></figure>)}</div>
+ <div className="pn-t6-gallery-grid">{gallery.slice(0,3).map((src,i)=><figure className="pn-t6-gallery-card" key={i}><img src={src} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,i+3)} alt={`${niche}: ${galleryLabels[i]}`} loading="lazy"/><figcaption>0{i+1} / {galleryLabels[i]}</figcaption></figure>)}</div>
 </section>
 <section className="pn-t6-voices" id="depoimentos" aria-label="Experiências dos clientes">
- <div className="pn-t6-voices-media">{(pictures[6]||pictures[1]||pictures[0])&&<img src={pictures[6]||pictures[1]||pictures[0]} alt={`Atmosfera e experiência de ${brand}`} loading="lazy"/>}</div>
+ <div className="pn-t6-voices-media">{(pictures[6]||pictures[1]||pictures[0])&&<img src={pictures[6]||pictures[1]||pictures[0]} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,6)} alt={`Atmosfera e experiência de ${brand}`} loading="lazy"/>}</div>
  <div className="pn-t6-voices-copy"><span className="eyebrow">Experiências / {brand}</span><h2>Conexões que permanecem.</h2><div className="pn-t6-voices-mark" aria-hidden="true">“</div><blockquote>Uma boa experiência começa na escolha e permanece nos detalhes.</blockquote><p className="pn-t6-voices-note">Mensagem institucional ilustrativa. Depoimentos reais, nomes e fotografias de clientes devem ser publicados somente após autorização e fornecimento pela marca.</p></div>
 </section>
 

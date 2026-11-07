@@ -42,7 +42,7 @@ const photoIds:Record<string,string[]>={
     "1591375462355-a219af30bf16", // perfume and makeup flatlay
     "1594035910387-fea47794261f", // perfume bottle
     "1608248597279-f99d160bfcbc", // skincare cream
-    "1611930022073-84f6b1f1c9b7", // face serum
+    "1688955665338-fb430ff8436d", // makeup and perfume flatlay — Harper Sunday, Unsplash
     "1617213226302-99a82b62626f", // perfume and beauty
     "1718466044521-d38654f3ba0a", // perfume display
     "1556228720-195a672e8a03", // skin care cleanser
@@ -119,4 +119,26 @@ export function getTP6Model2InternetPhotos(niche:string, variant:"01"|"02"|"03"=
   const start=variant==="01"?0:variant==="02"?4:8;
   const selected=niche==="Perfumaria e cosméticos"?Array.from({length:8},(_,i)=>pool[(start+i)%pool.length]):Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
   return selected.map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`);
+}
+
+/** Client-side recovery when an external perfume photo is removed or blocked. */
+const perfumeFallbackPhotos=[
+  "1688955665338-fb430ff8436d", // cosmetics, makeup and perfume flatlay
+  "1594035910387-fea47794261f", // perfume
+  "1608248597279-f99d160bfcbc", // skincare
+  "1617213226302-99a82b62626f", // perfume and beauty
+  "1541643600914-78b084683601" // perfume bottle
+].map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`);
+export function handleTP6RetailImageError(img:HTMLImageElement,niche:string,slot=0):void{
+  if(niche!=="Perfumaria e cosméticos")return;
+  const offset=Number(img.dataset.tp6FallbackAttempt||"0");
+  for(let attempt=offset;attempt<perfumeFallbackPhotos.length;attempt++){
+    const backup=perfumeFallbackPhotos[(slot+attempt)%perfumeFallbackPhotos.length];
+    img.dataset.tp6FallbackAttempt=String(attempt+1);
+    if(img.src.split("?")[0]===backup.split("?")[0])continue;
+    img.src=backup;
+    return;
+  }
+  // Hide the browser's broken-image icon and alt overlay if all hosts fail.
+  img.style.visibility="hidden";
 }
