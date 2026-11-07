@@ -20,6 +20,7 @@ import { BuilderV2TP1Hero } from "@/components/builder-v2-tp1-hero";
 import { BuilderV2TP1Model2Hero } from "@/components/builder-v2-tp1-model2";
 import { UniversalSiteScrollMotion } from "@/components/builder-v2-universal-scroll-motion";
 import { BuilderV2TP1Model1 } from "@/components/builder-v2-tp1-model1";
+import {TP1FamilyTestimonials} from "@/components/builder-v2-tp1-family-testimonials";
 import {isTP1MakeupSite,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import { BuilderV2TP1Model3Hero } from "@/components/builder-v2-tp1-model3";
 import { BuilderV2TP2Model1 } from "@/components/builder-v2-tp2-model1";
@@ -153,7 +154,7 @@ function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  const isMakeup=isTP1MakeupSite(site,selectedNiche);
  const scopedSite=isMakeup?prepareTP1MakeupSite(site,selectedNiche):site;
  return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
-  {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite} publishedMode={publishedMode}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId}/>}
+  {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite} publishedMode={publishedMode}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId} tp1Family/>}
  </div>;
 }
 function TP2LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
@@ -443,7 +444,7 @@ function AdaptiveStatCounter({value,suffix,color}:{value:number;suffix:string;co
   const decimals=Number.isInteger(value)?0:1;
   return <span ref={node} className="block text-4xl font-extrabold tabular-nums md:text-5xl" style={{color}}>{shown.toLocaleString("pt-BR",{minimumFractionDigits:decimals,maximumFractionDigits:decimals})}{suffix}</span>;
 }
-function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templateId:requestedTemplateId="institutional-complete"}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive"}) {
+function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templateId:requestedTemplateId="institutional-complete",tp1Family=false}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";tp1Family?:boolean}) {
   const templateId = requestedTemplateId==="institutional-complete" && site.templateId && site.templateId!=="institutional-complete" ? site.templateId : requestedTemplateId;
   // Template 5 is opt-in and scoped: existing institutional, cinematic and 3D renderers remain unchanged.
   // Premium editorial family: only these ten service niches can inherit Lumina's layout.
@@ -533,6 +534,12 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
     // clinical journey the user asked to remove, regardless of photo source.
     return !(repeatedChoiceTimeline&&cards>=3);
   }):allVisibleSections;
+  // One TP1 family testimonial composition for every niche, including
+  // Model 1's Classic renderer. Inject a preview section only if absent.
+  if(tp1Family&&!visibleSections.some(group=>/depoiment|testemunh|avalia[cç][aã]o/i.test(group.id))){
+    const at=visibleSections.findIndex(group=>/faq|perguntas/i.test(group.id));
+    visibleSections.splice(at<0?visibleSections.length:at,0,{id:"depoimentos",blocks:[{id:"tp1-family-reviews-heading",type:"heading",text:"Depoimentos",color:"#24382f",align:"left",section:"depoimentos"}]});
+  }
   // The map is rendered immediately before FAQ, so count it as its own visible section.
   const cinematicNumber=(index:number)=>index+1+(site.cinematic?.mode==="cinematic"&&!!site.extras?.address?.trim()&&visibleSections.slice(0,index+1).some(g=>/faq|perguntas/i.test(g.id))?1:0);
   const cinematicMapNumber=(index:number)=>index+1;
@@ -1640,6 +1647,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
 @media (prefers-reduced-motion:reduce){[data-pn-template="prompt-adaptive"] section article:hover{transform:none;}}
 
 `}</style>}{!site.blocks.length && <div className="flex min-h-[420px] flex-col items-center justify-center px-8 py-16 text-center"><p className="text-2xl font-bold text-slate-900">Seu site ainda não foi gerado</p><p className="mt-3 max-w-md text-slate-600">Escreva no chat, por exemplo: Faça um site premium para advogados. Depois clique em Enviar e aplicar.</p></div>}{visibleSections.map((group,index)=>{
+          if(tp1Family&&/depoiment|testemunh|avalia[cç][aã]o/i.test(group.id))return <TP1FamilyTestimonials key={group.id+"-"+index} site={site} publishedMode={publishedMode} model="01"/>;
           const blocks=group.blocks;
           const first=blocks[0];
           const id=group.id.toLowerCase();

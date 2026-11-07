@@ -6,6 +6,7 @@ import { universalBlockProps, UniversalTypographyRules } from "./builder-v2-univ
 import { UniversalTemplateSections } from "./builder-v2-universal-sections";
 import {MAKEUP_PHOTOS,MAKEUP_GALLERY_PHOTOS,MAKEUP_RE} from "@/lib/tp1-makeup-niche";
 import "./builder-v2-tp1-model1.css";
+import {TP1FamilyTestimonials} from "./builder-v2-tp1-family-testimonials";
 
 const BARBER_PHOTOS = [
   "https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",
@@ -217,6 +218,7 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
           </div>
         </section>
 
+        <TP1FamilyTestimonials site={site} publishedMode={publishedMode} model="01"/>
         <section id="faq" data-universal-section="faq" className="tp1m1-section tp1m1-faq">
           <div>
             <span className="tp1m1-eyebrow">06 <span className="tp1m1-eyebrow-line" /> PERGUNTAS FREQUENTES</span>
@@ -238,10 +240,8 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
             <span className="tp1m1-eyebrow">07 <span className="tp1m1-eyebrow-line" /> ENTRE EM CONTATO</span>
             <h2 {...universalBlockProps(getBlock("contato", "heading"))}>{copy("contato", "heading", isMakeup?"Sua próxima produção começa aqui.":"Seu próximo corte começa aqui.")}</h2>
             <p>Entre em contato para conhecer a disponibilidade de horários, serviços e valores.</p>
-            {!isMakeup && whatsappAction}
-            {!isMakeup && !whatsappHref && showWhatsAppNotice && (
-              <p className="tp1m1-whatsapp-notice" role="status">Este botão é demonstrativo. Cadastre o número real de WhatsApp no editor para ativar o atendimento.</p>
-            )}
+
+
             {email && <a className="tp1m1-contact-email" href={`mailto:${email}`}>Ou entre em contato por e-mail ↗</a>}
           </div>
           <div className="tp1m1-contact-panel">
@@ -258,8 +258,8 @@ export function BuilderV2TP1Model1({ site, publishedMode = false }: { site: Buil
             ) : (
               <div className="tp1m1-location-placeholder"><span aria-hidden="true">◎</span><strong>LOCALIZAÇÃO</strong><p>Cadastre o endereço real para exibir o mapa e o trajeto.</p></div>
             )}
-            {isMakeup && whatsappAction}
-            {isMakeup && !whatsappHref && showWhatsAppNotice && (
+            {whatsappAction}
+            {!whatsappHref && showWhatsAppNotice && (
               <p className="tp1m1-whatsapp-notice" role="status">Botão demonstrativo: cadastre o número real de WhatsApp para ativar o atendimento.</p>
             )}
           </div>

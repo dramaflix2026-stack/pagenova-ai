@@ -6,6 +6,8 @@ import {normalizedSocialLink} from "@/lib/site-social-links";
 import {universalBlockProps,UniversalTypographyRules,universalFaqItems} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {MAKEUP_RE,MAKEUP_PHOTOS} from "@/lib/tp1-makeup-niche";
+import {getTP1FamilyContact} from "@/lib/tp1-family-content";
+import {TP1FamilyTestimonials} from "./builder-v2-tp1-family-testimonials";
 
 const photoSet=[
  {pattern:/barbearia|barbeiro|barbershop|barber shop/i,photo:"https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",secondary:"https://images.pexels.com/photos/4625645/pexels-photo-4625645.jpeg?auto=compress&cs=tinysrgb&w=1600",eyebrow:"BARBEARIA MASCULINA",fallback:"Seu estilo merece excelência."},
@@ -142,9 +144,10 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
  const contactChannel=validWhatsapp?"whatsapp":validContactEmail?"email":null;
  const footerSocial=(["instagram","facebook","youtube","whatsapp"] as const).map(name=>({name,url:normalizedSocialLink(name,site.footer?.[name]||"")})).filter((item):item is {name:"instagram"|"facebook"|"youtube"|"whatsapp";url:string}=>Boolean(item.url));
  const footerNav=[{label:"Início",href:"#inicio"},{label:"Sobre nós",href:"#sobre"},{label:"Especialidades",href:"#servicos"},{label:"Diferenciais",href:"#diferenciais"},{label:"Experiências",href:"#galeria"},{label:"Nossa trajetória",href:"#trajetoria"},{label:"Contato",href:"#contato"}];
- const footerAddress=site.footer?.address?.trim()||"";
+ const footerAddress=site.footer?.address?.trim()||site.extras?.address?.trim()||"";
  const previewDemoAddress="Avenida Paulista, 1578 — Bela Vista, São Paulo/SP";
- const showDemoMap=(isMakeup||isDermatology)&&!publishedMode&&!footerAddress;
+ const familyContact=getTP1FamilyContact(site,publishedMode);
+ const showDemoMap=familyContact.demonstrative;
  const sendContact=(event:React.FormEvent<HTMLFormElement>)=>{
   event.preventDefault();
   if(!contactName.trim()||!contactDetails.trim()||!contactMessage.trim()){setContactFeedback("Preencha todos os campos antes de continuar.");return;}
@@ -199,24 +202,7 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
    <div className="tp1v2-gallery-mosaic">{gallery.ids.map((id,index)=><figure className={`tp1v2-gallery-tile tp1v2-gallery-tile-${index+1}`} key={index}><img src={galleryImages[index]?.src||(isMakeup?MAKEUP_PHOTOS[22+index]:`https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=1300`)} alt={galleryImages[index]?.src?"Imagem da galeria fornecida pelo cliente":`Fotografia ilustrativa de ${niche}: ${gallery.labels[index]}`} loading="lazy" {...universalBlockProps(galleryImages[index])}/><figcaption><span>0{index+1} / {gallery.labels[index]}</span><span aria-hidden="true">↗</span></figcaption></figure>)}</div>
    <div className="tp1v2-gallery-bottom"><span>IMAGENS ILUSTRATIVAS • FOTOGRAFIA REAL</span><span aria-hidden="true">✳</span><span>{brand}</span></div>
   </section>
-  {isMakeup ? (
-  <section data-universal-section="depoimentos" className="tp1v2-testimonials" id="depoimentos" aria-labelledby="tp1v2-testimonials-heading">
-    <div className="tp1v2-testimonials-top"><div><span className="tp1v2-testimonials-kicker">07 / BELEZA E EXPRESSÃO</span><h2 id="tp1v2-testimonials-heading">A beleza de ser <em>você mesma.</em></h2></div><p>Inspirada pela personalidade e pelos detalhes de cada mulher, nossa proposta valoriza a sua identidade.</p></div>
-    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,280px),1fr))",gap:24,alignItems:"center",maxWidth:1180,margin:"0 auto"}}>
-      <figure style={{margin:0,minWidth:0}}><img src={MAKEUP_PHOTOS[32]} alt="Fotografia editorial ilustrativa de beleza feminina" loading="lazy" style={{display:"block",width:"100%",aspectRatio:"4/3",objectFit:"cover",borderRadius:4}}/></figure>
-      <div style={{padding:"18px 4px"}}><span style={{display:"block",fontSize:11,letterSpacing:".18em",fontWeight:750,marginBottom:18}}>ATENDIMENTO COM IDENTIDADE</span><h3 style={{fontFamily:"inherit",fontSize:"clamp(25px,3vw,43px)",lineHeight:1.16,margin:"0 0 22px"}}>Sua ocasião. Seu estilo. Seu momento.</h3><p style={{fontSize:"clamp(14px,1.4vw,17px)",lineHeight:1.8,margin:0}}>Converse sobre suas referências e descubra uma produção de maquiagem pensada para a beleza que você quer expressar.</p><a href="#contato" style={{display:"inline-flex",marginTop:25,padding:"13px 19px",background:"#304737",color:"#fff",textDecoration:"none",fontSize:13,fontWeight:700}}>Conhecer o atendimento ↗</a></div>
-    </div>
-  </section>
-) : (<section data-universal-section="depoimentos" className="tp1v2-testimonials" id="depoimentos" aria-labelledby="tp1v2-testimonials-heading">
-   <div className="tp1v2-testimonials-top"><div><span className="tp1v2-testimonials-kicker">07 / DEPOIMENTOS DOS CLIENTES</span><h2 id="tp1v2-testimonials-heading">Histórias que <em>merecem ser ouvidas.</em></h2></div><p>Um espaço reservado para experiências autênticas de quem conhece nosso trabalho em {niche.toLowerCase()}.</p></div>
-   <div className="tp1v2-testimonials-shell" onMouseEnter={()=>setTestimonialPaused(true)} onMouseLeave={()=>setTestimonialPaused(false)} onFocus={()=>setTestimonialPaused(true)} onBlur={event=>{if(!event.currentTarget.contains(event.relatedTarget))setTestimonialPaused(false)}}>
-    <div className="tp1v2-testimonials-track" style={{transform:`translateX(-${testimonialSlide*100}%)`}} aria-live="off">
-     {[{"name":"Rafael Almeida","quote":"Gostei da atenção aos detalhes e da conversa antes do corte. O resultado ficou bem alinhado ao que eu procurava.","photo":"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=240&q=80"},{"name":"Lucas Ferreira","quote":"O ambiente transmite cuidado e o atendimento foi pensado para o estilo que eu queria.","photo":"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=80"},{"name":"Bruno Martins","quote":"Um exemplo de experiência completa, do atendimento inicial ao acabamento da barba.","photo":"https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=80"},{"name":"André Costa","quote":"A proposta de um atendimento personalizado faz toda a diferença na escolha do corte.","photo":"https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=240&q=80"}].slice(0,3).map((person,index)=><article className="tp1v2-testimonial-card" key={index} aria-hidden={testimonialSlide!==index}><div className="tp1v2-testimonial-card-top"><span className="tp1v2-testimonial-icon" aria-hidden="true">“</span><span>DEPOIMENTO ILUSTRATIVO</span></div><div className="tp1v2-testimonial-empty"><span>0{index+1}</span><h3>{person.name}</h3><p>“{person.quote}”</p></div><div className="tp1v2-testimonial-person"><img className="tp1v2-testimonial-avatar" src={person.photo} alt={"Retrato ilustrativo de "+person.name} style={{width:52,height:52,objectFit:"cover",borderRadius:"50%"}}/><div><strong>{person.name}</strong><span>Exemplo fictício • não é avaliação real</span></div></div></article>)}
-    </div>
-    <div className="tp1v2-testimonials-controls"><div className="tp1v2-testimonials-dots" aria-label="Selecionar depoimento">{[0,1,2].map(index=><button type="button" key={index} className={testimonialSlide===index?"is-active":""} aria-label={`Ver espaço de depoimento ${index+1}`} aria-current={testimonialSlide===index?"true":undefined} onClick={()=>setTestimonialSlide(index)}/>)}</div><div className="tp1v2-testimonials-arrows"><button type="button" aria-label="Depoimento anterior" onClick={()=>setTestimonialSlide(index=>(index+2)%3)}>←</button><button type="button" aria-label="Próximo depoimento" onClick={()=>setTestimonialSlide(index=>(index+1)%3)}>→</button></div></div>
-   </div>
-   <p className="tp1v2-testimonials-note">Depoimentos e retratos demonstrativos; substitua por avaliações reais autorizadas antes de publicar.</p>
-  </section>)}
+  <TP1FamilyTestimonials site={site} publishedMode={publishedMode} model="02"/>
   <section data-universal-section="faq" className="tp1v2-faq" id="faq" aria-labelledby="tp1v2-faq-heading">
    <div className="tp1v2-faq-layout">
     <div className="tp1v2-faq-intro"><span className="tp1v2-faq-kicker">08 / PERGUNTAS FREQUENTES</span><h2 id="tp1v2-faq-heading">Tudo o que você <em>precisa saber.</em></h2><p>Respostas para as principais dúvidas sobre nossos atendimentos em {niche.toLowerCase()}.</p><span className="tp1v2-faq-decoration" aria-hidden="true">✳</span></div>
@@ -249,7 +235,7 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
      )}
      {validWhatsapp ? (
        <a href={`https://wa.me/${validWhatsapp}`} target="_blank" rel="noopener noreferrer" className="tp1v2-contact-whatsapp-action">Falar pelo WhatsApp ↗</a>
-     ) : (isMakeup||isDermatology)&&!publishedMode ? (
+     ) : familyContact.previewWhatsApp ? (
        <>
          <button type="button" className="tp1v2-contact-whatsapp-action" onClick={()=>setShowDemoWhatsappHelp(true)}>Falar pelo WhatsApp ↗</button>
          {showDemoWhatsappHelp && <p role="status" style={{fontSize:12,lineHeight:1.6,margin:0,color:"#526052"}}>Prévia demonstrativa: cadastre um número real de WhatsApp para ativar este botão.</p>}
