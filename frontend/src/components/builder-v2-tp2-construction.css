@@ -1,0 +1,76 @@
+
+/* TP2 Materiais de Construção — strictly opt-in styles */
+.pnmat-proof,.pnmat-testimonials{min-width:0;width:100%;font-family:"Poppins",Arial,sans-serif}
+.pnmat-proof-lead{max-width:800px;margin:0 0 clamp(26px,4vw,46px)}
+.pnmat-proof-lead>span,.pnmat-testimonials-header>div>span{display:block;font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#b18f62}
+.pnmat-proof-lead h3,.pnmat-testimonials-header h3{margin:16px 0 14px;font-size:clamp(29px,4.4vw,60px);line-height:1.13;letter-spacing:-.055em;font-weight:650}
+.pnmat-proof-lead h3 em,.pnmat-testimonials-header h3 em{font-family:Georgia,serif;font-weight:400}
+.pnmat-proof-lead p{max-width:720px;font-size:clamp(14px,1.5vw,17px)!important;line-height:1.8!important}
+.pnmat-proof-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.pnmat-proof-grid article{position:relative;display:flex;flex-direction:column;min-height:230px;padding:clamp(23px,2.7vw,35px);background:#fffdf9;border:1px solid #e2ded4;box-shadow:0 12px 28px #171e1510;border-radius:13px;overflow:hidden}
+.pnmat-proof-top{display:flex;align-items:center;justify-content:space-between;gap:14px;font-size:13px;color:#a3815e;font-weight:700}
+.pnmat-proof-top small{font-size:10px;letter-spacing:.13em;line-height:1.5;text-align:right;color:#6d736c}
+.pnmat-proof-grid h4{margin:27px 0 9px;font-size:clamp(18px,2vw,26px);font-weight:730;line-height:1.25;letter-spacing:-.035em;color:#28342d}
+.pnmat-proof-grid p{margin:0 0 28px;color:#5d685f!important;font-size:clamp(13px,1.25vw,15px)!important;line-height:1.7!important}
+.pnmat-proof-arrow{position:absolute;right:23px;bottom:17px;font-size:20px;color:#a78965}
+.pnmat-proof-disclaimer,.pnmat-testimonials-disclaimer{margin:26px 0 0;font-size:12px!important;line-height:1.65!important;color:#6b746d!important}
+.pnmat-testimonials-header{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:30px;flex-wrap:wrap}
+.pnmat-testimonials-header h3{max-width:640px;margin-bottom:0}
+.pnmat-demo-label{display:inline-block;padding:10px 12px;border:1px solid #c7af89;font-size:10px;font-weight:800;line-height:1.5;letter-spacing:.09em;color:#907652}
+.pnmat-testimonials-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.pnmat-testimonial-card{display:flex;flex-direction:column;justify-content:space-between;gap:21px;min-width:0;border-radius:13px;border:1px solid #dedbd2;background:#fffdf9;padding:clamp(19px,2.25vw,29px);box-shadow:0 10px 30px #18221b0c}
+.pnmat-testimonial-meta{display:flex;align-items:center;gap:13px}
+.pnmat-testimonial-meta img{width:59px!important;height:59px!important;min-width:59px;aspect-ratio:1;object-fit:cover;border-radius:50%;border:2px solid #e6ddce}
+.pnmat-testimonial-meta strong{display:block;color:#29382f;font-size:clamp(14px,1.2vw,17px);line-height:1.3;overflow-wrap:anywhere}
+.pnmat-testimonial-meta small{display:block;margin-top:5px;color:#687067;font-size:11px;line-height:1.45}
+.pnmat-testimonial-card>p{margin:0;color:#34433a!important;font-size:14px!important;line-height:1.8!important}
+.pnmat-testimonial-mark{margin-top:auto;padding-top:15px;border-top:1px solid #e8e3db;color:#958064;font-size:10px;font-weight:800;line-height:1.5;letter-spacing:.07em}
+.pnmat-testimonials-3 .pnmat-testimonial-card,.pnmat-proof-3 .pnmat-proof-grid article{background:#f9f6ee}
+.pnmat-proof-3 .pnmat-proof-grid h4,.pnmat-testimonials-3 .pnmat-testimonial-meta strong{color:#1c302c}
+.tp2m2.pnmat-building .tp2m2-manifesto{background:#f4f0e8}
+.tp2m2.pnmat-building .tp2m2-manifesto-grid{grid-template-columns:1fr!important;gap:32px!important}
+.tp2m2.pnmat-building .pnmat-m2-values{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tp2m2.pnmat-building .pnmat-m2-values article{min-width:0;padding:clamp(21px,2.5vw,33px);background:#fffdfa;border:1px solid #e1d8cc;border-radius:12px;box-shadow:0 16px 24px #1420190a}
+.tp2m2.pnmat-building .pnmat-m2-value-head{display:flex;align-items:center;justify-content:space-between;color:#a7865c;font-size:15px;font-weight:750}
+.tp2m2.pnmat-building .pnmat-m2-values h3{font-size:clamp(20px,2.4vw,29px);letter-spacing:-.05em;line-height:1.18;font-weight:700;margin:28px 0 10px;color:#26362d}
+.tp2m2.pnmat-building .pnmat-m2-values p{margin:0;font-size:14px;line-height:1.75;color:#687167}
+.tp2m2.pnmat-building .tp2m2-numbers{background:#edece5}
+.tp2m2.pnmat-building .tp2m2-testimonials{background:#f7f6f1}
+.tp2m2.pnmat-building .tp2m2-journey .tp2m2-step p{font-size:clamp(14px,1.35vw,17px);line-height:1.77}
+.tp2m2.pnmat-building .tp2m2-footer>strong{font-size:clamp(28px,5.4vw,68px);line-height:1.07;overflow-wrap:break-word;letter-spacing:-.05em}
+.tp2m3.pnmat-building .tp2m3-results{background:#e9e8df;color:#25302e}
+.tp2m3.pnmat-building .tp2m3-results h2{font-size:clamp(37px,5.5vw,78px)}
+.tp2m3.pnmat-building .tp2m3-results .pnmat-proof-lead p{color:#5b665e}
+.tp2m3.pnmat-building .tp2m3-testimonials{background:#f3f1ea;color:#25332c}
+.tp2m3.pnmat-building .tp2m3-testimonials h2{font-size:clamp(37px,5.7vw,78px)}
+.tp2m3.pnmat-building .tp2m3-testimonials .pnmat-testimonials-header{color:#26362b}
+.tp2m3.pnmat-building .tp2m3-testimonials .pnmat-testimonials-header h3{color:#273b31}
+.tp2m3.pnmat-building .tp2m3-footer.pnmat-m3-footer{background:#101c18;padding-bottom:34px}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-top{display:flex;gap:30px;justify-content:space-between;align-items:end;padding:30px 0 45px;border-bottom:1px solid #53655a}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-top h2{font-size:clamp(32px,5.5vw,76px);max-width:870px;line-height:1.05;margin:0}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-top a{white-space:nowrap;display:inline-block;color:#e3c195;font-size:12px;letter-spacing:.09em;padding:15px 0;text-decoration:none;border-bottom:1px solid #b99d73}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:35px 0}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info h3{margin:0 0 13px;color:#d6b58c;font-size:11px;letter-spacing:.18em}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info p,.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info a{display:block;margin:7px 0;color:#e5e9df;font-size:13px;line-height:1.6;text-decoration:none;overflow-wrap:anywhere}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-brand{display:block;font-size:clamp(29px,5.7vw,68px);line-height:1.15;font-weight:800;letter-spacing:-.055em;overflow-wrap:break-word;word-break:normal;max-width:100%;margin:20px 0 30px}
+.tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-bottom{border-top:1px solid #53655a;display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;padding-top:25px;color:#c7d2c7;font-size:11px;letter-spacing:.07em}
+@media(max-width:850px){
+ .pnmat-testimonials-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+ .pnmat-proof-grid{grid-template-columns:1fr;gap:13px}
+ .pnmat-proof-grid article{min-height:unset;padding:24px 23px 36px}
+ .pnmat-proof-lead h3,.pnmat-testimonials-header h3{font-size:clamp(28px,8vw,39px)}
+ .pnmat-testimonials-list{grid-template-columns:1fr}
+ .pnmat-testimonial-card{padding:23px;gap:17px}
+ .pnmat-testimonial-meta img{width:54px!important;height:54px!important;min-width:54px}
+ .tp2m2.pnmat-building .pnmat-m2-values{grid-template-columns:1fr;gap:12px}
+ .tp2m2.pnmat-building .pnmat-m2-values h3{margin:19px 0 9px;font-size:23px}
+ .tp2m2.pnmat-building .tp2m2-manifesto-grid{gap:27px}
+ .tp2m2.pnmat-building .tp2m2-footer>strong{font-size:clamp(27px,7.6vw,39px)}
+ .tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-top{flex-direction:column;align-items:start;gap:23px;padding-bottom:28px}
+ .tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-top h2{font-size:clamp(31px,8.4vw,43px)}
+ .tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-footer-info{grid-template-columns:1fr;gap:20px;padding:31px 0}
+ .tp2m3.pnmat-building .pnmat-m3-footer .pnmat-m3-brand{font-size:clamp(27px,8.8vw,45px);margin:10px 0 25px}
+}
