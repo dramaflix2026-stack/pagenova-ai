@@ -66,7 +66,7 @@ test("M1 has full supporting sections, M2 is consistent, M3 has six gallery imag
  const m1=read("src/components/builder-v2-tp3-model1.tsx");
  for(const t of ["FoodTruckExtraModel1","FoodTruckFaq","FoodTruckTestimonials","FoodTruckLocation"])assert.ok(m1.includes(t),t);
  const m2=read("src/components/builder-v2-tp3-model2.tsx");
- for(const t of ["truckPhotoBrazil(i+12)","truckPhotoBrazil(i+19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
+ for(const t of ["truckPhotoBrazil(i+12)","truckPhotoBrazil(i===0?19:21)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
  const m3=read("src/components/builder-v2-tp3-model3.tsx");
  for(const t of ["[13,14,15,16,17,18]","truckPhoto(19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m3.includes(t),t);
 });
