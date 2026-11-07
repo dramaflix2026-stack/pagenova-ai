@@ -4,7 +4,7 @@ export type TP1Review={name:string;detail:string;quote:string};
 export function getTP1RealReviews(blocks:readonly TP1Block[]):TP1Review[]{
  const result:TP1Review[]=[];
  for(const block of blocks){
-  if(block.type!=="paragraph"||!/depoiment|testimonial|avalia[cç][aã]o|relatos?\b|reviews?\b/i.test(block.section||""))continue;
+  if(block.type!=="paragraph"||!/depoiment|testimonial|avalia[cç](?:[aã]o|[oõ]es)|relatos?\b|reviews?\b/i.test(block.section||""))continue;
   const raw=(block.text||"").trim();
   if(!raw||/fict[ií]ci|ilustrativ|exemplo de layout|texto modelo|placeholder|depoimento demonstrativo/i.test(raw))continue;
   const parts=raw.split(/\s*\|\s*/).map(x=>x.trim()).filter(Boolean);
