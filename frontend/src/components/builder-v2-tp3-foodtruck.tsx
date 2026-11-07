@@ -67,7 +67,7 @@ function Count({value,label}:{value:number;label:string}){const ref=useRef<HTMLD
   return()=>{io.disconnect();cancelAnimationFrame(raf);};},[value]);
  return <div ref={ref} className="rounded-2xl border border-current/15 bg-white/10 px-5 py-7 text-center"><strong className="block text-[clamp(42px,7vw,70px)] font-extrabold leading-none tabular-nums">{shown.toLocaleString("pt-BR")}</strong><span className="mt-4 block text-xs font-semibold leading-6">{label}</span></div>;
 }
-export function FoodTruckNumbers({data=[]}:{data?:Array<string|undefined>}){const parsed=data.map(raw=>{const m=String(raw||"").match(/^\s*(\d{1,7})\s*(?:\\+|[-–—|:]\s*|\s+)(.*)$/);return m?{value:Number(m[1]),label:m[2]?.trim()||"Indicador informado"}:null;}).filter((x):x is {value:number;label:string}=>!!x);
+export function FoodTruckNumbers({data=[]}:{data?:Array<string|undefined>}){const parsed=data.map(raw=>{const m=String(raw||"").match(/^\s*(\d{1,7})\s*(?:\+|[-–—|:]\s*|\s+)(.*)$/);return m?{value:Number(m[1]),label:m[2]?.trim()||"Indicador informado"}:null;}).filter((x):x is {value:number;label:string}=>!!x);
  const items=parsed.length?parsed:[{value:4,label:"Categorias ilustrativas de sabores"},{value:3,label:"Etapas para consultar seu pedido"},{value:5,label:"Relatos demonstrativos nesta página"}];
  return <div className="mt-10"><p className="mb-5 max-w-2xl text-sm leading-7 opacity-75">{parsed.length?"Indicadores informados no editor, com animação ao entrar na tela.":"Estes números descrevem apenas os elementos da demonstração, não representam vendas, clientes ou desempenho do estabelecimento."}</p><div className="grid gap-4 sm:grid-cols-3">{items.map((x,i)=><Count key={i+"-"+x.label} value={x.value} label={x.label}/>)}</div></div>;
 }
