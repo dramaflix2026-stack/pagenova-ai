@@ -89,3 +89,20 @@
  .tp1v2[data-tp1-niche="makeup"] .tp1v2-footer-intro h2{font-size:clamp(29px,7.8vw,43px)!important;line-height:1.15!important}
  .tp1v2[data-tp1-niche="makeup"] .tp1v2-footer-cta{background:#e8d2cd;color:#2f3430}
 }
+
+
+/* Contact-only: map > address > WhatsApp in the studio preview. */
+.tp1v2-contact-panel .tp1v2-contact-whatsapp-action{
+ display:inline-flex; align-items:center;justify-content:center;gap:12px;
+ width:100%;min-height:52px;padding:15px 19px;
+ background:#25d366;color:#10361f;border:0;border-radius:9px;
+ font:800 13px/1.4 "Poppins",Arial,sans-serif;
+ text-decoration:none;text-align:center;cursor:pointer;
+ box-sizing:border-box;
+}
+.tp1v2-contact-panel .tp1v2-contact-whatsapp-action:hover{background:#1fc25a}
+.tp1v2[data-tp1-niche="makeup"] .tp1v2-contact-panel iframe{max-width:100%;aspect-ratio:16/10}
+@media(max-width:650px){
+ .tp1v2[data-tp1-niche="makeup"] .tp1v2-contact-panel .tp1v2-contact-whatsapp-action{font-size:12px;padding:15px}
+ .tp1v2[data-tp1-niche="makeup"] .tp1v2-contact-panel iframe{height:235px!important}
+}
