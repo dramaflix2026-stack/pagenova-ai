@@ -518,18 +518,20 @@ function BuilderV2ClassicSite({site,selectedNiche="",publishedMode=false,templat
   const engineeringContactRemoval=/engenharia|engenheiro|construtora|constru[cç][aã]o civil/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "));
 
   const allVisibleSections=sections.filter(group=>group.blocks.length>0&&!(engineeringContactRemoval&&/^(contato|contact|fale[-_ ]?conosco)(?:[-_ ].*)?$/i.test(group.id.trim())));
-  // Dermatology / Modelo 1: the briefing may supply two separate four-card
-  // "etapas do atendimento" compositions with the SAME clinical photographs.
-  // Preserve the first complete section, never delete distinct content or
-  // sections explicitly edited with different photographs.
-  const dermatologyModel1=/dermatolog/i.test([site.niche,selectedNiche,site.title,site.header?.brand].filter(Boolean).join(" "))&&(!site.briefingLayoutVariant||site.briefingLayoutVariant==="01");
-  const processPhotos=allVisibleSections.filter(group=>/como.?funciona|etapas|passo.?a.?passo|processo/i.test(group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" "))).map(group=>new Set(group.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!.split("?")[0])));
-  const visibleSections=dermatologyModel1?allVisibleSections.filter(group=>{
-    const label=group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ");
-    if(!/por.?que.?escolher|por.?que.?nos.?escolher|nossos diferenciais/i.test(label))return true;
-    const photos=group.blocks.filter(b=>b.type==="image"&&b.src).map(b=>b.src!.split("?")[0]);
-    // Deduplicate only the repeated four-step photo composition.
-    return !photos.length||!processPhotos.some(pool=>photos.filter(src=>pool.has(src)).length>=2);
+  // Dermatology / Modelo 1: the generated brief can contain two visually identical
+  // four-step timelines even when their photographs differ. Keep the clinical
+  // "Como funciona" journey and suppress only the redundant "Por que escolher
+  // nosso atendimento?" step-by-step section. Do not rely on image URLs.
+  const dermatologyModel1=/dermatolog/i.test([site.niche,selectedNiche,site.title,site.header?.brand].filter(Boolean).join(" "));
+  const clinicalProcessHeading=(group:{id:string;blocks:Block[]})=>group.id+" "+group.blocks.filter(b=>b.type==="heading").map(b=>b.text).join(" ");
+  const hasClinicalProcess=allVisibleSections.some(group=>/como[\s_-]*funciona|como funciona o atendimento|etapas do atendimento|passo[\s_-]*a[\s_-]*passo|processo de atendimento/i.test(clinicalProcessHeading(group)));
+  const visibleSections=dermatologyModel1&&hasClinicalProcess?allVisibleSections.filter(group=>{
+    const heading=clinicalProcessHeading(group);
+    const repeatedChoiceTimeline=/por[\s_-]*que[\s_-]*(?:nos[\s_-]*)?escolher(?:[\s_-]*nosso[\s_-]*atendimento)?/i.test(heading);
+    const cards=group.blocks.filter(block=>block.type==="paragraph").length;
+    // Keep brief standalone benefit summaries; hide the second 3-4-card
+    // clinical journey the user asked to remove, regardless of photo source.
+    return !(repeatedChoiceTimeline&&cards>=3);
   }):allVisibleSections;
   // The map is rendered immediately before FAQ, so count it as its own visible section.
   const cinematicNumber=(index:number)=>index+1+(site.cinematic?.mode==="cinematic"&&!!site.extras?.address?.trim()&&visibleSections.slice(0,index+1).some(g=>/faq|perguntas/i.test(g.id))?1:0);
