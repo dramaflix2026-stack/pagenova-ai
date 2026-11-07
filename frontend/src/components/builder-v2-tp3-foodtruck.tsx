@@ -3,7 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import type {BuilderV2SiteData} from "./builder-v2-site";
 
 /** This editorial override is scoped to the Food Truck niche, never other TP3 categories. */
-export const isFoodTruck=(site:BuilderV2SiteData)=>/food[\\s-]*truck|foodtruck/i.test(
+export const isFoodTruck=(site:BuilderV2SiteData)=>/food[\s-]*truck|foodtruck/i.test(
   [site.niche,site.title,site.header?.brand].filter(Boolean).join(" ")
 );
 const us=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1400&q=85";
@@ -67,7 +67,7 @@ function Count({value,label}:{value:number;label:string}){const ref=useRef<HTMLD
   return()=>{io.disconnect();cancelAnimationFrame(raf);};},[value]);
  return <div ref={ref} className="rounded-2xl border border-current/15 bg-white/10 px-5 py-7 text-center"><strong className="block text-[clamp(42px,7vw,70px)] font-extrabold leading-none tabular-nums">{shown.toLocaleString("pt-BR")}</strong><span className="mt-4 block text-xs font-semibold leading-6">{label}</span></div>;
 }
-export function FoodTruckNumbers({data=[]}:{data?:Array<string|undefined>}){const parsed=data.map(raw=>{const m=String(raw||"").match(/^\\s*(\\d{1,7})\\s*(?:\\+|[-–—|:]\\s*|\\s+)(.*)$/);return m?{value:Number(m[1]),label:m[2]?.trim()||"Indicador informado"}:null;}).filter((x):x is {value:number;label:string}=>!!x);
+export function FoodTruckNumbers({data=[]}:{data?:Array<string|undefined>}){const parsed=data.map(raw=>{const m=String(raw||"").match(/^\s*(\d{1,7})\s*(?:\\+|[-–—|:]\s*|\s+)(.*)$/);return m?{value:Number(m[1]),label:m[2]?.trim()||"Indicador informado"}:null;}).filter((x):x is {value:number;label:string}=>!!x);
  const items=parsed.length?parsed:[{value:4,label:"Categorias ilustrativas de sabores"},{value:3,label:"Etapas para consultar seu pedido"},{value:5,label:"Relatos demonstrativos nesta página"}];
  return <div className="mt-10"><p className="mb-5 max-w-2xl text-sm leading-7 opacity-75">{parsed.length?"Indicadores informados no editor, com animação ao entrar na tela.":"Estes números descrevem apenas os elementos da demonstração, não representam vendas, clientes ou desempenho do estabelecimento."}</p><div className="grid gap-4 sm:grid-cols-3">{items.map((x,i)=><Count key={i+"-"+x.label} value={x.value} label={x.label}/>)}</div></div>;
 }
@@ -80,7 +80,7 @@ export function FoodTruckTestimonials({reviews=[],dark=false}:{reviews?:string[]
 export function FoodTruckLocation({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const real=site.extras?.address?.trim()||site.footer?.address?.trim()||"";
  const shown=real||(!publishedMode?"Avenida Paulista, 1000 — Bela Vista, São Paulo/SP":"");
- const raw=(site.restaurant?.whatsapp||site.footer?.whatsapp||"").replace(/\\D/g,"");
+ const raw=(site.restaurant?.whatsapp||site.footer?.whatsapp||"").replace(/\D/g,"");
  const whatsapp=raw.length>=10?"https://wa.me/"+(raw.startsWith("55")?raw:"55"+raw):"";
  return <section id="localizacao" data-universal-section="localizacao" className="bg-[#f3e8d8] px-6 py-16 text-[#30251c] md:px-[7%] md:py-24"><div className="mx-auto max-w-6xl"><p className="text-xs font-extrabold uppercase tracking-[.23em] text-[#98683c]">Encontre nosso Food Truck</p><h2 className="mt-4 max-w-4xl font-serif text-[clamp(36px,6vw,72px)] leading-[1.06]">O próximo sabor está <em>no caminho.</em></h2><p className="mt-5 max-w-3xl text-sm leading-8 text-[#675748]">Confira a localização e confirme o endereço atual antes de visitar: food trucks podem mudar de ponto conforme a programação.</p>
  <div className="mt-9 rounded-2xl border border-[#d6bea0] bg-white p-5 shadow-sm md:p-8">{shown?<><iframe title={real?"Mapa do endereço informado pela empresa":"Mapa ilustrativo de localização fictícia"} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="h-64 w-full rounded-xl border-0 md:h-96" src={"https://www.google.com/maps?q="+encodeURIComponent(shown)+"&output=embed"}/><div className="mt-5">{!real&&<span className="text-xs font-bold uppercase tracking-[.14em] text-[#a5622b]">Endereço fictício · apenas prévia demonstrativa</span>}<address className="mt-2 text-base font-semibold not-italic leading-7">{shown}</address>{!real&&<p className="mt-1 text-xs text-[#786b5c]">Não é o endereço do Food Truck. Cadastre o endereço oficial antes de publicar.</p>}</div></>:<div className="rounded-xl bg-[#f5eee5] p-7 text-sm">Endereço ainda não cadastrado pela empresa. Inclua a localização real no editor para mostrar o mapa.</div>}
