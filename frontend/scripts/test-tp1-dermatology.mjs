@@ -23,7 +23,7 @@ test("model 1 removes only repeated dermatology process-photo section",()=>{
 test("model 2 has a real map around a clearly fictional preview-only address and WhatsApp button",()=>{
  const s=read("src/components/builder-v2-tp1-model2.tsx");
  assert.ok(s.includes("const isDermatology="));
- assert.ok(s.includes("const showDemoMap=(isMakeup||isDermatology)&&!publishedMode&&!footerAddress"));
+ assert.ok(s.includes("const showDemoMap=familyContact.demonstrative"));
  assert.ok(s.includes("https://www.google.com/maps?q="));
  assert.ok(s.includes("ENDEREÇO FICTÍCIO"));
  assert.ok(s.includes("Falar pelo WhatsApp"));
@@ -37,8 +37,8 @@ test("model 3 uses dermatologist photography for every section, never generic fa
  assert.equal(new Set(urls).size,urls.length);
  assert.ok(s.includes('if(id.startsWith("derm-"))'));
  assert.ok(s.includes('photos:Array.from({length:24}'));
- for(const key of ["config.photos[6+i]","config.photos[9+i]","config.photos[15]","config.photos[16]","isDermatology?i+17","recoverDermatologyPhoto"])assert.ok(s.includes(key),key);
- assert.ok(s.includes("isDermatology && !testimonials.length"));
+ for(const key of ["config.photos[6+i]","config.photos[9+i]","config.photos[15]","config.photos[16]","isDermatology||isAesthetic?i+17","recoverDermatologyPhoto"])assert.ok(s.includes(key),key);
+ assert.ok(s.includes("TP1FamilyTestimonials"));
  assert.ok(s.includes("Acolhimento e histórico"));
  assert.ok(s.includes("Plano de cuidados"));
  assert.ok(s.includes("Cuidado que"));

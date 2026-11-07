@@ -80,7 +80,6 @@ export function BuilderV2TP1Model3Sections({site,brand,publishedMode=false}:{sit
  const validPhone=phone.length>=10&&phone.length<=15?(phone.startsWith("55")?phone:"55"+phone):null;
  const contactAvailable=Boolean(validPhone||validEmail);
  const social=(["instagram","facebook","youtube","whatsapp"] as const).map(k=>({name:k,url:normalizedSocialLink(k,site.footer?.[k]||"")})).filter((x):x is {name:typeof x.name;url:string}=>Boolean(x.url));
- const testimonials=site.blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avalia[cç]|relato/i.test(b.section||"")).map(b=>{const fields=(b.text||"").split(/\s*\|\s*/).map(x=>x.trim());return fields.length>=3&&fields[0]&&fields[2]?{name:fields[0],detail:fields[1],quote:fields.slice(2).join(" | ")}:null;}).filter((v):v is {name:string;detail:string;quote:string}=>v!==null);
  const send=(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();
   if(!name.trim()||!contact.trim()||!message.trim()){setFeedback("Preencha todos os campos.");return;}

@@ -1,5 +1,5 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useState} from "react";
 import type {BuilderV2SiteData} from "@/components/builder-v2-site";
 import "./builder-v2-tp1-model2.css";
 import {normalizedSocialLink} from "@/lib/site-social-links";
@@ -92,9 +92,6 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
  const [contactMessage,setContactMessage]=useState("");
  const [contactFeedback,setContactFeedback]=useState("");
  const [faqOpen,setFaqOpen]=useState<number|null>(0);
- const [testimonialSlide,setTestimonialSlide]=useState(0);
- const [testimonialPaused,setTestimonialPaused]=useState(false);
- useEffect(()=>{if(testimonialPaused)return;const timer=setInterval(()=>setTestimonialSlide(previous=>(previous+1)%3),6500);return()=>clearInterval(timer)},[testimonialPaused]);
  const niche=site.niche||"Beleza e Serviços Premium";
  const isMakeup=MAKEUP_RE.test(niche);
  const isDermatology=/dermatolog/i.test([niche,site.title,site.header?.brand].filter(Boolean).join(" "));
