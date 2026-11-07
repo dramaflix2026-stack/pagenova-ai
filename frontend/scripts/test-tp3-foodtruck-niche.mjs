@@ -66,7 +66,7 @@ test("M1 has full supporting sections, M2 is consistent, M3 has six gallery imag
  const m1=read("src/components/builder-v2-tp3-model1.tsx");
  for(const t of ["FoodTruckExtraModel1","FoodTruckFaq","FoodTruckTestimonials","FoodTruckLocation"])assert.ok(m1.includes(t),t);
  const m2=read("src/components/builder-v2-tp3-model2.tsx");
- for(const t of ["truckPhotoBrazil(i+12)","truckPhotoBrazil(i===0?19:21)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
+ for(const t of ["truckPhotoBrazil(i+12)","truckScene(\"model2StoryA\")","truckScene(\"model2StoryB\")","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m2.includes(t),t);
  const m3=read("src/components/builder-v2-tp3-model3.tsx");
  for(const t of ["[13,14,15,16,17,18]","truckPhoto(19)","FoodTruckNumbers","FoodTruckTestimonials"])assert.ok(m3.includes(t),t);
 });
@@ -102,4 +102,22 @@ test("Editorial Brazilian photo replacements are unique across the M2 photo slot
  const slots=[0,1,...Array.from({length:21},(_,i)=>i+2)];
  const values=slots.map(i=>overriden.get(i)||existingIds[i]);
  assert.equal(new Set(values).size,values.length,"distinct photos throughout M2");
+});
+
+test("food truck photo roles follow Brazilian context and category intent",()=>{
+ const sharedSource=shared();
+ const m1=read("src/components/builder-v2-tp3-model1.tsx");
+ const m2=read("src/components/builder-v2-tp3-model2.tsx");
+ const m3=read("src/components/builder-v2-tp3-model3.tsx");
+ for(const key of ["model1Hero","model1Gallery","model2Hero","model2About","model2StoryA","model2StoryB","model3Hero","model3About"])assert.ok(sharedSource.includes(key+":"),"curated scene: "+key);
+ assert.ok(m1.includes('truckScene("model1Hero")'));
+ assert.ok(m1.includes('i===3?truckBeverageFallback()'));
+ assert.ok(m1.includes("grid-cols-1 gap-6 min-[480px]:grid-cols-2"),"mobile cards have sufficient width");
+ assert.ok(m1.includes('[6,7,3,8]'),"four gallery images, not English-sign photo");
+ assert.ok(m1.includes("[overflow-wrap:anywhere]"),"long category names cannot collide");
+ assert.ok(m2.includes('truckScene("model2Hero")'));
+ assert.ok(m2.includes('truckScene("model2About")'));
+ assert.ok(m3.includes('truckScene("model3Hero")'));
+ assert.ok(m3.includes('truckScene("model3About")'));
+ assert.ok(sharedSource.includes('export const truckBeverageFallback=()=>us("photo-1513558161293-cdaf765edfd4")'),"beverage fallback must be an actual drink");
 });

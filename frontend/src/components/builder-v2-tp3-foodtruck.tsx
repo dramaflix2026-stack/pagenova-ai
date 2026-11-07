@@ -59,8 +59,20 @@ const brazilianTruckPhotos:Record<number,string>={
  21:px(5920744), // visitors eating at food truck
  23:px(35650313), // Brazilian food cart
 };
+/** Photo sources checked against their Pexels listing: Brazilian food trucks, stalls and service scenes. */
+const verifiedTruckScenes={
+ model1Hero:px(5531005), // Brazilian-cuisine food truck on a city street
+ model1Gallery:px(5920744), // customers sharing burgers at a food truck, no menu sign
+ model2Hero:px(15211938), // Brazilian burger food stand at night
+ model2About:px(5531005), // Brazilian-cuisine food truck
+ model2StoryA:px(15434266), // Brazilian street-food service in Sao Paulo
+ model2StoryB:px(5920744), // people eating beside a food truck
+ model3Hero:px(15434266), // Brazilian street-food counter at night
+ model3About:px(15211938), // Brazilian burger stand
+} as const;
+export const truckScene=(slot:keyof typeof verifiedTruckScenes)=>verifiedTruckScenes[slot];
 export const truckPhotoBrazil=(slot:number)=>brazilianTruckPhotos[slot]||truckPhoto(slot);
-export const truckBeverageFallback=()=>px(6414118); // second verified juice photo
+export const truckBeverageFallback=()=>us("photo-1513558161293-cdaf765edfd4"); // beverage-only fallback, never a burger
 export const truckMenuPhoto=(name:string,slot:number)=>{
  const title=name.toLocaleLowerCase("pt-BR");
  if(/bebida|refri|suco|refrigerante|água|agua|limonada|vitamina|chá|cha|milkshake|milk shake/.test(title))return px(slot%2===0?8679400:6414118);
