@@ -96,9 +96,9 @@ test("Beverage category does not reuse a burger photo and published pages cannot
 test("Editorial Brazilian photo replacements are unique across the M2 photo slots",()=>{
  const src=shared();
  const existing=src.slice(src.indexOf("const truckPhotos=["),src.indexOf("];",src.indexOf("const truckPhotos=[")));
- const existingIds=[...existing.matchAll(/(?:us\\("([^"]+)"\\)|px\\((\\d+)\\))/g)].map(m=>m[1]||m[2]);
+ const existingIds=[...existing.matchAll(/(?:us\("([^"]+)"\)|px\((\d+)\))/g)].map(m=>m[1]||m[2]);
  const override=src.slice(src.indexOf("const brazilianTruckPhotos:"),src.indexOf("};",src.indexOf("const brazilianTruckPhotos:")));
- const overriden=new Map([...override.matchAll(/(\\d+):px\\((\\d+)\\)/g)].map(m=>[Number(m[1]),m[2]]));
+ const overriden=new Map([...override.matchAll(/(\d+):px\((\d+)\)/g)].map(m=>[Number(m[1]),m[2]]));
  const slots=[0,1,...Array.from({length:21},(_,i)=>i+2)];
  const values=slots.map(i=>overriden.get(i)||existingIds[i]);
  assert.equal(new Set(values).size,values.length,"distinct photos throughout M2");
