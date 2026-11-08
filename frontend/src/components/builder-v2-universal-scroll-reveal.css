@@ -28,3 +28,45 @@
 @media(prefers-reduced-motion:reduce),print {
   .pn-global-scroll-root .pn-global-scroll-reveal {opacity:1!important;translate:0 0!important;scale:1!important;animation:none!important}
 }
+
+/* Explicit user-requested brand palette only. Existing generated templates
+ * render completely unchanged until designPaletteApplied is set by the editor.
+ * The original images, DOM hierarchy, motion and fixed layout are untouched. */
+.pn-global-scroll-root[data-pn-palette-custom="true"] {
+  --pn-accent:var(--pn-custom-accent);
+  --pn-brand-paper:var(--pn-custom-surface);
+  --pn-brand-ink:var(--pn-custom-bg);
+  --pn-brand-light:var(--pn-custom-surface);
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer,main,section) {
+  background-color:var(--pn-custom-bg)!important;
+  border-color:var(--pn-custom-accent)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer,section) {
+  color:var(--pn-custom-surface)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer,section) :is(h1,h2,h3,h4,p,small) {
+  color:var(--pn-custom-surface)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer) :is(a,nav,span) {
+  color:var(--pn-custom-surface)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] section :is(article,[data-pn-visual-card]) {
+  background-color:var(--pn-custom-surface)!important;
+  border-color:var(--pn-custom-accent)!important;
+  color:var(--pn-custom-bg)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] section :is(article,[data-pn-visual-card]) :is(h1,h2,h3,h4,p,span,small,li) {
+  color:var(--pn-custom-bg)!important;
+  text-shadow:none!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer,section)
+  :is(button,a)[class*="bg-"] {
+  background-color:var(--pn-custom-accent)!important;
+  border-color:var(--pn-custom-accent)!important;
+  color:var(--pn-custom-bg)!important;
+}
+.pn-global-scroll-root[data-pn-palette-custom="true"] :is(header,footer,section)
+  :is(button,a)[class*="bg-"] :is(span,small) {
+  color:var(--pn-custom-bg)!important;
+}
