@@ -1001,7 +1001,15 @@ export default function BuilderV2() {
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
         // Validate target, card index and composition before any paid storage calls.
         const provisional=institutionalFiles.map((_,i)=>"https://example.invalid/upload-"+i);
-        planInstitutionalImageEdit(site,prompt,provisional);
+        const previewPlan=planInstitutionalImageEdit(site,prompt,provisional);
+        if(!previewPlan)throw Error("Não foi identificada uma edição de imagem segura.");
+        const uploadingToTP1Model3=site.cinematic?.mode!=="immersive-3d"&&
+          site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+        if(uploadingToTP1Model3){
+          const previewChangedIds=site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(previewPlan.site.blocks[i])).map(block=>block.id);
+          const previewCheck=prepareTP1Model3VisibleEdit(site,{ok:true,site:previewPlan.site,changedIds:previewChangedIds});
+          if(!previewCheck.ok)throw Error(previewCheck.error);
+        }
         const projectId=site.id||crypto.randomUUID();
         const uploaded:string[]=[];
         for(const file of institutionalFiles){
@@ -1014,9 +1022,15 @@ export default function BuilderV2() {
         }
         const result=planInstitutionalImageEdit(site,prompt,uploaded);
         if(!result)throw Error("Não foi identificada uma edição de imagem segura.");
+        const uploadedCheck=uploadingToTP1Model3?prepareTP1Model3VisibleEdit(site,{
+          ok:true,
+          site:result.site,
+          changedIds:site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(result.site.blocks[i])).map(block=>block.id),
+        }):null;
+        if(uploadedCheck&&!uploadedCheck.ok)throw Error(uploadedCheck.error);
         recordVersion(site,"Antes de alterar imagens institucionais");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-        setSite({...result.site,id:projectId});
+        setSite({...(uploadedCheck?.ok?uploadedCheck.site:result.site),id:projectId});
         setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
       }catch(error){
