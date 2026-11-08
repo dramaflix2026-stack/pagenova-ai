@@ -97,13 +97,16 @@ export async function restoreAvailableImageSlots(
   const process = model.sections.find((section) => section.type === 'process');
 
   if (hero?.type === 'hero') {
-    // Prefer the dedicated AI hero over an older generic photo occupying that
-    // slot, freeing genuine business photos for the About section.
-    const currentHero = hero.image && byId.get(hero.image.assetId)?.asset.source === 'AI_GENERATED'
-      ? hero.image : undefined;
+    // A verified business photo is authoritative for a CRM lead. Retain any
+    // real hero already bound by the planner; otherwise prefer a wide real
+    // photo, then another real one. Use an AI hero only when no real image
+    // exists. Never delete the original asset or modify Studio templates.
+    const originalHero = hero.image && byId.get(hero.image.assetId);
+    const currentHero = originalHero && isReal(originalHero.asset) ? hero.image : undefined;
     hero.image = choose(currentHero, [
-      (a) => isAiSlot(a, 'hero'),
       (a) => isReal(a) && isWide(a),
+      (a) => isReal(a),
+      (a) => isAiSlot(a, 'hero'),
     ]);
   }
 
