@@ -497,3 +497,48 @@ test("TP2 sequential natural-language edits preserve removed sections, reordered
   }
  }
 });
+
+
+test("TP5 model 02 visible hero CTA reflects the universal edit while preserving the original action",async()=>{
+ const {applyUniversalNaturalLanguage}=await import("../src/lib/builder-v2-universal-language.ts");
+ const original={...fixture(),title:"Maison Lumière",niche:"Inteligência Artificial",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
+ const initial=render(original,false);
+ assert.match(initial(".da-actions .da-button-blue").text(),/Iniciar conversa/);
+ const command='Troque o texto do botão principal da capa para "Quero agendar minha avaliação". Preserve o link e a aparência original do botão.';
+ const patched=applyUniversalNaturalLanguage(original,command);
+ assert.equal(patched?.ok,true,patched?.error);
+ if(!patched?.ok)return;
+ assert.deepEqual(patched.changedIds,["cta"]);
+ const edited=patched.site.blocks.find(block=>block.id==="cta");
+ const source=original.blocks.find(block=>block.id==="cta");
+ assert.equal(edited?.text,"Quero agendar minha avaliação");
+ assert.equal(edited?.href,source?.href);
+ assert.equal(edited?.textExplicit,true);
+ for(const publishedMode of [false,true]){
+  const $=render(JSON.parse(JSON.stringify(patched.site)),publishedMode);
+  const hero=$(".da-actions .da-button-blue");
+  assert.equal(hero.length,1);
+  assert.match(hero.text(),/Quero agendar minha avaliação/);
+  assert.doesNotMatch(hero.text(),/Iniciar conversa/);
+  assert.ok(hero.hasClass("da-button-blue"));
+  assert.match($(".da-header .da-button-dark").text(),/Vamos conversar/,"do not change header CTA");
+  assert.equal($(".da-link").first().attr("href"),"#tp5m2-solutions");
+ }
+ assert.equal(render(original,false)(".da-actions .da-button-blue").text().includes("Iniciar conversa"),true);
+});
+test("one universal CTA edit appears in every TP5 visual variant after JSON restore",async()=>{
+ const {applyUniversalNaturalLanguage}=await import("../src/lib/builder-v2-universal-language.ts");
+ for(const variant of ["01","02","03"]){
+  const original={...fixture(),title:"Demo Teste",niche:"Marketing digital",templateId:"prompt-adaptive",briefingLayoutVariant:variant};
+  const edited=applyUniversalNaturalLanguage(original,'Troque o texto do botão principal da capa para "Quero agendar minha avaliação". Preserve o link e a aparência original do botão.');
+  assert.equal(edited?.ok,true,variant+": "+edited?.error);
+  if(!edited?.ok)continue;
+  for(const publishedMode of [false,true]){
+   const $=render(JSON.parse(JSON.stringify(edited.site)),publishedMode);
+   const selector=variant==="01"?".pn-t5-primary":variant==="02"?".da-actions .da-button-blue":'[data-tp5-variant="03"] a[href="#tp5-solutions"]';
+   const button=$(selector);
+   assert.equal(button.length,1,"TP5 "+variant+" CTA exists");
+   assert.match(button.text(),/Quero agendar minha avaliação/,"TP5 "+variant+" CTA reflects the edit");
+  }
+ }
+});
