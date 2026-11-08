@@ -76,6 +76,7 @@ describe('mapeamento de resultado', () => {
     expect(result.phone.e164).toBe('+5511988887777');
     expect(result.website.classification).toBe('OWN_WEBSITE');
     expect(result.businessStatus).toBe('OPERATIONAL');
+    expect(result.actions.websiteSearchUrl).toContain('google.com/search');
   });
 
   it('WhatsApp aparece como acao, nunca como confirmacao', () => {
@@ -121,6 +122,7 @@ describe('mapeamento de resultado', () => {
     const result = mapPlace(place({ websiteUri: undefined }));
     expect(result.score).toBeGreaterThan(0);
     expect(result.scoreReasons.length).toBeGreaterThan(0);
+    expect(result.website.label).toContain('verificar');
   });
 });
 
