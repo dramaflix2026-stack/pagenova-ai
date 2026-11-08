@@ -94,13 +94,26 @@ test("universal text intent applies independently of niche and model number",()=
   }
  }
 });
-test("no second paragraph means a clear non-destructive failure, never a false success",()=>{
+test("visible second paragraph without a legacy block uses a declared universal visual slot",()=>{
  const original=site();
  original.blocks=original.blocks.filter(b=>b.id!=="about-second");
  const before=copy(original);
  const result=parseUniversalCopyEdit(original,requests.about);
- assert.ok(result&&"error" in result);
+ assert.ok(result&&"intent" in result);
+ assert.equal(result.intent.virtualSlotKey,"sobre:paragraph:1");
+ const applied=applyUniversalCopyEdit(original,result.intent,"Um cuidado sofisticado e acolhedor.");
+ assert.equal(applied.ok,true);
+ if(applied.ok){
+  assert.deepEqual(applied.site.blocks,before.blocks);
+  assert.equal(applied.site.universalCopyOverrides["sobre:paragraph:1"],"Um cuidado sofisticado e acolhedor.");
+  assert.equal(universalEditedTextSlot(applied.site,"sobre","paragraph",1),"Um cuidado sofisticado e acolhedor.");
+  assert.equal(isIsolatedUniversalCopyResult(original,applied.site,result.intent),true);
+ }
  assert.deepEqual(original,before);
+ const unsupported=site("Clínica de estética","02");
+ unsupported.blocks=unsupported.blocks.filter(b=>b.id!=="about-second");
+ const refused=parseUniversalCopyEdit(unsupported,requests.about);
+ assert.ok(refused&&"error" in refused,"undeclared slots must never claim success");
 });
 test("rewrite requires real generated copy; never accepts a partial title or empty AI text",()=>{
  const original=site(),parsed=parseUniversalCopyEdit(original,requests.about);
