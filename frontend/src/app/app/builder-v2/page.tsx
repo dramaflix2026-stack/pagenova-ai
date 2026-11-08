@@ -13,6 +13,7 @@ import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "@/lib/briefing-t
 import {readPageNovaProject,savePageNovaProject} from "@/lib/pagenova-project-store";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
+import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {isExplicitImageChangeRequest} from "@/lib/builder-v2-image-intent";
 import {institutionalImageIntent,planInstitutionalImageEdit,restoreInstitutionalSectionImages,type HeroComposition,type MediaLayout} from "@/lib/builder-v2-institutional-images";
 import {isScopedBannerCopyRequest,applyHeroBannerCopy,type HeroBannerCopy} from "@/lib/builder-v2-hero-banner-edits";
@@ -1021,6 +1022,18 @@ export default function BuilderV2() {
         setMessages(prev=>[...prev,{role:"assistant",text:message+" O projeto foi preservado."}]);
       }finally{setBusy(false);}
       return;
+    }
+    // Text/branding colors take precedence over a protected reference to
+    // images or animations. This is an explicit design edit, not motion.
+    const paletteChange=site.blocks.length?applyUniversalPaletteEdit(site,prompt):null;
+    if(paletteChange){
+      if(paletteChange.site!==site){
+        recordVersion(site,"Antes de alterar a identidade visual");
+        setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
+        setSite(paletteChange.site);
+      }
+      setMessages(prev=>[...prev,{role:"assistant",text:paletteChange.summary}]);
+      setInstruction("");setBusy(false);return;
     }
     if (isExplicitImageChangeRequest(prompt) && site.blocks.length) {
       try {
