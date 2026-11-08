@@ -12,6 +12,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   Building2,
   ExternalLink,
+  Globe2,
   Instagram,
   MapPin,
   MessageCircle,
@@ -723,7 +724,7 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
           )}
 
           <Button variant="ghost" size="sm" asChild>
-            <a href={result.actions.websiteSearchUrl} target="_blank" rel="noreferrer noopener" aria-label={"Verificar site de "+result.name+" no Google"}>
+            <a href={result.actions.websiteSearchUrl ?? `https://www.google.com/search?q=${encodeURIComponent([result.name,result.address,'site oficial'].filter(Boolean).join(' '))}`} target="_blank" rel="noreferrer noopener" aria-label={"Verificar site de "+result.name+" no Google"}>
               <Globe2 className="h-4 w-4" aria-hidden="true" />
               Verificar site
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
