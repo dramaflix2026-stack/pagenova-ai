@@ -21,7 +21,7 @@ const ordinal=(raw:string):number|null=>{
 const stripped=(s:string)=>s.trim()
  .replace(/\.\s*(?:n[aã]o\s+(?:modifique|altere|mude|troque|mex[aă]|substitua)|preserve|mantenha|sem\s+alterar)\b[\s\S]*$/i,"")
  .replace(/\.\s*$/,"").trim();
-const quoted=(s:string)=>s.match(/^(?:["“‘'])([^"”’']{1,12000})(?:["”’'])$/s)?.[1]||null;
+const quoted=(s:string)=>s.match(/^(?:["“‘'])([^"”’']{1,12000})(?:["”’'])$/)?.[1]||null;
 const firstSection=(site:UniversalSite)=>{
  const resolved=resolveUniversalSection(site,"capa");
  if(resolved)return resolved;
@@ -43,7 +43,7 @@ export function parseUniversalCopyEdit(site:UniversalSite,raw:string):UniversalC
  if(!site||!Array.isArray(site.blocks)||!raw.trim())return null;
  const text=stripped(raw);
  // The first section's subtitle is the hero's FIRST paragraph, not a photo or heading.
- const subtitle=text.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?subt[ií]tulo\s+(?:da\s+primeira\s+se[cç][aã]o|da\s+capa|do\s+hero|principal)\s+(?:para|por|como)\s+(.+)$/is);
+ const subtitle=text.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?subt[ií]tulo\s+(?:da\s+primeira\s+se[cç][aã]o|da\s+capa|do\s+hero|principal)\s+(?:para|por|como)\s+([\s\S]+)$/i);
  if(subtitle){
   const value=quoted(subtitle[1].trim());
   if(value===null)return {error:"Informe o novo subtítulo entre aspas. Nenhuma alteração aplicada."};
@@ -53,7 +53,7 @@ export function parseUniversalCopyEdit(site:UniversalSite,raw:string):UniversalC
   return result&&"intent" in result?{intent:{...result.intent,newText:value}}:result;
  }
  // A new LABEL must never require a new URL. The existing button href is preserved.
- const cta=text.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?texto\s+do\s+bot[aã]o\s+principal\s+(?:da\s+capa|do\s+hero|da\s+primeira\s+se[cç][aã]o)\s+(?:para|por|como)\s+(.+)$/is);
+ const cta=text.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?texto\s+do\s+bot[aã]o\s+principal\s+(?:da\s+capa|do\s+hero|da\s+primeira\s+se[cç][aã]o)\s+(?:para|por|como)\s+([\s\S]+)$/i);
  if(cta){
   const value=quoted(cta[1].trim());
   if(value===null)return {error:"Informe o novo texto do botão entre aspas. Nenhuma alteração aplicada."};
@@ -73,7 +73,7 @@ export function parseUniversalCopyEdit(site:UniversalSite,raw:string):UniversalC
  }
  // "Na seção Sobre a clínica, reescreva o segundo parágrafo..." supports any
  // named section. Semantic rewriting is scoped to this single stable ID.
- const rewrite=text.match(/^na\s+se[cç][aã]o\s+(.{1,130}?),\s*(?:reescreva|reformule|melhore|atualize|refa[cç]a)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?(primeiro|segundo|terceiro|quarto|quinto|\d{1,2}[ºª°o]?)\s+par[aá]grafo\s+(?:com\s+)?(.+)$/is);
+ const rewrite=text.match(/^na\s+se[cç][aã]o\s+([^\r\n]{1,130}?),\s*(?:reescreva|reformule|melhore|atualize|refa[cç]a)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?(primeiro|segundo|terceiro|quarto|quinto|\d{1,2}[ºª°o]?)\s+par[aá]grafo\s+(?:com\s+)?([\s\S]+)$/i);
  if(rewrite){
   const section=resolveUniversalSection(site,rewrite[1].trim());
   if(!section)return {error:"A seção '"+rewrite[1].trim()+"' não foi identificada de forma única. Nenhuma alteração aplicada."};
