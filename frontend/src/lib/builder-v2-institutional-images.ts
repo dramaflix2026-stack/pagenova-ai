@@ -62,6 +62,10 @@ export function institutionalImageIntent(instruction:string,hasUploads=false){
   if(!hasUploads&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instruction)&&/bot[aã]o|\bcta\b/i.test(instruction)&&/(?:capa|hero|principal)/i.test(instruction))return false;
   const s=norm(instruction);
   if(hasUploads)return true;
+  // A protection clause is not an image instruction. Inspect only the actual
+  // mutation, before "não modifique a imagem", "preserve as fotos" etc.
+  const actual=s.split(/(?:^|[.!?]\s+)(?:nao\s+(?:modifique|altere|troque|mude|substitua|mexa)|preserve|mantenha|sem\s+alterar)\b/)[0];
+  if(!/(?:imagem|imagens|foto|fotos|fotografia|fotografias|banner|galeria|mosaico|carrossel|enquadramento)/.test(actual))return false;
   if(/(?:imagem|foto|fotografia)/.test(s)&&/sem\s+cort|inteir[ao]|formato\s+original/.test(s))return true;
   if(!/(?:imagem|imagens|foto|fotos|fotografia|fotografias|banner|galeria|mosaico|carrossel|enquadramento)/.test(s))return false;
   if(!hasPositiveImageAction(s)&&!/\b(duplo|triplo|duas|tres)\b/.test(s))return false;
