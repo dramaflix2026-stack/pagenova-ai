@@ -97,13 +97,18 @@ export async function restoreAvailableImageSlots(
   const process = model.sections.find((section) => section.type === 'process');
 
   if (hero?.type === 'hero') {
-    // Prefer the dedicated AI hero over an older generic photo occupying that
-    // slot, freeing genuine business photos for the About section.
-    const currentHero = hero.image && byId.get(hero.image.assetId)?.asset.source === 'AI_GENERATED'
-      ? hero.image : undefined;
-    hero.image = choose(currentHero, [
-      (a) => isAiSlot(a, 'hero'),
-      (a) => isReal(a) && isWide(a),
+    // Only CRM leads with genuine Google Places assets use a real business
+    // photograph in Hero. Keep every existing generated asset available.
+    const hasLeadPhoto=Boolean(project.leadId&&available.some(({asset})=>asset.source==='GOOGLE_PLACES'));
+    const currentHero=hero.image&&byId.get(hero.image.assetId)?.asset.source===
+      (hasLeadPhoto?'GOOGLE_PLACES':'AI_GENERATED')?hero.image:undefined;
+    hero.image=choose(currentHero,hasLeadPhoto?[
+      (a)=>a.source==='GOOGLE_PLACES'&&isWide(a),
+      (a)=>a.source==='GOOGLE_PLACES',
+      (a)=>isAiSlot(a,'hero'),
+    ]:[
+      (a)=>isAiSlot(a,'hero'),
+      (a)=>isReal(a)&&isWide(a),
     ]);
   }
 
@@ -115,6 +120,7 @@ export async function restoreAvailableImageSlots(
     about.image = choose(currentAbout, [
       (a) => isReal(a),
       (a) => isAiSlot(a, 'about'),
+      (a) => isAiSlot(a, 'hero'),
     ]);
   }
 
@@ -130,6 +136,8 @@ export async function restoreAvailableImageSlots(
       bound = choose(existing, [
         (a) => isReal(a),
         (a) => isAiSlot(a, 'supplement'),
+        (a) => isAiSlot(a, 'hero'),
+        (a) => isAiSlot(a, 'about'),
       ]);
       process.steps.forEach((step, i) => {
         step.image = i === 0 ? bound : undefined;
