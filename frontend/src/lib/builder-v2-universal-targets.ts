@@ -22,6 +22,13 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
  const exactIds=sections.filter(id=>norm(id)===target);
  if(exactIds.length)return exactIds.length===1?exactIds[0]:null;
+ // Generic editorial prefixes (e.g. "Nossos produtos" vs section ID "produtos")
+ // are resolved before niche aliases, across every template and family.
+ const core=target.replace(/^(?:nossos?|nossas?|meus?|minhas?|os|as)\s+/,"");
+ if(core!==target){
+  const coreMatches=sections.filter(id=>norm(id)===core||site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===core));
+  if(coreMatches.length)return coreMatches.length===1?coreMatches[0]:null;
+ }
  const direct=sections.filter(id=>site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===target));
  if(direct.length)return direct.length===1?direct[0]:null;
  const family=Object.values(aliases).find(names=>names.includes(target));
