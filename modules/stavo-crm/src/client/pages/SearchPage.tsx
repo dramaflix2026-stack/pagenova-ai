@@ -441,7 +441,7 @@ export default function SearchPage() {
               <Field
                 label="Filtro de site"
                 htmlFor="search-website"
-                hint="Instagram, WhatsApp, Linktree e diretorios contam como sem site proprio."
+                hint="Mostra empresas sem site próprio identificado no perfil do Google, não empresas comprovadamente sem site. Confirme na web antes de abordar."
               >
                 <Select
                   value={form.websiteFilter}
