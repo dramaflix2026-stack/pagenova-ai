@@ -1048,8 +1048,22 @@ export default function BuilderV2() {
     const structuralRequest = /(?:adicione|crie|criar|incluir|inclua|nova|novo|remova|exclua|mova|coloque|reorganize)[\\s\\S]{0,90}(?:se[cç][aã]o|bloco|etapas|par[aá]grafo)|(?:se[cç][aã]o)[\\s\\S]{0,90}(?:adicione|crie|criar|incluir|inclua|nova|novo)/i.test(prompt);
     const direct = (structuralRequest || hasMotionIntent(prompt)) ? null : (applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt));
     if (direct) {
+      // Direct alignment shortcuts also need the specialized TP1 M3 preflight.
+      // Otherwise a successful chat reply can conceal an unchanged React layout.
+      const directTP1Model3=siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"
+        &&site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      const checkedDirect=directTP1Model3?prepareTP1Model3VisibleEdit(site,{
+        ok:true,
+        site:direct.site,
+        changedIds:site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(direct.site.blocks[i])).map(block=>block.id),
+      }):null;
+      if(checkedDirect&&!checkedDirect.ok){
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:checkedDirect.error}]);
+        setBusy(false);
+        return;
+      }
       recordVersion(site, "Antes de editar alinhamento");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
-      setSite(direct.site);
+      setSite(checkedDirect?.ok?checkedDirect.site:direct.site);
       setMessages(prev => [...prev, {role:"assistant",text:direct.summary}]);
       setInstruction(""); setBusy(false);
       return;
