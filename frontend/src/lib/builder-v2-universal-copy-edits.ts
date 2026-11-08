@@ -8,7 +8,7 @@ import {applyUniversalOperations,type UniversalSite,type UniversalResult} from "
 
 export type UniversalCopyIntent={
   targetId:string;section:string;type:"paragraph"|"button";ordinal:number;
-  previousText:string;newText?:string;generateText:boolean;rewriteGuidance?:string;virtualSlotKey?:string;
+  previousText:string;newText?:string;generateText:boolean;rewriteGuidance?:string;virtualSlotKey?:string;headerTarget?:boolean;
 };
 export type UniversalCopyResolution={intent:UniversalCopyIntent}|{error:string}|null;
 const clean=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
@@ -62,7 +62,13 @@ export function parseUniversalCopyEdit(site:UniversalSite,raw:string):UniversalC
   const buttons=site.blocks.filter(b=>b.section===section&&b.type==="button");
   const primary=buttons.filter(b=>["primary","principal","main"].includes(clean(String(b.role||b.variant||b.ctaRole||""))));
   const selected=primary.length===1?primary[0]:buttons[0];
-  if(!selected)return {error:"O botão principal não possui um bloco editável identificável. Nenhuma alteração aplicada."};
+  if(!selected){
+   const header=site.header&&typeof site.header==="object"?site.header as Record<string,unknown>:null;
+   if(typeof header?.ctaLabel!=="string")
+    return {error:"O botão principal não possui um bloco nem texto de cabeçalho editável. Nenhuma alteração aplicada."};
+   return {intent:{targetId:"header:ctaLabel",section,type:"button",ordinal:0,headerTarget:true,
+     previousText:header.ctaLabel,newText:value,generateText:false}};
+  }
   return {intent:{targetId:selected.id,section,type:"button",ordinal:buttons.indexOf(selected),previousText:String(selected.text||""),newText:value,generateText:false}};
  }
  // "Na seção Sobre a clínica, reescreva o segundo parágrafo..." supports any
@@ -84,6 +90,13 @@ export function applyUniversalCopyEdit<T extends UniversalSite>(
 ):UniversalResult<T>{
  const value=(intent.generateText?generated:intent.newText)?.trim();
  if(!value||value===intent.previousText.trim())return {ok:false,error:"O novo texto não foi produzido ou não altera o conteúdo. Nenhuma alteração aplicada."};
+ if(intent.headerTarget){
+  const original=site.header&&typeof site.header==="object"?site.header as Record<string,unknown>:null;
+  if(!original||original.ctaLabel!==intent.previousText)
+   return {ok:false,error:"O botão original não foi encontrado. Nenhuma alteração aplicada."};
+  return {ok:true,changedIds:[intent.targetId],
+   site:{...site,header:{...original,ctaLabel:value}} as T};
+ }
  if(intent.virtualSlotKey){
   const declaration=declaredVirtualTextSlot(site,intent.section,intent.type,intent.ordinal);
   if(!declaration||declaration.key!==intent.virtualSlotKey)
@@ -122,6 +135,16 @@ export function universalEditedTextSlot(
 export function isIsolatedUniversalCopyResult(previous:UniversalSite,next:UniversalSite,intent:UniversalCopyIntent):boolean{
  if(!next||!Array.isArray(next.blocks)||next.blocks.length!==previous.blocks.length)return false;
  const {blocks:_p,...before}=previous,{blocks:_n,...after}=next;
+ if(intent.headerTarget){
+  if(JSON.stringify(previous.blocks)!==JSON.stringify(next.blocks))return false;
+  const {header:_h1,...restBefore}=before,{header:_h2,...restAfter}=after;
+  if(JSON.stringify(restBefore)!==JSON.stringify(restAfter))return false;
+  if(!_h1||!_h2||typeof _h1!=="object"||typeof _h2!=="object")return false;
+  const oldHeader=_h1 as Record<string,unknown>,newHeader=_h2 as Record<string,unknown>;
+  return oldHeader.ctaLabel===intent.previousText&&
+   typeof newHeader.ctaLabel==="string"&&newHeader.ctaLabel!==oldHeader.ctaLabel&&
+   JSON.stringify({...oldHeader,ctaLabel:newHeader.ctaLabel})===JSON.stringify(newHeader);
+ }
  if(intent.virtualSlotKey){
   if(JSON.stringify(previous.blocks)!==JSON.stringify(next.blocks))return false;
   const {universalCopyOverrides:_pCopy,...oldMetadata}=before;
