@@ -1,0 +1,26 @@
+name: Builder V2 - Universal core contract audit
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/builder-v2-core-contract-audit.yml'
+      - 'frontend/scripts/test-builder-v2-core-contract.mjs'
+      - 'frontend/src/lib/briefing-template-families.ts'
+      - 'frontend/src/lib/builder-v2-universal-operations.ts'
+      - 'frontend/src/components/builder-v2-site.tsx'
+      - 'frontend/src/app/app/builder-v2/page.tsx'
+      - 'frontend/src/components/builder-v2-tp1-family-testimonials.tsx'
+  workflow_dispatch:
+jobs:
+  audit-core-contract:
+    name: Read-only universal core regression
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Validate routing, editing atomicity and persistence guards
+        working-directory: frontend
+        run: node --experimental-strip-types --test scripts/test-builder-v2-core-contract.mjs
