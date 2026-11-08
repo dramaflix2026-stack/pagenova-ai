@@ -2,6 +2,7 @@ import {universalInstructionClauses} from "./builder-v2-universal-plan.ts";
 import {applyUniversalNamedLanguage,resolveUniversalSection} from "./builder-v2-universal-targets.ts";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "./builder-v2-universal-card-edits.ts";
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "./builder-v2-universal-copy-edits.ts";
+import {applyUniversalHeadingBatch} from "./builder-v2-universal-heading-batches.ts";
 export {universalInstructionClauses as splitUniversalInstructions} from "./builder-v2-universal-plan.ts";
 import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type UniversalResult} from "./builder-v2-universal-operations.ts";
 
@@ -356,6 +357,8 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const batch=applyUniversalHeadingBatch(site,instruction);
+ if(batch)return batch;
  const scopedText=parseUniversalCopyEdit(site,instruction);
  if(scopedText){
   if("error" in scopedText)return {ok:false,error:scopedText.error};
