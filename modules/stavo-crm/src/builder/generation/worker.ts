@@ -234,16 +234,17 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     const realAssetCount = existingCandidates.filter((item) =>
       item.source === 'GOOGLE_PLACES' || item.source === 'UPLOAD',
     ).length;
-    // Three illustrations are part of a new site generation; the separate
-    // legacy PAGENOVA_AI_HERO_IMAGES switch must never block the job.
-    // Existing assets are reused, and actual new image calls honor budgets.
-    if (!imageGenerationKeyPresent(process.env.OPENAI_API_KEY)) {
+    // Use verified real Google/owner photos first. Illustrations fill only
+    // missing image slots. No unnecessary paid hero generation when the lead
+    // has a real photo; existing assets are reused and budgets still apply.
+    const missingIllustrations = requiredIllustrationSlots(realAssetCount);
+    if (missingIllustrations.length > 0 && !imageGenerationKeyPresent(process.env.OPENAI_API_KEY)) {
       throw new Error(
         'PAGENOVA_IMAGES_OPENAI_KEY_MISSING: configure OPENAI_API_KEY no Railway ' +
         'para gerar as imagens obrigatórias. Nenhuma imagem foi cobrada.',
       );
     }
-    for (const slot of requiredIllustrationSlots(realAssetCount)) {
+    for (const slot of missingIllustrations) {
       await assertBudgetAvailable(project);
       const result = await ensureIllustrativeHero(project, slot);
       if (result === 'unavailable') {
@@ -320,24 +321,28 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         (a.width && a.height ? a.width / a.height : 1) -
         (b.width && b.height ? b.width / b.height : 1),
       );
-      const secondaryCandidate = secondaryIndex >= 0
+      // Reserve a portrait for About only when another distinct Google photo
+      // exists; a single real photo must go into the hero.
+      const secondaryCandidate = secondaryIndex >= 0 && realCandidates.length > 1
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
-      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
-        (item) => item.assetId !== secondaryCandidate?.assetId &&
-          (!item.width || !item.height || item.width / item.height >= 1.1),
-      ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
+      const ownerCandidates = imageCandidates.filter((item) => item.source === 'UPLOAD');
+      const heroCandidate =
+        realCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId && (!item.width || !item.height || item.width >= item.height)) ??
+        realCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId) ??
+        ownerCandidates.find((item) => !item.width || !item.height || item.width >= item.height) ??
+        ownerCandidates[0] ??
+        imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]'));
       const fallbackSecondary = secondaryCandidate ??
         realCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
-        imageCandidates.find((item) => item.source === 'UPLOAD' && item.assetId !== heroCandidate?.assetId);
+        ownerCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
+        imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[about]'));
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
+      ) ?? ownerCandidates.find(
+        (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
-      if (heroIndex >= 0 &&
-          (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
-        throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
-      }
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
       }
