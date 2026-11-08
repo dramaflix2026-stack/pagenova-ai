@@ -72,7 +72,7 @@ export function applyUniversalHeadingBatch<T extends UniversalSite>(site:T,instr
   }
  }
  const operations:UniversalOperation[]=targets.filter(t=>t.blockId).map(t=>({action:"update",blockId:t.blockId!,changes:{text:t.newText}}));
- const result=operations.length?applyUniversalOperations(site,operations):{ok:true,site:T,changedIds:string[]};
+ const result=operations.length?applyUniversalOperations(site,operations):({ok:true as const,site,changedIds:[] as string[]});
  if(!result.ok)return result;
  const updatedBlocks=result.site.blocks.map(block=>targets.some(t=>t.blockId===block.id)?{...block,textExplicit:true}:block);
  const source=site.universalCopyOverrides;
