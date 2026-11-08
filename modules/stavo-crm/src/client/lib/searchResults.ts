@@ -22,6 +22,8 @@ export interface SearchResultItem {
     instagramUrl: string | null;
     instagramSearchUrl: string;
     mapsUrl: string;
+    /** Optional for cached results preceding the verification button. */
+    websiteSearchUrl?: string;
   };
   score: number;
   scoreReasons: { label: string; weight: number }[];
