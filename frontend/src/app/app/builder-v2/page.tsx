@@ -2,6 +2,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
+import {prepareTP1Model3VisibleEdit} from "@/lib/builder-v2-tp1-editor-bridge";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
@@ -573,16 +574,21 @@ export default function BuilderV2() {
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
       const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
+      // TP1 Model 03 has specialized React cards. Never acknowledge an edit
+      // if its target isn't connected to a visible element in this variant.
+      const activeTP1Model3=siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"
+        &&site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      const checkedResult=result?.ok&&activeTP1Model3?prepareTP1Model3VisibleEdit(site,result):result;
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
-      if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
+      if(checkedResult||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
-        if(!result||!result.ok){
-          setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
+        if(!checkedResult||!checkedResult.ok){
+          setMessages(prev=>[...prev,{role:"assistant",text:checkedResult&&!checkedResult.ok?checkedResult.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-        setSite(result.site);setInstruction("");setGenerationError("");
-        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
+        setSite(checkedResult.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+checkedResult.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
         return;
       }
     }
