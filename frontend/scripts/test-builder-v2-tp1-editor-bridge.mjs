@@ -186,3 +186,16 @@ test("real TP1 renderer is wired, existing Model 1/2 and CSS remain untouched",(
  assert.ok(!model1.includes("builder-v2-tp1-editor-bridge"));
  assert.ok(!model2.includes("builder-v2-tp1-editor-bridge"));
 });
+
+test("direct alignment shortcuts cannot report an invisible TP1 M3 edit",()=>{
+ const site=baseline();
+ const attempted=copy(site);
+ attempted.blocks[2].align="center";
+ const rejected=prepareTP1Model3VisibleEdit(site,{ok:true,site:attempted,changedIds:["hero-btn"]});
+ assert.equal(rejected.ok,false);
+ assert.deepEqual(site,baseline());
+ const page=source("app/app/builder-v2/page.tsx");
+ assert.ok(page.includes("const checkedDirect=directTP1Model3?prepareTP1Model3VisibleEdit(site,{"));
+ assert.ok(page.indexOf("const checkedDirect=directTP1Model3?prepareTP1Model3VisibleEdit(site,{") < page.indexOf('recordVersion(site, "Antes de editar alinhamento")'));
+ assert.ok(page.includes("setSite(checkedDirect?.ok?checkedDirect.site:direct.site)"));
+});
