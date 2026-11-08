@@ -116,3 +116,21 @@ test("server uses the same card resolver, generates only missing description, an
  assert.ok(api.includes("previousDescription:intent.target.originalDescription"));
  assert.ok(api.indexOf("parseUniversalCardEdit(snapshot,instructionText)")<api.indexOf("const result=applyUniversalNaturalLanguage("));
 });
+
+test("editorial section prefix resolves any real section ID without niche-specific code",()=>{
+ const site=composite("produtos","Produtos");
+ const request="No segundo card da seção Nossos produtos, altere o título para 'Novo Produto'.";
+ const result=applyUniversalNaturalLanguage(site,request);
+ assert.equal(result?.ok,true);
+ if(result?.ok)assert.equal(result.site.blocks[3].text,"Novo Produto: Cuidado e revitalização.");
+});
+test("ambiguous alias across two distinct sections is rejected safely",()=>{
+ const site=composite();
+ site.blocks.push(
+   {id:"treatments-heading",type:"heading",section:"tratamentos",text:"Tratamentos"},
+   {id:"card-tratamentos-0",type:"paragraph",section:"tratamentos",layout:"grid",text:"Outro serviço: Descrição"}
+ );
+ const request="No primeiro card da seção Nossos tratamentos, altere o título para 'Não posso adivinhar'.";
+ const result=applyUniversalNaturalLanguage(site,request);
+ assert.equal(result?.ok,false);
+});
