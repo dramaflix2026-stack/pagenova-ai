@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {parseUniversalCopyEdit,applyUniversalCopyEdit,universalEditedTextSlot,isIsolatedUniversalCopyResult} from "../src/lib/builder-v2-universal-copy-edits.ts";
+import {parseUniversalCopyEdit,applyUniversalCopyEdit,universalEditedTextSlot,universalHeroPrimaryCtaLabel,isIsolatedUniversalCopyResult} from "../src/lib/builder-v2-universal-copy-edits.ts";
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 import {institutionalImageIntent} from "../src/lib/builder-v2-institutional-images.ts";
 import {isScopedBannerCopyRequest} from "../src/lib/builder-v2-hero-banner-edits.ts";
@@ -188,4 +188,29 @@ test("ordinary image edits are still routed to photo controls, not text",()=>{
 test("scoped AI rewrite sends the original project to the server, not a reclassified niche",()=>{
  const page=excerpt("app/app/builder-v2/page.tsx");
  assert.ok(page.includes('scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?site:'));
+});
+
+
+test("shared primary CTA reader keeps approved default unless edited explicitly",()=>{
+ const original=site("Marketing digital","02");
+ assert.equal(universalHeroPrimaryCtaLabel(original,"Iniciar conversa"),"Iniciar conversa");
+ const result=applyUniversalNaturalLanguage(original,requests.button);
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.equal(universalHeroPrimaryCtaLabel(JSON.parse(JSON.stringify(result.site)),"Iniciar conversa"),"Quero agendar minha avaliação");
+ assert.equal(universalHeroPrimaryCtaLabel(original,"Iniciar conversa"),"Iniciar conversa");
+});
+test("shared primary CTA supports old projects without button blocks using explicit header marker",()=>{
+ const original=site("Marketing digital","02");
+ original.blocks=original.blocks.filter(block=>block.id!=="hero-cta");
+ assert.equal(universalHeroPrimaryCtaLabel(original,"Iniciar conversa"),"Iniciar conversa");
+ const parsed=parseUniversalCopyEdit(original,requests.button);
+ assert.ok(parsed&&"intent" in parsed);
+ const result=applyUniversalCopyEdit(original,parsed.intent);
+ assert.equal(result.ok,true);
+ if(!result.ok)return;
+ assert.equal(result.site.header.ctaLabelExplicit,true);
+ assert.equal(result.site.header.ctaHref,original.header.ctaHref);
+ assert.equal(isIsolatedUniversalCopyResult(original,result.site,parsed.intent),true);
+ assert.equal(universalHeroPrimaryCtaLabel(JSON.parse(JSON.stringify(result.site)),"Iniciar conversa"),"Quero agendar minha avaliação");
 });
