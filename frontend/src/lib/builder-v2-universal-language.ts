@@ -1,5 +1,6 @@
 import {universalInstructionClauses} from "./builder-v2-universal-plan.ts";
 import {applyUniversalNamedLanguage,resolveUniversalSection} from "./builder-v2-universal-targets.ts";
+import {parseUniversalCardEdit,applyUniversalCardEdit} from "./builder-v2-universal-card-edits.ts";
 export {universalInstructionClauses as splitUniversalInstructions} from "./builder-v2-universal-plan.ts";
 import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type UniversalResult} from "./builder-v2-universal-operations.ts";
 
@@ -354,6 +355,14 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ const cardRequest=parseUniversalCardEdit(site,instruction);
+ if(cardRequest){
+  if("error" in cardRequest)return {ok:false,error:cardRequest.error};
+  // Missing descriptive copy must be written in the scoped server-side AI path,
+  // never acknowledged as a partial local title edit.
+  if(cardRequest.intent.generateDescription)return null;
+  return applyUniversalCardEdit(site,cardRequest.intent);
+ }
  // Handle explicitly quoted hero heading/description edits before generic matching.
  // Accept "somente", optional "da capa", preservation clauses and paired requests.
  const heroTitleEdit=instruction.match(/(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?o\s+t[ií]tulo\s+principal(?:\s+(?:da\s+)?capa)?\s+(?:para|por|como)\s+["“]([^"”]+)["”]/i);
