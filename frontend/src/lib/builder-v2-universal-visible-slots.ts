@@ -17,10 +17,9 @@ export function declaredVirtualTextSlot(
  const niche=typeof site.niche==="string"?site.niche:"";
  // TP1 Model 03 has a second About paragraph in JSX even when the
  // generated project persists only one about-paragraph block.
- const isTP1Model3=variant==="03"&&resolveBriefingFamily(niche)===1&&
-  site.cinematic && typeof site.cinematic==="object"&&
-  (site.cinematic as {mode?:string}).mode==="immersive-3d"?false:
-  variant==="03"&&resolveBriefingFamily(niche)===1;
+ const motion=site.cinematic&&typeof site.cinematic==="object"
+  ?(site.cinematic as {mode?:string}).mode:undefined;
+ const isTP1Model3=variant==="03"&&resolveBriefingFamily(niche)===1&&motion!=="immersive-3d";
  if(isTP1Model3&&["sobre","about","conceito"].includes(section)&&type==="paragraph"&&index===1)
   return {key:section+":paragraph:1",defaultText:"Nosso olhar parte da escuta e da intenção de criar experiências que façam sentido para você."};
  return null;
