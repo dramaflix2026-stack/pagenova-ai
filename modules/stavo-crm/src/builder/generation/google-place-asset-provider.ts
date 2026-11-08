@@ -36,7 +36,9 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
     const available = await storage.read(asset.storageKey).then(() => true).catch(() => false);
     if (!available) missingExisting.push(asset);
   }
-  if (existing.length >= 2 && missingExisting.length === 0) return existing.length;
+  // Continue up to five verified photos, even when two were imported previously.
+  // A valid storage record is not proof that Google's full photo set was checked.
+  if (existing.length >= MAX_GOOGLE_ASSETS && missingExisting.length === 0) return existing.length;
 
   const db = getDb();
   const [lead] = await db
