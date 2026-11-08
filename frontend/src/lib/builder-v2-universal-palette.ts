@@ -3,11 +3,10 @@
  * ("preserve as animacoes") as a request to edit animations.
  * This adapter edits only project-level design tokens, not media or blocks.
  */
-import type {UniversalSite} from "./builder-v2-universal-operations.ts";
-
 const isHex=(value:string)=>/^#[0-9a-f]{6}$/i.test(value);
 const normalize=(text:string)=>text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-export type PaletteSite=UniversalSite & {
+export type PaletteSite={
+ blocks: readonly unknown[];
  background?:string;
  design?:{surface?:string;text?:string;muted?:string;accent?:string};
  motion?:unknown;
