@@ -441,7 +441,7 @@ export default function SearchPage() {
               <Field
                 label="Filtro de site"
                 htmlFor="search-website"
-                hint="Instagram, WhatsApp, Linktree e diretorios contam como sem site proprio."
+                hint="O Google informa apenas o link cadastrado no perfil. Ausencia de URL nao comprova que a empresa nao tenha site; a prospeccao exige conferencia."
               >
                 <Select
                   value={form.websiteFilter}
@@ -661,7 +661,7 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          <Badge tone={result.website.classification === 'OWN_WEBSITE' ? 'neutral' : 'primary'}>
+          <Badge tone={result.website.classification === 'NONE'||result.website.classification === 'UNKNOWN' ? 'outline' : result.website.classification === 'OWN_WEBSITE' ? 'neutral' : 'primary'}>
             {result.website.label}
           </Badge>
           {result.rating ? (
@@ -758,6 +758,7 @@ function AddToCrmDialog({
     city: string;
     region: string;
     serviceId: string;
+    websiteFilter: string;
   };
   searchRunId: string | null;
   onOpenChange: (open: boolean) => void;
@@ -788,6 +789,28 @@ function AddToCrmDialog({
     setSaving(true);
     setError(null);
     try {
+      let latestWebsite=result.website.url;
+      if(form.websiteFilter==='NO_OWN_WEBSITE'){
+        // Recheck the official live Google detail only after the user chooses
+        // this candidate; no extra paid calls for every search result.
+        const live=await api.get<{details:{websiteUri?:string|null}}>(
+          '/google/places/'+encodeURIComponent(result.placeId)
+        );
+        const current=typeof live.details?.websiteUri==='string'?live.details.websiteUri.trim():'';
+        if(current){
+          latestWebsite=current;
+          let sameHost=false;
+          try{
+            sameHost=Boolean(result.website.url&&
+              new URL(result.website.url).hostname.replace(/^www\./,'')===
+              new URL(current).hostname.replace(/^www\./,''));
+          }catch{sameHost=false;}
+          if(!sameHost){
+            setError('O perfil Google agora informa um link diferente. Confirme se a empresa possui site proprio antes de prospectar como sem site. Nenhum lead foi adicionado.');
+            return;
+          }
+        }
+      }
       const response = await api.post<{ lead: { id: string; internalName: string } }>(
         '/google/leads',
         {
@@ -802,7 +825,7 @@ function AddToCrmDialog({
           searchRunId,
           idempotencyKey: newIdempotencyKey('gplace'),
           confirmedPhoneE164: result.phone.e164,
-          confirmedWebsiteUrl: result.website.url,
+          confirmedWebsiteUrl: latestWebsite,
         },
       );
       onAdded(result.placeId, { id: response.lead.id, name: response.lead.internalName });
@@ -829,9 +852,9 @@ function AddToCrmDialog({
         <DialogHeader>
           <DialogTitle>Adicionar ao CRM</DialogTitle>
           <DialogDescription>
-            O lead entra em Selecionados com o identificador do local, o contexto da sua
-            prospeccao e o telefone/site/Maps que ja apareceram no card — sem nova consulta ao
-            Google.
+            O lead entra em Selecionados com os dados do Google. A ausencia de
+            site no perfil nao comprova que a empresa nao possua dominio proprio.
+            Se a busca usou o filtro de redes/perfis, revalidaremos o link antes de adicionar.
           </DialogDescription>
         </DialogHeader>
 
