@@ -33,9 +33,9 @@ test("three CRM choices are the supported Builder template IDs",()=>{
  const studio=read("src/components/builder-v2-site.tsx");
  for(const key of BUILDER_V2_CRM_TEMPLATES)assert.ok(studio.includes(key),key);
  const crm=read("../modules/stavo-crm/src/client/pages/SiteAiPage.tsx");
- // The CRM does not ask which model to generate. It uses original Template 1
- // and leaves the other three available for later switching in the Builder.
- assert.match(crm,/builderV2TemplateId: 'institutional-complete' as const/);
+ // New CRM sites use the latest universal TP family renderer by default;
+ // legacy sites retain their original visual selection.
+ assert.match(crm,/builderV2TemplateId: 'prompt-adaptive' as const/);
  assert.doesNotMatch(crm,/Escolher template visual/);
 });
 test("lead import preserves existing CRM-generated hero photo, copy and selected template",()=>{
@@ -102,7 +102,7 @@ test("CRM lead selection generates immediately; visual layout choice belongs in 
  assert.match(page,/useEffect\(\(\)=>\{/);
  assert.match(page,/autoGenerationLeadRef\.current===selectedLeadId/);
  assert.match(page,/void createSiteDirectlyFromLead\(\)/);
- assert.match(page,/builderV2TemplateId: 'institutional-complete' as const/);
+ assert.match(page,/builderV2TemplateId: 'prompt-adaptive' as const/);
  assert.doesNotMatch(page,/selectedTemplateId/);
  assert.doesNotMatch(page,/Escolha um dos modelos/);
  assert.doesNotMatch(page,/Gerar com este template/);
