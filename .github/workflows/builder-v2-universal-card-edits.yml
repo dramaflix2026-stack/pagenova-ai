@@ -1,0 +1,26 @@
+name: Builder V2 - Universal card edit tests
+on:
+  pull_request:
+    paths:
+      - 'frontend/src/lib/builder-v2-universal-card-edits.ts'
+      - 'frontend/src/lib/builder-v2-universal-language.ts'
+      - 'frontend/src/lib/builder-v2-universal-plan.ts'
+      - 'frontend/src/lib/builder-v2-universal-targets.ts'
+      - 'frontend/src/app/api/builder-v2/chat/route.ts'
+      - 'frontend/src/components/builder-v2-tp1-model3-sections.tsx'
+      - 'frontend/scripts/test-builder-v2-universal-card-edits.mjs'
+      - '.github/workflows/builder-v2-universal-card-edits.yml'
+  workflow_dispatch:
+jobs:
+  verify-universal-card-edits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --experimental-strip-types --test scripts/test-builder-v2-universal-card-edits.mjs
