@@ -1,5 +1,6 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
+import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
 import {applyUniversalOperations, type UniversalOperation} from "@/lib/builder-v2-universal-operations";
 import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
@@ -751,6 +752,54 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(!result.ok)return NextResponse.json({error:result.error},{status:422});
     return NextResponse.json({site:result.site,summary:"Alterações estruturadas aplicadas: "+result.changedIds.length+" bloco(s).",changedIds:result.changedIds});
+  }
+  // Shared card editing path. When the user asks the AI to write a new
+  // description without providing copy, generate ONLY that field. The resolver
+  // pins the section, ordinal and stable block IDs before calling the model.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const snapshot=editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>};
+    const cardEdit=parseUniversalCardEdit(snapshot,instructionText);
+    if(cardEdit){
+      if("error" in cardEdit)return NextResponse.json({error:cardEdit.error},{status:422});
+      const intent=cardEdit.intent;
+      let description:string|undefined;
+      if(intent.generateDescription){
+        try{
+          if(!key)return NextResponse.json({error:"A geração do texto não está configurada. O site foi preservado."},{status:503});
+          const answer=await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",
+            headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
+            body:JSON.stringify({
+              model:"gpt-4.1-mini",
+              response_format:{type:"json_object"},
+              max_completion_tokens:280,
+              messages:[
+                {role:"system",content:"Você é um redator profissional brasileiro. Retorne somente JSON {\"description\":\"...\"} com uma descrição curta de serviço ou produto (até 220 caracteres). Reescreva somente a descrição, com base no nicho, título e texto anterior. Não invente certificados, resultados, preços, depoimentos, endereços, equipe ou promessas clínicas. Sem Markdown."},
+                {role:"user",content:JSON.stringify({
+                  niche:editingSite.title||"",
+                  section:intent.target.section,
+                  cardIndex:intent.target.ordinal+1,
+                  title:intent.newTitle,
+                  previousDescription:intent.target.originalDescription
+                })}
+              ]
+            }),
+            signal:AbortSignal.timeout(25000)
+          });
+          if(!answer.ok)throw Error("Falha na geração da descrição.");
+          const data=await answer.json();
+          const parsed=JSON.parse(String(data?.choices?.[0]?.message?.content||"{}")) as {description?:unknown};
+          description=typeof parsed.description==="string"?parsed.description.trim():undefined;
+          if(!description||description.length>220||description===intent.target.originalDescription)
+            return NextResponse.json({error:"A IA não produziu uma nova descrição válida. Nenhuma alteração aplicada."},{status:422});
+        }catch{
+          return NextResponse.json({error:"Não foi possível atualizar a descrição solicitada. O site foi preservado."},{status:502});
+        }
+      }
+      const result=applyUniversalCardEdit(snapshot,intent,description);
+      if(!result.ok)return NextResponse.json({error:result.error},{status:422});
+      return NextResponse.json({site:result.site,summary:"Card "+(intent.target.ordinal+1)+" da seção selecionada atualizado; demais cards preservados.",changedIds:result.changedIds});
+    }
   }
   // Deterministic natural-language edits are scoped to uniquely identified
   // blocks and work independently of the selected visual template.
