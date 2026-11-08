@@ -51,9 +51,9 @@ jobs:
         working-directory: frontend
         run: |
           if node -e 'const e=require(process.env.GITHUB_EVENT_PATH);process.exit(e.inputs?.full==="true"?0:1)'; then
-            npm run qa:visual:all
+            npm run qa:visual:strict
           else
-            npm run qa:visual:sample
+            node --experimental-strip-types scripts/audit-builder-v2-visual.mjs --strict
           fi
       - name: Upload HTML report, JSON findings and screenshots
         if: always()
