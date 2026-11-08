@@ -1105,7 +1105,7 @@ export default function BuilderV2() {
     const explicitly3d=/(?:3d imersivo|modelo visual\s*:?\s*3d|template\s*3d|tp1\s*3d|site\s*3d)/i.test(prompt);
     const auto3d=creatingNewSite&&(explicitly3d||site.cinematic?.mode==="immersive-3d");
     const auto3dTemplate=isGastronomy3d?"universal":"hamburgueria";
-    const requestSite=shouldCreateProject?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:effectiveBriefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site);
+    const requestSite=shouldCreateProject?{...initial,id:crypto.randomUUID(),kind:targetKind,niche:effectiveBriefNiche||explicitNiche||selectedNiche||undefined,templateId:templateForCreation,briefingLayoutVariant:site.briefingLayoutVariant||"01",properties:[],cinematic:auto3d?{...site.cinematic,mode:"immersive-3d" as const}:site.cinematic,extras:auto3d?{...(site.extras||{}),immersive3dTemplate:auto3dTemplate}:site.extras}:(scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?site:({...site,kind:targetKind,niche:selectedNiche||site.niche||undefined,properties:targetKind==="real-estate"?site.properties:[]} as Site));
     try {
       const response = await fetch("/api/builder-v2/chat", {
         method: "POST", headers: { "Content-Type": "application/json" },
