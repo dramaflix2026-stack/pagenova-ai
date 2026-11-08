@@ -144,7 +144,7 @@ export default function SiteAiPage() {
     try {
       const briefing = {
         templateId: 'frigolog-universal' as const, // only the existing CRM image-generation/hero pipeline
-        builderV2TemplateId: 'institutional-complete' as const, // default original Template 1; the client can switch later in Builder V2 without another generation
+        builderV2TemplateId: 'prompt-adaptive' as const, // new lead uses the adaptive Builder V2 renderer; existing projects retain their saved template
         business: {
           name: businessName,
           niche: optionalText(lead.lead.prospectingNiche) ?? optionalText(liveCategory),
@@ -205,9 +205,9 @@ export default function SiteAiPage() {
   }
 
   // The user entered "Gerar site com IA" and explicitly imported a lead.
-  // Start its original CRM generation once the lead data is available; never
-  // open a second screen just to choose a visual template. The user can
-  // change between the 4 real Builder V2 templates AFTER generation.
+  // Keep one CRM generation job per imported lead and hand the result to the
+  // adaptive Builder V2 renderer. The three approved model choices remain
+  // available in the Builder after import, without regenerating or losing photos.
   useEffect(()=>{
     if(!selectedLeadId||!selectedLead.data||selectedLead.isLoading||googleDetails.isLoading||creatingFromLead||createError)return;
     if(autoGenerationLeadRef.current===selectedLeadId)return;
@@ -364,7 +364,7 @@ export default function SiteAiPage() {
               </div>
             ):(
               <p role="status" className="mt-2 text-sm text-muted-foreground">
-                {creatingFromLead?"Gerando automaticamente no Template 1. Você poderá alterar o visual depois no Builder 2.0.":"Preparando a geração automática..."}
+                {creatingFromLead?"Gerando seu site para o Builder 2.0. Você poderá escolher o modelo visual depois, sem nova geração.":"Preparando a geração automática..."}
               </p>
             )}
           </div>
