@@ -27,6 +27,7 @@ import { BuilderV2TP2Model1 } from "@/components/builder-v2-tp2-model1";
 import { BuilderV2TP2Model2 } from "@/components/builder-v2-tp2-model2";
 import { BuilderV2TP2Model3 } from "@/components/builder-v2-tp2-model3";
 import { BuilderV2TP3Model1 } from "@/components/builder-v2-tp3-model1";
+import {isJapaneseCuisineSiteIdentity} from "@/lib/tp3-japanese-model1";
 import { BuilderV2TP3Model2 } from "@/components/builder-v2-tp3-model2";
 import { BuilderV2TP3Model3 } from "@/components/builder-v2-tp3-model3";
 import { BuilderV2TP4Model1 } from "@/components/builder-v2-tp4-model1";
@@ -172,7 +173,7 @@ function TP3LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01");},[site.briefingLayoutVariant,site.id]);
  return <div data-tp3-family="gastronomy-premium" data-tp3-variant={variant}>
  {false?<div role="group" aria-label="Escolher modelo da família Gastronomia Premium" style={{display:"flex",gap:10,padding:14,alignItems:"center",justifyContent:"center",background:"#f9e9d2",color:"#242019"}}>{(["01","02","03"] as const).map(v=><button key={v} type="button" aria-pressed={variant===v} onClick={()=>{setVariant(v);onVariantChange?.(v);}} style={{padding:"9px 16px",border:"1px solid #333",background:variant===v?"#242019":"#fff",color:variant===v?"#fff":"#242019",cursor:"pointer"}}>Modelo {v}</button>)}</div>:null}
- {variant==="03"?<BuilderV2TP3Model3 site={site} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP3Model2 site={site} publishedMode={publishedMode}/>:<BuilderV2TP3Model1 site={site} publishedMode={publishedMode}/>}
+ {variant==="03"?<BuilderV2TP3Model3 site={site} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP3Model2 site={site} publishedMode={publishedMode}/>:<BuilderV2TP3Model1 site={site} selectedNiche={selectedNiche} publishedMode={publishedMode}/>}
  </div>;
 }
 function TP4LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariantChange}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean;templateId?:"institutional-complete"|"minimalist-sophisticated"|"prompt-adaptive";onVariantChange?:(variant:"01"|"02"|"03")=>void}){
@@ -288,6 +289,22 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
  const family=explicitTp9&&isWrittenBrief?9:explicitTp7Model3?7:explicitTp7Model2?7:isNexoraTp5Project?5:isWrittenBrief?(declaredFamily||resolveBriefingFamily([props.site.niche,props.site.title,props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text).join(" ")].filter(Boolean).join(" "))||(aiBriefingNiche?5:undefined)):undefined;
  // A medical briefing can be incorrectly persisted as TP1 (beauty) by the generator.
  // The explicitly requested healthcare identity must win over stale niche metadata.
+ // The generator may save "Gastronomia" or "Restaurantes" as the niche
+ // even though the business title and hero clearly identify a sushi restaurant.
+ // Do not fall through to a generic bakery renderer in those existing projects.
+ const japaneseSiteIdentity=isJapaneseCuisineSiteIdentity({
+   selectedNiche:props.selectedNiche,
+   niche:props.site.niche,
+   title:props.site.title,
+   brand:props.site.header?.brand,
+   heroHeadings:props.site.blocks.filter(b=>b.type==="heading").slice(0,2).map(b=>b.text),
+ });
+ if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&
+    (family===3||family===undefined)&&japaneseSiteIdentity){
+   return <TP3LayoutChooser site={props.site} selectedNiche={props.selectedNiche}
+     publishedMode={props.publishedMode} templateId={activeStaticTemplate}
+     onVariantChange={props.onVariantChange}/>;
+ }
  const healthIdentity=[props.site.title,props.site.header?.brand,props.selectedNiche].filter(Boolean).join(" ");
  const strongMedicalIdentity=/(?:aura\s*medical|cl[ií]nica\s*m[eé]dica|consult[oó]rio\s*m[eé]dico|laborat[oó]rio\s*(?:de\s*)?an[aá]lises|odontologia|odontol[oó]gica|vit ra\s*lab|vitra\s*lab)/i.test(healthIdentity);
  if(strongMedicalIdentity&&(activeStaticTemplate==="prompt-adaptive"||isWrittenBrief)){
