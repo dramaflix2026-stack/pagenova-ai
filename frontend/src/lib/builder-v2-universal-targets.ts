@@ -31,6 +31,13 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
  }
  const direct=sections.filter(id=>site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===target));
  if(direct.length)return direct.length===1?direct[0]:null;
+ // "Sobre a clínica/empresa/loja/estúdio" refers to the existing About
+ // section, independent of the business type. Never guess if several match.
+ if(/^sobre\s+(?:a|o|as|os)\s+[a-z][a-z0-9\s-]{2,70}$/.test(target)){
+  const about=sections.filter(id=>aliases.about.includes(norm(id))||
+   site.blocks.some(b=>b.section===id&&b.type==="heading"&&aliases.about.includes(norm(String(b.text||"")))));
+  if(about.length)return about.length===1?about[0]:null;
+ }
  const family=Object.values(aliases).find(names=>names.includes(target));
  const matches=family?sections.filter(id=>family.includes(norm(id))||site.blocks.some(b=>b.section===id&&b.type==="heading"&&family.includes(norm(String(b.text||""))))):[];
  if(matches.length===1)return matches[0];
