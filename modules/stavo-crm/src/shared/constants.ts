@@ -277,8 +277,8 @@ export type WebsiteFilter = (typeof WEBSITE_FILTERS)[number];
 
 export const WEBSITE_FILTER_LABELS: Record<WebsiteFilter, string> = {
   ALL: 'Todos',
-  NO_OWN_WEBSITE: 'Sem site proprio',
-  HAS_OWN_WEBSITE: 'Com site proprio',
+  NO_OWN_WEBSITE: 'Sem site informado no Google',
+  HAS_OWN_WEBSITE: 'Site proprio informado no Google',
   NO_LINK: 'Sem nenhum link',
   SOCIAL_AS_WEBSITE: 'Rede social como site',
 };
