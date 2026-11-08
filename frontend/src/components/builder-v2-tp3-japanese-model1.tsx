@@ -1,7 +1,8 @@
 "use client";
 import {useState} from "react";
 import type {BuilderV2SiteData} from "./builder-v2-site";
-import {universalBlockProps,universalFaqItems} from "./builder-v2-universal-bindings";
+import {universalBlockProps,universalFaqItems,UniversalTypographyRules} from "./builder-v2-universal-bindings";
+import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {japaneseModel1Brand,japaneseModel1Photo} from "@/lib/tp3-japanese-model1";
 
 const specialties = [
@@ -32,11 +33,11 @@ const isGeneric = (text:string) => /delicias da comida japonesa|gastronomia|aute
 const getBlocks = (site:BuilderV2SiteData, pattern:RegExp) => site.blocks.filter(b=>pattern.test(b.section||""));
 const getCopy = (site:BuilderV2SiteData,pattern:RegExp,type:"heading"|"paragraph",fallback:string) =>
   getBlocks(site,pattern).find(b=>b.type===type&&b.text?.trim())?.text?.trim()||fallback;
-const getPhoto = (site:BuilderV2SiteData, pattern:RegExp,slot:number) => {
-  // Explicit owner media / imported CRM photos always outrank curated examples.
-  // Automatically generated generic niche images do not displace the Japanese catalog.
-  const owned=getBlocks(site,pattern).find(b=>b.type==="image"&&b.src?.trim()&&(b.userUploaded===true||site.crmImported===true));
-  return owned?.src||japaneseModel1Photo(slot);
+const getPhoto = (site:BuilderV2SiteData, pattern:RegExp,slot:number,customIndex=0) => {
+  // Owner media / imported CRM photos always outrank curated examples, without
+  // repeating the first custom image across every specialty card.
+  const owned=getBlocks(site,pattern).filter(b=>b.type==="image"&&b.src?.trim()&&(b.userUploaded===true||site.crmImported===true));
+  return owned[customIndex]?.src||japaneseModel1Photo(slot);
 };
 function JapaneseImage({src,alt,backup,style=""}:{src:string;alt:string;backup:string;style?:string}){
   return <img src={src} alt={alt} loading="lazy" className={"block h-full w-full object-cover "+style}
@@ -77,6 +78,8 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
     .map(b=>b.src!).slice(0,4);
 
   return <main data-tp3-model="01" data-tp3-japanese="true" className="w-full overflow-hidden bg-[#f8f4ec] text-[#23241f]">
+    <UniversalTypographyRules/>
+    <UniversalTemplateSections site={site}>
     <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-[#d4cbbd] bg-[#f8f4ec]/95 px-5 py-4 backdrop-blur md:px-[7%]">
       <a href="#inicio" className="min-w-0 font-serif text-xl font-semibold tracking-[.02em] md:text-2xl"><span className="mr-2 text-[#a14b3e]" aria-hidden="true">◈</span>{brand}</a>
       <nav aria-label="Navegação do restaurante" className="flex flex-wrap gap-4 text-xs font-semibold md:gap-7 md:text-sm">
@@ -103,7 +106,7 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
         <p className="max-w-sm text-sm leading-7 text-[#655d53]">Uma viagem visual por ingredientes e preparos japoneses. Consulte o cardápio real com a equipe.</p></div>
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {specialties.map((item,i)=><article key={item.name} className="min-w-0"><div className="aspect-[4/5] overflow-hidden rounded-lg bg-[#e8dfd5]">
-          <JapaneseImage src={getPhoto(site,/especialidad|cardapio|cardápio|produtos|menu/i,i+1)} alt={item.name+" — referência de comida japonesa"} backup={japaneseModel1Photo(i+6)}/>
+          <JapaneseImage src={getPhoto(site,/especialidad|cardapio|cardápio|produtos|menu/i,i+1,i)} alt={item.name+" — referência de comida japonesa"} backup={japaneseModel1Photo(i+6)}/>
         </div><h3 className="mt-5 font-serif text-2xl">{item.name}</h3><p className="mt-2 text-sm leading-7 text-[#6b645a]">{item.detail}</p></article>)}
       </div>
     </section>
@@ -193,5 +196,6 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
         <nav className="flex flex-wrap items-start gap-6 text-sm"><a href="#inicio">Início</a><a href="#especialidades">Especialidades</a><a href="#depoimentos">Depoimentos</a><a href="#faq">FAQ</a><a href="#localizacao">Localização</a></nav>
       </div><p className="pt-8 text-xs text-[#c8baaa]">© {new Date().getFullYear()} {brand}. {brandData.demo?"Marca e imagens ilustrativas na prévia.":""}</p></div>
     </footer>
+    </UniversalTemplateSections>
   </main>;
 }
