@@ -97,11 +97,14 @@ export async function restoreAvailableImageSlots(
   const process = model.sections.find((section) => section.type === 'process');
 
   if (hero?.type === 'hero') {
-    // Prefer the dedicated AI hero over an older generic photo occupying that
-    // slot, freeing genuine business photos for the About section.
-    const currentHero = hero.image && byId.get(hero.image.assetId)?.asset.source === 'AI_GENERATED'
+    // The CRM lead's authentic Google photo takes priority in the Hero.
+    // Keep the pre-existing AI hero asset as a fallback or supporting image:
+    // this never deletes template or generated image files.
+    const currentHero = hero.image && byId.get(hero.image.assetId)?.asset.source === 'GOOGLE_PLACES'
       ? hero.image : undefined;
     hero.image = choose(currentHero, [
+      (a) => a.source === 'GOOGLE_PLACES' && isWide(a),
+      (a) => a.source === 'GOOGLE_PLACES',
       (a) => isAiSlot(a, 'hero'),
       (a) => isReal(a) && isWide(a),
     ]);
@@ -115,6 +118,9 @@ export async function restoreAvailableImageSlots(
     about.image = choose(currentAbout, [
       (a) => isReal(a),
       (a) => isAiSlot(a, 'about'),
+      // Exactly one verified real Google photo goes in the Hero; reuse the
+      // *distinct* illustrative hero asset for About rather than repeating it.
+      (a) => isAiSlot(a, 'hero'),
     ]);
   }
 
@@ -130,6 +136,9 @@ export async function restoreAvailableImageSlots(
       bound = choose(existing, [
         (a) => isReal(a),
         (a) => isAiSlot(a, 'supplement'),
+        // With two real photos: Hero+About are real and the already-generated
+        // hero illustration is the remaining distinct editorial fallback.
+        (a) => isAiSlot(a, 'hero'),
       ]);
       process.steps.forEach((step, i) => {
         step.image = i === 0 ? bound : undefined;
