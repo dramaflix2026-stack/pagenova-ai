@@ -68,7 +68,7 @@ export function BuilderV2TP1Model3Sections({site,brand,publishedMode=false}:{sit
  const familyContact=getTP1FamilyContact(site,publishedMode);
  const edited=(section:string,type:"heading"|"paragraph"|"button",index=0)=>tp1Model3EditedText(site,section,type,index);
  const imageOverride=(section:string,index=0)=>tp1Model3EditedImage(site,section,index);
- const faqEdited=site.blocks.some(b=>b.section==="faq"&&b.type==="paragraph"&&b.textExplicit===true);
+ const faqEdited=Array.from({length:6},(_,i)=>tp1Model3EditedText(site,"faq","paragraph",i)).some(value=>value!==null);
  const proposedFaq=faqEdited?universalFaqItems(site.blocks,faqQuestions):faqQuestions;
  const displayedFaq=faqEdited&&proposedFaq.length?proposedFaq:faqQuestions;
  const recoverNichePhoto=(img:HTMLImageElement)=>{if(isDermatology)recoverDermatologyPhoto(img);else if(isAesthetic)recoverTP1AestheticImage(img);};
