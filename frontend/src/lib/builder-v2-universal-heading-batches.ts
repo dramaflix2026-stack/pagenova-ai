@@ -84,5 +84,5 @@ export function applyUniversalHeadingBatch<T extends UniversalSite>(site:T,instr
  const overrides={...originalOverrides};
  for(const target of pending)if(target.overrideKey)overrides[target.overrideKey]=target.newText;
  const updatedSite={...result.site,blocks:updatedBlocks,...(pending.some(t=>t.overrideKey)?{universalCopyOverrides:overrides}:{})} as T;
- return {ok:true,site:updatedSite,changedIds:pending.map(t=>t.blockId||"virtual-copy:"+t.overrideKey)};
+ return {ok:true,site:updatedSite,changedIds:pending.map(t=>t.blockId||"virtual-copy:"+t.overrideKey),requestedCount:targets.length,alreadyCorrectCount:targets.length-pending.length};
 }
