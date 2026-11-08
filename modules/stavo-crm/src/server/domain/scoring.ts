@@ -55,28 +55,28 @@ export function scoreLead(input: ScoreInput): ScoreResult {
   // --- Presenca digital ---------------------------------------------------
   switch (input.classification) {
     case 'NONE':
-      score += 22;
-      reasons.push({ label: 'Sem nenhum link no perfil', weight: 22 });
+      // An absent URL on Places is not evidence of a missing company website.
+      reasons.push({ label: 'Site nao informado pelo Google - verificar', weight: 0 });
       break;
     case 'INSTAGRAM':
-      score += 18;
-      reasons.push({ label: 'Usa Instagram no lugar de site proprio', weight: 18 });
+      score += 8;
+      reasons.push({ label: 'Instagram cadastrado no Google (site independente desconhecido)', weight: 8 });
       break;
     case 'FACEBOOK_OR_SOCIAL':
-      score += 16;
-      reasons.push({ label: 'Usa rede social no lugar de site proprio', weight: 16 });
+      score += 6;
+      reasons.push({ label: 'Rede social cadastrada no Google - conferir dominio', weight: 6 });
       break;
     case 'WHATSAPP':
-      score += 16;
-      reasons.push({ label: 'Usa WhatsApp no lugar de site proprio', weight: 16 });
+      score += 6;
+      reasons.push({ label: 'WhatsApp informado no Google - conferir dominio', weight: 6 });
       break;
     case 'LINK_IN_BIO':
-      score += 15;
-      reasons.push({ label: 'Usa pagina de links no lugar de site proprio', weight: 15 });
+      score += 5;
+      reasons.push({ label: 'Pagina de links cadastrada - conferir dominio proprio', weight: 5 });
       break;
     case 'DIRECTORY_OR_PLATFORM':
-      score += 12;
-      reasons.push({ label: 'Presenca apenas em diretorio ou plataforma', weight: 12 });
+      score += 4;
+      reasons.push({ label: 'Diretorio/plataforma cadastrado - conferir site proprio', weight: 4 });
       break;
     case 'OWN_WEBSITE':
       score -= 18;
