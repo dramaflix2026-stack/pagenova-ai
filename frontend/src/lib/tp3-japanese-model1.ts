@@ -27,7 +27,32 @@ export const JAPANESE_MODEL1_SECTIONS = [
 ] as const;
 
 export function isJapaneseCuisineNiche(nicheOrTitle: string): boolean {
-  return /comida\s+japones[ae]|culin[aá]ria\s+japones[ae]|japon[eê]s|japonesa|sushi|temakeria|izakaya|sashimi|yakisoba|ramen/i.test(nicheOrTitle);
+  return /comida[\\s-]+japones[ae]|culin[aá]ria[\\s-]+japones[ae]|japon[eê]s|japonesa|japanese|sushi|temakeria|temaki|izakaya|sashimi|yakisoba|ramen|nigiri/i.test(nicheOrTitle);
+}
+
+/**
+ * Generated and previously saved projects may store a generic family name
+ * (for example "Gastronomia" or "Restaurantes") in site.niche, while their
+ * actual Japanese identity appears only in site.title, brand or hero heading.
+ * A truthy generic niche must never hide that identity.
+ *
+ * Do not steal a clearly different gastronomic niche such as a bakery or cafe.
+ */
+export function isJapaneseCuisineSiteIdentity(input: {
+  selectedNiche?: string | null;
+  niche?: string | null;
+  title?: string | null;
+  brand?: string | null;
+  heroHeadings?: ReadonlyArray<string | null | undefined>;
+}): boolean {
+  const selected = (input.selectedNiche || "").trim();
+  const stored = (input.niche || "").trim();
+  const explicit = selected || stored;
+  if (/\\b(?:padaria|panificadora|confeitaria|cafeteria|coffee\\s*shop|pizzaria|hamburgueria|food[\\s-]*truck|a[cç]a[ií]teria|sorveteria|churrascaria|doceria)\\b/i.test(explicit)) {
+    return false;
+  }
+  return [selected, stored, input.title, input.brand, ...(input.heroHeadings || []).slice(0, 2)]
+    .some(value => typeof value === "string" && isJapaneseCuisineNiche(value));
 }
 export function japaneseModel1Photo(index: number, width = 1400): string {
   const id = JAPANESE_MODEL1_PHOTO_IDS[Math.abs(Math.trunc(index)) % JAPANESE_MODEL1_PHOTO_IDS.length];
