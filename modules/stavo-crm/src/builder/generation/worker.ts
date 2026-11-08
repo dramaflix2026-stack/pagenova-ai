@@ -313,30 +313,37 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
             !['header', 'footer', 'cta', 'faq', 'contact'].includes(section.type),
         );
       }
-      // Reserve a portrait for About first, even when it is the only real
-      // photograph. Never stretch the professional's portrait into a hero.
+      // Actual Google Places business photos take precedence in the Hero.
+      // A portrait still qualifies if it is the only photograph found.
+      // Editorial/AI template assets remain stored and can fill other slots.
       const realCandidates = imageCandidates.filter((item) => item.source === 'GOOGLE_PLACES');
-      const byAspect = [...realCandidates].sort((a, b) =>
-        (a.width && a.height ? a.width / a.height : 1) -
-        (b.width && b.height ? b.width / b.height : 1),
-      );
-      const secondaryCandidate = secondaryIndex >= 0
-        ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
-        : undefined;
-      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
-        (item) => item.assetId !== secondaryCandidate?.assetId &&
-          (!item.width || !item.height || item.width / item.height >= 1.1),
-      ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
+      const ownedCandidates = imageCandidates.filter((item) => item.source === 'UPLOAD');
+      const fitsHero = (item: (typeof imageCandidates)[number]) =>
+        !item.width || !item.height || item.width / item.height >= 1.1;
+      const googleHero = realCandidates.find(fitsHero) ?? realCandidates[0];
+      const ownedHero = ownedCandidates.find(fitsHero) ?? ownedCandidates[0];
+      const aiHero = imageCandidates.find((item) =>
+        item.source === 'AI_GENERATED' && item.description.includes('[hero]'));
+      const heroCandidate = googleHero ?? ownedHero ?? aiHero ??
+        imageCandidates.find(fitsHero) ?? imageCandidates[0];
+      const secondaryCandidate = realCandidates.find((item) =>
+        item.assetId !== heroCandidate?.assetId && item.width && item.height &&
+        item.width / item.height < 0.95);
       const fallbackSecondary = secondaryCandidate ??
         realCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
-        imageCandidates.find((item) => item.source === 'UPLOAD' && item.assetId !== heroCandidate?.assetId);
+        ownedCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
+        imageCandidates.find((item) => item.assetId !== heroCandidate?.assetId &&
+          item.source === 'AI_GENERATED' && item.description.includes('[about]')) ??
+        (aiHero?.assetId !== heroCandidate?.assetId ? aiHero : undefined);
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
-      if (heroIndex >= 0 &&
-          (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
-        throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
+      if(heroIndex >= 0 && !heroCandidate){
+        throw new Error('Nenhuma imagem verificada disponível para a capa. Projeto preservado.');
+      }
+      if(googleHero && heroCandidate?.assetId !== googleHero.assetId){
+        throw new Error('Uma foto Google disponível deve ser priorizada na Hero.');
       }
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
