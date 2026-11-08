@@ -2,6 +2,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
+import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
@@ -567,6 +568,7 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    const scopedCopy=site.blocks.length&&!isFullSiteCreationBrief(prompt)?parseUniversalCopyEdit(site,prompt):null;
     if(busy)return;
     // Resolve universal batches before any legacy shortcut can consume only one clause.
     if(site.blocks.length&&!isFullSiteCreationBrief(prompt)){
@@ -839,7 +841,7 @@ export default function BuilderV2() {
     }
     // Secondary banner copy must never be routed to image generation or modify
     // the approved first hero. Each slide owns its own text and CTA settings.
-    if(siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"&&site.blocks.length&&!institutionalFiles.length&&isScopedBannerCopyRequest(prompt)){
+    if(siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"&&site.blocks.length&&!institutionalFiles.length&&!(scopedCopy&&"intent" in scopedCopy)&&isScopedBannerCopyRequest(prompt)){
       try{
         const result=applyHeroBannerCopy(site,prompt);
         if(!result)throw Error("Não foi possível identificar uma edição do banner.");
@@ -989,7 +991,7 @@ export default function BuilderV2() {
       finally{setBusy(false);}
       return;
     }
-    if(siteCategory==="institutional"&&site.blocks.length&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)))){
+    if(siteCategory==="institutional"&&site.blocks.length&&!(scopedCopy&&"intent" in scopedCopy)&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)))){
       try{
         if(reference&&institutionalFiles.length)throw Error("Escolha entre foto de referência e fotos para usar no site.");
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
@@ -1116,6 +1118,12 @@ export default function BuilderV2() {
       if (!response.ok) throw new Error(typeof data.error==="string"?data.error:data.error?.message || "Não foi possível editar o site.");
       if(!site.blocks.length||creatingNewSite)void siteCredits.refresh();
       if (!Array.isArray(data.site?.blocks) || (creatingNewSite ? data.site.blocks.length < 4 : data.site.blocks.length < 1)) throw new Error("A IA não entregou um site válido. Nenhum resultado parcial foi aplicado.");
+      // Never claim a successful semantic rewrite if the server changed
+      // anything beyond its single identified text block.
+      if(scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&
+         !isIsolatedUniversalCopyResult(site,data.site as Site,scopedCopy.intent)){
+        throw new Error("A edição alteraria elementos fora do parágrafo solicitado. O site foi preservado.");
+      }
       // Every successful generation gets a stable project URL and its own draft key.
       // Never assign this URL until the server returns a complete valid site.
       if(shouldCreateProject&&!crmProjectId){
