@@ -9,6 +9,7 @@ export type PaletteSite={
  blocks: readonly unknown[];
  background?:string;
  design?:{surface?:string;text?:string;muted?:string;accent?:string};
+ designPaletteApplied?:boolean;
  motion?:unknown;
 };
 
@@ -30,9 +31,9 @@ export function applyUniversalPaletteEdit<T extends PaletteSite>(
  const design={...(site.design||{}),surface:request.surface,accent:request.accent,text:request.surface,
   muted:"#D8D1C6"};
  // Preserve all block IDs, source images, copy, destinations and motion settings.
- const updated={...site,background:request.background,design} as T;
+ const updated={...site,background:request.background,design,designPaletteApplied:true} as T;
  const originalDesign=site.design||{};
- if(site.background===updated.background&&Object.entries(design).every(([key,value])=>
+ if(site.designPaletteApplied===true&&site.background===updated.background&&Object.entries(design).every(([key,value])=>
   (originalDesign as Record<string,unknown>)[key]===value)) {
    return {site,summary:"A paleta já estava na configuração solicitada. Nenhum outro elemento foi alterado."};
  }
