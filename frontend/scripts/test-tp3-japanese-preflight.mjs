@@ -57,6 +57,8 @@ test("preflight: JP name and niche detection never steal bakery or Food Truck",(
   assert.deepEqual(japaneseModel1Brand("Delícias da Comida Japonesa",undefined,false),{brand:"Sakura Sushi",demo:true});
   assert.deepEqual(japaneseModel1Brand("Delícias da Comida Japonesa",undefined,true),{brand:"Restaurante japonês",demo:false});
   assert.deepEqual(japaneseModel1Brand("Sushi Haru",undefined,false),{brand:"Sushi Haru",demo:false});
+  assert.deepEqual(japaneseModel1Brand("Sakura Sushi House","Gastronomia Premium",false),{brand:"Sakura Sushi House",demo:false});
+  assert.deepEqual(japaneseModel1Brand("Delícias da Comida Japonesa","Sakura Sushi House",false),{brand:"Sakura Sushi House",demo:false});
 });
 
 test("preflight: old generic-gastronomy projects still render Japanese Model 1",()=>{
