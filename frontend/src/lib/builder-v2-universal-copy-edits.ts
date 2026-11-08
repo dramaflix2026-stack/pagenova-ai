@@ -95,7 +95,7 @@ export function applyUniversalCopyEdit<T extends UniversalSite>(
   if(!original||original.ctaLabel!==intent.previousText)
    return {ok:false,error:"O botão original não foi encontrado. Nenhuma alteração aplicada."};
   return {ok:true,changedIds:[intent.targetId],
-   site:{...site,header:{...original,ctaLabel:value}} as T};
+   site:{...site,header:{...original,ctaLabel:value,ctaLabelExplicit:true}} as T};
  }
  if(intent.virtualSlotKey){
   const declaration=declaredVirtualTextSlot(site,intent.section,intent.type,intent.ordinal);
@@ -111,6 +111,21 @@ export function applyUniversalCopyEdit<T extends UniversalSite>(
  const result=applyUniversalOperations(site,[{action:"update",blockId:block.id,changes:{text:value}}]);
  if(!result.ok)return result;
  return {ok:true,changedIds:result.changedIds,site:{...result.site,blocks:result.site.blocks.map(b=>b.id===block.id?{...b,textExplicit:true}:b)} as T};
+}
+/**
+ * Renderer-agnostic primary CTA binding: persisted explicit copy wins over
+ * curated template defaults. Never infer a new destination or restyle buttons.
+ * All specialized heroes can consume the same resolution without niche rules.
+ */
+export function universalHeroPrimaryCtaLabel(
+ site:{blocks:readonly {id:string;type:string;section?:string;text?:string}[];header?:{ctaLabel?:string;ctaLabelExplicit?:boolean}},
+ approvedDefault:string
+):string{
+ const edited=universalEditedTextSlot(site,"capa","button",0);
+ if(typeof edited==="string"&&edited.trim())return edited.trim();
+ if(site.header?.ctaLabelExplicit===true&&site.header.ctaLabel?.trim())
+   return site.header.ctaLabel.trim();
+ return approvedDefault;
 }
 /** Read explicit text only; approved model defaults win when there is no edit. */
 export function universalEditedTextSlot(
@@ -143,7 +158,8 @@ export function isIsolatedUniversalCopyResult(previous:UniversalSite,next:Univer
   const oldHeader=_h1 as Record<string,unknown>,newHeader=_h2 as Record<string,unknown>;
   return oldHeader.ctaLabel===intent.previousText&&
    typeof newHeader.ctaLabel==="string"&&newHeader.ctaLabel!==oldHeader.ctaLabel&&
-   JSON.stringify({...oldHeader,ctaLabel:newHeader.ctaLabel})===JSON.stringify(newHeader);
+   newHeader.ctaLabelExplicit===true&&
+    JSON.stringify({...oldHeader,ctaLabel:newHeader.ctaLabel,ctaLabelExplicit:true})===JSON.stringify(newHeader);
  }
  if(intent.virtualSlotKey){
   if(JSON.stringify(previous.blocks)!==JSON.stringify(next.blocks))return false;
