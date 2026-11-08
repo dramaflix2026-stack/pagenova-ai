@@ -542,3 +542,46 @@ test("one universal CTA edit appears in every TP5 visual variant after JSON rest
   }
  }
 });
+
+
+test("TP5 second about paragraph updates the actual preview across all three variants",async()=>{
+ const {parseUniversalCopyEdit,applyUniversalCopyEdit}=await import("../src/lib/builder-v2-universal-copy-edits.ts");
+ const prompt="Na seção Sobre a empresa, reescreva o segundo parágrafo com um tom mais sofisticado e acolhedor. Preserve o título, o primeiro parágrafo, as imagens e todos os outros elementos.";
+ const updatedText="Nossa equipe acolhe cada projeto com atenção, elegância e cuidado individualizado.";
+ const originalFixture=fixture();
+ for(const variant of ["01","02","03"]){
+  const site={...originalFixture,niche:"Marketing digital",title:"Maison Lumière",templateId:"prompt-adaptive",briefingLayoutVariant:variant,
+   blocks:[
+    ...originalFixture.blocks,
+    {id:"about-heading",type:"heading",section:"sobre",text:"Sobre a empresa"},
+    {id:"about-p1",type:"paragraph",section:"sobre",text:"Primeiro parágrafo original."},
+    {id:"about-p2",type:"paragraph",section:"sobre",text:"Segundo parágrafo original."}
+   ]};
+  const parsed=parseUniversalCopyEdit(site,prompt);
+  assert.ok(parsed&&"intent" in parsed,"parse TP5 "+variant);
+  assert.equal(parsed.intent.targetId,"about-p2");
+  assert.equal(parsed.intent.generateText,true);
+  const result=applyUniversalCopyEdit(site,parsed.intent,updatedText);
+  assert.equal(result.ok,true,variant+": "+result.error);
+  if(!result.ok)continue;
+  assert.deepEqual(result.changedIds,["about-p2"]);
+  assert.equal(site.blocks.find(b=>b.id==="about-p2").text,"Segundo parágrafo original.","do not mutate original");
+  assert.equal(result.site.blocks.find(b=>b.id==="about-p1").text,"Primeiro parágrafo original.");
+  for(const publishedMode of [false,true]){
+   const before=render(site,publishedMode);
+   const after=render(JSON.parse(JSON.stringify(result.site)),publishedMode);
+   const slot=after('[data-universal-copy-slot="sobre:paragraph:1"]');
+   assert.equal(slot.length,1,"TP5 "+variant+" must render exactly one edited second About paragraph");
+   assert.equal(slot.text(),updatedText,"TP5 "+variant+" must show generated content");
+   const aboutFirstSelector=variant==="01"?".pn-t5-about-copy p:first-of-type":variant==="02"?"#tp5m2-about p:first-of-type":'[data-tp5-variant="03"] section:nth-of-type(3) p:first-of-type';
+   assert.equal(after(aboutFirstSelector).first().text(),before(aboutFirstSelector).first().text(),"TP5 "+variant+" must keep the first visible paragraph");
+   assert.deepEqual(after("img").map((_,img)=>after(img).attr("src")).get(),before("img").map((_,img)=>before(img).attr("src")).get(),"TP5 "+variant+" must preserve photos");
+  }
+ }
+});
+test("TP5 model 02 does not create another About paragraph without an explicit edit",()=>{
+ const original={...fixture(),niche:"Marketing digital",templateId:"prompt-adaptive",briefingLayoutVariant:"02"};
+ const $=render(original,false);
+ assert.equal($('#tp5m2-about [data-universal-copy-slot="sobre:paragraph:1"]').length,0);
+ assert.equal($("#tp5m2-about .da-text-link").length,1);
+});

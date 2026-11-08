@@ -1,7 +1,7 @@
 "use client";
 import {useState} from "react";
 import type {CSSProperties} from "react";
-type Props={brand:string;niche:string;summary?:string;email?:string;whatsapp?:string};
+type Props={brand:string;niche:string;summary?:string;email?:string;whatsapp?:string;aboutFirstText?:string|null;aboutSecondText?:string|null};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 function resolve(niche:string){
  const n=normalize(niche);
@@ -19,7 +19,7 @@ const visualSets={
 } as const;
 function getVisualSet(niche:string){const n=normalize(niche);return /marketing|publicidade|agencia|branding|social media|trafego/.test(n)?visualSets.marketing:/software|desenvolvimento|sistemas|aplicativos|tecnologia|ti\\b/.test(n)?visualSets.technology:/automac|inteligencia artificial|ia\\b|chatbot|agentes/.test(n)?visualSets.ai:visualSets.digital;}
 function photoUrl(id:string){return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1100&q=82`;}
-export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}:Props){
+export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp,aboutFirstText,aboutSecondText}:Props){
  const d=resolve(niche);
  const visuals=getVisualSet(niche);
  const [expanded,setExpanded]=useState<number|null>(0);
@@ -224,7 +224,7 @@ export function Template5AIFuturistSections({brand,niche,summary,email,whatsapp}
  @media(prefers-reduced-motion:reduce){.pn-t5-sculpture{animation:none}.pn-t5-tile{transition:none}}
  `}</style>
  <section id="solucoes" aria-label="Nossas soluções"><div className="pn-t5-wrap"><span className="pn-t5-kicker">01 / Soluções inteligentes</span><h2>Possibilidades que vão além do convencional.</h2><p className="pn-t5-lead">{d.intro}</p><div className="pn-t5-bento">{d.services.map(([name,desc,symbol],i)=><article className="pn-t5-tile" key={name} style={{"--pn-t5-service-image":`url("${photoUrl(visuals.services[i])}")`} as CSSProperties}><span className="pn-t5-tile-index">0{i+1} / 04</span>{i===0?<div className="pn-t5-tile-art" aria-hidden="true"/>:null}<span className="pn-t5-tile-icon" aria-hidden="true">{symbol}</span><div><h3>{name}</h3><p>{desc}</p></div></article>)}</div></div></section>
- <section id="sobre" className="pn-t5-about" aria-label="Sobre a empresa"><div className="pn-t5-wrap pn-t5-about-grid"><div className="pn-t5-about-copy"><span className="pn-t5-kicker">02 / Sobre a marca</span><h2>{d.about}</h2><div className="pn-t5-about-line"/><p>{summary?.trim()&&summary.trim().length<450?summary:d.description}</p><p>Da estratégia à execução, conectamos ideias, pessoas e tecnologia com foco no que importa para cada projeto.</p></div><div className="pn-t5-about-art" aria-label="Escultura digital abstrata em violeta"><div className="pn-t5-sculpture"/><div className="pn-t5-art-caption"><span>{d.label}</span><span>Human + intelligence</span></div></div></div></section>
+ <section id="sobre" className="pn-t5-about" aria-label="Sobre a empresa"><div className="pn-t5-wrap pn-t5-about-grid"><div className="pn-t5-about-copy"><span className="pn-t5-kicker">02 / Sobre a marca</span><h2>{d.about}</h2><div className="pn-t5-about-line"/><p>{aboutFirstText||(summary?.trim()&&summary.trim().length<450?summary:d.description)}</p><p data-universal-copy-slot="sobre:paragraph:1">{aboutSecondText||"Da estratégia à execução, conectamos ideias, pessoas e tecnologia com foco no que importa para cada projeto."}</p></div><div className="pn-t5-about-art" aria-label="Escultura digital abstrata em violeta"><div className="pn-t5-sculpture"/><div className="pn-t5-art-caption"><span>{d.label}</span><span>Human + intelligence</span></div></div></div></section>
 
  <section id="diferenciais" className="pn-t5-diff" aria-label="Nossos diferenciais"><div className="pn-t5-wrap"><span className="pn-t5-kicker">03 / O que nos diferencia</span><h2>Uma nova perspectiva para cada desafio.</h2><p className="pn-t5-lead">O que torna a experiência da {brand} especial em {d.label.toLowerCase()}.</p><div className="pn-t5-diff-grid">{[
  ["Estratégia conectada",`Decisões orientadas pelos objetivos reais de cada projeto em ${d.label.toLowerCase()}.`,"◇"],
