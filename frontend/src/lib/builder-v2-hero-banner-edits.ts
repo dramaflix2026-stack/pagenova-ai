@@ -14,7 +14,7 @@ export function isScopedBannerCopyRequest(instruction:string){
   const s=normal(instruction);
   // "segundo parágrafo" is never "segundo banner". Require slide/banner as
   // the actual noun adjacent to the ordinal.
-  const target=/(?:segund[oa]|terceir[oa]|2[ªº]?|3[ªº]?)\s+(?:banner|slide)\b|\b(?:banner|slide)\s*(?:numero\s*)?[23]\b/.test(s);
+  const target=/(?:segund[oa]|terceir[oa]|2[ªº]?|3[ªº]?)\s+(?:banner|slide)\b|\b(?:banner|slide)\s*(?:numero\s*)?(?:[23]|dois|tres|segundo|terceiro)\b/.test(s);
   const copy=/(?:titulo|texto|descricao|subtitulo|botao|cta|link)/.test(s);
   const action=/(?:troqu|alter|mud|substitu|escrev|coloc|adicione|mude|define|defina|crie|criar)/.test(s);
   return target&&copy&&action;
