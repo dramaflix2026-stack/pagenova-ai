@@ -3,6 +3,15 @@ import {createClient as createAdminClient} from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function proxy(request: NextRequest) {
+  // Isolated screenshot harness. Never expose QA fixtures on Production or
+  // externally routed preview domains; do not require Supabase for local QA.
+  if(request.nextUrl.pathname.startsWith("/__qa/")){
+    const host=request.nextUrl.hostname.toLowerCase();
+    if(process.env.NODE_ENV!=="development"||(host!=="localhost"&&host!=="127.0.0.1")){
+      return new NextResponse("Not found",{status:404});
+    }
+    return NextResponse.next();
+  }
   // Custom domains are bound only to an authenticated user's real published
   // snapshot. Unverified/unknown hosts never receive another client's site.
   const host=(request.headers.get("host")||"").toLowerCase().split(":")[0];
