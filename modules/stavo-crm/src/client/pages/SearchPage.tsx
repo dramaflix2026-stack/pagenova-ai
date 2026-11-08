@@ -721,7 +721,7 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
 
           {result.website.classification !== 'OWN_WEBSITE' ? (
             <Button variant="ghost" size="sm" asChild>
-              <a href={result.actions.websiteSearchUrl} target="_blank" rel="noreferrer noopener">
+              <a href={result.actions.websiteSearchUrl ?? `https://www.google.com/search?q=${encodeURIComponent([result.name,result.address,"site oficial"].filter(Boolean).join(" "))}`} target="_blank" rel="noreferrer noopener">
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
                 Verificar site no Google
               </a>
