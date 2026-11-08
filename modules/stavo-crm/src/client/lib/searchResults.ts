@@ -22,6 +22,8 @@ export interface SearchResultItem {
     instagramUrl: string | null;
     instagramSearchUrl: string;
     mapsUrl: string;
+    /** Optional for cached search payloads created before this feature. */
+    websiteSearchUrl?: string;
   };
   score: number;
   scoreReasons: { label: string; weight: number }[];
