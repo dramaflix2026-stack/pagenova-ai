@@ -62,6 +62,10 @@ export function institutionalImageIntent(instruction:string,hasUploads=false){
   if(!hasUploads&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instruction)&&/bot[aã]o|\bcta\b/i.test(instruction)&&/(?:capa|hero|principal)/i.test(instruction))return false;
   const s=norm(instruction);
   if(hasUploads)return true;
+  // Explicit composition / image-fit requests can start with "mantenha".
+  // Unlike "preserve a imagem" appended to a text edit, this is the action itself.
+  const visualFit=/^(?:mantenha|mostre|exiba|deixe|ajuste)\b[^.!?]{0,120}\b(?:imagem|foto|fotografia)\b[^.!?]{0,100}\b(?:inteir[ao]|sem\s+cort(?:e|es)|formato\s+original)\b/i.test(s);
+  if(visualFit)return true;
   // A protection clause is not an image instruction. Inspect only the actual
   // mutation, before "não modifique a imagem", "preserve as fotos" etc.
   const actual=s.split(/(?:^|[.!?]\s+)(?:nao\s+(?:modifique|altere|troque|mude|substitua|mexa)|preserve|mantenha|sem\s+alterar)\b/)[0];
