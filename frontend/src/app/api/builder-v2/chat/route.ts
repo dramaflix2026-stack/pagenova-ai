@@ -1,5 +1,6 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
+import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "@/lib/builder-v2-universal-copy-edits";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
 import {applyUniversalOperations, type UniversalOperation} from "@/lib/builder-v2-universal-operations";
 import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
@@ -752,6 +753,42 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(!result.ok)return NextResponse.json({error:result.error},{status:422});
     return NextResponse.json({site:result.site,summary:"Alterações estruturadas aplicadas: "+result.changedIds.length+" bloco(s).",changedIds:result.changedIds});
+  }
+  // High-priority universal text intent: a protective mention of "imagem",
+  // "link" or "banner" does not make the edit a media/link/banner request.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const snapshot=editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>};
+    const targeted=parseUniversalCopyEdit(snapshot,instructionText);
+    if(targeted){
+      if("error" in targeted)return NextResponse.json({error:targeted.error},{status:422});
+      const intent=targeted.intent;
+      let text:string|undefined;
+      if(intent.generateText){
+        try{
+          if(!key)return NextResponse.json({error:"A geração de texto não está configurada. Projeto preservado."},{status:503});
+          const ai=await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
+            body:JSON.stringify({
+              model:"gpt-4.1-mini",max_completion_tokens:350,response_format:{type:"json_object"},
+              messages:[
+                {role:"system",content:"Você revisa textos em português brasileiro. Retorne APENAS JSON {\"text\":\"...\"}. Reescreva um único parágrafo conforme o pedido; preserve fatos existentes, estilo da marca e significado original. Até 500 caracteres. Não invente certificações, resultados, números, endereço, equipe, preços, alegações clínicas nem avaliações."},
+                {role:"user",content:JSON.stringify({niche:editingSite.niche||"",business:editingSite.title||"",section:intent.section,paragraph:intent.ordinal+1,previous:intent.previousText,guidance:intent.rewriteGuidance})}
+              ]
+            }),signal:AbortSignal.timeout(25000)
+          });
+          if(!ai.ok)throw Error("AI scoped copy failed");
+          const payload=await ai.json();
+          const parsed=JSON.parse(String(payload?.choices?.[0]?.message?.content||"{}")) as {text?:unknown};
+          text=typeof parsed.text==="string"?parsed.text.trim():undefined;
+          if(!text||text.length>500)return NextResponse.json({error:"O texto solicitado não foi gerado com segurança. Nenhuma alteração aplicada."},{status:422});
+        }catch{
+          return NextResponse.json({error:"Não foi possível reescrever o parágrafo. Projeto preservado."},{status:502});
+        }
+      }
+      const result=applyUniversalCopyEdit(snapshot,intent,text);
+      if(!result.ok)return NextResponse.json({error:result.error},{status:422});
+      return NextResponse.json({site:result.site,changedIds:result.changedIds,summary:"Texto atualizado no elemento solicitado, sem modificar os demais blocos."});
+    }
   }
   // Shared card editing path. When the user asks the AI to write a new
   // description without providing copy, generate ONLY that field. The resolver
