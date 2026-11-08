@@ -144,3 +144,19 @@ test("renderer and route use the same universal display and editing helpers",()=
  assert.ok(route.includes("parseUniversalCopyEdit(snapshot,instructionText)"));
  assert.ok(route.includes("applyUniversalCopyEdit(snapshot,intent,text)"));
 });
+
+test("header-only primary CTA is updated without inventing a button or changing destination",()=>{
+ const original=site();
+ original.blocks=original.blocks.filter(b=>b.id!=="hero-cta");
+ const before=copy(original);
+ const parsed=parseUniversalCopyEdit(original,requests.button);
+ assert.ok(parsed&&"intent" in parsed);
+ assert.equal(parsed.intent.headerTarget,true);
+ const result=applyUniversalNaturalLanguage(original,requests.button);
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.equal(result.site.header.ctaLabel,"Quero agendar minha avaliação");
+ assert.equal(result.site.header.ctaHref,before.header.ctaHref);
+ assert.deepEqual(result.site.blocks,before.blocks);
+ assert.equal(isIsolatedUniversalCopyResult(original,result.site,parsed.intent),true);
+});
