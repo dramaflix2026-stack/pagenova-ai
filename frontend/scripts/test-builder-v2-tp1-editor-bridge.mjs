@@ -232,3 +232,17 @@ test("institutional uploaded image shortcut checks visibility before upload and 
  assert.ok(actual>upload&&version>actual);
  assert.ok(page.includes("setSite({...("+"uploadedCheck?.ok?uploadedCheck.site:result.site"+"),id:projectId})"));
 });
+
+test("explicit universal card copy marker is accepted only alongside its visible text change",()=>{
+ const original=baseline();
+ const accepted=copy(original);
+ accepted.blocks[4].text="Novo Sobre";
+ accepted.blocks[4].textExplicit=true;
+ const result=prepareTP1Model3VisibleEdit(original,{ok:true,site:accepted,changedIds:["about-heading"]});
+ assert.equal(result.ok,true);
+ if(result.ok)assert.equal(tp1Model3EditedText(result.site,"sobre","heading"),"Novo Sobre");
+ const invalid=copy(original);
+ invalid.blocks[4].textExplicit=true;
+ const rejected=prepareTP1Model3VisibleEdit(original,{ok:true,site:invalid,changedIds:["about-heading"]});
+ assert.equal(rejected.ok,false);
+});
