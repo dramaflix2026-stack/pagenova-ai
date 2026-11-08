@@ -1156,6 +1156,22 @@ export default function BuilderV2() {
         const relevant = incoming.blocks.filter(b=>b.type!=="image");
         if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento global solicitado. O projeto foi preservado.");
       }
+      // Also preflight the remote AI result for TP1 Model 03. Without this,
+      // unrecognized commands could claim success while the specialized
+      // renderer ignored the generated blocks. No history/save occurs on fail.
+      const remoteTP1Model3=siteCategory==="institutional"&&
+        site.cinematic?.mode!=="immersive-3d"&&!shouldCreateProject&&
+        site.blocks.length>0&&site.briefingLayoutVariant==="03"&&
+        resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      if(remoteTP1Model3){
+        const changedIds=site.blocks.filter((block,i)=>{
+          const next=incoming.blocks[i];
+          return !next||block.id!==next.id||JSON.stringify(block)!==JSON.stringify(next);
+        }).map(block=>block.id);
+        const checkedRemote=prepareTP1Model3VisibleEdit(site,{ok:true,site:incoming,changedIds});
+        if(!checkedRemote.ok)throw new Error(checkedRemote.error);
+        incoming=checkedRemote.site;
+      }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
