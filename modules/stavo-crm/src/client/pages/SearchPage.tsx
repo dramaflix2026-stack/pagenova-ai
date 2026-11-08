@@ -441,7 +441,7 @@ export default function SearchPage() {
               <Field
                 label="Filtro de site"
                 htmlFor="search-website"
-                hint="Instagram, WhatsApp, Linktree e diretorios contam como sem site proprio."
+                hint="Esse filtro mostra apenas links informados ao Google Places. Uma empresa pode possuir site próprio mesmo quando não aparece aqui; confirme antes de oferecer um site."
               >
                 <Select
                   value={form.websiteFilter}
@@ -661,9 +661,12 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
         </div>
 
         <div className="flex flex-wrap gap-1.5">
-          <Badge tone={result.website.classification === 'OWN_WEBSITE' ? 'neutral' : 'primary'}>
+          <Badge tone={result.website.classification === 'OWN_WEBSITE' ? 'neutral' : 'warning'}>
             {result.website.label}
           </Badge>
+          {result.website.classification !== 'OWN_WEBSITE' ? (
+            <span className="text-xs text-amber-700 dark:text-amber-200">Presença de site não verificada; não afirmar que a empresa está sem site.</span>
+          ) : null}
           {result.rating ? (
             <Badge tone="outline">
               <Star className="h-3 w-3" aria-hidden="true" />
@@ -719,6 +722,13 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
             </Button>
           )}
 
+          <Button variant="ghost" size="sm" asChild>
+            <a href={result.actions.websiteSearchUrl} target="_blank" rel="noreferrer noopener" aria-label={"Verificar site de "+result.name+" no Google"}>
+              <Globe2 className="h-4 w-4" aria-hidden="true" />
+              Verificar site
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
+            </a>
+          </Button>
           <Button variant="ghost" size="sm" asChild>
             <a href={result.actions.mapsUrl} target="_blank" rel="noreferrer noopener">
               <MapPin className="h-4 w-4" aria-hidden="true" />
