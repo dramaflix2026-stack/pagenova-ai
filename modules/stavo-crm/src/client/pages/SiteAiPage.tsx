@@ -144,7 +144,7 @@ export default function SiteAiPage() {
     try {
       const briefing = {
         templateId: 'frigolog-universal' as const, // only the existing CRM image-generation/hero pipeline
-        builderV2TemplateId: 'institutional-complete' as const, // default original Template 1; the client can switch later in Builder V2 without another generation
+        builderV2TemplateId: 'prompt-adaptive' as const, // use existing TP/niche-aware Studio visuals; no new renderer or generation engine
         business: {
           name: businessName,
           niche: optionalText(lead.lead.prospectingNiche) ?? optionalText(liveCategory),
