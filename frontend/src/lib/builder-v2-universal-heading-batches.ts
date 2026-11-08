@@ -7,7 +7,7 @@ import {applyUniversalOperations,type UniversalSite,type UniversalResult,type Un
 import {declaredVirtualTextSlot} from "./builder-v2-universal-visible-slots.ts";
 
 type HeadingRequest={sectionLabel:string;newText:string};
-type HeadingTarget={section:string;blockId?:string;overrideKey?:string;newText:string};
+type HeadingTarget={section:string;blockId?:string;overrideKey?:string;newText:string;unchanged?:boolean};
 const norm=(text:string)=>text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
 
 function splitContextualSentences(instruction:string):string[]{
@@ -59,26 +59,30 @@ export function applyUniversalHeadingBatch<T extends UniversalSite>(site:T,instr
   if(uniqueSections.has(section))return {ok:false,error:"A seção “"+request.sectionLabel+"” foi solicitada mais de uma vez. Nenhuma alteração aplicada."};
   uniqueSections.add(section);
   const headings=site.blocks.filter(block=>block.section===section&&block.type==="heading");
-  if(headings.length>1)return {ok:false,error:"Há mais de um título possível na seção “"+request.sectionLabel+"”. Nenhuma alteração aplicada."};
-  const heading=headings[0];
+  const nonQuestionHeadings=headings.filter(block=>!String(block.text||"").trim().endsWith("?"));
+  if(nonQuestionHeadings.length>1)return {ok:false,error:"Há mais de um título possível na seção “"+request.sectionLabel+"”. Nenhuma alteração aplicada."};
+  const heading=nonQuestionHeadings[0]||(headings.length===1?headings[0]:undefined);
   if(heading){
-   if(typeof heading.text!=="string"||norm(heading.text)===norm(request.newText))
-    return {ok:false,error:"O título solicitado já existe ou não é editável em “"+request.sectionLabel+"”. Nenhuma alteração aplicada."};
-   targets.push({section,blockId:heading.id,newText:request.newText});
+   if(typeof heading.text!=="string")return {ok:false,error:"Título inválido em “"+request.sectionLabel+"”. Nenhuma alteração aplicada."};
+   targets.push({section,blockId:heading.id,newText:request.newText,unchanged:norm(heading.text)===norm(request.newText)});
   }else{
    const declared=declaredVirtualTextSlot(site,section,"heading",0);
    if(!declared)return {ok:false,error:"O título da seção “"+request.sectionLabel+"” não está mapeado ao renderizador. Nenhuma alteração aplicada."};
-   targets.push({section,overrideKey:declared.key,newText:request.newText});
+   const previous=site.universalCopyOverrides;
+   const oldText=previous&&typeof previous==="object"&&!Array.isArray(previous)?(previous as Record<string,unknown>)[declared.key]:undefined;
+   targets.push({section,overrideKey:declared.key,newText:request.newText,unchanged:oldText===request.newText});
   }
  }
- const operations:UniversalOperation[]=targets.filter(t=>t.blockId).map(t=>({action:"update",blockId:t.blockId!,changes:{text:t.newText}}));
+ const pending=targets.filter(t=>!t.unchanged);
+ if(!pending.length)return {ok:false,error:"Todos os títulos já têm o texto solicitado. Nenhuma alteração aplicada."};
+ const operations:UniversalOperation[]=pending.filter(t=>t.blockId).map(t=>({action:"update",blockId:t.blockId!,changes:{text:t.newText}}));
  const result=operations.length?applyUniversalOperations(site,operations):({ok:true as const,site,changedIds:[] as string[]});
  if(!result.ok)return result;
- const updatedBlocks=result.site.blocks.map(block=>targets.some(t=>t.blockId===block.id)?{...block,textExplicit:true}:block);
+ const updatedBlocks=result.site.blocks.map(block=>pending.some(t=>t.blockId===block.id)?{...block,textExplicit:true}:block);
  const source=site.universalCopyOverrides;
  const originalOverrides=source&&typeof source==="object"&&!Array.isArray(source)?source as Record<string,unknown>:{};
  const overrides={...originalOverrides};
- for(const target of targets)if(target.overrideKey)overrides[target.overrideKey]=target.newText;
- const updatedSite={...result.site,blocks:updatedBlocks,...(targets.some(t=>t.overrideKey)?{universalCopyOverrides:overrides}:{})} as T;
- return {ok:true,site:updatedSite,changedIds:targets.map(t=>t.blockId||"virtual-copy:"+t.overrideKey)};
+ for(const target of pending)if(target.overrideKey)overrides[target.overrideKey]=target.newText;
+ const updatedSite={...result.site,blocks:updatedBlocks,...(pending.some(t=>t.overrideKey)?{universalCopyOverrides:overrides}:{})} as T;
+ return {ok:true,site:updatedSite,changedIds:pending.map(t=>t.blockId||"virtual-copy:"+t.overrideKey)};
 }
