@@ -323,7 +323,12 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const secondaryCandidate = secondaryIndex >= 0
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
-      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
+      // One verified business photo MUST be the cover when Google supplies one.
+      // Prefer a landscape cover; portrait-only profiles still get a real cover.
+      // Generated/editorial assets remain available for the following sections.
+      const realHeroCandidate=realCandidates.find(item=>item.width&&item.height&&item.width/item.height>=1.1)
+        ?? realCandidates[0];
+      const heroCandidate = realHeroCandidate ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
         (item) => item.assetId !== secondaryCandidate?.assetId &&
           (!item.width || !item.height || item.width / item.height >= 1.1),
       ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
@@ -335,8 +340,8 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
       ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
       if (heroIndex >= 0 &&
-          (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
-        throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
+          (!heroCandidate || (heroCandidate.source !== 'GOOGLE_PLACES' && (heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))))) {
+        throw new Error('A capa precisa de uma fotografia real verificada do Google ou da ilustração de reserva.');
       }
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
@@ -456,7 +461,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     await emitStage(
       job.id,
       'PREPARING_ASSETS',
-      `Hero, Quem somos e Como trabalhamos receberam imagens verificadas. ${usedImages} referencia(s) de planejamento; ${googleAssetCount} foto(s) do Google.`,
+      `Hero, Quem somos e Como trabalhamos receberam imagens verificadas. ${usedImages} referencia(s) de planejamento; ${googleAssetCount} foto(s) reais disponíveis do Google.${googleAssetCount>0?' Pelo menos uma foi priorizada na capa.':''}`,
     );
     await assertNotCanceled(job.id);
 
