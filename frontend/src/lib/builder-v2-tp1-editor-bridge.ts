@@ -133,7 +133,7 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
     );
     const allowedFields = kind === "image" ? ["src", "userUploaded"] :
       kind === "button" && section === "inicio" ? ["text", "href"] :
-      kind === "heading" || kind === "paragraph" ? ["text"] : [];
+      kind === "heading" || kind === "paragraph" ? ["text", "textExplicit"] : [];
     if (!changedFields.length || changedFields.some((field) => !allowedFields.includes(field))) {
       return {ok: false, error: "Esse tipo de edição ainda não está ligado ao componente visual do Modelo 3. Nenhuma alteração foi aplicada."};
     }
@@ -149,6 +149,12 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
     if (changedFields.includes("userUploaded") &&
         (after.userUploaded !== true || !changedFields.includes("src"))) {
       return {ok: false, error: "A imagem enviada não substituiu uma foto visível. Nenhuma alteração foi aplicada."};
+    }
+    // The shared universal card resolver marks copy as explicitly edited
+    // so renderers can preserve their approved defaults until an actual change.
+    if (changedFields.includes("textExplicit") &&
+        (after.textExplicit !== true || !changedFields.includes("text"))) {
+      return {ok: false, error: "Marcador de edição textual sem mudança visível. Nenhuma alteração aplicada."};
     }
     if (changedFields.includes("src") && !isSafeUniversalUrl(after.src, true)) {
       return {ok: false, error: "A URL da fotografia é inválida. Nenhuma alteração foi aplicada."};
