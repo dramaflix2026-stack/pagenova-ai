@@ -2,6 +2,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
+import {prepareTP1Model3VisibleEdit} from "@/lib/builder-v2-tp1-editor-bridge";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
@@ -573,16 +574,21 @@ export default function BuilderV2() {
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
       const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
+      // TP1 Model 03 has specialized React cards. Never acknowledge an edit
+      // if its target isn't connected to a visible element in this variant.
+      const activeTP1Model3=siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"
+        &&site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      const checkedResult=result?.ok&&activeTP1Model3?prepareTP1Model3VisibleEdit(site,result):result;
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
-      if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
+      if(checkedResult||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
-        if(!result||!result.ok){
-          setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
+        if(!checkedResult||!checkedResult.ok){
+          setMessages(prev=>[...prev,{role:"assistant",text:checkedResult&&!checkedResult.ok?checkedResult.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-        setSite(result.site);setInstruction("");setGenerationError("");
-        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
+        setSite(checkedResult.site);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+checkedResult.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
         return;
       }
     }
@@ -995,7 +1001,15 @@ export default function BuilderV2() {
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
         // Validate target, card index and composition before any paid storage calls.
         const provisional=institutionalFiles.map((_,i)=>"https://example.invalid/upload-"+i);
-        planInstitutionalImageEdit(site,prompt,provisional);
+        const previewPlan=planInstitutionalImageEdit(site,prompt,provisional);
+        if(!previewPlan)throw Error("Não foi identificada uma edição de imagem segura.");
+        const uploadingToTP1Model3=site.cinematic?.mode!=="immersive-3d"&&
+          site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+        if(uploadingToTP1Model3){
+          const previewChangedIds=site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(previewPlan.site.blocks[i])).map(block=>block.id);
+          const previewCheck=prepareTP1Model3VisibleEdit(site,{ok:true,site:previewPlan.site,changedIds:previewChangedIds});
+          if(!previewCheck.ok)throw Error(previewCheck.error);
+        }
         const projectId=site.id||crypto.randomUUID();
         const uploaded:string[]=[];
         for(const file of institutionalFiles){
@@ -1008,9 +1022,15 @@ export default function BuilderV2() {
         }
         const result=planInstitutionalImageEdit(site,prompt,uploaded);
         if(!result)throw Error("Não foi identificada uma edição de imagem segura.");
+        const uploadedCheck=uploadingToTP1Model3?prepareTP1Model3VisibleEdit(site,{
+          ok:true,
+          site:result.site,
+          changedIds:site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(result.site.blocks[i])).map(block=>block.id),
+        }):null;
+        if(uploadedCheck&&!uploadedCheck.ok)throw Error(uploadedCheck.error);
         recordVersion(site,"Antes de alterar imagens institucionais");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
-        setSite({...result.site,id:projectId});
+        setSite({...(uploadedCheck?.ok?uploadedCheck.site:result.site),id:projectId});
         setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
       }catch(error){
@@ -1042,8 +1062,22 @@ export default function BuilderV2() {
     const structuralRequest = /(?:adicione|crie|criar|incluir|inclua|nova|novo|remova|exclua|mova|coloque|reorganize)[\\s\\S]{0,90}(?:se[cç][aã]o|bloco|etapas|par[aá]grafo)|(?:se[cç][aã]o)[\\s\\S]{0,90}(?:adicione|crie|criar|incluir|inclua|nova|novo)/i.test(prompt);
     const direct = (structuralRequest || hasMotionIntent(prompt)) ? null : (applySingleButtonAlignment(site, prompt) || applyGlobalAlignment(site, prompt));
     if (direct) {
+      // Direct alignment shortcuts also need the specialized TP1 M3 preflight.
+      // Otherwise a successful chat reply can conceal an unchanged React layout.
+      const directTP1Model3=siteCategory==="institutional"&&site.cinematic?.mode!=="immersive-3d"
+        &&site.briefingLayoutVariant==="03"&&resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      const checkedDirect=directTP1Model3?prepareTP1Model3VisibleEdit(site,{
+        ok:true,
+        site:direct.site,
+        changedIds:site.blocks.filter((block,i)=>JSON.stringify(block)!==JSON.stringify(direct.site.blocks[i])).map(block=>block.id),
+      }):null;
+      if(checkedDirect&&!checkedDirect.ok){
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:checkedDirect.error}]);
+        setBusy(false);
+        return;
+      }
       recordVersion(site, "Antes de editar alinhamento");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
-      setSite(direct.site);
+      setSite(checkedDirect?.ok?checkedDirect.site:direct.site);
       setMessages(prev => [...prev, {role:"assistant",text:direct.summary}]);
       setInstruction(""); setBusy(false);
       return;
@@ -1149,6 +1183,22 @@ export default function BuilderV2() {
       if (requested && globalAlignmentRequest) {
         const relevant = incoming.blocks.filter(b=>b.type!=="image");
         if (relevant.some(b=>b.align!==requested)) throw new Error("A IA não aplicou o alinhamento global solicitado. O projeto foi preservado.");
+      }
+      // Also preflight the remote AI result for TP1 Model 03. Without this,
+      // unrecognized commands could claim success while the specialized
+      // renderer ignored the generated blocks. No history/save occurs on fail.
+      const remoteTP1Model3=siteCategory==="institutional"&&
+        site.cinematic?.mode!=="immersive-3d"&&!shouldCreateProject&&
+        site.blocks.length>0&&site.briefingLayoutVariant==="03"&&
+        resolveBriefingFamily(site.niche||selectedNiche||"")===1;
+      if(remoteTP1Model3){
+        const changedIds=site.blocks.filter((block,i)=>{
+          const next=incoming.blocks[i];
+          return !next||block.id!==next.id||JSON.stringify(block)!==JSON.stringify(next);
+        }).map(block=>block.id);
+        const checkedRemote=prepareTP1Model3VisibleEdit(site,{ok:true,site:incoming,changedIds});
+        if(!checkedRemote.ok)throw new Error(checkedRemote.error);
+        incoming=checkedRemote.site;
       }
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
