@@ -134,6 +134,13 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
     if (!changedFields.length || changedFields.some((field) => !allowedFields.includes(field))) {
       return {ok: false, error: "Esse tipo de edição ainda não está ligado ao componente visual do Modelo 3. Nenhuma alteração foi aplicada."};
     }
+    // The FAQ renderer can show only real question/answer pairs. Do not
+    // acknowledge a paragraph rewrite that would disappear from the accordion.
+    if (section === "faq" && kind === "paragraph" &&
+        changedFields.includes("text") &&
+        !/^[^?]{3,}\?\s*\S/.test(String(after.text || "").trim())) {
+      return {ok: false, error: "Para alterar uma resposta do FAQ, informe pergunta e resposta no mesmo bloco. Nenhuma alteração foi aplicada."};
+    }
     if (changedFields.includes("src") && !isSafeUniversalUrl(after.src, true)) {
       return {ok: false, error: "A URL da fotografia é inválida. Nenhuma alteração foi aplicada."};
     }
