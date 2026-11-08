@@ -793,10 +793,16 @@ function AddToCrmDialog({
       if(form.websiteFilter==='NO_OWN_WEBSITE'){
         // Recheck the official live Google detail only after the user chooses
         // this candidate; no extra paid calls for every search result.
-        const live=await api.get<{details:{websiteUri?:string|null}}>(
+        const live=await api.get<{details:{website?:{url?:string|null;classification?:string}}}>(
           '/google/places/'+encodeURIComponent(result.placeId)
         );
-        const current=typeof live.details?.websiteUri==='string'?live.details.websiteUri.trim():'';
+        const current=typeof live.details?.website?.url==='string'
+          ?live.details.website.url.trim():'';
+        const liveType=live.details?.website?.classification;
+        if(liveType==='OWN_WEBSITE'){
+          setError('O Google agora informa um site proprio para esta empresa. Lead nao adicionado como sem site.');
+          return;
+        }
         if(current){
           latestWebsite=current;
           let sameHost=false;
@@ -806,7 +812,7 @@ function AddToCrmDialog({
               new URL(current).hostname.replace(/^www\./,''));
           }catch{sameHost=false;}
           if(!sameHost){
-            setError('O perfil Google agora informa um link diferente. Confirme se a empresa possui site proprio antes de prospectar como sem site. Nenhum lead foi adicionado.');
+            setError('O perfil Google informa agora um link diferente. Confirme o site antes de prospectar. Nenhum lead foi adicionado.');
             return;
           }
         }
