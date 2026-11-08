@@ -32,7 +32,7 @@ let browser=null;
 const rows=[];
 let stderr="";
 const sleep=ms=>new Promise(done=>setTimeout(done,ms));
-const fixture=item=>base+"/__qa/builder-v2?niche="+encodeURIComponent(item.niche)+"&model=01";
+const fixture=item=>base+"/qa-preview/builder-v2?niche="+encodeURIComponent(item.niche)+"&model=01";
 async function runServer(){
   if(external)return;
   server=spawn("npm",["run","dev"],{cwd:root,env:{...process.env,NEXT_TELEMETRY_DISABLED:"1"},stdio:["ignore","pipe","pipe"],detached:process.platform!=="win32"});
@@ -67,7 +67,7 @@ try{
       const page=await contexts[device.name].newPage();
       page.on("pageerror",error=>record.errors.push(String(error.message).slice(0,350)));
       try{
-        const response=await page.goto(base+"/__qa/builder-v2?niche="+encodeURIComponent(item.niche)+"&model="+model,{waitUntil:"domcontentloaded",timeout:90000});
+        const response=await page.goto(base+"/qa-preview/builder-v2?niche="+encodeURIComponent(item.niche)+"&model="+model,{waitUntil:"domcontentloaded",timeout:90000});
         if(!response||response.status()>=400)throw Error("HTTP "+response?.status());
         await page.locator("[data-qa-builder-v2='true']").waitFor({timeout:20000});
         await page.evaluate(()=>{for(const img of document.images)img.loading="eager"});

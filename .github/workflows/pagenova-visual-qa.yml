@@ -7,7 +7,7 @@ on:
       - "frontend/src/components/builder-v2-*"
       - "frontend/src/lib/briefing-template-families.ts"
       - "frontend/src/lib/tp3-japanese-model1.ts"
-      - "frontend/src/app/__qa/**"
+      - "frontend/src/app/qa-preview/**"
       - "frontend/scripts/audit-builder-v2-visual.mjs"
       - "frontend/scripts/test-builder-v2-qa-visual.mjs"
       - ".github/workflows/pagenova-visual-qa.yml"

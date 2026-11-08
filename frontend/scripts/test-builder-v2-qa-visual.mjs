@@ -7,7 +7,7 @@ import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "../src/lib/brief
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const read=filename=>readFileSync(path.join(root,filename),"utf8");
-const fixture=read("src/app/__qa/builder-v2/page.tsx");
+const fixture=read("src/app/qa-preview/builder-v2/page.tsx");
 const proxy=read("src/proxy.ts");
 const runner=read("scripts/audit-builder-v2-visual.mjs");
 const commands=JSON.parse(read("package.json")).scripts;
@@ -35,7 +35,7 @@ test("the QA fixture calls the production BuilderV2Site component with selectabl
 
 test("QA pages never expose data in Production, Preview or remote hosts",()=>{
   assert.match(fixture,/process\.env\.NODE_ENV!=="development"\)notFound\(\)/);
-  assert.match(proxy,/pathname\.startsWith\("\/__qa\/"\)/);
+  assert.match(proxy,/pathname\.startsWith\("\/qa-preview\/"\)/);
   assert.match(proxy,/process\.env\.NODE_ENV!=="development"/);
   assert.match(proxy,/host!=="localhost"&&host!=="127\.0\.0\.1"/);
   assert.match(proxy,/new NextResponse\("Not found",\{status:404\}\)/);
