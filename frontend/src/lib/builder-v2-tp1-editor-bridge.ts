@@ -131,7 +131,7 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
     const changedFields = Object.keys({...before, ...after}).filter((key) =>
       JSON.stringify(before[key]) !== JSON.stringify(after[key])
     );
-    const allowedFields = kind === "image" ? ["src"] :
+    const allowedFields = kind === "image" ? ["src", "userUploaded"] :
       kind === "button" && section === "inicio" ? ["text", "href"] :
       kind === "heading" || kind === "paragraph" ? ["text"] : [];
     if (!changedFields.length || changedFields.some((field) => !allowedFields.includes(field))) {
@@ -143,6 +143,12 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
         changedFields.includes("text") &&
         !/^[^?]{3,}\?\s*\S/.test(String(after.text || "").trim())) {
       return {ok: false, error: "Para alterar uma resposta do FAQ, informe pergunta e resposta no mesmo bloco. Nenhuma alteração foi aplicada."};
+    }
+    // An uploaded replacement may mark the block as user-owned. This flag
+    // is meaningful only together with a changed, safe, visible source.
+    if (changedFields.includes("userUploaded") &&
+        (after.userUploaded !== true || !changedFields.includes("src"))) {
+      return {ok: false, error: "A imagem enviada não substituiu uma foto visível. Nenhuma alteração foi aplicada."};
     }
     if (changedFields.includes("src") && !isSafeUniversalUrl(after.src, true)) {
       return {ok: false, error: "A URL da fotografia é inválida. Nenhuma alteração foi aplicada."};
