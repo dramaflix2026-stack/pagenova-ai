@@ -18,3 +18,14 @@ export function requiredIllustrationSlots(realPhotoCount: number): MandatoryImag
   if (count === 1) return ['hero', 'supplement'];
   return ['hero'];
 }
+
+/** A real Google Place photo is always preferred as a lead site's Hero.
+ * Choose a landscape capture when available, but never substitute an AI
+ * illustration when the business only has portrait-oriented real photos. */
+export function selectVerifiedGoogleCover<T extends {
+ assetId:string;source:string;width:number|null;height:number|null;
+}>(assets:readonly T[]):T|undefined{
+ const verified=assets.filter(asset=>asset.source==='GOOGLE_PLACES');
+ return verified.find(asset=>asset.width!==null&&asset.height!==null&&asset.height>0&&
+  asset.width/asset.height>=1.1)??verified[0];
+}
