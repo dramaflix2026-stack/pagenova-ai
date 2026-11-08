@@ -30,7 +30,7 @@ import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/pro
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import { ensureIllustrativeHero } from '@builder/generation/generated-image-provider';
-import { requiredIllustrationSlots, imageGenerationKeyPresent } from '@builder/generation/mandatory-image-policy';
+import { requiredIllustrationSlots, imageGenerationKeyPresent, selectVerifiedGoogleCover } from '@builder/generation/mandatory-image-policy';
 import { restoreAvailableImageSlots } from '@builder/publishing/recover-image-slots';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
@@ -326,8 +326,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       // One verified business photo MUST be the cover when Google supplies one.
       // Prefer a landscape cover; portrait-only profiles still get a real cover.
       // Generated/editorial assets remain available for the following sections.
-      const realHeroCandidate=realCandidates.find(item=>item.width&&item.height&&item.width/item.height>=1.1)
-        ?? realCandidates[0];
+      const realHeroCandidate=selectVerifiedGoogleCover(realCandidates);
       const heroCandidate = realHeroCandidate ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
         (item) => item.assetId !== secondaryCandidate?.assetId &&
           (!item.width || !item.height || item.width / item.height >= 1.1),
