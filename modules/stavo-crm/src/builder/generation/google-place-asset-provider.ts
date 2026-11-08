@@ -36,7 +36,9 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
     const available = await storage.read(asset.storageKey).then(() => true).catch(() => false);
     if (!available) missingExisting.push(asset);
   }
-  if (existing.length >= 2 && missingExisting.length === 0) return existing.length;
+  // Two imported photos did not mean the Google listing contained only two.
+  // Continue up to the five unique real photos permitted for the project.
+  if (existing.length >= MAX_GOOGLE_ASSETS && missingExisting.length === 0) return existing.length;
 
   const db = getDb();
   const [lead] = await db
@@ -48,7 +50,11 @@ export async function ensureGooglePlaceAssets(project: SiteProject): Promise<num
   if (!lead?.placeId) return existing.length;
 
   const details = await fetchLiveDetails(db, project.workspaceId, lead.placeId);
-  const photos = details.photos.slice(0, MAX_GOOGLE_ASSETS);
+  const seenPhotos=new Set<string>();
+  const photos=details.photos.filter(photo=>{
+    if(!photo.name||seenPhotos.has(photo.name))return false;
+    seenPhotos.add(photo.name);return true;
+  }).slice(0,MAX_GOOGLE_ASSETS);
   if (photos.length === 0) return existing.length;
 
   // Primeiro restaura, no MESMO storageKey, todos os assets Google perdidos
