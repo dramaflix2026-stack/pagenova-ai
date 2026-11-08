@@ -150,7 +150,7 @@ const NONE_RESULT: ClassifiedLink = {
   url: null,
   host: null,
   linkType: 'OTHER',
-  label: 'Sem nenhum link',
+  label: 'Nenhum site informado no perfil Google — verificar',
 };
 
 /**
@@ -266,7 +266,8 @@ export const NO_OWN_WEBSITE_CLASSIFICATIONS: readonly WebsiteClassification[] = 
 
 /**
  * Aplica o filtro de site da tela de pesquisa.
- * UNKNOWN nunca e escondido: aparece sinalizado para conferencia manual.
+ * UNKNOWN never qualifies as "sem site"; inconclusive URLs must be checked
+ * rather than presented to a salesperson as prospecting-ready leads.
  */
 export function matchesWebsiteFilter(
   classification: WebsiteClassification,
@@ -276,7 +277,7 @@ export function matchesWebsiteFilter(
     case 'ALL':
       return true;
     case 'NO_OWN_WEBSITE':
-      return NO_OWN_WEBSITE_CLASSIFICATIONS.includes(classification) || classification === 'UNKNOWN';
+      return NO_OWN_WEBSITE_CLASSIFICATIONS.includes(classification);
     case 'HAS_OWN_WEBSITE':
       return classification === 'OWN_WEBSITE' || classification === 'UNKNOWN';
     case 'NO_LINK':
