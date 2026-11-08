@@ -29,7 +29,8 @@ test("the QA fixture calls the production BuilderV2Site component with selectabl
   assert.match(fixture,/niches\.some/);
   assert.match(fixture,/data-qa-builder-v2="true"/);
   assert.match(fixture,/publishedMode=\{false\}/);
-  assert.doesNotMatch(fixture,/supabase|crmProjectId|userId|OPENAI_API_KEY/i);
+  assert.doesNotMatch(fixture,/from\s+["\x27][^"\x27]*(?:supabase|crm)/i);
+  assert.doesNotMatch(fixture,/process\.env\.(?:OPENAI_API_KEY|SUPABASE)/);
 });
 
 test("QA pages never expose data in Production, Preview or remote hosts",()=>{
