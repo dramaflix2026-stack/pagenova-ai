@@ -110,8 +110,8 @@ describe('filtros de site', () => {
     expect(matchesWebsiteFilter('INSTAGRAM', 'HAS_OWN_WEBSITE')).toBe(false);
   });
 
-  it('UNKNOWN nunca e escondido: aparece sinalizado para verificacao', () => {
-    expect(matchesWebsiteFilter('UNKNOWN', 'NO_OWN_WEBSITE')).toBe(true);
+  it('UNKNOWN requires verification, not admission as a site-less lead', () => {
+    expect(matchesWebsiteFilter('UNKNOWN', 'NO_OWN_WEBSITE')).toBe(false);
     expect(matchesWebsiteFilter('UNKNOWN', 'HAS_OWN_WEBSITE')).toBe(true);
     expect(matchesWebsiteFilter('UNKNOWN', 'ALL')).toBe(true);
   });
