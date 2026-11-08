@@ -44,6 +44,25 @@
   --pn-muted:#d8c7b7;
   color:#f4eadb!important;
 }
+/* The Model 1 hero uses an internal ivory panel; restore that panel too.
+   Without this override, light text on the original ivory background is unreadable. */
+[data-tp1-aesthetic-model1="true"] [data-pn-composition="luxury-wellness-hero"]{
+  background-color:#171411!important;
+  color:#f4eadb!important;
+}
+[data-tp1-aesthetic-model1="true"] [data-pn-composition="luxury-wellness-hero"] :is(h1,h2,h3){
+  color:#f4eadb!important;
+  -webkit-text-fill-color:#f4eadb!important;
+}
+[data-tp1-aesthetic-model1="true"] [data-pn-composition="luxury-wellness-hero"] p{
+  color:#d9cabc!important;
+  -webkit-text-fill-color:#d9cabc!important;
+}
+/* Neutralize dark brown Tailwind hero label overrides. */
+[data-tp1-aesthetic-model1="true"] [data-pn-composition="luxury-wellness-hero"] .text-\\[\\#98785e\\]{
+  color:#c9a889!important;
+}
+
 /* Every dark section carries pale text, not taupe on near-black. */
 [data-tp1-aesthetic-model1="true"] .pn-motion-site > section.pn-institutional-section:first-of-type :is(h1,h2,h3,h4,p,li),
 [data-tp1-aesthetic-model1="true"] .pn-motion-site > section.pn-institutional-section[data-section-id*="servic" i] :is(h1,h2,h3,h4,p,li),
