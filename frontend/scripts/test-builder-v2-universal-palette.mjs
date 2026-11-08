@@ -22,11 +22,15 @@ test("the universal palette updates design tokens without changing copy/media/mo
  const applied=applyUniversalPaletteEdit(original,prompt);
  assert.ok(applied);
  assert.equal(applied.site.background,"#101010");
+ assert.equal(applied.site.designPaletteApplied,true);
  assert.equal(applied.site.design.accent,"#C9A77B");
  assert.equal(applied.site.design.surface,"#F7F4EF");
  assert.deepEqual(applied.site.blocks,saved.blocks);
  assert.deepEqual(applied.site.motion,saved.motion);
  assert.deepEqual(original,saved);
+ const css=readFileSync(new URL("../src/components/builder-v2-universal-scroll-reveal.css",import.meta.url),"utf8");
+ assert.match(css,/data-pn-palette-custom/);
+ assert.match(css,/--pn-custom-accent/);
  assert.deepEqual(JSON.parse(JSON.stringify(applied.site)).design,applied.site.design);
 });
 test("protected motion words without a real palette request do not create a palette edit",()=>{
