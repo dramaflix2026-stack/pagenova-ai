@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function proxy(request: NextRequest) {
   // Isolated screenshot harness. Never expose QA fixtures on Production or
   // externally routed preview domains; do not require Supabase for local QA.
-  if(request.nextUrl.pathname.startsWith("/__qa/")){
+  if(request.nextUrl.pathname.startsWith("/qa-preview/")){
     const host=request.nextUrl.hostname.toLowerCase();
     if(process.env.NODE_ENV!=="development"||(host!=="localhost"&&host!=="127.0.0.1")){
       return new NextResponse("Not found",{status:404});
