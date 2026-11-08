@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {fixture,render} from "./builder-v2-renderer-harness.mjs";
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 import {applyUniversalHeadingBatch} from "../src/lib/builder-v2-universal-heading-batches.ts";
+import {summarizeUniversalEdit} from "../src/lib/builder-v2-universal-operations.ts";
 
 const prompt='Na capa, altere somente o título principal para "Beleza e inovação em perfeita harmonia". Na seção Sobre a empresa, altere o título para "Nossa essência". Na seção Perguntas Frequentes, altere o título para "Tire suas dúvidas". Preserve todas as imagens, os botões, os parágrafos e as demais seções.';
 const create=(variant="02")=>{
@@ -22,6 +23,8 @@ test("exact customer batch atomically edits three persisted heading targets",()=
  assert.equal(result?.ok,true,result?.error);
  if(!result?.ok)return;
  assert.deepEqual(result.changedIds,["hero","about-heading","faq"]);
+ assert.equal(result.requestedCount,3);
+ assert.equal(result.alreadyCorrectCount,0);
  assert.equal(result.site.blocks.find(b=>b.id==="hero").text,"Beleza e inovação em perfeita harmonia");
  assert.equal(result.site.blocks.find(b=>b.id==="about-heading").text,"Nossa essência");
  assert.equal(result.site.blocks.find(b=>b.id==="faq").text,"Tire suas dúvidas");
@@ -37,6 +40,9 @@ test("retry of same batch after a prior Hero-only edit finishes two missing head
  assert.equal(result?.ok,true,result?.error);
  if(!result?.ok)return;
  assert.deepEqual(result.changedIds,["about-heading","faq"]);
+ assert.equal(result.requestedCount,3);
+ assert.equal(result.alreadyCorrectCount,1);
+ assert.equal(summarizeUniversalEdit(result),"3 de 3 títulos atendidos: 2 títulos alterados agora e 1 já estava correto. Demais conteúdos preservados.");
  assert.equal(result.site.blocks[0].text,"Beleza e inovação em perfeita harmonia");
 });
 test("visual About and FAQ titles change in each TP5 model in preview and published output",()=>{
@@ -97,4 +103,9 @@ test("batch engine works across niche strings without business-specific parsing"
   assert.equal(result?.ok,true,niche+": "+result?.error);
   if(result?.ok)assert.deepEqual(result.changedIds,["hero","about-heading","faq"]);
  }
+});
+
+test("other universal edits keep their original successful confirmation",()=>{
+ assert.equal(summarizeUniversalEdit({changedIds:["hero"]}),"Edição universal aplicada a 1 bloco(s). Demais conteúdos preservados.");
+ assert.equal(summarizeUniversalEdit({changedIds:["a","b"]}),"Edição universal aplicada a 2 bloco(s). Demais conteúdos preservados.");
 });
