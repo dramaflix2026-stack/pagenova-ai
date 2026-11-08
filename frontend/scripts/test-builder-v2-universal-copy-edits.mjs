@@ -160,3 +160,27 @@ test("header-only primary CTA is updated without inventing a button or changing 
  assert.deepEqual(result.site.blocks,before.blocks);
  assert.equal(isIsolatedUniversalCopyResult(original,result.site,parsed.intent),true);
 });
+
+test("explicit copy and renderer-slot overrides survive JSON save/reload",()=>{
+ const base=site();
+ const subtitle=parseUniversalCopyEdit(base,requests.hero);
+ assert.ok(subtitle&&"intent" in subtitle);
+ const first=applyUniversalCopyEdit(base,subtitle.intent);
+ assert.equal(first.ok,true);
+ if(!first.ok)return;
+ const missing=copy(first.site);
+ missing.blocks=missing.blocks.filter(b=>b.id!=="about-second");
+ const about=parseUniversalCopyEdit(missing,requests.about);
+ assert.ok(about&&"intent" in about);
+ const second=applyUniversalCopyEdit(missing,about.intent,"Texto restaurado após atualizar a página.");
+ assert.equal(second.ok,true);
+ if(!second.ok)return;
+ const restored=JSON.parse(JSON.stringify(second.site));
+ assert.equal(universalEditedTextSlot(restored,"capa","paragraph",0),"Tecnologia, sofisticação e cuidado em cada detalhe");
+ assert.equal(universalEditedTextSlot(restored,"sobre","paragraph",1),"Texto restaurado após atualizar a página.");
+ assert.equal(restored.header.ctaHref,base.header.ctaHref);
+});
+test("ordinary image edits are still routed to photo controls, not text",()=>{
+ assert.equal(institutionalImageIntent("Troque a imagem principal da capa por uma fotografia nova."),true);
+ assert.equal(isScopedBannerCopyRequest("Troque o título do segundo banner para 'Nova chamada'."),true);
+});
