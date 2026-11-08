@@ -59,11 +59,14 @@ export function japaneseModel1Photo(index: number, width = 1400): string {
   return "https://images.unsplash.com/" + id + "?auto=format&fit=crop&w=" + width + "&q=85";
 }
 export function isGenericJapaneseSiteName(name: string): boolean {
-  return /^(?:del[ií]cias?\s+(?:da\s+)?comida\s+japonesa|comida\s+japonesa|restaurante\s+japon[eê]s|gastronomia|novo\s+site|site\s+de\s+comida\s+japonesa)$/i.test(name.trim());
+  return /^(?:del[ií]cias?\s+(?:da\s+)?comida\s+japonesa|comida\s+japonesa|restaurante\s+japon[eê]s|restaurantes?|gastronomia(?:\s+premium)?|novo\s+site|site\s+de\s+comida\s+japonesa)$/i.test(name.trim());
 }
 export function japaneseModel1Brand(siteTitle: string, headerBrand?: string, publishedMode = false): { brand: string; demo: boolean } {
-  const raw = (headerBrand || siteTitle).trim();
-  if (raw && !isGenericJapaneseSiteName(raw)) return { brand: raw, demo: false };
+  // Older generators stored a generic family label in header.brand even when
+  // site.title contained the real business name. Prefer the first real name.
+  const realBrand=[headerBrand,siteTitle].map(value=>(value||"").trim())
+    .find(value=>value&&!isGenericJapaneseSiteName(value));
+  if(realBrand)return {brand:realBrand,demo:false};
   return publishedMode
     ? { brand: "Restaurante japonês", demo: false }
     : { brand: "Sakura Sushi", demo: true };
