@@ -26,6 +26,9 @@ const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, 
 export const hasMotionIntent = (text: string) => /anim[ae]|efeito|fade.?in|parallax|surg|apare[cç]|desliz|puls|flutu|movimento|transi[cç][aã]o|zoom/i.test(text);
 export function isMotionOnlyInstruction(text: string): boolean {
   if (!hasMotionIntent(text)) return false;
+  // Never route an explicit identity/palette/color request to the motion engine
+  // merely because the user says "preserve the animations".
+  if(/\b(?:altere|troque|mude|atualize|aplique|defina|transforme|modifique)\b[\s\S]{0,130}\b(?:identidade visual|paleta|cores?|tema visual|estilo visual)\b/i.test(text))return false;
   return !/(?:adicione|inclua|crie|criar|remova|exclua|mova|reorganize|inserir)\s+(?:(?:uma?|nov[ao]s?|mais)\s+){0,3}(?:se[cç][aã]o|bloco|formul[aá]rio)|(?:troque|altere|mude|substitua|reescreva)\s+(?:(?:o|a|os|as|do|da|dos|das|todos|todas|um|uma)\s+){0,2}(?:texto|t[ií]tulo|cor|fundo|layout|imagem|foto|fonte|alinhamento)|(?:centraliz\w*|alinhe?\w*|alinhamento)[\s\S]{0,60}(?:texto|t[ií]tulo|bot[aã]o|conte[uú]do|tudo)/i.test(text);
 }
 export function initialSiteMotion(text: string): SiteMotion {
