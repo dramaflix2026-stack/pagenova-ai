@@ -31,3 +31,5 @@
 [data-tp1-aesthetic-model1="true"] .tp1-family-reviews-head>p{color:#746c66}
 [data-tp1-aesthetic-model1="true"] .tp1-family-review-avatar{color:#765a49;background:#eee4da}
 [data-tp1-aesthetic-model1="true"] .tp1-family-review-card{color:#3b312a}
+
+.tp1-family-review-avatar img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
