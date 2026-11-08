@@ -427,9 +427,11 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     const selectedTemplate=(project.draftConfig as {templateId?:string}|null)?.templateId;
     model.project.templateId=selectedTemplate==='muse-editorial'||selectedTemplate==='atelier-norte'||selectedTemplate==='vertice-corporate'||selectedTemplate==='restaurant-premium'||selectedTemplate==='real-estate-premium' ? selectedTemplate : 'frigolog-universal';
     const studioTemplate=(project.draftConfig as {builderV2TemplateId?:string}|null)?.builderV2TemplateId;
-    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'){
+    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'||studioTemplate==='prompt-adaptive'){
       model.project.builderV2TemplateId=studioTemplate;
     }
+    const studioVariant=(project.draftConfig as {builderV2Variant?:string}|null)?.builderV2Variant;
+    if(studioVariant==='01'||studioVariant==='02'||studioVariant==='03')model.project.builderV2Variant=studioVariant;
 
     // Validate actual file bytes and attach all three slots AFTER the assembler
     // (not only to the AI's optional plan bindings). No missing-image site may
