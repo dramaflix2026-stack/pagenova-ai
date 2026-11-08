@@ -199,3 +199,36 @@ test("direct alignment shortcuts cannot report an invisible TP1 M3 edit",()=>{
  assert.ok(page.indexOf("const checkedDirect=directTP1Model3?prepareTP1Model3VisibleEdit(site,{") < page.indexOf('recordVersion(site, "Antes de editar alinhamento")'));
  assert.ok(page.includes("setSite(checkedDirect?.ok?checkedDirect.site:direct.site)"));
 });
+
+test("uploaded image replacement is visible but unrenderable photo fields are rejected",()=>{
+ const site=baseline();
+ const replacement=copy(site);
+ replacement.blocks[3].src="https://images.pexels.com/photos/123/upload.jpeg";
+ replacement.blocks[3].userUploaded=true;
+ const accepted=prepareTP1Model3VisibleEdit(site,{ok:true,site:replacement,changedIds:["hero-img"]});
+ assert.equal(accepted.ok,true);
+ if(accepted.ok){
+   assert.equal(tp1Model3EditedImage(accepted.site,"inicio"),replacement.blocks[3].src);
+   assert.equal(accepted.site.blocks[3].srcExplicit,true);
+ }
+ const bad=copy(site);
+ bad.blocks[3].userUploaded=true;
+ assert.equal(prepareTP1Model3VisibleEdit(site,{ok:true,site:bad,changedIds:["hero-img"]}).ok,false);
+ const offscreen=copy(site);
+ offscreen.blocks[3].src="https://example.com/new.jpg";
+ offscreen.blocks[3].mobileSrc="https://example.com/mobile.jpg";
+ offscreen.blocks[3].userUploaded=true;
+ assert.equal(prepareTP1Model3VisibleEdit(site,{ok:true,site:offscreen,changedIds:["hero-img"]}).ok,false);
+});
+
+test("institutional uploaded image shortcut checks visibility before upload and history",()=>{
+ const page=source("app/app/builder-v2/page.tsx");
+ const beforeUpload=page.indexOf("const previewPlan=planInstitutionalImageEdit(site,prompt,provisional)");
+ const checked=page.indexOf("const previewCheck=prepareTP1Model3VisibleEdit(site,");
+ const upload=page.indexOf('await fetch("/api/builder-v2/assets",{method:"POST",body})',beforeUpload);
+ const actual=page.indexOf("const uploadedCheck=uploadingToTP1Model3?prepareTP1Model3VisibleEdit(site,{");
+ const version=page.indexOf('recordVersion(site,"Antes de alterar imagens institucionais")');
+ assert.ok(beforeUpload>=0&&checked>beforeUpload&&upload>checked);
+ assert.ok(actual>upload&&version>actual);
+ assert.ok(page.includes("setSite({...("+"uploadedCheck?.ok?uploadedCheck.site:result.site"+"),id:projectId})"));
+});
