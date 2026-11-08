@@ -59,9 +59,6 @@
   -webkit-text-fill-color:#d9cabc!important;
 }
 /* Neutralize dark brown Tailwind hero label overrides. */
-[data-tp1-aesthetic-model1="true"] [data-pn-composition="luxury-wellness-hero"] .text-\\[\\#98785e\\]{
-  color:#c9a889!important;
-}
 
 /* Every dark section carries pale text, not taupe on near-black. */
 [data-tp1-aesthetic-model1="true"] .pn-motion-site > section.pn-institutional-section:first-of-type :is(h1,h2,h3,h4,p,li),
