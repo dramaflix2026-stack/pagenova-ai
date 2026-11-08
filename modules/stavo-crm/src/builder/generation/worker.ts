@@ -30,7 +30,7 @@ import { usageRecord, type GenerateSitePlanInput } from '@builder/generation/pro
 import { UploadAssetProvider } from '@builder/generation/upload-asset-provider';
 import { ensureGooglePlaceAssets } from '@builder/generation/google-place-asset-provider';
 import { ensureIllustrativeHero } from '@builder/generation/generated-image-provider';
-import { requiredIllustrationSlots, imageGenerationKeyPresent } from '@builder/generation/mandatory-image-policy';
+import { requiredIllustrationSlots, imageGenerationKeyPresent, choosePrimaryHeroImage } from '@builder/generation/mandatory-image-policy';
 import { restoreAvailableImageSlots } from '@builder/publishing/recover-image-slots';
 import * as repo from '@server/modules/site-ai/repository';
 import { assertBudgetAvailable, transitionProject } from '@server/modules/site-ai/service';
@@ -327,12 +327,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
       const ownerCandidates = imageCandidates.filter((item) => item.source === 'UPLOAD');
-      const heroCandidate =
-        realCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId && (!item.width || !item.height || item.width >= item.height)) ??
-        realCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId) ??
-        ownerCandidates.find((item) => !item.width || !item.height || item.width >= item.height) ??
-        ownerCandidates[0] ??
-        imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]'));
+      const heroCandidate = choosePrimaryHeroImage(imageCandidates, secondaryCandidate?.assetId);
       const fallbackSecondary = secondaryCandidate ??
         realCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
         ownerCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
