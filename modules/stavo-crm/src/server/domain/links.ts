@@ -150,7 +150,7 @@ const NONE_RESULT: ClassifiedLink = {
   url: null,
   host: null,
   linkType: 'OTHER',
-  label: 'Sem nenhum link',
+  label: 'Nenhum site informado no perfil Google - verificar',
 };
 
 /**
@@ -256,7 +256,7 @@ export function classifyWebsite(value: string | null | undefined): ClassifiedLin
 
 /** Classificacoes que NAO representam site proprio. */
 export const NO_OWN_WEBSITE_CLASSIFICATIONS: readonly WebsiteClassification[] = [
-  'NONE',
+  // NONE is missing data from Google, not evidence that no domain exists.
   'INSTAGRAM',
   'WHATSAPP',
   'FACEBOOK_OR_SOCIAL',
@@ -266,7 +266,8 @@ export const NO_OWN_WEBSITE_CLASSIFICATIONS: readonly WebsiteClassification[] = 
 
 /**
  * Aplica o filtro de site da tela de pesquisa.
- * UNKNOWN nunca e escondido: aparece sinalizado para conferencia manual.
+ * UNKNOWN/NONE do not prove site absence. Show them in ALL/NO_LINK,
+ * not as leads confirmed to lack a website.
  */
 export function matchesWebsiteFilter(
   classification: WebsiteClassification,
@@ -276,9 +277,9 @@ export function matchesWebsiteFilter(
     case 'ALL':
       return true;
     case 'NO_OWN_WEBSITE':
-      return NO_OWN_WEBSITE_CLASSIFICATIONS.includes(classification) || classification === 'UNKNOWN';
+      return NO_OWN_WEBSITE_CLASSIFICATIONS.includes(classification);
     case 'HAS_OWN_WEBSITE':
-      return classification === 'OWN_WEBSITE' || classification === 'UNKNOWN';
+      return classification === 'OWN_WEBSITE';
     case 'NO_LINK':
       return classification === 'NONE';
     case 'SOCIAL_AS_WEBSITE':
