@@ -16,7 +16,7 @@ export function TP1FamilyTestimonials({site,publishedMode=false,model="01"}:{sit
  const realReviews=getTP1RealReviews(site.blocks);
  if(publishedMode&&!realReviews.length)return null;
  // Complete five cards in the preview while keeping real reviews distinct.
- const cards=publishedMode?realReviews.slice(0,5):[
+ const cards: Array<{name:string;detail:string;quote:string;illustrative?:boolean}>=publishedMode?realReviews.slice(0,5):[
   ...realReviews.slice(0,5).map(review=>({...review,illustrative:false})),
   ...PREVIEW_TESTIMONIALS.slice(0,Math.max(0,5-realReviews.length)).map(review=>({...review,illustrative:true}))
  ];
