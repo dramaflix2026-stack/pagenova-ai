@@ -184,3 +184,8 @@ test("ordinary image edits are still routed to photo controls, not text",()=>{
  assert.equal(institutionalImageIntent("Troque a imagem principal da capa por uma fotografia nova."),true);
  assert.equal(isScopedBannerCopyRequest("Troque o título do segundo banner para 'Nova chamada'."),true);
 });
+
+test("scoped AI rewrite sends the original project to the server, not a reclassified niche",()=>{
+ const page=excerpt("app/app/builder-v2/page.tsx");
+ assert.ok(page.includes('scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?site:'));
+});
