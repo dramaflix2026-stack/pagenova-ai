@@ -6,7 +6,7 @@ import path from "node:path";
 import ts from "typescript";
 import {
   JAPANESE_MODEL1_PHOTO_IDS, JAPANESE_MODEL1_SECTIONS, japaneseModel1Photo,
-  isJapaneseCuisineNiche,isGenericJapaneseSiteName,japaneseModel1Brand
+  isJapaneseCuisineNiche,isJapaneseCuisineSiteIdentity,isGenericJapaneseSiteName,japaneseModel1Brand
 } from "../src/lib/tp3-japanese-model1.ts";
 import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "../src/lib/briefing-template-families.ts";
 
@@ -42,7 +42,7 @@ test("preflight: Japanese Model 1 never uses the bakery image catalog",()=>{
   for(const i of Array.from({length:12},(_,i)=>i)){
     assert.match(japaneseModel1Photo(i),/^https:\/\/images\.unsplash\.com\/photo-/);
   }
-  assert.match(read(model),/if\(!isTruck&&isJapaneseCuisineNiche\(site\.niche\|\|site\.title\|\|""\)\)/);
+  assert.match(read(model),/if\(!isTruck&&isJapaneseCuisineSiteIdentity\(\{/);
   assert.match(read(isolated),/data-tp3-japanese="true"/);
 });
 
@@ -57,6 +57,34 @@ test("preflight: JP name and niche detection never steal bakery or Food Truck",(
   assert.deepEqual(japaneseModel1Brand("Delícias da Comida Japonesa",undefined,false),{brand:"Sakura Sushi",demo:true});
   assert.deepEqual(japaneseModel1Brand("Delícias da Comida Japonesa",undefined,true),{brand:"Restaurante japonês",demo:false});
   assert.deepEqual(japaneseModel1Brand("Sushi Haru",undefined,false),{brand:"Sushi Haru",demo:false});
+});
+
+test("preflight: old generic-gastronomy projects still render Japanese Model 1",()=>{
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    niche:"Gastronomia",title:"Delícias da Comida Japonesa",
+  }),true);
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    niche:"Restaurantes",title:"Sakura Sushi House",
+  }),true);
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    niche:"Gastronomia Premium",title:"Novo Site",brand:"Sakura Sushi House",
+  }),true);
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    niche:"Gastronomia",title:"Restaurante",heroHeadings:["Comida japonesa de verdade"],
+  }),true);
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    selectedNiche:"Comida japonesa",niche:"Gastronomia",title:"Restaurante",
+  }),true);
+  for(const niche of ["Padaria","Pizzaria","Cafeteria","Food truck","Confeitaria","Hamburgueria"]){
+    assert.equal(isJapaneseCuisineSiteIdentity({niche,title:"Sakura Sushi House"}),false,niche);
+  }
+  assert.equal(isJapaneseCuisineSiteIdentity({
+    niche:"Gastronomia",title:"Delícias e sabores da casa",
+  }),false);
+  const rootRenderer=read("src/components/builder-v2-site.tsx");
+  assert.match(rootRenderer,/japaneseSiteIdentity=isJapaneseCuisineSiteIdentity/);
+  assert.match(rootRenderer,/\(family===3\|\|family===undefined\)&&japaneseSiteIdentity/);
+  assert.match(rootRenderer,/BuilderV2TP3Model1 site=\{site\} selectedNiche=\{selectedNiche\}/);
 });
 
 test("preflight: every required Japanese site section is renderable",()=>{
