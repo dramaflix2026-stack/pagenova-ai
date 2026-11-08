@@ -142,6 +142,21 @@ test("FAQ invalid content is rejected; valid paired question and answer can be r
  if(valid.ok)assert.equal(tp1Model3EditedText(valid.site,"faq","paragraph"),"Atende no sábado? Consulte a disponibilidade atualizada.");
 });
 
+test("explicit edit markers survive a complete JSON roundtrip like the saved draft",()=>{
+ const site=baseline();
+ const result=prepareTP1Model3VisibleEdit(site,applyUniversalOperations(site,[
+  {action:"update",blockId:"hero-heading",changes:{text:"Novo título"}},
+  {action:"update",blockId:"hero-img",changes:{src:"https://example.com/new.jpg"}},
+ ]));
+ assert.equal(result.ok,true);
+ if(!result.ok)return;
+ const restored=JSON.parse(JSON.stringify(result.site));
+ assert.equal(tp1Model3EditedText(restored,"inicio","heading"),"Novo título");
+ assert.equal(tp1Model3EditedImage(restored,"inicio"),"https://example.com/new.jpg");
+ assert.equal(restored.templateId,site.templateId);
+ assert.equal(restored.briefingLayoutVariant,site.briefingLayoutVariant);
+});
+
 test("unsafe image URLs cannot bypass the core operation validator",()=>{
  const site=baseline(),original=copy(site);
  const attempted=prepareTP1Model3VisibleEdit(site,applyUniversalOperations(site,[
@@ -163,6 +178,8 @@ test("real TP1 renderer is wired, existing Model 1/2 and CSS remain untouched",(
  assert.ok(sections.includes('imageOverride("servicos",i)'));
  assert.ok(page.includes('prepareTP1Model3VisibleEdit(site,result)'));
  assert.ok(page.includes('setSite(checkedResult.site)'));
+ assert.ok(page.includes('const checkedRemote=prepareTP1Model3VisibleEdit(site,{ok:true,site:incoming,changedIds})'));
+ assert.ok(page.indexOf("const checkedRemote=prepareTP1Model3VisibleEdit")<page.indexOf('recordVersion(site, "Antes da edição com IA")'));
  assert.equal(TP1_MODEL3_VISIBLE_SLOTS.galeria.image,6);
  const model1=source("components/builder-v2-tp1-model1.tsx");
  const model2=source("components/builder-v2-tp1-model2.tsx");
