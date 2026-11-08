@@ -54,6 +54,8 @@ export interface SearchResultItem {
     instagramUrl: string | null;
     instagramSearchUrl: string;
     mapsUrl: string;
+    /** Independent manual search: Places websiteUri does not establish absence of a website. */
+    websiteSearchUrl: string;
   };
   score: number;
   scoreReasons: ScoreReason[];
@@ -194,6 +196,7 @@ export function mapPlace(place: GooglePlaceRaw): SearchResultItem {
       instagramUrl: website.classification === 'INSTAGRAM' ? website.url : null,
       instagramSearchUrl: instagramSearchUrl(name, place.formattedAddress ?? null),
       mapsUrl: place.googleMapsUri ?? mapsLinkFromPlaceId(place.id),
+      websiteSearchUrl: `https://www.google.com/search?q=${encodeURIComponent([name,place.formattedAddress,'site oficial'].filter(Boolean).join(' '))}`,
     },
     score: scored.score,
     scoreReasons: scored.reasons,
