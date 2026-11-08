@@ -25,21 +25,8 @@ export type UniversalCardEdit={
  generateDescription:boolean;
 };
 export type UniversalCardResolution={intent:UniversalCardEdit}|{error:string}|null;
-export function parseUniversalCardEdit(site:UniversalSite,instruction:string):UniversalCardResolution{
- const raw=instruction.trim().replace(/\.\s*(?:n[aã]o\s+altere|preserve|mantenha)\b[\s\S]*$/i,"").trim().replace(/\.\s*$/,"");
- const m=raw.match(/^no\s+(primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|s[eé]timo|s[eé]tima|oitavo|oitava|nono|nona|d[eé]cimo|d[eé]cima|\d{1,2}(?:[º°ªo])?)\s+card\s+d[ae]\s+se[cç][aã]o\s+(.{1,130}?),\s*(.+)$/is);
- if(!m)return null;
- const ordinalText=clean(m[1]).replace(/^(\d{1,2})[º°ªo]$/,"$1");
- const ordinal=/^\d{1,2}$/.test(ordinalText)?Number(ordinalText)-1:ORDINALS[ordinalText];
- if(!Number.isInteger(ordinal)||ordinal<0||ordinal>19)return {error:"Número do card fora do intervalo. Nenhuma alteração aplicada."};
- const section=resolveUniversalSection(site,m[2].trim().replace(/^["“']|["”']$/g,""));
- if(!section)return {error:"Seção '"+m[2].trim()+"' não encontrada ou ambígua. Nenhuma alteração aplicada."};
- const command=m[3].trim();
- const title=command.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?(?:o\s+)?t[ií]tulo\s+(?:para|por|como)\s+["“']([^"”']{1,300})["”'](?:\s+e\s+(.+))?$/is);
- if(!title)return {error:"Informe o novo título do card entre aspas e, se desejar, a descrição. Nenhuma alteração aplicada."};
- const tail=title[2]?.trim();
- const description=tail?.match(/^(?:atualize|reescreva|melhore|altere|troque|mude|substitua)\s+(?:a\s+)?descri[cç][aã]o(?:\s+(?:para|por|como)\s+["“']([^"”']{1,1200})["”'])?$/is);
- if(tail&&!description)return {error:"A instrução sobre a descrição não está clara. Nenhuma alteração aplicada."};
+export function resolveUniversalCardTarget(site:UniversalSite,section:string,ordinal:number):UniversalCardTarget|null{
+ if(!Number.isInteger(ordinal)||ordinal<0)return null;
  const sectionBlocks=site.blocks.filter(b=>b.section===section);
  const headings=sectionBlocks.filter(b=>b.type==="heading");
  const paragraphs=sectionBlocks.filter(b=>b.type==="paragraph");
@@ -58,6 +45,43 @@ export function parseUniversalCardEdit(site:UniversalSite,instruction:string):Un
   if(heading&&paragraph)target={section,ordinal,titleId:heading.id,descriptionId:paragraph.id,format:"split",
    originalTitle:String(heading.text||""),originalDescription:String(paragraph.text||""),separator:""};
  }
+ return target??null;
+}
+/** Shared explicit copy; the approved original design is unchanged until edited. */
+export function universalEditedCardCopy(site:UniversalSite,sectionLabel:string,ordinal:number):{title?:string;description?:string}|null{
+ const section=resolveUniversalSection(site,sectionLabel);
+ if(!section)return null;
+ const target=resolveUniversalCardTarget(site,section,ordinal);
+ if(!target)return null;
+ const title=site.blocks.find(b=>b.id===target.titleId);
+ const description=site.blocks.find(b=>b.id===target.descriptionId);
+ if(target.format==="combined"){
+  if(title?.textExplicit!==true)return null;
+  const parsed=parseCard(String(title.text||""));
+  return parsed?{title:parsed.title,description:parsed.description}:null;
+ }
+ const result={
+  ...(title?.textExplicit===true?{title:String(title.text||"")}:{}),
+  ...(description?.textExplicit===true?{description:String(description.text||"")}:{})
+ };
+ return Object.keys(result).length?result:null;
+}
+export function parseUniversalCardEdit(site:UniversalSite,instruction:string):UniversalCardResolution{
+ const raw=instruction.trim().replace(/\.\s*(?:n[aã]o\s+altere|preserve|mantenha)\b[\s\S]*$/i,"").trim().replace(/\.\s*$/,"");
+ const m=raw.match(/^no\s+(primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|s[eé]timo|s[eé]tima|oitavo|oitava|nono|nona|d[eé]cimo|d[eé]cima|\d{1,2}(?:[º°ªo])?)\s+card\s+d[ae]\s+se[cç][aã]o\s+(.{1,130}?),\s*(.+)$/is);
+ if(!m)return null;
+ const ordinalText=clean(m[1]).replace(/^(\d{1,2})[º°ªo]$/,"$1");
+ const ordinal=/^\d{1,2}$/.test(ordinalText)?Number(ordinalText)-1:ORDINALS[ordinalText];
+ if(!Number.isInteger(ordinal)||ordinal<0||ordinal>19)return {error:"Número do card fora do intervalo. Nenhuma alteração aplicada."};
+ const section=resolveUniversalSection(site,m[2].trim().replace(/^["“']|["”']$/g,""));
+ if(!section)return {error:"Seção '"+m[2].trim()+"' não encontrada ou ambígua. Nenhuma alteração aplicada."};
+ const command=m[3].trim();
+ const title=command.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?(?:o\s+)?t[ií]tulo\s+(?:para|por|como)\s+["“']([^"”']{1,300})["”'](?:\s+e\s+(.+))?$/is);
+ if(!title)return {error:"Informe o novo título do card entre aspas e, se desejar, a descrição. Nenhuma alteração aplicada."};
+ const tail=title[2]?.trim();
+ const description=tail?.match(/^(?:atualize|reescreva|melhore|altere|troque|mude|substitua)\s+(?:a\s+)?descri[cç][aã]o(?:\s+(?:para|por|como)\s+["“']([^"”']{1,1200})["”'])?$/is);
+ if(tail&&!description)return {error:"A instrução sobre a descrição não está clara. Nenhuma alteração aplicada."};
+ const target=resolveUniversalCardTarget(site,section,ordinal);
  if(!target)return {error:"O card "+(ordinal+1)+" não tem título e descrição editáveis identificados nessa seção. Nenhuma alteração aplicada."};
  return {intent:{target,newTitle:title[1].trim(),...(description?.[1]?{newDescription:description[1].trim()}:{}),
    generateDescription:!!description&&!description[1]}};
@@ -83,5 +107,10 @@ export function applyUniversalCardEdit<T extends UniversalSite>(
   if(description!==undefined&&description!==target.originalDescription)ops.push({action:"update",blockId:target.descriptionId,changes:{text:description}});
  }
  if(!ops.length)return {ok:false,error:"Nenhum conteúdo foi alterado. O site foi preservado."};
- return applyUniversalOperations(site,ops);
+ const applied=applyUniversalOperations(site,ops);
+ if(!applied.ok)return applied;
+ const ids=new Set(applied.changedIds);
+ return {ok:true,changedIds:applied.changedIds,
+  site:{...applied.site,blocks:applied.site.blocks.map(block=>ids.has(block.id)?{...block,textExplicit:true}:block)} as T};
+
 }
