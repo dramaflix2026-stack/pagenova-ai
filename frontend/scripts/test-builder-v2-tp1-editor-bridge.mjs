@@ -79,7 +79,15 @@ test("hero button text and URL edits are validated as one atomic transaction",()
  const result=prepareTP1Model3VisibleEdit(site,applyUniversalOperations(site,[
   {action:"update",blockId:"hero-btn",changes:{text:"Agendar",href:"#contato"}},
  ]));
- assert.equal(result.ok,false,"A no-op URL change plus text must still be guarded if no real change");
+ assert.equal(result.ok,true,"A changed label must still apply when its URL stays unchanged");
+ if(result.ok){
+   assert.equal(tp1Model3EditedText(result.site,"inicio","button"),"Agendar");
+   assert.equal(result.site.blocks[2].hrefExplicit,undefined,"Unchanged URL is not marked explicit");
+ }
+ const noop=prepareTP1Model3VisibleEdit(site,applyUniversalOperations(site,[
+  {action:"update",blockId:"hero-btn",changes:{text:"Contato",href:"#contato"}},
+ ]));
+ assert.equal(noop.ok,false,"The renderer must not report a no-op as an edit");
  const accepted=prepareTP1Model3VisibleEdit(site,applyUniversalOperations(site,[
   {action:"update",blockId:"hero-btn",changes:{text:"Agendar",href:"https://example.com/agendar"}},
  ]));
