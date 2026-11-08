@@ -48,13 +48,15 @@ export function resolveUniversalCardTarget(site:UniversalSite,section:string,ord
  return target??null;
 }
 /** Shared explicit copy; the approved original design is unchanged until edited. */
-export function universalEditedCardCopy(site:UniversalSite,sectionLabel:string,ordinal:number):{title?:string;description?:string}|null{
- const section=resolveUniversalSection(site,sectionLabel);
+export function universalEditedCardCopy(site:{blocks:readonly {id:string;type:string;section?:string;text?:string}[]},sectionLabel:string,ordinal:number):{title?:string;description?:string}|null{
+ // Renderers may expose narrower block interfaces; this bridge only reads fields.
+ const source=site as unknown as UniversalSite;
+ const section=resolveUniversalSection(source,sectionLabel);
  if(!section)return null;
- const target=resolveUniversalCardTarget(site,section,ordinal);
+ const target=resolveUniversalCardTarget(source,section,ordinal);
  if(!target)return null;
- const title=site.blocks.find(b=>b.id===target.titleId);
- const description=site.blocks.find(b=>b.id===target.descriptionId);
+ const title=source.blocks.find(b=>b.id===target.titleId);
+ const description=source.blocks.find(b=>b.id===target.descriptionId);
  if(target.format==="combined"){
   if(title?.textExplicit!==true)return null;
   const parsed=parseCard(String(title.text||""));
