@@ -29,7 +29,7 @@ export function parseUniversalCardEdit(site:UniversalSite,instruction:string):Un
  const raw=instruction.trim().replace(/\.\s*(?:n[aã]o\s+altere|preserve|mantenha)\b[\s\S]*$/i,"").trim().replace(/\.\s*$/,"");
  const m=raw.match(/^no\s+(primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|s[eé]timo|s[eé]tima|oitavo|oitava|nono|nona|d[eé]cimo|d[eé]cima|\d{1,2}(?:[º°ªo])?)\s+card\s+d[ae]\s+se[cç][aã]o\s+(.{1,130}?),\s*(.+)$/is);
  if(!m)return null;
- const ordinalText=clean(m[1]).replace(/[º°ªo]$/,"");
+ const ordinalText=clean(m[1]).replace(/^(\d{1,2})[º°ªo]$/,"$1");
  const ordinal=/^\d{1,2}$/.test(ordinalText)?Number(ordinalText)-1:ORDINALS[ordinalText];
  if(!Number.isInteger(ordinal)||ordinal<0||ordinal>19)return {error:"Número do card fora do intervalo. Nenhuma alteração aplicada."};
  const section=resolveUniversalSection(site,m[2].trim().replace(/^["“']|["”']$/g,""));
