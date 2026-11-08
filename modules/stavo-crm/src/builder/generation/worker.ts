@@ -427,7 +427,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     const selectedTemplate=(project.draftConfig as {templateId?:string}|null)?.templateId;
     model.project.templateId=selectedTemplate==='muse-editorial'||selectedTemplate==='atelier-norte'||selectedTemplate==='vertice-corporate'||selectedTemplate==='restaurant-premium'||selectedTemplate==='real-estate-premium' ? selectedTemplate : 'frigolog-universal';
     const studioTemplate=(project.draftConfig as {builderV2TemplateId?:string}|null)?.builderV2TemplateId;
-    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'){
+    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='prompt-adaptive'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'){
       model.project.builderV2TemplateId=studioTemplate;
     }
 
