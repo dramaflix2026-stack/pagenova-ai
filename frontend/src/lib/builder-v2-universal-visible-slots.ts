@@ -22,7 +22,12 @@ export function declaredVirtualTextSlot(
   ?(site.cinematic as {mode?:string}).mode:undefined;
  const isTP1Model3=variant==="03"&&resolveBriefingFamily(niche)===1&&motion!=="immersive-3d";
  const family=resolveBriefingFamily(niche);
- const isTP5=site.templateId==="prompt-adaptive"&&family===5&&motion!=="immersive-3d";
+ // Match the same explicitly recognized technology/marketing descriptors as the
+ // TP5 renderer. Exact niche lookup alone excludes "Marketing digital".
+ const descriptor=niche.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ const tp5Descriptor=/(?:inteligencia artificial|automacao|agencia de marketing|marketing digital|negocios digitais|desenvolvimento de software|empresa de tecnologia|agentes? de ia|saas|startup)/.test(descriptor);
+ const isTP5=site.templateId==="prompt-adaptive"&&motion!=="immersive-3d"&&
+  (family===5||(family===undefined&&tp5Descriptor));
  if(isTP5&&type==="heading"&&index===0){
   const about=resolveUniversalSection(site,"sobre");
   const faq=resolveUniversalSection(site,"faq");
