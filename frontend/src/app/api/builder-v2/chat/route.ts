@@ -739,7 +739,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // A complete site-creation brief always takes precedence over incremental editing handlers.
   const fullSiteBrief=isFullSiteCreationBrief(instructionText);
 
-  const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  const editingSite=body.site as {title?:string;niche?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Explicit structured operations take precedence over ambiguous wording in the instruction.\n  // Structured, template-independent edit batches use the same transactional
   // validator across all site modes. Legacy natural-language handlers remain
   // untouched until their migration is covered by renderer regression tests.
@@ -776,7 +776,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
               messages:[
                 {role:"system",content:"Você é um redator profissional brasileiro. Retorne somente JSON {\"description\":\"...\"} com uma descrição curta de serviço ou produto (até 220 caracteres). Reescreva somente a descrição, com base no nicho, título e texto anterior. Não invente certificados, resultados, preços, depoimentos, endereços, equipe ou promessas clínicas. Sem Markdown."},
                 {role:"user",content:JSON.stringify({
-                  niche:editingSite.title||"",
+                  niche:editingSite.niche||editingSite.title||"",
                   section:intent.target.section,
                   cardIndex:intent.target.ordinal+1,
                   title:intent.newTitle,
