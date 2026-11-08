@@ -64,7 +64,7 @@ export function parseUniversalCopyEdit(site:UniversalSite,raw:string):UniversalC
   const selected=primary.length===1?primary[0]:buttons[0];
   if(!selected){
    const header=site.header&&typeof site.header==="object"?site.header as Record<string,unknown>:null;
-   if(typeof header?.ctaLabel!=="string")
+   if(!header||typeof header.ctaLabel!=="string")
     return {error:"O botão principal não possui um bloco nem texto de cabeçalho editável. Nenhuma alteração aplicada."};
    return {intent:{targetId:"header:ctaLabel",section,type:"button",ordinal:0,headerTarget:true,
      previousText:header.ctaLabel,newText:value,generateText:false}};
