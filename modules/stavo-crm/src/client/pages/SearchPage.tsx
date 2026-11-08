@@ -441,7 +441,7 @@ export default function SearchPage() {
               <Field
                 label="Filtro de site"
                 htmlFor="search-website"
-                hint="Instagram, WhatsApp, Linktree e diretorios contam como sem site proprio."
+                hint="Filtro baseado somente no site informado no perfil do Google. Uma empresa pode ter site próprio não cadastrado: confirme antes de prospectar."
               >
                 <Select
                   value={form.websiteFilter}
@@ -718,6 +718,15 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
               </a>
             </Button>
           )}
+
+          {result.website.classification !== 'OWN_WEBSITE' ? (
+            <Button variant="ghost" size="sm" asChild>
+              <a href={result.actions.websiteSearchUrl} target="_blank" rel="noreferrer noopener">
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                Verificar site no Google
+              </a>
+            </Button>
+          ) : null}
 
           <Button variant="ghost" size="sm" asChild>
             <a href={result.actions.mapsUrl} target="_blank" rel="noreferrer noopener">
