@@ -150,7 +150,7 @@ const NONE_RESULT: ClassifiedLink = {
   url: null,
   host: null,
   linkType: 'OTHER',
-  label: 'Sem nenhum link',
+  label: 'Site não informado no perfil do Google — verificar',
 };
 
 /**
