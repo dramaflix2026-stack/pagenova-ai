@@ -5,6 +5,7 @@ import "./builder-v2-tp1-model3.css";
 import {BuilderV2TP1Model3Sections} from "./builder-v2-tp1-model3-sections";
 import {getDermatologyInternetPhoto,recoverDermatologyPhoto} from "@/lib/tp1-dermatology-photos";
 import {getTP1AestheticImage,recoverTP1AestheticImage} from "@/lib/tp1-aesthetic-photos";
+import {universalEditedTextSlot} from "@/lib/builder-v2-universal-copy-edits";
 
 const niches=[
  {pattern:/barbearia|barbeiro|barbershop|barber shop/i,label:"BARBEARIA MASCULINA",headline:"Seu estilo merece excelência.",description:"Cortes precisos, barba impecável e atendimento personalizado.",image:"https://images.pexels.com/photos/7518731/pexels-photo-7518731.jpeg?auto=compress&cs=tinysrgb&w=1600",alt:"Barbeiro profissional realizando corte masculino"},
@@ -25,14 +26,14 @@ export function BuilderV2TP1Model3Hero({site,publishedMode=false}:{site:BuilderV
  const content=niches.find(item=>item.pattern.test(niche))||niches[0];
  const brand=site.header?.brand?.trim()||site.title?.trim()||"Sua Marca";
  const heading=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text?.trim()||content.headline;
- const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||content.description;
+ const description=universalEditedTextSlot(site,"capa","paragraph",0)??(site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text?.trim()||content.description);
  const raw=site.header?.ctaHref?.trim()||site.blocks.find(b=>b.type==="button"&&b.href)?.href?.trim()||"";
  const href=/^https:\/\//i.test(raw)||/^mailto:[^\s@]+@[^\s@]+\.[^\s@]+$/i.test(raw)||/^#[a-z\w-]+$/i.test(raw)?raw:null;
  const dermatology=/dermatolog/i.test([site.niche,site.title,site.header?.brand].filter(Boolean).join(" "));
  const isAesthetic=/^(?:cl[ií]nica de )?est[eé]tica$/i.test((site.niche||"").trim());
  const suppliedHero=site.blocks.find(b=>b.type==="image"&&b.src&&b.userUploaded&&/^https:\/\//i.test(b.src))?.src;
  const image=dermatology?(suppliedHero||getDermatologyInternetPhoto(0)):isAesthetic?(suppliedHero||getTP1AestheticImage(0)):(site.blocks.find(b=>b.type==="image"&&b.src&&/^https:\/\//i.test(b.src))?.src||content.image);
- const cta=site.header?.ctaLabel?.trim()||"Agende uma conversa";
+ const cta=universalEditedTextSlot(site,"capa","button",0)??(site.header?.ctaLabel?.trim()||"Agende uma conversa");
  return <div className="tp1m3" id="inicio" data-tp1-model="03" data-tp1-clinical={dermatology?"dermatology":undefined}>
   <header className="tp1m3-header">
    <a className="tp1m3-logo" href="#inicio">{brand}<span aria-hidden="true">.</span></a>

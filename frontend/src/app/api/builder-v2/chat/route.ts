@@ -1,5 +1,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
+import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "@/lib/builder-v2-universal-copy-edits";
+import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
 import {applyUniversalOperations, type UniversalOperation} from "@/lib/builder-v2-universal-operations";
 import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
@@ -738,7 +740,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   // A complete site-creation brief always takes precedence over incremental editing handlers.
   const fullSiteBrief=isFullSiteCreationBrief(instructionText);
 
-  const editingSite=body.site as {title?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  const editingSite=body.site as {title?:string;niche?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
   // Explicit structured operations take precedence over ambiguous wording in the instruction.\n  // Structured, template-independent edit batches use the same transactional
   // validator across all site modes. Legacy natural-language handlers remain
   // untouched until their migration is covered by renderer regression tests.
@@ -751,6 +753,90 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(!result.ok)return NextResponse.json({error:result.error},{status:422});
     return NextResponse.json({site:result.site,summary:"Alterações estruturadas aplicadas: "+result.changedIds.length+" bloco(s).",changedIds:result.changedIds});
+  }
+  // High-priority universal text intent: a protective mention of "imagem",
+  // "link" or "banner" does not make the edit a media/link/banner request.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const snapshot=editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>};
+    const targeted=parseUniversalCopyEdit(snapshot,instructionText);
+    if(targeted){
+      if("error" in targeted)return NextResponse.json({error:targeted.error},{status:422});
+      const intent=targeted.intent;
+      let text:string|undefined;
+      if(intent.generateText){
+        try{
+          if(!key)return NextResponse.json({error:"A geração de texto não está configurada. Projeto preservado."},{status:503});
+          const ai=await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
+            body:JSON.stringify({
+              model:"gpt-4.1-mini",max_completion_tokens:350,response_format:{type:"json_object"},
+              messages:[
+                {role:"system",content:"Você revisa textos em português brasileiro. Retorne APENAS JSON {\"text\":\"...\"}. Reescreva um único parágrafo conforme o pedido; preserve fatos existentes, estilo da marca e significado original. Até 500 caracteres. Não invente certificações, resultados, números, endereço, equipe, preços, alegações clínicas nem avaliações."},
+                {role:"user",content:JSON.stringify({niche:editingSite.niche||"",business:editingSite.title||"",section:intent.section,paragraph:intent.ordinal+1,previous:intent.previousText,guidance:intent.rewriteGuidance})}
+              ]
+            }),signal:AbortSignal.timeout(25000)
+          });
+          if(!ai.ok)throw Error("AI scoped copy failed");
+          const payload=await ai.json();
+          const parsed=JSON.parse(String(payload?.choices?.[0]?.message?.content||"{}")) as {text?:unknown};
+          text=typeof parsed.text==="string"?parsed.text.trim():undefined;
+          if(!text||text.length>500)return NextResponse.json({error:"O texto solicitado não foi gerado com segurança. Nenhuma alteração aplicada."},{status:422});
+        }catch{
+          return NextResponse.json({error:"Não foi possível reescrever o parágrafo. Projeto preservado."},{status:502});
+        }
+      }
+      const result=applyUniversalCopyEdit(snapshot,intent,text);
+      if(!result.ok)return NextResponse.json({error:result.error},{status:422});
+      return NextResponse.json({site:result.site,changedIds:result.changedIds,summary:"Texto atualizado no elemento solicitado, sem modificar os demais blocos."});
+    }
+  }
+  // Shared card editing path. When the user asks the AI to write a new
+  // description without providing copy, generate ONLY that field. The resolver
+  // pins the section, ordinal and stable block IDs before calling the model.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const snapshot=editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>};
+    const cardEdit=parseUniversalCardEdit(snapshot,instructionText);
+    if(cardEdit){
+      if("error" in cardEdit)return NextResponse.json({error:cardEdit.error},{status:422});
+      const intent=cardEdit.intent;
+      let description:string|undefined;
+      if(intent.generateDescription){
+        try{
+          if(!key)return NextResponse.json({error:"A geração do texto não está configurada. O site foi preservado."},{status:503});
+          const answer=await fetch("https://api.openai.com/v1/chat/completions",{
+            method:"POST",
+            headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
+            body:JSON.stringify({
+              model:"gpt-4.1-mini",
+              response_format:{type:"json_object"},
+              max_completion_tokens:280,
+              messages:[
+                {role:"system",content:"Você é um redator profissional brasileiro. Retorne somente JSON {\"description\":\"...\"} com uma descrição curta de serviço ou produto (até 220 caracteres). Reescreva somente a descrição, com base no nicho, título e texto anterior. Não invente certificados, resultados, preços, depoimentos, endereços, equipe ou promessas clínicas. Sem Markdown."},
+                {role:"user",content:JSON.stringify({
+                  niche:editingSite.niche||editingSite.title||"",
+                  section:intent.target.section,
+                  cardIndex:intent.target.ordinal+1,
+                  title:intent.newTitle,
+                  previousDescription:intent.target.originalDescription
+                })}
+              ]
+            }),
+            signal:AbortSignal.timeout(25000)
+          });
+          if(!answer.ok)throw Error("Falha na geração da descrição.");
+          const data=await answer.json();
+          const parsed=JSON.parse(String(data?.choices?.[0]?.message?.content||"{}")) as {description?:unknown};
+          description=typeof parsed.description==="string"?parsed.description.trim():undefined;
+          if(!description||description.length>220||description===intent.target.originalDescription)
+            return NextResponse.json({error:"A IA não produziu uma nova descrição válida. Nenhuma alteração aplicada."},{status:422});
+        }catch{
+          return NextResponse.json({error:"Não foi possível atualizar a descrição solicitada. O site foi preservado."},{status:502});
+        }
+      }
+      const result=applyUniversalCardEdit(snapshot,intent,description);
+      if(!result.ok)return NextResponse.json({error:result.error},{status:422});
+      return NextResponse.json({site:result.site,summary:"Card "+(intent.target.ordinal+1)+" da seção selecionada atualizado; demais cards preservados.",changedIds:result.changedIds});
+    }
   }
   // Deterministic natural-language edits are scoped to uniquely identified
   // blocks and work independently of the selected visual template.
@@ -797,7 +883,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     const heroSection=String(blocks.find(b=>/^(hero|capa|banner|principal)$/i.test(String(b.section||"")))?.section||
       blocks.find(b=>b.type==="heading")?.section||blocks[0]?.section||"hero");
     const isAdd=/(?:adicion|inclu|cri[ea]|coloque|insir)/i.test(instructionText)&&/(?:segundo|outro|novo|mais um|adicional)/i.test(instructionText)&&/(?:capa|hero|principal)/i.test(instructionText);
-    const isLink=/(?:altere|alterar|mude|troque|substitua|configure|configurar|aponte|direcione|coloque|defina)/i.test(instructionText)&&/(?:link|url|endere[cç]o|https?:\/\/)/i.test(instructionText);
+    // Don't treat "preserve o link" as a request to change the URL.
+    const buttonAction=instructionText.split(/[.!?]\s*(?=(?:preserve|mantenha|n[aã]o|sem\s+alterar)\b)/i)[0];
+    const isLink=/(?:altere|alterar|mude|troque|substitua|configure|configurar|aponte|direcione|coloque|defina)/i.test(buttonAction)
+      &&/(?:\b(?:link|url|endere[cç]o|destino)\b|https?:\/\/)/i.test(buttonAction);
     if(isAdd){
       const label=instructionText.match(/(?:texto|nome|chamada)\s+do\s+(?:novo|segundo)\s+bot[aã]o\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||
         instructionText.match(/(?:texto|nome|chamada)\s*:\s*["“'‘]([^"”'’]+)["”'’]/i)?.[1]||

@@ -3,7 +3,7 @@ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
 const aliases:Record<string,string[]>={
  hero:["hero","capa","inicio","home","principal","banner"],
  about:["about","sobre","sobre nos","sobre a empresa","nossa essencia","essencia"],
- services:["services","servicos","nossos servicos","especialidades","nossas especialidades"],
+ services:["services","servicos","nossos servicos","especialidades","nossas especialidades","tratamentos","nossos tratamentos","tratamentos esteticos","procedimentos","nossos procedimentos","solucoes","nossas solucoes"],
  accommodations:["acomodacoes","acomodacao","nossas acomodacoes","hospedagens","hospedagem","quartos","suites","chales","chalés","rooms","accommodations","stays"],
  differences:["diferenciais","nossos diferenciais","diferencas","diferentials","differences"],
  process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas"],
@@ -22,8 +22,22 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
  const exactIds=sections.filter(id=>norm(id)===target);
  if(exactIds.length)return exactIds.length===1?exactIds[0]:null;
+ // Generic editorial prefixes (e.g. "Nossos produtos" vs section ID "produtos")
+ // are resolved before niche aliases, across every template and family.
+ const core=target.replace(/^(?:nossos?|nossas?|meus?|minhas?|os|as)\s+/,"");
+ if(core!==target){
+  const coreMatches=sections.filter(id=>norm(id)===core||site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===core));
+  if(coreMatches.length)return coreMatches.length===1?coreMatches[0]:null;
+ }
  const direct=sections.filter(id=>site.blocks.some(b=>b.section===id&&b.type==="heading"&&norm(String(b.text||""))===target));
  if(direct.length)return direct.length===1?direct[0]:null;
+ // "Sobre a clínica/empresa/loja/estúdio" refers to the existing About
+ // section, independent of the business type. Never guess if several match.
+ if(/^sobre\s+(?:a|o|as|os)\s+[a-z][a-z0-9\s-]{2,70}$/.test(target)){
+  const about=sections.filter(id=>aliases.about.includes(norm(id))||
+   site.blocks.some(b=>b.section===id&&b.type==="heading"&&aliases.about.includes(norm(String(b.text||"")))));
+  if(about.length)return about.length===1?about[0]:null;
+ }
  const family=Object.values(aliases).find(names=>names.includes(target));
  const matches=family?sections.filter(id=>family.includes(norm(id))||site.blocks.some(b=>b.section===id&&b.type==="heading"&&family.includes(norm(String(b.text||""))))):[];
  if(matches.length===1)return matches[0];
