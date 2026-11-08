@@ -2,12 +2,12 @@
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {universalBlockProps,UniversalTypographyRules,universalFaqItems} from "./builder-v2-universal-bindings";
 import type { BuilderV2SiteData } from "@/components/builder-v2-site";
-import {isJapaneseCuisineNiche} from "@/lib/tp3-japanese-model1";
+import {isJapaneseCuisineSiteIdentity} from "@/lib/tp3-japanese-model1";
 import {BuilderV2TP3JapaneseModel1} from "./builder-v2-tp3-japanese-model1";
 import {isFoodTruck,truckPhoto,truckScene,truckBeverageFallback,truckLabels,FoodTruckExtraModel1,FoodTruckFaq,FoodTruckTestimonials,FoodTruckLocation,FoodTruckPremiumFooter} from "./builder-v2-tp3-foodtruck";
 const photos=["photo-1509440159596-0249088772ff","photo-1555507036-ab1f4038808a","photo-1598373182133-52452f7691ef","photo-1484723091739-30a097e8f929","photo-1549931319-a545dcf3bc73","photo-1608198093002-ad4e005484df","photo-1534620808146-d33bb39128b2","photo-1585478259715-876acc5be8eb"];
 const image=(i:number)=>"https://images.unsplash.com/"+photos[i%photos.length]+"?auto=format&fit=crop&w=1200&q=80";
-export function BuilderV2TP3Model1({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
+export function BuilderV2TP3Model1({site,selectedNiche,publishedMode=false}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean}){
  const name=site.title||site.niche||"Gastronomia";
  const niche=(site.niche||name).toLowerCase();
  const bakery=/padaria|pães|panific|bakery/.test(niche);
@@ -35,7 +35,7 @@ export function BuilderV2TP3Model1({site,publishedMode=false}:{site:BuilderV2Sit
  const desc=(heroBlocks.find(b=>b.type==="paragraph"&&b.text?.trim())||site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim()))?.text||"Sabores preparados com atenção, tradição e ingredientes selecionados.";
  // Dedicated sushi presentation: never fall through to the generic bread-photo catalog.
  // This does not alter Food Truck, bakery or any other TP3 family model.
- if(!isTruck&&isJapaneseCuisineNiche(site.niche||site.title||"")){
+ if(!isTruck&&isJapaneseCuisineSiteIdentity({niche:site.niche,title:site.title,brand:site.header?.brand,selectedNiche,heroHeadings:[heroHeading]})){
    return <BuilderV2TP3JapaneseModel1 site={site} publishedMode={publishedMode}/>;
  }
  return <main data-tp3-model="01" className="w-full overflow-hidden bg-[#faf6ef] text-[#30261c]">
