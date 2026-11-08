@@ -1,2 +1,33 @@
 .tp1-family-reviews{background:#f7f5ef;color:#24382f;padding:clamp(60px,7vw,105px) clamp(20px,6vw,100px);box-sizing:border-box;overflow:hidden}
 .tp1-family-reviews *{box-sizing:border-box}.tp1-family-reviews-head{max-width:1150px;margin:0 auto 38px}.tp1-family-reviews-kicker{font:700 11px/1.4 Arial,sans-serif;letter-spacing:.19em;color:#9b7c65}.tp1-family-reviews h2{font:400 clamp(38px,5.5vw,73px)/1.09 Georgia,serif;letter-spacing:-.046em;margin:17px 0}.tp1-family-reviews h2 em{color:#a48670;font-weight:400}.tp1-family-reviews-head>p{font:15px/1.75 Arial,sans-serif;color:#5f6e65}.tp1-family-reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));max-width:1200px;margin:auto;gap:18px}.tp1-family-review-card{margin:0;background:#fff;border:1px solid #e0e5df;border-radius:15px;padding:26px;min-width:0;display:flex;flex-direction:column;gap:18px;box-shadow:0 9px 30px #193c2810}.tp1-family-review-mark{font:64px/.7 Georgia,serif;color:#a38e75}.tp1-family-review-card>p{font:16px/1.7 Arial,sans-serif;overflow-wrap:anywhere;margin:0;flex:1}.tp1-family-review-card footer{display:flex;align-items:center;gap:12px;border-top:1px solid #e9ece7;padding-top:17px}.tp1-family-review-card footer>span:last-child{display:flex;flex-direction:column;gap:4px;min-width:0}.tp1-family-review-card strong{font:700 14px/1.35 Arial,sans-serif}.tp1-family-review-card small{font:12px/1.5 Arial,sans-serif;color:#657369}.tp1-family-review-avatar{height:43px;width:43px;min-width:43px;border-radius:50%;background:#dce9e1;color:#295f4b;display:flex;align-items:center;justify-content:center;font:700 19px Arial,sans-serif}.tp1-family-reviews-empty{border:1px dashed #b6c2b5;background:#fefefa;border-radius:15px;max-width:1100px;margin:auto;padding:28px;display:flex;justify-content:space-between;align-items:center;gap:22px}.tp1-family-reviews-empty p{margin:0;font:15px/1.7 Arial,sans-serif;color:#58685d}.tp1-family-reviews-empty a{font:700 13px Arial,sans-serif;color:#285c49;text-decoration:underline;white-space:nowrap}@media(max-width:650px){.tp1-family-reviews{padding:55px 22px}.tp1-family-reviews h2{font-size:clamp(34px,9.3vw,49px)}.tp1-family-review-card{padding:22px}.tp1-family-reviews-empty{align-items:flex-start;flex-direction:column}.tp1-family-reviews-empty a{white-space:normal}}
+
+/* Restore five premium editorial quote cards across TP1's three models. */
+.tp1-family-reviews-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.tp1-family-review-card{min-height:250px}
+.tp1-family-review-top{display:flex;justify-content:space-between;align-items:flex-start}
+.tp1-family-review-number{font:700 11px/1.4 Arial,sans-serif;letter-spacing:.12em;color:#a48770}
+.tp1-family-review-disclaimer{font:700 10px/1.5 Arial,sans-serif;letter-spacing:.07em;color:#987b65;border-top:1px solid #eee8e2;padding-top:12px}
+@media(max-width:950px){.tp1-family-reviews-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.tp1-family-reviews-grid{grid-template-columns:minmax(0,1fr)}.tp1-family-review-card{min-height:0}}
+
+/* Estética Modelo 1 only: recover the original champagne / taupe visual palette.
+   The other niches, Modelo 2, Modelo 3 and all layout geometry remain untouched. */
+[data-tp1-aesthetic-model1="true"] .pn-motion-site>section:not(.tp1-family-reviews):not(:first-child) :is(h1,h2,h3,h4){
+  color:#92735e!important;-webkit-text-fill-color:#92735e!important;
+}
+[data-tp1-aesthetic-model1="true"] .pn-motion-site>section:not(.tp1-family-reviews):not(:first-child) :is(p,li){
+  color:#756b64!important;-webkit-text-fill-color:#756b64!important;
+}
+[data-tp1-aesthetic-model1="true"] .pn-motion-site>section:not(.tp1-family-reviews):not(:first-child) :is(.pn-section-eyebrow,.pn-cinema-section-eyebrow,span[class*="kicker"],span[class*="eyebrow"]){
+  color:#a68974!important;-webkit-text-fill-color:#a68974!important;
+}
+/* Leave white text over photography readable. */
+[data-tp1-aesthetic-model1="true"] .pn-motion-site>section:not(.tp1-family-reviews) :is(figcaption,[class*="photo-caption"],[class*="image-caption"]) :is(h2,h3,p,span){
+  color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+[data-tp1-aesthetic-model1="true"] .tp1-family-reviews{color:#342d28;background:#f6f1eb}
+[data-tp1-aesthetic-model1="true"] .tp1-family-reviews h2{color:#3b312a}
+[data-tp1-aesthetic-model1="true"] .tp1-family-reviews h2 em{color:#a5856e}
+[data-tp1-aesthetic-model1="true"] .tp1-family-reviews-head>p{color:#746c66}
+[data-tp1-aesthetic-model1="true"] .tp1-family-review-avatar{color:#765a49;background:#eee4da}
+[data-tp1-aesthetic-model1="true"] .tp1-family-review-card{color:#3b312a}

@@ -58,6 +58,19 @@ test("all three TP1 models and the classic renderer share review component and p
  assert.ok(read(files[4]).includes("familyContact.previewWhatsApp"));
 });
 
+test("aesthetics model 1 keeps taupe palette, and every TP1 model has five preview review cards",()=>{
+ const chooser=read("src/components/builder-v2-site.tsx");
+ const stylesheet=read("src/components/builder-v2-tp1-family-testimonials.css");
+ const reviews=read("src/components/builder-v2-tp1-family-testimonials.tsx");
+ assert.ok(chooser.includes('data-tp1-aesthetic-model1={model1Aesthetic?"true":undefined}'));
+ assert.ok(stylesheet.includes('[data-tp1-aesthetic-model1="true"]'));
+ assert.ok(stylesheet.includes("color:#92735e!important"));
+ const entries=reviews.match(/name:"Exemplo 0[1-5]"/g)||[];
+ assert.equal(entries.length,5);
+ assert.ok(reviews.includes("if(publishedMode&&!realReviews.length)return null;"));
+ assert.ok(reviews.includes("5-realReviews.length"));
+ assert.ok(reviews.includes("EXEMPLO FICTÍCIO"));
+});
 test("aesthetics model 3 has distinct topical image slots",()=>{
  const imageFile=read("src/lib/tp1-aesthetic-photos.ts");
  const photoIds=[...imageFile.matchAll(/pexels-photo-(\d+)\.jpeg/g)].map(x=>x[1]);

@@ -153,7 +153,8 @@ function TP1LayoutChooser({site,selectedNiche,publishedMode,templateId,onVariant
  useEffect(()=>{setVariant(site.briefingLayoutVariant==="03"?"03":site.briefingLayoutVariant==="02"?"02":"01")},[site.briefingLayoutVariant]);
  const isMakeup=isTP1MakeupSite(site,selectedNiche);
  const scopedSite=isMakeup?prepareTP1MakeupSite(site,selectedNiche):site;
- return <div data-tp1-family="beauty-premium" data-tp1-variant={variant}>
+ const model1Aesthetic=variant==="01"&&/\best[eé]tica\b/i.test(site.niche||selectedNiche||"")&&!/dermatolog/i.test(site.niche||selectedNiche||"");
+ return <div data-tp1-family="beauty-premium" data-tp1-variant={variant} data-tp1-aesthetic-model1={model1Aesthetic?"true":undefined}>
   {variant==="03"?<BuilderV2TP1Model3Hero site={scopedSite} publishedMode={publishedMode}/>:variant==="02"?<BuilderV2TP1Model2Hero site={scopedSite} publishedMode={publishedMode}/>:isMakeup||/(?:barbearia|barbeiro|barbershop|barber shop)/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))?<BuilderV2TP1Model1 site={scopedSite} publishedMode={publishedMode}/>:<BuilderV2ClassicSite site={site} selectedNiche={selectedNiche} publishedMode={publishedMode} templateId={templateId} tp1Family/>}
  </div>;
 }
