@@ -22,6 +22,8 @@ export interface SearchResultItem {
     instagramUrl: string | null;
     instagramSearchUrl: string;
     mapsUrl: string;
+    /** Optional for older cached responses; the UI can build the verification link. */
+    websiteSearchUrl?: string;
   };
   score: number;
   scoreReasons: { label: string; weight: number }[];
