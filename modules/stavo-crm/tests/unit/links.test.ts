@@ -51,18 +51,22 @@ describe('classificacao de website', () => {
     expect(classifyWebsite('https://www.doctoralia.com.br/medico').classification).toBe(
       'DIRECTORY_OR_PLATFORM',
     );
-    expect(classifyWebsite('https://empresa.business.site').classification).toBe(
-      'DIRECTORY_OR_PLATFORM',
-    );
   });
 
-  it('construtor gratuito com subdominio nao e dominio proprio', () => {
-    expect(classifyWebsite('https://minhaempresa.wixsite.com/inicio').classification).toBe(
-      'DIRECTORY_OR_PLATFORM',
-    );
-    expect(classifyWebsite('https://loja.myshopify.com').classification).toBe(
-      'DIRECTORY_OR_PLATFORM',
-    );
+  it('site publicado em construtor sem dominio proprio nao e lead sem site', () => {
+    for (const url of [
+      'https://minhaempresa.wixsite.com/inicio',
+      'https://loja.myshopify.com',
+      'https://sites.google.com/view/clinica',
+      'https://empresa.business.site',
+      'https://minhaempresa.canva.site',
+    ]) {
+      const result=classifyWebsite(url);
+      expect(result.classification).toBe('OWN_WEBSITE');
+      expect(result.label).toContain('Site publicado');
+      expect(matchesWebsiteFilter(result.classification,'NO_OWN_WEBSITE')).toBe(false);
+      expect(matchesWebsiteFilter(result.classification,'HAS_OWN_WEBSITE')).toBe(true);
+    }
   });
 
   it('reconhece provavel dominio proprio', () => {
