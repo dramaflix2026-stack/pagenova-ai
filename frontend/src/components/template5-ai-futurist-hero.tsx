@@ -1,8 +1,8 @@
 "use client";
 import {useState} from "react";
 
-type Props={brand:string;headline?:string;description?:string};
-export function Template5AIFuturistHero({brand,headline,description}:Props){
+type Props={brand:string;headline?:string;description?:string;heroCtaLabel?:string};
+export function Template5AIFuturistHero({brand,headline,description,heroCtaLabel}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const title=headline?.trim()||"Inteligência que transforma ideias em crescimento.";
  const sub=description?.trim()||"Estratégia, tecnologia e experiências inteligentes para transformar o seu negócio.";
@@ -57,5 +57,5 @@ export function Template5AIFuturistHero({brand,headline,description}:Props){
  @media(prefers-reduced-motion:reduce){.pn-t5-orb{animation:none}}
  `}</style>
  <header className="pn-t5-nav"><a className="pn-t5-logo" href="#inicio"><span className="pn-t5-mark" aria-hidden="true"/><span>{brand}</span></a><button type="button" className="pn-t5-toggle" aria-expanded={menuOpen} aria-controls="pn-t5-menu" onClick={()=>setMenuOpen(v=>!v)}>{menuOpen?"Fechar ×":"Menu ☰"}</button><nav id="pn-t5-menu" className="pn-t5-links" data-open={menuOpen} aria-label="Navegação principal"><a href="#solucoes" onClick={()=>setMenuOpen(false)}>Soluções</a><a href="#sobre" onClick={()=>setMenuOpen(false)}>Sobre</a><a href="#projetos" onClick={()=>setMenuOpen(false)}>Projetos</a><a href="#contato" onClick={()=>setMenuOpen(false)}>Contato</a><a className="pn-t5-navcta" href="#contato" onClick={()=>setMenuOpen(false)}>Iniciar projeto ↗</a></nav></header>
- <main className="pn-t5-hero"><div className="pn-t5-copy"><span className="pn-t5-eyebrow">{isAI?"Marketing, automação e inteligência artificial":"Experiências, inovação e novas possibilidades"}</span><h1>{title}</h1><p className="pn-t5-sub">{sub}</p><div className="pn-t5-actions"><a href="#contato" className="pn-t5-primary">Vamos conversar <span aria-hidden="true">↗</span></a><a href="#solucoes" className="pn-t5-secondary">Explorar soluções <span aria-hidden="true">→</span></a></div></div><div className="pn-t5-art" aria-hidden="true"><div className="pn-t5-orbit"/><div className="pn-t5-orbit"/><div className="pn-t5-orb"/><div className="pn-t5-chip"><b>{isAI?"Inteligência em movimento":"Sua marca em destaque"}</b><small>{isAI?"Estratégia + criatividade + automação":"Experiência + identidade + inovação"}</small></div></div><div className="pn-t5-foot"><span>Ideias conectadas ao futuro</span><span>Explore o que vem a seguir ↓</span></div></main></div>;
+ <main className="pn-t5-hero"><div className="pn-t5-copy"><span className="pn-t5-eyebrow">{isAI?"Marketing, automação e inteligência artificial":"Experiências, inovação e novas possibilidades"}</span><h1>{title}</h1><p className="pn-t5-sub">{sub}</p><div className="pn-t5-actions"><a href="#contato" className="pn-t5-primary">{heroCtaLabel||"Vamos conversar"} <span aria-hidden="true">↗</span></a><a href="#solucoes" className="pn-t5-secondary">Explorar soluções <span aria-hidden="true">→</span></a></div></div><div className="pn-t5-art" aria-hidden="true"><div className="pn-t5-orbit"/><div className="pn-t5-orbit"/><div className="pn-t5-orb"/><div className="pn-t5-chip"><b>{isAI?"Inteligência em movimento":"Sua marca em destaque"}</b><small>{isAI?"Estratégia + criatividade + automação":"Experiência + identidade + inovação"}</small></div></div><div className="pn-t5-foot"><span>Ideias conectadas ao futuro</span><span>Explore o que vem a seguir ↓</span></div></main></div>;
 }
