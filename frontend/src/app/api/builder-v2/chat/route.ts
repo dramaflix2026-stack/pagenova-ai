@@ -2,7 +2,7 @@ import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "@/lib/builder-v2-universal-copy-edits";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
-import {applyUniversalOperations, type UniversalOperation} from "@/lib/builder-v2-universal-operations";
+import {applyUniversalOperations,summarizeUniversalEdit,type UniversalOperation} from "@/lib/builder-v2-universal-operations";
 import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
@@ -847,7 +847,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     );
     if(result){
       if(!result.ok)return NextResponse.json({error:result.error},{status:422});
-      return NextResponse.json({site:result.site,summary:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados.",changedIds:result.changedIds});
+      return NextResponse.json({site:result.site,summary:summarizeUniversalEdit(result),changedIds:result.changedIds});
     }
   }
   // Atomic edits for the most common chat commands. Never interpret preservation

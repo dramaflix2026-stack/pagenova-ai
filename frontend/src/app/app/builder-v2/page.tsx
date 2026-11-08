@@ -2,6 +2,7 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
+import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
@@ -584,7 +585,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
-        setMessages(prev=>[...prev,{role:"assistant",text:"Edição universal aplicada a "+result.changedIds.length+" bloco(s). Demais conteúdos preservados."}]);
+        setMessages(prev=>[...prev,{role:"assistant",text:summarizeUniversalEdit(result)}]);
         return;
       }
     }

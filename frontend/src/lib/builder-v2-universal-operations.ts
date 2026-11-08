@@ -16,7 +16,20 @@ export type UniversalOperation =
  | {action:"move";blockId:string;afterId?:string}
  | {action:"remove-section";sectionId:string}
  | {action:"move-section";sectionId:string;afterSectionId?:string;beforeSectionId?:string};
-export type UniversalResult<T>={ok:true;site:T;changedIds:string[]}|{ok:false;error:string};
+export type UniversalResult<T>={ok:true;site:T;changedIds:string[];requestedCount?:number;alreadyCorrectCount?:number}|{ok:false;error:string};
+
+/** User-visible acknowledgement, shared by the Builder and its chat API. */
+export function summarizeUniversalEdit(result:{changedIds:string[];requestedCount?:number;alreadyCorrectCount?:number}):string{
+ const changed=result.changedIds.length;
+ const requested=result.requestedCount;
+ const already=result.alreadyCorrectCount||0;
+ if(typeof requested==="number"&&requested>0&&already>0&&changed+already===requested){
+  const changedLabel=changed===1?"1 título alterado agora":changed+" títulos alterados agora";
+  const unchangedLabel=already===1?"1 já estava correto":already+" já estavam corretos";
+  return requested+" de "+requested+" títulos atendidos: "+changedLabel+" e "+unchangedLabel+". Demais conteúdos preservados.";
+ }
+ return "Edição universal aplicada a "+changed+" bloco(s). Demais conteúdos preservados.";
+}
 const allowed=new Set(["text","href","src","color","background","align","fontSize","fontFamily","mobileFontSize","textColor","radius","spacing","layout","columns","imageFit","imagePosition","mobileSrc","cardBorderWidth","cardBorderColor","cardShadow"]);
 const record=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==="object"&&!Array.isArray(value);
 export function isSafeUniversalUrl(value:unknown,image=false):boolean {
