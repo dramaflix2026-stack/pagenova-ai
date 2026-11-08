@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {universalInstructionClauses} from "../src/lib/builder-v2-universal-plan.ts";
-import {parseUniversalCardEdit,applyUniversalCardEdit} from "../src/lib/builder-v2-universal-card-edits.ts";
+import {parseUniversalCardEdit,applyUniversalCardEdit,universalEditedCardCopy} from "../src/lib/builder-v2-universal-card-edits.ts";
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 
 const originalRequest="No segundo card da seção Nossos tratamentos, altere o título para 'Purificação Facial' e atualize a descrição. Não altere os outros cards.";
@@ -80,7 +80,7 @@ test("explicit description copy never triggers AI and preserves untouched fields
  const request="No segundo card da seção Nossos tratamentos, altere o título para 'Purificação Facial' e atualize a descrição para 'Cuidado facial atualizado'.";
  const result=applyUniversalNaturalLanguage(site,request);
  assert.equal(result?.ok,true);
- if(result?.ok)assert.deepEqual(result.site.blocks[3],{...site.blocks[3],text:"Purificação Facial: Cuidado facial atualizado"});
+ if(result?.ok)assert.deepEqual(result.site.blocks[3],{...site.blocks[3],text:"Purificação Facial: Cuidado facial atualizado",textExplicit:true});
  assert.deepEqual(site,before);
 });
 test("no made-up description: missing generated copy rejects the entire transaction",()=>{
@@ -133,4 +133,22 @@ test("ambiguous alias across two distinct sections is rejected safely",()=>{
  const request="No primeiro card da seção Nossas especialidades, altere o título para 'Não posso adivinhar'.";
  const result=applyUniversalNaturalLanguage(site,request);
  assert.equal(result?.ok,false);
+});
+
+test("shared renderer binding preserves original design until an explicit edit",()=>{
+ const site=composite();
+ assert.equal(universalEditedCardCopy(site,"servicos",1),null);
+ const result=applyUniversalNaturalLanguage(site,"No segundo card da seção Nossos tratamentos, altere o título para 'Purificação Facial'.");
+ assert.equal(result?.ok,true);
+ if(!result?.ok)return;
+ assert.deepEqual(universalEditedCardCopy(result.site,"servicos",1),{
+  title:"Purificação Facial",description:"Cuidado e revitalização."
+ });
+ assert.equal(universalEditedCardCopy(result.site,"servicos",0),null);
+ assert.equal(universalEditedCardCopy(result.site,"servicos",2),null);
+});
+test("TP1 M3 renderer opts into the same generic card reading contract",()=>{
+ const render=readFileSync(new URL("../src/components/builder-v2-tp1-model3-sections.tsx",import.meta.url),"utf8");
+ assert.ok(render.includes('universalEditedCardCopy(site,"servicos",i)?.title??s'));
+ assert.ok(render.includes('universalEditedCardCopy(site,"servicos",i)?.description??('));
 });
