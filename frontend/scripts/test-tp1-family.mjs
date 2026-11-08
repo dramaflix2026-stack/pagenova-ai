@@ -58,13 +58,17 @@ test("all three TP1 models and the classic renderer share review component and p
  assert.ok(read(files[4]).includes("familyContact.previewWhatsApp"));
 });
 
-test("aesthetics model 1 keeps taupe palette, and every TP1 model has five preview review cards",()=>{
+test("aesthetics model 1 restores dark charcoal sections, warm accents and legible image overlays while retaining five cards",()=>{
  const chooser=read("src/components/builder-v2-site.tsx");
  const stylesheet=read("src/components/builder-v2-tp1-family-testimonials.css");
  const reviews=read("src/components/builder-v2-tp1-family-testimonials.tsx");
  assert.ok(chooser.includes('data-tp1-aesthetic-model1={model1Aesthetic?"true":undefined}'));
  assert.ok(stylesheet.includes('[data-tp1-aesthetic-model1="true"]'));
- assert.ok(stylesheet.includes("color:#92735e!important"));
+ assert.ok(stylesheet.includes("background-color:#171411!important"));
+ assert.ok(stylesheet.includes('[data-pn-composition="editorial-gallery-3d"]'));
+ assert.ok(stylesheet.includes("color:#fffaf3!important"));
+ assert.ok(stylesheet.includes('background-color:#c3a384!important'));
+ assert.ok(stylesheet.includes('background-color:#191612!important'));
  const entries=reviews.match(/name:"(?:Camila Duarte|Rafael Martins|Ana Ribeiro|Lucas Ferreira|Marina Costa)"/g)||[];
  assert.equal(entries.length,5);
  assert.ok(reviews.includes("if(publishedMode&&!realReviews.length)return null;"));
