@@ -1,0 +1,24 @@
+name: Builder V2 - TP1 Model3 edit bridge tests
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/builder-v2-tp1-editor-bridge.yml'
+      - 'frontend/scripts/test-builder-v2-tp1-editor-bridge.mjs'
+      - 'frontend/src/lib/builder-v2-tp1-editor-bridge.ts'
+      - 'frontend/src/components/builder-v2-tp1-model3.tsx'
+      - 'frontend/src/components/builder-v2-tp1-model3-sections.tsx'
+      - 'frontend/src/app/app/builder-v2/page.tsx'
+  workflow_dispatch:
+jobs:
+  verify-tp1-editor:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - name: Run TP1 Model 03 bridge regression fixtures
+        working-directory: frontend
+        run: node --experimental-strip-types --test scripts/test-builder-v2-tp1-editor-bridge.mjs
