@@ -684,6 +684,20 @@ function ResultCard({ result, onAdd }: { result: SearchResultItem; onAdd: () => 
         ) : null}
 
         <div className="flex flex-wrap gap-2">
+          {result.website.classification !== 'OWN_WEBSITE' ? (
+            <Button variant="secondary" size="sm" asChild>
+              <a
+                href={`https://www.google.com/search?q=${encodeURIComponent([result.name, result.address, 'site oficial'].filter(Boolean).join(' '))}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                aria-label={`Verificar se ${result.name} possui site próprio`}
+              >
+                <Search className="h-4 w-4" aria-hidden="true" />
+                Verificar site na web
+                <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              </a>
+            </Button>
+          ) : null}
           {result.actions.whatsappUrl ? (
             <Button variant="secondary" size="sm" asChild>
               <a href={result.actions.whatsappUrl} target="_blank" rel="noreferrer noopener">
