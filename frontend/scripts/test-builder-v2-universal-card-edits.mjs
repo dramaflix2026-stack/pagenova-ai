@@ -130,7 +130,7 @@ test("ambiguous alias across two distinct sections is rejected safely",()=>{
    {id:"treatments-heading",type:"heading",section:"tratamentos",text:"Tratamentos"},
    {id:"card-tratamentos-0",type:"paragraph",section:"tratamentos",layout:"grid",text:"Outro serviço: Descrição"}
  );
- const request="No primeiro card da seção Nossos tratamentos, altere o título para 'Não posso adivinhar'.";
+ const request="No primeiro card da seção Nossas especialidades, altere o título para 'Não posso adivinhar'.";
  const result=applyUniversalNaturalLanguage(site,request);
  assert.equal(result?.ok,false);
 });
