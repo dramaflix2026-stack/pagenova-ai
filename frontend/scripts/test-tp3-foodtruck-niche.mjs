@@ -60,7 +60,12 @@ test("sample map is only in preview with valid WhatsApp destination",()=>{
  assert.ok(s.includes("Avenida Paulista, 1000"));
  assert.ok(s.includes("wa.me/"));
  const route=read("src/components/builder-v2-site.tsx");
- for(const i of [1,2,3])assert.ok(route.includes("BuilderV2TP3Model"+i+" site={site} publishedMode={publishedMode}"));
+ for(const i of [1,2,3]){
+  const expected=i===1
+    ? "BuilderV2TP3Model1 site={site} selectedNiche={selectedNiche} publishedMode={publishedMode}"
+    : "BuilderV2TP3Model"+i+" site={site} publishedMode={publishedMode}";
+  assert.ok(route.includes(expected),"TP3 Model "+i+" route must retain the required props");
+ }
 });
 test("M1 has full supporting sections, M2 is consistent, M3 has six gallery images",()=>{
  const m1=read("src/components/builder-v2-tp3-model1.tsx");
