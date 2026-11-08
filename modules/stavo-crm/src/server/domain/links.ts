@@ -214,6 +214,21 @@ export function classifyWebsite(value: string | null | undefined): ClassifiedLin
     };
   }
 
+  // A published website on a shared/free domain is still a WEBSITE.
+  // The absence of an owned domain is not the absence of a website;
+  // never present Wix/Google Sites/Shopify/etc as "sem site".
+  if (FREE_BUILDER_SUFFIXES.some((suffix) => host.endsWith(suffix)) ||
+      host === 'sites.google.com' || host.endsWith('.sites.google.com') ||
+      host === 'business.site' || host === 'negocio.site') {
+    return {
+      classification: 'OWN_WEBSITE',
+      url,
+      host,
+      linkType: 'WEBSITE',
+      label: 'Site publicado em plataforma (sem dominio proprio)',
+    };
+  }
+
   if (hostMatches(host, DIRECTORY_HOSTS)) {
     return {
       classification: 'DIRECTORY_OR_PLATFORM',
@@ -221,16 +236,6 @@ export function classifyWebsite(value: string | null | undefined): ClassifiedLin
       host,
       linkType: 'DIRECTORY',
       label: 'Perfil em diretorio ou plataforma',
-    };
-  }
-
-  if (FREE_BUILDER_SUFFIXES.some((suffix) => host.endsWith(suffix))) {
-    return {
-      classification: 'DIRECTORY_OR_PLATFORM',
-      url,
-      host,
-      linkType: 'DIRECTORY',
-      label: 'Site em construtor gratuito, sem dominio proprio',
     };
   }
 
