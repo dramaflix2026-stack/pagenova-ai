@@ -106,6 +106,9 @@ export function prepareTP1Model3VisibleEdit<T extends UniversalSite>(
   let observedChanges = 0;
   for (const [i, before] of previous.blocks.entries()) {
     const after = next.blocks[i];
+    if (!after || typeof after !== "object") {
+      return {ok: false, error: "A edição retornou um bloco inválido. O site foi preservado."};
+    }
     if (!changed.has(before.id)) {
       if (JSON.stringify(before) !== JSON.stringify(after)) {
         return {ok: false, error: "A edição incluiu alterações fora dos blocos solicitados. O site foi preservado."};
