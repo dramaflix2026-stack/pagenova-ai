@@ -16,3 +16,27 @@ export function requiredIllustrationSlots(realPhotoCount: number): MandatoryImag
   if (count === 2) return ['supplement'];
   return [];
 }
+
+/**
+ * Deterministic CRM hero selection, independent of the model's proposed image
+ * binding. This never mutates/deletes existing template media or asset records.
+ */
+export function choosePrimaryHeroImage<T extends {
+  assetId: string;
+  source: string;
+  description: string;
+  width?: number | null;
+  height?: number | null;
+}>(candidates: readonly T[], reservedAboutAssetId?: string): T | undefined {
+  const remaining = candidates.filter((item) => item.assetId !== reservedAboutAssetId);
+  const isWide = (item: T) => !item.width || !item.height || item.width >= item.height;
+  const prefer = (source: string, wideOnly: boolean): T | undefined =>
+    remaining.find((item) => item.source === source && (!wideOnly || isWide(item)));
+
+  return prefer('GOOGLE_PLACES', true)
+    ?? prefer('GOOGLE_PLACES', false)
+    ?? prefer('UPLOAD', true)
+    ?? prefer('UPLOAD', false)
+    ?? remaining.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]'))
+    ?? remaining[0];
+}
