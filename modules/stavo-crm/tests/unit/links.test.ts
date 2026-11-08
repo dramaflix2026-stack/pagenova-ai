@@ -88,7 +88,6 @@ describe('classificacao de website', () => {
 describe('filtros de site', () => {
   it('"sem site proprio" inclui redes sociais, WhatsApp, links e diretorios', () => {
     for (const classification of [
-      'NONE',
       'INSTAGRAM',
       'WHATSAPP',
       'FACEBOOK_OR_SOCIAL',
@@ -98,6 +97,8 @@ describe('filtros de site', () => {
       expect(matchesWebsiteFilter(classification, 'NO_OWN_WEBSITE')).toBe(true);
     }
     expect(matchesWebsiteFilter('OWN_WEBSITE', 'NO_OWN_WEBSITE')).toBe(false);
+    expect(matchesWebsiteFilter('NONE', 'NO_OWN_WEBSITE')).toBe(false);
+    expect(matchesWebsiteFilter('UNKNOWN', 'NO_OWN_WEBSITE')).toBe(false);
   });
 
   it('"sem nenhum link" inclui apenas NONE', () => {
@@ -110,10 +111,12 @@ describe('filtros de site', () => {
     expect(matchesWebsiteFilter('INSTAGRAM', 'HAS_OWN_WEBSITE')).toBe(false);
   });
 
-  it('UNKNOWN nunca e escondido: aparece sinalizado para verificacao', () => {
-    expect(matchesWebsiteFilter('UNKNOWN', 'NO_OWN_WEBSITE')).toBe(true);
-    expect(matchesWebsiteFilter('UNKNOWN', 'HAS_OWN_WEBSITE')).toBe(true);
+  it('NONE e UNKNOWN nao comprovam ausencia de site', () => {
+    expect(matchesWebsiteFilter('UNKNOWN', 'NO_OWN_WEBSITE')).toBe(false);
+    expect(matchesWebsiteFilter('UNKNOWN', 'HAS_OWN_WEBSITE')).toBe(false);
+    expect(matchesWebsiteFilter('NONE', 'HAS_OWN_WEBSITE')).toBe(false);
     expect(matchesWebsiteFilter('UNKNOWN', 'ALL')).toBe(true);
+    expect(matchesWebsiteFilter('NONE', 'NO_LINK')).toBe(true);
   });
 
   it('"todos" nao filtra nada', () => {
