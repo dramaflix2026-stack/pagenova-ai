@@ -39,7 +39,7 @@ export default function SiteProjectPage() {
   const savedConfig=useSiteDraftConfig(editable ? projectId ?? null : null);
   const modernSelection=(savedConfig.data?.config as {project?:{builderV2TemplateId?:string}}|null)?.project?.builderV2TemplateId;
   const showLegacy=searchParams.get('crmLegacy')==='1';
-  const studioTemplates=['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating'];
+  const studioTemplates=['institutional-complete','minimalist-sophisticated','modern-impactful','image-text-alternating','prompt-adaptive'];
   const openInStudio=editable&&!showLegacy&&studioTemplates.includes(modernSelection||'');
   const checkingEditor=editable&&!showLegacy&&savedConfig.isPending;
   const refreshAfterGeneration=useCallback(()=>{void query.refetch();},[query.refetch]);

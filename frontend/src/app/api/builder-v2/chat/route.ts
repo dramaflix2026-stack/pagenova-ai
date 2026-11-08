@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BUILDER_ANNOUNCEMENT } from "@/lib/builder-v2-announcement";
 import { applyInstitutionalEdit } from "@/lib/builder-v2-institutional-edits";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
+import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
 import {applySocialInstruction,socialLinksFromInstruction} from "@/lib/site-social-links";
 import {reserveBuilderV2Generation,generationCreditError} from "@/lib/builder-v2-generation-credits";
 
@@ -741,6 +742,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=isFullSiteCreationBrief(instructionText);
 
   const editingSite=body.site as {title?:string;niche?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  // A palette request mentioning "preserve animations" is NEVER a motion edit.
+  if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const edited=applyUniversalPaletteEdit(
+      editingSite as typeof editingSite & {blocks:Array<{id:string;type:string;section?:string;[key:string]:unknown}>},
+      instructionText
+    );
+    if(edited)return NextResponse.json({site:edited.site,summary:edited.summary});
+  }
   // Explicit structured operations take precedence over ambiguous wording in the instruction.\n  // Structured, template-independent edit batches use the same transactional
   // validator across all site modes. Legacy natural-language handlers remain
   // untouched until their migration is covered by renderer regression tests.

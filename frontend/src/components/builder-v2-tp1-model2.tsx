@@ -108,14 +108,14 @@ export function BuilderV2TP1Model2Hero({site,publishedMode=false}:{site:BuilderV
  const gallery=(galleryCatalog.find(item=>item.pattern.test(niche))||galleryCatalog[galleryCatalog.length-1]);
  const faqItems=universalFaqItems(site.blocks,(faqCatalog.find(group=>group.pattern.test(niche))||faqCatalog[faqCatalog.length-1]).items);
  const brand=site.header?.brand?.trim()||site.title||"Seu Espaço";
- const heroBlocks=site.blocks.filter(b=>/^(?:inicio|hero|home|capa)$/i.test(b.section||""));
+ const heroBlocks=site.blocks.filter(b=>/^(?:inicio|hero|home|capa|principal)$/i.test(b.section||""));
  const headingBlock=heroBlocks.find(b=>b.type==="heading")||site.blocks.find(b=>b.type==="heading"&&b.text?.trim());
  const heading=headingBlock?.text?.trim()||photo.fallback;
  const descriptionBlock=heroBlocks.find(b=>b.type==="paragraph")||site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim());
  const description=descriptionBlock?.text?.trim()||"Uma experiência pensada para valorizar cada detalhe do seu atendimento.";
  const heroButton=heroBlocks.find(b=>b.type==="button")||site.blocks.find(b=>b.type==="button"&&b.href);
  const heroImage=heroBlocks.find(b=>b.type==="image");
- const aboutBlocks=site.blocks.filter(b=>/^(?:sobre|about|essencia|nossa-essencia)$/i.test(b.section||""));
+ const aboutBlocks=site.blocks.filter(b=>/^(?:sobre|about|essencia|nossa-essencia|sobre-nos)$/i.test(b.section||""));
  const aboutImages=aboutBlocks.filter(b=>b.type==="image");
  const aboutHeading=aboutBlocks.find(b=>b.type==="heading");
  const aboutParagraphs=aboutBlocks.filter(b=>b.type==="paragraph");

@@ -323,20 +323,30 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
       const secondaryCandidate = secondaryIndex >= 0
         ? byAspect.find((item) => item.width && item.height && item.width / item.height < 0.95)
         : undefined;
-      const heroCandidate = imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[hero]') && (!item.width || !item.height || item.width > item.height)) ?? imageCandidates.find(
-        (item) => item.assetId !== secondaryCandidate?.assetId &&
-          (!item.width || !item.height || item.width / item.height >= 1.1),
-      ) ?? imageCandidates.find((item) => item.assetId !== secondaryCandidate?.assetId);
-      const fallbackSecondary = secondaryCandidate ??
-        realCandidates.find((item) => item.assetId !== heroCandidate?.assetId) ??
-        imageCandidates.find((item) => item.source === 'UPLOAD' && item.assetId !== heroCandidate?.assetId);
+      const googleHero = realCandidates.find(item=>item.width && item.height && item.width>=item.height)
+        ?? realCandidates[0];
+      // Every verified Google Places photo set from a lead must place one
+      // genuine business photograph in the Hero. Existing template images
+      // are never deleted: the generated Hero asset remains available below.
+      const generatedHero = imageCandidates.find(item=>
+        item.source==='AI_GENERATED'&&item.description.includes('[hero]'));
+      const heroCandidate = googleHero ?? generatedHero ?? imageCandidates.find(
+        item=>item.assetId!==secondaryCandidate?.assetId &&
+          (!item.width||!item.height||item.width/item.height>=1.1)
+      ) ?? imageCandidates.find(item=>item.assetId!==secondaryCandidate?.assetId);
+      const fallbackSecondary = realCandidates.find(item=>item.assetId!==heroCandidate?.assetId)
+        ?? (generatedHero?.assetId!==heroCandidate?.assetId?generatedHero:undefined)
+        ?? imageCandidates.find(item=>item.source==='UPLOAD'&&item.assetId!==heroCandidate?.assetId);
       const processIndex = plan.sections.findIndex((section) => section.type === 'process');
       const thirdCandidate = realCandidates.find(
         (item) => item.assetId !== heroCandidate?.assetId && item.assetId !== fallbackSecondary?.assetId,
-      ) ?? imageCandidates.find((item) => item.source === 'AI_GENERATED' && item.description.includes('[supplement]'));
-      if (heroIndex >= 0 &&
-          (!heroCandidate || heroCandidate.source !== 'AI_GENERATED' || !heroCandidate.description.includes('[hero]'))) {
-        throw new Error('Banner principal precisa ser uma imagem de IA gerada para o hero.');
+      ) ?? imageCandidates.find(item=>item.source==='AI_GENERATED'&&
+        item.assetId!==heroCandidate?.assetId&&item.assetId!==fallbackSecondary?.assetId&&
+        item.description.includes('[supplement]')) ?? imageCandidates.find(item=>
+        item.source==='AI_GENERATED'&&item.assetId!==heroCandidate?.assetId&&item.assetId!==fallbackSecondary?.assetId);
+      if(heroIndex>=0 && (!heroCandidate ||
+          (realCandidates.length>0 && heroCandidate.source!=='GOOGLE_PLACES'))) {
+        throw new Error('A capa do lead precisa mostrar a foto verificada da empresa quando disponível.');
       }
       if (heroIndex >= 0 && heroCandidate) {
         imageBindings[heroIndex] = { ...(imageBindings[heroIndex] ?? {}), image: toRef(heroCandidate) };
@@ -427,7 +437,7 @@ async function runInitialGeneration(job: SiteGenerationJob): Promise<void> {
     const selectedTemplate=(project.draftConfig as {templateId?:string}|null)?.templateId;
     model.project.templateId=selectedTemplate==='muse-editorial'||selectedTemplate==='atelier-norte'||selectedTemplate==='vertice-corporate'||selectedTemplate==='restaurant-premium'||selectedTemplate==='real-estate-premium' ? selectedTemplate : 'frigolog-universal';
     const studioTemplate=(project.draftConfig as {builderV2TemplateId?:string}|null)?.builderV2TemplateId;
-    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'){
+    if(studioTemplate==='institutional-complete'||studioTemplate==='minimalist-sophisticated'||studioTemplate==='modern-impactful'||studioTemplate==='image-text-alternating'||studioTemplate==='prompt-adaptive'){
       model.project.builderV2TemplateId=studioTemplate;
     }
 
