@@ -27,7 +27,7 @@ export const JAPANESE_MODEL1_SECTIONS = [
 ] as const;
 
 export function isJapaneseCuisineNiche(nicheOrTitle: string): boolean {
-  return /comida[\\s-]+japones[ae]|culin[aá]ria[\\s-]+japones[ae]|japon[eê]s|japonesa|japanese|sushi|temakeria|temaki|izakaya|sashimi|yakisoba|ramen|nigiri/i.test(nicheOrTitle);
+  return /comida[\s-]+japones[ae]|culin[aá]ria[\s-]+japones[ae]|japon[eê]s|japonesa|japanese|sushi|temakeria|temaki|izakaya|sashimi|yakisoba|ramen|nigiri/i.test(nicheOrTitle);
 }
 
 /**
@@ -48,7 +48,7 @@ export function isJapaneseCuisineSiteIdentity(input: {
   const selected = (input.selectedNiche || "").trim();
   const stored = (input.niche || "").trim();
   const explicit = selected || stored;
-  if (/\\b(?:padaria|panificadora|confeitaria|cafeteria|coffee\\s*shop|pizzaria|hamburgueria|food[\\s-]*truck|a[cç]a[ií]teria|sorveteria|churrascaria|doceria)\\b/i.test(explicit)) {
+  if (/\b(?:padaria|panificadora|confeitaria|cafeteria|coffee\s*shop|pizzaria|hamburgueria|food[\s-]*truck|a[cç]a[ií]teria|sorveteria|churrascaria|doceria)\b/i.test(explicit)) {
     return false;
   }
   return [selected, stored, input.title, input.brand, ...(input.heroHeadings || []).slice(0, 2)]
