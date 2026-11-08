@@ -1,12 +1,9 @@
 /**
- * Universal-site mandatory imagery policy. With no real Google/owner photo,
- * the generator needs three distinct editorial illustrations; with one real
- * photo it needs two; with two or more real photos it only needs the AI hero.
- * Synthetic imagery is never represented as photographs of a real company.
- *
- * The obsolete PAGENOVA_AI_HERO_IMAGES switch cannot disable an advertised
- * feature; budget checks, API key and explicit consent for image-only repairs
- * continue to apply.
+ * Mandatory image slots for CRM-generated sites.
+ * Verified Google Places / owner images take priority over synthetic media.
+ * AI illustrations fill only missing hero/about/process slots and never
+ * impersonate a real business. With three real photos, no AI image is needed.
+ * The caller still enforces budget and provider prerequisites for required slots.
  */
 export type MandatoryImageSlot = 'hero' | 'about' | 'supplement';
 export function imageGenerationKeyPresent(value: string | undefined | null): boolean {
@@ -15,6 +12,7 @@ export function imageGenerationKeyPresent(value: string | undefined | null): boo
 export function requiredIllustrationSlots(realPhotoCount: number): MandatoryImageSlot[] {
   const count = Number.isFinite(realPhotoCount) ? Math.max(0, Math.floor(realPhotoCount)) : 0;
   if (count === 0) return ['hero', 'about', 'supplement'];
-  if (count === 1) return ['hero', 'supplement'];
-  return ['hero'];
+  if (count === 1) return ['about', 'supplement'];
+  if (count === 2) return ['supplement'];
+  return [];
 }
