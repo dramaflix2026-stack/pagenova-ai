@@ -129,6 +129,37 @@ try{
             "Japanese footer should have "+expectedColumns+" responsive grid columns; found "+footerGridColumns
           );
         }
+        if(isJapanese&&model!=="01"){
+          // Real DOM assertions: the preview must contain 4 portrait cards,
+          // three numerical counters, a real location section and a responsive
+          // footer even when the business hasn't supplied its own metrics yet.
+          const variant=Number(model);
+          const reviews=page.locator('[data-japanese-reviews="'+variant+'"] blockquote');
+          const counters=page.locator('[data-japanese-animated-numbers="'+variant+'"] article');
+          const footer=page.locator('[data-japanese-tp3-footer="'+variant+'"]');
+          const location=page.locator('[data-japanese-tp3-location="'+variant+'"]');
+          if(await reviews.count()!==4)record.errors.push("Japanese M"+model+" must show 4 review cards in preview");
+          if(await counters.count()!==3)record.errors.push("Japanese M"+model+" needs 3 animated counters");
+          if(await footer.count()!==1)record.errors.push("Japanese M"+model+" premium footer missing");
+          if(await location.count()!==1)record.errors.push("Japanese M"+model+" location/map missing");
+          if(await footer.count()){
+            const columns=await footer.locator(".grid").first().evaluate(el=>
+              getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean).length
+            ).catch(()=>0);
+            if(columns!==(device.name==="desktop"?3:1)){
+              record.errors.push("Japanese M"+model+" footer columns invalid: "+columns);
+            }
+          }
+          const allPhotos=await page.evaluate(()=>[
+            ...[...document.images].map(el=>el.currentSrc||el.src),
+            ...[...document.querySelectorAll(".tp3m3-hero,.tp3m3-contact-photo")]
+              .map(el=>getComputedStyle(el).backgroundImage),
+          ].filter(Boolean));
+          const wrongPhotos=allPhotos.filter(src=>
+            /photo-1509440159596-0249088772ff|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73|photo-1555507036-ab1f4038808a|photo-1567620905732-2d1ec7ab7445|photo-1568901346375-23c9450c58cd|photo-1578985545062-69928b1d9587/.test(src)
+          );
+          if(wrongPhotos.length)record.errors.push("Non-Japanese food images present in M"+model);
+        }
         if(isJapanese){
           const bakeryUrls=record.broken.concat(await page.locator("img").evaluateAll(imgs=>imgs.map(x=>x.currentSrc||x.src).filter(x=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(x))));
           if(bakeryUrls.some(url=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(url)))record.errors.push("Bakery photo used in Japanese restaurant");
