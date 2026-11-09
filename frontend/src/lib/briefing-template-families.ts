@@ -140,6 +140,17 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
 ] as const;
 export type BriefingFamilyId = 1|2|3|4|5|6|7|8|9|10;
 const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+/**
+ * Approved dental TP4 identity. This classifier only sees positive business
+ * declarations in resolvePrimaryBriefingNiche; exclusion phrases such as
+ * "não usar fotos de dentista" must never select an odontological template.
+ * Keep all odontological sub-specialties on the same approved three models.
+ */
+const DENTAL_IDENTITY_RE=/(?:^| )(?:odont\w*|dentist\w*|dental|dentais|dentari\w*|ortodont\w*|implantodont\w*|endodont\w*|periodont\w*|odontopediatr\w*|saude bucal|protese dentaria|proteses dentarias|implantes? dentari\w*|clinica de sorrisos|harmonizacao orofacial)(?= |$)/;
+export function isDentalNicheIdentity(value:string):boolean {
+ return DENTAL_IDENTITY_RE.test(norm(value||""));
+}
+export const APPROVED_DENTAL_NICHE="Clínica odontológica" as const;
 const aliases:Record<string,string>={
  "barbearia premium masculina":"Barbearia","barbearia premium":"Barbearia","barbershop":"Barbearia","barber shop":"Barbearia",
  "salao de beleza":"Salão de beleza premium","salao de beleza feminino":"Salão de beleza premium","salao de beleza masculino":"Salão de beleza premium",
@@ -157,6 +168,8 @@ const aliases:Record<string,string>={
 };
 export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  const v=norm(niche||"");if(!v)return undefined;
+ // Universal freeze: even "odontologia estética" belongs to approved TP4.
+ if(isDentalNicheIdentity(niche))return 4;
  const canonical=aliases[v]||niche;
  const exact=BRIEFING_TEMPLATE_FAMILIES.find(f=>f.niches.some(n=>norm(n)===norm(canonical)));
  if(exact)return exact.id;
@@ -240,6 +253,7 @@ export function resolvePrimaryBriefingNiche(brief:string):string|undefined {
  const explicitLine=(brief||"").split(/\r?\n/u).find(line=>/^\s*(?:[-*]\s*)?(?:\*\*)?\s*(?:nicho|segmento|ramo(?:\s+de\s+atividade)?|tipo\s+de\s+neg[oó]cio)\s*(?:\*\*)?\s*:/i.test(line));
  const normalizedExplicit=explicitLine?norm(explicitLine.slice(explicitLine.indexOf(":")+1).replace(/\*\*/g,"")):"";
  if(normalizedExplicit){
+  if(isDentalNicheIdentity(normalizedExplicit))return APPROVED_DENTAL_NICHE;
   const exact=primaryBriefCandidates.find(item=>item.needle===normalizedExplicit);
   if(exact)return exact.niche;
   const scoped=primaryBriefCandidates.filter(item=>(" "+normalizedExplicit+" ").includes(" "+item.needle+" ")).sort((a,b)=>b.needle.length-a.needle.length)[0];
@@ -251,10 +265,14 @@ export function resolvePrimaryBriefingNiche(brief:string):string|undefined {
   if(!cleaned||negativeBriefStart.test(cleaned))continue;
   const positive=cleaned.replace(negativeBriefTail,"").trim();
   const padded=" "+positive+" ";
+  // Dental practices may call themselves "Odonto", "dentista", "ortodontia"
+  // or a sub-specialty instead of spelling "Clínica odontológica".
   const matches=primaryBriefCandidates.map(item=>({item,index:padded.indexOf(" "+item.needle+" ")})).filter(hit=>hit.index>=0);
+  const dentalHit=positive.match(DENTAL_IDENTITY_RE);
+  if(dentalHit)matches.push({item:{needle:dentalHit[0].trim(),niche:APPROVED_DENTAL_NICHE},index:(dentalHit.index??0)});
   if(matches.length){
    matches.sort((a,b)=>a.index-b.index||b.item.needle.length-a.item.needle.length);
-   return matches[0].item.niche;
+   return isDentalNicheIdentity(matches[0].item.niche)?APPROVED_DENTAL_NICHE:matches[0].item.niche;
   }
  }
  return undefined;
