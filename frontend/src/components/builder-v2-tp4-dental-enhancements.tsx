@@ -74,7 +74,7 @@ export function DentalMetrics({site,model,publishedMode=false}:{site:BuilderV2Si
   {target:98,suffix:"%",label:"Satisfação dos pacientes"}
  ];
  return <div className="pn-dental-kpis" data-dental-kpis={publishedMode?"pending":"preview-examples"} data-dental-model={model}>
-  <p className="pn-dental-kpis-note">{publishedMode?"Indicadores odontológicos: preencha com dados reais e verificáveis da clínica.":"SIMULAÇÃO PARA PERSONALIZAÇÃO — Os números abaixo são apenas exemplos fictícios de indicadores odontológicos; não representam atendimentos, pacientes ou resultados reais da {clinic}."}</p>
+  <p className="pn-dental-kpis-note">{publishedMode?"Indicadores odontológicos: preencha com dados reais e verificáveis da clínica.":"SIMULAÇÃO PARA PERSONALIZAÇÃO — Os números abaixo são apenas exemplos fictícios de indicadores odontológicos; não representam atendimentos, pacientes ou resultados reais da "+clinic+"."}</p>
   <div className="pn-dental-kpi-grid">{examples.map(item=><div className="pn-dental-kpi" key={item.label}>
    {publishedMode?<strong className="pn-dental-kpi-empty" aria-label="Indicador pendente de dado verificado">—</strong>:<AnimatedNumber target={item.target} suffix={item.suffix}/>}
    <span className="pn-dental-kpi-label">{item.label}</span>
