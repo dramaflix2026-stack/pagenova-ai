@@ -12,7 +12,7 @@ test("TP2 all 3 have metrics, five testimonial slots, contact map and premium fo
  assert.match(shared,/sample\.slice\(0,Math\.max\(0,5-real\.length\)\)/);
  assert.match(shared,/publishedMode\?\[\]/);
  assert.match(shared,/RELATO FICTÍCIO/);
- assert.match(shared,/n[aã]o resultados comerciais|não projetos executados|não representam clientes/);
+ assert.match(shared,/Indicadores de projetos realizados, clientes atendidos e experiência serão exibidos somente quando a empresa fornecer dados verificáveis/);
  assert.match(shared,/data-tp2-mode="approach"/);
  assert.match(shared,/data-tp2-mode="verified"/);
  assert.match(shared,/hasTP2VerifiedMetrics/);
@@ -33,7 +33,10 @@ test("mobile footer links, map, real WhatsApp and older materials experiences re
  assert.match(shared,/google\.com\/maps\?q=/);
  assert.match(shared,/wa\.me/);
  assert.match(shared,/href=\{home\}/);
- assert.match(shared,/sm:grid-cols-2 lg:grid-cols-3/);
+ const footerCss=file("builder-v2-tp2-evidence.css");
+ assert.match(footerCss,/\.pntp2-footer-columns/);
+ assert.match(footerCss,/@media\(max-width:600px\)/);
+ assert.match(footerCss,/font-size:12px!important/);
  assert.match(models[1],/<MaterialProof variant=\{2\}\/>/);
  assert.match(models[2],/<MaterialProof variant=\{3\}\/>/);
  assert.match(models[1],/<MaterialTestimonials provided=\{testimonials\} variant=\{2\}\/>/);
