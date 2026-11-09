@@ -33,3 +33,13 @@
 .tp3m3 .tp3m3-faq-item p { color:#e2dbce; }
 .tp3m3 .tp3m3-process-grid button small { color:#dfd3c2; }
 .tp3m3 .tp3m3-gallery-copy h2 { color:#fff8ed; text-shadow:0 1px 12px rgba(0,0,0,.38); }
+
+/* Maison du Pain: no global gastronomic color/layout changes. */
+.tp3m3.tp3m3--bakery{--gold:#d3ab72;--light:#f7eee2}
+.tp3m3--bakery .tp3m3-pillars{background:#cbb18a}
+.tp3m3--bakery .tp3m3-numbers{background:#ddc5a0;color:#291f18}
+.tp3m3--bakery .tp3m3-numbers h2{font-size:clamp(2.6rem,5.2vw,5rem);line-height:1.08;letter-spacing:-.045em;max-width:900px;margin:12px 0 28px}
+.tp3m3--bakery .tp3m3-numbers [data-tp3-bakery-metrics]{margin-top:0}
+.tp3m3--bakery .tp3m3-numbers [data-tp3-bakery-metrics] p{color:#3b2b1d}
+.tp3m3--bakery .tp3m3-numbers .tp3m3-label{margin-bottom:22px}
+@media(max-width:600px){.tp3m3--bakery .tp3m3-numbers{padding-top:44px;padding-bottom:48px}.tp3m3--bakery .tp3m3-numbers h2{font-size:clamp(2.25rem,9vw,3.3rem);margin-bottom:20px}.tp3m3--bakery .tp3m3-gallery-frame{min-height:370px}}

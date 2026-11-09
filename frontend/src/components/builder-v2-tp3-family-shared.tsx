@@ -28,13 +28,23 @@ const categories:[RegExp,TP3FoodCategory][]=[
 ];
 export function resolveTP3FoodCategory(site:BuilderV2SiteData,selectedNiche?:string):TP3FoodCategory{
  // Explicit current brand outranks a stale family label from a prior draft.
- const brand=[site.header?.brand,site.title,selectedNiche].filter(Boolean).join(" ");
+ // Strong current business identity wins over stale category/header from a previous site.
+ const bakeryIdentity=/maison\s+du\s+pain|boulangerie|padaria|panifica[cç][aã]o|p[aã]es\s+artesanais/i;
+ const firstHeading=site.blocks.filter(b=>b.type==="heading").slice(0,5).map(b=>b.text||"").join(" ");
+ const title=site.title||"";
+ if(bakeryIdentity.test(title))return "Padaria";
+ const titleMatch=categories.find(([test])=>test.test(title));
+ if(titleMatch)return titleMatch[1];
+ if(bakeryIdentity.test(firstHeading))return "Padaria";
+ const brand=site.header?.brand||"";
+ if(bakeryIdentity.test(brand))return "Padaria";
  const byBrand=categories.find(([test])=>test.test(brand));
  if(byBrand)return byBrand[1];
- const niche=site.niche||"";
+ const niche=selectedNiche||site.niche||"";
  const byNiche=categories.find(([test])=>test.test(niche));
  if(byNiche)return byNiche[1];
- const briefing=site.blocks.filter(b=>b.type==="heading").slice(0,3).map(b=>b.text||"").join(" ");
+ const briefing=site.blocks.filter(b=>b.type==="heading"||b.type==="paragraph").slice(0,12).map(b=>b.text||"").join(" ");
+ if(bakeryIdentity.test(briefing))return "Padaria";
  return categories.find(([test])=>test.test(briefing))?.[1]||"Restaurante";
 }
 
@@ -75,9 +85,27 @@ const pizzaImages=[
  ...pizzaPexelsIds.map(id=>"https://images.pexels.com/photos/"+id+"/pexels-photo-"+id+".jpeg"),
 ];
 export const TP3_PIZZA_DISTINCT_SOURCE_COUNT=pizzaImages.length;
+// Bakery-exclusive 45 real editorial Pexels sources (bread, croissant, baguette, brioche, bakers and ovens).
+// Original Pexels photo pages checked 2026-11-09. Ordered slots prevent within-model duplicates.
+const bakeryPexelsIds=[
+ 29307618,36445326,37778434,36445141,12035578,30667028,24838082,8508106,33608752,36445222,
+ 30509573,15318355,33593117,30826792,7140434,33541425,27969786,7966376,36445104,30275065,
+ 11397854,30826793,33988126,27969779,30694851,36930940,31249261,10720142,29388479,30446295,
+ 36096927,33593100,9833051,36325441,14067473,30926962,24252052,34517072,19803482,30887263,
+ 5907566,6996211,14981376,8093320,40574434,
+] as const;
+const bakeryImages=bakeryPexelsIds.map(id=>"https://images.pexels.com/photos/"+id+"/pexels-photo-"+id+".jpeg");
+export const TP3_BAKERY_DISTINCT_SOURCE_COUNT=bakeryImages.length;
+export function tp3FamilyBrand(site:BuilderV2SiteData,category:TP3FoodCategory):string{
+ const title=site.title?.trim()||"";
+ const header=site.header?.brand?.trim()||"";
+ if(category==="Padaria"&&/maison\s+du\s+pain|boulangerie|padaria/i.test(title))return title;
+ return header||title||"Gastronomia";
+}
+
 export function tp3FamilyInternetPhoto(category:TP3FoodCategory,model:1|2|3,slot:number,width=1400):string{
- const pool=category==="Pizzaria"?pizzaImages:(unsplashCatalog[category]||unsplashCatalog.Restaurante!).map(id=>"https://images.unsplash.com/"+id);
- const offset=model===1?0:model===2?3:10;
+ const pool=category==="Pizzaria"?pizzaImages:category==="Padaria"?bakeryImages:(unsplashCatalog[category]||unsplashCatalog.Restaurante!).map(id=>"https://images.unsplash.com/"+id);
+ const offset=category==="Padaria"?(model===3?11:0):(model===1?0:model===2?3:10);
  const safeSlot=Math.max(0,Math.trunc(slot));
  const base=pool[(safeSlot+offset)%pool.length];
  return base.includes("pexels.com")?base+"?auto=compress&cs=tinysrgb&w="+width:base+"?auto=format&fit=crop&w="+width+"&q=85";
@@ -125,6 +153,7 @@ export function TP3FamilyTestimonials({site,publishedMode=false,dark=false}:{sit
 type Metric={value:number;label:string;suffix:string};
 export function parseTP3FamilyMetrics(raw:readonly (string|undefined)[],publishedMode=false):{items:Metric[];demo:boolean}{
  const items=raw.flatMap(item=>{
+  if(/valor\s+ilustrativo|exemplo|demonstrativ|fict[ií]ci|simulad/i.test(item||""))return [];
   const m=(item||"").trim().match(/^(\d+(?:[.,]\d+)?)\s*(\+|%|mil|k)?\s*(?:[|:—-]\s*|\s+)(.{3,90})$/i);
   if(!m)return [];
   const value=Number(m[1].replace(",","."));
@@ -169,6 +198,20 @@ export function TP3FamilyAnimatedNumbers({raw,publishedMode=false,dark=false}:{r
    <strong className="block text-[clamp(2.6rem,5vw,5rem)] font-bold leading-none tabular-nums" aria-label={it.value+it.suffix}>{Math.round(progress*it.value).toLocaleString("pt-BR")}{it.suffix}</strong>
    <span className="mt-4 block text-sm font-semibold leading-6">{it.label}</span>
   </div>)}</div>:<p className="rounded-lg border border-current/30 p-6 text-sm leading-7">Cadastre indicadores reais para exibir números animados no site publicado.</p>}
+ </div>;
+}
+export function TP3FamilyBakeryNumbers({raw,publishedMode=false,dark=false}:{raw:readonly (string|undefined)[];publishedMode?:boolean;dark?:boolean}){
+ const valid=raw.filter(v=>!/valor\s+ilustrativo|exemplo|demonstrativ|fict[ií]ci|simulad/i.test(v||""));
+ const {items}=parseTP3FamilyMetrics(valid,true);
+ if(items.length)return <TP3FamilyAnimatedNumbers raw={valid} publishedMode={publishedMode} dark={dark}/>;
+ const fields=[["Pães por dia","Produção a confirmar"],["Anos de história","Dados da empresa"],["Clientes atendidos","Informação verificada"]];
+ return <div data-tp3-bakery-metrics="pending" className="mt-8">
+  <p className={"mb-6 max-w-2xl text-sm leading-6 "+(dark?"text-[#f6ead6]":"text-[#493825]")}>{publishedMode?"Indicadores comerciais ainda não cadastrados.":"Prévia da seção: cadastre os números reais da padaria para ativar os contadores animados."}</p>
+  <div className="grid gap-3 sm:grid-cols-3">{fields.map(([label,detail])=><div key={label} className="min-w-0 rounded-xl border border-current/25 bg-black/[.035] p-5 sm:p-6">
+   <strong className="block text-[clamp(2.1rem,5vw,3.4rem)] leading-none">—</strong>
+   <span className="mt-4 block text-sm font-bold leading-6">{label}</span>
+   <small className="mt-1 block text-xs opacity-75">{detail}</small>
+  </div>)}</div>
  </div>;
 }
 const faqDefaults:[string,string][]=[
@@ -224,12 +267,12 @@ export function TP3FamilyFooter({site,publishedMode=false,variant=2}:{site:Build
 }
 export function TP3FamilyModel1Extras({site,publishedMode=false,category}:{site:BuilderV2SiteData;publishedMode?:boolean;category:TP3FoodCategory}){
  const metrics=site.blocks.filter(b=>b.type==="paragraph"&&/n[uú]meros|indicadores|resultados/i.test(b.section||"")).map(b=>b.text);
- const diff=category==="Pizzaria"?["Massa preparada com atenção","Ingredientes selecionados","Preparo em forno a lenha","Receitas com personalidade"]:["Seleção cuidadosa","Atenção aos detalhes","Sabores para descobrir","Experiência acolhedora"];
- const steps=category==="Pizzaria"?[["01","Preparação","Conheça a proposta de massas artesanais."],["02","Fermentação","Descubra o tempo e o cuidado do processo."],["03","Forno","A etapa em que a pizza ganha seu sabor."]]:[["01","Descubra","Explore as especialidades."],["02","Escolha","Veja as opções apresentadas."],["03","Entre em contato","Confirme disponibilidade com a equipe."]];
+ const diff=category==="Pizzaria"?["Massa preparada com atenção","Ingredientes selecionados","Preparo em forno a lenha","Receitas com personalidade"]:category==="Padaria"?["Fermentação natural","Pães e folhados artesanais","Ingredientes selecionados","Forno e preparo cuidadoso"]:["Seleção cuidadosa","Atenção aos detalhes","Sabores para descobrir","Experiência acolhedora"];
+ const steps=category==="Pizzaria"?[["01","Preparação","Conheça a proposta de massas artesanais."],["02","Fermentação","Descubra o tempo e o cuidado do processo."],["03","Forno","A etapa em que a pizza ganha seu sabor."]]:category==="Padaria"?[["01","A massa","Escolha de ingredientes e preparo artesanal."],["02","O tempo","Fermentação natural para desenvolver sabor e textura."],["03","O forno","Crosta dourada e folhados assados com cuidado."]]:[["01","Descubra","Explore as especialidades."],["02","Escolha","Veja as opções apresentadas."],["03","Entre em contato","Confirme disponibilidade com a equipe."]];
  return <>
  <section data-universal-section="diferenciais" className="bg-[#f6eee3] px-6 py-16 text-[#30251e] md:px-[7%] md:py-24"><div className="mx-auto max-w-7xl"><span className="text-xs font-bold uppercase tracking-[.18em] text-[#ac7947]">Nossos diferenciais</span><h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.5rem)]">O cuidado faz parte do sabor.</h2><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{diff.map((d,i)=><div key={d} className="rounded-lg border border-[#d4bfaa] p-6"><span className="text-xs text-[#aa7651]">0{i+1}</span><h3 className="mt-5 text-lg font-semibold">{d}</h3></div>)}</div></div></section>
  <section data-universal-section="processo" className="bg-[#211d19] px-6 py-16 text-[#fdf4e9] md:px-[7%] md:py-24"><div className="mx-auto max-w-7xl"><span className="text-xs font-bold uppercase tracking-[.18em] text-[#e3ad78]">Nosso processo</span><h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.5rem)]">Da escolha ao primeiro pedaço.</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{steps.map(([number,title,desc],i)=><article key={number} className="min-w-0"><img src={category==="Pizzaria"&&i===1?"https://images.pexels.com/photos/35760003/pexels-photo-35760003.jpeg?auto=compress&cs=tinysrgb&w=1200":tp3FamilyInternetPhoto(category,1,12+i)} className="aspect-[5/4] w-full rounded-lg object-cover" alt={"Fotografia de "+title.toLowerCase()} loading="lazy" onError={e=>{const img=e.currentTarget;const attempts=Number(img.dataset.tp3FallbackAttempt||0);if(attempts===0){img.dataset.tp3FallbackAttempt="1";img.src=category==="Pizzaria"&&i===1?"https://images.pexels.com/photos/33593107/pexels-photo-33593107.jpeg?auto=compress&cs=tinysrgb&w=1200":tp3FamilyInternetPhoto(category,1,0);}else if(attempts===1){img.dataset.tp3FallbackAttempt="2";img.src=tp3FamilyInternetPhoto(category,1,12);}else{img.style.visibility="hidden";}}}/><span className="mt-5 block text-xs text-[#e8b882]">{number}</span><h3 className="mt-2 font-serif text-2xl">{title}</h3><p className="mt-2 text-sm leading-7 text-[#e1d3c2]">{desc}</p></article>)}</div></div></section>
- <section data-universal-section="numeros" className="bg-[#d4aa72] px-6 py-16 text-[#261d15] md:px-[7%] md:py-24"><div className="mx-auto max-w-7xl"><span className="text-xs font-bold uppercase tracking-[.18em]">Nossos números</span><h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.5rem)]">Resultados em destaque.</h2><TP3FamilyAnimatedNumbers raw={metrics} publishedMode={publishedMode}/></div></section>
+ <section data-universal-section="numeros" className="bg-[#d4aa72] px-6 py-16 text-[#261d15] md:px-[7%] md:py-24"><div className="mx-auto max-w-7xl"><span className="text-xs font-bold uppercase tracking-[.18em]">Nossos números</span><h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.5rem)]">Resultados em destaque.</h2>{category==="Padaria"?<TP3FamilyBakeryNumbers raw={metrics} publishedMode={publishedMode}/>:<TP3FamilyAnimatedNumbers raw={metrics} publishedMode={publishedMode}/>} </div></section>
  <section id="depoimentos" data-universal-section="depoimentos" className="bg-[#f6eee3] px-6 py-16 text-[#30251e] md:px-[7%] md:py-24"><div className="mx-auto max-w-7xl"><span className="text-xs font-bold uppercase tracking-[.18em] text-[#ac7947]">Depoimentos</span><h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.5rem)]">Experiências compartilhadas.</h2><TP3FamilyTestimonials site={site} publishedMode={publishedMode}/></div></section>
  <TP3FamilyFAQ site={site}/>
  <TP3FamilyLocation site={site} publishedMode={publishedMode}/>

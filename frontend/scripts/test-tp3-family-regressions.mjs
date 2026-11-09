@@ -21,7 +21,8 @@ test("TP3 M1-M3 and family components parse as valid TypeScript JSX",()=>{
 
 test("one TP3 category resolver takes brand/title priority and preserves established specialty families",()=>{
  assert.match(shared,/export function resolveTP3FoodCategory/);
- assert.match(shared,/site\.header\?\.brand,site\.title,selectedNiche/);
+ assert.ok(shared.includes("const bakeryIdentity="));
+ assert.ok(shared.includes("bakeryIdentity.test(title)"));
  assert.match(shared,/const byBrand=categories\.find/);
  assert.match(shared,/const byNiche=categories\.find/);
  for(const niche of ["Pizzaria","Hamburgueria","Cafeteria","Padaria","Confeitaria","Marmitaria","Sorveteria","Churrascaria","Buffet","Comida japonesa","Açaí","Doceria","Food truck","Restaurante"]){
@@ -156,4 +157,17 @@ test("Hamburgueria M3 fixes process and last gallery image without changing appr
  assert.ok(model.includes('photo(isJapanese?step+3:step+6)'));
  assert.ok(model.includes('[14,15,16,17,18].map'));
  assert.ok(model.includes('galleryImages[i+1]||photo(slot)'));
+});
+
+test("Padaria user briefing resolves separate identity, diverse photos and non-fictitious metrics",()=>{
+ const section=shared.slice(shared.indexOf("const bakeryPexelsIds=["),shared.indexOf("] as const",shared.indexOf("const bakeryPexelsIds=[")));
+ const ids=[...section.matchAll(/\b\d{6,9}\b/g)].map(x=>x[0]);
+ assert.ok(ids.length>=40);
+ assert.equal(new Set(ids).size,ids.length);
+ for(const entry of ["const bakeryIdentity=",'category==="Padaria"?bakeryImages',"const TP3_BAKERY_DISTINCT_SOURCE_COUNT","TP3FamilyBakeryNumbers","data-tp3-bakery-metrics"])assert.ok(shared.includes(entry),entry);
+ assert.ok(models[1].includes("tp3m2--bakery"));
+ assert.ok(models[2].includes("tp3m3--bakery"));
+ assert.ok(models[1].includes("TP3FamilyBakeryNumbers raw={metrics}"));
+ assert.ok(models[2].includes("TP3FamilyBakeryNumbers raw={numbers}"));
+ assert.ok(models[2].includes('const processSteps=familyCategory==="Padaria"'));
 });
