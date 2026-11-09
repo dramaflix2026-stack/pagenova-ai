@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useEffect, useState, type CSSProperties } from "react";
+import { ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, X, Building2, Layers3, ShoppingBag, Cpu, BedDouble, Store } from "lucide-react";
 
 type Locale = "pt" | "en" | "es";
 type Category = "all" | "business" | "commerce" | "services";
@@ -34,9 +34,9 @@ const examples = [
 ] as const;
 
 const dictionary = {
-  pt:{eyebrow:"CRIATIVIDADE SEM LIMITES",title:"Uma ideia. Infinitas",highlight:"possibilidades.",desc:"Explore diferentes direções visuais para o seu negócio. Cada nicho pede uma identidade — e a PageNova ajuda você a criar a sua.",all:"Todos",business:"Institucional",commerce:"Vendas e lojas",services:"Serviços",tag:"EXEMPLO VISUAL",view:"Ampliar prévia",note:"Composições demonstrativas de nichos. Não são depoimentos nem projetos publicados de clientes.",cta:"Começar meu projeto",close:"Fechar prévia",prev:"Anterior",next:"Próximo",counter:"de"},
-  en:{eyebrow:"CREATIVITY WITHOUT LIMITS",title:"One idea. Endless",highlight:"possibilities.",desc:"Explore different visual directions for your business. Every industry deserves its own identity — PageNova helps you create yours.",all:"All",business:"Business",commerce:"Sales & stores",services:"Services",tag:"VISUAL CONCEPT",view:"View preview",note:"Illustrative industry concepts, not published client projects or testimonials.",cta:"Start my project",close:"Close preview",prev:"Previous",next:"Next",counter:"of"},
-  es:{eyebrow:"CREATIVIDAD SIN LÍMITES",title:"Una idea. Infinitas",highlight:"posibilidades.",desc:"Explora diferentes estilos visuales para tu negocio. Cada sector merece su propia identidad y PageNova te ayuda a crearla.",all:"Todos",business:"Institucional",commerce:"Ventas y tiendas",services:"Servicios",tag:"EJEMPLO VISUAL",view:"Ampliar vista",note:"Conceptos visuales ilustrativos, no son proyectos de clientes publicados.",cta:"Empezar mi proyecto",close:"Cerrar vista",prev:"Anterior",next:"Siguiente",counter:"de"}
+  pt:{eyebrow:"GALERIA DE PROJETOS",title:"Uma ideia. Infinitas",highlight:"possibilidades.",desc:"Explore diferentes direções visuais para o seu negócio. Cada nicho pede uma identidade — e a PageNova ajuda você a criar a sua.",all:"Todos",business:"Institucional",commerce:"Vendas e lojas",services:"Serviços",tag:"EXEMPLO VISUAL",view:"Ampliar prévia",note:"Composições demonstrativas de nichos. Não são depoimentos nem projetos publicados de clientes.",cta:"Começar meu projeto",close:"Fechar prévia",prev:"Anterior",next:"Próximo",counter:"de"},
+  en:{eyebrow:"PROJECT GALLERY",title:"One idea. Endless",highlight:"possibilities.",desc:"Explore different visual directions for your business. Every industry deserves its own identity — PageNova helps you create yours.",all:"All",business:"Business",commerce:"Sales & stores",services:"Services",tag:"VISUAL CONCEPT",view:"View preview",note:"Illustrative industry concepts, not published client projects or testimonials.",cta:"Start my project",close:"Close preview",prev:"Previous",next:"Next",counter:"of"},
+  es:{eyebrow:"GALERÍA DE PROYECTOS",title:"Una idea. Infinitas",highlight:"posibilidades.",desc:"Explora diferentes estilos visuales para tu negocio. Cada sector merece su propia identidad y PageNova te ayuda a crearla.",all:"Todos",business:"Institucional",commerce:"Ventas y tiendas",services:"Servicios",tag:"EJEMPLO VISUAL",view:"Ampliar vista",note:"Conceptos visuales ilustrativos, no son proyectos de clientes publicados.",cta:"Empezar mi proyecto",close:"Cerrar vista",prev:"Anterior",next:"Siguiente",counter:"de"}
 } as const;
 
 function SiteVisual({item,lang}:{item:typeof examples[number];lang:Locale}) {
@@ -61,6 +61,35 @@ function SiteVisual({item,lang}:{item:typeof examples[number];lang:Locale}) {
     </div>
     <div className="pn-gallery-bottom"><span/><span/><span/></div>
   </div>;
+}
+
+const galleryIcons = {engineering:Building2,laundry:Layers3,creative:ShoppingBag,technology:Cpu,hotel:BedDouble,retail:Store} as const;
+
+/** Three-dimensional showcase: readable copy is real text; the image pane is its own layer. */
+function Gallery3DVisual({item,lang}:{item:typeof examples[number];lang:Locale}) {
+  const Icon=galleryIcons[item.id];
+  const action=lang==="pt"?"Ver projeto":lang==="en"?"View project":"Ver proyecto";
+  return (
+    <div className={"pn-gallery3d-panel pn-gallery3d-"+item.id} style={{"--pn-gallery3d-accent":item.accent} as CSSProperties}>
+      <span className="pn-gallery3d-reflection" aria-hidden="true"/>
+      <div className="pn-gallery3d-copy">
+        <span className="pn-gallery3d-icon"><Icon size={18} strokeWidth={1.8}/></span>
+        <span className="pn-gallery3d-eyebrow">{item.categoryLabel[lang]}</span>
+        <h3>{item.headline[lang]}</h3>
+        <span className="pn-gallery3d-action">{action}<ArrowUpRight size={15}/></span>
+      </div>
+      <div className="pn-gallery3d-art-stack" aria-hidden="true">
+        <div className="pn-gallery3d-back-plate"/>
+        <div className="pn-gallery3d-browser-window">
+          <span className="pn-gallery3d-browser-dots"><i/><i/><i/></span>
+          {item.art ? <img src={item.art} alt="" loading="lazy" decoding="async"/> :
+            <div className="pn-gallery3d-tech-image"><span/><span/><span/><span/></div>}
+          <span className="pn-gallery3d-window-shine"/>
+        </div>
+      </div>
+      <span className="pn-gallery3d-floor-glow" aria-hidden="true"/>
+    </div>
+  );
 }
 
 export function LandingGallery() {
@@ -94,20 +123,25 @@ export function LandingGallery() {
       <div className="relative mx-auto max-w-[1250px]">
         <div className="mx-auto max-w-[890px] text-center">
           <p className="mb-5 flex items-center justify-center gap-2 text-[11px] font-bold tracking-[.24em] text-[#b6ff69]"><span className="h-[5px] w-[5px] rounded-full bg-[#b6ff69]"/>{t.eyebrow}</p>
-          <h2 className="text-[clamp(2.35rem,5.4vw,5.5rem)] font-extrabold leading-[1.08] tracking-[-.06em] text-white">{t.title}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
+          <h2 className="text-[clamp(2.15rem,4.1vw,3.65rem)] font-extrabold leading-[1.1] tracking-[-.045em] text-white">{t.title} <span className="text-[#b6ff69]">{t.highlight}</span></h2>
           <p className="mx-auto mt-6 max-w-[670px] text-[15px] leading-[1.8] text-[#b3beb4] sm:text-lg">{t.desc}</p>
         </div>
         <div className="pn-gallery-filters mt-7 flex flex-wrap justify-center gap-2.5 sm:mt-9" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
           {(["all","business","commerce","services"] as const).map(key=><button type="button" key={key} onClick={()=>setCategory(key)} aria-pressed={category===key} className={"min-h-10 rounded-full border px-4 text-xs font-semibold transition-colors sm:px-5 sm:text-sm "+(category===key?"border-[#b6ff69] bg-[#b6ff69] text-[#0d1b0a]":"border-white/15 bg-white/[.04] text-[#c9d5ca] hover:border-[#b6ff69]/50 hover:text-white")}>{t[key]}</button>)}
         </div>
-        <div className="pn-gallery-grid mt-7 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {shown.map(item=><article key={item.id} className="pn-gallery-card group min-w-0 overflow-hidden rounded-[22px] border border-white/[.11] bg-[#111a14] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6ff69]/40 hover:shadow-[0_30px_80px_#0008]">
-            <button type="button" onClick={()=>setSelected(item.index)} className="block w-full cursor-zoom-in text-left" aria-label={t.view+": "+item.names[lang]}>
-              <div className="pn-gallery-media overflow-hidden border-b border-white/[.09]"><SiteVisual item={item} lang={lang}/></div>
-              <div className="flex items-center justify-between gap-3 px-5 py-5">
-                <div className="min-w-0"><span className="text-[10px] font-semibold uppercase tracking-[.14em] text-[#99ab9c]">{item.categoryLabel[lang]}</span><h3 className="mt-1 truncate text-[17px] font-bold text-white">{item.names[lang]}</h3></div>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-[#b6ff69] transition group-hover:border-[#b6ff69] group-hover:bg-[#b6ff69] group-hover:text-[#101b0e]"><ArrowUpRight size={19}/></span>
-              </div>
+        <div className="pn-gallery-grid mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {shown.map(item=><article key={item.id} className="pn-gallery-card pn-gallery3d-card group min-w-0">
+            <button type="button" onClick={()=>setSelected(item.index)} className="pn-gallery3d-button block w-full text-left" aria-label={t.view+": "+item.names[lang]}
+              onPointerMove={event=>{
+                if(event.pointerType!=="mouse")return;
+                const rect=event.currentTarget.getBoundingClientRect();
+                const x=(event.clientX-rect.left)/rect.width-.5;
+                const y=(event.clientY-rect.top)/rect.height-.5;
+                event.currentTarget.style.setProperty("--pn-tilt-y",(x*7).toFixed(2)+"deg");
+                event.currentTarget.style.setProperty("--pn-tilt-x",(-y*5).toFixed(2)+"deg");
+              }}
+              onPointerLeave={event=>{event.currentTarget.style.setProperty("--pn-tilt-x","0deg");event.currentTarget.style.setProperty("--pn-tilt-y","0deg");}}>
+              <Gallery3DVisual item={item} lang={lang}/>
             </button>
           </article>)}
         </div>
@@ -190,6 +224,52 @@ export function LandingGallery() {
 #edicao-ia .relative.grid.flex-1{padding:14px}
 #edicao-ia .relative.flex.h-16{height:50px}
 }
+
+/* Gallery 3D — independent live elements, translated, interactive and mobile-first. */
+#galeria{background:radial-gradient(ellipse 60% 42% at 50% 18%,#14351b60,transparent 76%),linear-gradient(180deg,#0b190f 0%,#080e0b 50%,#07100b 100%);isolation:isolate}
+#galeria .pn-gallery-halo{height:570px;background:radial-gradient(ellipse 60% 38% at 50% 4%,#a6ff5c24,transparent 85%)}
+#galeria .pn-gallery3d-card{position:relative;min-width:0;border:0;border-radius:24px;background:transparent;overflow:visible;transform:none;box-shadow:none}
+#galeria .pn-gallery3d-button{position:relative;display:block;width:100%;border-radius:24px;outline-offset:5px;perspective:1000px;cursor:zoom-in}
+#galeria .pn-gallery3d-panel{position:relative;display:flex;isolation:isolate;overflow:hidden;min-height:276px;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 40%,transparent);border-radius:24px;background:radial-gradient(ellipse 80% 70% at 100% 85%,color-mix(in srgb,var(--pn-gallery3d-accent) 13%,transparent),transparent 75%),linear-gradient(125deg,#132119,#0d1712 56%,#17221a);box-shadow:inset 0 1px 0 #ffffff19,0 23px 45px #0008,0 1px 12px color-mix(in srgb,var(--pn-gallery3d-accent) 10%,transparent);transform:perspective(1050px) rotateX(var(--pn-tilt-x,0deg)) rotateY(var(--pn-tilt-y,0deg));transition:transform .35s ease,border-color .3s,box-shadow .3s;backface-visibility:hidden}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-panel,#galeria .pn-gallery3d-button:focus-visible .pn-gallery3d-panel{border-color:color-mix(in srgb,var(--pn-gallery3d-accent) 85%,transparent);box-shadow:inset 0 1px 0 #ffffff22,0 24px 70px #0009,0 0 28px color-mix(in srgb,var(--pn-gallery3d-accent) 32%,transparent)}
+#galeria .pn-gallery3d-card:nth-child(2) .pn-gallery3d-panel{border-color:#b6ff69c4;box-shadow:inset 0 1px 0 #fff2,0 0 22px #a6ff5673,0 22px 65px #0009}
+#galeria .pn-gallery3d-copy{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;width:55%;padding:25px 8px 24px 24px}
+#galeria .pn-gallery3d-icon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin-bottom:16px;border:1px solid #d4ffa734;border-radius:12px;background:#a7ff6a12;color:#b8ff72;box-shadow:inset 0 1px 0 #fff2}
+#galeria .pn-gallery3d-eyebrow{color:#dae8d5;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.17em;line-height:1.4}
+#galeria .pn-gallery3d-copy h3{margin:9px 0 14px;font-size:clamp(18px,1.65vw,25px);font-weight:800;line-height:1.14;letter-spacing:-.045em;color:#fff;text-wrap:balance}
+#galeria .pn-gallery3d-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:34px;max-width:100%;border:1px solid #a9ff68a8;border-radius:999px;padding:0 12px;color:#f2ffeb;background:#0a180d65;font-weight:700;font-size:11px;white-space:nowrap;transition:background .3s,color .3s}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-action{background:#a6ff61;color:#0b1608}
+#galeria .pn-gallery3d-art-stack{position:absolute;z-index:2;top:12%;right:3%;width:48%;height:78%;perspective:650px;animation:pn-gallery3d-bob 7s ease-in-out infinite alternate}
+#galeria .pn-gallery3d-card:nth-child(2n) .pn-gallery3d-art-stack{animation-delay:-2.3s}
+#galeria .pn-gallery3d-card:nth-child(3n) .pn-gallery3d-art-stack{animation-delay:-4.4s}
+#galeria .pn-gallery3d-back-plate{position:absolute;inset:3% -2% 2% 8%;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 62%,transparent);border-radius:17px;background:linear-gradient(125deg,#c4ffd019,#c1ffd005);transform:translate(10px,-9px) rotateY(-18deg) rotateZ(4deg);box-shadow:9px 16px 27px #0007}
+#galeria .pn-gallery3d-browser-window{position:absolute;inset:8% 2% 1% 1%;overflow:hidden;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 78%,#fff);border-radius:14px;transform:rotateY(-15deg) rotateZ(4deg) translateZ(24px);box-shadow:0 18px 25px #0009,0 0 24px color-mix(in srgb,var(--pn-gallery3d-accent) 22%,transparent);background:#162219}
+#galeria .pn-gallery3d-browser-window img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.96) contrast(1.08)}
+#galeria .pn-gallery3d-window-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,#ffffff22,transparent 32%,transparent 70%,#ffffff17);box-shadow:inset 0 1px 0 #fff5}
+#galeria .pn-gallery3d-browser-dots{position:absolute;z-index:2;left:0;right:0;top:0;display:flex;gap:4px;padding:10px 10px 9px;background:#0a130db5}
+#galeria .pn-gallery3d-browser-dots i{width:5px;height:5px;border-radius:50%;background:#b5ff77}
+#galeria .pn-gallery3d-browser-dots i:nth-child(2){background:#e5bf80}
+#galeria .pn-gallery3d-browser-dots i:nth-child(3){background:#97dbcb}
+#galeria .pn-gallery3d-reflection{position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(120deg,transparent 8%,#ffffff0a 30%,transparent 50%);transform:translateX(-110%);transition:transform .9s ease}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-reflection{transform:translateX(110%)}
+#galeria .pn-gallery3d-floor-glow{position:absolute;bottom:-22px;left:25%;right:3%;height:42px;border-radius:50%;background:color-mix(in srgb,var(--pn-gallery3d-accent) 20%,transparent);filter:blur(23px);pointer-events:none}
+#galeria .pn-gallery3d-tech-image{position:absolute;inset:0;overflow:hidden;background:radial-gradient(circle at 55% 50%,#a7ff6a47,transparent 56%),linear-gradient(130deg,#0b1820,#101c22)}
+#galeria .pn-gallery3d-tech-image span{position:absolute;inset:19% 13%;border:1px solid #a7ff6ac4;border-radius:20%;transform:rotate(-19deg);background:linear-gradient(145deg,#a7ff6a24,#6c8fff33)}
+#galeria .pn-gallery3d-tech-image span:nth-child(2){inset:32% 2% 18% 20%;transform:rotate(27deg);border-color:#8eacff9e}
+#galeria .pn-gallery3d-tech-image span:nth-child(3){inset:42% 18% 25%;transform:rotate(-28deg);border-color:#7de0ffc4}
+#galeria .pn-gallery3d-tech-image span:nth-child(4){inset:48% 36% 38%;background:#a7ff6a55;border:0;border-radius:999px;filter:blur(3px)}
+@keyframes pn-gallery3d-bob{from{transform:translate3d(0,3px,0) rotate(-1deg)}to{transform:translate3d(0,-7px,0) rotate(1.3deg)}}
+@media(min-width:1280px){#galeria .pn-gallery3d-panel{min-height:280px}}
+@media(max-width:767px){
+ #galeria .pn-gallery3d-card{overflow:visible}
+ #galeria .pn-gallery3d-panel{min-height:246px;border-radius:20px}
+ #galeria .pn-gallery3d-copy{padding:21px 8px 20px 19px;width:55%}
+ #galeria .pn-gallery3d-copy h3{font-size:clamp(20px,5vw,27px);max-width:225px}
+ #galeria .pn-gallery3d-art-stack{right:2%;width:47%;top:14%;height:74%;animation-duration:9s}
+ #galeria .pn-gallery3d-browser-window{border-radius:12px}
+}
+@media(min-width:768px) and (max-width:1279px){#galeria .pn-gallery3d-copy{padding-left:17px}#galeria .pn-gallery3d-copy h3{font-size:19px}#galeria .pn-gallery3d-panel{min-height:255px}}
+@media(prefers-reduced-motion:reduce){#galeria .pn-gallery3d-art-stack{animation:none}#galeria .pn-gallery3d-panel{transition:none;transform:none}#galeria .pn-gallery3d-reflection{transition:none}}
       @media(prefers-reduced-motion:reduce){.pn-gallery-card{transition:none!important;transform:none!important}}
     `}</style>
   </>;

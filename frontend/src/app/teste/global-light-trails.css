@@ -1,0 +1,12 @@
+.pn-test-root{position:relative;isolation:isolate;background:#08130c}
+.pn-global-light-trails{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden;mix-blend-mode:screen;opacity:.72;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 22%,transparent 39%,transparent 61%,#000 78%,#000 100%);mask-image:linear-gradient(90deg,#000 0%,#000 22%,transparent 39%,transparent 61%,#000 78%,#000 100%)}
+.pn-global-light-trails svg{display:block;width:100%;height:100%;overflow:visible}
+.pn-light-guide{fill:none;stroke:#9fff83;stroke-width:.75;stroke-opacity:.085;vector-effect:non-scaling-stroke}
+.pn-trail-beam{fill:none;stroke:url(#pn-trail-gradient);stroke-linecap:round;stroke-dasharray:150 850;vector-effect:non-scaling-stroke;animation:pn-light-flow-down 14s linear infinite}
+.pn-trail-blur{stroke-width:16;filter:url(#pn-trail-glow);opacity:.83}
+.pn-trail-core{stroke-width:2;opacity:.95}
+.pn-trail-right{animation-name:pn-light-flow-up;animation-duration:19s;animation-delay:-6s}
+@keyframes pn-light-flow-down{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
+@keyframes pn-light-flow-up{from{stroke-dashoffset:-1000}to{stroke-dashoffset:0}}
+@media(max-width:767px){.pn-global-light-trails{opacity:.36;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 14%,transparent 25%,transparent 76%,#000 91%);mask-image:linear-gradient(90deg,#000 0%,#000 14%,transparent 25%,transparent 76%,#000 91%)}.pn-trail-blur{stroke-width:10}.pn-trail-core{stroke-width:1.5}}
+@media(prefers-reduced-motion:reduce){.pn-trail-beam{animation:none;stroke-dashoffset:380;opacity:.35}}
