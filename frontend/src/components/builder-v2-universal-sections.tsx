@@ -32,8 +32,13 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
  const decorated=sectionNodes.map(node=>{
   const key=keyOf(node)!;
   if(!isValidElement<{style?:CSSProperties;children?:ReactNode}>(node))return node;
-  const background=site.universalSectionStyles?.[key]?.backgroundColor??site.blocks?.find(block=>block.section===key&&typeof block.background==="string")?.background;
-  const headingColor=site.universalSectionStyles?.[key]?.headingColor;
+  // Generated briefs may store "servicos"/"services" while the approved
+  // visual renderer exposes "especialidades". Resolve both to the same section.
+  const siteInventory={blocks:(site.blocks||[]).map((b,i)=>({id:b.id||"block-"+i,type:b.type||"paragraph",section:b.section||"",text:b.text||""}))};
+  const persistedKey=resolveUniversalSection(siteInventory,key);
+  const sectionStyles=site.universalSectionStyles?.[key]||(persistedKey?site.universalSectionStyles?.[persistedKey]:undefined);
+  const background=sectionStyles?.backgroundColor??site.blocks?.find(block=>block.section===(persistedKey||key)&&typeof block.background==="string")?.background;
+  const headingColor=sectionStyles?.headingColor;
   const explicitMotion=site.motion?.sections?.[key];
   const style=background?{...node.props.style,backgroundColor:background}:node.props.style;
   const headingOverride=headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?<style key={"universal-heading-"+key}>{`[data-universal-section="${key}"] h1,[data-universal-section="${key}"] h2,[data-universal-section="${key}"] h3{color:${headingColor}!important}`}</style>:null;
