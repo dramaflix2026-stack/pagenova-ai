@@ -1,22 +1,19 @@
-.pn9-image-scene{position:absolute;inset:0;overflow:hidden;isolation:isolate;pointer-events:none}
-.pn9-glow{position:absolute;width:38%;height:86%;top:7%;filter:blur(50px);opacity:.6}
-.pn9-glow-left{left:-8%;background:radial-gradient(ellipse,#9cff3a3a,transparent 65%)}
-.pn9-glow-right{right:-8%;background:radial-gradient(ellipse,#9cff3a30,transparent 65%)}
-.pn9-half{position:absolute;top:8%;width:min(32.5vw,620px);height:auto;aspect-ratio:586/625;overflow:hidden;will-change:transform;animation:pn9-float 8s ease-in-out infinite alternate}
-.pn9-half img{display:block;max-width:none;width:200%;height:100%;object-fit:contain;user-select:none}
-.pn9-left{left:-.5%;mask-image:linear-gradient(to right,#000 0%,#000 80%,#000b 88%,transparent 99%);-webkit-mask-image:linear-gradient(to right,#000 0%,#000 80%,#000b 88%,transparent 99%)}
-.pn9-right{right:-.5%;animation-delay:-4s;mask-image:linear-gradient(to left,#000 0%,#000 80%,#000b 88%,transparent 99%);-webkit-mask-image:linear-gradient(to left,#000 0%,#000 80%,#000b 88%,transparent 99%)}
-.pn9-right img{transform:translateX(-50%)}
-.pn9-text-shield{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse 36% 66% at 50% 46%,#08160ff0 12%,#08160fd6 48%,#08160f66 75%,transparent 100%)}
-@keyframes pn9-float{from{transform:translate3d(0,-5px,0)}to{transform:translate3d(0,8px,0)}}
-@media(min-width:1650px){.pn9-half{width:min(33vw,620px);top:8%;height:auto}.pn9-left{left:-.5%}.pn9-right{right:-.5%}}
-@media(max-width:1180px){.pn9-half{top:15%;width:42vw;height:auto}.pn9-left{left:-8%}.pn9-right{right:-8%}.pn9-text-shield{background:radial-gradient(ellipse 42% 64% at 50% 45%,#08160ff5 10%,#08160fdb 60%,transparent 100%)}}
-.pn9-mobile{position:relative;inset:auto;width:100%;height:218px;overflow:hidden;margin-top:16px}
-.pn9-mobile .pn9-half{top:0;width:49%;height:auto;aspect-ratio:586/625;animation-duration:9s}
-.pn9-mobile .pn9-left{left:0;mask-image:linear-gradient(to right,#000 88%,transparent)}
-.pn9-mobile .pn9-right{right:0;mask-image:linear-gradient(to left,#000 88%,transparent)}
-.pn9-mobile .pn9-half img{width:200%;height:100%;object-fit:contain}
+.pn9-image-scene{position:absolute;inset:0;isolation:isolate;overflow:hidden;pointer-events:none}
+.pn9-glow{position:absolute;top:6%;width:40%;height:85%;filter:blur(54px);opacity:.65}
+.pn9-glow-left{left:-10%;background:radial-gradient(ellipse,#92ff3d48,transparent 70%)}
+.pn9-glow-right{right:-10%;background:radial-gradient(ellipse,#92ff3d3d,transparent 70%)}
+.pn9-half{position:absolute;top:7%;width:min(31.5vw,620px);height:auto;aspect-ratio:580/630;overflow:hidden;will-change:transform;animation:pn9-float 8s ease-in-out infinite alternate}
+.pn9-half img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;max-width:none;image-rendering:auto;user-select:none}
+.pn9-left{left:-1%;-webkit-mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%)}
+.pn9-right{right:-1%;animation-delay:-4s;-webkit-mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%)}
+.pn9-text-shield{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse 33% 64% at 50% 45%,#07140cfb 12%,#07140ce8 52%,#07140c7d 77%,transparent 100%)}
+@keyframes pn9-float{from{transform:translate3d(0,-3px,0)}to{transform:translate3d(0,8px,0)}}
+@media(max-width:1200px){.pn9-half{width:42vw;top:13%}.pn9-left{left:-9%}.pn9-right{right:-9%}.pn9-text-shield{background:radial-gradient(ellipse 44% 68% at 50% 45%,#07140cfa 12%,#07140ce8 56%,transparent 100%)}}
+.pn9-mobile{position:relative;inset:auto;width:100%;height:222px;overflow:hidden;margin-top:14px}
+.pn9-mobile .pn9-half{top:0;width:48%;height:auto;aspect-ratio:580/630;animation-duration:9s}
+.pn9-mobile .pn9-left{left:1%;-webkit-mask-image:linear-gradient(to right,#000 84%,transparent 100%);mask-image:linear-gradient(to right,#000 84%,transparent 100%)}
+.pn9-mobile .pn9-right{right:1%;-webkit-mask-image:linear-gradient(to left,#000 84%,transparent 100%);mask-image:linear-gradient(to left,#000 84%,transparent 100%)}
 .pn9-mobile .pn9-text-shield{background:none}
 .pn9-mobile .pn9-glow{top:15%;height:75%;filter:blur(24px)}
-@media(max-width:430px){.pn9-mobile{height:194px}.pn9-mobile .pn9-half{height:auto}}
+@media(max-width:430px){.pn9-mobile{height:194px}}
 @media(prefers-reduced-motion:reduce){.pn9-half{animation:none}}

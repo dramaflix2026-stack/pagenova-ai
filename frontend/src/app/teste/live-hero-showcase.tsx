@@ -14,10 +14,10 @@ export function LiveHeroShowcase({ mobile = false }: { lang: Lang; mobile?: bool
       <div className="pn9-glow pn9-glow-left" />
       <div className="pn9-glow pn9-glow-right" />
       <div className="pn9-half pn9-left">
-        <img src="/landing-hero/approved-side-panels.webp" alt="" decoding="async" draggable={false}/>
+        <img src="/landing-hero/hero-left-hd.webp" alt="" decoding="async" draggable={false} fetchPriority="high"/>
       </div>
       <div className="pn9-half pn9-right">
-        <img src="/landing-hero/approved-side-panels.webp" alt="" decoding="async" draggable={false}/>
+        <img src="/landing-hero/hero-right-hd.webp" alt="" decoding="async" draggable={false} fetchPriority="high"/>
       </div>
       <div className="pn9-text-shield"/>
     </div>

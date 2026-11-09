@@ -20,6 +20,9 @@
 .pn-premium-cta-secondary{box-shadow:inset 0 1px #ffffff16}
 .pn-premium-benefit:not(:last-child){border-right:1px solid #ffffff1e}
 .pn-premium-arc{box-shadow:0 12px 45px #a7ff572e}
+.pn-premium-stage:before{content:"";position:absolute;pointer-events:none;bottom:0;left:-10%;width:120%;height:31%;background:radial-gradient(ellipse 57% 86% at 50% 100%,#88ff3e24,transparent 75%);z-index:1}
+.pn-premium-arc{box-shadow:0 10px 32px #b4ff6673,0 2px 22px #9cfa4440}
+
 @media(max-width:1023px){.pn-premium-stage{min-height:0;padding-top:38px;padding-bottom:34px}.pn-premium-benefits{margin-top:10px}}
 @media(max-width:639px){.pn-premium-header>div{height:65px}
 .pn-premium-stage{padding:32px 20px 26px}
