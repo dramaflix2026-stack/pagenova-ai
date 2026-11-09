@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CinematicFilmReel } from "./cinematic-film-reel";
-import { ArrowRight, ArrowUpRight, Check, ChevronDown, Globe2, Menu, Monitor, MousePointer2, Play, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, ChevronDown, Globe2, Menu, Play, Sparkles, X } from "lucide-react";
 
 type Lang = "pt" | "en" | "es";
 const copy = {
@@ -75,7 +75,7 @@ export function HeroModeloUm() {
           </Link>
           <nav className="hidden items-center gap-9 text-[13px] font-medium text-white/65 lg:flex" aria-label="Navegação principal">
             <a href="#plataforma" className="transition hover:text-white">{t.nav[0]}</a>
-            <a href="#possibilidades" className="transition hover:text-white">{t.nav[1]}</a>
+            <a href="#galeria" className="transition hover:text-white">{t.nav[1]}</a>
             <a href="#planos" className="transition hover:text-white">{t.nav[2]}</a>
           </nav>
           <div className="hidden items-center gap-4 sm:flex">
@@ -96,7 +96,7 @@ export function HeroModeloUm() {
         {menuOpen && (
           <nav className="flex flex-col gap-4 border-t border-white/10 bg-[#0e1710] p-6 sm:hidden">
             <a onClick={()=>setMenuOpen(false)} href="#plataforma">{t.nav[0]}</a>
-            <a onClick={()=>setMenuOpen(false)} href="#possibilidades">{t.nav[1]}</a>
+            <a onClick={()=>setMenuOpen(false)} href="#galeria">{t.nav[1]}</a>
             <a onClick={()=>setMenuOpen(false)} href="#planos">{t.nav[2]}</a>
             <div className="flex gap-2">{(["pt","en","es"] as const).map(l=><button type="button" key={l} onClick={()=>changeLang(l)} className={"rounded-md border px-3 py-2 text-xs "+(lang===l?"border-[#b6ff69] text-[#b6ff69]":"border-white/20")}>{l.toUpperCase()}</button>)}</div>
             <Link href="/login" className="text-white/75">{t.login}</Link>
@@ -119,41 +119,8 @@ export function HeroModeloUm() {
         <p className="mx-auto mt-7 max-w-[680px] text-[15px] leading-[1.85] text-[#aebbae] sm:text-lg">{t.description}</p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href="/cadastro" className="group inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#b6ff69] px-7 text-[14px] font-bold text-[#0d190a] transition hover:-translate-y-0.5 hover:bg-[#d4ffaa] hover:shadow-[0_12px_40px_#a3fc4930] sm:w-auto">{t.start}<ArrowUpRight className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" size={19}/></Link>
-          <a href="#demonstracao" className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/[.035] px-7 text-[14px] font-semibold text-white transition hover:border-white/40 hover:bg-white/[.08] sm:w-auto"><Play size={16} fill="currentColor"/>{t.watch}</a>
+          <a href="#galeria" className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/[.035] px-7 text-[14px] font-semibold text-white transition hover:border-white/40 hover:bg-white/[.08] sm:w-auto"><Play size={16} fill="currentColor"/>{t.watch}</a>
         </div>
-        <p id="possibilidades" className="mt-20 text-[10px] font-bold uppercase tracking-[.25em] text-[#8b9e8d] sm:mt-24">{t.preview}</p>
-        <div className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-3">
-          {[{label:t.site,icon:Monitor},{label:t.page,icon:MousePointer2},{label:t.crm,icon:Check}].map(({label,icon:Icon})=><span key={label} className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[.035] px-4 py-2 text-[11px] font-medium text-white/70"><Icon size={14} className="text-[#b6ff69]"/>{label}</span>)}
-        </div>
-
-        <div id="demonstracao" className="relative mx-auto mt-10 max-w-[1120px]">
-          <div aria-hidden="true" className="absolute -inset-5 rounded-[32px] bg-[#a2ff54]/[.10] blur-[62px]" />
-          <div className="relative overflow-hidden rounded-[20px] border border-[#b6ff69]/20 bg-[#111914] p-2 shadow-[0_35px_130px_#0009] sm:rounded-[27px] sm:p-3">
-            <div className="mb-2 flex h-10 items-center gap-3 rounded-xl border border-white/[.07] bg-[#0b110d] px-4 text-left">
-              <div className="flex gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-[#fd7777]/70"/><span className="h-2.5 w-2.5 rounded-full bg-[#e7bd63]/70"/><span className="h-2.5 w-2.5 rounded-full bg-[#7bd68a]/70"/></div>
-              <span className="mx-auto max-w-[240px] truncate rounded-md bg-white/[.055] px-4 py-1 text-[10px] text-white/40">{t.browser}</span>
-            </div>
-            <div className="relative min-h-[350px] overflow-hidden rounded-[13px] border border-white/[.08] bg-[#151f1a] sm:min-h-[480px]">
-              <div aria-hidden="true" className="absolute inset-0 opacity-70" style={{background:"radial-gradient(ellipse at 70% 40%,#3e6850 0%,#1d3228 33%,#101d17 70%)"}} />
-              <div aria-hidden="true" className="absolute right-[-12%] top-[8%] h-[360px] w-[360px] rounded-full border border-[#b6ff69]/20 shadow-[inset_0_0_90px_#a6f4701a] sm:h-[540px] sm:w-[540px]" />
-              <div aria-hidden="true" className="absolute right-[2%] top-[25%] h-44 w-44 rotate-45 rounded-[35px] border border-[#b6ff69]/20 bg-[#b6ff69]/[0.065] backdrop-blur-sm sm:h-72 sm:w-72" />
-              <div className="relative z-10 flex items-center justify-between border-b border-white/10 px-5 py-5 text-left sm:px-10">
-                <span className="text-sm font-bold tracking-tight text-white">NOVA<span className="text-[#b6ff69]">.</span></span>
-                <div className="flex gap-5 text-[10px] font-medium text-white/45"><span>Studio</span><span>Design</span><span>Contato</span></div>
-              </div>
-              <div className="relative z-10 flex min-h-[300px] items-center px-6 py-12 text-left sm:min-h-[410px] sm:px-16">
-                <div className="max-w-[570px]">
-                  <span className="mb-5 inline-block border-l-2 border-[#b6ff69] pl-3 text-[10px] font-semibold tracking-[.18em] text-[#c6e6bd]">{t.sampleLabel}</span>
-                  <h2 className="max-w-[550px] text-[clamp(2rem,4.6vw,4.5rem)] font-extrabold leading-[1.08] tracking-[-.055em] text-white">{t.sample}</h2>
-                  <p className="mt-5 max-w-[380px] text-xs leading-6 text-white/60 sm:text-sm">{t.sampleSubtitle}</p>
-                  <span className="mt-7 inline-flex items-center gap-2 rounded-lg bg-[#b6ff69] px-5 py-3 text-xs font-bold text-[#142110]">{t.sampleBtn}<ArrowRight size={14}/></span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="mt-5 text-xs leading-6 text-white/40">{t.demoDescription}</p>
-        </div>
-        <p className="mt-16 text-[12px] font-medium tracking-[.04em] text-white/45">{t.footer}</p>
         <div id="planos" aria-hidden="true" className="h-px" />
       </section>
     </main>
