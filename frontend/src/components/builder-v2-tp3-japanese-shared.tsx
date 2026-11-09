@@ -114,27 +114,34 @@ export function JapaneseTP3Testimonials({site,publishedMode=false,variant}:{site
 }
 
 type Metric={value:number;label:string;suffix:string};
-export function japaneseTP3Metrics(raw:readonly (string|undefined)[],faqCount:number):{metrics:Metric[];example:boolean}{
+export function japaneseTP3Metrics(raw:readonly (string|undefined)[],faqCount:number,publishedMode=false):{metrics:Metric[];example:boolean}{
+ void faqCount;
  const parsed=raw.flatMap(item=>{
   const value=(item||"").trim();
   const match=value.match(/^(\d+(?:[.,]\d+)?)\s*(\+|%|mil|k)?\s*(?:[|:—-]\s*|\s+)(.{3,90})$/i);
   if(!match)return [];
   const number=Number(match[1].replace(",","."));
   if(!Number.isFinite(number)||number<0||number>999999)return [];
-  return [{value:number,suffix:match[2]||"",label:match[3].trim()}];
+  const label=match[3].trim();
+  // Remove old template scaffolding. Categories, FAQ counts and journey steps
+  // are not commercial performance indicators for the Japanese restaurant.
+  if(/categorias|etapas|perguntas|faq|conteúdo apresentado/i.test(label))return [];
+  return [{value:number,suffix:match[2]||"",label}];
  }).slice(0,4);
  if(parsed.length)return {metrics:parsed,example:false};
- // Counts are factual properties of the page, not fabricated business KPIs.
+ // Business-oriented sample values are PREVIEW ONLY; never present them as
+ // actual orders, satisfaction or years of trading in the published site.
+ if(publishedMode)return {metrics:[],example:false};
  return {metrics:[
-  {value:4,suffix:"",label:"Categorias de especialidades"},
-  {value:3,suffix:"",label:"Etapas para conhecer a experiência"},
-  {value:faqCount,suffix:"",label:"Perguntas respondidas"},
+  {value:1200,suffix:"+",label:"Pedidos realizados · exemplo"},
+  {value:98,suffix:"%",label:"Clientes satisfeitos · exemplo"},
+  {value:15,suffix:"+",label:"Anos de tradição · exemplo"},
  ],example:true};
 }
-export function JapaneseTP3AnimatedNumbers({raw,faqCount=5,variant}:{raw:readonly (string|undefined)[];faqCount?:number;variant:2|3}){
+export function JapaneseTP3AnimatedNumbers({raw,faqCount=5,variant,publishedMode=false}:{raw:readonly (string|undefined)[];faqCount?:number;variant:2|3;publishedMode?:boolean}){
  const wrapRef=useRef<HTMLDivElement>(null);
  const [progress,setProgress]=useState(0);
- const {metrics,example}=japaneseTP3Metrics(raw,faqCount);
+ const {metrics,example}=japaneseTP3Metrics(raw,faqCount,publishedMode);
  const key=metrics.map(m=>m.value+"-"+m.suffix+"-"+m.label).join("|");
  useEffect(()=>{
   const el=wrapRef.current;
@@ -161,18 +168,21 @@ export function JapaneseTP3AnimatedNumbers({raw,faqCount=5,variant}:{raw:readonl
  },[key]);
  const dark=variant===2;
  return <div ref={wrapRef} data-japanese-animated-numbers={variant} className="mt-9">
-  {example&&<p className={"mb-6 max-w-2xl text-sm leading-7 "+(dark?"text-white/85":"text-[#342c1e]")}>
-    Estes números representam o conteúdo apresentado nesta página, não estatísticas de vendas, clientes ou tempo de mercado.
+  {example&&<p data-japanese-metrics-disclaimer="demo" className="mb-7 max-w-3xl text-sm font-semibold leading-7"
+    style={{color:dark?"#fff7ec":"#292015"}}>
+    Prévia ilustrativa: os números abaixo são fictícios e servem apenas para demonstrar a animação. Cadastre seus indicadores reais antes de publicar.
   </p>}
-  <div className="grid min-w-0 gap-4 sm:grid-cols-3">
+  {metrics.length?<div className="grid min-w-0 gap-4 sm:grid-cols-3">
    {metrics.map((metric,i)=><article key={i+"-"+metric.label}
     className={"min-w-0 border-t-2 pt-5 "+(dark?"border-white/60":"border-[#62472b]")}>
     <strong aria-label={String(metric.value)+metric.suffix} className="block break-words text-[clamp(2.6rem,5vw,5rem)] font-bold leading-none tabular-nums">
      {Math.round(progress*metric.value).toLocaleString("pt-BR")}{metric.suffix}
     </strong>
-    <span className="mt-4 block max-w-[16rem] text-sm font-medium leading-6">{metric.label}</span>
+    <span className="mt-4 block max-w-[16rem] text-sm font-semibold leading-6">{metric.label}</span>
    </article>)}
-  </div>
+  </div>:<div className={"rounded-lg border p-7 text-sm leading-7 "+(dark?"border-white/25 text-white":"border-[#7f6546] text-[#292015]")}>
+   Cadastre dados reais de pedidos, avaliações ou tempo de atuação para exibir indicadores animados no site publicado.
+  </div>}
  </div>;
 }
 
