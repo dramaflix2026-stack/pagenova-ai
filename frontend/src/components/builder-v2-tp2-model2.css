@@ -3,3 +3,6 @@
 .tp2m2 .tp2m2-hero .tp2m2-hero-copy>p{color:#fff!important;opacity:1!important;text-shadow:0 2px 12px rgba(0,0,0,.75)}
 .tp2m2 .tp2m2-hero .tp2m2-button{color:#1c2527!important;background:#e6e1d6!important;text-shadow:none!important;border:1px solid #e6e1d6}
 .tp2m2 .tp2m2-hero .tp2m2-button:hover{background:#fff!important;border-color:#fff}
+
+/* Universal TP2 premium footer owns its padding; materials still use their approved layout. */
+.tp2m2-footer:has(>[data-tp2-proof="premium-footer"]){padding:0!important}
