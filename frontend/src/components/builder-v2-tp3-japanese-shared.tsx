@@ -62,7 +62,7 @@ export function japaneseTP3Photo(slot:number,model:2|3,width=1400):string{
 export function japaneseTP3OwnerImage(site:BuilderV2SiteData,section:RegExp,index=0):string|undefined{
  const chosen=site.blocks.filter(block=>block.type==="image" && section.test(block.section||"") &&
    typeof block.src==="string" && block.src.trim() &&
-   (block.userUploaded===true || site.crmImported===true));
+   (block.userUploaded===true || site.crmImported===true || site.sectionMediaManaged?.includes(block.section||"")===true));
  return chosen[index]?.src||undefined;
 }
 export function isJapaneseTP3Site(site:BuilderV2SiteData,selectedNiche?:string):boolean{
