@@ -121,7 +121,7 @@ export function getTP6Model2InternetPhotos(niche:string, variant:"01"|"02"|"03"=
   // Each model receives its own deterministic editorial selection. For short niche
   // catalogs, rotate the order without inventing URLs or using the PageNova bank.
   const start=variant==="01"?0:variant==="02"?4:8;
-  const selected=(niche==="Perfumaria e cosméticos"||niche==="Floricultura")?Array.from({length:8},(_,i)=>pool[(start+i)%pool.length]):Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
+  const selected=niche==="Perfumaria e cosméticos"?Array.from({length:8},(_,i)=>pool[(start+i)%pool.length]):niche==="Floricultura"?Array.from({length:8},(_,i)=>pool[(start+i)%pool.length]):Array.from({length:Math.min(4,pool.length)},(_,i)=>pool[(start+i)%pool.length]);
   return selected.map(id=>`https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=1600&q=85`);
 }
 
