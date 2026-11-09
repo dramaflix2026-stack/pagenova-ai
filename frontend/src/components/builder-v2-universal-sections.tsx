@@ -3,7 +3,7 @@ import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string}[]};children:ReactNode}){
+export function UniversalTemplateSections({site,children}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string;heroCenter?:boolean;entryAnimation?:string;cardRadius?:number}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string}[]};children:ReactNode}){
  const events=site.universalSectionEvents;
 
  const nodes=Children.toArray(children);
@@ -41,7 +41,15 @@ export function UniversalTemplateSections({site,children}:{site:{universalSectio
   const headingColor=sectionStyles?.headingColor;
   const explicitMotion=site.motion?.sections?.[key];
   const style=background?{...node.props.style,backgroundColor:background}:node.props.style;
-  const headingOverride=headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?<style key={"universal-heading-"+key}>{`[data-universal-section="${key}"] h1,[data-universal-section="${key}"] h2,[data-universal-section="${key}"] h3{color:${headingColor}!important}`}</style>:null;
+  const scope='[data-universal-section="'+key+'"]';
+  const rules=[
+   background&&/^#[0-9a-f]{6}$/i.test(background)?scope+'{background-color:'+background+'!important}':'',
+   headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?scope+' h1,'+scope+' h2,'+scope+' h3{color:'+headingColor+'!important}':'',
+   sectionStyles?.heroCenter?scope+' .tp2m2-hero-copy,'+scope+' .tp2m3-hero-copy{margin-inline:auto!important;text-align:center!important;align-items:center!important}'+scope+' h1,'+scope+' h1+p,'+scope+' .tp2m2-button{margin-inline:auto!important;text-align:center!important}':'',
+   typeof sectionStyles?.cardRadius==='number'&&sectionStyles.cardRadius>=0&&sectionStyles.cardRadius<=64?scope+' article{border-radius:'+sectionStyles.cardRadius+'px!important;overflow:hidden}':'',
+   sectionStyles?.entryAnimation==='fade'?'@keyframes pnUniversalHeroEntrance{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}'+scope+' h1{animation:pnUniversalHeroEntrance .75s ease-out both}':''
+  ].filter(Boolean).join("");
+  const headingOverride=rules?<style key={"universal-visual-"+key}>{rules}</style>:null;
   return cloneElement(node,{
    ...({"data-section-id":key} as object),
    ...(explicitMotion?.effect&&explicitMotion.effect!=="none"?{"data-pn-motion-auto":""}:{}),
