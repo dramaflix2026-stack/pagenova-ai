@@ -1,4 +1,5 @@
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
+import {resolvePrimaryBriefingNiche} from "@/lib/briefing-template-families";
 import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language";
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "@/lib/builder-v2-universal-copy-edits";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
@@ -73,6 +74,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       charge=await reserveBuilderV2Generation(user,key);
     }catch(error){return generationCreditError(error) as NextResponse;}
     const instruction = String(body.instruction);
+    const primaryNiche=resolvePrimaryBriefingNiche(instruction)||(body.site as {niche?:string}|undefined)?.niche||"";
+    // Positive business identity takes priority over excluded examples and any previous project.
+    // Include it in EVERY generation phase, not only the initial layout call.
+    const nicheGuard=primaryNiche?"\nNICHO OBRIGATÓRIO DESTE SITE: "+primaryNiche+". Todos os títulos, serviços, cards, perguntas e imagens devem pertencer exclusivamente a este segmento. Menções negativas como 'não usar imagens de maquiagem' são PROIBIÇÕES DE CONTEÚDO, nunca pedidos para criar um site de maquiagem. Não reaproveite setores, cards ou serviços de outro negócio.":"";
     const briefCounts=briefCardCounts(instruction);
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
@@ -91,7 +96,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
             headers:{"Authorization":"Bearer "+key,"Content-Type":"application/json"},
             body:JSON.stringify({model:"gpt-4.1-mini",max_completion_tokens:tokens,
               response_format:{type:"json_object"},
-              messages:[{role:"system",content:system},{role:"user",content}]}),
+              messages:[{role:"system",content:system+nicheGuard},{role:"user",content}]}),
             signal:AbortSignal.timeout(60000)
           });
           if(!response.ok){
@@ -728,7 +733,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
-      return NextResponse.json({site:{templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",...(adaptiveBrief?{design}:{}),title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{...(primaryNiche?{niche:primaryNiche}:{}),templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",...(adaptiveBrief?{design}:{}),title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       try{await charge.finish(false);}
       catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
