@@ -89,7 +89,7 @@ export function LandingGallery() {
   const t=dictionary[lang];
   const shown=examples.map((item,index)=>({...item,index})).filter(item=>category==="all"||item.category===category);
   return <>
-    <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden border-t border-white/[.07] bg-[#090e0b] px-5 py-20 sm:px-8 sm:py-28 lg:py-36">
+    <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden border-t border-white/[.07] bg-[#090e0b] px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
       <div className="pn-gallery-halo" aria-hidden="true"/>
       <div className="relative mx-auto max-w-[1250px]">
         <div className="mx-auto max-w-[890px] text-center">
@@ -97,10 +97,10 @@ export function LandingGallery() {
           <h2 className="text-[clamp(2.35rem,5.4vw,5.5rem)] font-extrabold leading-[1.08] tracking-[-.06em] text-white">{t.title}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
           <p className="mx-auto mt-6 max-w-[670px] text-[15px] leading-[1.8] text-[#b3beb4] sm:text-lg">{t.desc}</p>
         </div>
-        <div className="mt-11 flex flex-wrap justify-center gap-2.5 sm:mt-14" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
+        <div className="mt-7 flex flex-wrap justify-center gap-2.5 sm:mt-9" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
           {(["all","business","commerce","services"] as const).map(key=><button type="button" key={key} onClick={()=>setCategory(key)} aria-pressed={category===key} className={"min-h-10 rounded-full border px-4 text-xs font-semibold transition-colors sm:px-5 sm:text-sm "+(category===key?"border-[#b6ff69] bg-[#b6ff69] text-[#0d1b0a]":"border-white/15 bg-white/[.04] text-[#c9d5ca] hover:border-[#b6ff69]/50 hover:text-white")}>{t[key]}</button>)}
         </div>
-        <div className="pn-gallery-grid mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="pn-gallery-grid mt-7 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {shown.map(item=><article key={item.id} className="pn-gallery-card group min-w-0 overflow-hidden rounded-[22px] border border-white/[.11] bg-[#111a14] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#b6ff69]/40 hover:shadow-[0_30px_80px_#0008]">
             <button type="button" onClick={()=>setSelected(item.index)} className="block w-full cursor-zoom-in text-left" aria-label={t.view+": "+item.names[lang]}>
               <div className="pn-gallery-media overflow-hidden border-b border-white/[.09]"><SiteVisual item={item} lang={lang}/></div>
@@ -111,7 +111,7 @@ export function LandingGallery() {
             </button>
           </article>)}
         </div>
-        <div className="mt-10 flex flex-col items-center gap-5 text-center sm:mt-14">
+        <div className="mt-7 flex flex-col items-center gap-4 text-center sm:mt-9">
           <p className="max-w-[650px] text-xs leading-6 text-[#8e9c90]">{t.note}</p>
           <a href="/cadastro" className="inline-flex min-h-12 items-center gap-3 rounded-xl bg-[#b6ff69] px-6 text-[13px] font-bold text-[#101a0d] transition hover:bg-[#d5ffa8]">{t.cta}<ArrowRight size={17}/></a>
         </div>
@@ -229,14 +229,14 @@ function AiEditorDemo({lang}:{lang:Locale}) {
         <h2 className="text-[clamp(2.55rem,5.7vw,5.8rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{t.headline}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
         <p className="mx-auto mt-6 max-w-[720px] text-[15px] leading-[1.8] text-[#abb8ae] sm:text-lg">{t.description}</p>
       </div>
-      <div className="mt-12 overflow-hidden rounded-[24px] border border-[#9cff7833] bg-[#0b130e] shadow-[0_35px_110px_#0009] lg:mt-16 lg:grid lg:min-h-[590px] lg:grid-cols-[.39fr_.61fr]">
+      <div className="mt-8 overflow-hidden rounded-[24px] border border-[#9cff7833] bg-[#0b130e] shadow-[0_35px_110px_#0009] lg:mt-10 lg:grid lg:min-h-[520px] lg:grid-cols-[.43fr_.57fr]">
         <div className="flex flex-col border-b border-white/10 lg:border-b-0 lg:border-r">
-          <div className="flex min-h-[74px] items-center gap-3 border-b border-white/10 px-5 sm:px-6">
+          <div className="flex min-h-[62px] items-center gap-3 border-b border-white/10 px-5 sm:px-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#b6ff69]/10 text-[#b6ff69]"><span className="text-xl">✦</span></div>
             <div><p className="text-sm font-bold">{t.chat}</p><p className="text-xs text-white/45">{t.assistant}</p></div>
             <span className="ml-auto rounded-full border border-[#b6ff69]/20 bg-[#b6ff69]/[.06] px-2 py-1 text-[10px] text-[#b6ff69]">{t.status}</span>
           </div>
-          <div className="flex-1 space-y-5 p-5 sm:p-7" aria-live="polite">
+          <div className="flex-1 space-y-3 p-4 sm:p-5" aria-live="polite">
             <div className="ml-auto max-w-[94%] rounded-2xl rounded-tr-md border border-white/10 bg-[#1b2a20] p-4 text-sm leading-6 text-white/90"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.14em] text-[#b6ff69]">{t.prompt}</span>{t.prompts[step]}</div>
             <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#b6ff69]/15 text-[#b6ff69]">✦</div>
@@ -256,23 +256,23 @@ function AiEditorDemo({lang}:{lang:Locale}) {
             <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#ee7777]"/><span className="h-2 w-2 rounded-full bg-[#dfbc68]"/><span className="h-2 w-2 rounded-full bg-[#78c991]"/><span className="ml-2 text-xs font-medium text-white/65">{t.site}</span></div>
             <span className="flex items-center gap-1.5 text-[10px] font-semibold text-[#b6ff69]"><span className="h-1.5 w-1.5 rounded-full bg-[#b6ff69]"/>{t.live}</span>
           </div>
-          <div className="p-3 sm:p-5">
-            <div className={"relative flex min-h-[380px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[490px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
+          <div className="p-3 sm:p-4">
+            <div className={"relative flex min-h-[330px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[420px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
               <div className="absolute inset-0 pointer-events-none" style={{background:premium?"radial-gradient(circle at 86% 46%,#b89a6a60,transparent 45%)":"radial-gradient(circle at 86% 46%,#78be8c55,transparent 45%)"}}/>
               <div className="relative flex h-16 items-center justify-between gap-3 border-b border-white/10 px-5 sm:px-8">
                 <span className="text-lg font-extrabold tracking-tight">ATELIER<span style={{color:theme}}>.</span></span><div className="hidden gap-5 sm:flex">{["Studio","Sobre","Contato"].map(x=><span key={x} className="text-[10px] text-white/60">{x}</span>)}</div><span className="h-6 w-12 rounded-md transition-colors duration-500" style={{background:theme}}/>
               </div>
-              <div className="relative grid flex-1 grid-cols-1 items-center gap-5 p-6 sm:grid-cols-[1.1fr_.9fr] sm:gap-8 sm:p-9">
+              <div className="relative grid flex-1 grid-cols-1 items-center gap-4 p-5 sm:grid-cols-[1.1fr_.9fr] sm:gap-5 sm:p-6">
                 <div className={"relative z-10 transition-all duration-500 "+(animating?"opacity-75 translate-y-1":"opacity-100 translate-y-0")}>
                   <p className="mb-4 text-[10px] font-bold tracking-[.21em] uppercase" style={{color:theme}}>Branding & Design Studio</p>
-                  <h3 className="max-w-[410px] text-[clamp(2.3rem,4vw,4.7rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
+                  <h3 className="max-w-[430px] text-[clamp(1.7rem,2.5vw,3rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
                   <p className="mt-5 max-w-[320px] text-[13px] leading-6 text-white/70">{t.subtitle}</p>
                   <span className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-xs font-bold text-[#101710] transition-colors duration-500" style={{background:theme}}>{t.cta}<ArrowRight size={14}/></span>
                 </div>
-                <div className="relative mx-auto hidden h-60 w-full max-w-[250px] items-center justify-center sm:flex">
-                  <div className="absolute h-52 w-52 rotate-12 rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"70",background:theme+"18"}}/>
-                  <div className="absolute h-44 w-44 -rotate-[16deg] rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"80",background:theme+"25"}}/>
-                  <div className="relative flex h-28 w-28 rotate-6 items-center justify-center rounded-[28px] border bg-white/[.06] text-6xl shadow-2xl" style={{borderColor:theme+"65"}}>✦</div>
+                <div className="relative mx-auto hidden h-48 w-full max-w-[210px] items-center justify-center sm:flex">
+                  <div className="absolute h-40 w-40 rotate-12 rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"70",background:theme+"18"}}/>
+                  <div className="absolute h-36 w-36 -rotate-[16deg] rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"80",background:theme+"25"}}/>
+                  <div className="relative flex h-24 w-24 rotate-6 items-center justify-center rounded-[28px] border bg-white/[.06] text-6xl shadow-2xl" style={{borderColor:theme+"65"}}>✦</div>
                 </div>
               </div>
               <div className={"relative grid overflow-hidden border-t border-white/10 bg-black/20 transition-all duration-500 "+(showFeatures?"grid-rows-[1fr] opacity-100":"grid-rows-[0fr] opacity-0")}>
