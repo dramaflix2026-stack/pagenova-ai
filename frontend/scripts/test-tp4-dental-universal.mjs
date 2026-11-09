@@ -30,7 +30,7 @@ test("photography is real curated Pexels, 6 unique gallery images, 4 distinct te
   assert.match(model,/TP4_DENTAL_IMAGE_POOL|tp4DentalImage/);
  }
 });
-test("model 1 has improved hero, six-card gallery, five dental testimonials and working location surface",()=>{
+test("model 1 has improved hero, six-card gallery, six dental testimonials and working location surface",()=>{
  const s=models[0];
  assert.match(s,/src=\{media\(0\)\}/);
  assert.match(s,/\[2,3,4,5,6,7\]\.map/);
@@ -40,7 +40,7 @@ test("model 1 has improved hero, six-card gallery, five dental testimonials and 
  assert.match(s,/id="dental-gallery"/);
  assert.match(s,/id="dental-contact"/);
 });
-test("model 2 has isolated hero, four team photos, animated counters, five reviews, map and premium footer",()=>{
+test("model 2 has isolated hero, four team photos, animated counters, six reviews, map and premium footer",()=>{
  const s=models[1];
  assert.match(s,/img\(key==="dentistry"\?1:0\)/);
  assert.match(s,/DentalTeamGallery/);
@@ -125,4 +125,32 @@ test("global PageNova footer grid is explicitly neutralized at the shell level f
  for(const [i,m] of models.entries()){
    assert.ok(m.includes('DentalPremiumFooter site={site} variant="'+String(i+1).padStart(2,"0")+'"'));
  }
+});
+
+
+test("all three dental models show six named illustrated testimonial cards in preview without publishing fictional endorsements",()=>{
+ const start=shared.indexOf("const demoProfiles=[");
+ const end=shared.indexOf("];",start);
+ const demo=shared.slice(start,end);
+ const names=["Mariana Oliveira","Rafael Martins","Camila Rodrigues","Lucas Ferreira","Beatriz Almeida","Fernanda Costa"];
+ assert.equal((demo.match(/\{name:/g)||[]).length,6,"Exactly six demo profiles, with portraits and dentistry-specific explanatory text");
+ for(const name of names)assert.ok(demo.includes(name));
+ assert.match(shared,/rows\.slice\(0,6\)/);
+ assert.match(shared,/examples=!publishedMode&&verified\.length===0/);
+ assert.match(shared,/FOTOS E RELATOS ILUSTRATIVOS/);
+ for(const m of models)assert.match(m,/DentalTestimonials site=\{site\} publishedMode=\{publishedMode\}/);
+});
+test("model 2 KPI layout uses full-width grid and contains large digits without collision",()=>{
+ assert.match(css,/\.tp4m2 \.tp4m2-numbers:has\(> \.pn-dental-kpis\)\s*\{[^}]*display:block!important/);
+ assert.match(css,/\.tp4m2 \.tp4m2-numbers>\.pn-dental-kpis\s*\{[^}]*width:100%!important/);
+ assert.match(css,/\.tp4m2 \.tp4m2-numbers \.pn-dental-kpi-grid\s*\{[^}]*grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.tp4m2 \.tp4m2-numbers \.pn-dental-animated-num[\s\S]*?font-size:clamp\(28px,3\.3vw,54px\)!important/);
+ assert.match(css,/@media\(max-width:1000px\)\s*\{\s*\.tp4m2 \.tp4m2-numbers \.pn-dental-kpi-grid\s*\{\s*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+});
+test("model 2 team gallery keeps all image captions inside their own photo tiles and disclaimer below",()=>{
+ assert.match(css,/\.tp4m2 \.pn-dental-team-photo-grid figure\s*\{[^}]*position:relative/);
+ assert.match(css,/\.tp4m2 \.pn-dental-team-photo-grid figcaption\s*\{[^}]*position:absolute/);
+ assert.match(css,/\.tp4m2 \.pn-dental-team-photo-grid figcaption\s*\{[^}]*bottom:10px/);
+ assert.match(css,/\.tp4m2 \.tp4m2-team>p\.tp4m2-disclaimer\s*\{[^}]*clear:both/);
+ assert.match(shared,/TP4_DENTAL_TEAM_IMAGES\.map/);
 });
