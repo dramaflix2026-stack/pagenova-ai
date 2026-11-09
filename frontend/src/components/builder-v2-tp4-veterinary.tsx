@@ -18,9 +18,11 @@ export const TP4_VETERINARY_IMAGE_IDS=[
 const photo=(index:number)=>"https://images.pexels.com/photos/"+TP4_VETERINARY_IMAGE_IDS[index]+"/pexels-photo-"+TP4_VETERINARY_IMAGE_IDS[index]+".jpeg?auto=compress&cs=tinysrgb&w=1600";
 const services=[
  {name:"Consultas veterinárias",description:"Avaliação clínica individualizada para cães e gatos, com orientações claras aos tutores."},
- {name:"Vacinação preventiva",description:"Informações sobre proteção e protocolos de vacinação conforme a avaliação veterinária."},
- {name:"Exames e check-ups",description:"Apoio ao acompanhamento da saúde do pet, com exames conforme indicação profissional."},
- {name:"Acompanhamento preventivo",description:"Cuidados contínuos, orientação nutricional e atenção às diferentes fases da vida."}
+ {name:"Vacinação preventiva",description:"Orientação sobre proteção e protocolos de imunização conforme avaliação veterinária."},
+ {name:"Exames clínicos",description:"Investigação e acompanhamento da saúde do pet de acordo com a indicação profissional."},
+ {name:"Check-ups",description:"Avaliações periódicas para acompanhar o bem-estar e a saúde em cada fase da vida."},
+ {name:"Cuidados preventivos",description:"Acompanhamento contínuo com orientações individualizadas para cães e gatos."},
+ {name:"Orientação nutricional",description:"Recomendações alimentares ajustadas às necessidades e à condição de cada animal."}
 ];
 const steps=[
  ["01","Primeiro contato","Fale com a clínica e conte o que seu cão ou gato precisa."],
@@ -34,7 +36,7 @@ const demoReviews=[
  {name:"Camila Rodrigues",portrait:"415829",text:"Gostei das orientações apresentadas para quem precisa cuidar da saúde dos gatos."},
  {name:"Lucas Ferreira",portrait:"220453",text:"Os serviços e as etapas para marcar uma consulta estão bem organizados."},
  {name:"Beatriz Almeida",portrait:"1239291",text:"A apresentação transmite carinho pelos animais e atenção aos tutores."},
- {name:"André Costa",portrait:"220453",text:"O conteúdo ajuda a preparar as perguntas antes da primeira consulta do pet."}
+ {name:"André Costa",portrait:"771742",text:"O conteúdo ajuda a preparar as perguntas antes da primeira consulta do pet."}
 ];
 const faqs=[
  ["Quais animais a clínica atende?","O site apresenta atendimento para cães e gatos; confirme diretamente eventuais necessidades especiais."],
