@@ -36,6 +36,7 @@ import { BuilderV2TP4Model1 } from "@/components/builder-v2-tp4-model1";
 import { BuilderV2TP4Model2 } from "@/components/builder-v2-tp4-model2";
 import { BuilderV2TP4Model3 } from "@/components/builder-v2-tp4-model3";
 import { BuilderV2TP4Physiotherapy } from "@/components/builder-v2-tp4-physiotherapy";
+import { BuilderV2TP4Veterinary } from "@/components/builder-v2-tp4-veterinary";
 import { BuilderV2TP6Model2StoreInfoFooter } from "@/components/builder-v2-tp6-model2-store-footer";
 import { BuilderV2TP6Model2ContactNewsletter } from "@/components/builder-v2-tp6-model2-contact-newsletter";
 import { BuilderV2TP6Model2Hero, BuilderV2TP6Model2Sections, BuilderV2TP6Model2GalleryAndJourney, BuilderV2TP6Model2TestimonialsAndFAQ } from "@/components/builder-v2-tp6-model2";
@@ -90,7 +91,7 @@ import { BuilderV2TP7Model1Footer } from "@/components/builder-v2-tp7-model1-foo
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
 import { Template6RetailStory } from "@/components/template6-retail-story";
 import { resolveTemplate6Niche, inferTemplate6NicheFromBrief } from "@/lib/template6-retail-niches";
-import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche, isDentalNicheIdentity, APPROVED_DENTAL_NICHE, isPhysioNicheIdentity, APPROVED_PHYSIO_NICHE } from "@/lib/briefing-template-families";
+import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche, isDentalNicheIdentity, APPROVED_DENTAL_NICHE, isPhysioNicheIdentity, APPROVED_PHYSIO_NICHE, isVeterinaryNicheIdentity, CANONICAL_VETERINARY_NICHE } from "@/lib/briefing-template-families";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
 import { NexoraAbout } from "@/components/template5-nexora-about";
@@ -307,6 +308,21 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
    return <TP3LayoutChooser site={props.site} selectedNiche={props.selectedNiche}
      publishedMode={props.publishedMode} templateId={activeStaticTemplate}
      onVariantChange={props.onVariantChange}/>;
+ }
+ // Clinics and hospitals for animals belong to TP4, not TP6 pet retail.
+ // An existing veterinary preview without a saved niche must also be recovered.
+ // Pet shops remain TP6 unless their canonical niche explicitly changes.
+ const veterinaryNiche=isVeterinaryNicheIdentity(props.site.niche||"");
+ const veterinaryBrand=isVeterinaryNicheIdentity([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
+ const veterinarySavedFamily=resolveBriefingFamily(props.site.niche||"");
+ const veterinaryContent=isVeterinaryNicheIdentity(props.site.blocks.filter(b=>b.type==="paragraph"||b.type==="heading").slice(0,12).map(b=>b.text||"").join(" "));
+ const isVeterinaryProject=veterinaryNiche||
+   (veterinaryBrand&&(veterinarySavedFamily===undefined||veterinarySavedFamily===4))||
+   ((!props.site.niche||veterinarySavedFamily===undefined)&&veterinaryContent);
+ if(activeStaticTemplate==="prompt-adaptive"&&isVeterinaryProject){
+   const veterinarySite=props.site.niche===CANONICAL_VETERINARY_NICHE?props.site:{...props.site,niche:CANONICAL_VETERINARY_NICHE};
+   const v=props.site.briefingLayoutVariant==="03"?"03":props.site.briefingLayoutVariant==="02"?"02":"01";
+   return <BuilderV2TP4Veterinary site={veterinarySite} variant={v} publishedMode={props.publishedMode}/>;
  }
  // Physiotherapy is an independent TP4 specialty: do not let the old TP1
  // "Fisioterapia" registry entry or a stale selection show dental/beauty photos.
