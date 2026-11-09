@@ -48,12 +48,24 @@ const sites:Record<string,Site> = {
 };
 
 function SiteCard({site,lang,placement}:{site:Site;lang:Lang;placement:string}){
-  const imageStyle:CSSProperties={backgroundImage:
-    "linear-gradient(180deg,rgba(4,14,9,.05),rgba(4,14,9,.14)),url('"+site.image+"'),url('"+site.fallback+"')",
-    backgroundPosition:site.position??"center"};
+  const imagePosition=site.position ?? "center";
   return <div className={"pn8-placement pn8-"+placement}>
     <div className="pn8-card" style={{"--accent":site.accent} as CSSProperties}>
-      <div className="pn8-card-photo" style={imageStyle}/>
+      <div className="pn8-card-photo">
+        <img
+          src={site.image}
+          alt=""
+          loading={placement.includes("hero") || placement.includes("mobile") ? "eager" : "lazy"}
+          decoding="async"
+          style={{ objectPosition: imagePosition }}
+          onError={event => {
+            const el=event.currentTarget;
+            if(el.dataset.fallbackApplied==="1"){el.style.display="none";return;}
+            el.dataset.fallbackApplied="1";
+            el.src=site.fallback;
+          }}
+        />
+      </div>
       <div className="pn8-card-shadow"/>
       <div className="pn8-card-glare"/>
       <div className="pn8-card-header">
