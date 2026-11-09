@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { HeroModeloUm } from "./hero-modelo-um";
 import { LandingGallery } from "./landing-gallery";
 import { EcosystemSection } from "./ecosystem-section";
+import { AudienceSection } from "./audience-section";
 
 export const metadata: Metadata = {
   title: "PageNova AI | O futuro da criação digital",
@@ -10,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function TestePage() {
-  return <><HeroModeloUm /><LandingGallery /><EcosystemSection /></>;
+  return <><HeroModeloUm /><LandingGallery /><EcosystemSection /><AudienceSection /></>;
 }
