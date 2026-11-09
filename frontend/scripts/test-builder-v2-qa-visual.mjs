@@ -15,11 +15,11 @@ const commands=JSON.parse(read("package.json")).scripts;
 test("quality matrix lists all registered niche/variant combinations",()=>{
   const niches=BRIEFING_TEMPLATE_FAMILIES.flatMap(f=>f.niches.map(niche=>({niche,family:f.id})));
   assert.equal(BRIEFING_TEMPLATE_FAMILIES.length,10);
-  assert.ok(niches.length>=139,"all registered niches must be included in automated QA");
+  assert.ok(niches.length>=140,"all registered niches including veterinary healthcare must be included in automated QA");
   assert.equal(new Set(niches.map(x=>x.niche.toLowerCase())).size,niches.length,"no duplicate niche");
-  // Odontologia estética remains listed in the original 139-niche catalog,\n  // but all dentistry briefings now deliberately route to approved TP4.\n  for(const {niche,family} of niches)assert.equal(resolveBriefingFamily(niche),isDentalNicheIdentity(niche)||isPhysioNicheIdentity(niche)?4:family,niche);
-  assert.equal(niches.length*3,417,"every registered niche has 3 models");
-  assert.equal(niches.length*3*2,834,"mobile and desktop matrix is complete");
+  // Odontologia estética remains listed in the original 140-niche catalog,\n  // but all dentistry briefings now deliberately route to approved TP4.\n  for(const {niche,family} of niches)assert.equal(resolveBriefingFamily(niche),isDentalNicheIdentity(niche)||isPhysioNicheIdentity(niche)?4:family,niche);
+  assert.equal(niches.length*3,420,"every registered niche has 3 models");
+  assert.equal(niches.length*3*2,840,"mobile and desktop matrix is complete");
 });
 
 test("the QA fixture calls the production BuilderV2Site component with selectable variants",()=>{

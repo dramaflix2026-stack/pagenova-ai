@@ -68,6 +68,7 @@ export const BRIEFING_TEMPLATE_FAMILIES = [
       "Consultório médico",
       "Clínica odontológica",
       "Clínica de fisioterapia",
+      "Clínica veterinária",
       "Clínica de psicologia",
       "Clínica de nutrição",
       "Fonoaudiologia",
@@ -157,6 +158,12 @@ export function isPhysioNicheIdentity(value:string):boolean {
  return PHYSIO_IDENTITY_RE.test(norm(value||""));
 }
 export const APPROVED_PHYSIO_NICHE="Clínica de fisioterapia" as const;
+/** Animal health is TP4; pet supply retail remains TP6. */
+const VETERINARY_IDENTITY_RE=/(?:^| )(?:veterinari\w*|clinica vet|consultorio vet|hospital vet|medicina veterinaria)(?= |$)/;
+export function isVeterinaryNicheIdentity(value:string):boolean {
+ return VETERINARY_IDENTITY_RE.test(norm(value||""));
+}
+export const CANONICAL_VETERINARY_NICHE="Clínica veterinária" as const;
 
 const aliases:Record<string,string>={
  "barbearia premium masculina":"Barbearia","barbearia premium":"Barbearia","barbershop":"Barbearia","barber shop":"Barbearia",
@@ -178,6 +185,7 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  // Universal freeze: even "odontologia estética" belongs to approved TP4.
  if(isDentalNicheIdentity(niche))return 4;
  if(isPhysioNicheIdentity(niche))return 4;
+ if(isVeterinaryNicheIdentity(niche))return 4;
  const canonical=aliases[v]||niche;
  const exact=BRIEFING_TEMPLATE_FAMILIES.find(f=>f.niches.some(n=>norm(n)===norm(canonical)));
  if(exact)return exact.id;
@@ -227,6 +235,11 @@ const primaryBriefAliases:Record<string,string>={
   "buques personalizados":"Floricultura",
   "floricultura boutique":"Floricultura",
   "petshop":"Pet shop",
+  "veterinaria":"Clínica veterinária",
+  "consultorio veterinario":"Clínica veterinária",
+  "hospital veterinario":"Clínica veterinária",
+  "medicina veterinaria":"Clínica veterinária",
+ "veterinaria":"Clínica veterinária","clinica veterinaria":"Clínica veterinária","consultorio veterinario":"Clínica veterinária","hospital veterinario":"Clínica veterinária",
   "loja de perfumes":"Perfumaria e cosméticos",
   "moda feminina":"Loja de roupas",
   "moda masculina":"Loja de roupas",
@@ -263,6 +276,7 @@ export function resolvePrimaryBriefingNiche(brief:string):string|undefined {
  if(normalizedExplicit){
   if(isDentalNicheIdentity(normalizedExplicit))return APPROVED_DENTAL_NICHE;
   if(isPhysioNicheIdentity(normalizedExplicit))return APPROVED_PHYSIO_NICHE;
+  if(isVeterinaryNicheIdentity(normalizedExplicit))return CANONICAL_VETERINARY_NICHE;
   const exact=primaryBriefCandidates.find(item=>item.needle===normalizedExplicit);
   if(exact)return exact.niche;
   const scoped=primaryBriefCandidates.filter(item=>(" "+normalizedExplicit+" ").includes(" "+item.needle+" ")).sort((a,b)=>b.needle.length-a.needle.length)[0];
@@ -279,11 +293,13 @@ export function resolvePrimaryBriefingNiche(brief:string):string|undefined {
   const matches=primaryBriefCandidates.map(item=>({item,index:padded.indexOf(" "+item.needle+" ")})).filter(hit=>hit.index>=0);
   const dentalHit=positive.match(DENTAL_IDENTITY_RE);
   if(dentalHit)matches.push({item:{needle:dentalHit[0].trim(),niche:APPROVED_DENTAL_NICHE},index:(dentalHit.index??0)});
+  const veterinaryHit=positive.match(VETERINARY_IDENTITY_RE);
+  if(veterinaryHit)matches.push({item:{needle:veterinaryHit[0].trim(),niche:CANONICAL_VETERINARY_NICHE},index:(veterinaryHit.index??0)});
   const physioHit=positive.match(PHYSIO_IDENTITY_RE);
   if(physioHit)matches.push({item:{needle:physioHit[0].trim(),niche:APPROVED_PHYSIO_NICHE},index:(physioHit.index??0)});
   if(matches.length){
    matches.sort((a,b)=>a.index-b.index||b.item.needle.length-a.item.needle.length);
-   return isDentalNicheIdentity(matches[0].item.niche)?APPROVED_DENTAL_NICHE:isPhysioNicheIdentity(matches[0].item.niche)?APPROVED_PHYSIO_NICHE:matches[0].item.niche;
+   return isDentalNicheIdentity(matches[0].item.niche)?APPROVED_DENTAL_NICHE:isPhysioNicheIdentity(matches[0].item.niche)?APPROVED_PHYSIO_NICHE:isVeterinaryNicheIdentity(matches[0].item.niche)?CANONICAL_VETERINARY_NICHE:matches[0].item.niche;
   }
  }
  return undefined;
