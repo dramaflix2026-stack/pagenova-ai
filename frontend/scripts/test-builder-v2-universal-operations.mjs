@@ -1017,3 +1017,113 @@ test("universal hotel section move resolves accommodations aliases without touch
   assert.equal(result.site.universalSectionEvents.at(-1).before.id,"chales");
  }
 });
+
+
+const maisonFixture=()=>({
+ title:"MAISON DU PAIN — PADARIA & BOULANGERIE",
+ niche:"Padaria",templateId:"prompt-adaptive",briefingLayoutVariant:"03",
+ blocks:[
+  {id:"hero-h",type:"heading",section:"inicio",text:"Pão artesanal para todos os momentos."},
+  {id:"hero-p",type:"paragraph",section:"inicio",text:"Fermentação natural e tradição francesa."},
+  {id:"hero-cta",type:"button",section:"inicio",text:"Conhecer",href:"#especialidades"},
+  {id:"sp-h",type:"heading",section:"especialidades",text:"Nossas Especialidades"},
+  {id:"sp-p",type:"paragraph",section:"especialidades",text:"Produtos preparados com cuidado."},
+  ...["Pães Artesanais","Croissants","Baguetes","Brioche"].map((title,i)=>({id:"card-"+i,type:"paragraph",section:"especialidades",layout:"grid",text:title+": Descrição original "+i})),
+  {id:"gallery-title",type:"heading",section:"galeria",text:"Galeria de Experiências"},
+  ...Array.from({length:6},(_,i)=>({id:"photo-"+i,type:"image",section:"galeria",text:"Foto "+i,src:"https://images.example.com/old-"+i+".jpg"})),
+  {id:"faq-title",type:"heading",section:"faq",text:"Perguntas Frequentes"},
+  {id:"contact-title",type:"heading",section:"contato",text:"Entre em contato"}
+ ]
+});
+test("real-world: single section request updates background AND heading colors without moving other blocks",()=>{
+ const before=maisonFixture();
+ const prompt="Na seção Nossas Especialidades, altere apenas a cor de fundo para #34261D e os títulos para #F7EBDD. Preserve todas as imagens, conteúdos e as cores das outras seções.";
+ const result=applyUniversalNaturalLanguage(before,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.equal(result.site.universalSectionStyles.especialidades.backgroundColor,"#34261D");
+ assert.equal(result.site.universalSectionStyles.especialidades.headingColor,"#F7EBDD");
+ assert.deepEqual(result.site.blocks,before.blocks);
+ assert.equal(JSON.parse(JSON.stringify(result.site)).universalSectionStyles.especialidades.headingColor,"#F7EBDD");
+});
+test("real-world: first section aligns both texts and applies exact spacing without moving CTA",()=>{
+ const before=maisonFixture();
+ const prompt="Na primeira seção, centralize o título principal e o subtítulo, aumente o espaçamento entre eles para 28px e mantenha o botão logo abaixo. Não altere o restante do site.";
+ const result=applyUniversalNaturalLanguage(before,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ const hero=result.site.blocks.filter(b=>b.section==="inicio");
+ assert.equal(hero[0].align,"center");assert.equal(hero[0].marginBottom,0);
+ assert.equal(hero[1].align,"center");assert.equal(hero[1].spacing,28);
+ assert.equal(hero[2].href,"#especialidades");
+ assert.equal(result.site.briefingLayoutVariant,"03");
+});
+test("real-world: title and explicit description in second card stay atomic and survive reload",()=>{
+ const before=maisonFixture();
+ const prompt="No segundo card da seção Nossas Especialidades, altere o título para 'Baguetes Francesas' e a descrição para 'Crocantes por fora, macias por dentro e preparadas artesanalmente'. Preserve todos os demais cards e suas imagens.";
+ const result=applyUniversalNaturalLanguage(before,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.equal(result.site.blocks.find(b=>b.id==="card-1").text,"Baguetes Francesas: Crocantes por fora, macias por dentro e preparadas artesanalmente");
+ assert.equal(result.site.blocks.find(b=>b.id==="card-1").textExplicit,true);
+ assert.deepEqual(result.site.blocks.filter(b=>b.id.startsWith("photo-")),before.blocks.filter(b=>b.id.startsWith("photo-")));
+ assert.equal(JSON.parse(JSON.stringify(result.site)).blocks.find(b=>b.id==="card-1").textExplicit,true);
+});
+test("real-world: add a brioche card AND a verified bakery photograph, no hidden no-photo success",()=>{
+ const before=maisonFixture();
+ const result=applyUniversalNaturalLanguage(before,"Adicione um novo card ao final da seção Nossas Especialidades com o título 'Brioches Artesanais', a descrição 'Massa delicada, macia e levemente amanteigada' e uma fotografia real de brioche. Preserve todos os cards existentes.");
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ const card=result.site.blocks.find(b=>b.id==="universal-extra-card-brioches-artesanais");
+ assert.match(card.text,/Brioches Artesanais: Massa delicada/);
+ const photo=result.site.blocks.find(b=>b.forCardId===card.id);
+ assert.match(photo.src,/pexels-photo-33541425/);
+ assert.equal(photo.userUploaded,true);
+ assert.equal(result.site.blocks.filter(b=>b.id.startsWith("card-")).length,4);
+});
+test("real-world: replace third gallery photograph from internet without removing a single element",()=>{
+ const before=maisonFixture();
+ const prompt="Na seção Galeria de Experiências, substitua somente a terceira fotografia por uma nova imagem real de um padeiro trabalhando com massa artesanal, retirada da internet. Não altere as demais imagens ou o formato da galeria.";
+ const result=applyUniversalNaturalLanguage(before,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ const pictures=result.site.blocks.filter(b=>b.section==="galeria"&&b.type==="image");
+ assert.equal(pictures.length,6);assert.match(pictures[2].src,/pexels-photo-33593111/);
+ assert.equal(pictures[2].userUploaded,true);
+ assert.deepEqual(pictures.filter((_,i)=>i!==2),before.blocks.filter(b=>b.section==="galeria"&&b.type==="image").filter((_,i)=>i!==2));
+});
+test("real-world: add a named section after specialties and render original section ordering after reload",()=>{
+ const before=maisonFixture();
+ const prompt="Adicione uma nova seção chamada 'Encomendas Especiais' logo depois de Nossas Especialidades. Inclua o título 'Momentos especiais merecem sabores únicos', uma descrição sobre encomendas artesanais, uma fotografia real de croissants e um botão 'Solicitar encomenda' direcionado à seção de contato. Preserve todas as seções atuais.";
+ const result=applyUniversalNaturalLanguage(before,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ const blocks=result.site.blocks.filter(b=>b.section==="custom-encomendas-especiais");
+ assert.deepEqual(blocks.map(b=>b.type),["heading","paragraph","image","button"]);
+ assert.match(blocks[2].src,/pexels-photo-37778434/);
+ assert.equal(blocks[3].href,"#contato");
+ assert.equal(result.site.universalSectionEvents.at(-1).after.id,"especialidades");
+ assert.equal(JSON.parse(JSON.stringify(result.site)).blocks.filter(b=>b.section==="custom-encomendas-especiais").length,4);
+ assert.deepEqual(before.blocks.map(b=>b.id),maisonFixture().blocks.map(b=>b.id));
+});
+test("real-world: only verified stock photos are substituted; unknown requests fail atomically",()=>{
+ const before=maisonFixture(),original=structuredClone(before);
+ const command="Na seção Galeria de Experiências, substitua somente a terceira fotografia por uma imagem real de algo nunca descrito";
+ const result=applyUniversalNaturalLanguage(before,command);
+ assert.equal(result?.ok,false);
+ assert.deepEqual(before,original);
+});
+test("shared TP3 layouts bind card changes, positional photographs, and custom section rendering",()=>{
+ const fs=(path)=>readFileSync(new URL("../src/components/"+path,import.meta.url),"utf8");
+ const m1=fs("builder-v2-tp3-model1.tsx");
+ const m2=fs("builder-v2-tp3-model2.tsx");
+ const m3=fs("builder-v2-tp3-model3.tsx");
+ const wrapper=fs("builder-v2-universal-sections.tsx");
+ for(const model of [m1,m2,m3]){
+  assert.match(model,/universalSpecialtyCards\(site,"especialidades"/);
+  assert.match(model,/filter\(b=>b.type==="image"&&!b.forCardId/);
+ }
+ assert.match(wrapper,/customKeys/);
+ assert.match(wrapper,/addedSections/);
+ assert.match(wrapper,/const sectionNodes=\[\.\.\.nodes.filter/);
+});
