@@ -222,7 +222,10 @@ test("TP3 models 02 and 03 render section-scoped customer imagery",()=>{
   assert.match(component,/const galleryImages=sectionImages/);
   assert.match(component,/aboutImages\[0\]\|\|photo\(1\)/);
  }
- assert.match(second,/galleryImages\[i\]\|\|photo\(i\+6\)/);
+ // Other gastronomy niches retain their original gallery positions;
+ // Japanese restaurants use distinct curated slots to avoid repeated bakery photos.
+ assert.match(second,/galleryImages\[i\]\|\|photo\(isJapanese\?i\+12:i\+6\)/);
+ assert.match(second,/isJapanese\?japaneseTP3Photo\(i,2\)/);
  assert.match(third,/specialtyImages\[special\]\|\|photo\(special\+2\)/);
 });
 
