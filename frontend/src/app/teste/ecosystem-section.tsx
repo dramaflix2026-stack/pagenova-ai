@@ -57,10 +57,7 @@ export function EcosystemSection(){
    </div>
    <p className="mx-auto mt-5 max-w-[720px] text-center text-xs leading-6 text-[#8a998c]">{t.note}</p>
   </div>
- </section>
-}
-
-<style>{`
+ <style>{`
 .pn4-exploded{position:relative;min-height:390px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#39634726,transparent 70%),#101a15;perspective:1500px;isolation:isolate}
 .pn4-layers{position:relative;width:min(94%,680px);height:320px;transform-style:preserve-3d}
 .pn4-layer{position:absolute;top:12%;height:76%;width:39%;border:1.5px solid var(--panel-color);border-radius:19px;background:linear-gradient(140deg,#ffffff3b,#ffffff10 55%,#ffffff17);box-shadow:0 16px 50px #0007,inset 0 1px #ffffff65;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);transform-style:preserve-3d;animation:pn4-open .85s cubic-bezier(.2,.8,.2,1) both}
@@ -78,3 +75,5 @@ export function EcosystemSection(){
 @media(max-width:640px){.pn4-exploded{min-height:280px}.pn4-layers{width:98%;height:235px}.pn4-layer{top:18%;height:66%;width:43%;border-radius:12px}.pn4-layer-1{left:28%}.pn4-layer-2{left:56%}.pn4-layer-header b{font-size:7px}.pn4-layer-header svg{width:14px}.pn4-layer-body{padding:12% 9%}.pn4-layer-modules div{height:26px;padding:4px}.pn4-layer-line{height:7px}.pn4-layer-note{bottom:5px;right:9px}}
 @media(prefers-reduced-motion:reduce){.pn4-layer{animation:none}}
 `}</style>
+ </section>
+}
