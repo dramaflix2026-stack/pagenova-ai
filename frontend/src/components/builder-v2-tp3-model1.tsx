@@ -8,7 +8,6 @@ import {isFoodTruck,truckPhoto,truckScene,truckBeverageFallback,truckLabels,Food
 import {resolveTP3FoodCategory,tp3FamilyInternetPhoto,tp3TrustedBlockImage,TP3FamilyModel1Extras} from "./builder-v2-tp3-family-shared";
 export function BuilderV2TP3Model1({site,selectedNiche,publishedMode=false}:{site:BuilderV2SiteData;selectedNiche?:string;publishedMode?:boolean}){
  const name=site.title||site.niche||"Gastronomia";
- const niche=(site.niche||name).toLowerCase();
  const category=resolveTP3FoodCategory(site,selectedNiche);
  const bakery=category==="Padaria";
  const isPizza=category==="Pizzaria";
