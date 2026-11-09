@@ -66,14 +66,15 @@ export function DentalMetrics({site,model,publishedMode=false}:{site:BuilderV2Si
  // that a dentist has treated 1,250 people or achieved a 98% approval score.
  // The published version shows the correct business KPIs as unfilled slots
  // until the clinic supplies verified numbers.
+ const clinic=site.header?.brand||site.title||"clínica";
  const examples=[
   {target:1250,suffix:"+",label:"Atendimentos realizados"},
   {target:8,suffix:"+",label:"Anos de experiência"},
   {target:4,suffix:"",label:"Profissionais na equipe"},
   {target:98,suffix:"%",label:"Satisfação dos pacientes"}
  ];
- return <div className="pn-dental-kpis" data-dental-kpis={publishedMode?"pending":"preview-examples"}>
-  <p className="pn-dental-kpis-note">{publishedMode?"Indicadores odontológicos: preencha com dados reais e verificáveis da clínica.":"SIMULAÇÃO PARA PERSONALIZAÇÃO — Os números abaixo são apenas exemplos fictícios de indicadores odontológicos; não representam atendimentos, pacientes ou resultados reais da clínica."}</p>
+ return <div className="pn-dental-kpis" data-dental-kpis={publishedMode?"pending":"preview-examples"} data-dental-model={model}>
+  <p className="pn-dental-kpis-note">{publishedMode?"Indicadores odontológicos: preencha com dados reais e verificáveis da clínica.":"SIMULAÇÃO PARA PERSONALIZAÇÃO — Os números abaixo são apenas exemplos fictícios de indicadores odontológicos; não representam atendimentos, pacientes ou resultados reais da {clinic}."}</p>
   <div className="pn-dental-kpi-grid">{examples.map(item=><div className="pn-dental-kpi" key={item.label}>
    {publishedMode?<strong className="pn-dental-kpi-empty" aria-label="Indicador pendente de dado verificado">—</strong>:<AnimatedNumber target={item.target} suffix={item.suffix}/>}
    <span className="pn-dental-kpi-label">{item.label}</span>
