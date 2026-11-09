@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
 import {resolve} from "node:path";
-import {BRIEFING_TEMPLATE_FAMILIES,resolvePrimaryBriefingNiche,positiveBusinessBrief,resolveBriefingFamily,isDentalNicheIdentity,APPROVED_DENTAL_NICHE} from "../src/lib/briefing-template-families.ts";
+import {BRIEFING_TEMPLATE_FAMILIES,resolvePrimaryBriefingNiche,positiveBusinessBrief,resolveBriefingFamily,isDentalNicheIdentity,APPROVED_DENTAL_NICHE,isPhysioNicheIdentity,APPROVED_PHYSIO_NICHE} from "../src/lib/briefing-template-families.ts";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
 
@@ -37,8 +37,8 @@ test("all 133+ registered niches remain stable against negative image references
  for(const {niche,family} of entries){
   const brief="Crie um site profissional para "+niche+".\nNão utilizar imagens de maquiagem, floricultura ou roupas de outros segmentos.";
   const recognized=resolvePrimaryBriefingNiche(brief);
-  const expectedNiche=isDentalNicheIdentity(niche)?APPROVED_DENTAL_NICHE:niche;
-  const expectedFamily=isDentalNicheIdentity(niche)?4:family;
+  const expectedNiche=isDentalNicheIdentity(niche)?APPROVED_DENTAL_NICHE:isPhysioNicheIdentity(niche)?APPROVED_PHYSIO_NICHE:niche;
+  const expectedFamily=isDentalNicheIdentity(niche)||isPhysioNicheIdentity(niche)?4:family;
   assert.equal(recognized,expectedNiche,"Primary industry drifted for "+niche);
   assert.equal(resolveBriefingFamily(recognized),expectedFamily,"Incorrect family for "+niche);
  }
