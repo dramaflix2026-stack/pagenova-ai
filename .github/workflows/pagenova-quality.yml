@@ -25,6 +25,8 @@ jobs:
         run: node --experimental-strip-types --test frontend/scripts/test-builder-v2-reference-generation.mjs frontend/scripts/test-builder-v2-adaptive.mjs
       - name: Preflight niche routing and Japanese model completeness
         run: node --experimental-strip-types --test frontend/scripts/test-tp3-japanese-preflight.mjs
+      - name: Guard TP4 veterinary routing and three visual models
+        run: node --experimental-strip-types --test frontend/scripts/test-tp4-veterinary.mjs
       - name: Test universal animation behavior
         run: node --test frontend/scripts/test-site-motion.mjs
       - name: Validate curated eBook recipes
