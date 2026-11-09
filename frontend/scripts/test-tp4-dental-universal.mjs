@@ -110,7 +110,7 @@ test("global PageNova footer grid is explicitly neutralized at the shell level f
  const shellScope="body footer.pn-dental-footer > div.pn-dental-footer-inner:first-child";
  const olderScope="body footer > div:first-child";
  assert.ok(globals.includes(olderScope),"The legacy universal footer rule is missing; inspect contract before changing this test.");
- const start=globals.lastIndexOf(shellScope+" {");
+ const start=globals.indexOf(shellScope+" {");
  assert.ok(start>globals.indexOf(olderScope),"Specific dental override must be declared after the old global rule.");
  const end=globals.indexOf("}",start);
  const declaration=globals.slice(start,end);
