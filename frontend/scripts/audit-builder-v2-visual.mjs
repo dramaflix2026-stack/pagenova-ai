@@ -173,7 +173,7 @@ try{
               const grid=el.querySelector(".pn-japanese-footer-grid");
               const first=grid?.firstElementChild;
               return {shellDisplay:shell?getComputedStyle(shell).display:null,
-                columns:grid?getComputedStyle(grid).gridTemplateColumns.split(/\\s+/).filter(Boolean).length:0,
+                columns:grid?getComputedStyle(grid).gridTemplateColumns.split(/\s+/).filter(Boolean).length:0,
                 shellWidth:shell?.getBoundingClientRect().width||0,
                 firstWidth:first?.getBoundingClientRect().width||0,
                 total:el.getBoundingClientRect().width};
@@ -187,7 +187,7 @@ try{
             const note=page.locator('[data-japanese-metrics-disclaimer="demo"]');
             if(await note.count()){
               const rgb=await note.evaluate(el=>getComputedStyle(el).color);
-              const red=Number(rgb.match(/\\d+/)?.[0]||0);
+              const red=Number(rgb.match(/\d+/)?.[0]||0);
               if(red>150)record.errors.push("M3 gold section still has low-contrast light disclaimer text");
             }
           }
