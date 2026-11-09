@@ -53,6 +53,23 @@ export function briefCardCounts(instruction:string):Map<string,number>{
   return result;
 }
 
+/**
+ * Creation contract: a request for N testimonial *cards* describes preview
+ * layout only. It does not supply N actual customer statements. The generator
+ * must not request fictional social proof from the LLM, then reject the
+ * response because it correctly refused to invent patient testimonials.
+ *
+ * This does NOT change briefCardCounts, which still captures the user's
+ * design/layout requirement for builders and previews. User-provided verbatim
+ * reviews can still be copied, but are verified against the brief before
+ * publishing. Preview-only sample reviews belong to the visual renderer.
+ */
+export function generationBriefCardCounts(instruction:string):Map<string,number>{
+  const counts=briefCardCounts(instruction);
+  counts.delete("depoimentos");
+  return counts;
+}
+
 export function briefHeadingAlignment(instruction:string):"left"|"center"|"right"|undefined{
   const text=normalize(instruction);
   if(!/todos (?:os )?titulos|titulos (?:de todas as secoes|das secoes|do site)/.test(text))return undefined;
