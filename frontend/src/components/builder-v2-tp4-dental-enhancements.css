@@ -39,3 +39,13 @@
 @media(max-width:900px){.pn-dental-testimonial-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-team-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-footer-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pn-dental-footer-intro{grid-column:1/-1}}
 @media(max-width:600px){.pn-dental-testimonial-grid{grid-template-columns:1fr}.pn-dental-review{padding:20px}.pn-dental-team-photo-grid img{height:185px}.pn-dental-kpi{padding:22px 14px}.pn-dental-kpi .pn-dental-animated-num{font-size:40px}.pn-dental-location iframe{height:245px}.pn-dental-location-bottom{align-items:stretch;flex-direction:column;padding:20px}.pn-dental-whatsapp{white-space:normal}.pn-dental-footer-inner{padding:45px 6% 22px}.pn-dental-footer-head{align-items:flex-start;flex-direction:column}.pn-dental-footer-main{padding:40px 0 50px;gap:35px;grid-template-columns:1fr 1fr}.pn-dental-footer-intro{grid-column:1/-1}.pn-dental-footer-intro h2{font-size:clamp(44px,12vw,70px)}.pn-dental-footer-bottom{flex-direction:column;align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.pn-dental-review,.pn-dental-footer a{transition:none!important}}
+
+/* Existing TP4 section layouts: the shared widgets must fill the whole row, not a single legacy flex/grid cell. */
+.tp4m2 .tp4m2-numbers>.pn-dental-kpis{display:block;flex:1;min-width:0}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tp4m3 .m3-number-grid>.pn-dental-kpis{grid-column:1/-1;border:0;padding:0;min-width:0}
+.tp4m3 .m3-number-grid .pn-dental-animated-num{display:block!important;font-size:clamp(34px,4.2vw,68px)!important;font-weight:800;line-height:1.08!important}
+.tp4m3 .m3-number-grid .pn-dental-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid .pn-dental-kpi>span:last-child,.tp4m3 .m3-number-grid .pn-dental-kpi-grid .pn-dental-kpi>span:last-child{font-size:13px}
+@media(max-width:1000px){.tp4m2 .tp4m2-numbers{display:block}.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
