@@ -235,9 +235,9 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
     </section>
 
     <footer id="rodape" data-universal-section="rodape" data-japanese-footer="premium"
-      className="bg-[#19241e] px-6 pb-8 pt-16 text-[#f8eee0] md:px-10 md:pt-20 lg:pt-24">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid min-w-0 gap-12 border-b border-[#f8eee0]/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,1fr)] md:gap-8 lg:gap-16 lg:pb-20">
+      className="pn-japanese-footer bg-[#19241e] px-6 pb-8 pt-16 text-[#f8eee0] md:px-10 md:pt-20 lg:pt-24">
+      <div className="pn-japanese-footer-shell mx-auto max-w-7xl">
+        <div className="pn-japanese-footer-grid grid min-w-0 gap-12 border-b border-[#f8eee0]/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,1fr)] md:gap-8 lg:gap-16 lg:pb-20">
           <div className="min-w-0">
             <span className="text-[11px] font-bold uppercase tracking-[.22em] text-[#d9b18a]">A experiência japonesa</span>
             <h2 className="mt-5 max-w-lg break-words font-serif text-[clamp(2rem,4vw,3.8rem)] leading-[1.12] tracking-[-.035em]">{brand}</h2>
