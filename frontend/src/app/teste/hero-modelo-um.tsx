@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CinematicFilmReel } from "./cinematic-film-reel";
 import { ArrowRight, ArrowUpRight, Check, ChevronDown, Globe2, Menu, Monitor, MousePointer2, Play, Sparkles, X } from "lucide-react";
 
 type Lang = "pt" | "en" | "es";
@@ -108,9 +109,13 @@ export function HeroModeloUm() {
         <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-full border border-[#b6ff69]/25 bg-[#b6ff69]/[0.065] px-4 py-2 text-[10px] font-bold tracking-[.19em] text-[#b6ff69] sm:text-xs">
           <Sparkles size={14}/>{t.eyebrow}
         </div>
-        <h1 className="mx-auto max-w-[1110px] text-[clamp(2.7rem,7.5vw,7.2rem)] font-extrabold leading-[1.05] tracking-[-.065em]">
-          {t.first}<br/><span className="text-[#b6ff69]">{t.highlight}</span>
-        </h1>
+        <div className="relative mx-auto flex min-h-[350px] max-w-[1220px] items-center justify-center py-20 sm:min-h-[440px] sm:py-24 lg:min-h-[490px]">
+          <CinematicFilmReel />
+          <div aria-hidden="true" className="pointer-events-none absolute z-[1] inset-x-[5%] inset-y-[14%] rounded-full bg-[#080d0a]/65 blur-[55px] sm:inset-x-[16%]"/>
+          <h1 className="relative z-10 mx-auto max-w-[1040px] text-[clamp(2.65rem,7vw,6.8rem)] font-extrabold leading-[1.05] tracking-[-.065em] drop-shadow-[0_8px_28px_#080d0a]">
+            {t.first}<br/><span className="text-[#b6ff69]">{t.highlight}</span>
+          </h1>
+        </div>
         <p className="mx-auto mt-7 max-w-[680px] text-[15px] leading-[1.85] text-[#aebbae] sm:text-lg">{t.description}</p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href="/cadastro" className="group inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#b6ff69] px-7 text-[14px] font-bold text-[#0d190a] transition hover:-translate-y-0.5 hover:bg-[#d4ffaa] hover:shadow-[0_12px_40px_#a3fc4930] sm:w-auto">{t.start}<ArrowUpRight className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" size={19}/></Link>
