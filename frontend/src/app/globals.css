@@ -2149,3 +2149,64 @@ body footer.pn-tp2-footer .pntp2-footer-column-title {
     padding:40px 22px 28px !important;
   }
 }
+
+
+/* TP4 / Odontologia — fix the root cause of compressed desktop footer.
+   The old global "body footer > div:first-child" selector above forcibly
+   turns EVERY footer's immediate first child into a 4-column grid with
+   !important. The dental footer has one wrapper with three structural rows
+   (header, full-width brand, copyright); do not split them into columns.
+   Use explicit body/footer/first-child scope to outrank that legacy rule,
+   without changing the footer behavior for any other family/niche. */
+body footer.pn-dental-footer {
+  display:block !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  background:#0b2328 !important;
+  color:#eaf5f2 !important;
+  overflow-x:clip !important;
+  box-sizing:border-box !important;
+}
+body footer.pn-dental-footer > div.pn-dental-footer-inner:first-child {
+  display:block !important;
+  grid-template-columns:none !important;
+  grid-template-rows:none !important;
+  grid-auto-flow:initial !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:1280px !important;
+  margin:0 auto !important;
+  padding:clamp(38px,5vw,76px) clamp(24px,5vw,72px) 28px !important;
+  gap:0 !important;
+  border:0 !important;
+  align-items:initial !important;
+  box-sizing:border-box !important;
+}
+body footer.pn-dental-footer > .pn-dental-footer-inner > .pn-dental-footer-head,
+body footer.pn-dental-footer > .pn-dental-footer-inner > .pn-dental-footer-main,
+body footer.pn-dental-footer > .pn-dental-footer-inner > .pn-dental-footer-bottom {
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  grid-column:auto !important;
+}
+body footer.pn-dental-footer .pn-dental-footer-intro h2 {
+  display:block !important;
+  width:100% !important;
+  max-width:100% !important;
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:normal !important;
+  hyphens:none !important;
+  line-height:1.09 !important;
+  letter-spacing:-.055em !important;
+  text-wrap:balance;
+}
+@media(max-width:640px) {
+  body footer.pn-dental-footer > div.pn-dental-footer-inner:first-child {
+    padding:42px 22px 25px !important;
+  }
+}
