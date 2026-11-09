@@ -239,7 +239,6 @@ const primaryBriefAliases:Record<string,string>={
   "consultorio veterinario":"Clínica veterinária",
   "hospital veterinario":"Clínica veterinária",
   "medicina veterinaria":"Clínica veterinária",
- "veterinaria":"Clínica veterinária","clinica veterinaria":"Clínica veterinária","consultorio veterinario":"Clínica veterinária","hospital veterinario":"Clínica veterinária",
   "loja de perfumes":"Perfumaria e cosméticos",
   "moda feminina":"Loja de roupas",
   "moda masculina":"Loja de roupas",
