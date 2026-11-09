@@ -77,3 +77,29 @@ test("model routing preserves the same approved 3 templates for every dental bri
  assert.match(css,/pn-dental-footer-main/);
  assert.match(css,/pn-dental-kpi-grid/);
 });
+
+
+test("dental footers put brand on full-width row and collapse based on actual container width, including desktop preview iframe",()=>{
+ const start=shared.indexOf('export function DentalPremiumFooter(');
+ const body=shared.slice(start);
+ assert.match(body,/pn-dental-footer-main"><div className="pn-dental-footer-intro"/);
+ assert.match(body,/pn-dental-footer-links/);
+ assert.match(css,/\.pn-dental-footer\s*\{container-type:inline-size;container-name:pnDentalFooter/);
+ assert.match(css,/\.pn-dental-footer \.pn-dental-footer-main>\.pn-dental-footer-intro/);
+ assert.match(css,/\.pn-dental-footer \.pn-dental-footer-main>\.pn-dental-footer-links/);
+ assert.match(css,/@container pnDentalFooter \(max-width:610px\)/);
+ assert.match(css,/word-break:normal!important;overflow-wrap:break-word!important/);
+ assert.match(css,/grid-template-columns:1fr!important/);
+ assert.doesNotMatch(css,/\.pn-dental-footer-intro h2\{[^}]*word-break:break-all/);
+});
+test("dental KPIs use clinic-related animated examples only in preview and placeholders on published sites",()=>{
+ for(const label of ["Atendimentos realizados","Anos de experiência","Profissionais na equipe","Satisfação dos pacientes"])assert.match(shared,new RegExp(label));
+ for(const v of ["target:1250","target:8","target:4","target:98"])assert.ok(shared.includes(v),v);
+ assert.doesNotMatch(shared,/Especialidades ilustrativas|Fotografias na seção ambientes|Espaços preparados para avaliações/);
+ assert.match(shared,/publishedMode\?<strong className="pn-dental-kpi-empty"/);
+ assert.match(shared,/SIMULAÇÃO PARA PERSONALIZAÇÃO/);
+ assert.match(shared,/data-dental-kpis=\{publishedMode\?"pending":"preview-examples"\}/);
+ assert.match(models[1],/DentalMetrics site=\{site\} model="02" publishedMode=\{publishedMode\}/);
+ assert.match(models[2],/DentalMetrics site=\{site\} model="03" publishedMode=\{publishedMode\}/);
+ assert.match(css,/pn-dental-kpi-status/);
+});
