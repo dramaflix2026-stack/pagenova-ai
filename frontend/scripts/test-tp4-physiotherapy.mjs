@@ -56,7 +56,14 @@ test("three physiotherapy variants are distinct isolated TSX layouts and their m
  assert.match(source,/pn-physio-hero-digital/);
  assert.match(source,/pn-physio-hero-art/);
  assert.match(source,/variant==="01"\?\[3,4,6,7,8,10\]/);
- assert.match(source,/variant==="02"\?\[9,5,11,12,13,14\]/);
+ assert.match(source,/variant==="02"\?\[9,5,11,12,13,10\]/);
+ const heroGalleryAndUi=[
+  [0,5,13,3,4,6,7,8,10,14,9],
+  [2,3,14,9,5,11,12,13,10,0,8],
+  [1,12,11,0,4,6,8,9,10,14,13]
+ ];
+ for(const model of heroGalleryAndUi)assert.equal(new Set(model).size,model.length,"A physio model cannot repeat images across hero, about, team, gallery and FAQ");
+
  assert.match(source,/:\[0,4,6,8,9,10\]/);
  for(const section of ["inicio","sobre","servicos","diferenciais","processo","galeria","equipe","numeros","depoimentos","faq","contato"])assert.ok(source.includes('data-universal-section="'+section+'"'),section);
  assert.doesNotMatch(source,/odontol[oó]g|tratamento dental|clareamento dental|barbearia|maquiagem/i);
