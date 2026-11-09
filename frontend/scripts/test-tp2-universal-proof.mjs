@@ -42,3 +42,15 @@ test("mobile footer links, map, real WhatsApp and older materials experiences re
  assert.match(models[1],/<MaterialTestimonials provided=\{testimonials\} variant=\{2\}\/>/);
  assert.match(models[2],/<MaterialTestimonials variant=\{3\} provided=\{testimonials\}\/>/);
 });
+
+
+test("TP2 footer overrides the legacy global four-column rule on its direct child",()=>{
+ const css=readFileSync(new URL("../src/app/globals.css",import.meta.url),"utf8");
+ assert.match(css,/body footer > div:first-child\s*\{[\s\S]*?grid-template-columns:\s*minmax\(240px/);
+ assert.match(css,/body footer\.pn-tp2-footer > div\[data-tp2-proof="premium-footer"\]:first-child\s*\{[\s\S]*?display:block !important;[\s\S]*?grid-template-columns:none !important/);
+ assert.match(css,/body footer\.pn-tp2-footer \.pntp2-footer-columns\s*\{[\s\S]*?grid-template-columns:repeat\(3,minmax\(0,1fr\)\) !important/);
+ assert.match(css,/@media\(max-width:640px\)\s*\{[\s\S]*?body footer\.pn-tp2-footer \.pntp2-footer-columns/);
+ assert.match(models[0],/className="pn-tp2-footer bg/);
+ assert.match(models[1],/className="tp2m2-footer pn-tp2-footer"/);
+ assert.match(models[2],/isMaterials\?" pnmat-m3-footer":" pn-tp2-footer"/);
+});

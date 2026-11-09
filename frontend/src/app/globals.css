@@ -2078,3 +2078,74 @@ body [data-tp3-model="01"] section.pn-tp3-m1-contact {
 body [data-tp3-model="01"] section.pn-tp3-m1-contact h2 {
   color:#fff8ee !important;
 }
+
+
+/* TP2 shared premium footer: the legacy body footer > div:first-child rule has
+   an !important FOUR-COLUMN grid and is more specific than the component's
+   attribute-only selectors. Override that exact direct-child collision, without
+   touching other families, landing pages or the standalone construction footer. */
+body footer.pn-tp2-footer {
+  display:block !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  width:100% !important;
+  max-width:none !important;
+  overflow-x:clip !important;
+  background:#15201c !important;
+  box-sizing:border-box !important;
+}
+body footer.pn-tp2-footer > div[data-tp2-proof="premium-footer"]:first-child {
+  display:block !important;
+  grid-template-columns:none !important;
+  grid-template-rows:none !important;
+  grid-auto-flow:initial !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:clamp(38px,5vw,80px) clamp(20px,4vw,64px) 30px !important;
+  border:0 !important;
+  gap:0 !important;
+  align-items:initial !important;
+  box-sizing:border-box !important;
+}
+body footer.pn-tp2-footer .pntp2-footer-shell {
+  display:block !important;
+  grid-template-columns:none !important;
+  width:100% !important;
+  max-width:1200px !important;
+  min-width:0 !important;
+  margin:0 auto !important;
+}
+body footer.pn-tp2-footer .pntp2-footer-columns {
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  width:100% !important;
+  gap:clamp(24px,4vw,64px) !important;
+}
+body footer.pn-tp2-footer .pntp2-footer-columns > div {
+  min-width:0 !important;
+  max-width:100% !important;
+}
+body footer.pn-tp2-footer .pntp2-footer-column-title {
+  font-size:12px !important;
+  line-height:1.45 !important;
+  letter-spacing:.12em !important;
+  color:#d9bb98 !important;
+  margin:0 0 18px !important;
+  overflow-wrap:normal !important;
+}
+@media(max-width:900px){
+  body footer.pn-tp2-footer .pntp2-footer-columns {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+@media(max-width:640px){
+  body footer.pn-tp2-footer .pntp2-footer-columns {
+    grid-template-columns:minmax(0,1fr) !important;
+  }
+  body footer.pn-tp2-footer > div[data-tp2-proof="premium-footer"]:first-child {
+    padding:40px 22px 28px !important;
+  }
+}
