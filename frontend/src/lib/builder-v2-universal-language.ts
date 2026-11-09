@@ -3,6 +3,7 @@ import {applyUniversalNamedLanguage,resolveUniversalSection} from "./builder-v2-
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "./builder-v2-universal-card-edits.ts";
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "./builder-v2-universal-copy-edits.ts";
 import {applyUniversalHeadingBatch} from "./builder-v2-universal-heading-batches.ts";
+import {applyUniversalPracticalEdit} from "./builder-v2-universal-practical-edits.ts";
 export {universalInstructionClauses as splitUniversalInstructions} from "./builder-v2-universal-plan.ts";
 import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type UniversalResult} from "./builder-v2-universal-operations.ts";
 
@@ -359,6 +360,8 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const batch=applyUniversalHeadingBatch(site,instruction);
  if(batch)return batch;
+ const practical=applyUniversalPracticalEdit(site,instruction);
+ if(practical)return practical;
  const scopedText=parseUniversalCopyEdit(site,instruction);
  if(scopedText){
   if("error" in scopedText)return {ok:false,error:scopedText.error};

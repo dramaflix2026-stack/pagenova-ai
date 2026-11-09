@@ -120,7 +120,8 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
     /\b(?:banner|capa)\s+(?:unico|simples|com\s+uma\s+(?:foto|imagem))/.test(s)?"single":undefined;
   const fit=/sem\s+cort|inteir[ao]|formato\s+original|object.contain/.test(s)?"contain" as const:
     /preench|recort|corte\s+central|object.cover/.test(s)?"cover" as const:undefined;
-  const remove=/\b(?:remov|exclu|apag|retir|tire)\w*/.test(s);
+  // Never confuse "retirada da internet" with an order to remove a photo.
+  const remove=/\b(?:remova|remover|exclua|excluir|apague|apagar|retire|retirar|tire|tirar)\b/.test(s);
   const reorder=/\b(?:reorden|mova|inver|troque\s+a\s+ordem)\w*/.test(s);
   const isGallery=/galeria|portfoli|portfolio/.test(norm(section));
   const mediaLayout:MediaLayout|undefined=/\bcarrossel\b/.test(s)?"carousel":/\bmosaico\b/.test(s)?"mosaic":

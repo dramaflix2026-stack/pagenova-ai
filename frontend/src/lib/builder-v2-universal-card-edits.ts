@@ -81,7 +81,7 @@ export function parseUniversalCardEdit(site:UniversalSite,instruction:string):Un
  const title=command.match(/^(?:altere|troque|mude|substitua|defina)\s+(?:somente\s+)?(?:o\s+)?t[ií]tulo\s+(?:para|por|como)\s+["“']([^"”']{1,300})["”'](?:\s+e\s+([\s\S]+))?$/i);
  if(!title)return {error:"Informe o novo título do card entre aspas e, se desejar, a descrição. Nenhuma alteração aplicada."};
  const tail=title[2]?.trim();
- const description=tail?.match(/^(?:atualize|reescreva|melhore|altere|troque|mude|substitua)\s+(?:a\s+)?descri[cç][aã]o(?:\s+(?:para|por|como)\s+["“']([^"”']{1,1200})["”'])?$/i);
+ const description=tail?.match(/^(?:(?:atualize|reescreva|melhore|altere|troque|mude|substitua)\s+)?(?:a\s+)?descri[cç][aã]o(?:\s+(?:para|por|como)\s+["“']([^"”']{1,1200})["”'])?$/i);
  if(tail&&!description)return {error:"A instrução sobre a descrição não está clara. Nenhuma alteração aplicada."};
  const target=resolveUniversalCardTarget(site,section,ordinal);
  if(!target)return {error:"O card "+(ordinal+1)+" não tem título e descrição editáveis identificados nessa seção. Nenhuma alteração aplicada."};

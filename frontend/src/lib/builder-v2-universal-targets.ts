@@ -11,7 +11,7 @@ const aliases:Record<string,string[]>={
  numbers:["numeros","resultados","resultados e numeros","metricas","indicadores","numbers"],
  history:["trajetoria","nossa trajetoria","historia","nossa historia","history"],
  testimonials:["testimonials","depoimentos","depoimentos dos clientes","avaliacoes"],
- gallery:["gallery","galeria","galeria de fotos","fotos"],
+ gallery:["gallery","galeria","galeria de fotos","galeria de experiencias","galeria de sabores","galeria de imagens","fotos"],
  faq:["faq","perguntas frequentes","duvidas frequentes"],
  contact:["contact","contato","entre em contato","fale conosco"],
  footer:["footer","rodape","rodape premium"]

@@ -30,7 +30,7 @@ export function summarizeUniversalEdit(result:{changedIds:string[];requestedCoun
  }
  return "Edição universal aplicada a "+changed+" bloco(s). Demais conteúdos preservados.";
 }
-const allowed=new Set(["text","href","src","color","background","align","fontSize","fontFamily","mobileFontSize","textColor","radius","spacing","layout","columns","imageFit","imagePosition","mobileSrc","cardBorderWidth","cardBorderColor","cardShadow"]);
+const allowed=new Set(["text","href","src","color","background","align","fontSize","fontFamily","mobileFontSize","textColor","radius","spacing","layout","columns","imageFit","imagePosition","mobileSrc","cardBorderWidth","cardBorderColor","cardShadow","marginBottom"]);
 const record=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==="object"&&!Array.isArray(value);
 export function isSafeUniversalUrl(value:unknown,image=false):boolean {
  if(typeof value!=="string"||!value||/[\\\s\u0000-\u001f\u007f]/.test(value))return false;
@@ -44,7 +44,7 @@ const blockTypes=new Set(["heading","paragraph","button","image"]);
 function validateChanges(changes:Record<string,unknown>):string|null {
  if(!Object.keys(changes).length||Object.keys(changes).some(k=>!allowed.has(k)))return "Propriedade não editável.";
  for(const [key,value] of Object.entries(changes)){
-  if(!["fontSize","mobileFontSize","columns","cardBorderWidth","radius","spacing"].includes(key)&&typeof value!=="string")return "Valor de texto inválido: "+key;
+  if(!["fontSize","mobileFontSize","columns","cardBorderWidth","radius","spacing","marginBottom"].includes(key)&&typeof value!=="string")return "Valor de texto inválido: "+key;
  }
  for(const key of ["href","src","mobileSrc"]){
   if(typeof changes[key]==="string"&&String(changes[key]).length>(key==="href"?2000:1000000))return "Endereço excede o tamanho permitido.";
@@ -53,7 +53,7 @@ function validateChanges(changes:Record<string,unknown>):string|null {
  for(const key of ["text","color","background","fontFamily","textColor","cardBorderColor","cardShadow","imagePosition"]){
   if(changes[key]!==undefined&&(typeof changes[key]!=="string"||String(changes[key]).length>(key==="text"?12000:300)))return "Texto ou estilo inválido: "+key;
  }
- for(const [key,min,max] of [["fontSize",8,160],["mobileFontSize",8,160],["columns",1,12],["cardBorderWidth",0,24],["radius",0,200],["spacing",0,240]] as const){
+ for(const [key,min,max] of [["fontSize",8,160],["mobileFontSize",8,160],["columns",1,12],["cardBorderWidth",0,24],["radius",0,200],["spacing",0,240],["marginBottom",0,240]] as const){
   const value=changes[key];
   if(value!==undefined&&(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max||(key==="columns"&&!Number.isInteger(value))))return "Valor inválido: "+key;
  }

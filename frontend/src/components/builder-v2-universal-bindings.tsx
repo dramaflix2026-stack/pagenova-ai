@@ -7,7 +7,9 @@ export function universalBlockProps(block?:UniversalBlock,button=false){
  const style:CSSProperties={
   ...(block.colorExplicit&&typeof block.color==="string"?(button?{backgroundColor:block.color}:{color:block.color}):{}),
   ...(typeof block.textColor==="string"?{color:block.textColor}:{}),
-  ...(block.alignExplicit?{textAlign:block.align as CSSProperties["textAlign"]}:{}),
+  ...(block.alignExplicit?{textAlign:block.align as CSSProperties["textAlign"],...(block.align==="center"?{alignSelf:"center",marginInline:"auto"}:{})}:{}),
+  ...(typeof block.spacing==="number"?{marginTop:block.spacing}:{}),
+  ...(typeof block.marginBottom==="number"?{marginBottom:block.marginBottom}:{}),
   ...(typeof block.fontFamily==="string"?{fontFamily:block.fontFamily}:{}),
   ...(typeof block.fontSize==="number"?{"--pn-edit-desktop-size":block.fontSize+"px"}:{}),
   ...(typeof block.mobileFontSize==="number"?{"--pn-edit-mobile-size":block.mobileFontSize+"px"}:{}),
