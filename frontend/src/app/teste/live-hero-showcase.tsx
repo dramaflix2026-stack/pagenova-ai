@@ -11,6 +11,13 @@ type Lang = "pt" | "en" | "es";
 export function LiveHeroShowcase({ mobile = false }: { lang: Lang; mobile?: boolean }) {
   return (
     <div className={mobile ? "pn9-image-scene pn9-mobile" : "pn9-image-scene pn9-desktop"} aria-hidden="true">
+      <svg className="pn9-sharp-defs" width="0" height="0" focusable="false" aria-hidden="true">
+        <defs>
+          <filter id={mobile ? "pn9-unsharp-mobile" : "pn9-unsharp-desktop"} x="-1%" y="-1%" width="102%" height="102%" colorInterpolationFilters="sRGB">
+            <feConvolveMatrix order="3" kernelMatrix="0 -0.13 0 -0.13 1.52 -0.13 0 -0.13 0" divisor="1" bias="0" edgeMode="duplicate" preserveAlpha="true"/>
+          </filter>
+        </defs>
+      </svg>
       <div className="pn9-glow pn9-glow-left" />
       <div className="pn9-glow pn9-glow-right" />
       <div className="pn9-half pn9-left">
