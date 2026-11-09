@@ -62,7 +62,7 @@ export function HeroModeloUm() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#080d0a] text-[#f5f9f4]" style={{fontFamily:"Poppins, Arial, sans-serif"}}>
+    <main className="relative min-h-screen overflow-hidden bg-[#080d0a] text-[#f5f9f4]" style={{fontFamily:"inherit"}}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-[-370px] h-[680px] w-[880px] -translate-x-1/2 rounded-full bg-[#8df44b]/[0.075] blur-[110px]" />
         <div className="absolute inset-0 opacity-[0.15]" style={{backgroundImage:"linear-gradient(#a1c69a18 1px,transparent 1px),linear-gradient(90deg,#a1c69a18 1px,transparent 1px)",backgroundSize:"72px 72px",maskImage:"linear-gradient(to bottom,black,transparent 72%)"}} />
