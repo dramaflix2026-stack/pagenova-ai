@@ -24,7 +24,7 @@ const niches:[RegExp,string,string[],string][]=[
 [/restaurante/i,"Restaurante",["Pratos principais","Entradas","Sobremesas","Bebidas"],"Gastronomia"]
 ];
 // Photos are resolved exclusively through the TP3 family-specific curated catalog.
-const faq=[["Como posso entrar em contato?","Utilize os canais cadastrados pela empresa."],["Quais produtos estão disponíveis?","Confira as especialidades apresentadas e consulte o cardápio atualizado."],["É possível fazer encomendas?","Consulte a disponibilidade diretamente com o estabelecimento."],["Quais são os horários de funcionamento?","Os horários devem ser confirmados com o estabelecimento."],["Há opções para restrições alimentares?","Informe suas necessidades à equipe antes de realizar um pedido."]];
+const faq=[["Como posso entrar em contato?","Utilize os canais cadastrados pela empresa."],["Quais produtos estão disponíveis?","Confira as especialidades apresentadas e consulte o cardápio atualizado."],["É possível fazer encomendas?","Consulte a disponibilidade diretamente com o estabelecimento."],["Quais são os horários de funcionamento?","Os horários devem ser confirmados com o estabelecimento."],["Há opções para restrições alimentares?","Informe suas necessidades à equipe antes de realizar um pedido."],["Existem opções vegetarianas?","Confirme os ingredientes e opções vegetarianas disponíveis antes de pedir."]];
 export function BuilderV2TP3Model2({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [opened,setOpened]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[msg,setMsg]=useState(""),[notice,setNotice]=useState("");
  const niche=site.niche||"Restaurante",isTruck=isFoodTruck(site),isJapanese=!isTruck&&isJapaneseTP3Site(site);
@@ -32,8 +32,7 @@ export function BuilderV2TP3Model2({site,publishedMode=false}:{site:BuilderV2Sit
  const cfg=isTruck?niches.find(n=>n[1]==="Food truck")!:isJapanese?niches.find(n=>n[1]==="Comida japonesa")!:niches.find(n=>n[1]===familyCategory)||niches[13];
  const brand=isJapanese?japaneseTP3Brand(site,publishedMode):site.header?.brand||site.title||"Gastronomia";
 
- // TP3 Modelo 02 uses its own curated external photo set, not the builder image bank.
- // Explicitly uploaded customer photos can be supported later through a separate opt-in setting.
+ // Use the shared TP3 image resolver; preserve only intentional owner/CRM image edits.
  const photo=(i:number)=>isTruck?truckPhoto(i):isJapanese?japaneseTP3Photo(i,2):tp3FamilyInternetPhoto(familyCategory,2,i,1400);
  const fallbackPhoto=isTruck?truckPhoto(2):isJapanese?japaneseTP3Photo(0,2):tp3FamilyInternetPhoto(familyCategory,2,24,1400);
  const sectionText=(pattern:RegExp,type:"heading"|"paragraph")=>site.blocks.find(b=>b.type===type&&b.text?.trim()&&pattern.test(b.section||""))?.text;
