@@ -24,7 +24,9 @@ test("Floriculture photo pool excludes reported mismatched image and legacy cosm
  const b=s.match(/"Floricultura": \[([\s\S]+?)\n  \],/);assert.ok(b);
  const ids=[...b[1].matchAll(/"(\d{10,13}-[a-z0-9]+)"/g)].map(m=>m[1]);
  assert.equal(ids.length,8);assert.equal(new Set(ids).size,8);
- assert.ok(ids.includes("1582794543139-8ac9cb0f7b11"));assert.ok(!ids.includes("1508615070457-7baeba4003ab"));
+ assert.ok(ids.includes("1582794543139-8ac9cb0f7b11"));
+ assert.ok(ids.includes("1561848355-890d054dc55a"),"floral bouquet replacement");
+ assert.ok(!ids.includes("1526045478516-99145907023c"),"makeup brushes cannot appear in florist templates");assert.ok(!ids.includes("1508615070457-7baeba4003ab"));
  const css=read("src/components/builder-v2-tp6-premium-shared.css");
  assert.match(css,/\.pn-t6-legacy\{display:none!important\}/);
  assert.match(css,/@media\(max-width:700px\)/);

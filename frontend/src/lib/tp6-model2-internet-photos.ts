@@ -78,7 +78,7 @@ const photoIds:Record<string,string[]>={
   "Floricultura": [
     "1490750967868-88aa4486c946",
     "1457089328109-e5d9bd499191",
-    "1526045478516-99145907023c",
+    "1561848355-890d054dc55a" /* buquê misto rosa e branco, fotografia floral */,
     "1561181286-d3fee7d55364",
     "1487530811176-3780de880c2d",
     "1468327768560-75b778cbb551",
