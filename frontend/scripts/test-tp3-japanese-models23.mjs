@@ -110,24 +110,24 @@ test("Japanese footer bypasses the exact global four-column !important CSS confl
  const css=read("src/app/globals.css");
  const model1=read("src/components/builder-v2-tp3-japanese-model1.tsx");
  assert.match(css,/body footer > div:first-child/);
- assert.match(css,/body footer\\.pn-japanese-footer > \\.pn-japanese-footer-shell:first-child/);
- assert.match(css,/body footer\\.pn-japanese-footer \\.pn-japanese-footer-grid/);
+ assert.match(css,/body footer\.pn-japanese-footer > \.pn-japanese-footer-shell:first-child/);
+ assert.match(css,/body footer\.pn-japanese-footer \.pn-japanese-footer-grid/);
  assert.match(css,/display:block !important/);
  assert.match(css,/grid-template-columns:none !important/);
- assert.match(css,/minmax\\(0,1\\.45fr\\) minmax\\(0,\\.65fr\\) minmax\\(0,\\.95fr\\)/);
- assert.match(css,/@media\\(max-width:700px\\)/);
+ assert.match(css,/minmax\(0,1\.45fr\) minmax\(0,\.65fr\) minmax\(0,\.95fr\)/);
+ assert.match(css,/@media\(max-width:700px\)/);
  assert.match(model1,/className="pn-japanese-footer bg-/);
  assert.match(model1,/pn-japanese-footer-grid grid min-w-0/);
  assert.match(shared,/pn-japanese-footer-shell mx-auto max-w-7xl/);
 });
 test("Gold background in Japanese M3 has contrasting text for explanation and numbers",()=>{
  const css=read("src/components/builder-v2-tp3-model3.css");
- assert.match(css,/\\.tp3m3 \\.tp3m3-numbers p/);
+ assert.match(css,/\.tp3m3 \.tp3m3-numbers p/);
  assert.match(css,/data-japanese-metrics-disclaimer="demo"/);
  assert.match(css,/color:#292015 !important/);
- assert.match(css,/\\.tp3m3 \\.tp3m3-pillars p/);
+ assert.match(css,/\.tp3m3 \.tp3m3-pillars p/);
  assert.match(shared,/publishedMode=false/);
- assert.match(shared,/if\\(publishedMode\\)return \\{metrics:\\[\\],example:false\\}/);
+ assert.match(shared,/if\(publishedMode\)return \{metrics:\[\],example:false\}/);
 });
 test("Premium footer is scoped to Japanese M2/M3 and capped in desktop/mobile",()=>{
  for(const variant of [2,3]){
