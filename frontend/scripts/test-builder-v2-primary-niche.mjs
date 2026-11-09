@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
 import {resolve} from "node:path";
-import {BRIEFING_TEMPLATE_FAMILIES,resolvePrimaryBriefingNiche,positiveBusinessBrief,resolveBriefingFamily} from "../src/lib/briefing-template-families.ts";
+import {BRIEFING_TEMPLATE_FAMILIES,resolvePrimaryBriefingNiche,positiveBusinessBrief,resolveBriefingFamily,isDentalNicheIdentity,APPROVED_DENTAL_NICHE} from "../src/lib/briefing-template-families.ts";
 
 const root=resolve(fileURLToPath(new URL("..",import.meta.url)));
 
@@ -37,8 +37,10 @@ test("all 133+ registered niches remain stable against negative image references
  for(const {niche,family} of entries){
   const brief="Crie um site profissional para "+niche+".\nNão utilizar imagens de maquiagem, floricultura ou roupas de outros segmentos.";
   const recognized=resolvePrimaryBriefingNiche(brief);
-  assert.equal(recognized,niche,"Primary industry drifted for "+niche);
-  assert.equal(resolveBriefingFamily(recognized),family,"Incorrect family for "+niche);
+  const expectedNiche=isDentalNicheIdentity(niche)?APPROVED_DENTAL_NICHE:niche;
+  const expectedFamily=isDentalNicheIdentity(niche)?4:family;
+  assert.equal(recognized,expectedNiche,"Primary industry drifted for "+niche);
+  assert.equal(resolveBriefingFamily(recognized),expectedFamily,"Incorrect family for "+niche);
  }
 });
 
@@ -51,4 +53,58 @@ test("Studio and API use the same isolated fresh-site niche; images cannot use s
  assert.match(page,/prepareTP1MakeupSite\(incoming,shouldCreateProject\?incoming\.niche:selectedNiche\)/);
  assert.match(api,/const primaryNiche=resolvePrimaryBriefingNiche\(instruction\)/);
  assert.match(api,/content:system\+nicheGuard/);
+});
+
+
+test("odontologia freeze: all positive dental briefing aliases resolve to the SAME canonical TP4 templates",()=>{
+ const positive=[
+  "Crie um site para clínica odontológica, com atendimento humanizado.",
+  "Faça um site para Odonto Essenza com serviços de prevenção.",
+  "Desenvolva um site para dentista e consultório particular.",
+  "Preciso de um site para consultório dentário de alto padrão.",
+  "Crie uma landing page para Clínica Dental Prime.",
+  "Monte um site de odontologia estética e clareamento.",
+  "Gere um site para clínica de ortodontia e aparelhos.",
+  "Crie uma página para implantodontia premium.",
+  "Site profissional de endodontia.",
+  "Site institucional para periodontia.",
+  "Crie um site para odontopediatria.",
+  "Nicho: saúde bucal\nServiços de odontologia preventiva.",
+  "Segmento: Harmonização orofacial\nSite de clínica especializada.",
+  "**Nicho:** Odontologia estética\nQuero três modelos.",
+  "Nicho: Clínica odontológica\nSem fotografias inadequadas.",
+ ];
+ for(const brief of positive){
+  assert.equal(resolvePrimaryBriefingNiche(brief),APPROVED_DENTAL_NICHE,brief);
+  assert.equal(resolveBriefingFamily(resolvePrimaryBriefingNiche(brief)),4,brief);
+ }
+ assert.equal(resolveBriefingFamily("Odontologia estética"),4);
+ assert.equal(resolveBriefingFamily("Clínica odontológica"),4);
+ assert.equal(resolveBriefingFamily("Clínica de estética"),1);
+});
+test("dental exclusions never change floriculture, cosmetics, barbershop, SaaS or other chosen niches",()=>{
+ const negatives=[
+  ["Crie um site para floricultura.\nNão usar fotos de dentistas ou odontologia.","Floricultura"],
+  ["Site para estúdio de maquiagem; sem imagens de consultório odontológico.","Estúdio de maquiagem"],
+  ["Crie um site para barbearia. Não utilize fotos de clínica dentária.","Barbearia"],
+  ["Nicho: Clínica de estética\nNão usar fotos odontológicas.","Clínica de estética"],
+  ["Crie site para SaaS de gestão de consultórios odontológicos.","SaaS"],
+  ["**Nicho:** Loja de roupas\nNão quero imagens de dentista.","Loja de roupas"],
+ ];
+ for(const [brief,expected] of negatives)assert.equal(resolvePrimaryBriefingNiche(brief),expected,brief);
+});
+test("Studio/API and preview always honor approved dental niche, frozen visual variants and pre-existing static choices",()=>{
+ const page=readFileSync(resolve(root,"src/app/app/builder-v2/page.tsx"),"utf8");
+ const api=readFileSync(resolve(root,"src/app/api/builder-v2/chat/route.ts"),"utf8");
+ const renderer=readFileSync(resolve(root,"src/components/builder-v2-site.tsx"),"utf8");
+ assert.match(page,/recognizedNiche==="Clínica odontológica"\?"Clínica odontológica"/);
+ assert.match(page,/incoming\.niche=effectiveBriefNiche\|\|explicitNiche/);
+ assert.match(api,/const primaryNiche=resolvePrimaryBriefingNiche\(instruction\)/);
+ assert.match(renderer,/const approvedDentalSite=isDentalNicheIdentity/);
+ assert.match(renderer,/if\(activeStaticTemplate==="prompt-adaptive"&&approvedDentalSite\)/);
+ assert.match(renderer,/const dentalSite=props\.site\.niche===APPROVED_DENTAL_NICHE/);
+ for(const id of ["01","02","03"])assert.ok(renderer.includes('briefingLayoutVariant==="'+id+'"')||id==="01");
+ assert.match(renderer,/BuilderV2TP4Model3 site=\{site\}/);
+ assert.match(renderer,/BuilderV2TP4Model2 site=\{site\}/);
+ assert.match(renderer,/BuilderV2TP4Model1 site=\{site\}/);
 });
