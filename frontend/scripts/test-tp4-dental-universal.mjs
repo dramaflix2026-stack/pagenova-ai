@@ -103,3 +103,26 @@ test("dental KPIs use clinic-related animated examples only in preview and place
  assert.match(models[2],/DentalMetrics site=\{site\} model="03" publishedMode=\{publishedMode\}/);
  assert.match(css,/pn-dental-kpi-status/);
 });
+
+
+test("global PageNova footer grid is explicitly neutralized at the shell level for all TP4 dental variants",()=>{
+ const globals=read("src/app/globals.css");
+ const shellScope="body footer.pn-dental-footer > div.pn-dental-footer-inner:first-child";
+ const olderScope="body footer > div:first-child";
+ assert.ok(globals.includes(olderScope),"The legacy universal footer rule is missing; inspect contract before changing this test.");
+ const start=globals.lastIndexOf(shellScope+" {");
+ assert.ok(start>globals.indexOf(olderScope),"Specific dental override must be declared after the old global rule.");
+ const end=globals.indexOf("}",start);
+ const declaration=globals.slice(start,end);
+ assert.match(declaration,/display:block\s*!important/);
+ assert.match(declaration,/grid-template-columns:none\s*!important/);
+ assert.match(declaration,/grid-template-rows:none\s*!important/);
+ assert.match(declaration,/width:100%\s*!important/);
+ assert.match(declaration,/max-width:1280px\s*!important/);
+ assert.match(globals,/body footer\.pn-dental-footer\s*\{[\s\S]*?padding:0\s*!important/);
+ assert.match(globals,/body footer\.pn-dental-footer \.pn-dental-footer-intro h2[\s\S]*?word-break:normal\s*!important/);
+ // Regress all 3 variants, which use exactly this shell via the shared footer.
+ for(const [i,m] of models.entries()){
+   assert.match(m,new RegExp('DentalPremiumFooter site=\\\\{site\\\\} variant="'+String(i+1).padStart(2,"0")+'"'));
+ }
+});
