@@ -212,9 +212,9 @@ export function JapaneseTP3Footer({site,publishedMode=false,variant}:{site:Build
  const whatsapp=phone.length>=10&&phone.length<=13?"https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone):"";
  const links=[["Início","#inicio"],["Especialidades",variant===2?"#sabores":"#especialidades"],["Sobre","#sobre"],["Galeria","#galeria"],["Depoimentos","#depoimentos"],["FAQ","#faq"],["Contato","#contato"]] as const;
  return <footer data-universal-section="rodape" data-japanese-tp3-footer={variant} id="rodape"
-  className={"px-6 pb-7 pt-16 text-[#f8f1e7] md:px-10 md:pt-20 "+(variant===2?"bg-[#16211d]":"bg-[#121712]")}>
-  <div className="mx-auto max-w-7xl">
-   <div className="grid min-w-0 gap-10 border-b border-white/20 pb-14 md:grid-cols-[minmax(0,1.35fr)_minmax(0,.8fr)_minmax(0,1fr)] md:gap-10 xl:gap-16">
+  className={"pn-japanese-footer px-6 pb-7 pt-16 text-[#f8f1e7] md:px-10 md:pt-20 "+(variant===2?"bg-[#16211d]":"bg-[#121712]")}>
+  <div className="pn-japanese-footer-shell mx-auto max-w-7xl">
+   <div className="pn-japanese-footer-grid grid min-w-0 gap-10 border-b border-white/20 pb-14 md:grid-cols-[minmax(0,1.35fr)_minmax(0,.8fr)_minmax(0,1fr)] md:gap-10 xl:gap-16">
     <div className="min-w-0"><span className="text-xs font-bold uppercase tracking-[.2em] text-[#d5ad76]">Tradição · sabor · encontro</span>
      <h2 className="mt-5 max-w-lg break-words font-serif text-[clamp(2rem,4vw,3.7rem)] leading-[1.1] tracking-[-.03em]">{brand}</h2>
      <p className="mt-5 max-w-sm text-sm leading-7 text-[#c8c5b9]">Uma apresentação da culinária japonesa que valoriza pratos, detalhes e experiências.</p>
