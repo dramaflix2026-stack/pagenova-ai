@@ -57,3 +57,17 @@
 @media(max-width:700px){[data-tp6-family="retail"] .pn-t6-review-slots,.pn-t6-layout .pn-t6-review-slots{grid-template-columns:1fr!important}}
 /* Eliminate cosmetic images supplied by the obsolete retail legacy section in florist M01. */
 .pn-t6-layout[data-tp6-floral="true"] .pn-t6-legacy{display:none!important}
+
+/* User-created retail sections, rendered ahead of each variant's FAQ. */
+.pn-t6-added-section{background:#f4f0e8;color:#29382e;padding:clamp(55px,7vw,105px) clamp(20px,6vw,95px);width:100%;box-sizing:border-box}
+.pn-t6-added-inner{max-width:1280px;margin:0 auto}
+.pn-t6-added-eyebrow{display:block;font:700 11px/1.4 Arial,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#697e66}
+.pn-t6-added-section h2{font:400 clamp(38px,5vw,73px)/1.12 Georgia,serif!important;letter-spacing:-.04em;color:#29382e!important;margin:20px 0 24px}
+.pn-t6-added-description{font:400 clamp(15px,1.6vw,19px)/1.6 Arial,sans-serif;max-width:850px;color:#556258;margin-bottom:36px}
+.pn-t6-added-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.pn-t6-added-card{display:flex;flex-direction:column;min-width:0;gap:14px;border:1px solid #bec4b3;padding:clamp(20px,2vw,32px);background:rgba(255,255,255,.45)}
+.pn-t6-added-card>span{font:700 11px Arial,sans-serif;letter-spacing:.12em;color:#69816b}
+.pn-t6-added-card h3{font:400 clamp(22px,2vw,29px)/1.2 Georgia,serif!important;color:#29382e!important;margin:5px 0 0}
+.pn-t6-added-card p{font:400 14px/1.7 Arial,sans-serif!important;color:#536257!important;margin:0}
+@media(max-width:850px){.pn-t6-added-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.pn-t6-added-grid{grid-template-columns:minmax(0,1fr)}}

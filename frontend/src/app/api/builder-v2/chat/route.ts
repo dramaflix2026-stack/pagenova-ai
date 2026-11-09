@@ -10,6 +10,7 @@ import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BU
 import { applyInstitutionalEdit } from "@/lib/builder-v2-institutional-edits";
 import { applySiteMotionInstruction, hasMotionIntent, initialSiteMotion, isMotionOnlyInstruction, type SiteMotion } from "@/lib/site-builder-animation";
 import {applyUniversalPaletteEdit} from "@/lib/builder-v2-universal-palette";
+import {applyTP6RetailChatEdit} from "@/lib/builder-v2-tp6-edit-bridge";
 import {applySocialInstruction,socialLinksFromInstruction} from "@/lib/site-social-links";
 import {reserveBuilderV2Generation,generationCreditError} from "@/lib/builder-v2-generation-credits";
 
@@ -742,6 +743,14 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
   const fullSiteBrief=isFullSiteCreationBrief(instructionText);
 
   const editingSite=body.site as {title?:string;niche?:string;background?:string;motion?:SiteMotion;blocks?:Array<Record<string,unknown>>;header?:Record<string,string|boolean>;footer?:Record<string,string|boolean>;extras?:{announcement?:string;[key:string]:unknown}}|undefined;
+  // Renderer-linked retail editing: no success unless the specialized visual template reads the change.
+  if(!isFresh&&!fullSiteBrief&&body.universalOperations===undefined&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
+    const retail=applyTP6RetailChatEdit(editingSite as typeof editingSite & {blocks:Array<{type:string;text?:string;section?:string}>},instructionText);
+    if(retail){
+      if(!retail.ok)return NextResponse.json({error:retail.error},{status:422});
+      return NextResponse.json({site:retail.site,summary:retail.summary,changedIds:retail.changedIds});
+    }
+  }
   // A palette request mentioning "preserve animations" is NEVER a motion edit.
   if(!isFresh&&!fullSiteBrief&&Array.isArray(editingSite?.blocks)&&editingSite.blocks.length){
     const edited=applyUniversalPaletteEdit(
