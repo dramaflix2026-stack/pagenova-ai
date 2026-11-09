@@ -38,7 +38,7 @@ export function CinematicFilmReel(){
     <style>{`
       .film-scene{position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);z-index:0;overflow:visible;pointer-events:none;isolation:isolate}
       .film-band{position:absolute;left:50%;width:165vw;min-width:1700px;height:154px;overflow:hidden;border-block:1px solid #b6ff6940;background:#0b140e;box-shadow:0 22px 70px #000c,0 0 35px #aaff5415}
-      .film-continuous{top:50%;transform:translate(-50%,-50%) rotate(-7deg) perspective(1200px) rotateY(-5deg);opacity:.79;border-radius:48% 52% 48% 52% / 12% 15% 12% 15%}
+      .film-continuous{top:50%;transform:translate(-50%,-50%) rotate(-7deg) perspective(1200px) rotateY(-5deg);opacity:.79;border-radius:48% 52% 48% 52% / 12% 15% 12% 15%;animation:film-float 12s ease-in-out infinite alternate}
       .film-perforation{height:16px;background-color:#050b07;background-image:repeating-linear-gradient(90deg,#080e09 0 9px,#b6ff6975 9px 25px,#080e09 25px 42px);border-block:4px solid #13231a}
       .film-view{height:122px;overflow:hidden;padding-top:4px}
       .film-track{display:flex;width:max-content;animation:film-flow 43s linear infinite;will-change:transform}
@@ -66,8 +66,9 @@ export function CinematicFilmReel(){
       .film-auto .film-art span{top:50%;height:34%;width:75%;left:13%;border-radius:60% 60% 12% 12%;background:#e4ecfc}
       .film-footer{display:flex;gap:4px;padding:2px 7px}.film-footer span{height:8px;width:30%;background:#ffffff20;border-radius:2px}
       @keyframes film-flow{to{transform:translateX(-50%)}}
+      @keyframes film-float{from{transform:translate(-50%,-49%) rotate(-7deg) perspective(1200px) rotateY(-5deg)}to{transform:translate(-50%,-51%) rotate(-6.4deg) perspective(1200px) rotateY(-3deg)}}
       @media(max-width:767px){.film-scene{top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%)}.film-band{width:190vw;min-width:800px;height:90px}.film-continuous{top:50%;transform:translate(-50%,-50%) rotate(-6deg);opacity:.58;border-radius:36% / 9%}.film-perforation{height:10px;border-block-width:2px}.film-view{height:70px;padding-top:2px}.film-cell{flex-basis:122px;height:65px;padding:2px}.film-nav{height:10px;padding:0 4px}.film-main{height:48px;padding:3px}.film-copy{gap:2px}.film-copy em{font-size:4px}.film-copy b{height:3px}.film-copy small{height:6px;width:22px}.film-footer{display:none}}
-      @media(prefers-reduced-motion:reduce){.film-track{animation:none!important;will-change:auto}}
+      @media(prefers-reduced-motion:reduce){.film-track,.film-band{animation:none!important;will-change:auto}}
     `}</style>
   </div>;
 }
