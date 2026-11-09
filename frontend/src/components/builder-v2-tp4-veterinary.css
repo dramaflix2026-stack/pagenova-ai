@@ -45,7 +45,7 @@
 .pn-vet-mini-feature span{font-size:2.3rem;color:var(--p-accent)}
 .pn-vet-mini-feature p{font-size:.85rem}
 .pn-vet-services{background:#edf3ee}
-.pn-vet-service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.pn-vet-service-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
 .pn-vet-service{border:1px solid var(--p-line);min-height:365px;background:var(--p-card);padding:34px 27px 28px;display:flex;flex-direction:column;position:relative;transition:transform .3s ease,box-shadow .3s ease}
 .pn-vet-service:hover{transform:translateY(-8px);box-shadow:0 20px 45px rgba(0,0,0,.075)}
 .pn-vet-service-index{font-size:.73rem;letter-spacing:.14em;color:var(--p-accent);font-weight:800}
