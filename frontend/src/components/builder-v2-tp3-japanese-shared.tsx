@@ -176,6 +176,35 @@ export function JapaneseTP3AnimatedNumbers({raw,faqCount=5,variant}:{raw:readonl
  </div>;
 }
 
+export function JapaneseTP3Location({site,publishedMode=false,variant}:{site:BuilderV2SiteData;publishedMode?:boolean;variant:2|3}){
+ const address=site.extras?.address?.trim()||site.footer?.address?.trim()||"";
+ const previewAddress=!publishedMode?"Rua das Cerejeiras, 120 — Bairro Sakura, São Paulo/SP":"";
+ const phone=(site.restaurant?.whatsapp||site.footer?.whatsapp||"").replace(/\D/g,"");
+ const whatsapp=phone.length>=10&&phone.length<=13?"https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone):"";
+ return <section id="localizacao" data-universal-section="localizacao" data-japanese-tp3-location={variant}
+  className={"px-6 py-16 md:px-10 md:py-20 "+(variant===2?"bg-[#f3e9d8] text-[#2b251e]":"bg-[#1b211c] text-[#f7eee1]")}>
+  <div className="mx-auto max-w-7xl">
+   <span className="text-xs font-bold uppercase tracking-[.2em] text-[#bb905e]">Localização e atendimento</span>
+   <h2 className="mt-5 font-serif text-[clamp(2.3rem,5vw,4.3rem)] leading-tight">Seu próximo encontro começa aqui.</h2>
+   <div className={"mt-9 grid gap-6 rounded-xl p-4 md:grid-cols-[1.3fr_.7fr] md:p-6 "+(variant===2?"bg-[#fffaf1]":"bg-[#2c322d]")}>
+    <div className="min-w-0 overflow-hidden rounded-lg">
+      {address||!publishedMode?<iframe title={address?"Mapa do endereço cadastrado":"Mapa ilustrativo de São Paulo"}
+        src={"https://www.google.com/maps?q="+encodeURIComponent(address||"São Paulo, SP, Brasil")+"&output=embed"}
+        className="h-64 w-full border-0 md:h-80" loading="lazy" referrerPolicy="no-referrer-when-downgrade"/>
+        :<div className="flex min-h-64 items-center justify-center p-8 text-center text-sm">Cadastre um endereço real para ativar o mapa da empresa.</div>}
+    </div>
+    <div className="flex min-w-0 flex-col justify-center gap-5 md:px-3">
+     {!address&&!publishedMode&&<strong className="text-xs uppercase tracking-[.13em] text-[#b8875b]">Endereço fictício · apenas demonstração</strong>}
+     {address||previewAddress?<address className="break-words text-base font-semibold not-italic leading-7">{address||previewAddress}</address>
+      :<p className="text-sm leading-7">A localização oficial será informada pela empresa.</p>}
+     {whatsapp?<a href={whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex w-full items-center justify-center rounded-full bg-[#3f6b4c] px-6 py-4 text-center text-sm font-bold text-white">Falar no WhatsApp ↗</a>
+      :!publishedMode?<><span aria-disabled="true" className="inline-flex cursor-not-allowed justify-center rounded-full bg-[#c5c0b6] px-6 py-4 text-sm font-bold text-[#64594d]">Falar no WhatsApp</span><p className="text-xs leading-6">Cadastre o número oficial para ativar o botão.</p></>:null}
+    </div>
+   </div>
+  </div>
+ </section>;
+}
+
 export function JapaneseTP3Footer({site,publishedMode=false,variant}:{site:BuilderV2SiteData;publishedMode?:boolean;variant:2|3}){
  const brand=japaneseTP3Brand(site,publishedMode);
  const address=site.extras?.address?.trim()||site.footer?.address?.trim()||"";
