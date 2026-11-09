@@ -1,7 +1,7 @@
 "use client";
 import "./builder-v2-tp6-model3-reviews-faq.css";
 import {TP6PerfumePreviewReviews} from "./tp6-perfume-preview-reviews";
-import {TP6RetailReviewSlots} from "./builder-v2-tp6-premium-shared";
+import {TP6RetailReviewSlots,readTP6RealReviews} from "./builder-v2-tp6-premium-shared";
 type Block={id?:string;type:string;text?:string;section?:string;layout?:string};
 type Review={quote:string;name?:string};
 export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,publishedMode=false}:{niche:string;blocks:Block[];contactHref?:string;publishedMode?:boolean}){
@@ -44,7 +44,7 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,published
  <section className="tp6m3-reviews" id="depoimentos" aria-labelledby="tp6m3-reviews-title">
   <div className="tp6m3-section-meta"><span>06 / EXPERIÊNCIAS</span><span>DEPOIMENTOS DOS CLIENTES</span></div>
   <div className="tp6m3-reviews-heading"><h2 id="tp6m3-reviews-title">QUEM<br/>CONTA<span>.</span></h2><p>Um espaço para experiências compartilhadas por clientes, quando cadastradas pela loja.</p></div>
-  {niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<TP6RetailReviewSlots/>}
+  {niche==="Floricultura"?<TP6RetailReviewSlots reviews={readTP6RealReviews(blocks)}/>:niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<TP6RetailReviewSlots/>}
  </section>
  <section className="tp6m3-faq" id="faq" aria-labelledby="tp6m3-faq-title">
   <div className="tp6m3-section-meta"><span>07 / PERGUNTAS FREQUENTES</span><span>INFORMAÇÃO SEM COMPLICAÇÃO</span></div>

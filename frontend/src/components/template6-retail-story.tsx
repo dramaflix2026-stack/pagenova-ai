@@ -67,7 +67,7 @@ export function Template6RetailStory({brand,niche,images,aboutText,reviews,whats
 </section>
 <section className="pn-t6-voices" id="depoimentos" aria-label="Experiências dos clientes">
  <div className="pn-t6-voices-media">{(pictures[6]||pictures[1]||pictures[0])&&<img src={pictures[6]||pictures[1]||pictures[0]} onError={e=>handleTP6RetailImageError(e.currentTarget,niche,6)} alt={`Atmosfera e experiência de ${brand}`} loading="lazy"/>}</div>
- <div className="pn-t6-voices-copy"><span className="eyebrow">Experiências / {brand}</span><h2>Conexões que permanecem.</h2><p className="pn-t6-voices-note">Depoimentos de clientes cadastrados aparecerão aqui. Nenhuma avaliação fictícia é exibida.</p><TP6RetailReviewSlots reviews={reviews}/></div>
+ <div className="pn-t6-voices-copy"><span className="eyebrow">Experiências / {brand}</span><h2>Conexões que permanecem.</h2><p className="pn-t6-voices-note">Veja os cards com foto, nome completo e texto. Os exemplos fictícios são identificados em cada card.</p><TP6RetailReviewSlots reviews={reviews}/></div>
 </section>
 
 <section className="pn-t6-process" id="como-comprar"><span className="eyebrow">Uma experiência simples / {niche}</span><h2>Da escolha ao seu próximo favorito.</h2><div className="pn-t6-steps">{steps.map(([name,description],i)=><div className="pn-t6-step" key={name}><span className="pn-t6-step-num">0{i+1}</span><h3>{name}</h3><p>{description}</p></div>)}</div></section>
