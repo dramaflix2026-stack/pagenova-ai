@@ -117,3 +117,119 @@
  .pn-dental-kpis .pn-dental-animated-num,.pn-dental-kpis .pn-dental-kpi-empty{font-size:clamp(28px,7vw,40px)!important}
  .pn-dental-kpis .pn-dental-kpi-label{font-size:13px}
 }
+
+
+/* TP4 model 2: the historic .tp4m2-numbers flex layout reserved a narrow
+   right column for the whole four-card KPI grid, letting 1.250+ collide with
+   8+. Give the counters a dedicated full-width row in the desktop iframe too. */
+.tp4m2 .tp4m2-numbers:has(> .pn-dental-kpis){
+  display:block!important;
+  width:100%;
+}
+.tp4m2 .tp4m2-numbers>.tp4m2-eyebrow{
+  display:block;
+  margin-bottom:22px;
+}
+.tp4m2 .tp4m2-numbers>.pn-dental-kpis{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  flex:none!important;
+}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid{
+  width:100%;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  align-items:stretch;
+  gap:clamp(12px,1.6vw,22px);
+}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi{
+  width:100%;
+  min-width:0;
+  padding:clamp(18px,2.2vw,27px) clamp(12px,1.5vw,20px);
+  gap:0;
+  overflow:hidden;
+}
+.tp4m2 .tp4m2-numbers .pn-dental-animated-num,
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-empty{
+  font-size:clamp(28px,3.3vw,54px)!important;
+  max-width:100%;
+  letter-spacing:-.055em!important;
+  line-height:1.15!important;
+}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-label{
+  margin-top:14px;
+  font-size:clamp(12px,1.15vw,15px)!important;
+  line-height:1.4!important;
+}
+@media(max-width:1000px){
+  .tp4m2 .tp4m2-numbers .pn-dental-kpi-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:600px){
+  .tp4m2 .tp4m2-numbers .pn-dental-kpi-grid{gap:12px}
+  .tp4m2 .tp4m2-numbers .pn-dental-kpi{padding:20px 13px}
+  .tp4m2 .tp4m2-numbers .pn-dental-animated-num{font-size:clamp(26px,7.2vw,36px)!important}
+}
+
+/* TP4 model 2: captions were in the document flow under equal-height images,
+   colliding visually with the following team disclaimer. Anchor each one
+   inside its own photo tile, separate from the paragraph below the gallery. */
+.tp4m2 .pn-dental-team-photo-grid{
+  align-items:stretch;
+  gap:16px;
+  margin:28px 0 25px;
+}
+.tp4m2 .pn-dental-team-photo-grid figure{
+  position:relative;
+  display:block;
+  margin:0;
+  min-width:0;
+  overflow:hidden;
+  border-radius:18px;
+  background:#263a34;
+}
+.tp4m2 .pn-dental-team-photo-grid figure img{
+  display:block;
+  width:100%!important;
+  height:270px!important;
+  object-fit:cover;
+  border-radius:0;
+}
+.tp4m2 .pn-dental-team-photo-grid figcaption{
+  position:absolute;
+  z-index:1;
+  right:10px;
+  bottom:10px;
+  left:10px;
+  display:block;
+  max-width:calc(100% - 20px);
+  margin:0;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(11,35,40,.85);
+  color:#fff!important;
+  font:600 12px/1.45 system-ui,sans-serif!important;
+  text-align:left;
+  opacity:1;
+  overflow-wrap:break-word;
+}
+.tp4m2 .tp4m2-team>p.tp4m2-disclaimer{
+  display:block;
+  position:relative;
+  clear:both;
+  margin:18px 0 0!important;
+  font-size:12px;
+  line-height:1.7;
+}
+@media(max-width:600px){
+  .tp4m2 .pn-dental-team-photo-grid{gap:12px}
+  .tp4m2 .pn-dental-team-photo-grid figure img{height:210px!important}
+  .tp4m2 .pn-dental-team-photo-grid figcaption{
+    left:7px;right:7px;bottom:7px;
+    max-width:calc(100% - 14px);
+    padding:7px 9px;
+    font-size:10px!important;
+  }
+}
