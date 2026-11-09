@@ -1,6 +1,6 @@
 "use client";
 import "./builder-v2-tp6-premium-shared.css";
-export type TP6RetailReview={name:string;role?:string;quote:string};
+export type TP6RetailReview={name:string;role:string;quote:string};
 type ReviewBlock={type:string;section?:string;text?:string};
 export function readTP6RealReviews(blocks:ReviewBlock[]):TP6RetailReview[]{
  return blocks.filter(b=>b.type==="paragraph"&&/depoiment|testimonial|avalia[cç][aã]o/i.test(b.section||"")).map(b=>{
