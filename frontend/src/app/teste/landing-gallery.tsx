@@ -89,7 +89,7 @@ export function LandingGallery() {
   const t=dictionary[lang];
   const shown=examples.map((item,index)=>({...item,index})).filter(item=>category==="all"||item.category===category);
   return <>
-    <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden border-t border-white/[.07] bg-[#090e0b] px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
+    <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
       <div className="pn-gallery-halo" aria-hidden="true"/>
       <div className="relative mx-auto max-w-[1250px]">
         <div className="mx-auto max-w-[890px] text-center">
@@ -126,7 +126,7 @@ export function LandingGallery() {
       </div>
     </div>}
     <style>{`
-      .pn-gallery-section{font-family:inherit}.pn-gallery-halo{position:absolute;left:50%;top:0;width:70vw;height:500px;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse at center,#96f35b0b,transparent 66%)}
+      .pn-gallery-section{font-family:inherit;background:linear-gradient(180deg,#0b190f 0%,#0a170e 180px,#090e0b 440px);border-top:0}.pn-gallery-halo{position:absolute;left:50%;top:0;width:110vw;height:560px;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse 62% 56% at 50% 0%,rgba(135,255,79,.09),transparent 82%)}
       .pn-gallery-visual{height:260px;position:relative;overflow:hidden;color:white;isolation:isolate}
       .pn-gallery-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75;filter:saturate(.88)}
       .pn-gallery-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0b1010f0 0%,#101713a8 50%,#090d0a35 100%)}
