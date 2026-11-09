@@ -23,22 +23,7 @@ const niches=[
 [/food truck/i,"Food truck",["Especialidades","Combos","Acompanhamentos","Bebidas"],"street"],
 [/restaurante/i,"Restaurante",["Entradas","Pratos principais","Sobremesas","Bebidas"],"dining"]
 ] as const;
-const external:Record<string,string[]>={
-pizza:["photo-1595854341625-f33ee10dbf94","photo-1520201163981-8cc95007dd2a","photo-1594007654729-407eedc4be65","photo-1604382355076-af4b0eb60143","photo-1534308983496-4fabb1a015ee","photo-1571407970349-bc81e7e96d47","photo-1604068549290-dea0e4a305ca","photo-1628840042765-356cda07504e"],
-burger:["photo-1550317138-10000687a72b","photo-1561758033-7e924f619b47","photo-1571091718767-18b5b1457add","photo-1586190848861-99aa4a171e90","photo-1553979459-d2229ba7433a","photo-1594212699903-ec8a3eca50f5","photo-1561758033-7e924f619b47","photo-1561758033-7e924f619b47"],
-coffee:["photo-1498804103079-a6351b050096","photo-1497515114629-f71d768fd07c","photo-1501339847302-ac426a4a7cbb","photo-1507133750040-4a8f57021571","photo-1517701604599-bb29b565090c","photo-1501747315-124a0eaca060","photo-1504630083234-14187a9df0f5","photo-1517256673644-36ad11246d21"],
-bread:["photo-1534620808146-d33bb39128b2","photo-1598373182133-52452f7691ef","photo-1585478259715-876acc5be8eb","photo-1623334044303-241021148842","photo-1612203985729-70726954388c","photo-1606101273945-e9eba9c99a72","photo-1509440159596-0249088772ff","photo-1549931319-a545dcf3bc73","photo-1555507036-ab1f4038808a"],
-cake:["photo-1562440499-64c9a111f713","photo-1586985289688-ca3cf47d3e6e","photo-1606313564200-e75d5e30476c","photo-1599785209707-a456fc1337bb","photo-1535141192574-5d4897c12636","photo-1602351447937-745cb720612f"],
-steak:["photo-1607623814075-e51df1bdc82f","photo-1558618666-fcd25c85cd64","photo-1594041680534-e8c8cdebd659","photo-1588168333986-5078d3ae3976","photo-1615937657715-bc7b4b7962c1","photo-1551028150-64b9f398f678"],
-sushi:["photo-1559410545-0bdcd187e0a6","photo-1579584425555-c3ce17fd4351","photo-1558985250-27a406d64cb3","photo-1583623025817-d180a2221d0a","photo-1617196034796-73dfa7b1fd56","photo-1615361200141-f45040f367be"],
-icecream:["photo-1557142046-c704a3adf364","photo-1567206563064-6f60f40a2b57","photo-1570197788417-0e82375c9371","photo-1580915411954-282cb1b0d780","photo-1590080877777-a9d2d11f3d8e"],
-meal:["photo-1547592180-85f173990554","photo-1543353071-873f17a7a088","photo-1512621776951-a57141f2eefd","photo-1504674900247-0877df9cc836","photo-1511690743698-d9d85f2fbf38"],
-buffet:["photo-1511795409834-ef04bbd61622","photo-1555244162-803834f70033","photo-1507504031003-b417219a0fde","photo-1414235077428-338989a2e8c0","photo-1517248135467-4c7edcad34c4"],
-acai:["photo-1590301157890-4810ed352733","photo-1490323914169-5d4e38e6f1a5","photo-1505252585461-04db1eb84625","photo-1519996529931-28324d5a630e","photo-1571771894821-ce9b6c11b08e"],
-sweets:["photo-1499636136210-6f4ee915583e","photo-1598373182133-52452f7691ef","photo-1571506165871-ee72a35bc9d4","photo-1587668178277-295251f900ce","photo-1488477181946-6428a0291777"],
-street:["photo-1555939594-58d7cb561ad1","photo-1565958011703-44f9829ba187","photo-1517248135467-4c7edcad34c4","photo-1565299624946-b28f40a0ae38","photo-1504674900247-0877df9cc836"],
-dining:["photo-1517248135467-4c7edcad34c4","photo-1414235077428-338989a2e8c0","photo-1550966871-3ed3cdb5ed0c","photo-1512621776951-a57141f2eefd","photo-1559339352-11d035aa65de","photo-1511795409834-ef04bbd61622"]
-};
+// Photos are resolved exclusively through the TP3 family-specific curated catalog.
 const questions=[["Como conhecer o cardápio?","Explore as especialidades desta página e consulte o estabelecimento para informações atualizadas."],["Como fazer um pedido?","Entre em contato pelos canais oficiais cadastrados pela empresa."],["Há opções para restrições alimentares?","Consulte a equipe sobre ingredientes e disponibilidade antes de pedir."],["Quais são os horários de atendimento?","Confirme os horários diretamente com o estabelecimento."],["É possível solicitar encomendas?","Consulte previamente a disponibilidade com a equipe."]];
 export function BuilderV2TP3Model3({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [special,setSpecial]=useState(0),[step,setStep]=useState(0),[quote,setQuote]=useState(0),[faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[message,setMessage]=useState(""),[notice,setNotice]=useState("");
@@ -53,7 +38,7 @@ export function BuilderV2TP3Model3({site,publishedMode=false}:{site:BuilderV2Sit
  const strongBriefMatch=niches.find(c=>c[0].test(briefing));
  const familyCategory=resolveTP3FoodCategory(site);
  const config=isTruck?niches.find(c=>c[1]==="Food truck")!:isJapanese?niches.find(c=>c[1]==="Comida japonesa")!:niches.find(c=>c[1]===familyCategory)||strongBrandMatch||strongBriefMatch||niches[13];
- const niche=config[1],images=external[config[3]]||external.dining;
+ const niche=config[1];
  // External editorial imagery only; the builder's internal image bank is deliberately not consulted.
  const photo=(i:number)=>isTruck?truckPhoto(i):isJapanese?japaneseTP3Photo(i,3,1600):tp3FamilyInternetPhoto(familyCategory,3,i,1600);
  const fallbackPhoto=isTruck?truckPhoto(2):isJapanese?japaneseTP3Photo(0,3,1600):tp3FamilyInternetPhoto(familyCategory,3,24,1600);
