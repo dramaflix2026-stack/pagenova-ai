@@ -3,6 +3,7 @@ import { HeroModeloUm } from "./hero-modelo-um";
 import { LandingGallery } from "./landing-gallery";
 import { EcosystemSection } from "./ecosystem-section";
 import { AudienceSection } from "./audience-section";
+import { PricingSection } from "./pricing-section";
 
 export const metadata: Metadata = {
   title: "PageNova AI | O futuro da criação digital",
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function TestePage() {
-  return <><HeroModeloUm /><LandingGallery /><EcosystemSection /><AudienceSection /></>;
+  return <><HeroModeloUm /><LandingGallery /><EcosystemSection /><AudienceSection /><PricingSection /></>;
 }
