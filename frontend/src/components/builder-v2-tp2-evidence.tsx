@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import "./builder-v2-tp2-evidence.css";
 import type {BuilderV2SiteData} from "./builder-v2-site";
 import {universalBlockProps} from "./builder-v2-universal-bindings";
 type Footer={address?:string;email?:string;whatsapp?:string};
@@ -28,21 +29,41 @@ function Count({value}:{value:number}){
  },[value]);
  return <span ref={node} aria-label={String(value)}>{display.toLocaleString("pt-BR")}</span>;
 }
+/** Genuine business metrics are displayed only when the user explicitly supplies numeric evidence. */
+export function hasTP2VerifiedMetrics(provided:readonly (string|undefined)[]=[]):boolean{
+ return provided.some(entry=>{
+  const raw=String(entry||"").trim();
+  if(/ilustrativ|fict[ií]ci|demonstra|exemplo|cadastrar|preencher|ser[aã]o apresentad|n[aã]o informado/i.test(raw))return false;
+  const match=raw.match(/^(\d{1,6})\s*\+?\s*[-–—:]?\s+(.{4,75})$/);
+  return !!match&&Number(match[1])>0;
+ });
+}
 export function TP2EvidenceNumbers({services,steps,faqs,provided=[]}:{services:number;steps:number;faqs:number;provided?:readonly (string|undefined)[]}){
  const actual=provided.flatMap(entry=>{
-  const value=String(entry||"").trim();
-  if(/ilustrativ|fict[ií]ci|demonstra|exemplo|cadastrar|preencher|ser[aã]o apresentad/i.test(value))return [];
-  const match=value.match(/^(\d{1,6})\s*\+?\s*[-–—:]?\s+(.{4,75})$/);
-  return match?[{value:Number(match[1]),label:match[2]}]:[];
+  const raw=String(entry||"").trim();
+  if(/ilustrativ|fict[ií]ci|demonstra|exemplo|cadastrar|preencher|ser[aã]o apresentad|n[aã]o informado/i.test(raw))return [];
+  const match=raw.match(/^(\d{1,6})\s*\+?\s*[-–—:]?\s+(.{4,75})$/);
+  return match&&Number(match[1])>0?[{value:Number(match[1]),label:match[2]}]:[];
  }).slice(0,4);
- const items=actual.length?actual:[{value:services,label:"Especialidades apresentadas"},{value:steps,label:"Etapas mostradas neste site"},{value:faqs,label:"Perguntas frequentes respondidas"}];
- return <div data-tp2-proof="numbers" className="w-full max-w-6xl mt-10">
-  <span className="mb-5 block text-xs font-extrabold uppercase tracking-[.15em] opacity-75">{actual.length?"INDICADORES INFORMADOS PELA EMPRESA":"ESTRUTURA DESTA APRESENTAÇÃO"}</span>
-  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">{items.map((item,i)=><article key={i} className="min-w-0 rounded-xl border border-current/20 bg-white/10 p-6">
-   <strong className="block text-[clamp(40px,6vw,76px)] leading-none tracking-[-.05em] tabular-nums"><Count value={item.value}/></strong>
-   <p className="mt-5 text-sm font-semibold leading-6">{item.label}</p>
-  </article>)}</div>
-  <p className="mt-6 text-xs leading-6 opacity-75">{actual.length?"Indicadores fornecidos no projeto; confirme sua veracidade antes de publicar.":"Estes números representam itens existentes no site, não resultados comerciais nem projetos executados pela empresa."}</p>
+ if(!actual.length){
+  const pillars=[
+   {title:"Escuta e diagnóstico",text:"Compreender o contexto, as necessidades e as prioridades antes de definir o caminho."},
+   {title:"Planejamento com propósito",text:"Organizar as etapas e considerar alternativas adequadas a cada projeto."},
+   {title:"Clareza no processo",text:"Apresentar as possibilidades com transparência e atenção aos detalhes."}
+  ];
+  return <div data-tp2-proof="numbers" data-tp2-mode="approach" className="pntp2-approach">
+   <p className="pntp2-approach-kicker">O QUE ORIENTA NOSSA ABORDAGEM</p>
+   <div className="pntp2-approach-grid">{pillars.map((pillar,i)=><article key={pillar.title}>
+    <span className="pntp2-approach-index">0{i+1} / NOSSO COMPROMISSO</span>
+    <h3>{pillar.title}</h3><p>{pillar.text}</p>
+   </article>)}</div>
+   <p className="pntp2-approach-note">Indicadores de projetos realizados, clientes atendidos e experiência serão exibidos somente quando a empresa fornecer dados verificáveis.</p>
+  </div>;
+ }
+ return <div data-tp2-proof="numbers" data-tp2-mode="verified" className="pntp2-evidence">
+  <span className="pntp2-approach-kicker">INDICADORES INFORMADOS PELA EMPRESA</span>
+  <div className="pntp2-number-grid">{actual.map((item,i)=><article key={i}><strong><Count value={item.value}/></strong><p>{item.label}</p></article>)}</div>
+  <p className="pntp2-approach-note">Indicadores declarados pela empresa. Confirme a veracidade antes de publicar.</p>
  </div>;
 }
 type Story={name:string;role:string;quote:string;portrait:string;demo:boolean};
@@ -77,14 +98,14 @@ export function TP2ContactMap({footer,publishedMode=false}:{footer?:Footer;publi
 export function TP2PremiumFooterBody({brand,footer,home="#inicio",headlineBlock}:{brand:string;footer?:Footer;home?:string;headlineBlock?:BuilderV2SiteData["blocks"][number]}){
  const phone=whatsapp(footer);
  return <div data-tp2-proof="premium-footer" className="w-full bg-[#15201c] px-6 pb-7 pt-14 text-[#f7f2e9] md:px-14 md:pt-20">
-  <div className="mx-auto max-w-7xl">
-   <div className="grid gap-6 border-b border-white/20 pb-12 md:grid-cols-[1fr_auto] md:items-end"><div><span className="text-xs font-bold tracking-[.2em] text-[#d9bb98]">DESIGN · PROJETO · POSSIBILIDADES</span><h2 className="mt-5 max-w-4xl break-words text-[clamp(32px,5vw,75px)] font-extrabold leading-[1.08] tracking-[-.05em]" {...universalBlockProps(headlineBlock)}>{headlineBlock?.text||<>Seu próximo projeto começa <em className="font-serif font-normal text-[#d9bb98]">com uma conversa.</em></>}</h2></div><a href={home} className="text-xs font-bold text-[#e8dbca]">Voltar ao topo ↑</a></div>
-   <div className="grid gap-9 py-12 sm:grid-cols-2 lg:grid-cols-3">
-    <div><h3 className="mb-5 text-xs font-bold tracking-[.15em] text-[#d9bb98]">EXPLORAR</h3><nav aria-label="Navegação do rodapé" className="flex flex-col gap-3 text-sm"><a href={home}>Início ↗</a><a href="#sobre">Sobre ↗</a><a href="#especialidades">Especialidades ↗</a><a href="#projetos">Projetos ↗</a><a href="#contato">Contato ↗</a></nav></div>
-    <div className="min-w-0"><h3 className="mb-5 text-xs font-bold tracking-[.15em] text-[#d9bb98]">FALE CONOSCO</h3><div className="flex flex-col gap-3 text-sm break-all">{footer?.email&&<a href={"mailto:"+footer.email}>{footer.email}</a>}{phone&&<a href={phone} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>}{!footer?.email&&!phone&&<a href="#contato">Cadastrar canal de contato ↗</a>}</div></div>
-    <div><h3 className="mb-5 text-xs font-bold tracking-[.15em] text-[#d9bb98]">LOCALIZAÇÃO</h3><p className="text-sm leading-6 opacity-80">{footer?.address||"Endereço ainda não cadastrado."}</p><a href="#contato" className="mt-3 inline-block text-sm">Contato e localização ↗</a></div>
+  <div className="pntp2-footer-shell">
+   <div className="pntp2-footer-head border-b border-white/20 pb-12"><div><span className="text-xs font-bold tracking-[.2em] text-[#d9bb98]">DESIGN · PROJETO · POSSIBILIDADES</span><h2 className="pntp2-footer-headline" {...universalBlockProps(headlineBlock)}>{headlineBlock?.text||<>Seu próximo projeto começa <em className="font-serif font-normal text-[#d9bb98]">com uma conversa.</em></>}</h2></div><a href={home} className="pntp2-footer-top-link text-xs font-bold text-[#e8dbca]">Voltar ao topo ↑</a></div>
+   <div className="pntp2-footer-columns py-12">
+    <div><h3 className="pntp2-footer-column-title">EXPLORAR</h3><nav aria-label="Navegação do rodapé" className="flex flex-col gap-3 text-sm"><a href={home}>Início ↗</a><a href="#sobre">Sobre ↗</a><a href="#especialidades">Especialidades ↗</a><a href="#projetos">Projetos ↗</a><a href="#contato">Contato ↗</a></nav></div>
+    <div className="min-w-0"><h3 className="pntp2-footer-column-title">FALE CONOSCO</h3><div className="pntp2-footer-contact text-sm">{footer?.email&&<a href={"mailto:"+footer.email}>{footer.email}</a>}{phone&&<a href={phone} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>}{!footer?.email&&!phone&&<a href="#contato">Cadastrar canal de contato ↗</a>}</div></div>
+    <div><h3 className="pntp2-footer-column-title">LOCALIZAÇÃO</h3><p className="text-sm leading-6 opacity-80">{footer?.address||"Endereço ainda não cadastrado."}</p><a href="#contato" className="mt-3 inline-block text-sm">Contato e localização ↗</a></div>
    </div>
-   <strong className="block max-w-full break-words text-[clamp(32px,8vw,112px)] font-extrabold leading-[1.08] tracking-[-.06em]">{brand}</strong>
+   <strong className="pntp2-footer-brand">{brand}</strong>
    <div className="mt-9 flex flex-wrap justify-between gap-4 border-t border-white/20 pt-6 text-xs text-[#d7cfc3]"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>Projetos com propósito.</span></div>
   </div>
  </div>;

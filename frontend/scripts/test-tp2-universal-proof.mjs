@@ -12,7 +12,13 @@ test("TP2 all 3 have metrics, five testimonial slots, contact map and premium fo
  assert.match(shared,/sample\.slice\(0,Math\.max\(0,5-real\.length\)\)/);
  assert.match(shared,/publishedMode\?\[\]/);
  assert.match(shared,/RELATO FICTÍCIO/);
- assert.match(shared,/não resultados comerciais/);
+ assert.match(shared,/n[aã]o resultados comerciais|não projetos executados|não representam clientes/);
+ assert.match(shared,/data-tp2-mode="approach"/);
+ assert.match(shared,/data-tp2-mode="verified"/);
+ assert.match(shared,/hasTP2VerifiedMetrics/);
+ assert.doesNotMatch(shared,/Especialidades apresentadas|Perguntas frequentes respondidas/);
+ assert.match(shared,/pntp2-footer-columns/);
+ assert.match(shared,/pntp2-footer-column-title/);
  assert.match(shared,/universalBlockProps\(headlineBlock\)/);
  assert.match(models[1],/headlineBlock=\{footerParagraph\|\|footerHeading\}/);
  assert.match(models[2],/headlineBlock=\{footerHeading\|\|footerParagraph\}/);
