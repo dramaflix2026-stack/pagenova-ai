@@ -47,15 +47,15 @@ test("Japanese imagery overrides all generic generated categories, preserving ve
   assert.match(source,/isJapanese=!isTruck&&isJapaneseTP3Site\(site\)/);
   assert.match(source,new RegExp("isJapanese\\?japaneseTP3Photo\\(i,"+variant));
   assert.match(source,/isJapanese\?japaneseTP3OwnerImage\(site/);
-  assert.match(source,/!isJapanese\|\|b\.userUploaded===true\|\|site\.crmImported===true/);
+  assert.match(source,/tp3TrustedBlockImage\(site,b\)/);
   assert.match(source,/isJapanese\?japaneseTP3Photo\(0/);
   assert.match(source,/isJapanese\?niches\.find\(/);
   assert.match(source,/isTruck\?/);
  }
- assert.match(model2,/photo\(isJapanese\?i\+12:i\+6\)/);
- assert.match(model2,/photo\(isJapanese\?i\+19:i\+10\)/);
- assert.match(model3,/photo\(isJapanese\?14:6\)/);
- assert.match(model3,/photo\(isJapanese\?i\+15:i\+7\)/);
+ assert.match(model2,/photo\(i\+12\)/);
+ assert.match(model2,/photo\(i\+19\)/);
+ assert.match(model3,/photo\(isJapanese\?14:19\)/);
+ assert.match(model3,/photo\(isJapanese\?i\+15:i\+20\)/);
 });
 
 test("Four matching photo testimonials on both models, with fictional endorsements hidden on publication",()=>{
@@ -95,7 +95,7 @@ test("Numbers use real content counts or available values, animate on entering v
 test("Japanese location and WhatsApp appear in both models without false public addresses",()=>{
  for(const variant of [2,3]){
   const source=sourceOf(variant);
-  assert.match(source,new RegExp("isJapanese&&<JapaneseTP3Location site=\\{site\\} publishedMode=\\{publishedMode\\} variant=\\{"+variant+"\\}"));
+  assert.match(source,new RegExp("isJapanese\\?<JapaneseTP3Location site=\\{site\\} publishedMode=\\{publishedMode\\} variant=\\{"+variant+"\\}"));
  }
  assert.ok(shared.includes("data-japanese-tp3-location={variant}"));
  assert.match(shared,/Mapa ilustrativo de São Paulo/);

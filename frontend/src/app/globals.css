@@ -1993,3 +1993,88 @@ body footer.pn-japanese-footer .pn-japanese-footer-grid a:hover {color:#f4cc95 !
     font-size:clamp(30px,8vw,42px) !important;
   }
 }
+
+
+/* TP3 family-wide layout contract. The legacy selector "body footer > div:first-child"
+   previously forced four columns with !important on every food-template footer.
+   This rule fixes the source of the recurring visual bug for ALL TP3 niches,
+   not only the previously patched Japanese niche. */
+body footer.pn-tp3-footer {
+  box-sizing:border-box !important;
+  background:#142019 !important;
+  color:#fff9ed !important;
+  overflow-x:clip !important;
+  padding:clamp(36px,5vw,76px) clamp(20px,5vw,76px) 28px !important;
+}
+body footer.pn-tp3-footer > .pn-tp3-footer-shell:first-child {
+  display:block !important;
+  grid-template-columns:none !important;
+  width:100% !important;
+  max-width:1160px !important;
+  margin:0 auto !important;
+  min-width:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  gap:0 !important;
+}
+body footer.pn-tp3-footer .pn-tp3-footer-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1.45fr) minmax(0,.7fr) minmax(0,.95fr) !important;
+  gap:clamp(24px,3.5vw,56px) !important;
+  align-items:start !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+body footer.pn-tp3-footer .pn-tp3-footer-grid > div {
+  min-width:0 !important;
+  max-width:100% !important;
+}
+body footer.pn-tp3-footer .pn-tp3-footer-grid h2 {
+  font-family:Georgia,serif !important;
+  color:#fff9ed !important;
+  font-size:clamp(30px,3.3vw,52px) !important;
+  font-weight:600 !important;
+  line-height:1.14 !important;
+  overflow-wrap:normal !important;
+  word-break:normal !important;
+  hyphens:none !important;
+  letter-spacing:-.025em !important;
+}
+body footer.pn-tp3-footer .pn-tp3-footer-grid h3 {
+  color:#f2c394 !important;
+  font-size:14px !important;
+  line-height:1.4 !important;
+  word-break:normal !important;
+}
+body footer.pn-tp3-footer .pn-tp3-footer-grid a,
+body footer.pn-tp3-footer .pn-tp3-footer-grid p {
+  line-height:1.7 !important;
+  word-break:normal !important;
+  overflow-wrap:break-word !important;
+}
+@media (min-width:701px) and (max-width:980px) {
+  body footer.pn-tp3-footer .pn-tp3-footer-grid {
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  }
+  body footer.pn-tp3-footer .pn-tp3-footer-grid > div:first-child {
+    grid-column:1/-1 !important;
+  }
+}
+@media (max-width:700px) {
+  body footer.pn-tp3-footer .pn-tp3-footer-grid {
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:30px !important;
+  }
+  body footer.pn-tp3-footer .pn-tp3-footer-grid h2 {
+    font-size:clamp(29px,8vw,42px) !important;
+  }
+}
+/* Enforce readable copy on the M1 contact panel even when the site has
+   legacy palette overrides from a generated briefing. */
+body [data-tp3-model="01"] section.pn-tp3-m1-contact {
+  background:#34281e !important;
+  color:#fff8ee !important;
+}
+body [data-tp3-model="01"] section.pn-tp3-m1-contact h2 {
+  color:#fff8ee !important;
+}

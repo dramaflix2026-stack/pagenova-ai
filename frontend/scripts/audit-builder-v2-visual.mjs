@@ -22,7 +22,7 @@ const external=args.includes("--external-server");
 const models=["01","02","03"];
 const screens=[{name:"mobile",width:390,height:844},{name:"desktop",width:1440,height:900}];
 const all=BRIEFING_TEMPLATE_FAMILIES.flatMap(f=>f.niches.map(niche=>({family:f.id,niche})));
-const important=new Set(["Comida japonesa","Padaria","Food truck","Barbearia","Estúdio de maquiagem","Materiais de construção","Perfumaria e cosméticos"]);
+const important=new Set(["Comida japonesa","Pizzaria","Padaria","Food truck","Barbearia","Estúdio de maquiagem","Materiais de construção","Perfumaria e cosméticos"]);
 const chosen=full?all:all.filter(item=>important.has(item.niche)||BRIEFING_TEMPLATE_FAMILIES.some(f=>f.id===item.family&&f.niches[0]===item.niche));
 const slug=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const safe=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -97,6 +97,57 @@ try{
         if(audit.unloaded)record.warnings.push(audit.unloaded+" images not yet loaded");
         if(audit.repeated.length)record.warnings.push(audit.repeated.length+" repeated photo URLs");
         const isJapanese=item.family===3&&/japones|sushi/i.test(slug(item.niche));
+        const isGeneralTP3=item.family===3&&!isJapanese&&!/food-truck/.test(slug(item.niche));
+        if(isGeneralTP3){
+          // Shared TP3 contract must be visible in the actual rendered page,
+          // not merely present as JSX strings in the source code.
+          for(const section of ["sobre","especialidades","galeria","numeros","depoimentos","faq","localizacao","rodape"]){
+            if(!record.sections.includes(section))record.errors.push("TP3 "+item.niche+" M"+model+" missing "+section);
+          }
+          const reviews=page.locator('[data-tp3-family-reviews] blockquote');
+          if(await reviews.count()!==4)record.errors.push("TP3 preview should render four labeled demo review cards");
+          const figures=page.locator('[data-tp3-family-numbers] strong[aria-label]');
+          if(await figures.count()!==3)record.errors.push("TP3 business metrics missing or unanimated");
+          const disclaimer=page.locator('[data-tp3-family-numbers] p').first();
+          if(!await disclaimer.count())record.errors.push("TP3 sample business figures not identified as illustrative");
+          const photos=page.locator("#galeria img");
+          if(await photos.count()<6)record.errors.push("TP3 gallery has fewer than six photos");
+          const footer=page.locator("[data-tp3-family-footer]");
+          if(await footer.count()!==1){
+            record.errors.push("TP3 footer missing");
+          }else{
+            const box=await footer.evaluate(el=>{
+              const shell=el.querySelector(".pn-tp3-footer-shell");
+              const grid=el.querySelector(".pn-tp3-footer-grid");
+              const first=grid?.firstElementChild;
+              return {display:shell?getComputedStyle(shell).display:null,
+                outer:el.getBoundingClientRect().width,
+                shell:shell?.getBoundingClientRect().width||0,
+                first:first?.getBoundingClientRect().width||0,
+                cols:grid?getComputedStyle(grid).gridTemplateColumns.split(/\s+/).filter(Boolean).length:0};
+            });
+            if(box.display!=="block")record.errors.push("TP3 footer outer shell still hijacked by global CSS");
+            if(box.outer&&box.shell/box.outer<.65)record.errors.push("TP3 footer outer shell compressed");
+            if(device.name==="desktop"&&box.first<250)record.errors.push("TP3 footer brand column compressed");
+            if(box.cols!==(device.name==="desktop"?3:1))record.errors.push("TP3 footer grid columns incorrect");
+          }
+          if(/pizzaria|pizza/.test(slug(item.niche))){
+            const urls=await page.evaluate(()=>[...document.images].map(img=>img.currentSrc||img.src));
+            const wrong=urls.filter(url=>/photo-1509440159596-0249088772ff|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73|photo-1555507036-ab1f4038808a|photo-1567620905732-2d1ec7ab7445/.test(url));
+            if(wrong.length)record.errors.push("Pizzaria still showing bakery, French toast or pancake images");
+          }
+          if(model==="01"){
+            const wrongContrast=await page.locator(".pn-tp3-m1-contact").evaluate(el=>{
+              const text=el.querySelector("h2");
+              const bg=getComputedStyle(el).backgroundColor;
+              const fg=text?getComputedStyle(text).color:"";
+              const b=bg.match(/\d+/g)?.map(Number)||[];
+              const f=fg.match(/\d+/g)?.map(Number)||[];
+              return b.length<3||f.length<3||b[0]>110||f[0]<150;
+            }).catch(()=>true);
+            if(wrongContrast)record.errors.push("M1 contact title has incorrect contrast/background");
+          }
+        }
         if(isJapanese&&model==="01"){
           // Exercise actual navigation, not only a source-code/text check.
           // Verify the menu is collapsed by default on both mobile and desktop.

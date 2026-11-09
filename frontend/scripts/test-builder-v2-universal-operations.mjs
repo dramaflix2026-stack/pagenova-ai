@@ -189,7 +189,7 @@ test("public site renderer accepts the same minimum block count as publication A
 test("TP3 model 01 hero consumes edited heading, image and CTA blocks",()=>{
  const component=readFileSync(new URL("../src/components/builder-v2-tp3-model1.tsx",import.meta.url),"utf8");
  assert.match(component,/heroHeading\|\|/);
- assert.match(component,/src=\{heroImage\|\|image\(0\)\}/);
+ assert.match(component,/src=\{heroImage\|\|photo\(0\)\}/);
  assert.match(component,/href=\{heroButton\?\.href\|\|"#especialidades"\}/);
  assert.match(component,/heroButton\?\.text\|\|/);
 });
@@ -199,9 +199,10 @@ test("TP3 model 01 uses section-scoped editable content with design fallbacks",(
  assert.match(component,/const specialtyBlocks=sectionBlocks/);
  assert.match(component,/const historyBlocks=sectionBlocks/);
  assert.match(component,/const galleryBlocks=sectionBlocks/);
- assert.match(component,/specialtyImages\[i\]\|\|image\(i\+1\)/);
+ assert.match(component,/specialtyImages\[i\]\|\|photo\(i\+1\)/);
  assert.match(component,/sectionText\(historyBlocks,"paragraph"\)/);
- assert.match(component,/galleryImages\[\[6,7,3\]\.indexOf\(i\)\]/);
+ assert.match(component,/galleryImages\[index\]\|\|photo\(i\)/);
+ assert.match(component,/\[6,7,8,9,10,11\]/);
 });
 
 test("TP3 models 02 and 03 honor customer hero imagery and CTA",()=>{
@@ -224,7 +225,7 @@ test("TP3 models 02 and 03 render section-scoped customer imagery",()=>{
  }
  // Other gastronomy niches retain their original gallery positions;
  // Japanese restaurants use distinct curated slots to avoid repeated bakery photos.
- assert.match(second,/galleryImages\[i\]\|\|photo\(isJapanese\?i\+12:i\+6\)/);
+ assert.match(second,/galleryImages\[i\]\|\|photo\(i\+12\)/);
  assert.match(second,/isJapanese\?japaneseTP3Photo\(i,2\)/);
  assert.match(third,/specialtyImages\[special\]\|\|photo\(special\+2\)/);
 });
