@@ -4,6 +4,13 @@
 .pn9-glow-right{right:-10%;background:radial-gradient(ellipse,#92ff3d3d,transparent 70%)}
 .pn9-half{position:absolute;top:7%;width:min(31.5vw,620px);height:auto;aspect-ratio:580/630;overflow:hidden;will-change:transform;animation:pn9-float 8s ease-in-out infinite alternate}
 .pn9-half img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;max-width:none;image-rendering:auto;user-select:none}
+/* Alpha fades blend the actual raster artwork with the continuous page background.
+   The parent retains its independent left/right horizontal mask. */
+.pn9-desktop .pn9-half img{
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.28) 5%,#000 15%,#000 84%,rgba(0,0,0,.72) 90%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.28) 5%,#000 15%,#000 84%,rgba(0,0,0,.72) 90%,transparent 100%);
+}
+
 .pn9-left{left:-1%;-webkit-mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%)}
 .pn9-right{right:-1%;animation-delay:-4s;-webkit-mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%)}
 .pn9-text-shield{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse 33% 64% at 50% 45%,#07140cfb 12%,#07140ce8 52%,#07140c7d 77%,transparent 100%)}

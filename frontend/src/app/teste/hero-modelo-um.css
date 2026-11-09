@@ -17,12 +17,15 @@
 .pn-premium-glow-left{top:4%;left:-38%;background:radial-gradient(ellipse,#68ff143c,transparent 68%)}
 .pn-premium-glow-right{bottom:-3%;right:-40%;background:radial-gradient(ellipse,#88ff1f29,transparent 70%)}
 .pn-premium-header{
-  background:linear-gradient(180deg,rgba(9,26,15,.45),rgba(9,26,15,.22));
-  border-bottom-color:rgba(155,255,120,.095);
+  /* Reduce the navbar-only tint: the page's underlying glow continues below it. */
+  background:linear-gradient(180deg,rgba(9,26,15,.12),transparent);
+  border-bottom-color:rgba(155,255,120,.045);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
 }
 .pn-premium-header:before{
   content:"";position:absolute;inset:0;pointer-events:none;
-  background:radial-gradient(ellipse 76% 180% at 50% 100%,rgba(74,166,56,.11),transparent 84%);
+  background:radial-gradient(ellipse 100% 190% at 50% 0%,rgba(74,166,56,.025),transparent 88%);
 }
 .pn-premium-stage{isolation:isolate}
 @media(min-width:1024px){.pn-premium-stage{min-height:790px;padding-top:54px;padding-bottom:60px}
@@ -67,6 +70,15 @@
 .pn-premium-stage{background:transparent}
 .pn-premium-benefits{background:transparent}
 @media(max-width:639px){
-  .pn-premium-header{background:linear-gradient(180deg,rgba(9,26,15,.55),rgba(9,26,15,.22))}
+  .pn-premium-header{background:linear-gradient(180deg,rgba(9,26,15,.14),transparent)}
   .pn-premium-arc{opacity:.12}
+}
+
+/* Ambient illumination lives on the full Hero rather than stopping with the image panels. */
+.pn-premium-hero{
+  background:
+    radial-gradient(ellipse 95% 52% at 50% 0%,rgba(59,123,55,.20),transparent 78%),
+    radial-gradient(ellipse 42% 80% at -8% 36%,rgba(82,185,39,.13),transparent 80%),
+    radial-gradient(ellipse 42% 80% at 108% 36%,rgba(82,185,39,.13),transparent 80%),
+    linear-gradient(180deg,#0a190f 0%,#08170e 37%,#0a1b10 76%,#0b190f 100%);
 }
