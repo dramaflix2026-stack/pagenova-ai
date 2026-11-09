@@ -49,3 +49,7 @@
 .tp4m2 .tp4m2-numbers .pn-dental-kpi-grid .pn-dental-kpi>span:last-child,.tp4m3 .m3-number-grid .pn-dental-kpi-grid .pn-dental-kpi>span:last-child{font-size:13px}
 @media(max-width:1000px){.tp4m2 .tp4m2-numbers{display:block}.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.tp4m2 .tp4m2-dental-map{grid-column:1/-1;width:100%;min-width:0}.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,4vw,65px)}
+.tp4m2 .tp4m2-dental-map .pn-dental-location{margin-top:10px}
+@media(max-width:800px){.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){grid-template-columns:1fr}.tp4m2 .tp4m2-dental-map{grid-column:1}}
