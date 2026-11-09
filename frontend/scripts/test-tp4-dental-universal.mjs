@@ -163,7 +163,7 @@ test("2026-11-09 approved dental models 1/2/3 are FROZEN at exact Git blob hashe
  assert.equal(lock.status,"frozen");
  assert.equal(Object.keys(lock.files).length,6);
  for(const [filename,approvedSha] of Object.entries(lock.files)){
-  const bytes=readFileSync(resolve(root,filename));
+  const bytes=readFileSync(path.resolve(root,filename));
   const gitSha=createHash("sha1").update("blob "+bytes.length+"\0").update(bytes).digest("hex");
   assert.equal(gitSha,approvedSha,
    filename+" deviated from USER-APPROVED dentistry design. Revert the change, or request explicit re-approval and update the freeze baseline.");
