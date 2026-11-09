@@ -146,6 +146,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
  if(extra){
   const sectionId=resolveUniversalSection(site,extra[1]);
   if(!sectionId)return fail("Não foi possível identificar a seção dos cards. Nenhuma alteração aplicada.");
+  const cardDescription=extra[3].trim().replace(/^[\'"“]|[\'"”]$/g,"").trim();
   const slug=normalized(extra[2]).replace(/[^a-z0-9]+/g,"-");
   const id="universal-extra-card-"+slug;
   if(!unique(site,id))return fail("O card já existe. Nenhuma alteração aplicada.");
@@ -154,7 +155,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   if(requestedPhoto&&!image)return fail("Não encontrei uma foto real verificada para o card. Nada foi alterado.");
   const anchor=site.blocks.filter(b=>b.section===sectionId).at(-1);
   if(!anchor)return fail("Seção sem cards editáveis. Nenhuma alteração aplicada.");
-  const applied=applyUniversalOperations(site,[{action:"add",afterId:anchor.id,block:{id,type:"paragraph",section:sectionId,layout:"grid",text:extra[2]+": "+extra[3]}}]);
+  const applied=applyUniversalOperations(site,[{action:"add",afterId:anchor.id,block:{id,type:"paragraph",section:sectionId,layout:"grid",text:extra[2]+": "+cardDescription}}]);
   if(!applied.ok)return applied;
   const blocks=[...applied.site.blocks];
   if(image)blocks.splice(blocks.findIndex(b=>b.id===id)+1,0,{id:id+"-image",section:sectionId,type:"image",text:extra[2],src:image,userUploaded:true,forCardId:id});
