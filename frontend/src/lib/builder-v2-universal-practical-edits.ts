@@ -75,7 +75,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   return {ok:true,site:{...result.site,universalSectionStyles:{...styles,[section]:{...styles[section],heroCenter:true}}} as T,changedIds:[...result.changedIds,"section-style:"+section]};
  }
  // Explicit ordinal replacement with verified real internet photo; no generated AI asset.
- const photoRequest=text.match(/^(?:(?:na|no)\s+se[cç][aã]o\s+([^,]{2,100}),\s*)?(?:substitua|troque|altere)\s+(?:somente\s+|apenas\s+)?a\s+(primeira|segunda|terceira|quarta|quinta|sexta|\d{1,2}[ªº°]?)\s+(?:foto|fotografia|imagem)\s+(?:por|para)\s+([\s\S]+)/i);
+ const photoRequest=text.match(/^(?:(?:na|no)\s+se[cç][aã]o\s+([^,]{2,100}),\s*)?(?:substitua|troque|altere)\s+(?:somente\s+|apenas\s+)?a\s+(primeira|segunda|terceira|quarta|quinta|sexta|\d{1,2}[ªº°]?)\s+(?:foto|fotografia|imagem)(?:\s+(?:da|de|do)\s+(?:galeria|se[cç][aã]o\s+[\p{L}\s-]{2,70}))?\s+(?:por|para)\s+([\s\S]+)/i);
  if(photoRequest){
   const section=resolveUniversalSection(site,photoRequest[1]||"galeria");
   if(!section)return fail("A seção da fotografia não foi localizada. Nenhuma imagem foi removida.");
@@ -101,7 +101,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   if(site.blocks.some(b=>b.section===sectionId))return fail("A seção '"+section[1]+"' já existe. Nenhuma alteração aplicada.");
   const heading=rest.match(/(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo\s+['"“]([^'"”]{2,300})['"”]/i)?.[1];
   if(!heading)return fail("Não identifiquei o título da nova seção. Nenhuma alteração aplicada.");
-  const description=rest.match(/(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?sobre\s+([^.,]{4,100})/i)?.[1];
+  const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+)sobre\s+([^.,]{4,100})/i)?.[1];
   const textBody=description&&/encomenda/i.test(description)
    ?"Encomendas artesanais para celebrar momentos especiais. Entre em contato para conhecer as opções e confirmar disponibilidade."
    :description?"Conheça nossa proposta para "+description.trim()+". Consulte os detalhes e a disponibilidade diretamente com a equipe.":null;
