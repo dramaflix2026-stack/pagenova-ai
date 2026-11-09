@@ -53,3 +53,67 @@
 .tp4m2 .tp4m2-dental-map{grid-column:1/-1;width:100%;min-width:0}.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,4vw,65px)}
 .tp4m2 .tp4m2-dental-map .pn-dental-location{margin-top:10px}
 @media(max-width:800px){.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){grid-template-columns:1fr}.tp4m2 .tp4m2-dental-map{grid-column:1}}
+
+
+/* Dental footer v2. Branding spans full content width before columns. This
+ * intentionally does not reuse family footer/grid rules: desktop preview is
+ * often scaled inside a mobile screen and must never squeeze the brand
+ * into a narrow column or break its letters vertically.
+ */
+.pn-dental-footer{container-type:inline-size;container-name:pnDentalFooter;isolation:isolate}
+.pn-dental-footer .pn-dental-footer-inner{width:100%;max-width:1280px;min-width:0;box-sizing:border-box}
+.pn-dental-footer .pn-dental-footer-main{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ width:100%;min-width:0;gap:32px!important;padding:52px 0 54px!important
+}
+.pn-dental-footer .pn-dental-footer-main>.pn-dental-footer-intro{
+ display:block!important;flex:none!important;grid-column:1/-1!important;
+ width:100%!important;max-width:100%!important;min-width:0!important
+}
+.pn-dental-footer .pn-dental-footer-intro h2{
+ display:block!important;width:100%!important;max-width:100%!important;
+ margin:0 0 20px!important;
+ font:800 clamp(40px,6vw,86px)/1.08 system-ui,-apple-system,sans-serif!important;
+ letter-spacing:-.055em!important;text-transform:none!important;
+ white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;
+ text-wrap:balance;color:#fff!important
+}
+.pn-dental-footer .pn-dental-footer-intro>p{max-width:620px!important}
+.pn-dental-footer .pn-dental-footer-main>.pn-dental-footer-links{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ align-items:start!important;justify-items:start!important;
+ width:100%!important;min-width:0!important;gap:32px!important;
+ padding-top:30px;border-top:1px solid rgba(255,255,255,.17)
+}
+.pn-dental-footer .pn-dental-footer-links>div{display:flex;flex-direction:column;align-items:flex-start;gap:13px;min-width:0;max-width:100%}
+.pn-dental-footer .pn-dental-footer-links h3{margin:0 0 6px!important}
+.pn-dental-footer .pn-dental-footer-links nav{display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.pn-dental-footer .pn-dental-footer-links a,.pn-dental-footer .pn-dental-footer-links p{
+ max-width:100%;overflow-wrap:break-word;word-break:normal
+}
+/* Physical viewport queries are not sufficient in the desktop preview iframe.
+ * The container query responds to the actual width of each rendered footer. */
+@container pnDentalFooter (max-width:610px){
+ .pn-dental-footer-inner{padding:38px 6% 22px!important}
+ .pn-dental-footer-main{padding:38px 0 40px!important}
+ .pn-dental-footer-intro h2{font-size:clamp(34px,9vw,58px)!important;letter-spacing:-.045em!important}
+ .pn-dental-footer-main>.pn-dental-footer-links{grid-template-columns:1fr!important;gap:28px!important}
+ .pn-dental-footer-head,.pn-dental-footer-bottom{flex-direction:column;align-items:flex-start!important;gap:14px}
+}
+@container pnDentalFooter (min-width:611px) and (max-width:850px){
+ .pn-dental-footer-intro h2{font-size:clamp(40px,5vw,64px)!important}
+}
+/* Clearly identified dental-business numbers: no counts of template cards/photos. */
+.pn-dental-kpis .pn-dental-kpis-note{font:650 13px/1.65 system-ui,sans-serif!important;letter-spacing:0!important;margin:14px 0 26px!important;max-width:920px!important}
+.pn-dental-kpis .pn-dental-kpi{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;min-width:0;gap:0}
+.pn-dental-kpis .pn-dental-animated-num,.pn-dental-kpis .pn-dental-kpi-empty{
+ display:block!important;font:800 clamp(30px,4.5vw,65px)/1.1 system-ui,sans-serif!important;
+ font-variant-numeric:tabular-nums!important;letter-spacing:-.06em!important;white-space:nowrap!important;
+ overflow-wrap:normal!important;word-break:normal!important
+}
+.pn-dental-kpis .pn-dental-kpi-status{display:block;font:600 11px/1.4 system-ui,sans-serif;opacity:.66;margin-top:8px}
+.pn-dental-kpis .pn-dental-kpi-label{display:block;font:700 15px/1.5 system-ui,sans-serif;margin-top:15px;overflow-wrap:normal;word-break:normal}
+@media(max-width:600px){
+ .pn-dental-kpis .pn-dental-animated-num,.pn-dental-kpis .pn-dental-kpi-empty{font-size:clamp(28px,7vw,40px)!important}
+ .pn-dental-kpis .pn-dental-kpi-label{font-size:13px}
+}

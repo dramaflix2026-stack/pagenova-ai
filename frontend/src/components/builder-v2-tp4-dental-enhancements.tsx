@@ -61,18 +61,25 @@ function AnimatedNumber({target,suffix=""}:{target:number;suffix?:string}){
  },[target]);
  return <span ref={ref} className="pn-dental-animated-num" aria-label={String(target)+suffix}>{value.toLocaleString("pt-BR")}{suffix}</span>;
 }
-export function DentalMetrics({site,model}:{site:BuilderV2SiteData;model:"02"|"03"}){
- // Real practice metrics are intentionally not fabricated. These are counts of
- // sections/content in the template, clearly distinguished from clinic outcomes.
- const numbers=[
-  {target:3,label:"Especialidades ilustrativas"},
-  {target:4,label:"Perguntas frequentes"},
-  {target:model==="02"?3:4,label:"Fotografias na seção ambientes"},
-  {target:5,label:"Espaços preparados para avaliações"},
+export function DentalMetrics({site,model,publishedMode=false}:{site:BuilderV2SiteData;model:"02"|"03";publishedMode?:boolean}){
+ // These are PREVIEW-ONLY example figures. Site generation must never pretend
+ // that a dentist has treated 1,250 people or achieved a 98% approval score.
+ // The published version shows the correct business KPIs as unfilled slots
+ // until the clinic supplies verified numbers.
+ const clinic=site.header?.brand||site.title||"clínica";
+ const examples=[
+  {target:1250,suffix:"+",label:"Atendimentos realizados"},
+  {target:8,suffix:"+",label:"Anos de experiência"},
+  {target:4,suffix:"",label:"Profissionais na equipe"},
+  {target:98,suffix:"%",label:"Satisfação dos pacientes"}
  ];
- return <div className="pn-dental-kpis">
-  <p className="pn-dental-kpis-note">Indicadores do modelo — não representam atendimentos, pacientes ou resultados reais. Cadastre dados verificáveis para exibir métricas da clínica.</p>
-  <div className="pn-dental-kpi-grid">{numbers.map(item=><div className="pn-dental-kpi" key={item.label}><AnimatedNumber target={item.target}/><span>{item.label}</span></div>)}</div>
+ return <div className="pn-dental-kpis" data-dental-kpis={publishedMode?"pending":"preview-examples"} data-dental-model={model}>
+  <p className="pn-dental-kpis-note">{publishedMode?"Indicadores odontológicos: preencha com dados reais e verificáveis da clínica.":"SIMULAÇÃO PARA PERSONALIZAÇÃO — Os números abaixo são apenas exemplos fictícios de indicadores odontológicos; não representam atendimentos, pacientes ou resultados reais da "+clinic+"."}</p>
+  <div className="pn-dental-kpi-grid">{examples.map(item=><div className="pn-dental-kpi" key={item.label}>
+   {publishedMode?<strong className="pn-dental-kpi-empty" aria-label="Indicador pendente de dado verificado">—</strong>:<AnimatedNumber target={item.target} suffix={item.suffix}/>}
+   <span className="pn-dental-kpi-label">{item.label}</span>
+   <small className="pn-dental-kpi-status">{publishedMode?"Aguardando dado real":"Valor ilustrativo"}</small>
+  </div>)}</div>
  </div>;
 }
 export function DentalLocation({site}:{site:BuilderV2SiteData}){
@@ -93,9 +100,9 @@ export function DentalPremiumFooter({site,variant}:{site:BuilderV2SiteData;varia
  const phone=(site.footer?.whatsapp||"").replace(/\D/g,""),email=site.footer?.email?.trim()||"";
  return <footer className={"pn-dental-footer pn-dental-footer-"+variant}><div className="pn-dental-footer-inner">
   <div className="pn-dental-footer-head"><span className="pn-dental-footer-label">ODONTOLOGIA · CUIDADO · CONFIANÇA</span><a href={nav[0][1]} className="pn-dental-footer-up">Voltar ao topo ↑</a></div>
-  <div className="pn-dental-footer-main"><div className="pn-dental-footer-intro"><h2>{brand}</h2><p>Cada sorriso merece cuidado, informação clara e atenção em cada etapa.</p></div>
+  <div className="pn-dental-footer-main"><div className="pn-dental-footer-intro"><h2>{brand}</h2><p>Cada sorriso merece cuidado, informação clara e atenção em cada etapa.</p></div><div className="pn-dental-footer-links">
   <div><h3>Explore</h3><nav aria-label="Links do rodapé">{nav.map(([name,href])=><a href={href} key={href}>{name}</a>)}</nav></div>
-  <div><h3>Contato</h3>{email?<a href={"mailto:"+email}>{email}</a>:<p>E-mail não configurado</p>}{phone.length>=10?<a href={"https://wa.me/"+phone} target="_blank" rel="noreferrer">Conversar no WhatsApp ↗</a>:<p>WhatsApp a configurar</p>}<p>{site.footer?.address||"Endereço demonstrativo — informe sua localização"}</p></div></div>
+  <div><h3>Contato</h3>{email?<a href={"mailto:"+email}>{email}</a>:<p>E-mail não configurado</p>}{phone.length>=10?<a href={"https://wa.me/"+phone} target="_blank" rel="noreferrer">Conversar no WhatsApp ↗</a>:<p>WhatsApp a configurar</p>}<p>{site.footer?.address||"Endereço demonstrativo — informe sua localização"}</p></div></div></div>
   <div className="pn-dental-footer-bottom"><span>© {new Date().getFullYear()} {brand} · Todos os direitos reservados.</span><span>Conteúdo institucional · dados editáveis</span></div>
  </div></footer>;
 }
