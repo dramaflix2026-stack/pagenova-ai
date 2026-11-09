@@ -108,7 +108,7 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
     <UniversalTemplateSections site={site}>
     <header data-japanese-header="compact" className="sticky top-0 z-30 border-b border-[#d4cbbd] bg-[#f8f4ec]/95 backdrop-blur">
       <div ref={menuRef} className="relative mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-10 md:py-5">
-        <a href="#inicio" onClick={()=>setMenuOpen(false)} className="flex min-w-0 max-w-[calc(100%-4.5rem)] items-center gap-3 font-serif text-[clamp(1.2rem,3vw,1.85rem)] font-semibold leading-tight tracking-[-.025em] text-[#28251f]">
+        <a href="#inicio" onClick={()=>setMenuOpen(false)} className="flex min-w-0 flex-1 items-center gap-3 font-serif text-[clamp(1.2rem,3vw,1.85rem)] font-semibold leading-tight tracking-[-.025em] text-[#28251f]">
           <span className="shrink-0 text-[#a14b3e]" aria-hidden="true">◈</span>
           <span className="min-w-0 break-words">{brand}</span>
         </a>
@@ -237,7 +237,7 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
     <footer id="rodape" data-universal-section="rodape" data-japanese-footer="premium"
       className="bg-[#19241e] px-6 pb-8 pt-16 text-[#f8eee0] md:px-10 md:pt-20 lg:pt-24">
       <div className="mx-auto max-w-7xl">
-        <div className="grid min-w-0 gap-12 border-b border-[#f8eee0]/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,.7fr)_minmax(0,1fr)] md:gap-8 lg:gap-16 lg:pb-20">
+        <div className="grid min-w-0 gap-12 border-b border-[#f8eee0]/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,1fr)] md:gap-8 lg:gap-16 lg:pb-20">
           <div className="min-w-0">
             <span className="text-[11px] font-bold uppercase tracking-[.22em] text-[#d9b18a]">A experiência japonesa</span>
             <h2 className="mt-5 max-w-lg break-words font-serif text-[clamp(2rem,4vw,3.8rem)] leading-[1.12] tracking-[-.035em]">{brand}</h2>
