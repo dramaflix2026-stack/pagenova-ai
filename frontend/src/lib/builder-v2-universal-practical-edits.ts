@@ -75,15 +75,24 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   return {ok:true,site:{...result.site,universalSectionStyles:{...styles,[section]:{...styles[section],heroCenter:true}}} as T,changedIds:[...result.changedIds,"section-style:"+section]};
  }
  // Explicit ordinal replacement with verified real internet photo; no generated AI asset.
- const photoRequest=text.match(/^(?:(?:na|no)\s+se[cç][aã]o\s+([^,]{2,100}),\s*)?(?:substitua|troque|altere)\s+(?:somente\s+|apenas\s+)?a\s+(primeira|segunda|terceira|quarta|quinta|sexta|\d{1,2}[ªº°]?)\s+(?:foto|fotografia|imagem)(?:\s+(?:da|de|do)\s+(?:galeria|se[cç][aã]o\s+[\p{L}\s-]{2,70}))?\s+(?:por|para)\s+([\s\S]+)/i);
+ const photoRequest=text.match(/^(?:(?:na|no)\s+se[cç][aã]o\s+([^,]{2,100}),\s*)?(?:substitua|troque|altere)\s+(?:somente\s+|apenas\s+)?a\s+(primeira|segunda|terceira|quarta|quinta|sexta|\d{1,2}[ªº°]?)\s+(?:foto|fotografia|imagem)(?:\s+(?:da|de|do)\s+(?:galeria|se[cç][aã]o\s+[a-zA-ZÀ-ÿ\s-]{2,70}))?\s+(?:por|para)\s+([\s\S]+)/i);
  if(photoRequest){
   const section=resolveUniversalSection(site,photoRequest[1]||"galeria");
   if(!section)return fail("A seção da fotografia não foi localizada. Nenhuma imagem foi removida.");
   const ord=({primeira:0,segunda:1,terceira:2,quarta:3,quinta:4,sexta:5} as Record<string,number>)[normalized(photoRequest[2])]??(Number(photoRequest[2].replace(/\D/g,""))-1);
   const images=site.blocks.filter(b=>b.section===section&&b.type==="image");
-  if(!Number.isInteger(ord)||ord<0||ord>=images.length)return fail("A posição da fotografia não possui bloco editável. A original foi preservada.");
+  if(!Number.isInteger(ord)||ord<0||(ord>=images.length&&!(ord===0&&images.length===0)))return fail("A posição da fotografia não possui bloco editável. A original foi preservada.");
   const url=photoRequest[3].match(/https:\/\/[^\s"'“”<>]+/)?.[0]||verifiedPhoto(site,photoRequest[3]);
   if(!url)return fail("Não foi localizada uma fotografia real verificada para esse pedido. Envie uma URL HTTPS ou anexe a imagem; a foto anterior foi preservada.");
+  if(images.length===0){
+   const last=site.blocks.filter(b=>b.section===section).at(-1);
+   if(!last)return fail("A galeria não possui um destino editável. A original foi preservada.");
+   const id="universal-gallery-photo-1";
+   if(site.blocks.some(b=>b.id===id))return fail("Identificador de fotografia existente. A original foi preservada.");
+   const result=applyUniversalOperations(site,[{action:"add",afterId:last.id,block:{id,type:"image",section,src:url,text:"Fotografia real de referência"}}]);
+   if(!result.ok)return result;
+   return {ok:true,site:{...result.site,blocks:result.site.blocks.map(b=>b.id===id?{...b,userUploaded:true,imageExplicit:true}:b)} as T,changedIds:[id]};
+  }
   const original=images[ord];
   const updated=site.blocks.map(b=>b.id===original.id?{...b,src:url,userUploaded:true,imageExplicit:true}:b);
   return {ok:true,site:{...site,blocks:updated} as T,changedIds:[original.id]};
