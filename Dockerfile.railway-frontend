@@ -1,17 +1,18 @@
-# Railway frontend: full monorepo context required for CRM integration tests
+# Landing QA service only. The production frontend uses main's full QA pipeline.
 FROM node:24-bookworm-slim
+WORKDIR /workspace/frontend
+# Preserve dependency layer cache when changing landing components.
+COPY frontend/package.json frontend/package-lock.json ./
+RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 WORKDIR /workspace
 COPY . .
 WORKDIR /workspace/frontend
-RUN npm ci
-
-# Next.js embeds NEXT_PUBLIC_* variables into browser bundles at build time.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
-# Stream test and TypeScript failures directly to Railway build logs for diagnosis.
-RUN npm run build
+# Generate required build assets, skip unrelated regression tests in isolated QA only.
+RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && node scripts/build-stavo-crm.mjs && npx next build
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 EXPOSE 8000
