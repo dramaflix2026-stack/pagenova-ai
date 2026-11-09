@@ -1,0 +1,25 @@
+{
+  "lock_id": "TP4_ODONTO_APROVADO_2026_11_09",
+  "approved_on": "2026-11-09",
+  "status": "frozen",
+  "reason": "Models 1, 2 and 3 for all dentistry briefings expressly approved by the user.",
+  "approval_scope": "Only the six approved dental-specific source files. Shared universal routing may change under tests. Any change to this locked content requires a deliberate new approval + baseline update.",
+  "files": {
+    "src/components/builder-v2-tp4-model1.tsx": "d6aa704a2fbeafafad0b2010ec2920986885245f",
+    "src/components/builder-v2-tp4-model2.tsx": "a3cbc2673063388e2bdd2621acadc86a4a0a0c77",
+    "src/components/builder-v2-tp4-model3.tsx": "b49917609936a24a731dfc2ccdf460628eaf6855",
+    "src/components/builder-v2-tp4-dental-enhancements.tsx": "cd3cd7e7b22c9a9b5775b5c1b653e06d4e62fa13",
+    "src/components/builder-v2-tp4-dental-enhancements.css": "de61b12029c178f6112f55e4446a19fd38b140c0",
+    "src/lib/tp4-dental-photo-catalog.ts": "5e5ad29779b22f8b2299d600abb8fd6bdf491eff"
+  },
+  "invariants": [
+    "3 stable models selected by briefingLayoutVariant 01/02/03",
+    "6 visual demo reviews in previews, never fictional patient endorsements on published sites",
+    "real, distinct dental photos without gum/teeth error",
+    "model 1 six-image gallery",
+    "model 2 four dental team photos, animated dental KPIs without overlays",
+    "premium footer on all 3, map/address/WhatsApp on all 3",
+    "mobile/desktop layouts retained",
+    "do not affect non-dental niches"
+  ]
+}
