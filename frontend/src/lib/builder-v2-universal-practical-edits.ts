@@ -144,7 +144,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
  // Natural language append to any named set of cards, with photo if a verified source exists.
  const extra=text.match(/^(?:adicione|crie|inclua)\s+um\s+novo\s+card\s+(?:ao\s+final|no\s+fim)\s+da\s+se[cç][aã]o\s+(.+?)\s+com\s+o\s+t[ií]tulo\s+['"“]([^'"”]{2,150})['"”]\s*,?\s*(?:(?:uma|a)\s+)?descri[cç][aã]o\s+(?:profissional\s+)?(?:sobre\s+)?([\s\S]+?)(?=\s+e\s+(?:uma\s+)?(?:foto|fotografia|imagem)|\.\s*(?:utilize|use|mantenha|preserve)|$)/i);
  if(extra){
-  const sectionId=resolveUniversalSection(site,extra[1]);
+  const sectionId=resolveUniversalSection(site,extra[1].replace(/^(?:de|da|do)\s+/i,""));
   if(!sectionId)return fail("Não foi possível identificar a seção dos cards. Nenhuma alteração aplicada.");
   const cardDescription=extra[3].trim().replace(/^[\'"“]|[\'"”]$/g,"").trim();
   const slug=normalized(extra[2]).replace(/[^a-z0-9]+/g,"-");
