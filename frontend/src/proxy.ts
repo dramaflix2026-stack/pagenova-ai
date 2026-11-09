@@ -18,6 +18,11 @@ export async function proxy(request: NextRequest) {
   const customHost=Boolean(host&&host!=="pagenovaai.com.br"&&host!=="www.pagenovaai.com.br"&&
     host!=="localhost"&&host!=="127.0.0.1"&&host!=="pagenova-frontend-production.up.railway.app"&&!host.endsWith(".vercel.app")&&
     !host.endsWith(".pagenovaai.com.br"));
+  // Allow only the isolated landing QA route on the dedicated Railway
+  // domain. All other unknown-host routes retain customer-domain isolation.
+  if(host==="pagenova-landing-teste-production.up.railway.app"&&request.nextUrl.pathname==="/teste"){
+    return NextResponse.next();
+  }
   if(customHost){
     // Customer domains serve the published homepage only. Never expose the
     // PageNova dashboard, login, API, or another published site on this host.
