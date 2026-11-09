@@ -1,12 +1,27 @@
+/* Continuous page-anchored, motion-safe light circuits. Nothing is viewport-fixed. */
 .pn-test-root{position:relative;isolation:isolate;background:#08130c}
-.pn-global-light-trails{position:fixed;inset:0;z-index:35;pointer-events:none;overflow:hidden;mix-blend-mode:screen;opacity:.72;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 22%,transparent 39%,transparent 61%,#000 78%,#000 100%);mask-image:linear-gradient(90deg,#000 0%,#000 22%,transparent 39%,transparent 61%,#000 78%,#000 100%)}
-.pn-global-light-trails svg{display:block;width:100%;height:100%;overflow:visible}
-.pn-light-guide{fill:none;stroke:#9fff83;stroke-width:.75;stroke-opacity:.085;vector-effect:non-scaling-stroke}
-.pn-trail-beam{fill:none;stroke:url(#pn-trail-gradient);stroke-linecap:round;stroke-dasharray:150 850;vector-effect:non-scaling-stroke;animation:pn-light-flow-down 14s linear infinite}
-.pn-trail-blur{stroke-width:16;filter:url(#pn-trail-glow);opacity:.83}
-.pn-trail-core{stroke-width:2;opacity:.95}
-.pn-trail-right{animation-name:pn-light-flow-up;animation-duration:19s;animation-delay:-6s}
-@keyframes pn-light-flow-down{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}
-@keyframes pn-light-flow-up{from{stroke-dashoffset:-1000}to{stroke-dashoffset:0}}
-@media(max-width:767px){.pn-global-light-trails{opacity:.30;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 6%,transparent 15%,transparent 85%,#000 94%,#000 100%);mask-image:linear-gradient(90deg,#000 0%,#000 6%,transparent 15%,transparent 85%,#000 94%,#000 100%)}.pn-light-guide{stroke-opacity:0}.pn-trail-blur{stroke-width:9}.pn-trail-core{stroke-width:1.5}}
-@media(prefers-reduced-motion:reduce){.pn-trail-beam{animation:none;stroke-dashoffset:380;opacity:.35}}
+.pn-global-light-trails{
+  position:absolute;inset:0;z-index:25;
+  width:100%;pointer-events:none;overflow:hidden;isolation:isolate;
+}
+.pn-global-light-trails svg{display:block;width:100%;overflow:hidden}
+.pn-energy-guide,.pn-energy-pulse{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.pn-energy-guide{stroke:#a6ff79;stroke-width:.8;opacity:.11}
+.pn-energy-pulse{
+  stroke:#b9ff89;stroke-dasharray:25 190;stroke-dashoffset:0;
+  animation:pn-energy-travel 17s linear infinite;
+}
+.pn-energy-aura{stroke-width:13;filter:url(#pn-energy-glow);opacity:.27}
+.pn-energy-core{stroke-width:1.8;opacity:.72}
+.pn-energy-right .pn-energy-pulse{animation-delay:-8.5s;opacity:.52}
+@keyframes pn-energy-travel{from{stroke-dashoffset:0}to{stroke-dashoffset:-215}}
+@media(max-width:767px){
+  .pn-energy-guide{stroke-width:.65;opacity:.07}
+  .pn-energy-aura{stroke-width:8;opacity:.17}
+  .pn-energy-core{stroke-width:1.35;opacity:.52}
+  .pn-energy-right .pn-energy-pulse{opacity:.39}
+}
+@media(prefers-reduced-motion:reduce){
+  .pn-energy-pulse{animation:none;stroke-dashoffset:0;opacity:.20}
+  .pn-energy-aura{opacity:.10}
+}
