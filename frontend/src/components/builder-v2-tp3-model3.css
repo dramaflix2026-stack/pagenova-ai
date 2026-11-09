@@ -5,3 +5,31 @@
 .tp3m3-gallery-frame:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.85),rgba(0,0,0,.05) 75%);z-index:-1}
 .tp3m3-gallery-copy{position:relative;max-width:100%}
 @media(max-width:600px){.tp3m3-gallery{padding-top:34px}.tp3m3-gallery>.tp3m3-label{margin-bottom:20px}.tp3m3-gallery-frame{min-height:340px;padding:40px 22px}.tp3m3-gallery-frame h2{font-size:clamp(36px,9vw,52px);line-height:1.06;margin:16px 0 0}}
+
+
+/* Japanese Model 3: gold sections must use dark, high-contrast copy.
+   Generic ".tp3m3 p" assigns pale text even on the gold background. */
+.tp3m3 .tp3m3-numbers { color:#21190e; }
+.tp3m3 .tp3m3-numbers p,
+.tp3m3 .tp3m3-numbers span,
+.tp3m3 .tp3m3-numbers strong,
+.tp3m3 .tp3m3-numbers div { color:#21190e; }
+.tp3m3 .tp3m3-numbers [data-japanese-metrics-disclaimer="demo"] {
+  color:#292015 !important;
+  font-size:clamp(15px,1.15vw,18px);
+  line-height:1.7;
+  font-weight:650;
+}
+.tp3m3 .tp3m3-numbers [data-japanese-animated-numbers="3"] article > strong {
+  color:#17140f !important;
+}
+.tp3m3 .tp3m3-pillars p,
+.tp3m3 .tp3m3-pillars span,
+.tp3m3 .tp3m3-pillars h3 { color:#261a0f; }
+.tp3m3 .tp3m3-pillars h2 em { color:#3b2615; }
+.tp3m3 .tp3m3-about p,
+.tp3m3 .tp3m3-story p,
+.tp3m3 .tp3m3-testimonials > p,
+.tp3m3 .tp3m3-faq-item p { color:#e2dbce; }
+.tp3m3 .tp3m3-process-grid button small { color:#dfd3c2; }
+.tp3m3 .tp3m3-gallery-copy h2 { color:#fff8ed; text-shadow:0 1px 12px rgba(0,0,0,.38); }
