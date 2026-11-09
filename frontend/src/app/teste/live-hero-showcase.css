@@ -29,3 +29,17 @@
 .pn9-sharp-defs{position:absolute;pointer-events:none;opacity:0;overflow:hidden}
 .pn9-desktop .pn9-half img{filter:url("#pn9-unsharp-desktop") contrast(1.035) saturate(1.035)}
 .pn9-mobile .pn9-half img{filter:url("#pn9-unsharp-mobile") contrast(1.025) saturate(1.03)}
+
+/* Sharp visual replacement for the defocused background card in the approved artwork.
+   Use an actual SVG image, not a DOM recreation of the featured site cards. */
+.pn9-desktop .pn9-half img.pn9-crisp-rear-card{
+  position:absolute;z-index:1;
+  left:22%;top:11%;width:26.5%;height:35%;
+  max-width:none;object-fit:fill;
+  transform:perspective(500px) rotate(6deg) rotateY(-9deg);
+  transform-origin:50% 60%;
+  filter:drop-shadow(0 8px 17px rgba(0,0,0,.48))!important;
+  -webkit-mask-image:linear-gradient(to right,rgba(0,0,0,.96) 0%,#000 72%,rgba(0,0,0,.30) 96%,transparent 100%)!important;
+  mask-image:linear-gradient(to right,rgba(0,0,0,.96) 0%,#000 72%,rgba(0,0,0,.30) 96%,transparent 100%)!important;
+}
+@media(max-width:1200px){.pn9-desktop .pn9-half img.pn9-crisp-rear-card{left:22%;top:11%;width:27%;height:35%}}

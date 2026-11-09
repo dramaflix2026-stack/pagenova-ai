@@ -22,6 +22,10 @@ export function LiveHeroShowcase({ mobile = false }: { lang: Lang; mobile?: bool
       <div className="pn9-glow pn9-glow-right" />
       <div className="pn9-half pn9-left">
         <img src="/landing-hero/hero-left-hd.webp" alt="" decoding="async" draggable={false} fetchPriority="high"/>
+        {/* The background mockup in the original illustration was intentionally defocused.
+             Replace that specific background card with a real vector image, so its edges
+             and labels remain crisp at every desktop pixel density. */}
+        {!mobile && <img className="pn9-crisp-rear-card" src="/landing-hero/crisp-rear-card.svg" alt="" draggable={false} decoding="async" />}
       </div>
       <div className="pn9-half pn9-right">
         <img src="/landing-hero/hero-right-hd.webp" alt="" decoding="async" draggable={false} fetchPriority="high"/>
