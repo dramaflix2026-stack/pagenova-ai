@@ -49,7 +49,7 @@ test("Japanese imagery overrides all generic generated categories, preserving ve
   assert.match(source,/isJapanese\?japaneseTP3OwnerImage\(site/);
   assert.match(source,/!isJapanese\|\|b\.userUploaded===true\|\|site\.crmImported===true/);
   assert.match(source,/isJapanese\?japaneseTP3Photo\(0/);
-  assert.match(source,/isJapanese\?niches\.find\(c?=>c?\[1\]==="Comida japonesa"\)/.source? /Comida japonesa/: /Comida japonesa/);
+  assert.match(source,/isJapanese\?niches\.find\(/);
   assert.match(source,/isTruck\?/);
  }
  assert.match(model2,/photo\(isJapanese\?i\+12:i\+6\)/);
