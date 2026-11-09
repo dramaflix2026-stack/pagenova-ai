@@ -3,7 +3,7 @@ FROM node:24-bookworm-slim
 WORKDIR /workspace/frontend
 # Preserve dependency layer cache when changing landing components.
 COPY frontend/package.json frontend/package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
+RUN --mount=type=cache,id=pagenova-landing-npm,target=/root/.npm npm ci --no-audit --no-fund
 WORKDIR /workspace
 COPY . .
 WORKDIR /workspace/frontend
