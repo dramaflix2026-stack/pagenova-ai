@@ -40,12 +40,12 @@ export function EcosystemSection(){
   <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_70%_60%,rgba(182,255,105,.08),transparent_60%)]"/>
   <div className="relative mx-auto max-w-[1240px]">
    <div className="mx-auto max-w-[950px] text-center"><p className="mb-4 inline-flex items-center gap-2 text-[10px] font-bold tracking-[.16em] text-[#b6ff69] sm:text-xs"><Sparkles size={14}/>{t.kicker}</p><h2 className="text-[clamp(2.4rem,5.5vw,5.2rem)] font-extrabold leading-[1.07] tracking-[-.065em]">{t.title} <span className="text-[#b6ff69]">{t.highlight}</span></h2><p className="mx-auto mt-5 max-w-[700px] text-[15px] leading-7 text-[#b5c1b6] sm:text-lg">{t.desc}</p></div>
-   <div role="group" aria-label={t.select} className="relative z-10 mx-auto mt-9 grid max-w-[940px] grid-cols-1 gap-3 sm:grid-cols-3">{keys.map(key=>{const Icon=icons[key];return <button type="button" key={key} aria-pressed={active===key} onClick={()=>{setActive(key);setAutoplay(false)}} className={"flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-all duration-300 hover:-translate-y-1 "+(active===key?"border-[#b6ff69]/50 bg-[#b6ff69]/10":"border-white/10 bg-white/[.035] hover:border-white/30")}><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[.045]" style={{color:color[key]}}><Icon size={22}/></div><div className="min-w-0 flex-1"><strong className="block text-sm">{t.products[key].name}</strong><span className="mt-1 block text-[9px] font-bold tracking-[.08em] text-white/50">{t.products[key].label}</span></div><ChevronRight size={18} className="shrink-0 text-[#b6ff69]"/></button>})}</div>
-   <div className="relative mt-7 overflow-hidden rounded-[25px] border border-[#b6ff69]/20 bg-[#101a13] shadow-[0_30px_100px_#0009] lg:grid lg:min-h-[480px] lg:grid-cols-[.4fr_.6fr]">
+   <div role="group" aria-label={t.select} className="relative z-10 pn4-menu mx-auto mt-9 grid max-w-[940px] grid-cols-1 gap-3 sm:grid-cols-3">{keys.map(key=>{const Icon=icons[key];return <button type="button" key={key} aria-pressed={active===key} onClick={()=>{setActive(key);setAutoplay(false)}} className={"pn4-menu-button flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-all duration-300 hover:-translate-y-1 "+(active===key?"border-[#b6ff69]/50 bg-[#b6ff69]/10":"border-white/10 bg-white/[.035] hover:border-white/30")}><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[.045]" style={{color:color[key]}}><Icon size={22}/></div><div className="min-w-0 flex-1"><strong className="block text-sm">{t.products[key].name}</strong><span className="mt-1 block text-[9px] font-bold tracking-[.08em] text-white/50">{t.products[key].label}</span></div><ChevronRight size={18} className="shrink-0 text-[#b6ff69]"/></button>})}</div>
+   <div className="pn4-card relative mt-7 overflow-hidden rounded-[25px] border border-[#b6ff69]/20 bg-[#101a13] shadow-[0_30px_100px_#0009] lg:grid lg:min-h-[480px] lg:grid-cols-[.4fr_.6fr]">
     <div className="relative z-10 border-b border-white/10 px-6 py-9 sm:px-9 lg:flex lg:flex-col lg:justify-center lg:border-b-0 lg:border-r lg:py-10"><div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/[.05] px-3 py-2 text-[10px] font-bold tracking-[.1em]" style={{color:color[active]}}><ActiveIcon size={14}/>{p.label}</div><h3 className="mt-5 text-[clamp(1.85rem,3.1vw,3.2rem)] font-extrabold leading-[1.13] tracking-[-.055em]">{p.headline}</h3><p className="mt-4 text-sm leading-7 text-[#b0c0b4]">{p.desc}</p><p className="mt-6 text-[11px] font-bold tracking-[.1em] text-white/50">{t.features}</p><ul className="mt-3 space-y-2.5">{p.features.map(feature=><li key={feature} className="flex items-start gap-2 text-[13px] text-white/85"><Check size={16} className="mt-0.5 shrink-0" style={{color:color[active]}}/>{feature}</li>)}</ul><a href="/cadastro" className="mt-7 inline-flex min-h-11 w-fit items-center gap-2 rounded-xl bg-[#b6ff69] px-5 text-xs font-bold text-[#10200d] hover:bg-[#d5ffa6]">{t.cta}<ArrowRight size={16}/></a></div>
     <div className="pn4-exploded" aria-label={t.preview}>
      <div className="pn4-layers">
-       {keys.map((key,i)=>{const LayerIcon=icons[key];const slot=key===active?1:(keys.filter(k=>k!==active).indexOf(key)===0?0:2);return <div key={key} className={"pn4-layer pn4-layer-"+i+(active===key?" pn4-layer-active":"")} style={{"--panel-color":color[key],"--panel-slot":slot,zIndex:active===key?5:2} as React.CSSProperties}>
+       {keys.map((key,i)=>{const LayerIcon=icons[key];const slot=key===active?1:(keys.filter(k=>k!==active).indexOf(key)===0?0:2);return <div key={key} className={"pn4-layer pn4-layer-"+i+" pn4-slot-"+slot+(active===key?" pn4-layer-active":"")} style={{"--panel-color":color[key],"--panel-slot":slot,zIndex:active===key?5:2} as React.CSSProperties}>
          <div className="pn4-layer-header"><LayerIcon size={18}/><b>{t.products[key].name}</b><span/></div>
          <div className="pn4-layer-body">
            {key==="studio"?<div className="pn4-panel-studio"><span className="pn4-panel-tag">SITE BUILDER</span><b>Crie o seu próximo site.</b><div className="pn4-panel-hero"><i/><i/></div><div className="pn4-panel-modules"><i/><i/><i/></div></div>:
@@ -91,6 +91,37 @@ export function EcosystemSection(){
 .pn4-panel-appgrid div{display:flex;align-items:center;justify-content:center;height:55px;border:1px solid #ffffff45;border-radius:8px;background:#ffffff24;color:var(--panel-color)}
 @keyframes pn4-breathe{0%,100%{translate:0 0}50%{translate:0 -9px}}
 @media(max-width:640px){.pn4-panel-tag{font-size:6px;margin-bottom:6px}.pn4-panel-studio>b{font-size:10px}.pn4-panel-hero{height:35px;margin-top:6px;padding:6px}.pn4-panel-modules i{height:15px}.pn4-panel-stats{gap:3px}.pn4-panel-stats b{font-size:7px;padding:4px 0}.pn4-panel-chart{height:38px;margin-top:6px}.pn4-panel-appgrid{gap:4px}.pn4-panel-appgrid div{height:32px}.pn4-panel-appgrid svg{width:14px}.pn4-panel-table{margin-top:5px}}
+@media(max-width:639px){
+#ecossistema{padding-top:38px;padding-bottom:38px}
+#ecossistema h2{font-size:clamp(31px,7.5vw,40px);line-height:1.12}
+#ecossistema .pn4-menu{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:22px}
+#ecossistema .pn4-menu-button{flex-direction:column;justify-content:center;text-align:center;gap:7px;padding:10px 5px;border-radius:13px;min-width:0}
+#ecossistema .pn4-menu-button>div:first-child{width:34px;height:34px;border-radius:9px}
+#ecossistema .pn4-menu-button>div:nth-child(2) strong{font-size:10px;line-height:1.25}
+#ecossistema .pn4-menu-button>div:nth-child(2) span{display:none}
+#ecossistema .pn4-menu-button>svg{display:none}
+#ecossistema .pn4-card{margin-top:18px;border-radius:18px}
+#ecossistema .pn4-card>div:first-child{padding:23px 20px}
+#ecossistema .pn4-card h3{font-size:clamp(27px,7vw,35px);line-height:1.12}
+#ecossistema .pn4-card p{line-height:1.62}
+#ecossistema .pn4-card ul{margin-top:9px}
+#ecossistema .pn4-card a{margin-top:19px}
+#ecossistema .pn4-exploded{min-height:315px;overflow:hidden}
+#ecossistema .pn4-layers{width:96%;height:260px}
+#ecossistema .pn4-layer{top:10%;width:72%;height:80%;left:14%;border-radius:15px;opacity:.28;filter:brightness(.72);transform:rotateY(-15deg) scale(.83);transition:left .6s,transform .6s,opacity .5s}
+#ecossistema .pn4-layer.pn4-slot-0:not(.pn4-layer-active){left:-57%}
+#ecossistema .pn4-layer.pn4-slot-2:not(.pn4-layer-active){left:85%}
+#ecossistema .pn4-layer-active{left:14%;opacity:1;filter:none;transform:rotateY(-8deg) translateY(-6px) translateZ(40px) scale(1)}
+#ecossistema .pn4-layer-header b{font-size:11px}
+#ecossistema .pn4-layer-body{padding:10% 9%}
+#ecossistema .pn4-panel-tag{font-size:9px;margin-bottom:10px}
+#ecossistema .pn4-panel-studio>b{font-size:16px}
+#ecossistema .pn4-panel-hero{height:52px;padding:10px}
+#ecossistema .pn4-panel-stats b{font-size:10px;padding:8px 0}
+#ecossistema .pn4-panel-chart{height:55px;margin-top:9px}
+#ecossistema .pn4-panel-appgrid div{height:47px}
+#ecossistema .pn4-layer-note{font-size:9px}
+}
 @media(prefers-reduced-motion:reduce){.pn4-layer,.pn4-layers{animation:none!important;transition:none!important}}
 `}</style>
  </section>

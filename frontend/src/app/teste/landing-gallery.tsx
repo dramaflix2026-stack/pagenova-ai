@@ -97,7 +97,7 @@ export function LandingGallery() {
           <h2 className="text-[clamp(2.35rem,5.4vw,5.5rem)] font-extrabold leading-[1.08] tracking-[-.06em] text-white">{t.title}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
           <p className="mx-auto mt-6 max-w-[670px] text-[15px] leading-[1.8] text-[#b3beb4] sm:text-lg">{t.desc}</p>
         </div>
-        <div className="mt-7 flex flex-wrap justify-center gap-2.5 sm:mt-9" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
+        <div className="pn-gallery-filters mt-7 flex flex-wrap justify-center gap-2.5 sm:mt-9" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
           {(["all","business","commerce","services"] as const).map(key=><button type="button" key={key} onClick={()=>setCategory(key)} aria-pressed={category===key} className={"min-h-10 rounded-full border px-4 text-xs font-semibold transition-colors sm:px-5 sm:text-sm "+(category===key?"border-[#b6ff69] bg-[#b6ff69] text-[#0d1b0a]":"border-white/15 bg-white/[.04] text-[#c9d5ca] hover:border-[#b6ff69]/50 hover:text-white")}>{t[key]}</button>)}
         </div>
         <div className="pn-gallery-grid mt-7 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -164,6 +164,32 @@ export function LandingGallery() {
       .pn-gallery-modal .pn-gallery-copy p span{height:6px}
       .pn-gallery-modal .pn-gallery-mini-button{width:110px;height:35px}
       @media(max-width:640px){.pn-gallery-visual{height:245px}.pn-gallery-copy{margin-top:25px}.pn-gallery-modal .pn-gallery-visual{height:min(56vh,410px)}.pn-gallery-modal .pn-gallery-copy{width:76%;margin-top:48px}.pn-gallery-modal .pn-gallery-siteheader{height:48px}.pn-gallery-modal .pn-gallery-copy h3{font-size:clamp(24px,6vw,38px)}}
+@media(max-width:639px){
+#galeria{padding-top:36px;padding-bottom:36px}
+#galeria h2{font-size:clamp(31px,7.5vw,40px);line-height:1.12}
+#galeria .pn-gallery-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:22px}
+#galeria .pn-gallery-filters button{width:100%;padding:0 7px;font-size:11px}
+#galeria .pn-gallery-grid{gap:12px;margin-top:22px}
+#galeria .pn-gallery-visual{height:210px}
+#galeria .pn-gallery-photo{clip-path:inset(0 0 0 40%);object-position:75% center;opacity:.75}
+#galeria .pn-gallery-shade{background:linear-gradient(90deg,#0b1210 0%,#0b1210fb 39%,#0b1210dc 56%,#0b12106b 100%)}
+#galeria .pn-gallery-copy{margin:22px 0 0 16px;width:61%}
+#galeria .pn-gallery-copy h3{font-size:20px;line-height:1.12}
+#galeria .pn-gallery-copy p{margin-top:7px}
+#galeria .pn-gallery-mini-button{margin-top:9px}
+#galeria .pn-gallery-siteheader{height:38px;padding:0 12px}
+#galeria .pn-gallery-siteheader>div span{width:12px}
+#galeria .pn-gallery-card>button>div:last-child{padding:12px 15px}
+#edicao-ia{padding-top:42px;padding-bottom:42px}
+#edicao-ia>div.relative>div:first-child h2{font-size:clamp(31px,7.6vw,41px);line-height:1.1}
+#edicao-ia>div.relative>div:first-child p{font-size:14px;line-height:1.65;margin-top:13px}
+#edicao-ia>div.relative>div:nth-child(2){margin-top:23px;border-radius:17px}
+#edicao-ia .flex-1.space-y-3{padding:12px}
+#edicao-ia .flex-1.space-y-3>div:first-child{padding:12px}
+#edicao-ia .border-t.border-white\/10.p-4{padding:12px}
+#edicao-ia .relative.grid.flex-1{padding:14px}
+#edicao-ia .relative.flex.h-16{height:50px}
+}
       @media(prefers-reduced-motion:reduce){.pn-gallery-card{transition:none!important;transform:none!important}}
     `}</style>
   </>;
@@ -234,7 +260,7 @@ function AiEditorDemo({lang}:{lang:Locale}) {
           <div className="flex min-h-[62px] items-center gap-3 border-b border-white/10 px-5 sm:px-6">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#b6ff69]/10 text-[#b6ff69]"><span className="text-xl">✦</span></div>
             <div><p className="text-sm font-bold">{t.chat}</p><p className="text-xs text-white/45">{t.assistant}</p></div>
-            <span className="ml-auto rounded-full border border-[#b6ff69]/20 bg-[#b6ff69]/[.06] px-2 py-1 text-[10px] text-[#b6ff69]">{t.status}</span>
+            <span className="ml-auto hidden rounded-full border border-[#b6ff69]/20 sm:inline-flex bg-[#b6ff69]/[.06] px-2 py-1 text-[10px] text-[#b6ff69]">{t.status}</span>
           </div>
           <div className="flex-1 space-y-3 p-4 sm:p-5" aria-live="polite">
             <div className="ml-auto max-w-[94%] rounded-2xl rounded-tr-md border border-white/10 bg-[#1b2a20] p-4 text-sm leading-6 text-white/90"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.14em] text-[#b6ff69]">{t.prompt}</span>{t.prompts[step]}</div>
@@ -257,7 +283,7 @@ function AiEditorDemo({lang}:{lang:Locale}) {
             <span className="flex items-center gap-1.5 text-[10px] font-semibold text-[#b6ff69]"><span className="h-1.5 w-1.5 rounded-full bg-[#b6ff69]"/>{t.live}</span>
           </div>
           <div className="p-3 sm:p-4">
-            <div className={"relative flex min-h-[330px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[420px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
+            <div className={"relative flex min-h-[295px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[420px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
               <div className="absolute inset-0 pointer-events-none" style={{background:premium?"radial-gradient(circle at 86% 46%,#b89a6a60,transparent 45%)":"radial-gradient(circle at 86% 46%,#78be8c55,transparent 45%)"}}/>
               <div className="relative flex h-16 items-center justify-between gap-3 border-b border-white/10 px-5 sm:px-8">
                 <span className="text-lg font-extrabold tracking-tight">ATELIER<span style={{color:theme}}>.</span></span><div className="hidden gap-5 sm:flex">{["Studio","Sobre","Contato"].map(x=><span key={x} className="text-[10px] text-white/60">{x}</span>)}</div><span className="h-6 w-12 rounded-md transition-colors duration-500" style={{background:theme}}/>
@@ -265,7 +291,7 @@ function AiEditorDemo({lang}:{lang:Locale}) {
               <div className="relative grid flex-1 grid-cols-1 items-center gap-4 p-5 sm:grid-cols-[1.1fr_.9fr] sm:gap-5 sm:p-6">
                 <div className={"relative z-10 transition-all duration-500 "+(animating?"opacity-75 translate-y-1":"opacity-100 translate-y-0")}>
                   <p className="mb-4 text-[10px] font-bold tracking-[.21em] uppercase" style={{color:theme}}>Branding & Design Studio</p>
-                  <h3 className="max-w-[430px] text-[clamp(1.7rem,2.5vw,3rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
+                  <h3 className="max-w-[430px] text-[clamp(1.5rem,6.6vw,2rem)] sm:text-[clamp(1.7rem,2.5vw,3rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
                   <p className="mt-5 max-w-[320px] text-[13px] leading-6 text-white/70">{t.subtitle}</p>
                   <span className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-xs font-bold text-[#101710] transition-colors duration-500" style={{background:theme}}>{t.cta}<ArrowRight size={14}/></span>
                 </div>

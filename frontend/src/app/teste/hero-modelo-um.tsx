@@ -62,7 +62,7 @@ export function HeroModeloUm() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#080d0a] text-[#f5f9f4]" style={{fontFamily:"inherit"}}>
+    <main className="pn-hero relative overflow-hidden lg:min-h-screen bg-[#080d0a] text-[#f5f9f4]" style={{fontFamily:"inherit"}}>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-[-370px] h-[680px] w-[880px] -translate-x-1/2 rounded-full bg-[#8df44b]/[0.075] blur-[110px]" />
         <div className="absolute inset-0 opacity-[0.15]" style={{backgroundImage:"linear-gradient(#a1c69a18 1px,transparent 1px),linear-gradient(90deg,#a1c69a18 1px,transparent 1px)",backgroundSize:"72px 72px",maskImage:"linear-gradient(to bottom,black,transparent 72%)"}} />
@@ -106,10 +106,10 @@ export function HeroModeloUm() {
       </header>
 
       <section id="plataforma" className="relative z-10 mx-auto max-w-[1260px] px-5 pb-10 pt-[64px] text-center sm:px-8 sm:pt-[82px] lg:pt-[94px]">
-        <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-[#b6ff69]/25 bg-[#b6ff69]/[0.065] px-4 py-2 text-[10px] font-bold tracking-[.19em] text-[#b6ff69] sm:text-xs">
+        <div className="pn-hero-badge mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-[#b6ff69]/25 bg-[#b6ff69]/[0.065] px-4 py-2 text-[10px] font-bold tracking-[.19em] text-[#b6ff69] sm:text-xs">
           <Sparkles size={14}/>{t.eyebrow}
         </div>
-        <div className="relative mx-auto flex min-h-[300px] max-w-[1220px] items-center justify-center py-12 sm:min-h-[370px] sm:py-16 lg:min-h-[410px]">
+        <div className="pn-hero-stage relative mx-auto flex min-h-[300px] max-w-[1220px] items-center justify-center py-12 sm:min-h-[370px] sm:py-16 lg:min-h-[410px]">
           <CinematicFilmReel />
           <div aria-hidden="true" className="pointer-events-none absolute z-[1] inset-x-[5%] inset-y-[14%] rounded-full bg-[#080d0a]/65 blur-[55px] sm:inset-x-[16%]"/>
           <h1 className="relative z-10 mx-auto max-w-[1040px] text-[clamp(2.65rem,7vw,6.8rem)] font-extrabold leading-[1.05] tracking-[-.065em] drop-shadow-[0_8px_28px_#080d0a]">
@@ -117,12 +117,23 @@ export function HeroModeloUm() {
           </h1>
         </div>
         <p className="mx-auto mt-3 max-w-[680px] text-[15px] leading-[1.85] text-[#aebbae] sm:text-lg">{t.description}</p>
-        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="pn-hero-buttons mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href="/cadastro" className="group inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl bg-[#b6ff69] px-7 text-[14px] font-bold text-[#0d190a] transition hover:-translate-y-0.5 hover:bg-[#d4ffaa] hover:shadow-[0_12px_40px_#a3fc4930] sm:w-auto">{t.start}<ArrowUpRight className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" size={19}/></Link>
           <a href="#galeria" className="inline-flex min-h-14 w-full items-center justify-center gap-3 rounded-xl border border-white/20 bg-white/[.035] px-7 text-[14px] font-semibold text-white transition hover:border-white/40 hover:bg-white/[.08] sm:w-auto"><Play size={16} fill="currentColor"/>{t.watch}</a>
         </div>
         <div id="planos" aria-hidden="true" className="h-px" />
       </section>
+      <style>{`@media(max-width:639px){
+.pn-hero header>div{height:64px}
+.pn-hero header img{max-height:34px}
+.pn-hero #plataforma{padding-top:30px;padding-bottom:28px}
+.pn-hero .pn-hero-badge{margin-bottom:2px;padding:7px 11px;font-size:9px;letter-spacing:.08em;max-width:100%}
+.pn-hero-stage{min-height:225px;padding-top:20px;padding-bottom:20px}
+.pn-hero-stage h1{font-size:clamp(36px,9.5vw,48px);line-height:1.04;letter-spacing:-.06em}
+.pn-hero #plataforma>p{margin-top:3px;font-size:14px;line-height:1.62;max-width:360px}
+.pn-hero .pn-hero-buttons{margin-top:17px;gap:9px}
+.pn-hero .pn-hero-buttons a{min-height:48px;font-size:13px}
+}`}</style>
     </main>
   );
 }
