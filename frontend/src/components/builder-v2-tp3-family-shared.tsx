@@ -111,7 +111,7 @@ export function TP3FamilyTestimonials({site,publishedMode=false,dark=false}:{sit
   {entries.length?<div className="grid min-w-0 gap-4 sm:grid-cols-2 xl:grid-cols-4">
    {entries.map((entry,i)=><blockquote key={i+"-"+entry.name} className={"min-w-0 rounded-xl border p-5 "+(dark?"border-[#5f503f] bg-[#2b2a24] text-[#fcf5e8]":"border-[#dfcbb8] bg-[#fff9ee] text-[#30251b]")}>
     <div className="flex min-w-0 items-center gap-3">
-     <img src={"https://images.unsplash.com/"+entry.avatar+"?auto=format&fit=crop&w=120&h=120&q=80"} loading="lazy" alt="Retrato ilustrativo, não é a pessoa que escreveu a avaliação" style={{width:48,height:48,minWidth:48,maxWidth:48,height:48,objectFit:"cover",borderRadius:"50%",flexShrink:0}}/>
+     <img src={"https://images.unsplash.com/"+entry.avatar+"?auto=format&fit=crop&w=120&h=120&q=80"} loading="lazy" alt="Retrato ilustrativo, não é a pessoa que escreveu a avaliação" style={{width:48,height:48,minWidth:48,maxWidth:48,objectFit:"cover",borderRadius:"50%",flexShrink:0}}/>
      <div className="min-w-0"><strong className="block break-words text-sm">{entry.name}</strong><span className="block text-xs opacity-80">{entry.demo?"Exemplo fictício":"Foto ilustrativa"}</span></div>
     </div><p className="mt-5 break-words text-sm leading-7">“{entry.quote}”</p>
     {entry.demo&&<small className="mt-4 block text-xs font-semibold uppercase tracking-wide">Avaliação demonstrativa</small>}
@@ -207,7 +207,7 @@ export function TP3FamilyFooter({site,publishedMode=false,variant=2}:{site:Build
  const brand=site.header?.brand?.trim()||site.title||"Gastronomia";
  const phone=(site.restaurant?.whatsapp||site.footer?.whatsapp||"").replace(/\D/g,"");
  const whatsapp=phone.length>=10&&phone.length<=13?"https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone):"";
- const links=[["Início","#inicio"],["Especialidades","#especialidades"],["Sobre","#historia"],["Galeria","#galeria"],["Depoimentos","#depoimentos"],["FAQ","#faq"],["Localização","#localizacao"]];
+ const links=[["Início","#inicio"],["Especialidades",variant===2?"#sabores":"#especialidades"],["Sobre","#historia"],["Galeria","#galeria"],["Depoimentos","#depoimentos"],["FAQ","#faq"],["Localização","#localizacao"]];
  return <footer data-universal-section="rodape" data-tp3-family-footer={variant} className="pn-tp3-footer bg-[#142019] px-6 pb-8 pt-16 text-[#fff9ed] md:px-[7%] md:pt-20">
   <div className="pn-tp3-footer-shell mx-auto max-w-7xl">
    <div className="pn-tp3-footer-grid grid min-w-0 gap-10 border-b border-white/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,.7fr)_minmax(0,.9fr)]">
