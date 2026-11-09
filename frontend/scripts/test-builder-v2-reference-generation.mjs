@@ -15,6 +15,7 @@ import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-lan
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "../src/lib/builder-v2-universal-copy-edits.ts";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "../src/lib/builder-v2-universal-card-edits.ts";
 import {isFullSiteCreationBrief} from "../src/lib/builder-v2-universal-plan.ts";
+import {resolvePrimaryBriefingNiche} from "../src/lib/briefing-template-families.ts";
 import {applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT} from "../src/lib/builder-v2-announcement.ts";
 import {applySocialInstruction} from "../src/lib/site-social-links.ts";
 import {isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction} from "../src/lib/site-builder-animation.ts";
@@ -26,11 +27,11 @@ const reference="data:image/png;base64,iVBORw0KGgo=";
 async function generate(image,instruction="Crie um site para uma clínica de psicologia seguindo a referência visual.",options={}){
   const calls=[];
   const settlements=[];
-  const handler=new Function("NextResponse","createClient","reserveBuilderV2Generation","initialSiteMotion","socialLinksFromInstruction","briefCardCounts","briefHeadingAlignment","hexColor","applyInstitutionalEdit","applyAnnouncementTextInstruction","referencesTopAnnouncement","DEFAULT_BUILDER_ANNOUNCEMENT","applySocialInstruction","isMotionOnlyInstruction","hasMotionIntent","applySiteMotionInstruction","applyUniversalOperations","summarizeUniversalEdit","applyUniversalPaletteEdit","applyTP6RetailChatEdit","applyUniversalNaturalLanguage","isFullSiteCreationBrief","parseUniversalCopyEdit","applyUniversalCopyEdit","parseUniversalCardEdit","applyUniversalCardEdit","fetch",executable+"\nreturn POST;")(
+  const handler=new Function("NextResponse","createClient","reserveBuilderV2Generation","initialSiteMotion","socialLinksFromInstruction","briefCardCounts","briefHeadingAlignment","hexColor","applyInstitutionalEdit","applyAnnouncementTextInstruction","referencesTopAnnouncement","DEFAULT_BUILDER_ANNOUNCEMENT","applySocialInstruction","isMotionOnlyInstruction","hasMotionIntent","applySiteMotionInstruction","applyUniversalOperations","summarizeUniversalEdit","applyUniversalPaletteEdit","applyTP6RetailChatEdit","applyUniversalNaturalLanguage","isFullSiteCreationBrief","parseUniversalCopyEdit","applyUniversalCopyEdit","parseUniversalCardEdit","applyUniversalCardEdit","resolvePrimaryBriefingNiche","fetch",executable+"\nreturn POST;")(
     {json:(body,options={})=>({body,status:options.status||200})},
     async()=>({auth:{getUser:async()=>({data:{user:{id:"test-owner"}}})}}),
     async()=>({finish:async success=>settlements.push(success)}),
-    ()=>({preset:"professional"}),()=>({}),briefCardCounts,briefHeadingAlignment,hexColor,applyInstitutionalEdit,applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT,applySocialInstruction,isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction,applyUniversalOperations,summarizeUniversalEdit,applyUniversalPaletteEdit,applyTP6RetailChatEdit,applyUniversalNaturalLanguage,isFullSiteCreationBrief,parseUniversalCopyEdit,applyUniversalCopyEdit,parseUniversalCardEdit,applyUniversalCardEdit,
+    ()=>({preset:"professional"}),()=>({}),briefCardCounts,briefHeadingAlignment,hexColor,applyInstitutionalEdit,applyAnnouncementTextInstruction,referencesTopAnnouncement,DEFAULT_BUILDER_ANNOUNCEMENT,applySocialInstruction,isMotionOnlyInstruction,hasMotionIntent,applySiteMotionInstruction,applyUniversalOperations,summarizeUniversalEdit,applyUniversalPaletteEdit,applyTP6RetailChatEdit,applyUniversalNaturalLanguage,isFullSiteCreationBrief,parseUniversalCopyEdit,applyUniversalCopyEdit,parseUniversalCardEdit,applyUniversalCardEdit,resolvePrimaryBriefingNiche,
     async(_url,fetchOptions)=>{
       const payload=JSON.parse(fetchOptions.body);
       calls.push(payload);
