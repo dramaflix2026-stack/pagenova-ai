@@ -1,5 +1,5 @@
 "use client";
-import {useState} from "react";
+import {useEffect,useId,useRef,useState} from "react";
 import type {BuilderV2SiteData} from "./builder-v2-site";
 import {universalBlockProps,universalFaqItems,UniversalTypographyRules} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
@@ -59,6 +59,32 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
   const address=site.extras?.address?.trim()||site.footer?.address?.trim()||"";
   const displayAddress=address||(!publishedMode?"Rua das Cerejeiras, 120 — Bairro Sakura, São Paulo/SP":"");
   const [openFaq,setOpenFaq]=useState<number|null>(0);
+  const [menuOpen,setMenuOpen]=useState(false);
+  const menuId=useId();
+  const menuRef=useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    if(!menuOpen)return;
+    const closeOutside=(event:PointerEvent)=>{
+      if(menuRef.current&&!menuRef.current.contains(event.target as Node))setMenuOpen(false);
+    };
+    const closeEscape=(event:KeyboardEvent)=>{
+      if(event.key==="Escape")setMenuOpen(false);
+    };
+    document.addEventListener("pointerdown",closeOutside);
+    document.addEventListener("keydown",closeEscape);
+    return ()=>{
+      document.removeEventListener("pointerdown",closeOutside);
+      document.removeEventListener("keydown",closeEscape);
+    };
+  },[menuOpen]);
+  const menuLinks=[
+    {label:"Início",href:"#inicio"},
+    {label:"Especialidades",href:"#especialidades"},
+    {label:"Nossa essência",href:"#sobre"},
+    {label:"Depoimentos",href:"#depoimentos"},
+    {label:"Perguntas frequentes",href:"#faq"},
+    {label:"Localização",href:"#localizacao"},
+  ];
   const originalReviews=getBlocks(site,/depoiment|testimonial|avalia[cç]/i)
     .filter(b=>b.type==="paragraph"&&b.text?.trim())
     .map(b=>(b.text||"").split("|").map(s=>s.trim()))
@@ -80,11 +106,29 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
   return <main data-tp3-model="01" data-tp3-japanese="true" className="w-full overflow-hidden bg-[#f8f4ec] text-[#23241f]">
     <UniversalTypographyRules/>
     <UniversalTemplateSections site={site}>
-    <header className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-4 border-b border-[#d4cbbd] bg-[#f8f4ec]/95 px-5 py-4 backdrop-blur md:px-[7%]">
-      <a href="#inicio" className="min-w-0 font-serif text-xl font-semibold tracking-[.02em] md:text-2xl"><span className="mr-2 text-[#a14b3e]" aria-hidden="true">◈</span>{brand}</a>
-      <nav aria-label="Navegação do restaurante" className="flex flex-wrap gap-4 text-xs font-semibold md:gap-7 md:text-sm">
-        <a href="#especialidades">Especialidades</a><a href="#sobre">Nossa essência</a><a href="#faq">FAQ</a><a href="#localizacao">Localização</a>
-      </nav>
+    <header data-japanese-header="compact" className="sticky top-0 z-30 border-b border-[#d4cbbd] bg-[#f8f4ec]/95 backdrop-blur">
+      <div ref={menuRef} className="relative mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-5 py-4 md:px-10 md:py-5">
+        <a href="#inicio" onClick={()=>setMenuOpen(false)} className="flex min-w-0 flex-1 items-center gap-3 font-serif text-[clamp(1.2rem,3vw,1.85rem)] font-semibold leading-tight tracking-[-.025em] text-[#28251f]">
+          <span className="shrink-0 text-[#a14b3e]" aria-hidden="true">◈</span>
+          <span className="min-w-0 break-words">{brand}</span>
+        </a>
+        <button type="button" aria-label={menuOpen?"Fechar menu de navegação":"Abrir menu de navegação"}
+          aria-controls={menuId} aria-expanded={menuOpen} onClick={()=>setMenuOpen(open=>!open)}
+          className="inline-flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-[5px] rounded-xl border border-[#a99b89] bg-[#fffaf2] text-[#292821] shadow-sm transition-colors hover:bg-[#eadfcd] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a14b3e]">
+          <span aria-hidden="true" className={`block h-[2px] w-5 rounded-full bg-current transition-transform ${menuOpen?"translate-y-[7px] rotate-45":""}`}/>
+          <span aria-hidden="true" className={`block h-[2px] w-5 rounded-full bg-current transition-opacity ${menuOpen?"opacity-0":""}`}/>
+          <span aria-hidden="true" className={`block h-[2px] w-5 rounded-full bg-current transition-transform ${menuOpen?"-translate-y-[7px] -rotate-45":""}`}/>
+        </button>
+        {menuOpen&&<nav id={menuId} aria-label="Menu principal do restaurante"
+          className="absolute right-5 top-[calc(100%+1px)] z-50 w-[min(21rem,calc(100vw-2rem))] max-w-full rounded-b-2xl border border-t-0 border-[#d4cbbd] bg-[#fffaf2] p-3 shadow-[0_24px_45px_rgba(28,34,29,0.18)] md:right-10">
+          <div className="flex flex-col gap-1">
+            {menuLinks.map(link=><a key={link.href} href={link.href} onClick={()=>setMenuOpen(false)}
+              className="rounded-lg px-4 py-3 text-sm font-semibold text-[#292821] transition-colors hover:bg-[#ecdfcd] focus-visible:bg-[#ecdfcd]">{link.label}</a>)}
+          </div>
+          {whatsapp&&<a href={whatsapp} target="_blank" rel="noopener noreferrer" onClick={()=>setMenuOpen(false)}
+            className="mt-3 flex items-center justify-center rounded-full bg-[#245137] px-5 py-3 text-sm font-bold text-white">Falar no WhatsApp ↗</a>}
+        </nav>}
+      </div>
     </header>
 
     <section id="inicio" data-universal-section="inicio" className="grid min-h-[590px] bg-[#20251f] text-[#fffaf0] md:grid-cols-[1fr_1.05fr]">
@@ -190,11 +234,44 @@ export function BuilderV2TP3JapaneseModel1({site,publishedMode=false}:{site:Buil
       </div>
     </section>
 
-    <footer id="rodape" data-universal-section="rodape" className="bg-[#1c241e] px-6 pb-8 pt-16 text-[#f8eee0] md:px-[7%] md:pt-20">
-      <div className="mx-auto max-w-7xl"><div className="flex flex-wrap justify-between gap-9 border-b border-white/20 pb-12">
-        <div><p className="font-serif text-3xl">{brand}</p><p className="mt-3 max-w-sm text-sm leading-7 text-[#d9cfbf]">Uma apresentação da culinária japonesa feita para valorizar sabores e encontros.</p></div>
-        <nav className="flex flex-wrap items-start gap-6 text-sm"><a href="#inicio">Início</a><a href="#especialidades">Especialidades</a><a href="#depoimentos">Depoimentos</a><a href="#faq">FAQ</a><a href="#localizacao">Localização</a></nav>
-      </div><p className="pt-8 text-xs text-[#c8baaa]">© {new Date().getFullYear()} {brand}. {brandData.demo?"Marca e imagens ilustrativas na prévia.":""}</p></div>
+    <footer id="rodape" data-universal-section="rodape" data-japanese-footer="premium"
+      className="bg-[#19241e] px-6 pb-8 pt-16 text-[#f8eee0] md:px-10 md:pt-20 lg:pt-24">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid min-w-0 gap-12 border-b border-[#f8eee0]/20 pb-14 md:grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,1fr)] md:gap-8 lg:gap-16 lg:pb-20">
+          <div className="min-w-0">
+            <span className="text-[11px] font-bold uppercase tracking-[.22em] text-[#d9b18a]">A experiência japonesa</span>
+            <h2 className="mt-5 max-w-lg break-words font-serif text-[clamp(2rem,4vw,3.8rem)] leading-[1.12] tracking-[-.035em]">{brand}</h2>
+            <p className="mt-5 max-w-md text-sm leading-8 text-[#d2c9bb]">Uma experiência inspirada na culinária japonesa, feita para valorizar os sabores, os detalhes e os encontros.</p>
+            <a href="#inicio" className="mt-8 inline-flex items-center gap-2 border-b border-[#d7b693]/70 pb-1 text-sm font-semibold text-[#eac69e]">Voltar ao início <span aria-hidden="true">↗</span></a>
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold uppercase tracking-[.16em] text-[#eac69e]">Explore</h3>
+            <nav aria-label="Navegação do rodapé" className="mt-7 flex flex-col items-start gap-4 text-sm text-[#e9e0d2]">
+              {menuLinks.map(link=><a key={link.href} href={link.href} className="transition-colors hover:text-[#eac69e]">{link.label}</a>)}
+            </nav>
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-sm font-bold uppercase tracking-[.16em] text-[#eac69e]">Contato e localização</h3>
+            <p className="mt-7 text-sm leading-7 text-[#e9e0d2]">Conheça as opções de atendimento e entre em contato com a equipe.</p>
+            {address?<address className="mt-5 break-words text-sm not-italic leading-7 text-[#f8eee0]">{address}</address>
+              :!publishedMode?<div className="mt-5">
+                <span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#eac69e]">Endereço fictício — demonstração</span>
+                <address className="mt-2 break-words text-sm not-italic leading-7 text-[#e9e0d2]">{displayAddress}</address>
+              </div>:<p className="mt-5 text-sm leading-7 text-[#d2c9bb]">Localização disponível após cadastro do endereço oficial.</p>}
+            {whatsapp?<a href={whatsapp} target="_blank" rel="noopener noreferrer"
+              className="mt-7 inline-flex w-full items-center justify-center rounded-full bg-[#eac69e] px-6 py-4 text-center text-sm font-bold text-[#20241e] transition-colors hover:bg-[#f5d9b9] sm:w-auto">Falar no WhatsApp ↗</a>
+              :!publishedMode?<div className="mt-7"><span aria-disabled="true"
+                className="inline-flex w-full cursor-not-allowed items-center justify-center rounded-full border border-white/25 px-6 py-4 text-center text-sm font-semibold text-[#d2c9bb] sm:w-auto">Falar no WhatsApp</span>
+                <p className="mt-3 text-xs leading-6 text-[#c8b9a7]">Cadastre o número oficial para ativar o contato.</p>
+              </div>:null}
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 pt-7 text-xs leading-6 text-[#b9b6ac] md:flex-row md:items-center md:justify-between">
+          <p>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</p>
+          {brandData.demo&&<p>Marca ilustrativa de demonstração.</p>}
+          <a href="#inicio" className="w-fit text-[#eac69e] hover:underline">Voltar ao topo ↑</a>
+        </div>
+      </div>
     </footer>
     </UniversalTemplateSections>
   </main>;

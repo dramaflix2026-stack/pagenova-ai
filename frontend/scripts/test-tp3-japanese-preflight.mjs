@@ -112,6 +112,39 @@ test("preflight: every required Japanese site section is renderable",()=>{
   assert.match(source,/site\.crmImported===true/);
 });
 
+test("preflight: Japanese M1 header is a real accessible hamburger on ALL viewports",()=>{
+  const source=read(isolated);
+  assert.match(source,/data-japanese-header="compact"/);
+  assert.match(source,/aria-label=\{menuOpen\?"Fechar menu de navegação":"Abrir menu de navegação"\}/);
+  assert.match(source,/aria-controls=\{menuId\}/);
+  assert.match(source,/aria-expanded=\{menuOpen\}/);
+  assert.match(source,/onClick=\{\(\)=>setMenuOpen\(open=>!open\)\}/);
+  assert.match(source,/\{menuOpen&&<nav id=\{menuId\}/);
+  assert.match(source,/menuLinks\.map\(link=><a key=\{link\.href\}/);
+  assert.match(source,/onClick=\{\(\)=>setMenuOpen\(false\)\}/);
+  assert.match(source,/event\.key==="Escape"/);
+  assert.match(source,/pointerdown/);
+  assert.doesNotMatch(source,/<nav aria-label="Navegação do restaurante" className="flex flex-wrap/);
+  for(const href of ["#inicio","#especialidades","#sobre","#depoimentos","#faq","#localizacao"]){
+    assert.ok(source.includes('href:"'+href+'"'),"menu entry "+href);
+  }
+});
+
+test("preflight: Japanese M1 premium footer is responsive and never invents contact data",()=>{
+  const source=read(isolated);
+  assert.match(source,/data-japanese-footer="premium"/);
+  assert.match(source,/md:grid-cols-\[minmax\(0,1\.4fr\)_minmax\(0,0\.7fr\)_minmax\(0,1fr\)\]/);
+  assert.match(source,/className="grid min-w-0 gap-12 border-b/);
+  assert.match(source,/>Contato e localização</);
+  assert.match(source,/Navegação do rodapé/);
+  assert.match(source,/\{address\?<address/);
+  assert.match(source,/:!publishedMode\?<div className="mt-5">/);
+  assert.match(source,/Endereço fictício — demonstração/);
+  assert.match(source,/\{whatsapp\?<a href=\{whatsapp\}/);
+  assert.match(source,/Cadastre o número oficial para ativar o contato/);
+  assert.match(source,/Todos os direitos reservados/);
+});
+
 test("preflight: Japanese renderer and entrypoint parse as valid TSX",()=>{
   for(const file of [isolated,model,"src/components/builder-v2-site.tsx"]){
     const parsed=ts.createSourceFile(file,read(file),ts.ScriptTarget.Latest,true,ts.ScriptKind.TSX);

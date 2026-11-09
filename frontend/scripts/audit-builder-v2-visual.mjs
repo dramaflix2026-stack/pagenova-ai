@@ -97,6 +97,38 @@ try{
         if(audit.unloaded)record.warnings.push(audit.unloaded+" images not yet loaded");
         if(audit.repeated.length)record.warnings.push(audit.repeated.length+" repeated photo URLs");
         const isJapanese=item.family===3&&/japones|sushi/i.test(slug(item.niche));
+        if(isJapanese&&model==="01"){
+          // Exercise actual navigation, not only a source-code/text check.
+          // Verify the menu is collapsed by default on both mobile and desktop.
+          const trigger=page.locator('[data-japanese-header="compact"] button[aria-expanded]');
+          const menu=page.getByRole("navigation",{name:"Menu principal do restaurante"});
+          if(await trigger.count()!==1){
+            record.errors.push("Missing Japanese M1 hamburger control");
+          }else{
+            if(await menu.count())record.errors.push("Japanese menu unexpectedly visible on page load");
+            await trigger.click();
+            if(await trigger.getAttribute("aria-expanded")!=="true"||!(await menu.isVisible())){
+              record.errors.push("Japanese hamburger did not expand the navigation");
+            }else{
+              await menu.getByRole("link",{name:"Especialidades"}).click();
+              if(await trigger.getAttribute("aria-expanded")!=="false"||await menu.count()){
+                record.errors.push("Japanese menu did not close after navigation");
+              }
+              await trigger.click();
+              await page.keyboard.press("Escape");
+              if(await trigger.getAttribute("aria-expanded")!=="false"||await menu.count()){
+                record.errors.push("Japanese menu did not close on Escape");
+              }
+            }
+          }
+          const footerGridColumns=await page.locator('[data-japanese-footer="premium"] .grid').first().evaluate(el=>
+            getComputedStyle(el).gridTemplateColumns.split(/\s+/).filter(Boolean).length
+          ).catch(()=>0);
+          const expectedColumns=device.name==="desktop"?3:1;
+          if(footerGridColumns!==expectedColumns)record.errors.push(
+            "Japanese footer should have "+expectedColumns+" responsive grid columns; found "+footerGridColumns
+          );
+        }
         if(isJapanese){
           const bakeryUrls=record.broken.concat(await page.locator("img").evaluateAll(imgs=>imgs.map(x=>x.currentSrc||x.src).filter(x=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(x))));
           if(bakeryUrls.some(url=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(url)))record.errors.push("Bakery photo used in Japanese restaurant");
