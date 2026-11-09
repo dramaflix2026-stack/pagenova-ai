@@ -26,7 +26,7 @@ function FilmBand({reverse=false,position}:{reverse?:boolean;position:string}) {
   return <div className={"film-band "+position+(reverse?" film-reverse":"")}>
     <div className="film-perforation"/>
     <div className="film-view"><div className="film-track">
-      {[0,1].map(k=><div className="film-sequence" key={k}>{sites.map((site,i)=><div key={i} className="film-cell"><FilmPreview site={site}/></div>)}</div>)}
+      {[0,1].map(k=><div className="film-sequence" key={k}>{sites.map((site,i)=><div key={site.kind+"-"+k+"-"+i} className="film-cell"><FilmPreview site={site}/></div>)}</div>)}
     </div></div>
     <div className="film-perforation"/>
   </div>;
@@ -37,10 +37,10 @@ export function CinematicFilmReel(){
     <FilmBand position="film-top"/>
     <FilmBand reverse position="film-bottom"/>
     <style>{`
-      .film-scene{position:absolute;inset:-90px -20vw -80px;z-index:0;overflow:hidden;pointer-events:none;isolation:isolate}
-      .film-band{position:absolute;left:50%;width:min(1700px,145vw);height:154px;overflow:hidden;border:1px solid #b6ff6940;border-radius:10px;background:#0b140e;box-shadow:0 22px 70px #000c,0 0 35px #aaff5415;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
-      .film-top{top:9%;transform:translateX(-50%) rotate(-10deg);opacity:.75}
-      .film-bottom{bottom:8%;transform:translateX(-50%) rotate(9deg);opacity:.68}
+      .film-scene{position:absolute;inset:0 -7vw;z-index:0;overflow:hidden;pointer-events:none;isolation:isolate}
+      .film-band{position:absolute;left:50%;width:min(1580px,122vw);height:154px;overflow:hidden;border:1px solid #b6ff6940;border-radius:10px;background:#0b140e;box-shadow:0 22px 70px #000c,0 0 35px #aaff5415;mask-image:linear-gradient(90deg,transparent,#000 10%,#000 90%,transparent)}
+      .film-top{top:7%;transform:translateX(-50%) rotate(-8deg);opacity:.65}
+      .film-bottom{bottom:7%;transform:translateX(-50%) rotate(8deg);opacity:.6}
       .film-perforation{height:16px;background-color:#050b07;background-image:repeating-linear-gradient(90deg,#080e09 0 9px,#b6ff6975 9px 25px,#080e09 25px 42px);border-block:4px solid #13231a}
       .film-view{height:122px;overflow:hidden;padding-top:4px}
       .film-track{display:flex;width:max-content;animation:film-flow 43s linear infinite;will-change:transform}
@@ -68,7 +68,7 @@ export function CinematicFilmReel(){
       .film-auto .film-art span{top:50%;height:34%;width:75%;left:13%;border-radius:60% 60% 12% 12%;background:#e4ecfc}
       .film-footer{display:flex;gap:4px;padding:2px 7px}.film-footer span{height:8px;width:30%;background:#ffffff20;border-radius:2px}
       @keyframes film-flow{to{transform:translateX(-50%)}}
-      @media(max-width:767px){.film-scene{inset:-28px -40px -30px}.film-band{width:155vw;height:90px}.film-top{top:1%;transform:translateX(-50%) rotate(-7deg);opacity:.64}.film-bottom{bottom:1%;transform:translateX(-50%) rotate(7deg);opacity:.52}.film-perforation{height:10px;border-block-width:2px}.film-view{height:70px;padding-top:2px}.film-cell{flex-basis:122px;height:65px;padding:2px}.film-nav{height:10px;padding:0 4px}.film-main{height:48px;padding:3px}.film-copy{gap:2px}.film-copy em{font-size:4px}.film-copy b{height:3px}.film-copy small{height:6px;width:22px}.film-footer{display:none}}
+      @media(max-width:767px){.film-scene{inset:0 -18px}.film-band{width:155vw;height:90px}.film-top{top:3%;transform:translateX(-50%) rotate(-6deg);opacity:.56}.film-bottom{bottom:3%;transform:translateX(-50%) rotate(6deg);opacity:.5}.film-perforation{height:10px;border-block-width:2px}.film-view{height:70px;padding-top:2px}.film-cell{flex-basis:122px;height:65px;padding:2px}.film-nav{height:10px;padding:0 4px}.film-main{height:48px;padding:3px}.film-copy{gap:2px}.film-copy em{font-size:4px}.film-copy b{height:3px}.film-copy small{height:6px;width:22px}.film-footer{display:none}}
       @media(prefers-reduced-motion:reduce){.film-track{animation:none!important;will-change:auto}}
     `}</style>
   </div>;
