@@ -9,7 +9,7 @@ import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "re
 import {Paperclip,Mic,MicOff,Send,LayoutTemplate,Sparkles,ArrowRight,Check,History} from "lucide-react";
 import {SiteGenerationCreditsNotice,useSiteGenerationCredits} from "@/components/site-generation-credits";
 import {builderAttachmentIntent} from "@/lib/builder-v2-chat-attachments";
-import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "@/lib/briefing-template-families";
+import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily,resolvePrimaryBriefingNiche,positiveBusinessBrief} from "@/lib/briefing-template-families";
 import {readPageNovaProject,savePageNovaProject} from "@/lib/pagenova-project-store";
 import {importReadyCrmProject} from "@/lib/builder-v2-crm-transport";
 import { applySiteMotionInstruction, hasMotionIntent, type SiteMotion } from "@/lib/site-builder-animation";
@@ -491,7 +491,8 @@ export default function BuilderV2() {
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
     const jobs=only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     // Reuse the approved niche-specific image bank on initial generation. Never regenerate paid assets.
-    const bank=(nichePhotoCatalog as Record<string,{desktop:string[];mobile:string[]}>)[selectedNiche];
+    const photoNiche=current.niche||selectedNiche;
+    const bank=(nichePhotoCatalog as Record<string,{desktop:string[];mobile:string[]}>)[photoNiche||""];
     if(only===undefined && bank?.desktop?.length===6 && bank?.mobile?.length===6 && bank.desktop.every(Boolean) && bank.mobile.every(Boolean)){
       const blocks=[...current.blocks];
       for(const {section,index} of jobs){
@@ -501,7 +502,7 @@ export default function BuilderV2() {
         if(previous>=0)blocks[previous]=visual;
         else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
       }
-      setMessages(prev=>[...prev,{role:"assistant",text:"6 fotografias do banco do nicho "+selectedNiche+" aplicadas, com versões desktop e mobile. Nenhuma imagem nova foi gerada."}]);
+      setMessages(prev=>[...prev,{role:"assistant",text:"6 fotografias do banco do nicho "+photoNiche+" aplicadas, com versões desktop e mobile. Nenhuma imagem nova foi gerada."}]);
       return {...current,blocks};
     }
     const responses=await Promise.allSettled(jobs.map(async ({section,index})=>{
@@ -509,7 +510,7 @@ export default function BuilderV2() {
       const visualDirections=isArchitecture
         ? ["Wide-angle architectural photograph of a sophisticated residential living room with warm natural light, authentic construction and furniture.","Architectural close-up of stone, timber joinery, refined natural material junctions and thoughtful lighting.","Editorial photograph of an elegant contemporary interior with clean spatial composition and lived-in realism.","Wide interior photograph of a serene dining or living space with sophisticated material palette.","Architectural detail of custom furniture, tactile finishes and light-shadow interplay.","Beautifully composed contemporary residential architecture, distinct room and camera angle."]
         : ["Wide establishing photograph of the actual business environment.","Authentic close-up of the specific service or product.","A second realistic angle of the business environment.","Natural editorial photograph showing relevant work in context.","Detail photograph of relevant materials, products or equipment.","Distinct contextual photograph illustrating the actual industry."];
-      const description=[only===undefined?"":prompt,"IMPORTANT: business is "+current.title+". "+visualDirections[index%6],"Photograph must represent the business sector faithfully. No unrelated professions, medical consultations or treatment unless this business is explicitly healthcare. No invented signage or identifiable employees. Each image must have a distinct subject and camera angle. Natural light, premium editorial art direction, believable textures. Slot "+(index+1)+".",current.blocks.filter(b=>(b.section||"principal")===section&&b.type!=="image").map(b=>b.text).join(". ").slice(0,300)].filter(Boolean).join(" ");
+      const description=[only===undefined?"":prompt,"IMPORTANT: business is "+current.title+". Primary business niche is "+(current.niche||"not specified")+". "+visualDirections[index%6],"Photograph must represent the business sector faithfully. No unrelated professions, medical consultations or treatment unless this business is explicitly healthcare. No invented signage or identifiable employees. Each image must have a distinct subject and camera angle. Natural light, premium editorial art direction, believable textures. Slot "+(index+1)+".",current.blocks.filter(b=>(b.section||"principal")===section&&b.type!=="image").map(b=>b.text).join(". ").slice(0,300)].filter(Boolean).join(" ");
 
       const res=await fetch("/api/builder-v2/image",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({siteTitle:current.title,section,description})});
       const data=await res.json();
@@ -1100,17 +1101,19 @@ export default function BuilderV2() {
     const detailedBrief=prompt.length>=650||(/(?:exatamente|se[cç][oõ]es|paleta|tipografia|cards?|briefing|layout|hexadecimal|#[0-9a-f]{6})/i.test(prompt)&&prompt.length>=240);
     // Persist the primary niche from the written brief; otherwise the preview cannot route to TP1–TP6.
     const explicitNiche=prompt.split(/\r?\n/).find(line=>/^\s*(?:\*\*)?\s*(?:nicho|segmento)\s*(?:\*\*)?\s*:/i.test(line))?.replace(/^.*?:/,"").replace(/\*\*/g,"").trim();
-    const briefFamily=explicitNiche?resolveBriefingFamily(explicitNiche):undefined;
-    const inferredNiche=MAKEUP_RE.test(prompt)?"Estúdio de Maquiagem":/(?:barbearia|barbeiro|barbershop)/i.test(prompt)?"Barbearia":/(?:cafeteria|coffee\\s*shop|caf[eé]\\s+(?:premium|especial|artesanal))/i.test(prompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(prompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(prompt)?"Hamburgueria":undefined;
-    const educationBrief=/(?:instituto|escola|institui[cç][aã]o de ensino|centro de forma[cç][aã]o).{0,180}(?:cursos?|ensino|capacita[cç][aã]o|forma[cç][aã]o)|(?:cursos? profissionalizantes?|capacita[cç][aã]o profissional|matr[ií]culas?|metodologia de ensino)/i.test(prompt);
-    const realEstateBrief=/(?:imobili[aá]ria|consultoria imobili[aá]ria|corretora de im[oó]veis|im[oó]veis de (?:luxo|alto padr[aã]o)|compra e venda de im[oó]veis)/i.test(prompt);
-    const retailBrief=/(?:boutique de moda|moda feminina|loja de roupas|loja de moda|boutique feminina|cole[cç][oõ]es? de roupas|alfaiataria feminina)/i.test(prompt);
-    const technologyBrief=/(?:intelig[eê]ncia artificial|agentes? de ia|automa[cç][aã]o de processos|automa[cç][aã]o empresarial|marketing digital|transforma[cç][aã]o digital|solu[cç][oõ]es tecnol[oó]gicas|desenvolvimento de software)/i.test(prompt);
-    const detectedFamily=briefFamily||(realEstateBrief?7:educationBrief?10:retailBrief?6:technologyBrief?5:/(?:arquitetura|arquiteto|arquitetônica|design de interiores|projetos residenciais|projetos comerciais)/i.test(prompt)?2:/(?:barbearia|barbeiro|salão de beleza|spa e bem-estar|estúdio de maquiagem|consultoria de imagem)/i.test(prompt)?1:/(?:restaurante|pizzaria|hamburgueria|cafeteria|padaria|confeitaria|marmitaria|sorveteria|churrascaria|doceria|food truck)/i.test(prompt)?3:/(?:clínica médica|consultório médico|clínica odontológica|laboratório de análises|centro de diagnóstico|clínica de exames|saúde integrada)/i.test(prompt)?4:resolveBriefingFamily(prompt.slice(0,2500)));
-    const detectedNiche=detectedFamily===5?(/marketing digital|ag[eê]ncia de marketing/i.test(prompt)&&!/intelig[eê]ncia artificial|agentes? de ia/i.test(prompt)?"Agências de marketing digital":"Inteligência artificial"):detectedFamily===6?(/joalheria|semijoias/i.test(prompt)?"Joalheria e semijoias":/cal[cç]ados|sapatos/i.test(prompt)?"Loja de calçados":"Loja de roupas"):detectedFamily===7?(/imobili[aá]ria|corretora de im[oó]veis/i.test(prompt)?"Imobiliárias":/consultoria imobili[aá]ria/i.test(prompt)?"Consultoria imobiliária":/casas? de (?:luxo|alto padr[aã]o)/i.test(prompt)?"Casas de alto padrão":"Imóveis de luxo"):detectedFamily===8?(/pousad/i.test(prompt)?"Pousadas":/resort/i.test(prompt)?"Resorts":/chal[eé]|cabana/i.test(prompt)?"Chalés e cabanas":/hotel/i.test(prompt)?"Hotéis boutique":undefined):detectedFamily===9?(/est[eé]tica automotiva|auto studio|detalhamento automotivo|vitrifica[cç][aã]o|polimento t[eé]cnico/i.test(prompt)?"Estética automotiva":/oficina|mec[aâ]nica/i.test(prompt)?"Oficinas mecânicas":/lava.r[aá]pido/i.test(prompt)?"Lava-rápidos":/concession[aá]ria/i.test(prompt)?"Concessionárias de veículos":undefined):detectedFamily===10?(/cursos? profissionalizantes?|capacita[cç][aã]o profissional|desenvolvimento de carreiras/i.test(prompt)?"Cursos profissionalizantes":/idiomas/i.test(prompt)?"Escolas de idiomas":/escola/i.test(prompt)?"Escolas particulares":"Cursos profissionalizantes"):undefined;
-    const briefNiche=briefFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===briefFamily)?.niches.find(n=>n.toLowerCase()===explicitNiche?.toLowerCase())||explicitNiche:(inferredNiche||detectedNiche||(detectedFamily===2?(/arquitetur|design de interiores/i.test(prompt)?"Arquitetura":"Engenharia"):undefined)||explicitNiche||(detectedFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===detectedFamily)?.niches[0]:undefined));
+    const recognizedNiche=resolvePrimaryBriefingNiche(prompt);
+    const positivePrompt=positiveBusinessBrief(prompt);
+    const briefFamily=(explicitNiche?resolveBriefingFamily(explicitNiche):undefined)||resolveBriefingFamily(recognizedNiche||"");
+    const inferredNiche=recognizedNiche||(MAKEUP_RE.test(positivePrompt)?"Estúdio de Maquiagem":/(?:barbearia|barbeiro|barbershop)/i.test(positivePrompt)?"Barbearia":/(?:cafeteria|coffee\s*shop|caf[eé]\s+(?:premium|especial|artesanal))/i.test(positivePrompt)?"Cafeteria":/(?:pizzaria|pizza|pizzas|pizzaiolo)/i.test(positivePrompt)?"Pizzaria":/(?:hamburgueria|hambúrguer|hamburger|burger)/i.test(positivePrompt)?"Hamburgueria":undefined);
+    const educationBrief=/(?:instituto|escola|institui[cç][aã]o de ensino|centro de forma[cç][aã]o).{0,180}(?:cursos?|ensino|capacita[cç][aã]o|forma[cç][aã]o)|(?:cursos? profissionalizantes?|capacita[cç][aã]o profissional|matr[ií]culas?|metodologia de ensino)/i.test(positivePrompt);
+    const realEstateBrief=/(?:imobili[aá]ria|consultoria imobili[aá]ria|corretora de im[oó]veis|im[oó]veis de (?:luxo|alto padr[aã]o)|compra e venda de im[oó]veis)/i.test(positivePrompt);
+    const retailBrief=/(?:boutique de moda|moda feminina|loja de roupas|loja de moda|boutique feminina|cole[cç][oõ]es? de roupas|alfaiataria feminina)/i.test(positivePrompt);
+    const technologyBrief=/(?:intelig[eê]ncia artificial|agentes? de ia|automa[cç][aã]o de processos|automa[cç][aã]o empresarial|marketing digital|transforma[cç][aã]o digital|solu[cç][oõ]es tecnol[oó]gicas|desenvolvimento de software)/i.test(positivePrompt);
+    const detectedFamily=briefFamily||(realEstateBrief?7:educationBrief?10:retailBrief?6:technologyBrief?5:/(?:arquitetura|arquiteto|arquitetônica|design de interiores|projetos residenciais|projetos comerciais)/i.test(positivePrompt)?2:/(?:barbearia|barbeiro|salão de beleza|spa e bem-estar|estúdio de maquiagem|consultoria de imagem)/i.test(positivePrompt)?1:/(?:restaurante|pizzaria|hamburgueria|cafeteria|padaria|confeitaria|marmitaria|sorveteria|churrascaria|doceria|food truck)/i.test(positivePrompt)?3:/(?:clínica médica|consultório médico|clínica odontológica|laboratório de análises|centro de diagnóstico|clínica de exames|saúde integrada)/i.test(positivePrompt)?4:resolveBriefingFamily(positivePrompt.slice(0,2500)));
+    const detectedNiche=detectedFamily===5?(/marketing digital|ag[eê]ncia de marketing/i.test(positivePrompt)&&!/intelig[eê]ncia artificial|agentes? de ia/i.test(positivePrompt)?"Agências de marketing digital":"Inteligência artificial"):detectedFamily===6?(/joalheria|semijoias/i.test(positivePrompt)?"Joalheria e semijoias":/cal[cç]ados|sapatos/i.test(positivePrompt)?"Loja de calçados":"Loja de roupas"):detectedFamily===7?(/imobili[aá]ria|corretora de im[oó]veis/i.test(positivePrompt)?"Imobiliárias":/consultoria imobili[aá]ria/i.test(positivePrompt)?"Consultoria imobiliária":/casas? de (?:luxo|alto padr[aã]o)/i.test(positivePrompt)?"Casas de alto padrão":"Imóveis de luxo"):detectedFamily===8?(/pousad/i.test(positivePrompt)?"Pousadas":/resort/i.test(positivePrompt)?"Resorts":/chal[eé]|cabana/i.test(positivePrompt)?"Chalés e cabanas":/hotel/i.test(positivePrompt)?"Hotéis boutique":undefined):detectedFamily===9?(/est[eé]tica automotiva|auto studio|detalhamento automotivo|vitrifica[cç][aã]o|polimento t[eé]cnico/i.test(positivePrompt)?"Estética automotiva":/oficina|mec[aâ]nica/i.test(positivePrompt)?"Oficinas mecânicas":/lava.r[aá]pido/i.test(positivePrompt)?"Lava-rápidos":/concession[aá]ria/i.test(positivePrompt)?"Concessionárias de veículos":undefined):detectedFamily===10?(/cursos? profissionalizantes?|capacita[cç][aã]o profissional|desenvolvimento de carreiras/i.test(positivePrompt)?"Cursos profissionalizantes":/idiomas/i.test(positivePrompt)?"Escolas de idiomas":/escola/i.test(positivePrompt)?"Escolas particulares":"Cursos profissionalizantes"):undefined;
+    const briefNiche=explicitNiche||recognizedNiche||inferredNiche||detectedNiche||(detectedFamily===2?(/arquitetur|design de interiores/i.test(positivePrompt)?"Arquitetura":"Engenharia"):undefined)||(detectedFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===detectedFamily)?.niches[0]:undefined);
     // The active makeup brief outranks stale category selection from a previous site.
-    const creatingMakeupSite=shouldCreateProject&&MAKEUP_RE.test([explicitNiche,prompt].filter(Boolean).join(" "));
+    const creatingMakeupSite=shouldCreateProject&&recognizedNiche==="Estúdio de maquiagem";
     const effectiveBriefNiche=creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=shouldCreateProject?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
@@ -1175,11 +1178,11 @@ export default function BuilderV2() {
       recordVersion(site, "Antes da edição com IA");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);
       // Preserve the selected visual mode when AI generation returns a site without cinematic settings.
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
-      incoming=prepareTP1MakeupSite(incoming,selectedNiche);
+      incoming=prepareTP1MakeupSite(incoming,shouldCreateProject?incoming.niche:selectedNiche);
       setSite(incoming);
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
-         try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,selectedNiche);setSite(finishedSite); }
+         try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,shouldCreateProject?finishedSite.niche:selectedNiche);setSite(finishedSite); }
          catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
        }
        let photoApplyFailed=false;

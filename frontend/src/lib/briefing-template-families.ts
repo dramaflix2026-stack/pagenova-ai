@@ -185,3 +185,77 @@ export function resolveBriefingFamilyFromExplicitNiche(brief:string):BriefingFam
  if(!line)return undefined;
  return resolveBriefingFamily(line.replace(/^.*?:/,"").replace(/\*\*/g,"").trim());
 }
+
+
+/**
+ * Recognize the BUSINESS described by a creation brief, not the industries
+ * mentioned in exclusions ("não usar fotos de maquiagem", etc.).
+ *
+ * Canonical matches cover the full registry; aliases cover natural phrasing.
+ * Keep this shared across the Studio and the API so the two cannot disagree.
+ */
+const primaryBriefAliases:Record<string,string>={
+  "maquiagem":"Estúdio de maquiagem",
+  "maquiagem profissional":"Estúdio de maquiagem",
+  "maquiadora":"Estúdio de maquiagem",
+  "maquiador":"Estúdio de maquiagem",
+  "make up":"Estúdio de maquiagem",
+  "flores":"Floricultura",
+  "loja de flores":"Floricultura",
+  "arranjos florais":"Floricultura",
+  "buques personalizados":"Floricultura",
+  "floricultura boutique":"Floricultura",
+  "petshop":"Pet shop",
+  "loja de perfumes":"Perfumaria e cosméticos",
+  "moda feminina":"Loja de roupas",
+  "moda masculina":"Loja de roupas",
+  "boutique de moda":"Loja de roupas",
+  "sushi":"Comida japonesa",
+  "sushibar":"Comida japonesa",
+  "hamburguer":"Hamburgueria",
+  "hamburgueres":"Hamburgueria",
+  "pizza":"Pizzaria",
+  "pizzas":"Pizzaria",
+  "cafe especial":"Cafeteria",
+  "cafe artesanal":"Cafeteria",
+};
+const primaryBriefCandidates=[
+ ...BRIEFING_TEMPLATE_FAMILIES.flatMap(f=>f.niches.map(n=>({needle:norm(n),niche:String(n)}))),
+ ...Object.entries(aliases).map(([needle,niche])=>({needle,niche})),
+ ...Object.entries(primaryBriefAliases).map(([needle,niche])=>({needle:norm(needle),niche})),
+].filter(item=>item.needle.length>=4);
+const negativeBriefStart=/^(?:nao|nunca|jamais|sem|evite|evitar|proibido|proibida|exclua|remova|retire|nao incluir|nao usar)\b/;
+const negativeBriefTail=/\b(?:nao|nunca|jamais|sem|evite|evitar|proibido|proibida)\s+(?:usar|use|utilizar|utilize|colocar|coloque|incluir|inclua|inserir|insira|misturar|misture|mostrar|mostre|ter|apresentar|apresente|gerar|gere|repetir|repita|inventar|invente|imagens?|fotos?|fotografias?)\b.*$/;
+
+/** Positive business declarations only. Never use the entire raw brief to classify. */
+export function positiveBusinessBrief(brief:string):string {
+ return (brief||"").split(/\r?\n|(?<=[.!?;])\s+/u).map(raw=>{
+  const line=norm(raw.replace(/^\s*(?:(?:[-*•]|\d+[.)])\s*)+/u,""));
+  if(negativeBriefStart.test(line))return "";
+  return line.replace(negativeBriefTail,"").trim();
+ }).filter(Boolean).join(" ");
+}
+
+export function resolvePrimaryBriefingNiche(brief:string):string|undefined {
+ const explicitLine=(brief||"").split(/\r?\n/u).find(line=>/^\s*(?:[-*]\s*)?(?:\*\*)?\s*(?:nicho|segmento|ramo(?:\s+de\s+atividade)?|tipo\s+de\s+neg[oó]cio)\s*(?:\*\*)?\s*:/i.test(line));
+ const normalizedExplicit=explicitLine?norm(explicitLine.slice(explicitLine.indexOf(":")+1).replace(/\*\*/g,"")):"";
+ if(normalizedExplicit){
+  const exact=primaryBriefCandidates.find(item=>item.needle===normalizedExplicit);
+  if(exact)return exact.niche;
+  const scoped=primaryBriefCandidates.filter(item=>(" "+normalizedExplicit+" ").includes(" "+item.needle+" ")).sort((a,b)=>b.needle.length-a.needle.length)[0];
+  if(scoped)return scoped.niche;
+ }
+ const statements=(brief||"").split(/\r?\n|(?<=[.!?;])\s+/u);
+ for(const raw of statements){
+  const cleaned=norm(raw.replace(/^\s*(?:(?:[-*•]|\d+[.)])\s*)+/u,""));
+  if(!cleaned||negativeBriefStart.test(cleaned))continue;
+  const positive=cleaned.replace(negativeBriefTail,"").trim();
+  const padded=" "+positive+" ";
+  const matches=primaryBriefCandidates.map(item=>({item,index:padded.indexOf(" "+item.needle+" ")})).filter(hit=>hit.index>=0);
+  if(matches.length){
+   matches.sort((a,b)=>a.index-b.index||b.item.needle.length-a.item.needle.length);
+   return matches[0].item.niche;
+  }
+ }
+ return undefined;
+}
