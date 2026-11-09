@@ -123,6 +123,6 @@ test("global PageNova footer grid is explicitly neutralized at the shell level f
  assert.match(globals,/body footer\.pn-dental-footer \.pn-dental-footer-intro h2[\s\S]*?word-break:normal\s*!important/);
  // Regress all 3 variants, which use exactly this shell via the shared footer.
  for(const [i,m] of models.entries()){
-   assert.match(m,new RegExp('DentalPremiumFooter site=\\\\{site\\\\} variant="'+String(i+1).padStart(2,"0")+'"'));
+   assert.ok(m.includes('DentalPremiumFooter site={site} variant="'+String(i+1).padStart(2,"0")+'"'));
  }
 });
