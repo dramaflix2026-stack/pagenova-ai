@@ -13,6 +13,9 @@ test("TP2 all 3 have metrics, five testimonial slots, contact map and premium fo
  assert.match(shared,/publishedMode\?\[\]/);
  assert.match(shared,/RELATO FICTÍCIO/);
  assert.match(shared,/não resultados comerciais/);
+ assert.match(shared,/universalBlockProps\(headlineBlock\)/);
+ assert.match(models[1],/headlineBlock=\{footerParagraph\|\|footerHeading\}/);
+ assert.match(models[2],/headlineBlock=\{footerHeading\|\|footerParagraph\}/);
  assert.match(shared,/prefers-reduced-motion/);
 });
 test("publishedMode reaches both TP2 switchable models and fictitious testimonials stay in preview only",()=>{

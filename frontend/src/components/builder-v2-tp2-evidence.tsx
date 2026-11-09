@@ -1,5 +1,7 @@
 "use client";
 import {useEffect,useRef,useState} from "react";
+import type {BuilderV2SiteData} from "./builder-v2-site";
+import {universalBlockProps} from "./builder-v2-universal-bindings";
 type Footer={address?:string;email?:string;whatsapp?:string};
 const sample=[
  ["Mariana Oliveira","Personagem fictícia · Atendimento","A escuta e o cuidado com cada etapa ajudam a transformar ideias em decisões mais claras."],
@@ -72,11 +74,11 @@ export function TP2ContactMap({footer,publishedMode=false}:{footer?:Footer;publi
   </div>
  </div>;
 }
-export function TP2PremiumFooterBody({brand,footer,home="#inicio"}:{brand:string;footer?:Footer;home?:string}){
+export function TP2PremiumFooterBody({brand,footer,home="#inicio",headlineBlock}:{brand:string;footer?:Footer;home?:string;headlineBlock?:BuilderV2SiteData["blocks"][number]}){
  const phone=whatsapp(footer);
  return <div data-tp2-proof="premium-footer" className="w-full bg-[#15201c] px-6 pb-7 pt-14 text-[#f7f2e9] md:px-14 md:pt-20">
   <div className="mx-auto max-w-7xl">
-   <div className="grid gap-6 border-b border-white/20 pb-12 md:grid-cols-[1fr_auto] md:items-end"><div><span className="text-xs font-bold tracking-[.2em] text-[#d9bb98]">DESIGN · PROJETO · POSSIBILIDADES</span><h2 className="mt-5 max-w-4xl break-words text-[clamp(32px,5vw,75px)] font-extrabold leading-[1.08] tracking-[-.05em]">Seu próximo projeto começa <em className="font-serif font-normal text-[#d9bb98]">com uma conversa.</em></h2></div><a href={home} className="text-xs font-bold text-[#e8dbca]">Voltar ao topo ↑</a></div>
+   <div className="grid gap-6 border-b border-white/20 pb-12 md:grid-cols-[1fr_auto] md:items-end"><div><span className="text-xs font-bold tracking-[.2em] text-[#d9bb98]">DESIGN · PROJETO · POSSIBILIDADES</span><h2 className="mt-5 max-w-4xl break-words text-[clamp(32px,5vw,75px)] font-extrabold leading-[1.08] tracking-[-.05em]" {...universalBlockProps(headlineBlock)}>{headlineBlock?.text||<>Seu próximo projeto começa <em className="font-serif font-normal text-[#d9bb98]">com uma conversa.</em></>}</h2></div><a href={home} className="text-xs font-bold text-[#e8dbca]">Voltar ao topo ↑</a></div>
    <div className="grid gap-9 py-12 sm:grid-cols-2 lg:grid-cols-3">
     <div><h3 className="mb-5 text-xs font-bold tracking-[.15em] text-[#d9bb98]">EXPLORAR</h3><nav aria-label="Navegação do rodapé" className="flex flex-col gap-3 text-sm"><a href={home}>Início ↗</a><a href="#sobre">Sobre ↗</a><a href="#especialidades">Especialidades ↗</a><a href="#projetos">Projetos ↗</a><a href="#contato">Contato ↗</a></nav></div>
     <div className="min-w-0"><h3 className="mb-5 text-xs font-bold tracking-[.15em] text-[#d9bb98]">FALE CONOSCO</h3><div className="flex flex-col gap-3 text-sm break-all">{footer?.email&&<a href={"mailto:"+footer.email}>{footer.email}</a>}{phone&&<a href={phone} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>}{!footer?.email&&!phone&&<a href="#contato">Cadastrar canal de contato ↗</a>}</div></div>

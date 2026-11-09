@@ -408,8 +408,12 @@ test("TP2 numbers and testimonials headings are editable without inventing metri
    const testimonials=$('[data-universal-section="depoimentos"]');
    assert.equal(numbers.find('[data-block-id="tp2-metrics-title"]').text(),"Indicadores verificáveis");
    assert.equal(testimonials.find('[data-block-id="tp2-testimonials-title"]').text(),"Experiências compartilhadas");
-   assert.equal(numbers.find("strong").length,0);
-   assert.equal(testimonials.find("blockquote").length,0);
+   // When commercial indicators are absent, the cards count actual site structure,
+   // not invented customers, projects or revenue. Demo reviews are preview-only.
+   assert.equal(numbers.find('[data-tp2-proof="numbers"] strong').length,3);
+   assert.match(numbers.text(),/ESTRUTURA DESTA APRESENTAÇÃO/);
+   assert.equal(testimonials.find('[data-tp2-proof="testimonials"] blockquote').length,publishedMode?0:5);
+   if(!publishedMode)assert.match(testimonials.text(),/RELATO FICTÍCIO/);
   }
  }
 });
