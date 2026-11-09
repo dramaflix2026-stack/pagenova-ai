@@ -1,0 +1,55 @@
+
+.pn-dental-social-proof{width:100%;margin:24px 0 0}
+.pn-dental-demo-banner{font:700 11px/1.5 system-ui,sans-serif!important;letter-spacing:.08em!important;text-transform:uppercase;color:#355f62!important;padding:12px 17px!important;background:#e5f3ed;border:1px solid #a6d9c4;border-radius:12px;margin:0 0 22px!important}
+.pn-dental-testimonial-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin:26px 0}
+.pn-dental-review{min-width:0;display:flex;flex-direction:column;gap:16px;padding:25px;border:1px solid #d3e1dd;border-radius:22px;background:#fff;color:#173834;box-shadow:0 12px 35px rgba(0,0,0,.05)}
+.pn-dental-review-top{display:flex;align-items:center;gap:12px}.pn-dental-review-top img,.pn-dental-review-initials{width:54px!important;height:54px!important;flex-shrink:0;border-radius:50%!important;object-fit:cover!important}
+.pn-dental-review-initials{display:grid;place-items:center;font-size:18px;font-weight:800;background:#d7e9e1;color:#143c35}
+.pn-dental-review strong{display:block;font:700 16px/1.3 system-ui,sans-serif!important;color:#143b37}.pn-dental-review small{font:500 11px/1.4 system-ui,sans-serif;color:#637b75}
+.pn-dental-review>p{font:400 15px/1.75 system-ui,sans-serif!important;color:#475f5a!important;margin:0!important}
+.pn-dental-pending{padding:35px;border:1px solid #c9ded4;border-radius:20px;background:#f5f9f6;color:#21433c}.pn-dental-pending h3{font-size:22px;margin:0 0 8px}.pn-dental-pending p{margin:0;line-height:1.6}
+.pn-dental-team-photo-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:28px}
+.pn-dental-team-photo-grid figure{margin:0;min-width:0}.pn-dental-team-photo-grid img{display:block;width:100%;height:270px;object-fit:cover;border-radius:18px}
+.pn-dental-team-photo-grid figcaption{padding:10px 0;font:500 12px system-ui,sans-serif;color:inherit;opacity:.8}
+.pn-dental-kpis-note{font:500 12px/1.5 system-ui,sans-serif!important;opacity:.8;margin:12px 0 22px!important;max-width:700px}
+.pn-dental-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.pn-dental-kpi{min-width:0;padding:28px 18px;background:rgba(255,255,255,.13);border:1px solid rgba(20,75,70,.15);border-radius:20px}
+.pn-dental-kpi .pn-dental-animated-num{display:block;font:800 clamp(34px,4.2vw,68px)/1.08 system-ui,sans-serif;letter-spacing:-.05em}
+.pn-dental-kpi>span:last-child{display:block;margin-top:12px;font:600 13px/1.45 system-ui,sans-serif;opacity:.85}
+.pn-dental-location{width:100%;margin-top:28px;border-radius:25px;overflow:hidden;background:white;border:1px solid #d1e3dc;box-shadow:0 22px 52px rgba(18,57,50,.08)}
+.pn-dental-location iframe{border:0;width:100%;height:340px;display:block;filter:saturate(.85)}
+.pn-dental-location-bottom{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 28px;color:#183f39}
+.pn-dental-location-bottom strong{display:block;font:800 18px/1.3 system-ui,sans-serif}.pn-dental-location address{font:400 14px/1.6 system-ui,sans-serif;font-style:normal;margin-top:6px}
+.pn-dental-whatsapp{display:inline-flex;justify-content:center;align-items:center;border-radius:999px;padding:15px 22px;white-space:nowrap;font:700 14px/1.2 system-ui,sans-serif!important;background:#167c52;color:white!important;text-decoration:none!important}
+.pn-dental-whatsapp--inactive{background:#dae7df;color:#45665a!important;cursor:not-allowed}
+.pn-dental-footer{position:relative;background:#0b2328;color:#eaf5f2;overflow:hidden;width:100%;font-family:system-ui,-apple-system,sans-serif;text-align:left}
+.pn-dental-footer:before{content:"";position:absolute;right:-110px;top:-180px;width:500px;height:500px;border:1px solid rgba(126,231,198,.2);border-radius:50%;pointer-events:none}
+.pn-dental-footer-inner{max-width:1280px;padding:56px 5% 22px;margin:0 auto;position:relative}
+.pn-dental-footer-head,.pn-dental-footer-bottom{display:flex;justify-content:space-between;align-items:center;gap:20px}
+.pn-dental-footer-head{border-bottom:1px solid rgba(255,255,255,.19);padding-bottom:25px}
+.pn-dental-footer-label{font:700 11px/1.4 system-ui,sans-serif;letter-spacing:.18em;color:#8ee2bf}.pn-dental-footer a{color:#def4eb;text-decoration:none}.pn-dental-footer a:hover{text-decoration:underline}
+.pn-dental-footer-up{font-size:14px}
+.pn-dental-footer-main{display:grid;grid-template-columns:minmax(0,2fr) minmax(130px,1fr) minmax(160px,1fr);gap:clamp(24px,5vw,90px);padding:58px 0 72px}
+.pn-dental-footer-intro h2{font:800 clamp(44px,7vw,96px)/.98 system-ui,sans-serif!important;letter-spacing:-.08em;overflow-wrap:anywhere;margin:0 0 26px!important;color:#fff!important}
+.pn-dental-footer p{font:400 15px/1.7 system-ui,sans-serif!important;color:#a9cbc1!important;margin:0!important;max-width:400px}
+.pn-dental-footer h3{font:700 12px system-ui,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#91e3c5;margin:0 0 21px}
+.pn-dental-footer nav,.pn-dental-footer-main>div:last-child{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.pn-dental-footer nav a,.pn-dental-footer-main>div:last-child a{font:500 15px/1.5 system-ui,sans-serif}
+.pn-dental-footer-bottom{border-top:1px solid rgba(255,255,255,.17);padding:20px 0 4px;font:400 12px/1.6 system-ui,sans-serif;color:#9cbcb2}
+@media(max-width:900px){.pn-dental-testimonial-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-team-photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pn-dental-footer-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.pn-dental-footer-intro{grid-column:1/-1}}
+@media(max-width:600px){.pn-dental-testimonial-grid{grid-template-columns:1fr}.pn-dental-review{padding:20px}.pn-dental-team-photo-grid img{height:185px}.pn-dental-kpi{padding:22px 14px}.pn-dental-kpi .pn-dental-animated-num{font-size:40px}.pn-dental-location iframe{height:245px}.pn-dental-location-bottom{align-items:stretch;flex-direction:column;padding:20px}.pn-dental-whatsapp{white-space:normal}.pn-dental-footer-inner{padding:45px 6% 22px}.pn-dental-footer-head{align-items:flex-start;flex-direction:column}.pn-dental-footer-main{padding:40px 0 50px;gap:35px;grid-template-columns:1fr 1fr}.pn-dental-footer-intro{grid-column:1/-1}.pn-dental-footer-intro h2{font-size:clamp(44px,12vw,70px)}.pn-dental-footer-bottom{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.pn-dental-review,.pn-dental-footer a{transition:none!important}}
+
+/* Existing TP4 section layouts: the shared widgets must fill the whole row, not a single legacy flex/grid cell. */
+.tp4m2 .tp4m2-numbers>.pn-dental-kpis{display:block;flex:1;min-width:0}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tp4m3 .m3-number-grid>.pn-dental-kpis{grid-column:1/-1;border:0;padding:0;min-width:0}
+.tp4m3 .m3-number-grid .pn-dental-animated-num{display:block!important;font-size:clamp(34px,4.2vw,68px)!important;font-weight:800;line-height:1.08!important}
+.tp4m3 .m3-number-grid .pn-dental-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid .pn-dental-kpi>span:last-child,.tp4m3 .m3-number-grid .pn-dental-kpi-grid .pn-dental-kpi>span:last-child{font-size:13px}
+@media(max-width:1000px){.tp4m2 .tp4m2-numbers{display:block}.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.tp4m2 .tp4m2-numbers .pn-dental-kpi-grid,.tp4m3 .m3-number-grid .pn-dental-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.tp4m2 .tp4m2-dental-map{grid-column:1/-1;width:100%;min-width:0}.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,4vw,65px)}
+.tp4m2 .tp4m2-dental-map .pn-dental-location{margin-top:10px}
+@media(max-width:800px){.tp4m2 .tp4m2-contact:has(.tp4m2-dental-map){grid-template-columns:1fr}.tp4m2 .tp4m2-dental-map{grid-column:1}}
