@@ -40,11 +40,24 @@ export const JAPANESE_TP3_PHOTO_IDS=[
 /* Each model uses its own starting position, never the same hero image.
  * We skip repeated IDs within the same page by selecting from this
  * deduplicated catalog, not the generic wrapping array above. */
-const UNIQUE_JAPANESE_PHOTOS=[...new Set(JAPANESE_TP3_PHOTO_IDS)];
+// Free licensed Pexels images with specifically verified sushi/sashimi
+// descriptions. These extend the pool to keep photos unique within a page.
+// https://www.pexels.com/photo/a-chef-making-sushi-8951107/
+// https://www.pexels.com/photo/exquisite-sushi-platter-with-assorted-sashimi-and-rolls-31393446/
+export const JAPANESE_TP3_PEXELS_IDS=[
+ 8951107,8951105,8951172,28992215,31225297,31282322,1893573,
+ 15476834,10692490,12437584,31393446,24604647,
+] as const;
+const UNIQUE_JAPANESE_PHOTOS=[
+ ...new Set(JAPANESE_TP3_PHOTO_IDS.map(id=>"https://images.unsplash.com/"+id)),
+ ...JAPANESE_TP3_PEXELS_IDS.map(id=>"https://images.pexels.com/photos/"+id+"/pexels-photo-"+id+".jpeg"),
+];
 export function japaneseTP3Photo(slot:number,model:2|3,width=1400):string{
- const offset=model===2?0:9;
- const id=UNIQUE_JAPANESE_PHOTOS[(Math.max(0,Math.trunc(slot))+offset)%UNIQUE_JAPANESE_PHOTOS.length];
- return "https://images.unsplash.com/"+id+"?auto=format&fit=crop&w="+width+"&q=85";
+ const offset=model===2?0:11;
+ const base=UNIQUE_JAPANESE_PHOTOS[(Math.max(0,Math.trunc(slot))+offset)%UNIQUE_JAPANESE_PHOTOS.length];
+ return base.includes("pexels.com")
+  ?base+"?auto=compress&cs=tinysrgb&w="+width
+  :base+"?auto=format&fit=crop&w="+width+"&q=85";
 }
 export function japaneseTP3OwnerImage(site:BuilderV2SiteData,section:RegExp,index=0):string|undefined{
  const chosen=site.blocks.filter(block=>block.type==="image" && section.test(block.section||"") &&
@@ -88,7 +101,7 @@ export function JapaneseTP3Testimonials({site,publishedMode=false,variant}:{site
      className={"min-w-0 overflow-hidden rounded-xl border p-5 shadow-sm "+(dark?"border-[#514233] bg-[#29251e] text-[#f5eee5]":"border-[#dacabb] bg-[#fffaf4] text-[#29251f]")}>
      <div className="flex min-w-0 items-center gap-3">
       <img src={"https://images.unsplash.com/"+item.avatar+"?auto=format&fit=crop&w=160&h=160&q=80"} loading="lazy"
-        alt="Retrato ilustrativo — não identifica o autor da avaliação" className="h-12 w-12 shrink-0 rounded-full object-cover"/>
+        alt="Retrato ilustrativo — não identifica o autor da avaliação" className="h-12 w-12 shrink-0 rounded-full object-cover" style={{width:48,height:48,minWidth:48,minHeight:48,flexShrink:0,borderRadius:"50%",objectFit:"cover"}}/>
       <div className="min-w-0"><strong className="block break-words text-sm font-semibold">{item.name}</strong>
        <span className={"text-xs "+(dark?"text-[#d0ba9d]":"text-[#8a7260]")}>{item.demo?"Exemplo fictício":"Foto ilustrativa"}</span>
       </div>
