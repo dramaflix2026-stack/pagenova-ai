@@ -1,6 +1,7 @@
 "use client";
 import "./builder-v2-tp6-model3-reviews-faq.css";
 import {TP6PerfumePreviewReviews} from "./tp6-perfume-preview-reviews";
+import {TP6RetailReviewSlots} from "./builder-v2-tp6-premium-shared";
 type Block={id?:string;type:string;text?:string;section?:string;layout?:string};
 type Review={quote:string;name?:string};
 export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,publishedMode=false}:{niche:string;blocks:Block[];contactHref?:string;publishedMode?:boolean}){
@@ -23,7 +24,15 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,published
  {q:"Como consultar a disponibilidade de um produto?",a:"Escolha o item desejado e entre em contato com a loja para confirmar as opções disponíveis."},
  {q:"Onde posso esclarecer dúvidas antes de escolher?",a:"Use a seção Entre em Contato para falar com a equipe e obter informações sobre "+subject+"."}
  ];
- const questions=niche==="Perfumaria e cosméticos"&&pairs.length<4?[
+ const floralQuestions=[
+ {q:"Como escolher um buquê para presentear?",a:"Informe a ocasião e suas preferências para consultar as composições disponíveis."},
+ {q:"Posso personalizar as cores e flores?",a:"Consulte a equipe sobre combinações, espécies e disponibilidade da estação."},
+ {q:"Vocês atendem casamentos e eventos?",a:"Converse sobre sua data e o planejamento floral desejado."},
+ {q:"Como funcionam entrega e retirada?",a:"Confirme regiões atendidas, horários e condições antes de finalizar o pedido."},
+ {q:"É possível incluir uma mensagem no presente?",a:"Pergunte sobre cartões e personalização da encomenda."},
+ {q:"Como conservar meu arranjo?",a:"Evite calor excessivo e siga as orientações de cuidado das flores."}
+ ];
+ const questions=niche==="Floricultura"&&pairs.length<5?floralQuestions:niche==="Perfumaria e cosméticos"&&pairs.length<4?[
  {q:"Como identificar uma fragrância adequada?",a:"Consulte as notas e famílias olfativas dos perfumes e peça orientação à equipe."},
  {q:"Quais cuidados com a pele a loja oferece?",a:"Verifique as linhas e características dos cosméticos disponíveis antes da compra."},
  {q:"Posso consultar opções de maquiagem?",a:"Confira a seleção e confirme cores, acabamentos, ingredientes e estoque com a loja."},
@@ -35,7 +44,7 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,published
  <section className="tp6m3-reviews" id="depoimentos" aria-labelledby="tp6m3-reviews-title">
   <div className="tp6m3-section-meta"><span>06 / EXPERIÊNCIAS</span><span>DEPOIMENTOS DOS CLIENTES</span></div>
   <div className="tp6m3-reviews-heading"><h2 id="tp6m3-reviews-title">QUEM<br/>CONTA<span>.</span></h2><p>Um espaço para experiências compartilhadas por clientes, quando cadastradas pela loja.</p></div>
-  {niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<div className="tp6m3-reviews-empty"><span className="tp6m3-review-quote" aria-hidden="true">“</span><div><h3>Histórias reais merecem espaço.</h3><p>Os depoimentos aparecerão aqui quando a loja cadastrar avaliações autênticas de clientes.</p></div><span>AGUARDANDO DEPOIMENTOS</span></div>}
+  {niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<TP6RetailReviewSlots/>}
  </section>
  <section className="tp6m3-faq" id="faq" aria-labelledby="tp6m3-faq-title">
   <div className="tp6m3-section-meta"><span>07 / PERGUNTAS FREQUENTES</span><span>INFORMAÇÃO SEM COMPLICAÇÃO</span></div>

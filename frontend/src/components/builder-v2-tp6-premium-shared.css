@@ -1,0 +1,42 @@
+
+.pn-t6-review-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px;max-width:100%}
+.pn-t6-review-slot{min-width:0;padding:20px;border:1px solid #b5a898;border-radius:12px;background:rgba(255,255,255,.38);color:#292b23;display:flex;flex-direction:column;gap:11px}
+.pn-t6-review-index{font-size:10px;letter-spacing:.15em;font-weight:700;color:#746d60}
+.pn-t6-review-star{font-size:24px;color:#818f6a}
+.pn-t6-review-slot strong{font-size:clamp(12px,1.2vw,15px);line-height:1.35;color:#292b23;overflow-wrap:break-word}
+.pn-t6-review-slot p{font:400 12px/1.55 Arial,sans-serif;margin:0;color:#655f57}
+.pn-t6-review-slot small{color:#665f57}
+.pn-t6-review-slot .pn-t6-review-text{font-size:clamp(15px,1.4vw,20px);color:#292b23}
+.pn-t6-location{background:#f5f1e9!important;color:#26372c!important;padding:clamp(50px,7vw,105px) clamp(20px,5.5vw,95px);max-width:100%;box-sizing:border-box}
+.pn-t6-location-heading{max-width:820px;margin-bottom:35px}.pn-t6-location-heading>span,.pn-t6-location-bottom span:first-child{font-size:11px;font-weight:700;letter-spacing:.18em;color:#637253}
+.pn-t6-location-heading h2{font:400 clamp(38px,5vw,76px)/1.06 Georgia,serif;letter-spacing:-.05em;margin:16px 0!important;color:#26372c!important;overflow-wrap:anywhere}
+.pn-t6-location-heading p{font-size:clamp(14px,1.4vw,18px);color:#575a4e;line-height:1.7}
+.pn-t6-location-map{display:block;width:100%;height:clamp(290px,37vw,460px);border:1px solid #b4b9a9;border-radius:14px;background:#e4e7dd}
+.pn-t6-location-bottom{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:30px;margin-top:25px}.pn-t6-location-bottom p{font-size:clamp(17px,1.6vw,23px);margin:12px 0 8px;color:#26372c!important}.pn-t6-location-bottom small{font-size:12px;color:#6f7568}
+.pn-t6-location-whatsapp{display:inline-flex;align-items:center;justify-content:center;min-height:53px;padding:14px 22px;text-decoration:none;background:#253b2d;color:#fff!important;border-radius:7px;font-size:14px;font-weight:700;text-align:center;white-space:normal}
+.pn-t6-location-disabled{opacity:.63;cursor:not-allowed}
+.pn-t6-layout .pn-t6-footer,.tp6m2-footer,.tp6m3-footer{max-width:100%;min-width:0;overflow:hidden;box-sizing:border-box}
+.pn-t6-layout .pn-t6-footer-top,.tp6m2-footer-top,.tp6m3-footer-top{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(2,minmax(0,1fr));align-items:start;gap:clamp(25px,4vw,68px)}
+.pn-t6-layout .pn-t6-footer-top>*,.tp6m2-footer-top>*,.tp6m3-footer-top>*{min-width:0}
+.pn-t6-layout .pn-t6-footer-brand,.tp6m2-footer-signature,.tp6m3-footer-wordmark{font-size:clamp(42px,7vw,112px);line-height:1.02;letter-spacing:-.06em;overflow-wrap:anywhere;word-break:normal;max-width:100%;margin-top:55px}
+.tp6m2-footer-brand{font-size:clamp(32px,4vw,65px);line-height:1.08;letter-spacing:-.045em}
+.tp6m3-footer-wordmark{display:block;padding-bottom:28px}
+.pn-t6-layout .pn-t6-footer a,.tp6m2-footer a,.tp6m3-footer a{overflow-wrap:anywhere}
+.tp6m2-footer-links,.tp6m3-footer-links{min-width:0}
+[data-tp6-floral="true"] .pn-t6,.pn-t6-layout[data-tp6-floral="true"]{--t6-accent:#788564}
+[data-tp6-floral="true"] .pn-t6-footer,[data-tp6-floral="true"] .tp6m2-footer,[data-tp6-floral="true"] .tp6m3-footer{background:#1b2922;color:#f6f1e8}
+[data-tp6-floral="true"] .tp6m2-dot{background:#71845b!important}
+[data-tp6-floral="true"] .tp6m3-values-heading h2 span,[data-tp6-floral="true"] .tp6m3-collections-heading h2 span{color:#8a956e}
+@media(max-width:850px){
+.pn-t6-layout .pn-t6-footer-top,.tp6m2-footer-top,.tp6m3-footer-top{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pn-t6-layout .pn-t6-footer-top>div:first-child,.tp6m2-footer-top>div:first-child,.tp6m3-footer-top>div:first-child{grid-column:1/-1}
+.pn-t6-location-bottom{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+.pn-t6-layout .pn-t6-footer-top,.tp6m2-footer-top,.tp6m3-footer-top{grid-template-columns:1fr;gap:25px}
+.pn-t6-layout .pn-t6-footer-top>div:first-child,.tp6m2-footer-top>div:first-child,.tp6m3-footer-top>div:first-child{grid-column:auto}
+.pn-t6-layout .pn-t6-footer-brand,.tp6m2-footer-signature,.tp6m3-footer-wordmark{font-size:clamp(40px,12vw,76px);margin-top:38px;line-height:1.04}
+.pn-t6-review-slots{grid-template-columns:1fr}
+.pn-t6-location-map{height:300px}
+.pn-t6-location-whatsapp{width:100%;box-sizing:border-box}
+}

@@ -49,7 +49,7 @@ export function BuilderV2TP6Model3AboutAndValues({brand,niche,photos}:{brand:str
   </section>
   <section className="tp6m3-values" id="diferenciais" aria-labelledby="tp6m3-values-title">
    <div className="tp6m3-section-meta"><span>03 / NOSSOS DIFERENCIAIS</span><span>O QUE ORIENTA A EXPERIÊNCIA</span></div>
-   <div className="tp6m3-values-heading"><h2 id="tp6m3-values-title">O QUE NOS<br/>MOVE<span>.</span></h2><p>Quatro maneiras de descobrir peças, explorar estilos e encontrar o que combina com você.</p></div>
+   <div className="tp6m3-values-heading"><h2 id="tp6m3-values-title">O QUE NOS<br/>MOVE<span>.</span></h2><p>{niche==="Floricultura"?"Um olhar delicado para cada flor, composição e momento especial.":"Quatro maneiras de descobrir peças, explorar estilos e encontrar o que combina com você."}</p></div>
    <div className="tp6m3-values-grid">{values.map(v=><article key={v.n} className="tp6m3-value"><span className="tp6m3-value-number">{v.n}</span><div><h3>{v.title}</h3><p>{v.desc}</p></div><span className="tp6m3-value-arrow" aria-hidden="true">↗</span></article>)}</div>
    <div className="tp6m3-values-bottom"><span>IDENTIDADE / CLAREZA / EXPERIÊNCIA</span><span>03 — 03</span></div>
   </section>
@@ -84,7 +84,7 @@ export function BuilderV2TP6Model3GalleryAndJourney({niche,photos,ctaHref}:{nich
   </section>
   <section className="tp6m3-how" id="como-comprar" aria-labelledby="tp6m3-how-title">
    <div className="tp6m3-section-meta"><span>05 / COMO COMPRAR</span><span>UMA JORNADA SIMPLES</span></div>
-   <div className="tp6m3-how-heading"><h2 id="tp6m3-how-title">DO OLHAR<br/>À ESCOLHA<span>.</span></h2><p>Descubra suas peças favoritas em três passos simples.</p></div>
+   <div className="tp6m3-how-heading"><h2 id="tp6m3-how-title">DO OLHAR<br/>À ESCOLHA<span>.</span></h2><p>{niche==="Floricultura"?"Escolha flores, personalize e combine a entrega em três passos.":"Descubra suas peças favoritas em três passos simples."}</p></div>
    <div className="tp6m3-how-list">{steps.map(step=><div key={step.n} className="tp6m3-how-step"><span className="tp6m3-how-num">{step.n}</span><div className="tp6m3-how-text"><h3>{step.title}</h3><p>{step.description}</p></div><span className="tp6m3-how-arrow" aria-hidden="true">↗</span></div>)}</div>
    <a className="tp6m3-how-cta" href={ctaHref||"#contato"}>CONHECER A SELEÇÃO <span aria-hidden="true">↗</span></a>
   </section>
