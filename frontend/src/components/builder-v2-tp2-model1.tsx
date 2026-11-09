@@ -24,7 +24,7 @@ export function BuilderV2TP2Model1({site,publishedMode=false}:{site:BuilderV2Sit
  const displayAddress=realAddress||(!publishedMode&&isMaterials?demoAddress:"");
  const whatsDigits=(site.footer?.whatsapp||"").replace(/\D/g,"");
  const realWhats=whatsDigits.length>=10?"https://wa.me/"+(whatsDigits.startsWith("55")?whatsDigits:"55"+whatsDigits):"";
- const contact=site.footer?.email?"mailto:"+site.footer.email:site.footer?.whatsapp||"#contato";
+ const contact=realWhats||(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(site.footer?.email||"")?"mailto:"+site.footer!.email:"#contato");
  const services=isMaterials?["Materiais básicos para obra","Ferramentas e instalações","Tintas e acabamentos"]:["Projeto e planejamento","Ambientes personalizados","Consultoria e acompanhamento"];
  const faq=blocks.filter(b=>b.type==="paragraph"&&/\\?/.test(b.text||"")).slice(0,4);
  const metrics=blocks.filter(b=>b.type==="paragraph"&&/n[uú]meros|resultados|indicadores|m[eé]tricas/i.test(b.section||"")).map(b=>b.text);
