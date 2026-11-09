@@ -78,6 +78,14 @@ test("M1 has 6 pictures in gallery plus all mandatory blocks with high-contrast 
  assert.match(css,/section\.pn-tp3-m1-contact h2/);
 });
 
+test("Pizzaria M1 fermentation step uses an actual pizza dough photo with working fallback",()=>{
+ assert.match(shared,/category==="Pizzaria"&&i===1\?"https:\/\/images\.pexels\.com\/photos\/35760003\/pexels-photo-35760003\.jpeg/);
+ assert.match(shared,/img\.dataset\.tp3FallbackAttempt="1"/);
+ assert.match(shared,/images\.pexels\.com\/photos\/33593107\/pexels-photo-33593107\.jpeg/);
+ assert.match(shared,/img\.dataset\.tp3FallbackAttempt="2"/);
+ assert.match(shared,/img\.src=tp3FamilyInternetPhoto\(category,1,12\)/);
+ assert.match(shared,/img\.style\.visibility="hidden"/);
+});
 test("M2 and M3 render animated counters, four testimonial cards, a real contact panel and shared footer",()=>{
  for(let i=1;i<models.length;i++){
   const m=models[i];
