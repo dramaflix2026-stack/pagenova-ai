@@ -4,7 +4,7 @@ import type {BuilderV2SiteData} from "./builder-v2-site";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {tp4DentalImage} from "@/lib/tp4-dental-photo-catalog";
 import {DentalTestimonials,DentalLocation,DentalPremiumFooter} from "./builder-v2-tp4-dental-enhancements";
-const dentalPhotos=["photo-1606811971618-4486d14f3f99","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc"];
+const dentalPhotos=["photo-1559839734-2b71ea197ec2","photo-1609840114035-3c981b782dfe","photo-1629909613654-28e377c37b09","photo-1606811841689-23dfddce3e95","photo-1606265752439-1f18756aa5fc"];
 const photo=(n:number)=>"https://images.unsplash.com/"+dentalPhotos[n%dentalPhotos.length]+"?auto=format&fit=crop&w=1500&q=82";
 export function BuilderV2TP4Model1({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [open,setOpen]=useState<number|null>(null);
