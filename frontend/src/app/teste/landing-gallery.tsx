@@ -117,6 +117,7 @@ export function LandingGallery() {
         </div>
       </div>
     </section>
+    <AiEditorDemo lang={lang}/>
     {selected!==null && <div className="pn-gallery-modal fixed inset-0 z-[200] flex items-center justify-center bg-[#030603]/90 p-3 backdrop-blur-xl sm:p-8" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null);}}>
       <div role="dialog" aria-modal="true" aria-label={examples[selected].names[lang]} className="w-full max-w-[1050px] overflow-hidden rounded-2xl border border-[#a5ff6a]/25 bg-[#0c130e] shadow-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6"><div className="min-w-0"><p className="text-[10px] tracking-[.2em] text-[#b6ff69]">{t.tag}</p><h3 className="truncate text-sm font-bold text-white sm:text-lg">{examples[selected].names[lang]}</h3></div><button type="button" onClick={()=>setSelected(null)} className="rounded-full border border-white/20 p-2 text-white hover:bg-white/10" aria-label={t.close}><X size={18}/></button></div>
@@ -166,4 +167,123 @@ export function LandingGallery() {
       @media(prefers-reduced-motion:reduce){.pn-gallery-card{transition:none!important;transform:none!important}}
     `}</style>
   </>;
+}
+
+type DemoStep = 0|1|2;
+const aiDemoTranslations = {
+  pt:{
+    eyebrow:"PERSONALIZAÇÃO COM INTELIGÊNCIA ARTIFICIAL",headline:"Você imagina. A IA",highlight:"transforma.",description:"Peça mudanças em linguagem natural e veja o projeto ganhar uma nova aparência. Uma demonstração interativa de como funciona a personalização.",
+    chat:"Assistente PageNova",assistant:"Assistente de criação",status:"Demonstração interativa",site:"Prévia do site",live:"Atualização visual",prompt:"Escolha uma alteração",send:"Aplicar alteração",done:"Alteração aplicada",ready:"Escolha um comando para ver o resultado",note:"Simulação visual ilustrativa. Não envia comandos ao Builder, não consome créditos nem altera projetos reais.",
+    prompts:["Mude o título e a chamada principal","Troque as cores para um estilo premium","Adicione uma seção de diferenciais"],assistantReplies:["Atualizei o título e a mensagem principal.","Nova identidade visual aplicada ao projeto.","Seção de diferenciais adicionada."],
+    defaultTitle:"Uma experiência para descobrir.",changedTitle:"Seu próximo nível começa aqui.",subtitle:"Soluções que conectam ideias e negócios.",features:"Por que escolher nossa marca",featureNames:["Design exclusivo","Experiência intuitiva","Resultados sob medida"],cta:"Conhecer soluções",before:"Antes",after:"Depois",reset:"Reiniciar",next:"Próxima alteração"
+  },
+  en:{
+    eyebrow:"AI-POWERED CUSTOMIZATION",headline:"You imagine. AI",highlight:"transforms.",description:"Request changes in natural language and watch your project take a new shape. An interactive showcase of what customization can look like.",
+    chat:"PageNova Assistant",assistant:"Creative assistant",status:"Interactive demo",site:"Website preview",live:"Visual update",prompt:"Choose an edit",send:"Apply change",done:"Change applied",ready:"Choose a request to see the result",note:"Illustrative visual simulation. Does not send commands to the real Builder, use credits, or modify projects.",
+    prompts:["Update the hero headline","Switch to a premium color palette","Add a key benefits section"],assistantReplies:["Headline and primary message updated.","A premium color palette has been applied.","A new benefits section has been added."],
+    defaultTitle:"An experience worth discovering.",changedTitle:"Your next chapter starts here.",subtitle:"Solutions connecting ideas and business.",features:"Why choose our brand",featureNames:["Distinctive design","Easy experience","Made for your goals"],cta:"Explore services",before:"Before",after:"After",reset:"Reset",next:"Next edit"
+  },
+  es:{
+    eyebrow:"PERSONALIZACIÓN CON INTELIGENCIA ARTIFICIAL",headline:"Tú imaginas. La IA",highlight:"transforma.",description:"Pide cambios con lenguaje natural y descubre cómo evoluciona el diseño. Una demostración interactiva de personalización.",
+    chat:"Asistente PageNova",assistant:"Asistente creativo",status:"Demostración interactiva",site:"Vista del sitio",live:"Cambio visual",prompt:"Elige un cambio",send:"Aplicar cambio",done:"Cambio aplicado",ready:"Elige una instrucción para ver el resultado",note:"Simulación visual ilustrativa. No envía comandos al Builder real, no consume créditos ni modifica proyectos.",
+    prompts:["Cambia el título principal","Utiliza una paleta premium","Añade una sección de beneficios"],assistantReplies:["Título principal actualizado.","Nueva paleta de colores aplicada.","Sección de beneficios añadida."],
+    defaultTitle:"Una experiencia por descubrir.",changedTitle:"Tu próximo nivel comienza aquí.",subtitle:"Soluciones que conectan ideas y negocios.",features:"Por qué elegir nuestra marca",featureNames:["Diseño exclusivo","Experiencia intuitiva","A tu medida"],cta:"Conocer servicios",before:"Antes",after:"Después",reset:"Reiniciar",next:"Siguiente cambio"
+  }
+} as const;
+
+function AiEditorDemo({lang}:{lang:Locale}) {
+  const t=aiDemoTranslations[lang];
+  const [step,setStep]=useState<DemoStep>(0);
+  const [stage,setStage]=useState(0);
+  const [playing,setPlaying]=useState(true);
+  const [animating,setAnimating]=useState(false);
+  useEffect(()=>{
+    if(!playing)return;
+    if(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)return;
+    const timer=window.setInterval(()=>{
+      setStep(prev=>(prev+1)%3 as DemoStep);
+      setStage(prev=>Math.min(3,prev+1));
+    },6200);
+    return ()=>window.clearInterval(timer);
+  },[playing]);
+  useEffect(()=>{
+    setAnimating(true);
+    const id=window.setTimeout(()=>setAnimating(false),420);
+    return ()=>window.clearTimeout(id);
+  },[step,stage]);
+  const showNewTitle=stage>=1;
+  const premium=stage>=2;
+  const showFeatures=stage>=3;
+  const theme=premium?"#cfb390":"#b6ff69";
+  const handleChange=(index:DemoStep)=>{
+    setPlaying(false);
+    setStep(index);
+    setStage(index+1);
+  };
+  const reset=()=>{setPlaying(false);setStep(0);setStage(0);};
+  return <section id="edicao-ia" className="relative isolate overflow-hidden border-t border-white/[.07] bg-[#070d09] px-5 py-20 text-white sm:px-8 sm:py-28 lg:py-36" style={{fontFamily:"inherit"}}>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_55%_45%,rgba(154,255,96,.075),transparent_62%)]"/>
+    <div className="relative mx-auto max-w-[1280px]">
+      <div className="mx-auto max-w-[920px] text-center">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#b6ff69]/25 bg-[#b6ff69]/[.06] px-4 py-2 text-[10px] font-bold tracking-[.15em] text-[#b6ff69] sm:text-xs"><span className="text-base">✦</span>{t.eyebrow}</div>
+        <h2 className="text-[clamp(2.55rem,5.7vw,5.8rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{t.headline}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
+        <p className="mx-auto mt-6 max-w-[720px] text-[15px] leading-[1.8] text-[#abb8ae] sm:text-lg">{t.description}</p>
+      </div>
+      <div className="mt-12 overflow-hidden rounded-[24px] border border-[#9cff7833] bg-[#0b130e] shadow-[0_35px_110px_#0009] lg:mt-16 lg:grid lg:min-h-[590px] lg:grid-cols-[.39fr_.61fr]">
+        <div className="flex flex-col border-b border-white/10 lg:border-b-0 lg:border-r">
+          <div className="flex min-h-[74px] items-center gap-3 border-b border-white/10 px-5 sm:px-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#b6ff69]/10 text-[#b6ff69]"><span className="text-xl">✦</span></div>
+            <div><p className="text-sm font-bold">{t.chat}</p><p className="text-xs text-white/45">{t.assistant}</p></div>
+            <span className="ml-auto rounded-full border border-[#b6ff69]/20 bg-[#b6ff69]/[.06] px-2 py-1 text-[10px] text-[#b6ff69]">{t.status}</span>
+          </div>
+          <div className="flex-1 space-y-5 p-5 sm:p-7" aria-live="polite">
+            <div className="ml-auto max-w-[94%] rounded-2xl rounded-tr-md border border-white/10 bg-[#1b2a20] p-4 text-sm leading-6 text-white/90"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.14em] text-[#b6ff69]">{t.prompt}</span>{t.prompts[step]}</div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#b6ff69]/15 text-[#b6ff69]">✦</div>
+              <div className="max-w-[90%] rounded-2xl rounded-tl-md border border-white/10 bg-[#101b14] p-4 text-sm leading-6 text-[#d7e2d8]"><p>{stage>0?t.assistantReplies[step]:t.ready}</p>{stage>0&&<span className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#b6ff69]"><Check size={14}/>{t.done}</span>}</div>
+            </div>
+          </div>
+          <div className="border-t border-white/10 p-4 sm:p-5">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[.12em] text-white/50">{t.prompt}</p>
+            <div className="flex flex-col gap-2">
+              {t.prompts.map((prompt,index)=><button key={index} type="button" aria-pressed={stage>0&&step===index} onClick={()=>handleChange(index as DemoStep)} className={"flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-left text-xs leading-5 transition sm:text-[13px] "+(stage>0&&step===index?"border-[#b6ff69]/50 bg-[#b6ff69]/10 text-white":"border-white/10 bg-white/[.025] text-[#c6d0c8] hover:border-[#b6ff69]/30 hover:text-white")}>{prompt}<ArrowUpRight size={15} className="shrink-0 text-[#b6ff69]"/></button>)}
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-3"><button type="button" onClick={reset} className="text-xs text-white/55 underline underline-offset-4 hover:text-white">{t.reset}</button><span className="text-[10px] text-white/35">{stage>0?`${Math.min(stage,3)}/3`:"0/3"}</span></div>
+          </div>
+        </div>
+        <div className="min-w-0 bg-[#101a14]">
+          <div className="flex min-h-[55px] items-center justify-between gap-3 border-b border-white/10 px-4 sm:px-6">
+            <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#ee7777]"/><span className="h-2 w-2 rounded-full bg-[#dfbc68]"/><span className="h-2 w-2 rounded-full bg-[#78c991]"/><span className="ml-2 text-xs font-medium text-white/65">{t.site}</span></div>
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-[#b6ff69]"><span className="h-1.5 w-1.5 rounded-full bg-[#b6ff69]"/>{t.live}</span>
+          </div>
+          <div className="p-3 sm:p-5">
+            <div className={"relative flex min-h-[380px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[490px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
+              <div className="absolute inset-0 pointer-events-none" style={{background:premium?"radial-gradient(circle at 86% 46%,#b89a6a60,transparent 45%)":"radial-gradient(circle at 86% 46%,#78be8c55,transparent 45%)"}}/>
+              <div className="relative flex h-16 items-center justify-between gap-3 border-b border-white/10 px-5 sm:px-8">
+                <span className="text-lg font-extrabold tracking-tight">ATELIER<span style={{color:theme}}>.</span></span><div className="hidden gap-5 sm:flex">{["Studio","Sobre","Contato"].map(x=><span key={x} className="text-[10px] text-white/60">{x}</span>)}</div><span className="h-6 w-12 rounded-md transition-colors duration-500" style={{background:theme}}/>
+              </div>
+              <div className="relative grid flex-1 grid-cols-1 items-center gap-5 p-6 sm:grid-cols-[1.1fr_.9fr] sm:gap-8 sm:p-9">
+                <div className={"relative z-10 transition-all duration-500 "+(animating?"opacity-75 translate-y-1":"opacity-100 translate-y-0")}>
+                  <p className="mb-4 text-[10px] font-bold tracking-[.21em] uppercase" style={{color:theme}}>Branding & Design Studio</p>
+                  <h3 className="max-w-[410px] text-[clamp(2.3rem,4vw,4.7rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
+                  <p className="mt-5 max-w-[320px] text-[13px] leading-6 text-white/70">{t.subtitle}</p>
+                  <span className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-xs font-bold text-[#101710] transition-colors duration-500" style={{background:theme}}>{t.cta}<ArrowRight size={14}/></span>
+                </div>
+                <div className="relative mx-auto hidden h-60 w-full max-w-[250px] items-center justify-center sm:flex">
+                  <div className="absolute h-52 w-52 rotate-12 rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"70",background:theme+"18"}}/>
+                  <div className="absolute h-44 w-44 -rotate-[16deg] rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"80",background:theme+"25"}}/>
+                  <div className="relative flex h-28 w-28 rotate-6 items-center justify-center rounded-[28px] border bg-white/[.06] text-6xl shadow-2xl" style={{borderColor:theme+"65"}}>✦</div>
+                </div>
+              </div>
+              <div className={"relative grid overflow-hidden border-t border-white/10 bg-black/20 transition-all duration-500 "+(showFeatures?"grid-rows-[1fr] opacity-100":"grid-rows-[0fr] opacity-0")}>
+                <div className="min-h-0"><div className="p-5 sm:p-7"><p className="mb-4 text-sm font-bold">{t.features}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-3">{t.featureNames.map(name=><div key={name} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-3 text-[11px]"><Check size={14} style={{color:theme}}/>{name}</div>)}</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-5 text-[11px] text-white/50 sm:px-6"><span>{t.before} / {t.after}</span><span className="text-[#b6ff69]">{stage>0?t.done:t.ready}</span></div>
+        </div>
+      </div>
+      <p className="mx-auto mt-6 max-w-[720px] text-center text-xs leading-6 text-[#819285]">{t.note}</p>
+    </div>
+  </section>;
 }
