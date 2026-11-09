@@ -9,7 +9,7 @@ import "./hero-modelo-um.css";
 type Lang = "pt" | "en" | "es";
 const copy = {
   pt: {
-    nav: ["Plataforma", "Possibilidades", "Planos"],
+    nav: ["Plataforma", "Possibilidades", "Planos"], cases:"Cases",
     login: "Entrar", start: "Começar agora", eyebrow: "A NOVA ERA DA CRIAÇÃO DIGITAL",
     first: "Suas ideias merecem", highlight: "ir além.", description: "Crie sites, landing pages e projetos digitais com inteligência artificial. Personalize sua presença online e encontre novas oportunidades em um só lugar.",
     watch: "Explorar a plataforma", preview: "Uma plataforma. Novas possibilidades.", browser: "Prévia do seu projeto",
@@ -19,7 +19,7 @@ const copy = {
     sampleLabel: "MODELO DE SITE", language: "Idioma", mobileNav: "Abrir navegação"
   },
   en: {
-    nav: ["Platform", "Possibilities", "Plans"],
+    nav: ["Platform", "Possibilities", "Plans"], cases:"Examples",
     login: "Log in", start: "Get started", eyebrow: "THE NEXT ERA OF DIGITAL CREATION",
     first: "Your ideas deserve", highlight: "more.", description: "Create websites, landing pages and digital projects with artificial intelligence. Customize your online presence and explore new business opportunities in one place.",
     watch: "Explore the platform", preview: "One platform. New possibilities.", browser: "Your project preview",
@@ -29,7 +29,7 @@ const copy = {
     sampleLabel: "WEBSITE TEMPLATE", language: "Language", mobileNav: "Open navigation"
   },
   es: {
-    nav: ["Plataforma", "Posibilidades", "Planes"],
+    nav: ["Plataforma", "Posibilidades", "Planes"], cases:"Ejemplos",
     login: "Ingresar", start: "Empezar ahora", eyebrow: "LA NUEVA ERA DE LA CREACIÓN DIGITAL",
     first: "Tus ideas merecen", highlight: "ir más allá.", description: "Crea sitios web, landing pages y proyectos digitales con inteligencia artificial. Personaliza tu presencia en línea y descubre oportunidades de negocio en un solo lugar.",
     watch: "Explorar la plataforma", preview: "Una plataforma. Nuevas posibilidades.", browser: "Vista previa de tu proyecto",
@@ -81,7 +81,7 @@ export function HeroModeloUm() {
           <nav className="hidden items-center gap-9 text-[13px] font-semibold text-white/75 lg:flex" aria-label="Navegação principal">
             <a href="#ecossistema" className="transition hover:text-[#b6ff69]">{t.nav[0]}</a>
             <a href="#galeria" className="transition hover:text-[#b6ff69]">{t.nav[1]}</a>
-            <a href="#planos" className="transition hover:text-[#b6ff69]">{t.nav[2]}</a>
+            <a href="#planos" className="transition hover:text-[#b6ff69]">{t.nav[2]}</a><a href="#publicos" className="transition hover:text-[#b6ff69]">{t.cases}</a>
           </nav>
           <div className="hidden items-center gap-4 sm:flex">
             <label className="relative inline-flex items-center gap-1.5 text-xs font-semibold text-white/80">
@@ -100,7 +100,7 @@ export function HeroModeloUm() {
         </div>
         {menuOpen && (
           <nav className="flex flex-col gap-4 border-t border-white/10 bg-[#0e1a10] p-6 sm:hidden">
-            <a onClick={()=>setMenuOpen(false)} href="#ecossistema">{t.nav[0]}</a><a onClick={()=>setMenuOpen(false)} href="#galeria">{t.nav[1]}</a><a onClick={()=>setMenuOpen(false)} href="#planos">{t.nav[2]}</a>
+            <a onClick={()=>setMenuOpen(false)} href="#ecossistema">{t.nav[0]}</a><a onClick={()=>setMenuOpen(false)} href="#galeria">{t.nav[1]}</a><a onClick={()=>setMenuOpen(false)} href="#planos">{t.nav[2]}</a><a onClick={()=>setMenuOpen(false)} href="#publicos">{t.cases}</a>
             <div className="flex gap-2">{(["pt","en","es"] as const).map(l=><button type="button" key={l} onClick={()=>changeLang(l)} className={"rounded-md border px-3 py-2 text-xs "+(lang===l?"border-[#b6ff69] text-[#b6ff69]":"border-white/20")}>{l.toUpperCase()}</button>)}</div>
             <Link href="/login" className="text-white/80">{t.login}</Link>
             <Link href="/cadastro" className="rounded-lg bg-[#a6ff61] px-4 py-3 text-center font-bold text-[#101a0d]">{t.start}</Link>
