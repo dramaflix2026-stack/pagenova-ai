@@ -4,7 +4,7 @@ import {applyUniversalNaturalLanguage} from "@/lib/builder-v2-universal-language
 import {parseUniversalCopyEdit,applyUniversalCopyEdit} from "@/lib/builder-v2-universal-copy-edits";
 import {parseUniversalCardEdit,applyUniversalCardEdit} from "@/lib/builder-v2-universal-card-edits";
 import {applyUniversalOperations,summarizeUniversalEdit,type UniversalOperation} from "@/lib/builder-v2-universal-operations";
-import {briefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
+import {generationBriefCardCounts, briefHeadingAlignment, hexColor} from "@/lib/builder-v2-brief-contract";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { applyAnnouncementTextInstruction, referencesTopAnnouncement, DEFAULT_BUILDER_ANNOUNCEMENT } from "@/lib/builder-v2-announcement";
@@ -78,7 +78,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     // Positive business identity takes priority over excluded examples and any previous project.
     // Include it in EVERY generation phase, not only the initial layout call.
     const nicheGuard=primaryNiche?"\nNICHO OBRIGATÓRIO DESTE SITE: "+primaryNiche+". Todos os títulos, serviços, cards, perguntas e imagens devem pertencer exclusivamente a este segmento. Menções negativas como 'não usar imagens de maquiagem' são PROIBIÇÕES DE CONTEÚDO, nunca pedidos para criar um site de maquiagem. Não reaproveite setores, cards ou serviços de outro negócio.":"";
-    const briefCounts=briefCardCounts(instruction);
+    const briefCounts=generationBriefCardCounts(instruction);
     const requestedLanguage=/\b(?:em|idioma|língua|language|write in)\s+(?:espanhol|español|spanish|inglês|english|francês|french)\b/i.test(instruction)?instruction.match(/\b(?:espanhol|español|spanish|inglês|english|francês|french)\b/i)?.[0]:"português brasileiro";
     const languageRule=`Escreva TODOS os textos públicos e botões exclusivamente em ${requestedLanguage}. Não misture espanhol, inglês ou português entre título, subtítulo, cards e CTA. O idioma do usuário só muda se ele pedir explicitamente outro idioma.`;
     const callAI = async (system: string, user: unknown, tokens: number, useReference = false) => {
