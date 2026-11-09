@@ -88,7 +88,7 @@
 .pn-vet-proof>p{margin-top:26px;color:#d0d9d2;font-size:.8rem}
 .pn-vet-reviews{background:#edf0e8}
 .pn-vet-demo-warning{border-left:3px solid var(--p-accent);padding:10px 17px;background:#fff9e9;font-size:.76rem!important;color:#534b35!important;margin:-15px 0 28px!important;font-weight:750}
-.pn-vet-review-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.pn-vet-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .pn-vet-review-grid article{background:var(--p-card);padding:22px 18px;min-height:230px;display:flex;flex-direction:column;box-shadow:0 3px 15px #00000007}
 .pn-vet-review-head{display:flex;gap:11px;align-items:center;margin-bottom:20px}
 .pn-vet-review-head img,.pn-vet-avatar-letter{width:45px!important;height:45px!important;border-radius:50%;object-fit:cover;flex-shrink:0}
@@ -233,5 +233,12 @@
  .pn-vet--03 .pn-vet-art-intro{gap:20px;padding-top:28px}
  .pn-vet--03 .pn-vet-art-intro p{font-size:1rem}
  .pn-vet-footer-title{font-size:clamp(2.7rem,11vw,5rem);padding:45px 0 30px}
+}
+/* Veterinary-only desktop footer: restrained brand scale, balanced header and baseline. */
+@media(min-width:801px){
+ .pn-vet-footer{padding:clamp(52px,5vw,90px) clamp(22px,6vw,100px) 38px}
+ .pn-vet-footer-head{max-width:1200px;margin:0 auto;padding-bottom:24px;border-bottom:1px solid #ffffff30;font-size:clamp(.72rem,.85vw,.88rem)}
+ .pn-vet-footer-title{max-width:1200px;margin:0 auto;padding:clamp(58px,6vw,94px) 0 clamp(62px,6vw,98px);font-size:clamp(3.8rem,7.1vw,8rem);line-height:1;letter-spacing:-.065em;text-align:center;overflow-wrap:anywhere}
+ .pn-vet-footer-base{max-width:1200px;margin:0 auto;padding-top:28px;font-size:.82rem}
 }
 @media(prefers-reduced-motion:reduce){.pn-vet *,.pn-vet *:before,.pn-vet *:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
