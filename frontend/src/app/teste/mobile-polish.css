@@ -1,0 +1,20 @@
+
+/* Keep approved desktop compositions. Mobile-only refinement across the test LP. */
+@media(max-width:767px) {
+  #galeria .pn-gallery3d-panel{min-height:242px}
+  #galeria .pn-gallery3d-copy{width:57%;padding:19px 4px 18px 18px}
+  #galeria .pn-gallery3d-copy h3{font-size:clamp(19px,5.05vw,25px);line-height:1.16;text-wrap:balance}
+  #galeria .pn-gallery3d-art-stack{right:5%;top:16%;width:42%;height:68%}
+  #galeria .pn-gallery3d-browser-window{transform:rotateY(-10deg) rotateZ(3deg) translateZ(16px);box-shadow:0 12px 20px #0008,0 0 14px color-mix(in srgb,var(--pn-gallery3d-accent) 16%,transparent)}
+  #galeria .pn-gallery3d-laundry .pn-gallery3d-browser-window img,
+  #galeria .pn-gallery3d-retail .pn-gallery3d-browser-window img{object-position:90% center}
+  #galeria .pn-gallery3d-card{margin-bottom:1px}
+  #ecossistema .pn4-menu{margin-top:27px}
+  #ecossistema .pn4-card{margin-top:18px}
+  #planos .pn6-card{padding:17px 19px}
+  #planos .pn6-card .pn6-price{font-size:43px}
+  #planos .pn6-grid{gap:12px}
+}
+@media(prefers-reduced-motion:reduce){
+  #galeria .pn-gallery3d-art-stack{animation:none}
+}

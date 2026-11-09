@@ -29,3 +29,24 @@
 .pn9-sharp-defs{position:absolute;pointer-events:none;opacity:0;overflow:hidden}
 .pn9-desktop .pn9-half img{filter:url("#pn9-unsharp-desktop") contrast(1.035) saturate(1.035)}
 .pn9-mobile .pn9-half img{filter:url("#pn9-unsharp-mobile") contrast(1.025) saturate(1.03)}
+
+/* Mobile hero: no six-up postage-stamp banner. Swipe between large approved panels. */
+.pn9-mobile-showcase{position:relative;width:calc(100% + 28px);margin:21px -14px 0;overflow:hidden;isolation:isolate}
+.pn9-mobile-aura{position:absolute;inset:15% 0 12%;pointer-events:none;background:radial-gradient(ellipse 66% 62% at 50% 55%,rgba(142,255,72,.19),transparent 78%);filter:blur(25px)}
+.pn9-mobile-carousel{position:relative;display:flex;gap:10px;padding:5px 7% 0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:7%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}
+.pn9-mobile-carousel::-webkit-scrollbar{display:none}
+.pn9-mobile-slide{position:relative;flex:0 0 87%;min-width:0;aspect-ratio:580/600;scroll-snap-align:center;overflow:hidden;border-radius:24px;transform:translateZ(0)}
+.pn9-mobile-slide img{display:block;width:100%;height:100%;object-fit:contain;filter:contrast(1.035) saturate(1.04);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%)}
+.pn9-mobile-navigation{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 22px;padding:7px 3px 4px}
+.pn9-mobile-label{color:#c6dfbf;font-size:11px;font-weight:650;letter-spacing:.025em}
+.pn9-mobile-count{margin-left:7px;color:#a6ff61;font-weight:750;font-variant-numeric:tabular-nums}
+.pn9-mobile-controls{display:flex;gap:9px}
+.pn9-mobile-controls button{display:grid;width:38px;height:38px;place-items:center;border-radius:50%;border:1px solid #a6ff6155;background:#112417d9;color:#a6ff61;transition:background .2s,border-color .2s}
+.pn9-mobile-controls button:not(:disabled):active{background:#26452c}
+.pn9-mobile-controls button:focus-visible{outline:2px solid #baff7a;outline-offset:3px}
+.pn9-mobile-controls button:disabled{opacity:.35;cursor:not-allowed}
+@media(min-width:640px) and (max-width:1023px){
+ .pn9-mobile-showcase{width:min(100%,660px);margin:18px auto 0}
+ .pn9-mobile-slide{flex-basis:75%}
+}
+@media(prefers-reduced-motion:reduce){.pn9-mobile-carousel{scroll-behavior:auto}.pn9-mobile-controls button{transition:none}}

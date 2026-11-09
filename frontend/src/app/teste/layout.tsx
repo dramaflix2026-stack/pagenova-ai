@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Poppins } from "next/font/google";
 import { GlobalLightTrails } from "./global-light-trails";
 import "./global-light-trails.css";
+import "./mobile-polish.css";
 
 const poppins = Poppins({
   subsets: ["latin"],
