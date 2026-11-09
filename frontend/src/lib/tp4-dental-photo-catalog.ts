@@ -27,7 +27,7 @@ export const TP4_DENTAL_IMAGE_POOL = [
  "https://images.pexels.com/photos/4269934/pexels-photo-4269934.jpeg", // Cuidado odontológico
 ] as const;
 export const TP4_DENTAL_GALLERY_IMAGES=TP4_DENTAL_IMAGE_POOL.slice(2,8);
-export const TP4_DENTAL_TEAM_IMAGES=[TP4_DENTAL_IMAGE_POOL[1],TP4_DENTAL_IMAGE_POOL[3],TP4_DENTAL_IMAGE_POOL[16],TP4_DENTAL_IMAGE_POOL[0]] as const;
+export const TP4_DENTAL_TEAM_IMAGES=[TP4_DENTAL_IMAGE_POOL[15],TP4_DENTAL_IMAGE_POOL[16],TP4_DENTAL_IMAGE_POOL[18],TP4_DENTAL_IMAGE_POOL[19]] as const;
 export const tp4DentalImage=(index:number,width=1400)=>{
  const path=TP4_DENTAL_IMAGE_POOL[index%TP4_DENTAL_IMAGE_POOL.length];
  return path+"?auto=compress&cs=tinysrgb&w="+width;
