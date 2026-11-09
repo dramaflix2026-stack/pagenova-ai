@@ -90,6 +90,20 @@ test("Numbers use real content counts or available values, animate on entering v
  assert.match(shared,/não estatísticas de vendas, clientes ou tempo de mercado/);
 });
 
+test("Japanese location and WhatsApp appear in both models without false public addresses",()=>{
+ for(const variant of [2,3]){
+  const source=sourceOf(variant);
+  assert.match(source,new RegExp("isJapanese&&<JapaneseTP3Location site=\\{site\\} publishedMode=\\{publishedMode\\} variant=\\{"+variant+"\\}"));
+ }
+ assert.match(shared,/data-japanese-tp3-location=\\{variant\\}/);
+ assert.match(shared,/Mapa ilustrativo de São Paulo/);
+ assert.match(shared,/Endereço fictício · apenas demonstração/);
+ assert.match(shared,/google.com\\/maps\\?q=/);
+ assert.match(shared,/phone.length>=10&&phone.length<=13/);
+ assert.match(shared,/Cadastre o número oficial para ativar o botão/);
+ assert.match(shared,/!publishedMode/);
+});
+
 test("Premium footer is scoped to Japanese M2/M3 and capped in desktop/mobile",()=>{
  for(const variant of [2,3]){
   const source=sourceOf(variant);
