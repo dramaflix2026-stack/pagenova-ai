@@ -1,0 +1,237 @@
+.pn-physio{--p-ink:#182f2d;--p-bg:#f7f6f0;--p-card:#fff;--p-muted:#697873;--p-accent:#527968;--p-line:rgba(29,63,54,.16);--p-contrast:#f8f9f4;background:var(--p-bg);color:var(--p-ink);font-family:Inter,Arial,Helvetica,sans-serif;overflow:hidden;width:100%;isolation:isolate}
+.pn-physio *{box-sizing:border-box}
+.pn-physio a{color:inherit;text-decoration:none}
+.pn-physio img{display:block;width:100%;height:100%;object-fit:cover}
+.pn-physio h1,.pn-physio h2,.pn-physio h3,.pn-physio p{margin:0}
+.pn-physio h1{font-size:clamp(3.1rem,6.1vw,6.8rem);line-height:1.02;letter-spacing:-.065em;font-weight:650;max-width:900px}
+.pn-physio h2{font-size:clamp(2.2rem,4.2vw,4.7rem);line-height:1.1;letter-spacing:-.055em;font-weight:600}
+.pn-physio h3{font-size:clamp(1.18rem,1.5vw,1.55rem);line-height:1.23;font-weight:650}
+.pn-physio p{font-size:clamp(.98rem,1.3vw,1.1rem);line-height:1.78;color:var(--p-muted)}
+.pn-physio .pn-physio-kicker{display:block;font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--p-accent);line-height:1.5}
+.pn-physio-header{height:90px;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 clamp(20px,5vw,76px);position:relative;z-index:3;border-bottom:1px solid var(--p-line)}
+.pn-physio-brand{font-size:clamp(1.05rem,1.9vw,1.52rem);font-weight:850;letter-spacing:-.045em;max-width:270px;overflow-wrap:anywhere}
+.pn-physio-header nav{display:flex;align-items:center;gap:clamp(18px,2.7vw,42px);font-size:.82rem;font-weight:650}
+.pn-physio-header nav a:hover,.pn-physio-footer a:hover{opacity:.65}
+.pn-physio-header-cta{padding:13px 21px;border:1px solid var(--p-ink);border-radius:50px;font-size:.8rem;font-weight:800;white-space:nowrap}
+.pn-physio-header-cta span{margin-left:14px}
+.pn-physio-hero{position:relative;min-height:720px}
+.pn-physio-primary{width:max-content;max-width:100%;display:inline-flex;gap:25px;align-items:center;justify-content:space-between;border-radius:40px;padding:17px 25px;background:var(--p-ink);color:var(--p-contrast)!important;font-size:.82rem;font-weight:800;transition:transform .24s ease,box-shadow .24s ease}
+.pn-physio-primary:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(0,0,0,.15)}
+.pn-physio-hero-copy p{max-width:550px;margin:25px 0 32px}
+.pn-physio-hero-copy .pn-physio-kicker{margin-bottom:29px}
+.pn-physio-hero-media{position:relative;overflow:hidden}
+.pn-physio-hero-media>img{transition:transform .9s cubic-bezier(.2,.7,.2,1);object-position:center}
+.pn-physio-hero-media:hover>img{transform:scale(1.035)}
+.pn-physio-hero-editorial{display:grid;grid-template-columns:1.03fr .97fr;align-items:stretch}
+.pn-physio-hero-editorial .pn-physio-hero-copy{padding:clamp(60px,7vw,130px) clamp(24px,5vw,80px);align-self:center}
+.pn-physio-hero-editorial .pn-physio-hero-media{min-height:660px}
+.pn-physio-hero-editorial .pn-physio-hero-media>img{object-position:55% center}
+.pn-physio-hero-float{position:absolute;bottom:42px;left:-35px;max-width:280px;padding:28px 32px;background:#f4f0e5;color:#223c35;box-shadow:0 18px 45px #15251b2b}
+.pn-physio-hero-float span{font-size:.72rem;letter-spacing:.2em;font-weight:700}
+.pn-physio-hero-float strong{font-size:1.3rem;line-height:1.26;display:block;margin-top:12px;letter-spacing:-.03em}
+.pn-physio-small-note{display:flex;align-items:center;gap:10px;margin-top:50px;font-size:.8rem;color:var(--p-muted)}
+.pn-physio-dot{width:8px;height:8px;border-radius:50%;background:var(--p-accent);box-shadow:0 0 0 7px #52796820}
+.pn-physio-section{padding:clamp(70px,9vw,140px) clamp(22px,6vw,100px)}
+.pn-physio-heading{max-width:850px;margin-bottom:54px}
+.pn-physio-heading .pn-physio-kicker{margin-bottom:20px}
+.pn-physio-heading>p{margin-top:20px}
+.pn-physio h2 em{font-style:normal;color:var(--p-accent)}
+.pn-physio-about{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:clamp(45px,7vw,115px)}
+.pn-physio-about-images{display:grid;grid-template-columns:1fr .66fr;gap:14px;align-items:end;max-height:590px}
+.pn-physio-about-images img{height:570px;min-height:250px;object-fit:cover;min-width:0}
+.pn-physio-about-images img+img{height:370px}
+.pn-physio-about-text h2{margin:17px 0 24px}
+.pn-physio-mini-feature{display:flex;gap:14px;align-items:center;margin-top:38px;border-top:1px solid var(--p-line);padding-top:25px}
+.pn-physio-mini-feature span{font-size:2.3rem;color:var(--p-accent)}
+.pn-physio-mini-feature p{font-size:.85rem}
+.pn-physio-services{background:#eaece4}
+.pn-physio-service-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+.pn-physio-service{border:1px solid var(--p-line);min-height:365px;background:var(--p-card);padding:34px 27px 28px;display:flex;flex-direction:column;position:relative;transition:transform .3s ease,box-shadow .3s ease}
+.pn-physio-service:hover{transform:translateY(-8px);box-shadow:0 20px 45px rgba(0,0,0,.075)}
+.pn-physio-service-index{font-size:.73rem;letter-spacing:.14em;color:var(--p-accent);font-weight:800}
+.pn-physio-service-graphic{height:84px;display:flex;align-items:center;justify-content:flex-end}
+.pn-physio-service-graphic span{font-size:3.6rem;line-height:1;opacity:.53;color:var(--p-accent);display:block;transition:transform .5s}
+.pn-physio-service:hover .pn-physio-service-graphic span{transform:rotate(48deg)}
+.pn-physio-service h3{margin-bottom:16px}
+.pn-physio-service p{font-size:.89rem;line-height:1.63}
+.pn-physio-service a{margin-top:auto;padding-top:24px;font-size:.79rem;font-weight:800;color:var(--p-accent)}
+.pn-physio-values{background:var(--p-ink);color:#faf9f2;display:grid;grid-template-columns:.75fr 1.25fr;gap:10%}
+.pn-physio-values h2{max-width:540px;margin-top:17px}
+.pn-physio-values .pn-physio-kicker{color:#b3d2ba}
+.pn-physio-values-grid{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+.pn-physio-values-grid>div{border-top:1px solid #ffffff4a;padding-top:18px}
+.pn-physio-values-grid span{color:#bad5be;font-size:.72rem;letter-spacing:.15em}
+.pn-physio-values-grid h3{margin-top:30px}
+.pn-physio-process-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+.pn-physio-process-grid article{border-top:1px solid var(--p-line);padding:22px 18px 0 0}
+.pn-physio-process-grid article>span{font-size:2rem;font-weight:400;letter-spacing:-.08em;color:var(--p-accent)}
+.pn-physio-process-grid h3{margin:28px 0 15px}
+.pn-physio-process-grid p{font-size:.88rem}
+.pn-physio-gallery{background:#e6e9e1}
+.pn-physio-gallery-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:310px;gap:14px}
+.pn-physio-gallery-grid figure{margin:0;position:relative;overflow:hidden;background:#c8d1c9}
+.pn-physio-gallery-grid figure img{transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.pn-physio-gallery-grid figure:hover img{transform:scale(1.06)}
+.pn-physio-gallery-grid figcaption{position:absolute;bottom:0;left:0;right:0;color:white;font-weight:700;font-size:.8rem;padding:40px 20px 17px;background:linear-gradient(transparent,#0009)}
+.pn-physio-team{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:10%}
+.pn-physio-team>div:first-child h2{margin:20px 0}
+.pn-physio-team>div:last-child{position:relative;height:520px}
+.pn-physio-team>div:last-child img{border-radius:0 120px 0 0}
+.pn-physio-image-label{position:absolute;bottom:16px;right:16px;background:#152b28e8;color:white;font-size:.66rem;letter-spacing:.1em;padding:10px 13px}
+.pn-physio-outline{display:inline-flex;border:1px solid currentColor;border-radius:40px;padding:15px 21px;margin-top:30px;font-size:.8rem;font-weight:700}
+.pn-physio-proof{background:var(--p-ink);color:#f5f7f2}
+.pn-physio-proof h2{max-width:850px;margin:15px 0 50px}
+.pn-physio-proof>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.pn-physio-proof article{border:1px solid #ffffff38;padding:30px;min-height:160px}
+.pn-physio-proof article span{font-size:.7rem;color:#b1e6d0}
+.pn-physio-proof article h3{margin-top:38px}
+.pn-physio-proof>p{margin-top:26px;color:#d0d9d2;font-size:.8rem}
+.pn-physio-reviews{background:#edf0e8}
+.pn-physio-demo-warning{border-left:3px solid var(--p-accent);padding:10px 17px;background:#fff9e9;font-size:.76rem!important;color:#534b35!important;margin:-15px 0 28px!important;font-weight:750}
+.pn-physio-review-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.pn-physio-review-grid article{background:var(--p-card);padding:22px 18px;min-height:230px;display:flex;flex-direction:column;box-shadow:0 3px 15px #00000007}
+.pn-physio-review-head{display:flex;gap:11px;align-items:center;margin-bottom:20px}
+.pn-physio-review-head img,.pn-physio-avatar-letter{width:45px!important;height:45px!important;border-radius:50%;object-fit:cover;flex-shrink:0}
+.pn-physio-avatar-letter{display:flex;align-items:center;justify-content:center;background:#d2e3db;color:#244737;font-weight:800}
+.pn-physio-review-head strong{font-size:.82rem;overflow-wrap:anywhere}
+.pn-physio-review-grid article p{font-size:.79rem;line-height:1.63}
+.pn-physio-review-grid article small{font-size:.63rem;letter-spacing:.05em;margin-top:auto;padding-top:20px;color:#8b5e3e;font-weight:750}
+.pn-physio-empty{background:var(--p-card);padding:28px;border:1px solid var(--p-line)}
+.pn-physio-faq{display:grid;grid-template-columns:.85fr 1.15fr;gap:9%}
+.pn-physio-faq h2{margin:20px 0 30px}
+.pn-physio-faq>div:first-child img{height:280px;max-width:530px}
+.pn-physio-faq-item{border-bottom:1px solid var(--p-line)}
+.pn-physio-faq-item button{display:flex;width:100%;justify-content:space-between;text-align:left;gap:20px;background:transparent;border:0;padding:22px 0;color:inherit;cursor:pointer;font-size:1rem;font-weight:700}
+.pn-physio-faq-item button span{font-size:1.5rem;color:var(--p-accent)}
+.pn-physio-faq-item p{font-size:.91rem;padding:0 30px 23px 0}
+.pn-physio-contact{display:grid;grid-template-columns:1fr 1fr;gap:7%;background:#d8e2d7;align-items:center}
+.pn-physio-contact h2{margin:18px 0 22px}
+.pn-physio-contact .pn-physio-primary{margin-top:26px}
+.pn-physio-contact address{font-size:1rem;line-height:1.65;font-style:normal;margin-top:35px}
+.pn-physio-contact address small{display:block;font-weight:700;color:#976133;font-size:.68rem;margin-top:8px}
+.pn-physio-contact-placeholder{font-size:.82rem!important;margin-top:20px!important}
+.pn-physio-map{height:420px;background:#d7dfd4;border:1px solid var(--p-line)}
+.pn-physio-map iframe{width:100%;height:100%;border:0}
+.pn-physio-map-unconfigured{height:100%;display:flex;align-items:center;justify-content:center;padding:25px;text-align:center}
+.pn-physio-footer{background:#162e29;color:#f5f7f1;padding:45px clamp(22px,6vw,100px) 30px}
+.pn-physio-footer-head,.pn-physio-footer-base{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
+.pn-physio-footer-head{font-size:.69rem;letter-spacing:.14em}
+.pn-physio-footer-title{font-size:clamp(3.4rem,9vw,10.5rem);line-height:1.05;letter-spacing:-.085em;font-weight:800;overflow-wrap:anywhere;border-bottom:1px solid #ffffff36;padding:70px 0 55px}
+.pn-physio-footer-base{padding-top:30px;font-size:.75rem;color:#c5d6d0;line-height:1.6}
+.pn-physio-footer-base>div{display:flex;gap:22px;flex-wrap:wrap}
+
+/* Model 02 — dark clinical technology, contrasting hero & floating treatment cards. */
+.pn-physio--02{--p-bg:#101a2b;--p-card:#19283d;--p-ink:#f2f9fc;--p-muted:#b6c7d4;--p-accent:#7cdcd3;--p-line:#d4f4fa25;--p-contrast:#101a2b}
+.pn-physio--02 .pn-physio-header{background:#0e1726}
+.pn-physio--02 .pn-physio-header-cta{border-color:#a5dddb}
+.pn-physio--02 .pn-physio-primary{background:#8de1dc;color:#0c1b2b!important}
+.pn-physio--02 .pn-physio-hero-digital{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;background:radial-gradient(ellipse at 67% 55%,#285f72 0%,#13293b 34%,#0a1624 76%);overflow:hidden}
+.pn-physio--02 .pn-physio-hero-copy{z-index:2;padding:clamp(60px,8vw,150px) clamp(24px,5vw,90px)}
+.pn-physio--02 .pn-physio-hero h1{font-weight:750}
+.pn-physio--02 .pn-physio-hero-media{height:690px;margin:40px clamp(24px,5vw,70px) 40px 0;border:1px solid #9de2df6b;border-radius:220px 220px 8px 8px;box-shadow:0 25px 90px #0009}
+.pn-physio--02 .pn-physio-orbit{position:absolute;right:13%;top:5%;width:570px;height:570px;border:1px solid #a3eee644;border-radius:50%;box-shadow:0 0 0 70px #74d9ce0a,0 0 0 145px #74d9ce06;pointer-events:none;animation:pnPhysioFloat 9s ease-in-out infinite alternate}
+.pn-physio--02 .pn-physio-signal{display:flex;gap:12px;align-items:center;margin-top:65px;color:#a7e9df;font-size:.7rem;font-weight:800;letter-spacing:.19em}
+.pn-physio--02 .pn-physio-signal span{animation:pnPhysioBlink 1.8s infinite}
+.pn-physio--02 .pn-physio-frame-number{position:absolute;right:15px;bottom:18px;background:#081729da;padding:13px;color:#bbf8f4;font-size:.7rem;letter-spacing:.19em}
+.pn-physio--02 .pn-physio-services,.pn-physio--02 .pn-physio-gallery,.pn-physio--02 .pn-physio-reviews{background:#111e30}
+.pn-physio--02 .pn-physio-service{border-radius:18px;background:#1b3043}
+.pn-physio--02 .pn-physio-values,.pn-physio--02 .pn-physio-proof,.pn-physio--02 .pn-physio-footer{background:#061522}
+.pn-physio--02 .pn-physio-team>div:last-child img{border-radius:160px 15px 160px 15px}
+.pn-physio--02 .pn-physio-review-grid article{border:1px solid #ffffff30;border-radius:13px}
+.pn-physio--02 .pn-physio-contact{background:#184459}
+.pn-physio--02 .pn-physio-contact address small{color:#ffddb2}
+.pn-physio--02 .pn-physio-demo-warning{background:#2e332f;color:#fce3aa!important}
+.pn-physio--02 .pn-physio-gallery-grid figure:nth-child(2){grid-row:span 2}
+
+/* Model 03 — warm architectural editorial, oversized type and asymmetric imagery. */
+.pn-physio--03{--p-bg:#f8f1e9;--p-card:#fffdf9;--p-ink:#242b27;--p-muted:#635f5a;--p-accent:#af704d;--p-line:#af704d42;--p-contrast:#fffaf2;font-family:Georgia,"Times New Roman",serif}
+.pn-physio--03 .pn-physio-kicker,.pn-physio--03 .pn-physio-header,.pn-physio--03 .pn-physio-primary,.pn-physio--03 .pn-physio-service-index,.pn-physio--03 .pn-physio-footer-head,.pn-physio--03 .pn-physio-review-head,.pn-physio--03 .pn-physio-demo-warning{font-family:Inter,Arial,sans-serif}
+.pn-physio--03 h1{font-size:clamp(3.8rem,9vw,10.5rem);max-width:1300px;line-height:.97;letter-spacing:-.075em;font-weight:450}
+.pn-physio--03 h2{font-weight:450}
+.pn-physio--03 .pn-physio-hero-art{min-height:940px;padding:clamp(65px,7vw,115px) clamp(22px,6vw,100px) 80px}
+.pn-physio--03 .pn-physio-hero-art .pn-physio-kicker{margin-bottom:25px}
+.pn-physio--03 .pn-physio-art-collage{position:relative;display:grid;grid-template-columns:1fr .45fr;align-items:start;gap:30px;margin-top:56px}
+.pn-physio--03 .pn-physio-art-large{height:520px}
+.pn-physio--03 .pn-physio-art-small{height:300px;margin-top:115px}
+.pn-physio--03 .pn-physio-art-stamp{position:absolute;z-index:1;right:26%;top:-35px;border-radius:50%;background:#b46b49;color:#fff;font:700 .78rem/1.5 Inter,Arial,sans-serif;letter-spacing:.16em;width:148px;height:148px;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(13deg)}
+.pn-physio--03 .pn-physio-art-intro{display:flex;gap:40px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--p-line);padding:40px 0 0}
+.pn-physio--03 .pn-physio-art-intro p{font-size:1.3rem;max-width:650px}
+.pn-physio--03 .pn-physio-primary{background:#b27150;color:#fff!important}
+.pn-physio--03 .pn-physio-about-images img{border-radius:140px 140px 0 0}
+.pn-physio--03 .pn-physio-about-images img+img{border-radius:0}
+.pn-physio--03 .pn-physio-services,.pn-physio--03 .pn-physio-gallery,.pn-physio--03 .pn-physio-reviews{background:#e9e0d4}
+.pn-physio--03 .pn-physio-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pn-physio--03 .pn-physio-service{min-height:280px;display:grid;grid-template-columns:75px 1fr;column-gap:25px;align-content:start}
+.pn-physio--03 .pn-physio-service-graphic{grid-row:span 3;grid-column:1;height:130px;align-items:flex-start}
+.pn-physio--03 .pn-physio-service h3,.pn-physio--03 .pn-physio-service p,.pn-physio--03 .pn-physio-service a{grid-column:2}
+.pn-physio--03 .pn-physio-service-index{grid-column:1}
+.pn-physio--03 .pn-physio-service a{margin-top:18px}
+.pn-physio--03 .pn-physio-values,.pn-physio--03 .pn-physio-proof,.pn-physio--03 .pn-physio-footer{background:#302b29}
+.pn-physio--03 .pn-physio-gallery-grid{grid-template-columns:1.2fr .8fr 1.15fr;grid-auto-rows:250px}
+.pn-physio--03 .pn-physio-gallery-grid figure:first-child{grid-row:span 2}
+.pn-physio--03 .pn-physio-gallery-grid figure:nth-child(4){grid-column:span 2}
+.pn-physio--03 .pn-physio-review-grid article{border-radius:0 42px 0 0}
+.pn-physio--03 .pn-physio-contact{background:#e3cdb8}
+.pn-physio--03 .pn-physio-team>div:last-child img{border-radius:180px 180px 0 0}
+
+@keyframes pnPhysioFloat{0%{transform:translate3d(0,0,0) rotate(0deg)}100%{transform:translate3d(-35px,24px,0) rotate(12deg)}}
+@keyframes pnPhysioBlink{0%,100%{opacity:.4}50%{opacity:1}}
+@media(max-width:1150px){
+ .pn-physio-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pn-physio-review-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .pn-physio-header nav{gap:15px}
+ .pn-physio-footer-title{font-size:clamp(3rem,8vw,7rem)}
+}
+@media(max-width:800px){
+ .pn-physio-header{height:auto;min-height:78px;flex-wrap:wrap;gap:8px;padding:16px 22px}
+ .pn-physio-header nav{width:100%;order:3;justify-content:space-between;gap:10px;padding-top:12px;border-top:1px solid var(--p-line);font-size:.76rem}
+ .pn-physio-header-cta{padding:10px 12px}
+ .pn-physio-hero-editorial,.pn-physio--02 .pn-physio-hero-digital{grid-template-columns:1fr;min-height:auto}
+ .pn-physio-hero-editorial .pn-physio-hero-copy,.pn-physio--02 .pn-physio-hero-copy{padding:80px 24px 65px}
+ .pn-physio-hero-editorial .pn-physio-hero-media{min-height:440px;max-height:620px}
+ .pn-physio-hero-float{left:15px;bottom:15px}
+ .pn-physio--02 .pn-physio-hero-media{height:500px;margin:0 24px 70px}
+ .pn-physio--02 .pn-physio-orbit{top:25%;right:-100px}
+ .pn-physio-about,.pn-physio-values,.pn-physio-team,.pn-physio-faq,.pn-physio-contact{grid-template-columns:1fr;gap:45px}
+ .pn-physio-about-images img{height:460px}
+ .pn-physio-about-images img+img{height:320px}
+ .pn-physio-process-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pn-physio-gallery-grid{grid-auto-rows:230px}
+ .pn-physio-team>div:last-child{height:420px}
+ .pn-physio-proof>div{grid-template-columns:1fr}
+ .pn-physio--03 .pn-physio-art-collage{gap:13px}
+ .pn-physio--03 .pn-physio-art-large{height:390px}
+ .pn-physio--03 .pn-physio-art-small{height:260px}
+ .pn-physio--03 .pn-physio-art-stamp{width:95px;height:95px;font-size:.56rem;right:25%}
+ .pn-physio--03 .pn-physio-art-intro{flex-wrap:wrap}
+ .pn-physio--03 .pn-physio-hero-art{min-height:auto}
+}
+@media(max-width:540px){
+ .pn-physio h1{font-size:clamp(2.5rem,11vw,4rem)}
+ .pn-physio h2{font-size:clamp(2rem,8vw,3rem)}
+ .pn-physio-header-cta{font-size:.7rem}
+ .pn-physio-section{padding:70px 20px}
+ .pn-physio-service-grid,.pn-physio--03 .pn-physio-service-grid{grid-template-columns:1fr}
+ .pn-physio-service{min-height:275px}
+ .pn-physio--03 .pn-physio-service{grid-template-columns:45px 1fr;gap:10px}
+ .pn-physio--03 .pn-physio-service-graphic span{font-size:2rem}
+ .pn-physio-process-grid{grid-template-columns:1fr;gap:30px}
+ .pn-physio-gallery-grid,.pn-physio--03 .pn-physio-gallery-grid{grid-template-columns:1fr 1fr;grid-auto-rows:180px;gap:8px}
+ .pn-physio-gallery-grid figure:first-child{grid-column:span 2;grid-row:auto}
+ .pn-physio--03 .pn-physio-gallery-grid figure:nth-child(4){grid-column:auto}
+ .pn-physio-review-grid{grid-template-columns:1fr;gap:10px}
+ .pn-physio-about-images img{height:350px}
+ .pn-physio-about-images img+img{height:255px}
+ .pn-physio-team>div:last-child{height:350px}
+ .pn-physio-values-grid{gap:24px 13px}
+ .pn-physio-contact .pn-physio-map{height:330px}
+ .pn-physio--03 h1{font-size:clamp(3.2rem,13vw,6rem)}
+ .pn-physio--03 .pn-physio-art-collage{grid-template-columns:1fr .43fr;align-items:end}
+ .pn-physio--03 .pn-physio-art-large{height:295px}
+ .pn-physio--03 .pn-physio-art-small{height:200px;margin-top:0}
+ .pn-physio--03 .pn-physio-art-stamp{right:16%;top:-33px}
+ .pn-physio--03 .pn-physio-art-intro{gap:20px;padding-top:28px}
+ .pn-physio--03 .pn-physio-art-intro p{font-size:1rem}
+ .pn-physio-footer-title{font-size:clamp(2.7rem,11vw,5rem);padding:45px 0 30px}
+}
+@media(prefers-reduced-motion:reduce){.pn-physio *,.pn-physio *:before,.pn-physio *:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}

@@ -8,7 +8,7 @@ import {
   JAPANESE_MODEL1_PHOTO_IDS, JAPANESE_MODEL1_SECTIONS, japaneseModel1Photo,
   isJapaneseCuisineNiche,isJapaneseCuisineSiteIdentity,isGenericJapaneseSiteName,japaneseModel1Brand
 } from "../src/lib/tp3-japanese-model1.ts";
-import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily,isDentalNicheIdentity} from "../src/lib/briefing-template-families.ts";
+import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily,isDentalNicheIdentity,isPhysioNicheIdentity} from "../src/lib/briefing-template-families.ts";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const read=(p)=>readFileSync(path.join(root,p),"utf8");
@@ -20,7 +20,7 @@ test("preflight: the complete niche registry routes every advertised niche to it
   const all=BRIEFING_TEMPLATE_FAMILIES.flatMap(group=>group.niches.map(niche=>({niche,group:group.id})));
   assert.ok(all.length>=133,"a family cannot disappear without failing the production build");
   for(const {niche,group} of all){
-    // Approved TP4 dental identity overrides legacy TP1 placement of odontologia estética.\n    assert.equal(resolveBriefingFamily(niche),isDentalNicheIdentity(niche)?4:group,"routing for "+niche);
+    // Approved TP4 dental identity overrides legacy TP1 placement of odontologia estética.\n    assert.equal(resolveBriefingFamily(niche),isDentalNicheIdentity(niche)||isPhysioNicheIdentity(niche)?4:group,"routing for "+niche);
   }
   assert.equal(resolveBriefingFamily("Comida japonesa"),3);
   assert.equal(resolveBriefingFamily("Padaria"),3);

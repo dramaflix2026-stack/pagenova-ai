@@ -1116,7 +1116,7 @@ export default function BuilderV2() {
     const creatingMakeupSite=shouldCreateProject&&recognizedNiche==="Estúdio de maquiagem";
     // The approved TP4 dentistry layouts have priority over a stale selected niche
     // and over the former TP1 "Odontologia estética" classification.
-    const effectiveBriefNiche=recognizedNiche==="Clínica odontológica"?"Clínica odontológica":creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
+    const effectiveBriefNiche=recognizedNiche==="Clínica odontológica"?"Clínica odontológica":recognizedNiche==="Clínica de fisioterapia"?"Clínica de fisioterapia":creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=shouldCreateProject?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
