@@ -10,6 +10,7 @@ const demoProfiles=[
  {name:"Camila Rodrigues",avatar:"https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg",text:"É importante encontrar informações sobre limpeza dental e prevenção antes de solicitar uma consulta."},
  {name:"Lucas Ferreira",avatar:"https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",text:"O passo a passo apresentado tornou mais simples entender como entrar em contato para uma avaliação."},
  {name:"Beatriz Almeida",avatar:"https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg",text:"A organização das especialidades odontológicas e das dúvidas frequentes transmite clareza."},
+ {name:"Fernanda Costa",avatar:"https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg",text:"Poder conhecer os serviços odontológicos, os cuidados de prevenção e como solicitar uma avaliação ajuda a tirar dúvidas com tranquilidade."},
 ];
 const dentistDisclaimer="FOTOS E RELATOS ILUSTRATIVOS • Exemplos fictícios para edição. Não representam pacientes nem avaliações reais.";
 function meaningfulReviews(site:BuilderV2SiteData){
@@ -28,7 +29,7 @@ export function DentalTestimonials({site,publishedMode=false}:{site:BuilderV2Sit
  if(!rows.length)return <div className="pn-dental-pending"><h3>Avaliações de pacientes</h3><p>Esta seção receberá depoimentos reais e autorizados quando forem cadastrados. Nenhuma avaliação foi inventada.</p></div>;
  return <div className="pn-dental-social-proof">
   {examples&&<p className="pn-dental-demo-banner">{dentistDisclaimer}</p>}
-  <div className="pn-dental-testimonial-grid">{rows.slice(0,5).map((r,i)=><article key={i} className="pn-dental-review">
+  <div className="pn-dental-testimonial-grid">{rows.slice(0,6).map((r,i)=><article key={i} className="pn-dental-review">
    <div className="pn-dental-review-top">
     {r.avatar?<img src={r.avatar} alt={examples?"Retrato de banco de imagens, não representa paciente":"Retrato fornecido pelo cliente"} loading="lazy"/>:<span aria-hidden="true" className="pn-dental-review-initials">{r.name.split(" ").slice(0,2).map(p=>p[0]).join("")}</span>}
     <div><strong>{r.name}</strong><small>{examples?"Perfil demonstrativo fictício":"Depoimento fornecido pela clínica"}</small></div>
