@@ -84,10 +84,12 @@ test("Numbers use real content counts or available values, animate on entering v
  assert.match(shared,/requestAnimationFrame/);
  assert.match(shared,/prefers-reduced-motion: reduce/);
  assert.match(shared,/Math\.round\(progress\*metric\.value\)/);
- for(const text of ["Categorias de especialidades","Etapas para conhecer a experiência","Perguntas respondidas"]){
+ for(const text of ["Pedidos realizados · exemplo","Clientes satisfeitos · exemplo","Anos de tradição · exemplo"]){
   assert.ok(shared.includes(text));
  }
- assert.match(shared,/não estatísticas de vendas, clientes ou tempo de mercado/);
+ assert.match(shared,/Prévia ilustrativa: os números abaixo são fictícios/);
+ assert.match(shared,/if\(publishedMode\)return \{metrics:\[\],example:false\}/);
+ assert.match(shared,/categorias\|etapas\|perguntas/);
 });
 
 test("Japanese location and WhatsApp appear in both models without false public addresses",()=>{
@@ -112,6 +114,8 @@ test("Premium footer is scoped to Japanese M2/M3 and capped in desktop/mobile",(
   assert.match(source,new RegExp('variant=\\{'+variant+'\\}'));
  }
  assert.match(shared,/data-japanese-tp3-footer=\{variant\}/);
+ assert.match(shared,/pn-japanese-footer-shell/);
+ assert.match(shared,/pn-japanese-footer-grid/);
  assert.match(shared,/md:grid-cols-\[minmax\(0,1\.35fr\)_minmax\(0,\.8fr\)_minmax\(0,1fr\)\]/);
  assert.match(shared,/font-serif text-\[clamp\(2rem,4vw,3\.7rem\)\]/);
  assert.match(shared,/break-words/);
