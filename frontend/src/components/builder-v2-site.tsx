@@ -89,7 +89,7 @@ import { BuilderV2TP7Model1Footer } from "@/components/builder-v2-tp7-model1-foo
 import { Template6RetailCollection } from "@/components/template6-retail-collection";
 import { Template6RetailStory } from "@/components/template6-retail-story";
 import { resolveTemplate6Niche, inferTemplate6NicheFromBrief } from "@/lib/template6-retail-niches";
-import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche } from "@/lib/briefing-template-families";
+import { resolveBriefingFamily, resolveBriefingFamilyFromExplicitNiche, isDentalNicheIdentity, APPROVED_DENTAL_NICHE } from "@/lib/briefing-template-families";
 import { NexoraIndicators } from "@/components/template5-nexora-indicators";
 import { NexoraSolutions } from "@/components/template5-nexora-solutions";
 import { NexoraAbout } from "@/components/template5-nexora-about";
@@ -304,6 +304,21 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
  if(isWrittenBrief&&activeStaticTemplate==="prompt-adaptive"&&
     (family===3||family===undefined)&&japaneseSiteIdentity){
    return <TP3LayoutChooser site={props.site} selectedNiche={props.selectedNiche}
+     publishedMode={props.publishedMode} templateId={activeStaticTemplate}
+     onVariantChange={props.onVariantChange}/>;
+ }
+ // Freeze boundary: all newly generated odontological sub-specialties must
+ // reuse the 3 approved TP4 visual variants, even if a legacy menu or old AI
+ // metadata previously labelled "odontologia estética" as TP1 beauty.
+ // Do not override an explicitly requested Static 01/02 renderer.
+ const savedNicheFamily=resolveBriefingFamily(props.site.niche||"");
+ const dentalBrand=isDentalNicheIdentity([props.site.title,props.site.header?.brand].filter(Boolean).join(" "));
+ const approvedDentalSite=isDentalNicheIdentity(props.site.niche||"")||
+   (dentalBrand&&(savedNicheFamily===undefined||savedNicheFamily===1||savedNicheFamily===4))||
+   (!props.site.niche&&isDentalNicheIdentity(props.selectedNiche||""));
+ if(activeStaticTemplate==="prompt-adaptive"&&approvedDentalSite){
+   const dentalSite=props.site.niche===APPROVED_DENTAL_NICHE?props.site:{...props.site,niche:APPROVED_DENTAL_NICHE};
+   return <TP4LayoutChooser site={dentalSite} selectedNiche={APPROVED_DENTAL_NICHE}
      publishedMode={props.publishedMode} templateId={activeStaticTemplate}
      onVariantChange={props.onVariantChange}/>;
  }
