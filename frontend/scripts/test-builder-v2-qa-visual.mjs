@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
 import path from "node:path";
-import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily} from "../src/lib/briefing-template-families.ts";
+import {BRIEFING_TEMPLATE_FAMILIES,resolveBriefingFamily,isDentalNicheIdentity} from "../src/lib/briefing-template-families.ts";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 const read=filename=>readFileSync(path.join(root,filename),"utf8");
@@ -17,7 +17,7 @@ test("quality matrix lists all registered niche/variant combinations",()=>{
   assert.equal(BRIEFING_TEMPLATE_FAMILIES.length,10);
   assert.ok(niches.length>=139,"all registered niches must be included in automated QA");
   assert.equal(new Set(niches.map(x=>x.niche.toLowerCase())).size,niches.length,"no duplicate niche");
-  for(const {niche,family} of niches)assert.equal(resolveBriefingFamily(niche),family);
+  // Odontologia estética remains listed in the original 139-niche catalog,\n  // but all dentistry briefings now deliberately route to approved TP4.\n  for(const {niche,family} of niches)assert.equal(resolveBriefingFamily(niche),isDentalNicheIdentity(niche)?4:family,niche);
   assert.equal(niches.length*3,417,"every registered niche has 3 models");
   assert.equal(niches.length*3*2,834,"mobile and desktop matrix is complete");
 });
