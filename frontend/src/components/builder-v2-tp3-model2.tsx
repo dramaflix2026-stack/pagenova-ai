@@ -23,17 +23,7 @@ const niches:[RegExp,string,string[],string][]=[
 [/food truck/i,"Food truck",["Especialidades","Combos","Acompanhamentos","Bebidas"],"Street food"],
 [/restaurante/i,"Restaurante",["Pratos principais","Entradas","Sobremesas","Bebidas"],"Gastronomia"]
 ];
-const foodPhotos:Record<string,string[]>={
-"Pizzaria":["photo-1574071318508-1cdbab80d002","photo-1513104890138-7c749659a591","photo-1565299624946-b28f40a0ae38","photo-1579751626657-72bc17010498","photo-1593560708920-61dd98c46a4e","photo-1548365328-9f547fb0953b"],
-"Hamburgueria":["photo-1568901346375-23c9450c58cd","photo-1550547660-d9450f859349","photo-1571091718767-18b5b1457add","photo-1586190848861-99aa4a171e90","photo-1553979459-d2229ba7433a","photo-1594212699903-ec8a3eca50f5","photo-1561758033-d89a9ad46330","photo-1520072959219-c595dc870360","photo-1542574271-7f3b92e6c821","photo-1561758033-7e924f619b47","photo-1551782450-a2132b4ba21d","photo-1572802419224-296b0aeee0d9"],
-"Cafeteria":["photo-1442512595331-e89e73853f31","photo-1509042239860-f550ce710b93","photo-1495474472287-4d71bcdd2085","photo-1511920170033-f8396924c348","photo-1461023058943-07fcbe16d735","photo-1459755486867-b55449bb39ff"],
-"Padaria":["photo-1509440159596-0249088772ff","photo-1598373182133-52452f7691ef","photo-1585478259715-876acc5be8eb","photo-1549931319-a545dcf3bc73","photo-1555507036-ab1f4038808a","photo-1484723091739-30a097e8f929","photo-1534620808146-d33bb39128b2","photo-1608198093002-ad4e005484df","photo-1612203985729-70726954388c","photo-1623334044303-241021148842","photo-1606101273945-e9eba9c99a72","photo-1509440159596-0249088772ff"],
-"Confeitaria":["photo-1488477181946-6428a0291777","photo-1578985545062-69928b1d9587","photo-1464305795204-6f5bbfc7fb81","photo-1563729784474-d77dbb933a9e","photo-1551024506-0bccd828d307","photo-1509365465985-25d11c17e812"],
-"Sorveteria":["photo-1501446529957-6226bd447c46","photo-1563805042-7684c019e1cb","photo-1493857671505-72967e2e2760","photo-1570197788417-0e82375c9371","photo-1557142046-c704a3adf364","photo-1590080877777-a9d2d11f3d8e"],
-"Churrascaria":["photo-1544025162-d76694265947","photo-1558030006-450675393462","photo-1529694157872-4e0c0f3b238b","photo-1432139555190-58524dae6a55","photo-1504674900247-0877df9cc836","photo-1547592180-85f173990554"],
-"Comida japonesa":["photo-1579871494447-9811cf80d66c","photo-1553621042-f6e147245754","photo-1563612116625-3012372fccce","photo-1611143669185-af224c5e3252","photo-1519984388953-d2406bc725e1","photo-1582450871972-ab5ca641643d"]
-};
-const generic=["photo-1546069901-ba9599a7e63c","photo-1512621776951-a57141f2eefd","photo-1565958011703-44f9829ba187","photo-1567620905732-2d1ec7ab7445","photo-1555939594-58d7cb561ad1","photo-1543353071-873f17a7a088","photo-1517248135467-4c7edcad34c4","photo-1559339352-11d035aa65de"];
+// Photos are resolved exclusively through the TP3 family-specific curated catalog.
 const faq=[["Como posso entrar em contato?","Utilize os canais cadastrados pela empresa."],["Quais produtos estão disponíveis?","Confira as especialidades apresentadas e consulte o cardápio atualizado."],["É possível fazer encomendas?","Consulte a disponibilidade diretamente com o estabelecimento."],["Quais são os horários de funcionamento?","Os horários devem ser confirmados com o estabelecimento."],["Há opções para restrições alimentares?","Informe suas necessidades à equipe antes de realizar um pedido."]];
 export function BuilderV2TP3Model2({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [opened,setOpened]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[msg,setMsg]=useState(""),[notice,setNotice]=useState("");
@@ -41,7 +31,7 @@ export function BuilderV2TP3Model2({site,publishedMode=false}:{site:BuilderV2Sit
  const familyCategory=resolveTP3FoodCategory(site);
  const cfg=isTruck?niches.find(n=>n[1]==="Food truck")!:isJapanese?niches.find(n=>n[1]==="Comida japonesa")!:niches.find(n=>n[1]===familyCategory)||niches[13];
  const brand=isJapanese?japaneseTP3Brand(site,publishedMode):site.header?.brand||site.title||"Gastronomia";
- const photos=foodPhotos[cfg[1]]||generic;
+
  // TP3 Modelo 02 uses its own curated external photo set, not the builder image bank.
  // Explicitly uploaded customer photos can be supported later through a separate opt-in setting.
  const photo=(i:number)=>isTruck?truckPhoto(i):isJapanese?japaneseTP3Photo(i,2):tp3FamilyInternetPhoto(familyCategory,2,i,1400);
