@@ -161,6 +161,36 @@ try{
           if(wrongPhotos.length)record.errors.push("Non-Japanese food images present in M"+model);
         }
         if(isJapanese){
+          // A global CSS "body footer > div:first-child" four-column !important
+          // rule used to squeeze the logo into 1-2 letters per line. Checking
+          // only the INNER grid count did not catch that outer wrapper bug.
+          const footer=page.locator(model==="01"
+            ?'[data-japanese-footer="premium"]'
+            :'[data-japanese-tp3-footer="'+Number(model)+'"]');
+          if(await footer.count()){
+            const dims=await footer.evaluate(el=>{
+              const shell=el.querySelector(".pn-japanese-footer-shell");
+              const grid=el.querySelector(".pn-japanese-footer-grid");
+              const first=grid?.firstElementChild;
+              return {shellDisplay:shell?getComputedStyle(shell).display:null,
+                columns:grid?getComputedStyle(grid).gridTemplateColumns.split(/\\s+/).filter(Boolean).length:0,
+                shellWidth:shell?.getBoundingClientRect().width||0,
+                firstWidth:first?.getBoundingClientRect().width||0,
+                total:el.getBoundingClientRect().width};
+            });
+            if(dims.shellDisplay!=="block")record.errors.push("Japanese footer outer shell still hijacked by global CSS");
+            if(dims.total>0&&dims.shellWidth/dims.total<.65)record.errors.push("Japanese footer shell compressed to "+dims.shellWidth+"px");
+            if(device.name==="desktop"&&dims.firstWidth<260)record.errors.push("Japanese footer logo column compressed to "+dims.firstWidth+"px");
+            if(dims.columns!==(device.name==="desktop"?3:1))record.errors.push("Japanese footer layout not responsive: "+dims.columns+" columns");
+          }
+          if(model==="03"){
+            const note=page.locator('[data-japanese-metrics-disclaimer="demo"]');
+            if(await note.count()){
+              const rgb=await note.evaluate(el=>getComputedStyle(el).color);
+              const red=Number(rgb.match(/\\d+/)?.[0]||0);
+              if(red>150)record.errors.push("M3 gold section still has low-contrast light disclaimer text");
+            }
+          }
           const bakeryUrls=record.broken.concat(await page.locator("img").evaluateAll(imgs=>imgs.map(x=>x.currentSrc||x.src).filter(x=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(x))));
           if(bakeryUrls.some(url=>/photo-1509440159596-0249088772ff|photo-1555507036-ab1f4038808a|photo-1598373182133-52452f7691ef|photo-1549931319-a545dcf3bc73/.test(url)))record.errors.push("Bakery photo used in Japanese restaurant");
         }
