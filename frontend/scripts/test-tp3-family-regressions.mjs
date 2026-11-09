@@ -144,3 +144,15 @@ test("TP3 family footer neutralizes global 4-column CSS: desktop 3, tablet 2, ph
  assert.match(shared,/pn-tp3-footer-shell/);
  assert.match(shared,/pn-tp3-footer-grid/);
 });
+
+test("Hamburgueria M3 fixes process and last gallery image without changing approved templates",()=>{
+ const model=models[2];
+ assert.ok(model.includes('const burgerProcessPhoto="https://images.pexels.com/photos/8365312/pexels-photo-8365312.jpeg'));
+ assert.ok(model.includes('const burgerGallerySixPhoto="https://images.pexels.com/photos/4098851/pexels-photo-4098851.jpeg'));
+ assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===6)return burgerProcessPhoto'));
+ assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===18)return burgerGallerySixPhoto'));
+ assert.ok(model.includes('familyCategory==="Hamburgueria"?11:24'));
+ assert.ok(model.includes('photo(isJapanese?step+3:step+6)'));
+ assert.ok(model.includes('[14,15,16,17,18].map'));
+ assert.ok(model.includes('galleryImages[i+1]||photo(slot)'));
+});
