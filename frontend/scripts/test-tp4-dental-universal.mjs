@@ -1,4 +1,5 @@
 import test from "node:test";
+import {createHash} from "node:crypto";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {fileURLToPath} from "node:url";
@@ -153,4 +154,18 @@ test("model 2 team gallery keeps all image captions inside their own photo tiles
  assert.match(css,/\.tp4m2 \.pn-dental-team-photo-grid figcaption\s*\{[^}]*bottom:10px/);
  assert.match(css,/\.tp4m2 \.tp4m2-team>p\.tp4m2-disclaimer\s*\{[^}]*clear:both/);
  assert.match(shared,/TP4_DENTAL_TEAM_IMAGES\.map/);
+});
+
+
+test("2026-11-09 approved dental models 1/2/3 are FROZEN at exact Git blob hashes",()=>{
+ const lock=JSON.parse(read("config/tp4-odontologia-approved-lock.json"));
+ assert.equal(lock.lock_id,"TP4_ODONTO_APROVADO_2026_11_09");
+ assert.equal(lock.status,"frozen");
+ assert.equal(Object.keys(lock.files).length,6);
+ for(const [filename,approvedSha] of Object.entries(lock.files)){
+  const bytes=readFileSync(resolve(root,filename));
+  const gitSha=createHash("sha1").update("blob "+bytes.length+"\0").update(bytes).digest("hex");
+  assert.equal(gitSha,approvedSha,
+   filename+" deviated from USER-APPROVED dentistry design. Revert the change, or request explicit re-approval and update the freeze baseline.");
+ }
 });

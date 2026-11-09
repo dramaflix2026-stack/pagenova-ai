@@ -1114,7 +1114,7 @@ export default function BuilderV2() {
     const briefNiche=explicitNiche||recognizedNiche||inferredNiche||detectedNiche||(detectedFamily===2?(/arquitetur|design de interiores/i.test(positivePrompt)?"Arquitetura":"Engenharia"):undefined)||(detectedFamily?BRIEFING_TEMPLATE_FAMILIES.find(f=>f.id===detectedFamily)?.niches[0]:undefined);
     // The active makeup brief outranks stale category selection from a previous site.
     const creatingMakeupSite=shouldCreateProject&&recognizedNiche==="Estúdio de maquiagem";
-    const effectiveBriefNiche=creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
+    // The approved TP4 dentistry layouts have priority over a stale selected niche\n    // and over the former TP1 "Odontologia estética" classification.\n    const effectiveBriefNiche=recognizedNiche==="Clínica odontológica"?"Clínica odontológica":creatingMakeupSite?"Estúdio de Maquiagem":briefNiche;
     const explicitTemplate=site.templateId&&site.templateId!=="institutional-complete";
     const templateForCreation=shouldCreateProject?(detailedBrief||Boolean(briefNiche)||Boolean(selectedNiche&&resolveBriefingFamily(selectedNiche))||!selectedNiche?"prompt-adaptive":site.templateId==="minimalist-sophisticated"?"minimalist-sophisticated":"institutional-complete"):(site.templateId||"institutional-complete");
     const normalizedNiche=[explicitNiche,selectedNiche,site.niche,prompt.slice(0,1200)].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
