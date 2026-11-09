@@ -53,7 +53,8 @@ test("Pizzaria has a unique image bank independent of bakery, and every generic 
  }
  assert.match(models[0],/const photo=\(slot:number\)=>tp3FamilyInternetPhoto\(category,1,slot,1400\)/);
  assert.match(models[1],/isJapanese\?japaneseTP3Photo\(i,2\):tp3FamilyInternetPhoto\(familyCategory,2,i,1400\)/);
- assert.match(models[2],/isJapanese\?japaneseTP3Photo\(i,3,1600\):tp3FamilyInternetPhoto\(familyCategory,3,i,1600\)/);
+ assert.ok(models[2].includes('isJapanese?japaneseTP3Photo(i,3,1600):familyCategory==="Hamburgueria"&&i===6?burgerProcessPhoto'),"Japanese photo routing must be preserved");
+ assert.ok(models[2].includes('familyCategory==="Hamburgueria"&&i===18?burgerGallerySixPhoto:tp3FamilyInternetPhoto(familyCategory,3,i,1600)'),"Other niches must continue using the shared TP3 catalog");
  assert.ok(shared.includes("TP3_PIZZA_DISTINCT_SOURCE_COUNT"));
 });
 
@@ -64,7 +65,7 @@ test("untrusted generated photos do not override the selected food niche",()=>{
  assert.match(shared,/site\.sectionMediaManaged/);
  for(const model of models)assert.match(model,/tp3TrustedBlockImage\(site,b\)/);
  assert.match(models[1],/fallbackPhoto=.*tp3FamilyInternetPhoto\(familyCategory,2,24,1400\)/);
- assert.match(models[2],/fallbackPhoto=.*tp3FamilyInternetPhoto\(familyCategory,3,24,1600\)/);
+ assert.ok(models[2].includes('tp3FamilyInternetPhoto(familyCategory,3,familyCategory==="Hamburgueria"?11:24,1600)'),"Hamburgueria fallback differs from broken source while other niches keep slot 24");
 });
 
 test("M1 has 6 pictures in gallery plus all mandatory blocks with high-contrast contact",()=>{
