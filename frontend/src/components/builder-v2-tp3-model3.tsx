@@ -24,9 +24,9 @@ const niches=[
 [/restaurante/i,"Restaurante",["Entradas","Pratos principais","Sobremesas","Bebidas"],"dining"]
 ] as const;
 // Photos are resolved exclusively through the TP3 family-specific curated catalog.
-const questions=[["Como conhecer o cardápio?","Explore as especialidades desta página e consulte o estabelecimento para informações atualizadas."],["Como fazer um pedido?","Entre em contato pelos canais oficiais cadastrados pela empresa."],["Há opções para restrições alimentares?","Consulte a equipe sobre ingredientes e disponibilidade antes de pedir."],["Quais são os horários de atendimento?","Confirme os horários diretamente com o estabelecimento."],["É possível solicitar encomendas?","Consulte previamente a disponibilidade com a equipe."]];
+const questions=[["Como conhecer o cardápio?","Explore as especialidades desta página e consulte o estabelecimento para informações atualizadas."],["Como fazer um pedido?","Entre em contato pelos canais oficiais cadastrados pela empresa."],["Há opções para restrições alimentares?","Consulte a equipe sobre ingredientes e disponibilidade antes de pedir."],["Quais são os horários de atendimento?","Confirme os horários diretamente com o estabelecimento."],["É possível solicitar encomendas?","Consulte previamente a disponibilidade com a equipe."],["Existem opções vegetarianas?","Confirme com a equipe as opções e ingredientes disponíveis."]];
 export function BuilderV2TP3Model3({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
- const [special,setSpecial]=useState(0),[step,setStep]=useState(0),[quote,setQuote]=useState(0),[faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[message,setMessage]=useState(""),[notice,setNotice]=useState("");
+ const [special,setSpecial]=useState(0),[step,setStep]=useState(0),[faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[contact,setContact]=useState(""),[message,setMessage]=useState(""),[notice,setNotice]=useState("");
  const isTruck=isFoodTruck(site);
  const isJapanese=!isTruck&&isJapaneseTP3Site(site);
  const brand=isJapanese?japaneseTP3Brand(site,publishedMode):site.header?.brand||site.title||"Gastronomia";
