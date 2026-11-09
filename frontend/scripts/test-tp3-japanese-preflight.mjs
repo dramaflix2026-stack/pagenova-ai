@@ -134,7 +134,8 @@ test("preflight: Japanese M1 premium footer is responsive and never invents cont
   const source=read(isolated);
   assert.match(source,/data-japanese-footer="premium"/);
   assert.match(source,/md:grid-cols-\[minmax\(0,1\.4fr\)_minmax\(0,0\.7fr\)_minmax\(0,1fr\)\]/);
-  assert.match(source,/className="grid min-w-0 gap-12 border-b/);
+  assert.match(source,/className="pn-japanese-footer-grid grid min-w-0 gap-12 border-b/);
+ assert.match(source,/className="pn-japanese-footer-shell mx-auto max-w-7xl"/);
   assert.match(source,/>Contato e localização</);
   assert.match(source,/Navegação do rodapé/);
   assert.match(source,/\{address\?<address/);
