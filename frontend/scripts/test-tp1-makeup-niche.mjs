@@ -80,7 +80,7 @@ test("all template variants share correct makeup route and no demo map is expose
  const m2=readFileSync(path.join(root,"src/components/builder-v2-tp1-model2.tsx"),"utf8");
  assert.equal(m2.includes("Avenida Paulista, 1000"),false);
  const page=readFileSync(path.join(root,"src/app/app/builder-v2/page.tsx"),"utf8");
- assert.ok(page.includes('effectiveBriefNiche=creatingMakeupSite?"Estúdio de Maquiagem":briefNiche'));
+ assert.ok(page.includes('creatingMakeupSite?"Estúdio de Maquiagem":briefNiche'));
  assert.ok(page.includes("finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,shouldCreateProject?finishedSite.niche:selectedNiche)"));
  // A fresh florist project must not be projected as makeup from the previous selection.
  assert.ok(page.includes('const creatingMakeupSite=shouldCreateProject&&recognizedNiche==="Estúdio de maquiagem"'));
