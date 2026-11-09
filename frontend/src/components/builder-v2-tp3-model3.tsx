@@ -60,7 +60,7 @@ export function BuilderV2TP3Model3({site,publishedMode=false}:{site:BuilderV2Sit
  const aboutDescription=sectionText(/sobre|historia|história|essencia|essência/i,"paragraph");
  const specialtiesTitle=sectionText(/especialidad|sabores|cardapio|cardápio/i,"heading");
  const galleryTitle=sectionText(/galeria|gallery|fotos/i,"heading");
- const sectionImages=(pattern:RegExp)=>site.blocks.filter(b=>b.type==="image"&&b.src?.trim()&&pattern.test(b.section||"")&&(!isJapanese||b.userUploaded===true||site.crmImported===true)).map(b=>b.src!);
+ const sectionImages=(pattern:RegExp)=>site.blocks.filter(b=>b.type==="image"&&b.src?.trim()&&pattern.test(b.section||"")&&(!isJapanese||b.userUploaded===true||site.crmImported===true||site.sectionMediaManaged?.includes(b.section||"")===true)).map(b=>b.src!);
  const aboutImages=sectionImages(/sobre|historia|história|essencia|essência/i);
  const specialtyImages=sectionImages(/especialidad|sabores|cardapio|cardápio/i);
  const galleryImages=sectionImages(/galeria|gallery|fotos/i);
