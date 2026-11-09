@@ -149,8 +149,8 @@ test("Hamburgueria M3 fixes process and last gallery image without changing appr
  const model=models[2];
  assert.ok(model.includes('const burgerProcessPhoto="https://images.pexels.com/photos/8365312/pexels-photo-8365312.jpeg'));
  assert.ok(model.includes('const burgerGallerySixPhoto="https://images.pexels.com/photos/4098851/pexels-photo-4098851.jpeg'));
- assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===6)return burgerProcessPhoto'));
- assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===18)return burgerGallerySixPhoto'));
+ assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===6?burgerProcessPhoto'));
+ assert.ok(model.includes('familyCategory==="Hamburgueria"&&i===18?burgerGallerySixPhoto'));
  assert.ok(model.includes('familyCategory==="Hamburgueria"?11:24'));
  assert.ok(model.includes('photo(isJapanese?step+3:step+6)'));
  assert.ok(model.includes('[14,15,16,17,18].map'));

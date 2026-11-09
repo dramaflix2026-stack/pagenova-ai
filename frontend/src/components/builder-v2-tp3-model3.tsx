@@ -43,13 +43,7 @@ export function BuilderV2TP3Model3({site,publishedMode=false}:{site:BuilderV2Sit
  // Keep approved M1/M2 untouched; two M3 slots used the same broken catalog photo.
  const burgerProcessPhoto="https://images.pexels.com/photos/8365312/pexels-photo-8365312.jpeg?auto=compress&cs=tinysrgb&w=1600";
  const burgerGallerySixPhoto="https://images.pexels.com/photos/4098851/pexels-photo-4098851.jpeg?auto=compress&cs=tinysrgb&w=1600";
- const photo=(i:number)=>{
-  if(isTruck)return truckPhoto(i);
-  if(isJapanese)return japaneseTP3Photo(i,3,1600);
-  if(familyCategory==="Hamburgueria"&&i===6)return burgerProcessPhoto;
-  if(familyCategory==="Hamburgueria"&&i===18)return burgerGallerySixPhoto;
-  return tp3FamilyInternetPhoto(familyCategory,3,i,1600);
- };
+ const photo=(i:number)=>isTruck?truckPhoto(i):isJapanese?japaneseTP3Photo(i,3,1600):familyCategory==="Hamburgueria"&&i===6?burgerProcessPhoto:familyCategory==="Hamburgueria"&&i===18?burgerGallerySixPhoto:tp3FamilyInternetPhoto(familyCategory,3,i,1600);
  // Previously the fallback was identical to the broken slot. Use a different burger image.
  const fallbackPhoto=isTruck?truckPhoto(2):isJapanese?japaneseTP3Photo(0,3,1600):tp3FamilyInternetPhoto(familyCategory,3,familyCategory==="Hamburgueria"?11:24,1600);
  const sectionText=(pattern:RegExp,type:"heading"|"paragraph")=>site.blocks.find(b=>b.type===type&&b.text?.trim()&&pattern.test(b.section||""))?.text;
