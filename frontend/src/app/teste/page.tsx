@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
-import { HeroModeloUm } from "./hero-modelo-um";
-import { LandingStyleGallery } from "./landing-style-gallery";
-import { PremiumAiDemo } from "./premium-ai-demo";
-import { EcosystemSection } from "./ecosystem-section";
-import { AudienceSection } from "./audience-section";
-import { PricingSection } from "./pricing-section";
+import { LandingRevamp } from "./landing-revamp";
 
 export const metadata: Metadata = {
-  title: "PageNova AI | O futuro da criação digital",
-  description: "Conheça a PageNova AI: criação de sites, landing pages e ferramentas para negócios digitais.",
+  title: "PageNova AI | Criação digital com inteligência artificial",
+  description: "Crie sites com IA, organize oportunidades com o CRM e descubra o ecossistema PageNova.",
   robots: { index: false, follow: false },
 };
 
 export default function TestePage() {
-  return <><HeroModeloUm /><LandingStyleGallery /><PremiumAiDemo /><EcosystemSection /><AudienceSection /><PricingSection /></>;
+  return <LandingRevamp />;
 }
