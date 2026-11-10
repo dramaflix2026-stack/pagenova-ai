@@ -4,7 +4,7 @@ import {handleTP6RetailImageError} from "@/lib/tp6-model2-internet-photos";
 import {TP6RetailLocation,TP6RetailReviewSlots,TP6RetailCustomSections,type TP6RetailReview} from "./builder-v2-tp6-premium-shared";
 import type {TP6RetailVisualEdits} from "@/lib/builder-v2-tp6-edit-bridge";
 
-type Props={brand:string;niche:string;images:string[];aboutText?:string;reviews?:TP6RetailReview[];whatsapp?:string;address?:string;edits?:TP6RetailVisualEdits};
+type Props={brand:string;niche:string;images:string[];aboutText?:string;reviews?:TP6RetailReview[];whatsapp?:string;address?:string;edits?:TP6RetailVisualEdits;customSections?:React.ReactNode};
 const details:Record<string,{focus:string;story:string;values:[string,string,string,string]}>={
 "Loja de roupas":{focus:"Estilo com identidade",story:"Uma curadoria de peças pensadas para acompanhar diferentes momentos, com elegância, personalidade e atenção aos detalhes.",values:["Curadoria exclusiva","Qualidade em cada peça","Atendimento próximo","Estilo atemporal"]},
 "Loja de calçados":{focus:"Cada passo, uma escolha",story:"Design, conforto e versatilidade se encontram em uma seleção feita para acompanhar o seu ritmo.",values:["Seleção criteriosa","Conforto e acabamento","Atendimento dedicado","Estilo versátil"]},
@@ -22,7 +22,7 @@ const details:Record<string,{focus:string;story:string;values:[string,string,str
 "Loja de presentes e personalizados":{focus:"Presentear com significado",story:"Escolhas especiais e detalhes personalizados para celebrar pessoas e momentos que importam.",values:["Ideias exclusivas","Cuidado nos detalhes","Atendimento pessoal","Memórias especiais"]},
 "E-commerce multimarcas":{focus:"Descobertas em um só lugar",story:"Uma seleção multimarcas que reúne novidades, essenciais e boas escolhas em uma experiência simples e inspiradora.",values:["Variedade selecionada","Escolhas de qualidade","Compra descomplicada","Novidades constantes"]}
 };
-export function Template6RetailStory({brand,niche,images,aboutText,reviews,whatsapp,address,edits}:Props){
+export function Template6RetailStory({brand,niche,images,aboutText,reviews,whatsapp,address,edits,customSections}:Props){
  const data=details[niche]||details["E-commerce multimarcas"];
  const pictures=images.filter(Boolean);
  const gallery=pictures.slice(3,9).length>=3?pictures.slice(3,9):pictures.slice(0,3);
@@ -74,6 +74,7 @@ export function Template6RetailStory({brand,niche,images,aboutText,reviews,whats
 <section className="pn-t6-process" id="como-comprar"><span className="eyebrow">Uma experiência simples / {niche}</span><h2>Da escolha ao seu próximo favorito.</h2><div className="pn-t6-steps">{steps.map(([name,description],i)=><div className="pn-t6-step" key={name}><span className="pn-t6-step-num">0{i+1}</span><h3>{name}</h3><p>{description}</p></div>)}</div></section>
 <TP6RetailCustomSections sections={edits?.addedSections}/>
 <section className="pn-t6-faq" id="perguntas-frequentes"><div><span className="eyebrow">Dúvidas frequentes</span><h2>Boas escolhas começam com clareza.</h2><p>Orientações para sua experiência com {brand}.</p></div><div className="pn-t6-faq-list">{faqs.map(([q,a],i)=><div className="pn-t6-faq-item" key={q}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}><span>{q}</span><span aria-hidden="true">{openFaq===i?"−":"+"}</span></button>{openFaq===i&&<p>{a}</p>}</div>)}</div></section>
+{customSections}
 <section className="pn-t6-contact" id="fale-conosco"><div><span className="eyebrow">Vamos conversar / {brand}</span><h2>O próximo capítulo começa aqui.</h2></div><div><p>Quer conhecer melhor nossa seleção de {niche.toLowerCase()}? Fale com a equipe pelos canais oficiais da loja.</p><a href="#localizacao">Ver localização e contato ↗</a></div></section>
 
 <TP6RetailLocation whatsapp={whatsapp} address={address}/>
