@@ -166,7 +166,7 @@ export function LandingRevamp() {
      </div>
      <div className="pnr-hero-art" aria-hidden="true">
       <div className="pnr-portrait-glow"/><div className="pnr-portrait-ring"/>
-      <img className="pnr-person" src="https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="" decoding="async" fetchPriority="high"/>
+      <img className="pnr-person" src="/landing-premium/portrait-reference.webp" alt="" decoding="async" fetchPriority="high"/>
       <div className="pnr-hologram pnr-holo-top"><LayoutTemplate size={30}/></div>
       <div className="pnr-hologram pnr-holo-mid"><Code2 size={30}/></div>
       <div className="pnr-hologram pnr-holo-bottom"><BarChart3 size={30}/></div>
