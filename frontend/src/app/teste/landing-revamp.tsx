@@ -7,6 +7,7 @@ import { PremiumAiDemo } from "./premium-ai-demo";
 import "./landing-revamp.css";
 import "./landing-fidelity.css";
 import "./landing-stability.css";
+import "./landing-hero-premium.css";
 
 type Lang = "pt" | "en" | "es";
 type FAQ = { q: string; a: string };
@@ -157,7 +158,7 @@ export function LandingRevamp() {
    {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<div className="pnr-mobile-languages">{(["pt","en","es"] as const).map(value=><button key={value} type="button" aria-pressed={lang===value} onClick={()=>switchLang(value)}>{value.toUpperCase()}</button>)}</div><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary" onClick={()=>setMenu(false)}>{t.start}<ArrowRight size={17}/></Link></nav>}
   </header>
   <main>
-   <section id="plataforma" className="pnr-hero" data-motion-scope="hero">
+   <section id="plataforma" className="pnr-hero pnr-hero--premium" data-motion-scope="hero">
     <div className="pnr-hero-ring" aria-hidden="true"/>
     <div className="pnr-hero-inner">
      <div className="pnr-hero-copy">
@@ -166,12 +167,20 @@ export function LandingRevamp() {
       <p className="pnr-hero-desc">{t.heroDesc}</p>
       <div className="pnr-actions"><Link className="pnr-btn pnr-btn-primary" href="/cadastro">{t.heroCta}<ArrowRight size={17}/></Link><a className="pnr-btn pnr-btn-outline" href="#edicao-ia"><Play size={15} fill="currentColor"/>{t.heroDemo}</a></div>
      </div>
-     <div className="pnr-hero-art" data-motion-layer="hero-visual" aria-hidden="true">
-      <div className="pnr-portrait-glow"/><div className="pnr-portrait-ring"/>
-      <img className="pnr-person" src="/landing-premium/portrait-reference.webp" alt="" width="340" height="256" loading="eager" decoding="sync" fetchPriority="high"/>
-      <div className="pnr-hologram pnr-holo-top"><LayoutTemplate size={30}/></div>
-      <div className="pnr-hologram pnr-holo-mid"><Code2 size={30}/></div>
-      <div className="pnr-hologram pnr-holo-bottom"><BarChart3 size={30}/></div>
+     <div className="pnr-hero-art pnr-hero-scene" data-motion-layer="hero-visual" aria-hidden="true">
+      <div className="pnr-scene-atmosphere" data-motion-layer="ambient"/>
+      <div className="pnr-scene-orbit pnr-scene-orbit-outer" data-motion-layer="orbit"/>
+      <div className="pnr-scene-orbit pnr-scene-orbit-inner" data-motion-layer="orbit"/>
+      <div className="pnr-scene-halo" data-motion-layer="halo"/>
+      <div className="pnr-scene-portrait-frame">
+       <div className="pnr-scene-portrait-aura"/>
+       <img className="pnr-person pnr-scene-portrait" src="/landing-premium/portrait-reference.webp" alt="" width="340" height="256" loading="eager" decoding="async" fetchPriority="high"/>
+      </div>
+      <div className="pnr-scene-panel pnr-scene-panel-photo" data-motion-layer="hologram"><LayoutTemplate size={29} strokeWidth={1.65}/><span>VISUAL</span></div>
+      <div className="pnr-scene-panel pnr-scene-panel-code" data-motion-layer="hologram"><Code2 size={32} strokeWidth={1.65}/><span>DEV</span></div>
+      <div className="pnr-scene-panel pnr-scene-panel-growth" data-motion-layer="hologram"><BarChart3 size={29} strokeWidth={1.65}/><span>GROWTH</span></div>
+      <div className="pnr-scene-spark pnr-scene-spark-a"/>
+      <div className="pnr-scene-spark pnr-scene-spark-b"/>
      </div>
     </div>
     <div className="pnr-benefits">{t.benefit.map((b,i)=>{const Icon=[Zap,Layers3,MonitorSmartphone,BarChart3][i];return <div key={i}><Icon size={21}/><span>{b}</span></div>})}</div>
