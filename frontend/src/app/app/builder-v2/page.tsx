@@ -491,7 +491,7 @@ export default function BuilderV2() {
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
     const coverReplacement=only===undefined&&/\b(?:capa|hero|foto principal|imagem principal|banner principal)\b/i.test(prompt)&&isExplicitImageChangeRequest(prompt);
     const heroSection=current.blocks.find(b=>b.type==="heading")?.section||"principal";
-    const coverBlock=coverReplacement?current.blocks.find(b=>b.type==="image"&&(b.section||"principal")===heroSection):undefined;
+    const coverBlock=coverReplacement?current.blocks.find(b=>b.type==="image"&&b.imageExplicit===true)||current.blocks.find(b=>b.type==="image"):undefined;
     const jobs=coverReplacement?[{section:heroSection,index:0}]:only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     // Reuse the approved niche-specific image bank on initial generation. Never regenerate paid assets.
     const photoNiche=current.niche||selectedNiche;
@@ -530,6 +530,16 @@ export default function BuilderV2() {
       const previous=blocks.findIndex(b=>b.id===id);
       if(previous>=0)blocks[previous]=visual;
       else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
+      if(coverReplacement){
+        // Specialized template renderers read the first image block as their cover.
+        // Move only the edited cover ahead of other images; keep their relative order.
+        const editedIndex=blocks.findIndex(b=>b.id===id);
+        const firstImageIndex=blocks.findIndex(b=>b.type==="image");
+        if(editedIndex>=0&&firstImageIndex>=0&&editedIndex!==firstImageIndex){
+          const [edited]=blocks.splice(editedIndex,1);
+          blocks.splice(firstImageIndex,0,edited);
+        }
+      }
       completed++;
     }
     if(!completed)throw new Error("Imagens indisponíveis: verifique o armazenamento do Supabase.");
