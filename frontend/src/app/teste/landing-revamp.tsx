@@ -6,13 +6,14 @@ import { ArrowRight, ArrowUpRight, BarChart3, Blocks, BriefcaseBusiness, Buildin
 import { PremiumAiDemo } from "./premium-ai-demo";
 import "./landing-revamp.css";
 import "./landing-fidelity.css";
+import "./landing-stability.css";
 
 type Lang = "pt" | "en" | "es";
 type FAQ = { q: string; a: string };
 const translations = {
  pt: {
   nav:["Plataforma","Possibilidades","Planos","Cases"],login:"Entrar",start:"Começar agora",
-  heroTag:"CRIAÇÃO DIGITAL COM IA",heroHead:"Sites, CRM e Sistemas com Inteligência",heroHi:"Artificial.",
+  heroTag:"CRIAÇÃO DIGITAL COM IA",heroHead:"Sites, CRM e Sistemas\ncom Inteligência",heroHi:"Artificial.",
   heroDesc:"Crie, personalize e escale seu negócio digital com uma plataforma completa, rápida e intuitiva.",heroCta:"Criar meu projeto agora",heroDemo:"Ver demonstração",
   benefit:["Criação rápida com IA","Diversos estilos de site","Desktop e celular","Mais presença digital"],
   stylesTag:"TRÊS ESTILOS DE SITES",stylesTitle:"Três estilos.",stylesHi:"Infinitas possibilidades.",stylesDesc:"Escolha a experiência visual que combina com a sua ideia.",
@@ -48,7 +49,7 @@ const translations = {
  },
  en: {
   nav:["Platform","Possibilities","Plans","Examples"],login:"Log in",start:"Get started",
-  heroTag:"AI-POWERED DIGITAL CREATION",heroHead:"Websites, CRM and Systems powered by",heroHi:"Artificial Intelligence.",
+  heroTag:"AI-POWERED DIGITAL CREATION",heroHead:"Websites, CRM and Systems\npowered by",heroHi:"Artificial Intelligence.",
   heroDesc:"Create, customize and grow your digital business with a comprehensive, fast and intuitive platform.",heroCta:"Start my project",heroDemo:"See demonstration",
   benefit:["Fast AI creation","Multiple website styles","Desktop and mobile","Stronger online presence"],
   stylesTag:"THREE WEBSITE STYLES",stylesTitle:"Three styles.",stylesHi:"Endless possibilities.",stylesDesc:"Choose the visual experience that fits your idea.",
@@ -82,7 +83,7 @@ const translations = {
  },
  es: {
   nav:["Plataforma","Posibilidades","Planes","Ejemplos"],login:"Ingresar",start:"Comenzar ahora",
-  heroTag:"CREACIÓN DIGITAL CON IA",heroHead:"Sitios, CRM y Sistemas con Inteligencia",heroHi:"Artificial.",
+  heroTag:"CREACIÓN DIGITAL CON IA",heroHead:"Sitios, CRM y Sistemas\ncon Inteligencia",heroHi:"Artificial.",
   heroDesc:"Crea, personaliza y haz crecer tu negocio digital con una plataforma completa, rápida e intuitiva.",heroCta:"Crear mi proyecto",heroDemo:"Ver demostración",
   benefit:["Creación rápida con IA","Distintos estilos web","Ordenador y móvil","Mayor presencia digital"],
   stylesTag:"TRES ESTILOS DE SITIOS",stylesTitle:"Tres estilos.",stylesHi:"Infinitas posibilidades.",stylesDesc:"Elige la experiencia visual que encaja con tu idea.",
@@ -144,7 +145,7 @@ export function LandingRevamp() {
  };
  const navigation=["#solucoes","#estilos","#planos","#publicos"];
  const footerAnchors=[["#solucoes","#solucoes","#planos"],["#solucoes","#planos","#estilos"],["#faq","#faq","#faq"]];
- return <div className="pnr-page">
+ return <div className="pnr-page" data-visual-stage="static">
   <div className="pnr-global-ambient" aria-hidden="true"/>
   <header className="pnr-header">
    <div className="pnr-nav">
@@ -156,7 +157,7 @@ export function LandingRevamp() {
    {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<div className="pnr-mobile-languages">{(["pt","en","es"] as const).map(value=><button key={value} type="button" aria-pressed={lang===value} onClick={()=>switchLang(value)}>{value.toUpperCase()}</button>)}</div><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary" onClick={()=>setMenu(false)}>{t.start}<ArrowRight size={17}/></Link></nav>}
   </header>
   <main>
-   <section id="plataforma" className="pnr-hero">
+   <section id="plataforma" className="pnr-hero" data-motion-scope="hero">
     <div className="pnr-hero-ring" aria-hidden="true"/>
     <div className="pnr-hero-inner">
      <div className="pnr-hero-copy">
@@ -165,9 +166,9 @@ export function LandingRevamp() {
       <p className="pnr-hero-desc">{t.heroDesc}</p>
       <div className="pnr-actions"><Link className="pnr-btn pnr-btn-primary" href="/cadastro">{t.heroCta}<ArrowRight size={17}/></Link><a className="pnr-btn pnr-btn-outline" href="#edicao-ia"><Play size={15} fill="currentColor"/>{t.heroDemo}</a></div>
      </div>
-     <div className="pnr-hero-art" aria-hidden="true">
+     <div className="pnr-hero-art" data-motion-layer="hero-visual" aria-hidden="true">
       <div className="pnr-portrait-glow"/><div className="pnr-portrait-ring"/>
-      <img className="pnr-person" src="/landing-premium/portrait-reference.webp" alt="" decoding="async" fetchPriority="high"/>
+      <img className="pnr-person" src="/landing-premium/portrait-reference.webp" alt="" width="340" height="256" loading="eager" decoding="sync" fetchPriority="high"/>
       <div className="pnr-hologram pnr-holo-top"><LayoutTemplate size={30}/></div>
       <div className="pnr-hologram pnr-holo-mid"><Code2 size={30}/></div>
       <div className="pnr-hologram pnr-holo-bottom"><BarChart3 size={30}/></div>
@@ -177,21 +178,21 @@ export function LandingRevamp() {
    </section>
    <section id="solucoes" className="pnr-section pnr-solutions">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.solutionsTag}</p><h2>{t.solutionsTitle} <em>{t.solutionsHi}</em></h2><p>{t.solutionsDesc}</p></header>
-    <div className="pnr-product-grid">{products.map((p,i)=>{const Icon=p.icon;return <a key={i} href={p.target} className={"pnr-product pnr-product-"+p.color}><span className="pnr-product-icon"><Icon size={25}/></span><span className="pnr-product-text"><strong>{t.solutionNames[i]}</strong><small>{t.solutionDescriptions[i]}</small>{i===2&&<small className="pnr-status">{t.solutionBadge}</small>}</span><ArrowUpRight size={19} className="pnr-product-arrow"/></a>})}</div>
+    <div className="pnr-product-grid" data-motion-scope="solutions">{products.map((p,i)=>{const Icon=p.icon;return <a key={i} href={p.target} className={"pnr-product pnr-product-"+p.color}><span className="pnr-product-icon"><Icon size={25}/></span><span className="pnr-product-text"><strong>{t.solutionNames[i]}</strong><small>{t.solutionDescriptions[i]}</small>{i===2&&<small className="pnr-status">{t.solutionBadge}</small>}</span><ArrowUpRight size={19} className="pnr-product-arrow"/></a>})}</div>
    </section>
    <section id="estilos" className="pnr-section pnr-styles">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.stylesTag}</p><h2>{t.stylesTitle} <em>{t.stylesHi}</em></h2><p>{t.stylesDesc}</p></header>
-    <div className="pnr-style-grid">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className="pnr-style-card" key={id}><picture><source media="(max-width: 650px)" srcSet={"/gallery-styles/"+id+"-mobile.webp"}/><img src={"/gallery-styles/"+id+"-desktop.webp"} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
+    <div className="pnr-style-grid" data-motion-scope="styles">{(["institucional","cinematografico","3d-imersivo"] as const).map((id,i)=><div className="pnr-style-card" key={id}><picture><source media="(max-width: 650px)" srcSet={"/gallery-styles/"+id+"-mobile.webp"}/><img src={"/gallery-styles/"+id+"-desktop.webp"} alt={t.types[i]} width="1600" height="900" loading="lazy" decoding="async"/></picture></div>)}</div>
     <p className="pnr-footnote">{t.stylesNote}</p>
    </section>
    <section id="publicos" className="pnr-section pnr-audiences">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.audienceTag}</p><h2>{t.audienceTitle} <em>{t.audienceHi}</em></h2><p>{t.audienceDesc}</p></header>
-    <div className="pnr-audience-grid">{t.audiences.map((item,i)=>{const Icon=audiencesIcons[i];return <Link key={i} href={i===3?"#solucoes":"/cadastro"} className="pnr-audience-card"><span className="pnr-audience-icon"><Icon size={24}/></span><strong>{item[0]}</strong><p>{item[1]}</p><ArrowUpRight className="pnr-audience-arrow" size={20}/></Link>})}</div>
+    <div className="pnr-audience-grid" data-motion-scope="audiences">{t.audiences.map((item,i)=>{const Icon=audiencesIcons[i];return <Link key={i} href={i===3?"#solucoes":"/cadastro"} className="pnr-audience-card"><span className="pnr-audience-icon"><Icon size={24}/></span><strong>{item[0]}</strong><p>{item[1]}</p><ArrowUpRight className="pnr-audience-arrow" size={20}/></Link>})}</div>
    </section>
    <PremiumAiDemo/>
    <section id="planos" className="pnr-section pnr-pricing">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.pricesTag}</p><h2>{t.pricesTitle} <em>{t.pricesHi}</em></h2><p>{t.pricesDesc}</p></header>
-    <div className="pnr-price-grid">{t.plans.map((p,i)=>{const Icon=priceIcons[i];return <article key={i} className={"pnr-price-card"+(i===3?" is-featured":"")}>
+    <div className="pnr-price-grid" data-motion-scope="plans">{t.plans.map((p,i)=>{const Icon=priceIcons[i];return <article key={i} className={"pnr-price-card"+(i===3?" is-featured":"")}>
      {i===3&&<div className="pnr-featured-label"><Crown size={12}/>{t.featured}</div>}
      <div className="pnr-price-top"><span className="pnr-price-icon"><Icon size={22}/></span><div><h3>{p.name}</h3><small>{p.subtitle}</small></div></div>
      <div className="pnr-price-number"><span>R$</span><strong>{amounts[i]}</strong><span>/mês</span></div>
