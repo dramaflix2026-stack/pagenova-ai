@@ -77,7 +77,12 @@ test("language school keeps six clearly fictional demo cards in preview and publ
  assert.match(m3,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="03"/);
  assert.match(hero,/Template10EducationExperience niche=\{niche\} brand=\{brand\} testimonials=\{testimonials\} publishedMode=\{publishedMode\}/);
  for(const tag of ["BuilderV2TP10Model2","BuilderV2TP10Model3","Template10EducationHero"]){
-  assert.ok(router.includes("<"+tag+" brand={cleanBrand} publishedMode={props.publishedMode}"));
+  const start=router.indexOf("<"+tag+" ");
+  assert.ok(start>=0,"expected "+tag+" in the Builder render dispatcher");
+  const openingTag=router.slice(start,router.indexOf("/>",start));
+  assert.match(openingTag,/site=\{props\.site as unknown as import\(/,"pass edited site state");
+  assert.match(openingTag,/brand=\{cleanBrand\}/,"preserve the original brand");
+  assert.match(openingTag,/publishedMode=\{props\.publishedMode\}/,"preserve public/preview mode");
  }
 });
 
