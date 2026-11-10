@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 "use client";
+import type { ReactNode } from "react";
 import {useState} from "react";
 type Review={name:string;quote:string;city?:string};
 type Props={brand:string;niche:string;contactHref?:string;testimonials?:Review[];reviewsSection?:ReactNode};
@@ -19,7 +19,7 @@ const categories:Record<string,{steps:[string,string,string,string];photos:strin
 "locadoras de veiculos":{steps:["Informe sua viagem","Consulte os veículos","Confira as condições","Confirme sua locação"],photos:["photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2","photo-1492144534655-ae79c964c9d7"]}
 };
 const image=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&q=85";
-export function Template9AutomotiveExperience({brand,niche,contactHref,testimonials=[]}:Props){
+export function Template9AutomotiveExperience({brand,niche,contactHref,testimonials=[],reviewsSection}:Props){
  const d=categories[normalize(niche)]||categories["auto centers"];
  const [slide,setSlide]=useState(0);
  const target=contactHref&&/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)?contactHref:"#tp9-contato";
