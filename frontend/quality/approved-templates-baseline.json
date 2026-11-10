@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "122eaa589228c26181ecdd87e94d5cadf1ad90f2",
-        "reason": "Improve custom pet care card text and display real curated pet photographs while retaining explicitly saved content and approved template layout."
+        "sha": "c1fabcd3a2fea7164b782ca7c64404f3bb75edaf",
+        "reason": "Fix persisted generic description detection and use service-matched licensed Pexels grooming photographs in Mundo Pet custom cards."
       }
     },
     {
