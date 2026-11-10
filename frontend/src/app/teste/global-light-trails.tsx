@@ -82,11 +82,11 @@ function measureTrails(root: HTMLElement): TrailGeometry | null {
     // When there's no card nearby, softly drift inward to create a visible
     // wave in the blank margin between sections instead of a straight rule.
     const phase = y / (isMobile ? 200 : 295);
-    const freeInset = width * (isMobile ? 0.135 : 0.09)
-      + Math.sin(phase + (side === "left" ? 0 : 1.6)) * width * (isMobile ? 0.055 : 0.03);
+    const freeInset = width * (isMobile ? 0.065 : 0.09)
+      + Math.sin(phase + (side === "left" ? 0 : 1.6)) * width * (isMobile ? 0.026 : 0.03);
     const outerMargin = isMobile ? 7 : 13;
-    const edgeOffset = isMobile ? 13 : 17;
-    const innerMargin = isMobile ? Math.max(26, width * 0.195) : Math.max(20, width * 0.16);
+    const edgeOffset = isMobile ? 11 : 17;
+    const innerMargin = isMobile ? Math.max(9, width * 0.075) : Math.max(20, width * 0.16);
     let xInset: number;
     if (relevant.length) {
       const edge = side === "left"
@@ -94,7 +94,7 @@ function measureTrails(root: HTMLElement): TrailGeometry | null {
         : width - Math.max(...relevant.map(card => card.right));
       xInset = Math.min(edge - edgeOffset, innerMargin);
       // Make the stroke run slightly around the card border rather than under it.
-      xInset += Math.sin(phase * 1.4 + (side === "left" ? 0 : 1.2)) * (isMobile ? 7 : 5);
+      xInset += Math.sin(phase * 1.4 + (side === "left" ? 0 : 1.2)) * (isMobile ? 2 : 5);
     } else {
       xInset = freeInset;
     }
