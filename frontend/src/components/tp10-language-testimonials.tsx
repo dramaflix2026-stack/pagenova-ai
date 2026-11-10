@@ -5,7 +5,7 @@ type Props={reviews?:EducationReview[];publishedMode?:boolean;variant:"01"|"02"|
 
 export const isLanguageSchool=(niche:string,brand="")=>/(?:idiomas|language\s*school|escola\s+de\s+ingl[eê]s)/i.test(niche+" "+brand);
 
-// Demonstration content is never published as a real student statement.
+// Demonstration entries are always explicitly marked fictional, including on published pages.
 const examples:EducationReview[]=[
  {name:"Mariana Oliveira",role:"Inglês para iniciantes",quote:"Gostei de encontrar as opções de cursos e entender como começar a estudar inglês.",photo:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=180&h=180&q=80"},
  {name:"Rafael Martins",role:"Conversação em inglês",quote:"As informações sobre conversação estão organizadas de forma clara e fácil de consultar.",photo:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=180&h=180&q=80"},
@@ -17,7 +17,7 @@ const examples:EducationReview[]=[
 
 export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant}:Props){
  const actual=reviews.filter(r=>!!r.name?.trim()&&!!r.quote?.trim()).slice(0,6);
- const demoCount=publishedMode?0:Math.max(0,6-actual.length);
+ const demoCount=Math.max(0,6-actual.length);
  const entries=[
   ...actual.map(r=>({...r,isDemo:false})),
   ...examples.slice(0,demoCount).map(r=>({...r,isDemo:true}))
@@ -47,7 +47,7 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  @media(max-width:900px){.tp10edu-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
  @media(max-width:560px){.tp10edu-six-grid{grid-template-columns:1fr;gap:14px}.tp10edu-six-card{padding:22px}.tp10edu-six-person{margin-bottom:16px}.tp10edu-six-card blockquote{font-size:16px!important;margin-bottom:19px!important}}
  `}</style>
- {demoCount>0&&<p className="tp10edu-six-notice">Exemplos fictícios para demonstrar o layout. As fotos, os nomes e os comentários não representam alunos nem avaliações reais.</p>}
+ {demoCount>0&&<p className="tp10edu-six-notice">{publishedMode?"DEMONSTRAÇÃO FICTÍCIA — Os nomes, as fotos e os relatos abaixo são exemplos de layout, não representam alunos nem avaliações reais. Substitua-os por depoimentos verificados.":"Exemplos fictícios para demonstrar o layout. As fotos, os nomes e os comentários não representam alunos nem avaliações reais."}</p>}
  {entries.length?<div className="tp10edu-six-grid">{entries.map((r,i)=><article className="tp10edu-six-card" key={r.name+"-"+i}><div className="tp10edu-six-person"><div className="tp10edu-six-avatar" aria-label={r.isDemo?"Retrato ilustrativo":"Identificação do aluno"}>{r.name.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("")}{r.photo&&<img src={r.photo} loading="lazy" alt={r.isDemo?"Retrato ilustrativo fictício":"Foto fornecida de "+r.name} onError={e=>{e.currentTarget.style.display="none"}}/>}</div><div><strong>{r.name}</strong>{r.role&&<span>{r.role}</span>}</div></div><blockquote>“{r.quote}”</blockquote><div className="tp10edu-six-foot">{r.isDemo?"Exemplo fictício · Não é aluno real":"Depoimento cadastrado"}</div></article>)}</div>:<div className="tp10edu-six-empty">Depoimentos reais serão exibidos quando forem cadastrados pela instituição.</div>}
  </div>;
 }

@@ -58,7 +58,7 @@ test("screenshot runner covers mobile, desktop and missing-image/layout failures
   assert.match(commands["qa:visual:strict"],/--strict/);
 });
 
-test("language school six-card preview uses a 3x2 desktop grid and no fictional public claims",()=>{
+test("language school keeps six clearly fictional demo cards in preview and publication",()=>{
  const component=read("src/components/tp10-language-testimonials.tsx");
  const m1=read("src/components/template10-education-experience.tsx");
  const m2=read("src/components/builder-v2-tp10-model2.tsx");
@@ -69,7 +69,8 @@ test("language school six-card preview uses a 3x2 desktop grid and no fictional 
  assert.match(component,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,"three columns on desktop");
  assert.match(component,/@media\(max-width:900px\).*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"two columns on tablet");
  assert.match(component,/@media\(max-width:560px\).*grid-template-columns:1fr/,"one column on mobile");
- assert.match(component,/const demoCount=publishedMode\?0:Math\.max\(0,6-actual\.length\)/,"never publish illustrative entries");
+ assert.match(component,/const demoCount=Math\.max\(0,6-actual\.length\)/,"preserve six cards in preview and publication");
+ assert.match(component,/DEMONSTRAÇÃO FICTÍCIA/,"published site must identify fictional examples prominently");
  assert.match(component,/Exemplo fictício · Não é aluno real/,"clear demonstration label");
  assert.match(m1,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="01"/);
  assert.match(m2,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="02"/);
@@ -88,6 +89,7 @@ test("all three language school footers are restrained and scoped to that niche"
  assert.match(m1,/isLanguageSchool\(niche,brand\)/);
  assert.match(m2,/tp10m2\[data-tp10-languages="true"\] \.footer h2/);
  assert.match(m3,/tp10m3\[data-tp10-languages="true"\] \.footer h2/);
+ assert.match(m3,/tp10m3\[data-tp10-languages="true"\] \.contact \.contactGrid>div>p\{color:#272129;opacity:1\}/);
  assert.match(m2,/href="#tp10m2-reviews"/);
  assert.match(m3,/href="#tp10m3-reviews"/);
  assert.match(m2,/footerBottom\{margin-top:0/);
