@@ -587,7 +587,7 @@ export default function BuilderV2() {
     // Fitness templates are rendered from a dedicated component. Apply edits to
     // explicit component overrides instead of silently editing invisible generic blocks.
     if(site.blocks.length&&/academia|fitness|personal trainer|muscula[cç][aã]o/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
-      const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+      const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
       const isTestimonials=/depoiment|avaliac|testemunh/.test(normalized);
       const isColor=/cor|fundo|background/.test(normalized);
       const isHeroImage=/(?:imagem|foto|fotografia)/.test(normalized)&&/(?:capa|hero|principal|banner)/.test(normalized)&&/substitu|troqu|alter|mud/.test(normalized);
@@ -597,12 +597,12 @@ export default function BuilderV2() {
         const next:Site=structuredClone(site);
         let summary="";
         if(isTestimonials&&isColor){
-          const color=prompt.match(/#[0-9a-fA-F]{6}\\b/)?.[0];
+          const color=prompt.match(/#[0-9a-fA-F]{6}(?![0-9a-fA-F])/)?.[0];
           if(!color){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe uma cor hexadecimal para a seção de depoimentos. Nenhuma alteração aplicada."}]);return;}
           const index=next.blocks.findIndex(block=>block.section==="fitness-testimonials-style");
           const block:Block=index>=0?{...next.blocks[index]}:{id:crypto.randomUUID(),type:"paragraph",text:"",color:"#ffffff",align:"left",section:"fitness-testimonials-style"};
           block.background=color;
-          if(/texto|letra|fonte|branc/.test(normalized))block.color=/#(?:ffffff|fff)\\b/i.test(prompt)?"#ffffff":/#(?:000000|000)\\b/i.test(prompt)?"#000000":"#ffffff";
+          if(/texto|letra|fonte|branc/.test(normalized))block.color=/#(?:ffffff|fff)\b/i.test(prompt)?"#ffffff":/#(?:000000|000)\b/i.test(prompt)?"#000000":"#ffffff";
           if(index>=0)next.blocks[index]=block;else next.blocks.push(block);
           summary="Fundo dos depoimentos atualizado para "+color+"; a prévia agora utiliza essa cor.";
         }else if(isHeroImage){
