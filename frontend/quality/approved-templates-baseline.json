@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "0fe0eba5f1684d3e0329719782394830379605a0",
-        "reason": "Add demonstration reviews and map with São Paulo reference to automotive templates without altering approved other families."
+        "sha": "2b7107741bae90a58f71542d5dce1a87d221defb",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
       }
     },
     {
@@ -473,7 +473,11 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-final.tsx",
-      "blobSha": "053380e0061d8324a771c08922d3e32941998a82"
+      "blobSha": "053380e0061d8324a771c08922d3e32941998a82",
+      "approvedBindingRevision": {
+        "sha": "7e6a0010d1192eab2c4ee93dca372dfcab2b7d04",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model2-hero.tsx",
@@ -489,14 +493,18 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-showcase.tsx",
-      "blobSha": "e9c257b67b5ffd71049b96a42a18ff3e0c23052b"
+      "blobSha": "e9c257b67b5ffd71049b96a42a18ff3e0c23052b",
+      "approvedBindingRevision": {
+        "sha": "5e6601e3551be85f51cc32e161147a1d0d6ec592",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model3.tsx",
       "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76",
       "approvedBindingRevision": {
-        "sha": "8d340912f81f78e5199ce9d82a1950a432612cad",
-        "reason": "Add six reviews and reference map to automotive model three, preserving its established styling."
+        "sha": "8b52eb2ce5ca36378d52678e262c2b0c3b8c2b02",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
       }
     },
     {
@@ -669,11 +677,19 @@
     },
     {
       "path": "src/components/template9-automotive-closing.tsx",
-      "blobSha": "323238597f7abe5b8c59fc97bdb0a6be900e204c"
+      "blobSha": "323238597f7abe5b8c59fc97bdb0a6be900e204c",
+      "approvedBindingRevision": {
+        "sha": "83886428a4ca06f8b595fc952c76efa4110fbf7c",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+      }
     },
     {
       "path": "src/components/template9-automotive-experience.tsx",
-      "blobSha": "22a042bdabd77250af456fe305726b9d80057139"
+      "blobSha": "22a042bdabd77250af456fe305726b9d80057139",
+      "approvedBindingRevision": {
+        "sha": "0b1bb92b6bcd981411c412400e09b8a0e4398f06",
+        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+      }
     },
     {
       "path": "src/components/template9-automotive-final.tsx",

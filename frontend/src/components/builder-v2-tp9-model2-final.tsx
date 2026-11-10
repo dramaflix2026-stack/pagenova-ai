@@ -1,8 +1,9 @@
 "use client";
-type Props={brand:string;niche:string;address?:string;email?:string;whatsapp?:string};
+import type { ReactNode } from "react";
+type Props={brand:string;niche:string;address?:string;email?:string;whatsapp?:string;locationSection?:ReactNode};
 const clean=(v?:string)=>v?.trim()||"";
 const validEmail=(v:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-export function BuilderV2TP9Model2Final({brand,niche,address,email,whatsapp}:Props){
+export function BuilderV2TP9Model2Final({brand,niche,address,email,whatsapp,locationSection}:Props){
  const addr=clean(address),mail=clean(email),phone=clean(whatsapp).replace(/\D/g,"");
  const hasEmail=validEmail(mail),hasPhone=phone.length>=10;
  const mapUrl=addr?"https://www.google.com/maps?q="+encodeURIComponent(addr)+"&output=embed":"";
@@ -13,6 +14,6 @@ export function BuilderV2TP9Model2Final({brand,niche,address,email,whatsapp}:Pro
 @media(max-width:850px){.tp9m2-locationgrid{grid-template-columns:1fr}.tp9m2-footergrid{grid-template-columns:1fr 1fr}.tp9m2-footergrid>div:first-child{grid-column:span 2}}
 @media(max-width:540px){.tp9m2-location{padding:75px 7%}.tp9m2-map,.tp9m2-map iframe,.tp9m2-map-empty{min-height:340px}.tp9m2-footer{padding:65px 7% 25px}.tp9m2-footergrid{grid-template-columns:1fr}.tp9m2-footergrid>div:first-child{grid-column:span 1}.tp9m2-footerbottom{display:block}}
 `}</style>
-<section className="tp9m2-location" id="tp9-localizacao"><div className="eyebrow">09 / Onde estamos</div><h2>Contato e <span>localização.</span></h2><div className="tp9m2-locationgrid"><div className="tp9m2-map">{addr?<iframe title={"Localização de "+brand} src={mapUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"/>:<div className="tp9m2-map-empty">O mapa será exibido quando a empresa cadastrar um endereço real.</div>}</div><div className="tp9m2-locationinfo"><h3>Vamos nos conectar.</h3><dl>{addr&&<><dt>Endereço cadastrado</dt><dd>{addr}</dd></>}{hasPhone&&<><dt>WhatsApp</dt><dd><a href={"https://wa.me/"+phone}>Conversar pelo WhatsApp ↗</a></dd></>}{hasEmail&&<><dt>E-mail</dt><dd><a href={"mailto:"+mail}>{mail}</a></dd></>}</dl>{!addr&&!hasPhone&&!hasEmail&&<p>Cadastre os dados oficiais da empresa para exibir as informações de localização e atendimento.</p>}{addr&&<a className="tp9m2-mapbtn" href={mapsLink} target="_blank" rel="noopener noreferrer">Abrir no Google Maps ↗</a>}</div></div></section>
+{locationSection}
 <footer className="tp9m2-footer"><div className="tp9m2-footergrid"><div><div className="tp9m2-footerbrand">{brand}<span>.</span></div><p>{niche} — uma apresentação premium dos serviços, soluções e canais oficiais da empresa.</p></div><div><h3>Explore</h3><nav aria-label="Navegação do rodapé" className="tp9m2-footerlinks">{sections.map(([label,href])=><a key={href} href={href}>{label}</a>)}</nav></div><div><h3>Contato</h3><div className="tp9m2-footercontact">{addr&&<span>{addr}</span>}{hasPhone&&<a href={"https://wa.me/"+phone}>WhatsApp ↗</a>}{hasEmail&&<a href={"mailto:"+mail}>{mail}</a>}{!addr&&!hasPhone&&!hasEmail&&<span>Informações de contato ainda não cadastradas.</span>}</div></div></div><div className="tp9m2-footerbottom"><span>© {new Date().getFullYear()} {brand}. Todos os direitos reservados.</span><span>Automotivo & Mobilidade</span></div></footer></div>;
 }

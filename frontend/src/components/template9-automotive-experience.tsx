@@ -1,7 +1,8 @@
 "use client";
+import type { ReactNode } from "react";
 import {useState} from "react";
 type Review={name:string;quote:string;city?:string};
-type Props={brand:string;niche:string;contactHref?:string;testimonials?:Review[]};
+type Props={brand:string;niche:string;contactHref?:string;testimonials?:Review[];reviewsSection?:ReactNode};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const categories:Record<string,{steps:[string,string,string,string];photos:string[]}> = {
 "oficinas mecanicas":{steps:["Conte o problema","Avaliação do veículo","Orçamento sob consulta","Atendimento autorizado"],photos:["photo-1486262715619-67b85e0b08d3","photo-1503376780353-7e6692767b70","photo-1492144534655-ae79c964c9d7"]},
@@ -18,7 +19,7 @@ const categories:Record<string,{steps:[string,string,string,string];photos:strin
 "locadoras de veiculos":{steps:["Informe sua viagem","Consulte os veículos","Confira as condições","Confirme sua locação"],photos:["photo-1503376780353-7e6692767b70","photo-1549317661-bd32c8ce0db2","photo-1492144534655-ae79c964c9d7"]}
 };
 const image=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1600&q=85";
-export function Template9AutomotiveExperience({brand,niche,contactHref,testimonials=[]}:Props){
+export function Template9AutomotiveExperience({brand,niche,contactHref,testimonials=[],reviewsSection}:Props){
  const d=categories[normalize(niche)]||categories["auto centers"];
  const [slide,setSlide]=useState(0);
  const target=contactHref&&/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)?contactHref:"#tp9-contato";
@@ -36,6 +37,7 @@ export function Template9AutomotiveExperience({brand,niche,contactHref,testimoni
  `}</style>
  <section className="pn-t9x-section" id="tp9-processo"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">05 / Como funciona</span><h2 className="pn-t9x-title">Simples em cada etapa.<br/>Cuidado do início ao fim.</h2><div className="pn-t9x-steps">{d.steps.map((step,i)=><div className="pn-t9x-step" key={step}><small>0{i+1}</small><h3>{step}</h3><p>{i===0?"Entre em contato e conte o que você precisa.":i===1?"A equipe orienta a avaliação e os próximos passos.":i===2?"Confira detalhes, condições e disponibilidade antes de decidir.":"A continuidade depende de confirmação com a empresa."}</p></div>)}</div></div></section>
  <section className="pn-t9x-section pn-t9x-gallery" id="tp9-galeria"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">06 / Galeria automotiva</span><h2 className="pn-t9x-title">A beleza está nos detalhes.</h2><div className="pn-t9x-gallery-main"><img key={slide} src={image(d.photos[slide])} alt={"Fotografia ilustrativa "+(slide+1)+" do segmento "+niche}/><span className="pn-t9x-gallery-caption">Imagens ilustrativas · {niche}</span></div><div className="pn-t9x-gallery-controls"><span>0{slide+1} / 0{d.photos.length}</span><div><button type="button" aria-label="Imagem anterior" onClick={()=>setSlide((slide+d.photos.length-1)%d.photos.length)}>‹</button> <button type="button" aria-label="Próxima imagem" onClick={()=>setSlide((slide+1)%d.photos.length)}>›</button></div></div></div></section>
- <section className="pn-t9x-section pn-t9x-reviews" id="tp9-depoimentos"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">07 / Experiências reais</span><h2 className="pn-t9x-title">A confiança se constrói com histórias reais.</h2>{verified.length?<div className="pn-t9x-review-grid">{verified.map((r,i)=><article className="pn-t9x-review" key={i}><blockquote>“{r.quote}”</blockquote><span>{r.name}{r.city?" · "+r.city:""}</span></article>)}</div>:<div className="pn-t9x-empty">Os depoimentos de {brand} serão exibidos aqui quando a empresa cadastrar avaliações reais e autorizadas. Não são criados nomes, notas ou relatos fictícios.</div>}</div></section>
+ {reviewsSection}
+
  </div>;
 }
