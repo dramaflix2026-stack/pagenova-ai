@@ -584,6 +584,45 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    // Fitness templates are rendered from a dedicated component. Apply edits to
+    // explicit component overrides instead of silently editing invisible generic blocks.
+    if(site.blocks.length&&/academia|fitness|personal trainer|muscula[cç][aã]o/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
+      const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+      const isTestimonials=/depoiment|avaliac|testemunh/.test(normalized);
+      const isColor=/cor|fundo|background/.test(normalized);
+      const isHeroImage=/(?:imagem|foto|fotografia)/.test(normalized)&&/(?:capa|hero|principal|banner)/.test(normalized)&&/substitu|troqu|alter|mud/.test(normalized);
+      const isStructure=/nossa estrutura/.test(normalized)&&/adicion|inclu|cri|inser/.test(normalized);
+      const removeStructure=/nossa estrutura/.test(normalized)&&/remov|exclu|retir|apag/.test(normalized);
+      if((isTestimonials&&isColor)||isHeroImage||isStructure||removeStructure){
+        const next:Site=structuredClone(site);
+        let summary="";
+        if(isTestimonials&&isColor){
+          const color=prompt.match(/#[0-9a-fA-F]{6}\\b/)?.[0];
+          if(!color){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe uma cor hexadecimal para a seção de depoimentos. Nenhuma alteração aplicada."}]);return;}
+          const index=next.blocks.findIndex(block=>block.section==="fitness-testimonials-style");
+          const block:Block=index>=0?{...next.blocks[index]}:{id:crypto.randomUUID(),type:"paragraph",text:"",color:"#ffffff",align:"left",section:"fitness-testimonials-style"};
+          block.background=color;
+          if(/texto|letra|fonte|branc/.test(normalized))block.color=/#(?:ffffff|fff)\\b/i.test(prompt)?"#ffffff":/#(?:000000|000)\\b/i.test(prompt)?"#000000":"#ffffff";
+          if(index>=0)next.blocks[index]=block;else next.blocks.push(block);
+          summary="Fundo dos depoimentos atualizado para "+color+"; a prévia agora utiliza essa cor.";
+        }else if(isHeroImage){
+          const imageUrl="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1800&q=85";
+          const index=next.blocks.findIndex(block=>block.section==="fitness-hero-image");
+          const block:Block=index>=0?{...next.blocks[index]}:{id:crypto.randomUUID(),type:"image",text:"",color:"#ffffff",align:"left",section:"fitness-hero-image"};
+          block.src=imageUrl;
+          if(index>=0)next.blocks[index]=block;else next.blocks.push(block);
+          summary="Fotografia da capa substituída na Hero do template Fitness.";
+        }else{
+          next.blocks=next.blocks.filter(block=>block.section!=="fitness-extra-structure");
+          if(!removeStructure)next.blocks.push({id:crypto.randomUUID(),type:"heading",text:"Nossa Estrutura",color:"#ffffff",align:"left",section:"fitness-extra-structure"});
+          summary=removeStructure?"Seção Nossa Estrutura removida.":"Seção Nossa Estrutura adicionada após os treinamentos, com três cards.";
+        }
+        recordVersion(site,"Antes da edição Fitness");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(next);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
+        return;
+      }
+    }
     const scopedCopy=site.blocks.length&&!isFullSiteCreationBrief(prompt)?parseUniversalCopyEdit(site,prompt):null;
     if(busy)return;
     // Resolve universal batches before any legacy shortcut can consume only one clause.
