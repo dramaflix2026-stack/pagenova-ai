@@ -169,7 +169,9 @@ export function LandingRevamp() {
      </div>
      <div className="pnr-hero-art pnr-hero-scene" data-motion-layer="hero-visual" aria-hidden="true">
       <div className="pnr-hero-scene-glow" data-motion-layer="ambient" />
+      <div className="pnr-hero-light-sweep" data-motion-layer="ambient" />
       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
+      <div className="pnr-hero-tech-highlight" data-motion-layer="ambient" />
      </div>
     </div>
     <div className="pnr-benefits">{t.benefit.map((b,i)=>{const Icon=[Zap,Layers3,MonitorSmartphone,BarChart3][i];return <div key={i}><Icon size={21}/><span>{b}</span></div>})}</div>
