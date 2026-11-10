@@ -236,7 +236,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const compact=instruction.match(/(?:com|contendo)\s+tr[eê]s\s+cards?\s*:\s*([^\n.]+)/i);
   if(compact){
    const labels=compact[1].split(/\s*,\s*|\s+e\s+/i).map(x=>x.trim()).filter(Boolean);
-   if(labels.length===3)cards=labels.map(title=>({title,description:"Saiba mais sobre "+title.toLowerCase()+" e nossos cuidados especializados."}));
+   if(labels.length===3)cards=labels.map(title=>({title,description:"Conheça os detalhes de "+title.toLowerCase()+", com orientações e atendimento adaptados às necessidades de cada cliente."}));
   }
  }
  if(cards.length!==3)return {ok:false,error:"Não foi possível identificar os três cards solicitados. Nenhuma alteração aplicada."};

@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "a12578e0f85e0197fa82952cf91ca4ac63b1e852",
-        "reason": "Correct TP6 Model 1 custom section order by inserting before contact inside retail story, and keep the header brand on one compact line for mobile."
+        "sha": "122eaa589228c26181ecdd87e94d5cadf1ad90f2",
+        "reason": "Improve custom pet care card text and display real curated pet photographs while retaining explicitly saved content and approved template layout."
       }
     },
     {
