@@ -65,7 +65,11 @@
     },
     {
       "path": "src/components/builder-v2-site.tsx",
-      "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a"
+      "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
+      "approvedBindingRevision": {
+        "sha": "31e99c212716bf9a7d7405a2ae014e3fc67e4063",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/builder-v2-tp1-family-testimonials.css",
@@ -117,11 +121,19 @@
     },
     {
       "path": "src/components/builder-v2-tp10-model2.tsx",
-      "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330"
+      "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
+      "approvedBindingRevision": {
+        "sha": "1453de2e9c818c0b7a826e2cb6822bb5db8be702",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/builder-v2-tp10-model3.tsx",
-      "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d"
+      "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
+      "approvedBindingRevision": {
+        "sha": "2d9c7bc05baec33fd0542c011357b8a3ba43faad",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/builder-v2-tp2-construction.css",
@@ -497,7 +509,11 @@
     },
     {
       "path": "src/components/builder-v2-universal-sections.tsx",
-      "blobSha": "7d6810905c754df41975f86bf8b36c478eabea38"
+      "blobSha": "7d6810905c754df41975f86bf8b36c478eabea38",
+      "approvedBindingRevision": {
+        "sha": "53f1006b9530f1be6f618a5418a5bcf123ccf376",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/builder-v2-vertical-timeline.tsx",
@@ -517,11 +533,19 @@
     },
     {
       "path": "src/components/template10-education-hero.tsx",
-      "blobSha": "0e0cd7d9b0e0083cf9925d69237f925d3db217ef"
+      "blobSha": "0e0cd7d9b0e0083cf9925d69237f925d3db217ef",
+      "approvedBindingRevision": {
+        "sha": "3871e8bdea04889d504349f3c53f7c7cf8aaaebd",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/template10-education-sections.tsx",
-      "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49"
+      "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49",
+      "approvedBindingRevision": {
+        "sha": "d131d9a3ce172cf9b234a01b1cd0a32532b2d64d",
+        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+      }
     },
     {
       "path": "src/components/template5-ai-futurist-hero.tsx",
@@ -655,5 +679,6 @@
       "path": "src/components/tp10-language-testimonials.tsx",
       "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01"
     }
-  ]
+  ],
+  "acceptedFunctionalRevisionNote": "Approved universal edit binding wiring for the existing 3 education variants. The original approved template blobSha values remain unchanged; check both before and after functional changes. No automatic baseline regeneration."
 }
