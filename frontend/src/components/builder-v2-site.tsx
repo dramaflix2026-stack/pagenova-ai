@@ -134,8 +134,13 @@ export type BuilderV2SiteData = { tp6RetailEdits?:TP6RetailVisualEdits; universa
 function TP6UniversalAddedSections({site}:{site:BuilderV2SiteData}){
  const isPet=/pet\s*shop|mundo\s*pet|pet\s*store/i.test([site.niche,site.title,site.header?.brand].join(" "));
  const petDescriptions:Record<string,string>={"banho terapeutico":"Banho com atenção às necessidades da pele e da pelagem, utilizando produtos adequados após avaliação individual do animal.","hidratacao profunda":"Cuidados de hidratação e condicionamento para ajudar a manter a pelagem macia, desembaraçada e com aspecto saudável.","cuidados para filhotes":"Acolhimento gradual e manuseio delicado para que os primeiros cuidados de higiene sejam mais tranquilos e confortáveis."};
- const petPhotos=["https://images.unsplash.com/photo-1577447278822-37801be21738?auto=format&fit=crop&w=1200&q=85","https://images.unsplash.com/photo-1657414066378-12c1523b9701?auto=format&fit=crop&w=1200&q=85","https://images.unsplash.com/photo-1589924749359-9697080c3577?auto=format&fit=crop&w=1200&q=85"];
- const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
+ const petPhotos:Record<string,string>={
+  "banho terapeutico":"https://images.pexels.com/photos/19145887/pexels-photo-19145887.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "hidratacao profunda":"https://images.pexels.com/photos/19145883/pexels-photo-19145883.jpeg?auto=compress&cs=tinysrgb&w=1200",
+  "cuidados para filhotes":"https://images.unsplash.com/photo-1657414066378-12c1523b9701?auto=format&fit=crop&w=1200&q=85"
+ };
+ const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const isGenericCopy=(value:string)=>/conhe[cç]a nosso atendimento em|entre em contato para saber mais|saiba mais sobre|nossos cuidados especializados/i.test(value);
  const ids=[...new Set(site.blocks.map(b=>b.section).filter((id):id is string=>!!id&&id.startsWith("custom-")))];
  return <>{ids.map(id=>{
   const blocks=site.blocks.filter(b=>b.section===id);
@@ -146,9 +151,9 @@ function TP6UniversalAddedSections({site}:{site:BuilderV2SiteData}){
    <div className="grid gap-6 md:grid-cols-3">{entries.map((heading,i)=>{
     const next=entries[i+1];const start=blocks.findIndex(b=>b.id===heading.id);const stop=next?blocks.findIndex(b=>b.id===next.id):blocks.length;
     const content=blocks.slice(start+1,stop);const savedDescription=content.find(b=>b.type==="paragraph")?.text;
-    const isGeneric=!!savedDescription&&/^(?:conheça nosso atendimento em|saiba mais sobre).*(?:entre em contato para saber mais|cuidados especializados)/i.test(savedDescription);
+    const isGeneric=!!savedDescription&&isGenericCopy(savedDescription);
     const description=isPet&&isGeneric?(petDescriptions[norm(heading.text||"")]||savedDescription):savedDescription;
-    const photo=content.find(b=>b.type==="image"&&b.src)?.src||(isPet?petPhotos[i%petPhotos.length]:undefined);
+    const photo=content.find(b=>b.type==="image"&&b.src)?.src||(isPet?petPhotos[norm(heading.text||"")]:undefined);
     return <article key={heading.id} className="group min-w-0 overflow-hidden rounded-2xl border border-[#d9d0c4] bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
      {photo&&<img src={photo} alt={heading.text} loading="lazy" className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"/>}
      <div className="p-7"><h3 className="text-xl font-semibold">{heading.text}</h3>{description&&<p className="mt-3 text-sm leading-7 text-[#645b52]">{description}</p>}</div>
