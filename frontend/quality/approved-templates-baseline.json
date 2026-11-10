@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "33a33cd84ea9c632639a0605a37683c61d58191b",
-        "reason": "Show existing custom section blocks in TP6 model 01, preserving approved standard sections and layouts; fixes invisible saved section after editor reports already exists."
+        "sha": "39768381b91396d14cd483269641cbcdfcfd96e6",
+        "reason": "Universal visibility fallback for custom sections already saved in blocks; specialized TP6 renderer preserved and not duplicated. Approved standard sections unchanged."
       }
     },
     {

@@ -279,8 +279,35 @@ type BuilderV2SiteProps={site:BuilderV2SiteData;selectedNiche?:string;publishedM
 
 /** All 3 model variants in every niche enter through this universal motion boundary.
  *  The classic renderer keeps its existing block-specific motion system intact. */
+/** Universal fallback for user-created sections across all niche renderers.
+ * Existing specialized renderers take precedence to avoid duplicate sections. */
+function UniversalSavedSectionFallback({site}:{site:BuilderV2SiteData}){
+ const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&v.startsWith("custom-")))];
+ if(!sections.length)return null;
+ return <div className="pn-universal-saved-fallback" data-universal-saved-fallback="true">
+  {sections.map(section=>{
+   const blocks=site.blocks.filter(b=>b.section===section);
+   const headings=blocks.filter(b=>b.type==="heading");
+   const title=headings[0]?.text||section.replace(/^custom-/,"").replace(/-/g," ");
+   const cards=headings.slice(1).map((heading,i)=>{
+    const start=blocks.findIndex(b=>b.id===heading.id);
+    const end=i+2<headings.length?blocks.findIndex(b=>b.id===headings[i+2].id):blocks.length;
+    const content=blocks.slice(start+1,end);
+    return {id:heading.id,title:heading.text||"",description:content.find(b=>b.type==="paragraph")?.text,photo:content.find(b=>b.type==="image"&&b.src)?.src};
+   });
+   return <section key={section} id={section} data-universal-section={section} className="w-full bg-[#f7f2ea] px-6 py-16 text-[#29241e] md:px-12 md:py-24">
+    <div className="mx-auto max-w-6xl"><h2 className="mb-10 text-4xl font-semibold md:text-5xl">{title}</h2>
+     {cards.length>0?<div className="grid gap-6 md:grid-cols-3">{cards.map(card=><article key={card.id} className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
+      {card.photo&&<img src={card.photo} alt={card.title} loading="lazy" className="h-52 w-full object-cover"/>}
+      <div className="p-6"><h3 className="text-xl font-semibold">{card.title}</h3>{card.description&&<p className="mt-3 text-sm leading-7 text-[#615a50]">{card.description}</p>}</div>
+     </article>)}</div>:blocks.filter(b=>b.type==="paragraph").map(b=><p key={b.id} className="mb-4 max-w-3xl">{b.text}</p>)}
+    </div>
+   </section>;
+  })}
+ </div>;
+}
 export function BuilderV2Site(props:BuilderV2SiteProps){
- return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>;
+ return <UniversalSiteScrollMotion site={props.site}><div className="pn-universal-site-root"><style>{`.pn-universal-site-root:has([data-universal-section^="custom-"]:not(.pn-universal-saved-fallback *)) > .pn-universal-saved-fallback{display:none}.pn-universal-site-root:has([data-tp6-family="retail"]) > .pn-universal-saved-fallback{display:none}`}</style><BuilderV2SiteContent {...props}/><UniversalSavedSectionFallback site={props.site}/></div></UniversalSiteScrollMotion>;
 }
 
 function BuilderV2SiteContent(props:BuilderV2SiteProps){
