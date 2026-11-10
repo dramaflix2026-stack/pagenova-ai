@@ -7,6 +7,7 @@ import {MemoriaVivaModel3} from "./builder-v2-memoria-viva-model3";
 import { resolveVisualComposition } from "@/lib/builder-v2-visual-compositions";
 import { BuilderV2VerticalTimeline } from "@/components/builder-v2-vertical-timeline";
 import { EngineeringEditorialCards } from "@/components/builder-v2-engineering-editorial-cards";
+import { BuilderV2FitnessModern } from "./builder-v2-fitness-modern";
 import { BuilderV2TP10Model2 } from "@/components/builder-v2-tp10-model2";
 import { BuilderV2TP10Model3 } from "@/components/builder-v2-tp10-model3";
 import { BuilderV2TP9Model3 } from "@/components/builder-v2-tp9-model3";
@@ -361,6 +362,9 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
  }
  // Estático 01/02 stay untouched. TP1–TP7 are internal visual families of Estático 03 only.
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
+ // Fitness has a dedicated modern three-variant renderer; do not fall back to legacy institutional templates.
+ const fitnessIdentity=[props.site.niche,props.selectedNiche].filter(Boolean).join(" ");
+ if(/(?:^|\b)(?:academia|fitness|personal trainer|muscula[cç][aã]o|centro de treinamento funcional)(?:\b|$)/i.test(fitnessIdentity)&&props.site.cinematic?.mode!=="immersive-3d")return <BuilderV2FitnessModern brand={props.site.header?.brand||props.site.title||"Fitness"} niche={props.site.niche||props.selectedNiche||"Academia"} variant={props.site.briefingLayoutVariant||"01"} blocks={props.site.blocks} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/>;
  // Explicitly selected static templates 01/02 must retain their own renderers.
  // Older published briefings can lack templateId; recover TP5 only from a
  // strongly identifiable AI/technology niche, not from the project title alone.
