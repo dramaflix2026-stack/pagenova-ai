@@ -57,3 +57,10 @@ test("Scaled preview keeps native touch scrolling inside iframe and scroll chain
  assert.match(frame,/transform:`scale\(\$\{scale\}\)`/);
  assert.match(frame,/createPortal\(/);
 });
+
+test("Successful publish does not show an unrelated domain-list warning",()=>{
+ assert.match(publish,/console\.error\("\[pagenova\/domains\] publication index error"/);
+ assert.match(publish,/if\(indexError\)\{/);
+ assert.doesNotMatch(publish,/notice:"Site publicado\. A atualização da lista de domínios/);
+ assert.match(publish,/return NextResponse\.json\(\{slug,url:`\$\{publicOrigin\}\/p\/\$\{slug\}`,publishedAt\}\);/);
+});
