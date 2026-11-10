@@ -1129,3 +1129,95 @@ test("shared TP3 layouts bind card changes, positional photographs, and custom s
  assert.match(wrapper,/addedSections/);
  assert.match(wrapper,/const sectionNodes=\[\.\.\.nodes.filter/);
 });
+
+const horizons=()=>({title:"Horizonte Idiomas",niche:"Escolas de idiomas",briefingLayoutVariant:"01",blocks:[
+ {id:"hero-title",type:"heading",section:"inicio",text:"Aprenda idiomas com confiança"},
+ {id:"hero-desc",type:"paragraph",section:"inicio",text:"Inglês e espanhol para novas possibilidades."},
+ {id:"hero-img",type:"image",section:"inicio",src:"https://images.unsplash.com/photo-1523240795612-9a054b0db644"},
+ {id:"courses-title",type:"heading",section:"servicos",text:"Cursos e programas"},
+ {id:"course1",type:"paragraph",section:"servicos",layout:"grid",text:"Inglês para iniciantes: Aprendizado inicial"},
+ {id:"course2",type:"paragraph",section:"servicos",layout:"grid",text:"Espanhol: Desenvolvimento da comunicação"},
+ {id:"course3",type:"paragraph",section:"servicos",layout:"grid",text:"Conversação: Prática orientada"},
+ {id:"about-title",type:"heading",section:"sobre",text:"Sobre a escola"}
+]});
+test("universal education real-world acceptance: 1 hero edit remains isolated",()=>{
+ const input=horizons();
+ const r=applyUniversalNaturalLanguage(input,'Altere somente o título principal da capa para "Seu próximo idioma começa aqui". Preserve o subtítulo, os botões, as imagens, as cores e todas as outras seções.');
+ assert.equal(r?.ok,true,r?.error);if(!r?.ok)return;
+ assert.equal(r.site.blocks[0].text,"Seu próximo idioma começa aqui");
+ assert.equal(r.site.blocks[0].textExplicit,true);
+ assert.deepEqual(r.site.blocks.slice(1),input.blocks.slice(1));
+});
+test("universal education real-world acceptance: 2 background of courses only, no false error",()=>{
+ const input=horizons();
+ assert.equal(resolveUniversalSection(input,"de cursos"),"servicos");
+ const r=applyUniversalNaturalLanguage(input,"Na seção de cursos, altere somente a cor de fundo da seção para #EAF3FF. Mantenha os textos, imagens, cards e todas as demais cores do site.");
+ assert.equal(r?.ok,true,r?.error);if(!r?.ok)return;
+ assert.equal(r.site.universalSectionStyles.servicos.backgroundColor,"#EAF3FF");
+ assert.deepEqual(r.site.blocks,input.blocks);
+ assert.equal(JSON.parse(JSON.stringify(r.site)).universalSectionStyles.servicos.backgroundColor,"#EAF3FF");
+});
+test("universal education real-world acceptance: 3 additional course card is rendered by shared binding",async()=>{
+ const input=horizons();
+ const r=applyUniversalNaturalLanguage(input,'Na seção de cursos, adicione mais um card chamado "Inglês para Entrevistas", com a descrição "Prepare-se para entrevistas de emprego em inglês com atividades práticas de comunicação". Mantenha todos os cursos já existentes e preserve o padrão visual dos cards.');
+ assert.equal(r?.ok,true,r?.error);if(!r?.ok)return;
+ const card=r.site.blocks.find(b=>b.id==="universal-extra-card-ingles-para-entrevistas");
+ assert.equal(card?.section,"servicos");
+ assert.equal(card?.layout,"grid");
+ assert.match(card?.text||"",/Inglês para Entrevistas: Prepare-se para entrevistas/);
+ assert.deepEqual(r.site.blocks.filter(b=>!b.id.startsWith("universal-extra-card-")),input.blocks);
+ const {universalSpecialtyCards}=await import("../src/lib/builder-v2-universal-specialties.ts");
+ const cards=universalSpecialtyCards(r.site,"cursos",["Inglês","Espanhol","Conversação"]);
+ assert.equal(cards.length,4);
+ assert.equal(cards[3].title,"Inglês para Entrevistas");
+ assert.equal(JSON.parse(JSON.stringify(r.site)).blocks.find(b=>b.id===card.id).text,card.text);
+});
+test("universal education real-world acceptance: 4 complete section with 3 cards is positioned after courses",()=>{
+ const input=horizons();
+ const cmd='Adicione uma nova seção chamada "Preparação Internacional" depois da seção de cursos. O título deve ser "Prepare-se para novas oportunidades". Inclua uma breve introdução sobre aprendizado de idiomas para objetivos internacionais e três cards: "Intercâmbio", "Viagens" e "Carreira", com descrições relacionadas a cada tema. Siga a identidade visual do site e não modifique as demais seções.';
+ const r=applyUniversalNaturalLanguage(input,cmd);
+ assert.equal(r?.ok,true,r?.error);if(!r?.ok)return;
+ const added=r.site.blocks.filter(b=>b.section==="custom-preparacao-internacional");
+ assert.equal(added.length,5,"heading + introduction + 3 cards");
+ assert.equal(added[0].text,"Prepare-se para novas oportunidades");
+ assert.match(added[1].text,/aprendizado de idiomas para objetivos internacionais/i);
+ assert.deepEqual(added.slice(2).map(b=>b.text.split(":")[0]),["Intercâmbio","Viagens","Carreira"]);
+ assert.ok(added.slice(2).every(b=>b.layout==="grid"));
+ assert.equal(r.site.universalSectionEvents.at(-1).after.id,"servicos");
+ const afterReload=JSON.parse(JSON.stringify(r.site));
+ assert.equal(afterReload.blocks.filter(b=>b.section==="custom-preparacao-internacional").length,5);
+ assert.deepEqual(afterReload.blocks.filter(b=>!b.section.startsWith("custom-")),input.blocks);
+});
+test("universal education real-world acceptance: 5 a changed hero photograph is recorded for all model renderers",()=>{
+ const input=horizons();
+ const url="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=85";
+ const cmd="Substitua somente a imagem principal da capa pela fotografia disponível nesta URL: "+url+". Preserve todos os textos, cores, botões, demais imagens e a estrutura original.";
+ const r=applyUniversalNaturalLanguage(input,cmd);
+ assert.equal(r?.ok,true,r?.error);if(!r?.ok)return;
+ assert.equal(r.site.blocks[2].src,url);
+ assert.equal(r.site.blocks[2].imageExplicit,true);
+ assert.deepEqual(r.site.blocks.filter(b=>b.id!=="hero-img"),input.blocks.filter(b=>b.id!=="hero-img"));
+ assert.equal(JSON.parse(JSON.stringify(r.site)).blocks[2].src,url);
+});
+test("universal education visual contracts: all three variants consume existing editing state",()=>{
+ const read=(name)=>readFileSync(new URL("../src/components/"+name,import.meta.url),"utf8");
+ const router=read("builder-v2-site.tsx");
+ const sections=read("template10-education-sections.tsx");
+ const m2=read("builder-v2-tp10-model2.tsx");
+ const m3=read("builder-v2-tp10-model3.tsx");
+ const shared=read("builder-v2-universal-sections.tsx");
+ for(const tag of ["Template10EducationHero","BuilderV2TP10Model2","BuilderV2TP10Model3"])
+  assert.match(router,new RegExp("<"+tag+" site=\\{props\\.site as unknown"));
+ for(const variant of [sections,m2,m3]){
+  assert.match(variant,/universalSpecialtyCards\(site,"cursos"/);
+  assert.match(variant,/data-universal-section="cursos"/);
+  assert.match(variant,/UniversalTemplateSections site=\{site\|\|\{blocks:\[\]\}\}/);
+ }
+ assert.match(shared,/cardParts/);
+ assert.match(shared,/customSectionTheme/);
+ for(const variant of [m2,m3]){
+  assert.match(variant,/editedHeroTitle/);
+  assert.match(variant,/editedHeroDescription/);
+  assert.match(variant,/editedHeroImage/);
+ }
+});
