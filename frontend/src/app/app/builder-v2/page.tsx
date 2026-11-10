@@ -489,11 +489,14 @@ export default function BuilderV2() {
     const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer|galeria|gallery|portf[oó]lio/i.test(id));
     const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto|portf[oó]lio/i.test(id)||current.blocks.some(b=>(b.section||"principal")===id&&b.type==="heading"&&/galeria|gallery|fotos|portf[oó]lio/i.test(b.text)));
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
-    const jobs=only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
+    const coverReplacement=only===undefined&&/\b(?:capa|hero|foto principal|imagem principal|banner principal)\b/i.test(prompt)&&isExplicitImageChangeRequest(prompt);
+    const heroSection=current.blocks.find(b=>b.type==="heading")?.section||"principal";
+    const coverBlock=coverReplacement?current.blocks.find(b=>b.type==="image"&&(b.section||"principal")===heroSection):undefined;
+    const jobs=coverReplacement?[{section:heroSection,index:0}]:only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
     // Reuse the approved niche-specific image bank on initial generation. Never regenerate paid assets.
     const photoNiche=current.niche||selectedNiche;
     const bank=(nichePhotoCatalog as Record<string,{desktop:string[];mobile:string[]}>)[photoNiche||""];
-    if(only===undefined && bank?.desktop?.length===6 && bank?.mobile?.length===6 && bank.desktop.every(Boolean) && bank.mobile.every(Boolean)){
+    if(only===undefined && !coverReplacement && bank?.desktop?.length===6 && bank?.mobile?.length===6 && bank.desktop.every(Boolean) && bank.mobile.every(Boolean)){
       const blocks=[...current.blocks];
       for(const {section,index} of jobs){
         const id="visual-"+index;
@@ -522,8 +525,8 @@ export default function BuilderV2() {
     for(const response of responses){
       if(response.status!=="fulfilled")continue;
       const {section,index,src}=response.value;
-      const id="visual-"+index;
-      const visual:Block={id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src};
+      const id=coverReplacement&&coverBlock?coverBlock.id:"visual-"+index;
+      const visual:Block=coverReplacement&&coverBlock?{...coverBlock,src,mobileSrc:undefined}:{id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src};
       const previous=blocks.findIndex(b=>b.id===id);
       if(previous>=0)blocks[previous]=visual;
       else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
@@ -994,7 +997,7 @@ export default function BuilderV2() {
       finally{setBusy(false);}
       return;
     }
-    if(siteCategory==="institutional"&&site.blocks.length&&!(scopedCopy&&"intent" in scopedCopy)&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)))){
+    if(siteCategory==="institutional"&&site.blocks.length&&!(scopedCopy&&"intent" in scopedCopy)&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)&&!isExplicitImageChangeRequest(prompt)))){
       try{
         if(reference&&institutionalFiles.length)throw Error("Escolha entre foto de referência e fotos para usar no site.");
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
