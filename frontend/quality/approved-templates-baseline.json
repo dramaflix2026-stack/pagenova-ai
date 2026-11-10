@@ -503,8 +503,8 @@
       "path": "src/components/builder-v2-tp9-model3.tsx",
       "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76",
       "approvedBindingRevision": {
-        "sha": "8b52eb2ce5ca36378d52678e262c2b0c3b8c2b02",
-        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+        "sha": "461235ba890995e69627ca0dce20403ed6d8c43c",
+        "reason": "Reduce excessive desktop footer typography and vertical whitespace in automotive model three while preserving existing sections."
       }
     },
     {
