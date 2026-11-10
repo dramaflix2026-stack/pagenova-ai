@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight, BarChart3, Blocks, BriefcaseBusiness, Building2, Check, ChevronDown, CircleHelp, Clapperboard, Code2, Crown, Globe2, Layers3, LayoutTemplate, Menu, MonitorSmartphone, Play, Rocket, ShieldCheck, ShoppingBag, Sparkles, Store, Target, Users, WandSparkles, X, Zap } from "lucide-react";
 import { PremiumAiDemo } from "./premium-ai-demo";
 import "./landing-revamp.css";
+import "./landing-fidelity.css";
 
 type Lang = "pt" | "en" | "es";
 type FAQ = { q: string; a: string };
