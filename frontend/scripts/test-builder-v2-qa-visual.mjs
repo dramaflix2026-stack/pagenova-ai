@@ -57,3 +57,39 @@ test("screenshot runner covers mobile, desktop and missing-image/layout failures
   assert.match(commands["qa:visual:all"],/--full/);
   assert.match(commands["qa:visual:strict"],/--strict/);
 });
+
+test("language school six-card preview uses a 3x2 desktop grid and no fictional public claims",()=>{
+ const component=read("src/components/tp10-language-testimonials.tsx");
+ const m1=read("src/components/template10-education-experience.tsx");
+ const m2=read("src/components/builder-v2-tp10-model2.tsx");
+ const m3=read("src/components/builder-v2-tp10-model3.tsx");
+ const hero=read("src/components/template10-education-hero.tsx");
+ const router=read("src/components/builder-v2-site.tsx");
+ assert.equal((component.match(/\{name:"/g)||[]).length,6,"six distinct illustrative entries");
+ assert.match(component,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/,"three columns on desktop");
+ assert.match(component,/@media\(max-width:900px\).*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/,"two columns on tablet");
+ assert.match(component,/@media\(max-width:560px\).*grid-template-columns:1fr/,"one column on mobile");
+ assert.match(component,/const demoCount=publishedMode\?0:Math\.max\(0,6-actual\.length\)/,"never publish illustrative entries");
+ assert.match(component,/Exemplo fictício · Não é aluno real/,"clear demonstration label");
+ assert.match(m1,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="01"/);
+ assert.match(m2,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="02"/);
+ assert.match(m3,/isLanguageSchool\(niche,brand\)\?<TP10LanguageTestimonials variant="03"/);
+ assert.match(hero,/Template10EducationExperience niche=\{niche\} brand=\{brand\} testimonials=\{testimonials\} publishedMode=\{publishedMode\}/);
+ for(const tag of ["BuilderV2TP10Model2","BuilderV2TP10Model3","Template10EducationHero"]){
+  assert.ok(router.includes("<"+tag+" brand={cleanBrand} publishedMode={props.publishedMode}"));
+ }
+});
+
+test("all three language school footers are restrained and scoped to that niche",()=>{
+ const m1=read("src/components/template10-education-final.tsx");
+ const m2=read("src/components/builder-v2-tp10-model2.tsx");
+ const m3=read("src/components/builder-v2-tp10-model3.tsx");
+ assert.match(m1,/pn-t10-final-footer--language/);
+ assert.match(m1,/isLanguageSchool\(niche,brand\)/);
+ assert.match(m2,/tp10m2\[data-tp10-languages="true"\] \.footer h2/);
+ assert.match(m3,/tp10m3\[data-tp10-languages="true"\] \.footer h2/);
+ assert.match(m2,/href="#tp10m2-reviews"/);
+ assert.match(m3,/href="#tp10m3-reviews"/);
+ assert.match(m2,/footerBottom\{margin-top:0/);
+ assert.match(m3,/footerBottom\{position:relative;z-index:1;margin-top:0/);
+});
