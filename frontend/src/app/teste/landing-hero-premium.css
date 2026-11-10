@@ -354,3 +354,37 @@
   .pnr-page .pnr-solutions .pnr-section-heading,
   .pnr-page .pnr-styles .pnr-section-heading {animation:none!important;transform:none!important;opacity:1!important}
 }
+
+
+/* Mobile-visible continuous motion: independent of scroll-timeline support. */
+.pnr-page .pnr-solutions .pnr-product {
+  overflow:hidden;
+  background:linear-gradient(120deg,#142d1a 0%,#0a2011 45%,#14331c 80%,#0a2011 100%);
+  background-size:220% 100%;
+  animation:pnrProductAmbient 8s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2){animation-delay:-2.6s}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3){animation-delay:-5.2s}
+.pnr-page .pnr-solutions .pnr-product::before{
+  z-index:0;
+  opacity:.8;
+  background:linear-gradient(105deg,transparent 25%,rgba(173,255,123,.19) 49%,transparent 68%);
+  background-size:260% 100%;
+  animation:pnrProductSweep 5.5s linear infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2)::before{animation-delay:-1.8s;background-image:linear-gradient(105deg,transparent 25%,rgba(93,247,214,.17) 49%,transparent 68%)}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3)::before{animation-delay:-3.6s;background-image:linear-gradient(105deg,transparent 25%,rgba(198,153,255,.16) 49%,transparent 68%)}
+.pnr-page .pnr-solutions .pnr-product > * {position:relative;z-index:1}
+.pnr-page .pnr-solutions .pnr-product-arrow {
+  animation:pnrArrowFloat 2.8s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2) .pnr-product-arrow{animation-delay:-.9s}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3) .pnr-product-arrow{animation-delay:-1.8s}
+@keyframes pnrProductAmbient {0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes pnrProductSweep {0%{background-position:140% 0}100%{background-position:-140% 0}}
+@keyframes pnrArrowFloat {0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-4px)}}
+@media (prefers-reduced-motion:reduce){
+ .pnr-page .pnr-solutions .pnr-product,
+ .pnr-page .pnr-solutions .pnr-product::before,
+ .pnr-page .pnr-solutions .pnr-product-arrow{animation:none!important}
+}
