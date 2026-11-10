@@ -489,7 +489,7 @@ export default function BuilderV2() {
     const ids=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).filter(id=>!/faq|contato|rodape|footer|galeria|gallery|portf[oó]lio/i.test(id));
     const galleryId=Array.from(new Set(current.blocks.map(b=>b.section||"principal"))).find(id=>/galeria|gallery|foto|portf[oó]lio/i.test(id)||current.blocks.some(b=>(b.section||"principal")===id&&b.type==="heading"&&/galeria|gallery|fotos|portf[oó]lio/i.test(b.text)));
     const slots=Array.from({length:6},(_,i)=>i>=3&&galleryId?galleryId:ids[i%Math.max(1,ids.length)]||"principal");
-    const coverReplacement=only===undefined&&/\\b(?:capa|hero|foto principal|imagem principal|banner principal)\\b/i.test(prompt)&&isExplicitImageChangeRequest(prompt);
+    const coverReplacement=only===undefined&&/\b(?:capa|hero|foto principal|imagem principal|banner principal)\b/i.test(prompt)&&isExplicitImageChangeRequest(prompt);
     const heroSection=current.blocks.find(b=>b.type==="heading")?.section||"principal";
     const coverBlock=coverReplacement?current.blocks.find(b=>b.type==="image"&&(b.section||"principal")===heroSection):undefined;
     const jobs=coverReplacement?[{section:heroSection,index:0}]:only===undefined?slots.map((section,index)=>({section,index})): [{section:slots[only]||"principal",index:only}];
