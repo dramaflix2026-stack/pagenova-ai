@@ -1,0 +1,659 @@
+{
+  "schemaVersion": 1,
+  "baselineRef": "baseline/approved-templates-20261110",
+  "baselineCommit": "39edb65a8405d032fc4ca25dad1117d4b56685bf",
+  "recordedOn": "2026-11-10",
+  "purpose": "Preserve current approved/established Builder V2 template visuals while iterating universal editing. This is a source snapshot, not a guarantee that every niche has been QA-approved.",
+  "protection": "CI fails if a listed template component differs. Change only with specific user approval and explicit manifest hash update; never update this file automatically.",
+  "protectedFileCount": 162,
+  "protectedFiles": [
+    {
+      "path": "src/components/builder-v2-cinematic-background.tsx",
+      "blobSha": "164494277dbb5df92fc94ed95996aa93e548ffad"
+    },
+    {
+      "path": "src/components/builder-v2-coffee-g3.css",
+      "blobSha": "0cb782a58b7a70e774768cc29828eb9fbe68617c"
+    },
+    {
+      "path": "src/components/builder-v2-coffee-g3.tsx",
+      "blobSha": "c9b6a7ffa0770d21a48bb4604b3efb165509d069"
+    },
+    {
+      "path": "src/components/builder-v2-extras.tsx",
+      "blobSha": "9595e4dbffcaf71b180ce316e5a17e86993374eb"
+    },
+    {
+      "path": "src/components/builder-v2-hero-slideshow.tsx",
+      "blobSha": "532eb9845693b47ba6b90584acdd92e174d0b38d"
+    },
+    {
+      "path": "src/components/builder-v2-immersive-3d.css",
+      "blobSha": "774666bbf31497335ef16b7f6938ff5947398120"
+    },
+    {
+      "path": "src/components/builder-v2-immersive-3d.tsx",
+      "blobSha": "b01019a2c9c46a871cde2b90ebbce943366a098e"
+    },
+    {
+      "path": "src/components/builder-v2-memoria-viva-model1.tsx",
+      "blobSha": "cd8042d031380d07967dd5a1e7af7bfb75315fe7"
+    },
+    {
+      "path": "src/components/builder-v2-memoria-viva-model2.tsx",
+      "blobSha": "95ab26d69c29bcc455a96ee98bbb8e57ed0e9ad1"
+    },
+    {
+      "path": "src/components/builder-v2-memoria-viva-model3.tsx",
+      "blobSha": "d42a0465320d85d106a468a1aef3cda99477bc7b"
+    },
+    {
+      "path": "src/components/builder-v2-pizzeria-g2.css",
+      "blobSha": "0894a867c796fbc1bbb11eb1155d8d0fa436de3d"
+    },
+    {
+      "path": "src/components/builder-v2-pizzeria-g2.tsx",
+      "blobSha": "3dc0e044617fc7eb89c20a6e16477afa47698661"
+    },
+    {
+      "path": "src/components/builder-v2-real-estate.tsx",
+      "blobSha": "9f57cb20e853517ad29280fe6d6cc9d5e6fd558f"
+    },
+    {
+      "path": "src/components/builder-v2-restaurant-templates.tsx",
+      "blobSha": "8dafce40b4bec948a33419f2421dbeb4af25abb3"
+    },
+    {
+      "path": "src/components/builder-v2-site.tsx",
+      "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-family-testimonials.css",
+      "blobSha": "e0bf0bf959251567834ddbcca77f5f43518ad201"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-family-testimonials.tsx",
+      "blobSha": "a41045beed68647de1e1ca605be433d08245bc96"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-hero.css",
+      "blobSha": "8dfaccf7ef26800d0c1f1ab82b05a1d5dac75b61"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-hero.tsx",
+      "blobSha": "c09467ffd38c5707fefe8dc81b428f3b08b28c99"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model1.css",
+      "blobSha": "773612aea45966a6e611d3de5c1e3f184aa38c25"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model1.tsx",
+      "blobSha": "2f354a0c8b454ec2caa88f67a06fb7ca8fb7d38b"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model2.css",
+      "blobSha": "7ff26b4d81640dce0f569e9ad53f305291ce242a"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model2.tsx",
+      "blobSha": "37bad8ec083cc8e17e7b742232b138e7588b4564"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model3-sections.css",
+      "blobSha": "3382d5b8557cf8045a0f96dae396e82d047eb288"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model3-sections.tsx",
+      "blobSha": "a30576d6e291abe8d85893fae4730ed904732048"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model3.css",
+      "blobSha": "119d06caa63d256d62c4389c46ca71b516fe78da"
+    },
+    {
+      "path": "src/components/builder-v2-tp1-model3.tsx",
+      "blobSha": "40a309a67c87ae96645cda323fe0a8667f5cf7ed"
+    },
+    {
+      "path": "src/components/builder-v2-tp10-model2.tsx",
+      "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330"
+    },
+    {
+      "path": "src/components/builder-v2-tp10-model3.tsx",
+      "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-construction.css",
+      "blobSha": "c22574655f8aa272217c4dee40c4fe9043500b9c"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-construction.tsx",
+      "blobSha": "7601e5eda85fd4da6bb390d77529c4476e26f92b"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-evidence.css",
+      "blobSha": "8b5bf37699945b852f0dccf4ae4efc67e7ae0b13"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-evidence.tsx",
+      "blobSha": "ccbae61a9f864c8ec75b7a29a7595e6c2b7412dc"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-model1.tsx",
+      "blobSha": "4177c7d470c2f02da551c642da54b51b77ae5891"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-model2.css",
+      "blobSha": "56efcbcedc3231b157fafd9d129c52370dac653a"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-model2.tsx",
+      "blobSha": "09f43210c9596f27d724a07b7ab4159f5351db15"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-model3.css",
+      "blobSha": "9c77431b44d07d66a9997ff69c8810b99130472b"
+    },
+    {
+      "path": "src/components/builder-v2-tp2-model3.tsx",
+      "blobSha": "b11313c8d9f383e9dec5ad1e5179f06ca08cb7ac"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-family-shared.tsx",
+      "blobSha": "7587c06cf97e489d82e67df43992433790948f7c"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-foodtruck.tsx",
+      "blobSha": "62505fea6e7bb803b59d650110e7e7b8c3326c30"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-japanese-model1.tsx",
+      "blobSha": "c3e95d272a5360c033c8718ffcd11e85a93dfbec"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-japanese-shared.tsx",
+      "blobSha": "8718401ccb0eeffcbc79424924f17e8308cb3fd8"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-model1.tsx",
+      "blobSha": "46edd26a2c683649b14656f90f5a2060ffdf1e5b"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-model2.css",
+      "blobSha": "e69f2e0682a9fd4a8dc2f6c302e40ba603d157bd"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-model2.tsx",
+      "blobSha": "1aed45a15d2b6b5aaaa6afb90b345962c778ab39"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-model3.css",
+      "blobSha": "f1a596e9fa14dd1aad0d87315bc3d41a3203395c"
+    },
+    {
+      "path": "src/components/builder-v2-tp3-model3.tsx",
+      "blobSha": "3b20fe9bb3005c691a0a873e85fad69a72c5196d"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-dental-enhancements.css",
+      "blobSha": "de61b12029c178f6112f55e4446a19fd38b140c0"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-dental-enhancements.tsx",
+      "blobSha": "cd3cd7e7b22c9a9b5775b5c1b653e06d4e62fa13"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-model1.tsx",
+      "blobSha": "d6aa704a2fbeafafad0b2010ec2920986885245f"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-model2.css",
+      "blobSha": "2956d3a9b41910bed6a0ef040a8332f075404104"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-model2.tsx",
+      "blobSha": "a3cbc2673063388e2bdd2621acadc86a4a0a0c77"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-model3.css",
+      "blobSha": "0d240855826ad4a19905f466f5ca96b6c3f0add4"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-model3.tsx",
+      "blobSha": "b49917609936a24a731dfc2ccdf460628eaf6855"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-physiotherapy.css",
+      "blobSha": "02bc86dad72770b2cfa61537a876f236dbbe7514"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-physiotherapy.tsx",
+      "blobSha": "a9699d84f19a766861dcaa8169b77ea6cd95df29"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-veterinary.css",
+      "blobSha": "152abbf5fe7f330c4a640c3b4f1f31cd86fe224e"
+    },
+    {
+      "path": "src/components/builder-v2-tp4-veterinary.tsx",
+      "blobSha": "36d20334b62a089692b5ac1fc2f446b99f47e1e1"
+    },
+    {
+      "path": "src/components/builder-v2-tp5-model2.css",
+      "blobSha": "34780f75b1916929e8bf2fcb1f6f13d20a80fdda"
+    },
+    {
+      "path": "src/components/builder-v2-tp5-model2.tsx",
+      "blobSha": "f93599d5581ff0c773ccb2d1f559a1fc6388f2c9"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model2-contact-newsletter.tsx",
+      "blobSha": "58223dde894d08fd96ea277fb745b2e3d02f2a42"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model2-store-footer.tsx",
+      "blobSha": "3fbf3271cbb5bd7213735aa4a21e75e836a5e5b8"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model2.css",
+      "blobSha": "0eef01ea722b334a5f2bcecb46ce4fc2036d6e14"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model2.tsx",
+      "blobSha": "63dea7feb7bbcadea3179be4a11e5677639f51eb"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-contact-newsletter.css",
+      "blobSha": "b8b9a12b3f360d771b507c6eceb1ebef8ae9e369"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-contact-newsletter.tsx",
+      "blobSha": "e75bdef45f45f25526eb102e8480d86bf99b2fde"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-reviews-faq.css",
+      "blobSha": "d49434ffab8e312ea6ec4015e2748ccfcfc74361"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-reviews-faq.tsx",
+      "blobSha": "2de635d0268ceba23ffc183e4fb35a0105004e74"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-store-footer.css",
+      "blobSha": "44ef66edf8a15a15689b4f8de85b243e2188b061"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3-store-footer.tsx",
+      "blobSha": "96fecd5e25d6d715de8effc915b171122c029dc1"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3.css",
+      "blobSha": "4ea02cedb1a7e73ec818a23bdfd329bc5be1cab8"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-model3.tsx",
+      "blobSha": "34c9f57d410d833af695773eb9e5fcff22b17da2"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-premium-shared.css",
+      "blobSha": "5a21bbb507b8bd40261100d6a52b66fe1d7cdcaa"
+    },
+    {
+      "path": "src/components/builder-v2-tp6-premium-shared.tsx",
+      "blobSha": "c6c0a78f6c88de7abf689d9a561bfd99db6f91ea"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-faq-location.css",
+      "blobSha": "429c1a860d3baa6f4a7368225bd3eba911029363"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-faq-location.tsx",
+      "blobSha": "d15aa5902d98d8cf5ebfcfe297466967293c92bc"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-footer.css",
+      "blobSha": "e303e2d2c98e5d6466e455497bf6693c8b5990e9"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-footer.tsx",
+      "blobSha": "cda80611cbec07ee93b06d8948b8e5b8b96378cd"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-hero.css",
+      "blobSha": "beca68c8537021553db52275b77921e0642e2583"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-hero.tsx",
+      "blobSha": "b57a14f4530af8b4f30c9959e21a47ecfeac9479"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-reviews-contact.css",
+      "blobSha": "aaa8e4e2fcaa43f5b4d734f4b6821c85bc5dff88"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-reviews-contact.tsx",
+      "blobSha": "09d875b9d1c0caa968a7b04bb968414a34362922"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-sections.css",
+      "blobSha": "edf63911c271274bf68f85c48b3e6ca3e3bd02ef"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-sections.tsx",
+      "blobSha": "742256e7f0d3af18aa5977bb8f8d67fa375a797a"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-showcase.css",
+      "blobSha": "35062abc24dad287137dd347c09dcee97f57200f"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model1-showcase.tsx",
+      "blobSha": "60d7a23478c46b069ba66d4531e22c268555e894"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-contact-location.css",
+      "blobSha": "22bb071bf7b955865df0a8a0c192ff3a2e3b110c"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-contact-location.tsx",
+      "blobSha": "366465db0a8c06805cfefc856053512478c33b51"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-footer.css",
+      "blobSha": "ec146226ee1875607e991f67b9aefbb53a01c11a"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-footer.tsx",
+      "blobSha": "21cf0afe6bb6f6235b42b8c575606e6a549c1354"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-hero.css",
+      "blobSha": "def434fc838f994193fe861fcb99664ba938d35d"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-hero.tsx",
+      "blobSha": "296f0f41f76fa32c05679e89e8b2c7998f25d480"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-reviews-faq.css",
+      "blobSha": "2850f7ff7ac37f94ee5c541c4d78306856a5f7de"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-reviews-faq.tsx",
+      "blobSha": "7f12630bdad2d255036b268e3180a58a4585b374"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-sections.css",
+      "blobSha": "8c4404b6235272bad6e7a821a2e0de7d18bee2ef"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-sections.tsx",
+      "blobSha": "237c11c508e9c1de3953018b8918cbe9227647de"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-showcase.css",
+      "blobSha": "17dc3d6ad23531b2db95df5871ad75685dd2c8f6"
+    },
+    {
+      "path": "src/components/builder-v2-tp7-model3-showcase.tsx",
+      "blobSha": "aaf6c61172112d4b4ca0228e0ae41a4860d8a085"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-faq-contact.css",
+      "blobSha": "289bfd089009244b008dc29374e2481fd33b289c"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-faq-contact.tsx",
+      "blobSha": "3701f30ea3a05f318afce510a74be1dc2885a084"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-gallery-reviews.css",
+      "blobSha": "05f0d7deaa3d4ded598bb97e6824b304935fad91"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-gallery-reviews.tsx",
+      "blobSha": "d1594f5a155cfd67d2f52ce71229a3741fb650f0"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-hero.css",
+      "blobSha": "cdaeabf8379c3061baba451aafbb95bb71bc4961"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-hero.tsx",
+      "blobSha": "3e63027ab43bb86c8fb835aeb176a8c92b5b39cf"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-location-footer.css",
+      "blobSha": "b12f5d9287337be59d550ee5b603a97d202f2636"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-location-footer.tsx",
+      "blobSha": "c744b68e70bdd7ef3f7982fe971e3005836e97cf"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-sections.css",
+      "blobSha": "a8dcb42f7dc0c990ce0320e21081e476481dc2cd"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-sections.tsx",
+      "blobSha": "275976d075ad10f077aeee26d89e282deead11fa"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-showcase.css",
+      "blobSha": "8e3cc41d79c3669ce9b3b8623c9a801c9c709a55"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model2-showcase.tsx",
+      "blobSha": "b87c880cbff730121c3dd546d675411f85729249"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model3.css",
+      "blobSha": "47d74820383a057c649e343785c5dd0f85902e8a"
+    },
+    {
+      "path": "src/components/builder-v2-tp8-model3.tsx",
+      "blobSha": "779a2ef29d15aa4fe5e6436f58bb4ed0748dc582"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-faq-contact.tsx",
+      "blobSha": "e336d9e751cdf151b826b8b4b60f0cc8cd74ea92"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-final.tsx",
+      "blobSha": "053380e0061d8324a771c08922d3e32941998a82"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-hero.tsx",
+      "blobSha": "1962bda1a899127d6cc5027f022ee87a006afcbb"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-journey.tsx",
+      "blobSha": "9913db3826012ad309426168d501cb28ba53ef68"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-sections.tsx",
+      "blobSha": "1ad593a7b81cbe775ac5438b65eb34279cfb5f2a"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model2-showcase.tsx",
+      "blobSha": "e9c257b67b5ffd71049b96a42a18ff3e0c23052b"
+    },
+    {
+      "path": "src/components/builder-v2-tp9-model3.tsx",
+      "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76"
+    },
+    {
+      "path": "src/components/builder-v2-universal-bindings.tsx",
+      "blobSha": "be2f10c105d2d1719ecfd1e986acae3cba84d9be"
+    },
+    {
+      "path": "src/components/builder-v2-universal-scroll-motion.tsx",
+      "blobSha": "5e1e8aafa796a44b8e5411cbe94d8f6fe809dd42"
+    },
+    {
+      "path": "src/components/builder-v2-universal-scroll-reveal.css",
+      "blobSha": "2531baee9655840241d3a6b8805aaeca4b9d9e56"
+    },
+    {
+      "path": "src/components/builder-v2-universal-sections.tsx",
+      "blobSha": "7d6810905c754df41975f86bf8b36c478eabea38"
+    },
+    {
+      "path": "src/components/builder-v2-vertical-timeline.tsx",
+      "blobSha": "cf3736ad6661d246731a2b0af201918872a48a90"
+    },
+    {
+      "path": "src/components/template10-education-closing.tsx",
+      "blobSha": "9b83352ee59cfa17f358ad5ab5f91fe12b63cbdf"
+    },
+    {
+      "path": "src/components/template10-education-experience.tsx",
+      "blobSha": "e163e8b2c1cdc301508637dc21a668caa7bc8345"
+    },
+    {
+      "path": "src/components/template10-education-final.tsx",
+      "blobSha": "cfb655f7b747df24a69a3d605e498fe292d2ba18"
+    },
+    {
+      "path": "src/components/template10-education-hero.tsx",
+      "blobSha": "0e0cd7d9b0e0083cf9925d69237f925d3db217ef"
+    },
+    {
+      "path": "src/components/template10-education-sections.tsx",
+      "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49"
+    },
+    {
+      "path": "src/components/template5-ai-futurist-hero.tsx",
+      "blobSha": "88fbb5e087b93121b7275c460f32d093d1b732aa"
+    },
+    {
+      "path": "src/components/template5-ai-futurist-sections.tsx",
+      "blobSha": "2c928cf86ab595b708c21cd08bb6626724402f03"
+    },
+    {
+      "path": "src/components/template5-nexora-about.tsx",
+      "blobSha": "1738930c7e0c2dc46bc1a24397452bdff1ae5fcf"
+    },
+    {
+      "path": "src/components/template5-nexora-contact.tsx",
+      "blobSha": "05dbb18cf684d81e09ebf65aadde067b96003c51"
+    },
+    {
+      "path": "src/components/template5-nexora-cta.tsx",
+      "blobSha": "ffdc7c4417c7498b79bfa83b6552b11a0c80cae6"
+    },
+    {
+      "path": "src/components/template5-nexora-differentials.tsx",
+      "blobSha": "74090c87f22a3e4cc6c9b0740546e1d56c190bb5"
+    },
+    {
+      "path": "src/components/template5-nexora-faq.tsx",
+      "blobSha": "a2dea22029bd8000174442d1b4d5b957cf063a3a"
+    },
+    {
+      "path": "src/components/template5-nexora-footer.tsx",
+      "blobSha": "0b4cac16ff518809b0c216452b73f5f7c6682566"
+    },
+    {
+      "path": "src/components/template5-nexora-hero.tsx",
+      "blobSha": "8298352871f6365fec6289bcd76653f5fb07b5f4"
+    },
+    {
+      "path": "src/components/template5-nexora-indicators.tsx",
+      "blobSha": "5777640684714b3ff125a3561a579a8dd703f150"
+    },
+    {
+      "path": "src/components/template5-nexora-journey.tsx",
+      "blobSha": "ebef4961c1a36ee4456d312d3ad14268de30040f"
+    },
+    {
+      "path": "src/components/template5-nexora-projects.tsx",
+      "blobSha": "61064f490d8da63a96c453a92876ec9d5ff8a0eb"
+    },
+    {
+      "path": "src/components/template5-nexora-solutions.tsx",
+      "blobSha": "edf0cf06ce3d0dffd65ce69621b72cca23bc908c"
+    },
+    {
+      "path": "src/components/template5-nexora-testimonials.tsx",
+      "blobSha": "afc5e1354e9808133f3f2a76c2656a50f0a09e86"
+    },
+    {
+      "path": "src/components/template6-retail-collection.tsx",
+      "blobSha": "0eca9ede467b16b8a5abb4fde0c4bd112ca3cca1"
+    },
+    {
+      "path": "src/components/template6-retail-hero.tsx",
+      "blobSha": "b114706597f61b327d585824468bb14b5a52f879"
+    },
+    {
+      "path": "src/components/template6-retail-story.tsx",
+      "blobSha": "f75b943159a88cbcb82192ef3a493a1e8b39059f"
+    },
+    {
+      "path": "src/components/template7-real-estate-contact.tsx",
+      "blobSha": "1a5cacfaa57431a7fe8a01a690a5cae7962e1507"
+    },
+    {
+      "path": "src/components/template7-real-estate-experience.tsx",
+      "blobSha": "c4a123477544be9a6607cd378f0f4eb170020e65"
+    },
+    {
+      "path": "src/components/template7-real-estate-footer.tsx",
+      "blobSha": "e491aaacddf404dd5018c48cb52ac031ece5e5f0"
+    },
+    {
+      "path": "src/components/template7-real-estate-hero.tsx",
+      "blobSha": "ad2c04408747b8d99900ed980aeefd962fa453ff"
+    },
+    {
+      "path": "src/components/template7-real-estate-sections.tsx",
+      "blobSha": "00b99a5629243b923063da1ec170905eb9bcd873"
+    },
+    {
+      "path": "src/components/template8-hospitality-closing.tsx",
+      "blobSha": "c9a89654a77bc27c9d4be49d53982d9d1599f210"
+    },
+    {
+      "path": "src/components/template8-hospitality-discover.tsx",
+      "blobSha": "b6dc0b8b588735d63e8d6e03d5ff3a05b899b703"
+    },
+    {
+      "path": "src/components/template8-hospitality-hero.tsx",
+      "blobSha": "b5ac2681e9a70e9fecb00dd4cfd66141fab48b20"
+    },
+    {
+      "path": "src/components/template8-hospitality-journey.tsx",
+      "blobSha": "df4cceb10c55028ea4610c5619239f66c18aa117"
+    },
+    {
+      "path": "src/components/template8-hospitality-sections.tsx",
+      "blobSha": "028d6475bd299e5d34575c9d03e876bd89babf24"
+    },
+    {
+      "path": "src/components/template9-automotive-closing.tsx",
+      "blobSha": "323238597f7abe5b8c59fc97bdb0a6be900e204c"
+    },
+    {
+      "path": "src/components/template9-automotive-experience.tsx",
+      "blobSha": "22a042bdabd77250af456fe305726b9d80057139"
+    },
+    {
+      "path": "src/components/template9-automotive-final.tsx",
+      "blobSha": "de2b4a53b8ed39fdde2d42b21eda6a65722d3ef1"
+    },
+    {
+      "path": "src/components/template9-automotive-hero.tsx",
+      "blobSha": "e6de4be7066dc3d4da9dd10c117dc675b43f2c2c"
+    },
+    {
+      "path": "src/components/template9-automotive-sections.tsx",
+      "blobSha": "8191c8e062c47a83f68a1420eed58003997e70da"
+    },
+    {
+      "path": "src/components/tp10-language-testimonials.tsx",
+      "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01"
+    }
+  ]
+}
