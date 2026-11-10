@@ -171,15 +171,12 @@ export function LandingRevamp() {
       <div className="pnr-hero-scene-glow" data-motion-layer="ambient" />
       <div className="pnr-hero-light-sweep" data-motion-layer="ambient" />
       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
-      {/* Real moving light on top of the curves baked into the approved artwork.
-          SVG shares the image's 1002 x 611 viewBox; never scales separately. */}
+      {/* One continuous energy glint aligned to the neon arc in the approved image.
+          Artwork and icons remain pixel-perfect and motionless. */}
       <svg className="pnr-hero-orbit-motion" viewBox="0 0 1002 611" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-motion-layer="orbit">
-       <path className="pnr-orbit-trail pnr-orbit-trail--upper" pathLength={1000} d="M 341 25 C 190 13, 44 106, 23 225 C 0 361, 94 469, 286 550"/>
-       <path className="pnr-orbit-core pnr-orbit-core--upper" pathLength={1000} d="M 341 25 C 190 13, 44 106, 23 225 C 0 361, 94 469, 286 550"/>
-       <path className="pnr-orbit-trail pnr-orbit-trail--lower" pathLength={1000} d="M 272 542 C 420 599, 531 607, 699 584 C 836 565, 917 516, 994 477"/>
-       <path className="pnr-orbit-core pnr-orbit-core--lower" pathLength={1000} d="M 272 542 C 420 599, 531 607, 699 584 C 836 565, 917 516, 994 477"/>
-      </svg>
-      <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
+       <path className="pnr-orbit-soft-glint" pathLength={1000} d="M 336 24 C 209 25 86 86 39 185 C -29 332 74 483 289 549 C 470 620 682 609 841 552 C 927 523 965 499 996 482"/>
+       <path className="pnr-orbit-fine-glint" pathLength={1000} d="M 336 24 C 209 25 86 86 39 185 C -29 332 74 483 289 549 C 470 620 682 609 841 552 C 927 523 965 499 996 482"/>
+      </svg>      <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--dev" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--growth" data-motion-layer="ambient" />
      </div>
