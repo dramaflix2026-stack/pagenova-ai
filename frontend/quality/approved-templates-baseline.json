@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "31e99c212716bf9a7d7405a2ae014e3fc67e4063",
-        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+        "sha": "86e0afb4b5cf1bc4ad66e27f1ef99b7681f0d557",
+        "reason": "Universal section editing must display custom sections in TP6 model 02/03 renderers. This functional binding only inserts new user-requested content before the contact/location footer and leaves approved existing sections unchanged."
       }
     },
     {
