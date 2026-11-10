@@ -5,7 +5,8 @@ import {TP6RetailReviewSlots,TP6RetailCustomSections,readTP6RealReviews} from ".
 import type {TP6RetailVisualEdits} from "@/lib/builder-v2-tp6-edit-bridge";
 type Block={id?:string;type:string;text?:string;section?:string;layout?:string};
 type Review={quote:string;name?:string};
-export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,publishedMode=false,edits}:{niche:string;blocks:Block[];contactHref?:string;publishedMode?:boolean;edits?:TP6RetailVisualEdits}){
+export function BuilderV2TP6Model3ReviewsFAQ({niche,brand,blocks,contactHref,publishedMode=false,edits}:{niche:string;brand?:string;blocks:Block[];contactHref?:string;publishedMode?:boolean;edits?:TP6RetailVisualEdits}){
+ const sixPetReviews=niche==="Pet shop"||/boutique\s+patinhas/i.test(brand||"");
  const reviewBlocks=blocks.filter(b=>/depoiment|testimonial|avalia[cç][aã]o/i.test(b.section||""));
  const reviews:Review[]=reviewBlocks.filter(b=>b.type==="paragraph"&&b.text?.trim()).map(b=>({quote:b.text!.trim()}));
  const faqBlocks=blocks.filter(b=>/faq|perguntas.frequentes|d[uú]vidas/i.test(b.section||"")||b.layout==="faq");
@@ -45,7 +46,7 @@ export function BuilderV2TP6Model3ReviewsFAQ({niche,blocks,contactHref,published
  <section className="tp6m3-reviews" id="depoimentos" aria-labelledby="tp6m3-reviews-title">
   <div className="tp6m3-section-meta"><span>06 / EXPERIÊNCIAS</span><span>DEPOIMENTOS DOS CLIENTES</span></div>
   <div className="tp6m3-reviews-heading"><h2 id="tp6m3-reviews-title">QUEM<br/>CONTA<span>.</span></h2><p>Um espaço para experiências compartilhadas por clientes, quando cadastradas pela loja.</p></div>
-  {niche==="Floricultura"?<TP6RetailReviewSlots reviews={readTP6RealReviews(blocks)}/>:niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<TP6RetailReviewSlots/>}
+  {sixPetReviews?<TP6RetailReviewSlots reviews={readTP6RealReviews(blocks,6)} count={6}/>:niche==="Floricultura"?<TP6RetailReviewSlots reviews={readTP6RealReviews(blocks)}/>:niche==="Perfumaria e cosméticos"&&!reviews.length?<TP6PerfumePreviewReviews publishedMode={publishedMode}/>:reviews.length?<div className="tp6m3-review-grid">{reviews.map((r,i)=><article className="tp6m3-review-card" key={i}><span className="tp6m3-review-number">0{i+1} / DEPOIMENTO</span><span className="tp6m3-review-quote" aria-hidden="true">“</span><blockquote>{r.quote}</blockquote><span className="tp6m3-review-bottom">RELATO CADASTRADO <span aria-hidden="true">↗</span></span></article>)}</div>:<TP6RetailReviewSlots/>}
  </section>
  <TP6RetailCustomSections sections={edits?.addedSections}/>
  <section className="tp6m3-faq" id="faq" aria-labelledby="tp6m3-faq-title">
