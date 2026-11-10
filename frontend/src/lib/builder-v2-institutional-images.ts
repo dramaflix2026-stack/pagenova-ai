@@ -181,7 +181,7 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
     // Specialized renderers select the first image in the site as their hero.
     // Make the newly uploaded cover the first visible image, rather than
     // changing an unrelated section photo or silently leaving the old cover.
-    if(section===hero&&/\b(?:capa|hero|banner|imagem principal|foto principal)\b/.test(s)&&uploads.length===1&&!targetCard&&!mobileOnly){
+    if(section===hero&&/\b(?:capa|hero|banner|imagem principal|foto principal)\b/.test(s)&&uploads.length===1&&!targetCard&&!mobileOnly&&!layout&&!heroSlideTarget&&!/\b(?:segunda|segundo|terceira|terceiro|duplo|dupla|triplo|tripla|duas|tres)\b/.test(s)&&/\b(?:troqu|substitu|reempla|altere)\w*/.test(s)){
       const first=blocks.findIndex(block=>isImage(block)&&!!block.src&&!block.forCardId);
       const uploadedCover=blocks.findIndex(block=>isImage(block)&&block.src===uploads[0]&&!block.forCardId);
       if(uploadedCover>=0){
