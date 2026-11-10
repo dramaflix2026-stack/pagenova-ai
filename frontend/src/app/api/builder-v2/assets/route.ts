@@ -14,7 +14,18 @@ function sniff(bytes:Uint8Array){
 }
 export async function POST(req:NextRequest){
   const origin=req.headers.get("origin");
-  if(origin&&origin!==req.nextUrl.origin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
+  // Reverse proxies can expose the internal Railway origin via nextUrl.origin.
+  // Validate against the actual request Host as well, without trusting arbitrary
+  // forwarded-host headers or allowing cross-origin uploads.
+  const requestHost=req.headers.get("host");
+  let sameOrigin=!origin||origin===req.nextUrl.origin;
+  if(origin&&!sameOrigin&&requestHost){
+    try {
+      const parsed=new URL(origin);
+      sameOrigin=(parsed.protocol==="https:"||parsed.protocol==="http:")&&parsed.host.toLowerCase()===requestHost.toLowerCase();
+    } catch { sameOrigin=false; }
+  }
+  if(!sameOrigin)return NextResponse.json({error:"Origem não autorizada."},{status:403});
   const supabase=await createClient();
   const {data:{user},error:authError}=await supabase.auth.getUser();
   if(authError||!user)return NextResponse.json({error:"Faça login para enviar fotografias."},{status:401});
