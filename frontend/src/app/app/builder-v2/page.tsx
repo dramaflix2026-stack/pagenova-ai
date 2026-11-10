@@ -526,7 +526,7 @@ export default function BuilderV2() {
       if(response.status!=="fulfilled")continue;
       const {section,index,src}=response.value;
       const id=coverReplacement&&coverBlock?coverBlock.id:"visual-"+index;
-      const visual:Block=coverReplacement&&coverBlock?{...coverBlock,src,mobileSrc:undefined}:{id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src};
+      const visual:Block=coverReplacement&&coverBlock?{...coverBlock,section:heroSection,src,mobileSrc:undefined,imageExplicit:true}:{id,type:"image",text:"Fotografia ilustrativa",color:"#ffffff",align:"center",section,src,...(coverReplacement?{imageExplicit:true}:{})};
       const previous=blocks.findIndex(b=>b.id===id);
       if(previous>=0)blocks[previous]=visual;
       else {const position=blocks.findIndex(b=>(b.section||"principal")===section&&b.type==="heading");if(position>=0)blocks.splice(position+1,0,visual);}
