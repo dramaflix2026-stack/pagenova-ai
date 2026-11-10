@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "dd83eb1d658f0080cb81a59b08cc8260ae60765e",
-        "reason": "Prevent duplicated custom sections by disabling generic fallback for TP6 and excluding custom blocks from the legacy TP6 model 01 renderer, preserving the canonical site data."
+        "sha": "a12578e0f85e0197fa82952cf91ca4ac63b1e852",
+        "reason": "Correct TP6 Model 1 custom section order by inserting before contact inside retail story, and keep the header brand on one compact line for mobile."
       }
     },
     {
@@ -609,11 +609,19 @@
     },
     {
       "path": "src/components/template6-retail-hero.tsx",
-      "blobSha": "b114706597f61b327d585824468bb14b5a52f879"
+      "blobSha": "b114706597f61b327d585824468bb14b5a52f879",
+      "approvedBindingRevision": {
+        "sha": "e4cb5822eebbf33e1cf6bb90e8377288f34fe1b9",
+        "reason": "Correct TP6 Model 1 custom section order by inserting before contact inside retail story, and keep the header brand on one compact line for mobile."
+      }
     },
     {
       "path": "src/components/template6-retail-story.tsx",
-      "blobSha": "f75b943159a88cbcb82192ef3a493a1e8b39059f"
+      "blobSha": "f75b943159a88cbcb82192ef3a493a1e8b39059f",
+      "approvedBindingRevision": {
+        "sha": "6352926718ea58a3cc173d500c7ce87cc157405c",
+        "reason": "Correct TP6 Model 1 custom section order by inserting before contact inside retail story, and keep the header brand on one compact line for mobile."
+      }
     },
     {
       "path": "src/components/template7-real-estate-contact.tsx",
