@@ -267,9 +267,9 @@
 }
 
 
-/* Real orbit light travel v1 — visible moving streaks on the ACTUAL curves
-   of the approved art. The static photograph and the baked-in 3 icons never move.
-   These precise Bezier paths were fitted to the 1002x611 source image. */
+/* Precisely aligned continuous light travel v2.
+   One short, subtle glint traces the EXISTING neon arc in the artwork.
+   No duplicate arcs, no parallel disconnected strokes, no image movement. */
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
   position:absolute;
   inset:0;
@@ -277,54 +277,40 @@
   display:block;
   width:100%;
   height:100%;
-  pointer-events:none;
   overflow:visible;
-  background:none;
-  transform:none;
+  pointer-events:none;
+  background:transparent;
   filter:none;
+  transform:none;
 }
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion path{
   fill:none;
   stroke-linecap:round;
   stroke-linejoin:round;
-  stroke-dasharray:94 906;
+  stroke-dasharray:36 964;
   stroke-dashoffset:1000;
   vector-effect:non-scaling-stroke;
-  animation-name:pnrOrbitStreakTravel;
-  animation-timing-function:linear;
-  animation-iteration-count:infinite;
+  animation:pnrOrbitGlintTravel 8s linear infinite;
 }
-.pnr-page .pnr-hero--premium .pnr-orbit-trail{
-  stroke:#83ff5a;
-  stroke-width:10;
-  opacity:.56;
-  filter:drop-shadow(0 0 6px rgba(140,255,85,.8));
+.pnr-page .pnr-hero--premium .pnr-orbit-soft-glint{
+  stroke:#8cff69;
+  stroke-width:5;
+  opacity:.28;
+  filter:drop-shadow(0 0 4px rgba(117,255,88,.5));
 }
-.pnr-page .pnr-hero--premium .pnr-orbit-core{
-  stroke:#efffbd;
-  stroke-width:2.7;
-  opacity:.96;
-  filter:drop-shadow(0 0 3px rgba(223,255,183,.9)) drop-shadow(0 0 8px rgba(136,255,82,.65));
+.pnr-page .pnr-hero--premium .pnr-orbit-fine-glint{
+  stroke:#d4ffb4;
+  stroke-width:1.8;
+  opacity:.75;
+  filter:drop-shadow(0 0 2px rgba(156,255,124,.5));
 }
-.pnr-page .pnr-hero--premium .pnr-orbit-trail--upper,
-.pnr-page .pnr-hero--premium .pnr-orbit-core--upper{
-  animation-duration:6.8s;
-  animation-delay:-1.4s;
-}
-.pnr-page .pnr-hero--premium .pnr-orbit-trail--lower,
-.pnr-page .pnr-hero--premium .pnr-orbit-core--lower{
-  animation-duration:8.4s;
-  animation-delay:-3.6s;
-  animation-direction:reverse;
-}
-@keyframes pnrOrbitStreakTravel{
+@keyframes pnrOrbitGlintTravel{
   from{stroke-dashoffset:1000}
   to{stroke-dashoffset:0}
 }
 @media(max-width:650px){
-  /* A slightly narrower streak protects legibility on small screens. */
-  .pnr-page .pnr-hero--premium .pnr-orbit-trail{stroke-width:7;opacity:.43}
-  .pnr-page .pnr-hero--premium .pnr-orbit-core{stroke-width:2.1}
+  .pnr-page .pnr-hero--premium .pnr-orbit-soft-glint{stroke-width:3.5;opacity:.23}
+  .pnr-page .pnr-hero--premium .pnr-orbit-fine-glint{stroke-width:1.5;opacity:.62}
 }
 @media(prefers-reduced-motion:reduce){
   .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion path{
