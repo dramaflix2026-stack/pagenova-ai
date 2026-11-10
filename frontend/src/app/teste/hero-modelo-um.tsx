@@ -109,6 +109,7 @@ export function HeroModeloUm() {
       </header>
       <section id="plataforma" className="pn-premium-stage relative flex min-h-[720px] flex-col items-center justify-center px-5 pt-12 pb-14 text-center sm:px-8 lg:min-h-[750px] lg:pt-14">
         <div className="absolute inset-0 hidden lg:block"><LiveHeroShowcase lang={lang}/></div>
+        <div className="pn-premium-mobile-backdrop absolute inset-0 block lg:hidden" aria-hidden="true"><LiveHeroShowcase lang={lang} mobile/></div>
         <div className="pn-premium-content relative z-10 mx-auto flex w-full max-w-[680px] flex-col items-center">
           <div className="pn-premium-badge mb-5 inline-flex items-center gap-2 rounded-full border border-[#a6ff61]/50 bg-[#0c1b0e]/80 px-5 py-2 text-[10px] font-bold tracking-[.17em] text-[#b6ff69] sm:text-xs">
             <Sparkles size={15}/>{t.eyebrow}
@@ -126,7 +127,6 @@ export function HeroModeloUm() {
             </a>
           </div>
         </div>
-        <div className="relative z-10 block w-full lg:hidden"><LiveHeroShowcase lang={lang} mobile/></div>
         <div className="pn-premium-benefits relative z-10 mx-auto mt-14 grid w-full max-w-[1050px] grid-cols-2 gap-4 text-left sm:mt-16 sm:grid-cols-4 sm:gap-0 lg:mt-24">
           {benefits.map((benefit,index)=>{
             const Icon=BenefitIcons[index];

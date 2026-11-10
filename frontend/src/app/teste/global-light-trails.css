@@ -8,13 +8,13 @@
 .pn-energy-guide,.pn-energy-pulse{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
 .pn-energy-guide{stroke:#a6ff79;stroke-width:.8;opacity:.11}
 .pn-energy-pulse{
-  stroke:#b9ff89;stroke-dasharray:25 190;stroke-dashoffset:0;
-  animation:pn-energy-travel 17s linear infinite;
+  stroke:#b9ff89;stroke-dasharray:145 1650;stroke-dashoffset:0;
+  animation:pn-energy-travel 14s linear infinite;
 }
 .pn-energy-aura{stroke-width:13;filter:url(#pn-energy-glow);opacity:.27}
 .pn-energy-core{stroke-width:1.8;opacity:.72}
 .pn-energy-right .pn-energy-pulse{animation-delay:-8.5s;opacity:.52}
-@keyframes pn-energy-travel{from{stroke-dashoffset:0}to{stroke-dashoffset:-215}}
+@keyframes pn-energy-travel{from{stroke-dashoffset:0}to{stroke-dashoffset:-1795}}
 @media(max-width:767px){
   .pn-energy-guide{stroke-width:.65;opacity:.07}
   .pn-energy-aura{stroke-width:8;opacity:.17}
@@ -24,4 +24,12 @@
 @media(prefers-reduced-motion:reduce){
   .pn-energy-pulse{animation:none;stroke-dashoffset:0;opacity:.20}
   .pn-energy-aura{opacity:.10}
+}
+
+/* Purely decorative; the readable foreground is ALWAYS protected by the SVG mask. */
+.pn-global-light-trails{z-index:20}
+@media(max-width:767px){
+  .pn-energy-guide{opacity:.035}
+  .pn-energy-aura{opacity:.12;stroke-width:7}
+  .pn-energy-core{opacity:.42;stroke-width:1.25}
 }

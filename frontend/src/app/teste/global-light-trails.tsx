@@ -56,12 +56,14 @@ function measureTrails(root: HTMLElement): TrailGeometry | null {
 
   // Stay in the outside gutters; never snake through the central copy.
   // Left and right are separate, coherent strands all the way down the page.
+  // Alternating outer and inner margins produce clear, organic bends rather than
+  // long straight vertical strokes; protected text still masks the stroke.
   const leftFractions = isMobile
-    ? [0.042, 0.068, 0.052, 0.080, 0.045, 0.072]
-    : [0.035, 0.095, 0.061, 0.105, 0.045, 0.087];
+    ? [-0.045, 0.085, 0.018, 0.135, -0.035, 0.105, 0.024, 0.115]
+    : [-0.03, 0.12, 0.022, 0.16, -0.02, 0.135, 0.025, 0.11];
   const rightFractions = isMobile
-    ? [0.037, 0.064, 0.047, 0.073, 0.050, 0.081]
-    : [0.041, 0.083, 0.053, 0.100, 0.064, 0.091];
+    ? [-0.035, 0.105, 0.01, 0.125, -0.048, 0.09, 0.02, 0.11]
+    : [-0.035, 0.115, 0.024, 0.15, -0.025, 0.13, 0.02, 0.11];
 
   const makeCurve = (side: "left" | "right") => {
     const fractions = side === "left" ? leftFractions : rightFractions;
@@ -174,8 +176,8 @@ export function GlobalLightTrails() {
           {[leftPath, rightPath].map((path, index) => (
             <g key={index} className={index === 0 ? "pn-energy-left" : "pn-energy-right"}>
               <path className="pn-energy-guide" d={path} />
-              <path className="pn-energy-pulse pn-energy-aura" d={path} pathLength="1000" />
-              <path className="pn-energy-pulse pn-energy-core" d={path} pathLength="1000" />
+              <path className="pn-energy-pulse pn-energy-aura" d={path} />
+              <path className="pn-energy-pulse pn-energy-core" d={path} />
             </g>
           ))}
         </g>

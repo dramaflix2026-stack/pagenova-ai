@@ -65,7 +65,18 @@ function MobileHeroShowcase({lang}:{lang:Lang}) {
 }
 
 export function LiveHeroShowcase({ lang, mobile = false }: { lang: Lang; mobile?: boolean }) {
-  if (mobile) return <MobileHeroShowcase lang={lang}/>;
+  if (mobile) return (
+    <div className="pn9-mobile-ambient" aria-hidden="true">
+      <div className="pn9-mobile-ambient-glow" />
+      <div className="pn9-mobile-ambient-half pn9-mobile-ambient-left">
+        <img src="/landing-hero/hero-left-hd.webp" alt="" draggable={false} decoding="async" fetchPriority="high" />
+      </div>
+      <div className="pn9-mobile-ambient-half pn9-mobile-ambient-right">
+        <img src="/landing-hero/hero-right-hd.webp" alt="" draggable={false} decoding="async" fetchPriority="high" />
+      </div>
+      <div className="pn9-mobile-ambient-shield" />
+    </div>
+  );
   return (
     <div className={mobile ? "pn9-image-scene pn9-mobile" : "pn9-image-scene pn9-desktop"} aria-hidden="true">
       <svg className="pn9-sharp-defs" width="0" height="0" focusable="false" aria-hidden="true">

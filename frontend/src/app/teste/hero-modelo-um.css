@@ -93,3 +93,22 @@
  .pn-premium-benefits{margin-top:17px;gap:15px 12px;padding:0 6px}
  .pn-premium-benefit{justify-content:flex-start}
 }
+
+/* Mobile Hero v2: same approved card artwork is a background layer, not a separate section. */
+@media(max-width:1023px){
+  .pn-premium-stage{position:relative;overflow:hidden;isolation:isolate}
+  .pn-premium-mobile-backdrop{z-index:0;pointer-events:none;overflow:hidden}
+  .pn-premium-mobile-backdrop + .pn-premium-content{z-index:10}
+}
+@media(max-width:639px){
+  .pn-premium-stage{min-height:650px;padding:38px 18px 39px;justify-content:space-between}
+  .pn-premium-content{position:relative;z-index:10;margin-top:2px}
+  .pn-premium-badge{margin-bottom:22px}
+  .pn-premium-title{text-shadow:0 3px 18px #010b06,0 0 24px #08130c}
+  .pn-premium-description{max-width:360px;text-shadow:0 2px 10px #010b06}
+  .pn-premium-benefits{position:relative;z-index:10;margin-top:47px;padding:13px 2px 0}
+}
+@media(min-width:640px) and (max-width:1023px){
+  .pn-premium-stage{min-height:630px;padding-block:60px 42px}
+  .pn-premium-benefits{margin-top:66px}
+}
