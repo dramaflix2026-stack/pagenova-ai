@@ -113,9 +113,9 @@ export async function POST(request:NextRequest) {
   },{onConflict:"owner_id,project_id"});
   if(indexError){
     console.error("[pagenova/domains] publication index error",indexError.code);
-    return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt,
-      notice:"Site publicado. A atualização da lista de domínios está temporariamente indisponível."
-    });
+    // Publishing succeeded: a separate domain-list index error must not surface
+    // as a warning to the user on the successful publication screen.
+    return NextResponse.json({slug,url:`${publicOrigin}/p/${slug}`,publishedAt});
   }
   await admin.from("pagenova_custom_domains").update({slug,updated_at:publishedAt})
     .eq("owner_id",userId).eq("project_id",site.id);
