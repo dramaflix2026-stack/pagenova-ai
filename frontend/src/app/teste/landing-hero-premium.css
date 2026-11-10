@@ -300,3 +300,4 @@
   .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important}
   .pnr-page .pnr-hero--premium .pnr-hero-orbit-spot{animation:none!important}
 }
+/* Build verification: independent rollout of motion-path hero after prior concurrent CI builds. */
