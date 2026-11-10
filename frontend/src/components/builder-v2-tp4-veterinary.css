@@ -80,12 +80,19 @@
 .pn-vet-image-label{position:absolute;bottom:16px;right:16px;background:#152b28e8;color:white;font-size:.66rem;letter-spacing:.1em;padding:10px 13px}
 .pn-vet-outline{display:inline-flex;border:1px solid currentColor;border-radius:40px;padding:15px 21px;margin-top:30px;font-size:.8rem;font-weight:700}
 .pn-vet-proof{background:var(--p-ink);color:#f5f7f2}
-.pn-vet-proof h2{max-width:850px;margin:15px 0 50px}
-.pn-vet-proof>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.pn-vet-proof article{border:1px solid #ffffff38;padding:30px;min-height:160px}
-.pn-vet-proof article span{font-size:.7rem;color:#b1e6d0}
-.pn-vet-proof article h3{margin-top:38px}
+.pn-vet-proof h2{max-width:850px;margin:15px 0 46px}
+.pn-vet-proof>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.pn-vet-proof article{position:relative;isolation:isolate;overflow:hidden;min-width:0;min-height:284px;display:flex;flex-direction:column;align-items:stretch;padding:32px 30px 31px;border:1px solid #a9e0d544;border-radius:18px;background:linear-gradient(145deg,#24515a,#173a42);box-shadow:0 16px 40px #001b1c25;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.pn-vet-proof article::before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:3px;background:linear-gradient(90deg,#7ad1bb 0%,#7ad1bb55 70%,transparent 100%)}
+.pn-vet-proof article::after{content:"";position:absolute;z-index:0;top:-98px;right:-98px;width:205px;height:205px;border:1px solid #c8f5de20;border-radius:50%;box-shadow:0 0 0 34px #c8f5de08;pointer-events:none}
+.pn-vet-proof article>*{position:relative;z-index:1}
+.pn-vet-proof-card-top{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.pn-vet-proof article .pn-vet-proof-index{font-size:.73rem;letter-spacing:.19em;font-weight:800;color:#b5f0df}
+.pn-vet-proof article .pn-vet-proof-ornament{font-size:1.6rem;line-height:1;color:#a0e8d6}
+.pn-vet-proof article h3{font-size:clamp(1.15rem,1.65vw,1.5rem);letter-spacing:-.025em;line-height:1.2;margin:38px 0 13px;max-width:320px}
+.pn-vet-proof article .pn-vet-proof-description{font-size:.9rem;line-height:1.62;color:#d9e9e5;max-width:330px}
 .pn-vet-proof>p{margin-top:26px;color:#d0d9d2;font-size:.8rem}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){.pn-vet-proof article:hover{transform:translateY(-6px);border-color:#a8ecdb9b;box-shadow:0 26px 48px #0017183b}}
 .pn-vet-reviews{background:#edf0e8}
 .pn-vet-demo-warning{border-left:3px solid var(--p-accent);padding:10px 17px;background:#fff9e9;font-size:.76rem!important;color:#534b35!important;margin:-15px 0 28px!important;font-weight:750}
 .pn-vet-review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
@@ -113,11 +120,23 @@
 .pn-vet-map{height:420px;background:#d7dfd4;border:1px solid var(--p-line)}
 .pn-vet-map iframe{width:100%;height:100%;border:0}
 .pn-vet-map-unconfigured{height:100%;display:flex;align-items:center;justify-content:center;padding:25px;text-align:center}
-.pn-vet-footer{background:#162e29;color:#f5f7f1;padding:45px clamp(22px,6vw,100px) 30px}
+.pn-vet-footer{background:#102a29;color:#f5f7f1;padding:clamp(46px,5vw,85px) clamp(22px,6vw,100px) 34px;position:relative;overflow:hidden}
+.pn-vet-footer::before{content:"";position:absolute;right:-120px;top:-200px;width:460px;height:460px;border-radius:50%;border:1px solid #9de9d21c;box-shadow:0 0 0 80px #9de9d207;pointer-events:none}
+.pn-vet-footer-inner{max-width:1200px;margin:0 auto;position:relative}
 .pn-vet-footer-head,.pn-vet-footer-base{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center}
-.pn-vet-footer-head{font-size:.69rem;letter-spacing:.14em}
-.pn-vet-footer-title{font-size:clamp(3.4rem,9vw,10.5rem);line-height:1.05;letter-spacing:-.085em;font-weight:800;overflow-wrap:anywhere;border-bottom:1px solid #ffffff36;padding:70px 0 55px}
-.pn-vet-footer-base{padding-top:30px;font-size:.75rem;color:#c5d6d0;line-height:1.6}
+.pn-vet-footer-head{padding-bottom:28px;border-bottom:1px solid #ffffff2d;font-size:.73rem;font-weight:700;letter-spacing:.13em;line-height:1.5}
+.pn-vet-footer-back{display:inline-flex;align-items:center;gap:18px;border:1px solid #ffffff48;border-radius:100px;padding:11px 16px;font-size:.78rem;letter-spacing:0;font-weight:700;transition:background .2s ease,border-color .2s ease}
+.pn-vet-footer-back:hover{background:#ffffff15;border-color:#ffffffa0;opacity:1!important}
+.pn-vet-footer-back span{font-size:1rem}
+.pn-vet-footer-hero{display:flex;align-items:center;justify-content:space-between;gap:32px;padding:clamp(56px,6vw,88px) 0 clamp(44px,5vw,78px)}
+.pn-vet-footer-hero>div{min-width:0;flex:1}
+.pn-vet-footer-eyebrow{display:block;font-size:.84rem;line-height:1.4;color:#a9ddcc;letter-spacing:.025em;margin-bottom:19px}
+.pn-vet-footer-title{font-size:clamp(3.8rem,7.4vw,7.8rem);line-height:1.02;letter-spacing:-.065em;font-weight:800;overflow-wrap:anywhere;word-break:normal;max-width:100%}
+.pn-vet-footer-mark{width:112px;height:112px;flex:0 0 auto;border:1px solid #a6dcc67a;border-radius:50%;display:grid;place-items:center;color:#a5e7d2;font-size:3.7rem;line-height:1;transform:rotate(-12deg)}
+.pn-vet-footer-mid{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:28px;padding:28px 0 35px;border-top:1px solid #ffffff2e}
+.pn-vet-footer-mid p{font-size:.96rem;line-height:1.6;color:#d4e6df;max-width:390px}
+.pn-vet-footer-mid nav{display:flex;align-items:center;gap:clamp(17px,2.2vw,34px);flex-wrap:wrap;font-size:.85rem;font-weight:650}
+.pn-vet-footer-base{padding-top:26px;border-top:1px solid #ffffff24;font-size:.76rem;color:#c5d6d0;line-height:1.65}
 .pn-vet-footer-base>div{display:flex;gap:22px;flex-wrap:wrap}
 
 /* Model 02 — dark clinical technology, contrasting hero & floating treatment cards. */
@@ -174,13 +193,33 @@
 .pn-vet--03 .pn-vet-contact{background:#e3cdb8}
 .pn-vet--03 .pn-vet-team>div:last-child img{border-radius:180px 180px 0 0}
 
+/* Model 02 — stronger clinical-tech glow while retaining cyan-on-navy identity. */
+.pn-vet--02 .pn-vet-proof article{background:linear-gradient(155deg,#122a43,#0a1c2d);border-color:#79d7df5a;border-radius:22px}
+.pn-vet--02 .pn-vet-proof article::before{background:linear-gradient(90deg,#7cdbdc,transparent)}
+.pn-vet--02 .pn-vet-proof article::after{border-color:#7cdbdc23;box-shadow:0 0 0 36px #7cdbdc09}
+.pn-vet--02 .pn-vet-proof article .pn-vet-proof-index,.pn-vet--02 .pn-vet-proof article .pn-vet-proof-ornament{color:#7cdbdc}
+.pn-vet--02 .pn-vet-footer{background:#061522}
+.pn-vet--02 .pn-vet-footer::before{border-color:#80dbe929;box-shadow:0 0 0 80px #80dbe909}
+.pn-vet--02 .pn-vet-footer-eyebrow,.pn-vet--02 .pn-vet-footer-mark{color:#86dfe4}
+.pn-vet--02 .pn-vet-footer-mark{border-color:#86dfe47a;border-radius:22px;transform:rotate(-9deg)}
+/* Model 03 — architectural, warm and editorial. */
+.pn-vet--03 .pn-vet-proof article{background:linear-gradient(150deg,#453936,#322d2b);border-color:#d4a98e6e;border-radius:3px 30px 3px 3px;box-shadow:11px 12px 0 #bb89601a}
+.pn-vet--03 .pn-vet-proof article::before{background:linear-gradient(90deg,#dbac89,transparent)}
+.pn-vet--03 .pn-vet-proof article::after{border-color:#dcaf8d25;box-shadow:0 0 0 33px #dcaf8d0b}
+.pn-vet--03 .pn-vet-proof article .pn-vet-proof-index,.pn-vet--03 .pn-vet-proof article .pn-vet-proof-ornament{color:#e8bb9f}
+.pn-vet--03 .pn-vet-proof article .pn-vet-proof-description{color:#eadbd3}
+.pn-vet--03 .pn-vet-footer{background:#302b29}
+.pn-vet--03 .pn-vet-footer::before{border-color:#dda98226;box-shadow:0 0 0 80px #dda98207}
+.pn-vet--03 .pn-vet-footer-eyebrow,.pn-vet--03 .pn-vet-footer-mark{color:#e1b493}
+.pn-vet--03 .pn-vet-footer-title{font-weight:500;letter-spacing:-.052em}
+.pn-vet--03 .pn-vet-footer-mark{border-color:#e1b49390;border-radius:0;transform:rotate(12deg)}
+
 @keyframes pnVetFloat{0%{transform:translate3d(0,0,0) rotate(0deg)}100%{transform:translate3d(-35px,24px,0) rotate(12deg)}}
 @keyframes pnVetBlink{0%,100%{opacity:.4}50%{opacity:1}}
 @media(max-width:1150px){
  .pn-vet-service-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .pn-vet-review-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
  .pn-vet-header nav{gap:15px}
- .pn-vet-footer-title{font-size:clamp(3rem,8vw,7rem)}
 }
 @media(max-width:800px){
  .pn-vet-header{height:auto;min-height:78px;flex-wrap:wrap;gap:8px;padding:16px 22px}
@@ -199,6 +238,11 @@
  .pn-vet-gallery-grid{grid-auto-rows:230px}
  .pn-vet-team>div:last-child{height:420px}
  .pn-vet-proof>div{grid-template-columns:1fr}
+ .pn-vet-proof article{min-height:235px}
+ .pn-vet-footer-hero{padding:52px 0 42px}
+ .pn-vet-footer-mark{width:78px;height:78px;font-size:2.4rem}
+ .pn-vet-footer-mid{grid-template-columns:1fr;gap:24px}
+ .pn-vet-footer-title{font-size:clamp(3rem,9vw,5.5rem)}
  .pn-vet--03 .pn-vet-art-collage{gap:13px}
  .pn-vet--03 .pn-vet-art-large{height:390px}
  .pn-vet--03 .pn-vet-art-small{height:260px}
@@ -232,13 +276,16 @@
  .pn-vet--03 .pn-vet-art-stamp{right:16%;top:-33px}
  .pn-vet--03 .pn-vet-art-intro{gap:20px;padding-top:28px}
  .pn-vet--03 .pn-vet-art-intro p{font-size:1rem}
- .pn-vet-footer-title{font-size:clamp(2.7rem,11vw,5rem);padding:45px 0 30px}
-}
-/* Veterinary-only desktop footer: restrained brand scale, balanced header and baseline. */
-@media(min-width:801px){
- .pn-vet-footer{padding:clamp(52px,5vw,90px) clamp(22px,6vw,100px) 38px}
- .pn-vet-footer-head{max-width:1200px;margin:0 auto;padding-bottom:24px;border-bottom:1px solid #ffffff30;font-size:clamp(.72rem,.85vw,.88rem)}
- .pn-vet-footer-title{max-width:1200px;margin:0 auto;padding:clamp(58px,6vw,94px) 0 clamp(62px,6vw,98px);font-size:clamp(3.8rem,7.1vw,8rem);line-height:1;letter-spacing:-.065em;text-align:center;overflow-wrap:anywhere}
- .pn-vet-footer-base{max-width:1200px;margin:0 auto;padding-top:28px;font-size:.82rem}
+ .pn-vet-proof article{padding:27px 24px;min-height:215px}
+ .pn-vet-proof article h3{margin-top:26px}
+ .pn-vet-footer{padding:38px 20px 27px}
+ .pn-vet-footer-head{align-items:flex-start;gap:16px;font-size:.64rem}
+ .pn-vet-footer-back{padding:9px 12px;font-size:.7rem}
+ .pn-vet-footer-hero{padding:43px 0 36px;gap:14px}
+ .pn-vet-footer-title{font-size:clamp(2.6rem,10vw,4rem)}
+ .pn-vet-footer-mark{width:55px;height:55px;font-size:1.7rem}
+ .pn-vet-footer-mid{padding:23px 0 26px}
+ .pn-vet-footer-mid nav{gap:16px}
+ .pn-vet-footer-base{padding-top:22px}
 }
 @media(prefers-reduced-motion:reduce){.pn-vet *,.pn-vet *:before,.pn-vet *:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
