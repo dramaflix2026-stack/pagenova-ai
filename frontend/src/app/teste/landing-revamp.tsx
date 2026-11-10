@@ -187,11 +187,7 @@ export function LandingRevamp() {
         </mask>
        </defs>
        <g mask="url(#pnr-hero-curve-mask)">
-        <circle r="100" fill="url(#pnr-hero-orbit-light)" opacity=".78">
-         <animateMotion dur="8s" repeatCount="indefinite" rotate="0">
-          <mpath href="#pnr-hero-orbit-route" />
-         </animateMotion>
-        </circle>
+        <circle className="pnr-hero-orbit-spot" r="100" fill="url(#pnr-hero-orbit-light)" opacity=".78" />
        </g>
       </svg>
       </svg>      <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
