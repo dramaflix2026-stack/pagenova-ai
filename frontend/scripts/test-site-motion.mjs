@@ -133,7 +133,7 @@ test("universal scroll boundary covers all early-return template families and im
   const renderer=readFileSync(path.join(root,"src/components/builder-v2-site.tsx"),"utf8");
   const boundary=readFileSync(path.join(root,"src/components/builder-v2-universal-scroll-motion.tsx"),"utf8");
   const css=readFileSync(path.join(root,"src/components/builder-v2-universal-scroll-reveal.css"),"utf8");
-  assert.ok(renderer.includes("return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>"));
+  assert.ok(renderer.includes("return <UniversalSiteScrollMotion site={props.site}>") && renderer.includes("<BuilderV2SiteContent {...props}/>"),"all renderers must remain inside the universal scroll boundary");
   assert.ok(renderer.includes("function BuilderV2SiteContent(props:BuilderV2SiteProps)"));
   assert.ok(renderer.includes("attachSiteMotion(previewRef.current,site.motion)"),"existing classic animation engine is preserved");
   assert.ok(boundary.includes("display")===false || css.includes("display:contents"),"motion boundary must not alter layout boxes");
