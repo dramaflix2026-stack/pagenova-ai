@@ -214,30 +214,41 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
 
 /** Create a section from natural user language, without template IDs or rigid syntax. */
 function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const normLabel=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
- const request=instruction.match(/^(?:adicione|crie|inclua)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+["“”']?([^,"“”']+?)["“”']?\s*,\s*(?:antes|depois|ap[oó]s)\b/i);
+ const normalized=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const request=instruction.match(/^\s*(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+(?:"([^"]+)"|“([^”]+)”|'([^']+)'|([^,.\n]+?)(?=\s*(?:,|\.|\s+imediatamente\s+antes|\s+antes|\s+depois|\s+ap[oó]s|$)))/i);
  if(!request)return null;
- const name=request[1].trim();
- const destination=instruction.match(/\b(antes|depois|ap[oó]s)\s+(?:da|do|de|a|o)?\s*(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.]+)["“”']?/i);
+ const name=(request[1]||request[2]||request[3]||request[4]||"").trim();
+ if(!name)return {ok:false,error:"Informe o nome da nova seção."};
+ const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:da|do|de|a|o)?\s*(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
  if(!destination)return {ok:false,error:"A posição da nova seção não foi identificada. Nada foi alterado."};
- const target=resolveUniversalSection(site,destination[2].trim());
- if(!target)return {ok:false,error:"Seção de referência não encontrada. Nenhuma alteração aplicada."};
- const sectionId="custom-"+normLabel(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+ const targetLabel=destination[2].trim().replace(/\s+(?:com|contendo|que)\s+.*$/i,"").trim();
+ const target=resolveUniversalSection(site,targetLabel);
+ if(!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
+ const sectionId="custom-"+normalized(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
- const isBefore=normLabel(destination[1])==="antes";
- const index=isBefore?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
+ const before=normalized(destination[1])==="antes";
+ const index=before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
  const previous=site.blocks[index-1];
  if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
- const cardList=instruction.match(/\b(?:com\s+)?tr[eê]s\s+cards?\s*:\s*([\s\S]+?)(?:\.\s|$)/i);
- if(!cardList)return {ok:false,error:"Não foi possível identificar os cards solicitados. Nenhuma alteração aplicada."};
- const labels=cardList[1].split(/\s*,\s*|\s+e\s+/i).map(v=>v.trim().replace(/[.]+$/,"")).filter(Boolean);
- if(labels.length!==3)return {ok:false,error:"Foram solicitados três cards, mas os títulos não foram identificados com segurança."};
- const entries=[{type:"heading",text:name},...labels.flatMap(label=>[
-  {type:"heading",text:label},
-  {type:"paragraph",text:"Conheça nosso atendimento em "+label.toLowerCase()+" e entre em contato para saber mais."}
+ const descriptions=[...instruction.matchAll(/(?:^|\n)\s*[123][.)]\s*([^:\n]+):\s*([^\n]+)/g)].map(m=>({title:m[1].trim(),description:m[2].trim()}));
+ let cards=descriptions;
+ if(cards.length!==3){
+  const compact=instruction.match(/(?:com|contendo)\s+tr[eê]s\s+cards?\s*:\s*([^\n.]+)/i);
+  if(compact){
+   const labels=compact[1].split(/\s*,\s*|\s+e\s+/i).map(x=>x.trim()).filter(Boolean);
+   if(labels.length===3)cards=labels.map(title=>({title,description:"Saiba mais sobre "+title.toLowerCase()+" e nossos cuidados especializados."}));
+  }
+ }
+ if(cards.length!==3)return {ok:false,error:"Não foi possível identificar os três cards solicitados. Nenhuma alteração aplicada."};
+ const entries=[{type:"heading",text:name},...cards.flatMap(card=>[
+  {type:"heading",text:card.title},
+  {type:"paragraph",text:card.description}
  ])];
  const operations:UniversalOperation[]=[];let afterId=previous.id;
- for(let i=0;i<entries.length;i++){const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};operations.push({action:"add",block,afterId});afterId=block.id;}
+ for(let i=0;i<entries.length;i++){
+  const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
+  operations.push({action:"add",block,afterId});afterId=block.id;
+ }
  return applyUniversalOperations(site,operations);
 }
 
