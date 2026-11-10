@@ -364,7 +364,7 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
  const activeStaticTemplate=props.templateId||props.site.templateId||"institutional-complete";
  // Fitness has a dedicated modern three-variant renderer; do not fall back to legacy institutional templates.
  const fitnessIdentity=[props.site.niche,props.selectedNiche].filter(Boolean).join(" ");
- if(/(?:^|\b)(?:academia|fitness|personal trainer|muscula[cç][aã]o|centro de treinamento funcional)(?:\b|$)/i.test(fitnessIdentity)&&props.site.cinematic?.mode!=="immersive-3d")return <BuilderV2FitnessModern brand={props.site.header?.brand||props.site.title||"Fitness"} niche={props.site.niche||props.selectedNiche||"Academia"} variant={props.site.briefingLayoutVariant||"01"} blocks={props.site.blocks} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/>;
+ if(/(?:^|\b)(?:academia|fitness|personal trainer|muscula[cç][aã]o|centro de treinamento funcional)(?:\b|$)/i.test(fitnessIdentity))return <BuilderV2FitnessModern brand={props.site.header?.brand||props.site.title||"Fitness"} niche={props.site.niche||props.selectedNiche||"Academia"} variant={props.site.briefingLayoutVariant||"01"} blocks={props.site.blocks} whatsapp={props.site.footer?.whatsapp} address={props.site.footer?.address}/>;
  // Explicitly selected static templates 01/02 must retain their own renderers.
  // Older published briefings can lack templateId; recover TP5 only from a
  // strongly identifiable AI/technology niche, not from the project title alone.
