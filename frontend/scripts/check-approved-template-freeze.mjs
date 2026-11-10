@@ -1,0 +1,36 @@
+/** Guard existing approved template JSX/CSS against accidental edits.
+ * Renderer migrations must update the recorded Git blob SHA only after visual approval.
+ * The reference branch is a recoverable snapshot; this guard is the ongoing CI check.
+ */
+import {createHash} from "node:crypto";
+import {readFileSync,existsSync} from "node:fs";
+import {fileURLToPath} from "node:url";
+import {resolve} from "node:path";
+
+const frontendRoot=fileURLToPath(new URL("../",import.meta.url));
+const manifest=JSON.parse(readFileSync(resolve(frontendRoot,"quality/approved-templates-baseline.json"),"utf8"));
+if(manifest.schemaVersion!==1||manifest.protectedFiles?.length!==manifest.protectedFileCount||manifest.protectedFileCount<140){
+ console.error("Invalid approved-template baseline manifest.");
+ process.exit(1);
+}
+const seen=new Set();
+const changes=[];
+for(const entry of manifest.protectedFiles){
+ const path=entry.path;
+ if(typeof path!=="string"||!/^src\/components\/[a-z0-9./_-]+\.(tsx|css)$/.test(path)||path.includes("..")||seen.has(path)){
+  changes.push({path,reason:"invalid or repeated protected path"});continue;
+ }
+ seen.add(path);
+ const full=resolve(frontendRoot,path);
+ if(!existsSync(full)){changes.push({path,reason:"removed"});continue;}
+ const data=readFileSync(full);
+ const sha=createHash("sha1").update(Buffer.from("blob "+data.length+"\0")).update(data).digest("hex");
+ if(sha!==entry.blobSha)changes.push({path,reason:"changed",expectedBlob:entry.blobSha,actualBlob:sha});
+}
+if(changes.length){
+ console.error("TEMPLATE FREEZE VIOLATION: "+changes.length+" protected component(s) differ from the approved snapshot.");
+ for(const change of changes)console.error(JSON.stringify(change));
+ console.error("Restore from "+manifest.baselineRef+" ("+manifest.baselineCommit+") OR request explicit approval and intentionally update the manifest for the approved component(s).");
+ process.exit(1);
+}
+console.log("Template baseline OK: "+manifest.protectedFileCount+" protected files match "+manifest.baselineCommit.slice(0,12)+".");
