@@ -6,7 +6,7 @@ export type InstitutionalMediaBlock = {
   id:string; type:"heading"|"paragraph"|"button"|"image"; text:string;
   color:string; align:"left"|"center"|"right"; section?:string; src?:string;
   mobileSrc?:string; forCardId?:string; imageFit?:"contain"|"cover";
-  imagePosition?:string; userUploaded?:boolean;
+  imagePosition?:string; userUploaded?:boolean; imageExplicit?:boolean;
 };
 export type HeroComposition = "single"|"duo"|"trio";
 export type MediaLayout = "grid"|"mosaic"|"carousel";
@@ -176,6 +176,22 @@ export function planInstitutionalImageEdit<T extends InstitutionalMediaSite>(sit
         const image=newImage(section,uploads[i]);
         const last=blocks.findLastIndex(b=>sectionOf(b)===section);
         blocks.splice(last+1,0,image);
+      }
+    }
+    // Specialized renderers select the first image in the site as their hero.
+    // Make the newly uploaded cover the first visible image, rather than
+    // changing an unrelated section photo or silently leaving the old cover.
+    if(section===hero&&/\b(?:capa|hero|banner|imagem principal|foto principal)\b/.test(s)&&uploads.length===1&&!targetCard&&!mobileOnly){
+      const first=blocks.findIndex(block=>isImage(block)&&!!block.src&&!block.forCardId);
+      const uploadedCover=blocks.findIndex(block=>isImage(block)&&block.src===uploads[0]&&!block.forCardId);
+      if(uploadedCover>=0){
+        blocks[uploadedCover].imageExplicit=true;
+        blocks[uploadedCover].userUploaded=true;
+        delete blocks[uploadedCover].mobileSrc;
+        if(first>=0&&first!==uploadedCover){
+          const [cover]=blocks.splice(uploadedCover,1);
+          blocks.splice(first,0,cover);
+        }
       }
     }
     changes.push(uploads.length+" imagem(ns) armazenada(s) e aplicada(s)");
