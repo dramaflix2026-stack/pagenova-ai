@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "ce0f708151657d1e7754395943f62ec44a6978e5",
-        "reason": "Insert TP9 custom sections before contact for all three models and suppress fallback after footer."
+        "sha": "0fe0eba5f1684d3e0329719782394830379605a0",
+        "reason": "Add demonstration reviews and map with São Paulo reference to automotive templates without altering approved other families."
       }
     },
     {
@@ -495,8 +495,8 @@
       "path": "src/components/builder-v2-tp9-model3.tsx",
       "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76",
       "approvedBindingRevision": {
-        "sha": "a1aea3fd83eef2cbd6740b41e83c7a0a0be5eccd",
-        "reason": "Allow custom sections to render before TP9 model three contact while preserving existing design."
+        "sha": "8d340912f81f78e5199ce9d82a1950a432612cad",
+        "reason": "Add six reviews and reference map to automotive model three, preserving its established styling."
       }
     },
     {
