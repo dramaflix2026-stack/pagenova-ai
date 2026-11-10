@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { HeroModeloUm } from "./hero-modelo-um";
 import { LandingGallery } from "./landing-gallery";
+import { LandingStyleGallery } from "./landing-style-gallery";
 import { EcosystemSection } from "./ecosystem-section";
 import { AudienceSection } from "./audience-section";
 import { PricingSection } from "./pricing-section";
@@ -12,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function TestePage() {
-  return <><HeroModeloUm /><LandingGallery /><EcosystemSection /><AudienceSection /><PricingSection /></>;
+  return <><HeroModeloUm /><LandingStyleGallery /><LandingGallery onlyDemo /><EcosystemSection /><AudienceSection /><PricingSection /></>;
 }

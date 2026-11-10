@@ -92,7 +92,7 @@ function Gallery3DVisual({item,lang}:{item:typeof examples[number];lang:Locale})
   );
 }
 
-export function LandingGallery() {
+export function LandingGallery({onlyDemo=false}: {onlyDemo?: boolean} = {}) {
   const [lang,setLang]=useState<Locale>("pt");
   const [category,setCategory]=useState<Category>("all");
   const [selected,setSelected]=useState<number|null>(null);
@@ -118,7 +118,7 @@ export function LandingGallery() {
   const t=dictionary[lang];
   const shown=examples.map((item,index)=>({...item,index})).filter(item=>category==="all"||item.category===category);
   return <>
-    <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
+    {!onlyDemo && <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
       <div className="pn-gallery-halo" aria-hidden="true"/>
       <div className="relative mx-auto max-w-[1250px]">
         <div className="mx-auto max-w-[890px] text-center">
@@ -150,9 +150,9 @@ export function LandingGallery() {
           <a href="/cadastro" className="inline-flex min-h-12 items-center gap-3 rounded-xl bg-[#b6ff69] px-6 text-[13px] font-bold text-[#101a0d] transition hover:bg-[#d5ffa8]">{t.cta}<ArrowRight size={17}/></a>
         </div>
       </div>
-    </section>
+    </section>}
     <AiEditorDemo lang={lang}/>
-    {selected!==null && <div className="pn-gallery-modal fixed inset-0 z-[200] flex items-center justify-center bg-[#030603]/90 p-3 backdrop-blur-xl sm:p-8" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null);}}>
+    {!onlyDemo && selected!==null && <div className="pn-gallery-modal fixed inset-0 z-[200] flex items-center justify-center bg-[#030603]/90 p-3 backdrop-blur-xl sm:p-8" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null);}}>
       <div role="dialog" aria-modal="true" aria-label={examples[selected].names[lang]} className="w-full max-w-[1050px] overflow-hidden rounded-2xl border border-[#a5ff6a]/25 bg-[#0c130e] shadow-2xl">
         <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6"><div className="min-w-0"><p className="text-[10px] tracking-[.2em] text-[#b6ff69]">{t.tag}</p><h3 className="truncate text-sm font-bold text-white sm:text-lg">{examples[selected].names[lang]}</h3></div><button type="button" onClick={()=>setSelected(null)} className="rounded-full border border-white/20 p-2 text-white hover:bg-white/10" aria-label={t.close}><X size={18}/></button></div>
         <SiteVisual item={examples[selected]} lang={lang}/>
