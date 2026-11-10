@@ -251,6 +251,12 @@ const primaryBriefAliases:Record<string,string>={
   "pizzas":"Pizzaria",
   "cafe especial":"Cafeteria",
   "cafe artesanal":"Cafeteria",
+  "academia":"Academia",
+  "academia de musculacao":"Academia",
+  "centro fitness":"Academia",
+  "fitness":"Academia",
+  "personal trainer":"Personal Trainer",
+  "treinamento funcional":"Academia",
 };
 const primaryBriefCandidates=[
  ...BRIEFING_TEMPLATE_FAMILIES.flatMap(f=>f.niches.map(n=>({needle:norm(n),niche:String(n)}))),
