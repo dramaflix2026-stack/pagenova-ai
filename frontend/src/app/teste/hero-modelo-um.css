@@ -112,3 +112,57 @@
   .pn-premium-stage{min-height:630px;padding-block:60px 42px}
   .pn-premium-benefits{margin-top:66px}
 }
+
+/* 2026-11-09 mobile visual audit — refine only mobile, preserve approved desktop. */
+@media (max-width: 639px) {
+  /* One uninterrupted ambient green/black material from nav to hero to gallery. */
+  .pn-premium-hero {
+    background:radial-gradient(ellipse 120% 65% at 50% 40%,rgba(29,72,30,.21),transparent 82%),
+      linear-gradient(180deg,#0b2013 0%,#091a10 28%,#07170e 72%,#0b1d11 100%);
+  }
+  .pn-premium-header {
+    background:transparent!important;
+    border-bottom-color:rgba(155,255,120,.055);
+    box-shadow:none!important;
+  }
+  .pn-premium-header:before {background:none}
+  .pn-premium-stage {
+    background:transparent;
+    min-height:650px;
+    padding-top:31px;
+    padding-bottom:32px;
+  }
+  /* Clear title hierarchy; allow the picture to suggest sites, not duplicate readable copy. */
+  .pn-premium-content {
+    position:relative;
+    isolation:isolate;
+    z-index:10;
+  }
+  .pn-premium-content::before{
+    content:"";
+    position:absolute;
+    z-index:-1;
+    pointer-events:none;
+    inset:38px -25px -25px;
+    background:radial-gradient(ellipse 76% 68% at 50% 51%,rgba(5,17,10,.89) 0%,rgba(5,17,10,.78) 50%,rgba(5,17,10,.31) 78%,transparent 100%);
+    filter:blur(13px);
+  }
+  .pn-premium-badge{margin-bottom:20px}
+  .pn-premium-title{text-shadow:0 2px 14px rgba(0,0,0,.82)}
+  .pn-premium-description{text-shadow:0 2px 12px rgba(0,0,0,.87);color:#e0ebdb}
+  .pn-premium-ctas{position:relative;z-index:2}
+  .pn-premium-cta-secondary{background:rgba(6,17,10,.88);border-color:rgba(211,241,204,.24)}
+  .pn-premium-benefits{margin-top:42px;position:relative;z-index:10}
+  .pn-premium-stage:before {
+    background:linear-gradient(180deg,transparent 0%,rgba(8,25,13,.07) 38%,rgba(8,24,13,.53) 83%,rgba(10,29,17,.77) 100%);
+  }
+}
+@media (min-width:640px) and (max-width:1023px) {
+  .pn-premium-header{background:transparent}
+  .pn-premium-content{isolation:isolate}
+  .pn-premium-content::before{
+    content:"";position:absolute;inset:-22px -28px;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse 72% 66% at 50% 47%,rgba(5,17,10,.90),rgba(5,17,10,.48) 66%,transparent 100%);
+    filter:blur(14px);
+  }
+}
