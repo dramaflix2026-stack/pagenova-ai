@@ -210,16 +210,33 @@
 .pn-vet--03 .pn-vet-footer-title{font-weight:500;letter-spacing:-.052em}
 
 /* Model 01: six service cards become editorial veterinary photo cards (three by two). */
-.pn-vet--01 .pn-vet-service-grid{gap:20px}
-.pn-vet--01 .pn-vet-service{padding:0;min-width:0;min-height:455px;border:1px solid #abc9bda8;border-radius:17px;overflow:hidden;background:#fff;box-shadow:0 12px 32px #1a51431a}
-.pn-vet--01 .pn-vet-service-photo{position:relative;flex-shrink:0;width:100%;height:205px;overflow:hidden;background:#dce9e4}
-.pn-vet--01 .pn-vet-service-photo img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.pn-vet--01 .pn-vet-service-grid{gap:20px;align-items:stretch}
+.pn-vet--01 .pn-vet-service{display:flex;flex-direction:column;padding:0;min-width:0;min-height:0;border:1px solid #abc9bda8;border-radius:17px;overflow:hidden;background:#fff;box-shadow:0 12px 32px #1a51431a}
+.pn-vet--01 .pn-vet-service-photo{position:relative;flex-shrink:0;width:100%;height:clamp(185px,18vw,225px);overflow:hidden;background:#dce9e4}
+.pn-vet--01 .pn-vet-service-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .6s ease}
 .pn-vet--01 .pn-vet-service-index{position:absolute;top:16px;left:17px;z-index:2;padding:8px 12px;border-radius:50px;background:#f7faf6f2;color:#1f5048;font-weight:800;box-shadow:0 4px 17px #0002}
 .pn-vet--01 .pn-vet-service-graphic{display:none}
-.pn-vet--01 .pn-vet-service h3{margin:25px 25px 10px;font-size:clamp(1.08rem,1.4vw,1.35rem)}
-.pn-vet--01 .pn-vet-service p{margin:0 25px;font-size:.87rem;line-height:1.62}
-.pn-vet--01 .pn-vet-service a{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 25px 24px;padding-top:20px;border-top:1px solid #154e4030}
+.pn-vet--01 .pn-vet-service h3{margin:23px 24px 10px;font-size:clamp(1.08rem,1.4vw,1.35rem);line-height:1.25}
+.pn-vet--01 .pn-vet-service p{margin:0 24px 20px;font-size:.89rem;line-height:1.6}
+.pn-vet--01 .pn-vet-service a{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:auto 24px 23px;padding-top:16px;border-top:1px solid #154e4030}
+.pn-vet--01 .pn-vet-team>div:first-child p{max-width:565px}
+.pn-vet--01 .pn-vet-team>div:last-child{height:480px}
+.pn-vet--01 .pn-vet-faq>div:first-child img{height:320px;border-radius:15px;object-position:50% 45%}
+.pn-vet--01 .pn-vet-review-grid article{min-height:215px;padding:22px 22px 20px;border:1px solid #174b3830;border-radius:13px;box-shadow:0 8px 25px #1a514312}
+.pn-vet--01 .pn-vet-review-head{margin-bottom:14px}
+.pn-vet--01 .pn-vet-review-grid article p{font-size:.84rem;line-height:1.58}
+.pn-vet--01 .pn-vet-review-grid article small{padding-top:13px;font-size:.64rem}
 @media(hover:hover) and (prefers-reduced-motion:no-preference){.pn-vet--01 .pn-vet-service:hover img{transform:scale(1.05)}}
+@media(max-width:800px){.pn-vet--01 .pn-vet-team>div:last-child{height:390px}}
+@media(max-width:540px){
+ .pn-vet--01 .pn-vet-service-photo{height:215px}
+ .pn-vet--01 .pn-vet-service h3{margin:22px 22px 9px}
+ .pn-vet--01 .pn-vet-service p{margin:0 22px 19px}
+ .pn-vet--01 .pn-vet-service a{margin:auto 22px 22px;padding-top:15px}
+ .pn-vet--01 .pn-vet-team>div:last-child{height:350px}
+ .pn-vet--01 .pn-vet-review-grid article{min-height:0;padding:23px 21px}
+ .pn-vet--01 .pn-vet-faq>div:first-child img{height:235px}
+}
 
 @keyframes pnVetFloat{0%{transform:translate3d(0,0,0) rotate(0deg)}100%{transform:translate3d(-35px,24px,0) rotate(12deg)}}
 @keyframes pnVetBlink{0%,100%{opacity:.4}50%{opacity:1}}

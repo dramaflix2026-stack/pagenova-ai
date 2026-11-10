@@ -100,8 +100,25 @@ test("proof cards have no bright full-width ribbon and M1 hero callout cannot st
  assert.match(css,/\.pn-vet-proof article::before\{[^}]*width:3px;height:56px/);
  assert.doesNotMatch(css,/left:-35px/);
  assert.match(css,/\.pn-vet-hero-float\{[^}]*left:clamp\(16px/);
- assert.match(src,/\[1,2,5,9,11,12\]\[i\]/);
+ assert.match(src,/photoById\(model01ServicePhotoIds\[i\] \?\? model01ServicePhotoIds\[0\]\)/);
  assert.match(css,/\.pn-vet--01 \.pn-vet-service-photo img/);
  assert.match(css,/\.pn-vet-service-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(src,/reviews\.slice\(0,6\)/);
+});
+
+test("Model 01 editorial quality: focused nutrition imagery, no editor-only prose and compact six-card layout",()=>{
+ const src=read("src/components/builder-v2-tp4-veterinary.tsx");
+ const css=read("src/components/builder-v2-tp4-veterinary.css");
+ assert.match(src,/model01ServicePhotoIds=\["6816859","6234618","6235240","7469212","7469234","6568944"\]/);
+ assert.match(src,/photoById\(model01ServicePhotoIds\[i\] \?\? model01ServicePhotoIds\[0\]\)/);
+ assert.match(src,/variant==="01"\?model01Faqs:faqs/);
+ assert.match(src,/variant==="01"\?photoById\("6235123"\):photo\(variant==="02"\?8:13\)/);
+ assert.match(src,/variant==="01"\?"Cada atendimento começa pela escuta/);
+ assert.match(src,/variant==="01"\?"Confiança se constrói/);
+ assert.match(css,/\.pn-vet--01 \.pn-vet-service a\{[^}]*margin:auto 24px 23px/);
+ assert.match(css,/\.pn-vet--01 \.pn-vet-service\{[^}]*min-height:0/);
+ assert.match(css,/\.pn-vet--01 \.pn-vet-review-grid article\{[^}]*min-height:215px/);
+ assert.match(css,/\.pn-vet--01 \.pn-vet-faq>div:first-child img/);
+ assert.match(css,/@media\(max-width:540px\)\{[\s\S]*\.pn-vet--01 \.pn-vet-review-grid article\{min-height:0/);
  assert.match(src,/reviews\.slice\(0,6\)/);
 });
