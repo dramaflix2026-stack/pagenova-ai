@@ -3,7 +3,7 @@ const norm=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"")
 const aliases:Record<string,string[]>={
  hero:["hero","capa","inicio","home","principal","banner"],
  about:["about","sobre","sobre nos","sobre a empresa","nossa essencia","essencia"],
- services:["services","servicos","nossos servicos","especialidades","nossas especialidades","tratamentos","nossos tratamentos","tratamentos esteticos","procedimentos","nossos procedimentos","solucoes","nossas solucoes"],
+ services:["services","servicos","nossos servicos","especialidades","nossas especialidades","tratamentos","nossos tratamentos","tratamentos esteticos","procedimentos","nossos procedimentos","solucoes","nossas solucoes","cursos","curso","de cursos","formacoes","formacao","programas de aprendizagem","cursos e programas","programas","areas de aprendizagem"],
  accommodations:["acomodacoes","acomodacao","nossas acomodacoes","hospedagens","hospedagem","quartos","suites","chales","chalés","rooms","accommodations","stays"],
  differences:["diferenciais","nossos diferenciais","diferencas","diferentials","differences"],
  process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas"],
@@ -18,7 +18,7 @@ const aliases:Record<string,string[]>={
 };
 /** Match actual section IDs/headings first, then aliases; never choose the first candidate. */
 export function resolveUniversalSection(site:UniversalSite,label:string):string|null{
- const target=norm(label).replace(/^(?:a|o)\s+/,"");
+ const target=norm(label).replace(/^(?:(?:a|o|as|os|de|da|do|das|dos)\s+)+/,"");
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
  const exactIds=sections.filter(id=>norm(id)===target);
  if(exactIds.length)return exactIds.length===1?exactIds[0]:null;

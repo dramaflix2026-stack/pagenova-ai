@@ -44,7 +44,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   return {ok:true,site:{...applied.site,universalSectionStyles:{...raw,[hero]:{...raw[hero],...(centered?{heroCenter:true}:{}),...(/anima[cç][aã]o\s+suave\s+de\s+entrada/i.test(text)?{entryAnimation:"fade"}:{})},[services]:{...raw[services],cardRadius:radius}}} as T,changedIds:[...applied.changedIds,"section-style:"+hero,"section-style:"+services]};
  }
  // A single request may contain TWO section color changes; commit them together.
- const color=text.match(/^(?:na\s+)?se[cç][aã]o\s+([^,\r\n]{2,120}),\s*(?:altere|troque|mude)\s+(?:apenas\s+|somente\s+)?a\s+cor\s+de\s+fundo\s+(?:para|por)\s+(#[a-f0-9]{6})(?:\s+e\s+(?:(?:a\s+)?cor\s+(?:dos\s+|de\s+)?)?(?:os\s+)?t[ií]tulos?\s+(?:para|por|em)\s+(?:a\s+cor\s+)?(#[a-f0-9]{6}))?/i);
+ const color=text.match(/^(?:na\s+)?se[cç][aã]o\s+([^,\r\n]{2,120}),\s*(?:altere|troque|mude)\s+(?:apenas\s+|somente\s+)?a\s+cor\s+de\s+fundo(?:\s+da\s+se[cç][aã]o)?\s+(?:para|por)\s+(#[a-f0-9]{6})(?:\s+e\s+(?:(?:a\s+)?cor\s+(?:dos\s+|de\s+)?)?(?:os\s+)?t[ií]tulos?\s+(?:para|por|em)\s+(?:a\s+cor\s+)?(#[a-f0-9]{6}))?/i);
  if(color){
   const section=resolveUniversalSection(site,color[1]);
   if(!section)return fail("A seção '"+color[1]+"' não foi identificada. Nada foi alterado.");
@@ -97,6 +97,20 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const updated=site.blocks.map(b=>b.id===original.id?{...b,src:url,userUploaded:true,imageExplicit:true}:b);
   return {ok:true,site:{...site,blocks:updated} as T,changedIds:[original.id]};
  }
+ // Ordinary customer wording: "Na seção de cursos, adicione mais um card chamado ...".
+ // Reuse the standard universal-extra-card contract already read by approved renderers.
+ const naturalCard=text.match(/^(?:na\s+se[cç][aã]o\s+([^,\r\n]{2,110}),?\s*)?(?:adicione|crie|inclua)\s+(?:mais\s+um|um\s+novo|um)\s+card\s+(?:chamado|denominado|com\s+o\s+t[ií]tulo)\s+['"“]([^'"”]{2,150})['"”]\s*,?\s*com\s+a\s+descri[cç][aã]o\s+['"“]([^'"”]{3,1500})['"”]/i);
+ if(naturalCard){
+  const sectionName=naturalCard[1];
+  if(!sectionName)return fail("Indique a seção onde adicionar o card. Nenhuma alteração aplicada.");
+  const sectionId=resolveUniversalSection(site,sectionName);
+  if(!sectionId)return fail("Seção '"+sectionName+"' não identificada. Nenhuma alteração aplicada.");
+  const id="universal-extra-card-"+normalized(naturalCard[2]).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  if(!unique(site,id))return fail("Esse card já existe. Nenhuma alteração aplicada.");
+  const last=site.blocks.filter(b=>b.section===sectionId).at(-1);
+  if(!last)return fail("Seção sem bloco de referência. Nenhuma alteração aplicada.");
+  return applyUniversalOperations(site,[{action:"add",afterId:last.id,block:{id,type:"paragraph",section:sectionId,layout:"grid",text:naturalCard[2].trim()+": "+naturalCard[3].trim()}}]);
+ }
  // A complete, naturally worded section request must not demand a rigid template prompt.
  const section=text.match(/^(?:adicione|crie|inclua)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+['"“]([^'"”]{2,120})['"”]/i);
  if(section){
@@ -108,9 +122,9 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const slug=normalized(section[1]).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   const sectionId="custom-"+slug;
   if(site.blocks.some(b=>b.section===sectionId))return fail("A seção '"+section[1]+"' já existe. Nenhuma alteração aplicada.");
-  const heading=rest.match(/(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo\s+['"“]([^'"”]{2,300})['"”]/i)?.[1];
+  const heading=rest.match(/(?:(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo|o\s+t[ií]tulo\s+(?:deve\s+ser|ser[aá]))\s+['"“]([^'"”]{2,300})['"”]/i)?.[1];
   if(!heading)return fail("Não identifiquei o título da nova seção. Nenhuma alteração aplicada.");
-  const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+)sobre\s+([^.,]{4,100})/i)?.[1];
+  const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+|(?:uma\s+)?(?:breve\s+)?introdu[cç][aã]o\s+)sobre\s+([^.,]{4,180})/i)?.[1]?.replace(/\s+e\s+(?:tr[eê]s|3)\s+cards?[\s\S]*$/i,"").trim();
   const textBody=description&&/encomenda/i.test(description)
    ?"Encomendas artesanais para celebrar momentos especiais. Entre em contato para conhecer as opções e confirmar disponibilidade."
    :description?"Conheça nossa proposta para "+description.trim()+". Consulte os detalhes e a disponibilidade diretamente com a equipe.":null;
@@ -124,9 +138,13 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const last=site.blocks.filter(b=>b.section===destination).at(-1);
   if(!last)return fail("Seção de referência sem conteúdo.");
   let afterId=last.id;
+  const requestedCards=rest.match(/(?:tr[eê]s|3)\s+cards?\s*:\s*['"“]([^'"”]+)['"”]\s*,\s*['"“]([^'"”]+)['"”]\s+e\s+['"“]([^'"”]+)['"”]/i);
+  const cardNames=requestedCards?[requestedCards[1],requestedCards[2],requestedCards[3]].map(v=>v.trim()):[];
+  if(cardNames.length&&new Set(cardNames.map(normalized)).size!==cardNames.length)return fail("Os cards da nova seção precisam de nomes diferentes.");
   const entries=[
    {type:"heading",text:heading},
    {type:"paragraph",text:textBody},
+   ...cardNames.map(name=>({type:"paragraph",layout:"grid",text:name+": Explore possibilidades relacionadas a "+name.toLowerCase()+" e conheça os próximos passos."})),
    ...(image?[{type:"image",text:"Fotografia editorial ilustrativa",src:image}]:[]),
    ...(label?[{type:"button",text:label,href:link}]:[])
   ];
