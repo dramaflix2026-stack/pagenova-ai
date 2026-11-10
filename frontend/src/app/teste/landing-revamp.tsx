@@ -168,20 +168,9 @@ export function LandingRevamp() {
       <div className="pnr-actions"><Link className="pnr-btn pnr-btn-primary" href="/cadastro">{t.heroCta}<ArrowRight size={17}/></Link><a className="pnr-btn pnr-btn-outline" href="#edicao-ia"><Play size={15} fill="currentColor"/>{t.heroDemo}</a></div>
      </div>
      <div className="pnr-hero-art pnr-hero-scene" data-motion-layer="hero-visual" aria-hidden="true">
-      <div className="pnr-scene-atmosphere" data-motion-layer="ambient"/>
-      <div className="pnr-scene-orbit pnr-scene-orbit-outer" data-motion-layer="orbit"/>
-      <div className="pnr-scene-orbit pnr-scene-orbit-inner" data-motion-layer="orbit"/>
-      <div className="pnr-scene-halo" data-motion-layer="halo"/>
-      <div className="pnr-scene-portrait-frame">
-       <div className="pnr-scene-portrait-aura"/>
-       <img className="pnr-person pnr-scene-portrait" src="/landing-premium/portrait-reference.webp" alt="" width="340" height="256" loading="eager" decoding="async" fetchPriority="high"/>
-      </div>
-      <div className="pnr-scene-panel pnr-scene-panel-photo" data-motion-layer="hologram"><LayoutTemplate size={29} strokeWidth={1.65}/><span>VISUAL</span></div>
-      <div className="pnr-scene-panel pnr-scene-panel-code" data-motion-layer="hologram"><Code2 size={32} strokeWidth={1.65}/><span>DEV</span></div>
-      <div className="pnr-scene-panel pnr-scene-panel-growth" data-motion-layer="hologram"><BarChart3 size={29} strokeWidth={1.65}/><span>GROWTH</span></div>
-      <div className="pnr-scene-spark pnr-scene-spark-a"/>
-      <div className="pnr-scene-spark pnr-scene-spark-b"/>
-     </div>
+      <div className="pnr-hero-scene-glow" data-motion-layer="ambient" />
+      <img className="pnr-hero-art-approved" src="/landing-premium/portrait-reference.webp" alt="" width="340" height="256" loading="eager" decoding="async" fetchPriority="high" />
+     </div></div>
     </div>
     <div className="pnr-benefits">{t.benefit.map((b,i)=>{const Icon=[Zap,Layers3,MonitorSmartphone,BarChart3][i];return <div key={i}><Icon size={21}/><span>{b}</span></div>})}</div>
    </section>
