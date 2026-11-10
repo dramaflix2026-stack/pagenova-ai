@@ -71,3 +71,22 @@
 .pn-t6-added-card p{font:400 14px/1.7 Arial,sans-serif!important;color:#536257!important;margin:0}
 @media(max-width:850px){.pn-t6-added-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.pn-t6-added-grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Only Pet Shop / Boutique Patinhas Model 2: balance the oversized signature without changing other footers. */
+.tp6m2-footer.tp6m2-footer--pet{padding-top:clamp(46px,5vw,76px)}
+.tp6m2-footer--pet .tp6m2-footer-signature{
+ font-size:clamp(35px,4.9vw,68px)!important;
+ line-height:1.08!important;
+ letter-spacing:-.052em!important;
+ font-weight:850!important;
+ overflow-wrap:normal!important;
+ word-break:normal!important;
+ white-space:normal!important;
+ max-width:100%;
+ margin-top:clamp(35px,4vw,54px)!important;
+ padding-top:clamp(22px,2.7vw,38px)!important;
+}
+.tp6m2-footer--pet .tp6m2-footer-bottom{margin-top:clamp(25px,3vw,40px)!important}
+@media(max-width:560px){
+ .tp6m2-footer--pet .tp6m2-footer-signature{font-size:clamp(32px,7.8vw,49px)!important;line-height:1.12!important;margin-top:30px!important}
+}
