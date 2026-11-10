@@ -267,9 +267,9 @@
 }
 
 
-/* Precisely aligned continuous light travel v2.
-   One short, subtle glint traces the EXISTING neon arc in the artwork.
-   No duplicate arcs, no parallel disconnected strokes, no image movement. */
+/* One continuous LIGHT, not a second drawn neon line.
+   The SVG mask exposes a subtle spotlight only within the existing orbit;
+   the approved art remains at native sharpness, stationary on every viewport. */
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
   position:absolute;
   inset:0;
@@ -280,41 +280,18 @@
   overflow:visible;
   pointer-events:none;
   background:transparent;
-  filter:none;
   transform:none;
-}
-.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion path{
-  fill:none;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  stroke-dasharray:36 964;
-  stroke-dashoffset:1000;
-  vector-effect:non-scaling-stroke;
-  animation:pnrOrbitGlintTravel 8s linear infinite;
-}
-.pnr-page .pnr-hero--premium .pnr-orbit-soft-glint{
-  stroke:#8cff69;
-  stroke-width:5;
-  opacity:.28;
-  filter:drop-shadow(0 0 4px rgba(117,255,88,.5));
-}
-.pnr-page .pnr-hero--premium .pnr-orbit-fine-glint{
-  stroke:#d4ffb4;
-  stroke-width:1.8;
-  opacity:.75;
-  filter:drop-shadow(0 0 2px rgba(156,255,124,.5));
-}
-@keyframes pnrOrbitGlintTravel{
-  from{stroke-dashoffset:1000}
-  to{stroke-dashoffset:0}
+  filter:none;
+  -webkit-mask-image:radial-gradient(ellipse 77% 80% at 50% 50%,#000 78%,transparent 100%);
+  mask-image:radial-gradient(ellipse 77% 80% at 50% 50%,#000 78%,transparent 100%);
 }
 @media(max-width:650px){
-  .pnr-page .pnr-hero--premium .pnr-orbit-soft-glint{stroke-width:3.5;opacity:.23}
-  .pnr-page .pnr-hero--premium .pnr-orbit-fine-glint{stroke-width:1.5;opacity:.62}
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
+    opacity:.8;
+  }
 }
 @media(prefers-reduced-motion:reduce){
-  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion path{
-    animation:none!important;
-    opacity:0!important;
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
+    display:none!important;
   }
 }
