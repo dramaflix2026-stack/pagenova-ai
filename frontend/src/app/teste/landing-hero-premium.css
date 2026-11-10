@@ -46,7 +46,7 @@
 }
 .pnr-page .pnr-hero--premium .pnr-hero-scene{
   position:relative;display:flex;align-items:center;justify-content:center;
-  width:100%;max-width:660px;height:480px;
+  width:108%;max-width:735px;height:480px;
   min-height:0;margin:0;justify-self:center;align-self:center;
   border:0;border-radius:0;background:transparent;
   overflow:visible;contain:none;isolation:isolate;
@@ -63,12 +63,12 @@
 .pnr-page .pnr-hero--premium .pnr-hero-art-approved{
   position:relative!important;inset:auto!important;z-index:2;
   display:block;width:100%;height:auto;
-  aspect-ratio:340/256;max-width:660px;
+  aspect-ratio:1002/611;max-width:735px;
   border:0;border-radius:0;
   object-fit:contain;object-position:center center;
-  image-rendering:auto;transform:none;filter:contrast(1.035);
-  -webkit-mask-image:radial-gradient(ellipse 77% 80% at 52% 52%,#000 58%,rgba(0,0,0,.97) 68%,transparent 100%);
-  mask-image:radial-gradient(ellipse 77% 80% at 52% 52%,#000 58%,rgba(0,0,0,.97) 68%,transparent 100%);
+  image-rendering:auto;transform:none;filter:none;
+  -webkit-mask-image:none;
+  mask-image:none;
 }
 .pnr-page .pnr-hero--premium .pnr-benefits{
   max-width:1270px;margin:0 auto;min-height:75px;
@@ -97,7 +97,7 @@
  .pnr-page .pnr-hero--premium h1{margin:19px auto 0;font-size:clamp(39px,6.8vw,60px);white-space:normal;text-wrap:balance}
  .pnr-page .pnr-hero--premium .pnr-hero-desc{margin-left:auto;margin-right:auto}
  .pnr-page .pnr-hero--premium .pnr-actions{justify-content:center}
- .pnr-page .pnr-hero--premium .pnr-hero-scene{width:min(100%,550px);height:auto;aspect-ratio:340/256;margin:10px auto 0}
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{width:min(100%,550px);height:auto;aspect-ratio:1002/611;margin:10px auto 0}
  .pnr-page .pnr-hero--premium .pnr-hero-art-approved{width:100%;height:auto}
 }
 @media(max-width:650px){
