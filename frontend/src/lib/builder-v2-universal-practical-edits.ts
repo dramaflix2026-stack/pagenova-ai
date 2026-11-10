@@ -124,7 +124,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   if(site.blocks.some(b=>b.section===sectionId))return fail("A seção '"+section[1]+"' já existe. Nenhuma alteração aplicada.");
   const heading=rest.match(/(?:(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo|o\s+t[ií]tulo\s+(?:deve\s+ser|ser[aá]))\s+['"“]([^'"”]{2,300})['"”]/i)?.[1];
   if(!heading)return fail("Não identifiquei o título da nova seção. Nenhuma alteração aplicada.");
-  const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+|(?:uma\s+)?(?:breve\s+)?introdu[cç][aã]o\s+)sobre\s+([^.,]{4,100})/i)?.[1];
+  const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+|(?:uma\s+)?(?:breve\s+)?introdu[cç][aã]o\s+)sobre\s+([^.,]{4,180})/i)?.[1]?.replace(/\s+e\s+(?:tr[eê]s|3)\s+cards?[\s\S]*$/i,"").trim();
   const textBody=description&&/encomenda/i.test(description)
    ?"Encomendas artesanais para celebrar momentos especiais. Entre em contato para conhecer as opções e confirmar disponibilidade."
    :description?"Conheça nossa proposta para "+description.trim()+". Consulte os detalhes e a disponibilidade diretamente com a equipe.":null;
@@ -144,7 +144,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const entries=[
    {type:"heading",text:heading},
    {type:"paragraph",text:textBody},
-   ...cardNames.map(name=>({type:"paragraph",text:name+": Explore possibilidades relacionadas a "+name.toLowerCase()+" e conheça os próximos passos."})),
+   ...cardNames.map(name=>({type:"paragraph",layout:"grid",text:name+": Explore possibilidades relacionadas a "+name.toLowerCase()+" e conheça os próximos passos."})),
    ...(image?[{type:"image",text:"Fotografia editorial ilustrativa",src:image}]:[]),
    ...(label?[{type:"button",text:label,href:link}]:[])
   ];
