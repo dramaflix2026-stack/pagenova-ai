@@ -11,7 +11,8 @@ type TrailGeometry = {
   occlusions: Occlusion[];
 };
 
-const SECTION_SELECTOR = "main, #galeria, #edicao-ia, #ecossistema, #publicos, #planos";
+const SECTION_SELECTOR = "main, #plataforma, #galeria, #edicao-ia, #ecossistema, #publicos, #planos";
+const CARD_SELECTOR = ".pn-gallery3d-card, .pn5-card, .pn6-card, .pn4-card, .pn4-menu-button";
 const PROTECTED_SELECTOR = "h1,h2,h3,h4,h5,h6,p,a,button,input,textarea,select,[role='button'],[role='link']";
 
 /**
@@ -38,48 +39,78 @@ function measureTrails(root: HTMLElement): TrailGeometry | null {
     .filter((rect) => rect.end > 0 && rect.start < height)
     .sort((a, b) => a.start - b.start);
 
-  // Measure real section boundaries; don't use a 900px repeating viewport SVG.
-  const anchors: number[] = [-20, 0];
-  for (const section of bounds) {
-    const from = Math.max(0, section.start);
-    const to = Math.min(height, section.end);
-    anchors.push(from);
-    if (to - from > 230) {
-      anchors.push(from + (to - from) * 0.36, from + (to - from) * 0.70);
-    }
-    anchors.push(to);
-  }
-  anchors.push(height, height + 20);
-  const ys = Array.from(new Set(anchors.map((value) => Math.round(value))))
-    .sort((a, b) => a - b)
-    .filter((value, index, arr) => index === 0 || value - arr[index - 1] >= 25);
+  // Build lanes around the REAL card edges, never through the card faces.
+  // The former percentage-based zigzag often put the glowing path beneath cards,
+  // leaving only isolated vertical streaks visible in the narrow mobile gutters.
+  const cardElements = Array.from(root.querySelectorAll<HTMLElement>(CARD_SELECTOR));
+  const cardRects = cardElements
+    .map(element => {
+      const rect = element.getBoundingClientRect();
+      return {
+        left: rect.left - rootBox.left,
+        right: rect.right - rootBox.left,
+        top: rect.top - rootBox.top,
+        bottom: rect.bottom - rootBox.top,
+      };
+    })
+    .filter(rect => rect.right > 0 && rect.left < width && rect.bottom > 0 && rect.top < height);
 
-  // Stay in the outside gutters; never snake through the central copy.
-  // Left and right are separate, coherent strands all the way down the page.
-  // Alternating outer and inner margins produce clear, organic bends rather than
-  // long straight vertical strokes; protected text still masks the stroke.
-  const leftFractions = isMobile
-    ? [-0.045, 0.085, 0.018, 0.135, -0.035, 0.105, 0.024, 0.115]
-    : [-0.03, 0.12, 0.022, 0.16, -0.02, 0.135, 0.025, 0.11];
-  const rightFractions = isMobile
-    ? [-0.035, 0.105, 0.01, 0.125, -0.048, 0.09, 0.02, 0.11]
-    : [-0.035, 0.115, 0.024, 0.15, -0.025, 0.13, 0.02, 0.11];
+  // Sample along the entire document, including card entrances and exits.
+  // Consistent sampling keeps the Bézier paths continuous across sections.
+  const anchorSet = new Set<number>([0, height]);
+  const spacing = isMobile ? 150 : 230;
+  for (let y = 0; y < height; y += spacing) anchorSet.add(Math.round(y));
+  for (const section of bounds) {
+    for (const y of [section.start - 32, section.start + 32, section.end - 32, section.end + 32]) {
+      if (y > 0 && y < height) anchorSet.add(Math.round(y));
+    }
+  }
+  for (const card of cardRects) {
+    for (const y of [card.top - 35, card.top + 16, card.bottom - 16, card.bottom + 35]) {
+      if (y > 0 && y < height) anchorSet.add(Math.round(y));
+    }
+  }
+  const ys = [...anchorSet].sort((a, b) => a - b)
+    .filter((y, index, arr) => index === 0 || y - arr[index - 1] > 18);
+
+  function laneAt(y: number, side: "left" | "right") {
+    const matching = cardRects.filter(card => y >= card.top - 22 && y <= card.bottom + 22);
+    // Cards can occur in columns. The outermost edge is what the light should trace.
+    const relevant = matching.filter(card =>
+      side === "left" ? card.left < width * 0.42 : card.right > width * 0.58
+    );
+    // When there's no card nearby, softly drift inward to create a visible
+    // wave in the blank margin between sections instead of a straight rule.
+    const phase = y / (isMobile ? 200 : 295);
+    const freeInset = width * (isMobile ? 0.065 : 0.09)
+      + Math.sin(phase + (side === "left" ? 0 : 1.6)) * width * (isMobile ? 0.026 : 0.03);
+    const outerMargin = isMobile ? 7 : 13;
+    const edgeOffset = isMobile ? 11 : 17;
+    const innerMargin = isMobile ? Math.max(9, width * 0.075) : Math.max(20, width * 0.16);
+    let xInset: number;
+    if (relevant.length) {
+      const edge = side === "left"
+        ? Math.min(...relevant.map(card => card.left))
+        : width - Math.max(...relevant.map(card => card.right));
+      xInset = Math.min(edge - edgeOffset, innerMargin);
+      // Make the stroke run slightly around the card border rather than under it.
+      xInset += Math.sin(phase * 1.4 + (side === "left" ? 0 : 1.2)) * (isMobile ? 2 : 5);
+    } else {
+      xInset = freeInset;
+    }
+    xInset = Math.max(outerMargin, Math.min(innerMargin, xInset));
+    return side === "left" ? xInset : width - xInset;
+  }
 
   const makeCurve = (side: "left" | "right") => {
-    const fractions = side === "left" ? leftFractions : rightFractions;
-    const getX = (index: number) => {
-      const inset = width * fractions[index % fractions.length];
-      return side === "left" ? inset : width - inset;
-    };
-    let path = `M ${getX(0).toFixed(1)} ${ys[0]}`;
-    for (let i = 1; i < ys.length; i++) {
-      const fromY = ys[i - 1];
-      const toY = ys[i];
-      const rise = toY - fromY;
-      const startX = getX(i - 1);
-      const endX = getX(i);
-      // Soft Bézier bends travel between section boundaries without sharp corners.
-      path += ` C ${(startX + (endX - startX) * 0.08).toFixed(1)} ${(fromY + rise * 0.34).toFixed(1)} ${(endX - (endX - startX) * 0.08).toFixed(1)} ${(toY - rise * 0.34).toFixed(1)} ${endX.toFixed(1)} ${toY}`;
+    const coords = ys.map(y => ({ x: laneAt(y, side), y }));
+    let path = `M ${coords[0].x.toFixed(1)} ${coords[0].y}`;
+    for (let i = 1; i < coords.length; i++) {
+      const a = coords[i - 1];
+      const b = coords[i];
+      const dy = b.y - a.y;
+      // Vertical tangents produce elegant, connected S-shaped light rails.
+      path += ` C ${a.x.toFixed(1)} ${(a.y + dy * .46).toFixed(1)} ${b.x.toFixed(1)} ${(b.y - dy * .46).toFixed(1)} ${b.x.toFixed(1)} ${b.y}`;
     }
     return path;
   };
