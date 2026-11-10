@@ -267,9 +267,9 @@
 }
 
 
-/* One continuous LIGHT, not a second drawn neon line.
-   The SVG mask exposes a subtle spotlight only within the existing orbit;
-   the approved art remains at native sharpness, stationary on every viewport. */
+/* Orbit v3: subtle, browser-native CSS motion path. Unlike a stroked dash,
+   the moving light only illuminates the existing curve through the SVG mask.
+   The HD photo, icon details, typography and layout never move or blur. */
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
   position:absolute;
   inset:0;
@@ -282,16 +282,21 @@
   background:transparent;
   transform:none;
   filter:none;
-  -webkit-mask-image:radial-gradient(ellipse 77% 80% at 50% 50%,#000 78%,transparent 100%);
-  mask-image:radial-gradient(ellipse 77% 80% at 50% 50%,#000 78%,transparent 100%);
+}
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-spot{
+  offset-path:path("M 342 23 C 242 26 111 70 59 159 C 2 244 13 337 80 419 C 141 505 267 559 403 586 C 581 618 739 580 860 532 C 928 504 968 493 1002 476");
+  offset-distance:0%;
+  offset-rotate:0deg;
+  animation:pnrHeroOrbitMotion 8s linear infinite;
+}
+@keyframes pnrHeroOrbitMotion{
+  from{offset-distance:0%}
+  to{offset-distance:100%}
 }
 @media(max-width:650px){
-  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
-    opacity:.8;
-  }
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{opacity:.8}
 }
 @media(prefers-reduced-motion:reduce){
-  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
-    display:none!important;
-  }
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important}
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-spot{animation:none!important}
 }
