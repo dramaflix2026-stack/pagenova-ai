@@ -80,7 +80,7 @@ export function applyUniversalOperations<T extends UniversalSite>(site:T,operati
    const changes=op.changes;
    if(!record(changes))return fail("Propriedade não editável.");
    const error=validateChanges(changes);if(error)return fail(error);
-   blocks[index]={...blocks[index],...changes,...(changes.color!==undefined?{colorExplicit:true}:{}),...(changes.align!==undefined?{alignExplicit:true}:{}),...((changes.src!==undefined||changes.mobileSrc!==undefined)&&blocks[index].type==="image"?{imageExplicit:true}: {})};changedIds.push(op.blockId);
+   blocks[index]={...blocks[index],...changes,...(changes.color!==undefined?{colorExplicit:true}:{}),...(changes.align!==undefined?{alignExplicit:true}:{}),...(changes.text!==undefined?{textExplicit:true}:{}),...((changes.src!==undefined||changes.mobileSrc!==undefined)&&blocks[index].type==="image"?{imageExplicit:true}: {})};changedIds.push(op.blockId);
   }else if(op.action==="remove"){
    const index=indexOf(op.blockId);if(index<0)return fail("Bloco não encontrado.");
    blocks.splice(index,1);changedIds.push(op.blockId);
