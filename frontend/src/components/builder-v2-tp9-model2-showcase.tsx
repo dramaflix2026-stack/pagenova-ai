@@ -1,10 +1,10 @@
-import type { ReactNode } from "react";
 "use client";
+import type { ReactNode } from "react";
 import {useState} from "react";
 type Photo={src:string;caption?:string};
 type Review={name:string;role?:string;quote:string};
-type Props={niche:string;gallery:Photo[];reviews:Review[]};
-export function BuilderV2TP9Model2Showcase({niche,gallery,reviews}:Props){
+type Props={niche:string;gallery:Photo[];reviews:Review[];reviewsSection?:ReactNode};
+export function BuilderV2TP9Model2Showcase({niche,gallery,reviews,reviewsSection}:Props){
  const [selected,setSelected]=useState<number|null>(null);
  const [index,setIndex]=useState(0);
  const current=reviews[index];
