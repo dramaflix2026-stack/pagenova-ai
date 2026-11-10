@@ -235,8 +235,8 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  // Accept numbered cards on one line or separate lines, with a colon or dash
  // between title and description. Stop at the next numbered item or instruction.
  if(cards.length!==3){
-  const cardRegion=instruction.match(/(?:com|conter|contendo|tenha|possua)\\s+tr[eê]s\\s+cards?\\s*:\\s*([\\s\\S]+)/i)?.[1]||"";
-  const numbered=[...cardRegion.matchAll(/(?:^|\\s)([123])[.)]\\s*([^\\n:—–-]+?)\\s*(?:\\s+[—–-]\\s+|:\\s*)([\\s\\S]*?)(?=\\s+[123][.)]\\s+|\\n\\s*[123][.)]\\s+|\\s+(?:Cada card|Mantenha|Não altere|Nao altere|As imagens|Utilize fotografias)\\b|$)/gi)];
+  const cardRegion=instruction.match(/(?:com|conter|contendo|tenha|possua)\s+tr[eê]s\s+cards?\s*:\s*([\s\S]+)/i)?.[1]||"";
+  const numbered=[...cardRegion.matchAll(/(?:^|\s)([123])[.)]\s*([^\n:—–-]+?)\s*(?:\s+[—–-]\s+|:\s*)([\s\S]*?)(?=\s+[123][.)]\s+|\n\s*[123][.)]\s+|\s+(?:Cada card|Mantenha|Não altere|Nao altere|As imagens|Utilize fotografias)\b|$)/gi)];
   if(numbered.length===3&&numbered.every((m,i)=>Number(m[1])===i+1&&m[2].trim()&&m[3].trim())){
    cards=numbered.map(m=>({title:m[2].trim(),description:m[3].trim().replace(/\\s+/g," ").replace(/\\.\\s*$/,".")}));
   }
