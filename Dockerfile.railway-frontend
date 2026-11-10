@@ -12,7 +12,7 @@ ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 # Generate required build assets, skip unrelated regression tests in isolated QA only.
-RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && node scripts/build-stavo-crm.mjs && npx next build --webpack
+RUN node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && node scripts/build-stavo-crm.mjs && npx next build
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 EXPOSE 8000

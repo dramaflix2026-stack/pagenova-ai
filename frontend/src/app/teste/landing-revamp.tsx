@@ -171,25 +171,8 @@ export function LandingRevamp() {
       <div className="pnr-hero-scene-glow" data-motion-layer="ambient" />
       <div className="pnr-hero-light-sweep" data-motion-layer="ambient" />
       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
-      {/* Only light travels ALONG the curve in the approved HD image.
-          No static duplicated orbit, no movement of the face or holograms. */}
-      <svg className="pnr-hero-orbit-motion" viewBox="0 0 1002 611" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-motion-layer="orbit">
-       <defs>
-        <path id="pnr-hero-orbit-route" d="M 342 23 C 242 26 111 70 59 159 C 2 244 13 337 80 419 C 141 505 267 559 403 586 C 581 618 739 580 860 532 C 928 504 968 493 1002 476" />
-        <radialGradient id="pnr-hero-orbit-light">
-         <stop offset="0%" stopColor="#b5ff80" stopOpacity=".82" />
-         <stop offset="20%" stopColor="#9dff65" stopOpacity=".63" />
-         <stop offset="50%" stopColor="#69ff4b" stopOpacity=".25" />
-         <stop offset="100%" stopColor="#50f64a" stopOpacity="0" />
-        </radialGradient>
-        <mask id="pnr-hero-curve-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="1002" height="611">
-         <use href="#pnr-hero-orbit-route" fill="none" stroke="white" strokeWidth="5" />
-        </mask>
-       </defs>
-       <g mask="url(#pnr-hero-curve-mask)">
-        <circle className="pnr-hero-orbit-spot" r="100" fill="url(#pnr-hero-orbit-light)" opacity=".78" />
-       </g>
-      </svg>
+      {/* Lightweight, independently animated vector overlay. Original HD art is unchanged. */}
+      <img className="pnr-hero-orbit-motion" src="/landing-premium/hero-orbit-overlay.svg" alt="" width="1002" height="611" loading="eager" decoding="async" data-motion-layer="orbit" />
       </svg>      <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--dev" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--growth" data-motion-layer="ambient" />
