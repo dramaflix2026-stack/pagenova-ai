@@ -290,3 +290,67 @@
 @media(prefers-reduced-motion:reduce){
   .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important}
 }
+
+
+/* Continuous cinematic flow — solutions to styles; approved Hero untouched. */
+.pnr-page .pnr-solutions,
+.pnr-page .pnr-styles {
+  background: transparent;
+  isolation: isolate;
+}
+.pnr-page .pnr-solutions::before {
+  content:"";
+  position:absolute;
+  inset:-12% 0 -30%;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 52% 35% at 15% 53%,rgba(64,165,73,.095),transparent 78%),
+    radial-gradient(ellipse 45% 30% at 85% 80%,rgba(88,255,107,.055),transparent 80%);
+}
+.pnr-page .pnr-solutions .pnr-product {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  will-change:auto;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s;
+}
+.pnr-page .pnr-solutions .pnr-product::before {
+  content:"";
+  position:absolute;
+  inset:-2px;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.5;
+  background:linear-gradient(115deg,transparent 15%,rgba(151,255,111,.09) 48%,transparent 78%);
+  background-size:220% 100%;
+  animation:pnrSolutionSheen 9s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2)::before {animation-delay:-3s;background-image:linear-gradient(115deg,transparent 15%,rgba(88,238,215,.1) 48%,transparent 78%)}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3)::before {animation-delay:-6s;background-image:linear-gradient(115deg,transparent 15%,rgba(198,150,255,.1) 48%,transparent 78%)}
+.pnr-page .pnr-solutions .pnr-product-icon {transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s}
+.pnr-page .pnr-solutions .pnr-product:hover .pnr-product-icon,
+.pnr-page .pnr-solutions .pnr-product:focus-visible .pnr-product-icon {transform:translateY(-3px) rotate(-3deg);box-shadow:0 0 22px rgba(141,255,95,.18)}
+.pnr-page .pnr-solutions .pnr-product:focus-visible {outline:2px solid #b5ff77;outline-offset:4px}
+@keyframes pnrSolutionSheen {0%,20%{background-position:130% 0}55%,100%{background-position:-130% 0}}
+@supports (animation-timeline:view()) {
+  .pnr-page .pnr-solutions .pnr-section-heading,
+  .pnr-page .pnr-solutions .pnr-product,
+  .pnr-page .pnr-styles .pnr-section-heading {
+    animation-name:pnrSolutionReveal;
+    animation-duration:1s;
+    animation-fill-mode:both;
+    animation-timing-function:linear;
+    animation-timeline:view();
+    animation-range:entry 0% cover 26%;
+  }
+  .pnr-page .pnr-solutions .pnr-product:nth-child(2){animation-range:entry 0% cover 30%}
+  .pnr-page .pnr-solutions .pnr-product:nth-child(3){animation-range:entry 0% cover 34%}
+}
+@keyframes pnrSolutionReveal {from{opacity:.45;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce) {
+  .pnr-page .pnr-solutions .pnr-product::before {animation:none;opacity:.22}
+  .pnr-page .pnr-solutions .pnr-product,
+  .pnr-page .pnr-solutions .pnr-section-heading,
+  .pnr-page .pnr-styles .pnr-section-heading {animation:none!important;transform:none!important;opacity:1!important}
+}
