@@ -76,3 +76,32 @@ test("no invented published patient reviews or business numbers; all three varia
  const approvedLock=JSON.parse(read("config/tp4-odontologia-approved-lock.json"));
  assert.equal(approvedLock.status,"frozen");
 });
+
+test("all three veterinarian footers stay full width without vertical letter wrapping",()=>{
+ const src=read("src/components/builder-v2-tp4-veterinary.tsx");
+ const css=read("src/components/builder-v2-tp4-veterinary.css");
+ assert.match(css,/\.pn-vet-footer\{display:block;width:100%;max-width:none/);
+ assert.match(css,/\.pn-vet-footer-title\{[^}]*overflow-wrap:normal!important;word-break:normal!important/);
+ assert.doesNotMatch(src,/pn-vet-footer-inner|pn-vet-footer-hero/);
+ assert.match(src,/<footer className="pn-vet-footer">/);
+ assert.match(src,/pn-vet-footer-title/);
+ assert.match(src,/href="#pn-vet-services"/);
+ assert.match(src,/href="#pn-vet-process"/);
+ assert.match(src,/href="#pn-vet-contact"/);
+ assert.match(css,/\.pn-vet--02 \.pn-vet-footer\{background:#061522\}/);
+ assert.match(css,/\.pn-vet--03 \.pn-vet-footer\{background:#302b29\}/);
+});
+
+test("proof cards have no bright full-width ribbon and M1 hero callout cannot start outside image",()=>{
+ const src=read("src/components/builder-v2-tp4-veterinary.tsx");
+ const css=read("src/components/builder-v2-tp4-veterinary.css");
+ assert.doesNotMatch(src,/pn-vet-proof-card-top/);
+ assert.match(css,/\.pn-vet-proof article \.pn-vet-proof-index\{[^}]*background:transparent!important/);
+ assert.match(css,/\.pn-vet-proof article::before\{[^}]*width:3px;height:56px/);
+ assert.doesNotMatch(css,/left:-35px/);
+ assert.match(css,/\.pn-vet-hero-float\{[^}]*left:clamp\(16px/);
+ assert.match(src,/\[1,2,5,9,11,12\]\[i\]/);
+ assert.match(css,/\.pn-vet--01 \.pn-vet-service-photo img/);
+ assert.match(css,/\.pn-vet-service-grid\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(src,/reviews\.slice\(0,6\)/);
+});
