@@ -994,7 +994,7 @@ export default function BuilderV2() {
       finally{setBusy(false);}
       return;
     }
-    if(siteCategory==="institutional"&&site.blocks.length&&!(scopedCopy&&"intent" in scopedCopy)&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)))){
+    if(siteCategory==="institutional"&&site.blocks.length&&!(scopedCopy&&"intent" in scopedCopy)&&((institutionalFiles.length>0&&attachmentMode==="site")||(attachmentMode!=="reference"&&institutionalImageIntent(prompt)&&!isExplicitImageChangeRequest(prompt)))){
       try{
         if(reference&&institutionalFiles.length)throw Error("Escolha entre foto de referência e fotos para usar no site.");
         if(institutionalFiles.length>6)throw Error("Envie no máximo seis fotos por edição.");
