@@ -152,3 +152,22 @@ test("second photo on cover phrasing creates carousel composition",()=>{
   assert.equal(next.blocks.find(b=>b.id==="hero").src,"https://img.example/old.jpg");
   assert.ok(next.blocks.some(b=>b.section==="inicio"&&b.src==="https://store/banner2.jpg"));
 });
+
+test("uploaded replacement becomes the first image consumed by specialized education hero",()=>{
+  const before=original();
+  const next=apply(before,"Substitua somente a imagem principal da capa pela fotografia disponível neste anexo. Preserve todas as outras imagens.",["https://store/education-cover.jpg"]);
+  const visibleCover=next.blocks.find(b=>b.type==="image"&&b.src);
+  assert.equal(visibleCover.src,"https://store/education-cover.jpg");
+  assert.equal(visibleCover.imageExplicit,true);
+  assert.equal(visibleCover.userUploaded,true);
+  assert.equal(next.blocks.find(b=>b.id==="old-service").src,"https://img.example/s1.jpg");
+  assert.equal(next.blocks.find(b=>b.id==="p1").src,"https://img.example/p1.jpg");
+  assert.deepEqual(next.blocks.filter(b=>b.type!=="image"),before.blocks.filter(b=>b.type!=="image"));
+});
+test("cover replacement works when original visible cover belongs to a different section",()=>{
+  const before=original();
+  before.blocks=before.blocks.filter(b=>b.id!=="hero");
+  const next=apply(before,"Troque a foto principal da capa por esta imagem anexada.",["https://store/cover2.jpg"]);
+  assert.equal(next.blocks.find(b=>b.type==="image"&&b.src).src,"https://store/cover2.jpg");
+  assert.equal(next.blocks.find(b=>b.id==="old-service").src,"https://img.example/s1.jpg");
+});
