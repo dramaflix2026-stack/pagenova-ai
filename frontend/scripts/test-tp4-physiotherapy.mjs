@@ -33,7 +33,7 @@ test("physiotherapy cannot hijack dentistry, unrelated clinics, fitness shops or
  const control=[
   ["Crie site para clínica odontológica. Não usar imagens de fisioterapia.",APPROVED_DENTAL_NICHE],
   ["Nicho: Odontologia estética\nEvite fotos de fisioterapeuta.",APPROVED_DENTAL_NICHE],
-  ["Crie site de academia. Não quero fotos de fisioterapia.",undefined],
+  ["Crie site de academia. Não quero fotos de fisioterapia.","Academia"],
   ["Crie site para clínica de psicologia. Não usar imagens de fisioterapia.","Clínica de psicologia"],
   ["Crie site para clínica de nutrição sem imagens de fisioterapia.","Clínica de nutrição"],
   ["Crie site SaaS para clínicas de fisioterapia.","SaaS"],
