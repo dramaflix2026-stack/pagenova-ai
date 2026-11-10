@@ -212,50 +212,32 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
  return null;
 }
 
-/** Natural language section creation, without requiring a rigid numbered briefing. */
+/** Create a section from natural user language, without template IDs or rigid syntax. */
 function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
- const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
- const request=instruction.match(/\b(?:adicione|crie|inclua)\s+uma\s+nova\s+se[cç][aã]o\s+(?:chamada|denominada)\s+["“]([^"”]+)["”]/i);
+ const normLabel=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+ const request=instruction.match(/^(?:adicione|crie|inclua)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+["“”']?([^,"“”']+?)["“”']?\s*,\s*(?:antes|depois|ap[oó]s)\b/i);
  if(!request)return null;
  const name=request[1].trim();
- const before=instruction.match(/\b(?:imediatamente\s+)?antes\s+da\s+se[cç][aã]o\s+(?:de\s+)?["“]?([^"”.\n]+)["”]?/i);
- const after=instruction.match(/\b(?:imediatamente\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:de\s+)?["“]?([^"”.\n]+)["”]?/i);
- const destination=before||after;
- if(!destination)return {ok:false,error:"Indique a seção de referência para posicionar a nova seção."};
- const target=resolveUniversalSection(site,destination[1].trim());
+ const destination=instruction.match(/\b(antes|depois|ap[oó]s)\s+(?:da|do|de|a|o)?\s*(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.]+)["“”']?/i);
+ if(!destination)return {ok:false,error:"A posição da nova seção não foi identificada. Nada foi alterado."};
+ const target=resolveUniversalSection(site,destination[2].trim());
  if(!target)return {ok:false,error:"Seção de referência não encontrada. Nenhuma alteração aplicada."};
- const sectionId="custom-"+normalize(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+ const sectionId="custom-"+normLabel(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
- const title=instruction.match(/\bT[ií]tulo\s*:\s*["“]([^"”]+)["”]/i)?.[1];
- const description=instruction.match(/\bDescri[cç][aã]o\s*:\s*["“]([^"”]+)["”]/i)?.[1];
- const cards=instruction.match(/\b(?:crie|adicione)\s+tr[eê]s\s+cards?\s+com\s+os\s+t[ií]tulos?\s+["“]([^"”]+)["”]\s*,\s*["“]([^"”]+)["”]\s+e\s+["“]([^"”]+)["”]/i);
- if(!title||!description||!cards)return {ok:false,error:"Informe título, descrição e os três títulos dos cards. Nenhuma alteração aplicada."};
- const targetIndex=site.blocks.findIndex(b=>b.section===target);
- if(targetIndex<0)return {ok:false,error:"Seção de referência sem blocos."};
- const beforeIndex=before?targetIndex:site.blocks.findLastIndex(b=>b.section===target)+1;
- const previous=site.blocks[beforeIndex-1];
+ const isBefore=normLabel(destination[1])==="antes";
+ const index=isBefore?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
+ const previous=site.blocks[index-1];
  if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
- const details=[
-  "Atendimento dedicado a cortes masculinos e acabamentos personalizados.",
-  "Cuidados com a barba, modelagem e atenção aos detalhes.",
-  "Uma experiência de atendimento atencioso e individualizado."
- ];
- const imageIds=["7518731","19050581","7518740"];
- const entries=[
-  {type:"heading",text:title},
-  {type:"paragraph",text:description},
-  ...cards.slice(1).flatMap((card,i)=>[
-   {type:"heading",text:card},
-   {type:"paragraph",text:details[i]},
-   {type:"image",src:"https://images.pexels.com/photos/"+imageIds[i]+"/pexels-photo-"+imageIds[i]+".jpeg?auto=compress&cs=tinysrgb&w=1000"}
-  ])
- ];
- let afterId=previous.id;
- const operations:UniversalOperation[]=[];
- for(let i=0;i<entries.length;i++){
-  const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
-  operations.push({action:"add",block,afterId});afterId=block.id;
- }
+ const cardList=instruction.match(/\b(?:com\s+)?tr[eê]s\s+cards?\s*:\s*([\s\S]+?)(?:\.\s|$)/i);
+ if(!cardList)return {ok:false,error:"Não foi possível identificar os cards solicitados. Nenhuma alteração aplicada."};
+ const labels=cardList[1].split(/\s*,\s*|\s+e\s+/i).map(v=>v.trim().replace(/[.]+$/,"")).filter(Boolean);
+ if(labels.length!==3)return {ok:false,error:"Foram solicitados três cards, mas os títulos não foram identificados com segurança."};
+ const entries=[{type:"heading",text:name},...labels.flatMap(label=>[
+  {type:"heading",text:label},
+  {type:"paragraph",text:"Conheça nosso atendimento em "+label.toLowerCase()+" e entre em contato para saber mais."}
+ ])];
+ const operations:UniversalOperation[]=[];let afterId=previous.id;
+ for(let i=0;i<entries.length;i++){const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};operations.push({action:"add",block,afterId});afterId=block.id;}
  return applyUniversalOperations(site,operations);
 }
 
