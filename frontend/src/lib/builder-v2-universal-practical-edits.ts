@@ -138,9 +138,13 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const last=site.blocks.filter(b=>b.section===destination).at(-1);
   if(!last)return fail("Seção de referência sem conteúdo.");
   let afterId=last.id;
+  const requestedCards=rest.match(/(?:tr[eê]s|3)\s+cards?\s*:\s*['"“]([^'"”]+)['"”]\s*,\s*['"“]([^'"”]+)['"”]\s+e\s+['"“]([^'"”]+)['"”]/i);
+  const cardNames=requestedCards?[requestedCards[1],requestedCards[2],requestedCards[3]].map(v=>v.trim()):[];
+  if(cardNames.length&&new Set(cardNames.map(normalized)).size!==cardNames.length)return fail("Os cards da nova seção precisam de nomes diferentes.");
   const entries=[
    {type:"heading",text:heading},
    {type:"paragraph",text:textBody},
+   ...cardNames.map(name=>({type:"paragraph",text:name+": Explore possibilidades relacionadas a "+name.toLowerCase()+" e conheça os próximos passos."})),
    ...(image?[{type:"image",text:"Fotografia editorial ilustrativa",src:image}]:[]),
    ...(label?[{type:"button",text:label,href:link}]:[])
   ];
