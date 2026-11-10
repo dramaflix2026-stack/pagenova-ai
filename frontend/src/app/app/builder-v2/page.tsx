@@ -590,7 +590,10 @@ export default function BuilderV2() {
     if(site.blocks.length&&!isFullSiteCreationBrief(prompt)){
       const compound=splitUniversalInstructions(prompt).length>1;
       const hasAttachments=!!reference||institutionalFiles.length>0||propertyFiles.length>0;
-      const result=hasAttachments?null:applyUniversalNaturalLanguage(site,prompt);
+      const imageChange=isExplicitImageChangeRequest(prompt)&&/(?:imagem|foto|fotografia|capa|hero|banner)/i.test(prompt);
+      // Image commands must reach the image pipeline. The generic text editor can
+      // otherwise report "1 block edited" without changing the rendered cover.
+      const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
