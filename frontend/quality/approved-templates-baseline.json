@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "39768381b91396d14cd483269641cbcdfcfd96e6",
-        "reason": "Universal visibility fallback for custom sections already saved in blocks; specialized TP6 renderer preserved and not duplicated. Approved standard sections unchanged."
+        "sha": "3faa63c069b0866e962c34d6a17478b80a410a40",
+        "reason": "Fix duplicated saved custom section in TP6 model 01 legacy renderer and place custom sections before contact in TP6 model 02 and 03 without changing approved layouts."
       }
     },
     {
