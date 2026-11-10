@@ -5,8 +5,12 @@
   "recordedOn": "2026-11-10",
   "purpose": "Preserve current approved/established Builder V2 template visuals while iterating universal editing. This is a source snapshot, not a guarantee that every niche has been QA-approved.",
   "protection": "CI fails if a listed template component differs. Change only with specific user approval and explicit manifest hash update; never update this file automatically.",
-  "protectedFileCount": 153,
+  "protectedFileCount": 162,
   "protectedFiles": [
+    {
+      "path": "src/components/builder-v2-cinematic-background.tsx",
+      "blobSha": "164494277dbb5df92fc94ed95996aa93e548ffad"
+    },
     {
       "path": "src/components/builder-v2-coffee-g3.css",
       "blobSha": "0cb782a58b7a70e774768cc29828eb9fbe68617c"
@@ -14,6 +18,14 @@
     {
       "path": "src/components/builder-v2-coffee-g3.tsx",
       "blobSha": "c9b6a7ffa0770d21a48bb4604b3efb165509d069"
+    },
+    {
+      "path": "src/components/builder-v2-extras.tsx",
+      "blobSha": "9595e4dbffcaf71b180ce316e5a17e86993374eb"
+    },
+    {
+      "path": "src/components/builder-v2-hero-slideshow.tsx",
+      "blobSha": "532eb9845693b47ba6b90584acdd92e174d0b38d"
     },
     {
       "path": "src/components/builder-v2-immersive-3d.css",
@@ -50,6 +62,10 @@
     {
       "path": "src/components/builder-v2-restaurant-templates.tsx",
       "blobSha": "8dafce40b4bec948a33419f2421dbeb4af25abb3"
+    },
+    {
+      "path": "src/components/builder-v2-site.tsx",
+      "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a"
     },
     {
       "path": "src/components/builder-v2-tp1-family-testimonials.css",
@@ -466,6 +482,26 @@
     {
       "path": "src/components/builder-v2-tp9-model3.tsx",
       "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76"
+    },
+    {
+      "path": "src/components/builder-v2-universal-bindings.tsx",
+      "blobSha": "be2f10c105d2d1719ecfd1e986acae3cba84d9be"
+    },
+    {
+      "path": "src/components/builder-v2-universal-scroll-motion.tsx",
+      "blobSha": "5e1e8aafa796a44b8e5411cbe94d8f6fe809dd42"
+    },
+    {
+      "path": "src/components/builder-v2-universal-scroll-reveal.css",
+      "blobSha": "2531baee9655840241d3a6b8805aaeca4b9d9e56"
+    },
+    {
+      "path": "src/components/builder-v2-universal-sections.tsx",
+      "blobSha": "7d6810905c754df41975f86bf8b36c478eabea38"
+    },
+    {
+      "path": "src/components/builder-v2-vertical-timeline.tsx",
+      "blobSha": "cf3736ad6661d246731a2b0af201918872a48a90"
     },
     {
       "path": "src/components/template10-education-closing.tsx",
