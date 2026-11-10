@@ -132,6 +132,10 @@ type Block = { id: string; type: "heading" | "paragraph" | "button" | "image"; t
 export type BuilderV2SiteData = { tp6RetailEdits?:TP6RetailVisualEdits; universalSectionEvents?:import("@/lib/builder-v2-universal-operations").UniversalSectionEvent[]; design?:AdaptiveDesign; cinematic?: CinematicAppearance; templateId?: "institutional-complete" | "minimalist-sophisticated" | "prompt-adaptive"; briefingLayoutVariant?:"01"|"02"|"03"; kind?: "institutional" | "restaurant" | "real-estate" | "catalog"; title: string; background: string; blocks: Block[]; id?: string; niche?: string; publishedUrl?: string; heroPresentation?: "immersive" | "split"; crmImported?:boolean; designPaletteApplied?:boolean; heroComposition?: "single" | "duo" | "trio"; heroBannerCopy?: Record<string,{title?:string;description?:string;buttonText?:string;buttonHref?:string}>; sectionMediaLayouts?: Record<string,"grid" | "mosaic" | "carousel">; sectionMediaManaged?: string[]; processImageCard?: boolean; processImageCardTitle?: string; processImageCardDescription?: string; motion?: SiteMotion; restaurant?: {whatsapp?:string;menu?:{id:string;name:string;description:string;price:number;category:string;image?:string}[]}; realEstateWhatsapp?:string; properties?:PropertyItem[]; socialProof?: { enabled?: boolean; rating?: number; reviewCount?: number; platform?: string; avatars?: string[]; initials?: string[] }; header?: { enabled?: boolean; brand?: string; logoUrl?: string; ctaLabel?: string; ctaHref?: string; background?: string; textColor?: string; sticky?: boolean; navItems?: Array<{label:string;href:string}> }; extras?: SiteExtras; footer?: (SocialFooter & {cnpj?:string;address?:string;email?:string;showMenu?:boolean}) };
 /** Show newly created universal sections in specialized retail renderers. */
 function TP6UniversalAddedSections({site}:{site:BuilderV2SiteData}){
+ const isPet=/pet\s*shop|mundo\s*pet|pet\s*store/i.test([site.niche,site.title,site.header?.brand].join(" "));
+ const petDescriptions:Record<string,string>={"banho terapeutico":"Banho com atenção às necessidades da pele e da pelagem, utilizando produtos adequados após avaliação individual do animal.","hidratacao profunda":"Cuidados de hidratação e condicionamento para ajudar a manter a pelagem macia, desembaraçada e com aspecto saudável.","cuidados para filhotes":"Acolhimento gradual e manuseio delicado para que os primeiros cuidados de higiene sejam mais tranquilos e confortáveis."};
+ const petPhotos=["https://images.unsplash.com/photo-1577447278822-37801be21738?auto=format&fit=crop&w=1200&q=85","https://images.unsplash.com/photo-1657414066378-12c1523b9701?auto=format&fit=crop&w=1200&q=85","https://images.unsplash.com/photo-1589924749359-9697080c3577?auto=format&fit=crop&w=1200&q=85"];
+ const norm=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
  const ids=[...new Set(site.blocks.map(b=>b.section).filter((id):id is string=>!!id&&id.startsWith("custom-")))];
  return <>{ids.map(id=>{
   const blocks=site.blocks.filter(b=>b.section===id);
@@ -141,10 +145,13 @@ function TP6UniversalAddedSections({site}:{site:BuilderV2SiteData}){
    <div className="mx-auto max-w-6xl"><p className="mb-4 text-xs font-bold uppercase tracking-[.2em] text-[#80715f]">Nossos cuidados</p><h2 className="mb-10 font-serif text-4xl leading-tight md:text-6xl">{title}</h2>
    <div className="grid gap-6 md:grid-cols-3">{entries.map((heading,i)=>{
     const next=entries[i+1];const start=blocks.findIndex(b=>b.id===heading.id);const stop=next?blocks.findIndex(b=>b.id===next.id):blocks.length;
-    const content=blocks.slice(start+1,stop);const description=content.find(b=>b.type==="paragraph")?.text;const photo=content.find(b=>b.type==="image"&&b.src)?.src;
-    return <article key={heading.id} className="min-w-0 overflow-hidden rounded-xl border border-[#d9d0c4] bg-white">
-     {photo&&<img src={photo} alt={heading.text} loading="lazy" className="h-52 w-full object-cover"/>}
-     <div className="p-6"><h3 className="text-xl font-semibold">{heading.text}</h3>{description&&<p className="mt-3 text-sm leading-7 text-[#645b52]">{description}</p>}</div>
+    const content=blocks.slice(start+1,stop);const savedDescription=content.find(b=>b.type==="paragraph")?.text;
+    const isGeneric=!!savedDescription&&/^(?:conheça nosso atendimento em|saiba mais sobre).*(?:entre em contato para saber mais|cuidados especializados)/i.test(savedDescription);
+    const description=isPet&&isGeneric?(petDescriptions[norm(heading.text||"")]||savedDescription):savedDescription;
+    const photo=content.find(b=>b.type==="image"&&b.src)?.src||(isPet?petPhotos[i%petPhotos.length]:undefined);
+    return <article key={heading.id} className="group min-w-0 overflow-hidden rounded-2xl border border-[#d9d0c4] bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
+     {photo&&<img src={photo} alt={heading.text} loading="lazy" className="h-56 w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"/>}
+     <div className="p-7"><h3 className="text-xl font-semibold">{heading.text}</h3>{description&&<p className="mt-3 text-sm leading-7 text-[#645b52]">{description}</p>}</div>
     </article>;
    })}</div></div>
   </section>;
