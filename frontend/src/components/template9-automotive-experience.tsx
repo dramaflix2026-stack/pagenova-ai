@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 "use client";
 import {useState} from "react";
 type Review={name:string;quote:string;city?:string};
