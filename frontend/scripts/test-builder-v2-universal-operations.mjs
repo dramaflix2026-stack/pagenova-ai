@@ -1221,3 +1221,21 @@ test("universal education visual contracts: all three variants consume existing 
   assert.match(variant,/editedHeroImage/);
  }
 });
+
+// MOTOR 1 regression: 'dos depoimentos' must not be parsed as 's depoimentos'.
+test("natural section creation resolves plural article before testimonials",()=>{
+ const original={templateId:"prompt-adaptive",briefingLayoutVariant:"03",blocks:[
+  {id:"hero-title",type:"heading",section:"inicio",text:"Aurora Prime"},
+  {id:"about-title",type:"heading",section:"sobre",text:"Sobre"},
+  {id:"reviews-title",type:"heading",section:"depoimentos",text:"Depoimentos dos clientes"},
+  {id:"footer-title",type:"heading",section:"rodape",text:"Contato"}
+ ]};
+ const command="Adicione uma seção chamada 'Por que investir conosco?', com quatro diferenciais, ícones e um design premium. Coloque antes dos depoimentos.";
+ const result=applyUniversalNaturalLanguage(original,command);
+ assert.equal(result?.ok,true,result?.error||"Comando não interpretado");
+ if(!result?.ok)return;
+ const sections=result.site.blocks.map(b=>b.section);
+ assert.ok(sections.includes("custom-por-que-investir-conosco"));
+ assert.ok(sections.indexOf("custom-por-que-investir-conosco")<sections.indexOf("depoimentos"));
+ assert.deepEqual(original.blocks.map(b=>b.id),["hero-title","about-title","reviews-title","footer-title"]);
+});
