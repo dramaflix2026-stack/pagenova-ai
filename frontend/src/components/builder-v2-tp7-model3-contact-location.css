@@ -17,3 +17,13 @@
 
 /* Requested TP7 model 3 compact layout corrections */
 .tp7m3-contact-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,4vw,72px)}.tp7m3-contact-intro h2{font-size:clamp(36px,3.8vw,64px);letter-spacing:-.035em;line-height:1.17;overflow-wrap:anywhere}.tp7m3-contact-form{position:relative;min-width:0;z-index:1}.tp7m3-location-map{height:clamp(260px,29vw,410px);max-height:410px}.tp7m3-location-layout{gap:clamp(28px,4vw,70px)}@media(max-width:900px){.tp7m3-contact-layout{grid-template-columns:minmax(0,1fr)}.tp7m3-contact-intro h2{font-size:clamp(40px,7vw,62px)}}@media(max-width:480px){.tp7m3-contact-intro h2{font-size:clamp(35px,9vw,48px)}.tp7m3-location-map{height:290px}}
+
+/* Scope the section rules: the header CTA shares the tp7m3-contact class. */
+.tp7m3-cl section.tp7m3-contact{padding:clamp(65px,7vw,120px) clamp(22px,4.5vw,78px)}
+.tp7m3-cl .tp7m3-contact-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,90px);align-items:start}
+.tp7m3-cl .tp7m3-contact-intro{min-width:0;max-width:100%}
+.tp7m3-cl .tp7m3-contact-intro h2{font-size:clamp(34px,3.3vw,58px);line-height:1.15;letter-spacing:-.04em;overflow-wrap:anywhere;word-break:normal;max-width:100%;margin:20px 0 28px}
+.tp7m3-cl .tp7m3-contact-form{width:100%;min-width:0;align-self:start;padding-top:0}
+.tp7m3-cl .tp7m3-contact-form label,.tp7m3-cl .tp7m3-contact-form input,.tp7m3-cl .tp7m3-contact-form textarea{max-width:100%;min-width:0}
+@media(max-width:1050px){.tp7m3-cl .tp7m3-contact-layout{grid-template-columns:minmax(0,1fr);gap:34px;padding-top:45px}.tp7m3-cl .tp7m3-contact-intro h2{font-size:clamp(39px,6vw,65px);max-width:800px}}
+@media(max-width:480px){.tp7m3-cl section.tp7m3-contact{padding:60px 20px}.tp7m3-cl .tp7m3-contact-intro h2{font-size:clamp(36px,9vw,48px)}}
