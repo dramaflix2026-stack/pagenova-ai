@@ -403,7 +403,7 @@
       "path": "src/components/builder-v2-tp7-model3-contact-location.css",
       "blobSha": "22bb071bf7b955865df0a8a0c192ff3a2e3b110c",
       "approvedBindingRevision": {
-        "sha": "2177c612365b811b1f57e1107e6154b29a41a00c",
+        "sha": "d1bc79df036cc1462030f1ffd1f73435d64c50f8",
         "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
       }
     },
