@@ -413,7 +413,7 @@ test("TP2 numbers and testimonials headings are editable without inventing metri
    assert.equal(numbers.find('[data-tp2-proof="numbers"] strong').length,0);
    assert.match(numbers.text(),/O QUE ORIENTA NOSSA ABORDAGEM/);
    assert.equal(numbers.find('[data-tp2-mode="approach"] article').length,3);
-   assert.equal(testimonials.find('[data-tp2-proof="testimonials"] blockquote').length,publishedMode?0:5);
+   assert.equal(testimonials.find('[data-tp2-proof="testimonials"] blockquote').length,publishedMode?0:6);
    if(!publishedMode)assert.match(testimonials.text(),/RELATO FICTÍCIO/);
   }
  }
