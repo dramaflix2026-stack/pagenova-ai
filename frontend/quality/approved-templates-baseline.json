@@ -407,8 +407,8 @@
       "path": "src/components/builder-v2-tp7-model3-contact-location.css",
       "blobSha": "22bb071bf7b955865df0a8a0c192ff3a2e3b110c",
       "approvedBindingRevision": {
-        "sha": "d1bc79df036cc1462030f1ffd1f73435d64c50f8",
-        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
+        "sha": "459850dd52fd0cf4f83b1c0e62a01bcb55be6280",
+        "reason": "User-requested TP7 real estate desktop contact overlap and compact footer corrections."
       }
     },
     {
@@ -423,8 +423,8 @@
       "path": "src/components/builder-v2-tp7-model3-footer.css",
       "blobSha": "ec146226ee1875607e991f67b9aefbb53a01c11a",
       "approvedBindingRevision": {
-        "sha": "32b258f50bc8eaae97da765c714cb0289ecaa0a0",
-        "reason": "User explicitly requested TP7 real-estate model 1-3 layout repairs on 2026-11-11: CTA contrast, responsive copy, desktop footer and map/WhatsApp with configured contact data; preserve established visual composition."
+        "sha": "e0757fe71197f3af9ee36709517efae07cfcf1e4",
+        "reason": "User-requested TP7 real estate desktop contact overlap and compact footer corrections."
       }
     },
     {
@@ -717,7 +717,11 @@
     },
     {
       "path": "src/components/template7-real-estate-footer.tsx",
-      "blobSha": "e491aaacddf404dd5018c48cb52ac031ece5e5f0"
+      "blobSha": "e491aaacddf404dd5018c48cb52ac031ece5e5f0",
+      "approvedBindingRevision": {
+        "sha": "f65ab424231f101bfabf96fd00f5cc8e43875924",
+        "reason": "User-requested TP7 real estate desktop contact overlap and compact footer corrections."
+      }
     },
     {
       "path": "src/components/template7-real-estate-hero.tsx",
