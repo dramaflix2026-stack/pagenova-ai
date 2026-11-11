@@ -3,3 +3,14 @@
 .tp7m3-contact-layout>*,.tp7m3-location-layout>*{min-width:0}.tp7m3-contact-intro h2,.tp7m3-location-title h2{overflow-wrap:break-word}
 
 .tp7m3-map-note{position:absolute;right:16px;bottom:16px;background:#1b1b19;color:#fff;padding:12px 15px;font-size:10px;letter-spacing:.08em;max-width:calc(100% - 32px)}
+
+/* Keep the editorial layout while preventing long headings from entering the form column. */
+.tp7m3-contact-layout{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(28px,4vw,90px);align-items:start}
+.tp7m3-contact-intro,.tp7m3-contact-form,.tp7m3-location-title,.tp7m3-location-info{min-width:0;max-width:100%}
+.tp7m3-contact-intro h2{font-size:clamp(42px,4.4vw,78px);line-height:1.09;letter-spacing:-.045em;overflow-wrap:normal;word-break:normal;hyphens:auto}
+.tp7m3-contact-form{width:100%;align-self:start;padding-top:12px}
+.tp7m3-contact-form input,.tp7m3-contact-form textarea{display:block;width:100%;min-width:0}
+.tp7m3-location-layout{grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr)}
+.tp7m3-location-title h2{font-size:clamp(42px,4.8vw,85px);line-height:1.09;letter-spacing:-.045em}
+@media(max-width:900px){.tp7m3-contact-layout,.tp7m3-location-layout{grid-template-columns:minmax(0,1fr);gap:36px;padding-top:50px}.tp7m3-contact-intro h2,.tp7m3-location-title h2{font-size:clamp(43px,7vw,72px)}.tp7m3-contact-form{padding-top:0}}
+@media(max-width:480px){.tp7m3-contact-intro h2,.tp7m3-location-title h2{font-size:clamp(39px,10vw,53px)}.tp7m3-contact,.tp7m3-location{padding-left:20px;padding-right:20px}}
