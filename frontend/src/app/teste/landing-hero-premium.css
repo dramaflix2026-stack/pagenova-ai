@@ -496,3 +496,56 @@
    object-position:center;
  }
 }
+
+
+/* Continuous PageNova journey: one uninterrupted canvas, not stacked color panels. */
+.pnr-page{
+ background:#06140b!important;
+}
+.pnr-page .pnr-hero,
+.pnr-page .pnr-solutions,
+.pnr-page .pnr-styles,
+.pnr-page .pnr-audiences{
+ background:transparent!important;
+ border-top:0!important;
+ border-bottom:0!important;
+}
+.pnr-page .pnr-benefits{border-top:0!important}
+.pnr-page .pnr-benefits>div{border-right:0!important}
+.pnr-page .pnr-hero:after{
+ content:"";position:absolute;left:3%;right:3%;bottom:-115px;height:250px;
+ border:2px solid rgba(153,255,87,.27);
+ border-left-color:transparent;border-bottom-color:transparent;
+ border-radius:50%;transform:rotate(-12deg);
+ filter:drop-shadow(0 0 12px rgba(129,255,74,.35));
+ pointer-events:none;z-index:0;
+ animation:pnrJourneyArc 9s ease-in-out infinite alternate;
+}
+.pnr-page .pnr-solutions:after{
+ content:"";position:absolute;pointer-events:none;z-index:-1;
+ width:min(90vw,950px);height:310px;left:7%;bottom:-160px;
+ border:2px solid rgba(136,255,82,.23);border-right-color:transparent;border-top-color:transparent;
+ border-radius:50%;transform:rotate(-13deg);
+ filter:drop-shadow(0 0 15px rgba(130,255,70,.24));
+ animation:pnrJourneyArc 11s ease-in-out infinite alternate-reverse;
+}
+.pnr-page .pnr-solutions{isolation:isolate}
+@keyframes pnrJourneyArc{
+ from{transform:translate3d(-2%,0,0) rotate(-12deg);opacity:.45}
+ to{transform:translate3d(3%,16px,0) rotate(-7deg);opacity:.8}
+}
+@media(max-width:650px){
+ .pnr-page .pnr-hero:after{bottom:-60px;height:155px;left:-22%;right:-22%;opacity:.5}
+ .pnr-page .pnr-solutions:after{height:160px;bottom:-75px;left:-10%;width:115vw}
+ /* The institutional artwork is shorter: fill its letterbox with a soft
+    ambient treatment while retaining every word and edge of the artwork. */
+ .pnr-page .pnr-style-card:first-child{
+   background:radial-gradient(ellipse at 50% 48%,#16391c,#07180e 80%)!important;
+ }
+ .pnr-page .pnr-style-card:first-child picture{
+   background:linear-gradient(180deg,rgba(88,220,73,.055),transparent 38%,rgba(88,220,73,.055));
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero:after,.pnr-page .pnr-solutions:after{animation:none!important}
+}
