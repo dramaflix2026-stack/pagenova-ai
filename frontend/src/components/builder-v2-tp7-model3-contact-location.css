@@ -14,3 +14,6 @@
 .tp7m3-location-title h2{font-size:clamp(42px,4.8vw,85px);line-height:1.09;letter-spacing:-.045em}
 @media(max-width:900px){.tp7m3-contact-layout,.tp7m3-location-layout{grid-template-columns:minmax(0,1fr);gap:36px;padding-top:50px}.tp7m3-contact-intro h2,.tp7m3-location-title h2{font-size:clamp(43px,7vw,72px)}.tp7m3-contact-form{padding-top:0}}
 @media(max-width:480px){.tp7m3-contact-intro h2,.tp7m3-location-title h2{font-size:clamp(39px,10vw,53px)}.tp7m3-contact,.tp7m3-location{padding-left:20px;padding-right:20px}}
+
+/* Requested TP7 model 3 compact layout corrections */
+.tp7m3-contact-layout{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,4vw,72px)}.tp7m3-contact-intro h2{font-size:clamp(36px,3.8vw,64px);letter-spacing:-.035em;line-height:1.17;overflow-wrap:anywhere}.tp7m3-contact-form{position:relative;min-width:0;z-index:1}.tp7m3-location-map{height:clamp(260px,29vw,410px);max-height:410px}.tp7m3-location-layout{gap:clamp(28px,4vw,70px)}@media(max-width:900px){.tp7m3-contact-layout{grid-template-columns:minmax(0,1fr)}.tp7m3-contact-intro h2{font-size:clamp(40px,7vw,62px)}}@media(max-width:480px){.tp7m3-contact-intro h2{font-size:clamp(35px,9vw,48px)}.tp7m3-location-map{height:290px}}
