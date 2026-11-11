@@ -240,7 +240,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const region=instruction.match(/cards?\s+com\s+os\s+t[ií]tulos?\s+([\s\S]+?)(?=\.\s|\s+Cada card\b|$)/i)?.[1]
    ||instruction.match(/cards?\s*:\s*([\s\S]+?)(?=\.\s|\s+Cada card\b|$)/i)?.[1]||"";
   const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
-  if(labels.length)cards=labels.map(title=>({title,description:"Etapa de "+title.toLowerCase()+" desenvolvida com planejamento, atenção aos detalhes e acompanhamento profissional."}));
+  if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return {title,description:descriptions[key]||"Atuamos com critérios técnicos claros, acompanhamento dedicado e soluções alinhadas às necessidades de cada projeto."};});
  }
  if(!cards.length||requestedCount!==null&&cards.length!==requestedCount)return {ok:false,error:"A quantidade ou os títulos dos cards não correspondem ao pedido. Nenhuma alteração aplicada."};
  if(cards.length>12||new Set(cards.map(c=>normalized(c.title))).size!==cards.length)return {ok:false,error:"Os cards precisam ter títulos únicos e quantidade válida. Nenhuma alteração aplicada."};
