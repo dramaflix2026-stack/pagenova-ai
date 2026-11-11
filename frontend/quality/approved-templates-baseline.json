@@ -157,9 +157,9 @@
     },
     {
       "path": "src/components/builder-v2-tp2-model1.tsx",
-      "blobSha": "98c521a4426efc1c60c38f76a6640ce91f35eb3f",
+      "blobSha": "3c938c550c5b42e8eebf535edd0fd92185f97afd",
       "approvedBindingRevision": {
-        "sha": "98c521a4426efc1c60c38f76a6640ce91f35eb3f",
+        "sha": "3c938c550c5b42e8eebf535edd0fd92185f97afd",
         "reason": "Approved TP2 refinement: six fictional preview testimonials and responsive premium service/approach cards."
       }
     },
