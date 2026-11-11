@@ -748,6 +748,17 @@ export default function BuilderV2() {
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok){recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
       }
+      const targetedMethodPhoto=!hasAttachments&&imageChange&&/nossa metodologia/i.test(prompt)&&/(?:segundo|2[oº°]?|planejamento)/i.test(prompt)&&/(?:substitu|troqu|alter)/i.test(prompt)&&/(?:fotografia|foto|imagem)/i.test(prompt);
+      if(targetedMethodPhoto){
+        const customSection=site.blocks.find(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&/nossa metodologia/i.test(b.text||""))?.section;
+        const cardBlocks=site.blocks.filter(b=>b.section===customSection&&b.type==="paragraph"&&/(?:^|:)\s*planejamento\b/i.test(b.text||""));
+        const card=cardBlocks[0];
+        if(!customSection||!card){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Não identifiquei o card Planejamento de Nossa Metodologia. Nenhuma fotografia foi alterada."}]);return;}
+        const photoUrl="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=82";
+        const next={...site,blocks:site.blocks.map(b=>b.id===card.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true}:b)};
+        recordVersion(site,"Antes da troca de fotografia do card");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(next);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alterada somente a fotografia do card Planejamento em Nossa Metodologia. Outras imagens preservadas."}]);return;
+      }
       const realPhotoReplacement=!hasAttachments&&(imageChange||/^(?:substitua|troque)\s+somente\s+a\s+imagem\s+principal/i.test(prompt))&&/(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)/i.test(prompt)&&/(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)/i.test(prompt);
       if(realPhotoReplacement){
         const photoUrl=/arquitet|resid[eê]ncia|fachada|contempor[aâ]nea|engenharia|obra|constru[cç][aã]o|estrutur/i.test(prompt)
