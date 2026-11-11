@@ -28,6 +28,35 @@ const stripConstraints=(s:string)=>s.trim().replace(/\.\s*(?:preserve|mantenha|n
 
 export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const text=stripConstraints(instruction);
+ // Explicit section background, with optional named color before the hex value.
+ const sectionBg=text.match(/^(?:altere|troque|mude)\\s+(?:somente\\s+)?a\\s+cor\\s+de\\s+fundo\\s+da\\s+se[cç][aã]o\\s+["“]?(.+?)["”]?\\s+para\\s+(?:[\\p{L}-]+\\s+)*(#[a-f0-9]{6})/iu);
+ if(sectionBg){
+  const section=resolveUniversalSection(site,sectionBg[1].trim().replace(/["“”]/g,""));
+  if(!section)return fail("A seção solicitada não foi encontrada. Nenhuma alteração aplicada.");
+  const styles=site.universalSectionStyles&&typeof site.universalSectionStyles==="object"?site.universalSectionStyles as Record<string,Record<string,unknown>>:{};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...styles[section],backgroundColor:sectionBg[2]}}} as T,changedIds:["section-style:"+section]};
+ }
+ // Titles inside service cards are not the heading of the entire section.
+ const cardColor=text.match(/^na\\s+se[cç][aã]o\\s+["“]?(.+?)["”]?,?\\s+(?:altere|troque|mude)\\s+(?:somente\\s+)?a\\s+cor\\s+dos\\s+t[ií]tulos\\s+dos\\s+cards\\s+para\\s+(?:[\\p{L}-]+\\s+)*(#[a-f0-9]{6})/iu);
+ if(cardColor){
+  const section=resolveUniversalSection(site,cardColor[1].trim().replace(/["“”]/g,""));
+  if(!section)return fail("A seção dos cards não foi encontrada. Nenhuma alteração aplicada.");
+  const styles=site.universalSectionStyles&&typeof site.universalSectionStyles==="object"?site.universalSectionStyles as Record<string,Record<string,unknown>>:{};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...styles[section],cardTitleColor:cardColor[2]}}} as T,changedIds:["section-card-title-color:"+section]};
+ }
+ // Real photo requests target the hero image, not an AI image-generation workflow.
+ const heroPhoto=text.match(/^(?:substitua|troque|altere)\\s+a\\s+imagem\\s+principal\\s+da\\s+primeira\\s+se[cç][aã]o\\s+por\\s+([\\s\\S]+)/i);
+ if(heroPhoto){
+  const hero=resolveUniversalSection(site,"capa");
+  if(!hero)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
+  const image=site.blocks.find(b=>b.section===hero&&b.type==="image");
+  if(!image)return fail("A imagem principal não possui bloco editável. Nenhuma alteração aplicada.");
+  const url=heroPhoto[1].match(/https:\\/\\/[^\\s"'“”<>]+/)?.[0]||verifiedPhoto(site,heroPhoto[1]);
+  if(!url)return fail("Não foi localizada fotografia real adequada. A imagem anterior foi preservada.");
+  const applied=applyUniversalOperations(site,[{action:"update",blockId:image.id,changes:{src:url}}]);
+  if(!applied.ok)return applied;
+  return {ok:true,site:{...applied.site,blocks:applied.site.blocks.map(b=>b.id===image.id?{...b,imageExplicit:true}:b)} as T,changedIds:applied.changedIds};
+ }
  // Combined hero and service styling is an atomic scoped edit.
  const compound=text.match(/^na\s+primeira\s+se[cç][aã]o,?\s*altere\s+o\s+t[ií]tulo\s+para\s+['"“]([^'"”]{3,180})['"”]/i);
  if(compound&&/arredonde\s+os\s+cantos\s+dos\s+cards/i.test(text)){
