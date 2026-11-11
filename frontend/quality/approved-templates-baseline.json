@@ -393,7 +393,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model1-sections.css",
-      "blobSha": "edf63911c271274bf68f85c48b3e6ca3e3bd02ef"
+      "blobSha": "edf63911c271274bf68f85c48b3e6ca3e3bd02ef",
+      "approvedBindingRevision": {
+        "sha": "30a3def662ca4d8b6c26f8f4a97e0c3985bf78aa",
+        "reason": "Requested TP7 model 2/3 editorial alignment and model 3 navigation glyph correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model1-sections.tsx",
@@ -401,7 +405,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model1-showcase.css",
-      "blobSha": "35062abc24dad287137dd347c09dcee97f57200f"
+      "blobSha": "35062abc24dad287137dd347c09dcee97f57200f",
+      "approvedBindingRevision": {
+        "sha": "683cc83889ea8be60efc0d3557b3de7bb6fd4227",
+        "reason": "Requested TP7 model 2/3 editorial alignment and model 3 navigation glyph correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model1-showcase.tsx",
@@ -445,7 +453,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model3-hero.tsx",
-      "blobSha": "296f0f41f76fa32c05679e89e8b2c7998f25d480"
+      "blobSha": "296f0f41f76fa32c05679e89e8b2c7998f25d480",
+      "approvedBindingRevision": {
+        "sha": "3db3525f5fbfa1ff7a8129b281052c6960920cd7",
+        "reason": "Requested TP7 model 2/3 editorial alignment and model 3 navigation glyph correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-reviews-faq.css",
@@ -467,8 +479,8 @@
       "path": "src/components/builder-v2-tp7-model3-sections.css",
       "blobSha": "8c4404b6235272bad6e7a821a2e0de7d18bee2ef",
       "approvedBindingRevision": {
-        "sha": "94a14e85db4a0f638657133e6647a6e43ad0e097",
-        "reason": "User explicitly requested TP7 real-estate model 1-3 layout repairs on 2026-11-11: CTA contrast, responsive copy, desktop footer and map/WhatsApp with configured contact data; preserve established visual composition."
+        "sha": "2b679f6fefd12f01ecb9808ce00ddcb5eeabfb1e",
+        "reason": "Requested TP7 model 2/3 editorial alignment and model 3 navigation glyph correction."
       }
     },
     {
@@ -477,7 +489,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model3-showcase.css",
-      "blobSha": "17dc3d6ad23531b2db95df5871ad75685dd2c8f6"
+      "blobSha": "17dc3d6ad23531b2db95df5871ad75685dd2c8f6",
+      "approvedBindingRevision": {
+        "sha": "13156d2ff26aac42fb2aa8494225af1b03498fef",
+        "reason": "Requested TP7 model 2/3 editorial alignment and model 3 navigation glyph correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-showcase.tsx",
