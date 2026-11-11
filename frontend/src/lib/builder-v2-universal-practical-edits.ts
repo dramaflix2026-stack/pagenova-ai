@@ -29,7 +29,7 @@ const stripConstraints=(s:string)=>s.trim().replace(/\.\s*(?:preserve|mantenha|n
 export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const text=stripConstraints(instruction);
  // Explicit section background, with optional named color before the hex value.
- const sectionBg=text.match(/^(?:altere|troque|mude)\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+["“]?(.+?)["”]?\s+para\s+(?:[\p{L}-]+\s+)*(#[a-f0-9]{6})/iu);
+ const sectionBg=text.match(/^(?:altere|troque|mude)\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+["“]?(.+?)["”]?\s+para\s+(?:[\p{L}-]+\s+)*\(?(#[a-f0-9]{6})\)?/iu);
  if(sectionBg){
   const section=resolveUniversalSection(site,sectionBg[1].trim().replace(/["“”]/g,""));
   if(!section)return fail("A seção solicitada não foi encontrada. Nenhuma alteração aplicada.");
@@ -37,7 +37,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...styles[section],backgroundColor:sectionBg[2]}}} as T,changedIds:["section-style:"+section]};
  }
  // Titles inside service cards are not the heading of the entire section.
- const cardColor=text.match(/^na\s+se[cç][aã]o\s+["“]?(.+?)["”]?,?\s+(?:altere|troque|mude)\s+(?:somente\s+)?a\s+cor\s+dos\s+t[ií]tulos\s+dos\s+cards\s+para\s+(?:[\p{L}-]+\s+)*(#[a-f0-9]{6})/iu);
+ const cardColor=text.match(/^na\s+se[cç][aã]o\s+["“]?(.+?)["”]?,?\s+(?:altere|troque|mude)\s+(?:somente\s+)?a\s+cor\s+dos\s+t[ií]tulos\s+dos\s+cards\s+para\s+(?:[\p{L}-]+\s+)*\(?(#[a-f0-9]{6})\)?/iu);
  if(cardColor){
   const section=resolveUniversalSection(site,cardColor[1].trim().replace(/["“”]/g,""));
   if(!section)return fail("A seção dos cards não foi encontrada. Nenhuma alteração aplicada.");
