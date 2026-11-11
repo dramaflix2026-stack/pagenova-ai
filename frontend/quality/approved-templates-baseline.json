@@ -547,8 +547,8 @@
       "path": "src/components/builder-v2-universal-sections.tsx",
       "blobSha": "0bd233880bd5df9282cae913398d5994a372f6dc",
       "approvedBindingRevision": {
-        "sha": "8a79bf2c3b3a35a53976dc53b0ece707e345720c",
-        "reason": "User-requested correction: restore readable section labels on dark navy backgrounds and refine responsive custom methodology cards, without changing native approved layouts."
+        "sha": "83e1bdf35693f664a7195b746e3ca6163442d37d",
+        "reason": "Repair syntax in explicitly requested universal dark-background contrast styling; preserve existing approved native templates and custom methodology card layout."
       }
     },
     {
