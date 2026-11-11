@@ -361,7 +361,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model1-footer.tsx",
-      "blobSha": "cda80611cbec07ee93b06d8948b8e5b8b96378cd"
+      "blobSha": "cda80611cbec07ee93b06d8948b8e5b8b96378cd",
+      "approvedBindingRevision": {
+        "sha": "72545b5a71fa35bfd56e2f793e51b25a518a5efc",
+        "reason": "User-requested TP7 model 2 footer wordmark removal and four illustrative review cards."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model1-hero.css",
@@ -379,16 +383,16 @@
       "path": "src/components/builder-v2-tp7-model1-reviews-contact.css",
       "blobSha": "aaa8e4e2fcaa43f5b4d734f4b6821c85bc5dff88",
       "approvedBindingRevision": {
-        "sha": "e504686b9dcb26c12f60bedce83a597562ea6a40",
-        "reason": "User requested testimonial photo, author and content presentation in TP7 models, preserving original design."
+        "sha": "c7563c995db33f26a1c4526d47855f36503034f2",
+        "reason": "User-requested TP7 model 2 footer wordmark removal and four illustrative review cards."
       }
     },
     {
       "path": "src/components/builder-v2-tp7-model1-reviews-contact.tsx",
       "blobSha": "09d875b9d1c0caa968a7b04bb968414a34362922",
       "approvedBindingRevision": {
-        "sha": "2e0933d3c893aa20034e0ec33e3ccd2ac16dd7b4",
-        "reason": "User requested testimonial photo, author and content presentation in TP7 models, preserving original design."
+        "sha": "3870daa056c4dc0c3fd8bd62ca17228f6f131e3c",
+        "reason": "User-requested TP7 model 2 footer wordmark removal and four illustrative review cards."
       }
     },
     {
