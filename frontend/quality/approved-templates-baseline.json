@@ -423,8 +423,8 @@
       "path": "src/components/builder-v2-tp7-model3-contact-location.css",
       "blobSha": "22bb071bf7b955865df0a8a0c192ff3a2e3b110c",
       "approvedBindingRevision": {
-        "sha": "459850dd52fd0cf4f83b1c0e62a01bcb55be6280",
-        "reason": "User-requested TP7 real estate desktop contact overlap and compact footer corrections."
+        "sha": "c494d127b4efaa5f81f813a576516011f18a2ef8",
+        "reason": "TP7 model 3 requested header CTA, contact overlap, testimonials and footer fixes."
       }
     },
     {
@@ -445,14 +445,18 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model3-footer.tsx",
-      "blobSha": "21cf0afe6bb6f6235b42b8c575606e6a549c1354"
+      "blobSha": "21cf0afe6bb6f6235b42b8c575606e6a549c1354",
+      "approvedBindingRevision": {
+        "sha": "565031f661b062135f90a939e081ce03f65031a6",
+        "reason": "TP7 model 3 requested header CTA, contact overlap, testimonials and footer fixes."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-hero.css",
       "blobSha": "def434fc838f994193fe861fcb99664ba938d35d",
       "approvedBindingRevision": {
-        "sha": "e826eb0fb77ccee4dbde639cb6ef9adf9ab8b74b",
-        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
+        "sha": "f17cffe021e0ec0c158929ca2a5d8032662492e6",
+        "reason": "TP7 model 3 requested header CTA, contact overlap, testimonials and footer fixes."
       }
     },
     {
@@ -467,16 +471,16 @@
       "path": "src/components/builder-v2-tp7-model3-reviews-faq.css",
       "blobSha": "2850f7ff7ac37f94ee5c541c4d78306856a5f7de",
       "approvedBindingRevision": {
-        "sha": "4a7677c3581fe76121db4d9d31db1d64f18704c5",
-        "reason": "User requested testimonial photo, author and content presentation in TP7 models, preserving original design."
+        "sha": "f9e65692a27218d534c147350b64b1ede681465c",
+        "reason": "TP7 model 3 requested header CTA, contact overlap, testimonials and footer fixes."
       }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-reviews-faq.tsx",
       "blobSha": "7f12630bdad2d255036b268e3180a58a4585b374",
       "approvedBindingRevision": {
-        "sha": "52cbb5b209784a851fd4ab1b41c49e83f82f6826",
-        "reason": "User requested testimonial photo, author and content presentation in TP7 models, preserving original design."
+        "sha": "7a7c0051883f58cbca2c814e73435670f08e50b6",
+        "reason": "TP7 model 3 requested header CTA, contact overlap, testimonials and footer fixes."
       }
     },
     {
