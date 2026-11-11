@@ -29,7 +29,7 @@ const questions=[["Como solicitar uma proposta?","Envie uma descrição da sua n
 const architecturePhotos=["photo-1487958449943-2429e8be8625","photo-1511818966892-d7d671e672a2","photo-1518005020951-eccb494ad742","photo-1497366811353-6870744d04b2","photo-1600607688969-a5bfcd646154"];
 const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
 const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
-const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.imageExplicit||block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
 export function BuilderV2TP2Model3({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [open,setOpen]=useState<number|null>(0),[name,setName]=useState(""),[contactValue,setContactValue]=useState(""),[message,setMessage]=useState(""),[feedback,setFeedback]=useState("");
  const niche=site.niche||"Engenharia",brand=site.header?.brand||site.title||"Estúdio";
