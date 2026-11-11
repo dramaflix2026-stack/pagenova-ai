@@ -55,7 +55,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   if(!url)return fail("Não foi localizada fotografia real adequada. A imagem anterior foi preservada.");
   const applied=applyUniversalOperations(site,[{action:"update",blockId:image.id,changes:{src:url}}]);
   if(!applied.ok)return applied;
-  return {ok:true,site:{...applied.site,blocks:applied.site.blocks.map(b=>b.id===image.id?{...b,imageExplicit:true}:b)} as T,changedIds:applied.changedIds};
+  return {ok:true,site:{...applied.site,blocks:applied.site.blocks.map(b=>b.id===image.id?{...b,imageExplicit:true,userUploaded:true}:b)} as T,changedIds:applied.changedIds};
  }
  // Combined hero and service styling is an atomic scoped edit.
  const compound=text.match(/^na\s+primeira\s+se[cç][aã]o,?\s*altere\s+o\s+t[ií]tulo\s+para\s+['"“]([^'"”]{3,180})['"”]/i);
