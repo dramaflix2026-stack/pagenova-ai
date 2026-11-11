@@ -180,7 +180,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const key="pagenova:editor-learning-events:v1";
     const existing=JSON.parse(localStorage.getItem(key)||"[]");
     const events=Array.isArray(existing)?existing:[];
-    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
     events.push({at:new Date().toISOString(),niche:niche.slice(0,80),intent,target,outcome,strategy});
