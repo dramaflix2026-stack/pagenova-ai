@@ -344,10 +344,42 @@ function UniversalSavedSectionFallback({site}:{site:BuilderV2SiteData}){
   })}
  </div>;
 }
+/** Applies saved universal editor styles to specialized templates without changing their source layouts. */
+function UniversalScopedVisualEdits({site}:{site:BuilderV2SiteData}){
+ const root=useRef<HTMLDivElement>(null);
+ const styles=(site as BuilderV2SiteData & {universalSectionStyles?:Record<string,{backgroundColor?:string;cardTitleColor?:string}>}).universalSectionStyles;
+ useEffect(()=>{
+  const container=root.current?.parentElement;
+  if(!container||!styles)return;
+  const normalize=(v:string)=>v.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  const sections=Array.from(container.querySelectorAll<HTMLElement>("[data-universal-section], [data-section-id]"));
+  const validColor=(v:unknown):v is string=>typeof v==="string"&&/^#[0-9a-f]{6}$/i.test(v);
+  const aliases:Record<string,string[]>={servicos:["servicos","especialidades"],especialidades:["servicos","especialidades"],abordagem:["abordagem","trajetoria","como-funciona"],contato:["contato"]};
+  const applied:Array<()=>void>=[];
+  for(const [id,values] of Object.entries(styles)){
+   const target=normalize(id);
+   const tokens=[target,...(aliases[target]||[])].map(normalize);
+   const section=sections.find(el=>tokens.includes(normalize(el.dataset.universalSection||el.dataset.sectionId||"")))
+    ||sections.find(el=>Array.from(el.querySelectorAll("h2,h3,.tp2m2-label")).some(node=>normalize(node.textContent||"").includes(target)));
+   if(!section)continue;
+   if(validColor(values.backgroundColor)){
+    const previous=section.style.getPropertyValue("background-color"),priority=section.style.getPropertyPriority("background-color");
+    section.style.setProperty("background-color",values.backgroundColor,"important");
+    applied.push(()=>previous?section.style.setProperty("background-color",previous,priority):section.style.removeProperty("background-color"));
+   }
+   if(validColor(values.cardTitleColor)){
+    const headings=Array.from(section.querySelectorAll<HTMLElement>("article h3, article h4, .tp2m2-services h3"));
+    for(const heading of headings){const previous=heading.style.getPropertyValue("color"),priority=heading.style.getPropertyPriority("color");heading.style.setProperty("color",values.cardTitleColor,"important");applied.push(()=>previous?heading.style.setProperty("color",previous,priority):heading.style.removeProperty("color"));}
+   }
+  }
+  return ()=>{for(const undo of applied.reverse())undo();};
+ },[site,styles]);
+ return <div ref={root} hidden aria-hidden="true" />;
+}
 export function BuilderV2Site(props:BuilderV2SiteProps){
  const retailNiche=resolveBriefingFamily(props.site.niche||props.selectedNiche||"")===6;
  const automotiveNiche=/(automotiv|detailing|detail|auto\s*center|lava[-\s]?r[aá]pido|funilaria)/i.test([props.site.niche,props.selectedNiche,props.site.title].join(" "));
- return <UniversalSiteScrollMotion site={props.site}><div className="pn-universal-site-root"><BuilderV2SiteContent {...props}/>{!retailNiche&&!automotiveNiche&&<UniversalSavedSectionFallback site={props.site}/>}</div></UniversalSiteScrollMotion>;
+ return <UniversalSiteScrollMotion site={props.site}><div className="pn-universal-site-root"><BuilderV2SiteContent {...props}/>{!retailNiche&&!automotiveNiche&&<UniversalSavedSectionFallback site={props.site}/>}<UniversalScopedVisualEdits site={props.site}/></div></UniversalSiteScrollMotion>;
 }
 
 function BuilderV2SiteContent(props:BuilderV2SiteProps){
