@@ -145,7 +145,7 @@
     },
     {
       "path": "src/components/builder-v2-tp2-evidence.css",
-      "blobSha": "d21fecba02ac483d170f1eb2240ff9684e01aa12"
+      "blobSha": "106e7a826e1de08cd529293a8bd4494016cbb0ca"
     },
     {
       "path": "src/components/builder-v2-tp2-evidence.tsx",
@@ -157,9 +157,9 @@
     },
     {
       "path": "src/components/builder-v2-tp2-model1.tsx",
-      "blobSha": "3c938c550c5b42e8eebf535edd0fd92185f97afd",
+      "blobSha": "42eb9a86eff313ca6f83f1aa5d275d79255628b9",
       "approvedBindingRevision": {
-        "sha": "3c938c550c5b42e8eebf535edd0fd92185f97afd",
+        "sha": "42eb9a86eff313ca6f83f1aa5d275d79255628b9",
         "reason": "Approved TP2 refinement: six fictional preview testimonials and responsive premium service/approach cards."
       }
     },
