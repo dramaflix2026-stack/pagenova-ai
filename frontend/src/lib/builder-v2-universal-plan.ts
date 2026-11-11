@@ -18,6 +18,11 @@ export function universalInstructionClauses(instruction:string):string[]{
   // "Na seção X, altere..." is a single command: the comma is part of its target.
   const prefix=instruction.slice(start,i).trim().replace(/^\d{1,2}[.)]\s*/,"");
   if(char===","&&(/^(?:na\s+se[cç][aã]o\s+[^,]{1,100}|no\s+(?:(?:primeir|segund|terceir|quart|quint|sext|s[eé]tim|oitav|non|d[eé]cim)[oa]|\d{1,2}[º°ªo]?)\s+card\s+d[ae]\s+se[cç][aã]o\s+[^,]{1,100})$/i.test(prefix)))continue;
+  // A sentence boundary may introduce another operation with a section prefix.
+  const nextSection=instruction.slice(i).match(/^(?:[.;]\\s*|,\\s*e?\\s*|\\s+e\\s+)(?=na\\s+se[cç][aã]o\\s+[^,.]{1,100},\\s*(?:altere|troque|mude|adicione|inclua)\\b)/i);
+  if(nextSection&&instruction.slice(start,i).trim()){
+   clauses.push(instruction.slice(start,i).trim());i+=nextSection[0].length-1;start=i+1;continue;
+  }
   const match=instruction.slice(i).match(boundary);
   if(match&&instruction.slice(start,i).trim()){
    clauses.push(instruction.slice(start,i).trim());i+=match[0].length-1;start=i+1;
