@@ -604,3 +604,59 @@
  .pnr-page .pnr-style-card,.pnr-page .pnr-style-card.pnr-style-active{transform:none!important;transition:none!important;filter:none!important}
  .pnr-page .pnr-style-card::after{animation:none!important}
 }
+
+
+/* Audience ecosystem: premium, legible, responsive and animated without raster art. */
+.pnr-page .pnr-audiences{position:relative;isolation:isolate}
+.pnr-page .pnr-audience-grid{gap:16px;align-items:stretch}
+.pnr-page .pnr-audience-card{
+ position:relative;overflow:hidden;isolation:isolate;
+ min-height:205px;padding:24px 22px 20px;gap:12px;
+ border:1px solid rgba(158,255,109,.27);border-radius:22px;
+ background:radial-gradient(ellipse at 12% 0%,rgba(116,255,98,.13),transparent 60%),linear-gradient(145deg,#102b1a,#06170e 85%);
+ box-shadow:0 15px 34px rgba(0,0,0,.16);
+ transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s,border-color .45s;
+ animation:pnrAudienceReveal .7s both;
+}
+.pnr-page .pnr-audience-card:before{
+ content:"";position:absolute;inset:-80% -100%;pointer-events:none;
+ background:linear-gradient(110deg,transparent 43%,rgba(178,255,142,.12) 50%,transparent 57%);
+ transform:translateX(-45%);transition:transform .8s;z-index:-1;
+}
+.pnr-page .pnr-audience-card:hover,.pnr-page .pnr-audience-card:focus-visible{
+ transform:translateY(-7px);border-color:rgba(165,255,109,.8);
+ box-shadow:0 24px 48px rgba(0,0,0,.26),0 0 28px rgba(143,255,98,.12);
+}
+.pnr-page .pnr-audience-card:hover:before,.pnr-page .pnr-audience-card:focus-visible:before{transform:translateX(45%)}
+.pnr-page .pnr-audience-icon{width:52px;height:52px;border-radius:15px;background:rgba(154,255,108,.09);border:1px solid rgba(165,255,111,.3);box-shadow:inset 0 0 20px rgba(143,255,103,.06)}
+.pnr-page .pnr-audience-icon svg{width:25px;height:25px}
+.pnr-page .pnr-audience-card strong{font-size:18px;line-height:1.3;letter-spacing:-.025em}
+.pnr-page .pnr-audience-card p{font-size:13px;line-height:1.55;max-width:260px}
+.pnr-page .pnr-audience-index{position:absolute;right:22px;top:22px;font-size:12px;font-weight:700;letter-spacing:.12em;color:rgba(166,232,162,.52)}
+.pnr-page .pnr-audience-arrow{top:auto;bottom:22px;right:22px;transition:transform .3s}
+.pnr-page .pnr-audience-card:hover .pnr-audience-arrow{transform:translate(3px,-3px)}
+.pnr-page .pnr-audience-track{margin-top:auto;display:block;height:3px;width:calc(100% - 32px);background:rgba(164,255,113,.13);border-radius:5px;overflow:hidden}
+.pnr-page .pnr-audience-track span{display:block;width:55%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#62d86b,#c0ff79);box-shadow:0 0 10px rgba(156,255,109,.5);transition:width .5s}
+.pnr-page .pnr-audience-card:hover .pnr-audience-track span{width:100%}
+.pnr-page .pnr-audience-ai{display:flex;align-items:center;justify-content:center;gap:10px;margin:28px auto 0;color:#b9d7b7;font-size:12px;letter-spacing:.025em}
+.pnr-page .pnr-audience-ai svg{color:#b3ff75}
+@keyframes pnrAudienceReveal{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:900px){
+ .pnr-page .pnr-audience-grid{grid-template-columns:1.15fr 1fr 1fr;grid-template-rows:repeat(2,minmax(150px,auto))}
+ .pnr-page .pnr-audience-card:first-child{grid-row:span 2;min-height:340px;justify-content:center}
+ .pnr-page .pnr-audience-card:first-child strong{font-size:25px}
+ .pnr-page .pnr-audience-card:first-child p{font-size:15px}
+}
+@media(max-width:650px){
+ .pnr-page .pnr-audience-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .pnr-page .pnr-audience-card{min-height:174px;padding:16px 13px 15px;gap:9px;border-radius:17px}
+ .pnr-page .pnr-audience-icon{width:39px;height:39px;border-radius:11px}
+ .pnr-page .pnr-audience-icon svg{width:21px;height:21px}
+ .pnr-page .pnr-audience-index{top:16px;right:13px;font-size:10px}
+ .pnr-page .pnr-audience-card strong{font-size:13px;line-height:1.3}
+ .pnr-page .pnr-audience-card p{font-size:11px;line-height:1.45}
+ .pnr-page .pnr-audience-arrow{right:12px;bottom:16px;width:15px;height:15px}
+ .pnr-page .pnr-audience-track{height:2px;width:calc(100% - 18px)}
+ .pnr-page .pnr-audience-ai{font-size:11px;margin-top:21px;text-align:center;padding:0 15px}
+}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-audience-card{animation:none!important;transition:none!important}.pnr-page .pnr-audience-card:before{transition:none!important}}
