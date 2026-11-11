@@ -373,7 +373,9 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 }
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
-export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
+ // A comma after a pasted image URL separates clauses; it is not part of the image address.
+ const instruction=rawInstruction.replace(/(https:\/\/[^\s"'“”<>]+\.(?:png|jpe?g|webp|gif|svg)),(?=\s|$)/gi,"$1");
  const batch=applyUniversalHeadingBatch(site,instruction);
  if(batch)return batch;
  const practical=applyUniversalPracticalEdit(site,instruction);
