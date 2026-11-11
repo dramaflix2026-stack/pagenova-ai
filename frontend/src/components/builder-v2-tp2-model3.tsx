@@ -26,6 +26,10 @@ const nicheServices:[RegExp,string[]][]=[
 [/segurança eletrônica/i,["Monitoramento por câmeras","Controle de acesso","Alarmes","Manutenção"]]
 ];
 const questions=[["Como solicitar uma proposta?","Envie uma descrição da sua necessidade pelo canal de contato cadastrado."],["Quais tipos de serviços são oferecidos?","Consulte as especialidades apresentadas e confirme a disponibilidade com a empresa."],["Como são definidos os prazos?","Os prazos dependem do escopo e devem ser confirmados após uma avaliação."],["É possível solicitar um atendimento personalizado?","Entre em contato para apresentar os objetivos do seu projeto."],["Como funciona o acompanhamento?","As etapas são definidas conforme o serviço contratado."],["Quais localidades são atendidas?","Consulte diretamente a empresa para verificar a região de atendimento."]];
+const architecturePhotos=["photo-1487958449943-2429e8be8625","photo-1511818966892-d7d671e672a2","photo-1518005020951-eccb494ad742","photo-1497366811353-6870744d04b2","photo-1600607688969-a5bfcd646154"];
+const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
+const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.imageExplicit||block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
 export function BuilderV2TP2Model3({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [open,setOpen]=useState<number|null>(0),[name,setName]=useState(""),[contactValue,setContactValue]=useState(""),[message,setMessage]=useState(""),[feedback,setFeedback]=useState("");
  const niche=site.niche||"Engenharia",brand=site.header?.brand||site.title||"Estúdio";
@@ -83,8 +87,8 @@ export function BuilderV2TP2Model3({site,publishedMode=false}:{site:BuilderV2Sit
  const heroDescription=heroBlocks.find(b=>b.type==="paragraph");
  const heroButton=heroBlocks.find(b=>b.type==="button");
  const supplied=site.blocks.filter(b=>b.type==="image"&&b.src&&!b.id.startsWith("universal-extra-card-"));
- const image=(i:number)=>isMaterials?constructionPhotoFor(supplied[i],i,3):supplied[i]?.src||"https://images.unsplash.com/"+photoIds[i%photoIds.length]+"?auto=format&fit=crop&w=1600&q=85";
- const visual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>isMaterials?constructionPhotoFor(block,index,3):block?.src?.trim()||image(index);
+ const image=(i:number)=>isMaterials?constructionPhotoFor(supplied[i],i,3):isArchitectureIdentity(site)?architectureVisual(supplied[i],i):supplied[i]?.src||"https://images.unsplash.com/"+photoIds[i%photoIds.length]+"?auto=format&fit=crop&w=1600&q=85";
+ const visual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>isMaterials?constructionPhotoFor(block,index,3):isArchitectureIdentity(site)?architectureVisual(block,index):block?.src?.trim()||image(index);
  const title=site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
  const description=site.blocks.find(b=>b.type==="paragraph"&&b.text?.trim())?.text;
  const phone=(site.footer?.whatsapp||"").replace(/\D/g,""),email=site.footer?.email?.trim()||"";
