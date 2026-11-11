@@ -693,7 +693,8 @@
     },
     {
       "path": "src/components/template7-real-estate-contact.tsx",
-      "blobSha": "1a5cacfaa57431a7fe8a01a690a5cae7962e1507"
+      "blobSha": "1a5cacfaa57431a7fe8a01a690a5cae7962e1507",
+      "approvedBindingRevision": "8698e5165606f5e33da5071168cf40f3aa295fdb"
     },
     {
       "path": "src/components/template7-real-estate-experience.tsx",
