@@ -4,14 +4,14 @@ import {readFileSync} from "node:fs";
 const file=p=>readFileSync(new URL("../src/components/"+p,import.meta.url),"utf8");
 const models=[1,2,3].map(i=>file("builder-v2-tp2-model"+i+".tsx"));
 const shared=file("builder-v2-tp2-evidence.tsx"),site=file("builder-v2-site.tsx");
-test("TP2 all 3 have metrics, five testimonial slots, contact map and premium footer",()=>{
+test("TP2 all 3 have metrics, six testimonial slots, contact map and premium footer",()=>{
  for(const m of models){
   for(const name of ["TP2EvidenceNumbers","TP2EvidenceTestimonials","TP2ContactMap","TP2PremiumFooterBody"])assert.ok(m.includes(name),name);
   assert.match(m,/data-universal-section="rodape"/);
  }
  assert.match(shared,/sample\.slice\(0,Math\.max\(0,count-real\.length\)\)/);
  assert.match(shared,/publishedMode=false,count=5/);
- for(const m of models)assert.match(m,/count=\{isArchitectureIdentity\(site\)\?6:5\}/);
+ for(const m of models)assert.match(m,/count=\{6\}/);
  assert.match(shared,/publishedMode\?\[\]/);
  assert.match(shared,/RELATO FICTÍCIO/);
  assert.match(shared,/Indicadores de projetos realizados, clientes atendidos e experiência serão exibidos somente quando a empresa fornecer dados verificáveis/);
