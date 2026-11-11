@@ -3,7 +3,7 @@ import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children,customSectionTheme}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string;heroCenter?:boolean;entryAnimation?:string;cardRadius?:number}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string;layout?:string}[]};children:ReactNode;customSectionTheme?:{background:string;color:string;accent:string}}){
+export function UniversalTemplateSections({site,children,customSectionTheme}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string;cardTitleColor?:string;heroCenter?:boolean;entryAnimation?:string;cardRadius?:number}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string;layout?:string}[]};children:ReactNode;customSectionTheme?:{background:string;color:string;accent:string}}){
  const events=site.universalSectionEvents;
 
  const nodes=Children.toArray(children);
@@ -53,6 +53,7 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
   const rules=[
    background&&/^#[0-9a-f]{6}$/i.test(background)?scope+'{background-color:'+background+'!important}':'',
    headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?scope+' h1,'+scope+' h2,'+scope+' h3{color:'+headingColor+'!important}':'',
+   sectionStyles?.cardTitleColor&&/^#[0-9a-f]{6}$/i.test(sectionStyles.cardTitleColor)?scope+' article h3,'+scope+' article h4{color:'+sectionStyles.cardTitleColor+'!important}':'',
    sectionStyles?.heroCenter?scope+' .tp2m2-hero-copy,'+scope+' .tp2m3-hero-copy{margin-inline:auto!important;text-align:center!important;align-items:center!important}'+scope+' h1,'+scope+' h1+p,'+scope+' .tp2m2-button{margin-inline:auto!important;text-align:center!important}':'',
    typeof sectionStyles?.cardRadius==='number'&&sectionStyles.cardRadius>=0&&sectionStyles.cardRadius<=64?scope+' article{border-radius:'+sectionStyles.cardRadius+'px!important;overflow:hidden}':'',
    sectionStyles?.entryAnimation==='fade'?'@keyframes pnUniversalHeroEntrance{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}'+scope+' h1{animation:pnUniversalHeroEntrance .75s ease-out both}':''
@@ -69,6 +70,15 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
  const inventory={blocks:[...byKey.keys()].map(id=>({id,section:id,type:"heading",text:id}))};
  const keyFor=(reference?:UniversalSectionReference)=>reference&&typeof reference.id==="string"&&(resolveUniversalSection(inventory,reference.id)||(typeof reference.label==="string"?resolveUniversalSection(inventory,reference.label):null));
  const order=[...byKey.keys()],visible=new Set(order);
+ // Custom sections follow their saved block position, not the end of the page.
+ for(const custom of customKeys){
+  const first=(site.blocks||[]).findIndex(b=>b.section===custom);
+  if(first<0||!order.includes(custom))continue;
+  const next=(site.blocks||[]).slice(first+1).find(b=>b.section&&b.section!==custom&&order.includes(b.section)&&!b.section.startsWith("custom-"))?.section;
+  if(!next)continue;
+  order.splice(order.indexOf(custom),1);
+  order.splice(order.indexOf(next),0,custom);
+ }
  for(const event of Array.isArray(events)?events:[]){
   if(!event||!event.section||typeof event.section.id!=="string")continue;
   const source=keyFor(event.section);if(!source)continue;
