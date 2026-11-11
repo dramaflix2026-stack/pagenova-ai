@@ -3,6 +3,7 @@ import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
+import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
 import { useEffect, useState, useRef, type MouseEvent, type ReactNode } from "react";
@@ -174,17 +175,33 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 }
 
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
+// Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
+// An applied operation is not an approved example and must not train the editor.
+async function syncEditorLearningEvent(event:{niche:string;intent:string;target:string;outcome:string;strategy:string}){
+  try{
+    const client=createSupabaseBrowserClient();
+    const {data:{user},error:authError}=await client.auth.getUser();
+    if(authError||!user)return;
+    await client.from("builder_editor_learning_events").insert({
+      user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
+      target:event.target,strategy:event.strategy,execution_status:event.outcome,
+      review_status:"pending"
+    });
+  }catch{/* Supabase connectivity must never block site editing. */}
+}
 function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
     const existing=JSON.parse(localStorage.getItem(key)||"[]");
     const events=Array.isArray(existing)?existing:[];
-    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
-    events.push({at:new Date().toISOString(),niche:niche.slice(0,80),intent,target,outcome,strategy});
+    const event={at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy};
+    events.push(event);
     localStorage.setItem(key,JSON.stringify(events.slice(-150)));
+    void syncEditorLearningEvent(event);
   }catch{/* Diagnostics must never block editing. */}
 }
 
