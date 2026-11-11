@@ -9,6 +9,15 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // A scoped heading request takes precedence over mentions of images to PRESERVE.
+ const scopedHeroTitle=instruction.match(/^na\\s+primeira\\s+se[cç][aã]o\\s*(?:\\(\\s*hero\\s*\\))?\\s*,?\\s*altere\\s+(?:somente\\s+|apenas\\s+)?o\\s+t[ií]tulo\\s+principal\\s+para\\s+['"“]([^'"”]+)['"”]/i);
+ if(scopedHeroTitle){
+  const first=resolveUniversalSection(site,"capa")||site.blocks.find(b=>b.type==="heading"&&b.section)?.section;
+  const heading=site.blocks.find(b=>b.section===first&&b.type==="heading");
+  if(!heading)return {ok:false,error:"O título principal não possui um bloco editável. Nenhuma alteração aplicada."};
+  if(heading.text===scopedHeroTitle[1])return {ok:true,site,changedIds:[]};
+  return {ok:true,site:{...site,blocks:site.blocks.map(b=>b.id===heading.id?{...b,text:scopedHeroTitle[1]}:b)},changedIds:[heading.id]};
+ }
  const bannerIntent=/^(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?faixa\s+horizontal\b/i.test(instruction);
  if(bannerIntent){
   const anchors=instruction.match(/entre\s+(?:as\s+)?se[cç][oõ]es\s+(.+?)\s+e\s+(.+?)(?:[,.;]|$)/i);
