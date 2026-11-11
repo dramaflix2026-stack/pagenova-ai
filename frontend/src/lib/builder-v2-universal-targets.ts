@@ -20,6 +20,9 @@ const aliases:Record<string,string[]>={
 export function resolveUniversalSection(site:UniversalSite,label:string):string|null{
  const target=norm(label).replace(/^(?:(?:a|o|as|os|de|da|do|das|dos)\s+)+/,"");
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
+ // TP2 architecture renders the editorial heading "Nossa Abordagem" inside its numbers section.
+ // Resolve that actual visible heading rather than guessing the generic process section.
+ if(target==="nossa abordagem"&&/arquitet|arquiteto|design de interiores/i.test(String((site as UniversalSite&{niche?:string;title?:string}).niche||"")+" "+String((site as UniversalSite&{niche?:string;title?:string}).title||""))&&sections.includes("numeros"))return "numeros";
  const exactIds=sections.filter(id=>norm(id)===target);
  if(exactIds.length)return exactIds.length===1?exactIds[0]:null;
  // Generic editorial prefixes (e.g. "Nossos produtos" vs section ID "produtos")
