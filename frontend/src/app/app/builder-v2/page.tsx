@@ -662,7 +662,7 @@ export default function BuilderV2() {
     if(site.blocks.length&&/veterin|cl[ií]nica\s+(?:de\s+)?(?:animais|pets)/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
       const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
       const colorRequest=/depoiment|avaliac|experiencias de tutores/.test(normalized)&&/cor|fundo/.test(normalized);
-      const heroImageRequest=/(?:imagem|foto|fotografia)/.test(normalized)&&/(?:capa|hero|principal|banner)/.test(normalized)&&/substitu|troqu|alter|mud/.test(normalized);
+      const heroImageRequest=/(?:substitu(?:a|ir|icao)|troqu(?:e|ar)|mud(?:e|ar)|alter(?:e|ar))\s+(?:(?:somente|apenas|a|o|uma|foto|imagem|fotografia|da|do|principal|hero|capa|banner|de|por)\s+){0,9}(?:imagem|foto|fotografia)/.test(normalized)&&/(?:capa|hero|principal|banner)/.test(normalized)&&!/\b(?:titulo|subtitulo|texto|frase)\b/.test(normalized);
       const sectionRequest=/especialidades veterinarias/.test(normalized)&&/adicion|inclu|cri|inser/.test(normalized);
       if(colorRequest||heroImageRequest||sectionRequest){
         const next:Site=structuredClone(site);
