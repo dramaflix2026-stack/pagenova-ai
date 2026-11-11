@@ -670,6 +670,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição Fitness");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
