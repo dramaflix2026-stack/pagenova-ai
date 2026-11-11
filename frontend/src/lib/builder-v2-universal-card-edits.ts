@@ -17,7 +17,7 @@ const parseCard=(value:string):{title:string;description:string;separator:string
  return m&&m[1].trim()&&m[3].trim()?{title:m[1].trim(),description:m[3].trim(),separator:m[2]}:null;
 };
 export type UniversalCardTarget={
- section:string;ordinal:number;titleId:string;descriptionId:string;format:"combined"|"split";
+ section:string;ordinal:number;titleId:string;descriptionId:string;format:"combined"|"split"|"virtual";
  originalTitle:string;originalDescription:string;separator:string;
 };
 export type UniversalCardEdit={
@@ -25,8 +25,19 @@ export type UniversalCardEdit={
  generateDescription:boolean;
 };
 export type UniversalCardResolution={intent:UniversalCardEdit}|{error:string}|null;
+const virtualCardKey=(section:string,ordinal:number)=>section+":card:"+ordinal;
+const isDeclaredVirtualCard=(site:UniversalSite,section:string,ordinal:number)=>{
+ const niche=String(site.niche||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ return /veterin|clinica (?:de )?(?:animais|pets)/.test(niche)
+  && ordinal>=0&&ordinal<6&&resolveUniversalSection(site,"Nossos Serviços")===section;
+};
 export function resolveUniversalCardTarget(site:UniversalSite,section:string,ordinal:number):UniversalCardTarget|null{
  if(!Number.isInteger(ordinal)||ordinal<0)return null;
+ if(isDeclaredVirtualCard(site,section,ordinal)){
+  const key=virtualCardKey(section,ordinal);
+  return {section,ordinal,titleId:key,descriptionId:key,format:"virtual",
+   originalTitle:"",originalDescription:"",separator:""};
+ }
  const sectionBlocks=site.blocks.filter(b=>b.section===section);
  const headings=sectionBlocks.filter(b=>b.type==="heading");
  const paragraphs=sectionBlocks.filter(b=>b.type==="paragraph");
@@ -55,6 +66,15 @@ export function universalEditedCardCopy(site:{blocks:readonly {id:string;type:st
  if(!section)return null;
  const target=resolveUniversalCardTarget(source,section,ordinal);
  if(!target)return null;
+ if(target.format==="virtual"){
+  const overrides=source.universalCardOverrides;
+  const value=overrides&&typeof overrides==="object"&&!Array.isArray(overrides)
+   ?(overrides as Record<string,unknown>)[virtualCardKey(section,ordinal)]:null;
+  if(!value||typeof value!=="object"||Array.isArray(value))return null;
+  const item=value as Record<string,unknown>;
+  return {title:typeof item.title==="string"?item.title:undefined,
+   description:typeof item.description==="string"?item.description:undefined};
+ }
  const title=source.blocks.find(b=>b.id===target.titleId);
  const description=source.blocks.find(b=>b.id===target.descriptionId);
  if(target.format==="combined"){
@@ -101,6 +121,19 @@ export function applyUniversalCardEdit<T extends UniversalSite>(
  const {target,newTitle}=intent;
  const description=intent.newDescription??generatedDescription;
  if(intent.generateDescription&&(!description||!description.trim()))return {ok:false,error:"A nova descrição não foi produzida. Nenhuma alteração aplicada."};
+ if(target.format==="virtual"){
+  if(!isDeclaredVirtualCard(site,target.section,target.ordinal))
+   return {ok:false,error:"O card visível não está disponível neste modelo. Nenhuma alteração aplicada."};
+  const key=virtualCardKey(target.section,target.ordinal);
+  const existing=site.universalCardOverrides&&typeof site.universalCardOverrides==="object"&&!Array.isArray(site.universalCardOverrides)
+   ?site.universalCardOverrides as Record<string,unknown>:{};
+  const previous=existing[key]&&typeof existing[key]==="object"?existing[key] as Record<string,unknown>:{};
+  const next={...previous,title:newTitle,...(description!==undefined?{description}:{})};
+  if(JSON.stringify(previous)===JSON.stringify(next))
+   return {ok:false,error:"O card já contém exatamente os textos solicitados. Nenhuma alteração aplicada."};
+  return {ok:true,changedIds:["virtual-card:"+key],
+   site:{...site,universalCardOverrides:{...existing,[key]:next}} as T};
+ }
  if(!site.blocks.some(b=>b.id===target.titleId&&b.section===target.section))return {ok:false,error:"Card original não encontrado. Nenhuma alteração aplicada."};
  const ops:UniversalOperation[]=[];
  if(target.format==="combined"){
