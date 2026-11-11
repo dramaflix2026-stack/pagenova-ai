@@ -19,6 +19,7 @@ export function Template7RealEstateFooter({brand,niche,footer}:{brand:string;nic
  .pn-t7-footer-contact p{color:#d4d3cb;margin:0 0 16px;overflow-wrap:anywhere}.pn-t7-footer-contact a{display:block;margin-bottom:16px;overflow-wrap:anywhere}
  .pn-t7-footer-brand{font:400 clamp(58px,12vw,200px)/.95 Georgia,'Times New Roman',serif;letter-spacing:-.075em;overflow-wrap:anywhere;padding:28px 0 45px;border-top:1px solid #ffffff30;border-bottom:1px solid #ffffff30}
  .pn-t7-footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:15px;padding-top:26px;color:#a9aca5;font-size:11px;letter-spacing:.06em}
+ @media(min-width:851px){.pn-t7-footer{padding-top:clamp(38px,4vw,64px)}.pn-t7-footer-top{padding-bottom:clamp(32px,4vw,55px);gap:clamp(24px,3vw,55px)}.pn-t7-footer-brand{font-size:clamp(60px,8vw,128px);padding:16px 0 25px;letter-spacing:-.055em}.pn-t7-footer h2{font-size:clamp(34px,3.4vw,52px)}}
  @media(max-width:850px){.pn-t7-footer{padding:75px 24px 30px}.pn-t7-footer-top{grid-template-columns:1fr 1fr;gap:45px;padding-bottom:65px}.pn-t7-footer-intro{grid-column:span 2}.pn-t7-footer-brand{font-size:clamp(55px,12vw,120px)}}
  @media(max-width:520px){.pn-t7-footer-top{grid-template-columns:1fr}.pn-t7-footer-intro{grid-column:auto}.pn-t7-footer-brand{font-size:clamp(50px,12vw,85px)}.pn-t7-footer-bottom{flex-direction:column;align-items:start}}
  `}</style>
