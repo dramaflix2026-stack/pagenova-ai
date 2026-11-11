@@ -2,21 +2,38 @@
 const section=document.querySelector('#journey'),photo=document.querySelector('.photo'),original=[...photo.querySelectorAll('img')],src=original[0]?.src;
 if(!src)return;
 original.forEach(el=>el.remove());
-photo.style.inset=innerWidth>700?'19% 0 7%':'35% 0 11%';
-photo.style.perspective='1000px';
 const title=document.querySelector('#title'),desc=document.querySelector('#desc'),eyebrow=document.querySelector('#eyebrow');
-title.innerHTML='UM TACO.<br><em>INFINITAS</em><br>CAMADAS.';
-desc.textContent='Deslize para separar e reconstruir. Uma fotografia, movimento contínuo.';
+title.innerHTML='O SABOR<br>EM <em>MOVIMENTO.</em>';
+desc.textContent='Uma fotografia consistente, com movimento contínuo controlado pelo scroll.';
 eyebrow.textContent='PAGENOVA MOTION ENGINE • V9';
-document.querySelector('header small').textContent='V9 • PROTÓTIPO 2.5D';
+document.querySelector('header small').textContent='V9 • MOVIMENTO';
 document.querySelector('#count').textContent='SCROLL / 01';
-const neutral={at:0,x:0,y:0,scale:1,opacity:1};
-const k=(dy,dx,rz)=>[neutral,{at:.19,x:0,y:0,scale:1.04},{at:.48,x:dx,y:dy,rotate:rz,scale:1.06},{at:.7,x:dx,y:dy,rotate:rz,scale:1.06},{at:.94,x:0,y:0,scale:1},{at:1,x:0,y:0,scale:1}];
-const layers=[
- {src,alt:'Taco fotográfico completo',keyframes:[{at:0,opacity:1},{at:.18,opacity:1},{at:.4,opacity:.22},{at:.73,opacity:.22},{at:.94,opacity:1},{at:1,opacity:1}]},
- {src,alt:'Camada superior do taco',mask:'polygon(0 0,100% 0,100% 43%,0 43%)',keyframes:k(-105,-15,-4)},
- {src,alt:'Camada central do taco',mask:'polygon(0 35%,100% 35%,100% 68%,0 68%)',keyframes:k(0,36,5)},
- {src,alt:'Camada inferior do taco',mask:'polygon(0 60%,100% 60%,100% 100%,0 100%)',keyframes:k(105,-20,-3)}
-];
+const style=document.createElement('style');
+style.textContent=`
+#journey .stage .copy{z-index:5;top:16%;pointer-events:none}
+#journey .stage .copy h1{font-size:clamp(43px,9vw,76px);line-height:1.02;max-width:620px}
+#journey .stage .copy p{max-width:310px;font-size:13px;line-height:1.45}
+#journey .photo{inset:42% 0 10%;z-index:2;overflow:visible;perspective:1100px}
+#journey .photo img{width:min(82vw,620px)!important;max-height:100%;object-fit:contain}
+#journey .stage header{z-index:7}
+#journey .stage .foot{z-index:7}
+@media(max-width:600px){
+#journey .stage .copy{top:17%;left:7%;right:7%}
+#journey .stage .copy h1{font-size:clamp(42px,10vw,58px);margin:14px 0}
+#journey .stage .copy p{max-width:280px;font-size:12px}
+#journey .photo{inset:49% 0 13%}
+#journey .photo img{width:82vw!important}
+}
+`;
+document.head.append(style);
+// The V9 engine is retained, but no false 'ingredient explosion' is simulated with image strips.
+// A single consistent asset is animated continuously until isolated layer assets are available.
+const layers=[{src,alt:'Taco fotográfico em movimento',keyframes:[
+{at:0,x:0,y:0,rotate:0,rotateY:-7,scale:.94},
+{at:.22,x:0,y:-8,rotate:-3,rotateY:8,scale:1},
+{at:.5,x:8,y:-15,rotate:2,rotateY:-12,scale:1.08},
+{at:.75,x:-7,y:-5,rotate:-2,rotateY:9,scale:1.02},
+{at:1,x:0,y:0,rotate:0,rotateY:-7,scale:.94}
+]}];
 window.PageNovaMotionEngine.mount({section,container:photo,layers,progressElement:document.querySelector('#bar')});
 })();
