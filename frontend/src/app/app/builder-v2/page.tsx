@@ -584,6 +584,41 @@ export default function BuilderV2() {
   }
   async function send() {
     const prompt = instruction.trim();
+    // Dedicated veterinary renderers use real site blocks as persisted overrides.
+    // Do not acknowledge a visual edit unless the renderer can consume it.
+    if(site.blocks.length&&/veterin|cl[ií]nica\s+(?:de\s+)?(?:animais|pets)/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
+      const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+      const colorRequest=/depoiment|avaliac|experiencias de tutores/.test(normalized)&&/cor|fundo/.test(normalized);
+      const heroImageRequest=/(?:imagem|foto|fotografia)/.test(normalized)&&/(?:capa|hero|principal|banner)/.test(normalized)&&/substitu|troqu|alter|mud/.test(normalized);
+      const sectionRequest=/especialidades veterinarias/.test(normalized)&&/adicion|inclu|cri|inser/.test(normalized);
+      if(colorRequest||heroImageRequest||sectionRequest){
+        const next:Site=structuredClone(site);
+        let summary="";
+        const upsert=(section:string,type:Block["type"],changes:Partial<Block>)=>{
+          const index=next.blocks.findIndex(b=>b.section===section&&b.type===type);
+          const block:Block=index>=0?{...next.blocks[index],...changes}:{id:crypto.randomUUID(),section,type,text:"",color:"#ffffff",align:"left",...changes};
+          if(index>=0)next.blocks[index]=block;else next.blocks.push(block);
+        };
+        if(colorRequest){
+          const hex=prompt.match(/#[0-9a-fA-F]{6}(?![0-9a-fA-F])/)?.[0];
+          if(!hex){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe a cor em hexadecimal, por exemplo #14263D. Nenhuma alteração aplicada."}]);return;}
+          upsert("vet-testimonials-style","paragraph",{background:hex});
+          summary="Fundo dos depoimentos alterado para "+hex+".";
+        }else if(heroImageRequest){
+          // A distinct curated real veterinary photograph, not a generated image.
+          upsert("vet-hero-image","image",{src:"https://images.pexels.com/photos/6234618/pexels-photo-6234618.jpeg?auto=compress&cs=tinysrgb&w=1600",imageExplicit:true});
+          summary="Imagem da Hero veterinária substituída na prévia.";
+        }else{
+          upsert("vet-extra-specialties","heading",{text:"Especialidades Veterinárias"});
+          summary="Especialidades Veterinárias inserida após os serviços, com três cards ilustrados.";
+        }
+        recordVersion(site,"Antes da edição veterinária");
+        setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+        setSite(next);setInstruction("");setGenerationError("");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
+        return;
+      }
+    }
     // Fitness templates are rendered from a dedicated component. Apply edits to
     // explicit component overrides instead of silently editing invisible generic blocks.
     if(site.blocks.length&&/academia|fitness|personal trainer|muscula[cç][aã]o/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
