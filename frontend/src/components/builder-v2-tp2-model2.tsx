@@ -30,7 +30,7 @@ const faqs=[["Como solicitar um orçamento?","Envie os detalhes do que você pre
 const architecturePhotos=["photo-1497366754035-f200968a6e72","photo-1613977257363-707ba9348227","photo-1600585154526-990dced4db0d","photo-1600566752355-35792bedcfea","photo-1616486338812-3dadae4b4ace"];
 const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
 const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
-const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.imageExplicit||block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
 export function BuilderV2TP2Model2({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[reply,setReply]=useState(""),[msg,setMsg]=useState(""),[notice,setNotice]=useState("");
  const niche=site.niche||"Engenharia",brand=site.header?.brand||site.title||"Estúdio Técnico";
