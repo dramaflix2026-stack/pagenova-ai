@@ -11,6 +11,10 @@ const images=[
 "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1100&q=85",
 "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1100&q=85",
 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1100&q=85", "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1100&q=85", "https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1100&q=85", "https://images.unsplash.com/photo-1511818966892-d7d671e672a2?auto=format&fit=crop&w=1100&q=85", "https://images.unsplash.com/photo-1600607687644-c7171b42498f?auto=format&fit=crop&w=1100&q=85"];
+const architecturePhotos=["photo-1600607687939-ce8a6c25118c","photo-1600566753190-17f0baa2a6c3","photo-1600585154340-be6161a56a0c","photo-1600607687920-4e2a09cf159d","photo-1600566753086-00f18fb6b3ea"];
+const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
+const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.imageExplicit||block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
 export function BuilderV2TP2Model1({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [showDemoHelp,setShowDemoHelp]=useState(false);
  const isMaterials=isConstructionMaterials(site.niche,site.title,site.header?.brand);
@@ -19,7 +23,7 @@ export function BuilderV2TP2Model1({site,publishedMode=false}:{site:BuilderV2Sit
  const headings=blocks.filter(b=>b.type==="heading");
  const paragraphs=blocks.filter(b=>b.type==="paragraph");
  const media=blocks.filter(b=>b.type==="image"&&b.src?.trim()&&!b.id.startsWith("universal-extra-card-"));
- const photo=(i:number)=>isMaterials?constructionPhotoFor(media[i],i,1):media[i]?.src||images[i%images.length];
+ const photo=(i:number)=>isMaterials?constructionPhotoFor(media[i],i,1):isArchitectureIdentity(site)?architectureVisual(media[i],i):media[i]?.src||images[i%images.length];
  const demoAddress="Avenida Paulista, 1000 — Bela Vista, São Paulo/SP";
  const realAddress=site.footer?.address?.trim()||"";
  const displayAddress=realAddress||(!publishedMode&&isMaterials?demoAddress:"");
