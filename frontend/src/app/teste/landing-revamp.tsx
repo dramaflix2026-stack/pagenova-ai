@@ -138,6 +138,29 @@ export function LandingRevamp() {
   setLang(browser.startsWith("en")?"en":browser.startsWith("es")?"es":"pt");
  },[]);
  useEffect(()=>{document.documentElement.lang=lang==="pt"?"pt-BR":lang;},[lang]);
+ useEffect(()=>{
+  const rail=document.querySelector<HTMLElement>(".pnr-style-grid");
+  if(!rail)return;
+  const cards=Array.from(rail.querySelectorAll<HTMLElement>(".pnr-style-card"));
+  let raf=0;
+  const update=()=>{
+   raf=0;
+   const center=rail.getBoundingClientRect().left+rail.clientWidth/2;
+   let active=0,dist=Infinity;
+   cards.forEach((card,i)=>{
+    const rect=card.getBoundingClientRect();
+    const delta=Math.abs(rect.left+rect.width/2-center);
+    if(delta<dist){dist=delta;active=i;}
+   });
+   cards.forEach((card,i)=>card.classList.toggle("pnr-style-active",i===active));
+  };
+  const onScroll=()=>{if(!raf)raf=requestAnimationFrame(update);};
+  update();
+  rail.addEventListener("scroll",onScroll,{passive:true});
+  window.addEventListener("resize",onScroll);
+  return ()=>{rail.removeEventListener("scroll",onScroll);window.removeEventListener("resize",onScroll);if(raf)cancelAnimationFrame(raf);};
+ },[]);
+
  const t=translations[lang];
  const switchLang=(value:Lang)=>{
   setLang(value);setMenu(false);
