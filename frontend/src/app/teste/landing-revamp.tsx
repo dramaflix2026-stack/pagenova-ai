@@ -139,6 +139,16 @@ export function LandingRevamp() {
  },[]);
  useEffect(()=>{document.documentElement.lang=lang==="pt"?"pt-BR":lang;},[lang]);
  useEffect(()=>{
+  const section=document.querySelector<HTMLElement>(".pnr-audiences");
+  if(!section)return;
+  if(!("IntersectionObserver" in window)){section.classList.add("pnr-audiences-visible");return;}
+  const observer=new IntersectionObserver(entries=>{
+   entries.forEach(entry=>{if(entry.isIntersecting){section.classList.add("pnr-audiences-visible");observer.unobserve(entry.target);}});
+  },{threshold:.16});
+  observer.observe(section);
+  return ()=>observer.disconnect();
+ },[]);
+ useEffect(()=>{
   const rail=document.querySelector<HTMLElement>(".pnr-style-grid");
   if(!rail)return;
   const cards=Array.from(rail.querySelectorAll<HTMLElement>(".pnr-style-card"));
