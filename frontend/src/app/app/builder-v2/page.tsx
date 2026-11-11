@@ -746,7 +746,7 @@ export default function BuilderV2() {
       const sectionBackgroundRequest=!hasAttachments&&/^na\s+se[cç][aã]o\s+["“]?[^\n]{2,110}?["”]?,?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+/i.test(prompt);
       if(sectionBackgroundRequest){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok){recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site as BuilderV2SiteData);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        if(backgroundResult?.ok){recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
       }
       const realPhotoReplacement=!hasAttachments&&(imageChange||/^(?:substitua|troque)\s+somente\s+a\s+imagem\s+principal/i.test(prompt))&&/(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)/i.test(prompt)&&/(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)/i.test(prompt);
       if(realPhotoReplacement){
