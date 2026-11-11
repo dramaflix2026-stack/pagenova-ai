@@ -149,14 +149,18 @@
     },
     {
       "path": "src/components/builder-v2-tp2-evidence.tsx",
-      "blobSha": "ccbae61a9f864c8ec75b7a29a7595e6c2b7412dc"
+      "blobSha": "ccbae61a9f864c8ec75b7a29a7595e6c2b7412dc",
+      "approvedBindingRevision": {
+        "sha": "15c9e4c474f90cbf25b5133001cde313eaf3c921",
+        "reason": "User-authorized TP2 architecture/interiors visual QA: service copy, process image alignment, differentiated approach sections and six labeled fictional preview testimonials. Other niches preserve existing rendering; shared evidence count defaults to five."
+      }
     },
     {
       "path": "src/components/builder-v2-tp2-model1.tsx",
       "blobSha": "4177c7d470c2f02da551c642da54b51b77ae5891",
       "approvedBindingRevision": {
-        "sha": "fdb2da299023ee0647177198acd262caa38f98db",
-        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+        "sha": "02aecd68359c233955d4f1b98e113790dc0bea9b",
+        "reason": "User-authorized TP2 architecture/interiors visual QA: service copy, process image alignment, differentiated approach sections and six labeled fictional preview testimonials. Other niches preserve existing rendering; shared evidence count defaults to five."
       }
     },
     {
@@ -167,8 +171,8 @@
       "path": "src/components/builder-v2-tp2-model2.tsx",
       "blobSha": "09f43210c9596f27d724a07b7ab4159f5351db15",
       "approvedBindingRevision": {
-        "sha": "8ad2bc17df3b6980a86cc5d14aa50a6ae32c331d",
-        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+        "sha": "ba01b3b6bbb8a11370d969502304a0242e418fc7",
+        "reason": "User-authorized TP2 architecture/interiors visual QA: service copy, process image alignment, differentiated approach sections and six labeled fictional preview testimonials. Other niches preserve existing rendering; shared evidence count defaults to five."
       }
     },
     {
@@ -179,8 +183,8 @@
       "path": "src/components/builder-v2-tp2-model3.tsx",
       "blobSha": "b11313c8d9f383e9dec5ad1e5179f06ca08cb7ac",
       "approvedBindingRevision": {
-        "sha": "a21a93ff8c49aab3422a007d463a54b8d722f2fc",
-        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+        "sha": "6fd6e602a269fb7126d61ac5e374b6a8a2dcaea6",
+        "reason": "User-authorized TP2 architecture/interiors visual QA: service copy, process image alignment, differentiated approach sections and six labeled fictional preview testimonials. Other niches preserve existing rendering; shared evidence count defaults to five."
       }
     },
     {

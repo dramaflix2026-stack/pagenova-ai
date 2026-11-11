@@ -9,9 +9,10 @@ const sample=[
  ["Ricardo Almeida","Personagem fictício · Planejamento","Um processo organizado ajuda a compreender prioridades e acompanhar as próximas escolhas."],
  ["Patrícia Souza","Personagem fictícia · Projeto","A atenção aos detalhes e às necessidades do espaço é o que valorizo em uma consultoria."],
  ["Carlos Ferreira","Personagem fictício · Consultoria","Conhecer as alternativas e entender o processo faz diferença no planejamento."],
- ["Juliana Martins","Personagem fictícia · Acompanhamento","Uma comunicação objetiva favorece o alinhamento de expectativas durante o projeto."]
+ ["Juliana Martins","Personagem fictícia · Acompanhamento","Uma comunicação objetiva favorece o alinhamento de expectativas durante o projeto."],
+ ["Fernanda Costa","Personagem fictícia · Interiores","O cuidado com as escolhas de materiais e a organização das etapas tornam o processo mais claro."]
 ] as const;
-const faces=[27066067,30004315,33614428,13999482,6413499];
+const faces=[27066067,30004315,33614428,13999482,6413499,774909];
 function Count({value}:{value:number}){
  const node=useRef<HTMLSpanElement>(null),[display,setDisplay]=useState(0);
  useEffect(()=>{
@@ -67,19 +68,19 @@ export function TP2EvidenceNumbers({services,steps,faqs,provided=[]}:{services:n
  </div>;
 }
 type Story={name:string;role:string;quote:string;portrait:string;demo:boolean};
-export function TP2EvidenceTestimonials({provided=[],publishedMode=false}:{provided?:readonly (readonly string[])[];publishedMode?:boolean}){
- const real:Story[]=provided.filter(v=>v.length>=3&&v[0]?.trim()&&v.slice(2).join(" ").trim()).slice(0,5).map(v=>({name:v[0],role:v[1]||"Cliente",quote:v.slice(2).join(" | "),portrait:"",demo:false}));
- const demo:Story[]=publishedMode?[]:sample.slice(0,Math.max(0,5-real.length)).map((v,i)=>({name:v[0],role:v[1],quote:v[2],portrait:"https://images.pexels.com/photos/"+faces[i]+"/pexels-photo-"+faces[i]+".jpeg?auto=compress&cs=tinysrgb&w=380",demo:true}));
+export function TP2EvidenceTestimonials({provided=[],publishedMode=false,count=5}:{provided?:readonly (readonly string[])[];publishedMode?:boolean;count?:number}){
+ const real:Story[]=provided.filter(v=>v.length>=3&&v[0]?.trim()&&v.slice(2).join(" ").trim()).slice(0,count).map(v=>({name:v[0],role:v[1]||"Cliente",quote:v.slice(2).join(" | "),portrait:"",demo:false}));
+ const demo:Story[]=publishedMode?[]:sample.slice(0,Math.max(0,count-real.length)).map((v,i)=>({name:v[0],role:v[1],quote:v[2],portrait:"https://images.pexels.com/photos/"+faces[i]+"/pexels-photo-"+faces[i]+".jpeg?auto=compress&cs=tinysrgb&w=380",demo:true}));
  const entries=[...real,...demo];
  return <div data-tp2-proof="testimonials" className="w-full max-w-7xl mt-9">
-  <span className="block text-xs font-extrabold uppercase tracking-[.15em] opacity-70 mb-5">{demo.length?"CINCO RELATOS FICTÍCIOS · PRÉVIA DE LAYOUT":"AVALIAÇÕES CADASTRADAS PELA EMPRESA"}</span>
+  <span className="block text-xs font-extrabold uppercase tracking-[.15em] opacity-70 mb-5">{demo.length?(count===6?"SEIS RELATOS FICTÍCIOS · PRÉVIA DE LAYOUT":"CINCO RELATOS FICTÍCIOS · PRÉVIA DE LAYOUT"):"AVALIAÇÕES CADASTRADAS PELA EMPRESA"}</span>
   {entries.length?<div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">{entries.map((entry,i)=><article key={i} className="flex min-w-0 flex-col gap-5 rounded-xl border border-[#d6cec2] bg-[#f8f4ed] p-6 text-[#292820]">
    <div className="flex items-center gap-3">{entry.portrait?<img src={entry.portrait} alt="Foto de banco de imagens, personagem fictício" loading="lazy" className="!h-14 !w-14 !shrink-0 !rounded-full !object-cover"/>:<div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#dfd0bd] text-xl font-bold">{entry.name[0]}</div>}
     <div className="min-w-0"><strong className="block text-base font-bold">{entry.name}</strong><small className="block text-[11px] leading-5 text-[#756b5d]">{entry.role}</small></div></div>
    <blockquote className="grow text-sm leading-7">“{entry.quote}”</blockquote>
    <span className="text-[10px] font-extrabold tracking-[.1em] text-[#967656]">{entry.demo?"RELATO FICTÍCIO · IMAGEM ILUSTRATIVA":"RELATO FORNECIDO PELA EMPRESA"}</span>
   </article>)}</div>:<div className="rounded-xl bg-[#f8f4ed] p-7 text-[#292820]"><h3 className="font-bold">Depoimentos de clientes</h3><p className="mt-3 text-sm leading-7">Cadastre relatos reais e autorizados para preencher esta seção. Nenhuma avaliação foi inventada.</p></div>}
-  {demo.length>0&&<p className="mt-6 text-xs leading-6 opacity-70">Estes cinco relatos, nomes e fotos são fictícios e servem apenas à prévia. Não representam clientes nem avaliações verificadas; na publicação, não serão apresentados como reais.</p>}
+  {demo.length>0&&<p className="mt-6 text-xs leading-6 opacity-70">Estes {count===6?"seis":"cinco"} relatos, nomes e fotos são fictícios e servem apenas à prévia. Não representam clientes nem avaliações verificadas; na publicação, não serão apresentados como reais.</p>}
  </div>;
 }
 const whatsapp=(footer?:Footer)=>{const d=(footer?.whatsapp||"").replace(/\D/g,"");return d.length>=10&&d.length<=15?"https://wa.me/"+(d.startsWith("55")?d:"55"+d):null};
