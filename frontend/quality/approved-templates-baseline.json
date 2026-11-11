@@ -272,7 +272,7 @@
       "blobSha": "36d20334b62a089692b5ac1fc2f446b99f47e1e1",
       "approvedBindingRevision": {
         "sha": "166cdda8080735a889c05011f449981466ca417a",
-        "reason": "User-requested functional binding of six veterinary service card titles and descriptions to the existing universal card-edit overlay. Preserve all approved visual markup, photography and layout; only edit displayed card copy when an explicit universal edit exists."
+        "reason": "Functional binding only: six existing veterinary service cards now read universal edited title/description overrides by ordinal; preserves original photos, structure, styling, and default content. User requested and is homologating this exact editing behavior."
       }
     },
     {
