@@ -428,3 +428,41 @@
  .pnr-page .pnr-style-card picture,.pnr-page .pnr-style-card::after {animation:none!important}
  .pnr-page .pnr-style-card picture {transform:none!important}
 }
+
+
+/* Mobile compact style gallery: preserve full artwork, no crop or distortion. */
+@media (max-width:650px) {
+ .pnr-page .pnr-styles {padding-left:0;padding-right:0}
+ .pnr-page .pnr-styles .pnr-section-heading {padding-inline:24px}
+ .pnr-page .pnr-style-grid {
+   display:flex!important;
+   width:100%;
+   max-width:none;
+   gap:12px;
+   overflow-x:auto;
+   overscroll-behavior-x:contain;
+   scroll-snap-type:x mandatory;
+   scroll-padding-inline:9vw;
+   padding:8px 9vw 20px;
+   -webkit-overflow-scrolling:touch;
+   scrollbar-width:none;
+   align-items:flex-start;
+ }
+ .pnr-page .pnr-style-grid::-webkit-scrollbar {display:none}
+ .pnr-page .pnr-style-card {
+   flex:0 0 82%;
+   width:82%;
+   min-width:0;
+   scroll-snap-align:center;
+   border-radius:18px;
+ }
+ .pnr-page .pnr-style-card picture,
+ .pnr-page .pnr-style-card img {
+   display:block;
+   width:100%;
+   height:auto!important;
+   aspect-ratio:auto!important;
+   object-fit:contain!important;
+ }
+ .pnr-page .pnr-footnote {padding-inline:24px;margin-top:10px}
+}
