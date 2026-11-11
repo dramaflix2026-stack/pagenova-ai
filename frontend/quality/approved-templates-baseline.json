@@ -245,11 +245,19 @@
     },
     {
       "path": "src/components/builder-v2-tp4-veterinary.css",
-      "blobSha": "152abbf5fe7f330c4a640c3b4f1f31cd86fe224e"
+      "blobSha": "152abbf5fe7f330c4a640c3b4f1f31cd86fe224e",
+      "approvedBindingRevision": {
+        "sha": "d96f4323a00a7ed2e3c1aa9a7f3f70f537a10417",
+        "reason": "User-requested functional veterinary editor support for testimonials background, hero image replacement and insertion of specialty cards; preserve existing approved visual structure."
+      }
     },
     {
       "path": "src/components/builder-v2-tp4-veterinary.tsx",
-      "blobSha": "36d20334b62a089692b5ac1fc2f446b99f47e1e1"
+      "blobSha": "36d20334b62a089692b5ac1fc2f446b99f47e1e1",
+      "approvedBindingRevision": {
+        "sha": "f542bbdf3e005f85b0cdd46a93c85258a1cff34c",
+        "reason": "User-requested functional veterinary editor support for testimonials background, hero image replacement and insertion of specialty cards; preserve existing approved visual structure."
+      }
     },
     {
       "path": "src/components/builder-v2-tp5-model2.css",
