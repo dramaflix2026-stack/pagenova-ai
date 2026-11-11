@@ -199,7 +199,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const key="pagenova:editor-learning-events:v1";
     const existing=JSON.parse(localStorage.getItem(key)||"[]");
     const events=Array.isArray(existing)?existing:[];
-    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
+    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
@@ -260,6 +260,18 @@ export default function BuilderV2() {
   const [publishNotice,setPublishNotice] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
+  const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
+  async function refreshApprovedExperiences(){
+    try{
+      const client=createSupabaseBrowserClient();
+      const {data:{user}}=await client.auth.getUser();
+      if(!user)return;
+      const {count,error}=await client.from("builder_editor_learning_events")
+        .select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("review_status","approved");
+      if(!error)setApprovedExperienceCount(count??0);
+    }catch{/* Reading learning history must not block editing. */}
+  }
+  useEffect(()=>{void refreshApprovedExperiences();},[]);
   async function reviewLastEdit(status:"approved"|"rejected"){
     if(!reviewCandidate||reviewCandidate.status!=="pending")return;
     const key="pagenova:editor-learning-events:v1";
@@ -273,7 +285,7 @@ export default function BuilderV2() {
       setReviewCandidate({id:reviewCandidate.id,status});
       const client=createSupabaseBrowserClient();
       const {data:{user}}=await client.auth.getUser();
-      if(user)await client.from("builder_editor_learning_events").update({review_status:status,reviewed_at:new Date().toISOString()}).eq("id",reviewCandidate.id).eq("user_id",user.id);
+      if(user){const {error}=await client.from("builder_editor_learning_events").update({review_status:status,reviewed_at:new Date().toISOString()}).eq("id",reviewCandidate.id).eq("user_id",user.id);if(!error)void refreshApprovedExperiences();}
     }catch{/* Keep local review if cloud is temporarily unavailable. */}
   }
   function captureReviewCandidate(){
@@ -1517,7 +1529,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}{reviewCandidate&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2">A última edição funcionou corretamente na prévia?</p>{reviewCandidate.status==="pending"?<div className="flex gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}{reviewCandidate&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2">A última edição funcionou corretamente na prévia?</p>{approvedExperienceCount!==null&&<p className="mb-2 text-white/50">Experiências aprovadas na sua conta: {approvedExperienceCount}</p>}{reviewCandidate.status==="pending"?<div className="flex gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea id="pn-builder-chat-input" ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
