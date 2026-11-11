@@ -251,6 +251,16 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
   if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return {title,description:descriptions[key]||"Atuamos com critérios técnicos claros, acompanhamento dedicado e soluções alinhadas às necessidades de cada projeto."};});
  }
+ // An ordinary four-differential request should not require the user to supply card titles.
+ // Use neutral, editable sample copy; never fabricate business-specific achievements.
+ if(!cards.length&&/\\b(?:quatro|4)\\s+diferenciais\\b/i.test(instruction)){
+  cards=[
+   {title:"Atendimento personalizado",description:"Conheça as opções disponíveis e receba orientações de acordo com suas necessidades."},
+   {title:"Seleção de imóveis",description:"Explore imóveis apresentados com informações claras e organizadas."},
+   {title:"Transparência",description:"Encontre informações objetivas para comparar possibilidades com tranquilidade."},
+   {title:"Experiência de navegação",description:"Descubra os espaços em uma apresentação visual intuitiva e responsiva."}
+  ];
+ }
  if(!cards.length||requestedCount!==null&&cards.length!==requestedCount)return {ok:false,error:"A quantidade ou os títulos dos cards não correspondem ao pedido. Nenhuma alteração aplicada."};
  if(cards.length>12||new Set(cards.map(c=>normalized(c.title))).size!==cards.length)return {ok:false,error:"Os cards precisam ter títulos únicos e quantidade válida. Nenhuma alteração aplicada."};
  const entries=[{type:"heading",text:name},...cards.flatMap(card=>[
