@@ -153,7 +153,11 @@
     },
     {
       "path": "src/components/builder-v2-tp2-model1.tsx",
-      "blobSha": "4177c7d470c2f02da551c642da54b51b77ae5891"
+      "blobSha": "4177c7d470c2f02da551c642da54b51b77ae5891",
+      "approvedBindingRevision": {
+        "sha": "1aaff17bb35be31d7f5619531e2556a39c7f1060",
+        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+      }
     },
     {
       "path": "src/components/builder-v2-tp2-model2.css",
@@ -161,7 +165,11 @@
     },
     {
       "path": "src/components/builder-v2-tp2-model2.tsx",
-      "blobSha": "09f43210c9596f27d724a07b7ab4159f5351db15"
+      "blobSha": "09f43210c9596f27d724a07b7ab4159f5351db15",
+      "approvedBindingRevision": {
+        "sha": "bf280cf7792aba438027128336619385b98a980f",
+        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+      }
     },
     {
       "path": "src/components/builder-v2-tp2-model3.css",
@@ -169,7 +177,11 @@
     },
     {
       "path": "src/components/builder-v2-tp2-model3.tsx",
-      "blobSha": "b11313c8d9f383e9dec5ad1e5179f06ca08cb7ac"
+      "blobSha": "b11313c8d9f383e9dec5ad1e5179f06ca08cb7ac",
+      "approvedBindingRevision": {
+        "sha": "1d1eff741c364b0a09ffa3d821fdd776dc16cdba",
+        "reason": "User-requested architecture-only visual differentiation: distinct photo sets across Models 1, 2 and 3; preserve explicit user-selected images and other TP2 niches. No other layout modifications."
+      }
     },
     {
       "path": "src/components/builder-v2-tp3-family-shared.tsx",
