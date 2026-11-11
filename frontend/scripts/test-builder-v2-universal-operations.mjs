@@ -1239,3 +1239,22 @@ test("natural section creation resolves plural article before testimonials",()=>
  assert.ok(sections.indexOf("custom-por-que-investir-conosco")<sections.indexOf("depoimentos"));
  assert.deepEqual(original.blocks.map(b=>b.id),["hero-title","about-title","reviews-title","footer-title"]);
 });
+
+test("hero image natural-language aliases change only the requested image",()=>{
+ const original={templateId:"prompt-adaptive",blocks:[
+  {id:"hero-title",type:"heading",section:"inicio",text:"Aurora Prime"},
+  {id:"hero-image",type:"image",section:"inicio",src:"https://example.com/old.jpg"},
+  {id:"gallery-image",type:"image",section:"galeria",src:"https://example.com/gallery.jpg"}
+ ]};
+ for(const command of [
+  "Troque a imagem da capa pela foto https://images.pexels.com/photos/123/pexels-photo-123.jpeg",
+  "Substitua a imagem principal da primeira seção por https://images.pexels.com/photos/123/pexels-photo-123.jpeg"
+ ]){
+  const result=applyUniversalNaturalLanguage(original,command);
+  assert.equal(result?.ok,true,result?.error||"Comando não interpretado");
+  if(!result?.ok)continue;
+  assert.equal(result.site.blocks.find(b=>b.id==="hero-image")?.src,"https://images.pexels.com/photos/123/pexels-photo-123.jpeg");
+  assert.equal(result.site.blocks.find(b=>b.id==="gallery-image")?.src,"https://example.com/gallery.jpg");
+  assert.equal(original.blocks[1].src,"https://example.com/old.jpg");
+ }
+});
