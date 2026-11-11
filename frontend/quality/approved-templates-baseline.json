@@ -377,7 +377,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model1-reviews-contact.css",
-      "blobSha": "aaa8e4e2fcaa43f5b4d734f4b6821c85bc5dff88"
+      "blobSha": "aaa8e4e2fcaa43f5b4d734f4b6821c85bc5dff88",
+      "approvedBindingRevision": {
+        "sha": "b08cef9c127d79be2a70d696d716af18a47712ab",
+        "reason": "User-requested scoped TP7 responsive testimonial and FAQ typography and grid correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model1-reviews-contact.tsx",
@@ -441,7 +445,11 @@
     },
     {
       "path": "src/components/builder-v2-tp7-model3-reviews-faq.css",
-      "blobSha": "2850f7ff7ac37f94ee5c541c4d78306856a5f7de"
+      "blobSha": "2850f7ff7ac37f94ee5c541c4d78306856a5f7de",
+      "approvedBindingRevision": {
+        "sha": "6c3ef2c47b34c1bc815b9acec998074608ea28ff",
+        "reason": "User-requested scoped TP7 responsive testimonial and FAQ typography and grid correction."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-reviews-faq.tsx",
