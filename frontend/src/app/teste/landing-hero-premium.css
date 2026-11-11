@@ -715,3 +715,93 @@
  .pnr-page .pnr-audience-ai svg{animation:none!important;transition:none!important}
  .pnr-page .pnr-audience-track span{width:55%}
 }
+
+
+/* Pricing showcase v2 — animated premium cards; pricing and checkout status unchanged. */
+.pnr-page .pnr-pricing{position:relative;isolation:isolate}
+.pnr-page .pnr-price-grid{align-items:stretch}
+.pnr-page .pnr-price-card{
+ isolation:isolate;overflow:hidden;
+ background:radial-gradient(ellipse at 10% 0%,rgba(130,255,98,.14),transparent 58%),linear-gradient(150deg,#102a19,#07160e 85%);
+ border:1px solid rgba(171,255,111,.36);border-radius:23px;
+ transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s,border-color .45s;
+ box-shadow:inset 0 1px rgba(220,255,201,.09),0 18px 38px rgba(0,0,0,.23);
+}
+.pnr-page .pnr-price-card:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(115deg,transparent 25%,rgba(184,255,137,.11) 49%,transparent 70%);
+ transform:translateX(-150%);animation:pnrPriceSheen 7s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card:nth-child(2):before{animation-delay:-1.8s}
+.pnr-page .pnr-price-card:nth-child(3):before{animation-delay:-3.5s}
+.pnr-page .pnr-price-card:nth-child(4):before{animation-delay:-5s}
+.pnr-page .pnr-price-card:hover,.pnr-page .pnr-price-card:focus-within{
+ transform:translateY(-7px);border-color:rgba(180,255,122,.9);
+ box-shadow:0 24px 52px rgba(0,0,0,.34),0 0 28px rgba(154,255,91,.12);
+}
+.pnr-page .pnr-price-card.is-featured{
+ overflow:visible;
+ border-color:#adff69;
+ background:radial-gradient(ellipse at 50% 0%,rgba(146,255,90,.24),transparent 64%),linear-gradient(150deg,#173e20,#071b10 85%);
+ box-shadow:0 0 0 1px rgba(173,255,104,.4),0 0 28px rgba(156,255,94,.23),inset 0 0 25px rgba(165,255,110,.08);
+ animation:pnrPriceFeatured 4.5s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card.is-featured:before{border-radius:inherit}
+.pnr-page .pnr-featured-label{
+ z-index:2;max-width:calc(100% - 32px);margin:0 auto;
+ border-radius:0 0 16px 16px;white-space:normal;text-align:center;
+}
+.pnr-page .pnr-price-icon{
+ border:1px solid rgba(165,255,108,.23);
+ background:linear-gradient(145deg,rgba(146,255,93,.16),rgba(146,255,93,.05));
+ box-shadow:inset 0 0 20px rgba(167,255,108,.06);
+ animation:pnrPriceIcon 4s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card:nth-child(2) .pnr-price-icon{animation-delay:-1s}
+.pnr-page .pnr-price-card:nth-child(3) .pnr-price-icon{animation-delay:-2s}
+.pnr-page .pnr-price-number{gap:5px}
+.pnr-page .pnr-price-number strong{font-variant-numeric:tabular-nums;letter-spacing:-.065em}
+.pnr-page .pnr-price-details li svg{filter:drop-shadow(0 0 5px rgba(170,255,100,.3))}
+.pnr-page .pnr-price-button{transition:background .3s,border-color .3s,box-shadow .3s}
+.pnr-page .pnr-price-button:disabled{opacity:1;cursor:not-allowed}
+.pnr-page .pnr-price-button.primary{box-shadow:0 7px 26px rgba(160,255,100,.16)}
+.pnr-page .pnr-guarantee{
+ position:relative;isolation:isolate;
+ background:radial-gradient(ellipse at 10% 80%,rgba(111,240,85,.15),transparent 62%),linear-gradient(130deg,#0c2715,#07170e);
+ border-color:rgba(175,255,110,.43);box-shadow:inset 0 0 24px rgba(146,255,91,.05),0 18px 48px rgba(0,0,0,.17);
+}
+.pnr-page .pnr-guarantee:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(115deg,transparent 30%,rgba(169,255,126,.08) 50%,transparent 70%);
+ transform:translateX(-130%);animation:pnrPriceSheen 9s ease-in-out infinite;
+}
+.pnr-page .pnr-shield{animation:pnrShieldFloat 5s ease-in-out infinite}
+.pnr-page .pnr-seal{animation:pnrSealPulse 4s ease-in-out infinite}
+@keyframes pnrPriceSheen{0%,18%{transform:translateX(-150%)}48%,100%{transform:translateX(150%)}}
+@keyframes pnrPriceFeatured{0%,100%{box-shadow:0 0 0 1px rgba(173,255,104,.35),0 0 25px rgba(156,255,94,.16)}50%{box-shadow:0 0 0 1px rgba(173,255,104,.75),0 0 42px rgba(156,255,94,.29)}}
+@keyframes pnrPriceIcon{0%,100%{box-shadow:inset 0 0 14px rgba(167,255,108,.05)}50%{box-shadow:inset 0 0 22px rgba(167,255,108,.18),0 0 14px rgba(167,255,108,.13)}}
+@keyframes pnrShieldFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pnrSealPulse{0%,100%{box-shadow:0 0 14px rgba(170,255,91,.22),inset 0 0 15px rgba(132,255,69,.16)}50%{box-shadow:0 0 27px rgba(170,255,91,.45),inset 0 0 23px rgba(132,255,69,.25)}}
+@media(max-width:650px){
+ .pnr-page .pnr-price-grid{gap:13px}
+ .pnr-page .pnr-price-card{min-height:0;padding:21px 20px 17px;border-radius:21px}
+ .pnr-page .pnr-price-card.is-featured{margin-top:14px}
+ .pnr-page .pnr-featured-label{position:relative;top:-21px;margin-bottom:-12px;max-width:calc(100% - 28px);padding:9px 13px;line-height:1.2}
+ .pnr-page .pnr-price-top{min-height:46px}
+ .pnr-page .pnr-price-number{margin-top:5px;padding:10px 0 13px}
+ .pnr-page .pnr-price-number strong{font-size:clamp(43px,12vw,54px)}
+ .pnr-page .pnr-price-details{padding:13px 0 17px}
+ .pnr-page .pnr-price-details ul{gap:9px;margin-top:10px}
+ .pnr-page .pnr-price-button{min-height:46px}
+ .pnr-page .pnr-guarantee{padding:21px 18px;gap:8px;min-height:0}
+ .pnr-page .pnr-shield{min-height:66px;width:100%}
+ .pnr-page .pnr-shield svg{height:62px;width:62px}
+ .pnr-page .pnr-guarantee-copy h2{font-size:clamp(24px,7vw,31px);line-height:1.13;margin-top:9px}
+ .pnr-page .pnr-guarantee-copy>p:last-child{margin-top:9px}
+ .pnr-page .pnr-seal{width:75px;height:75px;margin:8px auto 0;border-width:3px}
+ .pnr-page .pnr-seal strong{font-size:33px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-price-card,.pnr-page .pnr-price-card.is-featured,.pnr-page .pnr-price-card:before,.pnr-page .pnr-price-icon,.pnr-page .pnr-guarantee:before,.pnr-page .pnr-shield,.pnr-page .pnr-seal{animation:none!important;transition:none!important}
+ .pnr-page .pnr-price-card:hover{transform:none!important}
+}
