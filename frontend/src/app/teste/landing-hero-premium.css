@@ -1,0 +1,807 @@
+/* Hero faithful to approved two-column reference. No duplicated orbit/icons.
+ * NOTE: The artwork is a single unified existing asset; other sections untouched. */
+.pnr-page .pnr-hero--premium{
+  background:
+    radial-gradient(ellipse 34% 76% at 83% 48%,rgba(34,106,43,.14),transparent 90%),
+    radial-gradient(ellipse 33% 65% at 0% 73%,rgba(75,151,29,.08),transparent 100%),
+    linear-gradient(180deg,#06150c 0%,#06150c 78%,#06120b 100%);
+  overflow:hidden;
+  padding:35px clamp(18px,4vw,76px) 0;
+  isolation:isolate;
+}
+.pnr-page .pnr-hero--premium::before,
+.pnr-page .pnr-hero--premium .pnr-hero-ring{display:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-inner{
+  width:100%;max-width:1420px;min-height:480px;margin:auto;
+  display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);
+  align-items:center;gap:clamp(10px,1.8vw,30px);
+}
+.pnr-page .pnr-hero--premium .pnr-hero-copy{
+  padding:0 0 13px;min-width:0;max-width:755px;z-index:3;
+  text-align:left;align-self:center;
+}
+.pnr-page .pnr-hero--premium .pnr-pill{
+  border:1px solid rgba(168,255,107,.62);
+  background:rgba(16,46,22,.78);
+  box-shadow:0 0 19px rgba(164,255,86,.15);
+  font-weight:800;
+}
+.pnr-page .pnr-hero--premium h1{
+  margin:18px 0 0;
+  font-size:clamp(39px,3.14vw,61px);
+  line-height:1.08;letter-spacing:-.056em;font-weight:850;
+  max-width:760px;white-space:pre-line;text-wrap:pretty;
+  text-shadow:none;
+}
+.pnr-page .pnr-hero--premium h1 span{display:block;color:#afff69}
+.pnr-page .pnr-hero--premium .pnr-hero-desc{
+  max-width:540px;margin-top:22px;font-size:clamp(14px,1.08vw,16px);
+  line-height:1.6;color:#dcebdd;
+}
+.pnr-page .pnr-hero--premium .pnr-actions{
+  margin-top:25px;gap:12px;justify-content:flex-start;
+}
+.pnr-page .pnr-hero--premium .pnr-actions .pnr-btn{
+  min-height:47px;padding:12px 19px;border-radius:12px;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-scene{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  width:108%;max-width:735px;height:480px;
+  min-height:0;margin:0;justify-self:center;align-self:center;
+  border:0;border-radius:0;background:transparent;
+  overflow:visible;contain:none;isolation:isolate;
+  filter:none;transform:none;pointer-events:none;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-scene::after{display:none;content:none}
+.pnr-page .pnr-hero--premium .pnr-hero-scene-glow{
+  position:absolute;z-index:-1;
+  inset:10% 5% 6%;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(43,165,61,.17),rgba(27,95,35,.055) 58%,transparent 85%);
+  filter:blur(30px);
+  animation:pnrHeroGlow 7s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-art-approved{
+  position:relative!important;inset:auto!important;z-index:2;
+  display:block;width:100%;height:auto;
+  aspect-ratio:1002/611;max-width:735px;
+  border:0;border-radius:0;
+  object-fit:contain;object-position:center center;
+  image-rendering:auto;transform:none;filter:none;
+  -webkit-mask-image:none;
+  mask-image:none;
+}
+.pnr-page .pnr-hero--premium .pnr-benefits{
+  max-width:1270px;margin:0 auto;min-height:75px;
+  padding-top:4px;
+  border-top:1px solid rgba(173,255,134,.17);
+  background:transparent;
+}
+.pnr-page .pnr-hero--premium .pnr-benefits>div{color:#e5f3e4;font-size:11px}
+@keyframes pnrHeroGlow{
+  0%,100%{opacity:.62;transform:scale(.96)}
+  50%{opacity:1;transform:scale(1.06)}
+}
+@media(min-width:1500px){
+ .pnr-page .pnr-hero--premium .pnr-hero-inner{max-width:1440px;min-height:495px}
+ .pnr-page .pnr-hero--premium h1{font-size:clamp(51px,3.15vw,61px)}
+}
+@media(min-width:801px) and (max-width:1180px){
+ .pnr-page .pnr-hero--premium .pnr-hero-inner{grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);min-height:400px}
+ .pnr-page .pnr-hero--premium h1{font-size:clamp(35px,3.85vw,48px)}
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{height:410px}
+}
+@media(max-width:800px){
+ .pnr-page .pnr-hero--premium{padding:30px 18px 0}
+ .pnr-page .pnr-hero--premium .pnr-hero-inner{grid-template-columns:1fr;min-height:0;gap:0}
+ .pnr-page .pnr-hero--premium .pnr-hero-copy{max-width:650px;margin:auto;text-align:center;padding:0}
+ .pnr-page .pnr-hero--premium h1{margin:19px auto 0;font-size:clamp(39px,6.8vw,60px);white-space:normal;text-wrap:balance}
+ .pnr-page .pnr-hero--premium .pnr-hero-desc{margin-left:auto;margin-right:auto}
+ .pnr-page .pnr-hero--premium .pnr-actions{justify-content:center}
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{width:min(100%,550px);height:auto;aspect-ratio:1002/611;margin:10px auto 0}
+ .pnr-page .pnr-hero--premium .pnr-hero-art-approved{width:100%;height:auto}
+}
+@media(max-width:650px){
+ .pnr-page .pnr-hero--premium{padding:26px 16px 0}
+ .pnr-page .pnr-hero--premium h1{font-size:clamp(35px,9.5vw,49px);line-height:1.09}
+ .pnr-page .pnr-hero--premium .pnr-hero-desc{font-size:13px;margin-top:16px;line-height:1.55}
+ .pnr-page .pnr-hero--premium .pnr-actions{flex-direction:column;gap:10px;margin-top:19px}
+ .pnr-page .pnr-hero--premium .pnr-actions .pnr-btn{width:100%;min-height:49px}
+ .pnr-page .pnr-hero--premium .pnr-hero-scene{width:min(100%,410px);margin:12px auto 0}
+ .pnr-page .pnr-hero--premium .pnr-benefits{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:14px 0 21px}
+ .pnr-page .pnr-hero--premium .pnr-benefits>div{font-size:10px;border:0;justify-content:flex-start;padding:3px 0;gap:7px}
+ .pnr-page .pnr-hero--premium .pnr-benefits svg{width:18px;height:18px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-scene-glow{animation:none!important}
+}
+
+
+/* Hero final refinements: quality, edge blending and calm motion.
+   Scope intentionally restricted to the hero on /teste.
+   The 1002px artwork remains still; only lightweight lighting layers animate.
+   No duplicated icons, no background-size:cover and no photo upscaling. */
+.pnr-page .pnr-hero--premium .pnr-hero-scene{
+  width:100%;
+  max-width:705px;
+  height:auto;
+  aspect-ratio:1002 / 611;
+  overflow:visible;
+  background:transparent;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-art-approved{
+  display:block;
+  width:100%;
+  max-width:705px;
+  height:auto;
+  aspect-ratio:1002 / 611;
+  object-fit:contain;
+  object-position:center;
+  image-rendering:auto;
+  transform:none!important;
+  filter:none!important;
+  /* Feather just the outside perimeter; do not blur face or interface details. */
+  -webkit-mask-image:radial-gradient(ellipse 75% 77% at 50% 50%,#000 76%,rgba(0,0,0,.96) 84%,transparent 100%);
+  mask-image:radial-gradient(ellipse 75% 77% at 50% 50%,#000 76%,rgba(0,0,0,.96) 84%,transparent 100%);
+}
+.pnr-page .pnr-hero--premium .pnr-hero-scene-glow{
+  z-index:0;
+  inset:8% 6% 2%;
+  background:
+    radial-gradient(ellipse 55% 63% at 50% 52%,rgba(52,188,69,.16),rgba(29,95,41,.07) 60%,transparent 89%);
+  filter:blur(29px);
+  animation:pnrHeroRefinedGlow 9s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-light-sweep{
+  position:absolute;
+  z-index:1;
+  inset:7% 4% 6% 19%;
+  border-radius:50%;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 48% 58% at 48% 58%,rgba(123,255,91,.13),transparent 80%),
+    radial-gradient(ellipse 30% 23% at 63% 33%,rgba(60,248,139,.11),transparent 95%);
+  filter:blur(24px);
+  opacity:.45;
+  animation:pnrHeroAmbientDrift 13s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-tech-highlight{
+  position:absolute;
+  z-index:3;
+  inset:0;
+  pointer-events:none;
+  mix-blend-mode:screen;
+  opacity:.09;
+  /* These are light reflections only. The approved picture and its icons stay untouched. */
+  animation:pnrHeroHologramGlint 7.8s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-tech-highlight--visual{
+  background:radial-gradient(ellipse 10% 14% at 83% 24%,rgba(120,255,225,.31),rgba(85,255,178,.10) 58%,transparent 100%);
+  animation-delay:-.15s;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-tech-highlight--dev{
+  background:radial-gradient(ellipse 10% 13% at 89% 49%,rgba(95,255,212,.31),rgba(74,255,186,.10) 58%,transparent 100%);
+  animation-delay:-2.75s;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-tech-highlight--growth{
+  background:radial-gradient(ellipse 11% 14% at 85% 74%,rgba(157,255,125,.29),rgba(80,255,169,.10) 58%,transparent 100%);
+  animation-delay:-5.35s;
+}
+@keyframes pnrHeroHologramGlint{
+  0%,100%{opacity:.07}
+  20%{opacity:.12}
+  36%{opacity:.34}
+  55%{opacity:.15}
+  75%{opacity:.10}
+}
+.pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-pill{
+  animation:pnrHeroRefinedReveal .68s cubic-bezier(.2,.74,.2,1) both;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-copy h1{
+  animation:pnrHeroRefinedReveal .78s .1s cubic-bezier(.2,.74,.2,1) both;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-hero-desc{
+  animation:pnrHeroRefinedReveal .76s .23s cubic-bezier(.2,.74,.2,1) both;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-actions{
+  animation:pnrHeroRefinedReveal .72s .34s cubic-bezier(.2,.74,.2,1) both;
+}
+.pnr-page .pnr-hero--premium img.pnr-hero-art-approved{
+  animation:pnrHeroRefinedImageIn .95s .08s ease-out both;
+}
+@keyframes pnrHeroRefinedReveal{
+  from{opacity:0;transform:translate3d(0,9px,0)}
+  to{opacity:1;transform:translate3d(0,0,0)}
+}
+@keyframes pnrHeroRefinedImageIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes pnrHeroRefinedGlow{
+  0%,100%{opacity:.55;transform:scale(.98)}
+  50%{opacity:.87;transform:scale(1.04)}
+}
+@keyframes pnrHeroAmbientDrift{
+  0%,100%{opacity:.36;transform:translate3d(-4px,0,0)}
+  50%{opacity:.56;transform:translate3d(7px,-5px,0)}
+}
+
+@media (min-width:801px) and (max-width:1180px){
+  .pnr-page .pnr-hero--premium .pnr-hero-scene{
+    max-width:100%;
+    height:auto;
+    aspect-ratio:1002 / 611;
+  }
+}
+@media(max-width:800px){
+  .pnr-page .pnr-hero--premium .pnr-hero-scene{
+    width:min(100%,550px);
+    max-width:550px;
+    height:auto;
+    aspect-ratio:1002 / 611;
+  }
+  .pnr-page .pnr-hero--premium .pnr-hero-art-approved{width:100%}
+}
+@media(max-width:650px){
+  .pnr-page .pnr-hero--premium .pnr-hero-scene{
+    width:min(100%,410px);
+    max-width:410px;
+    height:auto;
+    margin:12px auto 0;
+    aspect-ratio:1002 / 611;
+  }
+  .pnr-page .pnr-hero--premium .pnr-hero-tech-highlight{animation-duration:9s}
+  .pnr-page .pnr-hero--premium .pnr-hero-light-sweep{opacity:.27}
+}
+@media(prefers-reduced-motion:reduce){
+  .pnr-page .pnr-hero--premium .pnr-hero-scene-glow,
+  .pnr-page .pnr-hero--premium .pnr-hero-light-sweep,
+  .pnr-page .pnr-hero--premium .pnr-hero-tech-highlight,
+  .pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-pill,
+  .pnr-page .pnr-hero--premium .pnr-hero-copy h1,
+  .pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-hero-desc,
+  .pnr-page .pnr-hero--premium .pnr-hero-copy .pnr-actions,
+  .pnr-page .pnr-hero--premium img.pnr-hero-art-approved{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+
+
+/* Orbit: standalone SVG with native CSS animation, aligned pixel-for-pixel
+   with the 1002x611 reference art; no duplicate static stroke in the DOM. */
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  border:0;
+  background:transparent;
+  pointer-events:none;
+  image-rendering:auto;
+  transform:none;
+  filter:none;
+}
+@media(max-width:650px){
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{opacity:.80}
+}
+@media(prefers-reduced-motion:reduce){
+  .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important}
+}
+
+
+/* Continuous cinematic flow — solutions to styles; approved Hero untouched. */
+.pnr-page .pnr-solutions,
+.pnr-page .pnr-styles {
+  background: transparent;
+  isolation: isolate;
+}
+.pnr-page .pnr-solutions::before {
+  content:"";
+  position:absolute;
+  inset:-12% 0 -30%;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    radial-gradient(ellipse 52% 35% at 15% 53%,rgba(64,165,73,.095),transparent 78%),
+    radial-gradient(ellipse 45% 30% at 85% 80%,rgba(88,255,107,.055),transparent 80%);
+}
+.pnr-page .pnr-solutions .pnr-product {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  will-change:auto;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .35s,box-shadow .35s;
+}
+.pnr-page .pnr-solutions .pnr-product::before {
+  content:"";
+  position:absolute;
+  inset:-2px;
+  z-index:-1;
+  pointer-events:none;
+  opacity:.5;
+  background:linear-gradient(115deg,transparent 15%,rgba(151,255,111,.09) 48%,transparent 78%);
+  background-size:220% 100%;
+  animation:pnrSolutionSheen 9s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2)::before {animation-delay:-3s;background-image:linear-gradient(115deg,transparent 15%,rgba(88,238,215,.1) 48%,transparent 78%)}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3)::before {animation-delay:-6s;background-image:linear-gradient(115deg,transparent 15%,rgba(198,150,255,.1) 48%,transparent 78%)}
+.pnr-page .pnr-solutions .pnr-product-icon {transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s}
+.pnr-page .pnr-solutions .pnr-product:hover .pnr-product-icon,
+.pnr-page .pnr-solutions .pnr-product:focus-visible .pnr-product-icon {transform:translateY(-3px) rotate(-3deg);box-shadow:0 0 22px rgba(141,255,95,.18)}
+.pnr-page .pnr-solutions .pnr-product:focus-visible {outline:2px solid #b5ff77;outline-offset:4px}
+@keyframes pnrSolutionSheen {0%,20%{background-position:130% 0}55%,100%{background-position:-130% 0}}
+@supports (animation-timeline:view()) {
+  .pnr-page .pnr-solutions .pnr-section-heading,
+  .pnr-page .pnr-solutions .pnr-product,
+  .pnr-page .pnr-styles .pnr-section-heading {
+    animation-name:pnrSolutionReveal;
+    animation-duration:1s;
+    animation-fill-mode:both;
+    animation-timing-function:linear;
+    animation-timeline:view();
+    animation-range:entry 0% cover 26%;
+  }
+  .pnr-page .pnr-solutions .pnr-product:nth-child(2){animation-range:entry 0% cover 30%}
+  .pnr-page .pnr-solutions .pnr-product:nth-child(3){animation-range:entry 0% cover 34%}
+}
+@keyframes pnrSolutionReveal {from{opacity:.45;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce) {
+  .pnr-page .pnr-solutions .pnr-product::before {animation:none;opacity:.22}
+  .pnr-page .pnr-solutions .pnr-product,
+  .pnr-page .pnr-solutions .pnr-section-heading,
+  .pnr-page .pnr-styles .pnr-section-heading {animation:none!important;transform:none!important;opacity:1!important}
+}
+
+
+/* Mobile-visible continuous motion: independent of scroll-timeline support. */
+.pnr-page .pnr-solutions .pnr-product {
+  overflow:hidden;
+  background:linear-gradient(120deg,#142d1a 0%,#0a2011 45%,#14331c 80%,#0a2011 100%);
+  background-size:220% 100%;
+  animation:pnrProductAmbient 8s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2){animation-delay:-2.6s}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3){animation-delay:-5.2s}
+.pnr-page .pnr-solutions .pnr-product::before{
+  z-index:0;
+  opacity:.8;
+  background:linear-gradient(105deg,transparent 25%,rgba(173,255,123,.19) 49%,transparent 68%);
+  background-size:260% 100%;
+  animation:pnrProductSweep 5.5s linear infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2)::before{animation-delay:-1.8s;background-image:linear-gradient(105deg,transparent 25%,rgba(93,247,214,.17) 49%,transparent 68%)}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3)::before{animation-delay:-3.6s;background-image:linear-gradient(105deg,transparent 25%,rgba(198,153,255,.16) 49%,transparent 68%)}
+.pnr-page .pnr-solutions .pnr-product > * {position:relative;z-index:1}
+.pnr-page .pnr-solutions .pnr-product-arrow {
+  animation:pnrArrowFloat 2.8s ease-in-out infinite;
+}
+.pnr-page .pnr-solutions .pnr-product:nth-child(2) .pnr-product-arrow{animation-delay:-.9s}
+.pnr-page .pnr-solutions .pnr-product:nth-child(3) .pnr-product-arrow{animation-delay:-1.8s}
+@keyframes pnrProductAmbient {0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@keyframes pnrProductSweep {0%{background-position:140% 0}100%{background-position:-140% 0}}
+@keyframes pnrArrowFloat {0%,100%{transform:translate(0,0)}50%{transform:translate(4px,-4px)}}
+@media (prefers-reduced-motion:reduce){
+ .pnr-page .pnr-solutions .pnr-product,
+ .pnr-page .pnr-solutions .pnr-product::before,
+ .pnr-page .pnr-solutions .pnr-product-arrow{animation:none!important}
+}
+
+
+/* Style showcase — cinematic motion applied around original artwork, not inside it. */
+.pnr-page .pnr-styles {background:transparent;isolation:isolate}
+.pnr-page .pnr-style-card {
+  position:relative;isolation:isolate;
+  transform:translateZ(0);
+  overflow:hidden;
+  box-shadow:0 16px 35px rgba(0,0,0,.25);
+}
+.pnr-page .pnr-style-card picture {
+  display:block;
+  animation:pnrStyleBreath 9s ease-in-out infinite alternate;
+  transform-origin:center center;
+}
+.pnr-page .pnr-style-card:nth-child(2) picture {animation-duration:11s;animation-delay:-3s}
+.pnr-page .pnr-style-card:nth-child(3) picture {animation-duration:8s;animation-delay:-5s}
+.pnr-page .pnr-style-card::after {
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:2;
+  background:linear-gradient(115deg,transparent 20%,rgba(178,255,125,.12) 49%,transparent 73%);
+  background-size:300% 100%;animation:pnrStyleLight 7s linear infinite;
+  mix-blend-mode:screen;
+}
+.pnr-page .pnr-style-card:nth-child(2)::after {
+  background-image:linear-gradient(115deg,transparent 20%,rgba(255,171,70,.18) 49%,transparent 73%);
+  animation-duration:5.5s;animation-delay:-2s;
+}
+.pnr-page .pnr-style-card:nth-child(3)::after {
+  background-image:linear-gradient(115deg,transparent 20%,rgba(115,255,191,.2) 49%,transparent 73%);
+  animation-duration:6.5s;animation-delay:-4s;
+}
+@keyframes pnrStyleBreath {from{transform:scale(1)}to{transform:scale(1.028)}}
+@keyframes pnrStyleLight {from{background-position:140% 0}to{background-position:-140% 0}}
+@media (hover:hover) and (pointer:fine) {
+ .pnr-page .pnr-style-card:hover {transform:translateY(-5px);box-shadow:0 25px 60px rgba(105,255,86,.13)}
+}
+@media (prefers-reduced-motion:reduce) {
+ .pnr-page .pnr-style-card picture,.pnr-page .pnr-style-card::after {animation:none!important}
+ .pnr-page .pnr-style-card picture {transform:none!important}
+}
+
+
+/* Mobile compact style gallery: preserve full artwork, no crop or distortion. */
+@media (max-width:650px) {
+ .pnr-page .pnr-styles {padding-left:0;padding-right:0}
+ .pnr-page .pnr-styles .pnr-section-heading {padding-inline:24px}
+ .pnr-page .pnr-style-grid {
+   display:flex!important;
+   width:100%;
+   max-width:none;
+   gap:12px;
+   overflow-x:auto;
+   overscroll-behavior-x:contain;
+   scroll-snap-type:x mandatory;
+   scroll-padding-inline:9vw;
+   padding:8px 9vw 20px;
+   -webkit-overflow-scrolling:touch;
+   scrollbar-width:none;
+   align-items:flex-start;
+ }
+ .pnr-page .pnr-style-grid::-webkit-scrollbar {display:none}
+ .pnr-page .pnr-style-card {
+   flex:0 0 82%;
+   width:82%;
+   min-width:0;
+   scroll-snap-align:center;
+   border-radius:18px;
+ }
+ .pnr-page .pnr-style-card picture,
+ .pnr-page .pnr-style-card img {
+   display:block;
+   width:100%;
+   height:auto!important;
+   aspect-ratio:auto!important;
+   object-fit:contain!important;
+ }
+ .pnr-page .pnr-footnote {padding-inline:24px;margin-top:10px}
+}
+
+
+/* Normalize all three showcase slides to the same visual frame on mobile. */
+@media (max-width:650px){
+ .pnr-page .pnr-style-grid{align-items:stretch}
+ .pnr-page .pnr-style-card{
+   aspect-ratio:9 / 16;
+   height:auto;
+   align-self:stretch;
+   display:flex;
+   align-items:center;
+   justify-content:center;
+   background:#07180e;
+ }
+ .pnr-page .pnr-style-card picture{
+   width:100%;
+   height:100%;
+   display:flex;
+   align-items:center;
+   justify-content:center;
+ }
+ .pnr-page .pnr-style-card picture img{
+   width:100%;
+   height:100%!important;
+   max-height:100%;
+   aspect-ratio:auto!important;
+   object-fit:contain!important;
+   object-position:center;
+ }
+}
+
+
+/* Continuous PageNova journey: one uninterrupted canvas, not stacked color panels. */
+.pnr-page{
+ background:#06140b!important;
+}
+.pnr-page .pnr-hero,
+.pnr-page .pnr-solutions,
+.pnr-page .pnr-styles,
+.pnr-page .pnr-audiences{
+ background:transparent!important;
+ border-top:0!important;
+ border-bottom:0!important;
+}
+.pnr-page .pnr-benefits{border-top:0!important}
+.pnr-page .pnr-benefits>div{border-right:0!important}
+.pnr-page .pnr-hero:after{
+ content:"";position:absolute;left:3%;right:3%;bottom:-115px;height:250px;
+ border:2px solid rgba(153,255,87,.27);
+ border-left-color:transparent;border-bottom-color:transparent;
+ border-radius:50%;transform:rotate(-12deg);
+ filter:drop-shadow(0 0 12px rgba(129,255,74,.35));
+ pointer-events:none;z-index:0;
+ animation:pnrJourneyArc 9s ease-in-out infinite alternate;
+}
+.pnr-page .pnr-solutions:after{
+ content:"";position:absolute;pointer-events:none;z-index:-1;
+ width:min(90vw,950px);height:310px;left:7%;bottom:-160px;
+ border:2px solid rgba(136,255,82,.23);border-right-color:transparent;border-top-color:transparent;
+ border-radius:50%;transform:rotate(-13deg);
+ filter:drop-shadow(0 0 15px rgba(130,255,70,.24));
+ animation:pnrJourneyArc 11s ease-in-out infinite alternate-reverse;
+}
+.pnr-page .pnr-solutions{isolation:isolate}
+@keyframes pnrJourneyArc{
+ from{transform:translate3d(-2%,0,0) rotate(-12deg);opacity:.45}
+ to{transform:translate3d(3%,16px,0) rotate(-7deg);opacity:.8}
+}
+@media(max-width:650px){
+ .pnr-page .pnr-hero:after{bottom:-60px;height:155px;left:-22%;right:-22%;opacity:.5}
+ .pnr-page .pnr-solutions:after{height:160px;bottom:-75px;left:-10%;width:115vw}
+ /* New portrait artworks: fill each mobile card consistently without zooming the institutional image. */
+ .pnr-page .pnr-style-card picture{overflow:hidden;background:#07180e}
+ .pnr-page .pnr-style-card picture img{
+   width:100%;height:100%!important;
+   object-fit:cover!important;object-position:center center;
+   transform:none!important;
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero:after,.pnr-page .pnr-solutions:after{animation:none!important}
+}
+
+
+/* AI showcase v2 — compact immersive carousel; overrides legacy letterbox frame. */
+.pnr-page .pnr-styles{perspective:1300px}
+.pnr-page .pnr-style-card{transition:transform .65s cubic-bezier(.2,.8,.2,1),box-shadow .65s,border-color .65s;will-change:transform}
+.pnr-page .pnr-style-card:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:3;border:1px solid rgba(156,255,111,.28);box-shadow:inset 0 0 25px rgba(117,255,104,.09);opacity:.65;transition:opacity .5s}
+.pnr-page .pnr-style-card.pnr-style-active:before{opacity:1;border-color:rgba(163,255,111,.75);box-shadow:inset 0 0 32px rgba(117,255,104,.14),0 0 28px rgba(117,255,104,.1)}
+@media(max-width:650px){
+ .pnr-page .pnr-style-grid{align-items:center!important;gap:18px!important;padding-top:28px!important;padding-bottom:38px!important;perspective:1100px;scroll-padding-inline:9vw}
+ .pnr-page .pnr-style-card{aspect-ratio:3 / 4!important;height:auto!important;align-self:center!important;flex:0 0 82%!important;transform:perspective(900px) rotateY(-9deg) scale(.91);transform-origin:center;box-shadow:0 20px 42px rgba(0,0,0,.35)}
+ .pnr-page .pnr-style-card.pnr-style-active{transform:perspective(900px) rotateY(0) scale(1);box-shadow:0 24px 65px rgba(0,0,0,.55),0 0 35px rgba(140,255,93,.12)}
+ .pnr-page .pnr-style-card picture{display:block!important;width:100%!important;height:100%!important;overflow:hidden!important}
+ .pnr-page .pnr-style-card picture img{display:block;width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;object-position:center!important;transform:none!important;animation:none!important}
+ .pnr-page .pnr-style-card::after{border-radius:inherit}
+}
+@media(min-width:651px){
+ .pnr-page .pnr-style-card{transform:perspective(1100px) rotateY(-4deg);transform-origin:center}
+ .pnr-page .pnr-style-card:nth-child(2){transform:perspective(1100px) translateY(-9px) scale(1.02)}
+ .pnr-page .pnr-style-card:nth-child(3){transform:perspective(1100px) rotateY(4deg)}
+ .pnr-page .pnr-style-card:hover{transform:perspective(1100px) translateY(-12px) rotateY(0deg) scale(1.035)}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-style-card{transition:none!important;transform:none!important}
+ .pnr-page .pnr-style-card picture,.pnr-page .pnr-style-card::after{animation:none!important}
+}
+
+
+/* AI gallery v3: visible coverflow depth, dynamic light, no artwork crop. */
+@media(max-width:650px){
+ .pnr-page .pnr-style-grid{perspective:680px!important;perspective-origin:50% 50%;gap:12px!important;overflow-y:visible;transform-style:preserve-3d}
+ .pnr-page .pnr-style-card{
+  transform-origin:center center!important;
+  transform:translateZ(-42px) rotateY(calc(var(--pnr-distance,0) * -18deg)) rotateZ(calc(var(--pnr-distance,0) * 1.8deg)) scale(.89)!important;
+  transition:transform .34s cubic-bezier(.2,.7,.2,1),filter .34s,box-shadow .34s!important;
+  filter:brightness(.76) saturate(.88);
+  border:1px solid rgba(148,255,101,.35)!important;
+  backface-visibility:hidden;
+ }
+ .pnr-page .pnr-style-card.pnr-style-active{
+  transform:translateZ(28px) rotateY(0deg) rotateZ(0deg) scale(1)!important;
+  filter:brightness(1.06) saturate(1.08);
+  box-shadow:0 26px 58px rgba(0,0,0,.55),0 0 36px rgba(145,255,94,.19)!important;
+  border-color:rgba(157,255,107,.86)!important;
+ }
+ .pnr-page .pnr-style-card:before{
+  background:linear-gradient(130deg,rgba(191,255,152,.14),transparent 32%,transparent 70%,rgba(130,255,109,.13));
+  opacity:.8;
+ }
+ .pnr-page .pnr-style-card.pnr-style-active:before{opacity:1}
+ .pnr-page .pnr-style-card::after{animation:pnrStyleLight 4.8s linear infinite!important;opacity:.78}
+ .pnr-page .pnr-style-card picture{animation:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-style-card,.pnr-page .pnr-style-card.pnr-style-active{transform:none!important;transition:none!important;filter:none!important}
+ .pnr-page .pnr-style-card::after{animation:none!important}
+}
+
+
+/* Audience ecosystem: premium, legible, responsive and animated without raster art. */
+.pnr-page .pnr-audiences{position:relative;isolation:isolate}
+.pnr-page .pnr-audience-grid{gap:16px;align-items:stretch}
+.pnr-page .pnr-audience-card{
+ position:relative;overflow:hidden;isolation:isolate;
+ min-height:205px;padding:24px 22px 20px;gap:12px;
+ border:1px solid rgba(158,255,109,.27);border-radius:22px;
+ background:radial-gradient(ellipse at 12% 0%,rgba(116,255,98,.13),transparent 60%),linear-gradient(145deg,#102b1a,#06170e 85%);
+ box-shadow:0 15px 34px rgba(0,0,0,.16);
+ transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s,border-color .45s;
+ animation:pnrAudienceReveal .7s both;
+}
+.pnr-page .pnr-audience-card:before{
+ content:"";position:absolute;inset:-80% -100%;pointer-events:none;
+ background:linear-gradient(110deg,transparent 43%,rgba(178,255,142,.12) 50%,transparent 57%);
+ transform:translateX(-45%);transition:transform .8s;z-index:-1;
+}
+.pnr-page .pnr-audience-card:hover,.pnr-page .pnr-audience-card:focus-visible{
+ transform:translateY(-7px);border-color:rgba(165,255,109,.8);
+ box-shadow:0 24px 48px rgba(0,0,0,.26),0 0 28px rgba(143,255,98,.12);
+}
+.pnr-page .pnr-audience-card:hover:before,.pnr-page .pnr-audience-card:focus-visible:before{transform:translateX(45%)}
+.pnr-page .pnr-audience-icon{width:52px;height:52px;border-radius:15px;background:rgba(154,255,108,.09);border:1px solid rgba(165,255,111,.3);box-shadow:inset 0 0 20px rgba(143,255,103,.06)}
+.pnr-page .pnr-audience-icon svg{width:25px;height:25px}
+.pnr-page .pnr-audience-card strong{font-size:18px;line-height:1.3;letter-spacing:-.025em}
+.pnr-page .pnr-audience-card p{font-size:13px;line-height:1.55;max-width:260px}
+.pnr-page .pnr-audience-index{position:absolute;right:22px;top:22px;font-size:12px;font-weight:700;letter-spacing:.12em;color:rgba(166,232,162,.52)}
+.pnr-page .pnr-audience-arrow{top:auto;bottom:22px;right:22px;transition:transform .3s}
+.pnr-page .pnr-audience-card:hover .pnr-audience-arrow{transform:translate(3px,-3px)}
+.pnr-page .pnr-audience-track{margin-top:auto;display:block;height:3px;width:calc(100% - 32px);background:rgba(164,255,113,.13);border-radius:5px;overflow:hidden}
+.pnr-page .pnr-audience-track span{display:block;width:55%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#62d86b,#c0ff79);box-shadow:0 0 10px rgba(156,255,109,.5);transition:width .5s}
+.pnr-page .pnr-audience-card:hover .pnr-audience-track span{width:100%}
+.pnr-page .pnr-audience-ai{display:flex;align-items:center;justify-content:center;gap:10px;margin:28px auto 0;color:#b9d7b7;font-size:12px;letter-spacing:.025em}
+.pnr-page .pnr-audience-ai svg{color:#b3ff75}
+@keyframes pnrAudienceReveal{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:900px){
+ .pnr-page .pnr-audience-grid{grid-template-columns:1.15fr 1fr 1fr;grid-template-rows:repeat(2,minmax(150px,auto))}
+ .pnr-page .pnr-audience-card:first-child{grid-row:span 2;min-height:340px;justify-content:center}
+ .pnr-page .pnr-audience-card:first-child strong{font-size:25px}
+ .pnr-page .pnr-audience-card:first-child p{font-size:15px}
+}
+@media(max-width:650px){
+ .pnr-page .pnr-audience-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .pnr-page .pnr-audience-card{min-height:174px;padding:16px 13px 15px;gap:9px;border-radius:17px}
+ .pnr-page .pnr-audience-icon{width:39px;height:39px;border-radius:11px}
+ .pnr-page .pnr-audience-icon svg{width:21px;height:21px}
+ .pnr-page .pnr-audience-index{top:16px;right:13px;font-size:10px}
+ .pnr-page .pnr-audience-card strong{font-size:13px;line-height:1.3}
+ .pnr-page .pnr-audience-card p{font-size:11px;line-height:1.45}
+ .pnr-page .pnr-audience-arrow{right:12px;bottom:16px;width:15px;height:15px}
+ .pnr-page .pnr-audience-track{height:2px;width:calc(100% - 18px)}
+ .pnr-page .pnr-audience-ai{font-size:11px;margin-top:21px;text-align:center;padding:0 15px}
+}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-audience-card{animation:none!important;transition:none!important}.pnr-page .pnr-audience-card:before{transition:none!important}}
+
+
+/* Audience motion v2: mobile-visible continuous energy, scroll entrance, and tap response. */
+.pnr-page .pnr-audience-card{
+ animation:none;
+ opacity:1;
+}
+.pnr-page .pnr-audiences-visible .pnr-audience-card{
+ animation:pnrAudienceEnter .7s cubic-bezier(.16,1,.3,1) both;
+ animation-delay:calc(var(--audience-order,0) * 110ms);
+}
+.pnr-page .pnr-audience-card:nth-child(1){--audience-order:0}
+.pnr-page .pnr-audience-card:nth-child(2){--audience-order:1}
+.pnr-page .pnr-audience-card:nth-child(3){--audience-order:2}
+.pnr-page .pnr-audience-card:nth-child(4){--audience-order:3}
+.pnr-page .pnr-audience-card:before{
+ z-index:1;
+ inset:0;
+ background:linear-gradient(112deg,transparent 0%,transparent 35%,rgba(188,255,148,.14) 49%,transparent 62%,transparent 100%);
+ transform:translateX(-140%);
+ animation:pnrAudienceSheen 6.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -1.4s);
+ transition:none;
+}
+.pnr-page .pnr-audience-card:after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ border:1px solid rgba(153,255,102,.13);
+ box-shadow:inset 0 0 22px rgba(129,255,95,.05);
+ animation:pnrAudienceGlow 4.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -1s);
+}
+.pnr-page .pnr-audience-icon{animation:pnrAudienceIconPulse 3.4s ease-in-out infinite;animation-delay:calc(var(--audience-order,0) * -.6s)}
+.pnr-page .pnr-audience-track span{
+ width:24%;
+ animation:pnrAudienceCharge 4.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -.9s);
+}
+.pnr-page .pnr-audience-card:active{transform:scale(.97);border-color:#b3ff75}
+.pnr-page .pnr-audience-card:active .pnr-audience-icon{transform:scale(1.08)}
+.pnr-page .pnr-audience-ai svg{animation:pnrAudienceSpark 3s ease-in-out infinite}
+@keyframes pnrAudienceEnter{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes pnrAudienceSheen{0%,15%{transform:translateX(-140%)}43%,100%{transform:translateX(140%)}}
+@keyframes pnrAudienceGlow{0%,100%{box-shadow:inset 0 0 12px rgba(129,255,95,.03),0 0 0 rgba(129,255,95,0)}50%{box-shadow:inset 0 0 25px rgba(129,255,95,.11),0 0 15px rgba(129,255,95,.12)}}
+@keyframes pnrAudienceIconPulse{0%,100%{box-shadow:inset 0 0 15px rgba(143,255,103,.04);border-color:rgba(165,255,111,.3)}50%{box-shadow:inset 0 0 23px rgba(143,255,103,.19),0 0 14px rgba(143,255,103,.15);border-color:rgba(165,255,111,.65)}}
+@keyframes pnrAudienceCharge{0%,100%{width:24%}55%{width:94%}}
+@keyframes pnrAudienceSpark{0%,100%{opacity:.6;transform:rotate(-12deg) scale(.9)}50%{opacity:1;transform:rotate(8deg) scale(1.17)}}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-audiences-visible .pnr-audience-card,
+ .pnr-page .pnr-audience-card:before,
+ .pnr-page .pnr-audience-card:after,
+ .pnr-page .pnr-audience-icon,
+ .pnr-page .pnr-audience-track span,
+ .pnr-page .pnr-audience-ai svg{animation:none!important;transition:none!important}
+ .pnr-page .pnr-audience-track span{width:55%}
+}
+
+
+/* Pricing showcase v2 — animated premium cards; pricing and checkout status unchanged. */
+.pnr-page .pnr-pricing{position:relative;isolation:isolate}
+.pnr-page .pnr-price-grid{align-items:stretch}
+.pnr-page .pnr-price-card{
+ isolation:isolate;overflow:hidden;
+ background:radial-gradient(ellipse at 10% 0%,rgba(130,255,98,.14),transparent 58%),linear-gradient(150deg,#102a19,#07160e 85%);
+ border:1px solid rgba(171,255,111,.36);border-radius:23px;
+ transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s,border-color .45s;
+ box-shadow:inset 0 1px rgba(220,255,201,.09),0 18px 38px rgba(0,0,0,.23);
+}
+.pnr-page .pnr-price-card:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(115deg,transparent 25%,rgba(184,255,137,.11) 49%,transparent 70%);
+ transform:translateX(-150%);animation:pnrPriceSheen 7s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card:nth-child(2):before{animation-delay:-1.8s}
+.pnr-page .pnr-price-card:nth-child(3):before{animation-delay:-3.5s}
+.pnr-page .pnr-price-card:nth-child(4):before{animation-delay:-5s}
+.pnr-page .pnr-price-card:hover,.pnr-page .pnr-price-card:focus-within{
+ transform:translateY(-7px);border-color:rgba(180,255,122,.9);
+ box-shadow:0 24px 52px rgba(0,0,0,.34),0 0 28px rgba(154,255,91,.12);
+}
+.pnr-page .pnr-price-card.is-featured{
+ overflow:visible;
+ border-color:#adff69;
+ background:radial-gradient(ellipse at 50% 0%,rgba(146,255,90,.24),transparent 64%),linear-gradient(150deg,#173e20,#071b10 85%);
+ box-shadow:0 0 0 1px rgba(173,255,104,.4),0 0 28px rgba(156,255,94,.23),inset 0 0 25px rgba(165,255,110,.08);
+ animation:pnrPriceFeatured 4.5s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card.is-featured:before{border-radius:inherit}
+.pnr-page .pnr-featured-label{
+ z-index:2;max-width:calc(100% - 32px);margin:0 auto;
+ border-radius:0 0 16px 16px;white-space:normal;text-align:center;
+}
+.pnr-page .pnr-price-icon{
+ border:1px solid rgba(165,255,108,.23);
+ background:linear-gradient(145deg,rgba(146,255,93,.16),rgba(146,255,93,.05));
+ box-shadow:inset 0 0 20px rgba(167,255,108,.06);
+ animation:pnrPriceIcon 4s ease-in-out infinite;
+}
+.pnr-page .pnr-price-card:nth-child(2) .pnr-price-icon{animation-delay:-1s}
+.pnr-page .pnr-price-card:nth-child(3) .pnr-price-icon{animation-delay:-2s}
+.pnr-page .pnr-price-number{gap:5px}
+.pnr-page .pnr-price-number strong{font-variant-numeric:tabular-nums;letter-spacing:-.065em}
+.pnr-page .pnr-price-details li svg{filter:drop-shadow(0 0 5px rgba(170,255,100,.3))}
+.pnr-page .pnr-price-button{transition:background .3s,border-color .3s,box-shadow .3s}
+.pnr-page .pnr-price-button:disabled{opacity:1;cursor:not-allowed}
+.pnr-page .pnr-price-button.primary{box-shadow:0 7px 26px rgba(160,255,100,.16)}
+.pnr-page .pnr-guarantee{
+ position:relative;isolation:isolate;
+ background:radial-gradient(ellipse at 10% 80%,rgba(111,240,85,.15),transparent 62%),linear-gradient(130deg,#0c2715,#07170e);
+ border-color:rgba(175,255,110,.43);box-shadow:inset 0 0 24px rgba(146,255,91,.05),0 18px 48px rgba(0,0,0,.17);
+}
+.pnr-page .pnr-guarantee:before{
+ content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+ background:linear-gradient(115deg,transparent 30%,rgba(169,255,126,.08) 50%,transparent 70%);
+ transform:translateX(-130%);animation:pnrPriceSheen 9s ease-in-out infinite;
+}
+.pnr-page .pnr-shield{animation:pnrShieldFloat 5s ease-in-out infinite}
+.pnr-page .pnr-seal{animation:pnrSealPulse 4s ease-in-out infinite}
+@keyframes pnrPriceSheen{0%,18%{transform:translateX(-150%)}48%,100%{transform:translateX(150%)}}
+@keyframes pnrPriceFeatured{0%,100%{box-shadow:0 0 0 1px rgba(173,255,104,.35),0 0 25px rgba(156,255,94,.16)}50%{box-shadow:0 0 0 1px rgba(173,255,104,.75),0 0 42px rgba(156,255,94,.29)}}
+@keyframes pnrPriceIcon{0%,100%{box-shadow:inset 0 0 14px rgba(167,255,108,.05)}50%{box-shadow:inset 0 0 22px rgba(167,255,108,.18),0 0 14px rgba(167,255,108,.13)}}
+@keyframes pnrShieldFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pnrSealPulse{0%,100%{box-shadow:0 0 14px rgba(170,255,91,.22),inset 0 0 15px rgba(132,255,69,.16)}50%{box-shadow:0 0 27px rgba(170,255,91,.45),inset 0 0 23px rgba(132,255,69,.25)}}
+@media(max-width:650px){
+ .pnr-page .pnr-price-grid{gap:13px}
+ .pnr-page .pnr-price-card{min-height:0;padding:21px 20px 17px;border-radius:21px}
+ .pnr-page .pnr-price-card.is-featured{margin-top:14px}
+ .pnr-page .pnr-featured-label{position:relative;top:-21px;margin-bottom:-12px;max-width:calc(100% - 28px);padding:9px 13px;line-height:1.2}
+ .pnr-page .pnr-price-top{min-height:46px}
+ .pnr-page .pnr-price-number{margin-top:5px;padding:10px 0 13px}
+ .pnr-page .pnr-price-number strong{font-size:clamp(43px,12vw,54px)}
+ .pnr-page .pnr-price-details{padding:13px 0 17px}
+ .pnr-page .pnr-price-details ul{gap:9px;margin-top:10px}
+ .pnr-page .pnr-price-button{min-height:46px}
+ .pnr-page .pnr-guarantee{padding:21px 18px;gap:8px;min-height:0}
+ .pnr-page .pnr-shield{min-height:66px;width:100%}
+ .pnr-page .pnr-shield svg{height:62px;width:62px}
+ .pnr-page .pnr-guarantee-copy h2{font-size:clamp(24px,7vw,31px);line-height:1.13;margin-top:9px}
+ .pnr-page .pnr-guarantee-copy>p:last-child{margin-top:9px}
+ .pnr-page .pnr-seal{width:75px;height:75px;margin:8px auto 0;border-width:3px}
+ .pnr-page .pnr-seal strong{font-size:33px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-price-card,.pnr-page .pnr-price-card.is-featured,.pnr-page .pnr-price-card:before,.pnr-page .pnr-price-icon,.pnr-page .pnr-guarantee:before,.pnr-page .pnr-shield,.pnr-page .pnr-seal{animation:none!important;transition:none!important}
+ .pnr-page .pnr-price-card:hover{transform:none!important}
+}

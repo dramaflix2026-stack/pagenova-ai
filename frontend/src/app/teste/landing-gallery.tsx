@@ -1,0 +1,395 @@
+"use client";
+
+import { useEffect, useState, type CSSProperties } from "react";
+import { ArrowRight, ArrowUpRight, Check, ChevronLeft, ChevronRight, X, Building2, Layers3, ShoppingBag, Cpu, BedDouble, Store } from "lucide-react";
+
+type Locale = "pt" | "en" | "es";
+type Category = "all" | "business" | "commerce" | "services";
+
+const examples = [
+  {id:"engineering",category:"business",style:"industrial",art:"/templates/vertice-premium/a203401e-d5d3-4f4a-950a-86642f9c5db3/src/assets/hero.jpg",brand:"VÉRTICE",accent:"#e7bd7a",theme:"#101a1d",
+    names:{pt:"Engenharia e arquitetura",en:"Engineering & architecture",es:"Ingeniería y arquitectura"},
+    headline:{pt:"Projetos que inspiram o amanhã.",en:"Building what comes next.",es:"Proyectos que inspiran el mañana."},
+    categoryLabel:{pt:"Institucional",en:"Business website",es:"Institucional"}},
+  {id:"laundry",category:"services",style:"laundry",art:"/pagenova-lavanderia-banner-1.png",brand:"LAVANDERIA",accent:"#7ee5cc",theme:"#0a2330",
+    names:{pt:"Lavanderia moderna",en:"Modern laundry",es:"Lavandería moderna"},
+    headline:{pt:"Cuidado especial em cada detalhe.",en:"Care in every detail.",es:"Cuidado en cada detalle."},
+    categoryLabel:{pt:"Serviços",en:"Services",es:"Servicios"}},
+  {id:"creative",category:"commerce",style:"creative",art:"/landing-universal/offer.webp",brand:"ATELIER",accent:"#e6c6a0",theme:"#3b3029",
+    names:{pt:"Marca e produtos digitais",en:"Brand & digital products",es:"Marca y productos digitales"},
+    headline:{pt:"Criatividade com personalidade.",en:"Made to stand out.",es:"Creatividad con personalidad."},
+    categoryLabel:{pt:"Página de vendas",en:"Sales page",es:"Página de ventas"}},
+  {id:"technology",category:"business",style:"technology",art:"",brand:"NEXORA / AI",accent:"#a3ff69",theme:"#0b1420",
+    names:{pt:"Tecnologia e inteligência artificial",en:"Technology & AI",es:"Tecnología e IA"},
+    headline:{pt:"Ideias que movem o futuro.",en:"Ideas moving us forward.",es:"Ideas que impulsan el futuro."},
+    categoryLabel:{pt:"SaaS e tecnologia",en:"SaaS & technology",es:"SaaS y tecnología"}},
+  {id:"hotel",category:"services",style:"hotel",art:"/landing-universal/hero.webp",brand:"AURORA",accent:"#f6d7a4",theme:"#192922",
+    names:{pt:"Hotelaria e experiências",en:"Hospitality & experiences",es:"Hotelería y experiencias"},
+    headline:{pt:"O lugar para viver o extraordinário.",en:"A place to feel extraordinary.",es:"Un lugar para lo extraordinario."},
+    categoryLabel:{pt:"Hospitalidade",en:"Hospitality",es:"Hospitalidad"}},
+  {id:"retail",category:"commerce",style:"retail",art:"/pagenova-lavanderia-banner-2.png",brand:"ESSÊNCIA",accent:"#f6c6bf",theme:"#322129",
+    names:{pt:"Loja e catálogo online",en:"Online store & catalog",es:"Tienda y catálogo"},
+    headline:{pt:"Uma experiência feita para você.",en:"Designed around you.",es:"Una experiencia para ti."},
+    categoryLabel:{pt:"Varejo",en:"Retail",es:"Comercio"}}
+] as const;
+
+const dictionary = {
+  pt:{eyebrow:"GALERIA DE PROJETOS",title:"Uma ideia. Infinitas",highlight:"possibilidades.",desc:"Explore diferentes direções visuais para o seu negócio. Cada nicho pede uma identidade — e a PageNova ajuda você a criar a sua.",all:"Todos",business:"Institucional",commerce:"Vendas e lojas",services:"Serviços",tag:"EXEMPLO VISUAL",view:"Ampliar prévia",note:"Composições demonstrativas de nichos. Não são depoimentos nem projetos publicados de clientes.",cta:"Começar meu projeto",close:"Fechar prévia",prev:"Anterior",next:"Próximo",counter:"de"},
+  en:{eyebrow:"PROJECT GALLERY",title:"One idea. Endless",highlight:"possibilities.",desc:"Explore different visual directions for your business. Every industry deserves its own identity — PageNova helps you create yours.",all:"All",business:"Business",commerce:"Sales & stores",services:"Services",tag:"VISUAL CONCEPT",view:"View preview",note:"Illustrative industry concepts, not published client projects or testimonials.",cta:"Start my project",close:"Close preview",prev:"Previous",next:"Next",counter:"of"},
+  es:{eyebrow:"GALERÍA DE PROYECTOS",title:"Una idea. Infinitas",highlight:"posibilidades.",desc:"Explora diferentes estilos visuales para tu negocio. Cada sector merece su propia identidad y PageNova te ayuda a crearla.",all:"Todos",business:"Institucional",commerce:"Ventas y tiendas",services:"Servicios",tag:"EJEMPLO VISUAL",view:"Ampliar vista",note:"Conceptos visuales ilustrativos, no son proyectos de clientes publicados.",cta:"Empezar mi proyecto",close:"Cerrar vista",prev:"Anterior",next:"Siguiente",counter:"de"}
+} as const;
+
+function SiteVisual({item,lang}:{item:typeof examples[number];lang:Locale}) {
+  return <div className={"pn-gallery-visual pn-gallery-"+item.style} style={{background:item.theme}}>
+    {item.art && <img className="pn-gallery-photo" src={item.art} alt="" loading="lazy" decoding="async" />}
+    <div className="pn-gallery-shade"/>
+    {item.id==="technology" && <div className="pn-gallery-tech-art" aria-hidden="true"><span/><span/><span/><span/></div>}
+    <div className="pn-gallery-browser">
+      <span/><span/><span/>
+      <span className="pn-gallery-url">pagenova.site / preview</span>
+    </div>
+    <div className="pn-gallery-siteheader">
+      <b>{item.brand}<i style={{color:item.accent}}>.</i></b>
+      <div><span/><span/><span/></div>
+      <span className="pn-gallery-cta-mini" style={{background:item.accent}}/>
+    </div>
+    <div className="pn-gallery-copy">
+      <span className="pn-gallery-overline" style={{color:item.accent}}>{item.categoryLabel[lang]}</span>
+      <h3>{item.headline[lang]}</h3>
+      <p><span/><span/></p>
+      <div className="pn-gallery-mini-button" style={{background:item.accent}}><span/><ArrowUpRight size={11}/></div>
+    </div>
+    <div className="pn-gallery-bottom"><span/><span/><span/></div>
+  </div>;
+}
+
+const galleryIcons = {engineering:Building2,laundry:Layers3,creative:ShoppingBag,technology:Cpu,hotel:BedDouble,retail:Store} as const;
+
+/** Three-dimensional showcase: readable copy is real text; the image pane is its own layer. */
+function Gallery3DVisual({item,lang}:{item:typeof examples[number];lang:Locale}) {
+  const Icon=galleryIcons[item.id];
+  const action=lang==="pt"?"Ver projeto":lang==="en"?"View project":"Ver proyecto";
+  return (
+    <div className={"pn-gallery3d-panel pn-gallery3d-"+item.id} style={{"--pn-gallery3d-accent":item.accent} as CSSProperties}>
+      <span className="pn-gallery3d-reflection" aria-hidden="true"/>
+      <div className="pn-gallery3d-copy">
+        <span className="pn-gallery3d-icon"><Icon size={18} strokeWidth={1.8}/></span>
+        <span className="pn-gallery3d-eyebrow">{item.categoryLabel[lang]}</span>
+        <h3>{item.headline[lang]}</h3>
+        <span className="pn-gallery3d-action">{action}<ArrowUpRight size={15}/></span>
+      </div>
+      <div className="pn-gallery3d-art-stack" aria-hidden="true">
+        <div className="pn-gallery3d-back-plate"/>
+        <div className="pn-gallery3d-browser-window">
+          <span className="pn-gallery3d-browser-dots"><i/><i/><i/></span>
+          {item.art ? <img src={item.art} alt="" loading="lazy" decoding="async"/> :
+            <div className="pn-gallery3d-tech-image"><span/><span/><span/><span/></div>}
+          <span className="pn-gallery3d-window-shine"/>
+        </div>
+      </div>
+      <span className="pn-gallery3d-floor-glow" aria-hidden="true"/>
+    </div>
+  );
+}
+
+export function LandingGallery({onlyDemo=false}: {onlyDemo?: boolean} = {}) {
+  const [lang,setLang]=useState<Locale>("pt");
+  const [category,setCategory]=useState<Category>("all");
+  const [selected,setSelected]=useState<number|null>(null);
+  useEffect(()=>{
+    const sync=()=>{const value=document.documentElement.lang.toLowerCase();setLang(value.startsWith("en")?"en":value.startsWith("es")?"es":"pt");};
+    sync();
+    const observer=new MutationObserver(sync);
+    observer.observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+    return ()=>observer.disconnect();
+  },[]);
+  useEffect(()=>{
+    if(selected===null)return;
+    const previous=document.body.style.overflow;
+    document.body.style.overflow="hidden";
+    const onKey=(e:KeyboardEvent)=>{
+      if(e.key==="Escape")setSelected(null);
+      if(e.key==="ArrowRight")setSelected(i=>i===null?i:(i+1)%examples.length);
+      if(e.key==="ArrowLeft")setSelected(i=>i===null?i:(i+examples.length-1)%examples.length);
+    };
+    window.addEventListener("keydown",onKey);
+    return ()=>{document.body.style.overflow=previous;window.removeEventListener("keydown",onKey);};
+  },[selected]);
+  const t=dictionary[lang];
+  const shown=examples.map((item,index)=>({...item,index})).filter(item=>category==="all"||item.category===category);
+  return <>
+    {!onlyDemo && <section id="galeria" className="pn-gallery-section relative z-10 overflow-hidden px-5 py-14 sm:px-8 sm:py-18 lg:py-22">
+      <div className="pn-gallery-halo" aria-hidden="true"/>
+      <div className="relative mx-auto max-w-[1250px]">
+        <div className="mx-auto max-w-[890px] text-center">
+          <p className="mb-5 flex items-center justify-center gap-2 text-[11px] font-bold tracking-[.24em] text-[#b6ff69]"><span className="h-[5px] w-[5px] rounded-full bg-[#b6ff69]"/>{t.eyebrow}</p>
+          <h2 className="text-[clamp(2.15rem,4.1vw,3.65rem)] font-extrabold leading-[1.1] tracking-[-.045em] text-white">{t.title} <span className="text-[#b6ff69]">{t.highlight}</span></h2>
+          <p className="mx-auto mt-6 max-w-[670px] text-[15px] leading-[1.8] text-[#b3beb4] sm:text-lg">{t.desc}</p>
+        </div>
+        <div className="pn-gallery-filters mt-7 flex flex-wrap justify-center gap-2.5 sm:mt-9" aria-label={lang==="pt"?"Filtros de projetos":"Project filters"}>
+          {(["all","business","commerce","services"] as const).map(key=><button type="button" key={key} onClick={()=>setCategory(key)} aria-pressed={category===key} className={"min-h-10 rounded-full border px-4 text-xs font-semibold transition-colors sm:px-5 sm:text-sm "+(category===key?"border-[#b6ff69] bg-[#b6ff69] text-[#0d1b0a]":"border-white/15 bg-white/[.04] text-[#c9d5ca] hover:border-[#b6ff69]/50 hover:text-white")}>{t[key]}</button>)}
+        </div>
+        <div className="pn-gallery-grid mt-8 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {shown.map(item=><article key={item.id} className="pn-gallery-card pn-gallery3d-card group min-w-0">
+            <button type="button" onClick={()=>setSelected(item.index)} className="pn-gallery3d-button block w-full text-left" aria-label={t.view+": "+item.names[lang]}
+              onPointerMove={event=>{
+                if(event.pointerType!=="mouse")return;
+                const rect=event.currentTarget.getBoundingClientRect();
+                const x=(event.clientX-rect.left)/rect.width-.5;
+                const y=(event.clientY-rect.top)/rect.height-.5;
+                event.currentTarget.style.setProperty("--pn-tilt-y",(x*7).toFixed(2)+"deg");
+                event.currentTarget.style.setProperty("--pn-tilt-x",(-y*5).toFixed(2)+"deg");
+              }}
+              onPointerLeave={event=>{event.currentTarget.style.setProperty("--pn-tilt-x","0deg");event.currentTarget.style.setProperty("--pn-tilt-y","0deg");}}>
+              <Gallery3DVisual item={item} lang={lang}/>
+            </button>
+          </article>)}
+        </div>
+        <div className="mt-7 flex flex-col items-center gap-4 text-center sm:mt-9">
+          <p className="max-w-[650px] text-xs leading-6 text-[#8e9c90]">{t.note}</p>
+          <a href="/cadastro" className="inline-flex min-h-12 items-center gap-3 rounded-xl bg-[#b6ff69] px-6 text-[13px] font-bold text-[#101a0d] transition hover:bg-[#d5ffa8]">{t.cta}<ArrowRight size={17}/></a>
+        </div>
+      </div>
+    </section>}
+    <AiEditorDemo lang={lang}/>
+    {!onlyDemo && selected!==null && <div className="pn-gallery-modal fixed inset-0 z-[200] flex items-center justify-center bg-[#030603]/90 p-3 backdrop-blur-xl sm:p-8" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setSelected(null);}}>
+      <div role="dialog" aria-modal="true" aria-label={examples[selected].names[lang]} className="w-full max-w-[1050px] overflow-hidden rounded-2xl border border-[#a5ff6a]/25 bg-[#0c130e] shadow-2xl">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3 sm:px-6"><div className="min-w-0"><p className="text-[10px] tracking-[.2em] text-[#b6ff69]">{t.tag}</p><h3 className="truncate text-sm font-bold text-white sm:text-lg">{examples[selected].names[lang]}</h3></div><button type="button" onClick={()=>setSelected(null)} className="rounded-full border border-white/20 p-2 text-white hover:bg-white/10" aria-label={t.close}><X size={18}/></button></div>
+        <SiteVisual item={examples[selected]} lang={lang}/>
+        <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6"><button type="button" className="inline-flex items-center gap-2 text-xs font-semibold text-white/80" onClick={()=>setSelected((selected+examples.length-1)%examples.length)}><ChevronLeft size={18}/>{t.prev}</button><span className="text-xs text-white/55">{selected+1} {t.counter} {examples.length}</span><button type="button" className="inline-flex items-center gap-2 text-xs font-semibold text-white/80" onClick={()=>setSelected((selected+1)%examples.length)}>{t.next}<ChevronRight size={18}/></button></div>
+      </div>
+    </div>}
+    <style>{`
+      .pn-gallery-section{font-family:inherit;background:linear-gradient(180deg,#0b190f 0%,#0a170e 180px,#090e0b 440px);border-top:0}.pn-gallery-halo{position:absolute;left:50%;top:0;width:110vw;height:560px;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse 62% 56% at 50% 0%,rgba(135,255,79,.09),transparent 82%)}
+      .pn-gallery-visual{height:260px;position:relative;overflow:hidden;color:white;isolation:isolate}
+      .pn-gallery-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75;filter:saturate(.88)}
+      .pn-gallery-shade{position:absolute;inset:0;background:linear-gradient(90deg,#0b1010f0 0%,#101713a8 50%,#090d0a35 100%)}
+      .pn-gallery-industrial .pn-gallery-photo{object-position:60% 45%}
+      .pn-gallery-laundry .pn-gallery-photo{object-position:65% 50%}
+      .pn-gallery-creative .pn-gallery-photo{object-position:75% 50%}
+      .pn-gallery-hotel .pn-gallery-photo{object-position:70% 40%}
+      .pn-gallery-retail .pn-gallery-photo{object-position:62% 42%}
+      .pn-gallery-browser{position:relative;height:23px;display:flex;align-items:center;gap:5px;padding:0 12px;background:#07100bc4;border-bottom:1px solid #ffffff20}
+      .pn-gallery-browser>span:not(.pn-gallery-url){width:5px;height:5px;border-radius:50%;background:#fa8383}.pn-gallery-browser>span:nth-child(2){background:#f0c979}.pn-gallery-browser>span:nth-child(3){background:#78b99a}
+      .pn-gallery-url{position:absolute;left:35%;right:35%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;font-size:7px;letter-spacing:.03em;color:#ffffff70}
+      .pn-gallery-siteheader{position:relative;z-index:2;height:45px;display:flex;align-items:center;justify-content:space-between;padding:0 17px;border-bottom:1px solid #ffffff26}
+      .pn-gallery-siteheader>b{font-size:11px;font-weight:800;letter-spacing:.04em}.pn-gallery-siteheader i{font-style:normal}
+      .pn-gallery-siteheader>div{display:flex;gap:9px}.pn-gallery-siteheader>div span{display:block;width:22px;height:3px;border-radius:3px;background:#ffffff85}
+      .pn-gallery-cta-mini{width:38px;height:12px;border-radius:3px}
+      .pn-gallery-copy{position:relative;z-index:2;margin:26px 0 0 22px;width:58%;max-width:320px}
+      .pn-gallery-overline{text-transform:uppercase;font-size:8px;letter-spacing:.16em;font-weight:800}
+      .pn-gallery-copy h3{font-size:clamp(17px,2.2vw,26px);line-height:1.18;letter-spacing:-.045em;font-weight:800;margin-top:8px;text-wrap:balance}
+      .pn-gallery-copy p{margin-top:11px;display:flex;flex-direction:column;gap:5px}
+      .pn-gallery-copy p span{display:block;height:4px;width:80%;background:#ffffffa3;border-radius:5px}.pn-gallery-copy p span:last-child{width:60%;background:#ffffff65}
+      .pn-gallery-mini-button{margin-top:13px;display:flex;align-items:center;gap:6px;width:70px;height:22px;justify-content:center;border-radius:4px;color:#101713}
+      .pn-gallery-mini-button span{width:29px;height:3px;border-radius:2px;background:#102013a1}
+      .pn-gallery-bottom{position:absolute;bottom:12px;left:22px;display:flex;gap:6px}.pn-gallery-bottom span{width:31px;height:3px;background:#ffffff35;border-radius:4px}
+      .pn-gallery-tech-art{position:absolute;inset:20px -40px -40px 40%;transform:rotate(-18deg)}
+      .pn-gallery-tech-art span{display:block;position:absolute;inset:10% 10%;border:1px solid #a3ff6980;border-radius:30px;box-shadow:0 0 50px #a3ff691b;background:linear-gradient(130deg,#a3ff6930,#263e7640)}
+      .pn-gallery-tech-art span:nth-child(2){inset:24% -2% 24% 20%;transform:rotate(28deg)}
+      .pn-gallery-tech-art span:nth-child(3){inset:35% 17%;transform:rotate(-30deg);border-color:#7ab1ff95}
+      .pn-gallery-tech-art span:nth-child(4){inset:44% 35%;background:#a3ff6945}
+      .pn-gallery-modal .pn-gallery-visual{height:min(62vh,570px)}
+      .pn-gallery-modal .pn-gallery-siteheader{height:65px;padding:0 5%}
+      .pn-gallery-modal .pn-gallery-siteheader>b{font-size:20px}
+      .pn-gallery-modal .pn-gallery-copy{margin:7% 0 0 6%;max-width:530px}
+      .pn-gallery-modal .pn-gallery-overline{font-size:12px}
+      .pn-gallery-modal .pn-gallery-copy h3{font-size:clamp(27px,5vw,60px);line-height:1.12}
+      .pn-gallery-modal .pn-gallery-copy p span{height:6px}
+      .pn-gallery-modal .pn-gallery-mini-button{width:110px;height:35px}
+      @media(max-width:640px){.pn-gallery-visual{height:245px}.pn-gallery-copy{margin-top:25px}.pn-gallery-modal .pn-gallery-visual{height:min(56vh,410px)}.pn-gallery-modal .pn-gallery-copy{width:76%;margin-top:48px}.pn-gallery-modal .pn-gallery-siteheader{height:48px}.pn-gallery-modal .pn-gallery-copy h3{font-size:clamp(24px,6vw,38px)}}
+@media(max-width:639px){
+#galeria{padding-top:36px;padding-bottom:36px}
+#galeria h2{font-size:clamp(31px,7.5vw,40px);line-height:1.12}
+#galeria .pn-gallery-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:22px}
+#galeria .pn-gallery-filters button{width:100%;padding:0 7px;font-size:11px}
+#galeria .pn-gallery-grid{gap:12px;margin-top:22px}
+#galeria .pn-gallery-visual{height:210px}
+#galeria .pn-gallery-photo{clip-path:inset(0 0 0 40%);object-position:75% center;opacity:.75}
+#galeria .pn-gallery-shade{background:linear-gradient(90deg,#0b1210 0%,#0b1210fb 39%,#0b1210dc 56%,#0b12106b 100%)}
+#galeria .pn-gallery-copy{margin:22px 0 0 16px;width:61%}
+#galeria .pn-gallery-copy h3{font-size:20px;line-height:1.12}
+#galeria .pn-gallery-copy p{margin-top:7px}
+#galeria .pn-gallery-mini-button{margin-top:9px}
+#galeria .pn-gallery-siteheader{height:38px;padding:0 12px}
+#galeria .pn-gallery-siteheader>div span{width:12px}
+#galeria .pn-gallery-card>button>div:last-child{padding:12px 15px}
+#edicao-ia{padding-top:42px;padding-bottom:42px}
+#edicao-ia>div.relative>div:first-child h2{font-size:clamp(31px,7.6vw,41px);line-height:1.1}
+#edicao-ia>div.relative>div:first-child p{font-size:14px;line-height:1.65;margin-top:13px}
+#edicao-ia>div.relative>div:nth-child(2){margin-top:23px;border-radius:17px}
+#edicao-ia .flex-1.space-y-3{padding:12px}
+#edicao-ia .flex-1.space-y-3>div:first-child{padding:12px}
+#edicao-ia .border-t.border-white\/10.p-4{padding:12px}
+#edicao-ia .relative.grid.flex-1{padding:14px}
+#edicao-ia .relative.flex.h-16{height:50px}
+}
+
+/* Gallery 3D — independent live elements, translated, interactive and mobile-first. */
+#galeria{background:radial-gradient(ellipse 60% 42% at 50% 18%,#14351b60,transparent 76%),linear-gradient(180deg,#0b190f 0%,#080e0b 50%,#07100b 100%);isolation:isolate}
+#galeria .pn-gallery-halo{height:570px;background:radial-gradient(ellipse 60% 38% at 50% 4%,#a6ff5c24,transparent 85%)}
+#galeria .pn-gallery3d-card{position:relative;min-width:0;border:0;border-radius:24px;background:transparent;overflow:visible;transform:none;box-shadow:none}
+#galeria .pn-gallery3d-button{position:relative;display:block;width:100%;border-radius:24px;outline-offset:5px;perspective:1000px;cursor:zoom-in}
+#galeria .pn-gallery3d-panel{position:relative;display:flex;isolation:isolate;overflow:hidden;min-height:276px;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 40%,transparent);border-radius:24px;background:radial-gradient(ellipse 80% 70% at 100% 85%,color-mix(in srgb,var(--pn-gallery3d-accent) 13%,transparent),transparent 75%),linear-gradient(125deg,#132119,#0d1712 56%,#17221a);box-shadow:inset 0 1px 0 #ffffff19,0 23px 45px #0008,0 1px 12px color-mix(in srgb,var(--pn-gallery3d-accent) 10%,transparent);transform:perspective(1050px) rotateX(var(--pn-tilt-x,0deg)) rotateY(var(--pn-tilt-y,0deg));transition:transform .35s ease,border-color .3s,box-shadow .3s;backface-visibility:hidden}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-panel,#galeria .pn-gallery3d-button:focus-visible .pn-gallery3d-panel{border-color:color-mix(in srgb,var(--pn-gallery3d-accent) 85%,transparent);box-shadow:inset 0 1px 0 #ffffff22,0 24px 70px #0009,0 0 28px color-mix(in srgb,var(--pn-gallery3d-accent) 32%,transparent)}
+#galeria .pn-gallery3d-card:nth-child(2) .pn-gallery3d-panel{border-color:#b6ff69c4;box-shadow:inset 0 1px 0 #fff2,0 0 22px #a6ff5673,0 22px 65px #0009}
+#galeria .pn-gallery3d-copy{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:0;width:55%;padding:25px 8px 24px 24px}
+#galeria .pn-gallery3d-icon{display:flex;align-items:center;justify-content:center;width:40px;height:40px;margin-bottom:16px;border:1px solid #d4ffa734;border-radius:12px;background:#a7ff6a12;color:#b8ff72;box-shadow:inset 0 1px 0 #fff2}
+#galeria .pn-gallery3d-eyebrow{color:#dae8d5;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.17em;line-height:1.4}
+#galeria .pn-gallery3d-copy h3{margin:9px 0 14px;font-size:clamp(18px,1.65vw,25px);font-weight:800;line-height:1.14;letter-spacing:-.045em;color:#fff;text-wrap:balance}
+#galeria .pn-gallery3d-action{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:34px;max-width:100%;border:1px solid #a9ff68a8;border-radius:999px;padding:0 12px;color:#f2ffeb;background:#0a180d65;font-weight:700;font-size:11px;white-space:nowrap;transition:background .3s,color .3s}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-action{background:#a6ff61;color:#0b1608}
+#galeria .pn-gallery3d-art-stack{position:absolute;z-index:2;top:12%;right:3%;width:48%;height:78%;perspective:650px;animation:pn-gallery3d-bob 7s ease-in-out infinite alternate}
+#galeria .pn-gallery3d-card:nth-child(2n) .pn-gallery3d-art-stack{animation-delay:-2.3s}
+#galeria .pn-gallery3d-card:nth-child(3n) .pn-gallery3d-art-stack{animation-delay:-4.4s}
+#galeria .pn-gallery3d-back-plate{position:absolute;inset:3% -2% 2% 8%;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 62%,transparent);border-radius:17px;background:linear-gradient(125deg,#c4ffd019,#c1ffd005);transform:translate(10px,-9px) rotateY(-18deg) rotateZ(4deg);box-shadow:9px 16px 27px #0007}
+#galeria .pn-gallery3d-browser-window{position:absolute;inset:8% 2% 1% 1%;overflow:hidden;border:1px solid color-mix(in srgb,var(--pn-gallery3d-accent) 78%,#fff);border-radius:14px;transform:rotateY(-15deg) rotateZ(4deg) translateZ(24px);box-shadow:0 18px 25px #0009,0 0 24px color-mix(in srgb,var(--pn-gallery3d-accent) 22%,transparent);background:#162219}
+#galeria .pn-gallery3d-browser-window img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:saturate(.96) contrast(1.08)}
+#galeria .pn-gallery3d-window-shine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,#ffffff22,transparent 32%,transparent 70%,#ffffff17);box-shadow:inset 0 1px 0 #fff5}
+#galeria .pn-gallery3d-browser-dots{position:absolute;z-index:2;left:0;right:0;top:0;display:flex;gap:4px;padding:10px 10px 9px;background:#0a130db5}
+#galeria .pn-gallery3d-browser-dots i{width:5px;height:5px;border-radius:50%;background:#b5ff77}
+#galeria .pn-gallery3d-browser-dots i:nth-child(2){background:#e5bf80}
+#galeria .pn-gallery3d-browser-dots i:nth-child(3){background:#97dbcb}
+#galeria .pn-gallery3d-reflection{position:absolute;inset:0;z-index:4;pointer-events:none;background:linear-gradient(120deg,transparent 8%,#ffffff0a 30%,transparent 50%);transform:translateX(-110%);transition:transform .9s ease}
+#galeria .pn-gallery3d-button:hover .pn-gallery3d-reflection{transform:translateX(110%)}
+#galeria .pn-gallery3d-floor-glow{position:absolute;bottom:-22px;left:25%;right:3%;height:42px;border-radius:50%;background:color-mix(in srgb,var(--pn-gallery3d-accent) 20%,transparent);filter:blur(23px);pointer-events:none}
+#galeria .pn-gallery3d-tech-image{position:absolute;inset:0;overflow:hidden;background:radial-gradient(circle at 55% 50%,#a7ff6a47,transparent 56%),linear-gradient(130deg,#0b1820,#101c22)}
+#galeria .pn-gallery3d-tech-image span{position:absolute;inset:19% 13%;border:1px solid #a7ff6ac4;border-radius:20%;transform:rotate(-19deg);background:linear-gradient(145deg,#a7ff6a24,#6c8fff33)}
+#galeria .pn-gallery3d-tech-image span:nth-child(2){inset:32% 2% 18% 20%;transform:rotate(27deg);border-color:#8eacff9e}
+#galeria .pn-gallery3d-tech-image span:nth-child(3){inset:42% 18% 25%;transform:rotate(-28deg);border-color:#7de0ffc4}
+#galeria .pn-gallery3d-tech-image span:nth-child(4){inset:48% 36% 38%;background:#a7ff6a55;border:0;border-radius:999px;filter:blur(3px)}
+@keyframes pn-gallery3d-bob{from{transform:translate3d(0,3px,0) rotate(-1deg)}to{transform:translate3d(0,-7px,0) rotate(1.3deg)}}
+@media(min-width:1280px){#galeria .pn-gallery3d-panel{min-height:280px}}
+@media(max-width:767px){
+ #galeria .pn-gallery3d-card{overflow:visible}
+ #galeria .pn-gallery3d-panel{min-height:246px;border-radius:20px}
+ #galeria .pn-gallery3d-copy{padding:21px 8px 20px 19px;width:55%}
+ #galeria .pn-gallery3d-copy h3{font-size:clamp(20px,5vw,27px);max-width:225px}
+ #galeria .pn-gallery3d-art-stack{right:2%;width:47%;top:14%;height:74%;animation-duration:9s}
+ #galeria .pn-gallery3d-browser-window{border-radius:12px}
+}
+@media(min-width:768px) and (max-width:1279px){#galeria .pn-gallery3d-copy{padding-left:17px}#galeria .pn-gallery3d-copy h3{font-size:19px}#galeria .pn-gallery3d-panel{min-height:255px}}
+@media(prefers-reduced-motion:reduce){#galeria .pn-gallery3d-art-stack{animation:none}#galeria .pn-gallery3d-panel{transition:none;transform:none}#galeria .pn-gallery3d-reflection{transition:none}}
+      @media(prefers-reduced-motion:reduce){.pn-gallery-card{transition:none!important;transform:none!important}}
+    `}</style>
+  </>;
+}
+
+type DemoStep = 0|1|2;
+const aiDemoTranslations = {
+  pt:{
+    eyebrow:"PERSONALIZAÇÃO COM INTELIGÊNCIA ARTIFICIAL",headline:"Você imagina. A IA",highlight:"transforma.",description:"Peça mudanças em linguagem natural e veja o projeto ganhar uma nova aparência. Uma demonstração interativa de como funciona a personalização.",
+    chat:"Assistente PageNova",assistant:"Assistente de criação",status:"Demonstração interativa",site:"Prévia do site",live:"Atualização visual",prompt:"Escolha uma alteração",send:"Aplicar alteração",done:"Alteração aplicada",ready:"Escolha um comando para ver o resultado",note:"Simulação visual ilustrativa. Não envia comandos ao Builder, não consome créditos nem altera projetos reais.",
+    prompts:["Mude o título e a chamada principal","Troque as cores para um estilo premium","Adicione uma seção de diferenciais"],assistantReplies:["Atualizei o título e a mensagem principal.","Nova identidade visual aplicada ao projeto.","Seção de diferenciais adicionada."],
+    defaultTitle:"Uma experiência para descobrir.",changedTitle:"Seu próximo nível começa aqui.",subtitle:"Soluções que conectam ideias e negócios.",features:"Por que escolher nossa marca",featureNames:["Design exclusivo","Experiência intuitiva","Resultados sob medida"],cta:"Conhecer soluções",before:"Antes",after:"Depois",reset:"Reiniciar",next:"Próxima alteração"
+  },
+  en:{
+    eyebrow:"AI-POWERED CUSTOMIZATION",headline:"You imagine. AI",highlight:"transforms.",description:"Request changes in natural language and watch your project take a new shape. An interactive showcase of what customization can look like.",
+    chat:"PageNova Assistant",assistant:"Creative assistant",status:"Interactive demo",site:"Website preview",live:"Visual update",prompt:"Choose an edit",send:"Apply change",done:"Change applied",ready:"Choose a request to see the result",note:"Illustrative visual simulation. Does not send commands to the real Builder, use credits, or modify projects.",
+    prompts:["Update the hero headline","Switch to a premium color palette","Add a key benefits section"],assistantReplies:["Headline and primary message updated.","A premium color palette has been applied.","A new benefits section has been added."],
+    defaultTitle:"An experience worth discovering.",changedTitle:"Your next chapter starts here.",subtitle:"Solutions connecting ideas and business.",features:"Why choose our brand",featureNames:["Distinctive design","Easy experience","Made for your goals"],cta:"Explore services",before:"Before",after:"After",reset:"Reset",next:"Next edit"
+  },
+  es:{
+    eyebrow:"PERSONALIZACIÓN CON INTELIGENCIA ARTIFICIAL",headline:"Tú imaginas. La IA",highlight:"transforma.",description:"Pide cambios con lenguaje natural y descubre cómo evoluciona el diseño. Una demostración interactiva de personalización.",
+    chat:"Asistente PageNova",assistant:"Asistente creativo",status:"Demostración interactiva",site:"Vista del sitio",live:"Cambio visual",prompt:"Elige un cambio",send:"Aplicar cambio",done:"Cambio aplicado",ready:"Elige una instrucción para ver el resultado",note:"Simulación visual ilustrativa. No envía comandos al Builder real, no consume créditos ni modifica proyectos.",
+    prompts:["Cambia el título principal","Utiliza una paleta premium","Añade una sección de beneficios"],assistantReplies:["Título principal actualizado.","Nueva paleta de colores aplicada.","Sección de beneficios añadida."],
+    defaultTitle:"Una experiencia por descubrir.",changedTitle:"Tu próximo nivel comienza aquí.",subtitle:"Soluciones que conectan ideas y negocios.",features:"Por qué elegir nuestra marca",featureNames:["Diseño exclusivo","Experiencia intuitiva","A tu medida"],cta:"Conocer servicios",before:"Antes",after:"Después",reset:"Reiniciar",next:"Siguiente cambio"
+  }
+} as const;
+
+function AiEditorDemo({lang}:{lang:Locale}) {
+  const t=aiDemoTranslations[lang];
+  const [step,setStep]=useState<DemoStep>(0);
+  const [stage,setStage]=useState(0);
+  const [playing,setPlaying]=useState(true);
+  const [animating,setAnimating]=useState(false);
+  useEffect(()=>{
+    if(!playing)return;
+    if(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)return;
+    const timer=window.setInterval(()=>{
+      setStep(prev=>(prev+1)%3 as DemoStep);
+      setStage(prev=>Math.min(3,prev+1));
+    },6200);
+    return ()=>window.clearInterval(timer);
+  },[playing]);
+  useEffect(()=>{
+    setAnimating(true);
+    const id=window.setTimeout(()=>setAnimating(false),420);
+    return ()=>window.clearTimeout(id);
+  },[step,stage]);
+  const showNewTitle=stage>=1;
+  const premium=stage>=2;
+  const showFeatures=stage>=3;
+  const theme=premium?"#cfb390":"#b6ff69";
+  const handleChange=(index:DemoStep)=>{
+    setPlaying(false);
+    setStep(index);
+    setStage(index+1);
+  };
+  const reset=()=>{setPlaying(false);setStep(0);setStage(0);};
+  return <section id="edicao-ia" className="relative isolate overflow-hidden border-t border-white/[.07] bg-[#070d09] px-5 py-20 text-white sm:px-8 sm:py-28 lg:py-36" style={{fontFamily:"inherit"}}>
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_55%_45%,rgba(154,255,96,.075),transparent_62%)]"/>
+    <div className="relative mx-auto max-w-[1280px]">
+      <div className="mx-auto max-w-[920px] text-center">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#b6ff69]/25 bg-[#b6ff69]/[.06] px-4 py-2 text-[10px] font-bold tracking-[.15em] text-[#b6ff69] sm:text-xs"><span className="text-base">✦</span>{t.eyebrow}</div>
+        <h2 className="text-[clamp(2.55rem,5.7vw,5.8rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{t.headline}<br/><span className="text-[#b6ff69]">{t.highlight}</span></h2>
+        <p className="mx-auto mt-6 max-w-[720px] text-[15px] leading-[1.8] text-[#abb8ae] sm:text-lg">{t.description}</p>
+      </div>
+      <div className="mt-8 overflow-hidden rounded-[24px] border border-[#9cff7833] bg-[#0b130e] shadow-[0_35px_110px_#0009] lg:mt-10 lg:grid lg:min-h-[520px] lg:grid-cols-[.43fr_.57fr]">
+        <div className="flex flex-col border-b border-white/10 lg:border-b-0 lg:border-r">
+          <div className="flex min-h-[62px] items-center gap-3 border-b border-white/10 px-5 sm:px-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#b6ff69]/10 text-[#b6ff69]"><span className="text-xl">✦</span></div>
+            <div><p className="text-sm font-bold">{t.chat}</p><p className="text-xs text-white/45">{t.assistant}</p></div>
+            <span className="ml-auto hidden rounded-full border border-[#b6ff69]/20 sm:inline-flex bg-[#b6ff69]/[.06] px-2 py-1 text-[10px] text-[#b6ff69]">{t.status}</span>
+          </div>
+          <div className="flex-1 space-y-3 p-4 sm:p-5" aria-live="polite">
+            <div className="ml-auto max-w-[94%] rounded-2xl rounded-tr-md border border-white/10 bg-[#1b2a20] p-4 text-sm leading-6 text-white/90"><span className="mb-2 block text-[10px] font-bold uppercase tracking-[.14em] text-[#b6ff69]">{t.prompt}</span>{t.prompts[step]}</div>
+            <div className="flex items-start gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#b6ff69]/15 text-[#b6ff69]">✦</div>
+              <div className="max-w-[90%] rounded-2xl rounded-tl-md border border-white/10 bg-[#101b14] p-4 text-sm leading-6 text-[#d7e2d8]"><p>{stage>0?t.assistantReplies[step]:t.ready}</p>{stage>0&&<span className="mt-3 inline-flex items-center gap-2 text-xs font-semibold text-[#b6ff69]"><Check size={14}/>{t.done}</span>}</div>
+            </div>
+          </div>
+          <div className="border-t border-white/10 p-4 sm:p-5">
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[.12em] text-white/50">{t.prompt}</p>
+            <div className="flex flex-col gap-2">
+              {t.prompts.map((prompt,index)=><button key={index} type="button" aria-pressed={stage>0&&step===index} onClick={()=>handleChange(index as DemoStep)} className={"flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border px-4 py-2.5 text-left text-xs leading-5 transition sm:text-[13px] "+(stage>0&&step===index?"border-[#b6ff69]/50 bg-[#b6ff69]/10 text-white":"border-white/10 bg-white/[.025] text-[#c6d0c8] hover:border-[#b6ff69]/30 hover:text-white")}>{prompt}<ArrowUpRight size={15} className="shrink-0 text-[#b6ff69]"/></button>)}
+            </div>
+            <div className="mt-4 flex items-center justify-between gap-3"><button type="button" onClick={reset} className="text-xs text-white/55 underline underline-offset-4 hover:text-white">{t.reset}</button><span className="text-[10px] text-white/35">{stage>0?`${Math.min(stage,3)}/3`:"0/3"}</span></div>
+          </div>
+        </div>
+        <div className="min-w-0 bg-[#101a14]">
+          <div className="flex min-h-[55px] items-center justify-between gap-3 border-b border-white/10 px-4 sm:px-6">
+            <div className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-[#ee7777]"/><span className="h-2 w-2 rounded-full bg-[#dfbc68]"/><span className="h-2 w-2 rounded-full bg-[#78c991]"/><span className="ml-2 text-xs font-medium text-white/65">{t.site}</span></div>
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-[#b6ff69]"><span className="h-1.5 w-1.5 rounded-full bg-[#b6ff69]"/>{t.live}</span>
+          </div>
+          <div className="p-3 sm:p-4">
+            <div className={"relative flex min-h-[295px] flex-col overflow-hidden rounded-xl border border-white/10 transition-colors duration-500 sm:min-h-[420px] "+(premium?"bg-[#201c1a]":"bg-[#13241c]")}>
+              <div className="absolute inset-0 pointer-events-none" style={{background:premium?"radial-gradient(circle at 86% 46%,#b89a6a60,transparent 45%)":"radial-gradient(circle at 86% 46%,#78be8c55,transparent 45%)"}}/>
+              <div className="relative flex h-16 items-center justify-between gap-3 border-b border-white/10 px-5 sm:px-8">
+                <span className="text-lg font-extrabold tracking-tight">ATELIER<span style={{color:theme}}>.</span></span><div className="hidden gap-5 sm:flex">{["Studio","Sobre","Contato"].map(x=><span key={x} className="text-[10px] text-white/60">{x}</span>)}</div><span className="h-6 w-12 rounded-md transition-colors duration-500" style={{background:theme}}/>
+              </div>
+              <div className="relative grid flex-1 grid-cols-1 items-center gap-4 p-5 sm:grid-cols-[1.1fr_.9fr] sm:gap-5 sm:p-6">
+                <div className={"relative z-10 transition-all duration-500 "+(animating?"opacity-75 translate-y-1":"opacity-100 translate-y-0")}>
+                  <p className="mb-4 text-[10px] font-bold tracking-[.21em] uppercase" style={{color:theme}}>Branding & Design Studio</p>
+                  <h3 className="max-w-[430px] text-[clamp(1.5rem,6.6vw,2rem)] sm:text-[clamp(1.7rem,2.5vw,3rem)] font-extrabold leading-[1.04] tracking-[-.065em]">{showNewTitle?t.changedTitle:t.defaultTitle}</h3>
+                  <p className="mt-5 max-w-[320px] text-[13px] leading-6 text-white/70">{t.subtitle}</p>
+                  <span className="mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-3 text-xs font-bold text-[#101710] transition-colors duration-500" style={{background:theme}}>{t.cta}<ArrowRight size={14}/></span>
+                </div>
+                <div className="relative mx-auto hidden h-48 w-full max-w-[210px] items-center justify-center sm:flex">
+                  <div className="absolute h-40 w-40 rotate-12 rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"70",background:theme+"18"}}/>
+                  <div className="absolute h-36 w-36 -rotate-[16deg] rounded-[35px] border transition-colors duration-500" style={{borderColor:theme+"80",background:theme+"25"}}/>
+                  <div className="relative flex h-24 w-24 rotate-6 items-center justify-center rounded-[28px] border bg-white/[.06] text-6xl shadow-2xl" style={{borderColor:theme+"65"}}>✦</div>
+                </div>
+              </div>
+              <div className={"relative grid overflow-hidden border-t border-white/10 bg-black/20 transition-all duration-500 "+(showFeatures?"grid-rows-[1fr] opacity-100":"grid-rows-[0fr] opacity-0")}>
+                <div className="min-h-0"><div className="p-5 sm:p-7"><p className="mb-4 text-sm font-bold">{t.features}</p><div className="grid grid-cols-1 gap-2 sm:grid-cols-3">{t.featureNames.map(name=><div key={name} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-3 text-[11px]"><Check size={14} style={{color:theme}}/>{name}</div>)}</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 px-4 pb-5 text-[11px] text-white/50 sm:px-6"><span>{t.before} / {t.after}</span><span className="text-[#b6ff69]">{stage>0?t.done:t.ready}</span></div>
+        </div>
+      </div>
+      <p className="mx-auto mt-6 max-w-[720px] text-center text-xs leading-6 text-[#819285]">{t.note}</p>
+    </div>
+  </section>;
+}

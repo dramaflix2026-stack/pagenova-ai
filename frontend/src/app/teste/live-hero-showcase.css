@@ -1,0 +1,72 @@
+.pn9-image-scene{position:absolute;inset:0;isolation:isolate;overflow:hidden;pointer-events:none}
+.pn9-glow{position:absolute;top:6%;width:40%;height:85%;filter:blur(54px);opacity:.65}
+.pn9-glow-left{left:-10%;background:radial-gradient(ellipse,#92ff3d48,transparent 70%)}
+.pn9-glow-right{right:-10%;background:radial-gradient(ellipse,#92ff3d3d,transparent 70%)}
+.pn9-half{position:absolute;top:7%;width:min(31.5vw,620px);height:auto;aspect-ratio:580/630;overflow:hidden;will-change:transform;animation:pn9-float 8s ease-in-out infinite alternate}
+.pn9-half img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;max-width:none;image-rendering:auto;user-select:none}
+/* Alpha fades blend the actual raster artwork with the continuous page background.
+   The parent retains its independent left/right horizontal mask. */
+.pn9-desktop .pn9-half img{
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.28) 5%,#000 15%,#000 84%,rgba(0,0,0,.72) 90%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.28) 5%,#000 15%,#000 84%,rgba(0,0,0,.72) 90%,transparent 100%);
+}
+
+.pn9-left{left:-1%;-webkit-mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to right,#000 0%,#000 76%,#000b 84%,transparent 100%)}
+.pn9-right{right:-1%;animation-delay:-4s;-webkit-mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%);mask-image:linear-gradient(to left,#000 0%,#000 76%,#000b 84%,transparent 100%)}
+.pn9-text-shield{position:absolute;inset:0;z-index:2;background:radial-gradient(ellipse 33% 64% at 50% 45%,#07140cfb 12%,#07140ce8 52%,#07140c7d 77%,transparent 100%)}
+@keyframes pn9-float{from{transform:translate3d(0,-3px,0)}to{transform:translate3d(0,8px,0)}}
+@media(max-width:1200px){.pn9-half{width:42vw;top:13%}.pn9-left{left:-9%}.pn9-right{right:-9%}.pn9-text-shield{background:radial-gradient(ellipse 44% 68% at 50% 45%,#07140cfa 12%,#07140ce8 56%,transparent 100%)}}
+.pn9-mobile{position:relative;inset:auto;width:100%;height:222px;overflow:hidden;margin-top:14px}
+.pn9-mobile .pn9-half{top:0;width:48%;height:auto;aspect-ratio:580/630;animation-duration:9s}
+.pn9-mobile .pn9-left{left:1%;-webkit-mask-image:linear-gradient(to right,#000 84%,transparent 100%);mask-image:linear-gradient(to right,#000 84%,transparent 100%)}
+.pn9-mobile .pn9-right{right:1%;-webkit-mask-image:linear-gradient(to left,#000 84%,transparent 100%);mask-image:linear-gradient(to left,#000 84%,transparent 100%)}
+.pn9-mobile .pn9-text-shield{background:none}
+.pn9-mobile .pn9-glow{top:15%;height:75%;filter:blur(24px)}
+@media(max-width:430px){.pn9-mobile{height:194px}}
+@media(prefers-reduced-motion:reduce){.pn9-half{animation:none}}
+
+/* Subtle edge enhancement targeted at baked-in raster softness. Do not blur artwork or enlarge it. */
+.pn9-sharp-defs{position:absolute;pointer-events:none;opacity:0;overflow:hidden}
+.pn9-desktop .pn9-half img{filter:url("#pn9-unsharp-desktop") contrast(1.035) saturate(1.035)}
+.pn9-mobile .pn9-half img{filter:url("#pn9-unsharp-mobile") contrast(1.025) saturate(1.03)}
+
+/* Mobile hero: no six-up postage-stamp banner. Swipe between large approved panels. */
+.pn9-mobile-showcase{position:relative;width:calc(100% + 28px);margin:21px -14px 0;overflow:hidden;isolation:isolate}
+.pn9-mobile-aura{position:absolute;inset:15% 0 12%;pointer-events:none;background:radial-gradient(ellipse 66% 62% at 50% 55%,rgba(142,255,72,.19),transparent 78%);filter:blur(25px)}
+.pn9-mobile-carousel{position:relative;display:flex;gap:10px;padding:5px 7% 0;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-padding-inline:7%;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:none;touch-action:pan-x pan-y}
+.pn9-mobile-carousel::-webkit-scrollbar{display:none}
+.pn9-mobile-slide{position:relative;flex:0 0 87%;min-width:0;aspect-ratio:580/600;scroll-snap-align:center;overflow:hidden;border-radius:24px;transform:translateZ(0)}
+.pn9-mobile-slide img{display:block;width:100%;height:100%;object-fit:contain;filter:contrast(1.035) saturate(1.04);-webkit-mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%);mask-image:linear-gradient(to right,transparent 0%,#000 5%,#000 95%,transparent 100%)}
+.pn9-mobile-navigation{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 22px;padding:7px 3px 4px}
+.pn9-mobile-label{color:#c6dfbf;font-size:11px;font-weight:650;letter-spacing:.025em}
+.pn9-mobile-count{margin-left:7px;color:#a6ff61;font-weight:750;font-variant-numeric:tabular-nums}
+.pn9-mobile-controls{display:flex;gap:9px}
+.pn9-mobile-controls button{display:grid;width:38px;height:38px;place-items:center;border-radius:50%;border:1px solid #a6ff6155;background:#112417d9;color:#a6ff61;transition:background .2s,border-color .2s}
+.pn9-mobile-controls button:not(:disabled):active{background:#26452c}
+.pn9-mobile-controls button:focus-visible{outline:2px solid #baff7a;outline-offset:3px}
+.pn9-mobile-controls button:disabled{opacity:.35;cursor:not-allowed}
+@media(min-width:640px) and (max-width:1023px){
+ .pn9-mobile-showcase{width:min(100%,660px);margin:18px auto 0}
+ .pn9-mobile-slide{flex-basis:75%}
+}
+@media(prefers-reduced-motion:reduce){.pn9-mobile-carousel{scroll-behavior:auto}.pn9-mobile-controls button{transition:none}}
+
+/* Full-bleed ambient photo cards BEHIND mobile copy/CTAs. Do not recreate or enlarge the mockups individually. */
+.pn9-mobile-ambient{position:absolute;inset:0;overflow:hidden;isolation:isolate;pointer-events:none}
+.pn9-mobile-ambient-glow{position:absolute;inset:7% -20% 0;background:radial-gradient(ellipse 65% 45% at 50% 60%,rgba(74,194,42,.19),transparent 78%)}
+.pn9-mobile-ambient-half{position:absolute;top:12%;height:auto;width:clamp(270px,102vw,445px);aspect-ratio:580/630;transform:translateZ(0);opacity:.84;animation:pn9-mobile-background-float 9s ease-in-out infinite alternate}
+.pn9-mobile-ambient-half img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;max-width:none;image-rendering:auto;filter:contrast(1.045) saturate(1.06)}
+.pn9-mobile-ambient-left{left:-46%;-webkit-mask-image:linear-gradient(to right,#000 0%,#000 58%,transparent 100%),linear-gradient(to bottom,transparent 0%,#000 16%,#000 80%,transparent 100%);mask-image:linear-gradient(to right,#000 0%,#000 58%,transparent 100%); }
+.pn9-mobile-ambient-right{right:-46%;animation-delay:-4.5s;-webkit-mask-image:linear-gradient(to left,#000 0%,#000 58%,transparent 100%);mask-image:linear-gradient(to left,#000 0%,#000 58%,transparent 100%)}
+.pn9-mobile-ambient-shield{position:absolute;inset:0;z-index:2;background:
+ radial-gradient(ellipse 60% 64% at 50% 43%,rgba(5,19,10,.94) 3%,rgba(5,19,10,.84) 47%,rgba(5,19,10,.38) 76%,transparent 100%),
+ linear-gradient(to bottom,rgba(5,18,10,.30),transparent 15%,transparent 63%,rgba(6,23,11,.69) 93%,rgba(7,24,13,.9))}
+@keyframes pn9-mobile-background-float{from{transform:translateY(-5px)}to{transform:translateY(7px)}}
+@media(max-width:380px){.pn9-mobile-ambient-half{top:18%;width:330px}.pn9-mobile-ambient-left{left:calc(50% - 310px)}.pn9-mobile-ambient-right{right:calc(50% - 310px)}}
+@media(min-width:640px) and (max-width:1023px){
+ .pn9-mobile-ambient-half{top:1%;width:clamp(430px,62vw,590px)}
+ .pn9-mobile-ambient-left{left:-23%}
+ .pn9-mobile-ambient-right{right:-23%}
+ .pn9-mobile-ambient-shield{background:radial-gradient(ellipse 47% 70% at 50% 47%,rgba(5,19,10,.96) 10%,rgba(5,19,10,.8) 56%,transparent 100%)}
+}
+@media(prefers-reduced-motion:reduce){.pn9-mobile-ambient-half{animation:none}}

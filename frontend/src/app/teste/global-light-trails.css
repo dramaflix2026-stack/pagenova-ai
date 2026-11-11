@@ -1,0 +1,35 @@
+/* Continuous page-anchored, motion-safe light circuits. Nothing is viewport-fixed. */
+.pn-test-root{position:relative;isolation:isolate;background:#08130c}
+.pn-global-light-trails{
+  position:absolute;inset:0;z-index:25;
+  width:100%;pointer-events:none;overflow:hidden;isolation:isolate;
+}
+.pn-global-light-trails svg{display:block;width:100%;overflow:hidden}
+.pn-energy-guide,.pn-energy-pulse{fill:none;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+.pn-energy-guide{stroke:#a6ff79;stroke-width:1;opacity:.16}
+.pn-energy-pulse{
+  stroke:#b9ff89;stroke-dasharray:205 525;stroke-dashoffset:0;
+  animation:pn-energy-travel 11.5s linear infinite;
+}
+.pn-energy-aura{stroke-width:15;filter:url(#pn-energy-glow);opacity:.40}
+.pn-energy-core{stroke-width:2.2;opacity:.91}
+.pn-energy-right .pn-energy-pulse{animation-delay:-5.5s;opacity:.78}
+@keyframes pn-energy-travel{from{stroke-dashoffset:0}to{stroke-dashoffset:-730}}
+@media(max-width:767px){
+  .pn-energy-guide{stroke-width:.8;opacity:.16}
+  .pn-energy-aura{stroke-width:13;opacity:.35}
+  .pn-energy-core{stroke-width:1.85;opacity:.88}
+  .pn-energy-right .pn-energy-pulse{opacity:.70}
+}
+@media(prefers-reduced-motion:reduce){
+  .pn-energy-pulse{animation:none;stroke-dashoffset:0;opacity:.20}
+  .pn-energy-aura{opacity:.10}
+}
+
+/* Purely decorative; the readable foreground is ALWAYS protected by the SVG mask. */
+.pn-global-light-trails{z-index:20}
+@media(max-width:767px){
+  .pn-energy-guide{opacity:.14}
+  .pn-energy-aura{opacity:.34;stroke-width:12}
+  .pn-energy-core{opacity:.82;stroke-width:1.8}
+}
