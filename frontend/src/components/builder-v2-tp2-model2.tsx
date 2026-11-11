@@ -27,6 +27,10 @@ const categories=[
 [/segurança eletrônica/i,["Câmeras de segurança","Controle de acesso","Alarmes","Manutenção de sistemas"]]
 ] as const;
 const faqs=[["Como solicitar um orçamento?","Envie os detalhes do que você precisa pelo canal de contato cadastrado."],["O atendimento é personalizado?","O escopo e as possibilidades são definidos conforme a necessidade apresentada."],["Quais regiões são atendidas?","Consulte a área de atendimento diretamente com a empresa."],["Como funciona o planejamento?","O processo começa pela compreensão da demanda e pela definição das próximas etapas."],["Como consultar prazos?","Os prazos dependem do serviço e devem ser confirmados após avaliação."],["Há atendimento para empresas?","Entre em contato para verificar as modalidades disponíveis."]];
+const architecturePhotos=["photo-1497366754035-f200968a6e72","photo-1613977257363-707ba9348227","photo-1600585154526-990dced4db0d","photo-1600566752355-35792bedcfea","photo-1616486338812-3dadae4b4ace"];
+const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
+const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.imageExplicit||block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
 export function BuilderV2TP2Model2({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [faq,setFaq]=useState<number|null>(0),[name,setName]=useState(""),[reply,setReply]=useState(""),[msg,setMsg]=useState(""),[notice,setNotice]=useState("");
  const niche=site.niche||"Engenharia",brand=site.header?.brand||site.title||"Estúdio Técnico";
@@ -86,8 +90,8 @@ export function BuilderV2TP2Model2({site,publishedMode=false}:{site:BuilderV2Sit
  const heroDescription=heroBlocks.find(b=>b.type==="paragraph");
  const heroButton=heroBlocks.find(b=>b.type==="button");
  const supplied=site.blocks.filter(b=>b.type==="image"&&b.src&&!b.id.startsWith("universal-extra-card-"));
- const image=(i:number)=>isMaterials?constructionPhotoFor(supplied[i],i,2):supplied[i]?.src||pic(i);
- const visual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>isMaterials?constructionPhotoFor(block,index,2):block?.src?.trim()||image(index);
+ const image=(i:number)=>isMaterials?constructionPhotoFor(supplied[i],i,2):isArchitectureIdentity(site)?architectureVisual(supplied[i],i):supplied[i]?.src||pic(i);
+ const visual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>isMaterials?constructionPhotoFor(block,index,2):isArchitectureIdentity(site)?architectureVisual(block,index):block?.src?.trim()||image(index);
  const phone=(site.footer?.whatsapp||"").replace(/\D/g,""),email=site.footer?.email?.trim()||"";
  const contact=phone.length>=10?"https://wa.me/"+(phone.startsWith("55")?phone:"55"+phone):/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)?"mailto:"+email:null;
  const send=(e:FormEvent)=>{e.preventDefault();if(!name.trim()||!reply.trim()||!msg.trim()){setNotice("Preencha todos os campos.");return;}if(!contact){setNotice("A empresa ainda não cadastrou um canal de contato.");return;}const body="Nome: "+name+"\nContato: "+reply+"\nMensagem: "+msg;const url=contact.startsWith("mailto:")?contact+"?subject="+encodeURIComponent("Contato pelo site")+"&body="+encodeURIComponent(body):contact+"?text="+encodeURIComponent(body);window.location.href=url;setNotice("Confirme o envio no aplicativo de contato.");};
