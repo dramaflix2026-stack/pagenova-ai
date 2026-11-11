@@ -310,3 +310,10 @@
  .pn-vet-footer-base{padding-top:22px}
 }
 @media(prefers-reduced-motion:reduce){.pn-vet *,.pn-vet *:before,.pn-vet *:after{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+
+/* Scoped veterinary testimonial palette override: retain legible cards and warning. */
+.pn-vet-reviews[style*="background-color"] .pn-vet-heading h2,
+.pn-vet-reviews[style*="background-color"] .pn-vet-heading .pn-vet-kicker{color:#fff!important}
+.pn-vet-reviews[style*="background-color"] .pn-vet-review-grid article{background:#fff;color:#18363e}
+.pn-vet-reviews[style*="background-color"] .pn-vet-review-grid article p,
+.pn-vet-reviews[style*="background-color"] .pn-vet-review-head strong{color:#18363e!important}
