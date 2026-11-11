@@ -537,20 +537,12 @@
 @media(max-width:650px){
  .pnr-page .pnr-hero:after{bottom:-60px;height:155px;left:-22%;right:-22%;opacity:.5}
  .pnr-page .pnr-solutions:after{height:160px;bottom:-75px;left:-10%;width:115vw}
- /* Fill the institutional slide vertically, matching the other mobile cards. */
- .pnr-page .pnr-style-card:first-child picture{
-   overflow:hidden;
-   background:#07180e;
- }
- .pnr-page .pnr-style-card:first-child picture img{
-   width:100%;
-   height:100%!important;
-   object-fit:cover!important;
-   object-position:center center;
-   /* The supplied mobile artwork itself contains top/bottom letterboxing.
-      Enlarge its content inside the clipped picture without resizing the card. */
-   transform:scale(1.32);
-   transform-origin:center center;
+ /* New portrait artworks: fill each mobile card consistently without zooming the institutional image. */
+ .pnr-page .pnr-style-card picture{overflow:hidden;background:#07180e}
+ .pnr-page .pnr-style-card picture img{
+   width:100%;height:100%!important;
+   object-fit:cover!important;object-position:center center;
+   transform:none!important;
  }
 }
 @media(prefers-reduced-motion:reduce){
