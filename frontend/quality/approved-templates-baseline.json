@@ -549,7 +549,9 @@
       "approvedBindingRevision": {
         "sha": "0bd233880bd5df9282cae913398d5994a372f6dc",
         "reason": "Fix only chat-created sections: convert persisted heading/paragraph pairs to responsive cards, improve legacy methodology copy and ensure editorial heading contrast on custom dark backgrounds; approved native sections unchanged."
-      }
+      },
+      "sha": "8a79bf2c3b3a35a53976dc53b0ece707e345720c",
+      "reason": "Scoped contrast on dark section backgrounds and premium responsive styling for user-added methodology cards; approved native templates preserved."
     },
     {
       "path": "src/components/builder-v2-vertical-timeline.tsx",
