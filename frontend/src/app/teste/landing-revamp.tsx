@@ -220,7 +220,7 @@ export function LandingRevamp() {
    </section>
    <section id="publicos" className="pnr-section pnr-audiences">
     <header className="pnr-section-heading"><p className="pnr-overline">{t.audienceTag}</p><h2>{t.audienceTitle} <em>{t.audienceHi}</em></h2><p>{t.audienceDesc}</p></header>
-    <div className="pnr-audience-grid" data-motion-scope="audiences">{t.audiences.map((item,i)=>{const Icon=audiencesIcons[i];return <Link key={i} href={i===3?"#solucoes":"/cadastro"} className="pnr-audience-card"><span className="pnr-audience-icon"><Icon size={24}/></span><strong>{item[0]}</strong><p>{item[1]}</p><ArrowUpRight className="pnr-audience-arrow" size={20}/></Link>})}</div>
+    <div className="pnr-audience-grid" data-motion-scope="audiences">{t.audiences.map((item,i)=>{const Icon=audiencesIcons[i];return <Link key={i} href={i===3?"#solucoes":"/cadastro"} className="pnr-audience-card" style={{animationDelay:`${i*110}ms`}}><span className="pnr-audience-index">0{i+1}</span><span className="pnr-audience-icon"><Icon size={24}/></span><strong>{item[0]}</strong><p>{item[1]}</p><span className="pnr-audience-track" aria-hidden="true"><span/></span><ArrowUpRight className="pnr-audience-arrow" size={20}/></Link>})}</div><p className="pnr-audience-ai"><Sparkles size={17}/><span>{lang==="pt"?"Potencializado por inteligência artificial":lang==="es"?"Impulsado por inteligencia artificial":"Powered by artificial intelligence"}</span></p>
    </section>
    <PremiumAiDemo/>
    <section id="planos" className="pnr-section pnr-pricing">
