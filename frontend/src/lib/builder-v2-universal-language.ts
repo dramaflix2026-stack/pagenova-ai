@@ -228,7 +228,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  if(!request)return null;
  const name=(request[1]||request[2]||request[3]||request[4]||"").trim();
  if(!name)return {ok:false,error:"Informe o nome da nova seção."};
- const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:da|do|de|a|o)?\s*(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
+ const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:(?:das|dos|da|do|de|as|os|a|o)\b\s+)?(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
  if(!destination)return {ok:false,error:"A posição da nova seção não foi identificada. Nada foi alterado."};
  const targetLabel=destination[2].trim().replace(/\s+(?:com|contendo|que)\s+.*$/i,"").trim();
  const target=resolveUniversalSection(site,targetLabel);
