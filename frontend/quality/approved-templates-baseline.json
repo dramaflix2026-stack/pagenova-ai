@@ -547,8 +547,8 @@
       "path": "src/components/builder-v2-universal-sections.tsx",
       "blobSha": "7d6810905c754df41975f86bf8b36c478eabea38",
       "approvedBindingRevision": {
-        "sha": "ebaf7e68115bfc7612dd9a6720b569193488689d",
-        "reason": "User-requested functional custom-section presentation improvement: responsive cards, typography, spacing and placement only for chat-created sections; approved native template sections remain unchanged."
+        "sha": "91197d8a6962db082a1db3c98f0746da756a1af5",
+        "reason": "Scoped CSS fix for user-created custom sections only: prevents global template CSS from inflating card titles and stripping premium card surfaces, without changing approved native templates."
       }
     },
     {
