@@ -253,7 +253,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  }
  // An ordinary four-differential request should not require the user to supply card titles.
  // Use neutral, editable sample copy; never fabricate business-specific achievements.
- if(!cards.length&&/\\b(?:quatro|4)\\s+diferenciais\\b/i.test(instruction)){
+ if(!cards.length&&/\b(?:quatro|4)\s+diferenciais\b/i.test(instruction)){
   cards=[
    {title:"Atendimento personalizado",description:"Conheça as opções disponíveis e receba orientações de acordo com suas necessidades."},
    {title:"Seleção de imóveis",description:"Explore imóveis apresentados com informações claras e organizadas."},
