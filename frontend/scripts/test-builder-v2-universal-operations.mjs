@@ -1230,7 +1230,7 @@ test("natural section creation resolves plural article before testimonials",()=>
   {id:"reviews-title",type:"heading",section:"depoimentos",text:"Depoimentos dos clientes"},
   {id:"footer-title",type:"heading",section:"rodape",text:"Contato"}
  ]};
- const command="Adicione uma seção chamada 'Por que investir conosco?', com quatro diferenciais, ícones e um design premium. Coloque antes dos depoimentos.";
+ const command="Adicione uma seção chamada 'Por que investir conosco?', com quatro cards com os títulos \"Atendimento personalizado\", \"Seleção de imóveis\", \"Transparência\" e \"Experiência\". Coloque antes dos depoimentos.";
  const result=applyUniversalNaturalLanguage(original,command);
  assert.equal(result?.ok,true,result?.error||"Comando não interpretado");
  if(!result?.ok)return;
