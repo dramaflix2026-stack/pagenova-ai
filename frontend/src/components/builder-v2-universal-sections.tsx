@@ -56,7 +56,7 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
   const style=background?{...node.props.style,backgroundColor:background}:node.props.style;
   const scope='[data-universal-section="'+key+'"]';
   const rules=[
-   background&&/^#[0-9a-f]{6}$/i.test(background)?scope+'{background-color:'+background+'!important}'+scope+' .tp2m2-title h2,'+scope+' .tp2m2-title em{color:#f7f5f0!important}'+scope+' .tp2m2-label{color:#c7cdd6!important}':'',
+   background&&/^#[0-9a-f]{6}$/i.test(background)?scope+'{background:'+background+'!important;background-color:'+background+'!important}'+scope+' > div:not([data-universal-custom-cards]){background-color:transparent!important}'+scope+' h2,'+scope+' .tp2m2-title h2,'+scope+' .tp2m2-title em{color:#f7f5f0!important}'+scope+' .tp2m2-label,'+scope+' > p{color:#c7cdd6!important}':'',
    headingColor&&/^#[0-9a-f]{6}$/i.test(headingColor)?scope+' h1,'+scope+' h2,'+scope+' h3{color:'+headingColor+'!important}':'',
    sectionStyles?.cardTitleColor&&/^#[0-9a-f]{6}$/i.test(sectionStyles.cardTitleColor)?scope+' article h3,'+scope+' article h4{color:'+sectionStyles.cardTitleColor+'!important}':'',
    sectionStyles?.heroCenter?scope+' .tp2m2-hero-copy,'+scope+' .tp2m3-hero-copy{margin-inline:auto!important;text-align:center!important;align-items:center!important}'+scope+' h1,'+scope+' h1+p,'+scope+' .tp2m2-button{margin-inline:auto!important;text-align:center!important}':'',
