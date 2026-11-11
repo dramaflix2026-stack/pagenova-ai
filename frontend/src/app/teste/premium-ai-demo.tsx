@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check, CheckCircle2, CircleHelp, Layers3, Palette, RotateCcw, Sparkles, Type, WandSparkles } from "lucide-react";
 import "./premium-ai-demo.css";
 
@@ -111,6 +111,11 @@ export function PremiumAiDemo() {
   const [applied, setApplied] = useState(true);
   const [showBefore, setShowBefore] = useState(false);
   const [revision, setRevision] = useState(1);
+  const [processing, setProcessing] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if(timerRef.current) clearTimeout(timerRef.current); if(typingRef.current) clearTimeout(typingRef.current); }, []);
 
   useEffect(() => {
     const sync = () => {
@@ -130,13 +135,27 @@ export function PremiumAiDemo() {
   const extraSection = edited && command === 2;
 
   function choose(index: Command) {
+    if(timerRef.current) clearTimeout(timerRef.current);
+    if(typingRef.current) clearTimeout(typingRef.current);
     setCommand(index);
-    setApplied(true);
+    setApplied(false);
     setShowBefore(false);
+    setProcessing(true);
+    setTyping(true);
     setRevision(value => value + 1);
+    typingRef.current = setTimeout(() => setTyping(false), 520);
+    timerRef.current = setTimeout(() => {
+      setApplied(true);
+      setProcessing(false);
+      setRevision(value => value + 1);
+    }, 1050);
   }
 
   function reset() {
+    if(timerRef.current) clearTimeout(timerRef.current);
+    if(typingRef.current) clearTimeout(typingRef.current);
+    setProcessing(false);
+    setTyping(false);
     setApplied(false);
     setShowBefore(false);
     setRevision(value => value + 1);
@@ -159,15 +178,15 @@ export function PremiumAiDemo() {
               <span className="pn-ai-dialog-brand"><strong>{t.assistant}</strong><small>{t.subtitle}</small></span>
               <span className="pn-ai-demo-pill"><WandSparkles size={14} />{t.demo}</span>
             </header>
-            <div className="pn-ai-conversation" aria-live="polite">
+            <div className={"pn-ai-conversation" + (processing ? " is-processing" : "")} aria-live="polite">
               <div className="pn-ai-request">
                 <span>{t.choose}</span>
-                <p>{applied ? t.prompts[command] : t.ready}</p>
+                <p>{applied || processing ? t.prompts[command] : t.ready}</p>
               </div>
               <div className="pn-ai-response-row">
                 <span className="pn-ai-response-symbol"><Sparkles size={20} fill="currentColor" /></span>
                 <div className="pn-ai-response" key={revision}>
-                  <p>{applied ? t.replies[command] : t.ready}</p>
+                  {processing ? <p className="pn-ai-typing">{typing ? <><i/><i/><i/></> : <><WandSparkles size={16}/>{locale==="pt"?"Aplicando alterações ao site...":locale==="es"?"Aplicando cambios al sitio...":"Applying website changes..."}</>}</p> : <p>{applied ? t.replies[command] : t.ready}</p>}
                   {applied && <strong><CheckCircle2 size={18} />{t.applied}</strong>}
                 </div>
               </div>
@@ -183,6 +202,7 @@ export function PremiumAiDemo() {
                       type="button"
                       key={index}
                       aria-pressed={selected}
+                      disabled={processing}
                       onClick={() => choose(index as Command)}
                       className={"pn-ai-command" + (selected ? " is-active" : "")}
                     >
@@ -200,12 +220,12 @@ export function PremiumAiDemo() {
             </div>
           </div>
 
-          <div className={"pn-ai-preview" + (premium ? " is-premium" : "")}>
+          <div className={"pn-ai-preview" + (premium ? " is-premium" : "") + (processing ? " is-processing" : "")}>
             <header className="pn-ai-preview-top">
               <div className="pn-ai-preview-headlabel"><span className="pn-ai-dots" aria-hidden="true"><i/><i/><i/></span><span>{t.preview}</span></div>
-              <span className="pn-ai-live"><span/>{t.live}</span>
+              <span className="pn-ai-live"><span/>{processing ? (locale==="pt"?"Transformando...":locale==="es"?"Transformando...":"Transforming...") : t.live}</span>
             </header>
-            <div className="pn-ai-preview-pad">
+            <div className="pn-ai-preview-pad"><div className="pn-ai-transform-overlay" aria-hidden="true"><WandSparkles size={23}/><span>{locale==="pt"?"IA transformando seu site":locale==="es"?"IA transformando tu sitio":"AI transforming your website"}</span><span className="pn-ai-transform-progress"/></div>
               <div className="pn-ai-site" key={"site-" + revision + "-" + String(showBefore)}>
                 <div className="pn-ai-site-header">
                   <span className="pn-ai-site-logo">ATELIER<span>.</span></span>
@@ -241,9 +261,9 @@ export function PremiumAiDemo() {
             </div>
             <div className="pn-ai-preview-bottom">
               <div className="pn-ai-compare" role="group" aria-label={t.before + " / " + t.after}>
-                <button type="button" aria-pressed={showBefore} className={showBefore ? "selected" : ""} onClick={() => setShowBefore(true)}>{t.before}</button>
+                <button type="button" disabled={processing} aria-pressed={showBefore} className={showBefore ? "selected" : ""} onClick={() => setShowBefore(true)}>{t.before}</button>
                 <span>/</span>
-                <button type="button" aria-pressed={!showBefore} className={!showBefore ? "selected" : ""} onClick={() => setShowBefore(false)}>{t.after}</button>
+                <button type="button" disabled={processing} aria-pressed={!showBefore} className={!showBefore ? "selected" : ""} onClick={() => setShowBefore(false)}>{t.after}</button>
               </div>
               <span className="pn-ai-preview-success"><CheckCircle2 size={17} />{applied && !showBefore ? t.applied : t.preview}</span>
             </div>
