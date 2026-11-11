@@ -25,6 +25,8 @@ export function resolveUniversalSection(site:UniversalSite,label:string):string|
  if(target==="nossa abordagem") {
   const matching=sections.filter(id=>["numeros","resultados","numbers","metricas"].includes(norm(id)));
   if(matching.length===1)return matching[0];
+  // The rendered editorial section exists even when the generated block inventory omits it.
+  if(matching.length===0)return "numeros";
  }
  const exactIds=sections.filter(id=>norm(id)===target);
  if(exactIds.length)return exactIds.length===1?exactIds[0]:null;
