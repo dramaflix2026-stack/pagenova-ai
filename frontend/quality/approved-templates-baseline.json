@@ -351,8 +351,8 @@
       "path": "src/components/builder-v2-tp7-model1-faq-location.tsx",
       "blobSha": "d15aa5902d98d8cf5ebfcfe297466967293c92bc",
       "approvedBindingRevision": {
-        "sha": "51c4a7e7945b826d4b41f8333e7fa17a22670cbc",
-        "reason": "User explicitly requested TP7 real-estate model 1-3 layout repairs on 2026-11-11: CTA contrast, responsive copy, desktop footer and map/WhatsApp with configured contact data; preserve established visual composition."
+        "sha": "08de39692c66ccb0f5d9e9a48df00e5f28218f26",
+        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
       }
     },
     {
@@ -403,13 +403,17 @@
       "path": "src/components/builder-v2-tp7-model3-contact-location.css",
       "blobSha": "22bb071bf7b955865df0a8a0c192ff3a2e3b110c",
       "approvedBindingRevision": {
-        "sha": "c9954a4f5377b78d7ce70cd9f40fd8a23e10dafb",
-        "reason": "User explicitly requested TP7 real-estate model 1-3 layout repairs on 2026-11-11: CTA contrast, responsive copy, desktop footer and map/WhatsApp with configured contact data; preserve established visual composition."
+        "sha": "2177c612365b811b1f57e1107e6154b29a41a00c",
+        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
       }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-contact-location.tsx",
-      "blobSha": "366465db0a8c06805cfefc856053512478c33b51"
+      "blobSha": "366465db0a8c06805cfefc856053512478c33b51",
+      "approvedBindingRevision": {
+        "sha": "8b96f31b293d77fa6def825700221b3e578167fc",
+        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
+      }
     },
     {
       "path": "src/components/builder-v2-tp7-model3-footer.css",
@@ -427,8 +431,8 @@
       "path": "src/components/builder-v2-tp7-model3-hero.css",
       "blobSha": "def434fc838f994193fe861fcb99664ba938d35d",
       "approvedBindingRevision": {
-        "sha": "fe29b1fa80a385bce6871dc0b7fe18e9fda1f268",
-        "reason": "User explicitly requested TP7 real-estate model 1-3 layout repairs on 2026-11-11: CTA contrast, responsive copy, desktop footer and map/WhatsApp with configured contact data; preserve established visual composition."
+        "sha": "e826eb0fb77ccee4dbde639cb6ef9adf9ab8b74b",
+        "reason": "User-requested TP7 repairs: display clearly labeled illustrative map when business address is absent, keep real address mapping when provided, and remove model 3 dark header CTA square while preserving layout."
       }
     },
     {
