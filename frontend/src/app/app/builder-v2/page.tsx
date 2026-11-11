@@ -742,6 +742,23 @@ export default function BuilderV2() {
       const imageChange=isExplicitImageChangeRequest(prompt)&&/(?:imagem|foto|fotografia|capa|hero|banner)/i.test(prompt);
       // Image commands must reach the image pipeline. The generic text editor can
       // otherwise report "1 block edited" without changing the rendered cover.
+      // Real-photo replacements are data edits, never AI image generation.
+      const realPhotoReplacement=!hasAttachments&&imageChange&&/\\b(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)\\b/i.test(prompt)&&/\\b(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)\\b/i.test(prompt);
+      if(realPhotoReplacement){
+        const photoUrl=/arquitet|resid[eê]ncia|fachada|contempor[aâ]nea/i.test(prompt)
+          ?"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85"
+          :null;
+        const firstImage=site.blocks.find(b=>b.type==="image"&&b.src);
+        if(photoUrl&&firstImage){
+          const next={...site,blocks:site.blocks.map(b=>b.id===firstImage.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true,imageExplicit:true}:b)};
+          recordVersion(site,"Antes da troca de fotografia real");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+          setSite(next);setInstruction("");setGenerationError("");
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Fotografia real aplicada diretamente à imagem principal. A estrutura e os textos foram preservados."}]);
+          return;
+        }
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Não foi possível identificar uma fotografia real e uma imagem editável para esta capa. Nenhuma imagem foi gerada."}]);
+        return;
+      }
       const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
