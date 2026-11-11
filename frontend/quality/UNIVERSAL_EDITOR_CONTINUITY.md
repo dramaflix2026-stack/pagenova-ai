@@ -34,3 +34,14 @@ O motor de edição por linguagem natural deve operar sobre os 133 nichos e seus
 
 ## Regras de continuidade entre conversas
 Ao retomar: consultar este documento, status GitHub/Railway e último teste homologado. Nunca reiniciar trabalho do zero, sobrescrever aprovações ou afirmar que houve machine learning treinado sem evidência. Atualizar este documento a cada ciclo de homologação.
+
+
+## Homologação 2026-11-11 — VittaPet e validação entre nichos
+- VittaPet teste 01 (título da Hero): APROVADO pelo usuário.
+- VittaPet teste 02 (cor de fundo de seção): APROVADO pelo usuário.
+- VittaPet teste 03 (terceiro card de Nossos Serviços, título e descrição): APROVADO pelo usuário após commits 6115716b e cff4aec9, deploy Railway de ambos os serviços SUCCESS.
+- Teste 04 (troca de imagem específica): PENDENTE; o teste anterior em Nossa Metodologia não se aplicava porque a seção não tinha imagens. Selecionar seção com imagem realmente visível.
+- Teste 05 (adicionar seção Nosso Compromisso antes do FAQ com três cards): REPROVADO anteriormente, ainda não retestado.
+- Regra de QA: repetir cinco classes de edição em nichos estruturalmente diferentes (imobiliária, gastronomia, educação, varejo etc.), registrar resultado visual, persistência após F5, responsividade e preservação de conteúdo não solicitado.
+- Não declarar 'machine learning treinado' sem pipeline real de coleta de feedback, avaliações e treinamento/otimização. O motor atual usa interpretação por IA e regras universais.
+- Próxima rodada sugerida: imobiliária de alto padrão; não alterar modelos aprovados sem autorização.
