@@ -745,7 +745,7 @@ export default function BuilderV2() {
       // Real-photo replacements are data edits, never AI image generation.
       const realPhotoReplacement=!hasAttachments&&imageChange&&/(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)/i.test(prompt)&&/(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)/i.test(prompt);
       if(realPhotoReplacement){
-        const photoUrl=/arquitet|resid[eê]ncia|fachada|contempor[aâ]nea/i.test(prompt)
+        const photoUrl=/arquitet|resid[eê]ncia|fachada|contempor[aâ]nea|engenharia|obra|constru[cç][aã]o|estrutur/i.test(prompt)
           ?"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85"
           :null;
         const firstImage=site.blocks.find(b=>b.type==="image"&&b.src);
