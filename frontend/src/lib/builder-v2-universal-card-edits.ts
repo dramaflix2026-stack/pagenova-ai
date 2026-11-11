@@ -91,7 +91,7 @@ export function universalEditedCardCopy(site:{blocks:readonly {id:string;type:st
 export function parseUniversalCardEdit(site:UniversalSite,instruction:string):UniversalCardResolution{
  const raw=instruction.trim().replace(/\.\s*(?:n[aã]o\s+altere|preserve|mantenha)\b[\s\S]*$/i,"").trim().replace(/\.\s*$/,"");
  // Normalize section-first commands into the existing ordinal-first grammar.
- const sectionFirst=raw.match(/^na\s+se[cç][aã]o\s+([^,\r\n]{2,130}),?\s*altere\s+(?:somente\s+)?(?:o\s+)?t[ií]tulo\s+do\s+(primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|s[eé]timo|s[eé]tima|oitavo|oitava|nono|nona|d[eé]cimo|d[eé]cima|\d{1,2}(?:[º°ªo])?)\s+card\s+para\s+["“']([^"”']+)["”']\s+e\s+(?:atualize|altere|troque|mude)\s+(?:sua|a)\s+descri[cç][aã]o\s+para\s+["“']([^"”']+)["”']/i);
+ const sectionFirst=raw.match(/^na\s+se[cç][aã]o\s+([^,\r\n]{2,130}),?\s*altere\s+(?:somente\s+)?(?:o\s+)?t[ií]tulo\s+do\s+(primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|s[eé]timo|s[eé]tima|oitavo|oitava|nono|nona|d[eé]cimo|d[eé]cima|\d{1,2}(?:[º°ªo])?)\s+card\s+para\s+["“']([^"”']+)["”']\s+e\s+(?:(?:atualize|altere|troque|mude)\s+)?(?:sua|a)\s+descri[cç][aã]o\s+para\s+["“']([^"”']+)["”']/i);
  if(sectionFirst){
   const canonical="no "+sectionFirst[2]+" card da seção "+sectionFirst[1]+", altere o título para "+JSON.stringify(sectionFirst[3])+" e atualize a descrição para "+JSON.stringify(sectionFirst[4]);
   return parseUniversalCardEdit(site,canonical);
