@@ -15,18 +15,18 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
   const cardParts=parts.filter(b=>b.type==="paragraph"&&b.layout==="grid"&&typeof b.text==="string"&&b.text.includes(":"));
   const editorialParts=parts.filter(b=>!cardParts.includes(b));
   const hasPhotos=parts.some(b=>b.type==="image"&&b.src);
-  return <section key={section} data-universal-section={section} id={section} style={{padding:"clamp(3rem,7vw,6rem) 7%",background:customSectionTheme?.background||"#f7f0e6",color:customSectionTheme?.color||"#2f251d",width:"100%"}}>
-   <div style={{maxWidth:1120,margin:"0 auto",display:"grid",gridTemplateColumns:hasPhotos?"repeat(auto-fit,minmax(min(100%,280px),1fr))":"1fr",gap:"clamp(1.5rem,4vw,4rem)",alignItems:"center"}}>
+  return <section key={section} data-universal-section={section} id={section} style={{padding:"clamp(3rem,7vw,6rem) 7%",background:customSectionTheme?.background||"#f7f5f0",color:customSectionTheme?.color||"#232b34",width:"100%",borderTop:"1px solid rgba(100,100,100,.10)"}}>
+   <div style={{maxWidth:1200,margin:"0 auto",display:"grid",gridTemplateColumns:hasPhotos?"repeat(auto-fit,minmax(min(100%,280px),1fr))":"1fr",gap:"clamp(1.5rem,4vw,4rem)",alignItems:"center"}}>
     <div style={{display:"flex",flexDirection:"column",gap:20}}>{editorialParts.filter(b=>b.type!=="image").map((b,i)=>{
-     if(b.type==="heading")return <h2 key={b.id||i} style={{fontFamily:"Georgia,serif",fontSize:"clamp(2rem,4vw,4.5rem)",lineHeight:1.07,margin:0}}>{b.text}</h2>;
+     if(b.type==="heading")return <h2 key={b.id||i} style={{fontFamily:"inherit",fontWeight:650,letterSpacing:"-.045em",fontSize:"clamp(2rem,4vw,4.1rem)",lineHeight:1.08,margin:0}}>{b.text}</h2>;
      if(b.type==="paragraph")return <p key={b.id||i} style={{fontSize:"clamp(1rem,1.4vw,1.15rem)",lineHeight:1.75,margin:0}}>{b.text}</p>;
      if(b.type==="button"&&b.href)return <a key={b.id||i} href={b.href} style={{display:"inline-block",alignSelf:"flex-start",padding:"16px 24px",background:customSectionTheme?.accent||"#34261d",color:"#fff7eb",fontWeight:700,textDecoration:"none"}}>{b.text}</a>;
      return null;
     })}</div>
     {parts.filter(b=>b.type==="image"&&typeof b.src==="string"&&/^https:\/\//i.test(b.src)).map((b,i)=><img key={b.id||i} src={b.src} alt={b.text||"Fotografia editorial ilustrativa"} loading="lazy" style={{width:"100%",height:"auto",maxHeight:570,aspectRatio:"4/3",objectFit:"cover",borderRadius:12}}/>)}
-    {cardParts.length>0&&<div data-universal-custom-cards={section} style={{gridColumn:"1/-1",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,250px),1fr))",gap:18,width:"100%"}}>
-     {cardParts.map((b,i)=>{const label=String(b.text||"");const colon=label.indexOf(":");return <article key={b.id||i} style={{background:"rgba(255,255,255,.65)",border:"1px solid currentColor",borderRadius:14,padding:"clamp(20px,3vw,30px)",minWidth:0}}>
-      <h3 style={{fontSize:"clamp(1.25rem,2vw,1.75rem)",lineHeight:1.2,margin:"0 0 14px"}}>{label.slice(0,colon).trim()}</h3><p style={{fontSize:15,lineHeight:1.7,margin:0}}>{label.slice(colon+1).trim()}</p>
+    {cardParts.length>0&&<div data-universal-custom-cards={section} style={{gridColumn:"1/-1",display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(min(100%,235px),1fr))",gap:"clamp(14px,2vw,24px)",width:"100%"}}>
+     {cardParts.map((b,i)=>{const label=String(b.text||"");const colon=label.indexOf(":");return <article key={b.id||i} style={{background:"rgba(255,255,255,.88)",border:"1px solid rgba(100,100,100,.14)",borderRadius:18,padding:"clamp(26px,3vw,38px)",minWidth:0,boxShadow:"0 18px 42px rgba(0,0,0,.045)"}}>
+      <span aria-hidden="true" style={{display:"block",fontSize:12,letterSpacing:".18em",opacity:.55,marginBottom:22}}>{String(i+1).padStart(2,"0")}</span><h3 style={{fontSize:"clamp(1.25rem,2vw,1.75rem)",lineHeight:1.2,margin:"0 0 14px",letterSpacing:"-.025em"}}>{label.slice(0,colon).trim()}</h3><p style={{fontSize:15,lineHeight:1.7,margin:0}}>{label.slice(colon+1).trim()}</p>
      </article>})}
     </div>}
    </div>
