@@ -44,3 +44,9 @@
 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article p{color:#555c54!important;font-size:15px!important;line-height:1.7!important}
 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article .pntp2-approach-index{color:#85633c!important}
 @media(max-width:720px){[data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid{grid-template-columns:1fr!important}[data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article{min-height:235px!important;padding:27px!important}}
+
+/* TP2 Model 02: editorial neutral cards, not warm beige gradient. */
+.tp2m2 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article{background:#f8f8f5!important;border:1px solid #c9cecb!important;border-top:4px solid #7d8b87!important;box-shadow:0 14px 34px rgba(28,36,33,.07)!important;color:#202927!important}
+.tp2m2 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article:nth-child(2){background:#f1f3f0!important}
+.tp2m2 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article:nth-child(3){background:#e9eeeb!important}
+.tp2m2 [data-tp2-proof="numbers"][data-tp2-mode="approach"] .pntp2-approach-grid>article .pntp2-approach-index{color:#576d66!important}
