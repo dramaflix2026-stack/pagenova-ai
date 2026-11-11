@@ -743,12 +743,12 @@ export default function BuilderV2() {
       // Image commands must reach the image pipeline. The generic text editor can
       // otherwise report "1 block edited" without changing the rendered cover.
       // Real-photo replacements are data edits, never AI image generation.
-      const realPhotoReplacement=!hasAttachments&&imageChange&&/(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)/i.test(prompt)&&/(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)/i.test(prompt);
+      const sectionBackgroundRequest=!hasAttachments&&/^na\s+se[cç][aã]o\s+["“]?[^\n]{2,110}?["”]?,?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+/i.test(prompt);\n      if(sectionBackgroundRequest){\n        const backgroundResult=applyUniversalNaturalLanguage(site,prompt);\n        if(backgroundResult?.ok){recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site as BuilderV2SiteData);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}\n      }\n      const realPhotoReplacement=!hasAttachments&&(imageChange||/^(?:substitua|troque)\s+somente\s+a\s+imagem\s+principal/i.test(prompt))&&/(?:fotografia real|foto real|imagem real|n[aã]o utilize imagens geradas|n[aã]o gere imagem|fotografia existente)/i.test(prompt)&&/(?:hero|capa|primeira se[cç][aã]o|imagem principal|foto principal)/i.test(prompt);
       if(realPhotoReplacement){
         const photoUrl=/arquitet|resid[eê]ncia|fachada|contempor[aâ]nea|engenharia|obra|constru[cç][aã]o|estrutur/i.test(prompt)
           ?"https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1800&q=85"
           :null;
-        const firstImage=site.blocks.find(b=>b.type==="image"&&b.src);
+        const firstImage=site.blocks.find(b=>b.type==="image"&&b.src&&/(?:hero|capa)/i.test(b.section||""))||site.blocks.find(b=>b.type==="image"&&b.src);
         if(photoUrl&&firstImage){
           const next={...site,blocks:site.blocks.map(b=>b.id===firstImage.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true,imageExplicit:true}:b)};
           recordVersion(site,"Antes da troca de fotografia real");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
