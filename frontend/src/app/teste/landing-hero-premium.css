@@ -660,3 +660,58 @@
  .pnr-page .pnr-audience-ai{font-size:11px;margin-top:21px;text-align:center;padding:0 15px}
 }
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-audience-card{animation:none!important;transition:none!important}.pnr-page .pnr-audience-card:before{transition:none!important}}
+
+
+/* Audience motion v2: mobile-visible continuous energy, scroll entrance, and tap response. */
+.pnr-page .pnr-audience-card{
+ animation:none;
+ opacity:1;
+}
+.pnr-page .pnr-audiences-visible .pnr-audience-card{
+ animation:pnrAudienceEnter .7s cubic-bezier(.16,1,.3,1) both;
+ animation-delay:calc(var(--audience-order,0) * 110ms);
+}
+.pnr-page .pnr-audience-card:nth-child(1){--audience-order:0}
+.pnr-page .pnr-audience-card:nth-child(2){--audience-order:1}
+.pnr-page .pnr-audience-card:nth-child(3){--audience-order:2}
+.pnr-page .pnr-audience-card:nth-child(4){--audience-order:3}
+.pnr-page .pnr-audience-card:before{
+ z-index:1;
+ inset:0;
+ background:linear-gradient(112deg,transparent 0%,transparent 35%,rgba(188,255,148,.14) 49%,transparent 62%,transparent 100%);
+ transform:translateX(-140%);
+ animation:pnrAudienceSheen 6.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -1.4s);
+ transition:none;
+}
+.pnr-page .pnr-audience-card:after{
+ content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ border:1px solid rgba(153,255,102,.13);
+ box-shadow:inset 0 0 22px rgba(129,255,95,.05);
+ animation:pnrAudienceGlow 4.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -1s);
+}
+.pnr-page .pnr-audience-icon{animation:pnrAudienceIconPulse 3.4s ease-in-out infinite;animation-delay:calc(var(--audience-order,0) * -.6s)}
+.pnr-page .pnr-audience-track span{
+ width:24%;
+ animation:pnrAudienceCharge 4.5s ease-in-out infinite;
+ animation-delay:calc(var(--audience-order,0) * -.9s);
+}
+.pnr-page .pnr-audience-card:active{transform:scale(.97);border-color:#b3ff75}
+.pnr-page .pnr-audience-card:active .pnr-audience-icon{transform:scale(1.08)}
+.pnr-page .pnr-audience-ai svg{animation:pnrAudienceSpark 3s ease-in-out infinite}
+@keyframes pnrAudienceEnter{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes pnrAudienceSheen{0%,15%{transform:translateX(-140%)}43%,100%{transform:translateX(140%)}}
+@keyframes pnrAudienceGlow{0%,100%{box-shadow:inset 0 0 12px rgba(129,255,95,.03),0 0 0 rgba(129,255,95,0)}50%{box-shadow:inset 0 0 25px rgba(129,255,95,.11),0 0 15px rgba(129,255,95,.12)}}
+@keyframes pnrAudienceIconPulse{0%,100%{box-shadow:inset 0 0 15px rgba(143,255,103,.04);border-color:rgba(165,255,111,.3)}50%{box-shadow:inset 0 0 23px rgba(143,255,103,.19),0 0 14px rgba(143,255,103,.15);border-color:rgba(165,255,111,.65)}}
+@keyframes pnrAudienceCharge{0%,100%{width:24%}55%{width:94%}}
+@keyframes pnrAudienceSpark{0%,100%{opacity:.6;transform:rotate(-12deg) scale(.9)}50%{opacity:1;transform:rotate(8deg) scale(1.17)}}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-audiences-visible .pnr-audience-card,
+ .pnr-page .pnr-audience-card:before,
+ .pnr-page .pnr-audience-card:after,
+ .pnr-page .pnr-audience-icon,
+ .pnr-page .pnr-audience-track span,
+ .pnr-page .pnr-audience-ai svg{animation:none!important;transition:none!important}
+ .pnr-page .pnr-audience-track span{width:55%}
+}
