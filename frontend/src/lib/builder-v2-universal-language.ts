@@ -230,25 +230,20 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const index=before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
  const previous=site.blocks[index-1];
  if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
- const descriptions=[...instruction.matchAll(/(?:^|\n)\s*[123][.)]\s*([^:\n]+):\s*([^\n]+)/g)].map(m=>({title:m[1].trim(),description:m[2].trim()}));
- let cards=descriptions;
- // Accept numbered cards on one line or separate lines, with a colon or dash
- // between title and description. Stop at the next numbered item or instruction.
- if(cards.length!==3){
-  const cardRegion=instruction.match(/(?:com|conter|contendo|tenha|possua)\s+tr[eê]s\s+cards?\s*:\s*([\s\S]+)/i)?.[1]||"";
-  const numbered=[...cardRegion.matchAll(/(?:^|\s)([123])[.)]\s*([^\n:—–-]+?)\s*(?:\s+[—–-]\s+|:\s*)([\s\S]*?)(?=\s+[123][.)]\s+|\n\s*[123][.)]\s+|\s+(?:Cada card|Mantenha|Não altere|Nao altere|As imagens|Utilize fotografias)\b|$)/gi)];
-  if(numbered.length===3&&numbered.every((m,i)=>Number(m[1])===i+1&&m[2].trim()&&m[3].trim())){
-   cards=numbered.map(m=>({title:m[2].trim(),description:m[3].trim().replace(/\\s+/g," ").replace(/\\.\\s*$/,".")}));
-  }
+ const numbered=[...instruction.matchAll(/(?:^|\\n)\\s*(\\d{1,2})[.)]\\s*([^:\\n]+):\\s*([^\\n]+)/g)].map(m=>({title:m[2].trim(),description:m[3].trim()}));
+ const countWord=instruction.match(/(?:crie|adicione|inclua|com|contendo|tenha|possua)\\s+(?:(?:\\w+\\s+){0,2})?(um|dois|duas|tr[eê]s|quatro|cinco|seis|\\d{1,2})\\s+cards?/i)?.[1];
+ const quantities:Record<string,number>={um:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6};
+ const requestedCount=countWord?(quantities[normalized(countWord)]??Number(countWord)):null;
+ if(requestedCount!==null&&(!Number.isInteger(requestedCount)||requestedCount<1||requestedCount>12))return {ok:false,error:"Quantidade de cards fora do intervalo permitido (1 a 12). Nenhuma alteração aplicada."};
+ let cards=numbered;
+ if(cards.length===0){
+  const region=instruction.match(/cards?\\s+com\\s+os\\s+t[ií]tulos?\\s+([\\s\\S]+?)(?=\\.\\s|\\s+Cada card\\b|$)/i)?.[1]
+   ||instruction.match(/cards?\\s*:\\s*([\\s\\S]+?)(?=\\.\\s|\\s+Cada card\\b|$)/i)?.[1]||"";
+  const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
+  if(labels.length)cards=labels.map(title=>({title,description:"Etapa de "+title.toLowerCase()+" desenvolvida com planejamento, atenção aos detalhes e acompanhamento profissional."}));
  }
- if(cards.length!==3){
-  const compact=instruction.match(/(?:com|contendo)\s+tr[eê]s\s+cards?\s*:\s*([^\n.]+)/i);
-  if(compact){
-   const labels=compact[1].split(/\s*,\s*|\s+e\s+/i).map(x=>x.trim()).filter(Boolean);
-   if(labels.length===3)cards=labels.map(title=>({title,description:"Conheça os detalhes de "+title.toLowerCase()+", com orientações e atendimento adaptados às necessidades de cada cliente."}));
-  }
- }
- if(cards.length!==3)return {ok:false,error:"Não foi possível identificar os três cards solicitados. Nenhuma alteração aplicada."};
+ if(!cards.length||requestedCount!==null&&cards.length!==requestedCount)return {ok:false,error:"A quantidade ou os títulos dos cards não correspondem ao pedido. Nenhuma alteração aplicada."};
+ if(cards.length>12||new Set(cards.map(c=>normalized(c.title))).size!==cards.length)return {ok:false,error:"Os cards precisam ter títulos únicos e quantidade válida. Nenhuma alteração aplicada."};
  const entries=[{type:"heading",text:name},...cards.flatMap(card=>[
   {type:"heading",text:card.title},
   {type:"paragraph",text:card.description}
