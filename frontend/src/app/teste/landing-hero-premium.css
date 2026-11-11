@@ -537,13 +537,16 @@
 @media(max-width:650px){
  .pnr-page .pnr-hero:after{bottom:-60px;height:155px;left:-22%;right:-22%;opacity:.5}
  .pnr-page .pnr-solutions:after{height:160px;bottom:-75px;left:-10%;width:115vw}
- /* The institutional artwork is shorter: fill its letterbox with a soft
-    ambient treatment while retaining every word and edge of the artwork. */
- .pnr-page .pnr-style-card:first-child{
-   background:radial-gradient(ellipse at 50% 48%,#16391c,#07180e 80%)!important;
- }
+ /* Fill the institutional slide vertically, matching the other mobile cards. */
  .pnr-page .pnr-style-card:first-child picture{
-   background:linear-gradient(180deg,rgba(88,220,73,.055),transparent 38%,rgba(88,220,73,.055));
+   overflow:hidden;
+   background:#07180e;
+ }
+ .pnr-page .pnr-style-card:first-child picture img{
+   width:100%;
+   height:100%!important;
+   object-fit:cover!important;
+   object-position:center center;
  }
 }
 @media(prefers-reduced-motion:reduce){
