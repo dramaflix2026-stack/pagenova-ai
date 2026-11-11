@@ -6,7 +6,7 @@ const aliases:Record<string,string[]>={
  services:["services","servicos","nossos servicos","especialidades","nossas especialidades","tratamentos","nossos tratamentos","tratamentos esteticos","procedimentos","nossos procedimentos","solucoes","nossas solucoes","cursos","curso","de cursos","formacoes","formacao","programas de aprendizagem","cursos e programas","programas","areas de aprendizagem"],
  accommodations:["acomodacoes","acomodacao","nossas acomodacoes","hospedagens","hospedagem","quartos","suites","chales","chalés","rooms","accommodations","stays"],
  differences:["diferenciais","nossos diferenciais","diferencas","diferentials","differences"],
- process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas"],
+ process:["como-funciona","como funciona","processo","nosso processo","como trabalhamos","etapas","abordagem","nossa abordagem","nossa metodologia","metodologia"],
  projects:["projetos","nossos projetos","projetos em destaque","portfolio de projetos","portfolio","portfólio","obras","nossas obras","cases","projetos realizados","projects"],
  numbers:["numeros","resultados","resultados e numeros","metricas","indicadores","numbers"],
  history:["trajetoria","nossa trajetoria","historia","nossa historia","history"],
