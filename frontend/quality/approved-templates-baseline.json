@@ -547,8 +547,8 @@
       "path": "src/components/builder-v2-universal-sections.tsx",
       "blobSha": "0bd233880bd5df9282cae913398d5994a372f6dc",
       "approvedBindingRevision": {
-        "sha": "70e073baf48629d4ecf7d5453dea095c66636efa",
-        "reason": "Unified generated cards and dark-section approach cards with consistent typography, colors, padding and responsive proportions without altering approved template structure."
+        "sha": "7b36f48c61810daafb0fc01fdb777c7e08fff352",
+        "reason": "Allow individual photo override for a generated methodology card, preserving all other approved cards and sections."
       }
     },
     {
