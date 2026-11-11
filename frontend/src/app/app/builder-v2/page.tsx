@@ -177,16 +177,20 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
 // Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
 // An applied operation is not an approved example and must not train the editor.
-async function syncEditorLearningEvent(event:{niche:string;intent:string;target:string;outcome:string;strategy:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;intent:string;target:string;outcome:string;strategy:string}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
     if(authError||!user)return;
-    await client.from("builder_editor_learning_events").insert({
-      user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
+    const {error:insertError}=await client.from("builder_editor_learning_events").insert({
+      id:event.id,user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
+    if(insertError)return;
+    const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
+    const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
+    if(reviewed==="approved"||reviewed==="rejected")await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
   }catch{/* Supabase connectivity must never block site editing. */}
 }
 function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
@@ -198,7 +202,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
-    const event={at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy};
+    const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     localStorage.setItem(key,JSON.stringify(events.slice(-150)));
     void syncEditorLearningEvent(event);
@@ -255,6 +259,31 @@ export default function BuilderV2() {
   const [publishError,setPublishError] = useState("");
   const [publishNotice,setPublishNotice] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
+  async function reviewLastEdit(status:"approved"|"rejected"){
+    if(!reviewCandidate||reviewCandidate.status!=="pending")return;
+    const key="pagenova:editor-learning-events:v1";
+    try{
+      const events=JSON.parse(localStorage.getItem(key)||"[]");
+      if(!Array.isArray(events))return;
+      const event=events.find((entry:{id?:string})=>entry.id===reviewCandidate.id);
+      if(!event||event.outcome!=="applied")return;
+      event.review=status;
+      localStorage.setItem(key,JSON.stringify(events));
+      setReviewCandidate({id:reviewCandidate.id,status});
+      const client=createSupabaseBrowserClient();
+      const {data:{user}}=await client.auth.getUser();
+      if(user)await client.from("builder_editor_learning_events").update({review_status:status,reviewed_at:new Date().toISOString()}).eq("id",reviewCandidate.id).eq("user_id",user.id);
+    }catch{/* Keep local review if cloud is temporarily unavailable. */}
+  }
+  function captureReviewCandidate(){
+    try{
+      const events=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
+      const event=Array.isArray(events)?events[events.length-1]:null;
+      if(event?.id&&event.outcome==="applied")setReviewCandidate({id:event.id,status:"pending"});
+    }catch{/* Nonblocking telemetry. */}
+  }
+
   const [instruction, setInstruction] = useState("");
   const [voiceListening,setVoiceListening]=useState(false);
   const [voiceNotice,setVoiceNotice]=useState("");
@@ -647,7 +676,7 @@ export default function BuilderV2() {
         recordVersion(site,"Antes da edição veterinária");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override");
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -687,7 +716,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição Fitness");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override");
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -712,7 +741,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"assistant",text:summarizeUniversalEdit(result)}]);
         return;
       }
@@ -1488,7 +1517,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}{reviewCandidate&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2">A última edição funcionou corretamente na prévia?</p>{reviewCandidate.status==="pending"?<div className="flex gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea id="pn-builder-chat-input" ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
