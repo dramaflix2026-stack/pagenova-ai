@@ -152,7 +152,13 @@ export function LandingRevamp() {
     const delta=Math.abs(rect.left+rect.width/2-center);
     if(delta<dist){dist=delta;active=i;}
    });
-   cards.forEach((card,i)=>card.classList.toggle("pnr-style-active",i===active));
+   cards.forEach((card,i)=>{
+    card.classList.toggle("pnr-style-active",i===active);
+    card.dataset.side=i<active?"left":i>active?"right":"center";
+    const rect=card.getBoundingClientRect();
+    const offset=(rect.left+rect.width/2-center)/Math.max(1,rect.width);
+    card.style.setProperty("--pnr-distance",String(Math.max(-1.5,Math.min(1.5,offset))));
+   });
   };
   const onScroll=()=>{if(!raf)raf=requestAnimationFrame(update);};
   update();
