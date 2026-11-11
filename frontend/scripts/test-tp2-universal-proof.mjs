@@ -9,7 +9,9 @@ test("TP2 all 3 have metrics, five testimonial slots, contact map and premium fo
   for(const name of ["TP2EvidenceNumbers","TP2EvidenceTestimonials","TP2ContactMap","TP2PremiumFooterBody"])assert.ok(m.includes(name),name);
   assert.match(m,/data-universal-section="rodape"/);
  }
- assert.match(shared,/sample\.slice\(0,Math\.max\(0,5-real\.length\)\)/);
+ assert.match(shared,/sample\.slice\(0,Math\.max\(0,count-real\.length\)\)/);
+ assert.match(shared,/publishedMode=false,count=5/);
+ for(const m of models)assert.match(m,/count=\{isArchitectureIdentity\(site\)\?6:5\}/);
  assert.match(shared,/publishedMode\?\[\]/);
  assert.match(shared,/RELATO FICTÍCIO/);
  assert.match(shared,/Indicadores de projetos realizados, clientes atendidos e experiência serão exibidos somente quando a empresa fornecer dados verificáveis/);
