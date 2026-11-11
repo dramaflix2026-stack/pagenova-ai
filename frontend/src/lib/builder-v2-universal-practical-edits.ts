@@ -45,7 +45,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...styles[section],cardTitleColor:cardColor[2]}}} as T,changedIds:["section-card-title-color:"+section]};
  }
  // Real photo requests target the hero image, not an AI image-generation workflow.
- const heroPhoto=text.match(/^(?:substitua|troque|altere)\s+a\s+imagem\s+principal\s+da\s+primeira\s+se[cç][aã]o\s+por\s+([\s\S]+)/i);
+ const heroPhoto=text.match(/^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas)\s+)?(?:a\s+)?(?:imagem|foto|fotografia)\s+(?:(?:principal|de\s+fundo)\s+)?(?:da\s+(?:primeira\s+se[cç][aã]o|capa|hero)|do\s+(?:hero|banner))\s+(?:por|pela|para)\s+([\s\S]+)/i);
  if(heroPhoto){
   const hero=resolveUniversalSection(site,"capa");
   if(!hero)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
