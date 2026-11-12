@@ -237,7 +237,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const existing=JSON.parse(localStorage.getItem(key)||"[]");
     const events=Array.isArray(existing)?existing:[];
     const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-    const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
+    const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalized)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalized)?"layout":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
     events.push(event);
@@ -812,7 +812,7 @@ export default function BuilderV2() {
       // No historical pattern can bypass mutation verification or invent an edit.
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
       const normalizedPrompt=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
-      const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
+      const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalizedPrompt)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalizedPrompt)?"layout":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
       const inferredTarget=/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
       const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
       const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
