@@ -184,7 +184,7 @@ function applyVisibleEditorCommand<T extends UniversalSite>(site:T,raw:string):U
  // Preservation clauses are stripped by applyUniversalNaturalLanguage before this handler.
  const heroCopy=text.match(/^(?:altere|troque|mude|substitua)\s+a\s+(?:descri[cç][aã]o|subt[ií]tulo)\s+(?:(?:logo\s+)?abaixo\s+do\s+t[ií]tulo\s+principal\s+|principal\s+)?(?:da\s+)?(?:capa|hero|primeira\s+se[cç][aã]o)\s+(?:para|por)\s+["“]([^"”]+)["”"]\s*\.?$/i);
  if(heroCopy)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="paragraph"),heroCopy[1],"descrição da capa"):fail("capa");
- const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+principal\s+(?:da\s+)?(?:capa|hero|primeira\s+se[cç][aã]o)\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
+ const heroTitle=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:da\s+)?(?:capa|hero|primeira\s+se[cç][aã]o)\s+(?:para|por)\s+["“]([^"”]+)["”]$/i);
  if(heroTitle)return hero?update(site.blocks.filter(b=>b.section===hero&&b.type==="heading"),heroTitle[1],"título principal da capa"):fail("capa");
  const namedPrimaryButton=text.match(/^(?:altere|troque|mude|substitua)\s+o\s+texto\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+de\s+["“]([^"”]+)["”]\s+(?:para|por)\s+["“]([^"”]+)["”](?:,?\s+preservando\s+o\s+link\s+e\s+a\s+anima[cç][aã]o\s+existentes?)?\.?$/i);
  if(namedPrimaryButton){
@@ -375,7 +375,7 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
- const instruction=rawInstruction.replace(/(https:\/\/[^\s"'“”<>]+\.(?:png|jpe?g|webp|gif|svg)),(?=\s|$)/gi,"$1");
+ const instruction=rawInstruction;
  const batch=applyUniversalHeadingBatch(site,instruction);
  if(batch)return batch;
  const practical=applyUniversalPracticalEdit(site,instruction);
