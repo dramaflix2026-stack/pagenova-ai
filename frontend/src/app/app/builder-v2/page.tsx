@@ -800,8 +800,16 @@ export default function BuilderV2() {
       // all other image changes. The former local shortcut selected the existing
       // architecture hero stock URL, then falsely reported a successful swap.
       // Fetch approved patterns for this niche, but never auto-apply them without verification.
-      void readApprovedEditorPatterns(site.niche||"");
+      const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
+      // Case-based routing: only explicitly approved, successful tenant experiences
+      // can prioritize the universal executor. Every result still requires verification.
+      const normalizedPrompt=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+      const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
+      const approvedUniversal=approvedPatterns.some(pattern=>pattern.intent===inferredIntent&&pattern.strategy==="universal");
       const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
+      if(approvedUniversal&&result&&!result.ok){
+        console.info("[editor-learning] Approved universal strategy rejected this request; no fallback is auto-applied.");
+      }
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
