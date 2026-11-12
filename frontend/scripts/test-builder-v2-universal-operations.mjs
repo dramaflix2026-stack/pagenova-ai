@@ -1276,3 +1276,16 @@ test("regression: Atelier Forma paired hero title and subtitle update atomically
  assert.equal(result.changedIds.includes("hero-title"),true);
  assert.equal(result.changedIds.includes("hero-subtitle"),true);
 });
+
+test("regression: hero image replacement cannot report success without changing its source",()=>{
+ const url="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=85";
+ const original={...site(),title:"Atelier Forma Arquitetura",blocks:[
+  {id:"hero-heading",type:"heading",section:"hero",text:"Arquitetura"},
+  {id:"hero-image",type:"image",section:"hero",src:url},
+  {id:"hero-button",type:"button",section:"hero",text:"Contato",href:"#contact"}
+ ]};
+ const prompt="Substitua a imagem principal da capa por uma fotografia real de uma sala de estar contemporânea de alto padrão, com iluminação natural e tons neutros. Preserve o título, o subtítulo e o botão.";
+ const result=applyUniversalNaturalLanguage(original,prompt);
+ assert.equal(result?.ok,false,"An unchanged hero image must never be acknowledged as replaced");
+ assert.equal(original.blocks[1].src,url);
+});
