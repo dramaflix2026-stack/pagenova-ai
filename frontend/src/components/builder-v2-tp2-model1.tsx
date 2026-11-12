@@ -14,7 +14,7 @@ const images=[
 const architecturePhotos=["photo-1600607687939-ce8a6c25118c","photo-1600566753190-17f0baa2a6c3","photo-1600585154340-be6161a56a0c","photo-1600607687920-4e2a09cf159d","photo-1600566753086-00f18fb6b3ea"];
 const architecturePhoto=(i:number)=>"https://images.unsplash.com/"+architecturePhotos[i%architecturePhotos.length]+"?auto=format&fit=crop&w=1600&q=85";
 const isArchitectureIdentity=(site:BuilderV2SiteData)=>/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header?.brand].join(" "));
-const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.userUploaded?block.src||architecturePhoto(index):architecturePhoto(index);
+const architectureVisual=(block:BuilderV2SiteData["blocks"][number]|undefined,index:number)=>block?.src?.trim()&&(block.userUploaded||block.imageExplicit)?block.src:architecturePhoto(index);
 export function BuilderV2TP2Model1({site,publishedMode=false}:{site:BuilderV2SiteData;publishedMode?:boolean}){
  const [showDemoHelp,setShowDemoHelp]=useState(false);
  const isMaterials=isConstructionMaterials(site.niche,site.title,site.header?.brand);
