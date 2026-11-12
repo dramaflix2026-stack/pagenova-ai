@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && next dev -p 8000",
-    "build": "node scripts/check-approved-template-freeze.mjs && node --experimental-strip-types --test scripts/test-builder-v2-universal-heading-batches.mjs scripts/test-builder-v2-universal-palette.mjs scripts/test-builder-v2-universal-operations.mjs && node --test scripts/test-builder-v2-universal-renderer.mjs && node scripts/build-universal-utilities.mjs && node scripts/validate-platform.mjs && next build --webpack",
+    "build": "node scripts/check-approved-template-freeze.mjs && node --experimental-strip-types --test scripts/test-builder-v2-universal-heading-batches.mjs scripts/test-builder-v2-universal-palette.mjs scripts/test-builder-v2-universal-operations.mjs && node --test scripts/test-builder-v2-universal-renderer.mjs && node scripts/build-universal-utilities.mjs && node scripts/install-frigolog.mjs && node scripts/validate-platform.mjs && next build --webpack",
     "start": "next start -p 8000",
     "lint": "eslint",
     "test:builder-ai": "node --test scripts/test-builder-ai-editor.mjs",
