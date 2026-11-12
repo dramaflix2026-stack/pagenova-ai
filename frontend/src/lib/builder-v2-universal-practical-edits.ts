@@ -56,17 +56,21 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
  const heroPhoto=text.match(/^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas)\s+)?(?:a\s+)?(?:imagem|foto|fotografia)\s+(?:(?:principal|de\s+fundo)\s+)?(?:da\s+(?:primeira\s+se[cç][aã]o|capa|hero)|do\s+(?:hero|banner))\s+(?:por|pela|para)\s+([\s\S]+)/i);
  if(heroPhoto){
   const hero=resolveUniversalSection(site,"capa");
-  if(!hero)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
-  // TP2 architecture renders the hero from the first image in the media inventory,
-  // regardless of the block's section label. Target the actual rendered source.
   const tp2Architecture=/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header&&typeof site.header==="object"?(site.header as {brand?:string}).brand:""].join(" "));
+  if(!hero&&!tp2Architecture)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
+  // The TP2 model-1 hero renders media[0], not necessarily a block labelled "capa".
   const image=tp2Architecture
    ?site.blocks.find(b=>b.type==="image"&&typeof b.src==="string"&&b.src.trim()&&!b.id.startsWith("universal-extra-card-"))
    :site.blocks.find(b=>b.section===hero&&b.type==="image");
   if(!image)return fail("A imagem principal não possui bloco editável. Nenhuma alteração aplicada.");
-  const url=heroPhoto[1].match(/https:\/\/[^\s"'“”<>]+/)?.[0]?.replace(/[.,;]+$/,"")||verifiedPhoto(site,heroPhoto[1]);
+  const requestedUrl=heroPhoto[1].match(/https:\/\/[^\s"'“”<>]+/)?.[0]?.replace(/[.,;]+$/,"");
+  const url=requestedUrl||verifiedPhoto(site,heroPhoto[1]);
   if(!url)return fail("Não foi localizada fotografia real adequada. A imagem anterior foi preservada.");
-  if(image.src===url)return fail("A fotografia selecionada já é a imagem atual da capa. Nenhuma troca foi realizada; informe outra URL ou referência visual.");
+  // Compare against the actual TP2 architecture hero (its default is hardcoded).
+  const defaultArchitectureHero="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=85";
+  const renderedBefore=tp2Architecture?(image.userUploaded?image.src||defaultArchitectureHero:defaultArchitectureHero):image.src;
+  if(renderedBefore===url)return fail("A fotografia escolhida já é a imagem exibida na capa. Nenhuma troca foi realizada.");
+  if(image.src===url)return fail("A URL escolhida já está salva no bloco; a capa não foi comprovadamente alterada.");
   const applied=applyUniversalOperations(site,[{action:"update",blockId:image.id,changes:{src:url}}]);
   if(!applied.ok)return applied;
   return {ok:true,site:{...applied.site,blocks:applied.site.blocks.map(b=>b.id===image.id?{...b,imageExplicit:true,userUploaded:true}:b)} as T,changedIds:applied.changedIds};
