@@ -1330,6 +1330,7 @@ test("scoped process alignment changes only four headings and keeps descriptions
  const section="custom-nosso-processo-criativo";
  assert.equal(result.site.blocks.filter(b=>b.section===section&&b.type==="heading"&&b.align==="center").length,4);
  assert.equal(result.site.blocks.filter(b=>b.section===section&&b.type==="paragraph"&&b.align==="left").length,3);
+ assert.equal(result.site.blocks.filter(b=>b.section===section&&b.type==="paragraph"&&b.cardTitleAlign==="center").length,3);
  assert.deepEqual(result.site.blocks.map(b=>b.id),original.blocks.map(b=>b.id));
  assert.deepEqual(result.site.blocks.filter(b=>b.section!==section),original.blocks.filter(b=>b.section!==section));
  assert.deepEqual(result.site.blocks.map(b=>b.text),original.blocks.map(b=>b.text));
