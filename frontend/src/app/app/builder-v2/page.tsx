@@ -810,17 +810,11 @@ export default function BuilderV2() {
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
-        const oldBlockIds=site.blocks.map(b=>b.id).sort().join("|");
-        const newBlockIds=result.site.blocks.map(b=>b.id).sort().join("|");
-        // Verify non-structural edits against actual block changes; structural edits
-        // retain the separate no-op guard until section-event verification is supported.
-        if(oldBlockIds===newBlockIds){
-          const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
-          if(!verification.ok){
-            recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification");
-            setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
-            return;
-          }
+        const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
+        if(!verification.ok){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification");
+          setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
+          return;
         }
         if(result.changedIds.length===0||JSON.stringify(result.site)===JSON.stringify(site)){
           recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change");
