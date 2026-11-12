@@ -39,3 +39,20 @@ export function eligibleUniversalLearningExample(record:UniversalLearningRecord)
   (record.outcome==="applied"||record.outcome==="already-correct")&&
   record.requestedChanges>0&&record.verifiedChanges===record.requestedChanges;
 }
+
+/** Conservative case-based retrieval: examples are suggestions, never mutations.
+ * Approved examples from the same niche and model rank above cross-niche ones.
+ * Rejected or unverified events are never eligible to guide execution.
+ */
+export function rankApprovedUniversalExperiences(records:readonly UniversalLearningRecord[],context:UniversalLearningContext,limit=5):UniversalLearningRecord[]{
+ const normalized=(v?:string)=>(v||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim().toLowerCase();
+ const score=(r:UniversalLearningRecord)=>
+  (normalized(r.context.niche)&&normalized(r.context.niche)===normalized(context.niche)?8:0)+
+  (normalized(r.context.family)&&normalized(r.context.family)===normalized(context.family)?4:0)+
+  (normalized(r.context.model)&&normalized(r.context.model)===normalized(context.model)?2:0);
+ return records.filter(eligibleUniversalLearningExample)
+  .map((record,index)=>({record,index,score:score(record)}))
+  .sort((a,b)=>b.score-a.score||a.index-b.index)
+  .slice(0,Math.max(0,Math.min(20,Math.trunc(limit)||0)))
+  .map(item=>item.record);
+}
