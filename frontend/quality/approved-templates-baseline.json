@@ -617,7 +617,7 @@
     },
     {
       "path": "src/components/builder-v2-universal-sections.tsx",
-      "blobSha": "c4abc081eda16a261b5cda7eac0f9ad7d457587a",
+      "blobSha": "02e2117dd9894ae5a4a33e0f4b5ee7bf18d07c40",
       "approvedBindingRevision": {
         "sha": "d0c11153f04f19533091829b852fc80024388b9e",
         "reason": "User-approved scoped improvement to generated custom sections: infer theme colors from the existing template and apply them to new cards only; preserve all pre-existing approved sections and layouts."
