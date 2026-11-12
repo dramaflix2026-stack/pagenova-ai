@@ -376,6 +376,18 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
+ // Paired hero copy must be committed atomically, not partially by a single-action matcher.
+ const pairedHeroCopy=instruction.match(/^(?:na\\s+(?:primeira\\s+se[cç][aã]o|capa|hero)\\s*,?\\s*)?(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+(?:principal\\s+)?(?:da\\s+capa\\s+)?para\\s+["“]([^"”]+)["”]\\s+e\\s+o\\s+subt[ií]tulo\\s+para\\s+["“]([^"”]+)["”]/i);
+ if(pairedHeroCopy){
+  const hero=resolveUniversalSection(site,"capa")||site.blocks.find(b=>b.type==="heading")?.section;
+  const heading=site.blocks.find(b=>b.section===hero&&b.type==="heading");
+  const subtitle=site.blocks.find(b=>b.section===hero&&b.type==="paragraph");
+  if(!heading||!subtitle)return {ok:false,error:"Título e subtítulo da capa precisam ser editáveis. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[
+   {action:"update",blockId:heading.id,changes:{text:pairedHeroCopy[1]}},
+   {action:"update",blockId:subtitle.id,changes:{text:pairedHeroCopy[2]}}
+  ]);
+ }
  const batch=applyUniversalHeadingBatch(site,instruction);
  if(batch)return batch;
  // A practical matcher may recognize only the first action in a combined request.
