@@ -11,7 +11,7 @@ ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 # Stream test and TypeScript failures directly to Railway build logs for diagnosis.
-RUN npm run build
+RUN bash -o pipefail -c ' npm run build > /tmp/pagenova-build.log 2>&1 || { echo '=== BUILD FAILURE DIAGNOSTICS ==='; tail -n 220 /tmp/pagenova-build.log; exit 1; }; tail -n 50 /tmp/pagenova-build.log'
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 EXPOSE 8000
