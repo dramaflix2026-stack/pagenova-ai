@@ -61,30 +61,31 @@ export function rankApprovedUniversalExperiences(records:readonly UniversalLearn
 /** Validate that a successful universal operation changed only its declared blocks.
  * Section-level structural edits may reorder blocks; changed IDs must still be real.
  */
-export function verifyUniversalEditResult<T extends UniversalSite>(before:T,after:T,changedIds:readonly string[]):{
- ok:boolean;reason:string
-}{
- if(!changedIds.length)return {ok:false,reason:"Nenhuma alteração identificada."};
- const oldBlocks=new Map(before.blocks.map(block=>[block.id,block]));
- const nextBlocks=new Map(after.blocks.map(block=>[block.id,block]));
+/** Verify block changes, additions, removals and order changes without mutating unrelated content. */
+export function verifyUniversalEditResult<T extends UniversalSite>(before:T,after:T,changedIds:readonly string[]):{ok:boolean;reason:string}{
+ const reject=(reason:string)=>({ok:false,reason});
+ if(!changedIds.length)return reject("Nenhuma alteração identificada.");
+ const oldBlocks=new Map(before.blocks.map(b=>[b.id,b]));
+ const nextBlocks=new Map(after.blocks.map(b=>[b.id,b]));
  const ids=new Set(changedIds);
- if(ids.size!==changedIds.length)return {ok:false,reason:"IDs de alteração duplicados."};
+ if(ids.size!==changedIds.length)return reject("IDs de alteração duplicados.");
+ if(JSON.stringify(before)===JSON.stringify(after))return reject("O site permaneceu inalterado.");
+ const oldOrder=before.blocks.map(b=>b.id),newOrder=after.blocks.map(b=>b.id);
+ const moved=oldOrder.length===newOrder.length&&oldOrder.some((id,i)=>newOrder[i]!==id);
  for(const id of ids){
   const old=oldBlocks.get(id),next=nextBlocks.get(id);
-  if(!old&&!next)return {ok:false,reason:"Bloco alterado inexistente: "+id};
-  if(old&&next&&JSON.stringify(old)===JSON.stringify(next))
-   return {ok:false,reason:"Bloco indicado não foi modificado: "+id};
+  if(!old&&!next)return reject("Bloco alterado inexistente: "+id);
+  if(old&&next&&JSON.stringify(old)===JSON.stringify(next)&&!moved)return reject("Bloco indicado não foi modificado: "+id);
  }
- if(JSON.stringify(before)===JSON.stringify(after))return {ok:false,reason:"O site permaneceu inalterado."};
- // Preserve unrelated block data even when sections are reordered.
  for(const [id,old] of oldBlocks){
   if(ids.has(id))continue;
   const next=nextBlocks.get(id);
-  if(!next)return {ok:false,reason:"Bloco não solicitado removido: "+id};
-  if(JSON.stringify(old)!==JSON.stringify(next))return {ok:false,reason:"Bloco não solicitado alterado: "+id};
+  if(!next)return reject("Bloco não solicitado removido: "+id);
+  if(JSON.stringify(old)!==JSON.stringify(next))return reject("Bloco não solicitado alterado: "+id);
  }
- for(const id of nextBlocks.keys()){
-  if(!oldBlocks.has(id)&&!ids.has(id))return {ok:false,reason:"Bloco não solicitado adicionado: "+id};
- }
+ for(const id of nextBlocks.keys())if(!oldBlocks.has(id)&&!ids.has(id))return reject("Bloco não solicitado adicionado: "+id);
+ // A move may shift other blocks' indices but must preserve their relative order.
+ const stableOld=oldOrder.filter(id=>!ids.has(id)),stableNew=newOrder.filter(id=>!ids.has(id));
+ if(JSON.stringify(stableOld)!==JSON.stringify(stableNew))return reject("Ordem relativa de blocos não solicitados alterada.");
  return {ok:true,reason:"Alterações declaradas confirmadas."};
 }
