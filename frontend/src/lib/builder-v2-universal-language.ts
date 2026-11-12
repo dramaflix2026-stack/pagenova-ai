@@ -264,7 +264,16 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    }
    if(unquoted.length>=2&&unquoted.length<=12)labels.push(...unquoted);
   }
-  if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return {title,description:descriptions[key]||"Atuamos com critérios técnicos claros, acompanhamento dedicado e soluções alinhadas às necessidades de cada projeto."};});
+  if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+   const sectionKey=name.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+   const isCreativeProcess=/processo|metodologia|etapas|jornada|fluxo/.test(sectionKey);
+   const stageCopy=isCreativeProcess?(
+    /briefing|imersao|diagnostico|descoberta|levantamento|planejamento/.test(key)?"Começamos ouvindo suas necessidades, entendendo o espaço e definindo objetivos, referências e prioridades que orientam o projeto.":
+    /desenvolvimento|criacao|projeto|execucao|producao|concepcao/.test(key)?"Transformamos o briefing em propostas e soluções, refinando cada detalhe com atenção à funcionalidade, estética e coerência do conjunto.":
+    /entrega|acompanhamento|finalizacao|conclusao|implementacao/.test(key)?"Organizamos a entrega e acompanhamos os ajustes finais, garantindo clareza nas orientações e cuidado com os detalhes do projeto.":null
+   ):null;
+   const description=descriptions[key]||stageCopy||"Apresentamos esta etapa com clareza, alinhando expectativas, decisões e próximos passos às necessidades do projeto.";
+   return {title,description};});
  }
  // An ordinary four-differential request should not require the user to supply card titles.
  // Use neutral, editable sample copy; never fabricate business-specific achievements.
