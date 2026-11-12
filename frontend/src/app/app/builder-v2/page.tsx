@@ -194,7 +194,34 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
       const {error:reviewError}=await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
       if(reviewError)console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);
     }
-  }catch{/* Supabase connectivity must never block site editing. */}
+  }catch(error){console.warn("[editor-learning] Cloud sync exception",error); /* Editing must remain available offline. */}
+}
+const EDITOR_LEARNING_KEY="pagenova:editor-learning-events:v1";
+/** Replay local pending events on login, tab focus or network recovery; retries use stable UUIDs. */
+async function reconcileEditorLearningEvents(){
+ if(typeof window==="undefined")return;
+ try{
+  const entries=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
+  if(!Array.isArray(entries))return;
+  for(const event of entries.slice(-150)){
+   if(event&&typeof event.id==="string"&&typeof event.niche==="string"&&
+    ["applied","rejected"].includes(event.outcome)&&typeof event.strategy==="string")
+    await syncEditorLearningEvent(event);
+  }
+ }catch(error){console.warn("[editor-learning] Reconciliation failed",error);}
+}
+/** Read approved, tenant-isolated patterns. They inform diagnostics, never authorize unverified mutations. */
+async function readApprovedEditorPatterns(niche:string){
+ try{
+  const client=createSupabaseBrowserClient();
+  const {data:{user}}=await client.auth.getUser();
+  if(!user)return [];
+  const {data,error}=await client.from("builder_editor_learning_events")
+   .select("intent,target,strategy,niche").eq("user_id",user.id)
+   .eq("review_status","approved").eq("execution_status","applied").limit(100);
+  if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
+  return (data||[]).filter(row=>row.niche===niche);
+ }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
 function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
   if(typeof window==="undefined")return;
@@ -274,7 +301,13 @@ export default function BuilderV2() {
       if(!error)setApprovedExperienceCount(count??0);
     }catch{/* Reading learning history must not block editing. */}
   }
-  useEffect(()=>{void refreshApprovedExperiences();},[]);
+  useEffect(()=>{
+    void reconcileEditorLearningEvents().then(()=>refreshApprovedExperiences());
+    const retry=()=>{void reconcileEditorLearningEvents().then(()=>refreshApprovedExperiences());};
+    window.addEventListener("online",retry);
+    window.addEventListener("focus",retry);
+    return ()=>{window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
+  },[]);
   async function reviewLastEdit(status:"approved"|"rejected"){
     if(!reviewCandidate||reviewCandidate.status!=="pending")return;
     const key="pagenova:editor-learning-events:v1";
@@ -765,6 +798,8 @@ export default function BuilderV2() {
       // Real-photo requests must use the same verified universal edit pipeline as
       // all other image changes. The former local shortcut selected the existing
       // architecture hero stock URL, then falsely reported a successful swap.
+      // Fetch approved patterns for this niche, but never auto-apply them without verification.
+      void readApprovedEditorPatterns(site.niche||"");
       const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
@@ -772,6 +807,11 @@ export default function BuilderV2() {
         if(!result||!result.ok){
           recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal");
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
+          return;
+        }
+        if(result.changedIds.length===0||JSON.stringify(result.site)===JSON.stringify(site)){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change");
+          setMessages(prev=>[...prev,{role:"assistant",text:"A operação não produziu alteração verificável. Nenhuma alteração aplicada."}]);
           return;
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
