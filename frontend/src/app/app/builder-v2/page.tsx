@@ -786,11 +786,6 @@ export default function BuilderV2() {
       // Image commands must reach the image pipeline. The generic text editor can
       // otherwise report "1 block edited" without changing the rendered cover.
       // Real-photo replacements are data edits, never AI image generation.
-      const sectionBackgroundRequest=!hasAttachments&&/^na\s+se[cç][aã]o\s+["“]?[^\n]{2,110}?["”]?,?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+/i.test(prompt);
-      if(sectionBackgroundRequest){
-        const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
-      }
       const targetedMethodPhoto=!hasAttachments&&imageChange&&/nossa metodologia/i.test(prompt)&&/(?:segundo|2[oº°]?|planejamento)/i.test(prompt)&&/(?:substitu|troqu|alter)/i.test(prompt)&&/(?:fotografia|foto|imagem)/i.test(prompt);
       if(targetedMethodPhoto){
         const customSection=site.blocks.find(b=>b.section?.startsWith("custom-")&&b.type==="heading"&&/nossa metodologia/i.test(b.text||""))?.section;
@@ -823,6 +818,12 @@ export default function BuilderV2() {
         (preferredStrategy.universal||0)>Math.max(0,...Object.entries(preferredStrategy).filter(([strategy])=>strategy!=="universal").map(([,count])=>count));
       // When the user has repeatedly approved this route, attempt it first.
       // Other strategies remain available only through their existing guarded paths.
+      const sectionBackgroundRequest=!hasAttachments&&/^na\s+se[cç][aã]o\s+["“]?[^\n]{2,110}?["”]?,?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+/i.test(prompt);
+      if(sectionBackgroundRequest&&!preferUniversal){
+        const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+      }
+      // Approved universal outcomes now take precedence over the legacy background shortcut.
       const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
       if(preferUniversal&&result&&!result.ok){
         console.info("[editor-learning] Preferred universal strategy could not safely apply; no fabricated fallback.",inferredIntent,inferredTarget);
