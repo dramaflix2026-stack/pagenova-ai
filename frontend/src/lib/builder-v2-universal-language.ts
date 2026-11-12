@@ -420,6 +420,22 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
   if(updates.length!==3)return {ok:false,error:"Não foi possível identificar exatamente três descrições editáveis nesta seção. Nenhuma alteração aplicada."};
   return applyUniversalOperations(site,updates);
  }
+ // Section-scoped alignment: never propagate a title-only request to all site blocks.
+ const scopedCardAlignment=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*centralize\s+o\s+t[ií]tulo\s+principal\s+da\s+se[cç][aã]o\s+e\s+os\s+t[ií]tulos\s+dos\s+(?:tr[eê]s|3)\s+cards\b/i);
+ if(scopedCardAlignment){
+  const section=resolveUniversalSection(site,scopedCardAlignment[1]);
+  if(!section)return {ok:false,error:"Seção solicitada não encontrada. Nenhuma alteração aplicada."};
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const headings=blocks.filter(b=>b.type==="heading");
+  const descriptions=blocks.filter(b=>b.type==="paragraph");
+  if(headings.length!==4||descriptions.length!==3)return {ok:false,error:"A seção não possui exatamente um título principal e três cards editáveis. Nenhuma alteração aplicada."};
+  const ops:UniversalOperation[]=[
+   ...headings.filter(b=>b.align!=="center").map(b=>({action:"update" as const,blockId:b.id,changes:{align:"center"}})),
+   ...descriptions.filter(b=>b.align!=="left").map(b=>({action:"update" as const,blockId:b.id,changes:{align:"left"}}))
+  ];
+  if(!ops.length)return {ok:true,site,changedIds:[]};
+  return applyUniversalOperations(site,ops);
+ }
  // Paired hero copy must be committed atomically, not partially by a single-action matcher.
  const pairedHeroCopy=instruction.match(/^(?:na\s+(?:primeira\s+se[cç][aã]o|capa|hero)\s*,?\s*)?(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:da\s+capa\s+)?para\s+["“]([^"”]+)["”]\s+e\s+o\s+subt[ií]tulo\s+para\s+["“]([^"”]+)["”]/i);
  if(pairedHeroCopy){
