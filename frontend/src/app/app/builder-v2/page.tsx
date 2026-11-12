@@ -811,7 +811,7 @@ export default function BuilderV2() {
       // Approved experiences choose which safe parser is attempted first.
       // No historical pattern can bypass mutation verification or invent an edit.
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
-      const normalizedPrompt=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+      const normalizedPrompt=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
       const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalizedPrompt)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalizedPrompt)?"layout":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
       const inferredTarget=/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
       const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
