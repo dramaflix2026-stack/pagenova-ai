@@ -192,8 +192,14 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
     const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
     const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
     if(reviewed==="approved"||reviewed==="rejected"){
-      const {error:reviewError}=await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
+      const {data:confirmedReview,error:reviewError}=await client.from("builder_editor_learning_events")
+        .update({review_status:reviewed,reviewed_at:new Date().toISOString()})
+        .eq("id",event.id).eq("user_id",user.id).eq("execution_status","applied")
+        .select("id,review_status").maybeSingle();
       if(reviewError)console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);
+      else if(!confirmedReview||confirmedReview.review_status!==reviewed)
+        console.warn("[editor-learning] Cloud review not confirmed for event",event.id);
+      else console.info("[editor-learning] Cloud review confirmed",event.id,reviewed);
     }
   }catch(error){console.warn("[editor-learning] Cloud sync exception",error); /* Editing must remain available offline. */}
 }
