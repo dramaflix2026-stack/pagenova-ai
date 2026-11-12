@@ -1301,3 +1301,20 @@ test("new named section without explicit position is placed before contact and p
  assert.equal(new Set(blocks.filter(b=>b.type==="paragraph").map(b=>b.text)).size,3,"Each process card must have its own meaningful description");
  assert.ok(result.site.blocks.findIndex(b=>b.id==="contact-heading")>result.site.blocks.findIndex(b=>b.id===blocks.at(-1)?.id));
 });
+
+test("existing creative process cards update descriptions without duplicating sections",()=>{
+ const original=site();
+ const created=applyUniversalNaturalLanguage(original,'Adicione uma seção chamada "Nosso Processo Criativo", com três cards: Briefing e Imersão, Desenvolvimento do Projeto e Entrega e Acompanhamento.');
+ assert.equal(created?.ok,true);
+ if(!created?.ok)return;
+ const section="custom-nosso-processo-criativo";
+ const old=created.site.blocks.filter(b=>b.section===section);
+ const stale={...created.site,blocks:created.site.blocks.map(b=>b.section===section&&b.type==="paragraph"?{...b,text:"Texto repetido"}:b)};
+ const result=applyUniversalNaturalLanguage(stale,'Na seção "Nosso Processo Criativo", mantenha os três cards existentes e substitua somente suas descrições por textos diferentes e específicos para cada etapa: Briefing e Imersão, Desenvolvimento do Projeto e Entrega e Acompanhamento. Preserve os títulos, o layout e a identidade visual. Não crie outra seção.');
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No result");
+ if(!result?.ok)return;
+ const updated=result.site.blocks.filter(b=>b.section===section);
+ assert.deepEqual(updated.map(b=>b.id),old.map(b=>b.id));
+ assert.deepEqual(updated.filter(b=>b.type==="heading").map(b=>b.text),old.filter(b=>b.type==="heading").map(b=>b.text));
+ assert.equal(new Set(updated.filter(b=>b.type==="paragraph").map(b=>b.text)).size,3);
+});
