@@ -159,8 +159,8 @@
       "path": "src/components/builder-v2-tp2-model1.tsx",
       "blobSha": "42eb9a86eff313ca6f83f1aa5d275d79255628b9",
       "approvedBindingRevision": {
-        "sha": "42eb9a86eff313ca6f83f1aa5d275d79255628b9",
-        "reason": "Approved TP2 refinement: six fictional preview testimonials and responsive premium service/approach cards."
+        "sha": "435b873eee8704892b4fdf5a8d0d43126969b7b8",
+        "reason": "Scoped functional binding fix: render explicitly edited architecture images while retaining the approved TP2 layout and default photography."
       }
     },
     {
