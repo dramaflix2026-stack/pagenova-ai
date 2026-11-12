@@ -18,4 +18,7 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
   const classes=isValidElement<{className?:string}>(candidate)?String(candidate.props.className||""):"";
   const background=classes.split(" ").find(token=>token.startsWith("bg-[#")&&token.endsWith("]"))?.slice(5,-1);
   const cardAccent=classes.split(" ").find(token=>token.startsWith("border-t-[#")&&token.endsWith("]"))?.slice(11,-1);
+  const background=classes.split(" ").find(token=>token.startsWith("bg-[#")&&token.endsWith("]"))?.slice(5,-1);
+  const cardAccent=classes.split(" ").find(token=>token.startsWith("border-t-[#")&&token.endsWith("]"))?.slice(11,-1);
+  const siteColor=(site.blocks||[]).find(b=>b.section==="processo"&&/^#[0-9a-f]{6}$/i.test(b.color||""))?.color;
 
