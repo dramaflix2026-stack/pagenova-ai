@@ -801,8 +801,8 @@ export default function BuilderV2() {
       // architecture hero stock URL, then falsely reported a successful swap.
       // Fetch approved patterns for this niche, but never auto-apply them without verification.
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
-      // Case-based routing: only explicitly approved, successful tenant experiences
-      // can prioritize the universal executor. Every result still requires verification.
+      // Tenant-approved history is inspected before execution; it is not yet a trained
+      // strategy selector and cannot override deterministic safety checks.
       const normalizedPrompt=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
       const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
       const approvedUniversal=approvedPatterns.some(pattern=>pattern.intent===inferredIntent&&pattern.strategy==="universal");
