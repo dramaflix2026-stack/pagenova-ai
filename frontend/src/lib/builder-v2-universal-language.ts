@@ -396,7 +396,9 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  // handler strips preservation constraints and must run before the AI fallback.
  // Previously, sentence splitting routed this request to the legacy editor,
  // which could acknowledge an edit without changing the rendered hero.
- const practical=applyUniversalPracticalEdit(site,instruction);
+ const combinedHeroPhoto=/^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas)\s+)?(?:a\s+)?(?:imagem|foto|fotografia)\s+(?:(?:principal|de\s+fundo)\s+)?(?:da\s+(?:primeira\s+se[cç][aã]o|capa|hero)|do\s+(?:hero|banner))\s+(?:por|pela|para)\s+/i.test(instruction)
+  && /[,;]\s*(?:troque|altere|mude|substitua|mova|remova|adicione|crie|inclua|insira)\b/i.test(instruction);
+ const practical=combinedHeroPhoto?null:applyUniversalPracticalEdit(site,instruction);
  if(practical)return practical;
  const scopedText=parseUniversalCopyEdit(site,instruction);
  if(scopedText){
