@@ -51,7 +51,7 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   if(!hero)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
   const image=site.blocks.find(b=>b.section===hero&&b.type==="image");
   if(!image)return fail("A imagem principal não possui bloco editável. Nenhuma alteração aplicada.");
-  const url=heroPhoto[1].match(/https:\/\/[^\s"'“”<>]+/)?.[0]||verifiedPhoto(site,heroPhoto[1]);
+  const url=heroPhoto[1].match(/https:\/\/[^\s"'“”<>]+/)?.[0]?.replace(/[.,;]+$/,"")||verifiedPhoto(site,heroPhoto[1]);
   if(!url)return fail("Não foi localizada fotografia real adequada. A imagem anterior foi preservada.");
   const applied=applyUniversalOperations(site,[{action:"update",blockId:image.id,changes:{src:url}}]);
   if(!applied.ok)return applied;
