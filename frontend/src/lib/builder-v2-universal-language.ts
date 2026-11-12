@@ -431,7 +431,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
   if(headings.length!==4||descriptions.length!==3)return {ok:false,error:"A seção não possui exatamente um título principal e três cards editáveis. Nenhuma alteração aplicada."};
   const ops:UniversalOperation[]=[
    ...headings.filter(b=>b.align!=="center").map(b=>({action:"update" as const,blockId:b.id,changes:{align:"center"}})),
-   ...descriptions.filter(b=>b.align!=="left").map(b=>({action:"update" as const,blockId:b.id,changes:{align:"left"}}))
+   ...descriptions.filter(b=>b.align!=="left"||b.cardTitleAlign!=="center").map(b=>({action:"update" as const,blockId:b.id,changes:{align:"left",cardTitleAlign:"center"}}))
   ];
   if(!ops.length)return {ok:true,site,changedIds:[]};
   return applyUniversalOperations(site,ops);
