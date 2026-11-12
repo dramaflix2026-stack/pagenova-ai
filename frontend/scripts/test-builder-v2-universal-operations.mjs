@@ -4,6 +4,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {applyUniversalOperations} from "../src/lib/builder-v2-universal-operations.ts";
+import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 const site=()=>({templateId:"prompt-adaptive",briefingLayoutVariant:"03",blocks:[
  {id:"h",type:"heading",section:"hero",text:"Original"},
  {id:"cta",type:"button",section:"hero",text:"Contato",href:"#contact"},
@@ -1334,4 +1335,32 @@ test("scoped process alignment changes only four headings and keeps descriptions
  assert.deepEqual(result.site.blocks.map(b=>b.id),original.blocks.map(b=>b.id));
  assert.deepEqual(result.site.blocks.filter(b=>b.section!==section),original.blocks.filter(b=>b.section!==section));
  assert.deepEqual(result.site.blocks.map(b=>b.text),original.blocks.map(b=>b.text));
+});
+
+// Five-category deterministic regression: the editor must verify the actual site diff.
+test("Motor Universal 1 verifies text, colors, images, section insertion and ordering",()=>{
+ const original=site();
+ const cases=[
+  {name:"text",ops:[{action:"update",blockId:"h",changes:{text:"Título revisado"}}],check:next=>assert.equal(next.blocks[0].text,"Título revisado")},
+  {name:"colors",ops:[{action:"update",blockId:"h",changes:{color:"#123456"}}],check:next=>assert.equal(next.blocks[0].color,"#123456")},
+  {name:"images",ops:[{action:"add",block:{id:"hero-photo",type:"image",section:"hero",src:"https://example.com/hero.jpg"},afterId:"h"}],check:next=>assert.equal(next.blocks.find(b=>b.id==="hero-photo").src,"https://example.com/hero.jpg")},
+  {name:"sections",ops:[{action:"add",block:{id:"team-title",type:"heading",section:"team",text:"Equipe"},afterId:"c1"}],check:next=>assert.ok(next.blocks.some(b=>b.section==="team"))},
+  {name:"ordering",ops:[{action:"move-section",sectionId:"hero",afterSectionId:"faq"}],check:next=>assert.deepEqual(next.blocks.map(b=>b.id),["s","c1","f","h","cta"])}
+ ];
+ for(const item of cases){
+  const result=applyUniversalOperations(original,item.ops);
+  assert.equal(result.ok,true,item.name);
+  if(!result.ok)continue;
+  item.check(result.site);
+  const verified=verifyUniversalEditResult(original,result.site,result.changedIds);
+  assert.equal(verified.ok,true,item.name+": "+verified.reason);
+  assert.deepEqual(original,site(),"original mutated by "+item.name);
+ }
+});
+test("Motor Universal 1 rejects fabricated success and unrelated mutations",()=>{
+ const original=site();
+ assert.equal(verifyUniversalEditResult(original,structuredClone(original),["h"]).ok,false);
+ const changed=structuredClone(original);
+ changed.blocks[0].text="Edited";changed.blocks[1].text="Unrequested edit";
+ assert.equal(verifyUniversalEditResult(original,changed,["h"]).ok,false);
 });
