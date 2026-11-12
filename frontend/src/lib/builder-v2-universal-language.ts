@@ -257,7 +257,11 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    ||instruction.match(/cards?\s*:\s*([\s\S]+?)(?=\.\s|\s+Cada card\b|$)/i)?.[1]||"";
   const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
   if(!labels.length&&region){
-   const unquoted=region.split(/\s*,\s*|\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i).map(label=>label.trim().replace(/[.!]+$/,"")).filter(Boolean);
+   const parts=region.split(/\s*,\s*/).map(label=>label.trim().replace(/[.!]+$/,"")).filter(Boolean);
+   const unquoted=parts.length===requestedCount?parts:parts.length===requestedCount-1?parts.flatMap((part,index)=>index===parts.length-1?part.split(/\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i):[part]):parts;
+   if(requestedCount!==null&&unquoted.length>requestedCount){
+    const last=unquoted.splice(requestedCount-1).join(" e ");unquoted.push(last);
+   }
    if(unquoted.length>=2&&unquoted.length<=12)labels.push(...unquoted);
   }
   if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return {title,description:descriptions[key]||"Atuamos com critérios técnicos claros, acompanhamento dedicado e soluções alinhadas às necessidades de cada projeto."};});
