@@ -420,6 +420,27 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
   if(updates.length!==3)return {ok:false,error:"Não foi possível identificar exatamente três descrições editáveis nesta seção. Nenhuma alteração aplicada."};
   return applyUniversalOperations(site,updates);
  }
+ // Atomic process-section rename + three-card color update (regression Test 6).
+ // A compound request must never report success after applying only one clause.
+ const processRename=instruction.match(/(?:na\\s+se[cç][aã]o\\s+["“]([^"”]+)["”][\\s,;:]*)?(?:altere|troque|mude|renomeie|substitua)\\s+o\\s+t[ií]tulo\\s+(?:principal\\s+)?(?:da\\s+se[cç][aã]o\\s+)?(?:para|por)\\s+["“]([^"”]+)["”]/i);
+ const cardGreen=instruction.match(/(?:t[ií]tulos?\\s+(?:dos?\\s+)?(?:tr[eê]s|3)\\s+cards|(?:tr[eê]s|3)\\s+t[ií]tulos?\\s+dos?\\s+cards)[\\s\\S]{0,130}?(#[0-9a-fA-F]{6})/i);
+ if(processRename&&cardGreen){
+  const oldName=processRename[1]||"Nosso Processo Criativo";
+  const section=resolveUniversalSection(site,oldName);
+  if(!section)return {ok:false,error:"Seção do pedido composto não encontrada. Nenhuma alteração aplicada."};
+  const blocks=site.blocks.filter(b=>b.section===section);
+  const headings=blocks.filter(b=>b.type==="heading");
+  if(headings.length!==4)return {ok:false,error:"O pedido exige um título principal e três títulos de cards editáveis. Nenhuma alteração aplicada."};
+  const ops:UniversalOperation[]=[];
+  if(headings[0].text!==processRename[2])ops.push({action:"update",blockId:headings[0].id,changes:{text:processRename[2]}});
+  for(const heading of headings.slice(1))if(heading.color?.toLowerCase()!==cardGreen[1].toLowerCase())ops.push({action:"update",blockId:heading.id,changes:{color:cardGreen[1]}});
+  const result=ops.length?applyUniversalOperations(site,ops):{ok:true as const,site,changedIds:[]};
+  if(!result.ok)return result;
+  const updated=result.site.blocks.filter(b=>b.section===section&&b.type==="heading");
+  if(updated[0]?.text!==processRename[2]||updated.slice(1).length!==3||updated.slice(1).some(b=>b.color?.toLowerCase()!==cardGreen[1].toLowerCase()))
+   return {ok:false,error:"A verificação do pedido composto falhou. Nenhuma alteração aplicada."};
+  return result;
+ }
  // Section-scoped alignment: never propagate a title-only request to all site blocks.
  const scopedCardAlignment=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*centralize\s+o\s+t[ií]tulo\s+principal\s+da\s+se[cç][aã]o\s+e\s+os\s+t[ií]tulos\s+dos\s+(?:tr[eê]s|3)\s+cards\b/i);
  if(scopedCardAlignment){
