@@ -17,8 +17,8 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
   const candidate=templateNodes.find(node=>keyOf(node)==="processo")||templateNodes.find(node=>keyOf(node)===next)||templateNodes[0];
   const classes=isValidElement<{className?:string}>(candidate)?String(candidate.props.className||""):"";
   const background=classes.match(/(?:^|\\s)bg-\\[#([0-9a-fA-F]{6})\\]/)?.[1];
-  const cardAccent=classes.match(/(?:^|\\s)border-t-\\[#([0-9a-fA-F]{6})\\]/)?.[1];
-  const siteColor=(site.blocks||[]).find(b=>b.section==="processo"&&/^#[0-9a-f]{6}$/i.test(b.color||""))?.color;
+  const background=classes.match(/(?:^|\s)bg-\[#([0-9a-fA-F]{6})\]/)?.[1];
+  const cardAccent=classes.match(/(?:^|\s)border-t-\[#([0-9a-fA-F]{6})\]/)?.[1];
   return {background:customSectionTheme?.background||(background?"#"+background:"#f8f5ef"),color:customSectionTheme?.color||"#26312c",accent:customSectionTheme?.accent||(cardAccent?"#"+cardAccent:siteColor||"#9b7951")};
  };
  const addedSections=customKeys.map(section=>{
