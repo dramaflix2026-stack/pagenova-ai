@@ -22,6 +22,7 @@ export function verifyUniversalBlockChanges<T extends UniversalSite>(before:T,af
  const oldBlocks=new Map<string,UniversalBlock>(before.blocks.map(b=>[b.id,b]));
  const newBlocks=new Map<string,UniversalBlock>(after.blocks.map(b=>[b.id,b]));
  const failures:string[]=[];
+ if(expected.length===0)return {ok:false,checked:0,failures:["no expected changes to verify"]};
  for(const item of expected){
   const old=oldBlocks.get(item.blockId),next=newBlocks.get(item.blockId);
   if(!old||!next){failures.push(item.blockId+": missing block");continue;}
@@ -45,7 +46,7 @@ export function eligibleUniversalLearningExample(record:UniversalLearningRecord)
  * Rejected or unverified events are never eligible to guide execution.
  */
 export function rankApprovedUniversalExperiences(records:readonly UniversalLearningRecord[],context:UniversalLearningContext,limit=5):UniversalLearningRecord[]{
- const normalized=(v?:string)=>(v||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").trim().toLowerCase();
+ const normalized=(v?:string)=>(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
  const score=(r:UniversalLearningRecord)=>
   (normalized(r.context.niche)&&normalized(r.context.niche)===normalized(context.niche)?8:0)+
   (normalized(r.context.family)&&normalized(r.context.family)===normalized(context.family)?4:0)+
