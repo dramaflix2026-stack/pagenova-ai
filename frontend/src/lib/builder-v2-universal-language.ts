@@ -380,7 +380,8 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  if(batch)return batch;
  // A practical matcher may recognize only the first action in a combined request.
  // Defer multi-action instructions to the atomic clause processor below.
- const practical=universalInstructionClauses(instruction).length===1?applyUniversalPracticalEdit(site,instruction):null;
+ const combinedHeroPhoto=/^(?:substitua|troque|altere|mude)\s+(?:(?:somente|apenas)\s+)?(?:a\s+)?(?:imagem|foto|fotografia)\s+(?:(?:principal|de\s+fundo)\s+)?(?:da\s+(?:primeira\s+se[cç][aã]o|capa|hero)|do\s+(?:hero|banner))\s+(?:por|pela|para)\s+/i.test(instruction)&&universalInstructionClauses(instruction).length>1;
+ const practical=combinedHeroPhoto?null:applyUniversalPracticalEdit(site,instruction);
  if(practical)return practical;
  const scopedText=parseUniversalCopyEdit(site,instruction);
  if(scopedText){
