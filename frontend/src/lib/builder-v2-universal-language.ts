@@ -378,7 +378,9 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  const instruction=rawInstruction;
  const batch=applyUniversalHeadingBatch(site,instruction);
  if(batch)return batch;
- const practical=applyUniversalPracticalEdit(site,instruction);
+ // A practical matcher may recognize only the first action in a combined request.
+ // Defer multi-action instructions to the atomic clause processor below.
+ const practical=universalInstructionClauses(instruction).length===1?applyUniversalPracticalEdit(site,instruction):null;
  if(practical)return practical;
  const scopedText=parseUniversalCopyEdit(site,instruction);
  if(scopedText){
