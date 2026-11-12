@@ -808,16 +808,24 @@ export default function BuilderV2() {
       // Real-photo requests must use the same verified universal edit pipeline as
       // all other image changes. The former local shortcut selected the existing
       // architecture hero stock URL, then falsely reported a successful swap.
-      // Fetch approved patterns for this niche, but never auto-apply them without verification.
+      // Approved experiences choose which safe parser is attempted first.
+      // No historical pattern can bypass mutation verification or invent an edit.
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
-      // Tenant-approved history is inspected before execution; it is not yet a trained
-      // strategy selector and cannot override deterministic safety checks.
       const normalizedPrompt=prompt.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
       const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
-      const approvedUniversal=approvedPatterns.some(pattern=>pattern.intent===inferredIntent&&pattern.strategy==="universal");
+      const inferredTarget=/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
+      const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
+      const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
+        scores[pattern.strategy]=(scores[pattern.strategy]||0)+1;
+        return scores;
+      },{} as Record<string,number>);
+      const preferUniversal=(preferredStrategy.universal||0)>=2 &&
+        (preferredStrategy.universal||0)>Math.max(0,...Object.entries(preferredStrategy).filter(([strategy])=>strategy!=="universal").map(([,count])=>count));
+      // When the user has repeatedly approved this route, attempt it first.
+      // Other strategies remain available only through their existing guarded paths.
       const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
-      if(approvedUniversal&&result&&!result.ok){
-        console.info("[editor-learning] Approved universal strategy rejected this request; no fallback is auto-applied.");
+      if(preferUniversal&&result&&!result.ok){
+        console.info("[editor-learning] Preferred universal strategy could not safely apply; no fabricated fallback.",inferredIntent,inferredTarget);
       }
       const singleAttachedImageEdit=siteCategory==="institutional"&&institutionalFiles.length===1&&!reference&&!propertyFiles.length&&institutionalImageIntent(prompt,true)&&/(?:substitu|troqu|coloc|insir|apliqu|utiliz|usar)/i.test(prompt)&&/(?:capa|hero|banner|imagem|foto|fotografia)/i.test(prompt);
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
