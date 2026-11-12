@@ -218,10 +218,10 @@ async function readApprovedEditorPatterns(niche:string){
   const {data:{user}}=await client.auth.getUser();
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
-   .select("intent,target,strategy,niche").eq("user_id",user.id)
-   .eq("review_status","approved").eq("execution_status","applied").limit(100);
+   .select("intent,target,strategy,niche").eq("user_id",user.id).eq("niche",niche)
+   .eq("review_status","approved").eq("execution_status","applied").order("created_at",{ascending:false}).limit(100);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
-  return (data||[]).filter(row=>row.niche===niche);
+  return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
 function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
