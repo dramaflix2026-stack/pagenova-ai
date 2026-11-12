@@ -400,6 +400,26 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
+ // Update existing process cards in place; preservation constraints are not separate actions.
+ const existingProcessEdit=instruction.match(/^na\\s+se[cç][aã]o\\s+["“]([^"”]+)["”]\\s*,?\\s*mantenha\\s+os\\s+(?:tr[eê]s|3)\\s+cards\\s+existentes\\s+e\\s+substitua\\s+somente\\s+suas\\s+descri[cç][oõ]es\\b/i);
+ if(existingProcessEdit){
+  const section=resolveUniversalSection(site,existingProcessEdit[1]);
+  if(!section)return {ok:false,error:"Seção não encontrada. Nenhuma alteração aplicada."};
+  const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+  const entries=site.blocks.filter(b=>b.section===section);
+  const updates:UniversalOperation[]=[];
+  for(let index=0;index<entries.length;index++){
+   const heading=entries[index];
+   if(heading.type!=="heading")continue;
+   const label=normalize(heading.text||"");
+   const description=/briefing|imersao|diagnostico|descoberta/.test(label)?"Começamos ouvindo suas necessidades, entendendo o espaço e definindo objetivos, referências e prioridades para orientar o projeto.":/desenvolvimento|criacao|projeto|execucao/.test(label)?"Transformamos o briefing em propostas e soluções, refinando funcionalidade, estética e cada detalhe do projeto.":/entrega|acompanhamento|finalizacao|conclusao/.test(label)?"Organizamos a entrega e acompanhamos os ajustes finais, com orientações claras e atenção a cada detalhe.":null;
+   if(!description)continue;
+   const paragraph=entries.slice(index+1).find(b=>b.type==="heading"||b.type==="paragraph");
+   if(paragraph?.type==="paragraph"&&paragraph.text!==description)updates.push({action:"update",blockId:paragraph.id,changes:{text:description}});
+  }
+  if(updates.length!==3)return {ok:false,error:"Não foi possível identificar exatamente três descrições editáveis nesta seção. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,updates);
+ }
  // Paired hero copy must be committed atomically, not partially by a single-action matcher.
  const pairedHeroCopy=instruction.match(/^(?:na\s+(?:primeira\s+se[cç][aã]o|capa|hero)\s*,?\s*)?(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:da\s+capa\s+)?para\s+["“]([^"”]+)["”]\s+e\s+o\s+subt[ií]tulo\s+para\s+["“]([^"”]+)["”]/i);
  if(pairedHeroCopy){
