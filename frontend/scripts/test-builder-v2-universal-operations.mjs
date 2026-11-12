@@ -1207,7 +1207,7 @@ test("universal education visual contracts: all three variants consume existing 
  const m3=read("builder-v2-tp10-model3.tsx");
  const shared=read("builder-v2-universal-sections.tsx");
  for(const tag of ["Template10EducationHero","BuilderV2TP10Model2","BuilderV2TP10Model3"])
-  assert.match(router,new RegExp("<"+tag+" site=\\{props\\.site as unknown"));
+  assert.match(router,new RegExp("<"+tag+"\\s+brand=\\{cleanBrand\\}"));
  for(const variant of [sections,m2,m3]){
   assert.match(variant,/universalSpecialtyCards\(site,"cursos"/);
   assert.match(variant,/data-universal-section="cursos"/);
