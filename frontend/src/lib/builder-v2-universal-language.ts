@@ -239,7 +239,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const index=before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
  const previous=site.blocks[index-1];
  if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
- const numbered=[...instruction.matchAll(/(?:^|\n)\s*(\d{1,2})[.)]\s*([^:\n]+):\s*([^\n]+)/g)].map(m=>({title:m[2].trim(),description:m[3].trim()}));
+ const numbered=[...instruction.matchAll(/(?:^|\n)\s*(\d{1,2})[.)]\s*([^:\n—–]+?)\s*(?::|[—–])\s*([^\n]+)/g)].map(m=>({title:m[2].trim(),description:m[3].trim()}));
  const countWord=instruction.match(/(?:crie|adicione|inclua|com|contendo|tenha|possua)\s+(?:(?:\w+\s+){0,2})?(um|dois|duas|tr[eê]s|quatro|cinco|seis|\d{1,2})\s+cards?/i)?.[1];
  const quantities:Record<string,number>={um:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6};
  const requestedCount=countWord?(quantities[normalized(countWord)]??Number(countWord)):null;
