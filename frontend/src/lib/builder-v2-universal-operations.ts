@@ -30,7 +30,7 @@ export function summarizeUniversalEdit(result:{changedIds:string[];requestedCoun
  }
  return "Edição universal aplicada a "+changed+" bloco(s). Demais conteúdos preservados.";
 }
-const allowed=new Set(["text","href","src","color","background","align","fontSize","fontFamily","mobileFontSize","textColor","radius","spacing","layout","columns","imageFit","imagePosition","mobileSrc","cardBorderWidth","cardBorderColor","cardShadow","marginBottom"]);
+const allowed=new Set(["text","href","src","color","background","align","cardTitleAlign","fontSize","fontFamily","mobileFontSize","textColor","radius","spacing","layout","columns","imageFit","imagePosition","mobileSrc","cardBorderWidth","cardBorderColor","cardShadow","marginBottom"]);
 const record=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==="object"&&!Array.isArray(value);
 export function isSafeUniversalUrl(value:unknown,image=false):boolean {
  if(typeof value!=="string"||!value||/[\\\s\u0000-\u001f\u007f]/.test(value))return false;
@@ -58,6 +58,7 @@ function validateChanges(changes:Record<string,unknown>):string|null {
   if(value!==undefined&&(typeof value!=="number"||!Number.isFinite(value)||value<min||value>max||(key==="columns"&&!Number.isInteger(value))))return "Valor inválido: "+key;
  }
  if(changes.align!==undefined&&!["left","center","right"].includes(String(changes.align)))return "Alinhamento inválido.";
+ if(changes.cardTitleAlign!==undefined&&!["left","center","right"].includes(String(changes.cardTitleAlign)))return "Alinhamento de título inválido.";
  if(changes.layout!==undefined&&!["hero","grid","split","banner","faq","gallery","standard","timeline-vertical"].includes(String(changes.layout)))return "Layout inválido.";
  if(changes.imageFit!==undefined&&!["cover","contain"].includes(String(changes.imageFit)))return "Ajuste de imagem inválido.";
  return null;
