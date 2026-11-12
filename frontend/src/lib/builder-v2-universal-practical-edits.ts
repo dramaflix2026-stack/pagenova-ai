@@ -57,7 +57,12 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
  if(heroPhoto){
   const hero=resolveUniversalSection(site,"capa");
   if(!hero)return fail("A capa não foi encontrada. Nenhuma alteração aplicada.");
-  const image=site.blocks.find(b=>b.section===hero&&b.type==="image");
+  // TP2 architecture renders the hero from the first image in the media inventory,
+  // regardless of the block's section label. Target the actual rendered source.
+  const tp2Architecture=/arquitetur|design de interiores|interior design|arquiteto/i.test([site.niche,site.title,site.header&&typeof site.header==="object"?(site.header as {brand?:string}).brand:""].join(" "));
+  const image=tp2Architecture
+   ?site.blocks.find(b=>b.type==="image"&&typeof b.src==="string"&&b.src.trim()&&!b.id.startsWith("universal-extra-card-"))
+   :site.blocks.find(b=>b.section===hero&&b.type==="image");
   if(!image)return fail("A imagem principal não possui bloco editável. Nenhuma alteração aplicada.");
   const url=heroPhoto[1].match(/https:\/\/[^\s"'“”<>]+/)?.[0]?.replace(/[.,;]+$/,"")||verifiedPhoto(site,heroPhoto[1]);
   if(!url)return fail("Não foi localizada fotografia real adequada. A imagem anterior foi preservada.");
