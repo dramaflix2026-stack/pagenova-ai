@@ -258,7 +258,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
   if(!labels.length&&region){
    const parts=region.split(/\s*,\s*/).map(label=>label.trim().replace(/[.!]+$/,"")).filter(Boolean);
-   const unquoted=parts.length===requestedCount?parts:parts.length===requestedCount-1?parts.flatMap((part,index)=>index===parts.length-1?part.split(/\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i):[part]):parts;
+   const unquoted=requestedCount!==null&&parts.length===requestedCount?parts:requestedCount!==null&&parts.length===requestedCount-1?parts.flatMap((part,index)=>index===parts.length-1?part.split(/\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i):[part]):parts;
    if(requestedCount!==null&&unquoted.length>requestedCount){
     const last=unquoted.splice(requestedCount-1).join(" e ");unquoted.push(last);
    }
