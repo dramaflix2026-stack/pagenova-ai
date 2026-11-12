@@ -181,13 +181,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
-    if(authError||!user)return;
+    if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);return;}
     const {error:insertError}=await client.from("builder_editor_learning_events").insert({
       id:event.id,user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
-    if(insertError)return;
+    if(insertError){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return;}
     const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
     const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
     if(reviewed==="approved"||reviewed==="rejected")await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
