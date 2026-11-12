@@ -187,10 +187,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
-    if(insertError){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return;}
+    if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return;}
     const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
     const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
-    if(reviewed==="approved"||reviewed==="rejected")await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
+    if(reviewed==="approved"||reviewed==="rejected"){
+      const {error:reviewError}=await client.from("builder_editor_learning_events").update({review_status:reviewed,reviewed_at:new Date().toISOString()}).eq("id",event.id).eq("user_id",user.id);
+      if(reviewError)console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);
+    }
   }catch{/* Supabase connectivity must never block site editing. */}
 }
 function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
@@ -285,7 +288,7 @@ export default function BuilderV2() {
       setReviewCandidate({id:reviewCandidate.id,status});
       const client=createSupabaseBrowserClient();
       const {data:{user}}=await client.auth.getUser();
-      if(user){const {error}=await client.from("builder_editor_learning_events").update({review_status:status,reviewed_at:new Date().toISOString()}).eq("id",reviewCandidate.id).eq("user_id",user.id);if(!error)void refreshApprovedExperiences();}
+      if(user){await syncEditorLearningEvent(event);void refreshApprovedExperiences();}
     }catch{/* Keep local review if cloud is temporarily unavailable. */}
   }
   function captureReviewCandidate(){
