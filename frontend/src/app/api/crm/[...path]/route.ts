@@ -67,7 +67,10 @@ async function proxy(request: NextRequest, context: RouteContext) {
   const method = request.method.toUpperCase();
   if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
     const origin = request.headers.get("origin");
-    if (origin && origin !== request.nextUrl.origin) {
+    const allowedOrigins = new Set([request.nextUrl.origin, "https://pagenovaai.com.br", "https://www.pagenovaai.com.br"]);
+    // Reverse proxies may expose their internal origin through nextUrl; only
+    // explicitly trusted public PageNova origins are accepted in addition.
+    if (origin && !allowedOrigins.has(origin)) {
       return NextResponse.json(
         { error: { code: "FORBIDDEN", message: "Origem da requisicao nao autorizada." } },
         { status: 403 },
