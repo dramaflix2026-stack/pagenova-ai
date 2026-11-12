@@ -56,3 +56,10 @@ test("TP2 footer overrides the legacy global four-column rule on its direct chil
  assert.match(models[1],/className="tp2m2-footer pn-tp2-footer"/);
  assert.match(models[2],/isMaterials\?" pnmat-m3-footer":" pn-tp2-footer"/);
 });
+
+test("architecture hero respects explicit image edits instead of restoring stock photo",()=>{
+ const model=models[0];
+ assert.match(model,/block\.userUploaded\|\|block\.imageExplicit/);
+ assert.match(model,/block\.src/);
+ assert.match(model,/src=\{photo\(0\)\}/);
+});
