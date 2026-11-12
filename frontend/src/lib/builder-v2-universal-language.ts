@@ -19,7 +19,9 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   if(headings.length!==1)return {ok:false,error:"O título da seção não possui um único bloco editável. Nenhuma alteração aplicada."};
   const heading=headings[0],value=namedSectionTitle[2].trim();
   if(!value||heading.text===value)return {ok:false,error:"O novo título está vazio ou já está aplicado. Nenhuma alteração aplicada."};
-  return applyUniversalOperations(site,[{action:"update",blockId:heading.id,changes:{text:value,textExplicit:true}}]);
+  const changed=applyUniversalOperations(site,[{action:"update",blockId:heading.id,changes:{text:value}}]);
+  if(!changed.ok)return changed;
+  return {ok:true,site:{...changed.site,blocks:changed.site.blocks.map(b=>b.id===heading.id?{...b,textExplicit:true}:b)} as T,changedIds:changed.changedIds};
  }
  // A scoped heading request takes precedence over mentions of images to PRESERVE.
  const scopedHeroTitle=instruction.match(/^na\\s+primeira\\s+se[cç][aã]o\\s*(?:\\(\\s*hero\\s*\\))?\\s*,?\\s*altere\\s+(?:somente\\s+|apenas\\s+)?o\\s+t[ií]tulo\\s+principal\\s+para\\s+['"“]([^'"”]+)['"”]/i);
