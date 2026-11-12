@@ -1298,5 +1298,8 @@ test("new named section without explicit position is placed before contact and p
  if(!result?.ok)return;
  const blocks=result.site.blocks.filter(b=>b.section==="custom-nosso-processo-criativo");
  assert.deepEqual(blocks.filter(b=>b.type==="heading").map(b=>b.text),["Nosso Processo Criativo","Briefing e Imersão","Desenvolvimento do Projeto","Entrega e Acompanhamento"]);
+ assert.equal(new Set(blocks.filter(b=>b.type==="paragraph").map(b=>b.text)).size,3,"Each process card must have its own meaningful description");
+ assert.ok(blocks.some(b=>b.type==="paragraph"&&/briefing|necessidades|objetivos/i.test(b.text)),"Briefing copy should describe discovery");
+ assert.ok(blocks.some(b=>b.type==="paragraph"&&/propostas|solu[cç][oõ]es/i.test(b.text)),"Development copy should describe project work");
  assert.ok(result.site.blocks.findIndex(b=>b.id==="contact-heading")>result.site.blocks.findIndex(b=>b.id===blocks.at(-1)?.id));
 });
