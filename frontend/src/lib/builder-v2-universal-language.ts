@@ -235,14 +235,15 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const name=(request[1]||request[2]||request[3]||request[4]||"").trim();
  if(!name)return {ok:false,error:"Informe o nome da nova seção."};
  const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:(?:das|dos|da|do|de|as|os|a|o)\b\s+)?(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
- if(!destination)return {ok:false,error:"A posição da nova seção não foi identificada. Nada foi alterado."};
- const targetLabel=destination[2].trim().replace(/\s+(?:com|contendo|que)\s+.*$/i,"").trim();
- const target=resolveUniversalSection(site,targetLabel);
- if(!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
+ if(!destination && !site.blocks.length)return {ok:false,error:"O site não possui seções para posicionar a nova seção."};
+ const targetLabel=destination?.[2]?.trim().replace(/\s+(?:com|contendo|que)\s+.*$/i,"").trim();
+ const target=targetLabel?resolveUniversalSection(site,targetLabel):null;
+ if(destination&&!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
  const sectionId="custom-"+normalized(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
- const before=normalized(destination[1])==="antes";
- const index=before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1;
+ const before=destination?normalized(destination[1])==="antes":false;
+ const defaultAnchor=site.blocks.findIndex(b=>/^(contact|contato|footer|rodape|localizacao|location)(?:-|$)/i.test(String(b.section||"")));
+ const index=destination?(before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1):(defaultAnchor>0?defaultAnchor:site.blocks.length);
  const previous=site.blocks[index-1];
  if(!previous)return {ok:false,error:"Não foi possível inserir a seção nessa posição."};
  const numbered=[...instruction.matchAll(/(?:^|\n)\s*(\d{1,2})[.)]\s*([^:\n—–]+?)\s*(?::|[—–])\s*([^\n]+)/g)].map(m=>({title:m[2].trim(),description:m[3].trim()}));
@@ -255,6 +256,10 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
   const region=instruction.match(/cards?\s+com\s+os\s+t[ií]tulos?\s+([\s\S]+?)(?=\.\s|\s+Cada card\b|$)/i)?.[1]
    ||instruction.match(/cards?\s*:\s*([\s\S]+?)(?=\.\s|\s+Cada card\b|$)/i)?.[1]||"";
   const labels=[...region.matchAll(/["“]([^"”]{2,120})["”]/g)].map(m=>m[1].trim());
+  if(!labels.length&&region){
+   const unquoted=region.split(/\s*,\s*|\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/i).map(label=>label.trim().replace(/[.!]+$/,"")).filter(Boolean);
+   if(unquoted.length>=2&&unquoted.length<=12)labels.push(...unquoted);
+  }
   if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();return {title,description:descriptions[key]||"Atuamos com critérios técnicos claros, acompanhamento dedicado e soluções alinhadas às necessidades de cada projeto."};});
  }
  // An ordinary four-differential request should not require the user to supply card titles.
