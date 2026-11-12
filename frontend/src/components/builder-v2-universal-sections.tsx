@@ -14,7 +14,7 @@ export function UniversalTemplateSections({site,children,customSectionTheme}:{si
  const inferredTheme=(section:string)=>{
   const first=(site.blocks||[]).findIndex(b=>b.section===section);
   const next=(site.blocks||[]).slice(first+1).find(b=>b.section&&!b.section.startsWith("custom-"))?.section;
-  const candidate=templateNodes.find(node=>keyOf(node)===next)||templateNodes.find(node=>keyOf(node)==="processo")||templateNodes[0];
+  const candidate=templateNodes.find(node=>keyOf(node)==="processo")||templateNodes.find(node=>keyOf(node)===next)||templateNodes[0];
   const classes=isValidElement<{className?:string}>(candidate)?String(candidate.props.className||""):"";
   const background=classes.match(/(?:^|\\s)bg-\\[#([0-9a-fA-F]{6})\\]/)?.[1];
   const cardAccent=classes.match(/(?:^|\\s)border-t-\\[#([0-9a-fA-F]{6})\\]/)?.[1];
