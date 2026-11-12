@@ -401,11 +401,11 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
  // Update existing process cards in place; preservation constraints are not separate actions.
- const existingProcessEdit=instruction.match(/^na\\s+se[cç][aã]o\\s+["“]([^"”]+)["”]\\s*,?\\s*mantenha\\s+os\\s+(?:tr[eê]s|3)\\s+cards\\s+existentes\\s+e\\s+substitua\\s+somente\\s+suas\\s+descri[cç][oõ]es\\b/i);
+ const existingProcessEdit=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*mantenha\s+os\s+(?:tr[eê]s|3)\s+cards\s+existentes\s+e\s+substitua\s+somente\s+suas\s+descri[cç][oõ]es\b/i);
  if(existingProcessEdit){
   const section=resolveUniversalSection(site,existingProcessEdit[1]);
   if(!section)return {ok:false,error:"Seção não encontrada. Nenhuma alteração aplicada."};
-  const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+  const normalize=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
   const entries=site.blocks.filter(b=>b.section===section);
   const updates:UniversalOperation[]=[];
   for(let index=0;index<entries.length;index++){
