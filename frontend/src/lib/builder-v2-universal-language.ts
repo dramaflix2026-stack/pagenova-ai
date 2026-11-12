@@ -377,7 +377,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
  // Paired hero copy must be committed atomically, not partially by a single-action matcher.
- const pairedHeroCopy=instruction.match(/^(?:na\\s+(?:primeira\\s+se[cç][aã]o|capa|hero)\\s*,?\\s*)?(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+(?:principal\\s+)?(?:da\\s+capa\\s+)?para\\s+["“]([^"”]+)["”]\\s+e\\s+o\\s+subt[ií]tulo\\s+para\\s+["“]([^"”]+)["”]/i);
+ const pairedHeroCopy=instruction.match(/^(?:na\s+(?:primeira\s+se[cç][aã]o|capa|hero)\s*,?\s*)?(?:altere|troque|mude|substitua)\s+o\s+t[ií]tulo\s+(?:principal\s+)?(?:da\s+capa\s+)?para\s+["“]([^"”]+)["”]\s+e\s+o\s+subt[ií]tulo\s+para\s+["“]([^"”]+)["”]/i);
  if(pairedHeroCopy){
   const hero=resolveUniversalSection(site,"capa")||site.blocks.find(b=>b.type==="heading")?.section;
   const heading=site.blocks.find(b=>b.section===hero&&b.type==="heading");
