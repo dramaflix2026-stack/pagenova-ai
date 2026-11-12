@@ -1289,3 +1289,14 @@ test("regression: hero image replacement cannot report success without changing 
  assert.equal(result?.ok,false,"An unchanged hero image must never be acknowledged as replaced");
  assert.equal(original.blocks[1].src,url);
 });
+
+
+test("new named section without explicit position is placed before contact and preserves card titles",()=>{
+ const original=site();original.blocks.push({id:"contact-heading",type:"heading",section:"contact",text:"Contato"});
+ const result=applyUniversalNaturalLanguage(original,'Adicione uma seção chamada "Nosso Processo Criativo", com três cards: Briefing e Imersão, Desenvolvimento do Projeto e Entrega e Acompanhamento. Mantenha a identidade visual, tipografia, cores, espaçamentos e acabamento premium do site existente.');
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No result");
+ if(!result?.ok)return;
+ const blocks=result.site.blocks.filter(b=>b.section==="custom-nosso-processo-criativo");
+ assert.deepEqual(blocks.filter(b=>b.type==="heading").map(b=>b.text),["Nosso Processo Criativo","Briefing e Imersão","Desenvolvimento do Projeto","Entrega e Acompanhamento"]);
+ assert.ok(result.site.blocks.findIndex(b=>b.id==="contact-heading")>result.site.blocks.findIndex(b=>b.id===blocks.at(-1)?.id));
+});
