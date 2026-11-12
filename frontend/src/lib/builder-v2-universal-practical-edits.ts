@@ -28,6 +28,14 @@ const stripConstraints=(s:string)=>s.trim().replace(/\.\s*(?:preserve|mantenha|n
 
 export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  const text=stripConstraints(instruction);
+ // Atomic three-color section edit: never acknowledge just the first color.
+ const palette=text.match(/^na\s+se[cç][aã]o\s+["“]?([^"”,]+)["”]?,?\s+altere\s+a\s+cor\s+de\s+fundo\s+para\s+(#[a-f0-9]{6}),?\s+a\s+cor\s+dos\s+t[ií]tulos\s+para\s+(#[a-f0-9]{6})\s+e\s+a\s+cor\s+das\s+descri[cç][oõ]es\s+para\s+(#[a-f0-9]{6})/i);
+ if(palette){
+  const section=resolveUniversalSection(site,palette[1].trim());
+  if(!section)return fail("A seção solicitada não foi encontrada. Nenhuma alteração aplicada.");
+  const current=site.universalSectionStyles&&typeof site.universalSectionStyles==="object"?site.universalSectionStyles as Record<string,Record<string,unknown>>:{};
+  return {ok:true,site:{...site,universalSectionStyles:{...current,[section]:{...current[section],backgroundColor:palette[2],headingColor:palette[3],cardTitleColor:palette[3],descriptionColor:palette[4],cardDescriptionColor:palette[4]}}} as T,changedIds:["section-style:"+section]};
+ }
  // Explicit section background, with optional named color before the hex value.
  const sectionBg=text.match(/^(?:altere|troque|mude)\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+["“]?(.+?)["”]?\s+para\s+(?:[\p{L}-]+\s+)*\(?(#[a-f0-9]{6})\)?/iu);
  if(sectionBg){
