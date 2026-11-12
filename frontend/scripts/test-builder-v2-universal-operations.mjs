@@ -1318,3 +1318,19 @@ test("existing creative process cards update descriptions without duplicating se
  assert.deepEqual(updated.filter(b=>b.type==="heading").map(b=>b.text),old.filter(b=>b.type==="heading").map(b=>b.text));
  assert.equal(new Set(updated.filter(b=>b.type==="paragraph").map(b=>b.text)).size,3);
 });
+
+test("scoped process alignment changes only four headings and keeps descriptions left",()=>{
+ const created=applyUniversalNaturalLanguage(site(),'Adicione uma seção chamada "Nosso Processo Criativo", com três cards: Briefing e Imersão, Desenvolvimento do Projeto e Entrega e Acompanhamento.');
+ assert.equal(created?.ok,true);
+ if(!created?.ok)return;
+ const original=created.site;
+ const result=applyUniversalNaturalLanguage(original,'Na seção "Nosso Processo Criativo", centralize o título principal da seção e os títulos dos três cards. Mantenha as descrições alinhadas à esquerda. Preserve a ordem atual dos cards, todos os textos, cores, fontes, espaçamentos e demais elementos visuais. Não crie nem remova nada.');
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No result");
+ if(!result?.ok)return;
+ const section="custom-nosso-processo-criativo";
+ assert.equal(result.site.blocks.filter(b=>b.section===section&&b.type==="heading"&&b.align==="center").length,4);
+ assert.equal(result.site.blocks.filter(b=>b.section===section&&b.type==="paragraph"&&b.align==="left").length,3);
+ assert.deepEqual(result.site.blocks.map(b=>b.id),original.blocks.map(b=>b.id));
+ assert.deepEqual(result.site.blocks.filter(b=>b.section!==section),original.blocks.filter(b=>b.section!==section));
+ assert.deepEqual(result.site.blocks.map(b=>b.text),original.blocks.map(b=>b.text));
+});
