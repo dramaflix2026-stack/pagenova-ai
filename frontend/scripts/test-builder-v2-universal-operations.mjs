@@ -1364,3 +1364,33 @@ test("Motor Universal 1 rejects fabricated success and unrelated mutations",()=>
  changed.blocks[0].text="Edited";changed.blocks[1].text="Unrequested edit";
  assert.equal(verifyUniversalEditResult(original,changed,["h"]).ok,false);
 });
+
+test("Motor Universal 1 replaces an existing hero image without modifying other blocks",()=>{
+ const original=site();
+ original.blocks.splice(1,0,{id:"hero-image",type:"image",section:"hero",src:"https://example.com/old.jpg",mobileSrc:"https://example.com/old-mobile.jpg"});
+ const result=applyUniversalOperations(original,[{action:"update",blockId:"hero-image",changes:{src:"https://example.com/new.jpg",mobileSrc:"https://example.com/new-mobile.jpg"}}]);
+ assert.equal(result.ok,true,result.ok?"":result.error);
+ if(!result.ok)return;
+ assert.equal(result.site.blocks.find(b=>b.id==="hero-image").src,"https://example.com/new.jpg");
+ assert.equal(result.site.blocks.find(b=>b.id==="hero-image").mobileSrc,"https://example.com/new-mobile.jpg");
+ assert.deepEqual(result.site.blocks.filter(b=>b.id!=="hero-image"),original.blocks.filter(b=>b.id!=="hero-image"));
+ assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+});
+test("Motor Universal 1 removes a section without touching other sections",()=>{
+ const original=site();
+ const result=applyUniversalOperations(original,[{action:"remove-section",sectionId:"faq"}]);
+ assert.equal(result.ok,true,result.ok?"":result.error);
+ if(!result.ok)return;
+ assert.deepEqual(result.site.blocks.map(b=>b.id),["h","cta","s","c1"]);
+ assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+});
+test("Motor Universal 1 aligns a heading without changing its copy",()=>{
+ const original=site();
+ const result=applyUniversalOperations(original,[{action:"update",blockId:"h",changes:{align:"center"}}]);
+ assert.equal(result.ok,true,result.ok?"":result.error);
+ if(!result.ok)return;
+ assert.equal(result.site.blocks[0].align,"center");
+ assert.equal(result.site.blocks[0].text,"Original");
+ assert.deepEqual(result.site.blocks.slice(1),original.blocks.slice(1));
+ assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+});
