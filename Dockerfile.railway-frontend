@@ -3,7 +3,7 @@ FROM node:24-bookworm-slim
 WORKDIR /workspace
 COPY . .
 WORKDIR /workspace/frontend
-RUN npm ci
+RUN npm ci --no-audit --no-fund --loglevel=verbose --fetch-retries=2 --fetch-timeout=120000
 
 # Next.js embeds NEXT_PUBLIC_* variables into browser bundles at build time.
 ARG NEXT_PUBLIC_SUPABASE_URL
