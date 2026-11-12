@@ -73,6 +73,12 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
  const moveSection=text.match(/^(?:mova|mover|reposicione)\s+(?:a\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s+(?:para\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:com\s+)?id\s+["“”']?([a-zA-Z0-9_-]+)["“”']?\s*\.?$/i);
  if(moveSection)return applyUniversalOperations(site,[{action:"move-section",sectionId:moveSection[1],afterSectionId:moveSection[2]}]);
  const resolveSection=(label:string):{id:string}|{error:string}=>{const id=resolveUniversalSection(site,label);return id?{id}:{error:"Seção não encontrada ou ambígua. Nenhuma alteração aplicada."};};
+ const fullSectionRemove=text.match(/^(?:remova|exclua|apague)\s+(?:completamente\s+)?(?:a\s+)?se[cç][aã]o\s+["“”']([^"“”']+)["“”'](?:\s+que\s+acabamos\s+de\s+adicionar)?(?:\s*,[\s\S]*)?$/i);
+ if(fullSectionRemove){
+  const section=resolveSection(fullSectionRemove[1]);
+  if("error" in section)return {ok:false,error:section.error};
+  return applyUniversalOperations(site,[{action:"remove-section",sectionId:section.id}]);
+ }
  const namedRemove=text.match(/^(?:remova|exclua|apague)\s+(?:a\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s*\.?$/i);
  if(namedRemove&&!/^id\s+/i.test(namedRemove[1])){
   const section=resolveSection(namedRemove[1]);
