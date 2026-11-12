@@ -1258,3 +1258,21 @@ test("hero image natural-language aliases change only the requested image",()=>{
   assert.equal(original.blocks[1].src,"https://example.com/old.jpg");
  }
 });
+
+test("regression: Atelier Forma paired hero title and subtitle update atomically",()=>{
+ const original={...site(),blocks:[
+  {id:"hero-title",type:"heading",section:"hero",text:"Título antigo"},
+  {id:"hero-subtitle",type:"paragraph",section:"hero",text:"Descrição antiga"},
+  {id:"hero-button",type:"button",section:"hero",text:"Conheça nosso trabalho",href:"#services"},
+  ...site().blocks.filter(b=>b.section!=="hero")
+ ]};
+ const prompt='Na primeira seção, altere o título principal para "Arquitetura que transforma espaços" e o subtítulo para "Projetos exclusivos que unem estética, funcionalidade e personalidade". Preserve todos os demais elementos do site.';
+ const result=applyUniversalNaturalLanguage(original,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.equal(result.site.blocks[0].text,"Arquitetura que transforma espaços");
+ assert.equal(result.site.blocks[1].text,"Projetos exclusivos que unem estética, funcionalidade e personalidade");
+ assert.deepEqual(result.site.blocks[2],original.blocks[2]);
+ assert.equal(result.changedIds.includes("hero-title"),true);
+ assert.equal(result.changedIds.includes("hero-subtitle"),true);
+});
