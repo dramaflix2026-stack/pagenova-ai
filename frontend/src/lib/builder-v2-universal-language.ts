@@ -264,8 +264,8 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    }
    if(unquoted.length>=2&&unquoted.length<=12)labels.push(...unquoted);
   }
-  if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=title.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
-   const sectionKey=name.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase();
+  if(labels.length)cards=labels.map(title=>{const descriptions:Record<string,string>={"seguranca":"Aplicamos critérios técnicos, procedimentos preventivos e verificações contínuas para proteger pessoas e assegurar a execução responsável.","transparência":"Mantemos comunicação clara sobre etapas, decisões e entregas, com acompanhamento acessível ao cliente.","excelencia tecnica":"Unimos planejamento, conhecimento especializado e controle rigoroso para entregar soluções confiáveis e bem executadas."};const key=normalized(title);
+   const sectionKey=normalized(name);
    const isCreativeProcess=/processo|metodologia|etapas|jornada|fluxo/.test(sectionKey);
    const stageCopy=isCreativeProcess?(
     /briefing|imersao|diagnostico|descoberta|levantamento|planejamento/.test(key)?"Começamos ouvindo suas necessidades, entendendo o espaço e definindo objetivos, referências e prioridades que orientam o projeto.":
