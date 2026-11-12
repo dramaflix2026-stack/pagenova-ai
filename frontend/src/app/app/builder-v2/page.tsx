@@ -789,7 +789,7 @@ export default function BuilderV2() {
       const sectionBackgroundRequest=!hasAttachments&&/^na\s+se[cç][aã]o\s+["“]?[^\n]{2,110}?["”]?,?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+/i.test(prompt);
       if(sectionBackgroundRequest){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok){recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
       }
       const targetedMethodPhoto=!hasAttachments&&imageChange&&/nossa metodologia/i.test(prompt)&&/(?:segundo|2[oº°]?|planejamento)/i.test(prompt)&&/(?:substitu|troqu|alter)/i.test(prompt)&&/(?:fotografia|foto|imagem)/i.test(prompt);
       if(targetedMethodPhoto){
@@ -799,6 +799,9 @@ export default function BuilderV2() {
         if(!customSection||!card){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Não identifiquei o card Planejamento de Nossa Metodologia. Nenhuma fotografia foi alterada."}]);return;}
         const photoUrl="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=82";
         const next={...site,blocks:site.blocks.map(b=>b.id===card.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true}:b)};
+        const photoVerification=verifyUniversalEditResult(site,next,[card.id]);
+        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card");captureReviewCandidate();
         recordVersion(site,"Antes da troca de fotografia do card");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(next);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alterada somente a fotografia do card Planejamento em Nossa Metodologia. Outras imagens preservadas."}]);return;
       }
