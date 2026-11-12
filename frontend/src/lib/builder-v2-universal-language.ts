@@ -9,6 +9,18 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // Explicit named-section title replacement: two quoted spans identify the section and new copy.
+ // Never mistake the section name for the requested replacement text.
+ const namedSectionTitle=instruction.match(/^(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+da\\s+se[cç][aã]o\\s+[\"“]([^\"”]{1,130})[\"”]\\s+(?:para|por)\\s+[\"“]([^\"”]{1,300})[\"”](?:\\s*[,.;]?[\\s\\S]*)?$/i);
+ if(namedSectionTitle){
+  const section=resolveUniversalSection(site,namedSectionTitle[1].trim());
+  if(!section)return {ok:false,error:"A seção indicada não foi identificada de forma única. Nenhuma alteração aplicada."};
+  const headings=site.blocks.filter(b=>b.section===section&&b.type==="heading");
+  if(headings.length!==1)return {ok:false,error:"O título da seção não possui um único bloco editável. Nenhuma alteração aplicada."};
+  const heading=headings[0],value=namedSectionTitle[2].trim();
+  if(!value||heading.text===value)return {ok:false,error:"O novo título está vazio ou já está aplicado. Nenhuma alteração aplicada."};
+  return applyUniversalOperations(site,[{action:"update",blockId:heading.id,changes:{text:value,textExplicit:true}}]);
+ }
  // A scoped heading request takes precedence over mentions of images to PRESERVE.
  const scopedHeroTitle=instruction.match(/^na\\s+primeira\\s+se[cç][aã]o\\s*(?:\\(\\s*hero\\s*\\))?\\s*,?\\s*altere\\s+(?:somente\\s+|apenas\\s+)?o\\s+t[ií]tulo\\s+principal\\s+para\\s+['"“]([^'"”]+)['"”]/i);
  if(scopedHeroTitle){
