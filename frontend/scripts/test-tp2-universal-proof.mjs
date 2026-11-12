@@ -59,7 +59,7 @@ test("TP2 footer overrides the legacy global four-column rule on its direct chil
 
 test("architecture hero respects explicit image edits instead of restoring stock photo",()=>{
  const model=models[0];
- assert.match(model,/block\.userUploaded\|\|block\.imageExplicit/);
+ assert.match(model,/block\.userUploaded\|\|\("imageExplicit" in block&&block\.imageExplicit===true\)/);
  assert.match(model,/block\.src/);
  assert.match(model,/src=\{photo\(0\)\}/);
 });
