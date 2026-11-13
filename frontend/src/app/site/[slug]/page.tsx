@@ -60,7 +60,7 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
   }:payload.site;
   // Published snapshots must consume the same persisted universal section styles
   // as the Builder preview; these edits are not necessarily native template props.
-  const sectionStyles=publishedSite.universalSectionStyles;
+  const sectionStyles=(publishedSite as BuilderV2SiteData & {universalSectionStyles?:Record<string,unknown>}).universalSectionStyles;
   const sectionCss=sectionStyles&&typeof sectionStyles==="object"&&!Array.isArray(sectionStyles)
     ?Object.entries(sectionStyles as Record<string,unknown>).flatMap(([section,raw])=>{
       if(!/^[a-zA-Z0-9_-]{1,80}$/.test(section)||!raw||typeof raw!=="object"||Array.isArray(raw))return [];
