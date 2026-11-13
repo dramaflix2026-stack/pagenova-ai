@@ -46,7 +46,7 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   const id="universal-banner-"+(existing.length+1);
   return {ok:true,site:{...site,universalBanners:[...existing,{id,afterSection:first,beforeSection:second,text:message[1],backgroundColor:bg[1],textColor:"#FFFFFF"}]},changedIds:[id]};
  }
- const sectionBackground=instruction.match(/^(?:na\s+)?se[cç][aã]o\s+(.+?),?\s+altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+para\s+(#[0-9a-f]{6})/i)
+ const sectionBackground=instruction.match(/^(?:na\s+)?se[cç][aã]o\s+(.+?),?\s+(?:altere|mude|troque|coloque|deixe)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da\s+se[cç][aã]o\s+)?(?:para|em|com)\s+(#[0-9a-f]{6})/i)
   ||instruction.match(/^altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(#[0-9a-f]{6})/i);
  if(sectionBackground){
   const section=resolveUniversalSection(site,sectionBackground[1].trim().replace(/,$/,"").trim().replace(/^[\s"“”\u0027‘’]+|[\s"“”\u0027‘’]+$/g,""));
