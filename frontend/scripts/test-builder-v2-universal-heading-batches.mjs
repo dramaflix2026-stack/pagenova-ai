@@ -231,3 +231,17 @@ test("customer can add three untitled differential cards before contact",()=>{
  assert.ok(result.site.blocks.findIndex(block=>block.id===inserted[0].id)<result.site.blocks.findIndex(block=>block.id==="contact-heading"));
  assert.equal(verifyUniversalEditResult(before,result.site,result.changedIds).ok,true);
 });
+
+
+test("ordinary service heading alignment changes only headings in that section",()=>{
+ const before=create();
+ before.blocks.push({id:"services-title",type:"heading",section:"servicos",text:"Nossos serviços",align:"left"},{id:"services-description",type:"paragraph",section:"servicos",text:"Descrição preservada",align:"left"});
+ const result=applyUniversalNaturalLanguage(before,"Centralize os títulos da seção de serviços sem alterar os parágrafos.");
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.deepEqual(result.changedIds,["services-title"]);
+ assert.equal(result.site.blocks.find(b=>b.id==="services-title").align,"center");
+ assert.equal(result.site.blocks.find(b=>b.id==="services-title").alignExplicit,true);
+ assert.deepEqual(result.site.blocks.find(b=>b.id==="services-description"),before.blocks.find(b=>b.id==="services-description"));
+ assert.equal(verifyUniversalEditResult(before,result.site,result.changedIds).ok,true);
+});
