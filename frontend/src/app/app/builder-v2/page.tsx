@@ -333,19 +333,30 @@ export default function BuilderV2() {
   },[]);
   async function reviewLastEdit(status:"approved"|"rejected"){
     if(!reviewCandidate||reviewCandidate.status!=="pending")return;
+    const id=reviewCandidate.id;
     const key="pagenova:editor-learning-events:v1";
+    let event: {id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|undefined;
     try{
       const events=JSON.parse(localStorage.getItem(key)||"[]");
-      if(!Array.isArray(events))return;
-      const event=events.find((entry:{id?:string})=>entry.id===reviewCandidate.id);
-      if(!event||event.outcome!=="applied")return;
-      event.review=status;
-      localStorage.setItem(key,JSON.stringify(events));
-      setReviewCandidate({id:reviewCandidate.id,status});
-      const client=createSupabaseBrowserClient();
-      const {data:{user}}=await client.auth.getUser();
-      if(user){const synced=await syncEditorLearningEvent(event);void refreshApprovedExperiences();setLearningSyncNotice(synced?"Avaliação confirmada no Supabase.":"Avaliação salva neste dispositivo, mas a sincronização falhou. Será tentada novamente ao reconectar.");}else setLearningSyncNotice("Avaliação salva neste dispositivo. Entre na conta para sincronizar com o Supabase.");
-    }catch{/* Keep local review if cloud is temporarily unavailable. */}
+      if(Array.isArray(events)){
+        event=events.find((entry:{id?:string})=>entry.id===id&&entry.outcome==="applied");
+        if(event){
+          event.review=status;
+          localStorage.setItem(key,JSON.stringify(events));
+        }
+      }
+    }catch(error){console.warn("[editor-learning] Review local save failed",error);}
+    setReviewCandidate({id,status});
+    setLearningSyncNotice(event?"Avaliação registrada neste dispositivo. Sincronizando com o Supabase...":"Avaliação recebida, mas não foi possível localizar o evento local para sincronização.");
+    if(!event)return;
+    try{
+      const synced=await syncEditorLearningEvent(event);
+      setLearningSyncNotice(synced?"Avaliação confirmada no Supabase.":"Avaliação registrada neste dispositivo, mas NÃO sincronizada com o Supabase. A sincronização será tentada novamente ao reconectar.");
+      if(synced)void refreshApprovedExperiences();
+    }catch(error){
+      console.warn("[editor-learning] Review cloud sync failed",error);
+      setLearningSyncNotice("Avaliação registrada neste dispositivo, mas houve erro na sincronização com o Supabase.");
+    }
   }
   function captureReviewCandidate(){
     try{
