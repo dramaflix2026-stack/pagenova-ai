@@ -25,6 +25,7 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
   const retry = useRetrySiteJob(projectId);
   const generate = useGenerateSite(projectId);
 
+  const percent=job?.status==="SUCCEEDED"?100:job?.stage?Math.min(99,stageProgress(job.stage)):0;
   const completedStages = new Set(
     events.filter((e) => e.stage && (e.eventType === 'STAGE_STARTED' || e.eventType === 'COMPLETED')).map((e) => e.stage),
   );
@@ -54,6 +55,7 @@ export function SiteProgressView({ projectId, jobId, onCompleted }: SiteProgress
         ) : null}
       </div>
 
+      <div role="progressbar" aria-label="Progresso da geração do site" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent} className="space-y-2"><div className="flex items-center justify-between text-sm"><span>Progresso da geração</span><strong className="tabular-nums text-primary">{percent}%</strong></div><div className="h-3 overflow-hidden rounded-full bg-muted"><div className="h-full bg-primary transition-[width] duration-500" style={{width:`${percent}%`}} /></div></div>
       <ol className="space-y-2">
         {SITE_JOB_STAGES.map((stage) => (
           <StageRow
