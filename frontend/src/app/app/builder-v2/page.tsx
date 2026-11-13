@@ -243,7 +243,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
-    if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id}}));
+    if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
     void syncEditorLearningEvent(event).then(synced=>{
       window.dispatchEvent(new CustomEvent("pagenova:editor-learning-sync",{detail:{synced,id:event.id}}));
     });
@@ -301,6 +301,7 @@ export default function BuilderV2() {
   const [publishNotice,setPublishNotice] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
+  const reviewEventRef=useRef<{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|null>(null);
   const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
   const [cloudLearningCounts,setCloudLearningCounts]=useState<{total:number;approved:number;rejected:number;pending:number}|null>(null);
   const [learningSyncNotice,setLearningSyncNotice]=useState("");
@@ -324,7 +325,7 @@ export default function BuilderV2() {
       setLearningSyncNotice(detail?.synced?"Edição registrada no Supabase. Aguarde sua avaliação.":"Edição salva neste dispositivo, mas ainda NÃO registrada no Supabase. Confira a sessão e a conexão.");
       if(detail?.synced)void refreshApprovedExperiences();
     };
-    const onCaptured=(raw:Event)=>{const id=(raw as CustomEvent<{id:string}>).detail?.id;if(id)setReviewCandidate({id,status:"pending"});};
+    const onCaptured=(raw:Event)=>{const detail=(raw as CustomEvent<{id:string;event?:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}}>).detail;if(detail?.id){reviewEventRef.current=detail.event??null;setReviewCandidate({id:detail.id,status:"pending"});}};
     window.addEventListener("pagenova:editor-learning-captured",onCaptured);
     window.addEventListener("pagenova:editor-learning-sync",onLearningSync);
     window.addEventListener("online",retry);
@@ -346,6 +347,8 @@ export default function BuilderV2() {
         }
       }
     }catch(error){console.warn("[editor-learning] Review local save failed",error);}
+    if(!event&&reviewEventRef.current?.id===id)event=reviewEventRef.current;
+    if(event)event.review=status;
     setReviewCandidate({id,status});
     setLearningSyncNotice(event?"Avaliação registrada neste dispositivo. Sincronizando com o Supabase...":"Avaliação recebida, mas não foi possível localizar o evento local para sincronização.");
     if(!event)return;
