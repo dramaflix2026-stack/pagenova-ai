@@ -1,5 +1,9 @@
 # Railway frontend: full monorepo context required for CRM integration tests
 FROM node:24-bookworm-slim
+# The cloner needs a real browser to render JavaScript-driven landing pages.
+# Install Chromium and its runtime libraries in the production image.
+RUN apt-get update && apt-get install -y --no-install-recommends chromium ca-certificates fonts-liberation fonts-noto-color-emoji && rm -rf /var/lib/apt/lists/*
+ENV PAGENOVA_CHROMIUM_EXECUTABLE=/usr/bin/chromium
 WORKDIR /workspace
 COPY . .
 # Build the embedded CRM from its current source on every frontend deployment.
