@@ -590,3 +590,21 @@ test("TP5 model 02 does not create another About paragraph without an explicit e
  assert.equal($('#tp5m2-about [data-universal-copy-slot="sobre:paragraph:1"]').length,0);
  assert.equal($("#tp5m2-about .da-text-link").length,1);
 });
+
+
+test("edited heading color survives preview and published HTML without changing copy",()=>{
+ for(const templateId of ["institutional-complete","minimalist-sophisticated"]){
+  const before={...fixture(),templateId};
+  const after=structuredClone(before);
+  const heading=after.blocks.find(block=>block.id==="hero");
+  heading.color="#c2410c";heading.colorExplicit=true;
+  for(const publishedMode of [false,true]){
+   const $=render(after,publishedMode);
+   const target=$('[data-block-id="hero"]');
+   assert.equal(target.length,1,templateId+" hero should exist");
+   assert.match(target.attr("style")||"",/color:#c2410c/,templateId+" must render edited color");
+   assert.ok(target.text().includes("Título editado"),templateId+" must preserve heading text");
+   assert.ok(!($.html()||"").includes("color:#663399"),templateId+" must not retain old heading color");
+  }
+ }
+});
