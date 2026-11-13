@@ -71,6 +71,7 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   new RegExp("^(?:quero\\s+)?(?:deixar|deixe|colocar|coloque)\\s+(?:a\\s+)?(?:parte|se[cç][aã]o)\\s+(?:de|dos|da)\\s+(.+?)\\s+(?:com\\s+)?fundo\\s+"+colorPattern+"(?:\\b|$)","i")
  ];
  // Natural user phrasing: "Altere somente a cor de fundo da seção de serviços para azul escuro #142B49".
+ // Keep the explicit hexadecimal value authoritative when a descriptive color precedes it.
  // Match the explicit HEX as the final authority when a color name precedes it.
  const explicitSectionBackground=instruction.match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da|do|de)\s+(?:se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?)?(.+?)\s+(?:para|pra|em)\s+(?:(?:[\p{L}]+\s+){0,3})?(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})(?=\s|[.!?]|$)/iu);
  const sectionBackground=explicitSectionBackground||backgroundPatterns.map(pattern=>instruction.match(pattern)).find(Boolean);
