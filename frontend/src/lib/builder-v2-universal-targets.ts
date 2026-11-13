@@ -20,6 +20,19 @@ const aliases:Record<string,string[]>={
 export function resolveUniversalSection(site:UniversalSite,label:string):string|null{
  const target=norm(label).replace(/^(?:(?:a|o|as|os|de|da|do|das|dos)\s+)+/,"");
  const sections=[...new Set(site.blocks.map(b=>b.section).filter((v):v is string=>typeof v==="string"&&!!v))];
+ // A rendered section can use a generated identifier (e.g. "services-2")
+ // while its editorial eyebrow says "Nossos serviços". Match stable tokens
+ // without fabricating a section that does not exist in the editable inventory.
+ const canonical=target.replace(/^(?:nossos?|nossas?|meus?|minhas?|os|as)\s+/,"");
+ const targetTokens=canonical.split(/[\s_-]+/).filter(token=>token.length>=4);
+ if(targetTokens.length){
+  const tokenMatches=sections.filter(id=>{
+   const normalizedId=norm(id).replace(/[_-]+/g," ");
+   const words=normalizedId.split(/\s+/);
+   return targetTokens.every(token=>words.some(word=>word===token||word.startsWith(token)||token.startsWith(word)&&word.length>=5));
+  });
+  if(tokenMatches.length===1)return tokenMatches[0];
+ }
  // TP2 architecture renders the editorial heading "Nossa Abordagem" inside its numbers section.
  // Resolve that actual visible heading rather than guessing the generic process section.
  if(target==="nossa abordagem") {
