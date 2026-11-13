@@ -1452,6 +1452,16 @@ export default function BuilderV2() {
       if(site.cinematic?.mode && site.cinematic.mode!=="static" && incoming.cinematic?.mode!==site.cinematic.mode) incoming={...incoming,cinematic:{...site.cinematic,mode:site.cinematic.mode}};
       incoming=prepareTP1MakeupSite(incoming,shouldCreateProject?incoming.niche:selectedNiche);
       setSite(incoming);
+      // A verified generated-copy edit must be recorded under its actual
+      // strategy, otherwise the adaptive copy selector can never learn it.
+      if(scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&!creatingNewSite){
+        const beforeText=site.blocks.find(block=>block.id===scopedCopy.intent.targetId)?.text;
+        const afterText=incoming.blocks.find(block=>block.id===scopedCopy.intent.targetId)?.text;
+        if(typeof beforeText==="string"&&typeof afterText==="string"&&beforeText!==afterText){
+          recordEditorLearningEvent(site.niche||"",prompt,"applied","scoped-copy");
+          captureReviewCandidate();
+        }
+      }
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
          try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,shouldCreateProject?finishedSite.niche:selectedNiche);setSite(finishedSite); }
