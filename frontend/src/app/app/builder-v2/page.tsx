@@ -244,7 +244,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
-    if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
+    window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
     void syncEditorLearningEvent(event).then(synced=>{
       window.dispatchEvent(new CustomEvent("pagenova:editor-learning-sync",{detail:{synced,id:event.id}}));
     });
@@ -434,7 +434,7 @@ export default function BuilderV2() {
     try{
       const events=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
       const event=Array.isArray(events)?events[events.length-1]:null;
-      if(event?.id&&event.outcome==="applied")setReviewCandidate({id:event.id,status:"pending"});
+      if(event?.id&&["applied","rejected"].includes(event.outcome))setReviewCandidate({id:event.id,status:"pending"});
     }catch{/* Nonblocking telemetry. */}
   }
 
