@@ -73,6 +73,12 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  const oldOrder=before.blocks.map(b=>b.id),newOrder=after.blocks.map(b=>b.id);
  const moved=oldOrder.length===newOrder.length&&oldOrder.some((id,i)=>newOrder[i]!==id);
  for(const id of ids){
+  if(id==="primary-cta-theme"){
+   const previous=(before as Record<string,unknown>).universalPrimaryCtaColor;
+   const updated=(after as Record<string,unknown>).universalPrimaryCtaColor;
+   if(typeof updated!=="string"||!/^#[0-9a-fA-F]{6}$/.test(updated)||previous===updated)return reject("A cor dos CTAs não foi modificada.");
+   continue;
+  }
   if(id.startsWith("section-style:")){
    const section=id.slice("section-style:".length);
    const oldStyles=(before as Record<string,unknown>).universalSectionStyles as Record<string,unknown>|undefined;
@@ -107,6 +113,10 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
   for(const section of declaredStyleSections){delete remainingOld[section];delete remainingNext[section];}
   if(JSON.stringify(remainingOld)!==JSON.stringify(remainingNext))return reject("Estilos de seções não solicitadas foram alterados.");
   delete oldMetadata.universalSectionStyles;delete nextMetadata.universalSectionStyles;
+ }
+ if(ids.has("primary-cta-theme")){
+  delete oldMetadata.universalPrimaryCtaColor;
+  delete nextMetadata.universalPrimaryCtaColor;
  }
  const oldEvents=oldMetadata.universalSectionEvents;
  const nextEvents=nextMetadata.universalSectionEvents;
