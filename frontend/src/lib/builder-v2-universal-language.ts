@@ -440,11 +440,20 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
- // Resolve exact quoted section-heading commands before generic sentence splitting.
- // Periods inside quoted source copy are not instruction boundaries.
- if(/^na\s+se[cç][aã]o\s+[^,]+,\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+[\"“]/i.test(instruction)){
-  const scoped=applySingleUniversalNaturalLanguage(site,instruction);
-  if(scoped)return scoped;
+ // Exact quoted title edit is handled atomically before generic clause splitting.
+ const exactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+["“]([^"”]{1,300})["”]\s+(?:para|por)\s+["“]([^"”]{1,300})["”](?:\s*\.\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*\.?$/i);
+ if(exactHeading){
+  const section=resolveUniversalSection(site,exactHeading[1].trim());
+  if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
+  const normalize=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const original=normalize(exactHeading[2]);
+  const matches=site.blocks.filter(b=>b.section===section&&b.type==="heading"&&normalize(String(b.text||""))===original);
+  if(matches.length!==1)return {ok:false,error:"O título original não foi localizado de forma única na seção. Nenhuma alteração aplicada."};
+  const target=matches[0],value=exactHeading[3].trim();
+  if(!value||normalize(value)===original)return {ok:false,error:"O novo título é inválido ou igual ao original. Nenhuma alteração aplicada."};
+  const result=applyUniversalOperations(site,[{action:"update",blockId:target.id,changes:{text:value}}]);
+  if(!result.ok)return result;
+  return {ok:true,site:{...result.site,blocks:result.site.blocks.map(b=>b.id===target.id?{...b,textExplicit:true}:b)} as T,changedIds:result.changedIds};
  }
  // Update existing process cards in place; preservation constraints are not separate actions.
  const existingProcessEdit=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*mantenha\s+os\s+(?:tr[eê]s|3)\s+cards\s+existentes\s+e\s+substitua\s+somente\s+suas\s+descri[cç][oõ]es\b/i);
