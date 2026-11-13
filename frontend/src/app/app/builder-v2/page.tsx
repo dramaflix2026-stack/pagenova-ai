@@ -824,7 +824,14 @@ export default function BuilderV2() {
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
       }
       // Approved universal outcomes now take precedence over the legacy background shortcut.
-      const result=hasAttachments||imageChange?null:applyUniversalNaturalLanguage(site,prompt);
+      // A repeatedly approved isolated-copy route can take precedence for a
+      // single generated paragraph; the downstream server response is still
+      // checked by isIsolatedUniversalCopyResult before any mutation is saved.
+      const approvedCopyCount=(preferredStrategy["scoped-copy"]||0)+(preferredStrategy["copy"]||0);
+      const preferScopedCopy=inferredIntent==="copy"&&!compound&&!hasAttachments&&
+        !!scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&
+        approvedCopyCount>=2&&approvedCopyCount>(preferredStrategy.universal||0);
+      const result=hasAttachments||imageChange||preferScopedCopy?null:applyUniversalNaturalLanguage(site,prompt);
       if(preferUniversal&&result&&!result.ok){
         console.info("[editor-learning] Preferred universal strategy could not safely apply; no fabricated fallback.",inferredIntent,inferredTarget);
       }
