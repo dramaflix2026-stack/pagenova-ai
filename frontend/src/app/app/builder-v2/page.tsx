@@ -305,8 +305,9 @@ export default function BuilderV2() {
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
-    const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
-    const expected=Object.entries(styles||{}).filter(([,style])=>typeof style?.backgroundColor==="string"&&/^#[0-9a-f]{6}$/i.test(style.backgroundColor));
+    const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string}>|undefined;
+    const validHex=(value:unknown):value is string=>typeof value==="string"&&/^#[0-9a-f]{6}$/i.test(value);
+    const expected=Object.entries(styles||{}).filter(([,style])=>validHex(style?.backgroundColor)||validHex(style?.headingColor));
     if(!expected.length){setPreviewVisualAudit(null);return;}
     const timer=window.setTimeout(()=>{
       const root=previewVisualAuditRef.current;
@@ -316,14 +317,19 @@ export default function BuilderV2() {
         const candidates=Array.from(root.querySelectorAll<HTMLElement>("[data-section-id],[data-universal-section],section[id]"))
           .filter(el=>el.getAttribute("data-section-id")===section||el.getAttribute("data-universal-section")===section||el.tagName==="SECTION"&&el.id===section||section==="servicos"&&el.id==="tp9-servicos");
         if(!candidates.length){failures.push(section+": seção não encontrada na prévia");continue;}
-        const color=style.backgroundColor!;
-        const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16));
-        const matches=candidates.some(el=>{
-          const actual=window.getComputedStyle(el).backgroundColor;
-          const numbers=actual.replace(/[^0-9,.]/g,"").split(",").slice(0,3).map(Number);
-          return numbers.length===3&&rgb.every((value,index)=>value===numbers[index]);
-        });
-        if(!matches)failures.push(section+": cor de fundo renderizada diferente da configuração");
+        const matchesColor=(actual:string,hex:string)=>{
+          const expectedRgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
+          const channels=actual.match(/\\d+(?:\\.\\d+)?/g)?.slice(0,3).map(Number)||[];
+          return channels.length===3&&expectedRgb.every((value,index)=>value===channels[index]);
+        };
+        if(validHex(style.backgroundColor)&&!candidates.some(el=>matchesColor(window.getComputedStyle(el).backgroundColor,style.backgroundColor!)))
+          failures.push(section+": cor de fundo renderizada diferente da configuração");
+        if(validHex(style.headingColor)){
+          const headings=candidates.flatMap(el=>Array.from(el.querySelectorAll<HTMLElement>(".pn-section-heading h2,.pn-section-heading,h2")));
+          if(!headings.length)failures.push(section+": título não encontrado na prévia");
+          else if(!headings.some(el=>matchesColor(window.getComputedStyle(el).color,style.headingColor!)))
+            failures.push(section+": cor do título renderizada diferente da configuração");
+        }
       }
       setPreviewVisualAudit(failures.length?failures.join("; "):null);
     },350);
