@@ -915,17 +915,23 @@ export default function BuilderV2() {
       const preferScopedCopy=inferredIntent==="copy"&&!compound&&!hasAttachments&&
         !!scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&
         approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
-      const result=hasAttachments||imageChange||preferScopedCopy?null:applyUniversalNaturalLanguage(site,prompt);
+      // A learned AI route is eligible only when it has positive reviewed evidence
+      // and beats a negatively scored universal route. Compound edits remain atomic.
+      const aiScore=preferredStrategy["ai-editor"]||0;
+      const universalScore=preferredStrategy.universal||0;
+      const preferLearnedAi=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&!preferScopedCopy&&
+        aiScore>=2&&aiScore>universalScore&&universalScore<0;
+      const result=hasAttachments||imageChange||preferScopedCopy||preferLearnedAi?null:applyUniversalNaturalLanguage(site,prompt);
       // Audit the route that was actually attempted, not merely the preferred route.
       // This distinguishes a learned preference from a real execution decision.
-      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy?"scoped-copy":"universal";
+      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy?"scoped-copy":preferLearnedAi?"ai-editor":"universal";
       console.info("[editor-learning] Strategy execution",{
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
-        preferenceApplied:preferUniversal&&actualRoute==="universal",
+        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi,
         niche:site.niche||"unknown",model:site.briefingLayoutVariant||"unknown"
       });
       if(preferUniversal&&result&&!result.ok){
