@@ -274,7 +274,7 @@ export function BuilderV2Site(props:BuilderV2SiteProps){
    `[data-pn-universal-site] section[data-universal-section="${id}"]`,
    `[data-pn-universal-site] section[id="${id}"]`
   ]).join(",")+"{background-color:"+bg+"!important}";
- }).join("\\n");
+ }).join("\n");
  return <div data-pn-universal-site="true">{css?<style>{css}</style>:null}<UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion></div>;
 }
 
