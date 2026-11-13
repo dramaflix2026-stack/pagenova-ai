@@ -109,3 +109,28 @@ test("other universal edits keep their original successful confirmation",()=>{
  assert.equal(summarizeUniversalEdit({changedIds:["hero"]}),"Edição universal aplicada a 1 bloco(s). Demais conteúdos preservados.");
  assert.equal(summarizeUniversalEdit({changedIds:["a","b"]}),"Edição universal aplicada a 2 bloco(s). Demais conteúdos preservados.");
 });
+
+test("exact quoted heading replacement stays within the services section",()=>{
+ const site=create();
+ site.blocks.push({id:"services-heading",type:"heading",section:"servicos",text:"Excelência em cada detalhe.",fontSize:42});
+ site.blocks.push({id:"services-description",type:"paragraph",section:"servicos",text:"Texto preservado"});
+ const before=structuredClone(site);
+ const command='Na seção de serviços, troque o título "Excelência em cada detalhe." por "Seu carro merece o melhor cuidado." Não altere mais nada no site.';
+ const result=applyUniversalNaturalLanguage(site,command);
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ assert.deepEqual(result.changedIds,["services-heading"]);
+ assert.equal(result.site.blocks.find(b=>b.id==="services-heading").text,"Seu carro merece o melhor cuidado.");
+ assert.equal(result.site.blocks.find(b=>b.id==="services-heading").textExplicit,true);
+ for(const block of before.blocks.filter(b=>b.id!=="services-heading"))
+  assert.deepEqual(result.site.blocks.find(b=>b.id===block.id),block);
+ assert.deepEqual(site,before);
+});
+test("exact heading edit rejects wrong original without changing site",()=>{
+ const site=create();
+ site.blocks.push({id:"services-heading",type:"heading",section:"servicos",text:"Outro título"});
+ const before=structuredClone(site);
+ const result=applyUniversalNaturalLanguage(site,'Na seção de serviços, troque o título "Excelência em cada detalhe." por "Seu carro merece o melhor cuidado." Não altere mais nada no site.');
+ assert.equal(result?.ok,false);
+ assert.deepEqual(site,before);
+});
