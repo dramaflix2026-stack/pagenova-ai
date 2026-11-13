@@ -10,7 +10,7 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  // Exact quoted heading replacement scoped to a named section; never touch other copy.
- const scopedExactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+[\"“]([^\"”]{1,300})[\"”]\s+(?:para|por)\s+[\"“]([^\"”]{1,300})[\"”](?:\s*\.\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*\.?$/i);
+ const scopedExactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+[\"“]([^\"”]{1,300})[\"”]\s+(?:para|por)\s+[\"“]([^\"”]{1,300})[\"”](?:\s*[.!?,;:]?\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*[.!?]?$/i);
  if(scopedExactHeading){
   const section=resolveUniversalSection(site,scopedExactHeading[1].trim());
   if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
@@ -441,7 +441,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
  // Exact quoted title edit is handled atomically before generic clause splitting.
- const exactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+["“]([^"”]{1,300})["”]\s+(?:para|por)\s+["“]([^"”]{1,300})["”](?:\s*\.\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*\.?$/i);
+ const exactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+["“]([^"”]{1,300})["”]\s+(?:para|por)\s+["“]([^"”]{1,300})["”](?:\s*[.!?,;:]?\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*[.!?]?$/i);
  if(exactHeading){
   const section=resolveUniversalSection(site,exactHeading[1].trim());
   if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
