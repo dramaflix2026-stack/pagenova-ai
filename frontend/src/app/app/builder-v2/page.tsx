@@ -891,6 +891,15 @@ export default function BuilderV2() {
       },{} as Record<string,number>);
       const preferUniversal=(preferredStrategy.universal||0)>=2 &&
         (preferredStrategy.universal||0)>Math.max(0,...Object.entries(preferredStrategy).filter(([strategy])=>strategy!=="universal").map(([,count])=>count));
+      // Emit the actual, scoped decision for reproducible functional validation.
+      // No prompt or customer content is included in the diagnostic payload.
+      console.info("[editor-learning] Strategy decision",{
+        intent:inferredIntent,target:inferredTarget,
+        reviewedEvents:relevantPatterns.length,
+        scores:preferredStrategy,
+        preferred:preferUniversal?"universal":"guarded-default",
+        niche:site.niche||"unknown",model:site.briefingLayoutVariant||"unknown"
+      });
       // When the user has repeatedly approved this route, attempt it first.
       // Other strategies remain available only through their existing guarded paths.
       const sectionBackgroundRequest=!hasAttachments&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
