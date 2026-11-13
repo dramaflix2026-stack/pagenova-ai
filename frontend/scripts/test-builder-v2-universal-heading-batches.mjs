@@ -217,3 +217,17 @@ test("real natural-language batch is visible in HTML across all three models",()
   }
  }
 });
+
+
+test("customer can add three untitled differential cards before contact",()=>{
+ const before=create();
+ before.blocks.push({id:"contact-heading",type:"heading",section:"contato",text:"Contato"});
+ const result=applyUniversalNaturalLanguage(before,"Adicione uma seção chamada Nossos Diferenciais com três cards antes da seção de contato.");
+ assert.equal(result?.ok,true,result?.error);
+ if(!result?.ok)return;
+ const inserted=result.site.blocks.filter(block=>block.section==="custom-nossos-diferenciais");
+ assert.equal(inserted.filter(block=>block.type==="heading").length,4);
+ assert.equal(inserted.filter(block=>block.type==="paragraph").length,3);
+ assert.ok(result.site.blocks.findIndex(block=>block.id===inserted[0].id)<result.site.blocks.findIndex(block=>block.id==="contact-heading"));
+ assert.equal(verifyUniversalEditResult(before,result.site,result.changedIds).ok,true);
+});
