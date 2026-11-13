@@ -219,15 +219,15 @@ async function reconcileEditorLearningEvents(){
   }
  }catch(error){console.warn("[editor-learning] Reconciliation failed",error);}
 }
-/** Read approved, tenant-isolated patterns. They inform diagnostics, never authorize unverified mutations. */
+/** Read reviewed, tenant-isolated patterns; failed experiences penalize strategies without bypassing verification. */
 async function readApprovedEditorPatterns(niche:string){
  try{
   const client=createSupabaseBrowserClient();
   const {data:{user}}=await client.auth.getUser();
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
-   .select("intent,target,strategy,niche").eq("user_id",user.id).eq("niche",niche)
-   .eq("review_status","approved").eq("execution_status","applied").order("created_at",{ascending:false}).limit(100);
+   .select("intent,target,strategy,niche,review_status,execution_status").eq("user_id",user.id).eq("niche",niche)
+   .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(100);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
@@ -844,7 +844,8 @@ export default function BuilderV2() {
       const inferredTarget=/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
       const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
       const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
-        scores[pattern.strategy]=(scores[pattern.strategy]||0)+1;
+        const weight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1:0;
+        scores[pattern.strategy]=(scores[pattern.strategy]||0)+weight;
         return scores;
       },{} as Record<string,number>);
       const preferUniversal=(preferredStrategy.universal||0)>=2 &&
