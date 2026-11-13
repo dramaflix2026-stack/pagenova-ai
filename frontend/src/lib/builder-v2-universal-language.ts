@@ -83,6 +83,11 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   if(!backgroundColor)return {ok:false,error:"Cor não reconhecida. Nenhuma alteração aplicada."};
   const existing=(site as Record<string,unknown>).universalSectionStyles;
   const styles=existing&&typeof existing==="object"&&!Array.isArray(existing)?existing as Record<string,unknown>:{};
+  const previous=styles[section];
+  const previousBackground=previous&&typeof previous==="object"&&!Array.isArray(previous)?(previous as Record<string,unknown>).backgroundColor:undefined;
+  if(typeof previousBackground==="string"&&previousBackground.toLowerCase()===backgroundColor.toLowerCase()){
+   return {ok:false,error:"A seção "+label+" já tem a cor "+backgroundColor+" registrada. Nenhuma mudança de dados foi necessária. Se a prévia exibir outra cor, há uma divergência de renderização que precisa ser corrigida; não aprove esta tentativa."};
+  }
   return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...((styles[section]&&typeof styles[section]==="object")?styles[section] as object:{}),backgroundColor}}},changedIds:["section-style:"+section]};
  }
  const sectionHeadings=instruction.match(/^na\s+se[cç][aã]o\s+(.+?),?\s+altere\s+(?:todos\s+)?os\s+t[ií]tulos\s+para\s+(?:a\s+)?cor\s+(?:[\p{L}-]+\s+)?(#[0-9a-f]{6})/iu)
