@@ -200,12 +200,17 @@ async function proxy(request: NextRequest, context: RouteContext) {
     return NextResponse.json({error:{code:"UPSTREAM_UNAVAILABLE",message:"O servidor não respondeu. Nenhum crédito deve ser cobrado por esta falha."}},{status:502});
   }
 
+  if(response.status===404){
+    console.error("[PageNova CRM proxy] Upstream route missing",{route:suffix,upstreamHost:target.host,status:response.status});
+  }
+
   const outHeaders=new Headers();
   const responseType=response.headers.get("content-type");
   const disposition=response.headers.get("content-disposition");
   if(responseType)outHeaders.set("content-type",responseType);
   if(disposition)outHeaders.set("content-disposition",disposition);
   outHeaders.set("cache-control","no-store");
+  outHeaders.set("x-pagenova-crm-proxy","upstream");
 
   if(usageOnly&&usageKey&&(siteMatch||googlePage)&&response.ok){
     const raw=await response.arrayBuffer();
