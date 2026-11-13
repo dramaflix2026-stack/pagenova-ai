@@ -859,8 +859,16 @@ export default function BuilderV2() {
       // unrelated hero/text approvals must not offset their failure history.
       const rejectedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="rejected"&&pattern.strategy==="universal").length;
       const approvedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="approved"&&pattern.execution_status==="applied"&&pattern.strategy==="universal").length;
+      // Learned circuit breaker: do not repeat a CTA-color route that the user
+      // has rejected multiple times across templates without a single approval.
+      // This is deliberately narrow: other operations remain available.
       if(inferredIntent==="style"&&inferredTarget==="buttons"&&rejectedButtonEdits>=2&&approvedButtonEdits===0){
-        console.warn("[editor-learning] Repeated rejected CTA strategy; preserving strict verification.",{rejectedButtonEdits,approvedButtonEdits});
+        const explanation="O histórico de aprendizado identificou "+rejectedButtonEdits+" reprovações de edição de cores de botões, sem aprovação confirmada dessa estratégia. Para evitar repetir o erro em outro nicho, esta rota foi bloqueada até existir um adaptador de CTA validado. Nenhuma alteração aplicada.";
+        console.warn("[editor-learning] CTA strategy circuit breaker", {rejectedButtonEdits,approvedButtonEdits});
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:explanation}]);
+        setGenerationError(explanation);
+        setInstruction("");
+        return;
       }
       const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
         const outcomeWeight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1:0;
