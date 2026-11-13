@@ -113,7 +113,14 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
   }
   const old=oldBlocks.get(id),next=nextBlocks.get(id);
   if(!old&&!next)return reject("Bloco alterado inexistente: "+id);
-  if(old&&next&&JSON.stringify(old)===JSON.stringify(next)&&oldOrder.indexOf(id)===newOrder.indexOf(id))return reject("Bloco indicado não foi modificado nem movido: "+id);
+  if(old&&next&&JSON.stringify(old)===JSON.stringify(next)){
+   // Adding/removing a different block can shift an index without moving this block.
+   // Only a changed relative position among surviving blocks is a real reorder.
+   const survivingOld=oldOrder.filter(blockId=>nextBlocks.has(blockId));
+   const survivingNew=newOrder.filter(blockId=>oldBlocks.has(blockId));
+   const genuinelyReordered=survivingOld.indexOf(id)!==survivingNew.indexOf(id);
+   if(!genuinelyReordered)return reject("Bloco indicado não foi modificado nem movido: "+id);
+  }
  }
  for(const [id,old] of oldBlocks){
   if(ids.has(id))continue;
