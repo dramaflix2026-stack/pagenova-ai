@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {ArrowLeft,ArrowUpRight,CalendarDays,CheckCircle2,History,Sparkles} from "lucide-react";
-import {pagenovaUpdates,updateDatePtBr} from "@/lib/pagenova-updates";
+import {getSortedPageNovaUpdates,updateDatePtBr} from "@/lib/pagenova-updates";
 
 export const metadata={title:"Atualizações | PageNova AI",description:"Novidades, melhorias e correções da plataforma PageNova."};
 
@@ -11,6 +11,7 @@ const categories={
 } as const;
 
 export default function AtualizacoesPage(){
+  const updates=getSortedPageNovaUpdates();
   return <main className="min-h-screen bg-[#090e0b] px-4 pb-20 pt-7 text-white sm:px-7 lg:px-10">
     <div className="mx-auto max-w-5xl">
       <Link href="/app" className="inline-flex items-center gap-2 text-xs font-semibold text-white/55 transition hover:text-lime-300"><ArrowLeft size={15}/> Voltar ao Início</Link>
@@ -21,7 +22,7 @@ export default function AtualizacoesPage(){
       </header>
 
       <section aria-label="Histórico de atualizações" className="mt-8 space-y-4">
-        {pagenovaUpdates.map((entry,index)=><article id={entry.id} key={entry.id} className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#111914] px-5 py-6 sm:px-8 sm:py-7">
+        {updates.map((entry,index)=><article id={entry.id} key={entry.id} className="relative overflow-hidden rounded-[22px] border border-white/10 bg-[#111914] px-5 py-6 sm:px-8 sm:py-7">
           <div className="flex flex-wrap items-center gap-3">
             <span className={"rounded-full border px-3 py-1 text-[11px] font-bold "+categories[entry.category]}>{entry.category}</span>
             <time dateTime={entry.date} className="inline-flex items-center gap-1.5 text-xs text-white/45"><CalendarDays size={13}/>{updateDatePtBr(entry.date)}</time>
