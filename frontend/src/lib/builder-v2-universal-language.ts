@@ -46,14 +46,25 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   const id="universal-banner-"+(existing.length+1);
   return {ok:true,site:{...site,universalBanners:[...existing,{id,afterSection:first,beforeSection:second,text:message[1],backgroundColor:bg[1],textColor:"#FFFFFF"}]},changedIds:[id]};
  }
- const sectionBackground=instruction.match(/^(?:na\s+)?se[cç][aã]o\s+(.+?),?\s+(?:altere|mude|troque|coloque|deixe)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da\s+se[cç][aã]o\s+)?(?:para|em|com)\s+(#[0-9a-f]{6})/i)
-  ||instruction.match(/^altere\s+(?:somente\s+)?a\s+cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(#[0-9a-f]{6})/i);
+ const namedColors:Record<string,string>={preto:"#000000",branco:"#FFFFFF",cinza:"#808080",grafite:"#303030",chumbo:"#36454F",azul:"#2563EB",verde:"#16A34A",vermelho:"#DC2626",amarelo:"#EAB308",laranja:"#F97316",roxo:"#9333EA",rosa:"#EC4899",bege:"#E8DDCB",marrom:"#795548",dourado:"#D4AF37",creme:"#FFFDD0"};
+ const colorValue=(raw:string)=>{const value=raw.toLowerCase();return value.startsWith("#")?(value.length===4?"#"+value.slice(1).split("").map(x=>x+x).join(""):value):namedColors[value]||null;};
+ const colorPattern="(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|"+Object.keys(namedColors).join("|")+")";
+ const backgroundPatterns=[
+  new RegExp("^(?:quero\\s+)?(?:deixar|deixe|mudar|mude|trocar|troque|colocar|coloque|altere|alterar)\\s+(?:somente\\s+)?(?:o\\s+)?fundo\\s+(?:da\\s+|do\\s+|dos\\s+|de\\s+)?(?:parte\\s+)?(?:se[cç][aã]o\\s+(?:de\\s+|dos\\s+|da\\s+)?)?(.+?)\\s+(?:na\\s+cor|para|pra|em|com)\\s+"+colorPattern+"(?:\\b|$)","i"),
+  new RegExp("^(?:na\\s+)?se[cç][aã]o\\s+(.+?),?\\s+(?:altere|mude|troque|coloque|deixe)\\s+(?:somente\\s+|apenas\\s+)?(?:a\\s+)?(?:cor\\s+de\\s+)?fundo\\s+(?:para|pra|em|com)\\s+"+colorPattern+"(?:\\b|$)","i"),
+  new RegExp("^(?:altere|mude|troque)\\s+(?:somente\\s+)?(?:a\\s+)?cor\\s+de\\s+fundo\\s+da\\s+se[cç][aã]o\\s+(.+?)\\s+(?:para|pra)\\s+"+colorPattern+"(?:\\b|$)","i"),
+  new RegExp("^(?:quero\\s+)?(?:deixar|deixe|colocar|coloque)\\s+(?:a\\s+)?(?:parte|se[cç][aã]o)\\s+(?:de|dos|da)\\s+(.+?)\\s+(?:com\\s+)?fundo\\s+"+colorPattern+"(?:\\b|$)","i")
+ ];
+ const sectionBackground=backgroundPatterns.map(pattern=>instruction.match(pattern)).find(Boolean);
  if(sectionBackground){
-  const section=resolveUniversalSection(site,sectionBackground[1].trim().replace(/,$/,"").trim().replace(/^[\s"“”\u0027‘’]+|[\s"“”\u0027‘’]+$/g,""));
-  if(!section)return {ok:false,error:"Seção "+sectionBackground[1]+" não encontrada. Nenhuma alteração aplicada."};
+  const label=sectionBackground[1].trim().replace(/,$/,"").trim().replace(/^[\s"“”\u0027‘’]+|[\s"“”\u0027‘’]+$/g,"");
+  const section=resolveUniversalSection(site,label);
+  if(!section)return {ok:false,error:"Seção "+label+" não encontrada. Nenhuma alteração aplicada."};
+  const backgroundColor=colorValue(sectionBackground[2]);
+  if(!backgroundColor)return {ok:false,error:"Cor não reconhecida. Nenhuma alteração aplicada."};
   const existing=(site as Record<string,unknown>).universalSectionStyles;
   const styles=existing&&typeof existing==="object"&&!Array.isArray(existing)?existing as Record<string,unknown>:{};
-  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...((styles[section]&&typeof styles[section]==="object")?styles[section] as object:{}),backgroundColor:sectionBackground[2]}}},changedIds:["section-style:"+section]};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...((styles[section]&&typeof styles[section]==="object")?styles[section] as object:{}),backgroundColor}}},changedIds:["section-style:"+section]};
  }
  const sectionHeadings=instruction.match(/^na\s+se[cç][aã]o\s+(.+?),?\s+altere\s+(?:todos\s+)?os\s+t[ií]tulos\s+para\s+(?:a\s+)?cor\s+(?:[\p{L}-]+\s+)?(#[0-9a-f]{6})/iu)
   ||instruction.match(/^altere\s+(?:a\s+)?cor\s+(?:de\s+)?(?:todos\s+)?os\s+t[ií]tulos\s+da\s+se[cç][aã]o\s+(.+?)\s+para\s+(?:[\p{L}-]+\s+)?(#[0-9a-f]{6})/iu);
