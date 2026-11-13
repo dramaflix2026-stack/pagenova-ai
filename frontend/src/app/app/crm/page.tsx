@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 const CRM_ROUTES: Record<string, string> = {
@@ -59,6 +59,7 @@ function hideLegacyUniversalAnnouncement(doc: Document): void {
 export default function CrmPage() {
   const searchParams = useSearchParams();
   const crmView = searchParams.get("view") ?? "dashboard";
+  const [frameError, setFrameError] = useState(false);
   const iframeSrc = useMemo(
     () => `/stavo-crm/index.html#${CRM_ROUTES[crmView] ?? "/"}`,
     [crmView],
@@ -67,7 +68,8 @@ export default function CrmPage() {
   // Authentication and workspace entitlement are enforced by /app/layout.tsx.
   // The old /api/crm/me preflight does not exist and blocked the iframe with HTTP 404.
   return (
-      <main className="flex h-[calc(100vh-4rem)] min-h-[640px] flex-col overflow-hidden bg-[#070b14]">
+      <main className="relative flex h-[calc(100vh-4rem)] min-h-[640px] flex-col overflow-hidden bg-[#070b14]">
+        {frameError ? <div role="alert" className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-[#070b14] p-6 text-center text-white"><h2 className="text-lg font-semibold">O CRM não conseguiu carregar</h2><p className="max-w-md text-sm text-white/70">A geração pode continuar no servidor. Não inicie outra operação antes de verificar seus projetos.</p><button className="rounded-lg bg-[#8fec78] px-5 py-3 font-semibold text-[#14220f]" onClick={() => {setFrameError(false);const frame=document.querySelector<HTMLIFrameElement>('iframe[title="Sites IA CRM — PageNova CRM"]');if(frame)frame.src=iframeSrc;}}>Recarregar CRM</button></div> : null}
         <iframe
           src={iframeSrc}
           title="Sites IA CRM — PageNova CRM"
@@ -76,7 +78,12 @@ export default function CrmPage() {
             // The PageNova workspace already provides the primary navigation.
             // Hide only the redundant sidebar inside the embedded CRM.
             const doc = event.currentTarget.contentDocument;
-            if (!doc) return;
+            if (!doc) { setFrameError(true); return; }
+            // An iframe can fire load for an error document or an empty response.
+            // Surface a recovery action instead of leaving the customer on a black screen.
+            const checkFrame=()=>{const body=doc.body;if(!body||(!body.querySelector("#root")&&!body.querySelector("[data-reactroot]"))){setFrameError(true);}};
+            window.setTimeout(checkFrame,1500);
+            setFrameError(false);
             if (!doc.getElementById("pagenova-hide-embedded-crm-nav")) {
               const style = doc.createElement("style");
               style.id = "pagenova-hide-embedded-crm-nav";
