@@ -6,7 +6,15 @@ export const runtime="nodejs";
 export async function POST(request:NextRequest){
  try{
   const origin=request.headers.get("origin");
-  if(origin&&origin!==request.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
+  if(origin){
+   let parsedOrigin:URL;
+   try{parsedOrigin=new URL(origin)}catch{throw new FormServiceError("Origem não autorizada.",403)}
+   const host=request.headers.get("host")?.toLowerCase()||"";
+   const forwardedHost=request.headers.get("x-forwarded-host")?.split(",")[0]?.trim().toLowerCase()||"";
+   const allowedHosts=[host,forwardedHost,request.nextUrl.host.toLowerCase()].filter(Boolean);
+   if(parsedOrigin.protocol!=="https:"||!allowedHosts.includes(parsedOrigin.host.toLowerCase()))
+    throw new FormServiceError("Origem não autorizada.",403);
+  }
   await authorizedForms();
   const raw=await request.text();
   if(raw.length>220000)throw new FormServiceError("O pedido é muito grande.",413);
