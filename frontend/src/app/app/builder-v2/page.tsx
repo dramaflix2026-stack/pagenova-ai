@@ -347,7 +347,7 @@ export default function BuilderV2() {
       setPreviewVisualAudit(failures.length?failures.join("; "):null);
     },350);
     return ()=>window.clearTimeout(timer);
-  },[site,previewDevice]);
+  },[site]);
 
   const reviewEventRef=useRef<{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|null>(null);
   const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
