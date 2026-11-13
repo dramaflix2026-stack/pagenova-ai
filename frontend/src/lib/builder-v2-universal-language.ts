@@ -50,7 +50,7 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
  const colorValue=(raw:string)=>{const value=raw.toLowerCase();return value.startsWith("#")?(value.length===4?"#"+value.slice(1).split("").map(x=>x+x).join(""):value):namedColors[value]||null;};
  const colorPattern="(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|"+Object.keys(namedColors).join("|")+")";
  const backgroundPatterns=[
-  new RegExp("^(?:quero\\s+)?(?:deixar|deixe|mudar|mude|trocar|troque|colocar|coloque|altere|alterar)\\s+(?:somente\\s+)?(?:o\\s+)?fundo\\s+(?:da\\s+|do\\s+|dos\\s+|de\\s+)?(?:parte\\s+)?(?:se[cç][aã]o\\s+(?:de\\s+|dos\\s+|da\\s+)?)?(.+?)\\s+(?:(?:na\\s+cor|para|pra|em|com)\\s+)?"+colorPattern+"(?:\\b|$)","i"),
+  new RegExp("^(?:quero\\s+)?(?:deixar|deixa|deixe|mudar|muda|mude|trocar|troca|troque|colocar|coloca|coloque|altere|altera|alterar)\\s+(?:somente\\s+)?(?:o\\s+)?fundo\\s+(?:da\\s+|do\\s+|dos\\s+|de\\s+)?(?:parte\\s+)?(?:se[cç][aã]o\\s+(?:de\\s+|dos\\s+|da\\s+)?)?(.+?)\\s+(?:(?:na\\s+cor|para|pra|em|com)\\s+)?"+colorPattern+"(?:\\b|$)","i"),
   new RegExp("^(?:na\\s+)?se[cç][aã]o\\s+(.+?),?\\s+(?:altere|mude|troque|coloque|deixe)\\s+(?:somente\\s+|apenas\\s+)?(?:a\\s+)?(?:cor\\s+de\\s+)?fundo\\s+(?:para|pra|em|com)\\s+"+colorPattern+"(?:\\b|$)","i"),
   new RegExp("^(?:altere|mude|troque)\\s+(?:somente\\s+)?(?:a\\s+)?cor\\s+de\\s+fundo\\s+da\\s+se[cç][aã]o\\s+(.+?)\\s+(?:para|pra)\\s+"+colorPattern+"(?:\\b|$)","i"),
   new RegExp("^(?:quero\\s+)?(?:deixar|deixe|colocar|coloque)\\s+(?:a\\s+)?(?:parte|se[cç][aã]o)\\s+(?:de|dos|da)\\s+(.+?)\\s+(?:com\\s+)?fundo\\s+"+colorPattern+"(?:\\b|$)","i")
