@@ -400,11 +400,30 @@ export default function BuilderV2() {
     if(!event&&reviewEventRef.current?.id===id)event=reviewEventRef.current;
     if(event)event.review=status;
     setReviewCandidate({id,status});
-    setLearningSyncNotice(event?"Avaliação registrada neste dispositivo. Sincronizando com o Supabase...":"Avaliação recebida, mas não foi possível localizar o evento local para sincronização.");
-    if(!event)return;
+    setLearningSyncNotice(event?"Avaliação registrada neste dispositivo. Sincronizando com o Supabase...":"Avaliação recebida. Confirmando diretamente no Supabase...");
+    if(!event){
+      try{
+        const client=createSupabaseBrowserClient();
+        const {data:{user}}=await client.auth.getUser();
+        if(!user){setLearningSyncNotice("Sessão expirada: entre novamente para sincronizar a avaliação.");return;}
+        const {data,error}=await client.from("builder_editor_learning_events")
+          .update({review_status:status,reviewed_at:new Date().toISOString()})
+          .eq("id",id).eq("user_id",user.id)
+          .select("id,review_status").maybeSingle();
+        if(error||data?.review_status!==status)throw new Error(error?.message||"Avaliação não confirmada");
+        setLearningSyncNotice("Avaliação confirmada no Supabase.");
+        void refreshApprovedExperiences();
+      }catch(error){
+        console.warn("[editor-learning] Direct cloud review failed",error);
+        setLearningSyncNotice("Não foi possível sincronizar a avaliação. Verifique a conexão e tente novamente.");
+        setReviewCandidate({id,status:"pending"});
+      }
+      return;
+    }
     try{
       const synced=await syncEditorLearningEvent(event);
       setLearningSyncNotice(synced?"Avaliação confirmada no Supabase.":"Avaliação registrada neste dispositivo, mas NÃO sincronizada com o Supabase. A sincronização será tentada novamente ao reconectar.");
+      if(!synced)void reconcileEditorLearningEvents();
       if(synced)void refreshApprovedExperiences();
     }catch(error){
       console.warn("[editor-learning] Review cloud sync failed",error);
