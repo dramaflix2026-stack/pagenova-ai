@@ -73,6 +73,17 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  const oldOrder=before.blocks.map(b=>b.id),newOrder=after.blocks.map(b=>b.id);
  const moved=oldOrder.length===newOrder.length&&oldOrder.some((id,i)=>newOrder[i]!==id);
  for(const id of ids){
+  if(id.startsWith("section-style:")){
+   const section=id.slice("section-style:".length);
+   const oldStyles=(before as Record<string,unknown>).universalSectionStyles as Record<string,unknown>|undefined;
+   const nextStyles=(after as Record<string,unknown>).universalSectionStyles as Record<string,unknown>|undefined;
+   const previous=oldStyles?.[section];
+   const updated=nextStyles?.[section];
+   if(!updated||typeof updated!=="object"||JSON.stringify(previous)===JSON.stringify(updated))return reject("Estilo da seção não foi modificado: "+section);
+   const beforeOther={...(oldStyles||{})};const afterOther={...(nextStyles||{})};delete beforeOther[section];delete afterOther[section];
+   if(JSON.stringify(beforeOther)!==JSON.stringify(afterOther))return reject("Estilos de outras seções foram alterados.");
+   continue;
+  }
   const old=oldBlocks.get(id),next=nextBlocks.get(id);
   if(!old&&!next)return reject("Bloco alterado inexistente: "+id);
   if(old&&next&&JSON.stringify(old)===JSON.stringify(next)&&!moved)return reject("Bloco indicado não foi modificado: "+id);
