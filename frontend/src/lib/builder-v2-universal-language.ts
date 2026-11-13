@@ -47,8 +47,8 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   return {ok:true,site:{...site,universalBanners:[...existing,{id,afterSection:first,beforeSection:second,text:message[1],backgroundColor:bg[1],textColor:"#FFFFFF"}]},changedIds:[id]};
  }
  const namedColors:Record<string,string>={preto:"#000000",branco:"#FFFFFF",cinza:"#808080",grafite:"#303030",chumbo:"#36454F",azul:"#2563EB",verde:"#16A34A",vermelho:"#DC2626",amarelo:"#EAB308",laranja:"#F97316",roxo:"#9333EA",rosa:"#EC4899",bege:"#E8DDCB",marrom:"#795548",dourado:"#D4AF37",creme:"#FFFDD0"};
- const colorValue=(raw:string)=>{const value=raw.toLowerCase();return value.startsWith("#")?(value.length===4?"#"+value.slice(1).split("").map(x=>x+x).join(""):value):namedColors[value]||null;};
- const colorPattern="(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|"+Object.keys(namedColors).join("|")+")";
+ const colorValue=(raw:string)=>{const value=raw.toLowerCase().trim();if(value.startsWith("#"))return value.length===4?"#"+value.slice(1).split("").map(x=>x+x).join(""):value;const [name,modifier]=value.split(/\s+/);if(!namedColors[name])return null;const variants:Record<string,Record<string,string>>={cinza:{escuro:"#303030",claro:"#D1D5DB"},azul:{escuro:"#1E3A8A",claro:"#93C5FD"},verde:{escuro:"#166534",claro:"#86EFAC"},vermelho:{escuro:"#991B1B",claro:"#FCA5A5"},preto:{suave:"#171717",fosco:"#171717"}};return variants[name]?.[modifier]||namedColors[name];};
+ const colorPattern="(#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3}|(?:"+Object.keys(namedColors).join("|")+")(?:\\s+(?:escuro|claro|suave|fosco))?)";
  const backgroundPatterns=[
   new RegExp("^(?:quero\\s+)?(?:deixar|deixa|deixe|mudar|muda|mude|trocar|troca|troque|colocar|coloca|coloque|altere|altera|alterar)\\s+(?:somente\\s+)?(?:o\\s+)?fundo\\s+(?:da\\s+|do\\s+|dos\\s+|de\\s+)?(?:parte\\s+)?(?:se[cç][aã]o\\s+(?:de\\s+|dos\\s+|da\\s+)?)?(.+?)\\s+(?:(?:na\\s+cor|para|pra|em|com)\\s+)?"+colorPattern+"(?:\\b|$)","i"),
   new RegExp("^(?:na\\s+)?se[cç][aã]o\\s+(.+?),?\\s+(?:altere|mude|troque|coloque|deixe)\\s+(?:somente\\s+|apenas\\s+)?(?:a\\s+)?(?:cor\\s+de\\s+)?fundo\\s+(?:para|pra|em|com)\\s+"+colorPattern+"(?:\\b|$)","i"),
