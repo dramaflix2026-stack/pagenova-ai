@@ -303,6 +303,7 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
+  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string}>|undefined;
@@ -345,6 +346,21 @@ export default function BuilderV2() {
           failures.push("CTA principal: cor renderizada diferente da configuração");
       }
       setPreviewVisualAudit(failures.length?failures.join("; "):null);
+      const pending=pendingBackgroundVisualReviewRef.current;
+      if(pending){
+        pendingBackgroundVisualReviewRef.current=null;
+        const sectionFailed=failures.some(failure=>failure.startsWith(pending.section+":"));
+        if(sectionFailed){
+          recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-visual-verification",pending.variant);
+          captureReviewCandidate();
+          setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
+          console.warn("[editor] Visual verification rejected section background",pending.section,failures);
+        }else{
+          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant);
+          captureReviewCandidate();
+          setMessages(previous=>[...previous,{role:"assistant",text:"Cor de fundo confirmada na prévia. Avalie o resultado visual antes de aprovar."}]);
+        }
+      }
     },350);
     return ()=>window.clearTimeout(timer);
   },[site]);
@@ -969,7 +985,7 @@ export default function BuilderV2() {
       // intercept a request that also changes a heading, card or other element.
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
         // A failed shortcut must not swallow the command: the full universal parser
         // can handle aliases, compound syntax and CTA targets that the shortcut misses.
         console.warn("[editor] Background shortcut did not verify; falling through to universal parser",backgroundResult&&!backgroundResult.ok?backgroundResult.error:"verification failed");
