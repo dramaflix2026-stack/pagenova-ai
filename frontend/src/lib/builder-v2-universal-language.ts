@@ -738,10 +738,13 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
    {action:"update",blockId:paragraphs[0].id,changes:{text:description}}
   ]);
  }
- // Guard against site-wide CTA recoloring on templates whose button styles
- // are not isolated from section backgrounds. Never mutate section colors.
- if(/^\s*(?:altere|troque|mude|defina|atualize)\s+(?:a\s+)?cor\s+(?:de\s+fundo\s+)?de\s+todos\s+os\s+bot[oõ]es\s+principais\b/i.test(instruction)){
-  return {ok:false,error:"A alteração global de CTAs está temporariamente bloqueada: este template compartilha estilos de botões e seções. Nenhuma alteração aplicada. Aguardando adaptação segura do renderizador."};
+ // Scoped CTA theme override: keep section backgrounds, headings and images untouched.
+ const siteCtaColor=instruction.match(/^\s*(?:altere|troque|mude|defina|atualize)\s+(?:a\s+)?cor\s+(?:de\s+fundo\s+)?de\s+todos\s+os\s+bot[oõ]es\s+principais\s+(?:do\s+site\s+)?(?:para|por)\s+(azul[\s-]*marinho(?:\s+escuro)?|#[0-9a-f]{3,6}|preto|branco|verde|vermelho|azul|dourado)(?:[.!?\s]|$)/i);
+ if(siteCtaColor){
+  const raw=siteCtaColor[1].toLowerCase().trim();
+  const color=/^azul[\s-]*marinho/.test(raw)?"#1E3A5F":raw==="preto"?"#000000":raw==="branco"?"#FFFFFF":raw==="verde"?"#16A34A":raw==="vermelho"?"#DC2626":raw==="azul"?"#2563EB":raw==="dourado"?"#D4AF37":raw;
+  const expanded=/^#[0-9a-f]{3}$/i.test(color)?"#"+color.slice(1).split("").map(x=>x+x).join(""):color;
+  return {ok:true,site:{...site,universalPrimaryCtaColor:expanded} as T,changedIds:["primary-cta-theme"]};
  }
  // Universal hero CTA label-only edit: preserve the existing URL and all other properties.
  const heroButtonColor=instruction.match(/^(?:altere|troque|mude|defina)\s+a\s+cor\s+de\s+fundo\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+(?:preto\s*)?\(?\s*(#[0-9a-f]{3,8})\s*\)?\.?(?:\s+(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
