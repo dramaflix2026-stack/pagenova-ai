@@ -182,13 +182,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
-    if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);return;}
+    if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);return false;}
     const {error:insertError}=await client.from("builder_editor_learning_events").insert({
       id:event.id,user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
-    if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return;}
+    if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return false;}
     const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
     const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
     if(reviewed==="approved"||reviewed==="rejected"){
@@ -196,12 +196,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
         .update({review_status:reviewed,reviewed_at:new Date().toISOString()})
         .eq("id",event.id).eq("user_id",user.id).eq("execution_status","applied")
         .select("id,review_status").maybeSingle();
-      if(reviewError)console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);
-      else if(!confirmedReview||confirmedReview.review_status!==reviewed)
-        console.warn("[editor-learning] Cloud review not confirmed for event",event.id);
+      if(reviewError){console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);return false;}
+      else if(!confirmedReview||confirmedReview.review_status!==reviewed){
+        console.warn("[editor-learning] Cloud review not confirmed for event",event.id);return false;}
       else console.info("[editor-learning] Cloud review confirmed",event.id,reviewed);
     }
-  }catch(error){console.warn("[editor-learning] Cloud sync exception",error); /* Editing must remain available offline. */}
+    return true;
+  }catch(error){console.warn("[editor-learning] Cloud sync exception",error);return false; /* Editing must remain available offline. */}
 }
 const EDITOR_LEARNING_KEY="pagenova:editor-learning-events:v1";
 /** Replay local pending events on login, tab focus or network recovery; retries use stable UUIDs. */
@@ -329,7 +330,7 @@ export default function BuilderV2() {
       setReviewCandidate({id:reviewCandidate.id,status});
       const client=createSupabaseBrowserClient();
       const {data:{user}}=await client.auth.getUser();
-      if(user){await syncEditorLearningEvent(event);void refreshApprovedExperiences();setLearningSyncNotice("Avaliação enviada para sincronização. Confira o contador de experiências aprovadas.");}else setLearningSyncNotice("Avaliação salva neste dispositivo. Entre na conta para sincronizar com o Supabase.");
+      if(user){const synced=await syncEditorLearningEvent(event);void refreshApprovedExperiences();setLearningSyncNotice(synced?"Avaliação confirmada no Supabase.":"Avaliação salva neste dispositivo, mas a sincronização falhou. Será tentada novamente ao reconectar.");}else setLearningSyncNotice("Avaliação salva neste dispositivo. Entre na conta para sincronizar com o Supabase.");
     }catch{/* Keep local review if cloud is temporarily unavailable. */}
   }
   function captureReviewCandidate(){
