@@ -183,6 +183,8 @@ test("universal verification accepts isolated rendered heading edits",()=>{
   assert.equal(result.ok,true,variant+": "+result.reason);
   const output=render(after);
   assert.ok(output,variant+" should render");
+  assert.ok(output.text().includes("Nossa história"),variant+" must expose the edited heading in rendered HTML");
+  assert.ok(!output.text().includes("Sobre a empresa"),variant+" must not retain the previous heading in rendered HTML");
  }
 });
 
