@@ -84,7 +84,6 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  if(ids.size!==changedIds.length)return reject("IDs de alteração duplicados.");
  if(JSON.stringify(before)===JSON.stringify(after))return reject("O site permaneceu inalterado.");
  const oldOrder=before.blocks.map(b=>b.id),newOrder=after.blocks.map(b=>b.id);
- const moved=oldOrder.length===newOrder.length&&oldOrder.some((id,i)=>newOrder[i]!==id);
  for(const id of ids){
   if(id==="primary-cta-theme"){
    const previous=(before as Record<string,unknown>).universalPrimaryCtaColor;
@@ -114,7 +113,7 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
   }
   const old=oldBlocks.get(id),next=nextBlocks.get(id);
   if(!old&&!next)return reject("Bloco alterado inexistente: "+id);
-  if(old&&next&&JSON.stringify(old)===JSON.stringify(next)&&!moved)return reject("Bloco indicado não foi modificado: "+id);
+  if(old&&next&&JSON.stringify(old)===JSON.stringify(next)&&oldOrder.indexOf(id)===newOrder.indexOf(id))return reject("Bloco indicado não foi modificado nem movido: "+id);
  }
  for(const [id,old] of oldBlocks){
   if(ids.has(id))continue;
