@@ -320,8 +320,8 @@ export default function BuilderV2() {
         const rgb=[1,3,5].map(i=>parseInt(color.slice(i,i+2),16));
         const matches=candidates.some(el=>{
           const actual=window.getComputedStyle(el).backgroundColor;
-          const numbers=actual.match(/^rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)/);
-          return numbers!==null&&rgb.every((value,index)=>value===Number(numbers[index+1]));
+          const numbers=actual.replace(/[^0-9,.]/g,"").split(",").slice(0,3).map(Number);
+          return numbers.length===3&&rgb.every((value,index)=>value===numbers[index]);
         });
         if(!matches)failures.push(section+": cor de fundo renderizada diferente da configuração");
       }
