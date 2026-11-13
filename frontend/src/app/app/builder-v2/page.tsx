@@ -178,7 +178,7 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
 // Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
 // An applied operation is not an approved example and must not train the editor.
-async function syncEditorLearningEvent(event:{id:string;niche:string;model:string;intent:string;target:string;outcome:string;strategy:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
