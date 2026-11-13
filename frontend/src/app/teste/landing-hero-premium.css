@@ -874,3 +874,70 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-audience-card:hover,.pnr-page .pnr-audience-card:focus-visible{transform:none}
 }
+
+
+/* Trust section: full-width guarantee above the FAQ. */
+.pnr-page .pnr-trust{
+ display:flex;flex-direction:column;gap:22px;
+ max-width:1490px;margin-inline:auto;
+ padding-top:48px;padding-bottom:55px;
+}
+.pnr-page .pnr-guarantee{
+ width:100%;min-height:205px;
+ display:grid;grid-template-columns:112px minmax(0,1fr) 116px;
+ align-items:center;gap:28px;padding:32px 44px;
+}
+.pnr-page .pnr-shield{min-width:0;min-height:0;width:100%;height:auto}
+.pnr-page .pnr-shield svg{width:84px;height:84px}
+.pnr-page .pnr-guarantee-copy{min-width:0}
+.pnr-page .pnr-guarantee-copy h2{
+ font-size:clamp(27px,3vw,42px);line-height:1.12;
+ letter-spacing:-.045em;white-space:nowrap;margin-top:9px;
+}
+.pnr-page .pnr-guarantee-copy>p:last-child{
+ font-size:13px;line-height:1.65;max-width:72ch;margin-top:12px;
+}
+.pnr-page .pnr-seal{width:105px;height:105px;justify-self:end}
+.pnr-page .pnr-faq{
+ width:100%;min-height:0;
+ display:grid;grid-template-columns:minmax(210px,.7fr) minmax(0,1.7fr);
+ gap:35px;padding:32px 38px;align-items:start;
+}
+.pnr-page .pnr-faq-intro h2{font-size:clamp(28px,3vw,39px)}
+.pnr-page .pnr-faq-items{padding-right:0;gap:9px}
+.pnr-page .pnr-faq-item button{font-size:13px;padding:15px 17px}
+.pnr-page .pnr-faq-item p{font-size:13px;padding:0 17px 17px}
+.pnr-page .pnr-socials{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pnr-page .pnr-socials a{
+ display:grid;place-items:center;width:43px;height:43px;padding:10px;
+ border:1px solid rgba(166,255,99,.3);border-radius:12px;
+ background:rgba(255,255,255,.045);transition:transform .25s,border-color .25s,background .25s;
+}
+.pnr-page .pnr-socials a:hover,.pnr-page .pnr-socials a:focus-visible{
+ transform:translateY(-3px);border-color:#b6ff69;background:rgba(166,255,99,.1);
+}
+.pnr-page .pnr-socials img{width:22px;height:22px;object-fit:contain}
+@media(max-width:1100px){
+ .pnr-page .pnr-guarantee{grid-template-columns:82px minmax(0,1fr) 90px;gap:18px;padding:27px}
+ .pnr-page .pnr-guarantee-copy h2{font-size:clamp(24px,3vw,34px);white-space:normal}
+ .pnr-page .pnr-seal{width:85px;height:85px}
+}
+@media(max-width:700px){
+ .pnr-page .pnr-trust{gap:15px;padding-top:30px;padding-bottom:35px}
+ .pnr-page .pnr-guarantee{
+  grid-template-columns:55px minmax(0,1fr);gap:14px;
+  padding:23px 20px;min-height:0;
+ }
+ .pnr-page .pnr-shield svg{width:52px;height:52px}
+ .pnr-page .pnr-guarantee-copy h2{font-size:clamp(23px,6vw,32px);white-space:normal}
+ .pnr-page .pnr-guarantee-copy>p:last-child{font-size:12px}
+ .pnr-page .pnr-seal{grid-column:1/-1;justify-self:center;width:80px;height:80px}
+ .pnr-page .pnr-faq{display:flex;flex-direction:column;gap:22px;padding:24px 19px}
+ .pnr-page .pnr-faq-items{width:100%}
+ .pnr-page .pnr-faq-item button{font-size:12px;padding:14px}
+ .pnr-page .pnr-faq-item p{font-size:12px;padding:0 14px 14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-socials a{transition:none}
+ .pnr-page .pnr-socials a:hover{transform:none}
+}
