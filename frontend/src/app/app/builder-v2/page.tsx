@@ -235,19 +235,19 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
-    const existing=JSON.parse(localStorage.getItem(key)||"[]");
-    const events=Array.isArray(existing)?existing:[];
+    let events: Array<Record<string,unknown>>=[];
+    try{const existing=JSON.parse(localStorage.getItem(key)||"[]");events=Array.isArray(existing)?existing:[];}catch(error){console.warn("[editor-learning] Local history unavailable",error);}
     const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalized)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalized)?"layout":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
     events.push(event);
-    localStorage.setItem(key,JSON.stringify(events.slice(-150)));
+    try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id}}));
     void syncEditorLearningEvent(event).then(synced=>{
       window.dispatchEvent(new CustomEvent("pagenova:editor-learning-sync",{detail:{synced,id:event.id}}));
     });
-  }catch{/* Diagnostics must never block editing. */}
+  }catch(error){console.warn("[editor-learning] Capture failed",error);window.dispatchEvent(new CustomEvent("pagenova:editor-learning-sync",{detail:{synced:false}}));}
 }
 
 export default function BuilderV2() {
