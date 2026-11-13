@@ -7,7 +7,7 @@
  */
 import { TooltipProvider } from '@radix-ui/react-tooltip';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { Suspense, lazy, type ReactNode } from 'react';
+import { Component, Suspense, lazy, type ReactNode, type ErrorInfo } from 'react';
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { AppLayout } from './components/layout/AppLayout';
@@ -29,6 +29,17 @@ const TeamPage = lazy(() => import('./pages/TeamPage'));
 const MeetingsPage = lazy(() => import('./pages/MeetingsPage'));
 const SiteAiPage = lazy(() => import('./pages/SiteAiPage'));
 const SiteProjectPage = lazy(() => import('./pages/SiteProjectPage'));
+class CrmRenderBoundary extends Component<{children:ReactNode},{failed:boolean}> {
+  state={failed:false};
+  static getDerivedStateFromError(){return {failed:true};}
+  componentDidCatch(error:Error,info:ErrorInfo){
+    console.error('[crm] render failure',error,info.componentStack);
+  }
+  render(){
+    if(this.state.failed)return <main role="alert" className="flex min-h-[70dvh] flex-col items-center justify-center gap-4 bg-background px-6 text-center text-foreground"><h1 className="text-xl font-semibold">Não foi possível exibir esta etapa do CRM</h1><p className="max-w-md text-sm text-muted-foreground">Seu projeto pode continuar salvo ou em geração. Volte à lista antes de tentar novamente, para evitar duplicações.</p><a className="rounded-lg bg-primary px-5 py-3 font-semibold text-primary-foreground" href="#/sites-ia">Ver projetos gerados</a><button type="button" className="rounded-lg border border-border px-5 py-3" onClick={()=>this.setState({failed:false})}>Tentar carregar novamente</button></main>;
+    return this.props.children;
+  }
+}
 function RequireAuth({ children }: { children: ReactNode }) {
   /*
    * PageNova embedded mode:
@@ -82,7 +93,7 @@ export function App() {
         <AuthProvider>
           <TooltipProvider delayDuration={200}>
             <ToastProvider>
-              <AppRoutes />
+              <CrmRenderBoundary><AppRoutes /></CrmRenderBoundary>
             </ToastProvider>
           </TooltipProvider>
         </AuthProvider>
