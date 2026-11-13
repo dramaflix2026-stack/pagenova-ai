@@ -3,7 +3,7 @@ import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
-import {verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
+import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -912,13 +912,15 @@ export default function BuilderV2() {
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
         if(!result||!result.ok){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal",site.briefingLayoutVariant||"unknown");
+          const failureReason=result&&!result.ok?result.error:"Anexos incompatíveis com edição combinada.";
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-parse:"+diagnoseUniversalEditFailure(failureReason),site.briefingLayoutVariant||"unknown");
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
         const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
         if(!verification.ok){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification",site.briefingLayoutVariant||"unknown");
+          const failureCode=diagnoseUniversalEditFailure(verification.reason);
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+failureCode,site.briefingLayoutVariant||"unknown");
           setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
           return;
         }
