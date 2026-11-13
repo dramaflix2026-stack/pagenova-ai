@@ -243,6 +243,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     localStorage.setItem(key,JSON.stringify(events.slice(-150)));
+    if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id}}));
     void syncEditorLearningEvent(event).then(synced=>{
       window.dispatchEvent(new CustomEvent("pagenova:editor-learning-sync",{detail:{synced,id:event.id}}));
     });
@@ -323,10 +324,12 @@ export default function BuilderV2() {
       setLearningSyncNotice(detail?.synced?"Edição registrada no Supabase. Aguarde sua avaliação.":"Edição salva neste dispositivo, mas ainda NÃO registrada no Supabase. Confira a sessão e a conexão.");
       if(detail?.synced)void refreshApprovedExperiences();
     };
+    const onCaptured=(raw:Event)=>{const id=(raw as CustomEvent<{id:string}>).detail?.id;if(id)setReviewCandidate({id,status:"pending"});};
+    window.addEventListener("pagenova:editor-learning-captured",onCaptured);
     window.addEventListener("pagenova:editor-learning-sync",onLearningSync);
     window.addEventListener("online",retry);
     window.addEventListener("focus",retry);
-    return ()=>{window.removeEventListener("pagenova:editor-learning-sync",onLearningSync);window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
+    return ()=>{window.removeEventListener("pagenova:editor-learning-captured",onCaptured);window.removeEventListener("pagenova:editor-learning-sync",onLearningSync);window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
   },[]);
   async function reviewLastEdit(status:"approved"|"rejected"){
     if(!reviewCandidate||reviewCandidate.status!=="pending")return;
