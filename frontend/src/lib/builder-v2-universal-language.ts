@@ -738,6 +738,19 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
    {action:"update",blockId:paragraphs[0].id,changes:{text:description}}
   ]);
  }
+ // Site-wide primary CTA color: update only actual editable button blocks.
+ // Do not claim success if a template has no button blocks; its renderer needs a separate adapter.
+ const allPrimaryButtonColor=instruction.match(/^\s*(?:altere|troque|mude|defina|atualize)\s+(?:a\s+)?cor\s+(?:de\s+fundo\s+)?de\s+todos\s+os\s+bot[oõ]es\s+principais\s+(?:do\s+site\s+)?(?:para|por)\s+(azul[\s-]*marinho(?:\s+escuro)?|#[0-9a-f]{3,6}|preto|branco|verde|vermelho|azul|dourado)(?:[.!?\s]|$)/i);
+ if(allPrimaryButtonColor){
+  const raw=allPrimaryButtonColor[1].toLowerCase().trim();
+  const color=/^azul[\s-]*marinho/.test(raw)?"#1E3A5F":raw==="preto"?"#000000":raw==="branco"?"#FFFFFF":raw==="verde"?"#16A34A":raw==="vermelho"?"#DC2626":raw==="azul"?"#2563EB":raw==="dourado"?"#D4AF37":raw;
+  const expanded=/^#[0-9a-f]{3}$/i.test(color)?"#"+color.slice(1).split("").map(x=>x+x).join(""):color;
+  const buttons=site.blocks.filter(b=>b.type==="button");
+  const primary=buttons.filter(b=>["primary","principal","main"].includes(String(b.role||b.variant||b.ctaRole||"").toLowerCase()));
+  const targets=primary.length?primary:buttons;
+  if(!targets.length)return {ok:false,error:"Não foram encontrados botões editáveis no site. Nenhuma alteração aplicada; os CTAs deste template precisam de adaptação própria."};
+  return applyUniversalOperations(site,targets.map(b=>({action:"update" as const,blockId:b.id,changes:{background:expanded}})));
+ }
  // Universal hero CTA label-only edit: preserve the existing URL and all other properties.
  const heroButtonColor=instruction.match(/^(?:altere|troque|mude|defina)\s+a\s+cor\s+de\s+fundo\s+do\s+bot[aã]o\s+principal\s+da\s+capa\s+(?:para|por)\s+(?:preto\s*)?\(?\s*(#[0-9a-f]{3,8})\s*\)?\.?(?:\s+(?:mantenha|preserve|n[aã]o\s+altere)\b[\s\S]*)?$/i);
  if(heroButtonColor){
