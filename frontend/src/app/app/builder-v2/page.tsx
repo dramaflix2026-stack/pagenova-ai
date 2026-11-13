@@ -893,11 +893,15 @@ export default function BuilderV2() {
         (preferredStrategy.universal||0)>Math.max(0,...Object.entries(preferredStrategy).filter(([strategy])=>strategy!=="universal").map(([,count])=>count));
       // When the user has repeatedly approved this route, attempt it first.
       // Other strategies remain available only through their existing guarded paths.
+      const aiScore=preferredStrategy["ai-editor"]||0;
+      const universalScore=preferredStrategy.universal||0;
+      const learnedAiEligible=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&
+        aiScore>=2&&aiScore>universalScore&&universalScore<0;
       const sectionBackgroundRequest=!hasAttachments&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
       // A compound color request must run through the atomic universal parser.
       // The background-only shortcut can verify just one clause and must never
       // intercept a request that also changes a heading, card or other element.
-      if(sectionBackgroundRequest&&!compound){
+      if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
         setGenerationError(backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada.");
@@ -917,10 +921,7 @@ export default function BuilderV2() {
         approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
       // A learned AI route is eligible only when it has positive reviewed evidence
       // and beats a negatively scored universal route. Compound edits remain atomic.
-      const aiScore=preferredStrategy["ai-editor"]||0;
-      const universalScore=preferredStrategy.universal||0;
-      const preferLearnedAi=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&!preferScopedCopy&&
-        aiScore>=2&&aiScore>universalScore&&universalScore<0;
+      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy;
       const result=hasAttachments||imageChange||preferScopedCopy||preferLearnedAi?null:applyUniversalNaturalLanguage(site,prompt);
       // Audit the route that was actually attempted, not merely the preferred route.
       // This distinguishes a learned preference from a real execution decision.
