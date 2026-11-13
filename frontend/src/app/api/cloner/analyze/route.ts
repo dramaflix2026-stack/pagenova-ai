@@ -233,7 +233,18 @@ export async function POST(request:NextRequest){
   try{
     await authorizedForms();
     const origin=request.headers.get("origin");
-    if(origin&&origin!==request.nextUrl.origin)throw new FormServiceError("Origem não autorizada.",403);
+    // Railway can expose an internal request origin behind its public reverse proxy.
+    // Validate against the actual request Host (and the proxy's forwarded host),
+    // rather than relying exclusively on nextUrl.origin.
+    if(origin){
+      let parsedOrigin:URL;
+      try{parsedOrigin=new URL(origin)}catch{throw new FormServiceError("Origem não autorizada.",403)}
+      const host=request.headers.get("host")?.toLowerCase()||"";
+      const forwardedHost=request.headers.get("x-forwarded-host")?.split(",")[0]?.trim().toLowerCase()||"";
+      const allowedHosts=[host,forwardedHost,request.nextUrl.host.toLowerCase()].filter(Boolean);
+      if(parsedOrigin.protocol!=="https:"||!allowedHosts.includes(parsedOrigin.host.toLowerCase()))
+        throw new FormServiceError("Origem não autorizada.",403);
+    }
     const text=await request.text();
     if(text.length>2000)throw new FormServiceError("Pedido muito grande.",413);
     const input=JSON.parse(text) as {url?:unknown};
