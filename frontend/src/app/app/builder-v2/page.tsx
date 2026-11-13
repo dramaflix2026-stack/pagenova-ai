@@ -1499,7 +1499,7 @@ export default function BuilderV2() {
       if(!creatingNewSite&&site.blocks.length>0){
         const changed=JSON.stringify(site.blocks)!==JSON.stringify(incoming.blocks);
         recordEditorLearningEvent(site.niche||"",prompt,changed?"applied":"rejected",
-          scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?"scoped-copy":"ai-editor");
+          scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?"scoped-copy":"ai-editor",site.briefingLayoutVariant||"unknown");
         if(changed)captureReviewCandidate();
       }
       let finishedSite=incoming;
