@@ -163,6 +163,54 @@ export default function EditorPage() {
     useState("left");
   // PAGENOVA_EDITOR_TEXT_BLOCKS_END
 
+  // Double-click shortcuts for the existing visual editor.
+  const replacementFileRef = useRef<HTMLInputElement | null>(null);
+  const replacementTargetRef = useRef<Element | null>(null);
+  const doubleClickCleanupRef = useRef<(() => void) | null>(null);
+  const [quickEditStatus, setQuickEditStatus] = useState<string | null>(null);
+
+  const onReplacementFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    const target = replacementTargetRef.current;
+    if (!file || !target?.isConnected) return;
+    if (!["image/png","image/jpeg","image/webp","image/gif","image/svg+xml"].includes(file.type)) {
+      setQuickEditStatus("Escolha uma imagem PNG, JPG, WebP, GIF ou SVG.");
+      return;
+    }
+    if (file.size > 2_000_000) {
+      setQuickEditStatus("Imagem acima de 2 MB. Comprima o arquivo antes de enviar.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result || "");
+      if (!dataUrl.startsWith("data:image/") || !target.isConnected) return;
+      const image = target.tagName.toLowerCase() === "img" ? target as HTMLImageElement : target.querySelector("img");
+      if (image) {
+        image.setAttribute("src", dataUrl);
+        image.removeAttribute("srcset");
+        image.removeAttribute("sizes");
+        image.style.setProperty("visibility","visible");
+        image.style.setProperty("opacity","1");
+        image.closest("picture")?.querySelectorAll("source").forEach(source => source.remove());
+      } else if (target instanceof SVGElement) {
+        const replacement = target.ownerDocument.createElement("img");
+        replacement.src = dataUrl;
+        replacement.style.cssText = "width:100%;height:100%;object-fit:contain";
+        replacement.setAttribute("alt", "Ícone substituído");
+        target.replaceWith(replacement);
+      } else if (target instanceof HTMLElement) {
+        target.style.setProperty("background-image", 'url("' + dataUrl + '")');
+        target.style.setProperty("background-size", "cover");
+        target.style.setProperty("background-position", "center");
+      }
+      setQuickEditStatus("Imagem substituída. Clique em Salvar para manter a alteração.");
+    };
+    reader.onerror = () => setQuickEditStatus("Não foi possível ler a imagem.");
+    reader.readAsDataURL(file);
+  }, []);
+
   const handleEditorIframeLoad =
     useCallback(() => {
       editorBridgeCleanupRef.current?.();
@@ -179,6 +227,48 @@ export default function EditorPage() {
           iframe,
           setSelectedElement
         );
+      doubleClickCleanupRef.current?.();
+      const doc = iframe.contentDocument;
+      if (doc) {
+        const onDoubleClick = (event: MouseEvent) => {
+          const element = event.target instanceof Element ? event.target : null;
+          if (!element) return;
+          const image = element.closest("img,svg,button,[role='img']") ||
+            (element.closest("a")?.querySelector("img,svg")) ||
+            (element.closest("[style*='background-image']"));
+          const isVisual = image && (image.matches("img,svg,[role='img'],[style*='background-image']") ||
+            Boolean(image.querySelector("img,svg")));
+          if (isVisual) {
+            event.preventDefault();
+            event.stopPropagation();
+            replacementTargetRef.current = image;
+            replacementFileRef.current?.click();
+            return;
+          }
+          const button = element.closest("a,button,[role='button']");
+          if (!button) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const link = button.closest("a") || button.querySelector("a");
+          const current = link?.getAttribute("href") || button.getAttribute("data-href") || "";
+          const url = window.prompt("URL de destino do botão (https://...):",current);
+          if (url === null) return;
+          const value = url.trim();
+          if (!/^https:\/\//i.test(value)) {
+            setQuickEditStatus("Use uma URL HTTPS válida.");
+            return;
+          }
+          if (link) link.setAttribute("href",value);
+          else {
+            button.setAttribute("data-href",value);
+            if (button instanceof HTMLElement) button.setAttribute("onclick","window.location.href="+JSON.stringify(value));
+          }
+          setEditingLinkHref(value);
+          setQuickEditStatus("Destino atualizado. Clique em Salvar para manter a alteração.");
+        };
+        doc.addEventListener("dblclick",onDoubleClick,true);
+        doubleClickCleanupRef.current = () => doc.removeEventListener("dblclick",onDoubleClick,true);
+      }
     }, []);
   // V4B_1_2R_2_CALLBACK_ORDER
   // DOM resolver must be declared before text callbacks.
@@ -1330,7 +1420,7 @@ if (!project) {
   }
 
   return (
-    <main className="flex h-[100dvh] min-h-[520px] flex-col overflow-hidden bg-[#090909] text-white">
+    <><input ref={replacementFileRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" className="hidden" onChange={onReplacementFile}/><main className="flex h-[100dvh] min-h-[520px] flex-col overflow-hidden bg-[#090909] text-white">
       <header className="flex min-h-16 flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#101010] px-3 py-2 sm:gap-4 sm:px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-4">
           <button
@@ -1429,6 +1519,7 @@ if (!project) {
             :"Clonagem visual mobile concluída; revisão desktop não concluída."
           :"Clonagem parcial: captura estática porque o navegador visual não respondeu. Alguns blocos podem faltar."}
       </p>}
+      {quickEditStatus&&<p role="status" className="border-b border-emerald-400/20 bg-[#102019] px-4 py-2 text-center text-xs text-emerald-200">{quickEditStatus}</p>}
       {saveStatus&&<p role="status" aria-live="polite" className="border-b border-white/10 bg-[#101010] px-4 py-2 text-xs text-emerald-200 xl:hidden">{saveStatus}</p>}
       <div className="flex min-h-0 flex-1">
         <aside className="hidden w-64 shrink-0 border-r border-white/10 bg-[#101010] p-5 lg:block">
@@ -1782,6 +1873,6 @@ if (!project) {
           </div>
         </section>
       </div>
-    </main>
+    </main></>
   );
 }
