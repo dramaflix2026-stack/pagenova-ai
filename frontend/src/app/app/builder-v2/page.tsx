@@ -857,8 +857,9 @@ export default function BuilderV2() {
       // The reviewed outcomes are used before execution, never just displayed as statistics.
       // Strongly rejected button-color routes require an explicit, verified alternative;
       // unrelated hero/text approvals must not offset their failure history.
-      const rejectedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="rejected"&&pattern.strategy==="universal").length;
-      const approvedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="approved"&&pattern.execution_status==="applied"&&pattern.strategy==="universal").length;
+      const strategyFamily=(strategy:string)=>strategy==="universal"||strategy.startsWith("universal-")||strategy.startsWith("universal:")?"universal":strategy;
+      const rejectedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="rejected"&&strategyFamily(pattern.strategy)==="universal").length;
+      const approvedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="approved"&&pattern.execution_status==="applied"&&strategyFamily(pattern.strategy)==="universal").length;
       // Learned circuit breaker: do not repeat a CTA-color route that the user
       // has rejected multiple times across templates without a single approval.
       // This is deliberately narrow: other operations remain available.
@@ -876,7 +877,10 @@ export default function BuilderV2() {
         const nicheWeight=pattern.niche===(site.niche||"")?3:1;
         const modelWeight=pattern.model===site.briefingLayoutVariant?2:1;
         const weight=outcomeWeight*nicheWeight*modelWeight;
-        scores[pattern.strategy]=(scores[pattern.strategy]||0)+weight;
+        const family=strategyFamily(pattern.strategy);
+        // Classified failures belong to their parent execution route, rather
+        // than becoming independent strategies that evade negative feedback.
+        scores[family]=(scores[family]||0)+weight;
         return scores;
       },{} as Record<string,number>);
       const preferUniversal=(preferredStrategy.universal||0)>=2 &&
