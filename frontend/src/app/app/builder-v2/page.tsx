@@ -692,8 +692,19 @@ export default function BuilderV2() {
       completed++;
     }
     if(!completed)throw new Error("Imagens indisponíveis: verifique o armazenamento do Supabase.");
-    setMessages(prev=>[...prev,{role:"assistant",text:completed+" imagem(ns) criada(s). "+(completed<jobs.length?"Algumas imagens falharam.":"Pode substituir uma imagem pelo chat.")}]);
-    return {...current,blocks};
+    const next={...current,blocks};
+    if(coverReplacement){
+      const edited=blocks.find(b=>b.id===(coverBlock?.id||"visual-0"));
+      const original=current.blocks.find(b=>b.id===edited?.id);
+      const changed=!!edited?.src&&edited.src!==original?.src&&edited.imageExplicit===true;
+      if(!changed)throw new Error("A imagem da capa não foi substituída. Nenhuma alteração confirmada.");
+      const verified=verifyUniversalEditResult(current,next,[edited.id]);
+      if(!verified.ok)throw new Error("A troca da capa não passou na verificação: "+verified.reason);
+      setMessages(prev=>[...prev,{role:"assistant",text:"Imagem da capa substituída nos dados do site. Confira a prévia para confirmar a exibição."}]);
+    }else{
+      setMessages(prev=>[...prev,{role:"assistant",text:completed+" imagem(ns) aplicada(s) ao site. "+(completed<jobs.length?"Algumas imagens falharam.":"Confira as imagens na prévia.")}]);
+    }
+    return next;
   }
   function applySingleButtonAlignment(current:Site,prompt:string):{site:Site;summary:string}|null {
     const normalized=prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
