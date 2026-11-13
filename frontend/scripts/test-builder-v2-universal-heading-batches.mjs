@@ -198,3 +198,22 @@ test("universal verification permits declared section events and rejects unrelat
  after.universalSectionEvents.push({action:"remove",section:{id:"contato"}});
  assert.equal(verifyUniversalEditResult(before,after,["about-heading"]).ok,false);
 });
+
+
+test("real natural-language batch is visible in HTML across all three models",()=>{
+ for(const variant of ["01","02","03"]){
+  const before=create(variant);
+  const result=applyUniversalNaturalLanguage(before,prompt);
+  assert.equal(result?.ok,true,variant+": "+result?.error);
+  if(!result?.ok)continue;
+  const verified=verifyUniversalEditResult(before,result.site,result.changedIds);
+  assert.equal(verified.ok,true,variant+": "+verified.reason);
+  const rendered=render(result.site).text();
+  for(const expected of ["Beleza e inovação em perfeita harmonia","Nossa essência","Tire suas dúvidas"]){
+   assert.ok(rendered.includes(expected),variant+" missing rendered text: "+expected);
+  }
+  for(const previous of ["Sobre a empresa"]){
+   assert.ok(!rendered.includes(previous),variant+" retained stale rendered text: "+previous);
+  }
+ }
+});
