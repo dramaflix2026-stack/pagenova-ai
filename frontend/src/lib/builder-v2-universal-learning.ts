@@ -79,6 +79,15 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
    if(typeof updated!=="string"||!/^#[0-9a-fA-F]{6}$/.test(updated)||previous===updated)return reject("A cor dos CTAs não foi modificada.");
    continue;
   }
+  if(id.startsWith("section-heading-color:")){
+   const section=id.slice("section-heading-color:".length);
+   const oldStyles=(before as Record<string,unknown>).universalSectionStyles as Record<string,Record<string,unknown>>|undefined;
+   const nextStyles=(after as Record<string,unknown>).universalSectionStyles as Record<string,Record<string,unknown>>|undefined;
+   const previous=oldStyles?.[section]?.headingColor;
+   const updated=nextStyles?.[section]?.headingColor;
+   if(typeof updated!=="string"||!/^#[0-9a-fA-F]{6}$/.test(updated)||previous===updated)return reject("Cor do título da seção não foi modificada: "+section);
+   continue;
+  }
   if(id.startsWith("section-style:")){
    const section=id.slice("section-style:".length);
    const oldStyles=(before as Record<string,unknown>).universalSectionStyles as Record<string,unknown>|undefined;
@@ -105,7 +114,7 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  const oldMetadata={...(before as Record<string,unknown>)};
  const nextMetadata={...(after as Record<string,unknown>)};
  delete oldMetadata.blocks;delete nextMetadata.blocks;
- const declaredStyleSections=changedIds.filter(id=>id.startsWith("section-style:")).map(id=>id.slice("section-style:".length));
+ const declaredStyleSections=changedIds.filter(id=>id.startsWith("section-style:")||id.startsWith("section-heading-color:")).map(id=>id.slice(id.indexOf(":")+1));
  if(declaredStyleSections.length){
   const oldStyles=(oldMetadata.universalSectionStyles||{}) as Record<string,unknown>;
   const nextStyles=(nextMetadata.universalSectionStyles||{}) as Record<string,unknown>;
