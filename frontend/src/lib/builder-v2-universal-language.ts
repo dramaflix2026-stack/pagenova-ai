@@ -336,10 +336,9 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  }
  if(!cards.length||requestedCount!==null&&cards.length!==requestedCount)return {ok:false,error:"A quantidade ou os títulos dos cards não correspondem ao pedido. Nenhuma alteração aplicada."};
  if(cards.length>12||new Set(cards.map(c=>normalized(c.title))).size!==cards.length)return {ok:false,error:"Os cards precisam ter títulos únicos e quantidade válida. Nenhuma alteração aplicada."};
- const entries=[{type:"heading",text:name},...cards.flatMap(card=>[
-  {type:"heading",text:card.title},
-  {type:"paragraph",text:card.description}
- ])];
+ // The universal renderer treats paragraphs as cards; encode title and copy together.
+ // Separate heading blocks would be rendered as extra section headings, not card titles.
+ const entries=[{type:"heading",text:name},...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))];
  const operations:UniversalOperation[]=[];let afterId=previous.id;
  for(let i=0;i<entries.length;i++){
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
