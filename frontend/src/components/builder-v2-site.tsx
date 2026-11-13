@@ -259,23 +259,8 @@ type BuilderV2SiteProps={site:BuilderV2SiteData;selectedNiche?:string;publishedM
 
 /** All 3 model variants in every niche enter through this universal motion boundary.
  *  The classic renderer keeps its existing block-specific motion system intact. */
-/** Apply only explicit, validated section overrides to rendered sections.
- * This keeps editorial template markup intact while making universal edits visible. */
 export function BuilderV2Site(props:BuilderV2SiteProps){
- const rawStyles=(props.site as unknown as Record<string,unknown>).universalSectionStyles;
- const sectionStyles=rawStyles&&typeof rawStyles==="object"&&!Array.isArray(rawStyles)?rawStyles as Record<string,unknown>:{};
- const css=Object.entries(sectionStyles).flatMap(([section,raw])=>{
-  if(!/^[a-zA-Z0-9_-]{1,80}$/.test(section)||!raw||typeof raw!=="object"||Array.isArray(raw))return [];
-  const bg=(raw as Record<string,unknown>).backgroundColor;
-  if(typeof bg!=="string"||!/^#[0-9a-fA-F]{6}$/.test(bg))return [];
-  const ids=[section,...(/^(?:services|servicos)(?:[-_][a-z0-9]+)?$/i.test(section)?["services","servicos"]:[])];
-  return [...new Set(ids)].flatMap(id=>[
-   `[data-pn-universal-site] section[data-section-id="${id}"]`,
-   `[data-pn-universal-site] section[data-universal-section="${id}"]`,
-   `[data-pn-universal-site] section[id="${id}"]`
-  ]).join(",")+"{background-color:"+bg+"!important}";
- }).join("\n");
- return <div data-pn-universal-site="true">{css?<style>{css}</style>:null}<UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion></div>;
+ return <UniversalSiteScrollMotion site={props.site}><BuilderV2SiteContent {...props}/></UniversalSiteScrollMotion>;
 }
 
 function BuilderV2SiteContent(props:BuilderV2SiteProps){
