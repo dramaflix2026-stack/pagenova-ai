@@ -314,8 +314,8 @@ export default function BuilderV2() {
       const {count,error}=await client.from("builder_editor_learning_events")
         .select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("review_status","approved");
       if(!error)setApprovedExperienceCount(count??0);
-      const {data:events,error:eventsError}=await client.from("builder_editor_learning_events").select("review_status").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1000);
-      if(!eventsError&&events){setCloudLearningCounts({total:events.length,approved:events.filter(e=>e.review_status==="approved").length,rejected:events.filter(e=>e.review_status==="rejected").length,pending:events.filter(e=>e.review_status==="pending").length});}
+      const {data:events,error:eventsError}=await client.from("builder_editor_learning_events").select("id,niche,intent,target,strategy,execution_status,review_status").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1000);
+      if(!eventsError&&events){setCloudLearningCounts({total:events.length,approved:events.filter(e=>e.review_status==="approved").length,rejected:events.filter(e=>e.review_status==="rejected").length,pending:events.filter(e=>e.review_status==="pending").length});const pending=events.find(e=>e.review_status==="pending"&&e.execution_status==="applied");if(pending){reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:"applied",strategy:pending.strategy||"unknown"};setReviewCandidate(current=>current?.status==="pending"?current:{id:pending.id,status:"pending"});}}
     }catch{/* Reading learning history must not block editing. */}
   }
   useEffect(()=>{
