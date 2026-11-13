@@ -339,7 +339,7 @@ export default function BuilderV2() {
     try{
       const events=JSON.parse(localStorage.getItem(key)||"[]");
       if(Array.isArray(events)){
-        event=events.find((entry:{id?:string})=>entry.id===id&&entry.outcome==="applied");
+        event=events.find((entry:{id?:string;outcome?:string})=>entry.id===id&&entry.outcome==="applied");
         if(event){
           event.review=status;
           localStorage.setItem(key,JSON.stringify(events));
