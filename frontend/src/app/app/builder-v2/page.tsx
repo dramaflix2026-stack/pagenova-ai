@@ -178,13 +178,13 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
 // Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
 // An applied operation is not an approved example and must not train the editor.
-async function syncEditorLearningEvent(event:{id:string;niche:string;intent:string;target:string;outcome:string;strategy:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model:string;intent:string;target:string;outcome:string;strategy:string}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
     if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Sessão Supabase não reconhecida. Entre novamente na conta para sincronizar o aprendizado."}}));return false;}
     const {error:insertError}=await client.from("builder_editor_learning_events").insert({
-      id:event.id,user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
+      id:event.id,user_id:user.id,niche:event.niche||"unknown",model:event.model||"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
@@ -232,7 +232,7 @@ async function readApprovedEditorPatterns(niche:string){
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
-function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string){
+function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown"){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -241,7 +241,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalized)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalized)?"layout":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
     const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
-    const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",intent,target,outcome,strategy,review:"pending"};
+    const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     if(outcome==="applied")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -764,7 +764,7 @@ export default function BuilderV2() {
         recordVersion(site,"Antes da edição veterinária");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -804,7 +804,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição Fitness");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -828,8 +828,8 @@ export default function BuilderV2() {
         const photoUrl="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=82";
         const next={...site,blocks:site.blocks.map(b=>b.id===card.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true}:b)};
         const photoVerification=verifyUniversalEditResult(site,next,[card.id]);
-        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card");captureReviewCandidate();
+        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification",site.briefingLayoutVariant||"unknown");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
         recordVersion(site,"Antes da troca de fotografia do card");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(next);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alterada somente a fotografia do card Planejamento em Nossa Metodologia. Outras imagens preservadas."}]);return;
       }
@@ -857,10 +857,10 @@ export default function BuilderV2() {
       const sectionBackgroundRequest=!hasAttachments&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
       if(sectionBackgroundRequest){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"unknown");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
         setGenerationError(backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada.");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada."}]);
-        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal");
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal",site.briefingLayoutVariant||"unknown");
         setInstruction("");
         return;
       }
@@ -880,24 +880,24 @@ export default function BuilderV2() {
       if(result||(compound&&hasAttachments&&!singleAttachedImageEdit)){
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
         if(!result||!result.ok){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal",site.briefingLayoutVariant||"unknown");
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
         const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
         if(!verification.ok){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification",site.briefingLayoutVariant||"unknown");
           setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
           return;
         }
         if(result.changedIds.length===0||JSON.stringify(result.site)===JSON.stringify(site)){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change",site.briefingLayoutVariant||"unknown");
           setMessages(prev=>[...prev,{role:"assistant",text:"A operação não produziu alteração verificável. Nenhuma alteração aplicada."}]);
           return;
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"assistant",text:summarizeUniversalEdit(result)}]);
         return;
       }
