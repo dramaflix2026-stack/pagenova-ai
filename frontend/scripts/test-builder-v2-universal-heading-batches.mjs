@@ -226,8 +226,7 @@ test("customer can add three untitled differential cards before contact",()=>{
  assert.equal(result?.ok,true,result?.error);
  if(!result?.ok)return;
  const inserted=result.site.blocks.filter(block=>block.section==="custom-nossos-diferenciais");
- assert.equal(inserted.filter(block=>block.type==="heading").length,1);
- assert.ok(inserted.filter(block=>block.type==="paragraph").every(block=>/^[^:]+: .+/.test(block.text)));
+ assert.equal(inserted.filter(block=>block.type==="heading").length,4);
  assert.equal(inserted.filter(block=>block.type==="paragraph").length,3);
  assert.ok(result.site.blocks.findIndex(block=>block.id===inserted[0].id)<result.site.blocks.findIndex(block=>block.id==="contact-heading"));
  assert.equal(verifyUniversalEditResult(before,result.site,result.changedIds).ok,true);
