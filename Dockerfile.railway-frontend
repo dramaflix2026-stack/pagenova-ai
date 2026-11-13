@@ -2,6 +2,12 @@
 FROM node:24-bookworm-slim
 WORKDIR /workspace
 COPY . .
+# Build the embedded CRM from its current source on every frontend deployment.
+# Previously Next.js served committed, stale /public/stavo-crm bundles, so CRM
+# source fixes never reached production despite successful Railway deployments.
+WORKDIR /workspace/modules/stavo-crm
+RUN npm ci --ignore-scripts --no-audit --no-fund --fetch-retries=2 --fetch-timeout=120000
+RUN npm run build:client && rm -rf /workspace/frontend/public/stavo-crm && mkdir -p /workspace/frontend/public/stavo-crm && cp -a dist/client/. /workspace/frontend/public/stavo-crm/
 WORKDIR /workspace/frontend
 RUN npm ci --no-audit --no-fund --loglevel=verbose --fetch-retries=2 --fetch-timeout=120000
 
