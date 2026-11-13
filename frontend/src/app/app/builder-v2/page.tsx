@@ -240,7 +240,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     try{const existing=JSON.parse(localStorage.getItem(key)||"[]");events=Array.isArray(existing)?existing:[];}catch(error){console.warn("[editor-learning] Local history unavailable",error);}
     const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
     const intent=/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalized)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalized)?"layout":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
-    const target=/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
+    const target=/(botao|botoes|cta|button|agendamento)/.test(normalized)?"buttons":/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,outcome,strategy,review:"pending"};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
@@ -852,8 +852,16 @@ export default function BuilderV2() {
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
       const normalizedPrompt=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
       const inferredIntent=/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalizedPrompt)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalizedPrompt)?"layout":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
-      const inferredTarget=/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
+      const inferredTarget=/(botao|botoes|cta|button|agendamento)/.test(normalizedPrompt)?"buttons":/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
       const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
+      // The reviewed outcomes are used before execution, never just displayed as statistics.
+      // Strongly rejected button-color routes require an explicit, verified alternative;
+      // unrelated hero/text approvals must not offset their failure history.
+      const rejectedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="rejected"&&pattern.strategy==="universal").length;
+      const approvedButtonEdits=relevantPatterns.filter(pattern=>pattern.review_status==="approved"&&pattern.execution_status==="applied"&&pattern.strategy==="universal").length;
+      if(inferredIntent==="style"&&inferredTarget==="buttons"&&rejectedButtonEdits>=2&&approvedButtonEdits===0){
+        console.warn("[editor-learning] Repeated rejected CTA strategy; preserving strict verification.",{rejectedButtonEdits,approvedButtonEdits});
+      }
       const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
         const outcomeWeight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1:0;
         // Same-niche experience takes priority; other niches provide a weaker transferable signal.
