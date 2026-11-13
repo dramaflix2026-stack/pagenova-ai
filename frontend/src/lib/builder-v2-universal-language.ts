@@ -444,7 +444,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  const exactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+["“]([^"”]{1,300})["”]\s+(?:para|por)\s+["“]([^"”]{1,300})["”](?:\s*[.!?,;:]?\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*[.!?]?$/i);
  // Plain-language variant: no quotation marks, commas or final punctuation required.
  // "de ... para ..." supplies unambiguous old/new boundaries.
- const plainHeading=!exactHeading?instruction.trim().match(/^na\\s+se[cç][aã]o\\s+(.+?)\\s*,?\\s*(?:troque|altere|mude|substitua)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+de\\s+(.+?)\\s+(?:para|por)\\s+(.+?)(?:\\s+(?:n[aã]o\\s+altere|sem\\s+alterar|preserve|mantenha)\\b[\\s\\S]*)?\\s*[.!?]?$/i):null;
+ const plainHeading=!exactHeading?instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?)\s*,?\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+de\s+(.+?)\s+(?:para|por)\s+(.+?)(?:\s+(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*[.!?]?$/i):null;
  const resolvedHeading=exactHeading||plainHeading;
  if(resolvedHeading){
   const section=resolveUniversalSection(site,resolvedHeading[1].trim());
@@ -453,7 +453,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
   const original=normalize(resolvedHeading[2]);
   const matches=site.blocks.filter(b=>b.section===section&&b.type==="heading"&&normalize(String(b.text||""))===original);
   if(matches.length!==1)return {ok:false,error:"O título original não foi localizado de forma única na seção. Nenhuma alteração aplicada."};
-  const target=matches[0],value=resolvedHeading[3].trim().replace(/[.!?]$/,'').trim();
+  const target=matches[0],value=exactHeading?resolvedHeading[3].trim():resolvedHeading[3].trim().replace(/[!?]$/,'').trim();
   if(!value||normalize(value)===original)return {ok:false,error:"O novo título é inválido ou igual ao original. Nenhuma alteração aplicada."};
   const result=applyUniversalOperations(site,[{action:"update",blockId:target.id,changes:{text:value}}]);
   if(!result.ok)return result;
