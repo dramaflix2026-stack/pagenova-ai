@@ -805,3 +805,72 @@
  .pnr-page .pnr-price-card,.pnr-page .pnr-price-card.is-featured,.pnr-page .pnr-price-card:before,.pnr-page .pnr-price-icon,.pnr-page .pnr-guarantee:before,.pnr-page .pnr-shield,.pnr-page .pnr-seal{animation:none!important;transition:none!important}
  .pnr-page .pnr-price-card:hover{transform:none!important}
 }
+
+
+/* Audience layout refinement — balanced grid, readable copy, no faux progress bars. */
+.pnr-page .pnr-audience-grid{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ grid-template-rows:none;
+ gap:18px;
+ max-width:1100px;
+ margin-inline:auto;
+ align-items:stretch;
+}
+.pnr-page .pnr-audience-card,
+.pnr-page .pnr-audience-card:first-child{
+ grid-column:auto;
+ grid-row:auto;
+ min-width:0;
+ min-height:240px;
+ padding:28px 30px;
+ display:flex;
+ flex-direction:column;
+ align-items:flex-start;
+ justify-content:flex-start;
+ gap:0;
+ border-radius:22px;
+}
+.pnr-page .pnr-audience-card strong,
+.pnr-page .pnr-audience-card:first-child strong{
+ display:block;
+ margin-top:20px;
+ font-size:clamp(20px,2vw,24px);
+ line-height:1.22;
+ letter-spacing:-.035em;
+ font-weight:750;
+}
+.pnr-page .pnr-audience-card p,
+.pnr-page .pnr-audience-card:first-child p{
+ max-width:43ch;
+ margin-top:11px;
+ margin-bottom:28px;
+ font-size:15px;
+ line-height:1.65;
+ color:#c6d7c9;
+ text-wrap:pretty;
+}
+.pnr-page .pnr-audience-track{display:none!important}
+.pnr-page .pnr-audience-arrow{bottom:25px;right:27px}
+.pnr-page .pnr-audience-card:hover,.pnr-page .pnr-audience-card:focus-visible{
+ transform:translateY(-4px);
+ border-color:rgba(177,255,119,.65);
+ box-shadow:0 18px 38px rgba(0,0,0,.22),0 0 22px rgba(140,255,98,.08);
+}
+.pnr-page .pnr-audience-card:focus-visible{outline:2px solid #b6ff69;outline-offset:3px}
+@media(max-width:700px){
+ .pnr-page .pnr-audience-grid{grid-template-columns:1fr;gap:13px}
+ .pnr-page .pnr-audience-card,.pnr-page .pnr-audience-card:first-child{
+  min-height:205px;padding:22px 21px;border-radius:18px;
+ }
+ .pnr-page .pnr-audience-card strong,.pnr-page .pnr-audience-card:first-child strong{
+  margin-top:17px;font-size:20px;
+ }
+ .pnr-page .pnr-audience-card p,.pnr-page .pnr-audience-card:first-child p{
+  margin-top:8px;margin-bottom:20px;font-size:14px;line-height:1.55;
+ }
+ .pnr-page .pnr-audience-arrow{bottom:19px;right:20px}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-audience-card:hover,.pnr-page .pnr-audience-card:focus-visible{transform:none}
+}
