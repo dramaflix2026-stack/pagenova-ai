@@ -802,12 +802,12 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  // Preservation sentences are constraints, not mutations. Remove them only at
  // sentence boundaries so an action containing "preservando" stays intact.
  const mutationInstruction=actionableInstruction
-  .replace(/(?:^|[.!?]\s+)(?:preserve|mantenha|n[aã]o\s+altere)\b[^\r\n]*/gi,"")
+  .replace(/(?:^|[.!?]\s+)(?:preserve|mantenha|n[aã]o\s+(?:altere|modifique|mexa))\b[^\r\n]*/gi,"")
   .trim();
  const clauses=universalInstructionClauses(mutationInstruction)
   .map(clause=>clause.replace(/^\s*\d{1,2}[.)]\s*/,"").trim())
   .filter(clause=>!/^quero\s+(?:fazer|realizar|pedir)\s+(?:algumas?\s+)?(?:altera[cç][oõ]es|mudan[cç]as|edi[cç][oõ]es)\s+(?:no|neste|nesse)\s+site\b[^:]*:?\s*$/i.test(clause))
-  .filter(clause=>! /^(?:n[aã]o\s+altere|preserve|mantenha)\b/i.test(clause));
+  .filter(clause=>! /^(?:n[aã]o\s+(?:altere|modifique|mexa)|preserve|mantenha)\b/i.test(clause));
  if(clauses.length>20)return {ok:false,error:"Divida o pedido em até 20 alterações por mensagem. Nenhuma alteração aplicada."};
  let current=site;const changedIds:string[]=[];
  for(const clause of clauses){
