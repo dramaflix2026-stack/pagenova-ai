@@ -811,8 +811,22 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  if(clauses.length>20)return {ok:false,error:"Divida o pedido em até 20 alterações por mensagem. Nenhuma alteração aplicada."};
  let current=site;const changedIds:string[]=[];
  for(const clause of clauses){
+  // Resolve "dessa seção" only when an earlier clause in this atomic request
+  // uniquely identified the section. Never guess from a different site block.
+  const contextualTitle=clause.match(/^(?:deixe|altere|mude|troque|coloque)\s+o\s+t[ií]tulo\s+dessa\s+se[cç][aã]o\s+(?:na\s+cor\s+|para\s+|em\s+)(?:cor\s+)?(amarel[oa]|pret[oa]|branc[oa]|azul|verde|vermelh[oa]|laranja|rox[oa]|rosa|#[0-9a-fA-F]{6})\s*[.!?]?$/i);
+  const previousSections=[...new Set(changedIds.filter(id=>id.startsWith("section-style:")).map(id=>id.slice("section-style:".length)))];
+  let contextualResult:UniversalResult<T>|null=null;
+  if(contextualTitle&&previousSections.length===1){
+   const colors:Record<string,string>={amarelo:"#EAB308",amarela:"#EAB308",preto:"#000000",preta:"#000000",branco:"#FFFFFF",branca:"#FFFFFF",azul:"#2563EB",verde:"#16A34A",vermelho:"#DC2626",vermelha:"#DC2626",laranja:"#F97316",roxo:"#9333EA",roxa:"#9333EA",rosa:"#EC4899"};
+   const color=colors[contextualTitle[1].toLowerCase()]||contextualTitle[1];
+   const section=previousSections[0];
+   const raw=(current as Record<string,unknown>).universalSectionStyles;
+   const styles=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw as Record<string,unknown>:{};
+   const previous=styles[section];
+   contextualResult={ok:true,site:{...current,universalSectionStyles:{...styles,[section]:{...(previous&&typeof previous==="object"&&!Array.isArray(previous)?previous:{}),headingColor:color}}} as T,changedIds:["section-heading-color:"+section]};
+  }
   // ID and quoted-label commands remain backward compatible.
-  const result=applyVisibleEditorCommand(current,clause)||applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
+  const result=contextualResult||applyVisibleEditorCommand(current,clause)||applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
   if(!result){
    if(clauses.length===1)return null;
    return {ok:false,error:"Não foi possível interpretar com segurança uma parte do pedido: “"+clause+"”. Nenhuma alteração aplicada. Detalhe o elemento, conteúdo ou destino desejado."};
