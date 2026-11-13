@@ -272,7 +272,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const normalized=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
  const request=instruction.match(/^\s*(?:adicione|crie|inclua|insira)\s+uma\s+(?:nova\s+)?se[cç][aã]o\s+(?:chamada|denominada)\s+(?:"([^"]+)"|“([^”]+)”|'([^']+)'|([^,.\n]+?)(?=\s*(?:,|\.|\s+imediatamente\s+antes|\s+antes|\s+depois|\s+ap[oó]s|$)))/i);
  if(!request)return null;
- const name=(request[1]||request[2]||request[3]||request[4]||"").trim();
+ const name=(request[1]||request[2]||request[3]||request[4]||"").trim().replace(/\s+(?:com|contendo)\s+(?:(?:um|dois|duas|tr[eê]s|quatro|cinco|seis|\d+)\s+cards?\b).*$/i,"").trim();
  if(!name)return {ok:false,error:"Informe o nome da nova seção."};
  const destination=instruction.match(/\b(?:imediatamente\s+)?(antes|depois|ap[oó]s)\s+(?:(?:das|dos|da|do|de|as|os|a|o)\b\s+)?(?:se[cç][aã]o\s+)?(?:de\s+)?["“”']?([^,"“”'.\n]+)["“”']?/i);
  if(!destination && !site.blocks.length)return {ok:false,error:"O site não possui seções para posicionar a nova seção."};
