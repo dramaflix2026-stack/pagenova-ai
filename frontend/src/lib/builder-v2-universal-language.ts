@@ -440,6 +440,12 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
+ // Resolve exact quoted section-heading commands before generic sentence splitting.
+ // Periods inside quoted source copy are not instruction boundaries.
+ if(/^na\\s+se[cç][aã]o\\s+[^,]+,\\s*(?:troque|altere|mude|substitua)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+[\"“]/i.test(instruction)){
+  const scoped=applySingleUniversalNaturalLanguage(site,instruction);
+  if(scoped)return scoped;
+ }
  // Update existing process cards in place; preservation constraints are not separate actions.
  const existingProcessEdit=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*mantenha\s+os\s+(?:tr[eê]s|3)\s+cards\s+existentes\s+e\s+substitua\s+somente\s+suas\s+descri[cç][oõ]es\b/i);
  if(existingProcessEdit){
