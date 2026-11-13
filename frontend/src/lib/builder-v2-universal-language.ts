@@ -315,6 +315,26 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    const description=descriptions[key]||stageCopy||"Apresentamos esta etapa com clareza, alinhando expectativas, decisões e próximos passos às necessidades do projeto.";
    return {title,description};});
  }
+ // Interpret natural process-stage lists as cards, even when users say "etapas" rather than "cards".
+ // Keep this limited to explicit new-section requests; never mutate existing sections.
+ if(!cards.length){
+  const stages=instruction.match(/\b(?:inclua|adicione|crie|com|contendo)\s+(?:(?:as|os)\s+)?(um|dois|duas|tr[eê]s|quatro|cinco|seis|\d{1,2})\s+(?:etapas|passos|fases)\s*:\s*([^.!?\n]+)/i);
+  if(stages){
+   const count=quantities[normalized(stages[1])]??Number(stages[1]);
+   const names=stages[2].split(/\s*,\s*|\s+e\s+(?=[A-ZÁÉÍÓÚÂÊÔÃÕÇ])/).map(v=>v.trim()).filter(Boolean);
+   if(count>=1&&count<=12&&names.length===count){
+    cards=names.map(title=>{
+     const key=normalized(title);
+     const description=/briefing|imersao|diagnostico/.test(key)?"Entendemos as necessidades, objetivos e referências para orientar cada decisão do projeto.":
+      /conceito|concepcao/.test(key)?"Desenvolvemos a direção criativa e apresentamos soluções alinhadas à identidade e às expectativas do cliente.":
+      /desenvolvimento|projeto|execucao/.test(key)?"Detalhamos as soluções e refinamos os elementos técnicos e visuais do projeto.":
+      /entrega|finalizacao|conclusao/.test(key)?"Apresentamos o resultado e orientamos os próximos passos com clareza e atenção aos detalhes.":
+      "Organizamos esta etapa com objetivos, decisões e entregas claros.";
+     return {title,description};
+    });
+   }
+  }
+ }
  // A normal customer may request three cards without specifying their titles.
  // Supply editable, non-claim-based placeholders instead of rejecting the instruction.
  if(!cards.length&&requestedCount===3&&/\b(?:diferenciais|vantagens|benef[ií]cios)\b/i.test(name)){
