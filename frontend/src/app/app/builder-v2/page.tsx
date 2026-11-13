@@ -1366,6 +1366,7 @@ export default function BuilderV2() {
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
         const updated=await generateVisuals(site,prompt,index);
         const result=hasMotionIntent(prompt)?{...updated,motion:applySiteMotionInstruction(updated,prompt)}:updated;
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-generation",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
         recordVersion(site, "Antes de alterar imagens");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);setSite(result);setInstruction("");
       } catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha ao gerar imagem."}]);}
       finally {setBusy(false);}
