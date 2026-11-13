@@ -852,9 +852,14 @@ export default function BuilderV2() {
       // When the user has repeatedly approved this route, attempt it first.
       // Other strategies remain available only through their existing guarded paths.
       const sectionBackgroundRequest=!hasAttachments&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
-      if(sectionBackgroundRequest&&!preferUniversal){
+      if(sectionBackgroundRequest){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        setGenerationError(backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada.");
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada."}]);
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal");
+        setInstruction("");
+        return;
       }
       // Approved universal outcomes now take precedence over the legacy background shortcut.
       // A repeatedly approved isolated-copy route can take precedence for a
