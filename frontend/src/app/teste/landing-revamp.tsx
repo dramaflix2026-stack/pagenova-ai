@@ -26,7 +26,7 @@ const translations = {
   solutionBadge:"Em evolução",
   audienceTag:"POSSIBILIDADES REAIS",audienceTitle:"Mais criação. Mais",audienceHi:"resultados.",
   audienceDesc:"Soluções que se adaptam ao seu negócio, do freelancer à agência.",
-  audiences:[["Freelancers","Crie sites profissionais e amplie seu portfólio."],["Agências Digitais","Atenda projetos de diferentes segmentos."],["Empreendedores","Tenha sua presença digital com identidade própria."],["Vendas e Leads","Prospecção e organização de oportunidades."]],
+  audiences:[["Freelancers","Crie sites profissionais em menos tempo, amplie seu portfólio e conquiste novos clientes."],["Agências Digitais","Acelere suas entregas, atenda mais projetos e escale sua operação com inteligência artificial."],["Empreendedores","Transforme sua ideia em uma presença digital profissional, com a identidade do seu negócio."],["Vendas e Leads","Encontre oportunidades, organize seus contatos e transforme prospecção em novos negócios."]],
   pricesTag:"PLANOS DA PAGENOVA",pricesTitle:"Planos completos para o seu",pricesHi:"crescimento.",
   pricesDesc:"Escolha a ferramenta que combina com sua necessidade. Valores mensais em reais.",
   plans:[
