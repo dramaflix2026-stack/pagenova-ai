@@ -813,7 +813,8 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  for(const clause of clauses){
   // Resolve "dessa seção" only when an earlier clause in this atomic request
   // uniquely identified the section. Never guess from a different site block.
-  const contextualTitle=clause.match(/^(?:deixe|altere|mude|troque|coloque)\s+o\s+t[ií]tulo\s+dessa\s+se[cç][aã]o\s+(?:na\s+cor\s+|para\s+|em\s+)(?:cor\s+)?(amarel[oa]|pret[oa]|branc[oa]|azul|verde|vermelh[oa]|laranja|rox[oa]|rosa|#[0-9a-fA-F]{6})\s*[.!?]?$/i);
+  const actionableClause=clause.replace(/\s*[.!?]\s*(?:n[aã]o\s+modifique|n[aã]o\s+altere|preserve|mantenha)\b[\s\S]*$/i,"").trim();
+  const contextualTitle=actionableClause.match(/^(?:deixe|altere|mude|troque|coloque)\s+o\s+t[ií]tulo\s+dessa\s+se[cç][aã]o\s+(?:na\s+cor\s+|para\s+|em\s+)(?:cor\s+)?(amarel[oa]|pret[oa]|branc[oa]|azul|verde|vermelh[oa]|laranja|rox[oa]|rosa|#[0-9a-fA-F]{6})\s*[.!?]?$/i);
   const previousSections=[...new Set(changedIds.filter(id=>id.startsWith("section-style:")).map(id=>id.slice("section-style:".length)))];
   let contextualResult:UniversalResult<T>|null=null;
   if(contextualTitle&&previousSections.length===1){
