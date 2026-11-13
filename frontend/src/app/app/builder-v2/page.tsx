@@ -226,7 +226,7 @@ async function readApprovedEditorPatterns(niche:string){
   const {data:{user}}=await client.auth.getUser();
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
-   .select("intent,target,strategy,niche,review_status,execution_status").eq("user_id",user.id)
+   .select("intent,target,strategy,niche,model,review_status,execution_status").eq("user_id",user.id)
    .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(100);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
   return data||[];
@@ -846,7 +846,9 @@ export default function BuilderV2() {
       const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
         const outcomeWeight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1:0;
         // Same-niche experience takes priority; other niches provide a weaker transferable signal.
-        const weight=outcomeWeight*(pattern.niche===(site.niche||"")?3:1);
+        const nicheWeight=pattern.niche===(site.niche||"")?3:1;
+        const modelWeight=pattern.model===site.briefingLayoutVariant?2:1;
+        const weight=outcomeWeight*nicheWeight*modelWeight;
         scores[pattern.strategy]=(scores[pattern.strategy]||0)+weight;
         return scores;
       },{} as Record<string,number>);
@@ -871,7 +873,7 @@ export default function BuilderV2() {
       const approvedCopyCount=(preferredStrategy["scoped-copy"]||0)+(preferredStrategy["copy"]||0);
       const preferScopedCopy=inferredIntent==="copy"&&!compound&&!hasAttachments&&
         !!scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText&&
-        approvedCopyCount>=2&&approvedCopyCount>(preferredStrategy.universal||0);
+        approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
       const result=hasAttachments||imageChange||preferScopedCopy?null:applyUniversalNaturalLanguage(site,prompt);
       if(preferUniversal&&result&&!result.ok){
         console.info("[editor-learning] Preferred universal strategy could not safely apply; no fabricated fallback.",inferredIntent,inferredTarget);
