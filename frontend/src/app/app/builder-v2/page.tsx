@@ -189,8 +189,9 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
       review_status:"pending"
     });
     if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return false;}
-    const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");
-    const reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review:null;
+    let reviewed: string|null=null;
+    try{const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review??null:null;}catch(error){console.warn("[editor-learning] Review history unavailable",error);}
+    reviewed=reviewed==="approved"||reviewed==="rejected"?reviewed:("review" in event&&typeof event.review==="string"?event.review:null);
     if(reviewed==="approved"||reviewed==="rejected"){
       const {data:confirmedReview,error:reviewError}=await client.from("builder_editor_learning_events")
         .update({review_status:reviewed,reviewed_at:new Date().toISOString()})
