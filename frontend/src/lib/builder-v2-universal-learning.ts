@@ -96,6 +96,19 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
  }
  for(const id of nextBlocks.keys())if(!oldBlocks.has(id)&&!ids.has(id))return reject("Bloco não solicitado adicionado: "+id);
  // A move may shift other blocks' indices but must preserve their relative order.
+ const oldMetadata={...(before as Record<string,unknown>)};
+ const nextMetadata={...(after as Record<string,unknown>)};
+ delete oldMetadata.blocks;delete nextMetadata.blocks;
+ const declaredStyleSections=changedIds.filter(id=>id.startsWith("section-style:")).map(id=>id.slice("section-style:".length));
+ if(declaredStyleSections.length){
+  const oldStyles=(oldMetadata.universalSectionStyles||{}) as Record<string,unknown>;
+  const nextStyles=(nextMetadata.universalSectionStyles||{}) as Record<string,unknown>;
+  const remainingOld={...oldStyles},remainingNext={...nextStyles};
+  for(const section of declaredStyleSections){delete remainingOld[section];delete remainingNext[section];}
+  if(JSON.stringify(remainingOld)!==JSON.stringify(remainingNext))return reject("Estilos de seções não solicitadas foram alterados.");
+  delete oldMetadata.universalSectionStyles;delete nextMetadata.universalSectionStyles;
+ }
+ if(JSON.stringify(oldMetadata)!==JSON.stringify(nextMetadata))return reject("Dados gerais do site foram alterados sem solicitação.");
  const stableOld=oldOrder.filter(id=>!ids.has(id)),stableNew=newOrder.filter(id=>!ids.has(id));
  if(JSON.stringify(stableOld)!==JSON.stringify(stableNew))return reject("Ordem relativa de blocos não solicitados alterada.");
  return {ok:true,reason:"Alterações declaradas confirmadas."};
