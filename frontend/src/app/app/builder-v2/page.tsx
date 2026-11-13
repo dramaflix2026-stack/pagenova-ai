@@ -305,7 +305,7 @@ export default function BuilderV2() {
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
-    const styles=site.universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+    const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
     const expected=Object.entries(styles||{}).filter(([,style])=>typeof style?.backgroundColor==="string"&&/^#[0-9a-f]{6}$/i.test(style.backgroundColor));
     if(!expected.length){setPreviewVisualAudit(null);return;}
     const timer=window.setTimeout(()=>{
