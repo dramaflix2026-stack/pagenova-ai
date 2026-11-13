@@ -919,7 +919,7 @@ export default function BuilderV2() {
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
-        setMessages(prev=>[...prev,{role:"assistant",text:summarizeUniversalEdit(result)}]);
+        setMessages(prev=>[...prev,{role:"assistant",text:result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
         return;
       }
     }
