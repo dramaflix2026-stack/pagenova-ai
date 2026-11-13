@@ -108,6 +108,18 @@ export function verifyUniversalEditResult<T extends UniversalSite>(before:T,afte
   if(JSON.stringify(remainingOld)!==JSON.stringify(remainingNext))return reject("Estilos de seções não solicitadas foram alterados.");
   delete oldMetadata.universalSectionStyles;delete nextMetadata.universalSectionStyles;
  }
+ const oldEvents=oldMetadata.universalSectionEvents;
+ const nextEvents=nextMetadata.universalSectionEvents;
+ if(JSON.stringify(oldEvents)!==JSON.stringify(nextEvents)){
+  const previous=Array.isArray(oldEvents)?oldEvents:[];
+  const updated=Array.isArray(nextEvents)?nextEvents:[];
+  const newEvents=updated.slice(previous.length);
+  const allowedSections=new Set(changedIds.filter(id=>!id.startsWith("section-style:")).map(id=>oldBlocks.get(id)?.section||nextBlocks.get(id)?.section||id));
+  if(updated.length<previous.length||JSON.stringify(updated.slice(0,previous.length))!==JSON.stringify(previous)||
+    !newEvents.length||newEvents.some(event=>!event||typeof event!=="object"||!allowedSections.has(event.section?.id)))
+    return reject("Eventos de seções não solicitadas foram alterados.");
+  delete oldMetadata.universalSectionEvents;delete nextMetadata.universalSectionEvents;
+ }
  if(JSON.stringify(oldMetadata)!==JSON.stringify(nextMetadata))return reject("Dados gerais do site foram alterados sem solicitação.");
  const stableOld=oldOrder.filter(id=>!ids.has(id)),stableNew=newOrder.filter(id=>!ids.has(id));
  if(JSON.stringify(stableOld)!==JSON.stringify(stableNew))return reject("Ordem relativa de blocos não solicitados alterada.");
