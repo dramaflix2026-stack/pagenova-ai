@@ -92,7 +92,5 @@ export default function CrmPage() {
           allow="clipboard-read; clipboard-write"
         />
       </main>
-    );
-  }
-
+  );
 }
