@@ -10,11 +10,11 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
  // Exact quoted heading replacement scoped to a named section; never touch other copy.
- const scopedExactHeading=instruction.trim().match(/^na\\s+se[cç][aã]o\\s+(.+?),\\s*(?:troque|altere|mude|substitua)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+[\"“]([^\"”]{1,300})[\"”]\\s+(?:para|por)\\s+[\"“]([^\"”]{1,300})[\"”](?:\\s*\\.\\s*(?:n[aã]o\\s+altere|sem\\s+alterar|preserve|mantenha)\\b[\\s\\S]*)?\\s*\\.?$/i);
+ const scopedExactHeading=instruction.trim().match(/^na\s+se[cç][aã]o\s+(.+?),\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+[\"“]([^\"”]{1,300})[\"”]\s+(?:para|por)\s+[\"“]([^\"”]{1,300})[\"”](?:\s*\.\s*(?:n[aã]o\s+altere|sem\s+alterar|preserve|mantenha)\b[\s\S]*)?\s*\.?$/i);
  if(scopedExactHeading){
   const section=resolveUniversalSection(site,scopedExactHeading[1].trim());
   if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
-  const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
+  const normalize=(value:string)=>value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
   const original=normalize(scopedExactHeading[2]);
   const candidates=site.blocks.filter(b=>b.section===section&&b.type==="heading"&&normalize(String(b.text||""))===original);
   if(candidates.length!==1)return {ok:false,error:"O título original não foi localizado de forma única na seção. Nenhuma alteração aplicada."};
@@ -442,7 +442,7 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
  const instruction=rawInstruction;
  // Resolve exact quoted section-heading commands before generic sentence splitting.
  // Periods inside quoted source copy are not instruction boundaries.
- if(/^na\\s+se[cç][aã]o\\s+[^,]+,\\s*(?:troque|altere|mude|substitua)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+[\"“]/i.test(instruction)){
+ if(/^na\s+se[cç][aã]o\s+[^,]+,\s*(?:troque|altere|mude|substitua)\s+(?:somente\s+|apenas\s+)?(?:o\s+)?t[ií]tulo\s+[\"“]/i.test(instruction)){
   const scoped=applySingleUniversalNaturalLanguage(site,instruction);
   if(scoped)return scoped;
  }
