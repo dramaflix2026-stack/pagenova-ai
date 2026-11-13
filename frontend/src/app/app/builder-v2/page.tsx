@@ -311,8 +311,13 @@ export default function BuilderV2() {
     const ctaColor=(site as unknown as Record<string,unknown>).universalPrimaryCtaColor;
     if(!expected.length&&!validHex(ctaColor)){setPreviewVisualAudit(null);return;}
     const timer=window.setTimeout(()=>{
-      const root=previewVisualAuditRef.current;
-      if(!root)return;
+      const host=previewVisualAuditRef.current;
+      const frame=host?.querySelector("iframe");
+      const previewDoc=frame?.contentDocument;
+      const previewWindow=frame?.contentWindow;
+      if(!previewDoc||!previewWindow){setPreviewVisualAudit("Prévia ainda não disponível para verificação");return;}
+      const root=previewDoc.getElementById("pn-v2-preview-root");
+      if(!root){setPreviewVisualAudit("Conteúdo da prévia não encontrado");return;}
       const failures:string[]=[];
       const matchesColor=(actual:string,hex:string)=>{
         const expectedRgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
@@ -323,12 +328,12 @@ export default function BuilderV2() {
         const candidates=Array.from(root.querySelectorAll<HTMLElement>("[data-section-id],[data-universal-section],section[id]"))
           .filter(el=>el.getAttribute("data-section-id")===section||el.getAttribute("data-universal-section")===section||el.tagName==="SECTION"&&el.id===section||section==="servicos"&&el.id==="tp9-servicos");
         if(!candidates.length){failures.push(section+": seção não encontrada na prévia");continue;}
-        if(validHex(style.backgroundColor)&&!candidates.some(el=>matchesColor(window.getComputedStyle(el).backgroundColor,style.backgroundColor!)))
+        if(validHex(style.backgroundColor)&&!candidates.some(el=>matchesColor(previewWindow.getComputedStyle(el).backgroundColor,style.backgroundColor!)))
           failures.push(section+": cor de fundo renderizada diferente da configuração");
         if(validHex(style.headingColor)){
           const headings=candidates.flatMap(el=>Array.from(el.querySelectorAll<HTMLElement>(".pn-section-heading h2,.pn-section-heading,h2")));
           if(!headings.length)failures.push(section+": título não encontrado na prévia");
-          else if(!headings.some(el=>matchesColor(window.getComputedStyle(el).color,style.headingColor!)))
+          else if(!headings.some(el=>matchesColor(previewWindow.getComputedStyle(el).color,style.headingColor!)))
             failures.push(section+": cor do título renderizada diferente da configuração");
         }
       }
@@ -336,13 +341,13 @@ export default function BuilderV2() {
         const selector="a[class*='cta' i],a[class*='button' i],a[class*='btn' i],a[role='button'],button[class*='primary' i],button[data-cta],a[data-cta],[data-primary-cta],section a[href][class*='action' i]";
         const buttons=Array.from(root.querySelectorAll<HTMLElement>(selector));
         if(!buttons.length)failures.push("CTA principal: nenhum botão correspondente encontrado na prévia");
-        else if(!buttons.some(el=>matchesColor(window.getComputedStyle(el).backgroundColor,ctaColor)))
+        else if(!buttons.some(el=>matchesColor(previewWindow.getComputedStyle(el).backgroundColor,ctaColor)))
           failures.push("CTA principal: cor renderizada diferente da configuração");
       }
       setPreviewVisualAudit(failures.length?failures.join("; "):null);
     },350);
     return ()=>window.clearTimeout(timer);
-  },[site]);
+  },[site,previewDevice]);
 
   const reviewEventRef=useRef<{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|null>(null);
   const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
