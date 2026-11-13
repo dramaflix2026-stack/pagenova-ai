@@ -9,6 +9,21 @@ import {applyUniversalOperations,type UniversalSite,type UniversalOperation,type
 
 /** Conservative natural-language adapter: ambiguous requests stay in the legacy AI path. */
 function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,instruction:string):UniversalResult<T>|null{
+ // Exact quoted heading replacement scoped to a named section; never touch other copy.
+ const scopedExactHeading=instruction.trim().match(/^na\\s+se[cç][aã]o\\s+(.+?),\\s*(?:troque|altere|mude|substitua)\\s+(?:somente\\s+|apenas\\s+)?(?:o\\s+)?t[ií]tulo\\s+[\"“]([^\"”]{1,300})[\"”]\\s+(?:para|por)\\s+[\"“]([^\"”]{1,300})[\"”](?:\\s*\\.\\s*(?:n[aã]o\\s+altere|sem\\s+alterar|preserve|mantenha)\\b[\\s\\S]*)?\\s*\\.?$/i);
+ if(scopedExactHeading){
+  const section=resolveUniversalSection(site,scopedExactHeading[1].trim());
+  if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
+  const normalize=(value:string)=>value.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().trim();
+  const original=normalize(scopedExactHeading[2]);
+  const candidates=site.blocks.filter(b=>b.section===section&&b.type==="heading"&&normalize(String(b.text||""))===original);
+  if(candidates.length!==1)return {ok:false,error:"O título original não foi localizado de forma única na seção. Nenhuma alteração aplicada."};
+  const target=candidates[0],value=scopedExactHeading[3].trim();
+  if(!value||normalize(value)===original)return {ok:false,error:"O título novo está vazio ou já corresponde ao original. Nenhuma alteração aplicada."};
+  const result=applyUniversalOperations(site,[{action:"update",blockId:target.id,changes:{text:value}}]);
+  if(!result.ok)return result;
+  return {ok:true,site:{...result.site,blocks:result.site.blocks.map(b=>b.id===target.id?{...b,textExplicit:true}:b)} as T,changedIds:result.changedIds};
+ }
  // Explicit named-section title replacement: two quoted spans identify the section and new copy.
  // Never mistake the section name for the requested replacement text.
  const namedSectionTitle=instruction.match(/^(?:altere|troque|mude|substitua)\\s+o\\s+t[ií]tulo\\s+da\\s+se[cç][aã]o\\s+[\"“]([^\"”]{1,130})[\"”]\\s+(?:para|por)\\s+[\"“]([^\"”]{1,300})[\"”](?:\\s*[,.;]?[\\s\\S]*)?$/i);
