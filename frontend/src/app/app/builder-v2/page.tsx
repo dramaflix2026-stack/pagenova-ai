@@ -182,13 +182,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;intent:stri
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
-    if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);return false;}
+    if(authError||!user){console.warn("[editor-learning] Cloud sync skipped: unauthenticated session",authError?.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Sessão Supabase não reconhecida. Entre novamente na conta para sincronizar o aprendizado."}}));return false;}
     const {error:insertError}=await client.from("builder_editor_learning_events").insert({
       id:event.id,user_id:user.id,niche:event.niche||"unknown",model:"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
       review_status:"pending"
     });
-    if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);return false;}
+    if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Supabase recusou o registro (código "+(insertError.code||"desconhecido")+")."}}));return false;}
     let reviewed: string|null=null;
     try{const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review??null:null;}catch(error){console.warn("[editor-learning] Review history unavailable",error);}
     reviewed=reviewed==="approved"||reviewed==="rejected"?reviewed:("review" in event&&typeof event.review==="string"?event.review:null);
@@ -327,11 +327,13 @@ export default function BuilderV2() {
       if(detail?.synced)void refreshApprovedExperiences();
     };
     const onCaptured=(raw:Event)=>{const detail=(raw as CustomEvent<{id:string;event?:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}}>).detail;if(detail?.id){reviewEventRef.current=detail.event??null;setReviewCandidate({id:detail.id,status:"pending"});}};
+    const onDiagnostic=(raw:Event)=>{const message=(raw as CustomEvent<{message?:string}>).detail?.message;if(message)setLearningSyncNotice(message);};
+    window.addEventListener("pagenova:editor-learning-diagnostic",onDiagnostic);
     window.addEventListener("pagenova:editor-learning-captured",onCaptured);
     window.addEventListener("pagenova:editor-learning-sync",onLearningSync);
     window.addEventListener("online",retry);
     window.addEventListener("focus",retry);
-    return ()=>{window.removeEventListener("pagenova:editor-learning-captured",onCaptured);window.removeEventListener("pagenova:editor-learning-sync",onLearningSync);window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
+    return ()=>{window.removeEventListener("pagenova:editor-learning-diagnostic",onDiagnostic);window.removeEventListener("pagenova:editor-learning-captured",onCaptured);window.removeEventListener("pagenova:editor-learning-sync",onLearningSync);window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
   },[]);
   async function reviewLastEdit(status:"approved"|"rejected"){
     if(!reviewCandidate||reviewCandidate.status!=="pending")return;
