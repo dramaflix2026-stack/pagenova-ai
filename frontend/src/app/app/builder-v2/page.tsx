@@ -775,7 +775,7 @@ export default function BuilderV2() {
         recordVersion(site,"Antes da edição veterinária");
         setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","veterinary-override",site.briefingLayoutVariant||"01");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -815,7 +815,7 @@ export default function BuilderV2() {
         }
         recordVersion(site,"Antes da edição Fitness");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(next);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","fitness-override",site.briefingLayoutVariant||"01");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:summary}]);
         return;
       }
@@ -839,8 +839,8 @@ export default function BuilderV2() {
         const photoUrl="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=82";
         const next={...site,blocks:site.blocks.map(b=>b.id===card.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true}:b)};
         const photoVerification=verifyUniversalEditResult(site,next,[card.id]);
-        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification",site.briefingLayoutVariant||"unknown");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
+        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification",site.briefingLayoutVariant||"01");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card",site.briefingLayoutVariant||"01");captureReviewCandidate();
         recordVersion(site,"Antes da troca de fotografia do card");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(next);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alterada somente a fotografia do card Planejamento em Nossa Metodologia. Outras imagens preservadas."}]);return;
       }
@@ -881,7 +881,7 @@ export default function BuilderV2() {
         const recencyWeight=index<20?1.5:index<60?1:0.5;
         // Same-niche experience takes priority; other niches provide a weaker transferable signal.
         const nicheWeight=pattern.niche===(site.niche||"")?3:1;
-        const modelWeight=pattern.model===site.briefingLayoutVariant?2:1;
+        const modelWeight=pattern.model===(site.briefingLayoutVariant||"01")?2:1;
         const weight=outcomeWeight*nicheWeight*modelWeight*recencyWeight;
         const family=strategyFamily(pattern.strategy);
         // Classified failures belong to their parent execution route, rather
@@ -899,11 +899,11 @@ export default function BuilderV2() {
       // intercept a request that also changes a heading, card or other element.
       if(sectionBackgroundRequest&&!compound){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"unknown");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
         setGenerationError(backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada.");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada."}]);
         const backgroundFailure=backgroundResult&&!backgroundResult.ok?backgroundResult.error:"A alteração de fundo não passou na verificação.";
-        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+diagnoseUniversalEditFailure(backgroundFailure),site.briefingLayoutVariant||"unknown");
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+diagnoseUniversalEditFailure(backgroundFailure),site.briefingLayoutVariant||"01");
         setInstruction("");
         return;
       }
@@ -932,7 +932,7 @@ export default function BuilderV2() {
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
         preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi,
-        niche:site.niche||"unknown",model:site.briefingLayoutVariant||"unknown"
+        niche:site.niche||"unknown",model:site.briefingLayoutVariant||"01"
       });
       if(preferUniversal&&result&&!result.ok){
         console.info("[editor-learning] Preferred universal strategy could not safely apply; no fabricated fallback.",inferredIntent,inferredTarget);
@@ -942,25 +942,25 @@ export default function BuilderV2() {
         setMessages(prev=>[...prev,{role:"user",text:prompt}]);
         if(!result||!result.ok){
           const failureReason=result&&!result.ok?result.error:"Anexos incompatíveis com edição combinada.";
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-parse:"+diagnoseUniversalEditFailure(failureReason),site.briefingLayoutVariant||"unknown");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-parse:"+diagnoseUniversalEditFailure(failureReason),site.briefingLayoutVariant||"01");
           setMessages(prev=>[...prev,{role:"assistant",text:result&&!result.ok?result.error:"Separe a edição dos anexos do pedido combinado. Nenhuma alteração aplicada; anexos preservados."}]);
           return;
         }
         const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
         if(!verification.ok){
           const failureCode=diagnoseUniversalEditFailure(verification.reason);
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+failureCode,site.briefingLayoutVariant||"unknown");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+failureCode,site.briefingLayoutVariant||"01");
           setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
           return;
         }
         if(result.changedIds.length===0||JSON.stringify(result.site)===JSON.stringify(site)){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change",site.briefingLayoutVariant||"unknown");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change",site.briefingLayoutVariant||"01");
           setMessages(prev=>[...prev,{role:"assistant",text:"A operação não produziu alteração verificável. Nenhuma alteração aplicada."}]);
           return;
         }
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();
         setMessages(prev=>[...prev,{role:"assistant",text:result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
         return;
       }
@@ -1416,7 +1416,7 @@ export default function BuilderV2() {
         const index=match?Math.max(0,Math.min(5,Number(match[1])-1)):undefined;
         const updated=await generateVisuals(site,prompt,index);
         const result=hasMotionIntent(prompt)?{...updated,motion:applySiteMotionInstruction(updated,prompt)}:updated;
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-generation",site.briefingLayoutVariant||"unknown");captureReviewCandidate();
+        recordEditorLearningEvent(site.niche||"",prompt,"applied","image-generation",site.briefingLayoutVariant||"01");captureReviewCandidate();
         recordVersion(site, "Antes de alterar imagens");setRedoHistory([]);setHistory(prev=>[...prev.slice(-19),site]);setSite(result);setInstruction("");
       } catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha ao gerar imagem."}]);}
       finally {setBusy(false);}
@@ -1563,7 +1563,7 @@ export default function BuilderV2() {
       if(!creatingNewSite&&site.blocks.length>0){
         const changed=JSON.stringify(site.blocks)!==JSON.stringify(incoming.blocks);
         recordEditorLearningEvent(site.niche||"",prompt,changed?"applied":"rejected",
-          scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?"scoped-copy":"ai-editor",site.briefingLayoutVariant||"unknown");
+          scopedCopy&&"intent" in scopedCopy&&scopedCopy.intent.generateText?"scoped-copy":"ai-editor",site.briefingLayoutVariant||"01");
         if(changed)captureReviewCandidate();
       }
       let finishedSite=incoming;
