@@ -236,11 +236,6 @@ export default function ClonerPage() {
 
   return (
     <>
-      <header className="border-b border-white/10 bg-[#0b0b0b]/90 px-5 py-5 text-center backdrop-blur">
-        <h1 className="text-xl font-bold tracking-tight text-white">Clonar site</h1>
-        <p className="mx-auto mt-1 max-w-2xl text-sm text-neutral-400">Preserve a estrutura, os estilos e as imagens públicas da página para editar na PageNova.</p>
-      </header>
-
       <main className="relative min-h-[calc(100vh-80px)] overflow-hidden bg-[#0b100d] text-[#f2f6f1]">
         {/* Ambient background */}
         <div
@@ -253,16 +248,16 @@ export default function ClonerPage() {
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.018)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.018)_1px,transparent_1px)] bg-[size:52px_52px] [mask-image:linear-gradient(to_bottom,black,transparent_78%)]" />
         </div>
 
-        <div className="relative mx-auto w-full max-w-5xl px-4 py-10 text-center sm:px-6 md:py-14 lg:py-16">
+        <div className="relative mx-auto w-full max-w-5xl px-4 py-8 text-center sm:px-6 md:py-10 lg:py-12">
           {/* Hero */}
           <section className="flex flex-col items-center justify-center gap-7 border-b border-white/[.08] pb-10 lg:pb-12">
-            <div className="mx-auto max-w-3xl">
+            <div className="mx-auto max-w-3xl motion-safe:animate-[fadeIn_.7s_ease-out_both]">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#8fec78]/20 bg-[#8fec78]/[.07] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[.16em] text-[#a8f494]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#8fec78] shadow-[0_0_12px_rgba(80,220,169,.8)]" />
                 PageNova Cloner
               </div>
 
-              <h1 className="mx-auto mt-5 max-w-2xl text-4xl font-semibold tracking-[-.045em] text-white sm:text-5xl lg:text-[58px] lg:leading-[1.02]">
+              <h1 className="mx-auto mt-5 max-w-2xl bg-gradient-to-br from-white via-white to-[#8fec78] bg-clip-text text-4xl font-semibold tracking-[-.045em] text-transparent sm:text-5xl lg:text-[58px] lg:leading-[1.02]">
                 Clone a estrutura e o visual da página para editar.
               </h1>
 
@@ -292,7 +287,7 @@ export default function ClonerPage() {
 
           {/* Main workspace */}
           <section className="mx-auto mt-8 flex max-w-3xl flex-col gap-6">
-            <div className="overflow-hidden rounded-[28px] border border-white/[.09] bg-[#0b100d]/95 shadow-[0_30px_90px_rgba(0,0,0,.24)]">
+            <div className="overflow-hidden rounded-[28px] border border-[#8fec78]/20 bg-[#0b100d]/95 shadow-[0_25px_90px_rgba(75,220,130,.09)] transition-shadow duration-300 hover:shadow-[0_25px_100px_rgba(75,220,130,.16)]">
               <div className="border-b border-white/[.08] px-6 py-5 sm:px-8">
                 <div className="flex flex-col items-center justify-center gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#8fec78]/20 bg-[#8fec78]/[.08] text-lg text-[#a8f494]">
@@ -416,7 +411,7 @@ export default function ClonerPage() {
                 ].map(([number, title, description]) => (
                   <div
                     key={number}
-                    className="flex flex-col items-center gap-3 rounded-2xl border border-white/[.06] bg-black/[.12] p-4"
+                    className="flex flex-col items-center gap-3 rounded-2xl border border-white/[.08] bg-gradient-to-b from-[#16241a] to-[#0b100d] p-4 transition duration-300 hover:-translate-y-1 hover:border-[#8fec78]/35 hover:shadow-[0_12px_30px_rgba(75,220,130,.08)]"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#8fec78]/20 bg-[#142019] text-[10px] font-bold text-[#a8f494]">
                       {number}
@@ -497,13 +492,7 @@ export default function ClonerPage() {
                     <p className="mx-auto mt-2 break-all text-center text-sm text-white/45">
                       {result.project.finalUrl}
                     </p>
-                    <p className={"mt-3 rounded-full border px-3 py-2 text-xs font-bold "+(result.engine==="hydrated-browser-v3"?"border-emerald-400/25 bg-emerald-400/10 text-emerald-200":"border-amber-400/25 bg-amber-400/10 text-amber-200")}>
-                      {result.engine==="hydrated-browser-v3"
-                        ?result.stats?.desktopCaptured
-                          ?"✓ Captura visual · celular 390 px + desktop 1440 px"
-                          :"⚠ Captura mobile feita, desktop pendente"
-                        :"⚠ Captura estática · fidelidade limitada"}
-                    </p>
+
                   </div>
 
                   <button
@@ -522,11 +511,6 @@ export default function ClonerPage() {
                 <span className="rounded-xl border border-white/10 px-3 py-2">Desktop: {result.stats.desktopImageCount??0} imagens</span>
                 {(result.stats.desktopBrokenImages??0)>0&&<span className="rounded-xl border border-amber-400/30 px-3 py-2 text-amber-200">Desktop: {result.stats.desktopBrokenImages} imagens da origem não carregaram</span>}
               </div>}
-              {result.warnings?.length ? <div className="mx-6 mt-5 space-y-2 rounded-2xl border border-amber-400/30 bg-amber-400/[.07] px-5 py-4 text-left text-xs leading-6 text-amber-100 sm:mx-8">
-                <strong className="block text-sm">Fidelidade visual parcial</strong>
-                {result.warnings.map((message,index)=><p key={index}>• {message}</p>)}
-                <p>Se o site utiliza estilos ou imagens privados, envie os arquivos com autorização para concluir a edição.</p>
-              </div> : null}
               {result.stats && (
                 <div className="grid grid-cols-2 border-b border-white/[.08] sm:grid-cols-3 lg:grid-cols-5">
                   {[
