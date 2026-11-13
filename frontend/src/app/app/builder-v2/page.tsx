@@ -963,19 +963,16 @@ export default function BuilderV2() {
       const universalScore=preferredStrategy.universal||0;
       const learnedAiEligible=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&
         aiScore>=2&&aiScore>universalScore&&universalScore<0;
-      const sectionBackgroundRequest=!hasAttachments&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
+      const sectionBackgroundRequest=!hasAttachments&&!/\b(?:bot[aã]o(?:es)?|cta|button|agendamento)\b/i.test(prompt)&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
       // A compound color request must run through the atomic universal parser.
       // The background-only shortcut can verify just one clause and must never
       // intercept a request that also changes a heading, card or other element.
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor de fundo da seção atualizada. Confira o contraste na prévia."}]);return;}
-        setGenerationError(backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada.");
-        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:backgroundResult&&!backgroundResult.ok?backgroundResult.error:"Não foi possível confirmar a edição do fundo. Nenhuma alteração aplicada."}]);
-        const backgroundFailure=backgroundResult&&!backgroundResult.ok?backgroundResult.error:"A alteração de fundo não passou na verificação.";
-        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+diagnoseUniversalEditFailure(backgroundFailure),site.briefingLayoutVariant||"01");
-        setInstruction("");
-        return;
+        // A failed shortcut must not swallow the command: the full universal parser
+        // can handle aliases, compound syntax and CTA targets that the shortcut misses.
+        console.warn("[editor] Background shortcut did not verify; falling through to universal parser",backgroundResult&&!backgroundResult.ok?backgroundResult.error:"verification failed");
       }
       // Approved universal outcomes now take precedence over the legacy background shortcut.
       // A repeatedly approved isolated-copy route can take precedence for a
