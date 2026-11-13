@@ -509,6 +509,16 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
    return {ok:false,error:"A verificação do pedido composto falhou. Nenhuma alteração aplicada."};
   return result;
  }
+ // Ordinary scoped alignment: do not acknowledge success without changing the requested headings.
+ const naturalHeadingAlignment=instruction.match(/(?:centralize|alinhe(?:\s+ao\s+centro)?)\s+(?:todos?\s+)?(?:os\s+)?t[ií]tulos?\s+(?:da|de|do)\s+se[cç][aã]o\s+(?:de\s+)?([^,.;\n]+?)(?=\s+(?:sem|n[aã]o|mantendo|preservando)\b|[.!?]|$)/i);
+ if(naturalHeadingAlignment){
+  const section=resolveUniversalSection(site,naturalHeadingAlignment[1].trim());
+  if(!section)return {ok:false,error:"Seção de títulos não encontrada. Nenhuma alteração aplicada."};
+  const headings=site.blocks.filter(b=>b.section===section&&b.type==="heading");
+  if(!headings.length)return {ok:false,error:"Nenhum título editável encontrado nessa seção. Nenhuma alteração aplicada."};
+  const ops:UniversalOperation[]=headings.filter(b=>b.align!=="center"||b.alignExplicit!==true).map(b=>({action:"update",blockId:b.id,changes:{align:"center"}}));
+  return ops.length?applyUniversalOperations(site,ops):{ok:true,site,changedIds:[],requestedCount:headings.length,alreadyCorrectCount:headings.length};
+ }
  // Section-scoped alignment: never propagate a title-only request to all site blocks.
  const scopedCardAlignment=instruction.match(/^na\s+se[cç][aã]o\s+["“]([^"”]+)["”]\s*,?\s*centralize\s+o\s+t[ií]tulo\s+principal\s+da\s+se[cç][aã]o\s+e\s+os\s+t[ií]tulos\s+dos\s+(?:tr[eê]s|3)\s+cards\b/i);
  if(scopedCardAlignment){
