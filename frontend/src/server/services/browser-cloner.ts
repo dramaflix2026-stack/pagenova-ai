@@ -202,11 +202,27 @@ export async function fetchPageWithBrowser(
         "--no-default-browser-check",
       ];
     } else {
-      executablePath =
-        await chromium.executablePath();
+      const fs = await import("node:fs");
+      const systemBrowser = [
+        process.env.PAGENOVA_CHROMIUM_EXECUTABLE,
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+      ].find((candidate) => candidate && fs.existsSync(candidate));
 
-      launchArgs =
-        chromium.args;
+      if (systemBrowser) {
+        executablePath = systemBrowser;
+        launchArgs = [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--no-first-run",
+          "--no-default-browser-check",
+          "--disable-gpu",
+        ];
+      } else {
+        executablePath = await chromium.executablePath();
+        launchArgs = chromium.args;
+      }
     }
 
     browser =
