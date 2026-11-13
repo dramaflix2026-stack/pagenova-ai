@@ -315,6 +315,15 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    const description=descriptions[key]||stageCopy||"Apresentamos esta etapa com clareza, alinhando expectativas, decisões e próximos passos às necessidades do projeto.";
    return {title,description};});
  }
+ // A normal customer may request three cards without specifying their titles.
+ // Supply editable, non-claim-based placeholders instead of rejecting the instruction.
+ if(!cards.length&&requestedCount===3&&/\b(?:diferenciais|vantagens|benef[ií]cios)\b/i.test(name)){
+  cards=[
+   {title:"Atendimento personalizado",description:"Apresentamos as opções disponíveis e orientamos cada cliente de acordo com suas necessidades."},
+   {title:"Cuidado em cada etapa",description:"Organizamos as informações e acompanhamos as etapas do atendimento com clareza."},
+   {title:"Compromisso com você",description:"Facilitamos o contato para esclarecer dúvidas e encontrar a solução mais adequada."}
+  ];
+ }
  // An ordinary four-differential request should not require the user to supply card titles.
  // Use neutral, editable sample copy; never fabricate business-specific achievements.
  if(!cards.length&&/\b(?:quatro|4)\s+diferenciais\b/i.test(instruction)){
