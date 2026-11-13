@@ -227,7 +227,7 @@ async function readApprovedEditorPatterns(niche:string){
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
    .select("intent,target,strategy,niche,model,review_status,execution_status").eq("user_id",user.id)
-   .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(100);
+   .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(500);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
@@ -874,12 +874,15 @@ export default function BuilderV2() {
         setInstruction("");
         return;
       }
-      const preferredStrategy=relevantPatterns.reduce((scores,pattern)=>{
-        const outcomeWeight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1:0;
+      // Recent outcomes carry more weight, while older reviewed outcomes remain
+      // available as evidence. A rejected edit must never count as a success.
+      const preferredStrategy=relevantPatterns.reduce((scores,pattern,index)=>{
+        const outcomeWeight=pattern.review_status==="approved"&&pattern.execution_status==="applied"?1:pattern.review_status==="rejected"?-1.5:0;
+        const recencyWeight=index<20?1.5:index<60?1:0.5;
         // Same-niche experience takes priority; other niches provide a weaker transferable signal.
         const nicheWeight=pattern.niche===(site.niche||"")?3:1;
         const modelWeight=pattern.model===site.briefingLayoutVariant?2:1;
-        const weight=outcomeWeight*nicheWeight*modelWeight;
+        const weight=outcomeWeight*nicheWeight*modelWeight*recencyWeight;
         const family=strategyFamily(pattern.strategy);
         // Classified failures belong to their parent execution route, rather
         // than becoming independent strategies that evade negative feedback.
