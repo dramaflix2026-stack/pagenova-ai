@@ -14,6 +14,19 @@ export type UniversalLearningRecord={
  changes:ReadonlyArray<{blockId:string;field:string;before?:string|number|boolean|null;after?:string|number|boolean|null}>;
 };
 
+/** Stable failure taxonomy shared across niches. Never infer a successful edit from a diagnostic. */
+export type UniversalFailureCode="parse"|"missing-target"|"no-change"|"unrequested-change"|"postcondition"|"unsupported"|"unknown";
+export function diagnoseUniversalEditFailure(reason:string):UniversalFailureCode{
+ const message=reason.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+ if(/nao foi possivel interpretar|interpreta|parte do pedido|comando nao reconhecido/.test(message))return "parse";
+ if(/nao encontr|inexistente|missing block|sem bloco|nao possui|nao existe/.test(message))return "missing-target";
+ if(/inalterado|nenhuma alteracao|nao produziu alteracao|nao foi modificado|no expected changes/.test(message))return "no-change";
+ if(/nao solicitad|outras secoes|dados gerais|ordem relativa|duplicados/.test(message))return "unrequested-change";
+ if(/postcondition|nao foi modificad|nao foi confirmad|nao confirmad|nao foi atualizad/.test(message))return "postcondition";
+ if(/nao suportad|unsupported|divida o pedido|ate 20/.test(message))return "unsupported";
+ return "unknown";
+}
+
 const comparable=(v:unknown):v is string|number|boolean|null=>v===null||typeof v==="string"||typeof v==="number"||typeof v==="boolean";
 /** Only explicit scalar block mutations are eligible for deterministic verification. */
 export function verifyUniversalBlockChanges<T extends UniversalSite>(before:T,after:T,expected:ReadonlyArray<{blockId:string;field:string;value:unknown}>):{
