@@ -179,6 +179,7 @@ test("universal verification accepts isolated rendered heading edits",()=>{
   const before=create(variant);
   const after=structuredClone(before);
   after.blocks.find(b=>b.id==="about-heading").text="Nossa história";
+  after.blocks.find(b=>b.id==="about-heading").textExplicit=true;
   const result=verifyUniversalEditResult(before,after,["about-heading"]);
   assert.equal(result.ok,true,variant+": "+result.reason);
   const output=render(after);
