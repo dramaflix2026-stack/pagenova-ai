@@ -42,7 +42,7 @@ function RequireAuth({ children }: { children: ReactNode }) {
 
 function AppRoutes() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+    <Suspense fallback={<div role="status" aria-live="polite" className="flex min-h-[65dvh] flex-col items-center justify-center gap-4 bg-background px-6 text-center text-foreground"><div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/25 border-t-primary" /><p className="font-semibold">Preparando o CRM PageNova...</p><p className="text-sm text-muted-foreground">Carregando a próxima etapa, sem interromper a geração.</p></div>}>
       <Routes>
         <Route path="/entrar" element={<Navigate to="/" replace />} />
 
