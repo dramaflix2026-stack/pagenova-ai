@@ -134,3 +134,17 @@ test("exact heading edit rejects wrong original without changing site",()=>{
  assert.equal(result?.ok,false);
  assert.deepEqual(site,before);
 });
+
+test("exact heading edit accepts preservation clauses without punctuation",()=>{
+ for(const command of [
+  'Na seção de serviços, troque o título "Excelência em cada detalhe." por "Seu carro merece o melhor cuidado." Não altere mais nada no site',
+  'Na seção de serviços, troque o título "Excelência em cada detalhe." por "Seu carro merece o melhor cuidado." não altere mais nada no site',
+  'Na seção de serviços, troque o título "Excelência em cada detalhe." por "Seu carro merece o melhor cuidado."',
+ ]){
+  const site=create();
+  site.blocks.push({id:"services-heading",type:"heading",section:"servicos",text:"Excelência em cada detalhe."});
+  const result=applyUniversalNaturalLanguage(site,command);
+  assert.equal(result?.ok,true,command+" "+result?.error);
+  if(result?.ok)assert.equal(result.site.blocks.find(b=>b.id==="services-heading").text,"Seu carro merece o melhor cuidado.");
+ }
+});
