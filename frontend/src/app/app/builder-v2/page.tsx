@@ -298,6 +298,7 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
+  const [learningSyncNotice,setLearningSyncNotice]=useState("");
   async function refreshApprovedExperiences(){
     try{
       const client=createSupabaseBrowserClient();
@@ -328,7 +329,7 @@ export default function BuilderV2() {
       setReviewCandidate({id:reviewCandidate.id,status});
       const client=createSupabaseBrowserClient();
       const {data:{user}}=await client.auth.getUser();
-      if(user){await syncEditorLearningEvent(event);void refreshApprovedExperiences();}
+      if(user){await syncEditorLearningEvent(event);void refreshApprovedExperiences();setLearningSyncNotice("Avaliação enviada para sincronização. Confira o contador de experiências aprovadas.");}else setLearningSyncNotice("Avaliação salva neste dispositivo. Entre na conta para sincronizar com o Supabase.");
     }catch{/* Keep local review if cloud is temporarily unavailable. */}
   }
   function captureReviewCandidate(){
