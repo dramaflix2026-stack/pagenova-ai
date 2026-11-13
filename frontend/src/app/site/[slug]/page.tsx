@@ -58,5 +58,16 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
     templateId:"prompt-adaptive" as const,
     niche:"Inteligência artificial",
   }:payload.site;
-  return <main className="min-h-screen overflow-x-hidden bg-white">{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
+  // Published snapshots must consume the same persisted universal section styles
+  // as the Builder preview; these edits are not necessarily native template props.
+  const sectionStyles=publishedSite.universalSectionStyles;
+  const sectionCss=sectionStyles&&typeof sectionStyles==="object"&&!Array.isArray(sectionStyles)
+    ?Object.entries(sectionStyles as Record<string,unknown>).flatMap(([section,raw])=>{
+      if(!/^[a-zA-Z0-9_-]{1,80}$/.test(section)||!raw||typeof raw!=="object"||Array.isArray(raw))return [];
+      const bg=(raw as Record<string,unknown>).backgroundColor;
+      if(typeof bg!=="string"||!/^#[0-9a-fA-F]{6}$/.test(bg))return [];
+      const tp9=/(?:^|[-_])(?:servicos|services)(?:$|[-_])/i.test(section)?" ,#tp9-servicos":"";
+      return [`[data-section-id="${section}"],[data-universal-section="${section}"],section[id="${section}"]${tp9}{background-color:${bg}!important}`];
+    }).join("\n"):"";
+  return <main className="min-h-screen overflow-x-hidden bg-white">{sectionCss&&<style>{sectionCss}</style>}{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
 }
