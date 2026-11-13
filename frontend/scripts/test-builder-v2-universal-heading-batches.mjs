@@ -4,6 +4,7 @@ import {fixture,render} from "./builder-v2-renderer-harness.mjs";
 import {applyUniversalNaturalLanguage} from "../src/lib/builder-v2-universal-language.ts";
 import {applyUniversalHeadingBatch} from "../src/lib/builder-v2-universal-heading-batches.ts";
 import {summarizeUniversalEdit} from "../src/lib/builder-v2-universal-operations.ts";
+import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 
 const prompt='Na capa, altere somente o título principal para "Beleza e inovação em perfeita harmonia". Na seção Sobre a empresa, altere o título para "Nossa essência". Na seção Perguntas Frequentes, altere o título para "Tire suas dúvidas". Preserve todas as imagens, os botões, os parágrafos e as demais seções.';
 const create=(variant="02")=>{
@@ -160,4 +161,37 @@ test("plain-language heading replacement works without quotes or punctuation",()
  assert.deepEqual(result.changedIds,["services-heading"]);
  assert.equal(result.site.blocks.find(b=>b.id==="services-heading").text,"Seu carro merece o melhor cuidado");
  assert.deepEqual(site,before);
+});
+
+
+test("universal verification rejects hidden global changes in a text edit",()=>{
+ const before=create();
+ const after=structuredClone(before);
+ after.blocks.find(b=>b.id==="about-heading").text="Nossa história";
+ after.title="Título global alterado indevidamente";
+ const result=verifyUniversalEditResult(before,after,["about-heading"]);
+ assert.equal(result.ok,false);
+ assert.match(result.reason,/Dados gerais/);
+});
+
+test("universal verification accepts isolated rendered heading edits",()=>{
+ for(const variant of ["01","02","03"]){
+  const before=create(variant);
+  const after=structuredClone(before);
+  after.blocks.find(b=>b.id==="about-heading").text="Nossa história";
+  const result=verifyUniversalEditResult(before,after,["about-heading"]);
+  assert.equal(result.ok,true,variant+": "+result.reason);
+  const output=render(after);
+  assert.ok(output,variant+" should render");
+ }
+});
+
+test("universal verification permits declared section events and rejects unrelated ones",()=>{
+ const before=create();
+ const after=structuredClone(before);
+ after.blocks.find(b=>b.id==="about-heading").text="Nova seção";
+ after.universalSectionEvents=[{action:"move",section:{id:"sobre"}}];
+ assert.equal(verifyUniversalEditResult(before,after,["about-heading"]).ok,true);
+ after.universalSectionEvents.push({action:"remove",section:{id:"contato"}});
+ assert.equal(verifyUniversalEditResult(before,after,["about-heading"]).ok,false);
 });
