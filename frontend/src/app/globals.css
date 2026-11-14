@@ -2287,3 +2287,29 @@ section[id^="custom-"] [data-pn-composition="editorial-gallery-3d"] > .grid > a:
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   }
 }
+
+/* Universal editor: contrast-safe custom guidance cards in TP1 aesthetic Model 01.
+   Keep the frozen template untouched. Generated sections can inherit a light
+   card background while their inline text color was calculated for the
+   dark section canvas. Scope contrast correction only to newly created cards,
+   never to the original treatment gallery or existing approved sections. */
+[data-tp1-aesthetic-model1="true"] section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article {
+  background-color:#f8f4ee !important;
+  background-image:none !important;
+  border-color:rgba(159,137,113,.28) !important;
+  box-shadow:0 12px 32px rgba(25,20,17,.11) !important;
+  min-height:0 !important;
+}
+[data-tp1-aesthetic-model1="true"] section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article h3 {
+  color:#372d27 !important;
+  -webkit-text-fill-color:#372d27 !important;
+  text-shadow:none !important;
+  opacity:1 !important;
+}
+[data-tp1-aesthetic-model1="true"] section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article p {
+  color:#5b514b !important;
+  -webkit-text-fill-color:#5b514b !important;
+  text-shadow:none !important;
+  opacity:1 !important;
+  line-height:1.65 !important;
+}
