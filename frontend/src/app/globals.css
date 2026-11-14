@@ -2313,3 +2313,67 @@ section[id^="custom-"] [data-pn-composition="editorial-gallery-3d"] > .grid > a:
   opacity:1 !important;
   line-height:1.65 !important;
 }
+
+
+/* Motor Universal: generated aftercare sections need their own readable editorial cards.
+   Match the actual custom section DOM directly, without depending on TP1's
+   optional family/model data attribute. Do not touch approved template cards. */
+html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) !important;
+  gap:18px !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article {
+  position:relative !important;
+  background:#f9f5ef !important;
+  background-image:none !important;
+  border:1px solid #d8c9ba !important;
+  border-left:3px solid #b29375 !important;
+  border-radius:16px !important;
+  padding:clamp(25px,3vw,34px) !important;
+  min-height:0 !important;
+  height:auto !important;
+  box-shadow:0 12px 30px rgba(35,26,21,.1) !important;
+  transform:none !important;
+  opacity:1 !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  color:#332921 !important;
+  -webkit-text-fill-color:#332921 !important;
+  text-shadow:none !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p,span,strong) {
+  color:#332921 !important;
+  -webkit-text-fill-color:#332921 !important;
+  text-shadow:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article h3 {
+  font-family:Georgia, "Times New Roman",serif !important;
+  font-size:clamp(22px,2.1vw,27px) !important;
+  font-weight:500 !important;
+  letter-spacing:-.025em !important;
+  line-height:1.2 !important;
+  margin:0 0 14px !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article p {
+  color:#5b5149 !important;
+  -webkit-text-fill-color:#5b5149 !important;
+  font-size:clamp(15px,1.18vw,17px) !important;
+  line-height:1.65 !important;
+  font-weight:400 !important;
+  margin:0 !important;
+  white-space:normal !important;
+  overflow-wrap:break-word !important;
+}
+@media (min-width:768px) {
+  html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid {
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    align-items:stretch !important;
+  }
+}
