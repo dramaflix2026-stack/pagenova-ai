@@ -1,7 +1,8 @@
 import {NextRequest} from "next/server";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 import {normalizeForm} from "@/lib/forms/schema";
-import {localForm,LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {generatePageNovaForm} from "@/lib/forms/generator";
 export const runtime="nodejs";
 export async function POST(request:NextRequest){
  try{
@@ -24,7 +25,7 @@ export async function POST(request:NextRequest){
   const existing=body.existing?normalizeForm(body.existing):null;
   if(existing&&!/\b(?:adicion[ae]|inclu[ai]|acrescent[ae])\s+(?:uma?\s+)?(?:pergunta|campo)|\b(?:trocar|mudar|alterar|atualizar)\s+(?:o\s+)?t[ií]tulo\s+(?:para|por|:)/i.test(prompt))
     throw new FormServiceError("O modo local aceita os comandos adicionar pergunta ... e alterar título para ...; outros ajustes podem ser feitos diretamente no editor. Nenhuma API foi cobrada.",422);
-  const form=localForm(prompt,existing);
+  const form=generatePageNovaForm(prompt,existing);
   return Response.json({form,usage:null,engine:LOCAL_ENGINE_MODE,paidApiCalls:0},{headers:{"Cache-Control":"no-store"}});
  }catch(error){return errorsAsResponse(error);}
 }
