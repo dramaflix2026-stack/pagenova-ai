@@ -89,10 +89,18 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
       // Inspect the *actual* painted cards, not only one expected DOM hierarchy.
       // Classic sites, template wrappers and older saved blocks have different
       // nesting; data-block-id is stable across those renderers.
-      const candidates=Array.from(portalNode.querySelectorAll<HTMLElement>("article"));
+      // Generated beauty/clinic guidance renders cards as <a> elements, while
+      // the other universal renderers use <article>. Audit BOTH shapes.
+      // The first editorial link is an introduction over a dark background:
+      // leave it untouched so it stays readable.
+      const candidates=Array.from(portalNode.querySelectorAll<HTMLElement>(
+        "article, [data-pn-composition='editorial-gallery-3d'] > .grid > a:not(:first-child)"
+      ));
       const cards=candidates.filter(card=>{
         const section=card.closest("section");
         const id=section?.id||section?.getAttribute("data-section-id")||section?.getAttribute("data-universal-section")||"";
+        if(card.matches("a"))return id.startsWith("custom-")&&
+          Boolean(card.closest("[data-pn-composition='editorial-gallery-3d']"));
         return id.startsWith("custom-")||
           String(card.getAttribute("data-block-id")||"").startsWith("custom-")||
           Boolean(card.closest("[data-universal-custom-cards],[data-pn-composition='universal-custom-section']"));
