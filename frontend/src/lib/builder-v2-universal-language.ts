@@ -298,7 +298,8 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const numbered=[...instruction.matchAll(/(?:^|\n)\s*(\d{1,2})[.)]\s*([^:\n—–]+?)\s*(?::|[—–])\s*([^\n]+)/g)].map(m=>({title:m[2].trim(),description:m[3].trim()}));
  const countWord=instruction.match(/(?:crie|adicione|inclua|com|contendo|tenha|possua)\s+(?:(?:\w+\s+){0,2})?(um|dois|duas|tr[eê]s|quatro|cinco|seis|\d{1,2})\s+cards?/i)?.[1];
  const quantities:Record<string,number>={um:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6};
- const requestedCount=countWord?(quantities[normalized(countWord)]??Number(countWord)):null;
+ const explicitCardCount=instruction.match(/\b(um|dois|duas|tr[eê]s|quatro|cinco|seis|\d{1,2})\s+cards?\b/i)?.[1];
+ const requestedCount=(countWord||explicitCardCount)?(quantities[normalized((countWord||explicitCardCount)!)]??Number(countWord||explicitCardCount)):null;
  if(requestedCount!==null&&(!Number.isInteger(requestedCount)||requestedCount<1||requestedCount>12))return {ok:false,error:"Quantidade de cards fora do intervalo permitido (1 a 12). Nenhuma alteração aplicada."};
  let cards=numbered;
  if(cards.length===0){
@@ -363,12 +364,31 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
    {title:"Experiência de navegação",description:"Descubra os espaços em uma apresentação visual intuitiva e responsiva."}
   ];
  }
+ // Customers frequently request a number of cards and a topic instead of
+ // specifying every card title. Generate editable, non-claim-based guidance.
+ if(!cards.length&&requestedCount===3&&/cards?\\s+(?:com|sobre|de)\\b/i.test(instruction)){
+  const aftercare=/pos[-\\s]?tratamento|apos\\s+(?:os?\\s+)?procedimentos?|cuidados\\s+pos/i.test(normalized(name+" "+instruction));
+  cards=aftercare?[
+   {title:"Orientações profissionais",description:"Os cuidados variam conforme o procedimento. Siga as recomendações específicas da equipe responsável pelo atendimento."},
+   {title:"Proteção e cuidado com a pele",description:"Respeite as orientações de higienização e proteção e evite usar produtos não recomendados pelo profissional."},
+   {title:"Acompanhamento",description:"Em caso de dúvidas ou reações inesperadas, procure o profissional responsável para receber orientações adequadas."}
+  ]:[
+   {title:"Informações essenciais",description:"Conheça os principais pontos e orientações relacionados a "+name.toLowerCase()+"."},
+   {title:"Cuidados e recomendações",description:"Observe as orientações adequadas ao seu contexto e esclareça dúvidas com a equipe responsável."},
+   {title:"Próximos passos",description:"Entre em contato para receber informações complementares e definir os próximos passos."}
+  ];
+ }
  if(!cards.length||requestedCount!==null&&cards.length!==requestedCount)return {ok:false,error:"A quantidade ou os títulos dos cards não correspondem ao pedido. Nenhuma alteração aplicada."};
  if(cards.length>12||new Set(cards.map(c=>normalized(c.title))).size!==cards.length)return {ok:false,error:"Os cards precisam ter títulos únicos e quantidade válida. Nenhuma alteração aplicada."};
- const entries=[{type:"heading",text:name},...cards.flatMap(card=>[
-  {type:"heading",text:card.title},
-  {type:"paragraph",text:card.description}
- ])];
+ // The shared custom-section renderer expects one section heading, followed
+ // by an introductory paragraph and card paragraphs in "Title: Body" form.
+ // Separate card headings would otherwise appear as section-level headings.
+ const aftercare=/pos[-\\s]?tratamento|apos\\s+(?:os?\\s+)?procedimentos?/i.test(normalized(name+" "+instruction));
+ const introduction=aftercare
+  ?"Os cuidados após cada procedimento estético devem seguir as orientações individualizadas do profissional responsável. Confira algumas recomendações gerais."
+  :"Conheça as informações e orientações sobre "+name.toLowerCase()+", organizadas para uma leitura simples e objetiva.";
+ const entries=[{type:"heading",text:name},{type:"paragraph",text:introduction},
+  ...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))];
  const operations:UniversalOperation[]=[];let afterId=previous.id;
  for(let i=0;i<entries.length;i++){
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
