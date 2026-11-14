@@ -629,7 +629,11 @@
     },
     {
       "path": "src/components/template10-education-closing.tsx",
-      "blobSha": "9b83352ee59cfa17f358ad5ab5f91fe12b63cbdf"
+      "blobSha": "9b83352ee59cfa17f358ad5ab5f91fe12b63cbdf",
+      "approvedBindingRevision": {
+        "sha": "39b99e9b767a7170f1c88648965a2d5a2884fa73",
+        "reason": "User-approved Minimalist Premium FAQ for Fluency Hub TP10 Model 1 only; niche-specific FAQ layout with unchanged questions, answers, admissions, other niches, Models 2 and 3."
+      }
     },
     {
       "path": "src/components/template10-education-experience.tsx",
