@@ -645,7 +645,11 @@
     },
     {
       "path": "src/components/template10-education-final.tsx",
-      "blobSha": "cfb655f7b747df24a69a3d605e498fe292d2ba18"
+      "blobSha": "cfb655f7b747df24a69a3d605e498fe292d2ba18",
+      "approvedBindingRevision": {
+        "sha": "4923d9584de18ea74b710083599619f3e9f053ca",
+        "reason": "Explicit user approval for Fluency Hub TP10 Model 1 Dark Premium centered CTA and footer; existing anchors and contact data preserved; protected systems and other model components untouched."
+      }
     },
     {
       "path": "src/components/template10-education-hero.tsx",
