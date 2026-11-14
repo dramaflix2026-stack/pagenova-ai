@@ -2479,3 +2479,27 @@ html body article[data-block-id^="custom-cuidados-pos-tratamento"] p {
   font-weight:400 !important;
   margin:0 !important;
 }
+
+
+/* Cascade exception: dark cinematic typography must not whiten text on cream custom cards.
+   The cinematic base uses a high-specificity !important rule for every article.
+   Outrank it only for these generated aftercare cards, retaining originals. */
+.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article,
+.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article {
+ background:#f9f6f1!important;background-image:none!important;
+ border:1px solid #ddcfc1!important;border-top:3px solid #b59a7d!important;
+ box-shadow:0 12px 28px rgba(23,18,13,.10)!important;
+ color:#372b22!important;
+}
+.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p),
+.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p) {
+ color:#372b22!important;
+ -webkit-text-fill-color:#372b22!important;
+ text-shadow:none!important;
+ filter:none!important;
+ opacity:1!important;
+}
+.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article p,
+.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article p {
+ color:#594c41!important;-webkit-text-fill-color:#594c41!important;
+}
