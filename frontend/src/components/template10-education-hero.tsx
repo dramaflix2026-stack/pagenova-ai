@@ -83,6 +83,25 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
  .pn-t10-language .pn-t10-photo{aspect-ratio:1.14;border-radius:14px}
  .pn-t10-language .pn-t10-caption{font-size:10px;left:11px;bottom:11px}
 }
+/* Language-school benefit bar: remove legacy beige and generic institution slogans.
+   This is marketing copy, not a claim about class format or results. */
+.pn-t10-language .pn-t10-strip{
+  display:grid;grid-template-columns:1fr auto;align-items:center;
+  gap:24px;background:#0c2a3a;color:#ebf6fa;
+  border-top:1px solid #ffffff21;border-bottom:1px solid #ffffff16;
+  padding:20px clamp(22px,5.4vw,85px);
+  font-family:Arial,Helvetica,sans-serif;
+  font-size:clamp(11px,1vw,13px);font-weight:700;
+  text-transform:none;letter-spacing:.015em;line-height:1.5;
+}
+.pn-t10-language .pn-t10-strip span{display:flex;align-items:center;gap:10px;color:#e6f4f5!important;-webkit-text-fill-color:#e6f4f5!important;text-shadow:none!important}
+.pn-t10-language .pn-t10-strip span:first-child{font-weight:800}
+.pn-t10-language .pn-t10-strip span:last-child{color:#bdd1d9!important;-webkit-text-fill-color:#bdd1d9!important}
+.pn-t10-language .pn-t10-strip-dot{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;background:#b9ee5b;box-shadow:0 0 0 4px #b9ee5b1b}
+@media(max-width:700px){
+ .pn-t10-language .pn-t10-strip{grid-template-columns:1fr;gap:8px;padding:18px 21px;font-size:12px}
+ .pn-t10-language .pn-t10-strip span{gap:9px}
+}
 @media(prefers-reduced-motion:reduce){.pn-t10-language .pn-t10-cta{transition:none!important;transform:none!important}}
 `}</style>}
  {languageSchool?
@@ -96,7 +115,11 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
  <section className="pn-t10-hero" id="tp10-inicio"><div className="pn-t10-copy"><span className="pn-t10-kicker">{niche} / educação e formação</span><h1>{headline?.trim()||d[0]}</h1><p className="pn-t10-desc">{description?.trim()||d[1]}</p><a className="pn-t10-cta" href="#tp10-cursos">Conheça nossas formações ↗</a></div><div className="pn-t10-photo"><img onError={imageFallback} src={photo} alt={"Fotografia ilustrativa de "+niche}/><span className="pn-t10-caption">Aprendizagem e possibilidades / 01</span></div></section>
  </>
  }
+ {languageSchool?
+ <div className="pn-t10-strip" aria-label="Destaques dos programas de inglês"><span><i className="pn-t10-strip-dot" aria-hidden="true"/>Inglês para o mundo real</span><span>Do primeiro passo à conversação · No seu ritmo</span></div>
+ :
  <div className="pn-t10-strip"><span>Educação com identidade</span><span>Aprendizado · Desenvolvimento · Possibilidades</span></div>
+ }
  <Template10EducationSections niche={niche} brand={brand} site={site}/>
  <Template10EducationExperience niche={niche} brand={brand} testimonials={testimonials} publishedMode={publishedMode}/>
  <Template10EducationClosing niche={niche} brand={brand} contact={contact}/>
