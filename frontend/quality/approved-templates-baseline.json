@@ -651,8 +651,8 @@
       "path": "src/components/template10-education-sections.tsx",
       "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49",
       "approvedBindingRevision": {
-        "sha": "bf6225d170ee1a6db502003eef7841fa0f968c35",
-        "reason": "User explicitly approved option 1 for TP10 Model 1 Fluency Hub programs. Only language-school course cards change visually; existing universal edit bindings, other niches and Models 2/3 remain unchanged."
+        "sha": "9590bbb64f7d44a405dbccffd4d32c248b82e3d9",
+        "reason": "User approved Option 1 Educa visual reference for Sobre a Instituição of Fluency Hub, TP10 Model 1. A brand-only image-right/about-left redesign. No changes to Universal Editor, ML, Model 2/3 or other niches; existing About markup retained for all others."
       }
     },
     {
