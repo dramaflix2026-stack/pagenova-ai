@@ -170,7 +170,9 @@ export function applyUniversalPracticalEdit<T extends UniversalSite>(site:T,inst
   const sectionId="custom-"+slug;
   if(site.blocks.some(b=>b.section===sectionId))return fail("A seção '"+section[1]+"' já existe. Nenhuma alteração aplicada.");
   const heading=rest.match(/(?:(?:inclua|adicione|com)\s+(?:o\s+)?t[ií]tulo|o\s+t[ií]tulo\s+(?:deve\s+ser|ser[aá]))\s+['"“]([^'"”]{2,300})['"”]/i)?.[1];
-  if(!heading)return fail("Não identifiquei o título da nova seção. Nenhuma alteração aplicada.");
+  // A named section already supplies its heading. Let the general section
+  // creator handle ordinary briefs that do not quote a second heading.
+  if(!heading)return null;
   const description=rest.match(/(?:(?:uma\s+)?descri[cç][aã]o\s+(?:profissional\s+)?|(?:um\s+)?texto\s+|(?:uma\s+)?(?:breve\s+)?introdu[cç][aã]o\s+)sobre\s+([^.,]{4,180})/i)?.[1]?.replace(/\s+e\s+(?:tr[eê]s|3)\s+cards?[\s\S]*$/i,"").trim();
   const textBody=description&&/encomenda/i.test(description)
    ?"Encomendas artesanais para celebrar momentos especiais. Entre em contato para conhecer as opções e confirmar disponibilidade."
