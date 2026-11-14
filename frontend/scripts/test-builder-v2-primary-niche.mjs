@@ -36,7 +36,7 @@ test("short Fluency Hub briefing selects the TP10 Schools of Languages template"
 });
 
 test("language-school exclusions must not overwrite another positive niche",()=>{
- const brief="Crie um site para uma floricultura boutique.\\nNão usar fotografias de escolas de inglês ou cursos de idiomas.";
+ const brief="Crie um site para uma floricultura boutique.\nNão usar fotografias de escolas de inglês ou cursos de idiomas.";
  assert.equal(resolvePrimaryBriefingNiche(brief),"Floricultura");
  assert.equal(resolveBriefingFamily(resolvePrimaryBriefingNiche(brief)),6);
 });
@@ -44,9 +44,9 @@ test("language-school exclusions must not overwrite another positive niche",()=>
 test("fresh generation preserves both recognized niche and selected visual model",()=>{
  const page=readFileSync(resolve(root,"src/app/app/builder-v2/page.tsx"),"utf8");
  const api=readFileSync(resolve(root,"src/app/api/builder-v2/chat/route.ts"),"utf8");
- assert.match(page,/if\\(shouldCreateProject\\)\\{\\s*incoming\\.id=requestSite\\.id;\\s*incoming\\.niche=effectiveBriefNiche/);
- assert.match(page,/incoming\\.briefingLayoutVariant=requestSite\\.briefingLayoutVariant\\|\\|"01"/);
- assert.match(api,/const generationVariant=requestedVariant==="02"\\|\\|requestedVariant==="03"/);
+ assert.match(page,/if\(shouldCreateProject\)\{\s*incoming\.id=requestSite\.id;\s*incoming\.niche=effectiveBriefNiche/);
+ assert.match(page,/incoming\.briefingLayoutVariant=requestSite\.briefingLayoutVariant\|\|"01"/);
+ assert.match(api,/const generationVariant=requestedVariant==="02"\|\|requestedVariant==="03"/);
  assert.match(api,/briefingLayoutVariant:generationVariant/);
 });
 
