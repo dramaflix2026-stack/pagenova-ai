@@ -2315,218 +2315,27 @@ section[id^="custom-"] [data-pn-composition="editorial-gallery-3d"] > .grid > a:
 }
 
 
-/* Motor Universal: generated aftercare sections need their own readable editorial cards.
-   Match the actual custom section DOM directly, without depending on TP1's
-   optional family/model data attribute. Do not touch approved template cards. */
-html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid {
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
-  gap:18px !important;
-}
-html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article {
+/* Motor Universal | cinematic generated cards.
+   The frozen Builder renderer emits two shapes:
+   (1) [data-pn-composition="universal-custom-section"] > .grid > article
+   (2) [data-universal-custom-cards] > article
+   These are NEW editor-generated blocks, not approved template cards.
+   The cinematic styles inside BuilderV2Site force #fff with !important on
+   article descendants; the earlier ID-bound exceptions missed renamed/sluggified
+   sections. Scope by real composition instead of a guessed section slug.
+   This stylesheet is shared by the preview iframe and published websites. */
+html body section.pn-cinematic-enabled .pn-motion-site [data-pn-composition="universal-custom-section"] > .grid > article,
+html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article {
   position:relative !important;
-  background:#f9f5ef !important;
-  background-image:none !important;
-  border:1px solid #d8c9ba !important;
-  border-left:3px solid #b29375 !important;
-  border-radius:16px !important;
-  padding:clamp(25px,3vw,34px) !important;
-  min-height:0 !important;
-  height:auto !important;
-  box-shadow:0 12px 30px rgba(35,26,21,.1) !important;
-  transform:none !important;
-  opacity:1 !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  color:#332921 !important;
-  -webkit-text-fill-color:#332921 !important;
-  text-shadow:none !important;
-}
-html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p,span,strong) {
-  color:#332921 !important;
-  -webkit-text-fill-color:#332921 !important;
-  text-shadow:none !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  opacity:1 !important;
-  mix-blend-mode:normal !important;
-}
-html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article h3 {
-  font-family:Georgia, "Times New Roman",serif !important;
-  font-size:clamp(22px,2.1vw,27px) !important;
-  font-weight:500 !important;
-  letter-spacing:-.025em !important;
-  line-height:1.2 !important;
-  margin:0 0 14px !important;
-}
-html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article p {
-  color:#5b5149 !important;
-  -webkit-text-fill-color:#5b5149 !important;
-  font-size:clamp(15px,1.18vw,17px) !important;
-  line-height:1.65 !important;
-  font-weight:400 !important;
-  margin:0 !important;
-  white-space:normal !important;
-  overflow-wrap:break-word !important;
-}
-@media (min-width:768px) {
-  html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamento"][id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid {
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-    align-items:stretch !important;
-  }
-}
-
-
-/* MOTOR UNIVERSAL: real custom section DOM (classic and template wrapper).
-   Do not rely on a TP1-specific wrapper or the single classic component.
-   Affect the aftercare section only; approved original services remain untouched. */
-html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) {
-  background:#f9f6f1 !important;
-  background-image:none !important;
-  border:1px solid #d9c8b7 !important;
-  border-top:3px solid #b79a78 !important;
-  border-radius:16px !important;
-  min-height:0 !important;
-  padding:clamp(24px,3vw,34px) !important;
-  box-shadow:0 12px 34px rgba(32,22,17,.10) !important;
-  opacity:1 !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  color:#352b24 !important;
-  -webkit-text-fill-color:#352b24 !important;
-  text-shadow:none !important;
-  transform:none !important;
-}
-html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) :is(h3,p,span,strong,small) {
-  color:#352b24 !important;
-  -webkit-text-fill-color:#352b24 !important;
-  text-shadow:none !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  opacity:1 !important;
-  mix-blend-mode:normal !important;
-}
-html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) h3 {
-  font-family:Georgia,"Times New Roman",serif !important;
-  font-size:clamp(21px,2vw,27px) !important;
-  line-height:1.25 !important;
-  font-weight:500 !important;
-  letter-spacing:-.02em !important;
-  margin:0 0 14px !important;
-}
-html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) p {
-  color:#55483e !important;
-  -webkit-text-fill-color:#55483e !important;
-  font-size:clamp(15px,1.2vw,17px) !important;
-  font-weight:400 !important;
-  line-height:1.65 !important;
-  margin:0 !important;
-  overflow-wrap:break-word !important;
-}
-html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) [data-universal-custom-cards] > article span[aria-hidden="true"] {
-  color:#98795a !important;
-  -webkit-text-fill-color:#98795a !important;
-  font-size:12px !important;
-  font-weight:600 !important;
-}
-
-
-/* Final direct-binding fallback: aftercare cards carry stable universal block IDs.
-   This catches custom cards even if a template renames or wraps the parent
-   section. No approved template block has a custom-cuidados-pos-tratamento ID. */
-html body article[data-block-id^="custom-cuidados-pos-tratamento"] {
-  background:#f9f6f1 !important;
-  background-image:none !important;
-  border:1px solid #ddcfc1 !important;
-  border-top:3px solid #b59a7d !important;
-  border-left:1px solid #ddcfc1 !important;
-  border-radius:16px !important;
-  box-shadow:0 12px 28px rgba(23,18,13,.10) !important;
-  padding:clamp(24px,3vw,34px) !important;
-  min-height:0 !important;
-  height:auto !important;
-  backdrop-filter:none !important;
-  -webkit-backdrop-filter:none !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  opacity:1 !important;
-}
-html body article[data-block-id^="custom-cuidados-pos-tratamento"] :is(h3,p) {
-  color:#372b22 !important;
-  -webkit-text-fill-color:#372b22 !important;
-  text-shadow:none !important;
-  filter:none !important;
-  -webkit-filter:none !important;
-  opacity:1 !important;
-}
-html body article[data-block-id^="custom-cuidados-pos-tratamento"] h3 {
-  font-family:Georgia, "Times New Roman",serif !important;
-  font-size:clamp(21px,2vw,27px) !important;
-  font-weight:500 !important;
-  line-height:1.24 !important;
-  letter-spacing:-.025em !important;
-  margin:0 0 13px !important;
-}
-html body article[data-block-id^="custom-cuidados-pos-tratamento"] p {
-  color:#594c41 !important;
-  -webkit-text-fill-color:#594c41 !important;
-  font-size:clamp(15px,1.18vw,17px) !important;
-  line-height:1.67 !important;
-  font-weight:400 !important;
-  margin:0 !important;
-}
-
-
-/* Cascade exception: dark cinematic typography must not whiten text on cream custom cards.
-   The cinematic base uses a high-specificity !important rule for every article.
-   Outrank it only for these generated aftercare cards, retaining originals. */
-.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article,
-.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article {
- background:#f9f6f1!important;background-image:none!important;
- border:1px solid #ddcfc1!important;border-top:3px solid #b59a7d!important;
- box-shadow:0 12px 28px rgba(23,18,13,.10)!important;
- color:#372b22!important;
-}
-.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p),
-.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p) {
- color:#372b22!important;
- -webkit-text-fill-color:#372b22!important;
- text-shadow:none!important;
- filter:none!important;
- opacity:1!important;
-}
-.pn-cinematic-enabled .pn-motion-site > section[id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article p,
-.pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article p {
- color:#594c41!important;-webkit-text-fill-color:#594c41!important;
-}
-
-
-/* Aftercare custom cards: explicit cinematic exception on the REAL DOM.
-   The approved renderer is immutable: custom sections have data-section-id and
-   universal-custom-section, while cards are article[data-block-id]. Previous
-   data-pn-generated-card-ui selectors never matched the frozen renderer.
-   Scope strictly to generated aftercare, not approved template cards. */
-html body .pn-cinematic-enabled .pn-motion-site > section:is(
-  [id^="custom-cuidados-pos-tratamento"],
-  [data-section-id^="custom-cuidados-pos-tratamento"],
-  [data-universal-section^="custom-cuidados-pos-tratamento"]
-) [data-pn-composition="universal-custom-section"] > .grid > article,
-html body .pn-cinematic-enabled .pn-motion-site > section:is(
-  [id^="custom-cuidados-pos-tratamento"],
-  [data-section-id^="custom-cuidados-pos-tratamento"],
-  [data-universal-section^="custom-cuidados-pos-tratamento"]
-) [data-universal-custom-cards] > article {
   background:#f9f6f1 !important;
   background-color:#f9f6f1 !important;
   background-image:none !important;
-  border:1px solid #decfc0 !important;
-  border-top:3px solid #b59a7d !important;
-  border-radius:16px !important;
-  box-shadow:0 10px 28px rgba(33,25,17,.11) !important;
+  border:1px solid #decec0 !important;
+  border-top:3px solid #b69a7c !important;
+  border-radius:17px !important;
+  box-shadow:0 10px 28px rgba(26,20,15,.12) !important;
+  color:#352b24 !important;
+  -webkit-text-fill-color:#352b24 !important;
   padding:clamp(22px,3vw,32px) !important;
   min-height:0 !important;
   filter:none !important;
@@ -2534,15 +2343,10 @@ html body .pn-cinematic-enabled .pn-motion-site > section:is(
   backdrop-filter:none !important;
   -webkit-backdrop-filter:none !important;
   opacity:1 !important;
-  color:#352b24 !important;
-  -webkit-text-fill-color:#352b24 !important;
   text-shadow:none !important;
 }
-html body .pn-cinematic-enabled .pn-motion-site > section:is(
-  [id^="custom-cuidados-pos-tratamento"],
-  [data-section-id^="custom-cuidados-pos-tratamento"],
-  [data-universal-section^="custom-cuidados-pos-tratamento"]
-) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) :is(h3,p,span,strong,small) {
+html body section.pn-cinematic-enabled .pn-motion-site [data-pn-composition="universal-custom-section"] > .grid > article :is(h3,p,span,strong,small),
+html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article :is(h3,p,span,strong,small) {
   color:#352b24 !important;
   -webkit-text-fill-color:#352b24 !important;
   text-shadow:none !important;
@@ -2551,27 +2355,36 @@ html body .pn-cinematic-enabled .pn-motion-site > section:is(
   opacity:1 !important;
   mix-blend-mode:normal !important;
 }
-html body .pn-cinematic-enabled .pn-motion-site > section:is(
-  [id^="custom-cuidados-pos-tratamento"],
-  [data-section-id^="custom-cuidados-pos-tratamento"],
-  [data-universal-section^="custom-cuidados-pos-tratamento"]
-) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) h3 {
+html body section.pn-cinematic-enabled .pn-motion-site [data-pn-composition="universal-custom-section"] > .grid > article h3,
+html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article h3 {
   font-family:Georgia,"Times New Roman",serif !important;
-  font-size:clamp(21px,2vw,27px) !important;
+  font-size:clamp(22px,2vw,28px) !important;
   font-weight:500 !important;
-  line-height:1.3 !important;
+  line-height:1.27 !important;
   letter-spacing:-.025em !important;
   color:#352b24 !important;
   -webkit-text-fill-color:#352b24 !important;
+  margin:0 0 13px !important;
 }
-html body .pn-cinematic-enabled .pn-motion-site > section:is(
-  [id^="custom-cuidados-pos-tratamento"],
-  [data-section-id^="custom-cuidados-pos-tratamento"],
-  [data-universal-section^="custom-cuidados-pos-tratamento"]
-) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) p {
+html body section.pn-cinematic-enabled .pn-motion-site [data-pn-composition="universal-custom-section"] > .grid > article p,
+html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article p {
+  color:#594b40 !important;
+  -webkit-text-fill-color:#594b40 !important;
   font-size:clamp(15px,1.2vw,17px) !important;
   font-weight:400 !important;
-  line-height:1.7 !important;
-  color:#55483e !important;
-  -webkit-text-fill-color:#55483e !important;
+  line-height:1.68 !important;
+  margin:0 !important;
+  overflow-wrap:break-word !important;
+}
+html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article span[aria-hidden="true"] {
+  color:#98795a !important;
+  -webkit-text-fill-color:#98795a !important;
+  text-shadow:none !important;
+}
+@media(max-width:600px){
+  html body section.pn-cinematic-enabled .pn-motion-site [data-pn-composition="universal-custom-section"] > .grid > article,
+  html body section.pn-cinematic-enabled .pn-motion-site section[data-pn-generated-premium="true"] [data-universal-custom-cards] > article {
+    padding:24px 22px !important;
+    border-radius:17px !important;
+  }
 }
