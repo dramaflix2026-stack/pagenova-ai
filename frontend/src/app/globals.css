@@ -2377,3 +2377,59 @@ html body .pn-motion-site section[data-section-id^="custom-cuidados-pos-tratamen
     align-items:stretch !important;
   }
 }
+
+
+/* MOTOR UNIVERSAL: real custom section DOM (classic and template wrapper).
+   Do not rely on a TP1-specific wrapper or the single classic component.
+   Affect the aftercare section only; approved original services remain untouched. */
+html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) {
+  background:#f9f6f1 !important;
+  background-image:none !important;
+  border:1px solid #d9c8b7 !important;
+  border-top:3px solid #b79a78 !important;
+  border-radius:16px !important;
+  min-height:0 !important;
+  padding:clamp(24px,3vw,34px) !important;
+  box-shadow:0 12px 34px rgba(32,22,17,.10) !important;
+  opacity:1 !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  color:#352b24 !important;
+  -webkit-text-fill-color:#352b24 !important;
+  text-shadow:none !important;
+  transform:none !important;
+}
+html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) :is(h3,p,span,strong,small) {
+  color:#352b24 !important;
+  -webkit-text-fill-color:#352b24 !important;
+  text-shadow:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) h3 {
+  font-family:Georgia,"Times New Roman",serif !important;
+  font-size:clamp(21px,2vw,27px) !important;
+  line-height:1.25 !important;
+  font-weight:500 !important;
+  letter-spacing:-.02em !important;
+  margin:0 0 14px !important;
+}
+html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) :is([data-pn-composition="universal-custom-section"] > .grid > article,[data-universal-custom-cards] > article) p {
+  color:#55483e !important;
+  -webkit-text-fill-color:#55483e !important;
+  font-size:clamp(15px,1.2vw,17px) !important;
+  font-weight:400 !important;
+  line-height:1.65 !important;
+  margin:0 !important;
+  overflow-wrap:break-word !important;
+}
+html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section-id^="custom-cuidados-pos-tratamento"],section[data-universal-section^="custom-cuidados-pos-tratamento"]) [data-universal-custom-cards] > article span[aria-hidden="true"] {
+  color:#98795a !important;
+  -webkit-text-fill-color:#98795a !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+}
