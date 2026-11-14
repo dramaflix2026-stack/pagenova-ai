@@ -2433,3 +2433,49 @@ html body :is(section[id^="custom-cuidados-pos-tratamento"],section[data-section
   font-size:12px !important;
   font-weight:600 !important;
 }
+
+
+/* Final direct-binding fallback: aftercare cards carry stable universal block IDs.
+   This catches custom cards even if a template renames or wraps the parent
+   section. No approved template block has a custom-cuidados-pos-tratamento ID. */
+html body article[data-block-id^="custom-cuidados-pos-tratamento"] {
+  background:#f9f6f1 !important;
+  background-image:none !important;
+  border:1px solid #ddcfc1 !important;
+  border-top:3px solid #b59a7d !important;
+  border-left:1px solid #ddcfc1 !important;
+  border-radius:16px !important;
+  box-shadow:0 12px 28px rgba(23,18,13,.10) !important;
+  padding:clamp(24px,3vw,34px) !important;
+  min-height:0 !important;
+  height:auto !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  opacity:1 !important;
+}
+html body article[data-block-id^="custom-cuidados-pos-tratamento"] :is(h3,p) {
+  color:#372b22 !important;
+  -webkit-text-fill-color:#372b22 !important;
+  text-shadow:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  opacity:1 !important;
+}
+html body article[data-block-id^="custom-cuidados-pos-tratamento"] h3 {
+  font-family:Georgia, "Times New Roman",serif !important;
+  font-size:clamp(21px,2vw,27px) !important;
+  font-weight:500 !important;
+  line-height:1.24 !important;
+  letter-spacing:-.025em !important;
+  margin:0 0 13px !important;
+}
+html body article[data-block-id^="custom-cuidados-pos-tratamento"] p {
+  color:#594c41 !important;
+  -webkit-text-fill-color:#594c41 !important;
+  font-size:clamp(15px,1.18vw,17px) !important;
+  line-height:1.67 !important;
+  font-weight:400 !important;
+  margin:0 !important;
+}
