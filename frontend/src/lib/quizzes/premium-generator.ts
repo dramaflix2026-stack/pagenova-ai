@@ -17,11 +17,87 @@ export function generatePremiumQuiz(prompt:string,existing?:QuizInput|null):Quiz
     title="Descubra seu perfil";
   const count=Math.max(3,Math.min(15,Number(/\b(\d{1,2})\s+perguntas?\b/i.exec(prompt)?.[1]||"7")));
   if(!entrepreneur){
-    const baseline=localQuiz(prompt);
-    return normalizeQuiz({...baseline,title,subtitle:"Responda a algumas perguntas e descubra o resultado que mais combina com você.",
-      questions:baseline.questions.slice(0,count).map(q=>({...q,title:tidy(q.title).replace(/\s+\?/g,"?")})),
-      layout:"conversational",theme:/claro|bege|creme|minimalista/i.test(plain)?"cream":"midnight",
-      prompt});
+    const skincare=/skincare|pele|cosmetico|cosmeticos|beleza|cuidados faciais/.test(plain);
+    const realestate=/imovel|imoveis|apartamento|casa propria|moradia/.test(plain);
+    const marketing=/marketing|leads|publicidade|trafego|divulgacao/.test(plain);
+    const fashion=/estilo pessoal|moda|roupas|vestuario|look/.test(plain);
+    const category=skincare?"skincare":realestate?"imoveis":marketing?"marketing":fashion?"estilo":"geral";
+    const profiles:Record<string,[string,string,string,string,string,string]>={
+      skincare:["Rotina essencial","Você valoriza praticidade e uma rotina de cuidados simples.","Cuidado equilibrado","Você busca uma rotina consistente e adaptável.","Ritual completo","Você gosta de explorar produtos e técnicas com atenção aos detalhes."],
+      imoveis:["Prático urbano","Você prioriza mobilidade e conveniência no dia a dia.","Conforto familiar","Você valoriza espaço, acolhimento e uma rotina confortável.","Investidor estratégico","Você considera valorização, planejamento e retorno no longo prazo."],
+      marketing:["Explorador digital","Você está descobrindo oportunidades de divulgação.","Criador de conexões","Você prioriza relacionamento e conteúdo relevante.","Estrategista de crescimento","Você prefere campanhas orientadas por dados e resultados."],
+      estilo:["Minimalista moderno","Você prefere peças versáteis e combinações simples.","Criativo autêntico","Você gosta de experimentar e expressar personalidade.","Clássico sofisticado","Você valoriza elegância e escolhas atemporais."],
+      geral:["Explorador","Você gosta de descobrir possibilidades.","Realizador","Você prefere colocar ideias em prática.","Estrategista","Você valoriza planejamento e decisões estruturadas."],
+    };
+    const titles:Record<string,string>={
+      skincare:"Qual rotina de skincare combina com você?",
+      imoveis:"Qual é o imóvel ideal para seu estilo de vida?",
+      marketing:"Qual é o seu perfil de marketing?",
+      estilo:"Qual é o seu estilo pessoal?",
+      geral:"Descubra o perfil que mais combina com você",
+    };
+    const questionsByCategory:Record<string,Array<[string,string,string,string]>>={
+      skincare:[
+        ["O que você mais valoriza nos cuidados com a pele?","Uma rotina rápida","Equilíbrio e consistência","Uma experiência completa"],
+        ["Quanto tempo você dedica aos cuidados diários?","Poucos minutos","De 10 a 20 minutos","Gosto de reservar mais tempo"],
+        ["Como você escolhe novos produtos?","Prefiro o essencial","Comparo benefícios e necessidades","Pesquiso ingredientes e novidades"],
+        ["Qual resultado você busca na sua rotina?","Praticidade","Bem-estar e regularidade","Uma rotina personalizada"],
+        ["Como você reage a uma nova tendência?","Mantenho o que funciona","Avalio antes de experimentar","Gosto de testar novidades"],
+        ["Qual frase descreve melhor você?","Menos é mais","Constância faz diferença","Cada detalhe importa"],
+        ["O que tornaria sua rotina ideal?","Poucas etapas","Produtos adequados à minha necessidade","Uma experiência de autocuidado"],
+      ],
+      imoveis:[
+        ["O que pesa mais na escolha de um imóvel?","Localização e mobilidade","Espaço e conforto","Potencial de valorização"],
+        ["Qual ambiente você mais valoriza?","Espaço funcional","Sala ampla para reunir pessoas","Escritório e ambientes flexíveis"],
+        ["Como imagina seu bairro ideal?","Perto de tudo","Tranquilo e acolhedor","Em uma região em desenvolvimento"],
+        ["Qual é sua prioridade no momento?","Facilitar a rotina","Melhorar a qualidade de vida","Planejar meu patrimônio"],
+        ["O que você observa primeiro em uma visita?","Distribuição dos ambientes","Conforto e iluminação","Conservação e potencial futuro"],
+        ["Qual tipo de espaço combina com você?","Compacto e eficiente","Amplo e confortável","Versátil e adaptável"],
+        ["Como você decide uma compra importante?","Pela praticidade","Pelo encaixe na minha vida","Comparando custos e perspectivas"],
+      ],
+      marketing:[
+        ["Qual é seu principal objetivo com marketing?","Entender os canais disponíveis","Construir uma audiência engajada","Aumentar conversões mensuráveis"],
+        ["Que tipo de ação mais interessa?","Experimentar formatos","Criar conteúdo relevante","Otimizar campanhas"],
+        ["Como você mede uma boa campanha?","Pelo aprendizado","Pelas interações","Pelos resultados e retorno"],
+        ["Qual desafio mais aparece na sua rotina?","Escolher por onde começar","Manter consistência","Escalar o que já funciona"],
+        ["Qual recurso você priorizaria?","Um guia inicial","Um calendário de conteúdo","Um painel de métricas"],
+        ["Como prefere testar uma ideia?","Explorando alternativas","Conversando com o público","Comparando indicadores"],
+        ["O que faria mais diferença agora?","Clareza de posicionamento","Relacionamento com clientes","Previsibilidade de aquisição"],
+      ],
+      estilo:[
+        ["Como você escolhe uma roupa para sair?","Prefiro combinações simples","Gosto de peças marcantes","Busco um visual elegante"],
+        ["Qual peça não pode faltar?","Uma camiseta versátil","Um acessório diferente","Uma peça de corte clássico"],
+        ["Como você lida com tendências?","Escolho só o que é prático","Gosto de experimentar","Prefiro o atemporal"],
+        ["Qual detalhe importa mais?","Conforto","Originalidade","Acabamento"],
+        ["Qual paleta combina com você?","Neutros fáceis de combinar","Cores e contrastes","Tons sóbrios e refinados"],
+        ["Como define seu guarda-roupa ideal?","Enxuto e funcional","Expressivo e variado","Coerente e elegante"],
+        ["Qual elogio gostaria de ouvir?","Seu visual é descomplicado","Seu estilo é único","Você está muito elegante"],
+      ],
+      geral:[
+        ["Como você costuma começar algo novo?","Pesquiso possibilidades","Faço um primeiro teste","Planejo as etapas"],
+        ["O que mais motiva suas decisões?","Descobrir novidades","Ver progresso concreto","Ter segurança nos resultados"],
+        ["Diante de um desafio, você...","Busca novas ideias","Experimenta soluções","Analisa as opções"],
+        ["Qual ambiente combina mais com você?","Dinâmico e criativo","Prático e colaborativo","Organizado e previsível"],
+        ["O que você valoriza em um projeto?","Originalidade","Execução","Consistência"],
+        ["Como prefere aprender?","Explorando referências","Praticando","Estudando métodos"],
+        ["Qual é seu próximo objetivo?","Descobrir oportunidades","Colocar planos em ação","Aprimorar resultados"],
+      ],
+    };
+    const labels=profiles[category];
+    const outcomes:QuizOutcome[]=[0,1,2].map(i=>({
+      id:"perfil-"+(i+1),title:labels[i*2],description:labels[i*2+1],
+      ctaLabel:"Conhecer próximos passos",ctaUrl:"",
+    }));
+    const bank=questionsByCategory[category];
+    const questions:QuizQuestion[]=Array.from({length:count},(_,i)=>{
+      const [question,...answers]=bank[i%bank.length];
+      return {id:"q"+(i+1),title:question,options:answers.map((answer,j)=>option("o"+(j+1),answer,outcomes[j].id))};
+    });
+    return normalizeQuiz({title:category==="geral"&&title!=="Descubra seu perfil"?title:titles[category],
+      subtitle:"Responda às perguntas e descubra uma recomendação alinhada às suas preferências.",
+      prompt,questions,outcomes,layout:"conversational",motion:true,
+      theme:/claro|bege|creme|minimalista/i.test(plain)?"cream":"midnight",
+      collectLeads:/captar|captura|leads|coletar\s+(?:nome|e-?mail)|contatos/i.test(plain)});
   }
   const outcomes:QuizOutcome[]=[
     {id:"visionario",title:"Visionário criativo",description:"Você enxerga oportunidades e gosta de transformar ideias em possibilidades. Seu próximo passo é validar uma proposta com clientes reais.",ctaLabel:"Conhecer próximos passos",ctaUrl:""},
