@@ -643,8 +643,8 @@
       "path": "src/components/template10-education-hero.tsx",
       "blobSha": "0e0cd7d9b0e0083cf9925d69237f925d3db217ef",
       "approvedBindingRevision": {
-        "sha": "3871e8bdea04889d504349f3c53f7c7cf8aaaebd",
-        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+        "sha": "46992aff3cbb8d14cb469f1b5b08b69b82aeb697",
+        "reason": "User approved reference 1 for a visual-only redesign of TP10 Model 1 language-school header and hero; other templates, sections, Universal Editor and learning code remain unchanged."
       }
     },
     {
