@@ -24,6 +24,32 @@ test("explicit niche wins over forbidden unrelated industries",()=>{
  assert.equal(resolvePrimaryBriefingNiche(brief),"Floricultura");
 });
 
+test("short Fluency Hub briefing selects the TP10 Schools of Languages template",()=>{
+ const brief="Crie um site premium para uma escola de inglês chamada Fluency Hub. Utilize azul-marinho e branco, com design moderno, imagens reais, serviços, diferenciais, depoimentos e contato pelo WhatsApp.";
+ const niche=resolvePrimaryBriefingNiche(brief);
+ assert.equal(niche,"Escolas de idiomas");
+ assert.equal(resolveBriefingFamily(niche),10);
+ for(const phrase of ["Escola de inglês","Escolas de inglês","Instituto de idiomas","Centro de idiomas","Escola de línguas","Curso de inglês"]){
+  assert.equal(resolveBriefingFamily(phrase),10,phrase);
+  assert.equal(resolvePrimaryBriefingNiche("Crie um site para "+phrase+"."),"Escolas de idiomas",phrase);
+ }
+});
+
+test("language-school exclusions must not overwrite another positive niche",()=>{
+ const brief="Crie um site para uma floricultura boutique.\\nNão usar fotografias de escolas de inglês ou cursos de idiomas.";
+ assert.equal(resolvePrimaryBriefingNiche(brief),"Floricultura");
+ assert.equal(resolveBriefingFamily(resolvePrimaryBriefingNiche(brief)),6);
+});
+
+test("fresh generation preserves both recognized niche and selected visual model",()=>{
+ const page=readFileSync(resolve(root,"src/app/app/builder-v2/page.tsx"),"utf8");
+ const api=readFileSync(resolve(root,"src/app/api/builder-v2/chat/route.ts"),"utf8");
+ assert.match(page,/if\\(shouldCreateProject\\)\\{\\s*incoming\\.id=requestSite\\.id;\\s*incoming\\.niche=effectiveBriefNiche/);
+ assert.match(page,/incoming\\.briefingLayoutVariant=requestSite\\.briefingLayoutVariant\\|\\|"01"/);
+ assert.match(api,/const generationVariant=requestedVariant==="02"\\|\\|requestedVariant==="03"/);
+ assert.match(api,/briefingLayoutVariant:generationVariant/);
+});
+
 test("actual makeup and barbershop remain independently recognizable",()=>{
  assert.equal(resolvePrimaryBriefingNiche("Crie um site para estúdio de maquiagem. Não use imagens de flores."),"Estúdio de maquiagem");
  assert.equal(resolvePrimaryBriefingNiche("Crie um site de barbearia premium. Não usar fotos de maquiadora."),"Barbearia");
