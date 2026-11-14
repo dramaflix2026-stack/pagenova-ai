@@ -1740,9 +1740,16 @@ export default function BuilderV2() {
       incoming.processImageCard=processCardOverride??site.processImageCard;
       incoming.processImageCardTitle=site.processImageCardTitle;
       incoming.processImageCardDescription=site.processImageCardDescription;
-      if (creatingNewSite){incoming.id=requestSite.id;incoming.niche=effectiveBriefNiche||explicitNiche||selectedNiche||incoming.niche||undefined;incoming.templateId=templateForCreation;if(auto3d){incoming.cinematic={...incoming.cinematic,mode:"immersive-3d"};incoming.extras={...(incoming.extras||{}),immersive3dTemplate:auto3dTemplate};}}
-      else if (!site.blocks.length) {incoming.id=site.id||crypto.randomUUID();incoming.niche=selectedNiche||undefined;}
-      else {incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
+      // Both explicit "crie um site" and short first-time prompts are creation
+      // flows. Preserve the recognized niche, template and model in either case;
+      // never overwrite the server's education identity with an empty picker.
+      if(shouldCreateProject){
+        incoming.id=requestSite.id;
+        incoming.niche=effectiveBriefNiche||explicitNiche||selectedNiche||incoming.niche||undefined;
+        incoming.templateId=templateForCreation;
+        incoming.briefingLayoutVariant=requestSite.briefingLayoutVariant||"01";
+        if(auto3d){incoming.cinematic={...incoming.cinematic,mode:"immersive-3d"};incoming.extras={...(incoming.extras||{}),immersive3dTemplate:auto3dTemplate};}
+      }else{incoming.id=site.id;incoming.niche=site.niche||selectedNiche||undefined;incoming.publishedUrl=site.publishedUrl;}
       const normalized = prompt.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "");
       const requested = /centraliz|alinhe?.*centro|alinh.*centro/.test(normalized) ? "center" : /alinhe?.*esquerda|alinh.*esquerda/.test(normalized) ? "left" : /alinhe?.*direita|alinh.*direita/.test(normalized) ? "right" : null;
       // Validate alignment only for explicit site-wide alignment commands.
