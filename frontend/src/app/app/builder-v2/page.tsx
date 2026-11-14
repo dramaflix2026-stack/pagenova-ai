@@ -986,6 +986,26 @@ export default function BuilderV2() {
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
+        // An idempotent color request is not a failed mutation. The existing visual
+        // audit is authoritative; do not fall through to another parser and report
+        // an unexplained "site unchanged" rejection.
+        if(backgroundResult&&!backgroundResult.ok&&/já tem a cor .* registrada/i.test(backgroundResult.error)){
+          const match=backgroundResult.error.match(/já tem a cor (#[0-9a-f]{6}) registrada/i);
+          const storedColor=match?.[1];
+          const styles=(site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+          const section=Object.keys(styles||{}).find(key=>styles?.[key]?.backgroundColor?.toLowerCase()===storedColor?.toLowerCase()&&/servic|tratament/i.test(key));
+          const previewFrame=previewVisualAuditRef.current?.querySelector("iframe");
+          const doc=previewFrame?.contentDocument;
+          const win=previewFrame?.contentWindow;
+          const candidates=doc&&section?Array.from(doc.querySelectorAll<HTMLElement>("section,[data-section-id],[data-universal-section]")).filter(el=>el.id===section||el.getAttribute("data-section-id")===section||el.getAttribute("data-universal-section")===section||/^(?:servicos|services)$/i.test(section)&&/(servic|tratament)/i.test(el.id+" "+el.getAttribute("data-section-id"))):[];
+          const rgb=storedColor?[1,3,5].map(i=>parseInt(storedColor.slice(i,i+2),16)):[];
+          const rendered=!!win&&!!candidates?.length&&candidates.some(el=>{const channels=win.getComputedStyle(el).backgroundColor.match(/\d+(?:\.\d+)?/g)?.slice(0,3).map(Number);return channels?.length===3&&channels.every((value,i)=>value===rgb[i]);});
+          recordEditorLearningEvent(site.niche||"",prompt,rendered?"applied":"rejected",rendered?"universal-idempotent-visual-verified":"universal-idempotent-visual-mismatch",site.briefingLayoutVariant||"01");
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:rendered?"A cor "+storedColor+" já estava aplicada e foi confirmada na prévia. Nenhuma alteração adicional necessária.":"A cor "+storedColor+" já está registrada, mas não foi possível confirmar sua aplicação visual na seção. Edição reprovada automaticamente; verifique a prévia."}]);
+          setInstruction("");
+          return;
+        }
         // A failed shortcut must not swallow the command: the full universal parser
         // can handle aliases, compound syntax and CTA targets that the shortcut misses.
         console.warn("[editor] Background shortcut did not verify; falling through to universal parser",backgroundResult&&!backgroundResult.ok?backgroundResult.error:"verification failed");
