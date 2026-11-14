@@ -633,7 +633,11 @@
     },
     {
       "path": "src/components/template10-education-experience.tsx",
-      "blobSha": "e163e8b2c1cdc301508637dc21a668caa7bc8345"
+      "blobSha": "e163e8b2c1cdc301508637dc21a668caa7bc8345",
+      "approvedBindingRevision": {
+        "sha": "75351e78e4683ca406f828d8d898903538ecf267",
+        "reason": "User approved reference 2 for Como Funciona in Fluency Hub TP10 Model 1: image left, four numbered steps right with unique descriptions, navy/white/lime. Only this brand-specific process section changes; Model 2/3, Editor Universal, Machine Learning, gallery and reviews remain unchanged."
+      }
     },
     {
       "path": "src/components/template10-education-final.tsx",
