@@ -643,7 +643,7 @@
       "path": "src/components/template10-education-hero.tsx",
       "blobSha": "0e0cd7d9b0e0083cf9925d69237f925d3db217ef",
       "approvedBindingRevision": {
-        "sha": "9dff1d9b9215620c677f24a01721470bf9850d6f",
+        "sha": "515c26a9fcc18928eb6e0739e8635adcf18282fd",
         "reason": "User explicitly approved correcting the TP10 Model 1 language-school information strip: three compact centered items with lime separators; visual-only, no changes to other templates, Universal Editor or learning system."
       }
     },
