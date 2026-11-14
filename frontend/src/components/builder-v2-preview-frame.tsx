@@ -84,33 +84,49 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     let scheduled:number|null=null;
     const check=()=>{
       scheduled=null;
-      // Both site renderers exist in production: the classic renderer uses
-      // universal-custom-section, while approved templates use custom-cards.
-      const cards=portalNode.querySelectorAll<HTMLElement>(
-        '[data-pn-composition="universal-custom-section"] > .grid > article, [data-universal-custom-cards] > article'
-      );
+      // Inspect the *actual* painted cards, not only one expected DOM hierarchy.
+      // Classic sites, template wrappers and older saved blocks have different
+      // nesting; data-block-id is stable across those renderers.
+      const candidates=Array.from(portalNode.querySelectorAll<HTMLElement>("article"));
+      const cards=candidates.filter(card=>{
+        const section=card.closest("section");
+        const id=section?.id||section?.getAttribute("data-section-id")||section?.getAttribute("data-universal-section")||"";
+        return id.startsWith("custom-")||
+          String(card.getAttribute("data-block-id")||"").startsWith("custom-")||
+          Boolean(card.closest("[data-universal-custom-cards],[data-pn-composition='universal-custom-section']"));
+      });
       portalNode.setAttribute("data-pn-custom-card-audit-count",String(cards.length));
+      let fixed=0;
       for(const card of cards){
-        const background=rgb(previewWindow.getComputedStyle(card).backgroundColor);
-        if(!background)continue;
+        // The same generated card can be styled through class, data attributes
+        // or template-specific rules. Resolve its real background at runtime.
+        const computed=previewWindow.getComputedStyle(card);
+        let background=rgb(computed.backgroundColor);
+        if(!background)background=[249,246,241];
+        const darkSurface=luminance(background)<0.35;
+        const targetTitle=darkSurface?"#f8f2e9":"#352b24";
+        const targetBody=darkSurface?"#e6ded5":"#55483e";
+        let cardFixed=false;
         for(const child of card.querySelectorAll<HTMLElement>("h3,p")){
           const style=previewWindow.getComputedStyle(child);
           const fill=style.getPropertyValue("-webkit-text-fill-color");
           const foreground=rgb(fill)||rgb(style.color);
-          // Source cards can have a cream surface but an inherited white
-          // foreground; ensure a readable, shadow-free contrast on the *real*
-          // painted background even when CSS from a frozen template wins.
-          const darkSurface=luminance(background)<0.35;
-          const preferred=darkSurface?"#f8f2e9":child.tagName==="P"?"#55483e":"#352b24";
-          if(!foreground||contrast(foreground,background)<4.5){
+          const needsContrast=!foreground||contrast(foreground,background)<4.5;
+          if(needsContrast){
+            const preferred=child.tagName==="P"?targetBody:targetTitle;
             child.style.setProperty("color",preferred,"important");
             child.style.setProperty("-webkit-text-fill-color",preferred,"important");
+            cardFixed=true;
           }
-          child.style.setProperty("text-shadow","none","important");
-          child.style.setProperty("filter","none","important");
-          child.style.setProperty("opacity","1","important");
+          // Shadows from the template create the blurry lettering reported on
+          // mobile even when the computed color itself is legible.
+          if(style.textShadow!=="none"){child.style.setProperty("text-shadow","none","important");cardFixed=true;}
+          if(style.filter!=="none"){child.style.setProperty("filter","none","important");cardFixed=true;}
+          if(style.opacity!=="1"){child.style.setProperty("opacity","1","important");cardFixed=true;}
         }
+        if(cardFixed)fixed++;
       }
+      portalNode.setAttribute("data-pn-custom-card-fixes",String(fixed));
     };
     const schedule=()=>{if(scheduled===null)scheduled=previewWindow.requestAnimationFrame(check);};
     const observer=new MutationObserver(schedule);
