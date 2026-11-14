@@ -366,8 +366,8 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  }
  // Customers frequently request a number of cards and a topic instead of
  // specifying every card title. Generate editable, non-claim-based guidance.
- if(!cards.length&&requestedCount===3&&/cards?\\s+(?:com|sobre|de)\\b/i.test(instruction)){
-  const aftercare=/pos[-\\s]?tratamento|apos\\s+(?:os?\\s+)?procedimentos?|cuidados\\s+pos/i.test(normalized(name+" "+instruction));
+ if(!cards.length&&requestedCount===3&&/cards?\s+(?:com|sobre|de)\b/i.test(instruction)){
+  const aftercare=/pos[-\s]?tratamento|apos\s+(?:os?\s+)?procedimentos?|cuidados\s+pos/i.test(normalized(name+" "+instruction));
   cards=aftercare?[
    {title:"Orientações profissionais",description:"Os cuidados variam conforme o procedimento. Siga as recomendações específicas da equipe responsável pelo atendimento."},
    {title:"Proteção e cuidado com a pele",description:"Respeite as orientações de higienização e proteção e evite usar produtos não recomendados pelo profissional."},
@@ -383,7 +383,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  // The shared custom-section renderer expects one section heading, followed
  // by an introductory paragraph and card paragraphs in "Title: Body" form.
  // Separate card headings would otherwise appear as section-level headings.
- const aftercare=/pos[-\\s]?tratamento|apos\\s+(?:os?\\s+)?procedimentos?/i.test(normalized(name+" "+instruction));
+ const aftercare=/pos[-\s]?tratamento|apos\s+(?:os?\s+)?procedimentos?/i.test(normalized(name+" "+instruction));
  const introduction=aftercare
   ?"Os cuidados após cada procedimento estético devem seguir as orientações individualizadas do profissional responsável. Confira algumas recomendações gerais."
   :"Conheça as informações e orientações sobre "+name.toLowerCase()+", organizadas para uma leitura simples e objetiva.";
