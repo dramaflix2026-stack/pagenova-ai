@@ -983,6 +983,39 @@ export default function BuilderV2() {
       // A compound color request must run through the atomic universal parser.
       // The background-only shortcut can verify just one clause and must never
       // intercept a request that also changes a heading, card or other element.
+      // Dedicated deterministic route: explicit section background HEX edits must not
+      // be misclassified by other universal parsers or learning-based strategy ranking.
+      const exactSectionHex=prompt.trim().match(/^(?:altere|mude|troque|coloque|defina|ajuste)\s+(?:somente\s+|apenas\s+)?(?:a\s+)?(?:cor\s+de\s+)?fundo\s+(?:da|do|de)\s+(?:se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?)?(.+?)\s+(?:para|pra|em)\s+(?:(?:[\p{L}]+\s+){0,3})?(#[0-9a-fA-F]{6})(?=\s|[.!?]|$)/iu);
+      if(exactSectionHex&&!hasAttachments&&!imageChange&&!compound){
+        const parsed=applyUniversalNaturalLanguage(site,prompt);
+        if(parsed?.ok){
+          const sectionId=parsed.changedIds.find(id=>id.startsWith("section-style:"));
+          const verified=verifyUniversalEditResult(site,parsed.site,parsed.changedIds);
+          if(sectionId&&verified.ok){
+            const section=sectionId.slice("section-style:".length);
+            pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase()};
+            recordVersion(site,"Antes da edição de fundo");
+            setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+            setSite(parsed.site);setInstruction("");setGenerationError("");
+            setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Cor registrada. Aguardando confirmação visual na prévia."}]);
+            return;
+          }
+        }
+        const styleMap=(site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+        const desired=exactSectionHex[2].toLowerCase();
+        const matching=Object.entries(styleMap||{}).filter(([,style])=>style?.backgroundColor?.toLowerCase()===desired);
+        if(matching.length){
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-idempotent-needs-visual-audit",site.briefingLayoutVariant||"01");
+          captureReviewCandidate();
+          setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"A cor "+exactSectionHex[2]+" já consta nos dados do site. A alteração visual ainda não foi confirmada; não aprove até conferir a prévia."}]);
+          setInstruction("");
+          return;
+        }
+        recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-section-background-unresolved",site.briefingLayoutVariant||"01");
+        captureReviewCandidate();
+        setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:parsed&&!parsed.ok?parsed.error:"Não foi possível aplicar a cor na seção solicitada. Nenhuma alteração confirmada."}]);
+        return;
+      }
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
         if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
