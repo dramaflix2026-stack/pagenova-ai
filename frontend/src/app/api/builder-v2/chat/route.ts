@@ -75,6 +75,10 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
     }catch(error){return generationCreditError(error) as NextResponse;}
     const instruction = String(body.instruction);
     const primaryNiche=resolvePrimaryBriefingNiche(instruction)||(body.site as {niche?:string}|undefined)?.niche||"";
+    // A fresh-site response must carry the selected model. Omitting this field
+    // made the published snapshot unidentifiable and could silently fall back.
+    const requestedVariant=(body.site as {briefingLayoutVariant?:string}|undefined)?.briefingLayoutVariant;
+    const generationVariant=requestedVariant==="02"||requestedVariant==="03"?requestedVariant:"01";
     // Positive business identity takes priority over excluded examples and any previous project.
     // Include it in EVERY generation phase, not only the initial layout call.
     const nicheGuard=primaryNiche?"\nNICHO OBRIGATÓRIO DESTE SITE: "+primaryNiche+". Todos os títulos, serviços, cards, perguntas e imagens devem pertencer exclusivamente a este segmento. Menções negativas como 'não usar imagens de maquiagem' são PROIBIÇÕES DE CONTEÚDO, nunca pedidos para criar um site de maquiagem. Não reaproveite setores, cards ou serviços de outro negócio.":"";
@@ -733,7 +737,7 @@ Cada bloco tem ID permanente; preserve IDs existentes. Em edição, modifique SO
       }
       const generatedSections=new Set(mutableBlocks.map(b=>String(b.section)));
       await charge.finish(true);
-      return NextResponse.json({site:{...(primaryNiche?{niche:primaryNiche}:{}),templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",...(adaptiveBrief?{design}:{}),title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
+      return NextResponse.json({site:{...(primaryNiche?{niche:primaryNiche}:{}),templateId:(body.site as {templateId?:string}|undefined)?.templateId==="prompt-adaptive"?"prompt-adaptive":(body.site as {templateId?:string}|undefined)?.templateId||"institutional-complete",briefingLayoutVariant:generationVariant,...(adaptiveBrief?{design}:{}),title:typeof plan.title==="string"?plan.title:"Site profissional",background:typeof plan.background==="string"?plan.background:"#ffffff",blocks:mutableBlocks,motion:initialSiteMotion(instruction),extras:{enabled:{}},footer:socialFromBrief(instruction)},summary:"Site completo criado em etapas e validado: "+generatedSections.size+" seções; animações "+(initialSiteMotion(instruction).preset==="none"?"desligadas":"profissionais ativadas")+"."});
     } catch(error) {
       try{await charge.finish(false);}
       catch(settlementError){console.error("[builder-v2] credit refund failed",settlementError instanceof Error?settlementError.name:"unknown");}
