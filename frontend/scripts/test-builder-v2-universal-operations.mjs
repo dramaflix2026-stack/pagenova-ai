@@ -1394,3 +1394,23 @@ test("Motor Universal 1 aligns a heading without changing its copy",()=>{
  assert.deepEqual(result.site.blocks.slice(1),original.blocks.slice(1));
  assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
 });
+
+test("natural three-card aftercare brief preserves existing sections",()=>{
+ const original=site();const before=structuredClone(original);
+ const prompt='Adicione uma nova seção chamada "Cuidados Pós-Tratamento" imediatamente depois da seção de serviços, com um título, uma breve descrição e três cards com orientações de cuidados após procedimentos estéticos. Mantenha o design premium do site e preserve todas as seções existentes.';
+ const result=applyUniversalNaturalLanguage(original,prompt);
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No result");
+ if(!result?.ok)return;
+ const id="custom-cuidados-pos-tratamento";
+ const added=result.site.blocks.filter(b=>b.section===id);
+ assert.deepEqual(added.map(b=>b.type),["heading","paragraph","paragraph","paragraph","paragraph"]);
+ assert.equal(added[0].text,"Cuidados Pós-Tratamento");
+ assert.ok(added[1].text.length>40);
+ assert.ok(added.slice(2).every(b=>b.text.includes(": ")&&b.text.length>70));
+ const anchorIndex=result.site.blocks.findIndex(b=>b.id==="c1");
+ assert.deepEqual(result.site.blocks.slice(anchorIndex+1,anchorIndex+6).map(b=>b.id),added.map(b=>b.id));
+ assert.deepEqual(result.site.blocks.filter(b=>b.section!==id),before.blocks);
+ assert.deepEqual(original,before);
+ const verified=verifyUniversalEditResult(original,result.site,result.changedIds);
+ assert.equal(verified.ok,true,verified.reason);
+});
