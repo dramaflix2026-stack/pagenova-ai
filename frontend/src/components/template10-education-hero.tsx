@@ -83,24 +83,37 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
  .pn-t10-language .pn-t10-photo{aspect-ratio:1.14;border-radius:14px}
  .pn-t10-language .pn-t10-caption{font-size:10px;left:11px;bottom:11px}
 }
-/* Language-school benefit bar: remove legacy beige and generic institution slogans.
-   This is marketing copy, not a claim about class format or results. */
+/* Approved TP10 M1 language-school compact information bar.
+   A single centered row of related messages, not 1fr + auto extremes.
+   Other niches keep their existing template bar untouched. */
 .pn-t10-language .pn-t10-strip{
-  display:grid;grid-template-columns:1fr auto;align-items:center;
-  gap:24px;background:#0c2a3a;color:#ebf6fa;
+  display:flex;align-items:center;justify-content:center;
+  gap:0;background:#0c2a3a;color:#ebf6fa;
   border-top:1px solid #ffffff21;border-bottom:1px solid #ffffff16;
-  padding:20px clamp(22px,5.4vw,85px);
+  padding:13px clamp(16px,3vw,36px);
   font-family:Arial,Helvetica,sans-serif;
-  font-size:clamp(11px,1vw,13px);font-weight:700;
-  text-transform:none;letter-spacing:.015em;line-height:1.5;
+  font-size:13px;font-weight:700;text-transform:none;
+  letter-spacing:0;line-height:1.45;
 }
-.pn-t10-language .pn-t10-strip span{display:flex;align-items:center;gap:10px;color:#e6f4f5!important;-webkit-text-fill-color:#e6f4f5!important;text-shadow:none!important}
-.pn-t10-language .pn-t10-strip span:first-child{font-weight:800}
-.pn-t10-language .pn-t10-strip span:last-child{color:#bdd1d9!important;-webkit-text-fill-color:#bdd1d9!important}
-.pn-t10-language .pn-t10-strip-dot{display:inline-block;flex:none;width:8px;height:8px;border-radius:50%;background:#b9ee5b;box-shadow:0 0 0 4px #b9ee5b1b}
+.pn-t10-language .pn-t10-strip-inner{
+  display:flex;align-items:center;justify-content:center;
+  flex-wrap:wrap;column-gap:18px;row-gap:8px;
+  width:max-content;max-width:100%;margin:0 auto;text-align:center;
+}
+.pn-t10-language .pn-t10-strip-item{
+  display:inline-flex;align-items:center;gap:9px;
+  white-space:nowrap;color:#e9f3f8!important;
+  -webkit-text-fill-color:#e9f3f8!important;text-shadow:none!important;
+  font:700 inherit;
+}
+.pn-t10-language .pn-t10-strip-item:before{
+  content:"";display:inline-block;flex:none;width:6px;height:6px;
+  border-radius:50%;background:#b9ee5b;
+}
 @media(max-width:700px){
- .pn-t10-language .pn-t10-strip{grid-template-columns:1fr;gap:8px;padding:18px 21px;font-size:12px}
- .pn-t10-language .pn-t10-strip span{gap:9px}
+ .pn-t10-language .pn-t10-strip{padding:12px 16px;font-size:12px}
+ .pn-t10-language .pn-t10-strip-inner{column-gap:13px;row-gap:8px}
+ .pn-t10-language .pn-t10-strip-item{white-space:normal;gap:7px}
 }
 @media(prefers-reduced-motion:reduce){.pn-t10-language .pn-t10-cta{transition:none!important;transform:none!important}}
 `}</style>}
@@ -116,7 +129,7 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
  </>
  }
  {languageSchool?
- <div className="pn-t10-strip" aria-label="Destaques dos programas de inglês"><span><i className="pn-t10-strip-dot" aria-hidden="true"/>Inglês para o mundo real</span><span>Do primeiro passo à conversação · No seu ritmo</span></div>
+ <div className="pn-t10-strip" aria-label="Destaques dos programas de inglês"><div className="pn-t10-strip-inner"><span className="pn-t10-strip-item">Inglês para o mundo real</span><span className="pn-t10-strip-item">Conversação desde o início</span><span className="pn-t10-strip-item">No seu ritmo</span></div></div>
  :
  <div className="pn-t10-strip"><span>Educação com identidade</span><span>Aprendizado · Desenvolvimento · Possibilidades</span></div>
  }
