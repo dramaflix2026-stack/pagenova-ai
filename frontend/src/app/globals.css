@@ -2503,3 +2503,36 @@ html body article[data-block-id^="custom-cuidados-pos-tratamento"] p {
 .pn-cinematic-enabled .pn-motion-site > section[data-section-id^="custom-cuidados-pos-tratamento"] [data-pn-composition="universal-custom-section"] > .grid > article p {
  color:#594c41!important;-webkit-text-fill-color:#594c41!important;
 }
+
+
+/* Generated custom card contrast contract: shared preview + published renderer.
+   Keep the user-edited card background and accessible ink together.
+   The cinematic site CSS can force white ink on every article, while custom
+   cards are light: these selectors outrank the blanket rules for new cards
+   ONLY, without changing approved template components. */
+html body .pn-motion-site section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article[data-pn-generated-card-ui="true"] {
+  background:var(--pn-generated-card-surface,#f9f6f1) !important;
+  background-image:none !important;
+  color:var(--pn-generated-card-heading-ink,#352b24) !important;
+  text-shadow:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  backdrop-filter:none !important;
+  opacity:1 !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article[data-pn-generated-card-ui="true"] :is(h3,p) {
+  text-shadow:none !important;
+  filter:none !important;
+  -webkit-filter:none !important;
+  opacity:1 !important;
+  mix-blend-mode:normal !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article[data-pn-generated-card-ui="true"] h3 {
+  color:var(--pn-generated-card-heading-ink,#352b24) !important;
+  -webkit-text-fill-color:var(--pn-generated-card-heading-ink,#352b24) !important;
+}
+html body .pn-motion-site section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article[data-pn-generated-card-ui="true"] p {
+  color:var(--pn-generated-card-description-ink,#55483e) !important;
+  -webkit-text-fill-color:var(--pn-generated-card-description-ink,#55483e) !important;
+}
