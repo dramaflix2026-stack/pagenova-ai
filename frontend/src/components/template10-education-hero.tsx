@@ -104,7 +104,7 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
   display:inline-flex;align-items:center;gap:9px;
   white-space:nowrap;color:#e9f3f8!important;
   -webkit-text-fill-color:#e9f3f8!important;text-shadow:none!important;
-  font:700 inherit;
+  font-weight:700;
 }
 .pn-t10-language .pn-t10-strip-item:before{
   content:"";display:inline-block;flex:none;width:6px;height:6px;
