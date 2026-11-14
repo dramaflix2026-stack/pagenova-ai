@@ -70,6 +70,8 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     if(!portalNode||!frameDocument?.defaultView)return;
     const previewWindow=frameDocument.defaultView;
     const rgb=(value:string):number[]|null=>{
+      // A transparent computed color is not the dark surface underneath a card.
+      if(/^transparent$/i.test(value)||(/^rgba\(/i.test(value)&&/[,\/]\s*0(?:\.0+)?\s*\)$/i.test(value)))return null;
       const parts=value.match(/^rgba?\(\s*(\d+(?:\.\d+)?)\s*[, ]+\s*(\d+(?:\.\d+)?)\s*[, ]+\s*(\d+(?:\.\d+)?)/i);
       return parts?[Number(parts[1]),Number(parts[2]),Number(parts[3])]:null;
     };
@@ -102,6 +104,7 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
         // or template-specific rules. Resolve its real background at runtime.
         const computed=previewWindow.getComputedStyle(card);
         let background=rgb(computed.backgroundColor);
+        // Transparent black (e.g. over a cream gradient) is not a dark card.
         if(!background)background=[249,246,241];
         const darkSurface=luminance(background)<0.35;
         const targetTitle=darkSurface?"#f8f2e9":"#352b24";
@@ -130,7 +133,9 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     };
     const schedule=()=>{if(scheduled===null)scheduled=previewWindow.requestAnimationFrame(check);};
     const observer=new MutationObserver(schedule);
-    observer.observe(portalNode,{childList:true,subtree:true});
+    // Live color edits may change style/class without changing card children.
+    // Recheck those mutations as well as newly rendered blocks.
+    observer.observe(portalNode,{childList:true,subtree:true,attributes:true,attributeFilter:["style","class"]});
     const styleObserver=new MutationObserver(schedule);
     styleObserver.observe(frameDocument.head,{childList:true});
     void frameDocument.fonts.ready.then(schedule);
