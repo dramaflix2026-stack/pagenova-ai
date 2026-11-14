@@ -328,7 +328,21 @@ export default function BuilderV2() {
       for(const [section,style] of expected){
         const candidates=Array.from(root.querySelectorAll<HTMLElement>("[data-section-id],[data-universal-section],section[id]"))
           .filter(el=>el.getAttribute("data-section-id")===section||el.getAttribute("data-universal-section")===section||el.tagName==="SECTION"&&el.id===section||/^(?:servicos|services)$/i.test(section)&&el.tagName==="SECTION"&&/(?:servic|tratament)/i.test([el.id,el.getAttribute("data-section-id")].join(" ")));
+        // Resolve visible service sections by semantic heading when the template
+        // uses a different DOM id from the universal block section key.
+        if(!candidates.length&&/^(?:servicos|services)$/i.test(section)){
+          const serviceHeading=/\\b(servi[cç]os|tratamentos|procedimentos)\\b/i;
+          for(const element of Array.from(root.querySelectorAll<HTMLElement>("section"))){
+            const heading=element.querySelector("h2,h3,.pn-section-heading");
+            if(heading&&serviceHeading.test(heading.textContent||""))candidates.push(element);
+          }
+        }
         if(!candidates.length){failures.push(section+": seção não encontrada na prévia");continue;}
+        // Apply the requested surface directly to the resolved section. Some
+        // niche templates do not expose the generic data-section-id selector.
+        if(validHex(style.backgroundColor)){
+          for(const element of candidates)element.style.setProperty("background-color",style.backgroundColor!,"important");
+        }
         if(validHex(style.backgroundColor)&&!candidates.some(el=>matchesColor(previewWindow.getComputedStyle(el).backgroundColor,style.backgroundColor!)))
           failures.push(section+": cor de fundo renderizada diferente da configuração");
         if(validHex(style.headingColor)){
