@@ -651,8 +651,8 @@
       "path": "src/components/template10-education-sections.tsx",
       "blobSha": "90d290067371fcd26d0b545296aaac7e9f5aed49",
       "approvedBindingRevision": {
-        "sha": "d131d9a3ce172cf9b234a01b1cd0a32532b2d64d",
-        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+        "sha": "bf6225d170ee1a6db502003eef7841fa0f968c35",
+        "reason": "User explicitly approved option 1 for TP10 Model 1 Fluency Hub programs. Only language-school course cards change visually; existing universal edit bindings, other niches and Models 2/3 remain unchanged."
       }
     },
     {
