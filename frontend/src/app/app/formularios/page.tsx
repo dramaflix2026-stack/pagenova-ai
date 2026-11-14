@@ -381,19 +381,19 @@ export default function FormulariosPage(){
               <label className="mt-5 flex items-center gap-3 text-xs text-white/65"><input type="checkbox" checked={form.motion!==false} onChange={e=>edit({motion:e.target.checked})} className="accent-emerald-400"/> Animações suaves entre perguntas</label>
             </div>
             <h2 className="text-center text-lg font-bold">Perguntas ({form.fields.length})</h2>
-            {form.fields.map((q,i)=><article key={q.id} className="rounded-2xl border border-white/10 bg-[#142019] p-5 sm:p-6">
+            {form.fields.map((q,i)=><details key={q.id} open={i===0} className="group rounded-2xl border border-white/10 bg-[#142019] p-4 sm:p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <span className="text-xs font-bold uppercase tracking-widest text-emerald-300">Pergunta {i+1}</span>
+                <summary className="min-w-0 flex-1 cursor-pointer text-sm font-semibold text-white/90 marker:text-emerald-300">Campo {i+1} · {q.label}</summary>
                 <button type="button" aria-label={"Excluir pergunta "+(i+1)}
                   onClick={()=>{edit({fields:form.fields.filter(item=>item.id!==q.id)});setPreviewIndex(0);}}
                   className="rounded-lg p-2 text-white/45 hover:bg-red-500/10 hover:text-red-300">
                   <Trash2 className="h-4 w-4"/>
                 </button>
               </div>
-              <label htmlFor={"question-"+q.id} className="sr-only">Texto da pergunta {i+1}</label>
+              <div className="border-t border-white/10 pt-4"><label htmlFor={"question-"+q.id} className="sr-only">Texto da pergunta {i+1}</label>
               <textarea rows={2} id={"question-"+q.id} maxLength={180} className={fieldClass+" resize-y"} value={q.label}
                 onChange={e=>editQuestion(q.id,{label:e.target.value})}/>
-              <div className="mt-2 flex flex-wrap gap-2">{["✨","❤️","🔥","🎯","🍽️","🏡","🚀"].map(emoji=><button type="button" key={emoji} onClick={()=>editQuestion(q.id,{label:q.label+" "+emoji})} className="rounded-lg border border-white/10 px-2 py-1 text-base">{emoji}</button>)}</div>
+              
               <MediaImageField label={"Imagem da pergunta "+(i+1)} value={q.imageUrl} onChange={imageUrl=>editQuestion(q.id,{imageUrl})}/>
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <label className="flex-1 text-xs text-white/50">Resposta
@@ -412,7 +412,8 @@ export default function FormulariosPage(){
                 <textarea className={fieldClass+" mt-2"} rows={3} value={q.options.join("\n")}
                   onChange={e=>editQuestion(q.id,{options:e.target.value.split("\n").slice(0,12)})}/>
               </label>}
-            </article>)}
+              </div>
+            </details>)}
             <button type="button" onClick={addQuestion} disabled={form.fields.length>=20}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-emerald-400/35 p-4 text-sm font-semibold text-emerald-300 hover:bg-emerald-400/[.05] disabled:opacity-40">
               <Plus className="h-4 w-4"/> Adicionar pergunta
