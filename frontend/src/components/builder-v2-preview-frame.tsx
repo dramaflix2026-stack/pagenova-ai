@@ -62,6 +62,54 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     return ()=>{stylesObserver.disconnect();setPortalNode(null);};
   },[frameDocument]);
 
+  // Universal custom sections must preserve legible text regardless of
+  // niche/template CSS, injected styles or an older saved card palette.
+  // Fix only genuinely low-contrast text, preserving readable explicit colors.
+  // The renderer is frozen; this shared preview boundary can still verify it.
+  useEffect(()=>{
+    if(!portalNode||!frameDocument?.defaultView)return;
+    const previewWindow=frameDocument.defaultView;
+    const rgb=(value:string):number[]|null=>{
+      const parts=value.match(/^rgba?\\(\\s*(\\d+(?:\\.\\d+)?)\\s*[, ]+\\s*(\\d+(?:\\.\\d+)?)\\s*[, ]+\\s*(\\d+(?:\\.\\d+)?)/i);
+      return parts?[Number(parts[1]),Number(parts[2]),Number(parts[3])]:null;
+    };
+    const luminance=(channels:number[])=>{
+      const linear=channels.slice(0,3).map(v=>{const n=v/255;return n<=0.04045?n/12.92:Math.pow((n+0.055)/1.055,2.4);});
+      return linear[0]*0.2126+linear[1]*0.7152+linear[2]*0.0722;
+    };
+    const contrast=(first:number[],second:number[])=>{
+      const a=luminance(first),b=luminance(second);
+      return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05);
+    };
+    let scheduled:number|null=null;
+    const check=()=>{
+      scheduled=null;
+      const cards=portalNode.querySelectorAll<HTMLElement>('section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article');
+      for(const card of cards){
+        const background=rgb(previewWindow.getComputedStyle(card).backgroundColor);
+        if(!background)continue;
+        for(const child of card.querySelectorAll<HTMLElement>("h3,p")){
+          const style=previewWindow.getComputedStyle(child);
+          const fill=style.getPropertyValue("-webkit-text-fill-color");
+          const foreground=rgb(fill)||rgb(style.color);
+          if(foreground&&contrast(foreground,background)<4.5){
+            const dark=[51,41,33],light=[249,245,239];
+            const ink=contrast(dark,background)>contrast(light,background)?"#332921":"#f9f5ef";
+            child.style.setProperty("color",ink,"important");
+            child.style.setProperty("-webkit-text-fill-color",ink,"important");
+          }
+          if(style.textShadow!=="none")child.style.setProperty("text-shadow","none","important");
+          if(style.filter!=="none")child.style.setProperty("filter","none","important");
+        }
+      }
+    };
+    const schedule=()=>{if(scheduled===null)scheduled=previewWindow.requestAnimationFrame(check);};
+    const observer=new MutationObserver(schedule);
+    observer.observe(portalNode,{childList:true,subtree:true});
+    schedule();
+    return()=>{observer.disconnect();if(scheduled!==null)previewWindow.cancelAnimationFrame(scheduled);};
+  },[portalNode,frameDocument]);
+
   // Keep hash-only links inside the iframe. Without capture, about:srcdoc
   // resolves #contato against the parent Builder URL and replaces the preview.
   useEffect(()=>{
