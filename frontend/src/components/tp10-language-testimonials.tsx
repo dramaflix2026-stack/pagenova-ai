@@ -37,9 +37,18 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  .tp10edu-six-card blockquote{flex:1;margin:0 0 23px!important;font-size:clamp(15px,1.22vw,18px)!important;font-weight:400!important;line-height:1.6!important;letter-spacing:0!important;color:var(--tr-ink)!important;overflow-wrap:break-word}
  .tp10edu-six-foot{padding-top:14px;border-top:1px solid var(--tr-border);font-size:10px!important;line-height:1.5!important;letter-spacing:.08em;text-transform:uppercase;font-weight:800;color:var(--tr-accent)}
  .tp10edu-six-empty{padding:24px;border:1px solid var(--tr-border);border-radius:12px;color:var(--tr-muted);font-size:14px;line-height:1.6;max-width:720px}
- .tp10edu-six--01{--tr-bg:#244b43;--tr-ink:#f8faf5;--tr-muted:#bfd4c9;--tr-border:#ffffff3c;--tr-accent:#b9e1c9;--tr-shadow:#061f192a}
- .tp10edu-six--01 .tp10edu-six-avatar{background:#e4efe4;color:#234b43}
- .tp10edu-six--01 .tp10edu-six-notice{color:#d0e0d7!important}
+ /* TP10 Model 1 only: approved Dark Premium testimonials. Keep all other variants unchanged. */
+ .tp10edu-six--01{--tr-bg:#102a3d;--tr-ink:#f5fafb;--tr-muted:#b8cbd4;--tr-border:#ffffff20;--tr-accent:#b8f34a;--tr-shadow:#00000038;background:#061e2f;padding:clamp(22px,3vw,44px);border-radius:22px;color:#f5fafb}
+ .tp10edu-six--01 .tp10edu-six-grid{gap:clamp(14px,1.8vw,24px)}
+ .tp10edu-six--01 .tp10edu-six-card{border-radius:18px;background:linear-gradient(155deg,#143449,#0b293c);box-shadow:0 16px 36px #00121f35;transition:transform .2s ease,border-color .2s ease}
+ .tp10edu-six--01 .tp10edu-six-card:hover{transform:translateY(-3px);border-color:#b8f34a70}
+ .tp10edu-six--01 .tp10edu-six-avatar{background:#b8f34a;color:#082336;border:2px solid #b8f34a}
+ .tp10edu-six--01 .tp10edu-six-person strong{color:#fff}
+ .tp10edu-six--01 .tp10edu-six-person span{color:#bfd0da}
+ .tp10edu-six--01 .tp10edu-six-card blockquote{color:#f5fafb!important}
+ .tp10edu-six--01 .tp10edu-six-foot{color:#b8f34a;border-top-color:#ffffff24}
+ .tp10edu-six--01 .tp10edu-six-notice{color:#c0d0d8!important}
+ @media(max-width:560px){.tp10edu-six--01{padding:16px;border-radius:16px}.tp10edu-six--01 .tp10edu-six-card{border-radius:14px}}
  .tp10edu-six--02{--tr-bg:#fff;--tr-ink:#172d48;--tr-muted:#5e7182;--tr-border:#d5e3ef;--tr-accent:#1c66a4;--tr-shadow:#15354b10}
  .tp10edu-six--03{--tr-bg:#fff7ed;--tr-ink:#221d20;--tr-muted:#67585a;--tr-border:#25202a;--tr-accent:#a43d2b;--tr-shadow:#221d2010}
  .tp10edu-six--03 .tp10edu-six-card{border-radius:5px;box-shadow:5px 6px 0 #211c2340}
