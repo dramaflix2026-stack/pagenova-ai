@@ -70,7 +70,7 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     if(!portalNode||!frameDocument?.defaultView)return;
     const previewWindow=frameDocument.defaultView;
     const rgb=(value:string):number[]|null=>{
-      const parts=value.match(/^rgba?\\(\\s*(\\d+(?:\\.\\d+)?)\\s*[, ]+\\s*(\\d+(?:\\.\\d+)?)\\s*[, ]+\\s*(\\d+(?:\\.\\d+)?)/i);
+      const parts=value.match(/^rgba?\(\s*(\d+(?:\.\d+)?)\s*[, ]+\s*(\d+(?:\.\d+)?)\s*[, ]+\s*(\d+(?:\.\d+)?)/i);
       return parts?[Number(parts[1]),Number(parts[2]),Number(parts[3])]:null;
     };
     const luminance=(channels:number[])=>{
