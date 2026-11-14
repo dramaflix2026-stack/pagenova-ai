@@ -230,14 +230,21 @@ export default function EditorPage() {
     doubleClickCleanupRef.current?.();
     const iframe=editorIframeRef.current;
     if(!iframe)return;
-    editorBridgeCleanupRef.current=installEditorDomBridge(iframe,setSelectedElement);
     const doc=iframe.contentDocument;
     if(!doc)return;
+    const findVisual=(element:Element):Element|null=>{
+      const direct=element.closest("img,svg,canvas,[role='img'],i[class*='fa-'],i[class*='icon'],[class*='lucide-'],[class*='fa-']");
+      if(direct)return direct;
+      const picture=element.closest("picture");
+      if(picture)return picture.querySelector("img")||picture;
+      const background=element.closest("[style*='background-image']");
+      if(background && !background.closest("button,[role='button']"))return background;
+      return null;
+    };
     const onDoubleClick=(event:MouseEvent)=>{
       const element=event.target instanceof Element?event.target:null;
       if(!element)return;
-      const visual=element.closest("img,svg,canvas,[role='img'],i[class*='fa-'],i[class*='icon'],[class*='lucide-']") ||
-        (!element.closest("a,button,[role='button']")?element.closest("[style*='background-image']"):null);
+      const visual=findVisual(element);
       if(visual){
         event.preventDefault();event.stopImmediatePropagation();
         replacementTargetRef.current=visual;
@@ -247,6 +254,11 @@ export default function EditorPage() {
     };
     const onClick=(event:MouseEvent)=>{
       const element=event.target instanceof Element?event.target:null;
+      if(element && event.detail>=2 && findVisual(element)){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
       const button=element?.closest("button,[role='button'],a[class*='btn'],a[class*='button'],a[class*='cta']");
       if(!button){setLinkEditorOpen(false);return;}
       linkTargetRef.current=button;
@@ -256,6 +268,7 @@ export default function EditorPage() {
     };
     doc.addEventListener("dblclick",onDoubleClick,true);
     doc.addEventListener("click",onClick,true);
+    editorBridgeCleanupRef.current=installEditorDomBridge(iframe,setSelectedElement);
     doubleClickCleanupRef.current=()=>{
       doc.removeEventListener("dblclick",onDoubleClick,true);
       doc.removeEventListener("click",onClick,true);
