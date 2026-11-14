@@ -392,7 +392,36 @@ export default function BuilderV2() {
         .select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("review_status","approved");
       if(!error)setApprovedExperienceCount(count??0);
       const {data:events,error:eventsError}=await client.from("builder_editor_learning_events").select("id,niche,intent,target,strategy,execution_status,review_status").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1000);
-      if(!eventsError&&events){setCloudLearningCounts({total:events.length,approved:events.filter(e=>e.review_status==="approved").length,rejected:events.filter(e=>e.review_status==="rejected").length,pending:events.filter(e=>e.review_status==="pending").length});const pending=events.find(e=>e.review_status==="pending");if(pending){reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:pending.execution_status==="applied"?"applied":"rejected",strategy:pending.strategy||"unknown"};setReviewCandidate(current=>current?.status==="pending"?current:{id:pending.id,status:"pending"});}}
+      if(!eventsError&&events){
+        setCloudLearningCounts({total:events.length,approved:events.filter(e=>e.review_status==="approved").length,rejected:events.filter(e=>e.review_status==="rejected").length,pending:events.filter(e=>e.review_status==="pending").length});
+        const pending=events.find(e=>e.review_status==="pending");
+        if(pending){
+          reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:pending.execution_status==="applied"?"applied":"rejected",strategy:pending.strategy||"unknown"};
+          // Do not keep a stale candidate forever merely because it says pending.
+          // Only preserve a local, not-yet-uploaded edit while its cloud insert retries.
+          setReviewCandidate(current=>{
+            if(!current||current.status!=="pending"||current.id===pending.id)return {id:pending.id,status:"pending"};
+            if(events.some(remote=>remote.id===current.id))return {id:pending.id,status:"pending"};
+            try{
+              const entries=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
+              const local=Array.isArray(entries)?entries.find((entry:{id?:string})=>entry.id===current.id):null;
+              if(local&&local.review==="pending"&&["applied","rejected"].includes(local.outcome))return current;
+            }catch{/* Use authoritative cloud candidate if local storage is unavailable. */}
+            return {id:pending.id,status:"pending"};
+          });
+        }else{
+          reviewEventRef.current=null;
+          setReviewCandidate(current=>{
+            if(!current||current.status!=="pending")return current;
+            try{
+              const entries=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
+              const local=Array.isArray(entries)?entries.find((entry:{id?:string})=>entry.id===current.id):null;
+              if(local&&local.review==="pending"&&["applied","rejected"].includes(local.outcome)&&!events.some(remote=>remote.id===current.id))return current;
+            }catch{/* No recoverable local candidate. */}
+            return null;
+          });
+        }
+      }
     }catch{/* Reading learning history must not block editing. */}
   }
   useEffect(()=>{
@@ -440,7 +469,29 @@ export default function BuilderV2() {
           .update({review_status:status,reviewed_at:new Date().toISOString()})
           .eq("id",id).eq("user_id",user.id)
           .select("id,review_status").maybeSingle();
-        if(error||data?.review_status!==status)throw new Error(error?.message||"Avaliação não confirmada");
+        if(error)throw new Error(error.message);
+        if(!data){
+          // PostgREST returns HTTP 200 with [] for a PATCH that matches no row.
+          // Recover the actual pending cloud event; do not silently apply a
+          // review to another edit or ask the user to retry an invalid UUID.
+          const {data:pendingRows,error:pendingError}=await client.from("builder_editor_learning_events")
+            .select("id,niche,intent,target,strategy,execution_status")
+            .eq("user_id",user.id).eq("review_status","pending")
+            .order("created_at",{ascending:false}).limit(2);
+          if(pendingError)throw new Error(pendingError.message);
+          if(pendingRows?.length===1){
+            const pending=pendingRows[0];
+            reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:pending.execution_status==="applied"?"applied":"rejected",strategy:pending.strategy||"unknown"};
+            setReviewCandidate({id:pending.id,status:"pending"});
+            setLearningSyncNotice("O identificador da edição estava desatualizado. Recarreguei a única avaliação pendente do Supabase; confira o resultado e toque novamente em Aprovar ou Não funcionou.");
+          }else{
+            setReviewCandidate(null);
+            setLearningSyncNotice(pendingRows?.length?"Encontrei mais de uma edição pendente. Atualize a página para selecionar a avaliação correta.":"A edição selecionada não existe mais no Supabase e não há avaliação pendente.");
+          }
+          void refreshApprovedExperiences();
+          return;
+        }
+        if(data.review_status!==status)throw new Error("Avaliação não confirmada");
         setLearningSyncNotice("Avaliação confirmada no Supabase.");
         void refreshApprovedExperiences();
       }catch(error){
