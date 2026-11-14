@@ -1824,7 +1824,7 @@ color:#f7efe2!important;-webkit-text-fill-color:#f7efe2!important}
           const uniqueVisualCards=visualCards.filter(item=>{const title=cardText(item).name.trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ");if(!title)return true;if(seenCardTitles.has(title))return false;seenCardTitles.add(title);return true;});
           const sectionHasPhotos=uniqueImages.length>0&&visualCards.length>0;
           const engineeringSpecialties=/engenharia|engenheiro|construtora|constru[cç][aã]o civil/i.test([site.niche,site.title,selectedNiche].filter(Boolean).join(" "))&&/especialidades|nossos servi[cç]os|solu[cç][oõ]es de engenharia/i.test(id+" "+heading.map(b=>b.text).join(" "));
-          // Newly inserted universal sections retain their own heading, intro and cards.\n          // A custom name like "Cuidados Pós-Tratamento" must not inherit the\n          // niche services gallery (photos, "TRATAMENTO" and CTA labels).\n          const isTreatments=!id.startsWith("custom-")&&/tratament|servi[cç]os|servic|procediment|card[aá]pio|menu|pratos|hamb[uú]rgueres|pizzas|produtos/i.test(id+" "+heading.map(block=>block.text).join(" "));
+          const isTreatments=/tratament|servi[cç]os|servic|procediment|card[aá]pio|menu|pratos|hamb[uú]rgueres|pizzas|produtos/i.test(id+" "+heading.map(block=>block.text).join(" "));
           const adaptivePricing=adaptiveTemplate&&/planos|pre[cç]os|pricing|investimento/i.test(id);
           const adaptiveServices=adaptiveTemplate&&isTreatments;
           const adaptiveDifferentials=adaptiveTemplate&&/diferencia|por.que|escolher/i.test(id);
