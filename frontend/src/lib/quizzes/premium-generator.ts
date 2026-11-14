@@ -18,7 +18,6 @@ export function generatePremiumQuiz(prompt:string,existing?:QuizInput|null):Quiz
   const count=Math.max(3,Math.min(15,Number(/\b(\d{1,2})\s+perguntas?\b/i.exec(prompt)?.[1]||"7")));
   if(!entrepreneur){
     const baseline=localQuiz(prompt);
-    const subject=tidy(title.replace(/^(?:qual e o seu|descubra seu|descubra o seu)\s+/i,""));
     return normalizeQuiz({...baseline,title,subtitle:"Responda a algumas perguntas e descubra o resultado que mais combina com você.",
       questions:baseline.questions.slice(0,count).map(q=>({...q,title:tidy(q.title).replace(/\s+\?/g,"?")})),
       layout:"conversational",theme:/claro|bege|creme|minimalista/i.test(plain)?"cream":"midnight",
