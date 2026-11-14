@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "1453de2e9c818c0b7a826e2cb6822bb5db8be702",
-        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+        "sha": "577f66b9269b8d4564877a5c9156125c6845783a",
+        "reason": "User approved Option 1 Editorial Premium for TP10 Model 2 language school header and hero only; models 1 and 3 and universal editing/ML unchanged."
       }
     },
     {
