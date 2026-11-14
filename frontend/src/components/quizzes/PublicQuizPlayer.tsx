@@ -64,14 +64,14 @@ export function PublicQuizPlayer({quiz,preview}:Props){
     else if(quiz.collectLeads)setIndex(quiz.questions.length);
     else void finish(answers);
   }
-  const labelClasses="group flex min-h-[72px] w-full rounded-2xl border px-4 py-4 text-left text-[15px] font-medium leading-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 sm:px-5";
+  const labelClasses="group flex min-h-[76px] w-full rounded-[20px] border px-4 py-4 text-left text-[15px] font-medium leading-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 sm:px-6";
   const animate=quiz.motion!==false?" motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300":"";
   return <main className={"relative isolate flex min-h-[100svh] items-center justify-center overflow-hidden px-5 py-12 font-sans sm:px-8 sm:py-20 "+(hasBackground?"bg-[#101511] text-white":palette.page+" "+palette.text)}>
     {hasBackground&&<>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:bg-center" style={{backgroundImage:`url(${JSON.stringify(quiz.coverImageUrl)})`}}/>
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-black/65"/>
     </>}
-    <div className={conversational?"w-full max-w-[880px]":"w-full max-w-[720px]"}>
+    <div className={conversational?"w-full max-w-[780px]":"w-full max-w-[720px]"}>
       <article className={(conversational?"px-0 py-6 sm:px-4 sm:py-10 ":"px-1 py-3 sm:px-5 sm:py-6 ")+(hasBackground?"text-white":"")}>
         {/* The quiz sits directly on its chosen background, not inside a second card. */}
         {result? <div className={"py-9 text-center"+animate}>
@@ -120,15 +120,15 @@ export function PublicQuizPlayer({quiz,preview}:Props){
             <h1 className="text-2xl font-extrabold leading-tight tracking-[-.035em] sm:text-[32px]">{quiz.title}</h1>
             <p className={"mt-3 text-[15px] leading-7 "+palette.faded}>{quiz.subtitle}</p>
           </div>}
-          {conversational&&<div className="mb-5 flex items-center gap-3 text-sm opacity-75"><span className="grid h-7 w-7 place-items-center rounded-md border border-current/30 text-xs font-bold">{index+1}</span><span>{index+1} de {quiz.questions.length}</span></div>}
+          {conversational&&<div className="mb-8"><div className="mb-3 flex items-center justify-between text-xs font-semibold uppercase tracking-[.14em] opacity-70"><span>Seu progresso</span><span>{index+1} / {quiz.questions.length}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-current/10"><div className="h-full rounded-full bg-emerald-400 transition-all duration-500" style={{width:((index+1)/quiz.questions.length*100)+"%"}}/></div>{index===0&&<div className="mt-9 mb-8"><p className="mb-3 text-xs font-bold uppercase tracking-[.2em] opacity-60">Experiência interativa</p><h1 className="max-w-2xl text-[clamp(1.9rem,4vw,3.25rem)] font-bold leading-[1.12] tracking-[-.045em]">{quiz.title}</h1><p className={"mt-4 max-w-xl text-base leading-7 "+palette.faded}>{quiz.subtitle}</p></div>}</div>}
           {question.imageUrl&&<img src={question.imageUrl} alt={"Imagem da pergunta "+(index+1)} className="mb-8 max-h-[360px] w-full rounded-2xl object-cover shadow-sm" loading="lazy"/>}
-          <h2 className={conversational?"text-[clamp(1.8rem,4vw,2.8rem)] font-medium leading-[1.25] tracking-[-.035em]":"text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold leading-[1.2] tracking-[-.04em]"}>{question.title}</h2>
+          <h2 className={conversational?"text-[clamp(1.45rem,3.2vw,2.15rem)] font-semibold leading-[1.3] tracking-[-.03em]":"text-[clamp(1.55rem,4vw,2.15rem)] font-extrabold leading-[1.2] tracking-[-.04em]"}>{question.title}</h2>
           <div className={conversational?"mt-9 space-y-3":"mt-8 space-y-3.5"} role="radiogroup" aria-label={question.title}>
             {question.options.map((option,i)=>{
               const chosen=answers[question.id]===option.id;
               return <button key={option.id} type="button" role="radio" aria-checked={chosen}
                 onClick={()=>{setAnswers(a=>({...a,[question.id]:option.id}));setError("");}}
-                className={"items-center gap-4 "+(conversational?"min-h-[66px] rounded-xl border px-4 py-3 text-left text-base font-medium transition hover:translate-x-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ":""+labelClasses)+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
+                className={"items-center gap-4 "+(conversational?"flex min-h-[76px] w-full items-center rounded-[20px] border px-5 py-4 text-left text-base font-medium shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 ":""+labelClasses)+" "+(hasBackground?(chosen?"border-emerald-300 bg-emerald-300/30 text-white":"border-white/30 bg-black/45 text-white backdrop-blur-sm hover:border-white/70"):(chosen?palette.chosen:palette.option))}>
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-current/20 text-xs font-bold">
                   {chosen?<Check className="h-4 w-4"/>:String.fromCharCode(65+i)}
                 </span>
