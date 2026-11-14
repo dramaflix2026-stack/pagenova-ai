@@ -387,8 +387,12 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  const introduction=aftercare
   ?"Os cuidados após cada procedimento estético devem seguir as orientações individualizadas do profissional responsável. Confira algumas recomendações gerais."
   :"Conheça as informações e orientações sobre "+name.toLowerCase()+", organizadas para uma leitura simples e objetiva.";
- const entries=[{type:"heading",text:name},{type:"paragraph",text:introduction},
-  ...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))];
+ const entries=aftercare
+  ?[{type:"heading",text:name},{type:"paragraph",text:introduction},...cards.map(card=>({type:"paragraph",text:card.title+": "+card.description}))]
+  :[{type:"heading",text:name},...cards.flatMap(card=>[
+    {type:"heading",text:card.title},
+    {type:"paragraph",text:card.description}
+   ])];
  const operations:UniversalOperation[]=[];let afterId=previous.id;
  for(let i=0;i<entries.length;i++){
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
