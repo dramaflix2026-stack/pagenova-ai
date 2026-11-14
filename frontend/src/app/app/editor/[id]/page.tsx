@@ -168,6 +168,20 @@ export default function EditorPage() {
   const replacementTargetRef = useRef<Element | null>(null);
   const doubleClickCleanupRef = useRef<(() => void) | null>(null);
   const [quickEditStatus, setQuickEditStatus] = useState<string | null>(null);
+  const [linkEditorOpen,setLinkEditorOpen] = useState(false);
+  const [linkDraft,setLinkDraft] = useState("");
+  const linkTargetRef = useRef<Element | null>(null);
+  const applyQuickLink = () => {
+    const target=linkTargetRef.current;
+    const url=linkDraft.trim();
+    if(!target?.isConnected) {setLinkEditorOpen(false);return;}
+    if(!/^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url)){setQuickEditStatus("Informe um link válido.");return;}
+    const anchor=target.matches("a")?target:target.closest("a")||target.querySelector("a");
+    if(anchor)anchor.setAttribute("href",url);
+    else {target.setAttribute("data-href",url);target.setAttribute("onclick","window.location.href="+JSON.stringify(url));}
+    setLinkEditorOpen(false);
+    setQuickEditStatus("URL atualizada. Clique em Salvar.");
+  };
 
   const onReplacementFile = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -194,7 +208,7 @@ export default function EditorPage() {
         image.style.setProperty("visibility","visible");
         image.style.setProperty("opacity","1");
         image.closest("picture")?.querySelectorAll("source").forEach(source => source.remove());
-      } else if (target instanceof SVGElement) {
+      } else if (target instanceof SVGElement || target.matches("i,canvas,[class*=icon],[class*=lucide]")) {
         const replacement = target.ownerDocument.createElement("img");
         replacement.src = dataUrl;
         replacement.style.cssText = "width:100%;height:100%;object-fit:contain";
@@ -211,65 +225,42 @@ export default function EditorPage() {
     reader.readAsDataURL(file);
   }, []);
 
-  const handleEditorIframeLoad =
-    useCallback(() => {
-      editorBridgeCleanupRef.current?.();
-
-      const iframe =
-        editorIframeRef.current;
-
-      if (!iframe) {
-        return;
+  const handleEditorIframeLoad = useCallback(() => {
+    editorBridgeCleanupRef.current?.();
+    doubleClickCleanupRef.current?.();
+    const iframe=editorIframeRef.current;
+    if(!iframe)return;
+    editorBridgeCleanupRef.current=installEditorDomBridge(iframe,setSelectedElement);
+    const doc=iframe.contentDocument;
+    if(!doc)return;
+    const onDoubleClick=(event:MouseEvent)=>{
+      const element=event.target instanceof Element?event.target:null;
+      if(!element)return;
+      const visual=element.closest("img,svg,canvas,[role='img'],i[class*='fa-'],i[class*='icon'],[class*='lucide-']") ||
+        (!element.closest("a,button,[role='button']")?element.closest("[style*='background-image']"):null);
+      if(visual){
+        event.preventDefault();event.stopImmediatePropagation();
+        replacementTargetRef.current=visual;
+        replacementFileRef.current?.click();
       }
-
-      editorBridgeCleanupRef.current =
-        installEditorDomBridge(
-          iframe,
-          setSelectedElement
-        );
-      doubleClickCleanupRef.current?.();
-      const doc = iframe.contentDocument;
-      if (doc) {
-        const onDoubleClick = (event: MouseEvent) => {
-          const element = event.target instanceof Element ? event.target : null;
-          if (!element) return;
-          const image = element.closest("img,svg,button,[role='img']") ||
-            (element.closest("a")?.querySelector("img,svg")) ||
-            (element.closest("[style*='background-image']"));
-          const isVisual = image && (image.matches("img,svg,[role='img'],[style*='background-image']") ||
-            Boolean(image.querySelector("img,svg")));
-          if (isVisual) {
-            event.preventDefault();
-            event.stopPropagation();
-            replacementTargetRef.current = image;
-            replacementFileRef.current?.click();
-            return;
-          }
-          const button = element.closest("a,button,[role='button']");
-          if (!button) return;
-          event.preventDefault();
-          event.stopPropagation();
-          const link = button.closest("a") || button.querySelector("a");
-          const current = link?.getAttribute("href") || button.getAttribute("data-href") || "";
-          const url = window.prompt("URL de destino do botão (https://...):",current);
-          if (url === null) return;
-          const value = url.trim();
-          if (!/^https:\/\//i.test(value)) {
-            setQuickEditStatus("Use uma URL HTTPS válida.");
-            return;
-          }
-          if (link) link.setAttribute("href",value);
-          else {
-            button.setAttribute("data-href",value);
-            if (button instanceof HTMLElement) button.setAttribute("onclick","window.location.href="+JSON.stringify(value));
-          }
-          setEditingLinkHref(value);
-          setQuickEditStatus("Destino atualizado. Clique em Salvar para manter a alteração.");
-        };
-        doc.addEventListener("dblclick",onDoubleClick,true);
-        doubleClickCleanupRef.current = () => doc.removeEventListener("dblclick",onDoubleClick,true);
-      }
-    }, []);
+      // Buttons and text retain the existing inline text editing on double-click.
+    };
+    const onClick=(event:MouseEvent)=>{
+      const element=event.target instanceof Element?event.target:null;
+      const button=element?.closest("button,[role='button'],a[class*='btn'],a[class*='button'],a[class*='cta']");
+      if(!button){setLinkEditorOpen(false);return;}
+      linkTargetRef.current=button;
+      const anchor=button.matches("a")?button:button.closest("a")||button.querySelector("a");
+      setLinkDraft(anchor?.getAttribute("href")||button.getAttribute("data-href")||"");
+      setLinkEditorOpen(true);
+    };
+    doc.addEventListener("dblclick",onDoubleClick,true);
+    doc.addEventListener("click",onClick,true);
+    doubleClickCleanupRef.current=()=>{
+      doc.removeEventListener("dblclick",onDoubleClick,true);
+      doc.removeEventListener("click",onClick,true);
+    };
+  }, []);
   // V4B_1_2R_2_CALLBACK_ORDER
   // DOM resolver must be declared before text callbacks.
 const getSelectedDomElement =
@@ -1519,6 +1510,13 @@ if (!project) {
             :"Clonagem visual mobile concluída; revisão desktop não concluída."
           :"Clonagem parcial: captura estática porque o navegador visual não respondeu. Alguns blocos podem faltar."}
       </p>}
+      {linkEditorOpen&&<div className="absolute right-6 top-20 z-50 w-80 rounded-xl border border-emerald-400/40 bg-zinc-950 p-3 shadow-xl">
+        <label className="block text-xs font-semibold text-white">URL de destino do botão</label>
+        <input value={linkDraft} onChange={e=>setLinkDraft(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")applyQuickLink();if(e.key==="Escape")setLinkEditorOpen(false);}}
+          placeholder="https://exemplo.com" className="mt-2 w-full rounded border border-white/20 bg-zinc-900 p-2 text-sm text-white"/>
+        <div className="mt-2 flex justify-end gap-2"><button type="button" onClick={()=>setLinkEditorOpen(false)} className="px-2 py-1 text-xs text-zinc-300">Fechar</button>
+        <button type="button" onClick={applyQuickLink} className="rounded bg-emerald-400 px-3 py-1 text-xs font-bold text-black">Aplicar URL</button></div>
+      </div>}
       {quickEditStatus&&<p role="status" className="border-b border-emerald-400/20 bg-[#102019] px-4 py-2 text-center text-xs text-emerald-200">{quickEditStatus}</p>}
       {saveStatus&&<p role="status" aria-live="polite" className="border-b border-white/10 bg-[#101010] px-4 py-2 text-xs text-emerald-200 xl:hidden">{saveStatus}</p>}
       <div className="flex min-h-0 flex-1">
