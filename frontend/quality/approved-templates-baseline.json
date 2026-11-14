@@ -817,7 +817,11 @@
     },
     {
       "path": "src/components/tp10-language-testimonials.tsx",
-      "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01"
+      "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01",
+      "approvedBindingRevision": {
+        "sha": "a0511082ba32c6ab597916fc943229e9be876ce3",
+        "reason": "Explicit user approval of Dark Premium testimonials for Fluency Hub TP10 Model 1; six fictional reviews remain labeled and Models 2/3 unchanged."
+      }
     }
   ],
   "acceptedFunctionalRevisionNote": "Approved universal edit binding wiring for the existing 3 education variants. The original approved template blobSha values remain unchanged; check both before and after functional changes. No automatic baseline regeneration."
