@@ -84,7 +84,12 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
     let scheduled:number|null=null;
     const check=()=>{
       scheduled=null;
-      const cards=portalNode.querySelectorAll<HTMLElement>('section[data-section-id^="custom-"] [data-pn-composition="universal-custom-section"] > .grid > article');
+      // Both site renderers exist in production: the classic renderer uses
+      // universal-custom-section, while approved templates use custom-cards.
+      const cards=portalNode.querySelectorAll<HTMLElement>(
+        '[data-pn-composition="universal-custom-section"] > .grid > article, [data-universal-custom-cards] > article'
+      );
+      portalNode.setAttribute("data-pn-custom-card-audit-count",String(cards.length));
       for(const card of cards){
         const background=rgb(previewWindow.getComputedStyle(card).backgroundColor);
         if(!background)continue;
@@ -92,22 +97,29 @@ export function BuilderV2PreviewFrame({device,children}:{device:BuilderPreviewDe
           const style=previewWindow.getComputedStyle(child);
           const fill=style.getPropertyValue("-webkit-text-fill-color");
           const foreground=rgb(fill)||rgb(style.color);
-          if(foreground&&contrast(foreground,background)<4.5){
-            const dark=[51,41,33],light=[249,245,239];
-            const ink=contrast(dark,background)>contrast(light,background)?"#332921":"#f9f5ef";
-            child.style.setProperty("color",ink,"important");
-            child.style.setProperty("-webkit-text-fill-color",ink,"important");
+          // Source cards can have a cream surface but an inherited white
+          // foreground; ensure a readable, shadow-free contrast on the *real*
+          // painted background even when CSS from a frozen template wins.
+          const darkSurface=luminance(background)<0.35;
+          const preferred=darkSurface?"#f8f2e9":child.tagName==="P"?"#55483e":"#352b24";
+          if(!foreground||contrast(foreground,background)<4.5){
+            child.style.setProperty("color",preferred,"important");
+            child.style.setProperty("-webkit-text-fill-color",preferred,"important");
           }
-          if(style.textShadow!=="none")child.style.setProperty("text-shadow","none","important");
-          if(style.filter!=="none")child.style.setProperty("filter","none","important");
+          child.style.setProperty("text-shadow","none","important");
+          child.style.setProperty("filter","none","important");
+          child.style.setProperty("opacity","1","important");
         }
       }
     };
     const schedule=()=>{if(scheduled===null)scheduled=previewWindow.requestAnimationFrame(check);};
     const observer=new MutationObserver(schedule);
     observer.observe(portalNode,{childList:true,subtree:true});
+    const styleObserver=new MutationObserver(schedule);
+    styleObserver.observe(frameDocument.head,{childList:true});
+    void frameDocument.fonts.ready.then(schedule);
     schedule();
-    return()=>{observer.disconnect();if(scheduled!==null)previewWindow.cancelAnimationFrame(scheduled);};
+    return()=>{observer.disconnect();styleObserver.disconnect();if(scheduled!==null)previewWindow.cancelAnimationFrame(scheduled);};
   },[portalNode,frameDocument]);
 
   // Keep hash-only links inside the iframe. Without capture, about:srcdoc
