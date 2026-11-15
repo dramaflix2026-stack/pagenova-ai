@@ -134,9 +134,9 @@ function applySingleUniversalNaturalLanguage<T extends UniversalSite>(site:T,ins
   if("error" in section)return {ok:false,error:section.error};
   return applyUniversalOperations(site,[{action:"remove-section",sectionId:section.id}]);
  }
- const namedMove=text.match(/^(?:mova|reposicione|coloque)\s+(?:a\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s+(?:para\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+["“”']?([^"“”'\n]+?)["“”']?\s*\.?$/i);
+ const namedMove=text.match(/^(?:mova|reposicione|coloque)\s+(?:a\s+)?se[cç][aã]o\s+(?:["“]([^"”]+)["”]|\x27([^\x27]+)\x27|(.+?))\s+(?:para\s+)?(?:imediatamente\s+)?(?:depois|ap[oó]s)\s+(?:da\s+)?se[cç][aã]o\s+(?:["“]([^"”]+)["”]|\x27([^\x27]+)\x27|([^,.\n]+?))\s*(?:\.[\s\S]*)?$/i);
  if(namedMove&&!/^id\s+/i.test(namedMove[1])){
-  const source=resolveSection(namedMove[1]),destination=resolveSection(namedMove[2]);
+  const source=resolveSection(namedMove[1]||namedMove[2]||namedMove[3]),destination=resolveSection(namedMove[4]||namedMove[5]||namedMove[6]);
   if("error" in source)return {ok:false,error:source.error};
   if("error" in destination)return {ok:false,error:destination.error};
   return applyUniversalOperations(site,[{action:"move-section",sectionId:source.id,afterSectionId:destination.id}]);
