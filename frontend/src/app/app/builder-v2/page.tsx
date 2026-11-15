@@ -317,7 +317,7 @@ export default function BuilderV2() {
       const previewDoc=frame?.contentDocument;
       const previewWindow=frame?.contentWindow;
       if(!previewDoc||!previewWindow){setPreviewVisualAudit("Prévia ainda não disponível para verificação");return;}
-      const root=previewDoc.getElementById("pn-v2-preview-root");
+      const root=previewDoc.getElementById("pn-v2-preview-root")||previewDoc.body;
       if(!root){setPreviewVisualAudit("Conteúdo da prévia não encontrado");return;}
       const failures:string[]=[];
       const matchesColor=(actual:string,hex:string)=>{
@@ -347,7 +347,7 @@ export default function BuilderV2() {
         }
         if(validHex(style.backgroundColor)&&!candidates.some(el=>matchesColor(previewWindow.getComputedStyle(el).backgroundColor,style.backgroundColor!)))
           failures.push(section+": cor de fundo renderizada diferente da configuração");
-        if(validHex(style.textColor)){const texts=candidates.flatMap(el=>Array.from(el.querySelectorAll<HTMLElement>("h1,h2,h3,p,blockquote,span")).filter(node=>node.getClientRects().length>0));if(!texts.length||!texts.some(node=>matchesColor(previewWindow.getComputedStyle(node).color,style.textColor!)))failures.push(section+": cor dos textos não confirmada na prévia");}
+        if(validHex(style.textColor)){const texts=candidates.flatMap(el=>Array.from(el.querySelectorAll<HTMLElement>("h1,h2,h3,p,blockquote,span")).filter(node=>node.getClientRects().length>0));if(!texts.length||texts.some(node=>!matchesColor(previewWindow.getComputedStyle(node).color,style.textColor!)))failures.push(section+": cor dos textos não confirmada na prévia");}
         if(validHex(style.headingColor)){
           const headings=candidates.flatMap(el=>Array.from(el.querySelectorAll<HTMLElement>(".pn-section-heading h2,.pn-section-heading,h2")));
           if(!headings.length)failures.push(section+": título não encontrado na prévia");
