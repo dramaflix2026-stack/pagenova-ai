@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "6faded902828a38d1fd4d206d1aec245fc34ee40",
-        "reason": "User requested shared TP10 models across all education niches: pass existing full site data to Model 2 and Model 3 without changing approved JSX layouts, universal editor, or machine learning."
+        "sha": "94ffd6e866b5a415e10b014b50ef606feb82f0b4",
+        "reason": "User-requested TP7 repair: correct active real-estate renderer, map, and genuine testimonial data; preserve existing layout."
       }
     },
     {
