@@ -827,8 +827,8 @@
       "path": "src/components/tp10-language-testimonials.tsx",
       "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01",
       "approvedBindingRevision": {
-        "sha": "1f959fa9258b6195e592bb0886c84bf8718f7b2f",
-        "reason": "User approved TP10 Model 2 Dark Premium testimonials: six 3x2 responsive cards, photos, complete names, readable text and fictional labels; Models 1/3 unchanged."
+        "sha": "1717772235c4107f69b01c5840ed218283301a00",
+        "reason": "User explicitly approved the TP10 Model 3 section 06 Editorial Premium testimonial layout; changes are scoped to variant 03, retaining six entries, demo labels, and variants 01/02."
       }
     }
   ],
