@@ -390,7 +390,7 @@ export default function BuilderV2() {
       }
     },1200);
     return ()=>window.clearTimeout(timer);
-  },[site,previewDevice,previewExpanded]);
+  },[site]);
 
   const reviewEventRef=useRef<{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|null>(null);
   const [approvedExperienceCount,setApprovedExperienceCount]=useState<number|null>(null);
