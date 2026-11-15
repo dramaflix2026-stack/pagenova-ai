@@ -50,6 +50,22 @@ export function BuilderV2TP10Model3({brand,niche,site,email,phone,address,review
 @media(max-width:850px){.tp10m3 .section{padding:58px 5%}.tp10m3 .hero{min-height:0}.tp10m3 .heroCopy{padding:62px 6% 45px}.tp10m3 .heroImage{min-height:360px}.tp10m3 .difference{min-height:0}.tp10m3 .difference>img{min-height:300px;max-height:430px}.tp10m3 .differenceCopy{padding:48px 6%}.tp10m3 .courseGrid{margin-top:26px}.tp10m3 .methodGrid{margin-top:26px}.tp10m3 .mosaic{margin-top:25px}}
 @media(max-width:480px){.tp10m3 .section{padding:42px 20px}.tp10m3 .header{padding:17px 20px}.tp10m3 .heroCopy{padding:42px 20px 34px}.tp10m3 .heroCopy h1{margin:15px 0 20px;line-height:1.05}.tp10m3 .heroButtons{margin-top:14px;gap:10px}.tp10m3 .heroImage{min-height:280px}.tp10m3 .aboutPhotos{height:245px}.tp10m3 .courseGrid{gap:12px;margin-top:22px}.tp10m3 .course,.tp10m3 .course:first-child{height:230px;min-height:230px}.tp10m3 .courseLabel{padding:16px}.tp10m3 .difference>img{min-height:240px;max-height:300px}.tp10m3 .differenceCopy{padding:38px 20px}.tp10m3 .adv{padding:15px 0}.tp10m3 .methodGrid{gap:14px;margin-top:22px}.tp10m3 .method img{height:180px}.tp10m3 .methodBody{padding:18px}.tp10m3 .mosaic{gap:12px;grid-auto-rows:185px;margin-top:22px}.tp10m3 .mosaic figure:nth-child(4){grid-column:auto}.tp10m3 .quote{padding:22px}.tp10m3 .faqItem button{padding:18px 0}}
 
+/* Approved TP10 M3 section 07 FAQ Editorial Premium */
+.tp10m3 #tp10m3-faq{padding-top:clamp(55px,6vw,88px);padding-bottom:clamp(55px,6vw,88px)}
+.tp10m3 #tp10m3-faq .faqGrid{align-items:start;gap:clamp(32px,5vw,90px)}
+.tp10m3 #tp10m3-faq h2{max-width:590px;margin:18px 0 0;line-height:1.02}
+.tp10m3 #tp10m3-faq .faqItem{border-bottom:1px solid #d9cfc5}
+.tp10m3 #tp10m3-faq .faqItem:first-child{border-top:1px solid #d9cfc5}
+.tp10m3 #tp10m3-faq .faqItem button{width:100%;min-height:70px;padding:20px 6px;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;font-size:clamp(15px,1.1vw,18px);font-weight:800;line-height:1.45;color:#28232a;cursor:pointer;transition:color .2s ease}
+.tp10m3 #tp10m3-faq .faqItem button:hover,.tp10m3 #tp10m3-faq .faqItem button[aria-expanded="true"]{color:#ad4b39}
+.tp10m3 #tp10m3-faq .faqItem button:focus-visible{outline:3px solid #ad4b39;outline-offset:3px}
+.tp10m3 #tp10m3-faq .faqItem button span:last-child{display:grid;place-items:center;flex:0 0 32px;width:32px;height:32px;border:1px solid #e2cfc0;border-radius:50%;background:#fffaf4;font-size:19px;line-height:1;color:#ad4b39;transition:background .2s ease}
+.tp10m3 #tp10m3-faq .faqItem p{margin:0;padding:0 45px 23px 6px;color:#5d5357;font-size:clamp(14px,1vw,16px);line-height:1.7;animation:tp10m3FaqReveal .22s ease-out both}
+@keyframes tp10m3FaqReveal{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:850px){.tp10m3 #tp10m3-faq .faqGrid{grid-template-columns:1fr;gap:22px}.tp10m3 #tp10m3-faq h2{max-width:650px}}
+@media(max-width:480px){.tp10m3 #tp10m3-faq{padding-top:46px;padding-bottom:48px}.tp10m3 #tp10m3-faq .faqItem button{min-height:64px;padding:17px 3px;font-size:15px}.tp10m3 #tp10m3-faq .faqItem p{padding:0 36px 19px 3px}}
+@media(prefers-reduced-motion:reduce){.tp10m3 #tp10m3-faq .faqItem p{animation:none}}
+
 /* TP10 Model 3 approved editorial gallery: section 05 only. */
 .tp10m3 #tp10m3-gallery .mosaic--editorial{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:repeat(2,minmax(0,240px));grid-auto-rows:240px;gap:18px;align-items:stretch;margin-top:38px}
 .tp10m3 #tp10m3-gallery .mosaic--editorial figure{margin:0;min-width:0;min-height:0;height:100%;overflow:hidden;border:2px solid #1b1b21;border-radius:3px;box-shadow:6px 6px 0 #1b1b2120;grid-column:auto;grid-row:auto;transform:none}
