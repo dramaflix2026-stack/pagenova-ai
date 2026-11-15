@@ -524,6 +524,20 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
  .tp10m2[data-tp10-languages="true"] .footer--academic .footerLead h2{font-size:clamp(30px,8.1vw,39px)}
  .tp10m2[data-tp10-languages="true"] .footer--academic .footerNav{gap:16px}
 }
+
+/* User requested removal of entire footer CTA/hero banner circled in builder preview. */
+.tp10m2[data-tp10-languages="true"] .footer--academic.footer--compact{
+ padding-top:clamp(25px,3vw,45px);
+ border-top:3px solid #7896a7;
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic.footer--compact .footerMain{
+ padding:clamp(24px,3vw,44px) 0 clamp(30px,4vw,50px);
+}
+@media(max-width:650px){
+ .tp10m2[data-tp10-languages="true"] .footer--academic.footer--compact{
+  padding-top:24px;
+ }
+}
 `}
 
 </style>
@@ -537,19 +551,7 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 <section className="section reviews--language reviews--wall" id="tp10m2-reviews"><div className="reviewsWallHeading"><span className="eyebrow">06 / Vozes da comunidade</span><h2>{languageM2?<>Cada jornada tem uma <em>história.</em></>:"Histórias de aprendizagem."}</h2><p>{reviews.length?"Depoimentos compartilhados pela comunidade da instituição.":"Exemplos ilustrativos de apresentação. Substitua pelos depoimentos reais da instituição antes da divulgação."}</p></div><div className="reviewsWallGrid">{(()=>{const samples=[{name:"Mariana Oliveira",role:"Exemplo de aluna",quote:"As aulas me ajudaram a ganhar confiança para aprender coisas novas.",photo:"photo-1534528741775-53994a69daeb"},{name:"Lucas Ferreira",role:"Exemplo de aluno",quote:"A experiência de aprendizagem foi prática, acolhedora e motivadora.",photo:"photo-1500648767791-00dcc994a43e"},{name:"Camila Rodrigues",role:"Exemplo de aluna",quote:"Encontrei um ambiente que incentiva o desenvolvimento a cada etapa.",photo:"photo-1531123897727-8f129e1688ce"},{name:"Rafael Martins",role:"Exemplo de aluno",quote:"A organização das atividades tornou a rotina de estudos mais clara.",photo:"photo-1506794778202-cad84cf45f1d"},{name:"Juliana Costa",role:"Exemplo de aluna",quote:"Foi muito bom encontrar novas possibilidades de aprendizado.",photo:"photo-1544005313-94ddf0286df2"},{name:"André Almeida",role:"Exemplo de aluno",quote:"Os conteúdos me incentivaram a continuar evoluindo.",photo:"photo-1507003211169-0a1dd7228f2d"}];return Array.from({length:6},(_,i)=>{const real=reviews[i];const item=real||samples[i];const photo=real?.photo&&/^https:\/\//i.test(real.photo)?real.photo:img(samples[i].photo);return <article className="reviewsWallCard" key={i}><span className="reviewsWallQuote" aria-hidden="true">“</span><p className="reviewsWallText">{item.quote}</p><div className="reviewsWallPerson"><img src={photo} onError={fallback} loading="lazy" alt={real?"Fotografia do depoente "+item.name:"Retrato ilustrativo"}/><div><strong>{item.name}</strong><span>{real?(item.role||"Comunidade da instituição"):"Depoimento ilustrativo"}</span></div></div>{!real&&<span className="reviewsWallSample">EXEMPLO FICTÍCIO</span>}</article>})})()}</div></section>
 <section className="section faq--language faq--editorial" id="tp10m2-faq"><div className="faqGrid"><div className="faqIntro"><span className="eyebrow">07 / Dúvidas frequentes</span><h2>{languageM2?<>Tudo o que você <em>precisa saber.</em></>:<>Informação para <em>decidir.</em></>}</h2><p>{faqs.length?"Encontre respostas sobre a instituição com base nas informações cadastradas.":"As respostas abaixo são orientações gerais. Consulte a instituição para confirmar informações específicas."}</p><a className="faqEditorialContact" href="#tp10m2-contact">Ainda tem dúvidas? Entre em contato <span aria-hidden="true">↗</span></a></div><div className="faqQuestions">{questions.map((q,i)=><div className="faqItem" key={i}><h3><button type="button" aria-expanded={open===i} aria-controls={"tp10m2-faq-answer-"+i} onClick={()=>setOpen(open===i?null:i)}><span className="faqNumber">{String(i+1).padStart(2,"0")}</span><span className="faqQuestionText">{q.question}</span><span className="faqToggle" aria-hidden="true">{open===i?"−":"+"}</span></button></h3>{open===i&&<div className="faqEditorialAnswer" id={"tp10m2-faq-answer-"+i} role="region"><p>{q.answer}</p></div>}</div>)}</div></div></section>
 <section className="section contact contact--language contact--photo-premium" id="tp10m2-contact"><div className="contactGrid"><div className="contactIntro"><span className="eyebrow">08 / Contato e matrículas</span><h2>{languageM2?<>Seu próximo capítulo <em>começa aqui.</em></>:<>Comece uma <em>conversa.</em></>}</h2><p>Solicite informações sobre {niche.toLowerCase()} e consulte condições de matrícula diretamente com a instituição.</p><figure className="contactPhoto"><img src={img(p.photos[0]||images[0])} onError={fallback} loading="lazy" alt={"Fotografia ilustrativa relacionada a "+niche}/><figcaption>Fotografia ilustrativa</figcaption></figure><div className="contactChannels">{safePhone&&<p><a href={"https://wa.me/"+safePhone} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a></p>}{safeEmail&&<p><a href={"mailto:"+safeEmail}>{safeEmail}</a></p>}{address&&<p>{address}</p>}</div></div><form onSubmit={submit}><div className="contactFormHeading"><span className="eyebrow">Vamos conversar?</span><h3>Conte-nos o que você procura.</h3><p>Preencha seus dados para preparar uma mensagem para a instituição.</p></div><label>Nome<input name="name" required autoComplete="name" placeholder="Seu nome completo"/></label><label>Contato<input name="sender" required placeholder="E-mail ou telefone" autoComplete="email"/></label><label>Mensagem<textarea name="message" required rows={5} placeholder="Como podemos ajudar?"/></label><button type="submit">Preparar contato <span aria-hidden="true">↗</span></button>{!safePhone&&!safeEmail&&<p className="contactNoChannel">A instituição ainda não cadastrou um canal de contato para envio.</p>}{notice&&<p role="status">{notice}</p>}</form></div>{address?.trim()&&<div className="map"><iframe title={"Localização de "+brand} loading="lazy" referrerPolicy="no-referrer-when-downgrade" src={"https://www.google.com/maps?q="+encodeURIComponent(address)+"&output=embed"}/></div>}</section>
-<footer className="footer footer--academic" aria-label={"Rodapé de "+brand}>
-<div className="footerLead">
- <div className="footerLeadCopy">
-  <span className="eyebrow">09 / Seu futuro começa aqui</span>
-  <h2><span className="footerHeadlineLine"><span className="footerNoBreak">O próximo</span> passo</span><em className="footerHeadlineLine">começa com uma conversa.</em></h2>
-  <p>Conheça as possibilidades de aprendizagem e fale diretamente com a instituição para obter informações.</p>
- </div>
- <div className="footerLeadAction">
-  <span className="footerLeadActionLabel">TEM ALGUMA DÚVIDA?</span>
-  <a className="btn footerContactCta" href={contact}><span>Fale com a instituição</span><span className="footerArrow" aria-hidden="true">↗</span></a>
-  <span className="footerLeadNote">Consulte cursos, disponibilidade e condições nos canais oficiais.</span>
- </div>
-</div>
+<footer className="footer footer--academic footer--compact" aria-label={"Rodapé de "+brand}>
 <div className="footerMain">
  <div className="footerIdentity">
   <a className="footerBrandLink" href="#tp10m2-home" aria-label={"Voltar ao início - "+brand}><span className="footerBrandMark" aria-hidden="true">✦</span><strong>{brand}</strong></a>
