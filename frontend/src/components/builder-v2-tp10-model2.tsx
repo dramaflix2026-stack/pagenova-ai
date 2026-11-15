@@ -321,8 +321,6 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 .tp10m2[data-tp10-languages="true"] .reviews--language .tp10edu-six--02 .tp10edu-six-notice{color:#c1d5e0!important;font-size:14px!important;max-width:880px}
 @media(max-width:1000px){.tp10m2[data-tp10-languages="true"] .reviews--language .tp10edu-six--02 .tp10edu-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.tp10m2[data-tp10-languages="true"] .reviews--language{padding:65px 22px}.tp10m2[data-tp10-languages="true"] .reviews--language>h2{font-size:clamp(39px,10vw,53px)}.tp10m2[data-tp10-languages="true"] .reviews--language .tp10edu-six--02 .tp10edu-six-grid{grid-template-columns:1fr;gap:15px}.tp10m2[data-tp10-languages="true"] .reviews--language .tp10edu-six--02 .tp10edu-six-card{padding:24px}.tp10m2[data-tp10-languages="true"] .reviews--language .tp10edu-six--02 .tp10edu-six-card blockquote{font-size:18px!important}}
-`}
-
 /* TP10 M2: approved editorial bento differences for non-language education niches. */
 .tp10m2 .difference--language:has(.differenceBento){display:block;padding:clamp(70px,8vw,120px) clamp(22px,6vw,100px);background:#f7f6f2;min-height:0}
 .tp10m2 .differenceBento{max-width:1380px;margin:auto;width:100%}
@@ -348,6 +346,9 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 .tp10m2 .differenceBentoNote{font-size:12px;color:#637987;margin:22px 0 0}
 @media(max-width:950px){.tp10m2 .differenceBentoGrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}.tp10m2 .differenceBentoLarge{grid-row:span 2}}
 @media(max-width:600px){.tp10m2 .differenceBentoGrid{grid-template-columns:1fr;gap:12px}.tp10m2 .differenceBentoLarge{grid-row:auto;min-height:360px}.tp10m2 .differenceBentoGrid article{min-height:230px}.tp10m2 .differenceBentoIntro{margin-bottom:30px}}
+
+`}
+
 </style>
 <header className="header"><a href="#tp10m2-home" className="brand">{brand}</a><button className="toggle" onClick={()=>setMenu(!menu)} aria-expanded={menu}>☰ Menu</button><nav className={"links"+(menu?" open":"")}><a href="#tp10m2-about" onClick={()=>setMenu(false)}>Instituição</a><a href="#tp10m2-courses" onClick={()=>setMenu(false)}>Programas</a><a href="#tp10m2-gallery" onClick={()=>setMenu(false)}>Experiências</a><a href="#tp10m2-contact" onClick={()=>setMenu(false)}>Contato</a>{languageM2&&<a href="#tp10m2-contact" className="headerCta" onClick={()=>setMenu(false)}>Conhecer matrículas ↗</a>}</nav></header>
 <section className="hero" id="tp10m2-home"><div className="heroCopy"><span className="eyebrow">{languageM2?"IDIOMAS · NOVAS POSSIBILIDADES":"Modern Learning Experience"}</span><h1>{editedHeroTitle||p.focus}</h1><p>{editedHeroDescription||("Conheça "+brand+" e descubra possibilidades de aprendizagem em "+niche.toLowerCase()+".")}</p><div className="heroButtons"><a href="#tp10m2-courses" className="btn">{languageM2?"Conhecer nossos cursos ↗":"Explorar áreas de aprendizagem ↗"}</a><a href="#tp10m2-contact" className="btn secondary">{languageM2?"Falar sobre matrículas":"Fale com a instituição"}</a></div></div><div className="heroImage"><img src={editedHeroImage||img(images[0])} alt={"Fotografia ilustrativa de "+niche}/></div></section>
