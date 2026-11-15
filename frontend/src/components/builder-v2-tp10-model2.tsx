@@ -468,6 +468,62 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 .tp10m2[data-tp10-languages="true"] .footer--academic .footerBottom a{color:#e5eef4;text-decoration:none;font-weight:700}
 @media(max-width:1050px){.tp10m2[data-tp10-languages="true"] .footer--academic .footerLead{grid-template-columns:minmax(0,1fr);align-items:start;gap:25px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadAction{max-width:370px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerMain{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:38px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo{grid-column:2}}
 @media(max-width:650px){.tp10m2[data-tp10-languages="true"] .footer--academic{padding:0 22px 26px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerLead{padding:55px 0 48px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerLead h2{font-size:clamp(32px,8.3vw,44px);max-width:100%;line-height:1.16}.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadAction{max-width:none;width:100%}.tp10m2[data-tp10-languages="true"] .footer--academic .footerMain{grid-template-columns:minmax(0,1fr);gap:32px;padding:38px 0}.tp10m2[data-tp10-languages="true"] .footer--academic .footerNav{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo{grid-column:auto}.tp10m2[data-tp10-languages="true"] .footer--academic .footerBottom{align-items:flex-start}}
+
+/* TP10 M2 approved academic footer visual regression fix:
+   full-width heading, prominent CTA and legible, balanced column structure. */
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLead{
+ display:flex;flex-direction:column;align-items:stretch;gap:clamp(26px,3.2vw,42px);
+ padding:clamp(55px,6vw,82px) 0 clamp(40px,5vw,60px)
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadCopy{width:100%;max-width:none}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLead h2{
+ width:100%;max-width:none;font-size:clamp(35px,4vw,58px);line-height:1.12;
+ margin:18px 0 22px;letter-spacing:-.035em;text-wrap:initial;overflow-wrap:normal
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerHeadlineLine{display:block}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadCopy>p{max-width:65ch}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadAction{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,350px);
+ grid-template-rows:auto auto;gap:4px clamp(16px,3vw,38px);
+ align-items:center;max-width:none;width:100%;padding:23px clamp(20px,2.7vw,34px);
+ border:1px solid #4770866e;border-radius:13px;background:#17344770
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadActionLabel{
+ grid-column:1;grid-row:1;align-self:end;font-size:11px
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadNote{
+ grid-column:1;grid-row:2;align-self:start;max-width:55ch;font-size:13px
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerContactCta{
+ grid-column:2;grid-row:1 / span 2;width:100%;max-width:none;min-width:0;
+ min-height:66px;padding:16px 20px;font-size:15px;white-space:nowrap
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerMain{
+ display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1.25fr) minmax(0,.85fr);
+ gap:clamp(25px,3vw,55px);padding:clamp(40px,4.5vw,58px) 0
+}
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerNav a,
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo a,
+.tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo p{
+ font-size:14px;line-height:1.6
+}
+@media(max-width:900px){
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerMain{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:32px}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo{grid-column:1 / -1}
+}
+@media(max-width:700px){
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerLead h2{font-size:clamp(31px,7.4vw,43px);max-width:100%}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadAction{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;gap:8px;padding:20px}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadActionLabel{grid-row:1;grid-column:1}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerLeadNote{grid-row:2;grid-column:1}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerContactCta{grid-row:3;grid-column:1;margin-top:9px}
+}
+@media(max-width:560px){
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerMain{grid-template-columns:minmax(0,1fr);gap:28px}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerInfo{grid-column:1}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerLead h2{font-size:clamp(30px,8.1vw,39px)}
+ .tp10m2[data-tp10-languages="true"] .footer--academic .footerNav{gap:16px}
+}
 `}
 
 </style>
@@ -485,7 +541,7 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 <div className="footerLead">
  <div className="footerLeadCopy">
   <span className="eyebrow">09 / Seu futuro começa aqui</span>
-  <h2><span className="footerNoBreak">O próximo</span> passo <em>começa com uma conversa.</em></h2>
+  <h2><span className="footerHeadlineLine"><span className="footerNoBreak">O próximo</span> passo</span><em className="footerHeadlineLine">começa com uma conversa.</em></h2>
   <p>Conheça as possibilidades de aprendizagem e fale diretamente com a instituição para obter informações.</p>
  </div>
  <div className="footerLeadAction">
