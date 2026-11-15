@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "c5c68ea688965cfcad013622fdcab14ccfb3f912",
-        "reason": "User approved Dark Premium Testimonials for TP10 Model 2 language school: six readable 3x2 cards, portraits, full names and explicit fictional-example disclosure. Models 1/3, universal editor and ML preserved."
+        "sha": "7b2800e9bfd8e32ba540bd486f9346b39e475b65",
+        "reason": "User explicitly approved FAQ Cards Premium for TP10 Model 2 language schools, using actual briefing FAQ data and safe generic fallback; Models 1/3, Universal Editor and ML unchanged."
       }
     },
     {
