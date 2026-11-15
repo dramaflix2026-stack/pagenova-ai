@@ -49,7 +49,10 @@ export function TP10UniversalCustomSections({blocks,children}:{blocks:EditableBl
    if(!root)return false;
    const target=root.querySelector("#tp10-depoimentos,#tp10m2-reviews,#tp10m3-reviews");
    if(!target?.parentElement)return false;
-   target.parentElement.insertBefore(host,target);
+   const customIndex=blocks.findIndex(block=>block.section?.startsWith("custom-"));
+   const reviewIndex=blocks.findIndex(block=>/^(?:testimonials|depoimentos|reviews|review|tp10-depoimentos|tp10m2-reviews|tp10m3-reviews)$/i.test(block.section||""));
+   const placeAfter=customIndex>=0&&reviewIndex>=0&&customIndex>reviewIndex;
+   target.parentElement.insertBefore(host,placeAfter?target.nextSibling:target);
    setMount(host);
    return true;
   };
@@ -58,6 +61,6 @@ export function TP10UniversalCustomSections({blocks,children}:{blocks:EditableBl
    observer.observe(rootRef.current||doc.body,{subtree:true,childList:true});
   }
   return ()=>{observer?.disconnect();setMount(null);host.remove();};
- },[sections]);
+ },[sections,blocks]);
  return <div ref={rootRef} data-pn-tp10-custom-host="true" style={{display:"contents"}}>{children}{mount?createPortal(sections.map(section=><section key={section.id} id={section.id} data-universal-section={section.id} className="bg-[#f4f6f4] px-6 py-16 text-[#14251f] md:px-12 md:py-24"><div className="mx-auto max-w-6xl"><p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#587061]">Metodologia e diferenciais</p><h2 className="mb-6 text-3xl font-bold md:text-5xl">{section.title}</h2>{section.introduction&&<p className="mb-8 max-w-3xl text-base leading-7">{section.introduction}</p>}<div className="grid gap-5 md:grid-cols-3">{section.cards.map(card=><article key={card.id} data-block-id={card.id} className="rounded-2xl border border-[#dce5dc] bg-white p-7 shadow-sm"><h3 className="mb-3 text-xl font-bold">{card.title}</h3><p className="leading-7 text-[#42564b]">{card.description}</p></article>)}</div></div></section>),mount):null}</div>;
 }
