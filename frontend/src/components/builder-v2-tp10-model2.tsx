@@ -358,7 +358,7 @@ export function BuilderV2TP10Model2({brand,niche,site,email,phone,address,review
 .tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--3{grid-row:auto}
 .tp10m2[data-tp10-languages="true"] .mosaic--bento img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
 .tp10m2[data-tp10-languages="true"] .mosaic--bento figure:hover img{transform:scale(1.04)}
-@media(max-width:850px){.tp10m2[data-tp10-languages="true"] .mosaic--bento{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,190px)}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--1{grid-column:auto;grid-row:span 2}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--2{grid-column:auto}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--3{grid-row:auto}}
+@media(max-width:850px){.tp10m2[data-tp10-languages="true"] .mosaic--bento{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,190px)}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--1{grid-column:auto;grid-row:auto}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--2{grid-column:auto}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--3{grid-row:auto}}
 @media(max-width:550px){.tp10m2[data-tp10-languages="true"] .mosaic--bento{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(5,145px);gap:9px}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--1{grid-column:span 2;grid-row:span 2}.tp10m2[data-tp10-languages="true"] .mosaic--bento .mosaicBentoItem--2{grid-column:span 2}.tp10m2[data-tp10-languages="true"] .mosaic--bento figure{border-radius:11px}}
 `}
 
