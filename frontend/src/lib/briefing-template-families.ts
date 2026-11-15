@@ -204,6 +204,10 @@ export function resolveBriefingFamily(niche:string):BriefingFamilyId|undefined{
  // AI-generated projects often retain the business name (e.g. "Atlas Engenharia")
  // instead of an exact catalog niche. Recognize engineering without changing the stored niche.
  if(/(?:^| )(?:engenharia|engenheiro|engenheira|projetos? estruturais?|consultoria tecnica de engenharia|gerenciamento de obras)(?: |$)/.test(v))return 2;
+ // Educational institutions teaching technology/AI belong to TP10, not TP5.
+ // Require a clear education/business identity so software and AI agencies stay TP5.
+ const technologyEducation=/(?:^| )(?:educacao profissional(?: e tecnologia)?|educacao tecnologica|ensino profissionalizante|ensino tecnico|formacao profissional|formacao tecnologica|instituicao de ensino|instituto de ensino|escola de tecnologia|escolas de tecnologia|escola de programacao|escolas de programacao|academia de programacao|cursos? de programacao|cursos? de tecnologia|cursos? de inteligencia artificial)(?: |$)/;
+ if(technologyEducation.test(v))return 10;
  const technology=/(?:^| )(?:inteligencia artificial|agentes? de ia|automacao empresarial|automacao de processos|empresa de tecnologia|empresas de tecnologia|tecnologia e inovacao|desenvolvimento de software|desenvolvimento de aplicativos|agencia de marketing digital|agencias de marketing digital|consultoria empresarial|negocios digitais|saas|startup|startups)(?: |$)/;
  if(technology.test(v))return 5;
  const retail=/(?:^| )(?:boutique|loja) de (?:moda|roupas|calcados|sapatos|celulares|eletronicos|moveis|brinquedos|artigos esportivos|presentes|cosmeticos)(?: |$)|(?:^| )(?:moda feminina|moda masculina|joalheria|semijoias|perfumaria|pet shop|floricultura|papelaria|otica|e commerce multimarcas)(?: |$)/;
