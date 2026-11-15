@@ -1,5 +1,6 @@
-import { TP10UniversalCustomSections } from "@/components/tp10-universal-custom-sections";
 "use client";
+import { TP10UniversalCustomSections } from "@/components/tp10-universal-custom-sections";
+
 import {isFullSiteCreationBrief} from "@/lib/builder-v2-universal-plan";
 import {MAKEUP_RE,prepareTP1MakeupSite} from "@/lib/tp1-makeup-niche";
 import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/builder-v2-universal-language";
