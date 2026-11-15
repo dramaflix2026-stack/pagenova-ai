@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "cf5882e714c01a53292df50f4a32c4b94f6cff63",
-        "reason": "User approved Signature Footer Premium for TP10 Model 2 language school; preserve functioning section links, real briefing brand, contact CTA and back-to-top; Models 1/3, Universal Editor and ML unchanged."
+        "sha": "3d58873363d3daca807cc454e0c1811849f2ab92",
+        "reason": "User requested TP10 Model 2 visual parity across all education niches. Enable existing approved premium section CSS for every education site while retaining niche-specific content and preserving other templates."
       }
     },
     {
