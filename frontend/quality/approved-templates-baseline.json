@@ -827,8 +827,8 @@
       "path": "src/components/tp10-language-testimonials.tsx",
       "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01",
       "approvedBindingRevision": {
-        "sha": "a0511082ba32c6ab597916fc943229e9be876ce3",
-        "reason": "Explicit user approval of Dark Premium testimonials for Fluency Hub TP10 Model 1; six fictional reviews remain labeled and Models 2/3 unchanged."
+        "sha": "1f959fa9258b6195e592bb0886c84bf8718f7b2f",
+        "reason": "User approved TP10 Model 2 Dark Premium testimonials: six 3x2 responsive cards, photos, complete names, readable text and fictional labels; Models 1/3 unchanged."
       }
     }
   ],
