@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "b120fea2ae83089ed475fdbd482ff8c7775d3930",
-        "reason": "User approved option 3 editorial photographic bento grid for TP10 Model 2 differences. Apply to non-language education niches only; preserve approved language-school variant, other models and universal editor."
+        "sha": "ac6003f19ad935c3901802359eac5fe1888366d7",
+        "reason": "Approved option 3 TP10 M2 editorial bento grid for non-language education niches; fix CSS placement inside existing style template. Preserve language model and universal engine."
       }
     },
     {
