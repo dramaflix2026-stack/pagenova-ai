@@ -245,3 +245,11 @@ test("ordinary service heading alignment changes only headings in that section",
  assert.deepEqual(result.site.blocks.find(b=>b.id==="services-description"),before.blocks.find(b=>b.id==="services-description"));
  assert.equal(verifyUniversalEditResult(before,result.site,result.changedIds).ok,true);
 });
+
+// Keep the education design rollout isolated from the universal heading batch engine.
+test("TP10 visual rollout does not change universal heading batch routing",()=>{
+ const site=create();
+ const result=applyUniversalNaturalLanguage(site,prompt);
+ assert.equal(result?.ok,true,result?.error);
+ if(result?.ok)assert.deepEqual(result.changedIds,["hero","about-heading","faq"]);
+});
