@@ -65,6 +65,19 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  .tp10edu-six--03{--tr-bg:#fff7ed;--tr-ink:#221d20;--tr-muted:#67585a;--tr-border:#25202a;--tr-accent:#a43d2b;--tr-shadow:#221d2010}
  .tp10edu-six--03 .tp10edu-six-card{border-radius:5px;box-shadow:5px 6px 0 #211c2340}
  .tp10edu-six--03 .tp10edu-six-avatar{background:#ffbd66;color:#251923}
+/* Approved TP10 Model 3 Editorial Premium testimonials only. */
+ .tp10edu-six--03{--tr-bg:#fffdf9;--tr-ink:#242026;--tr-muted:#62585d;--tr-border:#e5d7ca;--tr-accent:#ad4b39;--tr-shadow:#38281b12;background:transparent;padding:0}
+ .tp10edu-six--03 .tp10edu-six-notice{color:#62585d!important;max-width:900px;margin:0 0 24px!important;font-size:13px!important}
+ .tp10edu-six--03 .tp10edu-six-grid{gap:clamp(14px,1.8vw,24px)}
+ .tp10edu-six--03 .tp10edu-six-card{border:1px solid #e5d7ca;border-radius:16px;background:#fffdf9;box-shadow:0 12px 32px #38281b12;padding:clamp(22px,2.2vw,32px);transition:transform .2s ease,box-shadow .2s ease}
+ .tp10edu-six--03 .tp10edu-six-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px #38281b1b}
+ .tp10edu-six--03 .tp10edu-six-person{margin-bottom:21px}
+ .tp10edu-six--03 .tp10edu-six-avatar{width:54px;height:54px;flex-basis:54px;border:2px solid #f1d5c1;background:#ffbd66;color:#251923}
+ .tp10edu-six--03 .tp10edu-six-person strong{font-size:clamp(15px,1.15vw,18px);color:#242026}
+ .tp10edu-six--03 .tp10edu-six-person span{font-size:12px;color:#67585a}
+ .tp10edu-six--03 .tp10edu-six-card blockquote{font-size:clamp(16px,1.25vw,19px)!important;line-height:1.7!important;color:#342d31!important}
+ .tp10edu-six--03 .tp10edu-six-foot{border-top-color:#e9dbcf;color:#a43d2b;font-size:10px!important}
+ @media(max-width:560px){.tp10edu-six--03 .tp10edu-six-grid{gap:15px}.tp10edu-six--03 .tp10edu-six-card{padding:23px;border-radius:14px}.tp10edu-six--03 .tp10edu-six-card blockquote{font-size:16px!important}}
  @media(max-width:900px){.tp10edu-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
  @media(max-width:560px){.tp10edu-six-grid{grid-template-columns:1fr;gap:14px}.tp10edu-six-card{padding:22px}.tp10edu-six-person{margin-bottom:16px}.tp10edu-six-card blockquote{font-size:16px!important;margin-bottom:19px!important}}
  `}</style>
