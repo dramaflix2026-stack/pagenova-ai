@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "ca242ac7f83a8a6ede314a3cd58ec16ce5c29664",
-        "reason": "User approved Option 1 for TP10 Model 1 FAQ: editorial two-column layout and accessible accordion; actual valid question/answer pairs from briefing preferred, generic noncommittal fallbacks otherwise. Models 2/3, Universal Editor and Machine Learning remain untouched."
+        "sha": "25320fc837a871842a221b325e8f4b3d891cd470",
+        "reason": "User approved TP10 Model 1 Admissions Option 1: premium full-height education internet photo, functional responsive form, real briefing contact channels only, show clear notice and disable CTA when neither channel configured. Existing language-school admissions and TP10 Models 2/3, Universal Editor and Machine Learning unchanged."
       }
     },
     {
@@ -631,8 +631,8 @@
       "path": "src/components/template10-education-closing.tsx",
       "blobSha": "9b83352ee59cfa17f358ad5ab5f91fe12b63cbdf",
       "approvedBindingRevision": {
-        "sha": "a58e0955e9eeb8b59f3286c9bda63eb53d78e46f",
-        "reason": "User approved Option 1 for TP10 Model 1 FAQ: editorial two-column layout and accessible accordion; actual valid question/answer pairs from briefing preferred, generic noncommittal fallbacks otherwise. Models 2/3, Universal Editor and Machine Learning remain untouched."
+        "sha": "e72f70e412409ea5d479a915f0b81cea5adad308",
+        "reason": "User approved TP10 Model 1 Admissions Option 1: premium full-height education internet photo, functional responsive form, real briefing contact channels only, show clear notice and disable CTA when neither channel configured. Existing language-school admissions and TP10 Models 2/3, Universal Editor and Machine Learning unchanged."
       }
     },
     {
