@@ -502,14 +502,22 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
  // Atomic section palette edit: background and readable text are one scoped user intent.
  // Never interpret the text-color instruction as an unrelated global change.
- const combined=rawInstruction.trim().match(/^(?:altere|mude|troque|ajuste)\s+(?:a\s+)?cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?(.+?)\s+(?:para|pra)\s+azul[-\s]?marinho(?:\s+escuro)?\s+e\s+deixe\s+os\s+textos\s+brancos(?:\s+para\s+garantir\s+boa\s+leitura)?\s*[.!]?\s*(?:n[aã]o\s+modifique\b[\s\S]*)?$/i);
+ const combined=rawInstruction.trim().match(/^(?:altere|mude|troque|ajuste|coloque|defina)\s+(?:a\s+)?cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?(.+?)\s+(?:para|pra|em)\s+(.+?)\s+e\s+(?:deixe|coloque|mude|altere|ajuste)\s+(?:a\s+cor\s+d[eo]s?\s+)?(?:textos?|letras?)\s+(?:para\s+|em\s+)?(.+?)(?:\s+para\s+garantir\s+boa\s+leitura)?\s*[.!]?\s*(?:n[aã]o\s+modifique\b[\s\S]*)?$/i);
  if(combined){
   const section=resolveUniversalSection(site,combined[1].trim());
-  if(!section)return {ok:false,error:"Seção de depoimentos não identificada de forma única. Nenhuma alteração aplicada."};
+  if(!section)return {ok:false,error:"A seção solicitada não foi identificada de forma única. Nenhuma alteração aplicada."};
+  const parseColor=(input:string):string|null=>{
+   const color=input.trim().toLowerCase().replace(/[.!]+$/,"").trim();
+   const hex=color.match(/^#([0-9a-f]{6}|[0-9a-f]{3})$/i);
+   if(hex)return hex[1].length===3?"#"+hex[1].split("").map(ch=>ch+ch).join("").toUpperCase():"#"+hex[1].toUpperCase();
+   const named:Record<string,string>={"azul-marinho escuro":"#102A43","azul marinho escuro":"#102A43","azul-marinho":"#142D4E","azul marinho":"#142D4E","azul escuro":"#102A43","azul":"#2563EB","branco":"#FFFFFF","branca":"#FFFFFF","brancos":"#FFFFFF","brancas":"#FFFFFF","preto":"#000000","preta":"#000000","pretos":"#000000","pretas":"#000000","cinza":"#6B7280","cinza escuro":"#374151","verde":"#16A34A","verde escuro":"#166534","vermelho":"#DC2626","amarelo":"#FACC15","laranja":"#EA580C","roxo":"#7C3AED","rosa":"#EC4899","bege":"#F5F5DC","marrom":"#78350F","dourado":"#D4AF37","creme":"#FFFDD0","grafite":"#374151"};
+   return named[color]||null;
+  };
+  const backgroundColor=parseColor(combined[2]),textColor=parseColor(combined[3]);
+  if(!backgroundColor||!textColor)return {ok:false,error:"Uma das cores não foi reconhecida. Use o nome da cor ou um código HEX. Nenhuma alteração aplicada."};
   const raw=(site as Record<string,unknown>).universalSectionStyles;
   const styles=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw as Record<string,unknown>:{};
   const previous=styles[section]&&typeof styles[section]==="object"&&!Array.isArray(styles[section])?styles[section] as Record<string,unknown>:{};
-  const backgroundColor="#102A43",textColor="#FFFFFF";
   if(previous.backgroundColor===backgroundColor&&previous.textColor===textColor)return {ok:false,error:"As cores já estão registradas. Confirme a prévia antes de aprovar."};
   return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...previous,backgroundColor,textColor}}} as T,changedIds:["section-style:"+section]};
  }
