@@ -49,7 +49,19 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  .tp10edu-six--01 .tp10edu-six-foot{color:#b8f34a;border-top-color:#ffffff24}
  .tp10edu-six--01 .tp10edu-six-notice{color:#c0d0d8!important}
  @media(max-width:560px){.tp10edu-six--01{padding:16px;border-radius:16px}.tp10edu-six--01 .tp10edu-six-card{border-radius:14px}}
- .tp10edu-six--02{--tr-bg:#fff;--tr-ink:#172d48;--tr-muted:#5e7182;--tr-border:#d5e3ef;--tr-accent:#1c66a4;--tr-shadow:#15354b10}
+ /* TP10 Model 2 only: approved Dark Premium testimonials. Model 1 and 3 unchanged. */
+ .tp10edu-six--02{--tr-bg:#12324a;--tr-ink:#f5f9fb;--tr-muted:#b8cbd8;--tr-border:#ffffff24;--tr-accent:#8dc7e0;--tr-shadow:#00121e35;background:#081e30;padding:clamp(22px,3vw,45px);border-radius:18px;color:#f5f9fb}
+ .tp10edu-six--02 .tp10edu-six-notice{color:#b9cdd9!important;font-size:13px!important;max-width:800px}
+ .tp10edu-six--02 .tp10edu-six-grid{gap:clamp(14px,1.8vw,25px)}
+ .tp10edu-six--02 .tp10edu-six-card{background:linear-gradient(145deg,#173a54,#102c42);border-color:#ffffff23;border-radius:14px;box-shadow:0 18px 40px #00101d42;padding:clamp(23px,2.3vw,34px);transition:transform .2s ease,border-color .2s ease}
+ .tp10edu-six--02 .tp10edu-six-card:hover{transform:translateY(-3px);border-color:#91c7df77}
+ .tp10edu-six--02 .tp10edu-six-person{margin-bottom:24px}
+ .tp10edu-six--02 .tp10edu-six-avatar{width:55px;height:55px;flex-basis:55px;border:2px solid #9bcce1;background:#d7edf5;color:#103047}
+ .tp10edu-six--02 .tp10edu-six-person strong{font-size:clamp(15px,1.15vw,18px);color:#fff}
+ .tp10edu-six--02 .tp10edu-six-person span{color:#c0d2dd;font-size:12px}
+ .tp10edu-six--02 .tp10edu-six-card blockquote{font-family:Georgia,'Times New Roman',serif;font-size:clamp(17px,1.4vw,21px)!important;line-height:1.65!important;color:#f6fafc!important}
+ .tp10edu-six--02 .tp10edu-six-foot{border-top-color:#ffffff24;color:#a8d6ea;font-size:10px!important}
+ @media(max-width:560px){.tp10edu-six--02{padding:15px;border-radius:14px}.tp10edu-six--02 .tp10edu-six-card{padding:23px}.tp10edu-six--02 .tp10edu-six-card blockquote{font-size:18px!important}}
  .tp10edu-six--03{--tr-bg:#fff7ed;--tr-ink:#221d20;--tr-muted:#67585a;--tr-border:#25202a;--tr-accent:#a43d2b;--tr-shadow:#221d2010}
  .tp10edu-six--03 .tp10edu-six-card{border-radius:5px;box-shadow:5px 6px 0 #211c2340}
  .tp10edu-six--03 .tp10edu-six-avatar{background:#ffbd66;color:#251923}
