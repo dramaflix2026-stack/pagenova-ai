@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "9320a7c92cbae66b037f98f5e985c8319551b489",
-        "reason": "User-reported screenshot regression in approved TP10 M2 academic footer: restore full-width two-line editorial heading, prominent single-line CTA, compact balanced navigation and responsive layouts; models 1 and 3, universal editor and ML remain untouched."
+        "sha": "298828786bda04dea023d11739e46ced44413f13",
+        "reason": "User explicitly requested removing entire highlighted footer CTA/hero block in TP10 Model 2. Institutional branding, navigation, real contact fields, and back-to-top remain; Models 1/3 and Universal Editor/ML unchanged."
       }
     },
     {
