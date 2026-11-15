@@ -123,8 +123,8 @@
       "path": "src/components/builder-v2-tp10-model2.tsx",
       "blobSha": "dbf6c25acde5a783d883cfd229bf1267517f6330",
       "approvedBindingRevision": {
-        "sha": "18eb47ff35768168f6b5f3e94b8a4c94b2d81f46",
-        "reason": "User requested immediate repair to footer CTA hero headline orphan O; keep 'O próximo' together and reflow CTA grid responsively; footer redesign pending reference selection; preserve models 1/3 and editor."
+        "sha": "cffa6786340b985bf37e8bb8d5d63340cda7177e",
+        "reason": "Approved TP10 Model 2 Option 1 premium academic footer: editorial CTA heading without orphan O, responsive institutional branding, actual briefing contact fields, working section links and back-to-top, preserving Models 1/3 and Universal Editor/Machine Learning."
       }
     },
     {
