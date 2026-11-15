@@ -131,8 +131,8 @@
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "2d9c7bc05baec33fd0542c011357b8a3ba43faad",
-        "reason": "The user requested universal editing repairs. This revision only connects existing universal section/card/text/image edit state to already-approved renderers, preserving unedited visual layouts; documented in editor regression tests."
+        "sha": "cabd96811aae57b7c45f02c8060715d2e7e5a056",
+        "reason": "User explicitly approved TP10 Model 3 section 05 editorial gallery. Scoped CSS and gallery class fix the blank lower-right area and responsive image layout while preserving other models and universal editing bindings."
       }
     },
     {
