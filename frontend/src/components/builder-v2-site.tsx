@@ -399,7 +399,7 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
      return <BuilderV2TP10Model2 brand={cleanBrand} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
    }
    const model1Faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const parts=(b.text||"").split(/\s*\|\s*/);return parts.length>=2&&parts[0].trim()&&parts.slice(1).join(" | ").trim()?{question:parts[0].trim(),answer:parts.slice(1).join(" | ").trim()}:null}).filter((entry):entry is {question:string;answer:string}=>entry!==null);
-   return <Template10EducationHero brand={cleanBrand} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} faqs={model1Faqs} contact={{email:props.site.footer?.email,address:props.site.footer?.address}}/>;
+   return <Template10EducationHero brand={cleanBrand} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} faqs={model1Faqs} contact={{email:props.site.footer?.email,phone:props.site.footer?.whatsapp,address:props.site.footer?.address}}/>;
  }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
