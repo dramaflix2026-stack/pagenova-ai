@@ -500,6 +500,19 @@ function applyProcessTimelineLayout<T extends UniversalSite>(site:T,instruction:
 
 /** All supported clauses commit together. Unsupported compound requests cannot hit partial legacy shortcuts. */
 export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,rawInstruction:string):UniversalResult<T>|null{
+ // Atomic section palette edit: background and readable text are one scoped user intent.
+ // Never interpret the text-color instruction as an unrelated global change.
+ const combined=rawInstruction.trim().match(/^(?:altere|mude|troque|ajuste)\s+(?:a\s+)?cor\s+de\s+fundo\s+da\s+se[cç][aã]o\s+(?:de\s+|da\s+|dos\s+)?(.+?)\s+(?:para|pra)\s+azul[-\s]?marinho(?:\s+escuro)?\s+e\s+deixe\s+os\s+textos\s+brancos(?:\s+para\s+garantir\s+boa\s+leitura)?\s*[.!]?\s*(?:n[aã]o\s+modifique\b[\s\S]*)?$/i);
+ if(combined){
+  const section=resolveUniversalSection(site,combined[1].trim());
+  if(!section)return {ok:false,error:"Seção de depoimentos não identificada de forma única. Nenhuma alteração aplicada."};
+  const raw=(site as Record<string,unknown>).universalSectionStyles;
+  const styles=raw&&typeof raw==="object"&&!Array.isArray(raw)?raw as Record<string,unknown>:{};
+  const previous=styles[section]&&typeof styles[section]==="object"&&!Array.isArray(styles[section])?styles[section] as Record<string,unknown>:{};
+  const backgroundColor="#102A43",textColor="#FFFFFF";
+  if(previous.backgroundColor===backgroundColor&&previous.textColor===textColor)return {ok:false,error:"As cores já estão registradas. Confirme a prévia antes de aprovar."};
+  return {ok:true,site:{...site,universalSectionStyles:{...styles,[section]:{...previous,backgroundColor,textColor}}} as T,changedIds:["section-style:"+section]};
+ }
  // A comma after a pasted image URL separates clauses; it is not part of the image address.
  const instruction=rawInstruction;
  // Exact quoted title edit is handled atomically before generic clause splitting.
