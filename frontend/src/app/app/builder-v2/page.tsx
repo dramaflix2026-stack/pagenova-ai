@@ -14,6 +14,7 @@ import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-lea
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {beginEditorSubmissionTrace,nextEditorOperationTrace,isValidEditorOperationTrace,type EditorSubmissionTrace,type EditorOperationTrace} from "@/lib/builder-v2-editor-attempt-trace";
 import {captureSafeEditorInstruction,isSafeEditorInstruction,type SafeEditorInstruction} from "@/lib/builder-v2-editor-safe-instruction";
+import {interpretEditorFeedback,isValidEditorInterpretation,safeEditorInterpretationContext,type EditorCommandInterpretation} from "@/lib/builder-v2-editor-interpretation";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
@@ -217,7 +218,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction;interpretation?:EditorCommandInterpretation}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -237,6 +238,18 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
         instruction_redacted:event.safeInstruction.text,
         instruction_redaction_version:event.safeInstruction.version,
         instruction_capture_status:event.safeInstruction.status
+      }:{}),
+      // This is an interpretation made by deterministic rules, NOT evidence
+      // of AI understanding or visual success; unknowns remain NULL.
+      ...(isValidEditorInterpretation(event.interpretation)?{
+        interpretation_source:event.interpretation.source,
+        interpretation_status:event.interpretation.status,
+        interpreted_element:event.interpretation.element,
+        interpreted_property:event.interpretation.property,
+        requested_value_kind:event.interpretation.requestedValueKind,
+        requested_value:event.interpretation.requestedValue,
+        family_id:event.interpretation.familyId,
+        template_id:event.interpretation.templateId
       }:{}),
       review_status:"pending"
     });
@@ -351,8 +364,10 @@ function persistEditorLearningEvent(niche:string, instruction:string, outcome:"a
     // Privacy boundary: NEVER put the original instruction in this persisted event.
     // Unknown words and quoted client copy are masked; risky submissions omitted.
     const safeInstruction=captureSafeEditorInstruction(instruction);
+    const interpretation=interpretEditorFeedback({intent,target,sectionKey},safeInstruction,
+      isValidEditorOperationTrace(trace)?trace.interpretationContext:null);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),safeInstruction};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),interpretation,safeInstruction};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -1038,6 +1053,14 @@ export default function BuilderV2() {
     // is explicitly verified; this prevents false "first-try" measurements.
     if(!busy)activeSubmissionTraceRef.current=prompt&&site.blocks.length>0
       ?beginEditorSubmissionTrace(site.id,crypto.randomUUID(),new Date().toISOString()):null;
+    // Freeze canonical template metadata at submission, NOT at the eventual
+    // visual callback: later edits may already have changed the active site.
+    if(activeSubmissionTraceRef.current)activeSubmissionTraceRef.current.interpretationContext=
+      safeEditorInterpretationContext({
+        familyId:resolveBriefingFamily(site.niche||"")||null,
+        templateId:site.templateId||null,
+        model:site.briefingLayoutVariant||null
+      })||undefined;
     // Dedicated veterinary renderers use real site blocks as persisted overrides.
     // Do not acknowledge a visual edit unless the renderer can consume it.
     if(site.blocks.length&&/veterin|cl[ií]nica\s+(?:de\s+)?(?:animais|pets)/i.test(site.niche||"")&&!isFullSiteCreationBrief(prompt)){
