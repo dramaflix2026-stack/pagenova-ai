@@ -817,7 +817,11 @@
     },
     {
       "path": "src/components/template9-automotive-hero.tsx",
-      "blobSha": "e6de4be7066dc3d4da9dd10c117dc675b43f2c2c"
+      "blobSha": "e6de4be7066dc3d4da9dd10c117dc675b43f2c2c",
+      "approvedBindingRevision": {
+        "sha": "3532c9110d0bf1ffc51b70e1d70a9ea081cf2999",
+        "reason": "User-approved TP9 Model 1 Vértice Auto Center HandCar header and hero, bound only to its exact brand; legacy TP9 and Models 2/3 remain untouched."
+      }
     },
     {
       "path": "src/components/template9-automotive-sections.tsx",
