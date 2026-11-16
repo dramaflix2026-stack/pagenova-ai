@@ -684,3 +684,30 @@ test("Vértice TP9 FAQ preserves six accessible questions, working controls and 
  assert.match(faq,/Como consultar prazos e disponibilidade/);
  assert.match(faq,/Os valores são informados pelo site/);
 });
+
+test("Vértice TP9 quote form respects configured channels and preserves approved FAQ and legacy contact",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const integrated=readFileSync(new URL("../src/components/template9-automotive-closing.tsx",import.meta.url),"utf8");
+ const quote=readFileSync(new URL("../src/components/tp9-vertice-quote.tsx",import.meta.url),"utf8");
+ assert.match(integrated,/isVertice&&<TP9VerticeFAQ\/>/);
+ assert.match(integrated,/isVertice&&<TP9VerticeQuote brand=\{brand\} email=\{email\} whatsapp=\{whatsapp\}\/>/);
+ assert.match(integrated,/!isVertice&&<section id="tp9-orcamento"/);
+ assert.match(integrated,/\{locationSection\}/);
+ assert.match(quote,/id="tp9-orcamento"/);
+ assert.match(quote,/id="tp9-contato"/);
+ assert.match(quote,/validPhone=phone.length>=10&&phone.length<=15\?phone:null/);
+ assert.match(quote,/validMail=email\?\.trim\(\)/);
+ assert.match(quote,/disabled=\{!hasContact\}/);
+ assert.match(quote,/role="status"/);
+ assert.match(quote,/window\.open\(url,"_blank","noopener,noreferrer"\)/);
+ assert.match(quote,/window\.location\.href=url/);
+ assert.match(quote,/href=\{preparedLink\}/);
+ assert.match(quote,/não envia automaticamente/);
+ assert.match(quote,/id="pn-vq-name".*?required/);
+ assert.match(quote,/id="pn-vq-reply".*?required/);
+ assert.match(quote,/id="pn-vq-vehicle".*?required/);
+ assert.match(quote,/id="pn-vq-service".*?required/);
+ assert.match(quote,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(quote,/grid-template-columns:1fr/);
+ assert.match(quote,/SERVICES=\[/);
+});
