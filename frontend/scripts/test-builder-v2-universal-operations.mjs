@@ -1689,7 +1689,7 @@ test("actual iframe visual audit rejects false-positive move and incorrect headi
 });
 test("builder only logs success for moved sections after visual confirmation",()=>{
  const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
- assert.ok(page.includes("pendingMoveVisualReviewRef.current={prompt"));
+ assert.ok(page.includes("pendingMoveVisualReviewRef.current={trace:activeSubmissionTraceRef.current,prompt"));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified"'));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed"'));
  assert.ok(page.includes("if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent("));
