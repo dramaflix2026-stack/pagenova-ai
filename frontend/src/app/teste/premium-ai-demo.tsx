@@ -112,6 +112,7 @@ export function PremiumAiDemo() {
   const [showBefore, setShowBefore] = useState(false);
   const [revision, setRevision] = useState(1);
   const [processing, setProcessing] = useState(false);
+  const [device, setDevice] = useState<"desktop"|"mobile">("desktop");
   const [typing, setTyping] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -223,40 +224,16 @@ export function PremiumAiDemo() {
           <div className={"pn-ai-preview" + (premium ? " is-premium" : "") + (processing ? " is-processing" : "")}>
             <header className="pn-ai-preview-top">
               <div className="pn-ai-preview-headlabel"><span className="pn-ai-dots" aria-hidden="true"><i/><i/><i/></span><span>{t.preview}</span></div>
-              <span className="pn-ai-live"><span/>{processing ? (locale==="pt"?"Transformando...":locale==="es"?"Transformando...":"Transforming...") : t.live}</span>
+              <div className="pn-ai-device-switch" role="group" aria-label={locale==="pt"?"Visualização":locale==="es"?"Vista":"Preview mode"}><button type="button" className={device==="desktop"?"selected":""} aria-pressed={device==="desktop"} onClick={()=>setDevice("desktop")}>Desktop</button><button type="button" className={device==="mobile"?"selected":""} aria-pressed={device==="mobile"} onClick={()=>setDevice("mobile")}>Mobile</button></div><span className="pn-ai-live"><span/>{processing ? (locale==="pt"?"Transformando...":locale==="es"?"Transformando...":"Transforming...") : t.live}</span>
             </header>
             <div className="pn-ai-preview-pad"><div className="pn-ai-transform-overlay" aria-hidden="true"><WandSparkles size={23}/><span>{locale==="pt"?"IA transformando seu site":locale==="es"?"IA transformando tu sitio":"AI transforming your website"}</span><span className="pn-ai-transform-progress"/></div>
-              <div className="pn-ai-site" key={"site-" + revision + "-" + String(showBefore)}>
-                <div className="pn-ai-site-header">
-                  <span className="pn-ai-site-logo">ATELIER<span>.</span></span>
-                  <div className="pn-ai-site-nav">{t.nav.map(item => <span key={item}>{item}</span>)}</div>
-                  <span className="pn-ai-site-small-cta">{t.connect}</span>
-                </div>
-                <div className="pn-ai-site-hero">
-                  <div className="pn-ai-site-hero-copy">
-                    <div className="pn-ai-site-overline">{t.brandSubtitle}</div>
-                    <h3>{newTitle ? t.headlineUpdated : t.headlineDefault}</h3>
-                    <p>{t.siteSubtitle}</p>
-                    <span className="pn-ai-site-button">{t.link} <ArrowRight size={17} /></span>
-                  </div>
-                  <div className="pn-ai-site-art" aria-hidden="true">
-                    <span className="pn-ai-art-orbit pn-ai-orbit-one" />
-                    <span className="pn-ai-art-orbit pn-ai-orbit-two" />
-                    <span className="pn-ai-art-center"><Sparkles size={45} fill="currentColor" strokeWidth={1}/></span>
-                  </div>
-                </div>
-                <div className="pn-ai-site-features">
-                  <strong>{t.features}</strong>
-                  <div className="pn-ai-site-features-grid">
-                    {t.featureItems.map(feature => <span key={feature}><Check size={16} />{feature}</span>)}
-                  </div>
-                </div>
-                {extraSection && (
-                  <div className="pn-ai-extra-section">
-                    <strong><Sparkles size={16}/>{t.newSection}</strong>
-                    <div>{t.newItems.map(item => <span key={item}><Check size={14}/>{item}</span>)}</div>
-                  </div>
-                )}
+              <div className={"pn-ai-real-site-frame"+(device==="mobile"?" is-mobile":"")}>
+                <iframe
+                  title={locale==="pt"?"Site demonstrativo navegável":locale==="es"?"Sitio de demostración navegable":"Navigable demo website"}
+                  src={"/teste/demo-site?lang="+locale+"&mode="+(applied?(command===0?"title":command===1?"premium":"benefits"):"default")+"&before="+(showBefore?"1":"0")}
+                  loading="eager"
+                  sandbox="allow-same-origin allow-scripts"
+                />
               </div>
             </div>
             <div className="pn-ai-preview-bottom">
