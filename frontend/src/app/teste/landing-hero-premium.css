@@ -1842,3 +1842,13 @@
 @keyframes pnr-orb-breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.1)}}
 @media(max-width:800px){.pnr-page .pnr-orb-section{grid-template-columns:1fr;text-align:center;padding:72px 22px 55px;gap:6px}.pnr-page .pnr-orb-copy{margin:auto}.pnr-page .pnr-orb-copy p{margin:20px auto 0}.pnr-page .pnr-orb-stage{max-width:500px}}
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-orb-art{animation:none;will-change:auto}}
+
+/* Particle sphere refinement: cinematic halo and restrained interactive depth.
+   Keep approved layout and avoid flat 2D rotation. */
+.pnr-page .pnr-orb-stage{isolation:isolate;perspective:900px}
+.pnr-page .pnr-orb-stage::before{content:"";position:absolute;inset:9%;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 42% 37%,rgba(151,255,113,.16) 0%,rgba(81,229,87,.065) 34%,rgba(31,126,48,.025) 57%,transparent 75%);filter:blur(23px);animation:pnr-orb-aura 7s ease-in-out infinite}
+.pnr-page .pnr-orb-stage::after{content:"";position:absolute;inset:4%;border-radius:50%;pointer-events:none;background:radial-gradient(circle,transparent 42%,rgba(119,255,107,.035) 57%,transparent 74%);filter:blur(18px)}
+.pnr-page .pnr-orb-art{position:relative;z-index:1;transform-origin:center;transition:filter .65s ease}
+.pnr-page .pnr-orb-stage:hover .pnr-orb-art{filter:brightness(1.23) drop-shadow(0 0 17px rgba(107,255,107,.25))}
+@keyframes pnr-orb-aura{0%,100%{opacity:.65;transform:scale(.97)}50%{opacity:1;transform:scale(1.04)}}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-orb-stage::before{animation:none}.pnr-page .pnr-orb-stage:hover .pnr-orb-art{filter:none}}
