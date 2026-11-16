@@ -759,3 +759,28 @@ test("Vértice TP9 Model 1 premium footer contains real-contact links and workin
  assert.match(footer,/pn-vfooter-signature/);
  assert.match(footer,/VÉRTIC<span className="pn-vfooter-signature-accent">E<\/span>/);
 });
+
+test("Vértice TP9 Model 2 preserves luxury layout while localizing hero and essence",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const hero=readFileSync(new URL("../src/components/builder-v2-tp9-model2-hero.tsx",import.meta.url),"utf8");
+ const sections=readFileSync(new URL("../src/components/builder-v2-tp9-model2-sections.tsx",import.meta.url),"utf8");
+ const router=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");
+ assert.match(hero,/const isVertice=\/\\bvertice\\s\+auto\\s\+center\\b\/\.test\(norm\(brand\)\)/);
+ assert.match(hero,/CUIDADO AUTOMOTIVO · ATENÇÃO A CADA DETALHE/);
+ assert.match(hero,/isVertice\?"Revisão preventiva":"Cuidado exterior"/);
+ assert.match(hero,/isVertice\?"Diagnóstico eletrônico":"Higienização interna"/);
+ assert.match(hero,/isVertice\?"Freios e suspensão":"Proteção de pintura"/);
+ assert.match(hero,/isVertice\?"Óleo e filtros":"Rodas e acabamento"/);
+ assert.match(hero,/aria-label=\{menu\?"Fechar menu":"Abrir menu"\}/);
+ assert.match(hero,/tp9m2-vertice/);
+ assert.match(hero,/PERFORMANCE EM CADA DETALHE/);
+ assert.match(sections,/const isVertice=\/\\bvertice\\s\+auto\\s\+center\\b\/\.test\(norm\(brand\)\)/);
+ assert.match(sections,/isVertice\?"https:\/\/unsplash\.com\/photos\/TCg8r4Z5Wu0\/download/);
+ assert.match(sections,/Na Vértice Auto Center, o cuidado com seu veículo/);
+ assert.match(sections,/Atenção • Transparência • Cuidado/);
+ assert.match(sections,/tp9m2-vertice-sections/);
+ assert.match(sections,/grid-template-columns:1\.05fr 1fr/);
+ assert.match(sections,/id="tp9-servicos"/);
+ assert.match(router,/briefingLayoutVariant==="02"\?<BuilderV2TP9Model2Hero/);
+ assert.match(router,/briefingLayoutVariant==="02"\?<BuilderV2TP9Model2Sections/);
+});
