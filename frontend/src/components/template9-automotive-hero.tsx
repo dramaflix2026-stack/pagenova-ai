@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import {TP9VerticeHandcarHero} from "./tp9-vertice-handcar-hero";
 type Props={brand:string;niche:string;headline?:string;description?:string;image?:string;contactHref?:string};
 const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const config:Record<string,{headline:string;sub:string;cta:string;photo:string}>={
@@ -16,7 +17,13 @@ const config:Record<string,{headline:string;sub:string;cta:string;photo:string}>
 "concessionarias de veiculos":{headline:"O próximo capítulo da sua jornada.",sub:"Descubra possibilidades para escolher seu próximo veículo.",cta:"Conhecer opções",photo:"photo-1503376780353-7e6692767b70"},
 "locadoras de veiculos":{headline:"Liberdade para ir mais longe.",sub:"Explore possibilidades de mobilidade para cada jornada.",cta:"Consultar veículos",photo:"photo-1503376780353-7e6692767b70"}
 };
-export function Template9AutomotiveHero({brand,niche,headline,description,image,contactHref}:Props){
+export function Template9AutomotiveHero(props:Props){
+ const name=normalize(props.brand).trim();
+ return /\bvertice\s+auto\s+center\b/i.test(name)
+  ?<TP9VerticeHandcarHero {...props}/>
+  :<Template9AutomotiveHeroLegacy {...props}/>;
+}
+function Template9AutomotiveHeroLegacy({brand,niche,headline,description,image,contactHref}:Props){
  const [open,setOpen]=useState(false);const key=normalize(niche);const d=config[key]||config[Object.keys(config).find(k=>key.includes(k)||k.includes(key))||"auto centers"];
  const photo=image&&/^https?:\/\//i.test(image)?image:"https://images.unsplash.com/"+d.photo+"?auto=format&fit=crop&w=2200&q=85";
  const contact=contactHref&&/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)?contactHref:"#tp9-contato";
