@@ -20,7 +20,7 @@ export async function proxy(request: NextRequest) {
     !host.endsWith(".pagenovaai.com.br"));
   // Allow only the isolated landing QA route on the dedicated Railway
   // domain. All other unknown-host routes retain customer-domain isolation.
-  if(host==="pagenova-landing-teste-production.up.railway.app"&&(request.nextUrl.pathname==="/teste"||request.nextUrl.pathname==="/teste/montar-pacote")){
+  if(host==="pagenova-landing-teste-production.up.railway.app"&&(request.nextUrl.pathname==="/teste"||request.nextUrl.pathname==="/teste/montar-pacote"||request.nextUrl.pathname==="/teste/demo-site")){
     return NextResponse.next();
   }
   if(customHost){
