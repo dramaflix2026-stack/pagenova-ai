@@ -248,6 +248,10 @@ export function LandingRevamp() {
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <PageNovaTrustSections language={lang}/>
+   <section className="pnr-orb-section" aria-label={lang==="pt"?"Inteligência em movimento":lang==="en"?"Intelligence in motion":"Inteligencia en movimiento"}>
+    <div className="pnr-orb-copy"><span className="pnr-orb-eyebrow">PAGENOVA AI / INTELLIGENCE</span><h2>{lang==="pt"?"Ideias em constante":lang==="en"?"Ideas in constant":"Ideas en constante"} <em>{lang==="pt"?"evolução.":lang==="en"?"evolution.":"evolución."}</em></h2><p>{lang==="pt"?"Tecnologia que conecta possibilidades e transforma o que você imagina em algo real.":lang==="en"?"Technology connecting possibilities and turning imagination into reality.":"Tecnología que conecta posibilidades y transforma la imaginación en realidad."}</p></div>
+    <div className="pnr-orb-stage" aria-label={lang==="pt"?"Espaço reservado à esfera de partículas aprovada":"Approved particle sphere artwork area"}><div className="pnr-orb-art" role="img" aria-label={lang==="pt"?"Esfera de partículas verdes — arte original aguardando arquivo autorizado":"Green particle sphere — original licensed artwork pending"} /></div>
+   </section>
   </main>
   <PageNovaFooter language={lang}/>
  </div>;
