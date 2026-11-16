@@ -565,14 +565,18 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-faq-contact.tsx",
-      "blobSha": "e336d9e751cdf151b826b8b4b60f0cc8cd74ea92"
+      "blobSha": "e336d9e751cdf151b826b8b4b60f0cc8cd74ea92",
+      "approvedBindingRevision": {
+        "sha": "8610f7e3dbeb3d867fa397f0edc79bc51e4f12ea",
+        "reason": "Approved TP9 Model 2 Vértice FAQ and contact: six editorial accordion questions, premium form with real registered channels only. Scope by brand; retain original for other sites, models and editor."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model2-final.tsx",
       "blobSha": "053380e0061d8324a771c08922d3e32941998a82",
       "approvedBindingRevision": {
-        "sha": "7e6a0010d1192eab2c4ee93dca372dfcab2b7d04",
-        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+        "sha": "13d96e2a45929d1efdbe6e66f3ad590a5c8979ad",
+        "reason": "Approved TP9 Model 2 Vértice luxury footer: large wordmark, real contacts, functional links and back-to-top. Preserve location, original footer for other brands, models and editing."
       }
     },
     {
