@@ -1819,3 +1819,10 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-showcase-link,.pnr-page .pnr-showcase-link svg{transition:none}
 }
+
+
+/* All four approved artworks are mounted and eagerly fetched. Never render obsolete CSS dashboard. */
+.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-art.is-loaded{opacity:0;visibility:hidden;pointer-events:none}
+.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-art.is-loaded.is-current{opacity:1;visibility:visible;pointer-events:auto}
+.pnr-page .pnr-showcase-dashboard:has(.pnr-showcase-approved-art.is-current)::before{opacity:1}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-art{transition:none}}
