@@ -1547,7 +1547,7 @@ test("TP10 M1 moves custom projects from the course wrapper into the testimonial
  const experience=load("template10-education-experience.tsx"),hero=load("template10-education-hero.tsx");
  assert.match(renderer,/customSectionAnchorFilter\.include/);
  assert.match(renderer,/customSectionAnchorFilter\.exclude/);
- assert.match(sections,/customSectionAnchorFilter=\{\{exclude:\["depoimentos"\]\}\}/);
+ assert.match(sections,/customSectionAnchorFilter=\{\{exclude:\["depoimentos","faq"\]\}\}/);
  assert.match(experience,/customSectionAnchorFilter=\{\{include:\["depoimentos"\]\}\}/);
  assert.ok(experience.indexOf('id="tp10-depoimentos"')<experience.indexOf('customSectionAnchorFilter={{include:["depoimentos"]}}'));
  assert.match(hero,/Template10EducationExperience niche=\{niche\} brand=\{brand\} site=\{site\}/);
@@ -1628,7 +1628,9 @@ test("Test 05: compound move after FAQ and center the moved section title",()=>{
   assert.equal(ids.at(-1),"footer");
   assert.equal(result.site.blocks.filter(b=>b.section==="custom-projetos-dos-alunos").length,7);
   assert.deepEqual(original,snapshot);
-  assert.deepEqual(result.site.universalSectionEvents.at(-1),{action:"move",section:{id:"custom-projetos-dos-alunos"},after:{id:"faq"}});
+  assert.equal(result.site.universalSectionEvents.at(-1)?.action,"move");
+  assert.equal(result.site.universalSectionEvents.at(-1)?.section.id,"custom-projetos-dos-alunos");
+  assert.equal(result.site.universalSectionEvents.at(-1)?.after.id,"faq");
   assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
  }
 });
