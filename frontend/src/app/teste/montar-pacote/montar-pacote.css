@@ -89,3 +89,13 @@
 .mp-promo-estimate>small{font-size:10px;line-height:1.6;color:#a2b9a4}
 @media(max-width:1000px){.mp-campaign{grid-template-columns:1fr;gap:18px}.mp-campaign-timer{max-width:420px}}
 @media(max-width:580px){.mp-campaign{padding:21px 17px;margin-bottom:36px;border-radius:17px}.mp-campaign-copy h2{font-size:27px}.mp-discount-tiers{gap:6px}.mp-discount-tiers span{padding:8px;font-size:10px}.mp-campaign-timer{padding:18px 12px}.mp-product{min-height:99px}.mp-product-benefit{font-size:10px}}
+
+
+/* Embedded landing sections must not inherit the standalone landing's 100vh wrapper. */
+.mp-after-catalog{width:100%;margin:0;padding:0}
+.mp-after-catalog .pnr-page.pnr-shared-trust,.mp-after-catalog .pnr-page.pnr-shared-footer{min-height:0!important;height:auto!important;overflow:visible!important;background:transparent}
+.mp-after-catalog .pnr-page.pnr-shared-trust{padding:0}
+.mp-after-catalog .pnr-page.pnr-shared-footer{isolation:auto}
+.mp-after-catalog .pnr-trust{max-width:1490px;width:100%;margin:0 auto}
+.mp-after-catalog .pnr-footer{width:100%;margin:0}
+@media(max-width:767px){.mp-after-catalog .pnr-trust{width:100%}}
