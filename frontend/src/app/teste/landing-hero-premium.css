@@ -1443,3 +1443,15 @@
 .pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg,
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important;animation:none!important}
 .pnr-page .pnr-hero--premium .pnr-hero-art-approved{animation:none!important;opacity:1!important}
+
+
+/* Clean hero: source photograph only. Remove legacy pseudo-element artifacts and
+   any blinking/scan/glow layers. Keep all approved baked-in green light trails. */
+.pnr-page .pnr-hero--premium .pnr-hero-scene::before,
+.pnr-page .pnr-hero--premium .pnr-hero-scene::after,
+.pnr-page .pnr-hero--premium .pnr-hero-art-approved::before,
+.pnr-page .pnr-hero--premium .pnr-hero-art-approved::after{content:none!important;display:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-scene>.pnr-hero-art-approved{
+ animation:none!important;opacity:1!important;
+ filter:none!important;transform:none!important;
+}
