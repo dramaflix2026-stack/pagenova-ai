@@ -13,6 +13,7 @@ import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
+import {selectApprovedExecutionTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -213,7 +214,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string}}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -239,6 +240,18 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
         console.warn("[editor-learning] Solution memory sync failed",memoryError.code,memoryError.message);
         if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Edição registrada, mas a memória de soluções ainda não foi sincronizada. Tentaremos novamente."}}));
         return false;
+      }
+    }
+    // The reuse is an audited decision, never a copy of a customer's old values.
+    // Its source must still be APPROVED at the database boundary.
+    if(event.outcome==="applied"&&event.reuse?.sourceEventId){
+      const {error:reuseError}=await client.from("builder_editor_learning_reuses").insert({
+        event_id:event.id,user_id:user.id,source_event_id:event.reuse.sourceEventId,
+        technique:event.reuse.technique
+      });
+      if(reuseError&&reuseError.code!=="23505"){
+        console.warn("[editor-learning] Reuse attribution refused",reuseError.code,reuseError.message);
+        return false; // Preserve exact event ID; reconciliation can retry.
       }
     }
     let reviewed: string|null=null;
@@ -281,7 +294,38 @@ async function readApprovedEditorPatterns(niche:string){
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
-function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null){
+/** Tenant-isolated approved solution retrieval. No raw prompts or media leave the account.
+ * Two reads deliberately filter both owner-scoped tables, then enforce the
+ * approved/applied predicate again in the pure selector. */
+async function readApprovedEditorSolutionCases(intent:string,target:string):Promise<ReviewedSolutionCase[]>{
+ try{
+  const client=createSupabaseBrowserClient();
+  const {data:{user},error:authError}=await client.auth.getUser();
+  if(authError||!user)return [];
+  const {data:memories,error:memoryError}=await client.from("builder_editor_solution_memories")
+   .select("event_id,verification,context,deltas").eq("user_id",user.id)
+   .order("created_at",{ascending:false}).limit(120);
+  if(memoryError||!memories?.length)return [];
+  const ids=memories.map(item=>item.event_id);
+  const {data:reviews,error:reviewError}=await client.from("builder_editor_learning_events")
+   .select("id,intent,target,section_key,strategy,review_status,execution_status")
+   .eq("user_id",user.id).eq("review_status","approved").eq("execution_status","applied")
+   .eq("intent",intent).eq("target",target).in("id",ids).limit(120);
+  if(reviewError||!reviews?.length)return [];
+  const reviewed=new Map(reviews.map(entry=>[entry.id,entry]));
+  return memories.flatMap(memory=>{
+   const event=reviewed.get(memory.event_id);
+   if(!event||!memory.context||!Array.isArray(memory.deltas))return [];
+   return [{
+    event_id:memory.event_id,intent:event.intent,target:event.target,
+    section_key:event.section_key,strategy:event.strategy,
+    review_status:event.review_status,execution_status:event.execution_status,
+    verification:memory.verification,context:memory.context,deltas:memory.deltas
+   } as ReviewedSolutionCase];
+  });
+ }catch(error){console.warn("[editor-learning] Approved solution lookup unavailable",error);return [];}
+}
+function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string}){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -290,7 +334,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{})};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -354,7 +398,7 @@ export default function BuilderV2() {
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null}|null>(null);
-  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string}}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -465,7 +509,7 @@ export default function BuilderV2() {
       if(outcome.ok){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
       }else if(++checks>=30){
