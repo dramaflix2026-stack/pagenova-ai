@@ -60,6 +60,19 @@ test("tracks block additions/removals and section movement without fabricating b
  const moved=captureVerifiedEditorSolution(before,move,["hero-title"],ctx);
  assert.ok(moved?.deltas.some(d=>d.kind==="block-moved"&&d.blockId==="hero-title"));
 });
+test("stores scoped image replacement after verified section change without its real URL",()=>{
+ const photoBefore={...structuredClone(before),universalSectionImages:{differences:"https://example.com/old.png?signature=PRIVATE"}};
+ const photoAfter=structuredClone(photoBefore);
+ photoAfter.universalSectionImages.differences="https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200";
+ const memory=captureVerifiedEditorSolution(photoBefore,photoAfter,["section-photo:differences"],ctx,"visual");
+ assert.ok(memory);
+ assert.equal(memory.deltas[0].kind,"section-photo");
+ assert.equal(memory.deltas[0].section,"differences");
+ assert.equal(memory.deltas[0].after,"<public-web-url>");
+ assert.ok(!JSON.stringify(memory).includes("PRIVATE"));
+ const unrelated=structuredClone(photoAfter);unrelated.blocks[0].text="unexpected";
+ assert.equal(captureVerifiedEditorSolution(photoBefore,unrelated,["section-photo:differences"],ctx),null);
+});
 test("rejects enormous changes and caps memory size",()=>{
  const site=structuredClone(before);
  site.blocks[0].text="m".repeat(30000);
