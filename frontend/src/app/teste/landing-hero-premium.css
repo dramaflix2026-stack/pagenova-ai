@@ -1434,3 +1434,12 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-hero--premium .pnr-hero-image-frame>.pnr-hero-cyborg-eye{animation:none!important;opacity:0!important}
 }
+
+
+/* Stabilize approved hero after failed duplicated-image eye animation.
+   No blinking photograph, duplicated image or animated eye overlay. */
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan,
+.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg,
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important;animation:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-art-approved{animation:none!important;opacity:1!important}
