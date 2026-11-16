@@ -5,6 +5,7 @@ import {
  diagnoseEditorFailure,isValidEditorFailureDiagnosis,EDITOR_DIAGNOSIS_EVIDENCE
 } from "../src/lib/builder-v2-editor-diagnosis.ts";
 import {inferUniversalFeedbackFailureCode} from "../src/lib/builder-v2-universal-feedback.ts";
+import {verifyUniversalEditResult} from "../src/lib/builder-v2-universal-learning.ts";
 const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
 const sql=readFileSync(new URL("../supabase/migrations/20261116_builder_editor_learning_diagnosis_v1.sql",import.meta.url),"utf8");
 const diagnose=(strategy,options={})=>diagnoseEditorFailure({
@@ -147,4 +148,22 @@ test("SQL enforces status, confidence, cause and stage consistency, preserving h
  assert.match(sql,/diagnosis_confidence=0/);
  assert.match(sql,/execution_status='rejected'/);
  assert.doesNotMatch(sql,/UPDATE\s+public\.builder_editor_learning_events\s+SET|DROP TABLE|TRUNCATE|CREATE TABLE|GRANT UPDATE/i);
+});
+
+test("existing universal mutation verifier supplies observation but not a guessed root cause",()=>{
+ const before={blocks:[{id:"a",section:"services",type:"heading",text:"Serviços"}]};
+ const after={blocks:[...before.blocks,{id:"unexpected",section:"hero",type:"heading",text:"Extra"}]};
+ const verification=verifyUniversalEditResult(before,after,["a"]);
+ assert.equal(verification.ok,false);
+ // This verifies a postcondition failure, not why an unrelated block appeared.
+ const d=diagnoseEditorFailure({
+  failureCode:inferUniversalFeedbackFailureCode("universal-verification:postcondition","rejected"),
+  evidence:"state-postcondition"
+ });
+ assert.equal(d.status,"observed");
+ assert.equal(d.stage,"state-verification");
+ assert.equal(d.code,"postcondition");
+ assert.equal(d.cause,null);
+ assert.equal(d.confidence,90);
+ assert.equal(isValidEditorFailureDiagnosis(d),true);
 });
