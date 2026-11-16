@@ -158,16 +158,16 @@ export function LandingRevamp() {
   const update=()=>{
    raf=0;
    const center=rail.getBoundingClientRect().left+rail.clientWidth/2;
+   const rects=cards.map(card=>card.getBoundingClientRect());
    let active=0,dist=Infinity;
-   cards.forEach((card,i)=>{
-    const rect=card.getBoundingClientRect();
+   rects.forEach((rect,i)=>{
     const delta=Math.abs(rect.left+rect.width/2-center);
     if(delta<dist){dist=delta;active=i;}
    });
    cards.forEach((card,i)=>{
     card.classList.toggle("pnr-style-active",i===active);
     card.dataset.side=i<active?"left":i>active?"right":"center";
-    const rect=card.getBoundingClientRect();
+    const rect=rects[i];
     const offset=(rect.left+rect.width/2-center)/Math.max(1,rect.width);
     card.style.setProperty("--pnr-distance",String(Math.max(-1.5,Math.min(1.5,offset))));
    });
