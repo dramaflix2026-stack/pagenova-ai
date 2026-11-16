@@ -1170,6 +1170,38 @@ export default function BuilderV2() {
       const universalScore=preferredStrategy.universal||0;
       const learnedAiEligible=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&
         (onlinePolicy.route==="ai-editor"||(onlinePolicy.route==="none"&&aiScore>=2&&aiScore>universalScore&&universalScore<0));
+      // Approved solution techniques must be offered BEFORE older, hard-coded
+      // color shortcuts. Otherwise the shortcuts swallow the next edit and
+      // the memory can never be genuinely reused (a misleading false success).
+      // Only a single, explicit background request may use this early adapter.
+      if(approvedTechnique?.technique==="section-background"&&!compound&&!hasAttachments&&!imageChange&&
+         !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence)){
+        const learnedBackground=applyApprovedSectionBackground(site,prompt,approvedTechnique);
+        if(learnedBackground?.ok){
+          const checked=verifyUniversalEditResult(site,learnedBackground.site,learnedBackground.changedIds);
+          const solution=checked.ok?captureVerifiedEditorSolution(site,learnedBackground.site,learnedBackground.changedIds,{
+            niche:site.niche,model:site.briefingLayoutVariant,
+            family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId
+          }):null;
+          const styleKey=learnedBackground.changedIds.find(id=>id.startsWith("section-style:"));
+          const section=styleKey?.slice("section-style:".length);
+          const styles=(learnedBackground.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+          const newColor=section?styles?.[section]?.backgroundColor:undefined;
+          if(checked.ok&&solution&&section&&newColor&&/^#[0-9a-f]{6}$/i.test(newColor)){
+            pendingBackgroundVisualReviewRef.current={
+              prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+              section,color:newColor,solution,
+              reuse:{sourceEventId:approvedTechnique.sourceEventId,technique:approvedTechnique.technique}
+            };
+            recordVersion(site,"Antes da edição de fundo com técnica aprendida");
+            setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
+            setSite(learnedBackground.site);setInstruction("");setGenerationError("");
+            setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
+              text:"Técnica aprovada anteriormente selecionada para esta seção. Verificando a nova cor na prévia antes de registrar a reutilização."}]);
+            return;
+          }
+        }
+      }
       const sectionBackgroundRequest=!hasAttachments&&!/\b(?:bot[aã]o(?:es)?|cta|button|agendamento)\b/i.test(prompt)&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
       // A compound color request must run through the atomic universal parser.
       // The background-only shortcut can verify just one clause and must never
