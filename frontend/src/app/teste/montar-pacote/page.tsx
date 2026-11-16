@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShoppingBag, ShieldCheck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShoppingBag, ShieldCheck, Sparkles, LayoutTemplate, Users, Blocks, Crown, Globe2, PanelsTopLeft, Copy, FileText, ListChecks, BookOpen, Search, ContactRound, BriefcaseBusiness } from "lucide-react";
 import "./montar-pacote.css";
 
 type Product={id:string;name:string;group:string;price:number|null;url:string;includes?:string[]};
@@ -21,6 +21,7 @@ const products:Product[]=[
  {id:"leads",name:"Gestão de Leads",group:"CRM",price:null,url:"https://pay.kiwify.com.br/MULLtCp"},
  {id:"commercial",name:"Operação Comercial",group:"CRM",price:null,url:"https://pay.kiwify.com.br/LzpevGp"}
 ];
+const icons:Record<string,typeof Sparkles>={studio:Sparkles,crm:Users,apps:Blocks,completo:Crown,site:Globe2,landing:PanelsTopLeft,clone:Copy,form:FileText,quiz:ListChecks,ebook:BookOpen,search:Search,leads:ContactRound,commercial:BriefcaseBusiness};
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(n);
 export default function MontarPacote(){
  const [selected,setSelected]=useState<string[]>([]);
@@ -46,15 +47,15 @@ export default function MontarPacote(){
  return <main className="mp-page">
   <header className="mp-header"><Link href="/teste" aria-label="Voltar à PageNova"><img src="/brand/pagenova-logo.png" alt="PageNova AI"/></Link><Link href="/teste#planos" className="mp-back"><ArrowLeft size={16}/> Voltar aos planos</Link></header>
   <div className="mp-wrap">
-   <div className="mp-intro"><span>CONTRATE DO SEU JEITO</span><h1>Monte seu <em>pacote.</em></h1><p>Escolha um plano completo, ferramentas avulsas ou combine os dois. Você decide o que faz sentido para seu negócio.</p></div>
+   <div className="mp-intro"><span><Sparkles size={14}/> CONTRATE DO SEU JEITO</span><h1>Seu negócio. <em>Suas escolhas.</em></h1><p>Monte um pacote sob medida: combine planos e ferramentas ou contrate somente o que precisa. Sem complicação.</p><div className="mp-intro-pills"><span><Check size={14}/> Escolha livre</span><span><Check size={14}/> Sem itens duplicados</span><span><ShieldCheck size={14}/> Checkout seguro</span></div></div>
    <div className="mp-layout"><div className="mp-catalog">
     {["Planos","Studio","CRM"].map(group=><section key={group} className="mp-group"><div className="mp-group-title"><h2>{group==="Planos"?"Pacotes completos":group==="Studio"?"Ferramentas Studio":"Ferramentas CRM"}</h2><p>{group==="Planos"?"Escolha um pacote ou pule esta etapa.":"Adicione apenas as ferramentas que desejar."}</p></div><div className="mp-products">{products.filter(p=>p.group===group).map(p=>{
       const isIncluded=!selected.includes(p.id)&&included.has(p.id);
       const active=selected.includes(p.id);
-      return <button key={p.id} type="button" disabled={isIncluded} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{active?<Check size={17}/>:isIncluded?<Check size={15}/>:<Plus size={17}/>}</span><span className="mp-product-info"><strong>{p.name}</strong><small>{isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Preço disponível no checkout"}</small></span>{active?<Minus size={17}/>:null}</button>;
+      return <button key={p.id} type="button" disabled={isIncluded} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{(()=>{const Icon=icons[p.id]||LayoutTemplate;return <Icon size={21} strokeWidth={1.8}/>})()}</span><span className="mp-product-info"><strong>{p.name}</strong><small>{isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Preço disponível no checkout"}</small></span><span className="mp-action">{active?<Check size={17}/>:isIncluded?<Check size={16}/>:<Plus size={17}/>}</span></button>;
     })}</div></section>)}
    </div>
-   <aside className="mp-summary"><div className="mp-summary-inner"><div className="mp-summary-heading"><ShoppingBag size={21}/><h2>Seu pacote</h2></div>{chosen.length===0?<p className="mp-empty">Escolha um ou mais produtos para começar. Não é obrigatório contratar um plano.</p>:<div className="mp-selected">{chosen.map(p=><div key={p.id} className="mp-selected-row"><span>{p.name}</span><button type="button" onClick={()=>toggle(p.id)} aria-label={"Remover "+p.name}><Minus size={15}/></button></div>)}</div>}
+   <aside className="mp-summary"><div className="mp-summary-inner"><div className="mp-summary-heading"><span className="mp-summary-icon"><ShoppingBag size={21}/></span><div><small>RESUMO DA CONTRATAÇÃO</small><h2>Seu pacote <span>{chosen.length}</span></h2></div></div>{chosen.length===0?<div className="mp-empty"><ShoppingBag size={29}/><p>Seu pacote começa aqui.</p><small>Selecione os produtos ao lado. Você não precisa escolher um plano completo.</small></div>:<div className="mp-selected">{chosen.map(p=><div key={p.id} className="mp-selected-row"><span>{p.name}</span><button type="button" onClick={()=>toggle(p.id)} aria-label={"Remover "+p.name}><Minus size={15}/></button></div>)}</div>}
     <div className="mp-total"><span>{hasUnknown?"Subtotal dos itens com preço informado":"Total dos itens selecionados"}</span><strong>{money(subtotal)}</strong>{hasUnknown&&<small>O valor final depende dos produtos avulsos escolhidos.</small>}</div>
     {chosen.length===1?<a className="mp-checkout" href={chosen[0].url} target="_blank" rel="noopener noreferrer">Ir para o checkout <ArrowRight size={17}/></a>:chosen.length>1?<div className="mp-multi"><p>Por enquanto, a Kiwify utiliza um checkout individual para cada produto. Você pode contratar os itens abaixo separadamente:</p>{chosen.map(p=><a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer">{p.name}<ArrowRight size={15}/></a>)}</div>:<button className="mp-checkout" disabled>Selecione um produto</button>}
     <p className="mp-note"><ShieldCheck size={16}/> Você será direcionado ao checkout seguro da Kiwify. Nenhuma compra é feita nesta página.</p>
