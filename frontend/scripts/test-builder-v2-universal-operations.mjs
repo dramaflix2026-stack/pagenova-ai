@@ -1467,3 +1467,9 @@ test("idempotent background recovery resolves actual section key, not the servic
  assert.ok(source.includes('findUniversalPreviewSections(doc.getElementById("pn-v2-preview-root")||doc.body,section)'));
  assert.ok(!source.includes('&&/servic|tratament/i.test(key)'));
 });
+
+test("idempotent HEX section lookup retains full resolved section ID",()=>{
+ const source=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.ok(source.includes("const section=matching[0];"));
+ assert.ok(!source.includes("const section=matching[0][0];"));
+});

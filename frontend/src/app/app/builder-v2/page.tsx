@@ -1069,7 +1069,7 @@ export default function BuilderV2() {
           // An idempotent request is not a failure: re-render the preview and
           // run the same visual audit as a newly applied background edit.
           // Do not require publishing to refresh an already persisted color.
-          const section=matching[0][0];
+          const section=matching[0];
           pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase()};
           setSite(previous=>({...previous}));
           setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"A cor "+exactSectionHex[2]+" já está salva. Atualizando e verificando a prévia sem publicar."}]);
