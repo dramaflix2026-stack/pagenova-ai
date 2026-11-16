@@ -1239,3 +1239,14 @@
   mask-image:radial-gradient(ellipse 75% 74% at center,#000 64%,transparent 100%);
  }
 }
+
+
+/* Compact guarantee vertical rhythm: remove inherited large section spacing. */
+.pnr-page .pnr-section.pnr-trust{padding-top:0!important;padding-bottom:clamp(18px,3vw,42px)!important}
+.pnr-page .pnr-trust .pnr-guarantee-full-art{margin-top:-22px!important;margin-bottom:-28px!important}
+.pnr-page .pnr-trust .pnr-faq{margin-top:0!important;padding-top:clamp(12px,2vw,28px)!important}
+@media(max-width:767px){
+ .pnr-page .pnr-section.pnr-trust{padding-top:0!important;padding-bottom:20px!important}
+ .pnr-page .pnr-trust .pnr-guarantee-full-art{margin-top:-10px!important;margin-bottom:-10px!important}
+ .pnr-page .pnr-trust .pnr-faq{padding-top:12px!important}
+}
