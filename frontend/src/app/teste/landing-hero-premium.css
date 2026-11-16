@@ -1347,3 +1347,18 @@
 /* Restore localized hero orbit, previously blocked by legacy global removal rule. */
 .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:block!important;visibility:visible!important;opacity:1;z-index:3;inset:9% 4% 9% 2%;background:conic-gradient(from 12deg at 50% 50%,transparent 0deg,transparent 52deg,rgba(170,255,126,.4) 76deg,transparent 102deg,transparent 205deg,rgba(160,255,120,.42) 233deg,transparent 259deg,transparent 360deg);-webkit-mask:radial-gradient(ellipse 49% 44% at 50% 50%,transparent 94%,#000 98%,transparent 100%);mask:radial-gradient(ellipse 49% 44% at 50% 50%,transparent 94%,#000 98%,transparent 100%);animation:pnrHeroOrbitTravel 5.5s linear infinite}
 .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{background:radial-gradient(ellipse 4.5% 5.5% at 56% 38%,rgba(185,255,145,.8),rgba(69,255,136,.23) 48%,transparent 100%)}
+
+/* Hero correction: no artificial orbit outside the artwork; local cyborg detail only. */
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:none!important;animation:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{
+ display:block!important;z-index:5!important;
+ background:radial-gradient(ellipse 2.8% 3.6% at 56% 38%,rgba(194,255,170,.83),rgba(83,255,150,.3) 48%,transparent 100%);
+ mix-blend-mode:screen;animation:pnrHeroEyePulse 3.2s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{
+ display:block!important;z-index:4!important;
+ background:linear-gradient(180deg,transparent 30%,rgba(129,255,171,.13) 49%,rgba(160,255,185,.22) 50%,transparent 54%);
+ clip-path:polygon(50% 17%,63% 17%,63% 66%,50% 66%);
+ opacity:0;animation:pnrHeroFaceScan 7.2s ease-in-out infinite;
+}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}}
