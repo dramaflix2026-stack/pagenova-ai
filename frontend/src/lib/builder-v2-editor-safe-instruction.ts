@@ -62,7 +62,7 @@ const ACTIONS=new Set((
 const normalize=(word:string)=>word.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 // Fail closed for credentials, financial/identity data, contact details, URLs,
 // arbitrary data transfers, code and pasted multi-line customer briefings.
-const HIGH_RISK=/\b(?:senha|password|passwd|token|secret|apikey|api[\s_-]?key|bearer|authorization|oauth|credenciais?|cpf|cnpj|rg|pix|iban|cart[aã]o|banc[aá]ri[oa]|telefone|celular|whatsapp|e-?mail|endere[cç]o|avenida|alameda|rua|cep|logradouro|latitude|longitude|documento|login|usu[aá]rio)\b|https?:\/\/|www\.|@|\b\d{3}[.-]?\d{3}[.-]?\d{3}[-.]?\d{2}\b|\b\d{2}[.]?\d{3}[.]?\d{3}[/]?\d{4}[-]?\d{2}\b|(?:\+?55\s*)?\(?\d{2}\)?[\s().-]*9?\d{4}[\s.-]*\d{4}|data:|<\/?[A-Za-z]|[\r\n\t\x00-\x1f]|[{}\\]|[A-Za-z0-9_\-]{25,}/iu;
+const HIGH_RISK=/\b(?:senha|password|passwd|token|secret|apikey|api[\s_-]?key|bearer|authorization|oauth|credenciais?|cpf|cnpj|rg|pix|iban|cart[aã]o|banc[aá]ri[oa]|telefone|celular|whatsapp|e-?mail|endere[cç]o|avenida|alameda|rua|cep|logradouro|latitude|longitude|documento|login|usu[aá]rio)\b|https?:\/\/|www\.|@|\b\d{3}[.-]?\d{3}[.-]?\d{3}[-.]?\d{2}\b|\b\d{2}[.]?\d{3}[.]?\d{3}[/]?\d{4}[-]?\d{2}\b|(?:\+?55\s*)?\(?\d{2}\)?[\s().-]*9?\d{4}[\s.-]*\d{4}|data:|\b[0-9]{7,}\b|<\/?[A-Za-z]|[\r\n\t\x00-\x1f]|[{}\\]|[A-Za-z0-9_\-]{25,}/iu;
 const COLOR_HEX=/^#[A-Fa-f0-9]{6}$/;
 const TOKENS=/\[DADO_PROTEGIDO\]|#[a-fA-F0-9]{6}(?![a-fA-F0-9])|[\p{L}\p{M}]+|[0-9]+|\S/gu;
 const isQuoted=(value:string)=>/["'“”‘’]/.test(value);
