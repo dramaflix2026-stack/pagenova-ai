@@ -608,3 +608,18 @@ test("edited heading color survives preview and published HTML without changing 
   }
  }
 });
+
+test("Vértice TP9 Modelo 1 differenciais remain scoped with four cards and a real repair photo",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const integration=readFileSync(new URL("../src/components/template9-automotive-sections.tsx",import.meta.url),"utf8");
+ const section=readFileSync(new URL("../src/components/tp9-vertice-differentials.tsx",import.meta.url),"utf8");
+ assert.match(integration,/isVertice&&<TP9VerticeDifferentials contactHref=\{target\}\/>/);
+ assert.match(integration,/!isVertice&&<section id="tp9-diferenciais"/);
+ assert.equal((section.match(/\{number:"0[1-4]",title:/g)||[]).length,4);
+ assert.match(section,/id="tp9-diferenciais"/);
+ assert.match(section,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(section,/grid-template-columns:1fr/);
+ assert.match(section,/images\.unsplash\.com\/photo-/);
+ assert.match(section,/Converse com nossa equipe/);
+ assert.doesNotMatch(section,/[0-9]+\s*(?:anos|clientes|estrelas|avaliações|certificações)/i);
+});
