@@ -243,7 +243,7 @@ export function LandingRevamp() {
      <div className="pnr-price-top"><span className="pnr-price-icon"><Icon size={22}/></span><div><h3>{p.name}</h3><small>{p.subtitle}</small></div></div>
      <div className="pnr-price-number"><span>R$</span><strong>{amounts[i]}</strong><span>/mês</span></div>
      <div className="pnr-price-details"><span>{t.includes}</span><ul>{p.features.map(f=><li key={f}><Check size={15}/>{f}</li>)}</ul></div>
-     <button type="button" disabled className={"pnr-price-button"+(i===3?" primary":"")} title={t.pending}>{t.choose}<ArrowRight size={15}/></button><small className="pnr-price-pending">{t.pending}</small>
+     <Link href={"/teste/montar-pacote?plan="+(["studio","crm","apps","completo"][i])} className={"pnr-price-button"+(i===3?" primary":"")}>Montar meu pacote <ArrowRight size={15}/></Link><small className="pnr-price-pending">Personalize sua contratação</small>
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <section className="pnr-section pnr-trust" id="garantia">
