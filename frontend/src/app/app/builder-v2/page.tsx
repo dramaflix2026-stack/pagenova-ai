@@ -14,6 +14,7 @@ import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-lea
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {beginEditorSubmissionTrace,nextEditorOperationTrace,isValidEditorOperationTrace,type EditorSubmissionTrace,type EditorOperationTrace} from "@/lib/builder-v2-editor-attempt-trace";
 import {captureSafeEditorInstruction,isSafeEditorInstruction,type SafeEditorInstruction} from "@/lib/builder-v2-editor-safe-instruction";
+import {isEditorFailurePath,shouldCaptureEditorFailure,type EditorFailurePath} from "@/lib/builder-v2-editor-failure-coverage";
 import {interpretEditorFeedback,isValidEditorInterpretation,safeEditorInterpretationContext,type EditorCommandInterpretation} from "@/lib/builder-v2-editor-interpretation";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
@@ -218,7 +219,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction;interpretation?:EditorCommandInterpretation}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction;interpretation?:EditorCommandInterpretation;failurePath?:EditorFailurePath}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -250,6 +251,9 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
         requested_value:event.interpretation.requestedValue,
         family_id:event.interpretation.familyId,
         template_id:event.interpretation.templateId
+      }:{}),
+      ...(event.outcome==="rejected"&&isEditorFailurePath(event.failurePath)?{
+        failure_path:event.failurePath
       }:{}),
       review_status:"pending"
     });
@@ -353,7 +357,7 @@ async function readApprovedEditorSolutionCases(intent:string,target:string):Prom
   });
  }catch(error){console.warn("[editor-learning] Approved solution lookup unavailable",error);return [];}
 }
-function persistEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string},trace?:EditorOperationTrace|null){
+function persistEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string},trace?:EditorOperationTrace|null,failurePath?:EditorFailurePath){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -367,7 +371,8 @@ function persistEditorLearningEvent(niche:string, instruction:string, outcome:"a
     const interpretation=interpretEditorFeedback({intent,target,sectionKey},safeInstruction,
       isValidEditorOperationTrace(trace)?trace.interpretationContext:null);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),interpretation,safeInstruction};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),interpretation,safeInstruction,
+      ...(outcome==="rejected"&&isEditorFailurePath(failurePath)?{failurePath}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -384,15 +389,24 @@ export default function BuilderV2() {
   // Visual audits capture their own request context so a later prompt cannot
   // accidentally relabel an earlier asynchronous confirmation.
   const activeSubmissionTraceRef=useRef<EditorSubmissionTrace|null>(null);
+  // A visible failure already recorded by an older editor path must not be
+  // duplicated by the new catch instrumentation of the same submitted prompt.
+  const capturedFailureRequestIdsRef=useRef<Set<string>>(new Set());
   function recordEditorLearningEvent(
     niche:string,instruction:string,outcome:"applied"|"rejected",strategy:string,
     model:string="unknown",solution?:EditorSolutionMemory|null,
     reuse?:{sourceEventId:string;technique:string},
-    capturedSubmission?:EditorSubmissionTrace|null
+    capturedSubmission?:EditorSubmissionTrace|null,
+    failurePath?:EditorFailurePath
   ){
     const submission=capturedSubmission===undefined?activeSubmissionTraceRef.current:capturedSubmission;
+    if(outcome==="rejected"&&submission?.requestId){
+      const ids=capturedFailureRequestIdsRef.current;
+      if(ids.size>=100)ids.clear();
+      ids.add(submission.requestId);
+    }
     const operation=nextEditorOperationTrace(submission);
-    return persistEditorLearningEvent(niche,instruction,outcome,strategy,model,solution,reuse,operation);
+    return persistEditorLearningEvent(niche,instruction,outcome,strategy,model,solution,reuse,operation,failurePath);
   }
   useEffect(()=>{
     if(site.cinematic?.mode!=="cinematic")return;
@@ -1051,8 +1065,22 @@ export default function BuilderV2() {
     // The tracking identity is created at submission time, not after success.
     // Repeated messages are separate requests until a correction relationship
     // is explicitly verified; this prevents false "first-try" measurements.
-    if(!busy)activeSubmissionTraceRef.current=prompt&&site.blocks.length>0
+    if(!busy)activeSubmissionTraceRef.current=(!!prompt||propertyFiles.length>0)
       ?beginEditorSubmissionTrace(site.id,crypto.randomUUID(),new Date().toISOString()):null;
+    const submittedFailureTrace=activeSubmissionTraceRef.current;
+    let failureCapturedWithoutTrace=false;
+    // Capture only actual user-visible failure branches. Never upload error
+    // messages, exception stacks, uploaded images or private prompt contents.
+    const recordEditorPathFailureOnce=(path:EditorFailurePath)=>{
+      const alreadyRecorded=submittedFailureTrace?.requestId
+        ?capturedFailureRequestIdsRef.current.has(submittedFailureTrace.requestId)
+        :failureCapturedWithoutTrace;
+      if(!shouldCaptureEditorFailure(path,prompt,alreadyRecorded))return;
+      if(!submittedFailureTrace)failureCapturedWithoutTrace=true;
+      recordEditorLearningEvent(site.niche||"",prompt,"rejected","editor-error:"+path,
+        site.briefingLayoutVariant||"01",undefined,undefined,submittedFailureTrace,path);
+      captureReviewCandidate();
+    };
     // Freeze canonical template metadata at submission, NOT at the eventual
     // visual callback: later edits may already have changed the active site.
     if(activeSubmissionTraceRef.current)activeSubmissionTraceRef.current.interpretationContext=
@@ -1078,7 +1106,7 @@ export default function BuilderV2() {
         };
         if(colorRequest){
           const hex=prompt.match(/#[0-9a-fA-F]{6}(?![0-9a-fA-F])/)?.[0];
-          if(!hex){setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe a cor em hexadecimal, por exemplo #14263D. Nenhuma alteração aplicada."}]);return;}
+          if(!hex){recordEditorPathFailureOnce("preflight");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe a cor em hexadecimal, por exemplo #14263D. Nenhuma alteração aplicada."}]);return;}
           upsert("vet-testimonials-style","paragraph",{background:hex});
           summary="Fundo dos depoimentos alterado para "+hex+".";
         }else if(heroImageRequest){
@@ -1203,6 +1231,7 @@ export default function BuilderV2() {
         console.warn("[editor-learning] CTA strategy circuit breaker", {rejectedButtonEdits,approvedButtonEdits});
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:explanation}]);
         setGenerationError(explanation);
+        recordEditorPathFailureOnce("preflight");
         setInstruction("");
         return;
       }
@@ -1445,17 +1474,18 @@ export default function BuilderV2() {
       composerRef.current?.focus();return;
     }
     if(institutionalFiles.length>1&&attachmentMode==="reference"){
+      recordEditorPathFailureOnce("preflight");
       setVoiceNotice("Para referência visual, anexe apenas uma imagem. Para colocar várias fotos no site, indique a seção no texto.");
       return;
     }
     if(!prompt && !(siteCategory==="real-estate"&&propertyFiles.length))return;
     if((!site.blocks.length||isFullSiteCreationBrief(prompt))&&siteCredits.exhausted){
-      setGenerationError("Você utilizou todas as gerações disponíveis neste ciclo. Continue editando um site existente ou aguarde a renovação.");return;
+      recordEditorPathFailureOnce("preflight");setGenerationError("Você utilizou todas as gerações disponíveis neste ciclo. Continue editando um site existente ou aguarde a renovação.");return;
     }
     let referenceForChat=reference;
     if(attachmentMode==="reference"){
       try{referenceForChat=await photoToInlineReference(institutionalFiles[0]);}
-      catch(error){setVoiceNotice(error instanceof Error?error.message:"Não foi possível processar o anexo.");return;}
+      catch(error){recordEditorPathFailureOnce("reference-image");setVoiceNotice(error instanceof Error?error.message:"Não foi possível processar o anexo.");return;}
     }
     setVoiceNotice("");
     setBusy(true);
@@ -1537,6 +1567,7 @@ export default function BuilderV2() {
         setMessages(prev=>[...prev,{role:"assistant",text:message}]);
         setPropertyFiles([]);setInstruction("");setGenerationError("");
       }catch(error){
+        recordEditorPathFailureOnce("real-estate-gallery");
         const message=error instanceof Error?error.message:"Não foi possível atualizar a galeria.";
         setGenerationError(message);setMessages(prev=>[...prev,{role:"assistant",text:message+" O catálogo foi preservado."}]);
       }finally{setBusy(false);}
@@ -1676,6 +1707,7 @@ export default function BuilderV2() {
         setSite(result.site);setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
         setInstruction("");
       }catch(error){
+        recordEditorPathFailureOnce("image-restore");
         setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Não foi possível restaurar fotografias."}]);
       }finally{setBusy(false);}
       return;
@@ -1692,6 +1724,7 @@ export default function BuilderV2() {
         setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
         setInstruction("");setGenerationError("");
       }catch(error){
+        recordEditorPathFailureOnce("banner-copy");
         setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Edição de banner indisponível. O site foi preservado."}]);
       }finally{setBusy(false);}
       return;
@@ -1737,7 +1770,7 @@ export default function BuilderV2() {
         setSite({...site,id:site.id||crypto.randomUUID(),extras});
         setMessages(prev=>[...prev,{role:"assistant",text:"Seção adicional atualizada. Conteúdo e vídeo cinematográfico preservados."}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
-      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na edição.")+" O site original foi preservado."}]);}
+      }catch(error){recordEditorPathFailureOnce("immersive-section");setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na edição.")+" O site original foi preservado."}]);}
       finally{setBusy(false);}return;
     }
     if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/(?:nova|outra|adicion|cri|inclu|remov|exclu|apag|retir).{0,35}(?:secao|sessao|bloco)|(?:secao|sessao|bloco).{0,35}(?:nova|fotos|imagens)/i.test(prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,""))&&!/galeria/i.test(prompt)){
@@ -1765,7 +1798,7 @@ export default function BuilderV2() {
         setSite({...site,id:site.id||crypto.randomUUID(),extras});
         setMessages(prev=>[...prev,{role:"assistant",text:"Seções com fotos atualizadas. Total: "+sections.length+". Vídeo e demais seções preservados."}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
-      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Erro ao editar seção.")+" Site original preservado."}]);}
+      }catch(error){recordEditorPathFailureOnce("immersive-section");setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Erro ao editar seção.")+" Site original preservado."}]);}
       finally{setBusy(false);}return;
     }
     if(site.cinematic?.mode==="immersive-3d"&&site.blocks.length&&/galeria|galeria de fotos|galeria de imagens/i.test(prompt)){
@@ -1800,7 +1833,7 @@ export default function BuilderV2() {
         setSite({...site,id:site.id||crypto.randomUUID(),extras});
         setMessages(prev=>[...prev,{role:"assistant",text:"Galeria 3D atualizada: "+gallery.length+" foto(s). Vídeo da capa, produtos e demais seções preservados."}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
-      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na galeria.")+" Site preservado."}]);}
+      }catch(error){recordEditorPathFailureOnce("immersive-gallery");setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na galeria.")+" Site preservado."}]);}
       finally{setBusy(false);}return;
     }
     if(site.cinematic?.mode==="immersive-3d"&&institutionalFiles.length>0&&site.blocks.length){
@@ -1828,7 +1861,7 @@ export default function BuilderV2() {
         setSite({...site,id:site.id||crypto.randomUUID(),extras});
         setMessages(prev=>[...prev,{role:"assistant",text:heroTarget?"Imagem principal da capa substituída. Vídeo cinematográfico e demais seções preservados.":"Foto do produto "+(index+1)+" substituída. Template 3D, demais imagens e conteúdo preservados."}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
-      }catch(error){setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha ao editar foto.")+" O site original foi preservado."}]);}
+      }catch(error){recordEditorPathFailureOnce("immersive-image");setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha ao editar foto.")+" O site original foi preservado."}]);}
       finally{setBusy(false);}
       return;
     }
@@ -1857,6 +1890,7 @@ export default function BuilderV2() {
         setMessages(prev=>[...prev,{role:"assistant",text:result.summary}]);
         setInstitutionalFiles([]);setInstruction("");setGenerationError("");
       }catch(error){
+        recordEditorPathFailureOnce("institutional-image");
         const message=error instanceof Error?error.message:"Não foi possível editar as fotografias.";
         setMessages(prev=>[...prev,{role:"assistant",text:message+" O projeto foi preservado."}]);
       }finally{setBusy(false);}
@@ -2063,7 +2097,7 @@ export default function BuilderV2() {
       let finishedSite=incoming;
        if (!site.blocks.length || creatingNewSite) {
          try { finishedSite=await generateVisuals(incoming,prompt);finishedSite=prepareTP1MakeupSite(finishedSite,shouldCreateProject?finishedSite.niche:selectedNiche);setSite(finishedSite); }
-         catch(error) {setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
+         catch(error) {recordEditorPathFailureOnce("generation-images");setMessages(prev=>[...prev,{role:"assistant",text:error instanceof Error?error.message:"Falha nas imagens. O site foi preservado."}]);}
        }
        let photoApplyFailed=false;
        if(siteCategory==="institutional"&&attachmentMode==="site"&&institutionalFiles.length&&(!site.blocks.length||creatingNewSite)){
@@ -2086,6 +2120,7 @@ export default function BuilderV2() {
            if(!edit)throw Error("Nenhuma fotografia foi aplicada.");
            finishedSite=edit.site;setSite(finishedSite);setInstitutionalFiles([]);
          }catch(error){
+           recordEditorPathFailureOnce("generation-attachments");
            photoApplyFailed=true;
            setMessages(prev=>[...prev,{role:"assistant",text:(error instanceof Error?error.message:"Falha na foto.")+" O site foi criado, mas o anexo continua selecionado para reenviar."}]);
          }
@@ -2096,6 +2131,7 @@ export default function BuilderV2() {
            await savePageNovaProject("builder-v2-site:"+finishedSite.id,{kind:"builder-v2-site",id:finishedSite.id,title:finishedSite.title,site:finishedSite,updatedAt:Date.now()});
            await savePageNovaProject("builder-draft:"+projectKey,{site:finishedSite,updatedAt:Date.now()});
          }catch{
+           recordEditorPathFailureOnce("persistence");
            setStorageError("O site foi gerado, mas não foi possível confirmar seu salvamento neste navegador. Não atualize a página.");
          }
        }
@@ -2103,6 +2139,7 @@ export default function BuilderV2() {
        setMessages(prev=>[...prev,{role:"assistant",text:data.summary||"Alteração aplicada."}]);
        setInstruction(photoApplyFailed?prompt:"");setReference(null);
     } catch (error) {
+      recordEditorPathFailureOnce((!site.blocks.length||isFullSiteCreationBrief(prompt))?"site-generation":"ai-editor");
       setGenerationError(error instanceof Error ? error.message : "Falha na geração.");
       setMessages(prev => [...prev, { role: "assistant", text: error instanceof Error ? error.message : "Erro ao editar. O projeto foi preservado." }]);
     } finally { setBusy(false); }
