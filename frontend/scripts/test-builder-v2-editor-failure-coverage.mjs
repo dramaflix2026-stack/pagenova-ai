@@ -41,7 +41,7 @@ test("all user-visible exception handlers in the editor are covered without disr
  assert.equal(explicit.length+legacy.length+reraised.length,clauses.length);
 });
 test("preflight blocks are captured as rejected events, not silently displayed",()=>{
- assert.match(send,/if\(!hex\)\{recordEditorPathFailureOnce\("preflight"\)/);
+ assert.match(send,/if\(!hex\)\{recordEditorPathFailureOnce\("preflight","preflight-missing-hex"\)/);
  assert.match(send,/recordEditorPathFailureOnce\("preflight"\);\s*setVoiceNotice\("Para referência visual/);
  assert.match(send,/recordEditorPathFailureOnce\("preflight"\);setGenerationError\("Você utilizou todas/);
  assert.match(send,/setGenerationError\(explanation\);\s*recordEditorPathFailureOnce\("preflight"\)/);
