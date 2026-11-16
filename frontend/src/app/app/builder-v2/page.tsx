@@ -12,6 +12,7 @@ import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
+import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -212,7 +213,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -224,6 +225,22 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
       review_status:"pending"
     });
     if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Supabase recusou o registro (código "+(insertError.code||"desconhecido")+")."}}));return false;}
+    // Store the verified change-set against the exact feedback UUID.
+    // Pending or rejected feedback is NOT a learned solution; future retrieval
+    // must join the review_status=approved and execution_status=applied event.
+    if(event.outcome==="applied"&&event.solution?.schemaVersion===2){
+      const memory=event.solution;
+      const {error:memoryError}=await client.from("builder_editor_solution_memories").insert({
+        event_id:event.id,user_id:user.id,schema_version:2,
+        verification:memory.verification,context:memory.context,
+        changed_ids:memory.changedIds,deltas:memory.deltas
+      });
+      if(memoryError&&memoryError.code!=="23505"){
+        console.warn("[editor-learning] Solution memory sync failed",memoryError.code,memoryError.message);
+        if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Edição registrada, mas a memória de soluções ainda não foi sincronizada. Tentaremos novamente."}}));
+        return false;
+      }
+    }
     let reviewed: string|null=null;
     try{const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review??null:null;}catch(error){console.warn("[editor-learning] Review history unavailable",error);}
     reviewed=reviewed==="approved"||reviewed==="rejected"?reviewed:("review" in event&&typeof event.review==="string"?event.review:null);
@@ -264,7 +281,7 @@ async function readApprovedEditorPatterns(niche:string){
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
-function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown"){
+function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -273,7 +290,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending"};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -520,7 +537,7 @@ export default function BuilderV2() {
     reviewSubmitInFlightRef.current=true;
     setReviewSubmitting(true);
     try{
-      let event:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;model?:string;sectionKey?:string;failureCode?:string|null;review?:string}|undefined;
+      let event:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;model?:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}|undefined;
       try{
         const local=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
         if(Array.isArray(local)){
