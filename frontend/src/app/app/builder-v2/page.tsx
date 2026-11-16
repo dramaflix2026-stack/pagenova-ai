@@ -353,7 +353,7 @@ export default function BuilderV2() {
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
-  const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string}|null>(null);
+  const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
@@ -434,7 +434,7 @@ export default function BuilderV2() {
       if(targets.length===1&&displayed.length===1){
         pendingSectionPhotoVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Uma fotografia substituída e localizada na prévia. As demais imagens foram preservadas. Confira o resultado antes de aprovar."}]);
       }else if(++attempts>=25){
@@ -1715,7 +1715,7 @@ export default function BuilderV2() {
           if(!photoLoaded)throw new Error("A fotografia real não carregou. O projeto foi preservado.");
           recordVersion(site,"Antes de substituir uma fotografia da seção");
           setRedoHistory([]);setHistory(previous=>[...previous.slice(-19),site]);
-          pendingSectionPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,src:photo};
+          pendingSectionPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,src:photo,solution:captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};
           setSite(result.site);setInstruction("");setGenerationError("");
           setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Uma única fotografia preparada. Verificando sua presença na seção correta da prévia."}]);
           return;
