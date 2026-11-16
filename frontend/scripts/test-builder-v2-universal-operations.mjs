@@ -1597,3 +1597,55 @@ test("reviewed learning is wired into actual Builder dispatch",()=>{
  assert.match(page,/onlinePolicy.route==="ai-editor"/);
  assert.match(page,/actualRoute=hasAttachments/);
 });
+
+test("Test 05: compound move after FAQ and center the moved section title",()=>{
+ const prompt="Mova a seção Projetos dos Alunos para imediatamente depois da seção Perguntas Frequentes e centralize o título principal dessa seção. Preserve os três cards, textos, imagens, cores e todas as outras seções. Não duplique conteúdo, não altere a ordem das demais seções e mantenha o rodapé como último elemento do site.";
+ for(const variant of ["01","02","03"]){
+  const original={templateId:"prompt-adaptive",briefingLayoutVariant:variant,blocks:[
+   {id:"hero",section:"hero",type:"heading",text:"Boas-vindas"},
+   {id:"review",section:"depoimentos",type:"heading",text:"Histórias"},
+   {id:"proj-heading",section:"custom-projetos-dos-alunos",type:"heading",text:"Projetos que transformam conhecimento em prática",align:"left"},
+   {id:"card-1",section:"custom-projetos-dos-alunos",type:"heading",text:"Desafios práticos",align:"left"},
+   {id:"text-1",section:"custom-projetos-dos-alunos",type:"paragraph",text:"Exercícios educativos"},
+   {id:"card-2",section:"custom-projetos-dos-alunos",type:"heading",text:"Projetos colaborativos",align:"left"},
+   {id:"text-2",section:"custom-projetos-dos-alunos",type:"paragraph",text:"Trabalho em equipe"},
+   {id:"card-3",section:"custom-projetos-dos-alunos",type:"heading",text:"Portfólio de aprendizagem",align:"left"},
+   {id:"text-3",section:"custom-projetos-dos-alunos",type:"paragraph",text:"Registros e apresentações"},
+   {id:"faq",section:"faq",type:"heading",text:"Perguntas Frequentes"},
+   {id:"contact",section:"contato",type:"heading",text:"Matrículas"},
+   {id:"footer",section:"rodape",type:"heading",text:"Rodapé"}
+  ],universalSectionEvents:[{action:"move",section:{id:"custom-projetos-dos-alunos"},after:{id:"depoimentos"}}]};
+  const snapshot=structuredClone(original);
+  const result=applyUniversalNaturalLanguage(original,prompt);
+  assert.equal(result?.ok,true,result?.ok===false?result.error:"Unknown command");
+  if(!result?.ok)continue;
+  assert.equal(result.site.blocks.find(b=>b.id==="proj-heading")?.align,"center");
+  assert.equal(result.site.blocks.find(b=>b.id==="proj-heading")?.alignExplicit,true);
+  assert.deepEqual(result.site.blocks.filter(b=>/^card-|^text-/.test(b.id)),original.blocks.filter(b=>/^card-|^text-/.test(b.id)));
+  const ids=result.site.blocks.map(b=>b.id);
+  assert.equal(ids.indexOf("proj-heading"),ids.indexOf("faq")+1);
+  assert.equal(ids.indexOf("contact"),ids.indexOf("text-3")+1);
+  assert.equal(ids.at(-1),"footer");
+  assert.equal(result.site.blocks.filter(b=>b.section==="custom-projetos-dos-alunos").length,7);
+  assert.deepEqual(original,snapshot);
+  assert.deepEqual(result.site.universalSectionEvents.at(-1),{action:"move",section:{id:"custom-projetos-dos-alunos"},after:{id:"faq"}});
+  assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+ }
+});
+test("Test 05: unknown section rolls back both actions",()=>{
+ const original={templateId:"prompt-adaptive",blocks:[{id:"faq",section:"faq",type:"heading",text:"Perguntas Frequentes"},{id:"h",section:"hero",type:"heading",text:"Olá"}]};
+ const snapshot=structuredClone(original);
+ const result=applyUniversalNaturalLanguage(original,"Mova a seção inexistente para depois da seção FAQ e centralize o título principal dessa seção.");
+ assert.equal(result?.ok,false);
+ assert.deepEqual(original,snapshot);
+});
+test("TP10 FAQ slot occurs after actual FAQ, before admission, without duplicates",()=>{
+ const load=name=>readFileSync(new URL("../src/components/"+name,import.meta.url),"utf8");
+ const closing=load("template10-education-closing.tsx"),hero=load("template10-education-hero.tsx");
+ const sections=load("template10-education-sections.tsx"),renderer=load("builder-v2-universal-sections.tsx");
+ assert.ok(closing.indexOf('id="tp10-faq"')<closing.indexOf('customSectionAnchorFilter={{include:["faq"]}}'));
+ assert.ok(closing.indexOf('customSectionAnchorFilter={{include:["faq"]}}')<closing.indexOf('id="tp10-matriculas"'));
+ assert.match(hero,/Template10EducationClosing niche=\{niche\} brand=\{brand\} site=\{site\}/);
+ assert.match(sections,/customSectionAnchorFilter=\{\{exclude:\["depoimentos","faq"\]\}\}/);
+ assert.match(renderer,/textAlign:b.align==="center"\?"center"/);
+});

@@ -910,6 +910,20 @@ export function applyUniversalNaturalLanguage<T extends UniversalSite>(site:T,ra
    const previous=styles[section];
    contextualResult={ok:true,site:{...current,universalSectionStyles:{...styles,[section]:{...(previous&&typeof previous==="object"&&!Array.isArray(previous)?previous:{}),headingColor:color}}} as T,changedIds:["section-heading-color:"+section]};
   }
+  // Resolve "dessa seção" from the immediately preceding movement in THIS
+  // atomic request, never from historical operations or unrelated site blocks.
+  const contextualAlign=actionableClause.match(/^(?:centralize|alinhe(?:\s+ao\s+centro)?)\s+(?:o\s+)?t[ií]tulo\s+principal\s+dessa\s+se[cç][aã]o\s*[.!?]?$/i);
+  if(contextualAlign&&!contextualResult){
+   const earlier=site.universalSectionEvents||[];
+   const newlyMoved=(current.universalSectionEvents||[]).slice(earlier.length).filter(event=>event.action==="move");
+   if(newlyMoved.length!==1)return {ok:false,error:"Não foi possível identificar uma única seção movimentada neste pedido. Nenhuma alteração aplicada."};
+   const headings=current.blocks.filter(block=>block.section===newlyMoved[0].section.id&&block.type==="heading");
+   if(!headings.length)return {ok:false,error:"A seção movimentada não possui título editável. Nenhuma alteração aplicada."};
+   const title=headings[0];
+   contextualResult=title.align==="center"&&title.alignExplicit===true
+    ?{ok:true,site:current,changedIds:[]}
+    :applyUniversalOperations(current,[{action:"update",blockId:title.id,changes:{align:"center"}}]);
+  }
   // ID and quoted-label commands remain backward compatible.
   const result=contextualResult||applyVisibleEditorCommand(current,clause)||applySingleUniversalNaturalLanguage(current,clause)||applyUniversalNamedLanguage(current,clause);
   if(!result){

@@ -135,7 +135,7 @@ export function Template10EducationHero({brand,niche,universalSectionImages,site
  }
  <Template10EducationSections niche={niche} brand={brand} site={site} universalSectionImages={universalSectionImages}/>
  <Template10EducationExperience niche={niche} brand={brand} site={site} testimonials={testimonials} publishedMode={publishedMode}/>
- <Template10EducationClosing niche={niche} brand={brand} contact={contact} faqs={faqs}/>
+ <Template10EducationClosing niche={niche} brand={brand} site={site} contact={contact} faqs={faqs}/>
  <Template10EducationFinal niche={niche} brand={brand} contact={contact}/>
  </div>;
 }
