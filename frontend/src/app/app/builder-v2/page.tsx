@@ -1106,8 +1106,16 @@ export default function BuilderV2() {
       // architecture hero stock URL, then falsely reported a successful swap.
       // Approved experiences choose which safe parser is attempted first.
       // No historical pattern can bypass mutation verification or invent an edit.
-      const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
       const {intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey}=classifyUniversalFeedback(prompt);
+      const [approvedPatterns,approvedSolutions]=await Promise.all([
+        readApprovedEditorPatterns(site.niche||""),
+        readApprovedEditorSolutionCases(inferredIntent,inferredTarget)
+      ]);
+      const approvedTechnique=selectApprovedExecutionTechnique(approvedSolutions,{
+        intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey,
+        niche:site.niche||"",model:site.briefingLayoutVariant||"01",
+        family:String(resolveBriefingFamily(site.niche||"")||""),instruction:prompt
+      });
       const relevantPatterns=approvedPatterns.filter(pattern=>
         pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
         (!pattern.section_key||!inferredSectionKey||pattern.section_key===inferredSectionKey));
@@ -1242,11 +1250,17 @@ export default function BuilderV2() {
         approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
       // A learned AI route is eligible only when it has positive reviewed evidence
       // and beats a negatively scored universal route. Compound edits remain atomic.
-      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy;
-      const result=hasAttachments||imageChange||preferScopedCopy||preferLearnedAi?null:applyUniversalNaturalLanguage(site,prompt);
+      // A verified approved technique can rescue the deterministic parser when
+      // the heuristic would otherwise route the same request to a less-specific
+      // AI/copy handler. Do not contradict strongly evidenced AI route decisions.
+      const memoryRouteOverride=Boolean(approvedTechnique&&!compound&&!hasAttachments&&!imageChange&&
+        (preferScopedCopy||(learnedAiEligible&&!(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence))));
+      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy&&!memoryRouteOverride;
+      const result=hasAttachments||imageChange||(preferScopedCopy&&!memoryRouteOverride)||preferLearnedAi
+        ?null:applyUniversalNaturalLanguage(site,prompt);
       // Audit the route that was actually attempted, not merely the preferred route.
       // This distinguishes a learned preference from a real execution decision.
-      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy?"scoped-copy":preferLearnedAi?"ai-editor":"universal";
+      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy&&!memoryRouteOverride?"scoped-copy":preferLearnedAi?"ai-editor":memoryRouteOverride&&result?"universal-memory":"universal";
       console.info("[editor-learning] Strategy execution",{
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
@@ -1255,7 +1269,9 @@ export default function BuilderV2() {
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
-        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi,
+        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi||memoryRouteOverride,
+        memorySource:memoryRouteOverride?approvedTechnique?.sourceEventId:null,
+        memoryTechnique:memoryRouteOverride?approvedTechnique?.technique:null,
         niche:site.niche||"unknown",model:site.briefingLayoutVariant||"01"
       });
       if(preferUniversal&&result&&!result.ok){
@@ -1284,13 +1300,18 @@ export default function BuilderV2() {
         }
         const movementPlan=planUniversalPreviewMove(site,result.site);
         const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
-        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution};
+        // A source is attributed only when it CHANGED the route and the new
+        // mutation is verified, never merely because an old memory was read.
+        const learnedSource=confirmedReuseSource(approvedTechnique,memoryRouteOverride,!!verifiedSolution);
+        const learnedReuse=learnedSource&&approvedTechnique
+          ?{sourceEventId:learnedSource,technique:approvedTechnique.technique}:undefined;
+        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution,reuse:learnedReuse};
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution);captureReviewCandidate();}
-        setMessages(prev=>[...prev,{role:"assistant",text:movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
+        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution,learnedReuse);captureReviewCandidate();}
+        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
         return;
       }
     }
