@@ -33,6 +33,12 @@ test("one reviewed, applied, verified memory is required",()=>{
  assert.equal(pick([{...base,verification:"unverified"}]),null);
  assert.equal(pick([{...base,event_id:"invalid"}]),null);
 });
+test("a successfully reviewed niche-specific or AI strategy is not a universal patch technique",()=>{
+ assert.equal(pick([{...base,strategy:"ai-editor"}]),null);
+ assert.equal(pick([{...base,strategy:"veterinary-override"}]),null);
+ assert.equal(pick([{...base,strategy:"scoped-copy"}]),null);
+ assert.equal(pick([{...base,strategy:"universal-visual-verified"}])?.sourceEventId,goodId);
+});
 test("requested target and section must both match; wrong niche and family never transfer",()=>{
  assert.equal(pick([]),null);
  assert.equal(pick([base],{target:"hero"}),null);

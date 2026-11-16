@@ -50,6 +50,9 @@ export function selectApprovedExecutionTechnique(records:readonly ReviewedSoluti
  for(const item of records.slice(0,150)){
   if(!uuid.test(item.event_id)||item.review_status!=="approved"||item.execution_status!=="applied")continue;
   if(item.intent!==context.intent||item.target!==context.target)continue;
+  // Universal technique hints must come from a previously verified universal execution.
+  // An AI-generated or niche-specific override is NOT a reusable universal adapter.
+  if(!/^(?:universal(?:$|[-:]))/.test(item.strategy))continue;
   if(item.section_key&&context.sectionKey&&item.section_key!==context.sectionKey)continue;
   if(item.verification!=="visual"&&item.verification!=="model")continue;
   if(!item.context||!Array.isArray(item.deltas)||!item.deltas.length||item.deltas.length>50)continue;

@@ -1692,7 +1692,8 @@ test("builder only logs success for moved sections after visual confirmation",()
  assert.ok(page.includes("pendingMoveVisualReviewRef.current={prompt"));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified"'));
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed"'));
- assert.ok(page.includes("if(!movementPlan){recordEditorLearningEvent("));
+ assert.ok(page.includes("if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent("));
+ assert.ok(page.includes("if(pendingLearnedVisual)pendingBackgroundVisualReviewRef.current="));
 });
 
 test("TP10 custom movement uses the latest FAQ anchor in preview and public rendering",()=>{
