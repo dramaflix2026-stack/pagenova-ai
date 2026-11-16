@@ -6,17 +6,20 @@
  *
  * Does not store instructions, addresses, contact details or customer content.
  */
+import {safeEditorInterpretationContext,type EditorInterpretationContext} from "./builder-v2-editor-interpretation.ts";
 export type EditorSubmissionTrace={
   requestId:string;
   projectId:string|null;
   submittedAt:string;
   nextOperationIndex:number;
+  interpretationContext?:EditorInterpretationContext;
 };
 export type EditorOperationTrace={
   requestId:string;
   projectId:string|null;
   submittedAt:string;
   operationIndex:number;
+  interpretationContext?:EditorInterpretationContext;
 };
 const UUID_RE=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const PROJECT_RE=/^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$/;
@@ -34,7 +37,8 @@ export function nextEditorOperationTrace(trace:EditorSubmissionTrace|null):Edito
  if(!trace||!UUID_RE.test(trace.requestId)||trace.nextOperationIndex>=64)return null;
  trace.nextOperationIndex+=1;
  return {requestId:trace.requestId,projectId:trace.projectId,submittedAt:trace.submittedAt,
-  operationIndex:trace.nextOperationIndex};
+  operationIndex:trace.nextOperationIndex,
+  ...(safeEditorInterpretationContext(trace.interpretationContext)?{interpretationContext:trace.interpretationContext}:{})};
 }
 /** Historical events have no trace; keep them readable without inventing IDs. */
 export function isValidEditorOperationTrace(value:unknown):value is EditorOperationTrace{
@@ -43,5 +47,6 @@ export function isValidEditorOperationTrace(value:unknown):value is EditorOperat
  return typeof t.requestId==="string"&&UUID_RE.test(t.requestId)&&
   (t.projectId===null||safeEditorProjectId(t.projectId)===t.projectId)&&
   typeof t.submittedAt==="string"&&Number.isFinite(Date.parse(t.submittedAt))&&
-  Number.isInteger(t.operationIndex)&&Number(t.operationIndex)>=1&&Number(t.operationIndex)<=64;
+  Number.isInteger(t.operationIndex)&&Number(t.operationIndex)>=1&&Number(t.operationIndex)<=64&&
+  (t.interpretationContext===undefined||!!safeEditorInterpretationContext(t.interpretationContext));
 }
