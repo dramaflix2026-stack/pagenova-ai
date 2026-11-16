@@ -585,14 +585,18 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-journey.tsx",
-      "blobSha": "9913db3826012ad309426168d501cb28ba53ef68"
+      "blobSha": "9913db3826012ad309426168d501cb28ba53ef68",
+      "approvedBindingRevision": {
+        "sha": "45d160dc89c785d12f359126b9ae5e1ac449896e",
+        "reason": "User-approved TP9 Model 2 Vértice four premium differentiators with mechanic photo and gold icons, scoped by brand. Preserve Como Funciona, Model 1 and 3 and universal editing/learning."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model2-sections.tsx",
       "blobSha": "1ad593a7b81cbe775ac5438b65eb34279cfb5f2a",
       "approvedBindingRevision": {
-        "sha": "34b710a788328bab264a6cf41ddf5883d074c22c",
-        "reason": "Approved Vértice TP9 Model 2 Nossa Essência cleanup: real workshop photo, relevant institutional copy and clearer text contrast. Preserve layout, services and other models."
+        "sha": "1662fa9dbbe033c5161693a0a87199e4086d5530",
+        "reason": "User-approved TP9 Model 2 Vértice six-card premium services: real workshop photos, black-gold styling, responsive links to contact. Original Nossa Essência and all other templates remain unchanged."
       }
     },
     {
