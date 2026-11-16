@@ -56,3 +56,7 @@
 @media(max-width:800px){.mp-layout{grid-template-columns:1fr}.mp-summary{position:static}.mp-summary-inner{max-width:none}.mp-intro{margin-bottom:38px}}
 @media(max-width:580px){.mp-header{height:74px}.mp-header img{width:158px}.mp-wrap{padding-top:39px}.mp-intro h1{font-size:43px;letter-spacing:-2px}.mp-intro p{font-size:13px}.mp-intro-pills{gap:7px}.mp-intro-pills span{font-size:10px;padding:7px 9px}.mp-group-title h2{font-size:21px}.mp-products{grid-template-columns:1fr}.mp-product{min-height:84px;padding:14px 16px}.mp-summary-inner{padding:22px}.mp-catalog{gap:33px}}
 @media(prefers-reduced-motion:reduce){.mp-product,.mp-checkout{transition:none}.mp-product:hover:not(:disabled),.mp-checkout:hover:not(:disabled){transform:none}}
+
+/* Align checkout summary with the first row of product cards on desktop. */
+@media(min-width:801px){.mp-summary{margin-top:76px}}
+@media(max-width:800px){.mp-summary{margin-top:0}}
