@@ -30,7 +30,9 @@ test("Six service cards, six sourced gallery photos and six optional demo review
  assert.equal((v3.match(/name:"Cliente demonstrativo \d+"/g)||[]).length,6);
  assert.match(v3,/DEMONSTRATIVO — NÃO É AVALIAÇÃO REAL/);
  assert.match(v3,/\[\.\.\.validReviews\.map/);
- assert.match(v3,/source\.gallery\.slice\(0,6-providedGallery\.length\)/);
+ assert.match(v3,/source\.gallery\.slice\(providedGallery\.length\)/);
+ assert.match(v3,/hasCustomerPhotos\?/);
+ assert.match(v3,/source\.gallery\.map\(\(id,index\)/);
 });
 test("FAQ contains exactly six useful fallback questions and accessible accordion",()=>{
  const faqBlock=v3.split("const fallbackFAQ:FAQ[]=")[1].split("const placeholderReviews")[0];
