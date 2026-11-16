@@ -211,12 +211,7 @@ export function LandingRevamp() {
      <div className="pnr-hero-art pnr-hero-scene" data-motion-layer="hero-visual" aria-hidden="true">
       <div className="pnr-hero-scene-glow" data-motion-layer="ambient" />
       <div className="pnr-hero-light-sweep" data-motion-layer="ambient" />
-      <div className="pnr-hero-image-frame">
-       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
-       {/* Animate existing pixels of the eye, never an independently positioned glowing dot. */}
-       <img className="pnr-hero-cyborg-eye" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" aria-hidden="true" />
-       <div className="pnr-hero-cyborg-scan" data-motion-layer="ambient" />
-      </div>
+      <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--dev" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--growth" data-motion-layer="ambient" />
