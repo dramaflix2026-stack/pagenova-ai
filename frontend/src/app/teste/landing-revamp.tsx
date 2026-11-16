@@ -220,10 +220,15 @@ export function LandingRevamp() {
          <path d="M65 288 C116 432 280 505 452 516"/>
          <path d="M510 518 C675 545 830 492 942 426"/>
         </g>
-        <g className="pnr-hero-ambient-icons" fill="none" stroke="#9dffb1" strokeWidth="2" opacity=".22">
-         <path d="M603 97 L759 72 Q775 70 777 86 L773 196 Q773 207 760 209 L604 227 Q592 229 591 216 L594 112 Q594 99 603 97Z"/>
-         <path d="M645 256 L796 237 Q810 236 810 249 L805 346 Q804 358 791 360 L643 377 Q629 377 631 364 L635 271 Q636 258 645 256Z"/>
-         <path d="M620 400 L768 385 Q784 383 783 398 L778 495 Q777 507 764 508 L615 519 Q603 519 603 507 L608 415 Q608 402 620 400Z"/>
+        <defs>
+         <clipPath id="pnrHeroPanelClip1"><path d="M603 97 L759 72 Q775 70 777 86 L773 196 Q773 207 760 209 L604 227 Q592 229 591 216 L594 112 Q594 99 603 97Z"/></clipPath>
+         <clipPath id="pnrHeroPanelClip2"><path d="M645 256 L796 237 Q810 236 810 249 L805 346 Q804 358 791 360 L643 377 Q629 377 631 364 L635 271 Q636 258 645 256Z"/></clipPath>
+         <clipPath id="pnrHeroPanelClip3"><path d="M620 400 L768 385 Q784 383 783 398 L778 495 Q777 507 764 508 L615 519 Q603 519 603 507 L608 415 Q608 402 620 400Z"/></clipPath>
+        </defs>
+        <g className="pnr-hero-ambient-icons">
+         <image className="pnr-hero-panel-light pnr-hero-panel-light-1" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip1)"/>
+         <image className="pnr-hero-panel-light pnr-hero-panel-light-2" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip2)"/>
+         <image className="pnr-hero-panel-light pnr-hero-panel-light-3" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip3)"/>
         </g>
        </svg>
       </div>
