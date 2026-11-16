@@ -12,6 +12,7 @@ import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
+import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -212,7 +213,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -224,6 +225,22 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
       review_status:"pending"
     });
     if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Supabase recusou o registro (código "+(insertError.code||"desconhecido")+")."}}));return false;}
+    // Store the verified change-set against the exact feedback UUID.
+    // Pending or rejected feedback is NOT a learned solution; future retrieval
+    // must join the review_status=approved and execution_status=applied event.
+    if(event.outcome==="applied"&&event.solution?.schemaVersion===2){
+      const memory=event.solution;
+      const {error:memoryError}=await client.from("builder_editor_solution_memories").insert({
+        event_id:event.id,user_id:user.id,schema_version:2,
+        verification:memory.verification,context:memory.context,
+        changed_ids:memory.changedIds,deltas:memory.deltas
+      });
+      if(memoryError&&memoryError.code!=="23505"){
+        console.warn("[editor-learning] Solution memory sync failed",memoryError.code,memoryError.message);
+        if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Edição registrada, mas a memória de soluções ainda não foi sincronizada. Tentaremos novamente."}}));
+        return false;
+      }
+    }
     let reviewed: string|null=null;
     try{const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review??null:null;}catch(error){console.warn("[editor-learning] Review history unavailable",error);}
     reviewed=reviewed==="approved"||reviewed==="rejected"?reviewed:("review" in event&&typeof event.review==="string"?event.review:null);
@@ -264,7 +281,7 @@ async function readApprovedEditorPatterns(niche:string){
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
-function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown"){
+function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -273,7 +290,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending"};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -335,9 +352,9 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
-  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string}|null>(null);
-  const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string}|null>(null);
-  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract}|null>(null);
+  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -393,7 +410,7 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);
         }else{
-          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Cor de fundo confirmada na prévia. Avalie o resultado visual antes de aprovar."}]);
         }
@@ -417,7 +434,7 @@ export default function BuilderV2() {
       if(targets.length===1&&displayed.length===1){
         pendingSectionPhotoVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-image-section-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Uma fotografia substituída e localizada na prévia. As demais imagens foram preservadas. Confira o resultado antes de aprovar."}]);
       }else if(++attempts>=25){
@@ -448,7 +465,7 @@ export default function BuilderV2() {
       if(outcome.ok){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
       }else if(++checks>=30){
@@ -520,7 +537,7 @@ export default function BuilderV2() {
     reviewSubmitInFlightRef.current=true;
     setReviewSubmitting(true);
     try{
-      let event:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;model?:string;sectionKey?:string;failureCode?:string|null;review?:string}|undefined;
+      let event:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;model?:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}|undefined;
       try{
         const local=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
         if(Array.isArray(local)){
@@ -1114,7 +1131,7 @@ export default function BuilderV2() {
           const verified=verifyUniversalEditResult(site,parsed.site,parsed.changedIds);
           if(sectionId&&verified.ok){
             const section=sectionId.slice("section-style:".length);
-            pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase()};
+            pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase(),solution:captureVerifiedEditorSolution(site,parsed.site,parsed.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};
             recordVersion(site,"Antes da edição de fundo");
             setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
             setSite(parsed.site);setInstruction("");setGenerationError("");
@@ -1144,7 +1161,7 @@ export default function BuilderV2() {
       }
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color,solution:captureVerifiedEditorSolution(site,backgroundResult.site,backgroundResult.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",captureVerifiedEditorSolution(site,backgroundResult.site,backgroundResult.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId}));captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
         // An idempotent color request is not a failed mutation. The existing visual
         // audit is authoritative; do not fall through to another parser and report
         // an unexplained "site unchanged" rejection.
@@ -1222,12 +1239,13 @@ export default function BuilderV2() {
           return;
         }
         const movementPlan=planUniversalPreviewMove(site,result.site);
-        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan};
+        const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
+        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution};
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}
+        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution);captureReviewCandidate();}
         setMessages(prev=>[...prev,{role:"assistant",text:movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
         return;
       }
@@ -1697,7 +1715,7 @@ export default function BuilderV2() {
           if(!photoLoaded)throw new Error("A fotografia real não carregou. O projeto foi preservado.");
           recordVersion(site,"Antes de substituir uma fotografia da seção");
           setRedoHistory([]);setHistory(previous=>[...previous.slice(-19),site]);
-          pendingSectionPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,src:photo};
+          pendingSectionPhotoVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,src:photo,solution:captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};
           setSite(result.site);setInstruction("");setGenerationError("");
           setMessages(previous=>[...previous,{role:"user",text:prompt},{role:"assistant",text:"Uma única fotografia preparada. Verificando sua presença na seção correta da prévia."}]);
           return;
