@@ -211,26 +211,6 @@ export function LandingRevamp() {
      <div className="pnr-hero-art pnr-hero-scene" data-motion-layer="hero-visual" aria-hidden="true">
       <div className="pnr-hero-image-stage">
        <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
-       <svg className="pnr-hero-ambient-svg" viewBox="0 0 1002 611" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
-        <defs>
-         <linearGradient id="pnrAmbientGlow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor="#a9ff7b" stopOpacity="0"/><stop offset=".5" stopColor="#c8ffad" stopOpacity=".8"/><stop offset="1" stopColor="#8bff75" stopOpacity="0"/></linearGradient>
-        </defs>
-        <g className="pnr-hero-ambient-curves" fill="none" stroke="url(#pnrAmbientGlow)" strokeWidth="2" strokeLinecap="round">
-         <path d="M82 255 C96 104 258 45 430 55"/>
-         <path d="M65 288 C116 432 280 505 452 516"/>
-         <path d="M510 518 C675 545 830 492 942 426"/>
-        </g>
-        <defs>
-         <clipPath id="pnrHeroPanelClip1"><path d="M603 97 L759 72 Q775 70 777 86 L773 196 Q773 207 760 209 L604 227 Q592 229 591 216 L594 112 Q594 99 603 97Z"/></clipPath>
-         <clipPath id="pnrHeroPanelClip2"><path d="M645 256 L796 237 Q810 236 810 249 L805 346 Q804 358 791 360 L643 377 Q629 377 631 364 L635 271 Q636 258 645 256Z"/></clipPath>
-         <clipPath id="pnrHeroPanelClip3"><path d="M620 400 L768 385 Q784 383 783 398 L778 495 Q777 507 764 508 L615 519 Q603 519 603 507 L608 415 Q608 402 620 400Z"/></clipPath>
-        </defs>
-        <g className="pnr-hero-ambient-icons">
-         <image className="pnr-hero-panel-light pnr-hero-panel-light-1" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip1)"/>
-         <image className="pnr-hero-panel-light pnr-hero-panel-light-2" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip2)"/>
-         <image className="pnr-hero-panel-light pnr-hero-panel-light-3" href="/landing-premium/hero-illustration-hd.avif" width="1002" height="611" clipPath="url(#pnrHeroPanelClip3)"/>
-        </g>
-       </svg>
       </div>
      </div>
     </div>
