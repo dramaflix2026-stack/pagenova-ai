@@ -662,3 +662,25 @@ test("Vértice TP9 approved gallery displays six distinct repair photos and an a
  assert.equal(photos.length,6,"must contain exactly six real photos");
  assert.equal(new Set(photos).size,6,"all six photos must be different");
 });
+
+test("Vértice TP9 FAQ preserves six accessible questions, working controls and original contact",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const integrated=readFileSync(new URL("../src/components/template9-automotive-closing.tsx",import.meta.url),"utf8");
+ const faq=readFileSync(new URL("../src/components/tp9-vertice-faq.tsx",import.meta.url),"utf8");
+ assert.match(integrated,/isVertice&&<TP9VerticeFAQ\/>/);
+ assert.match(integrated,/!isVertice&&<section className="pn-t9c-faq" id="tp9-faq"/);
+ assert.match(integrated,/id="tp9-orcamento"/);
+ assert.match(integrated,/\{locationSection\}/);
+ assert.match(faq,/id="tp9-faq"/);
+ assert.equal((faq.match(/\{question:"/g)||[]).length,6);
+ assert.match(faq,/aria-expanded=\{expanded\}/);
+ assert.match(faq,/aria-controls=\{answerId\}/);
+ assert.match(faq,/onClick=\{\(\)=>setOpenIndex\(expanded\?null:index\)\}/);
+ assert.match(faq,/role="region"/);
+ assert.match(faq,/grid-template-columns:minmax\(0,\.94fr\) minmax\(0,1\.06fr\)/);
+ assert.match(faq,/grid-template-columns:1fr/);
+ assert.match(faq,/images\.unsplash\.com\/photo-/);
+ assert.match(faq,/href="#tp9-orcamento"/);
+ assert.match(faq,/Como consultar prazos e disponibilidade/);
+ assert.match(faq,/Os valores são informados pelo site/);
+});
