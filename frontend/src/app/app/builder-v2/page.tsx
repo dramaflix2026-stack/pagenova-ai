@@ -359,7 +359,7 @@ export default function BuilderV2() {
         pendingBackgroundVisualReviewRef.current=null;
         const sectionFailed=failures.some(failure=>failure.startsWith(pending.section+":"));
         if(sectionFailed){
-          recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-visual-verification",pending.variant);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",failures.some(failure=>failure.startsWith(pending.section+": seção não encontrada"))?"universal-visual-missing-target":"universal-visual-verification",pending.variant);
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);

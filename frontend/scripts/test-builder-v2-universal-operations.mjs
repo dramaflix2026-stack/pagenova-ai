@@ -1454,3 +1454,9 @@ test("feedback classification separates action from preservation and scopes fail
  assert.equal(inferUniversalFeedbackFailureCode("universal-section-background-unresolved","rejected"),"missing-target");
  assert.equal(inferUniversalFeedbackFailureCode("universal","applied"),null);
 });
+
+test("visual audit distinguishes missing preview section from a color mismatch",async()=>{
+ const {inferUniversalFeedbackFailureCode}=await import("../src/lib/builder-v2-universal-feedback.ts");
+ assert.equal(inferUniversalFeedbackFailureCode("universal-visual-missing-target","rejected"),"missing-target");
+ assert.equal(inferUniversalFeedbackFailureCode("universal-visual-verification","rejected"),"postcondition");
+});
