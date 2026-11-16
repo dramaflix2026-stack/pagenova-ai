@@ -742,10 +742,10 @@ test("Vértice TP9 Model 1 premium footer contains real-contact links and workin
  assert.match(footer,/href="#tp9-inicio"/);
  assert.match(footer,/Voltar ao topo/);
  assert.match(hero,/id="tp9-inicio"/);
- assert.match(footer,/href="#tp9-orcamento"/);
- assert.match(footer,/href="#tp9-faq"/);
- assert.match(footer,/href="#tp9-galeria"/);
- assert.match(footer,/href="#tp9-processo"/);
+ assert.match(footer,/href:"#tp9-orcamento"/);
+ assert.match(footer,/href:"#tp9-faq"/);
+ assert.match(footer,/href:"#tp9-galeria"/);
+ assert.match(footer,/href:"#tp9-processo"/);
  assert.match(footer,/validPhone&&<div className="pn-vfooter-contact"/);
  assert.match(footer,/validMail&&<div className="pn-vfooter-contact"/);
  assert.match(footer,/validAddress&&<>/);
