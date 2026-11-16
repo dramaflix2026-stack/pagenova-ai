@@ -1,5 +1,5 @@
-import {TP10UniversalCustomSections} from "@/components/tp10-universal-custom-sections";
 "use client";
+import {TP10UniversalCustomSections} from "@/components/tp10-universal-custom-sections";
 import {universalBlockProps,UniversalTypographyRules} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {MemoriaVivaModel1} from "./builder-v2-memoria-viva-model1";
