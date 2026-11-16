@@ -729,3 +729,33 @@ test("Vértice TP9 Model 1 cinematic closing keeps approved footer and uses real
  assert.match(closing,/@media\(max-width:480px\)/);
  assert.doesNotMatch(closing,/https:\/\/wa\.me\/|mailto:/);
 });
+
+test("Vértice TP9 Model 1 premium footer contains real-contact links and working top anchor",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const final=readFileSync(new URL("../src/components/template9-automotive-final.tsx",import.meta.url),"utf8");
+ const footer=readFileSync(new URL("../src/components/tp9-vertice-premium-footer.tsx",import.meta.url),"utf8");
+ const hero=readFileSync(new URL("../src/components/tp9-vertice-handcar-hero.tsx",import.meta.url),"utf8");
+ assert.match(final,/isVertice&&<TP9VerticePremiumFooter brand=\{brand\} niche=\{niche\} email=\{email\} whatsapp=\{whatsapp\} address=\{address\}\/>/);
+ assert.match(final,/!isVertice&&<footer className="pn-t9f-footer" id="tp9-rodape"/);
+ assert.match(final,/isVertice&&<TP9VerticeFinalCTA\/>/);
+ assert.match(footer,/id="tp9-rodape"/);
+ assert.match(footer,/href="#tp9-inicio"/);
+ assert.match(footer,/Voltar ao topo/);
+ assert.match(hero,/id="tp9-inicio"/);
+ assert.match(footer,/href="#tp9-orcamento"/);
+ assert.match(footer,/href="#tp9-faq"/);
+ assert.match(footer,/href="#tp9-galeria"/);
+ assert.match(footer,/href="#tp9-processo"/);
+ assert.match(footer,/validPhone&&<div className="pn-vfooter-contact"/);
+ assert.match(footer,/validMail&&<div className="pn-vfooter-contact"/);
+ assert.match(footer,/validAddress&&<>/);
+ assert.match(footer,/!hasContact&&<p className="pn-vfooter-no-contact"/);
+ assert.match(footer,/https:\/\/wa\.me\/"\+validPhone/);
+ assert.match(footer,/mailto:"\+validMail/);
+ assert.doesNotMatch(footer,/https:\/\/(?:www\.)?(?:instagram|facebook)\.com\//);
+ assert.match(footer,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(footer,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(footer,/grid-template-columns:1fr/);
+ assert.match(footer,/pn-vfooter-signature/);
+ assert.match(footer,/VÉRTIC<span className="pn-vfooter-signature-accent">E<\/span>/);
+});
