@@ -14,6 +14,7 @@ import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-lea
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
+import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -396,7 +397,7 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
-  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string}}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null}|null>(null);
   const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string}}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
@@ -454,7 +455,7 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);
         }else{
-          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse);
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Cor de fundo confirmada na prévia. Avalie o resultado visual antes de aprovar."}]);
         }
@@ -1257,12 +1258,19 @@ export default function BuilderV2() {
         compound,hasAttachments,imageChange,preferScopedCopy,learnedAiEligible,
         strongAiEvidence:onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence
       });
-      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy&&!memoryRouteOverride;
-      const result=hasAttachments||imageChange||(preferScopedCopy&&!memoryRouteOverride)||preferLearnedAi
-        ?null:applyUniversalNaturalLanguage(site,prompt);
+      // Reuse the *method* for explicit section-background requests, reading the
+      // requested new color and section from THIS prompt. No old values replayed.
+      const guidedBackground=approvedTechnique?.technique==="section-background"&&!compound&&!hasAttachments&&!imageChange&&
+        !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence)
+        ?applyApprovedSectionBackground(site,prompt,approvedTechnique):null;
+      const guidedBackgroundApplied=!!guidedBackground?.ok;
+      const memoryUsedForExecution=memoryRouteOverride||guidedBackgroundApplied;
+      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy&&!memoryUsedForExecution;
+      const result=hasAttachments||imageChange||(preferScopedCopy&&!memoryUsedForExecution)||preferLearnedAi
+        ?null:guidedBackground?.ok?guidedBackground:applyUniversalNaturalLanguage(site,prompt);
       // Audit the route that was actually attempted, not merely the preferred route.
       // This distinguishes a learned preference from a real execution decision.
-      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy&&!memoryRouteOverride?"scoped-copy":preferLearnedAi?"ai-editor":memoryRouteOverride&&result?"universal-memory":"universal";
+      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy&&!memoryUsedForExecution?"scoped-copy":preferLearnedAi?"ai-editor":memoryUsedForExecution&&result?"universal-memory":"universal";
       console.info("[editor-learning] Strategy execution",{
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
@@ -1271,9 +1279,9 @@ export default function BuilderV2() {
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
-        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi||memoryRouteOverride,
-        memorySource:memoryRouteOverride?approvedTechnique?.sourceEventId:null,
-        memoryTechnique:memoryRouteOverride?approvedTechnique?.technique:null,
+        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi||memoryUsedForExecution,
+        memorySource:memoryUsedForExecution?approvedTechnique?.sourceEventId:null,
+        memoryTechnique:memoryUsedForExecution?approvedTechnique?.technique:null,
         niche:site.niche||"unknown",model:site.briefingLayoutVariant||"01"
       });
       if(preferUniversal&&result&&!result.ok){
@@ -1304,16 +1312,27 @@ export default function BuilderV2() {
         const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
         // A source is attributed only when it CHANGED the route and the new
         // mutation is verified, never merely because an old memory was read.
-        const learnedSource=confirmedReuseSource(approvedTechnique,memoryRouteOverride,!!verifiedSolution);
+        const learnedSource=confirmedReuseSource(approvedTechnique,memoryUsedForExecution,!!verifiedSolution);
         const learnedReuse=learnedSource&&approvedTechnique
           ?{sourceEventId:learnedSource,technique:approvedTechnique.technique}:undefined;
         if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution,reuse:learnedReuse};
+        // Memory-guided section backgrounds require a DOM check before an
+        // applied event or reuse attribution can ever be recorded.
+        const backgroundStyleId=guidedBackgroundApplied?result.changedIds.find(id=>id.startsWith("section-style:")):undefined;
+        const backgroundSection=backgroundStyleId?.slice("section-style:".length);
+        const backgroundStyles=(result.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+        const backgroundColor=backgroundSection?backgroundStyles?.[backgroundSection]?.backgroundColor:undefined;
+        const pendingLearnedVisual=!!(guidedBackgroundApplied&&backgroundSection&&backgroundColor&&verifiedSolution);
+        if(pendingLearnedVisual)pendingBackgroundVisualReviewRef.current={
+          prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          section:backgroundSection!,color:backgroundColor!,solution:verifiedSolution,reuse:learnedReuse
+        };
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution,learnedReuse);captureReviewCandidate();}
-        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
+        if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution,learnedReuse);captureReviewCandidate();}
+        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":pendingLearnedVisual?"Cor definida por uma técnica aprendida. Aguardando confirmação na prévia.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
         return;
       }
     }
