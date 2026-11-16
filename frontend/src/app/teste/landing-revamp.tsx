@@ -244,7 +244,7 @@ export function LandingRevamp() {
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <section className="pnr-section pnr-trust" id="garantia">
-    <div className="pnr-guarantee pnr-guarantee-triade"><div className="pnr-guarantee-emblem" aria-hidden="true"><div className="pnr-guarantee-medallion"><span className="pnr-guarantee-medallion-top">{t.guaranteeTag}</span><strong>7</strong><span>{t.guaranteeSeal}</span><ShieldCheck size={30} strokeWidth={1.6}/></div></div><div className="pnr-guarantee-copy"><p className="pnr-overline">{t.guaranteeTag}</p><h2>{t.guaranteeTitle} <em>{t.guaranteeHi}</em></h2><p>{t.guaranteeDesc}</p></div></div>
+    <div className="pnr-guarantee pnr-guarantee-triade"><div className="pnr-guarantee-emblem" aria-hidden="true"><img className="pnr-guarantee-brand-image" src="/images/garantia-pagenova-premium.svg" alt="" loading="lazy" /></div><div className="pnr-guarantee-copy"><p className="pnr-overline">{t.guaranteeTag}</p><h2>{t.guaranteeTitle} <em>{t.guaranteeHi}</em></h2><p>{t.guaranteeDesc}</p></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section>
   </main>
