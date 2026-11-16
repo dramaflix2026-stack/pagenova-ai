@@ -31,7 +31,7 @@ export default function MontarPacote(){
  const [selected,setSelected]=useState<string[]>([]);
  const [now,setNow]=useState<number|null>(null);
  useEffect(()=>{setNow(Date.now());const interval=window.setInterval(()=>setNow(Date.now()),1000);return ()=>window.clearInterval(interval)},[]);
- useEffect(()=>{const plan=new URLSearchParams(window.location.search).get("plan");if(plan&&products.some(p=>p.id===plan))setSelected([plan]);},[]);
+ useEffect(()=>{const plan=new URLSearchParams(window.location.search).get("plan");if(plan&&plan!=="apps"&&products.some(p=>p.id===plan))setSelected([plan]);},[]);
  const included=useMemo(()=>new Set(selected.flatMap(id=>products.find(p=>p.id===id)?.includes||[])),[selected]);
  const chosen=products.filter(p=>selected.includes(p.id));
  const priced=chosen.filter(p=>p.price!==null);
@@ -45,6 +45,7 @@ export default function MontarPacote(){
  const remaining=Math.max(0,Math.floor(((countdownTarget)-(now??countdownTarget))/1000));
  const countdown=[Math.floor(remaining/86400),Math.floor(remaining%86400/3600),Math.floor(remaining%3600/60),remaining%60];
  function toggle(id:string){
+  if(id==="apps")return;
   setSelected(current=>{
    if(current.includes(id))return current.filter(x=>x!==id);
    const next=[...current,id];
@@ -66,7 +67,7 @@ export default function MontarPacote(){
     {["Planos","Studio","CRM"].map(group=><section key={group} className="mp-group"><div className="mp-group-title"><h2>{group==="Planos"?"Pacotes completos":group==="Studio"?"Ferramentas Studio":"Ferramentas CRM"}</h2><p>{group==="Planos"?"Escolha um pacote ou pule esta etapa.":"Adicione apenas as ferramentas que desejar."}</p></div><div className="mp-products">{products.filter(p=>p.group===group).map(p=>{
       const isIncluded=!selected.includes(p.id)&&included.has(p.id);
       const active=selected.includes(p.id);
-      return <button key={p.id} type="button" disabled={isIncluded} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{(()=>{const Icon=icons[p.id]||LayoutTemplate;return <Icon size={21} strokeWidth={1.8}/>})()}</span><span className="mp-product-info"><strong>{p.name}</strong><span className="mp-product-benefit">{benefits[p.id]}</span><small>{isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Consulte condições no checkout"}</small></span><span className="mp-action">{active?<Check size={17}/>:isIncluded?<Check size={16}/>:<Plus size={17}/>}</span></button>;
+      return <button key={p.id} type="button" disabled={isIncluded||p.id==="apps"} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{(()=>{const Icon=icons[p.id]||LayoutTemplate;return <Icon size={21} strokeWidth={1.8}/>})()}</span><span className="mp-product-info"><strong>{p.name}</strong><span className="mp-product-benefit">{benefits[p.id]}</span><small>{p.id==="apps"?"Em Breve":isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Consulte condições no checkout"}</small></span><span className="mp-action">{active?<Check size={17}/>:isIncluded?<Check size={16}/>:<Plus size={17}/>}</span></button>;
     })}</div></section>)}
    </div>
    <aside className="mp-summary"><div className="mp-summary-inner"><div className="mp-summary-heading"><span className="mp-summary-icon"><ShoppingBag size={21}/></span><div><small>RESUMO DA CONTRATAÇÃO</small><h2>Seu pacote <span>{chosen.length}</span></h2></div></div>{chosen.length===0?<div className="mp-empty"><ShoppingBag size={29}/><p>Seu pacote começa aqui.</p><small>Selecione os produtos ao lado. Você não precisa escolher um plano completo.</small></div>:<div className="mp-selected">{chosen.map(p=><div key={p.id} className="mp-selected-row"><span>{p.name}</span><button type="button" onClick={()=>toggle(p.id)} aria-label={"Remover "+p.name}><Minus size={15}/></button></div>)}</div>}
