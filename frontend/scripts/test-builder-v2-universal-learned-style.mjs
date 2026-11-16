@@ -69,7 +69,7 @@ test("approved memory is considered BEFORE both legacy background shortcuts",()=
  const exactPosition=page.indexOf('const exactSectionHex=prompt.trim().match(');
  const shortcutPosition=page.indexOf('if(sectionBackgroundRequest&&!compound&&!learnedAiEligible)');
  assert.ok(memoryPosition>0&&memoryPosition<exactPosition&&exactPosition<shortcutPosition);
- assert.match(page,/pendingBackgroundVisualReviewRef\.current=\{\s*prompt,niche:site\.niche\|\|"",variant:site\.briefingLayoutVariant\|\|"01",\s*section,color:newColor,solution,\s*reuse:\{sourceEventId:approvedTechnique\.sourceEventId,technique:approvedTechnique\.technique\}/);
+ assert.match(page,/pendingBackgroundVisualReviewRef\.current=\{trace:activeSubmissionTraceRef\.current,\s*prompt,niche:site\.niche\|\|"",variant:site\.briefingLayoutVariant\|\|"01",\s*section,color:newColor,solution,\s*reuse:\{sourceEventId:approvedTechnique\.sourceEventId,technique:approvedTechnique\.technique\}/);
  assert.match(page,/if\(checked\.ok&&solution&&section&&newColor&&/);
  assert.match(page,/recordEditorLearningEvent\(pending\.niche,pending\.prompt,"applied","universal-visual-verified"/);
 });
