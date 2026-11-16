@@ -9,9 +9,9 @@ en:{nav:["Home","Services","About","Contact"],badge:"INDEPENDENT CREATIVE STUDIO
 es:{nav:["Inicio","Servicios","Nosotros","Contacto"],badge:"ESTUDIO CREATIVO INDEPENDIENTE",before:"Ideas que merecen llegar lejos.",after:"Tu nueva historia comienza aquí.",description:"Estrategia, diseño y experiencias digitales que convierten ideas en marcas inolvidables.",cta:"Conoce nuestro trabajo",work:"Proyectos destacados",workIntro:"Cada marca tiene una historia. Creamos experiencias que marcan la diferencia.",services:"Qué hacemos",serviceItems:["Identidad visual","Experiencias digitales","Estrategia de marca"],about:"Creatividad con propósito",aboutText:"Somos un estudio independiente que une estrategia, tecnología y creatividad para crear proyectos únicos.",contact:"¿Creamos algo extraordinario?",contactText:"Cuéntanos tu idea. Estamos listos para escuchar.",contactCta:"Hablemos",benefits:"Por qué elegir ATELIER",benefitItems:["Identidad propia","Tecnología inteligente","Experiencia premium"],footer:"Un estudio creativo para el futuro."}
 };
 const photoSources = {
- hero:["https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=1200","https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=82","https://picsum.photos/id/180/1200/900"],
- brand:["https://images.pexels.com/photos/4348404/pexels-photo-4348404.jpeg?auto=compress&cs=tinysrgb&w=900","https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=82","https://picsum.photos/id/201/900/700"],
- interior:["https://images.pexels.com/photos/276724/pexels-photo-276724.jpeg?auto=compress&cs=tinysrgb&w=900","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=82","https://picsum.photos/id/164/900/700"]
+ hero:["/images/Est%C3%BAdio%20Criativo%20com%20Luz%20Natural.png"],
+ brand:["/images/Flat%20Lay%20de%20Identidade%20Visual%20Luxuosa.png"],
+ interior:["/images/Sala%20Minimalista%20com%20Luz%20Natural.png"]
 };
 function DemoPhoto({kind,alt}:{kind:keyof typeof photoSources,alt:string}){
  const [source,setSource]=useState(0);
