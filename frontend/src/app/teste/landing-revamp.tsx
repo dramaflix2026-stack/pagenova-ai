@@ -244,7 +244,7 @@ export function LandingRevamp() {
     </article>})}</div><p className="pnr-footnote">{t.pricesNote}</p>
    </section>
    <section className="pnr-section pnr-trust" id="garantia">
-    <div className="pnr-guarantee"><div className="pnr-shield"><ShieldCheck strokeWidth={1.4} size={100}/></div><div className="pnr-guarantee-copy"><p className="pnr-overline">{t.guaranteeTag}</p><h2>{t.guaranteeTitle} <em>{t.guaranteeHi}</em></h2><p>{t.guaranteeDesc}</p></div><div className="pnr-seal"><strong>7</strong><span>{t.guaranteeSeal}</span></div></div>
+    <div className="pnr-guarantee"><div className="pnr-shield pnr-shield-premium" aria-hidden="true"><span className="pnr-shield-aura"/><span className="pnr-shield-body"><ShieldCheck strokeWidth={1.5} size={100}/></span></div><div className="pnr-guarantee-copy"><p className="pnr-overline">{t.guaranteeTag}</p><h2>{t.guaranteeTitle} <em>{t.guaranteeHi}</em></h2><p>{t.guaranteeDesc}</p></div><div className="pnr-seal"><strong>7</strong><span>{t.guaranteeSeal}</span></div></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section>
   </main>
