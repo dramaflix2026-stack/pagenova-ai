@@ -41,7 +41,7 @@ ALTER TABLE public.builder_editor_learning_events
       OR (requested_value_kind='alignment' AND requested_value IN
         ('left','center','right') AND interpreted_property='align')
       OR (requested_value_kind='count' AND requested_value ~ '^([1-9]|[1-9][0-9])$'
-        AND interpreted_property='count')
+        AND interpreted_property IN ('presence','count'))
     )
     AND (
       interpretation_status<>'unavailable'
