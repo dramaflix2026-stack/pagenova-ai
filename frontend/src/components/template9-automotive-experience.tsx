@@ -2,6 +2,7 @@
 import type { ReactNode } from "react";
 import {useState} from "react";
 import {TP9VerticeProcess} from "./tp9-vertice-process";
+import {TP9VerticeGallery} from "./tp9-vertice-gallery";
 type Review={name:string;quote:string;city?:string};
 type Props={brand:string;niche:string;contactHref?:string;testimonials?:Review[];reviewsSection?:ReactNode};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
@@ -39,7 +40,8 @@ export function Template9AutomotiveExperience({brand,niche,contactHref,testimoni
  `}</style>
  {isVertice&&<TP9VerticeProcess contactHref={target}/>}
  {!isVertice&&<section className="pn-t9x-section" id="tp9-processo"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">05 / Como funciona</span><h2 className="pn-t9x-title">Simples em cada etapa.<br/>Cuidado do início ao fim.</h2><div className="pn-t9x-steps">{d.steps.map((step,i)=><div className="pn-t9x-step" key={step}><small>0{i+1}</small><h3>{step}</h3><p>{i===0?"Entre em contato e conte o que você precisa.":i===1?"A equipe orienta a avaliação e os próximos passos.":i===2?"Confira detalhes, condições e disponibilidade antes de decidir.":"A continuidade depende de confirmação com a empresa."}</p></div>)}</div></div></section>}
- <section className="pn-t9x-section pn-t9x-gallery" id="tp9-galeria"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">06 / Galeria automotiva</span><h2 className="pn-t9x-title">A beleza está nos detalhes.</h2><div className="pn-t9x-gallery-main"><img key={slide} src={image(d.photos[slide])} alt={"Fotografia ilustrativa "+(slide+1)+" do segmento "+niche}/><span className="pn-t9x-gallery-caption">Imagens ilustrativas · {niche}</span></div><div className="pn-t9x-gallery-controls"><span>0{slide+1} / 0{d.photos.length}</span><div><button type="button" aria-label="Imagem anterior" onClick={()=>setSlide((slide+d.photos.length-1)%d.photos.length)}>‹</button> <button type="button" aria-label="Próxima imagem" onClick={()=>setSlide((slide+1)%d.photos.length)}>›</button></div></div></div></section>
+ {isVertice&&<TP9VerticeGallery/>}
+ {!isVertice&&<section className="pn-t9x-section pn-t9x-gallery" id="tp9-galeria"><div className="pn-t9x-wrap"><span className="pn-t9x-kicker">06 / Galeria automotiva</span><h2 className="pn-t9x-title">A beleza está nos detalhes.</h2><div className="pn-t9x-gallery-main"><img key={slide} src={image(d.photos[slide])} alt={"Fotografia ilustrativa "+(slide+1)+" do segmento "+niche}/><span className="pn-t9x-gallery-caption">Imagens ilustrativas · {niche}</span></div><div className="pn-t9x-gallery-controls"><span>0{slide+1} / 0{d.photos.length}</span><div><button type="button" aria-label="Imagem anterior" onClick={()=>setSlide((slide+d.photos.length-1)%d.photos.length)}>‹</button> <button type="button" aria-label="Próxima imagem" onClick={()=>setSlide((slide+1)%d.photos.length)}>›</button></div></div></div></section>}
  {reviewsSection}
 
  </div>;
