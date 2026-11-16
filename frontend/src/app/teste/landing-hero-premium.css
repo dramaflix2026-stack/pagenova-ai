@@ -1364,36 +1364,37 @@
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}}
 
 
-/* Image-aligned motion: animated highlights trace existing artwork curves, never a full rotating ring. */
-.pnr-page .pnr-hero--premium .pnr-hero-scene{isolation:isolate;overflow:hidden}
-.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg{
- position:absolute;inset:0;display:block;width:100%;height:100%;z-index:3;
- pointer-events:none;overflow:hidden;opacity:.8;
-}
-.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-path{
- fill:none;stroke:url(#pnrHeroOrbitPulse);stroke-width:3;stroke-linecap:round;
- stroke-dasharray:90 1000;animation:pnrOrbitTrace 8s linear infinite;
- filter:drop-shadow(0 0 6px rgba(146,255,109,.85));
-}
-.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-path--bottom{animation-delay:-4s;stroke-width:2.4}
-@keyframes pnrOrbitTrace{from{stroke-dashoffset:1090}to{stroke-dashoffset:0}}
-/* Robot eye: a small, precisely clipped glow, not a whole-face light bloom. */
+
+/* Cyborg mask only: preserve all original green curves in the approved image.
+   No artificial orbit, path strokes, or light escaping the portrait. */
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion,
+.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg{display:none!important;animation:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-scene{position:relative;isolation:isolate;overflow:hidden}
 .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{
- z-index:5!important;inset:0!important;display:block!important;
- background:radial-gradient(ellipse 1.5% 2.2% at 56% 38%,rgba(220,255,197,.9),rgba(74,255,146,.46) 55%,transparent 100%);
- mix-blend-mode:screen;animation:pnrEyeHeartbeat 3.1s ease-in-out infinite!important;
+ position:absolute;inset:0;display:block!important;pointer-events:none;z-index:5!important;
+ background:radial-gradient(ellipse 2.25% 3.1% at 55.9% 38.4%,rgba(214,255,188,.95) 0%,rgba(88,255,142,.65) 29%,rgba(66,255,126,.25) 58%,transparent 100%);
+ mix-blend-mode:screen;animation:pnrCyborgEyeActive 3.2s ease-in-out infinite!important;
 }
-@keyframes pnrEyeHeartbeat{0%,100%{opacity:.2;filter:blur(2px)}42%{opacity:.95;filter:blur(.6px)}53%{opacity:.4;filter:blur(1.5px)}62%{opacity:.82;filter:blur(.7px)}}
-/* Robot mask: localized, infrequent diagnostic scan. */
 .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{
- z-index:4!important;inset:0!important;display:block!important;
- clip-path:polygon(52% 19%,62% 19%,62% 65%,52% 65%);
- background:linear-gradient(180deg,transparent 35%,rgba(111,255,151,.07) 48%,rgba(167,255,188,.22) 50%,transparent 54%);
- mix-blend-mode:screen;animation:pnrMaskDiagnostic 8.5s ease-in-out infinite!important;
+ position:absolute;inset:0;display:block!important;pointer-events:none;z-index:4!important;
+ background:linear-gradient(180deg,transparent 39%,rgba(97,255,142,.04) 46%,rgba(180,255,194,.27) 50%,rgba(89,255,136,.05) 54%,transparent 61%);
+ clip-path:polygon(52% 18%,61% 19%,62% 61%,54% 68%,51% 57%);
+ mix-blend-mode:screen;animation:pnrCyborgMaskScan 8s ease-in-out infinite!important;
 }
-@keyframes pnrMaskDiagnostic{0%,20%,74%,100%{opacity:0;transform:translateY(-10%)}30%{opacity:.65}58%{opacity:.28;transform:translateY(12%)}70%{opacity:0;transform:translateY(15%)}}
+@keyframes pnrCyborgEyeActive{
+ 0%,100%{opacity:.2;filter:blur(2px)}
+ 35%{opacity:.95;filter:blur(.5px)}
+ 48%{opacity:.38;filter:blur(1.5px)}
+ 58%{opacity:1;filter:blur(.4px)}
+ 73%{opacity:.27;filter:blur(1.8px)}
+}
+@keyframes pnrCyborgMaskScan{
+ 0%,22%,76%,100%{opacity:0;transform:translateY(-11%)}
+ 32%{opacity:.65}
+ 57%{opacity:.42;transform:translateY(10%)}
+ 72%{opacity:0;transform:translateY(13%)}
+}
 @media(prefers-reduced-motion:reduce){
- .pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg{display:none!important}
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}
 }
