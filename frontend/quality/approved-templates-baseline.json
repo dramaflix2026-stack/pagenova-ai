@@ -615,8 +615,8 @@
       "path": "src/components/builder-v2-tp9-model3.tsx",
       "blobSha": "6810f102f2a6ee35517d7961c4ac799abdd56b76",
       "approvedBindingRevision": {
-        "sha": "461235ba890995e69627ca0dce20403ed6d8c43c",
-        "reason": "Reduce excessive desktop footer typography and vertical whitespace in automotive model three while preserving existing sections."
+        "sha": "cdf42a8cd0a636b536f44b9a5d9a64a9c292066d",
+        "reason": "User-approved scoped Vértice Auto Center TP9 Model 3 ten-section visual redesign. Other TP9 brands retain the frozen original template; Models 1/2, Editor Universal and learning unchanged."
       }
     },
     {
