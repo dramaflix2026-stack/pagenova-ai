@@ -7,7 +7,7 @@ import {verifyUniversalEditResult} from "./builder-v2-universal-learning.ts";
 import type {UniversalSite,UniversalBlock} from "./builder-v2-universal-operations.ts";
 
 export type SolutionDelta={
- kind:"block-field"|"block-added"|"block-removed"|"block-moved"|"section-style"|"site-style"|"section-event"|"block-other";
+ kind:"block-field"|"block-added"|"block-removed"|"block-moved"|"section-style"|"section-photo"|"site-style"|"section-event"|"block-other";
  blockId?:string;section?:string;blockType?:string;field?:string;
  before?:string|number|boolean|null;after?:string|number|boolean|null;
  fromIndex?:number;toIndex?:number;reason?:string;
@@ -76,6 +76,21 @@ const styleDeltas=(before:unknown,after:unknown,field:string,section:string):Sol
  return deltas;
 };
 
+/** A strict, single-section image override is a verified data change even
+ * though the generic block verifier does not understand section-photo IDs. */
+const verifyScopedPhoto=(before:UniversalSite,after:UniversalSite,ids:readonly string[]):boolean=>{
+ if(ids.length!==1||!ids[0].startsWith("section-photo:"))return false;
+ const section=ids[0].slice("section-photo:".length);
+ if(!section||section.length>100||JSON.stringify(before.blocks)!==JSON.stringify(after.blocks))return false;
+ const oldRoot={...before},newRoot={...after};
+ const oldImages=isRecord(oldRoot.universalSectionImages)?oldRoot.universalSectionImages:{};
+ const newImages=isRecord(newRoot.universalSectionImages)?newRoot.universalSectionImages:{};
+ delete oldRoot.universalSectionImages;delete newRoot.universalSectionImages;
+ if(JSON.stringify(oldRoot)!==JSON.stringify(newRoot))return false;
+ const oldRemaining={...oldImages},newRemaining={...newImages};
+ delete oldRemaining[section];delete newRemaining[section];
+ return JSON.stringify(oldRemaining)===JSON.stringify(newRemaining)&&typeof newImages[section]==="string"&&oldImages[section]!==newImages[section];
+};
 /** Capture only successful deterministic edits; model verification does not imply visual approval. */
 export function captureVerifiedEditorSolution<T extends UniversalSite>(
  before:T,after:T,changedIds:readonly string[],
@@ -83,11 +98,18 @@ export function captureVerifiedEditorSolution<T extends UniversalSite>(
  verification:"model"|"visual"="model"
 ):EditorSolutionMemory|null{
  if(!Array.isArray(changedIds)||changedIds.length<1||changedIds.length>50)return null;
- if(!verifyUniversalEditResult(before,after,changedIds).ok)return null;
+ if(!verifyUniversalEditResult(before,after,changedIds).ok&&!verifyScopedPhoto(before,after,changedIds))return null;
  const oldMap=new Map(before.blocks.map(b=>[b.id,b])),nextMap=new Map(after.blocks.map(b=>[b.id,b]));
  const beforeRoot=before as Record<string,unknown>,afterRoot=after as Record<string,unknown>;
  const deltas:SolutionDelta[]=[];
  for(const id of changedIds){
+  if(id.startsWith("section-photo:")){
+   const section=id.slice("section-photo:".length);
+   const oldImages=isRecord(beforeRoot.universalSectionImages)?beforeRoot.universalSectionImages:{};
+   const newImages=isRecord(afterRoot.universalSectionImages)?afterRoot.universalSectionImages:{};
+   deltas.push({kind:"section-photo",section,field:"src",before:safeScalar("src",oldImages[section])??null,after:safeScalar("src",newImages[section])??null});
+   continue;
+  }
   if(id==="primary-cta-theme"){
    const a=safeScalar("color",beforeRoot.universalPrimaryCtaColor),b=safeScalar("color",afterRoot.universalPrimaryCtaColor);
    if(typeof b==="string")deltas.push({kind:"site-style",field:"universalPrimaryCtaColor",before:a??null,after:b});
