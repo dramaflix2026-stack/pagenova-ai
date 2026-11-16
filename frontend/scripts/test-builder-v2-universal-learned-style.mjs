@@ -62,3 +62,14 @@ test("build path waits for actual preview DOM verification before recording lear
  assert.match(page,/pendingBackgroundVisualReviewRef\.current=\{/);
  assert.match(page,/pending\.solution\?\{\.\.\.pending\.solution,verification:"visual"\}:null,pending\.reuse/);
 });
+
+test("approved memory is considered BEFORE both legacy background shortcuts",()=>{
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const memoryPosition=page.indexOf('const learnedBackground=applyApprovedSectionBackground(site,prompt,approvedTechnique);');
+ const exactPosition=page.indexOf('const exactSectionHex=prompt.trim().match(');
+ const shortcutPosition=page.indexOf('if(sectionBackgroundRequest&&!compound&&!learnedAiEligible)');
+ assert.ok(memoryPosition>0&&memoryPosition<exactPosition&&exactPosition<shortcutPosition);
+ assert.match(page,/pendingBackgroundVisualReviewRef\.current=\{\s*prompt,niche:site\.niche\|\|"",variant:site\.briefingLayoutVariant\|\|"01",\s*section,color:newColor,solution,\s*reuse:\{sourceEventId:approvedTechnique\.sourceEventId,technique:approvedTechnique\.technique\}/);
+ assert.match(page,/if\(checked\.ok&&solution&&section&&newColor&&/);
+ assert.match(page,/recordEditorLearningEvent\(pending\.niche,pending\.prompt,"applied","universal-visual-verified"/);
+});
