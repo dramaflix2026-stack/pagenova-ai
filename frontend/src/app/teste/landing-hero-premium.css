@@ -1217,3 +1217,25 @@
 .pnr-page .pnr-trust .pnr-guarantee-full-art{display:block!important;width:min(100%,1320px)!important;max-width:1320px!important;margin:0 auto 48px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;min-height:0!important;overflow:hidden!important}
 .pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{display:block;width:100%;height:auto;max-width:none;object-fit:contain;border:0;box-shadow:none}
 @media(max-width:767px){.pnr-page .pnr-trust .pnr-guarantee-full-art{margin-bottom:32px!important}.pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{width:100%;height:auto}}
+
+
+/* Blend the baked-in guarantee artwork into the LP background without changing the artwork. */
+.pnr-page .pnr-trust .pnr-guarantee-full-art{
+  width:min(100%,1440px)!important;max-width:1440px!important;
+  margin:0 auto 12px!important;overflow:visible!important;
+}
+.pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{
+  display:block;width:100%;height:auto;
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 9%,#000 91%,transparent 100%),linear-gradient(to bottom,transparent 0%,#000 17%,#000 82%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to right,transparent 0%,#000 9%,#000 91%,transparent 100%),linear-gradient(to bottom,transparent 0%,#000 17%,#000 82%,transparent 100%);
+  mask-composite:intersect;
+}
+.pnr-page .pnr-trust{padding-top:clamp(14px,2vw,36px)!important}
+@media(max-width:767px){
+ .pnr-page .pnr-trust .pnr-guarantee-full-art{margin-bottom:10px!important}
+ .pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{
+  -webkit-mask-image:radial-gradient(ellipse 75% 74% at center,#000 64%,transparent 100%);
+  mask-image:radial-gradient(ellipse 75% 74% at center,#000 64%,transparent 100%);
+ }
+}
