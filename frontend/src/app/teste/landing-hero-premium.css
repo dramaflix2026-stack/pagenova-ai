@@ -1313,3 +1313,34 @@
  .pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{animation:none!important;will-change:auto}
  .pnr-page .pnr-guarantee-full-art::after{animation:none!important;display:none}
 }
+
+
+/* Hero: animate ONLY existing image orbits and cyborg half-face, not page-wide horizontal strokes. */
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion,
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{position:absolute;inset:0;pointer-events:none;z-index:4}
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{
+ z-index:3;inset:8% 3% 5% 4%;border-radius:50%;
+ background:conic-gradient(from 35deg at 50% 52%,transparent 0deg,transparent 75deg,rgba(148,255,107,.12) 92deg,transparent 110deg,transparent 218deg,rgba(139,255,104,.15) 233deg,transparent 251deg,transparent 360deg);
+ -webkit-mask:radial-gradient(ellipse 51% 47% at 50% 52%,transparent 92%,#000 98%,transparent 100%);
+ mask:radial-gradient(ellipse 51% 47% at 50% 52%,transparent 92%,#000 98%,transparent 100%);
+ filter:drop-shadow(0 0 8px #90ff75);
+ animation:pnrHeroOrbitTravel 9s linear infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{
+ background:radial-gradient(ellipse 3.2% 4.2% at 57% 38%,rgba(149,255,126,.45),rgba(69,255,136,.16) 44%,transparent 100%);
+ mix-blend-mode:screen;animation:pnrHeroEyePulse 3.6s ease-in-out infinite;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{
+ background:linear-gradient(180deg,transparent 0%,rgba(117,255,168,.07) 47%,rgba(133,255,166,.15) 50%,rgba(117,255,168,.05) 53%,transparent 100%);
+ clip-path:polygon(49% 12%,64% 12%,64% 67%,49% 67%);
+ mix-blend-mode:screen;opacity:0;animation:pnrHeroFaceScan 7.2s ease-in-out infinite;
+}
+@keyframes pnrHeroOrbitTravel{from{transform:rotate(0deg);opacity:.55}50%{opacity:1}to{transform:rotate(360deg);opacity:.55}}
+@keyframes pnrHeroEyePulse{0%,100%{opacity:.26;filter:blur(3px)}48%{opacity:.95;filter:blur(1px)}}
+@keyframes pnrHeroFaceScan{0%,19%,68%,100%{opacity:0;transform:translateY(-13%)}32%{opacity:.65}58%{opacity:.12;transform:translateY(17%)}}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-orbit-motion,
+ .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
+ .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}
+}
