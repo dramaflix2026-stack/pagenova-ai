@@ -19,17 +19,17 @@ const source={
  hero:"VdXnpwrp1qc",
  team:["8t6tk7LYLrE","KhF58h0hTbc"],
  differences:"WbKt-WmdMf8",
- process:["rU_bvNfr8pQ","5SH7iAdcyrg","wtXnp09Q86w"],
+ process:["EJr3XkHdBm0","s4d_ESS0ylA","NjnftJ6_QCo"],
  contact:"wacb2ChxA4k",
- gallery:["TCg8r4Z5Wu0","wacb2ChxA4k","5SH7iAdcyrg","wtXnp09Q86w","KhF58h0hTbc","WbKt-WmdMf8"]
+ gallery:["erWc6mrOq_I","-ApM9rASMbA","XP8o9_Arwqg","0OPC0-DfEbM","8IOn8x1zrGE","ZFIgxM5BP5g"]
 };
 const services=[
  {title:"Revisão preventiva",description:"Inspeção periódica e orientações para cuidar do veículo.",photo:"rU_bvNfr8pQ"},
  {title:"Diagnóstico eletrônico",description:"Verificação dos sintomas e sistemas para orientar a avaliação.",photo:"KhF58h0hTbc"},
- {title:"Troca de óleo e filtros",description:"Cuidados ligados à lubrificação e à manutenção periódica.",photo:"5SH7iAdcyrg"},
+ {title:"Troca de óleo e filtros",description:"Cuidados ligados à lubrificação e à manutenção periódica.",photo:"gW34cv-Ojjs"},
  {title:"Freios e suspensão",description:"Avaliação dos componentes ligados ao controle e à segurança.",photo:"wacb2ChxA4k"},
  {title:"Ar-condicionado automotivo",description:"Orientação sobre inspeção e manutenção de climatização.",photo:"wtXnp09Q86w"},
- {title:"Alinhamento e balanceamento",description:"Consulta sobre inspeção e ajustes de rodas.",photo:"TCg8r4Z5Wu0"}
+ {title:"Alinhamento e balanceamento",description:"Consulta sobre inspeção e ajustes de rodas.",photo:"8IOn8x1zrGE"}
 ];
 const stages=[
  {title:"Primeiro contato",description:"Conte qual é o seu veículo e descreva o serviço ou sintoma que precisa avaliar.",photo:source.process[0]},
@@ -74,7 +74,8 @@ export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[
  const hasContact=Boolean(safePhone||safeEmail);
  const directContact=safePhone?"https://wa.me/"+safePhone:safeEmail?"mailto:"+safeEmail:"#tp9v3-contact";
  const providedGallery=gallery.filter(item=>/^https?:\/\//i.test(item.src)).slice(0,6);
- const photos=[...providedGallery,...source.gallery.slice(0,6-providedGallery.length).map((id,index)=>({src:photo(id),caption:"Fotografia ilustrativa de oficina "+(index+1)}))].slice(0,6);
+ const photoCaptions=["Mecânico realizando inspeção do motor","Equipamentos de pneus e balanceamento","Profissional trabalhando no motor de um veículo","Veículo elevado para manutenção","Balanceamento de roda em oficina","Inspeção técnica com lanterna no compartimento do motor"];
+ const photos=[...providedGallery,...source.gallery.slice(0,6-providedGallery.length).map((id,index)=>({src:photo(id),caption:photoCaptions[providedGallery.length+index]}))].slice(0,6);
  const validReviews=reviews.filter(item=>item.name?.trim()&&item.quote?.trim()).slice(0,6);
  const reviewCards=[...validReviews.map(item=>({...item,demonstrative:false})),...placeholderReviews.slice(0,6-validReviews.length).map(item=>({...item,demonstrative:true}))];
  const customFAQs=faqs.filter(item=>item.question?.trim()&&item.answer?.trim()).slice(0,6);
@@ -144,14 +145,14 @@ export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[
 
   <section className="tp9v3-section tp9v3-services" id="tp9v3-services"><div className="tp9v3-wrap">
    <div className="tp9v3-sectionHead"><div><span className="tp9v3-kicker">02 / NOSSAS SOLUÇÕES</span><h2>Serviços que <em>fazem a diferença.</em></h2></div><p>Encontre o cuidado de que seu veículo precisa. A disponibilidade dos serviços deve ser confirmada com a equipe.</p></div>
-   <div className="tp9v3-serviceGrid">{services.map((item,i)=><a className="tp9v3-serviceCard" href="#tp9v3-contact" key={item.title}><img loading="lazy" onError={onPhotoError} src={photo(item.photo)} alt={"Imagem ilustrativa de contexto de oficina: "+item.title}/><div className="tp9v3-cardScrim"/><div className="tp9v3-cardContent"><span>0{i+1} / SERVIÇO AUTOMOTIVO</span><h3>{item.title}</h3><p>{item.description}</p><span className="tp9v3-circleArrow"><ArrowUpRight size={18}/></span></div></a>)}</div>
+   <div className="tp9v3-serviceGrid">{services.map((item,i)=><a className="tp9v3-serviceTile" href="#tp9v3-contact" key={item.title}><img loading="lazy" onError={onPhotoError} src={photo(item.photo)} alt={"Imagem ilustrativa de contexto de oficina: "+item.title}/><div className="tp9v3-photoShade"/><div className="tp9v3-serviceContent"><span>0{i+1} / SERVIÇO AUTOMOTIVO</span><h3>{item.title}</h3><p>{item.description}</p><span className="tp9v3-circleArrow"><ArrowUpRight size={18}/></span></div></a>)}</div>
   </div></section>
 
   <section className="tp9v3-difference" id="tp9v3-difference"><div className="tp9v3-differencePhoto"><img loading="lazy" src={photo(source.differences)} onError={onPhotoError} alt="Profissional trabalhando em manutenção automotiva"/><span>04 PILARES DE ATENDIMENTO</span></div><div className="tp9v3-differenceCopy"><span className="tp9v3-kicker">03 / O QUE NOS MOVE</span><h2>Cada detalhe <em>importa.</em></h2><p>Uma experiência organizada, com informações claras e atenção ao que cada veículo necessita.</p><div className="tp9v3-advantages">{advantages.map((a,i)=><div className="tp9v3-advantage" key={a.title}><span>0{i+1}</span><div><h3>{a.title}</h3><p>{a.description}</p></div><ArrowUpRight size={18}/></div>)}</div></div></section>
 
   <section className="tp9v3-section tp9v3-process tp9v3-wrap" id="tp9v3-process">
    <div className="tp9v3-sectionHead"><div><span className="tp9v3-kicker">04 / SUA JORNADA</span><h2>Simples. <em>Do começo ao fim.</em></h2></div><p>Três etapas para facilitar seu contato. Cada atendimento depende de confirmação da equipe.</p></div>
-   <div className="tp9v3-processGrid">{stages.map((step,i)=><article className="tp9v3-processCard" key={step.title}><div className="tp9v3-processPhoto"><img loading="lazy" src={photo(step.photo)} onError={onPhotoError} alt={"Imagem ilustrativa da etapa: "+step.title}/><span>0{i+1}</span></div><div className="tp9v3-processCopy"><span>ETAPA 0{i+1}</span><h3>{step.title}</h3><p>{step.description}</p></div></article>)}</div>
+   <div className="tp9v3-processGrid">{stages.map((step,i)=><article className="tp9v3-processTile" key={step.title}><div className="tp9v3-processPhoto"><img loading="lazy" src={photo(step.photo)} onError={onPhotoError} alt={"Imagem ilustrativa da etapa: "+step.title}/><span>0{i+1}</span></div><div className="tp9v3-processCopy"><span>ETAPA 0{i+1}</span><h3>{step.title}</h3><p>{step.description}</p></div></article>)}</div>
   </section>
 
   <section className="tp9v3-section tp9v3-gallery" id="tp9v3-gallery"><div className="tp9v3-wrap"><span className="tp9v3-kicker">05 / UNIVERSO AUTOMOTIVO</span><div className="tp9v3-sectionHead"><h2>Perspectivas <em>em movimento.</em></h2><p>{providedGallery.length?"Fotografias cadastradas pela empresa e imagens ilustrativas complementares.":"Imagens ilustrativas de oficinas e serviços automotivos. Não representam trabalhos realizados pela empresa."}</p></div>
