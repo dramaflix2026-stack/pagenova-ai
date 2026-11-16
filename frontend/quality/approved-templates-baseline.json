@@ -825,7 +825,11 @@
     },
     {
       "path": "src/components/template9-automotive-sections.tsx",
-      "blobSha": "8191c8e062c47a83f68a1420eed58003997e70da"
+      "blobSha": "8191c8e062c47a83f68a1420eed58003997e70da",
+      "approvedBindingRevision": {
+        "sha": "ac889b4f110c4f4649847c0d910dd4c1bcdc553c",
+        "reason": "User-approved Vértice Auto Center TP9 Model 1 photo-based service grid with six cards, scoped by brand; all other model visuals retain their approved template structure."
+      }
     },
     {
       "path": "src/components/tp10-language-testimonials.tsx",
