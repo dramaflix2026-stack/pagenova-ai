@@ -1584,3 +1584,21 @@
  .pnr-page .pnr-footer-onesignal .pnr-socials{gap:9px!important}
  .pnr-page .pnr-footer-onesignal .pnr-socials a{width:46px!important;height:46px!important}
 }
+
+
+/* Four authentic social-network glyphs in one consistent desktop row. */
+.pnr-page .pnr-footer-onesignal .pnr-socials{
+ display:grid!important;grid-template-columns:repeat(4,48px)!important;
+ gap:10px!important;align-items:center!important;justify-content:start!important;
+}
+.pnr-page .pnr-footer-onesignal .pnr-socials a{
+ width:48px!important;height:48px!important;display:grid!important;place-items:center!important;
+}
+.pnr-page .pnr-footer-onesignal .pnr-socials img{
+ width:26px!important;height:26px!important;display:block!important;
+ filter:invert(86%) sepia(15%) saturate(513%) hue-rotate(69deg) brightness(110%)!important;
+}
+@media(max-width:620px){
+ .pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(4,44px)!important;gap:8px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-socials a{width:44px!important;height:44px!important}
+}
