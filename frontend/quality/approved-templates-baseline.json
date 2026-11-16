@@ -799,8 +799,8 @@
       "path": "src/components/template9-automotive-closing.tsx",
       "blobSha": "323238597f7abe5b8c59fc97bdb0a6be900e204c",
       "approvedBindingRevision": {
-        "sha": "83886428a4ca06f8b595fc952c76efa4110fbf7c",
-        "reason": "Automotive QA correction: integrate reviews and map into existing positions, replace broken card photos and adjust footer without changing unrelated templates."
+        "sha": "2c83e400206ccc77a271ae74584de84fe4b79c66",
+        "reason": "User explicitly approved Vértice Auto Center TP9 Modelo 1 FAQ Option 1 (six accessible accordion questions, photo and modern dark orange style), scoped by exact brand. All other TP9 models, Hero, Services, About, Differentials, Process, Gallery, Contact, Editor Universal and Machine Learning are preserved."
       }
     },
     {
