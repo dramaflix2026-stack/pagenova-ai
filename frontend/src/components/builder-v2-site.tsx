@@ -1,5 +1,4 @@
 "use client";
-import {TP10UniversalCustomSections} from "@/components/tp10-universal-custom-sections";
 import {universalBlockProps,UniversalTypographyRules} from "./builder-v2-universal-bindings";
 import {UniversalTemplateSections} from "./builder-v2-universal-sections";
 import {MemoriaVivaModel1} from "./builder-v2-memoria-viva-model1";
@@ -391,16 +390,16 @@ function BuilderV2SiteContent(props:BuilderV2SiteProps){
      const reviews=testimonials.map(t=>({name:t.name,role:t.role,quote:t.quote,photo:t.photo}));
      const faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const p=(b.text||"").split(/\s*\|\s*/);return p.length>=2&&p[0].trim()&&p.slice(1).join(" | ").trim()?{question:p[0].trim(),answer:p.slice(1).join(" | ").trim()}:null}).filter((v):v is {question:string;answer:string}=>v!==null);
      const gallery=props.site.blocks.filter(b=>b.type==="image"&&b.src&&(/galeria|portfolio|portfólio|ambiente|experi[eê]ncia/i.test(b.section||"")||b.layout==="gallery")).map(b=>b.src!).filter(Boolean);
-     return <TP10UniversalCustomSections blocks={props.site.blocks} sectionEvents={props.site.universalSectionEvents}><BuilderV2TP10Model3 brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/></TP10UniversalCustomSections>;
+     return <BuilderV2TP10Model3 brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
    }
    if(props.site.briefingLayoutVariant==="02"){
      const reviews=testimonials.map(t=>({name:t.name,role:t.role,quote:t.quote,photo:t.photo}));
      const faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const p=(b.text||"").split(/\s*\|\s*/);return p.length>=2&&p[0].trim()&&p.slice(1).join(" | ").trim()?{question:p[0].trim(),answer:p.slice(1).join(" | ").trim()}:null}).filter((v):v is {question:string;answer:string}=>v!==null);
      const gallery=props.site.blocks.filter(b=>b.type==="image"&&b.src&&(/galeria|portfolio|portfólio|ambiente|experi[eê]ncia/i.test(b.section||"")||b.layout==="gallery")).map(b=>b.src!).filter(Boolean);
-     return <TP10UniversalCustomSections blocks={props.site.blocks} sectionEvents={props.site.universalSectionEvents}><BuilderV2TP10Model2 brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/></TP10UniversalCustomSections>;
+     return <BuilderV2TP10Model2 brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} email={props.site.footer?.email} phone={props.site.footer?.whatsapp} address={props.site.footer?.address} reviews={reviews} faqs={faqs} gallery={gallery}/>;
    }
    const model1Faqs=props.site.blocks.filter(b=>b.type==="paragraph"&&/faq|perguntas frequentes|d[uú]vidas/i.test(b.section||"")).map(b=>{const parts=(b.text||"").split(/\s*\|\s*/);return parts.length>=2&&parts[0].trim()&&parts.slice(1).join(" | ").trim()?{question:parts[0].trim(),answer:parts.slice(1).join(" | ").trim()}:null}).filter((entry):entry is {question:string;answer:string}=>entry!==null);
-   return <TP10UniversalCustomSections blocks={props.site.blocks} sectionEvents={props.site.universalSectionEvents}><Template10EducationHero brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} faqs={model1Faqs} contact={{email:props.site.footer?.email,phone:props.site.footer?.whatsapp,address:props.site.footer?.address}}/></TP10UniversalCustomSections>;
+   return <Template10EducationHero brand={cleanBrand} universalSectionImages={props.site.universalSectionImages} publishedMode={props.publishedMode} niche={props.site.niche||props.selectedNiche||"Cursos profissionalizantes"} headline={heading} description={intro} image={heroImage} testimonials={testimonials} faqs={model1Faqs} contact={{email:props.site.footer?.email,phone:props.site.footer?.whatsapp,address:props.site.footer?.address}}/>;
  }
  if(isWrittenBrief&&family===9){
    const heading=props.site.blocks.find(b=>b.type==="heading"&&b.text?.trim())?.text;
