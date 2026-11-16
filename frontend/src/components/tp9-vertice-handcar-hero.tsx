@@ -6,16 +6,15 @@ type Props={brand:string;niche:string;headline?:string;description?:string;image
 const defaultPhoto="https://images.unsplash.com/photo-1677230017871-f19937f21a8c?auto=format&fit=crop&w=1800&q=85";
 const fallbackPhoto="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&w=1800&q=85";
 
-export function TP9VerticeHandcarHero({headline,description,image,contactHref}:Props){
+export function TP9VerticeHandcarHero({headline,description,contactHref}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const cleanHeadline=(headline||"").trim().replace(/^v[ée]rtice\s+auto\s+center\s*[:\-–—|.]?\s*/i,"").trim();
  const title=cleanHeadline.length>8?cleanHeadline:"Performance e confiança para seu veículo.";
  const subtitle=(description||"").trim()||"Manutenção preventiva e corretiva com diagnóstico técnico, transparência e atenção aos detalhes.";
- // TP9 M1 Vértice has an approved internet photograph. Generic generated site image
- // blocks must not override it; direct user uploads continue to take precedence.
- const userUploadedImage=typeof image==="string"&&/^https:\/\/[^\s]+$/i.test(image)
-  &&/(?:\/storage\/v1\/object\/|\/api\/builder-v2\/assets\/|\/uploads\/|cloudinary\.com)/i.test(image);
- const photo=userUploadedImage?image:defaultPhoto;
+ // This approved visual is intentionally authoritative for Vértice until an
+ // explicitly user-edited hero override is wired into the universal editor.
+ // Seed/CRM-generated image blocks must never reinsert the old composite.
+ const photo=defaultPhoto;
  const contact=contactHref&&(/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)||contactHref==="#tp9-contato")?contactHref:"#tp9-orcamento";
  const external=/^https?:\/\//i.test(contact);
  const closeMenu=()=>setMenuOpen(false);
