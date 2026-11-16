@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShoppingBag, ShieldCheck } from "lucide-react";
 import "./montar-pacote.css";
@@ -24,6 +24,7 @@ const products:Product[]=[
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(n);
 export default function MontarPacote(){
  const [selected,setSelected]=useState<string[]>([]);
+ useEffect(()=>{const plan=new URLSearchParams(window.location.search).get("plan");if(plan&&products.some(p=>p.id===plan))setSelected([plan]);},[]);
  const included=useMemo(()=>new Set(selected.flatMap(id=>products.find(p=>p.id===id)?.includes||[])),[selected]);
  const chosen=products.filter(p=>selected.includes(p.id));
  const priced=chosen.filter(p=>p.price!==null);
