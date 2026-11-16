@@ -101,7 +101,7 @@ test("production path is wired before execution and attribution is tied to the n
  assert.match(page,/readApprovedEditorSolutionCases\(inferredIntent,inferredTarget\)/);
  assert.match(page,/selectApprovedExecutionTechnique\(approvedSolutions/);
  assert.match(page,/shouldRerouteUsingApprovedTechnique\(approvedTechnique/);
- assert.match(page,/confirmedReuseSource\(approvedTechnique,memoryRouteOverride,!!verifiedSolution\)/);
+ assert.match(page,/confirmedReuseSource\(approvedTechnique,memoryUsedForExecution,!!verifiedSolution\)/);
  assert.match(page,/event_id:event.id,user_id:user.id,source_event_id:event.reuse.sourceEventId/);
  assert.match(schema,/source_event\.review_status='approved'/);
  assert.match(schema,/source_event\.execution_status='applied'/);
