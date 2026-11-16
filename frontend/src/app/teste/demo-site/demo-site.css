@@ -150,3 +150,54 @@
  .atelier-footer{padding:22px 6%;gap:12px}
 }
 @media(prefers-reduced-motion:reduce){.atelier-project-card,.atelier-services-grid article,.atelier-contact a{transition:none}}
+
+
+/* QA fix: project card contrast and illustrated studio metrics. Scope to demo only. */
+.atelier-site .atelier-projects .atelier-project-card{
+ background:#17291d!important;color:#f3f9ef!important;border:1px solid rgba(171,219,155,.24)!important;
+ box-shadow:0 8px 22px rgba(0,0,0,.10);
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info{
+ background:#17291d!important;color:#f3f9ef!important;min-height:86px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info>div{min-width:0;flex:1}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info small{
+ color:#a7d394!important;font-size:9px;font-weight:800;letter-spacing:.10em;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{
+ color:#f8fff4!important;display:block!important;font-size:clamp(14px,1.55vw,19px)!important;
+ font-weight:800!important;line-height:1.35!important;opacity:1!important;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong em{
+ color:#c6d8c4!important;font-style:normal;font-weight:450!important;opacity:1!important;
+}
+.atelier-site .atelier-projects .atelier-project-card .atelier-project-info>span{
+ background:#baff80!important;color:#102217!important;flex-shrink:0;
+}
+.atelier-site .atelier-about-metrics{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;
+ border-top:1px solid rgba(171,219,155,.2);margin-top:26px;padding-top:17px;
+}
+.atelier-site .atelier-about-metrics>div{
+ padding:12px 13px 14px;border:1px solid rgba(171,219,155,.2);
+ background:rgba(149,216,123,.045);border-radius:9px;min-width:0;
+}
+.atelier-site .atelier-about-metrics strong{
+ font-size:clamp(25px,3vw,38px);font-weight:850;letter-spacing:-.06em;color:#baff80!important;
+}
+.atelier-site .atelier-about-metrics small{font-size:10px;line-height:1.45;color:#c6d8c4!important}
+.atelier-site .atelier-metrics-note{
+ grid-column:1/-1;font-size:9px;letter-spacing:.03em;color:#8ea68e;
+ margin-top:9px;text-align:right;
+}
+@media(max-width:800px){
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info{min-height:92px}
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{font-size:13px!important}
+ .atelier-site .atelier-about-metrics{gap:8px}
+ .atelier-site .atelier-about-metrics>div{padding:10px}
+}
+@media(max-width:560px){
+ .atelier-site .atelier-projects .atelier-project-card .atelier-project-info strong{font-size:16px!important}
+ .atelier-site .atelier-about-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
