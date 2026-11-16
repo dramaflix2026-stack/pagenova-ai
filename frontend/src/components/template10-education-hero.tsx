@@ -8,7 +8,7 @@ import type {UniversalSite} from "@/lib/builder-v2-universal-operations";
 import {Template10EducationExperience} from "@/components/template10-education-experience";
 import {Template10EducationClosing} from "@/components/template10-education-closing";
 import {Template10EducationFinal} from "@/components/template10-education-final";
-type Props={brand:string;niche:string;site?:UniversalSite;headline?:string;description?:string;image?:string;testimonials?:{name:string;quote:string;role?:string;photo?:string}[];faqs?:{question:string;answer:string}[];publishedMode?:boolean;contact?:{email?:string;phone?:string;address?:string;hours?:string}};
+type Props={brand:string;niche:string;universalSectionImages?:Record<string,string>;site?:UniversalSite;headline?:string;description?:string;image?:string;testimonials?:{name:string;quote:string;role?:string;photo?:string}[];faqs?:{question:string;answer:string}[];publishedMode?:boolean;contact?:{email?:string;phone?:string;address?:string;hours?:string}};
 const normalize=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const profiles:Record<string,[string,string,string]>={
 "escolas particulares":["Um futuro de possibilidades começa aqui.","Aprendizagem, descoberta e desenvolvimento em cada etapa.","photo-1509062522246-3755977927d7"],
@@ -24,7 +24,7 @@ const profiles:Record<string,[string,string,string]>={
 "escolas de gastronomia":["Transforme paixão em conhecimento.","Técnica e criatividade no universo gastronômico.","photo-1556911220-bff31c812dba"],
 "centros de treinamento corporativo":["Pessoas preparadas transformam negócios.","Desenvolvimento de competências para equipes.","photo-1552664730-d307ca884978"]
 };
-export function Template10EducationHero({brand,niche,site,headline,description,image,testimonials=[],faqs=[],publishedMode=false,contact}:Props){
+export function Template10EducationHero({brand,niche,universalSectionImages,site,headline,description,image,testimonials=[],faqs=[],publishedMode=false,contact}:Props){
  const [open,setOpen]=useState(false);const d=profiles[normalize(niche)]||profiles["cursos profissionalizantes"];
  // Only the approved TP10 Model 1 language-school first fold changes.
  const languageSchool=normalize(niche)==="escolas de idiomas";
@@ -133,7 +133,7 @@ export function Template10EducationHero({brand,niche,site,headline,description,i
  :
  <div className="pn-t10-strip"><span>Educação com identidade</span><span>Aprendizado · Desenvolvimento · Possibilidades</span></div>
  }
- <Template10EducationSections niche={niche} brand={brand} site={site}/>
+ <Template10EducationSections niche={niche} brand={brand} site={site} universalSectionImages={universalSectionImages}/>
  <Template10EducationExperience niche={niche} brand={brand} testimonials={testimonials} publishedMode={publishedMode}/>
  <Template10EducationClosing niche={niche} brand={brand} contact={contact} faqs={faqs}/>
  <Template10EducationFinal niche={niche} brand={brand} contact={contact}/>
