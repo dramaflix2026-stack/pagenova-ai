@@ -827,8 +827,8 @@
       "path": "src/components/template9-automotive-sections.tsx",
       "blobSha": "8191c8e062c47a83f68a1420eed58003997e70da",
       "approvedBindingRevision": {
-        "sha": "ac889b4f110c4f4649847c0d910dd4c1bcdc553c",
-        "reason": "User-approved Vértice Auto Center TP9 Model 1 photo-based service grid with six cards, scoped by brand; all other model visuals retain their approved template structure."
+        "sha": "ca63c088361565a21499ac76d7614d7d372d99d7",
+        "reason": "Vértice TP9 M1 user-approved industrial About section integration, selected only by exact brand; keeps previously approved Hero/Services and original TP9 Model 2/3 untouched."
       }
     },
     {
