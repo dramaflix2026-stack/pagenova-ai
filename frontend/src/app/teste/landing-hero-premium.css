@@ -1362,3 +1362,38 @@
  opacity:0;animation:pnrHeroFaceScan 7.2s ease-in-out infinite;
 }
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}}
+
+
+/* Image-aligned motion: animated highlights trace existing artwork curves, never a full rotating ring. */
+.pnr-page .pnr-hero--premium .pnr-hero-scene{isolation:isolate;overflow:hidden}
+.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg{
+ position:absolute;inset:0;display:block;width:100%;height:100%;z-index:3;
+ pointer-events:none;overflow:hidden;opacity:.8;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-path{
+ fill:none;stroke:url(#pnrHeroOrbitPulse);stroke-width:3;stroke-linecap:round;
+ stroke-dasharray:90 1000;animation:pnrOrbitTrace 8s linear infinite;
+ filter:drop-shadow(0 0 6px rgba(146,255,109,.85));
+}
+.pnr-page .pnr-hero--premium .pnr-hero-art-orbit-path--bottom{animation-delay:-4s;stroke-width:2.4}
+@keyframes pnrOrbitTrace{from{stroke-dashoffset:1090}to{stroke-dashoffset:0}}
+/* Robot eye: a small, precisely clipped glow, not a whole-face light bloom. */
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{
+ z-index:5!important;inset:0!important;display:block!important;
+ background:radial-gradient(ellipse 1.5% 2.2% at 56% 38%,rgba(220,255,197,.9),rgba(74,255,146,.46) 55%,transparent 100%);
+ mix-blend-mode:screen;animation:pnrEyeHeartbeat 3.1s ease-in-out infinite!important;
+}
+@keyframes pnrEyeHeartbeat{0%,100%{opacity:.2;filter:blur(2px)}42%{opacity:.95;filter:blur(.6px)}53%{opacity:.4;filter:blur(1.5px)}62%{opacity:.82;filter:blur(.7px)}}
+/* Robot mask: localized, infrequent diagnostic scan. */
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{
+ z-index:4!important;inset:0!important;display:block!important;
+ clip-path:polygon(52% 19%,62% 19%,62% 65%,52% 65%);
+ background:linear-gradient(180deg,transparent 35%,rgba(111,255,151,.07) 48%,rgba(167,255,188,.22) 50%,transparent 54%);
+ mix-blend-mode:screen;animation:pnrMaskDiagnostic 8.5s ease-in-out infinite!important;
+}
+@keyframes pnrMaskDiagnostic{0%,20%,74%,100%{opacity:0;transform:translateY(-10%)}30%{opacity:.65}58%{opacity:.28;transform:translateY(12%)}70%{opacity:0;transform:translateY(15%)}}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-art-orbit-svg{display:none!important}
+ .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
+ .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}
+}
