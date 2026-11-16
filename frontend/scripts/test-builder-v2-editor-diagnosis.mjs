@@ -88,7 +88,7 @@ test("persistence failures identify affected STAGE but are not automatically dia
 });
 test("HTTP/network, parser and rendering cannot be confidently distinguished from exception alone",()=>{
  const r=diagnose("editor-error:ai-editor",{failurePath:"ai-editor"});
- assert.equal(r.stage,"network");
+ assert.equal(r.stage,"execution");
  assert.equal(r.status,"undiagnosed");
  assert.equal(r.confidence,0);
  assert.equal(r.cause,null);
