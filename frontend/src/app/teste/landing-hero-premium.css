@@ -1531,3 +1531,19 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-hero--premium .pnr-hero-panel-light{animation:none!important;opacity:0!important}
 }
+
+
+/* HOTFIX: reject misaligned duplicate panels shown in visual QA.
+   Retain the previously approved gentle hero float only. */
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-ambient-svg{
+ display:none!important;visibility:hidden!important;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-panel-light{
+ display:none!important;animation:none!important;opacity:0!important;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage{
+ animation:pnrHeroVisibleFloat 4.8s ease-in-out infinite!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage{animation:none!important}
+}
