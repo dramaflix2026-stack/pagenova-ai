@@ -62,3 +62,91 @@
  .atelier-contact{padding:50px 7%}
 }
 @media(prefers-reduced-motion:reduce){.atelier-photo{transition:none}}
+
+
+/* ATELIER editorial v2: intentional hierarchy, depth and refined responsive cards */
+.atelier-site{--line:color-mix(in srgb,var(--ink) 13%,transparent)}
+.atelier-work{padding:58px 5% 66px;background:var(--paper)}
+.atelier-work .atelier-section-heading{position:relative;padding-left:19px;border-left:2px solid #a6cb69}
+.atelier-work .atelier-section-heading h2{font-size:clamp(31px,4vw,53px);font-weight:750;letter-spacing:-.065em;margin:11px 0 9px}
+.atelier-work .atelier-section-heading p{max-width:490px}
+.atelier-projects{gap:21px;margin-top:28px}
+.atelier-project-card{background:color-mix(in srgb,var(--ink) 4%,var(--paper));border:1px solid var(--line);padding:8px;border-radius:15px;overflow:hidden;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.atelier-project-card:hover{transform:translateY(-3px);border-color:#8cb766;box-shadow:0 16px 36px rgba(0,0,0,.13)}
+.atelier-project-image{height:clamp(170px,22vw,285px);border-radius:9px;overflow:hidden}
+.atelier-project-card .atelier-project-info{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 11px 13px}
+.atelier-project-info>div{display:flex;flex-direction:column;gap:7px;min-width:0}
+.atelier-project-info small{font-size:9px;letter-spacing:.13em;color:var(--subtle);font-weight:750}
+.atelier-project-info strong{font-size:clamp(13px,1.55vw,18px);letter-spacing:-.035em;line-height:1.3}
+.atelier-project-info em{font-style:normal;font-weight:450;color:var(--subtle)}
+.atelier-project-info>span{display:grid;place-items:center;flex-shrink:0;width:32px;height:32px;border-radius:50%;background:#c2ff79;color:#122318;font-size:17px}
+.atelier-services{background:color-mix(in srgb,var(--ink) 4%,var(--paper));padding:62px 5% 72px}
+.atelier-services .atelier-section-heading{display:flex;align-items:end;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line);padding-bottom:18px}
+.atelier-services .atelier-section-heading h2{font-size:clamp(30px,3.8vw,48px);margin-bottom:0}
+.atelier-services-grid{gap:13px;margin-top:25px}
+.atelier-services-grid article{position:relative;min-height:215px;padding:23px;border:1px solid var(--line);border-radius:12px;background:var(--paper);transition:border-color .25s ease,transform .25s ease,background .25s ease}
+.atelier-services-grid article:hover{border-color:#a5d36e;transform:translateY(-3px);background:color-mix(in srgb,#9bcf6b 7%,var(--paper))}
+.atelier-services-grid article>span{display:flex;align-items:center;gap:8px;color:#9acb6b;font-weight:800;letter-spacing:.1em}
+.atelier-services-grid article>span:before{content:"✳";font-size:20px;line-height:1}
+.atelier-services-grid h3{font-size:clamp(17px,1.9vw,24px);margin:23px 0 8px;letter-spacing:-.04em;max-width:240px}
+.atelier-services-grid article p{font-size:11px;line-height:1.7;color:var(--subtle);margin:0 0 20px;max-width:240px}
+.atelier-services-grid b{position:absolute;right:19px;top:18px;display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--line);border-radius:50%;font-size:15px}
+.atelier-about{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);padding:0;min-height:370px;gap:0;background:color-mix(in srgb,var(--ink) 2%,var(--paper))}
+.atelier-about-visual{position:relative;min-height:370px;overflow:hidden;background:#4c584b}
+.atelier-about-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.45),transparent 55%)}
+.atelier-about-visual span{position:absolute;left:24px;bottom:22px;z-index:1;font-size:9px;letter-spacing:.15em;color:white;font-weight:750}
+.atelier-about-content{padding:58px 9% 45px}
+.atelier-about-content>span{font-size:10px;letter-spacing:.15em;font-weight:800;color:#a5d879}
+.atelier-about-content h2{font-size:clamp(31px,3.8vw,51px);letter-spacing:-.065em;line-height:1.08;margin:22px 0 19px;max-width:490px}
+.atelier-about-content p{font-size:clamp(12px,1.2vw,15px);line-height:1.8;color:var(--subtle);max-width:470px;margin:0}
+.atelier-about-metrics{display:flex;gap:35px;border-top:1px solid var(--line);margin-top:32px;padding-top:19px}
+.atelier-about-metrics div{display:flex;flex-direction:column;gap:4px}
+.atelier-about-metrics strong{font-size:30px;line-height:1;letter-spacing:-.06em;color:var(--ink)}
+.atelier-about-metrics small{font-size:10px;color:var(--subtle)}
+.atelier-contact{position:relative;isolation:isolate;overflow:hidden;padding:72px 8% 78px;background:#192c20}
+.atelier-contact:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 83% 46%,rgba(180,255,122,.15),transparent 34%);z-index:-1}
+.atelier-contact-content{position:relative;z-index:1;max-width:700px}
+.atelier-contact-content>span{color:#b9e994;font-size:10px;letter-spacing:.17em;font-weight:800}
+.atelier-contact h2{font-size:clamp(35px,5.4vw,71px);font-weight:750;letter-spacing:-.065em;line-height:1.07;max-width:650px;margin:20px 0}
+.atelier-contact p{font-size:14px;line-height:1.6}
+.atelier-contact a{display:inline-flex;align-items:center;gap:25px;border-radius:50px;margin-top:22px;padding:16px 22px;transition:transform .2s ease,box-shadow .2s ease}
+.atelier-contact a:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(194,255,121,.15)}
+.atelier-contact a b{font-size:17px;font-weight:500}
+.atelier-contact-orb{position:absolute;right:7%;top:50%;transform:translateY(-50%);width:210px;height:210px;border:1px solid rgba(194,255,121,.3);border-radius:50%;display:grid;place-items:center;font-size:95px;color:#c2ff79;opacity:.58;box-shadow:0 0 0 30px rgba(194,255,121,.025),0 0 0 60px rgba(194,255,121,.018)}
+.atelier-footer{background:#0e1811;color:#afc1af;padding:25px 6%;border-top:1px solid rgba(255,255,255,.08)}
+.atelier-footer strong{color:#f4f9ee;letter-spacing:-.06em;font-size:20px}
+.atelier-footer span{font-size:10px}
+@media(max-width:800px){
+ .atelier-work{padding:44px 5% 55px}
+ .atelier-projects{gap:12px}
+ .atelier-project-image{height:clamp(145px,23vw,220px)}
+ .atelier-project-card .atelier-project-info{padding:12px 7px 9px}
+ .atelier-project-info strong{font-size:12px}
+ .atelier-project-info em{display:block}
+ .atelier-project-info>span{width:27px;height:27px}
+ .atelier-services{padding:45px 5% 55px}
+ .atelier-services-grid article{min-height:205px;padding:17px}
+ .atelier-services-grid h3{font-size:17px}
+ .atelier-about{grid-template-columns:40% 60%;min-height:320px}
+ .atelier-about-visual{min-height:320px}
+ .atelier-about-content{padding:39px 7% 30px}
+ .atelier-about-content h2{font-size:clamp(27px,4.1vw,38px)}
+ .atelier-contact-orb{width:130px;height:130px;font-size:62px;right:5%}
+}
+@media(max-width:560px){
+ .atelier-projects{grid-template-columns:1fr;gap:17px}
+ .atelier-project-image{height:220px}
+ .atelier-project-info strong{font-size:16px}
+ .atelier-project-info em{display:inline}
+ .atelier-services .atelier-section-heading{display:block}
+ .atelier-services-grid{grid-template-columns:1fr}
+ .atelier-services-grid article{min-height:165px}
+ .atelier-about{display:flex;flex-direction:column}
+ .atelier-about-visual{min-height:230px}
+ .atelier-about-content{padding:40px 7%}
+ .atelier-contact{padding:54px 7% 65px}
+ .atelier-contact-orb{width:100px;height:100px;font-size:48px;right:-40px;opacity:.2}
+ .atelier-contact h2{font-size:clamp(34px,8vw,49px)}
+ .atelier-footer{padding:22px 6%;gap:12px}
+}
+@media(prefers-reduced-motion:reduce){.atelier-project-card,.atelier-services-grid article,.atelier-contact a{transition:none}}
