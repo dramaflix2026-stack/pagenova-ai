@@ -1,6 +1,7 @@
 "use client";
 import {TP9VerticeServices} from "./tp9-vertice-services";
 import {TP9VerticeAbout} from "./tp9-vertice-about";
+import {TP9VerticeDifferentials} from "./tp9-vertice-differentials";
 type Props={brand:string;niche:string;contactHref?:string};
 const norm=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const records:Record<string,[string,string,string,string]> = {
@@ -37,7 +38,8 @@ export function Template9AutomotiveSections({brand,niche,contactHref}:Props){
  {!isVertice&&<section id="tp9-servicos"><div className="pn-t9s-inner"><span className="pn-t9s-kicker">02 / Nossos serviços</span><h2>Excelência em cada detalhe.</h2><div className="pn-t9s-cards">{d.slice(0,3).map((name,i)=><article key={name} className="pn-t9s-card"><img loading="lazy" src={distinctPhotos[i]} alt={"Imagem ilustrativa de "+name}/><div><small>0{i+1} / {niche}</small><h3>{name}</h3><p>Consulte a disponibilidade e os detalhes deste serviço diretamente com a equipe.</p></div></article>)}</div></div></section>}
  {isVertice&&<TP9VerticeAbout brand={brand} contactHref={target}/>}
  {!isVertice&&<section id="tp9-sobre" className="pn-t9s-about"><div className="pn-t9s-inner pn-t9s-about-grid"><img loading="lazy" src={image} alt={"Imagem ilustrativa do setor de "+niche}/><div><span className="pn-t9s-kicker">03 / Sobre a marca</span><h2>{brand}.<br/>Movidos pelo cuidado.</h2><p>Uma experiência dedicada ao universo de {niche.toLowerCase()}, com atenção às necessidades de cada cliente e de cada veículo.</p><p>Informações sobre história, equipe, qualificações e estrutura devem ser fornecidas pela empresa.</p><a href={target}>Fale com nossa equipe ↗</a></div></div></section>}
- <section id="tp9-diferenciais" className="pn-t9s-dark"><img loading="lazy" src={distinctPhotos[4]} alt="Imagem automotiva ilustrativa"/><div className="pn-t9s-inner"><span className="pn-t9s-kicker">04 / Nossos diferenciais</span><h2>Mais do que um serviço.<br/>Uma experiência.</h2><div className="pn-t9s-features">{[d[3],"Atendimento próximo","Orientação clara","Cuidado em cada etapa"].map((f,i)=><div key={i} className="pn-t9s-feature"><small>0{i+1}</small><h3>{f}</h3><p>Uma proposta de atendimento pensada para {niche.toLowerCase()}.</p></div>)}</div></div></section>
+ {isVertice&&<TP9VerticeDifferentials contactHref={target}/>}
+ {!isVertice&&<section id="tp9-diferenciais" className="pn-t9s-dark"><img loading="lazy" src={distinctPhotos[4]} alt="Imagem automotiva ilustrativa"/><div className="pn-t9s-inner"><span className="pn-t9s-kicker">04 / Nossos diferenciais</span><h2>Mais do que um serviço.<br/>Uma experiência.</h2><div className="pn-t9s-features">{[d[3],"Atendimento próximo","Orientação clara","Cuidado em cada etapa"].map((f,i)=><div key={i} className="pn-t9s-feature"><small>0{i+1}</small><h3>{f}</h3><p>Uma proposta de atendimento pensada para {niche.toLowerCase()}.</p></div>)}</div></div></section>}
 
  </div></>;
 }
