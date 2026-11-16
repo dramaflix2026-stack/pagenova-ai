@@ -1,4 +1,5 @@
 "use client";
+import {TP9VerticeModel3Approved} from "./tp9-vertice-m3-approved";
 import {useState,type FormEvent,type ReactNode} from "react";
 type Props={brand:string;niche:string;email?:string;whatsapp?:string;address?:string;gallery?:{src:string;caption?:string}[];reviews?:{name:string;role:string;quote:string}[];faqs?:{question:string;answer:string}[];customSections?:ReactNode;reviewsSection?:ReactNode;locationSection?:ReactNode};
 const normalize=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
@@ -18,7 +19,10 @@ const niches:Record<string,{tag:string;services:string[];steps:string[];images:s
 };
 const photoIds=["photo-1503376780353-7e6692767b70","photo-1492144534655-ae79c964c9d7","photo-1549317661-bd32c8ce0db2","photo-1511919884226-fd3cad34687c","photo-1486262715619-67b85e0b08d3","photo-1507136566006-cfc505b114fc","photo-1603386329225-868f9b1ee6c9","photo-1619767886558-efdc259cde1a","photo-1552519507-da3b142c6e3d","photo-1503736334956-4c8f8e92946d","photo-1542362567-b07e54358753","photo-1558981806-ec527fa84c39","photo-1558980394-0c3b5b8a4ef1","photo-1558981403-c5f9899a28bc"];
 const photo=(id:string)=>"https://images.unsplash.com/"+id+"?auto=format&fit=crop&w=1400&q=85";
-export function BuilderV2TP9Model3({brand,niche,email,whatsapp,address,gallery=[],reviews=[],faqs=[],customSections,reviewsSection,locationSection}:Props){
+export function BuilderV2TP9Model3(props:Props){
+ return normalize(props.brand).includes("vertice auto center")?<TP9VerticeModel3Approved {...props}/>:<BaseTP9Model3 {...props}/>;
+}
+function BaseTP9Model3({brand,niche,email,whatsapp,address,gallery=[],reviews=[],faqs=[],customSections,reviewsSection,locationSection}:Props){
 const [menu,setMenu]=useState(false),[opened,setOpened]=useState<number|null>(0),[notice,setNotice]=useState("");
 const key=normalize(niche);const effective=/detailing|detail|est[eé]tica/i.test(brand)&&key==="auto centers"?"estetica automotiva":key;
 const d=niches[effective]||niches["auto centers"];
