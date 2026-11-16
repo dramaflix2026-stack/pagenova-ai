@@ -577,7 +577,11 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-hero.tsx",
-      "blobSha": "1962bda1a899127d6cc5027f022ee87a006afcbb"
+      "blobSha": "1962bda1a899127d6cc5027f022ee87a006afcbb",
+      "approvedBindingRevision": {
+        "sha": "47f2089d83e143dbffcce331ef3f4fe99e5646e3",
+        "reason": "Approved Vértice TP9 Model 2 hero content fixes: Portuguese kicker and maintenance service categories, better CTA contrast and menu accessibility. Preserve black-gold composition, other niches and models."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model2-journey.tsx",
@@ -585,7 +589,11 @@
     },
     {
       "path": "src/components/builder-v2-tp9-model2-sections.tsx",
-      "blobSha": "1ad593a7b81cbe775ac5438b65eb34279cfb5f2a"
+      "blobSha": "1ad593a7b81cbe775ac5438b65eb34279cfb5f2a",
+      "approvedBindingRevision": {
+        "sha": "34b710a788328bab264a6cf41ddf5883d074c22c",
+        "reason": "Approved Vértice TP9 Model 2 Nossa Essência cleanup: real workshop photo, relevant institutional copy and clearer text contrast. Preserve layout, services and other models."
+      }
     },
     {
       "path": "src/components/builder-v2-tp9-model2-showcase.tsx",
