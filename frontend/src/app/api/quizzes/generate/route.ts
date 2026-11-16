@@ -1,7 +1,8 @@
 import {NextRequest} from "next/server";
 import {authorizedForms,errorsAsResponse,FormServiceError} from "@/lib/forms/server";
 import {normalizeQuiz} from "@/lib/quizzes/schema";
-import {localQuiz,LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {LOCAL_ENGINE_MODE} from "@/lib/studio/local-engine";
+import {generatePremiumQuiz} from "@/lib/quizzes/premium-generator";
 export const runtime="nodejs";
 export async function POST(request:NextRequest){
  try{
@@ -24,7 +25,7 @@ export async function POST(request:NextRequest){
   const existing=body.existing?normalizeQuiz(body.existing):null;
   if(existing&&!/\b(?:adicion[ae]|inclu[ai]|acrescent[ae])\s+(?:uma?\s+)?pergunta|\b(?:trocar|mudar|alterar)\s+(?:o\s+)?t[ií]tulo\s+(?:para|por|:)/i.test(prompt))
     throw new FormServiceError("No modo local, use adicionar pergunta sobre ... ou alterar título para ...; para alterações complexas, edite o quiz visualmente. Nenhuma API foi cobrada.",422);
-  const quiz=localQuiz(prompt,existing);
+  const quiz=generatePremiumQuiz(prompt,existing);
   return Response.json({quiz,usage:null,engine:LOCAL_ENGINE_MODE,paidApiCalls:0},{headers:{"Cache-Control":"no-store"}});
  }catch(error){return errorsAsResponse(error);}
 }
