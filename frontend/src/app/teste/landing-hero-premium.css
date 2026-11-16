@@ -1160,3 +1160,11 @@
  .pnr-page .pnr-guarantee-triade .pnr-guarantee-copy>p:last-child{margin:16px auto 0!important}
 }
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-guarantee-medallion{transition:none!important}}
+
+
+/* Final branded guarantee artwork — reference-inspired, without rasterized text */
+.pnr-page .pnr-guarantee.pnr-guarantee-triade{grid-template-columns:minmax(280px,400px) minmax(0,1fr)!important;column-gap:clamp(25px,4vw,65px)!important;padding:20px 16px!important}
+.pnr-page .pnr-guarantee-brand-image{display:block;width:min(100%,410px);height:auto;aspect-ratio:1;object-fit:contain;filter:drop-shadow(0 0 18px rgba(125,255,83,.13))}
+.pnr-page .pnr-guarantee-emblem:before{display:none!important}
+.pnr-page .pnr-guarantee-triade .pnr-guarantee-copy h2{font-size:clamp(34px,3.6vw,55px)!important}
+@media(max-width:750px){.pnr-page .pnr-guarantee.pnr-guarantee-triade{grid-template-columns:1fr!important;gap:4px!important;padding:12px 14px 30px!important}.pnr-page .pnr-guarantee-brand-image{width:min(82vw,320px);margin:auto}}
