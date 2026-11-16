@@ -1414,3 +1414,31 @@ test("natural three-card aftercare brief preserves existing sections",()=>{
  const verified=verifyUniversalEditResult(original,result.site,result.changedIds);
  assert.equal(verified.ok,true,verified.reason);
 });
+
+test("universal section CSS aliases address TP10 model 1, 2 and 3",async()=>{
+ const {universalSectionDomIdMatches,universalPreviewSectionSelectors}=await import("../src/lib/builder-v2-universal-preview-sections.ts");
+ for(const id of ["tp10-diferenciais","tp10m2-difference","tp10m3-difference","diferenciais"])
+  assert.equal(universalSectionDomIdMatches("diferenciais",id),true,id);
+ for(const id of ["tp10-faq","tp10m3-contact","custom-diferenciais"])
+  assert.equal(universalSectionDomIdMatches("diferenciais",id),false,id);
+ const selectors=universalPreviewSectionSelectors("diferenciais");
+ assert.ok(selectors.includes('section[id$="-diferenciais"]:not([id^="custom-"])'));
+ assert.ok(selectors.includes('section[id$="-difference"]:not([id^="custom-"])'));
+ assert.deepEqual(universalPreviewSectionSelectors("invalid [selector]"),[]);
+});
+test("TP10 color instruction edits scoped section and preserves all three model identities",()=>{
+ for(const variant of ["01","02","03"]){
+  const original={templateId:"prompt-adaptive",briefingLayoutVariant:variant,niche:"Educação profissional e tecnologia",blocks:[
+   {id:"h",type:"heading",section:"inicio",text:"Seu futuro"},{id:"d",type:"heading",section:"diferenciais",text:"O que torna a jornada especial."},
+   {id:"f",type:"heading",section:"faq",text:"FAQ"}]};
+  const command="Altere somente a cor de fundo da seção Nossos Diferenciais para azul escuro. Preserve os textos, imagens, botões, alinhamentos e todas as demais seções do site.";
+  const result=applyUniversalNaturalLanguage(original,command);
+  assert.equal(result?.ok,true,variant+": "+(result?.ok===false?result.error:"no result"));
+  if(!result?.ok)continue;
+  assert.equal(result.site.universalSectionStyles?.diferenciais?.backgroundColor,"#1E3A8A");
+  assert.deepEqual(result.changedIds,["section-style:diferenciais"]);
+  assert.deepEqual(result.site.blocks,original.blocks);
+  assert.equal(result.site.briefingLayoutVariant,variant);
+  assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
+ }
+});
