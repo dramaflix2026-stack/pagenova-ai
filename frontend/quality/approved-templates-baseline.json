@@ -131,8 +131,8 @@
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "a112e7e81e377349c58d68b00bbbc3b9f99b8c19",
-        "reason": "User approved TP10 Education Model 3 section 08 Contact Option 2, preserving real briefing contacts, functional WhatsApp/email form flow, responsive illustrative photo and optional map; Models 1/2, editor and learning unchanged."
+        "sha": "9b73b8b1fbbfc8cd80d33c0a3f038abe4fd00e7b",
+        "reason": "User explicitly requested reducing oversized TP10 Education Model 3 footer after screenshot; scoped compact typography, CTA alignment and responsive spacing for all education niches, preserving content, navigation, other approved sections and Models 1/2."
       }
     },
     {
