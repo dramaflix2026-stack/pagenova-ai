@@ -14,7 +14,8 @@ export function UniversalTemplateSections({site,children,customSectionTheme,cust
    if(!customSectionAnchorFilter)return true;
    const move=[...(Array.isArray(events)?events:[])].reverse().find(event=>event.action==="move"&&event.section?.id===section);
    const anchor=move?.after?.id||move?.before?.id||"";
-   const canonical=(label:string)=>resolveUniversalSection(site,label)||label;
+   const inventory={blocks:(site.blocks||[]).map((b,i)=>({id:b.id||"block-"+i,type:b.type||"paragraph",section:b.section||"",text:b.text||""}))};
+   const canonical=(label:string)=>resolveUniversalSection(inventory,label)||label;
    const matches=(label:string)=>!!anchor&&canonical(label)===canonical(anchor);
    if(customSectionAnchorFilter.include&&!customSectionAnchorFilter.include.some(matches))return false;
    if(customSectionAnchorFilter.exclude?.some(matches))return false;
