@@ -65,19 +65,25 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  .tp10edu-six--03{--tr-bg:#fff7ed;--tr-ink:#221d20;--tr-muted:#67585a;--tr-border:#25202a;--tr-accent:#a43d2b;--tr-shadow:#221d2010}
  .tp10edu-six--03 .tp10edu-six-card{border-radius:5px;box-shadow:5px 6px 0 #211c2340}
  .tp10edu-six--03 .tp10edu-six-avatar{background:#ffbd66;color:#251923}
-/* Approved TP10 Model 3 Editorial Premium testimonials only. */
- .tp10edu-six--03{--tr-bg:#fffdf9;--tr-ink:#242026;--tr-muted:#62585d;--tr-border:#e5d7ca;--tr-accent:#ad4b39;--tr-shadow:#38281b12;background:transparent;padding:0}
- .tp10edu-six--03 .tp10edu-six-notice{color:#62585d!important;max-width:900px;margin:0 0 24px!important;font-size:13px!important}
- .tp10edu-six--03 .tp10edu-six-grid{gap:clamp(14px,1.8vw,24px)}
- .tp10edu-six--03 .tp10edu-six-card{border:1px solid #e5d7ca;border-radius:16px;background:#fffdf9;box-shadow:0 12px 32px #38281b12;padding:clamp(22px,2.2vw,32px);transition:transform .2s ease,box-shadow .2s ease}
- .tp10edu-six--03 .tp10edu-six-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px #38281b1b}
- .tp10edu-six--03 .tp10edu-six-person{margin-bottom:21px}
- .tp10edu-six--03 .tp10edu-six-avatar{width:54px;height:54px;flex-basis:54px;border:2px solid #f1d5c1;background:#ffbd66;color:#251923}
- .tp10edu-six--03 .tp10edu-six-person strong{font-size:clamp(15px,1.15vw,18px);color:#242026}
- .tp10edu-six--03 .tp10edu-six-person span{font-size:12px;color:#67585a}
- .tp10edu-six--03 .tp10edu-six-card blockquote{font-size:clamp(16px,1.25vw,19px)!important;line-height:1.7!important;color:#342d31!important}
- .tp10edu-six--03 .tp10edu-six-foot{border-top-color:#e9dbcf;color:#a43d2b;font-size:10px!important}
- @media(max-width:560px){.tp10edu-six--03 .tp10edu-six-grid{gap:15px}.tp10edu-six--03 .tp10edu-six-card{padding:23px;border-radius:14px}.tp10edu-six--03 .tp10edu-six-card blockquote{font-size:16px!important}}
+/* TP10 Model 3 only — Option 1, editorial portrait testimonials. Preserve M1/M2. */
+ .tp10edu-six--03{--tr-bg:#fffdfa;--tr-ink:#252027;--tr-muted:#665b60;--tr-border:#e7d7c9;--tr-accent:#a94736;--tr-shadow:#38281b13;background:transparent;padding:0}
+ .tp10edu-six--03 .tp10edu-six-notice{color:#65575c!important;max-width:880px;margin:0 0 26px!important;font-size:13px!important}
+ .tp10edu-six--03 .tp10edu-six-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(14px,1.65vw,23px);align-items:stretch}
+ .tp10edu-six--03 .tp10edu-six-card{display:grid;grid-template-columns:clamp(86px,8vw,120px) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;column-gap:clamp(13px,1.5vw,22px);min-width:0;min-height:292px;padding:clamp(17px,1.7vw,26px);border:1px solid #e7d7c9;border-radius:19px;background:#fffdfa;box-shadow:0 14px 38px #38281b13;transition:transform .23s ease,box-shadow .23s ease,border-color .23s ease}
+ @media(hover:hover){.tp10edu-six--03 .tp10edu-six-card:hover{transform:translateY(-4px);border-color:#d9bba9;box-shadow:0 21px 43px #38281b21}}
+ .tp10edu-six--03 .tp10edu-six-person{display:contents}
+ .tp10edu-six--03 .tp10edu-six-avatar{grid-column:1;grid-row:1 / span 3;align-self:stretch;width:100%;height:100%;min-height:237px;min-width:0;flex:none;border:0;border-radius:11px;background:linear-gradient(145deg,#e9b69a,#b65742);font-size:25px;color:#fff;overflow:hidden}
+ .tp10edu-six--03 .tp10edu-six-avatar img{width:100%!important;height:100%!important;object-fit:cover;object-position:center;filter:none}
+ .tp10edu-six--03 .tp10edu-six-person>div:last-child{grid-column:2;grid-row:1;min-width:0;align-self:start;padding:2px 0 18px}
+ .tp10edu-six--03 .tp10edu-six-person strong{font-size:clamp(15px,1.2vw,18px);line-height:1.27;color:#252027;letter-spacing:-.02em;overflow-wrap:break-word}
+ .tp10edu-six--03 .tp10edu-six-person span{font-size:11px;line-height:1.5;color:#795f61;margin-top:7px}
+ .tp10edu-six--03 .tp10edu-six-card blockquote{grid-column:2;grid-row:2;min-width:0;margin:0 0 17px!important;font-size:clamp(14px,1.08vw,17px)!important;line-height:1.68!important;letter-spacing:0!important;color:#393036!important;font-family:Georgia,'Times New Roman',serif;font-weight:400!important;overflow-wrap:break-word}
+ .tp10edu-six--03 .tp10edu-six-foot{grid-column:2;grid-row:3;min-width:0;margin:0;padding-top:13px;border-top:1px solid #e9d9cf;color:#a94736;font-size:9px!important;line-height:1.5!important;letter-spacing:.045em;overflow-wrap:break-word}
+ @media(max-width:1080px){.tp10edu-six--03 .tp10edu-six-card{grid-template-columns:80px minmax(0,1fr);min-height:278px;column-gap:12px;padding:18px}.tp10edu-six--03 .tp10edu-six-avatar{min-height:232px}}
+ @media(max-width:900px){.tp10edu-six--03 .tp10edu-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tp10edu-six--03 .tp10edu-six-card{grid-template-columns:100px minmax(0,1fr);min-height:255px}.tp10edu-six--03 .tp10edu-six-avatar{min-height:215px}}
+ @media(max-width:560px){.tp10edu-six--03 .tp10edu-six-grid{grid-template-columns:1fr;gap:16px}.tp10edu-six--03 .tp10edu-six-card{grid-template-columns:clamp(82px,25vw,110px) minmax(0,1fr);min-height:225px;column-gap:15px;padding:17px;border-radius:15px}.tp10edu-six--03 .tp10edu-six-avatar{min-height:190px;border-radius:9px}.tp10edu-six--03 .tp10edu-six-person>div:last-child{padding-bottom:12px}.tp10edu-six--03 .tp10edu-six-card blockquote{font-size:15px!important;line-height:1.58!important;margin-bottom:13px!important}.tp10edu-six--03 .tp10edu-six-foot{font-size:9px!important;padding-top:11px}}
+ @media(max-width:365px){.tp10edu-six--03 .tp10edu-six-card{grid-template-columns:72px minmax(0,1fr);column-gap:12px;padding:14px}.tp10edu-six--03 .tp10edu-six-avatar{min-height:188px}}
+ @media(prefers-reduced-motion:reduce){.tp10edu-six--03 .tp10edu-six-card{transition:none}}
  @media(max-width:900px){.tp10edu-six-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
  @media(max-width:560px){.tp10edu-six-grid{grid-template-columns:1fr;gap:14px}.tp10edu-six-card{padding:22px}.tp10edu-six-person{margin-bottom:16px}.tp10edu-six-card blockquote{font-size:16px!important;margin-bottom:19px!important}}
  `}</style>
