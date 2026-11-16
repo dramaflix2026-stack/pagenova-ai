@@ -11,6 +11,7 @@ import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreview
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
+import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -186,7 +187,32 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
 // Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
 // An applied operation is not an approved example and must not train the editor.
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null}){
+/** An approved/rejected verdict is written to exactly one UUID, only while pending.
+ * Never recover a stale ID by selecting another pending event. */
+async function confirmCloudEditorLearningReview(
+ client:ReturnType<typeof createSupabaseBrowserClient>,
+ userId:string,
+ eventId:string,
+ status:"approved"|"rejected"
+){
+ return commitExactEditorReview(eventId,status,{
+  read:async()=>{
+   const {data,error}=await client.from("builder_editor_learning_events")
+    .select("id,review_status").eq("id",eventId).eq("user_id",userId).maybeSingle();
+   if(error)throw new Error(error.message);
+   return data;
+  },
+  updatePending:async()=>{
+   const {data,error}=await client.from("builder_editor_learning_events")
+    .update({review_status:status,reviewed_at:new Date().toISOString()})
+    .eq("id",eventId).eq("user_id",userId).eq("review_status","pending")
+    .select("id,review_status").maybeSingle();
+   if(error)throw new Error(error.message);
+   return data;
+  }
+ });
+}
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -202,14 +228,11 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
     try{const latest=JSON.parse(localStorage.getItem("pagenova:editor-learning-events:v1")||"[]");reviewed=Array.isArray(latest)?latest.find((entry:{id?:string;review?:string})=>entry.id===event.id)?.review??null:null;}catch(error){console.warn("[editor-learning] Review history unavailable",error);}
     reviewed=reviewed==="approved"||reviewed==="rejected"?reviewed:("review" in event&&typeof event.review==="string"?event.review:null);
     if(reviewed==="approved"||reviewed==="rejected"){
-      const {data:confirmedReview,error:reviewError}=await client.from("builder_editor_learning_events")
-        .update({review_status:reviewed,reviewed_at:new Date().toISOString()})
-        .eq("id",event.id).eq("user_id",user.id)
-        .select("id,review_status").maybeSingle();
-      if(reviewError){console.warn("[editor-learning] Cloud review sync failed",reviewError.code,reviewError.message);return false;}
-      else if(!confirmedReview||confirmedReview.review_status!==reviewed){
-        console.warn("[editor-learning] Cloud review not confirmed for event",event.id);return false;}
-      else console.info("[editor-learning] Cloud review confirmed",event.id,reviewed);
+      const confirmed=await confirmCloudEditorLearningReview(client,user.id,event.id,reviewed);
+      if(confirmed!=="confirmed"){
+       console.warn("[editor-learning] Exact-ID cloud review not confirmed",event.id,confirmed);
+       return false;
+      }
     }
     return true;
   }catch(error){console.warn("[editor-learning] Cloud sync exception",error);return false; /* Editing must remain available offline. */}
@@ -449,38 +472,26 @@ export default function BuilderV2() {
       const {data:{user}}=await client.auth.getUser();
       if(!user)return;
       const {count,error}=await client.from("builder_editor_learning_events")
-        .select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("review_status","approved");
+        .select("id",{count:"exact",head:true}).eq("user_id",user.id).eq("review_status","approved").eq("execution_status","applied");
       if(!error)setApprovedExperienceCount(count??0);
       const {data:events,error:eventsError}=await client.from("builder_editor_learning_events").select("id,niche,intent,target,strategy,execution_status,review_status").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1000);
       if(!eventsError&&events){
         setCloudLearningCounts({total:events.length,approved:events.filter(e=>e.review_status==="approved").length,rejected:events.filter(e=>e.review_status==="rejected").length,pending:events.filter(e=>e.review_status==="pending").length});
-        const pending=events.find(e=>e.review_status==="pending");
-        if(pending){
-          reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:pending.execution_status==="applied"?"applied":"rejected",strategy:pending.strategy||"unknown"};
-          // Do not keep a stale candidate forever merely because it says pending.
-          // Only preserve a local, not-yet-uploaded edit while its cloud insert retries.
-          setReviewCandidate(current=>{
-            if(!current||current.status!=="pending"||current.id===pending.id)return {id:pending.id,status:"pending"};
-            if(events.some(remote=>remote.id===current.id))return {id:pending.id,status:"pending"};
-            try{
-              const entries=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
-              const local=Array.isArray(entries)?entries.find((entry:{id?:string})=>entry.id===current.id):null;
-              if(local&&local.review==="pending"&&["applied","rejected"].includes(local.outcome))return current;
-            }catch{/* Use authoritative cloud candidate if local storage is unavailable. */}
-            return {id:pending.id,status:"pending"};
-          });
-        }else{
-          reviewEventRef.current=null;
-          setReviewCandidate(current=>{
-            if(!current||current.status!=="pending")return current;
-            try{
-              const entries=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
-              const local=Array.isArray(entries)?entries.find((entry:{id?:string})=>entry.id===current.id):null;
-              if(local&&local.review==="pending"&&["applied","rejected"].includes(local.outcome)&&!events.some(remote=>remote.id===current.id))return current;
-            }catch{/* No recoverable local candidate. */}
-            return null;
-          });
-        }
+        // Cloud results may arrive after a newer local edit. Never silently
+        // switch the voting buttons to a different UUID while the user reviews.
+        let localEvents:Array<{id:string;review?:string;outcome?:string}>=[];
+        try{
+         const local=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
+         if(Array.isArray(local))localEvents=local;
+        }catch{/* A missing local cache must not prevent cloud review. */}
+        setReviewCandidate(current=>{
+         const next=selectPendingEditorReview(current,events,localEvents);
+         const matching=events.find(e=>e.id===next?.id);
+         if(matching){
+          reviewEventRef.current={id:matching.id,niche:matching.niche||"unknown",intent:matching.intent||"other",target:matching.target||"unspecified",outcome:matching.execution_status==="applied"?"applied":"rejected",strategy:matching.strategy||"unknown"};
+         }else if(!next){reviewEventRef.current=null;}
+         return next;
+        });
       }
     }catch{/* Reading learning history must not block editing. */}
   }
@@ -501,74 +512,51 @@ export default function BuilderV2() {
     window.addEventListener("focus",retry);
     return ()=>{window.removeEventListener("pagenova:editor-learning-diagnostic",onDiagnostic);window.removeEventListener("pagenova:editor-learning-captured",onCaptured);window.removeEventListener("pagenova:editor-learning-sync",onLearningSync);window.removeEventListener("online",retry);window.removeEventListener("focus",retry);};
   },[]);
+  const reviewSubmitInFlightRef=useRef(false);
+  const [reviewSubmitting,setReviewSubmitting]=useState(false);
   async function reviewLastEdit(status:"approved"|"rejected"){
-    if(!reviewCandidate||reviewCandidate.status!=="pending")return;
+    if(reviewSubmitInFlightRef.current||!reviewCandidate||reviewCandidate.status!=="pending")return;
     const id=reviewCandidate.id;
-    const key="pagenova:editor-learning-events:v1";
-    let event: {id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;review?:string}|undefined;
+    reviewSubmitInFlightRef.current=true;
+    setReviewSubmitting(true);
     try{
-      const events=JSON.parse(localStorage.getItem(key)||"[]");
-      if(Array.isArray(events)){
-        event=events.find((entry:{id?:string;outcome?:string})=>entry.id===id);
-        if(event){
-          event.review=status;
-          localStorage.setItem(key,JSON.stringify(events));
-        }
-      }
-    }catch(error){console.warn("[editor-learning] Review local save failed",error);}
-    if(!event&&reviewEventRef.current?.id===id)event=reviewEventRef.current;
-    if(event)event.review=status;
-    setReviewCandidate({id,status});
-    setLearningSyncNotice(event?"Avaliação registrada neste dispositivo. Sincronizando com o Supabase...":"Avaliação recebida. Confirmando diretamente no Supabase...");
-    if(!event){
+      let event:{id:string;niche:string;intent:string;target:string;outcome:"applied"|"rejected";strategy:string;model?:string;sectionKey?:string;failureCode?:string|null;review?:string}|undefined;
       try{
-        const client=createSupabaseBrowserClient();
-        const {data:{user}}=await client.auth.getUser();
-        if(!user){setLearningSyncNotice("Sessão expirada: entre novamente para sincronizar a avaliação.");return;}
-        const {data,error}=await client.from("builder_editor_learning_events")
-          .update({review_status:status,reviewed_at:new Date().toISOString()})
-          .eq("id",id).eq("user_id",user.id)
-          .select("id,review_status").maybeSingle();
-        if(error)throw new Error(error.message);
-        if(!data){
-          // PostgREST returns HTTP 200 with [] for a PATCH that matches no row.
-          // Recover the actual pending cloud event; do not silently apply a
-          // review to another edit or ask the user to retry an invalid UUID.
-          const {data:pendingRows,error:pendingError}=await client.from("builder_editor_learning_events")
-            .select("id,niche,intent,target,strategy,execution_status")
-            .eq("user_id",user.id).eq("review_status","pending")
-            .order("created_at",{ascending:false}).limit(2);
-          if(pendingError)throw new Error(pendingError.message);
-          if(pendingRows?.length===1){
-            const pending=pendingRows[0];
-            reviewEventRef.current={id:pending.id,niche:pending.niche||"unknown",intent:pending.intent||"other",target:pending.target||"unspecified",outcome:pending.execution_status==="applied"?"applied":"rejected",strategy:pending.strategy||"unknown"};
-            setReviewCandidate({id:pending.id,status:"pending"});
-            setLearningSyncNotice("O identificador da edição estava desatualizado. Recarreguei a única avaliação pendente do Supabase; confira o resultado e toque novamente em Aprovar ou Não funcionou.");
-          }else{
-            setReviewCandidate(null);
-            setLearningSyncNotice(pendingRows?.length?"Encontrei mais de uma edição pendente. Atualize a página para selecionar a avaliação correta.":"A edição selecionada não existe mais no Supabase e não há avaliação pendente.");
+        const local=JSON.parse(localStorage.getItem(EDITOR_LEARNING_KEY)||"[]");
+        if(Array.isArray(local)){
+          event=local.find((item:{id?:string})=>item?.id===id);
+          if(event){
+            event.review=status;
+            localStorage.setItem(EDITOR_LEARNING_KEY,JSON.stringify(local));
           }
-          void refreshApprovedExperiences();
-          return;
         }
-        if(data.review_status!==status)throw new Error("Avaliação não confirmada");
-        setLearningSyncNotice("Avaliação confirmada no Supabase.");
-        void refreshApprovedExperiences();
-      }catch(error){
-        console.warn("[editor-learning] Direct cloud review failed",error);
-        setLearningSyncNotice("Não foi possível sincronizar a avaliação. Verifique a conexão e tente novamente.");
-        setReviewCandidate({id,status:"pending"});
+      }catch(error){console.warn("[editor-learning] Local review save unavailable",error);}
+      setLearningSyncNotice("Confirmando avaliação desta edição no Supabase...");
+      let confirmed=false;
+      if(event){
+        confirmed=await syncEditorLearningEvent(event);
+      }else{
+        const client=createSupabaseBrowserClient();
+        const {data:{user},error:authError}=await client.auth.getUser();
+        if(authError||!user)throw new Error("Sessão não reconhecida");
+        confirmed=(await confirmCloudEditorLearningReview(client,user.id,id,status))==="confirmed";
       }
-      return;
-    }
-    try{
-      const synced=await syncEditorLearningEvent(event);
-      setLearningSyncNotice(synced?"Avaliação confirmada no Supabase.":"Avaliação registrada neste dispositivo, mas NÃO sincronizada com o Supabase. A sincronização será tentada novamente ao reconectar.");
-      if(!synced)void reconcileEditorLearningEvents();
-      if(synced)void refreshApprovedExperiences();
+      if(confirmed){
+        setReviewCandidate(current=>current?.id===id?{id,status}:current);
+        setLearningSyncNotice("Avaliação confirmada no Supabase para esta edição.");
+        void refreshApprovedExperiences();
+      }else{
+        // Never claim a cloud approval when a write was not confirmed.
+        setReviewCandidate(current=>current?.id===id?{id,status:"pending"}:current);
+        setLearningSyncNotice("Avaliação ainda não sincronizada para esta edição. Os botões continuam disponíveis; verifique a conexão e tente novamente.");
+      }
     }catch(error){
-      console.warn("[editor-learning] Review cloud sync failed",error);
-      setLearningSyncNotice("Avaliação registrada neste dispositivo, mas houve erro na sincronização com o Supabase.");
+      console.warn("[editor-learning] Exact-ID review failed",id,error);
+      setReviewCandidate(current=>current?.id===id?{id,status:"pending"}:current);
+      setLearningSyncNotice("Não foi possível confirmar esta avaliação no Supabase. Nenhuma outra edição foi marcada.");
+    }finally{
+      reviewSubmitInFlightRef.current=false;
+      setReviewSubmitting(false);
     }
   }
   function captureReviewCandidate(){
@@ -2055,7 +2043,7 @@ export default function BuilderV2() {
 </details>
     {site.blocks.length>0&&<button type="button" onClick={()=>document.getElementById("pn-builder-site-preview")?.scrollIntoView({behavior:"smooth",block:"start"})}
     className="inline-flex items-center gap-1 rounded-lg border border-white/15 px-3 py-2 text-xs text-white/75 transition hover:bg-white/10">Ver prévia <ArrowRight size={13}/></button>}
-</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3">{(reviewCandidate||learningSyncNotice||site.blocks.length>0)&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2 font-semibold text-lime-300">Aprendizado da inteligência artificial</p><p className="mb-2 text-white/65">Ao aprovar ou reprovar uma alteração, você ajuda a IA a identificar quais edições funcionam melhor. O histórico é usado para aprimorar os próximos resultados.</p>{!reviewCandidate&&<p className="mb-2 text-amber-200">A IA utiliza suas avaliações para melhorar futuras edições. Ainda não há uma alteração aguardando sua avaliação nesta sessão.</p>}{reviewCandidate&&<p className="mb-2">Ajude a inteligência artificial a aprender: a última edição ficou correta na prévia?</p>}{approvedExperienceCount!==null&&<p className="mb-2 text-white/50">Experiências aprovadas na sua conta: {approvedExperienceCount}</p>}{cloudLearningCounts&&<p className="mb-2 text-white/60">Supabase (últimos 1000): {cloudLearningCounts.total} edições · {cloudLearningCounts.approved} aprovadas · {cloudLearningCounts.rejected} reprovadas · {cloudLearningCounts.pending} pendentes</p>}{learningSyncNotice&&<p role="status" className="mb-2 text-amber-200">{learningSyncNotice}</p>}{reviewCandidate&&reviewCandidate.status==="pending"?<div className="flex flex-wrap gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:reviewCandidate?<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>:null}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
+</div>{site.blocks.length>0&&<p className="mb-3 text-[11px] text-white/40" role="status">{cloudStatus}</p>}<div aria-live="polite" className={site.blocks.length||messages.length>1?"mb-4 flex-1 space-y-3 overflow-y-auto":"hidden"}>{messages.map((m,i)=><div key={i} className={`rounded-xl p-3 text-sm ${m.role === "user" ? "ml-7 bg-lime-300 text-black" : "mr-7 bg-white/10"}`}>{m.text}</div>)}</div><div className="mb-3">{(reviewCandidate||learningSyncNotice||site.blocks.length>0)&&<div className="rounded-xl border border-white/15 p-3 text-xs"><p className="mb-2 font-semibold text-lime-300">Aprendizado da inteligência artificial</p><p className="mb-2 text-white/65">Ao aprovar ou reprovar uma alteração, você ajuda a IA a identificar quais edições funcionam melhor. O histórico é usado para aprimorar os próximos resultados.</p>{!reviewCandidate&&<p className="mb-2 text-amber-200">A IA utiliza suas avaliações para melhorar futuras edições. Ainda não há uma alteração aguardando sua avaliação nesta sessão.</p>}{reviewCandidate&&<p className="mb-2">Ajude o motor a aprender: esta edição específica ficou correta na prévia?</p>}{approvedExperienceCount!==null&&<p className="mb-2 text-white/50">Experiências aprovadas e aplicadas (aptas ao aprendizado): {approvedExperienceCount}</p>}{cloudLearningCounts&&<p className="mb-2 text-white/60">Supabase (últimos 1000): {cloudLearningCounts.total} edições · {cloudLearningCounts.approved} aprovadas · {cloudLearningCounts.rejected} reprovadas · {cloudLearningCounts.pending} pendentes</p>}{learningSyncNotice&&<p role="status" className="mb-2 text-amber-200">{learningSyncNotice}</p>}{reviewCandidate&&reviewCandidate.status==="pending"?<div className="flex flex-wrap gap-2"><button type="button" onClick={()=>void reviewLastEdit("approved")} disabled={reviewSubmitting} className="rounded-lg bg-lime-300 px-3 py-2 font-semibold text-black">Sim, aprovar</button><button type="button" onClick={()=>void reviewLastEdit("rejected")} disabled={reviewSubmitting} className="rounded-lg border border-white/30 px-3 py-2">Não funcionou</button></div>:reviewCandidate?<p className="text-lime-300">Avaliação registrada: {reviewCandidate.status==="approved"?"aprovada":"reprovada"}.</p>:null}</div>}</div><label htmlFor="pn-builder-chat-input" className="mb-2 block text-left text-sm font-bold text-lime-300">✍️ Digite aqui o que deseja criar ou alterar</label><div className="pn-chat-composer mb-2 rounded-2xl border border-white/20 bg-[#0b1511] p-3 transition focus-within:border-lime-300/65 focus-within:shadow-[0_0_0_3px_rgba(180,245,77,.045)]">
   <form onSubmit={e=>{e.preventDefault();void send();}}>
     <textarea id="pn-builder-chat-input" ref={composerRef} aria-label="Descreva a criação ou alteração"
       value={instruction} onChange={e=>setInstruction(e.target.value)}
