@@ -7,6 +7,7 @@ import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/bu
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
 import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
+import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -181,7 +182,7 @@ function BuilderV2EmptyPreview({device,onStart}:{device:BuilderPreviewDevice;onS
 // Local, bounded diagnostic events. An applied edit is NOT an approved learning example.
 // Best-effort telemetry: no raw customer prompt, no edits blocked by network failures.
 // An applied operation is not an approved example and must not train the editor.
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -189,6 +190,7 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
     const {error:insertError}=await client.from("builder_editor_learning_events").insert({
       id:event.id,user_id:user.id,niche:event.niche||"unknown",model:event.model||"unknown",intent:event.intent,
       target:event.target,strategy:event.strategy,execution_status:event.outcome,
+      section_key:event.sectionKey||null,failure_code:event.failureCode||null,
       review_status:"pending"
     });
     if(insertError&&insertError.code!=="23505"){console.warn("[editor-learning] Cloud insert failed",insertError.code,insertError.message);if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Supabase recusou o registro (código "+(insertError.code||"desconhecido")+")."}}));return false;}
@@ -229,7 +231,7 @@ async function readApprovedEditorPatterns(niche:string){
   const {data:{user}}=await client.auth.getUser();
   if(!user)return [];
   const {data,error}=await client.from("builder_editor_learning_events")
-   .select("intent,target,strategy,niche,model,review_status,execution_status").eq("user_id",user.id)
+   .select("intent,target,strategy,niche,model,section_key,failure_code,review_status,execution_status").eq("user_id",user.id)
    .in("review_status",["approved","rejected"]).order("created_at",{ascending:false}).limit(500);
   if(error){console.warn("[editor-learning] Approved retrieval failed",error.code,error.message);return [];}
   return data||[];
@@ -241,10 +243,10 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const key="pagenova:editor-learning-events:v1";
     let events: Array<Record<string,unknown>>=[];
     try{const existing=JSON.parse(localStorage.getItem(key)||"[]");events=Array.isArray(existing)?existing:[];}catch(error){console.warn("[editor-learning] Local history unavailable",error);}
-    const normalized=instruction.toLocaleLowerCase("pt-BR").normalize("NFD").replace(/[\u0300-\u036f]/g,"");
-    const intent=/(?:cor|cores|color|fundo|background).{0,100}(?:botao|botoes|cta|button)|(?:botao|botoes|cta|button).{0,100}(?:cor|cores|color|fundo|background)/.test(normalized)?"style":/(imagem|foto|fotografia|capa|banner)/.test(normalized)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalized)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalized)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalized)?"layout":/(cor|fundo|background)/.test(normalized)?"style":/(texto|titulo|descric|subtitulo)/.test(normalized)?"copy":"other";
-    const target=/(botao|botoes|cta|button|agendamento)/.test(normalized)?"buttons":/(depoiment|avaliac|testemunh)/.test(normalized)?"testimonials":/(hero|capa|banner|principal)/.test(normalized)?"hero":/(servic|especialidade)/.test(normalized)?"services":"unspecified";
-    const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,outcome,strategy,review:"pending"};
+    const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
+    const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
+    const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending"};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -989,10 +991,10 @@ export default function BuilderV2() {
       // Approved experiences choose which safe parser is attempted first.
       // No historical pattern can bypass mutation verification or invent an edit.
       const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
-      const normalizedPrompt=prompt.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
-      const inferredIntent=/(?:cor|cores|color|fundo|background).{0,100}(?:botao|botoes|cta|button)|(?:botao|botoes|cta|button).{0,100}(?:cor|cores|color|fundo|background)/.test(normalizedPrompt)?"style":/(imagem|foto|fotografia|capa|banner)/.test(normalizedPrompt)?"image":/(adicion|inclu|inser|cri).{0,70}(secao|especialidade|card)/.test(normalizedPrompt)?"add-section":/(remov|exclu|apag|delet).{0,70}(secao|card|bloco)/.test(normalizedPrompt)?"remove-section":/(alinh|centraliz|ordem|reorden|mova|mover|reposicion)/.test(normalizedPrompt)?"layout":/(cor|fundo|background)/.test(normalizedPrompt)?"style":/(texto|titulo|descric|subtitulo)/.test(normalizedPrompt)?"copy":"other";
-      const inferredTarget=/(botao|botoes|cta|button|agendamento)/.test(normalizedPrompt)?"buttons":/(depoiment|avaliac|testemunh)/.test(normalizedPrompt)?"testimonials":/(hero|capa|banner|principal)/.test(normalizedPrompt)?"hero":/(servic|especialidade)/.test(normalizedPrompt)?"services":"unspecified";
-      const relevantPatterns=approvedPatterns.filter(pattern=>pattern.intent===inferredIntent&&pattern.target===inferredTarget);
+      const {intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey}=classifyUniversalFeedback(prompt);
+      const relevantPatterns=approvedPatterns.filter(pattern=>
+        pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
+        (!pattern.section_key||!inferredSectionKey||pattern.section_key===inferredSectionKey));
       // The reviewed outcomes are used before execution, never just displayed as statistics.
       // Strongly rejected button-color routes require an explicit, verified alternative;
       // unrelated hero/text approvals must not offset their failure history.

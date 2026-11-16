@@ -1442,3 +1442,15 @@ test("TP10 color instruction edits scoped section and preserves all three model 
   assert.equal(verifyUniversalEditResult(original,result.site,result.changedIds).ok,true);
  }
 });
+
+test("feedback classification separates action from preservation and scopes failed sections",async()=>{
+ const {classifyUniversalFeedback,inferUniversalFeedbackFailureCode}=await import("../src/lib/builder-v2-universal-feedback.ts");
+ const color=classifyUniversalFeedback("Altere somente a cor de fundo da seção Nossos Diferenciais para azul escuro. Preserve os textos, imagens, botões, alinhamentos e todas as demais seções.");
+ assert.deepEqual(color,{intent:"style",target:"differences",sectionKey:"differences"});
+ assert.deepEqual(classifyUniversalFeedback("Mova a seção Depoimentos para depois da seção Galeria").intent,"layout");
+ assert.deepEqual(classifyUniversalFeedback("Adicione uma nova seção de perguntas frequentes após o contato").intent,"add-section");
+ assert.equal(classifyUniversalFeedback("Altere a cor dos botões para azul escuro").target,"buttons");
+ assert.equal(inferUniversalFeedbackFailureCode("universal-visual-verification","rejected"),"postcondition");
+ assert.equal(inferUniversalFeedbackFailureCode("universal-section-background-unresolved","rejected"),"missing-target");
+ assert.equal(inferUniversalFeedbackFailureCode("universal","applied"),null);
+});
