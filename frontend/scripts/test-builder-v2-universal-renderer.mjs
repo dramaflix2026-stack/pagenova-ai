@@ -816,3 +816,38 @@ test("Vértice TP9 Model 2 new services and advantages are isolated and preserve
  assert.match(benefits,/images\.unsplash\.com\/photo-/);
  assert.match(cards,/Consulte a disponibilidade diretamente com a empresa/);
 });
+
+test("Vértice TP9 M2 three-step maintenance process and six-photo Bento gallery stay isolated",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const journey=readFileSync(new URL("../src/components/builder-v2-tp9-model2-journey.tsx",import.meta.url),"utf8");
+ const showcase=readFileSync(new URL("../src/components/builder-v2-tp9-model2-showcase.tsx",import.meta.url),"utf8");
+ const router=readFileSync(new URL("../src/components/builder-v2-site.tsx",import.meta.url),"utf8");
+ const workflow=readFileSync(new URL("../src/components/tp9-vertice-m2-process.tsx",import.meta.url),"utf8");
+ const gallery=readFileSync(new URL("../src/components/tp9-vertice-m2-bento-gallery.tsx",import.meta.url),"utf8");
+ assert.match(journey,/isVertice\?<TP9VerticeM2Process contactHref=\{contactHref\}\/>:<section className="tp9m2-process"/);
+ assert.match(journey,/isVertice\?<TP9VerticeM2Differentials\/>/);
+ assert.match(journey,/d\.steps\.map\(\(step,i\)/);
+ assert.match(showcase,/isVertice\?<TP9VerticeM2BentoGallery\/>:<section className="tp9m2-gallery"/);
+ assert.match(showcase,/!isVertice&&selected!==null&&gallery\[selected\]/);
+ assert.match(showcase,/\{reviewsSection\}/);
+ assert.match(showcase,/gallery\.map\(\(photo,i\)/);
+ assert.match(showcase,/const isVertice=\/\\bvertice\\s\+auto\\s\+center\\b\/\.test\(normalizedBrand\)/);
+ assert.match(router,/<BuilderV2TP9Model2Showcase brand=\{props\.site\.header\?\.brand\|\|props\.site\.title\|\|"Automotivo"\}/);
+ assert.equal((workflow.match(/\{step:"0[1-3]",title:/g)||[]).length,3);
+ assert.match(workflow,/id="tp9-como-funciona"/);
+ assert.match(workflow,/href=\{href\}/);
+ assert.match(workflow,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(workflow,/grid-template-columns:1fr/);
+ assert.match(workflow,/Fotografias ilustrativas de terceiros/);
+ assert.equal((gallery.match(/\{id:"[^"]+",title:/g)||[]).length,6);
+ assert.equal(new Set([...gallery.matchAll(/\{id:"([^"]+)",title:/g)].map(x=>x[1])).size,6);
+ assert.match(gallery,/id="tp9-galeria"/);
+ assert.match(gallery,/role="dialog" aria-modal="true"/);
+ assert.match(gallery,/if\(event\.key==="Escape"\)/);
+ assert.match(gallery,/if\(event\.key==="ArrowLeft"\)/);
+ assert.match(gallery,/if\(event\.key==="ArrowRight"\)/);
+ assert.match(gallery,/grid-template-columns:repeat\(12,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/Não representam projetos executados nem instalações/);
+ assert.match(gallery,/unsplash\.com\/photos\//);
+});
