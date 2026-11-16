@@ -131,8 +131,8 @@
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "5b1a9ef69d96d74dda60aac5550bc37fd5cc4325",
-        "reason": "User explicitly approved TP10 Education Model 3 FAQ Option 1 Editorial Premium. Scoped two-column responsive accordion, numbering and accessible state preserve real briefing questions, all prior sections, Models 1/2 and universal editor/learning."
+        "sha": "a112e7e81e377349c58d68b00bbbc3b9f99b8c19",
+        "reason": "User approved TP10 Education Model 3 section 08 Contact Option 2, preserving real briefing contacts, functional WhatsApp/email form flow, responsive illustrative photo and optional map; Models 1/2, editor and learning unchanged."
       }
     },
     {
