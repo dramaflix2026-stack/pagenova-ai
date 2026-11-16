@@ -1266,3 +1266,15 @@
 .pnr-page .pnr-footer-onesignal .pnr-socials a:hover{background:rgba(60,195,112,.15)!important}
 @media(max-width:900px){.pnr-page .pnr-brand img{width:174px!important;max-height:57px!important}}
 @media(max-width:500px){.pnr-page .pnr-brand img{width:160px!important;max-height:53px!important}.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(4,44px)!important}.pnr-page .pnr-footer-onesignal .pnr-socials a{width:44px!important;height:44px!important}}
+
+
+/* Remove disconnected decorative curves across the hero and following sections. */
+.pnr-page .pnr-hero-ring,
+.pnr-page .pnr-hero-ring::before,
+.pnr-page .pnr-hero-orbit-motion,
+.pnr-page .pnr-portrait-ring,
+.pnr-page .pnr-hero-light-sweep{display:none!important;background:none!important;border:0!important}
+.pnr-page .pnr-hero--premium::before,
+.pnr-page .pnr-hero--premium::after,
+.pnr-page .pnr-solutions::before,
+.pnr-page .pnr-styles::before{display:none!important;content:none!important}
