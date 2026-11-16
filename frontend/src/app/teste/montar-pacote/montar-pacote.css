@@ -60,3 +60,32 @@
 /* Align checkout summary with the first row of product cards on desktop. */
 @media(min-width:801px){.mp-summary{margin-top:76px}}
 @media(max-width:800px){.mp-summary{margin-top:0}}
+
+
+/* Campaign preview: fixed dates and clearly disclosed unconfigured checkout discounts. */
+.mp-campaign{display:grid;grid-template-columns:minmax(0,1fr) 335px;gap:28px;align-items:center;margin:0 0 54px;padding:29px 33px;border:1px solid rgba(181,255,116,.45);border-radius:22px;background:radial-gradient(ellipse at 7% 0%,rgba(134,255,93,.16),transparent 60%),linear-gradient(115deg,#152c1b,#0b1b11 72%);box-shadow:0 16px 50px #0003}
+.mp-campaign-kicker{display:flex;align-items:center;gap:9px;color:#baff80;font-size:11px;font-weight:800;letter-spacing:1.7px}
+.mp-campaign-copy h2{font-size:clamp(24px,2.7vw,36px);line-height:1.2;letter-spacing:-1.1px;margin:13px 0 10px;font-weight:800}
+.mp-campaign-copy h2 em{font-style:normal;color:#b1ff79}
+.mp-campaign-copy p{font-size:12px;line-height:1.7;color:#c0d3c2;max-width:590px;margin:0 0 16px}
+.mp-discount-tiers{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.mp-discount-tiers span{display:inline-flex;align-items:center;gap:8px;border:1px solid #4c7945;border-radius:9px;background:#1b3922;padding:10px 12px;font-size:11px;color:#e2f4df}
+.mp-discount-tiers strong{color:#baff7f;font-size:12px}
+.mp-campaign-copy>small{display:block;font-size:10px;color:#99b59e;line-height:1.6}
+.mp-campaign-timer{display:grid;gap:16px;text-align:center;padding:22px 18px;background:rgba(4,18,9,.55);border:1px solid rgba(173,255,117,.17);border-radius:16px}
+.mp-campaign-timer>span{display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;letter-spacing:1.2px;font-weight:800;color:#c1f4a6}
+.mp-clock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.mp-clock>div{display:grid;gap:7px;padding:13px 4px 10px;border-radius:9px;background:#23402a}
+.mp-clock strong{font-size:clamp(19px,2vw,28px);font-variant-numeric:tabular-nums;line-height:1;color:#b8ff7e}
+.mp-clock small{font-size:9px;color:#c1d5bc}
+.mp-campaign-timer>small{font-size:10px;color:#8da994}
+.mp-product-benefit{display:block;font-size:11px;line-height:1.55;color:#c1d5c2}
+.mp-product{min-height:118px}
+.mp-promo-estimate{border-top:1px solid rgba(160,217,151,.15);padding:19px 0 17px;display:grid;gap:12px}
+.mp-promo-title{display:flex;align-items:center;gap:9px;color:#b8ff83;font-size:12px;font-weight:800}
+.mp-promo-row{display:flex;justify-content:space-between;gap:10px;font-size:11px;color:#c6d9c5}
+.mp-promo-row strong{color:#b7ff7f;font-size:13px}
+.mp-promo-highlight{padding:12px;border-radius:9px;background:#203e27}
+.mp-promo-estimate>small{font-size:10px;line-height:1.6;color:#a2b9a4}
+@media(max-width:1000px){.mp-campaign{grid-template-columns:1fr;gap:18px}.mp-campaign-timer{max-width:420px}}
+@media(max-width:580px){.mp-campaign{padding:21px 17px;margin-bottom:36px;border-radius:17px}.mp-campaign-copy h2{font-size:27px}.mp-discount-tiers{gap:6px}.mp-discount-tiers span{padding:8px;font-size:10px}.mp-campaign-timer{padding:18px 12px}.mp-product{min-height:99px}.mp-product-benefit{font-size:10px}}
