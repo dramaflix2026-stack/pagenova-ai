@@ -67,8 +67,8 @@
       "path": "src/components/builder-v2-site.tsx",
       "blobSha": "39f70209f2e11a82b84923c43d28eae10e4c344a",
       "approvedBindingRevision": {
-        "sha": "fae68ddac4b4c509c11c8cbbd8d7252ede168cf0",
-        "reason": "User-requested scoped image edit fix: forward optional photo override through shared TP10 renderer without changing approved default templates or site structure."
+        "sha": "df296dcffc381ae9f584637cd70a6ab1908e894d",
+        "reason": "Single-photo adapter forwarded as optional prop after brand; preserve existing universal education visual contracts and all TP10 defaults."
       }
     },
     {
