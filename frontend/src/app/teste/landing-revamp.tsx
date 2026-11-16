@@ -214,6 +214,9 @@ export function LandingRevamp() {
       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
       {/* Lightweight, independently animated vector overlay. Original HD art is unchanged. */}
       
+      <div className="pnr-hero-orbit-motion" data-motion-layer="ambient" />
+      <div className="pnr-hero-cyborg-eye" data-motion-layer="ambient" />
+      <div className="pnr-hero-cyborg-scan" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--dev" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--growth" data-motion-layer="ambient" />
