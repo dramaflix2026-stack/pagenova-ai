@@ -1250,3 +1250,19 @@
  .pnr-page .pnr-trust .pnr-guarantee-full-art{margin-top:-10px!important;margin-bottom:-10px!important}
  .pnr-page .pnr-trust .pnr-faq{padding-top:12px!important}
 }
+
+
+/* High-legibility header branding and real SVG flags. */
+.pnr-page .pnr-country-flag{display:block!important;width:29px!important;height:20px!important;min-width:29px;flex:none;border-radius:3px;box-shadow:0 0 0 1px rgba(255,255,255,.22);overflow:hidden}
+.pnr-page .pnr-language-trigger{min-width:60px;gap:7px}
+.pnr-page .pnr-language-options{width:174px}
+.pnr-page .pnr-language-options button{gap:12px}
+.pnr-page .pnr-brand img{width:205px!important;max-height:68px!important;height:auto!important;object-fit:contain;image-rendering:auto;animation:pnr-brand-arrive .8s ease-out both!important;filter:none!important}
+.pnr-page .pnr-brand::after{animation:none!important;display:none!important}
+.pnr-page .pnr-brand:hover img{filter:none!important;opacity:1}
+.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(4,48px)!important;gap:10px!important}
+.pnr-page .pnr-footer-onesignal .pnr-socials a{width:48px!important;height:48px!important;padding:8px!important;border-color:rgba(169,255,112,.3)!important}
+.pnr-page .pnr-footer-onesignal .pnr-socials svg{width:29px!important;height:29px!important;filter:none!important}
+.pnr-page .pnr-footer-onesignal .pnr-socials a:hover{background:rgba(60,195,112,.15)!important}
+@media(max-width:900px){.pnr-page .pnr-brand img{width:174px!important;max-height:57px!important}}
+@media(max-width:500px){.pnr-page .pnr-brand img{width:160px!important;max-height:53px!important}.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(4,44px)!important}.pnr-page .pnr-footer-onesignal .pnr-socials a{width:44px!important;height:44px!important}}
