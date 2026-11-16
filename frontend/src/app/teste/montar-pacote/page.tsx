@@ -11,15 +11,15 @@ const products:Product[]=[
  {id:"crm",name:"PageNova CRM",group:"Planos",price:247,url:"https://pay.kiwify.com.br/2m1rDJy",includes:["search","leads","commercial"]},
  {id:"apps",name:"Apps e Sistemas",group:"Planos",price:397,url:"https://pay.kiwify.com.br/MdZcLn7"},
  {id:"completo",name:"PageNova Completa",group:"Planos",price:597,url:"https://pay.kiwify.com.br/grqYCk6",includes:["studio","crm","apps","site","landing","clone","quiz","ebook","form","search","leads","commercial"]},
- {id:"site",name:"Criar Sites com IA",group:"Studio",price:null,url:"https://pay.kiwify.com.br/LJu4sCp"},
- {id:"landing",name:"Criar Landing Page com IA",group:"Studio",price:null,url:"https://pay.kiwify.com.br/D1PCPD2"},
- {id:"clone",name:"Clonador de Páginas",group:"Studio",price:null,url:"https://pay.kiwify.com.br/X2B2QQF"},
- {id:"form",name:"Formulário Inteligente",group:"Studio",price:null,url:"https://pay.kiwify.com.br/34RNg6p"},
- {id:"quiz",name:"Quizzes Interativos",group:"Studio",price:null,url:"https://pay.kiwify.com.br/DCzajEq"},
- {id:"ebook",name:"Criar E-books com IA",group:"Studio",price:null,url:"https://pay.kiwify.com.br/jo1HpuT"},
- {id:"search",name:"Buscar Empresas",group:"CRM",price:null,url:"https://pay.kiwify.com.br/xxbBj0R"},
- {id:"leads",name:"Gestão de Leads",group:"CRM",price:null,url:"https://pay.kiwify.com.br/MULLtCp"},
- {id:"commercial",name:"Operação Comercial",group:"CRM",price:null,url:"https://pay.kiwify.com.br/LzpevGp"}
+ {id:"site",name:"Criar Sites com IA",group:"Studio",price:79,url:"https://pay.kiwify.com.br/LJu4sCp"},
+ {id:"landing",name:"Criar Landing Page com IA",group:"Studio",price:39,url:"https://pay.kiwify.com.br/D1PCPD2"},
+ {id:"clone",name:"Clonador de Páginas",group:"Studio",price:49,url:"https://pay.kiwify.com.br/X2B2QQF"},
+ {id:"form",name:"Formulário Inteligente",group:"Studio",price:29,url:"https://pay.kiwify.com.br/34RNg6p"},
+ {id:"quiz",name:"Quizzes Interativos",group:"Studio",price:29,url:"https://pay.kiwify.com.br/DCzajEq"},
+ {id:"ebook",name:"Criar E-books com IA",group:"Studio",price:39,url:"https://pay.kiwify.com.br/jo1HpuT"},
+ {id:"search",name:"Buscar Empresas",group:"CRM",price:59,url:"https://pay.kiwify.com.br/xxbBj0R"},
+ {id:"leads",name:"Gestão de Leads",group:"CRM",price:49,url:"https://pay.kiwify.com.br/MULLtCp"},
+ {id:"commercial",name:"Operação Comercial",group:"CRM",price:49,url:"https://pay.kiwify.com.br/LzpevGpD"}
 ];
 const icons:Record<string,typeof Sparkles>={studio:Sparkles,crm:Users,apps:Blocks,completo:Crown,site:Globe2,landing:PanelsTopLeft,clone:Copy,form:FileText,quiz:ListChecks,ebook:BookOpen,search:Search,leads:ContactRound,commercial:BriefcaseBusiness};
 const campaignStart=Date.parse("2026-11-23T00:00:00-03:00");
@@ -65,12 +65,12 @@ export default function MontarPacote(){
     {["Planos","Studio","CRM"].map(group=><section key={group} className="mp-group"><div className="mp-group-title"><h2>{group==="Planos"?"Pacotes completos":group==="Studio"?"Ferramentas Studio":"Ferramentas CRM"}</h2><p>{group==="Planos"?"Escolha um pacote ou pule esta etapa.":"Adicione apenas as ferramentas que desejar."}</p></div><div className="mp-products">{products.filter(p=>p.group===group).map(p=>{
       const isIncluded=!selected.includes(p.id)&&included.has(p.id);
       const active=selected.includes(p.id);
-      return <button key={p.id} type="button" disabled={isIncluded} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{(()=>{const Icon=icons[p.id]||LayoutTemplate;return <Icon size={21} strokeWidth={1.8}/>})()}</span><span className="mp-product-info"><strong>{p.name}</strong><span className="mp-product-benefit">{benefits[p.id]}</span><small>{isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Preço disponível no checkout"}</small></span><span className="mp-action">{active?<Check size={17}/>:isIncluded?<Check size={16}/>:<Plus size={17}/>}</span></button>;
+      return <button key={p.id} type="button" disabled={isIncluded} className={"mp-product"+(active?" active":"")} onClick={()=>toggle(p.id)} aria-pressed={active}><span className="mp-check">{(()=>{const Icon=icons[p.id]||LayoutTemplate;return <Icon size={21} strokeWidth={1.8}/>})()}</span><span className="mp-product-info"><strong>{p.name}</strong><span className="mp-product-benefit">{benefits[p.id]}</span><small>{isIncluded?"Já incluído no seu pacote":p.price!==null?money(p.price)+"/mês":"Consulte condições no checkout"}</small></span><span className="mp-action">{active?<Check size={17}/>:isIncluded?<Check size={16}/>:<Plus size={17}/>}</span></button>;
     })}</div></section>)}
    </div>
    <aside className="mp-summary"><div className="mp-summary-inner"><div className="mp-summary-heading"><span className="mp-summary-icon"><ShoppingBag size={21}/></span><div><small>RESUMO DA CONTRATAÇÃO</small><h2>Seu pacote <span>{chosen.length}</span></h2></div></div>{chosen.length===0?<div className="mp-empty"><ShoppingBag size={29}/><p>Seu pacote começa aqui.</p><small>Selecione os produtos ao lado. Você não precisa escolher um plano completo.</small></div>:<div className="mp-selected">{chosen.map(p=><div key={p.id} className="mp-selected-row"><span>{p.name}</span><button type="button" onClick={()=>toggle(p.id)} aria-label={"Remover "+p.name}><Minus size={15}/></button></div>)}</div>}
     {chosen.length>0&&now!==null&&now<campaignEnd&&<div className="mp-promo-estimate"><div className="mp-promo-title"><BadgePercent size={17}/> Simulação Black Friday</div><div className="mp-promo-row"><span>Desconto proposto ({Math.round(rate*100)}%)</span><strong>− {money(estimatedSaving)}</strong></div><div className="mp-promo-row mp-promo-highlight"><span>Subtotal simulado*</span><strong>{money(subtotal-estimatedSaving)}</strong></div><small>*Não aplicado no pagamento. O checkout da Kiwify continua com seus preços próprios até a promoção ser configurada.</small></div>}
-    <div className="mp-total"><span>{hasUnknown?"Subtotal dos itens com preço informado":"Total dos itens selecionados"}</span><strong>{money(subtotal)}</strong>{hasUnknown&&<small>O valor final depende dos produtos avulsos escolhidos.</small>}</div>
+    <div className="mp-total"><span>{hasUnknown?"Subtotal dos itens com preço informado":"Total dos itens selecionados"}</span><strong>{money(subtotal)}</strong>{hasUnknown&&<small>Os valores são informativos; confira as condições no checkout.</small>}</div>
     {chosen.length===1?<a className="mp-checkout" href={chosen[0].url} target="_blank" rel="noopener noreferrer">Ir para o checkout <ArrowRight size={17}/></a>:chosen.length>1?<div className="mp-multi"><p>Por enquanto, a Kiwify utiliza um checkout individual para cada produto. Você pode contratar os itens abaixo separadamente:</p>{chosen.map(p=><a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer">{p.name}<ArrowRight size={15}/></a>)}</div>:<button className="mp-checkout" disabled>Selecione um produto</button>}
     <p className="mp-note"><ShieldCheck size={16}/> Você será direcionado ao checkout seguro da Kiwify. Nenhuma compra é feita nesta página.</p>
    </div></aside></div>
