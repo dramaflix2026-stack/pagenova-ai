@@ -7,6 +7,7 @@ import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/bu
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
 import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
+import {planUniversalPreviewMove,auditUniversalPreviewMove,type UniversalPreviewMoveContract} from "@/lib/builder-v2-universal-preview-postconditions";
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
@@ -313,6 +314,7 @@ export default function BuilderV2() {
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
   const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -401,6 +403,37 @@ export default function BuilderV2() {
         recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-image-section-missing-target",pending.variant);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"A fotografia solicitada não apareceu na seção correta da prévia. Não considere essa edição como concluída."}]);
+      }
+    },500);
+    return ()=>window.clearInterval(timer);
+  },[site]);
+
+  // Do not call a movement "applied" based only on JSON ordering. Every
+  // relocated section must be visible in the actual preview at the requested
+  // DOM position, with its heading alignment and cards preserved.
+  useEffect(()=>{
+    const pending=pendingMoveVisualReviewRef.current;
+    if(!pending)return;
+    let checks=0;
+    const timer=window.setInterval(()=>{
+      if(pendingMoveVisualReviewRef.current!==pending){window.clearInterval(timer);return;}
+      const iframe=previewVisualAuditRef.current?.querySelector("iframe");
+      const doc=iframe?.contentDocument,win=iframe?.contentWindow;
+      const root=doc?.getElementById("pn-v2-preview-root")||doc?.body;
+      const outcome=root&&win?auditUniversalPreviewMove(root,win,pending.contract):
+       {ok:false,reason:"A prévia ainda não está disponível."};
+      if(outcome.ok){
+        pendingMoveVisualReviewRef.current=null;
+        window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
+      }else if(++checks>=30){
+        pendingMoveVisualReviewRef.current=null;
+        window.clearInterval(timer);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed",pending.variant);
+        captureReviewCandidate();
+        setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+outcome.reason+" Não aprove esta tentativa; o motor registrou a falha."}]);
       }
     },500);
     return ()=>window.clearInterval(timer);
@@ -1200,10 +1233,14 @@ export default function BuilderV2() {
           setMessages(prev=>[...prev,{role:"assistant",text:"A operação não produziu alteração verificável. Nenhuma alteração aplicada."}]);
           return;
         }
+        const movementPlan=planUniversalPreviewMove(site,result.site);
+        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan};
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
-        recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();
-        setMessages(prev=>[...prev,{role:"assistant",text:result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
+        // A model-side mutation is not evidence of an actual visible edit.
+        // Reviewed learning must receive the verdict only after the preview audit.
+        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}
+        setMessages(prev=>[...prev,{role:"assistant",text:movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
         return;
       }
     }

@@ -1651,3 +1651,46 @@ test("TP10 FAQ slot occurs after actual FAQ, before admission, without duplicate
  assert.match(sections,/customSectionAnchorFilter=\{\{exclude:\["depoimentos","faq"\]\}\}/);
  assert.match(renderer,/textAlign:b.align==="center"\?"center"/);
 });
+
+test("visual move plan is derived from committed events, not invented chat success",async()=>{
+ const {planUniversalPreviewMove}=await import("../src/lib/builder-v2-universal-preview-postconditions.ts");
+ const old={blocks:[{id:"h",section:"faq",type:"heading",text:"FAQ"},{id:"p",section:"custom-projetos",type:"heading",text:"Projetos",align:"left"}],universalSectionEvents:[]};
+ const next={...old,blocks:old.blocks.map(b=>b.id==="p"?{...b,align:"center"}:b),universalSectionEvents:[{action:"move",section:{id:"custom-projetos"},after:{id:"faq"}}]};
+ const plan=planUniversalPreviewMove(old,next);
+ assert.equal(plan?.sectionId,"custom-projetos");
+ assert.equal(plan?.anchorId,"faq");
+ assert.equal(plan?.heading?.align,"center");
+ assert.equal(planUniversalPreviewMove(next,next),null);
+});
+test("actual iframe visual audit rejects false-positive move and incorrect heading alignment",async()=>{
+ const {auditUniversalPreviewMove}=await import("../src/lib/builder-v2-universal-preview-postconditions.ts");
+ const make=(id,index,text,align="left",cards=[])=>({
+  id,index,style:{display:"block",visibility:"visible",textAlign:align},children:[],getAttribute(name){return name==="data-universal-section"&&id.startsWith("custom-")?id:null;},
+  getClientRects(){return [{}];},contains(){return false;},
+  compareDocumentPosition(other){return this.index<other.index?4:other.index<this.index?2:0;},
+  querySelector(selector){return selector==="h1,h2,h3"?{textContent:text,style:{textAlign:align}}:null;},
+  querySelectorAll(selector){return selector==="article"?cards.map(title=>({querySelector:()=>({textContent:title})})):[];}
+ });
+ const faq=make("tp10-faq",1,"Perguntas frequentes");
+ const projects=make("custom-projetos-dos-alunos",2,"Projetos que transformam conhecimento em prática","center",["Desafios práticos","Projetos colaborativos","Portfólio de aprendizagem"]);
+ const enrollment=make("tp10-matriculas",3,"Matrículas");
+ const root={querySelectorAll:()=>[faq,projects,enrollment]};
+ const win={getComputedStyle:el=>el.style};
+ const plan={kind:"move-section",sectionId:"custom-projetos-dos-alunos",anchorId:"faq",direction:"after",heading:{text:"Projetos que transformam conhecimento em prática",align:"center"},cardTitles:["Desafios práticos","Projetos colaborativos","Portfólio de aprendizagem"]};
+ assert.equal(auditUniversalPreviewMove(root,win,plan).ok,true);
+ projects.index=0;
+ assert.equal(auditUniversalPreviewMove(root,win,plan).ok,false);
+ projects.index=2;
+ projects.querySelector=()=>({textContent:"Projetos que transformam conhecimento em prática",style:{textAlign:"left"}});
+ assert.match(auditUniversalPreviewMove(root,win,plan).reason,/alinhamento/);
+ projects.querySelector=()=>({textContent:"Projetos que transformam conhecimento em prática",style:{textAlign:"center"}});
+ projects.querySelectorAll=()=>[];
+ assert.match(auditUniversalPreviewMove(root,win,plan).reason,/quantidade de cards/);
+});
+test("builder only logs success for moved sections after visual confirmation",()=>{
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.ok(page.includes("pendingMoveVisualReviewRef.current={prompt"));
+ assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified"'));
+ assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed"'));
+ assert.ok(page.includes("if(!movementPlan){recordEditorLearningEvent("));
+});
