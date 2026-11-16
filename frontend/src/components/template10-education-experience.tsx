@@ -2,10 +2,12 @@
 const imageFallback=(event:import("react").SyntheticEvent<HTMLImageElement>)=>{const el=event.currentTarget;if(el.dataset.fallback)return;el.dataset.fallback="true";el.src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1100&q=80";};
 
 import {template10Photo} from "@/components/template10-education-sections";
+import {UniversalTemplateSections} from "@/components/builder-v2-universal-sections";
+import type {UniversalSite} from "@/lib/builder-v2-universal-operations";
 
 
 type Testimonial={name:string;quote:string;role?:string;photo?:string};
-type Props={niche:string;brand?:string;testimonials?:Testimonial[];publishedMode?:boolean};
+type Props={niche:string;brand?:string;site?:UniversalSite;testimonials?:Testimonial[];publishedMode?:boolean};
 const norm=(s:string)=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const stages:Record<string,[string,string,string,string]>={
 "escolas particulares":["Conheça a escola","Converse com a equipe","Explore a proposta pedagógica","Comece sua jornada"],
@@ -74,7 +76,7 @@ function TP10Model1ReviewCards({reviews=[],publishedMode=false}:{reviews?:Testim
    <div className="pn-t10-m1-cardFoot">{demo?"Exemplo fictício · Não é avaliação real":photoIsDemo?"Depoimento cadastrado · Retrato ilustrativo":"Depoimento cadastrado"}</div>
   </article>)}</div></>;
 }
-export function Template10EducationExperience({niche,brand="",testimonials=[],publishedMode=false}:Props){
+export function Template10EducationExperience({niche,brand="",site,testimonials=[],publishedMode=false}:Props){
  const key=norm(niche);const steps=stages[key]||stages["cursos profissionalizantes"];const photo=photos[key]||photos["cursos profissionalizantes"];const fluencyProcess=key==="escolas de idiomas"&&norm(brand).includes("fluency hub");
  return <div className="pn-t10-exp" data-tp10-process={fluencyProcess?"fluency":undefined}><style>{'.pn-t10-exp{background:#f6f3ed;color:#24352f;font-family:Arial,sans-serif}.pn-t10-exp *{box-sizing:border-box}.pn-t10-exp-wrap{max-width:1600px;margin:auto;padding:clamp(70px,9vw,130px) clamp(22px,6vw,100px)}.pn-t10-exp-label{font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:#9d7556;font-weight:700}.pn-t10-exp h2{font:400 clamp(39px,5vw,74px)/1.1 Georgia,serif;letter-spacing:-.04em;max-width:840px;margin:24px 0 48px}.pn-t10-steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border-top:1px solid #b9c2ba}.pn-t10-step{padding:27px 24px 22px 0;border-right:1px solid #b9c2ba;margin-right:24px}.pn-t10-step:last-child{border-right:0}.pn-t10-step span{color:#9d7556;font-size:12px}.pn-t10-step h3{font:400 clamp(21px,2.3vw,31px) Georgia,serif;margin:36px 0 15px}.pn-t10-step p{color:#6b7971;font-size:14px;line-height:1.7}.pn-t10-gallery{background:#e7e9e2}.pn-t10-mosaic{display:grid;grid-template-columns:1.15fr .85fr;grid-template-rows:230px 230px;gap:15px}.pn-t10-mosaic img{width:100%;height:100%;object-fit:cover}.pn-t10-mosaic img:first-child{grid-row:span 2}.pn-t10-reviews{background:#183e37;color:#fff}.pn-t10-reviews h2{color:#fff}.pn-t10-review{display:grid;grid-template-columns:.8fr 1.2fr;gap:60px;align-items:center}.pn-t10-review-photo{width:100%;min-height:370px;max-height:490px;object-fit:cover}.pn-t10-quote{font:400 clamp(25px,3.5vw,49px)/1.3 Georgia,serif;margin:0 0 28px}.pn-t10-review-name{font-size:13px;letter-spacing:.1em}.pn-t10-review-controls{display:flex;gap:12px;margin-top:30px}.pn-t10-review-controls button{background:transparent;border:1px solid #ffffff88;color:white;padding:12px 18px;cursor:pointer}.pn-t10-empty{border:1px solid #ffffff55;padding:45px;max-width:750px;color:#e1e8e1;line-height:1.8}@media(max-width:850px){.pn-t10-steps{grid-template-columns:1fr 1fr}.pn-t10-review{grid-template-columns:1fr}.pn-t10-mosaic{grid-template-rows:180px 180px}}@media(max-width:480px){.pn-t10-exp-wrap{padding:44px 20px}.pn-t10-exp h2{margin:15px 0 28px}.pn-t10-review{gap:20px}.pn-t10-mosaic{grid-template-columns:1fr 1fr;grid-template-rows:180px 180px}.pn-t10-step{padding:20px 0;margin-right:0}.pn-t10-step h3{margin:18px 0 10px}.pn-t10-steps{grid-template-columns:1fr}.pn-t10-step{border-right:0;border-bottom:1px solid #b9c2ba}.pn-t10-mosaic{grid-template-rows:160px 160px}.pn-t10-review-photo{min-height:280px}.pn-t10-exp h2{font-size:40px}}'}</style>{fluencyProcess&&<style>{fluencyProcessStyle}</style>}{fluencyProcess&&<style>{fluencyGalleryStyle}</style>}
  {fluencyProcess?
@@ -131,5 +133,8 @@ export function Template10EducationExperience({niche,brand="",testimonials=[],pu
  </section>
  :<section className="pn-t10-gallery" id="tp10-galeria"><div className="pn-t10-exp-wrap"><span className="pn-t10-exp-label">05 / Galeria e experiências</span><h2>O aprendizado acontece em muitos cenários.</h2><div className="pn-t10-mosaic"><img onError={imageFallback} loading="lazy" src={img(template10Photo(niche,6))} alt={"Ambiente ilustrativo de "+niche}/><img onError={imageFallback} loading="lazy" src={img(template10Photo(niche,7))} alt="Pessoas em atividade educacional"/><img onError={imageFallback} loading="lazy" src={img(template10Photo(niche,8))} alt="Experiência de aprendizagem"/></div></div></section>}
  <section className="pn-t10-reviews" id="tp10-depoimentos"><div className="pn-t10-exp-wrap"><span className="pn-t10-exp-label">06 / Histórias e experiências</span><h2>Histórias de quem vive essa jornada.</h2><TP10Model1ReviewCards reviews={testimonials} publishedMode={publishedMode}/></div></section>
+ <UniversalTemplateSections site={site||{blocks:[]}} customSectionAnchorFilter={{include:["depoimentos"]}} customSectionTheme={{background:"#f6f3ed",color:"#22312d",accent:"#153d35"}}>
+  <section data-universal-section="depoimentos" hidden aria-hidden="true" style={{display:"none"}}/>
+ </UniversalTemplateSections>
  </div>;
 }

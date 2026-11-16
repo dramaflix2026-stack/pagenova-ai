@@ -3,13 +3,23 @@ import {resolveUniversalSection} from "../lib/builder-v2-universal-targets";
 import type {UniversalSectionEvent,UniversalSectionReference} from "../lib/builder-v2-universal-operations";
 
 /** Reorder approved React sections as whole units. No DOM mutation or replacement layouts. */
-export function UniversalTemplateSections({site,children,customSectionTheme}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string;cardTitleColor?:string;descriptionColor?:string;cardDescriptionColor?:string;heroCenter?:boolean;entryAnimation?:string;cardRadius?:number}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string;layout?:string}[]};children:ReactNode;customSectionTheme?:{background:string;color:string;accent:string}}){
+export function UniversalTemplateSections({site,children,customSectionTheme,customSectionAnchorFilter}:{site:{universalSectionStyles?:Record<string,{backgroundColor?:string;headingColor?:string;cardTitleColor?:string;descriptionColor?:string;cardDescriptionColor?:string;heroCenter?:boolean;entryAnimation?:string;cardRadius?:number}>;universalSectionEvents?:UniversalSectionEvent[];universalBanners?:{id:string;afterSection:string;beforeSection:string;text:string;backgroundColor:string;textColor:string}[];motion?:{sections?:Record<string,{effect?:string}>};blocks?:{id?:string;section?:string;type?:string;text?:string;src?:string;href?:string;align?:string;background?:string;color?:string;layout?:string}[]};children:ReactNode;customSectionTheme?:{background:string;color:string;accent:string};customSectionAnchorFilter?:{include?:string[];exclude?:string[]}}){
  const events=site.universalSectionEvents;
 
  const nodes=Children.toArray(children);
  const keyOf=(node:ReactNode)=>isValidElement<{"data-universal-section"?:string}>(node)?node.props["data-universal-section"]:undefined;
  // Sections created through chat are real blocks, not a silent data-only update.
- const customKeys=[...new Set((site.blocks||[]).map(b=>b.section).filter((v):v is string=>typeof v==="string"&&v.startsWith("custom-")))];
+ const customKeys=[...new Set((site.blocks||[]).map(b=>b.section).filter((v):v is string=>typeof v==="string"&&v.startsWith("custom-")))]
+  .filter(section=>{
+   if(!customSectionAnchorFilter)return true;
+   const move=[...(Array.isArray(events)?events:[])].reverse().find(event=>event.action==="move"&&event.section?.id===section);
+   const anchor=move?.after?.id||move?.before?.id||"";
+   const canonical=(label:string)=>resolveUniversalSection(site,label)||label;
+   const matches=(label:string)=>!!anchor&&canonical(label)===canonical(anchor);
+   if(customSectionAnchorFilter.include&&!customSectionAnchorFilter.include.some(matches))return false;
+   if(customSectionAnchorFilter.exclude?.some(matches))return false;
+   return true;
+  });
  const templateNodes=nodes.filter(node=>keyOf(node));
  const inferredTheme=(section:string)=>{
   const first=(site.blocks||[]).findIndex(b=>b.section===section);

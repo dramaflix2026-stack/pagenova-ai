@@ -1540,3 +1540,15 @@ test("new-section brief keeps immediately outside title and preserves explicit c
  assert.equal(result.site.blocks[index+created.length].section,"faq");
  assert.deepEqual(result.site.universalSectionEvents?.at(-1),{action:"move",section:{id:"custom-projetos-dos-alunos",label:"Projetos dos Alunos"},after:{id:"depoimentos",label:"Depoimentos"}});
 });
+
+test("TP10 M1 moves custom projects from the course wrapper into the testimonials slot",()=>{
+ const load=(name)=>readFileSync(new URL("../src/components/"+name,import.meta.url),"utf8");
+ const renderer=load("builder-v2-universal-sections.tsx"),sections=load("template10-education-sections.tsx");
+ const experience=load("template10-education-experience.tsx"),hero=load("template10-education-hero.tsx");
+ assert.match(renderer,/customSectionAnchorFilter\.include/);
+ assert.match(renderer,/customSectionAnchorFilter\.exclude/);
+ assert.match(sections,/customSectionAnchorFilter=\{\{exclude:\["depoimentos"\]\}\}/);
+ assert.match(experience,/customSectionAnchorFilter=\{\{include:\["depoimentos"\]\}\}/);
+ assert.ok(experience.indexOf('id="tp10-depoimentos"')<experience.indexOf('customSectionAnchorFilter={{include:["depoimentos"]}}'));
+ assert.match(hero,/Template10EducationExperience niche=\{niche\} brand=\{brand\} site=\{site\}/);
+});

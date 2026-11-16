@@ -134,7 +134,7 @@ export function Template10EducationHero({brand,niche,universalSectionImages,site
  <div className="pn-t10-strip"><span>Educação com identidade</span><span>Aprendizado · Desenvolvimento · Possibilidades</span></div>
  }
  <Template10EducationSections niche={niche} brand={brand} site={site} universalSectionImages={universalSectionImages}/>
- <Template10EducationExperience niche={niche} brand={brand} testimonials={testimonials} publishedMode={publishedMode}/>
+ <Template10EducationExperience niche={niche} brand={brand} site={site} testimonials={testimonials} publishedMode={publishedMode}/>
  <Template10EducationClosing niche={niche} brand={brand} contact={contact} faqs={faqs}/>
  <Template10EducationFinal niche={niche} brand={brand} contact={contact}/>
  </div>;
