@@ -54,7 +54,7 @@ const workflowStage=(p?:EditorFailurePath):EditorDiagnosticStage=>{
  if(p==="persistence")return "persistence";
  if(p==="preflight")return "interpretation";
  if(p==="reference-image"||p==="generation-images"||p==="generation-attachments"||p==="image-generation")return "execution";
- if(p==="ai-editor"||p==="site-generation")return "network";
+ if(p==="ai-editor"||p==="site-generation")return "execution";
  return p?"execution":"unknown";
 };
 export function diagnoseEditorFailure(input:{
