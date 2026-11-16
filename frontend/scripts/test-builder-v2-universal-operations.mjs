@@ -1552,3 +1552,25 @@ test("TP10 M1 moves custom projects from the course wrapper into the testimonial
  assert.ok(experience.indexOf('id="tp10-depoimentos"')<experience.indexOf('customSectionAnchorFilter={{include:["depoimentos"]}}'));
  assert.match(hero,/Template10EducationExperience niche=\{niche\} brand=\{brand\} site=\{site\}/);
 });
+
+test("retry of malformed immediately-after section recovers only known generic failure",()=>{
+ const request='Adicione uma nova seção chamada Projetos dos Alunos imediatamente após a seção Depoimentos. Inclua o título "Projetos que transformam conhecimento em prática" e três cards sobre projetos desenvolvidos pelos estudantes.';
+ const initial={templateId:"prompt-adaptive",briefingLayoutVariant:"01",blocks:[
+  {id:"review",section:"depoimentos",type:"heading",text:"Depoimentos"},
+  {id:"old-h",section:"custom-projetos-dos-alunos-imediatamente",type:"heading",text:"Projetos dos Alunos imediatamente"},
+  {id:"old-1",section:"custom-projetos-dos-alunos-imediatamente",type:"heading",text:"Informações essenciais"},
+  {id:"old-2",section:"custom-projetos-dos-alunos-imediatamente",type:"paragraph",text:"Conheça os principais pontos"},
+  {id:"old-3",section:"custom-projetos-dos-alunos-imediatamente",type:"heading",text:"Cuidados e recomendações"},
+  {id:"old-4",section:"custom-projetos-dos-alunos-imediatamente",type:"paragraph",text:"Observe as orientações"},
+  {id:"old-5",section:"custom-projetos-dos-alunos-imediatamente",type:"heading",text:"Próximos passos"},
+  {id:"old-6",section:"custom-projetos-dos-alunos-imediatamente",type:"paragraph",text:"Entre em contato"},
+  {id:"faq",section:"faq",type:"heading",text:"FAQ"}]};
+ const result=applyUniversalNaturalLanguage(initial,request);
+ assert.equal(result?.ok,true,result?.ok===false?result.error:"No result");
+ if(!result?.ok)return;
+ assert.equal(result.site.blocks.filter(b=>b.section==="custom-projetos-dos-alunos-imediatamente").length,0);
+ assert.equal(result.site.blocks.filter(b=>b.section==="custom-projetos-dos-alunos").length,7);
+ assert.equal(result.site.blocks.find(b=>b.id==="faq")?.text,"FAQ");
+ assert.equal(result.site.universalSectionEvents?.at(-2)?.action,"remove");
+ assert.equal(result.site.universalSectionEvents?.at(-1)?.action,"move");
+});

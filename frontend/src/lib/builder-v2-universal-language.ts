@@ -294,6 +294,16 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
  if(destination&&!target)return {ok:false,error:"Seção de referência não encontrada: "+targetLabel+". Nenhuma alteração aplicada."};
  const sectionId="custom-"+normalized(name).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
  if(site.blocks.some(b=>b.section===sectionId))return {ok:false,error:"Essa seção já existe. Nenhuma alteração aplicada."};
+ // Recover exactly the malformed section from the previous "imediatamente após"
+ // parser, but never delete an independently edited section.
+ const staleId=sectionId+"-imediatamente";
+ const stale=site.blocks.filter(block=>block.section===staleId);
+ const expectedStaleHeading=normalized(name+" imediatamente");
+ const staleHeading=stale.some(block=>block.type==="heading"&&normalized(String(block.text||""))===expectedStaleHeading);
+ const staleGeneric=stale.some(block=>/informa[cç][oõ]es essenciais/i.test(String(block.text||"")))
+   &&stale.some(block=>/cuidados e recomenda[cç][oõ]es/i.test(String(block.text||"")));
+ const recoverStale=stale.length>=5&&stale.length<=12&&staleHeading&&staleGeneric;
+ if(stale.length&&!recoverStale)return {ok:false,error:"Existe uma seção anterior semelhante, mas ela foi alterada. Revise antes de substituí-la; nenhuma edição aplicada."};
  const before=destination?normalized(destination[1])==="antes":false;
  const defaultAnchor=site.blocks.findIndex(b=>/^(contact|contato|footer|rodape|localizacao|location)(?:-|$)/i.test(String(b.section||"")));
  const index=destination?(before?site.blocks.findIndex(b=>b.section===target):site.blocks.findLastIndex(b=>b.section===target)+1):(defaultAnchor>0?defaultAnchor:site.blocks.length);
@@ -406,7 +416,7 @@ function applyNaturalSectionCreation<T extends UniversalSite>(site:T,instruction
     {type:"heading",text:card.title},
     {type:"paragraph",text:card.description}
    ])];
- const operations:UniversalOperation[]=[];let afterId=previous.id;
+ const operations:UniversalOperation[]=recoverStale?[{action:"remove-section",sectionId:staleId}]:[];let afterId=previous.id;
  for(let i=0;i<entries.length;i++){
   const block={id:sectionId+"-"+i,section:sectionId,...entries[i]};
   operations.push({action:"add",block,afterId});afterId=block.id;
