@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Check, Minus, Plus, ShoppingBag, ShieldCheck, Sparkles, LayoutTemplate, Users, Blocks, Crown, Globe2, PanelsTopLeft, Copy, FileText, ListChecks, BookOpen, Search, ContactRound, BriefcaseBusiness, Clock3, Gift, BadgePercent, Zap } from "lucide-react";
 import "./montar-pacote.css";
+import { PageNovaTrustSections, PageNovaFooter } from "../landing-revamp";
 
 type Product={id:string;name:string;group:string;price:number|null;url:string;includes?:string[]};
 const products:Product[]=[
@@ -75,5 +76,6 @@ export default function MontarPacote(){
     <p className="mp-note"><ShieldCheck size={16}/> Você será direcionado ao checkout seguro da Kiwify. Nenhuma compra é feita nesta página.</p>
    </div></aside></div>
   </div>
+  <div className="mp-after-catalog"><PageNovaTrustSections/><PageNovaFooter onPackagePage/></div>
  </main>;
 }
