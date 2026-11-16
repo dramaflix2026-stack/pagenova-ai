@@ -130,6 +130,7 @@ const amounts=[207,247,397,597];
 export function LandingRevamp() {
  const [lang,setLang]=useState<Lang>("pt");
  const [menu,setMenu]=useState(false);
+ const [langOpen,setLangOpen]=useState(false);
  const [openFaq,setOpenFaq]=useState<number|null>(0);
  useEffect(()=>{
   const search=new URLSearchParams(window.location.search).get("lang");
@@ -179,7 +180,7 @@ export function LandingRevamp() {
 
  const t=translations[lang];
  const switchLang=(value:Lang)=>{
-  setLang(value);setMenu(false);
+  setLang(value);setMenu(false);setLangOpen(false);
   const url=new URL(window.location.href);url.searchParams.set("lang",value);
   window.history.replaceState(null,"",url.toString());
  };
@@ -191,10 +192,10 @@ export function LandingRevamp() {
    <div className="pnr-nav">
     <Link href="/teste" className="pnr-brand" aria-label="PageNova AI"><img src="/brand/pagenova-logo.png" width="160" height="48" alt="PageNova AI"/></Link>
     <nav className="pnr-navlinks" aria-label="Principal">{t.nav.map((label,i)=><a key={label} href={navigation[i]}>{label}</a>)}</nav>
-    <div className="pnr-navright"><label className="pnr-language"><Globe2 size={15}/><select aria-label="Idioma / Language" value={lang} onChange={e=>switchLang(e.target.value as Lang)}><option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option></select><ChevronDown size={12}/></label><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary">{t.start}<ArrowUpRight size={16}/></Link></div>
+    <div className="pnr-navright"><div className="pnr-language-picker"><button type="button" className="pnr-language-trigger" aria-label="Selecionar idioma" aria-expanded={langOpen} onClick={()=>setLangOpen(!langOpen)}><span className="pnr-flag" aria-hidden="true">{lang==="pt"?"🇧🇷":lang==="en"?"🇺🇸":"🇪🇸"}</span><ChevronDown size={13}/></button>{langOpen&&<div className="pnr-language-options" role="group" aria-label="Idiomas">{([["pt","🇧🇷","Português"],["en","🇺🇸","English"],["es","🇪🇸","Español"]] as const).map(([value,flag,label])=><button key={value} type="button" className={lang===value?"is-active":""} onClick={()=>switchLang(value)}><span aria-hidden="true">{flag}</span><span>{label}</span></button>)}</div>}</div><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary">{t.start}<ArrowUpRight size={16}/></Link></div>
     <button className="pnr-menu-toggle" type="button" aria-expanded={menu} aria-label="Menu" onClick={()=>setMenu(v=>!v)}>{menu?<X/>:<Menu/>}</button>
    </div>
-   {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<div className="pnr-mobile-languages">{(["pt","en","es"] as const).map(value=><button key={value} type="button" aria-pressed={lang===value} onClick={()=>switchLang(value)}>{value.toUpperCase()}</button>)}</div><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary" onClick={()=>setMenu(false)}>{t.start}<ArrowRight size={17}/></Link></nav>}
+   {menu&&<nav className="pnr-mobile-menu">{t.nav.map((label,i)=><a key={label} href={navigation[i]} onClick={()=>setMenu(false)}>{label}</a>)}<div className="pnr-mobile-languages">{(["pt","en","es"] as const).map(value=><button key={value} type="button" aria-pressed={lang===value} onClick={()=>switchLang(value)}>{value==="pt"?"🇧🇷 Português":value==="en"?"🇺🇸 English":"🇪🇸 Español"}</button>)}</div><Link href="/login">{t.login}</Link><Link href="/cadastro" className="pnr-btn pnr-btn-primary" onClick={()=>setMenu(false)}>{t.start}<ArrowRight size={17}/></Link></nav>}
   </header>
   <main>
    <section id="plataforma" className="pnr-hero pnr-hero--premium" data-motion-scope="hero">
