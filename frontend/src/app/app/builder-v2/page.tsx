@@ -13,6 +13,8 @@ import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
+import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
+import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -213,7 +215,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string}}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -239,6 +241,18 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
         console.warn("[editor-learning] Solution memory sync failed",memoryError.code,memoryError.message);
         if(typeof window!=="undefined")window.dispatchEvent(new CustomEvent("pagenova:editor-learning-diagnostic",{detail:{message:"Edição registrada, mas a memória de soluções ainda não foi sincronizada. Tentaremos novamente."}}));
         return false;
+      }
+    }
+    // The reuse is an audited decision, never a copy of a customer's old values.
+    // Its source must still be APPROVED at the database boundary.
+    if(event.outcome==="applied"&&event.reuse?.sourceEventId){
+      const {error:reuseError}=await client.from("builder_editor_learning_reuses").insert({
+        event_id:event.id,user_id:user.id,source_event_id:event.reuse.sourceEventId,
+        technique:event.reuse.technique
+      });
+      if(reuseError&&reuseError.code!=="23505"){
+        console.warn("[editor-learning] Reuse attribution refused",reuseError.code,reuseError.message);
+        return false; // Preserve exact event ID; reconciliation can retry.
       }
     }
     let reviewed: string|null=null;
@@ -281,7 +295,38 @@ async function readApprovedEditorPatterns(niche:string){
   return data||[];
  }catch(error){console.warn("[editor-learning] Approved retrieval exception",error);return [];}
 }
-function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null){
+/** Tenant-isolated approved solution retrieval. No raw prompts or media leave the account.
+ * Two reads deliberately filter both owner-scoped tables, then enforce the
+ * approved/applied predicate again in the pure selector. */
+async function readApprovedEditorSolutionCases(intent:string,target:string):Promise<ReviewedSolutionCase[]>{
+ try{
+  const client=createSupabaseBrowserClient();
+  const {data:{user},error:authError}=await client.auth.getUser();
+  if(authError||!user)return [];
+  const {data:memories,error:memoryError}=await client.from("builder_editor_solution_memories")
+   .select("event_id,verification,context,deltas").eq("user_id",user.id)
+   .order("created_at",{ascending:false}).limit(120);
+  if(memoryError||!memories?.length)return [];
+  const ids=memories.map(item=>item.event_id);
+  const {data:reviews,error:reviewError}=await client.from("builder_editor_learning_events")
+   .select("id,intent,target,section_key,strategy,review_status,execution_status")
+   .eq("user_id",user.id).eq("review_status","approved").eq("execution_status","applied")
+   .eq("intent",intent).eq("target",target).in("id",ids).limit(120);
+  if(reviewError||!reviews?.length)return [];
+  const reviewed=new Map(reviews.map(entry=>[entry.id,entry]));
+  return memories.flatMap(memory=>{
+   const event=reviewed.get(memory.event_id);
+   if(!event||!memory.context||!Array.isArray(memory.deltas))return [];
+   return [{
+    event_id:memory.event_id,intent:event.intent,target:event.target,
+    section_key:event.section_key,strategy:event.strategy,
+    review_status:event.review_status,execution_status:event.execution_status,
+    verification:memory.verification,context:memory.context,deltas:memory.deltas
+   } as ReviewedSolutionCase];
+  });
+ }catch(error){console.warn("[editor-learning] Approved solution lookup unavailable",error);return [];}
+}
+function recordEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string}){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -290,7 +335,7 @@ function recordEditorLearningEvent(niche:string, instruction:string, outcome:"ap
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{})};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -352,9 +397,9 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
-  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string}}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string;solution?:EditorSolutionMemory|null}|null>(null);
-  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null;reuse?:{sourceEventId:string;technique:string}}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -410,7 +455,7 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);
         }else{
-          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse);
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Cor de fundo confirmada na prévia. Avalie o resultado visual antes de aprovar."}]);
         }
@@ -465,7 +510,7 @@ export default function BuilderV2() {
       if(outcome.ok){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null,pending.reuse);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
       }else if(++checks>=30){
@@ -1062,8 +1107,16 @@ export default function BuilderV2() {
       // architecture hero stock URL, then falsely reported a successful swap.
       // Approved experiences choose which safe parser is attempted first.
       // No historical pattern can bypass mutation verification or invent an edit.
-      const approvedPatterns=await readApprovedEditorPatterns(site.niche||"");
       const {intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey}=classifyUniversalFeedback(prompt);
+      const [approvedPatterns,approvedSolutions]=await Promise.all([
+        readApprovedEditorPatterns(site.niche||""),
+        readApprovedEditorSolutionCases(inferredIntent,inferredTarget)
+      ]);
+      const approvedTechnique=selectApprovedExecutionTechnique(approvedSolutions,{
+        intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey,
+        niche:site.niche||"",model:site.briefingLayoutVariant||"01",
+        family:String(resolveBriefingFamily(site.niche||"")||""),instruction:prompt
+      });
       const relevantPatterns=approvedPatterns.filter(pattern=>
         pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
         (!pattern.section_key||!inferredSectionKey||pattern.section_key===inferredSectionKey));
@@ -1198,11 +1251,26 @@ export default function BuilderV2() {
         approvedCopyCount>=2&&!preferUniversal&&approvedCopyCount>(preferredStrategy.universal||0);
       // A learned AI route is eligible only when it has positive reviewed evidence
       // and beats a negatively scored universal route. Compound edits remain atomic.
-      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy;
-      const result=hasAttachments||imageChange||preferScopedCopy||preferLearnedAi?null:applyUniversalNaturalLanguage(site,prompt);
+      // A verified approved technique can rescue the deterministic parser when
+      // the heuristic would otherwise route the same request to a less-specific
+      // AI/copy handler. Do not contradict strongly evidenced AI route decisions.
+      const memoryRouteOverride=shouldRerouteUsingApprovedTechnique(approvedTechnique,{
+        compound,hasAttachments,imageChange,preferScopedCopy,learnedAiEligible,
+        strongAiEvidence:onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence
+      });
+      // Reuse the *method* for explicit section-background requests, reading the
+      // requested new color and section from THIS prompt. No old values replayed.
+      const guidedBackground=approvedTechnique?.technique==="section-background"&&!compound&&!hasAttachments&&!imageChange&&
+        !(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence)
+        ?applyApprovedSectionBackground(site,prompt,approvedTechnique):null;
+      const guidedBackgroundApplied=!!guidedBackground?.ok;
+      const memoryUsedForExecution=memoryRouteOverride||guidedBackgroundApplied;
+      const preferLearnedAi=learnedAiEligible&&!preferScopedCopy&&!memoryUsedForExecution;
+      const result=hasAttachments||imageChange||(preferScopedCopy&&!memoryUsedForExecution)||preferLearnedAi
+        ?null:guidedBackground?.ok?guidedBackground:applyUniversalNaturalLanguage(site,prompt);
       // Audit the route that was actually attempted, not merely the preferred route.
       // This distinguishes a learned preference from a real execution decision.
-      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy?"scoped-copy":preferLearnedAi?"ai-editor":"universal";
+      const actualRoute=hasAttachments?"attachment":imageChange?"image":preferScopedCopy&&!memoryUsedForExecution?"scoped-copy":preferLearnedAi?"ai-editor":memoryUsedForExecution&&result?"universal-memory":"universal";
       console.info("[editor-learning] Strategy execution",{
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
@@ -1211,7 +1279,9 @@ export default function BuilderV2() {
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
-        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi,
+        preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi||memoryUsedForExecution,
+        memorySource:memoryUsedForExecution?approvedTechnique?.sourceEventId:null,
+        memoryTechnique:memoryUsedForExecution?approvedTechnique?.technique:null,
         niche:site.niche||"unknown",model:site.briefingLayoutVariant||"01"
       });
       if(preferUniversal&&result&&!result.ok){
@@ -1240,13 +1310,29 @@ export default function BuilderV2() {
         }
         const movementPlan=planUniversalPreviewMove(site,result.site);
         const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
-        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution};
+        // A source is attributed only when it CHANGED the route and the new
+        // mutation is verified, never merely because an old memory was read.
+        const learnedSource=confirmedReuseSource(approvedTechnique,memoryUsedForExecution,!!verifiedSolution);
+        const learnedReuse=learnedSource&&approvedTechnique
+          ?{sourceEventId:learnedSource,technique:approvedTechnique.technique}:undefined;
+        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution,reuse:learnedReuse};
+        // Memory-guided section backgrounds require a DOM check before an
+        // applied event or reuse attribution can ever be recorded.
+        const backgroundStyleId=guidedBackgroundApplied?result.changedIds.find(id=>id.startsWith("section-style:")):undefined;
+        const backgroundSection=backgroundStyleId?.slice("section-style:".length);
+        const backgroundStyles=(result.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
+        const backgroundColor=backgroundSection?backgroundStyles?.[backgroundSection]?.backgroundColor:undefined;
+        const pendingLearnedVisual=!!(guidedBackgroundApplied&&backgroundSection&&backgroundColor&&verifiedSolution);
+        if(pendingLearnedVisual)pendingBackgroundVisualReviewRef.current={
+          prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",
+          section:backgroundSection!,color:backgroundColor!,solution:verifiedSolution,reuse:learnedReuse
+        };
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution);captureReviewCandidate();}
-        setMessages(prev=>[...prev,{role:"assistant",text:movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
+        if(!movementPlan&&!pendingLearnedVisual){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution,learnedReuse);captureReviewCandidate();}
+        setMessages(prev=>[...prev,{role:"assistant",text:(movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":pendingLearnedVisual?"Cor definida por uma técnica aprendida. Aguardando confirmação na prévia.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result))+(learnedReuse?" Estratégia escolhida com base em experiência aprovada; confirme o resultado antes de aprovar.":"")}]);
         return;
       }
     }
