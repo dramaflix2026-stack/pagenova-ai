@@ -1694,3 +1694,16 @@ test("builder only logs success for moved sections after visual confirmation",()
  assert.ok(page.includes('recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed"'));
  assert.ok(page.includes("if(!movementPlan){recordEditorLearningEvent("));
 });
+
+test("TP10 custom movement uses the latest FAQ anchor in preview and public rendering",()=>{
+ const placement=readFileSync(new URL("../src/components/tp10-universal-custom-sections.tsx",import.meta.url),"utf8");
+ const editor=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ const publicPage=readFileSync(new URL("../src/app/site/[slug]/page.tsx",import.meta.url),"utf8");
+ assert.match(placement,/const event=\[\.\.\.events\]\.reverse\(\)\.find/);
+ assert.match(placement,/if\(event\?\.after\)return \{anchorId:event\.after\.id,direction:"after"\}/);
+ assert.match(placement,/faq:\["tp10-faq","tp10m2-faq","tp10m3-faq"\]/);
+ assert.match(placement,/target=findVisibleTP10Anchor\(root,placement\.anchorId\)/);
+ assert.match(placement,/style=\{\{textAlign:section\.headingAlign\}\}/);
+ assert.match(editor,/sectionEvents=\{site\.universalSectionEvents\}/);
+ assert.match(publicPage,/sectionEvents=\{publishedSite\.universalSectionEvents\}/);
+});
