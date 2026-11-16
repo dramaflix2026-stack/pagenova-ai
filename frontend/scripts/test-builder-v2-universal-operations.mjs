@@ -1460,3 +1460,10 @@ test("visual audit distinguishes missing preview section from a color mismatch",
  assert.equal(inferUniversalFeedbackFailureCode("universal-visual-missing-target","rejected"),"missing-target");
  assert.equal(inferUniversalFeedbackFailureCode("universal-visual-verification","rejected"),"postcondition");
 });
+
+test("idempotent background recovery resolves actual section key, not the services-only heuristic",()=>{
+ const source=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.ok(source.includes('resolveUniversalSection(site,requested)'));
+ assert.ok(source.includes('findUniversalPreviewSections(doc.getElementById("pn-v2-preview-root")||doc.body,section)'));
+ assert.ok(!source.includes('&&/servic|tratament/i.test(key)'));
+});

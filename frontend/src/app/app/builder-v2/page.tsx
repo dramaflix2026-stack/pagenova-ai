@@ -7,6 +7,7 @@ import {applyUniversalNaturalLanguage,splitUniversalInstructions} from "@/lib/bu
 import {summarizeUniversalEdit} from "@/lib/builder-v2-universal-operations";
 import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/builder-v2-universal-learning";
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
+import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
@@ -1062,7 +1063,8 @@ export default function BuilderV2() {
         }
         const styleMap=(site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
         const desired=exactSectionHex[2].toLowerCase();
-        const matching=Object.entries(styleMap||{}).filter(([,style])=>style?.backgroundColor?.toLowerCase()===desired);
+        const requestedSection=resolveUniversalSection(site,exactSectionHex[1].trim());
+        const matching=requestedSection&&styleMap?.[requestedSection]?.backgroundColor?.toLowerCase()===desired?[requestedSection]:[];
         if(matching.length){
           // An idempotent request is not a failure: re-render the preview and
           // run the same visual audit as a newly applied background edit.
@@ -1089,14 +1091,16 @@ export default function BuilderV2() {
           const match=backgroundResult.error.match(/já tem a cor (#[0-9a-f]{6}) registrada/i);
           const storedColor=match?.[1];
           const styles=(site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;
-          const section=Object.keys(styles||{}).find(key=>styles?.[key]?.backgroundColor?.toLowerCase()===storedColor?.toLowerCase()&&/servic|tratament/i.test(key));
+          const requested=backgroundResult.error.match(/A se[cç][aã]o (.+?) j[aá] tem a cor/i)?.[1]?.trim()||"";
+          const matchedSection=requested?resolveUniversalSection(site,requested):null;
+          const section=matchedSection&&styles?.[matchedSection]?.backgroundColor?.toLowerCase()===storedColor?.toLowerCase()?matchedSection:null;
           const previewFrame=previewVisualAuditRef.current?.querySelector("iframe");
           const doc=previewFrame?.contentDocument;
           const win=previewFrame?.contentWindow;
-          const candidates=doc&&section?Array.from(doc.querySelectorAll<HTMLElement>("section,[data-section-id],[data-universal-section]")).filter(el=>el.id===section||el.getAttribute("data-section-id")===section||el.getAttribute("data-universal-section")===section||/^(?:servicos|services)$/i.test(section)&&/(servic|tratament)/i.test(el.id+" "+el.getAttribute("data-section-id"))):[];
+          const candidates=doc&&section?findUniversalPreviewSections(doc.getElementById("pn-v2-preview-root")||doc.body,section):[];
           const rgb=storedColor?[1,3,5].map(i=>parseInt(storedColor.slice(i,i+2),16)):[];
           const rendered=!!win&&!!candidates?.length&&candidates.some(el=>{const channels=win.getComputedStyle(el).backgroundColor.match(/\d+(?:\.\d+)?/g)?.slice(0,3).map(Number);return channels?.length===3&&channels.every((value,i)=>value===rgb[i]);});
-          recordEditorLearningEvent(site.niche||"",prompt,rendered?"applied":"rejected",rendered?"universal-idempotent-visual-verified":"universal-idempotent-visual-mismatch",site.briefingLayoutVariant||"01");
+          recordEditorLearningEvent(site.niche||"",prompt,rendered?"applied":"rejected",rendered?"universal-idempotent-visual-verified":!section?"universal-idempotent-missing-target":"universal-idempotent-visual-mismatch",site.briefingLayoutVariant||"01");
           captureReviewCandidate();
           setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:rendered?"A cor "+storedColor+" já estava aplicada e foi confirmada na prévia. Nenhuma alteração adicional necessária.":"A cor "+storedColor+" já está registrada, mas não foi possível confirmar sua aplicação visual na seção. Edição reprovada automaticamente; verifique a prévia."}]);
           setInstruction("");
