@@ -1400,3 +1400,37 @@
 }
 
 /* Calibrated against the approved portrait: robot pupil is ~47.1% x, 43% y of the image, not 56% x. */
+
+
+/* Exact image-space eye animation: duplicate the source image inside a same-sized
+   frame and illuminate only the source pupil pixels. No synthetic floating dot. */
+.pnr-page .pnr-hero--premium .pnr-hero-image-frame{
+ position:relative;display:block;flex:0 1 705px;width:100%;max-width:705px;
+ aspect-ratio:1002 / 611;overflow:hidden;isolation:isolate;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-image-frame>.pnr-hero-art-approved{
+ display:block!important;position:relative!important;width:100%!important;height:100%!important;
+ max-width:none!important;object-fit:fill!important;z-index:1;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-image-frame>.pnr-hero-cyborg-eye{
+ position:absolute!important;inset:0!important;display:block!important;
+ width:100%!important;height:100%!important;max-width:none!important;
+ object-fit:fill!important;z-index:5!important;pointer-events:none;
+ background:none!important;border:0!important;transform:none!important;
+ clip-path:ellipse(2.2% 3.2% at 47.1% 43%);
+ mix-blend-mode:screen;filter:brightness(1.6) saturate(1.35) drop-shadow(0 0 2px #8aff9a);
+ animation:pnrEyePixelsPulse 3.2s ease-in-out infinite!important;
+}
+@keyframes pnrEyePixelsPulse{
+ 0%,100%{opacity:0;filter:brightness(1)}
+ 35%{opacity:.88;filter:brightness(2.5) saturate(1.6)}
+ 48%{opacity:.2;filter:brightness(1.2)}
+ 58%{opacity:1;filter:brightness(2.7) saturate(1.7)}
+ 78%{opacity:0;filter:brightness(1)}
+}
+.pnr-page .pnr-hero--premium .pnr-hero-image-frame>.pnr-hero-cyborg-scan{
+ position:absolute!important;inset:0!important;z-index:4!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-image-frame>.pnr-hero-cyborg-eye{animation:none!important;opacity:0!important}
+}
