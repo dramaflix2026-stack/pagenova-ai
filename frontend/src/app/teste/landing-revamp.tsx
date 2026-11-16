@@ -30,8 +30,8 @@ const translations = {
   pricesTag:"PLANOS DA PAGENOVA",pricesTitle:"Planos completos para o seu",pricesHi:"crescimento.",
   pricesDesc:"Escolha a ferramenta que combina com sua necessidade. Valores mensais em reais.",
   plans:[
-    {name:"PageNova Studio",subtitle:"Criação de sites",features:["Sites e landing pages","Modelos por nicho","Personalização com IA"]},
-    {name:"PageNova CRM",subtitle:"Prospecção e vendas",features:["Pesquisa de empresas","Gestão de leads","Organização comercial"]},
+    {name:"PageNova Studio",subtitle:"Criação de sites",features:["Gerar Site com IA","Landing Page com IA","Clonar Site","Gerar Quiz","Gerar E-books"]},
+    {name:"PageNova CRM",subtitle:"Prospecção e vendas",features:["Dashboard","Buscar Empresas","Gerar Site com IA","Organização Comercial"]},
     {name:"Apps e Sistemas",subtitle:"Em desenvolvimento",features:["Novas soluções digitais","Aplicativos e sistemas","Recursos em evolução"]},
     {name:"PageNova Completa",subtitle:"Ecossistema integrado",features:["PageNova Studio","PageNova CRM","Apps e Sistemas (em evolução)"]}
   ],
