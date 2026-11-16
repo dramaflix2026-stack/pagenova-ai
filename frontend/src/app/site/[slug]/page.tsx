@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import {headers} from "next/headers";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { BuilderV2Site, type BuilderV2SiteData } from "@/components/builder-v2-site";
+import {TP10UniversalCustomSections} from "@/components/tp10-universal-custom-sections";
+import {resolveBriefingFamily} from "@/lib/briefing-template-families";
 import {RealEstateTemplate} from "@/components/builder-v2-real-estate";
 import {PizzeriaTemplate,RestaurantSegmentTemplate} from "@/components/builder-v2-restaurant-templates";
 export const dynamic="force-dynamic";
@@ -72,5 +74,5 @@ export default async function PublishedBuilderV2({params}:{params:Promise<{slug:
       const tp9=/(?:^|[-_])(?:servicos|services)(?:$|[-_])/i.test(section)?" ,#tp9-servicos":"";
       return [...rules,`[data-section-id="${section}"],[data-universal-section="${section}"],section[id="${section}"]${tp9}{background-color:${bg}!important}`];
     }).join("\n"):"";
-  return <main className="min-h-screen overflow-x-hidden bg-white">{sectionCss&&<style>{sectionCss}</style>}{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}</main>;
+  return <main className="min-h-screen overflow-x-hidden bg-white">{sectionCss&&<style>{sectionCss}</style>}{payload.site.kind==="real-estate"?<RealEstateTemplate properties={payload.site.properties||[]} whatsapp={payload.site.realEstateWhatsapp||""} footer={payload.site.footer}/>:restaurant&&publishedTemplateId==="prompt-adaptive"&&(payload.site.briefingLayoutVariant==="02"||payload.site.briefingLayoutVariant==="03")?<BuilderV2Site site={publishedSite} templateId="prompt-adaptive" selectedNiche={niche} publishedMode />:restaurant?(pizza?<PizzeriaTemplate site={restaurantSite} segment={niche||"Pizzaria"}/>:<RestaurantSegmentTemplate site={restaurantSite} segment={niche||"Restaurante"}/>):{resolveBriefingFamily(niche||"")===10?<TP10UniversalCustomSections blocks={publishedSite.blocks} sectionEvents={publishedSite.universalSectionEvents}><BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode /></TP10UniversalCustomSections>:<BuilderV2Site site={publishedSite} templateId={publishedTemplateId} selectedNiche={niche} publishedMode />}}</main>;
 }
