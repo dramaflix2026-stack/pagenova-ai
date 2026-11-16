@@ -1852,3 +1852,40 @@
 .pnr-page .pnr-orb-stage:hover .pnr-orb-art{filter:brightness(1.23) drop-shadow(0 0 17px rgba(107,255,107,.25))}
 @keyframes pnr-orb-aura{0%,100%{opacity:.65;transform:scale(.97)}50%{opacity:1;transform:scale(1.04)}}
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-orb-stage::before{animation:none}.pnr-page .pnr-orb-stage:hover .pnr-orb-art{filter:none}}
+
+/* Mobile quality pass: footer, post-FAQ orb, audience selector, guarantee. */
+.pnr-page .pnr-guarantee-mobile{display:none}
+@media(max-width:767px){
+ .pnr-page .pnr-trust .pnr-guarantee-full-art{margin:0 auto 14px!important;width:100%!important;max-width:540px!important;overflow:visible!important}
+ .pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{display:none!important}
+ .pnr-page .pnr-guarantee-mobile{display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;padding:18px 18px 26px;background:radial-gradient(ellipse at 50% 20%,rgba(82,225,70,.16),transparent 65%),#06150b;border:1px solid rgba(163,255,116,.16);border-radius:20px}
+ .pnr-page .pnr-guarantee-mobile-shield{height:185px;width:185px;max-width:100%;background:url('/images/garantia-pagenova-original.webp') left center/auto 185px no-repeat;filter:drop-shadow(0 0 15px rgba(135,255,77,.13))}
+ .pnr-page .pnr-guarantee-mobile-copy{max-width:380px}
+ .pnr-page .pnr-guarantee-mobile-copy span{font-size:10px;letter-spacing:.18em;color:#b1ff7b;font-weight:800}
+ .pnr-page .pnr-guarantee-mobile-copy h3{margin:12px 0;font-size:clamp(27px,7vw,39px);line-height:1.08;letter-spacing:-.045em;color:#f7fff4;font-weight:800}
+ .pnr-page .pnr-guarantee-mobile-copy h3 em{font-style:normal;color:#aaff76}
+ .pnr-page .pnr-guarantee-mobile-copy p{margin:0;color:#b6c8b6;font-size:12px;line-height:1.6}
+ .pnr-page .pnr-orb-section{min-height:0!important;padding:30px 22px 42px!important;gap:0!important}
+ .pnr-page .pnr-orb-copy h2{font-size:clamp(37px,9vw,58px)!important}
+ .pnr-page .pnr-orb-copy p{margin-top:15px!important}
+ .pnr-page .pnr-orb-eyebrow{margin-bottom:14px!important}
+ .pnr-page .pnr-orb-stage{width:min(100%,410px);margin:4px auto 0!important}
+ .pnr-page .pnr-trust{padding-bottom:0!important}
+ .pnr-page .pnr-showcase-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:8px!important;border-radius:15px!important}
+ .pnr-page .pnr-showcase-tab{display:flex!important;flex-direction:column!important;gap:7px!important;min-height:75px!important;padding:11px 6px!important;text-align:center!important;font-size:clamp(11px,3.1vw,14px)!important;line-height:1.2!important;white-space:normal!important;overflow-wrap:break-word!important}
+ .pnr-page .pnr-showcase-tab svg{width:21px!important;height:21px!important;flex-shrink:0}
+ .pnr-page .pnr-showcase-tab.is-active{border-color:#92d86c!important;background:#1c3726!important;color:#bdff96!important}
+ .pnr-page .pnr-footer.pnr-footer-onesignal{padding:35px 20px 0!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-inner{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:20px!important;row-gap:24px!important;padding-bottom:27px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-brand{grid-column:1/-1!important;gap:9px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-brand img{width:165px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-brand p{max-width:340px!important;font-size:13px!important;line-height:1.5!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-column{gap:11px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-column strong{font-size:14px!important;margin-bottom:2px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-column>a{font-size:13px!important;line-height:1.45!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-social-column{grid-column:1/-1!important}
+ .pnr-page .pnr-footer-onesignal .pnr-socials{display:flex!important;flex-wrap:wrap!important;gap:10px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-bottom{align-items:center!important;text-align:center!important;gap:11px!important;padding:20px 0 24px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-bottom-brand img{width:112px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-copyright{text-align:center!important;font-size:11px!important}
+}
