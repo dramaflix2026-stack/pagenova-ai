@@ -1618,3 +1618,38 @@
 /* LinkedIn was removed after visual QA: show three social links only. */
 .pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(3,48px)!important}
 @media(max-width:620px){.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(3,44px)!important}}
+
+
+/* Responsive stabilization — scoped, non-destructive overrides.
+   Preserve approved hero artwork, float, cards, colors and footer. */
+.pnr-page .pnr-footer-onesignal .pnr-footer-inner,
+.pnr-page .pnr-footer-onesignal .pnr-footer-bottom{box-sizing:border-box;min-width:0}
+.pnr-page .pnr-footer-onesignal .pnr-footer-column{min-width:0;overflow-wrap:anywhere}
+.pnr-page .pnr-footer-onesignal .pnr-socials img{object-fit:contain}
+.pnr-page .pnr-price-grid>*{min-width:0}
+.pnr-page .pnr-price-card .pnr-price-button{max-width:100%;min-height:46px}
+@media(max-width:950px){
+ .pnr-page .pnr-footer-onesignal .pnr-footer-inner{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:30px 24px!important;
+ }
+ .pnr-page .pnr-footer-onesignal .pnr-footer-brand{grid-column:1/-1}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-social-column{grid-column:auto}
+}
+@media(max-width:620px){
+ .pnr-page .pnr-footer-onesignal .pnr-footer-inner{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:27px 16px!important;
+ }
+ .pnr-page .pnr-footer-onesignal .pnr-footer-social-column{grid-column:1/-1}
+ .pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(3,44px)!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-bottom{flex-wrap:wrap}
+ .pnr-page .pnr-price-card .pnr-price-number{min-width:0}
+}
+@media(max-width:380px){
+ .pnr-page .pnr-footer.pnr-footer-onesignal{padding-left:16px!important;padding-right:16px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-inner{gap:25px 12px!important}
+ .pnr-page .pnr-footer-onesignal .pnr-footer-column>a{font-size:12px}
+ .pnr-page .pnr-price-grid{grid-template-columns:minmax(0,1fr)!important}
+ .pnr-page .pnr-price-card{min-width:0}
+}
