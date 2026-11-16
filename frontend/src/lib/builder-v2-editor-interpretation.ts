@@ -95,6 +95,12 @@ export function interpretEditorFeedback(
   const color=requestedColor(t);
   if(color){requestedValueKind=color.kind;requestedValue=color.value;}
  }
+ if(property==="presence"&&element==="card"){
+  const numbers=[...t.matchAll(/\b[0-9]{1,2}\b/g)].map(match=>match[0]);
+  if(numbers.length===1&&/^(?:[1-9]|[1-9][0-9])$/.test(numbers[0])){
+   requestedValueKind="count";requestedValue=numbers[0];
+  }
+ }
  if(property==="align"){
   const alignments=[
    ...(/\bcentraliz\w*\b|\bcentro\b/.test(t)?["center"]:[]),
@@ -123,9 +129,9 @@ export function isValidEditorInterpretation(value:unknown):value is EditorComman
  if(x.requestedValueKind===null)return x.requestedValue===null;
  if(typeof x.requestedValue!=="string")return false;
  if(x.property===null)return false;
- if(x.requestedValueKind==="hex")return /^#[0-9A-F]{6}$/.test(x.requestedValue);
- if(x.requestedValueKind==="named-color")return namedColors.has(x.requestedValue);
- if(x.requestedValueKind==="alignment")return ["left","center","right"].includes(x.requestedValue);
- if(x.requestedValueKind==="count")return /^(?:[1-9]|[1-9][0-9])$/.test(x.requestedValue);
+ if(x.requestedValueKind==="hex")return ["backgroundColor","color"].includes(x.property)&&/^#[0-9A-F]{6}$/.test(x.requestedValue);
+ if(x.requestedValueKind==="named-color")return ["backgroundColor","color"].includes(x.property)&&namedColors.has(x.requestedValue);
+ if(x.requestedValueKind==="alignment")return x.property==="align"&&["left","center","right"].includes(x.requestedValue);
+ if(x.requestedValueKind==="count")return ["presence","count"].includes(x.property)&&/^(?:[1-9]|[1-9][0-9])$/.test(x.requestedValue);
  return false;
 }
