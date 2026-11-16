@@ -89,7 +89,9 @@ test("production Builder passes the trace to existing Supabase event, retaining 
  assert.match(page,/operation_index:event\.trace\.operationIndex,submitted_at:event\.trace\.submittedAt/);
  assert.match(page,/beginEditorSubmissionTrace\(site\.id,crypto\.randomUUID\(\),new Date\(\)\.toISOString\(\)\)/);
  assert.match(page,/nextEditorOperationTrace\(submission\)/);
- assert.match(page,/persistEditorLearningEvent\(niche,instruction,outcome,strategy,model,solution,reuse,operation\)/);
+ assert.match(page,/persistEditorLearningEvent\(niche,instruction,outcome,strategy,model,solution,reuse,operation,failurePath\)/);
+ assert.match(page,/outcome==="rejected"&&submission\?\.requestId/);
+ assert.match(page,/capturedFailureRequestIdsRef\.current/);
  assert.match(page,/confirmCloudEditorLearningReview\(client,user\.id,event\.id,reviewed\)/);
  assert.match(page,/\.eq\("id",eventId\)\.eq\("user_id",userId\)\.eq\("review_status","pending"\)/);
 });
