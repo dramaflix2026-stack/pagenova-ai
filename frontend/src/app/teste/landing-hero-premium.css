@@ -1485,3 +1485,27 @@
 @media(prefers-reduced-motion:reduce){
  .pnr-page .pnr-hero--premium .pnr-hero-image-stage{animation:none!important;transform:none!important}
 }
+
+
+/* Phase 2: keep approved floating movement and gently light up the three tech
+   panels only. No moving paths, face overlays, eye dots or full-image flashing. */
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-ambient-svg{
+ display:block!important;position:absolute;inset:0;width:100%;height:100%;
+ z-index:3;pointer-events:none;overflow:hidden;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg .pnr-hero-ambient-curves{
+ display:none!important;opacity:0!important;animation:none!important;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg .pnr-hero-ambient-icons{
+ display:block;opacity:0;animation:pnrIconSoftPulse 5.2s ease-in-out infinite!important;
+ filter:drop-shadow(0 0 4px rgba(112,255,153,.38));
+}
+@keyframes pnrIconSoftPulse{
+ 0%,100%{opacity:.02}
+ 38%{opacity:.24}
+ 58%{opacity:.12}
+ 75%{opacity:.2}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-ambient-svg{display:none!important}
+}
