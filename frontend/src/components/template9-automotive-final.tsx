@@ -1,4 +1,5 @@
 "use client";
+import {TP9VerticeFinalCTA} from "./tp9-vertice-final-cta";
 type Props={brand:string;niche:string;email?:string;whatsapp?:string;address?:string};
 const norm=(v:string)=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 const messages:Record<string,string>={
@@ -17,6 +18,7 @@ const messages:Record<string,string>={
 };
 const photos:Record<string,string>={"oficinas de motos":"photo-1558981806-ec527fa84c39","concessionarias de veiculos":"photo-1503376780353-7e6692767b70","locadoras de veiculos":"photo-1503376780353-7e6692767b70","estetica automotiva":"photo-1492144534655-ae79c964c9d7","detalhamento automotivo":"photo-1492144534655-ae79c964c9d7","lava-rapidos":"photo-1492144534655-ae79c964c9d7"};
 export function Template9AutomotiveFinal({brand,niche,email,whatsapp,address}:Props){
+ const isVertice=/\bvertice\s+auto\s+center\b/.test(norm(brand));
  const key=norm(niche),phone=(whatsapp||"").replace(/\D/g,""),validPhone=phone.length>=10?phone:undefined;
  const mail=email?.trim()&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())?email.trim():undefined;
  const addr=address?.trim()||undefined;
@@ -30,7 +32,8 @@ export function Template9AutomotiveFinal({brand,niche,email,whatsapp,address}:Pr
  @media(max-width:850px){.pn-t9f-footer-grid{grid-template-columns:1fr 1fr}.pn-t9f-footer-grid>div:first-child{grid-column:1/-1}.pn-t9f-cta{min-height:560px}}
  @media(max-width:480px){.pn-t9f-footer-grid{grid-template-columns:1fr}.pn-t9f-footer-grid>div:first-child{grid-column:auto}.pn-t9f-bottom{margin-top:45px}}
  `}</style>
- <section className="pn-t9f-cta" id="tp9-chamada-final"><img loading="lazy" src={photo} alt={"Imagem ilustrativa do setor "+niche}/><div className="pn-t9f-cta-inner"><span className="pn-t9f-eyebrow">11 / Sua próxima jornada</span><h2>{messages[key]||"Seu próximo caminho começa aqui."}</h2>{contact?<a className="pn-t9f-button" href={contact}>Fale com nossa equipe ↗</a>:<span className="pn-t9f-unavailable">O canal oficial de atendimento ainda não foi informado.</span>}</div></section>
+ {isVertice&&<TP9VerticeFinalCTA/>}
+ {!isVertice&&<section className="pn-t9f-cta" id="tp9-chamada-final"><img loading="lazy" src={photo} alt={"Imagem ilustrativa do setor "+niche}/><div className="pn-t9f-cta-inner"><span className="pn-t9f-eyebrow">11 / Sua próxima jornada</span><h2>{messages[key]||"Seu próximo caminho começa aqui."}</h2>{contact?<a className="pn-t9f-button" href={contact}>Fale com nossa equipe ↗</a>:<span className="pn-t9f-unavailable">O canal oficial de atendimento ainda não foi informado.</span>}</div></section>}
  <footer className="pn-t9f-footer" id="tp9-rodape"><div className="pn-t9f-footer-grid"><div><p className="pn-t9f-wordmark">{brand}</p><p>{niche} · uma apresentação dedicada ao universo automotivo.</p></div><div><small>Navegação</small><a href="#tp9-inicio">Início</a><a href="#tp9-servicos">Serviços</a><a href="#tp9-sobre">Sobre</a><a href="#tp9-galeria">Galeria</a><a href="#tp9-faq">Perguntas frequentes</a><a href="#tp9-orcamento">Orçamento</a></div><div><small>Contato e localização</small>{validPhone&&<a href={"https://wa.me/"+validPhone} target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>}{mail&&<a href={"mailto:"+mail}>{mail}</a>}{addr&&<><p>{addr}</p><a href={"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(addr)} target="_blank" rel="noopener noreferrer">Ver localização ↗</a></>}{!validPhone&&!mail&&!addr&&<p>Informações oficiais ainda não cadastradas.</p>}</div></div><div className="pn-t9f-bottom"><span>{brand} · {niche}</span><span>Informações comerciais sujeitas à confirmação com a empresa.</span></div></footer>
  </div>;
 }
