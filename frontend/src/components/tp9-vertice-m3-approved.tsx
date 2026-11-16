@@ -77,7 +77,7 @@ export function TP9VerticeModel3Approved({brand,email,whatsapp,address,gallery=[
  const photoCaptions=["Mecânico realizando inspeção do motor","Equipamentos de pneus e balanceamento","Profissional trabalhando no motor de um veículo","Veículo elevado para manutenção","Balanceamento de roda em oficina","Inspeção técnica com lanterna no compartimento do motor"];
  // The legacy three-photo auto-generated gallery is replaced in full by the six curated workshop photographs.
  // A complete explicitly supplied six-photo gallery, or customer-hosted uploads, always takes precedence.
- const hasCustomerPhotos=providedGallery.length>=6||providedGallery.some(item=>!/(?:images\\.unsplash\\.com|unsplash\\.com\\/photos\\/|images\\.pexels\\.com)/i.test(item.src));
+ const hasCustomerPhotos=providedGallery.length>=6||providedGallery.some(item=>{try{return !["images.unsplash.com","unsplash.com","images.pexels.com"].includes(new URL(item.src).hostname);}catch{return true;}});
  const photos=hasCustomerPhotos?[...providedGallery,...source.gallery.slice(providedGallery.length).map((id,index)=>({src:photo(id),caption:photoCaptions[providedGallery.length+index]}))].slice(0,6):source.gallery.map((id,index)=>({src:photo(id),caption:photoCaptions[index]}));
  const validReviews=reviews.filter(item=>item.name?.trim()&&item.quote?.trim()).slice(0,6);
  const reviewCards=[...validReviews.map(item=>({...item,demonstrative:false})),...placeholderReviews.slice(0,6-validReviews.length).map(item=>({...item,demonstrative:true}))];
