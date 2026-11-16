@@ -352,9 +352,9 @@ export default function BuilderV2() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
-  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string}|null>(null);
+  const pendingBackgroundVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;color:string;solution?:EditorSolutionMemory|null}|null>(null);
   const pendingSectionPhotoVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;section:string;src:string}|null>(null);
-  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract}|null>(null);
+  const pendingMoveVisualReviewRef=useRef<{prompt:string;niche:string;variant:string;contract:UniversalPreviewMoveContract;solution?:EditorSolutionMemory|null}|null>(null);
   const [previewVisualAudit,setPreviewVisualAudit]=useState<string|null>(null);
   useEffect(()=>{
     const styles=(site as unknown as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string;headingColor?:string;textColor?:string}>|undefined;
@@ -410,7 +410,7 @@ export default function BuilderV2() {
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);
         }else{
-          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Cor de fundo confirmada na prévia. Avalie o resultado visual antes de aprovar."}]);
         }
@@ -465,7 +465,7 @@ export default function BuilderV2() {
       if(outcome.ok){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"applied","universal-move-visual-verified",pending.variant,pending.solution?{...pending.solution,verification:"visual"}:null);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Movimentação confirmada na prévia: posição, título, alinhamento e cards conferidos. Avalie o resultado antes de aprovar."}]);
       }else if(++checks>=30){
@@ -1131,7 +1131,7 @@ export default function BuilderV2() {
           const verified=verifyUniversalEditResult(site,parsed.site,parsed.changedIds);
           if(sectionId&&verified.ok){
             const section=sectionId.slice("section-style:".length);
-            pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase()};
+            pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color:exactSectionHex[2].toUpperCase(),solution:captureVerifiedEditorSolution(site,parsed.site,parsed.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};
             recordVersion(site,"Antes da edição de fundo");
             setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
             setSite(parsed.site);setInstruction("");setGenerationError("");
@@ -1161,7 +1161,7 @@ export default function BuilderV2() {
       }
       if(sectionBackgroundRequest&&!compound&&!learnedAiEligible){
         const backgroundResult=applyUniversalNaturalLanguage(site,prompt);
-        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
+        if(backgroundResult?.ok&&verifyUniversalEditResult(site,backgroundResult.site,backgroundResult.changedIds).ok){const styleId=backgroundResult.changedIds.find(id=>id.startsWith("section-style:"));const section=styleId?.slice("section-style:".length);const rawStyles=(backgroundResult.site as Record<string,unknown>).universalSectionStyles as Record<string,{backgroundColor?:string}>|undefined;const color=section?rawStyles?.[section]?.backgroundColor:undefined;if(section&&color){pendingBackgroundVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",section,color,solution:captureVerifiedEditorSolution(site,backgroundResult.site,backgroundResult.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId})};}else{recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",captureVerifiedEditorSolution(site,backgroundResult.site,backgroundResult.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId}));captureReviewCandidate();}recordVersion(site,"Antes da alteração de fundo");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(backgroundResult.site);setInstruction("");setGenerationError("");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:section&&color?"Cor registrada. Verificando a aplicação visual na prévia antes de confirmar.":"Alteração registrada. Confira a prévia."}]);return;}
         // An idempotent color request is not a failed mutation. The existing visual
         // audit is authoritative; do not fall through to another parser and report
         // an unexplained "site unchanged" rejection.
@@ -1239,12 +1239,13 @@ export default function BuilderV2() {
           return;
         }
         const movementPlan=planUniversalPreviewMove(site,result.site);
-        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan};
+        const verifiedSolution=captureVerifiedEditorSolution(site,result.site,result.changedIds,{niche:site.niche,model:site.briefingLayoutVariant,family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId});
+        if(movementPlan)pendingMoveVisualReviewRef.current={prompt,niche:site.niche||"",variant:site.briefingLayoutVariant||"01",contract:movementPlan,solution:verifiedSolution};
         recordVersion(site,"Antes da edição universal");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
         setSite(result.site);setInstruction("");setGenerationError("");
         // A model-side mutation is not evidence of an actual visible edit.
         // Reviewed learning must receive the verdict only after the preview audit.
-        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01");captureReviewCandidate();}
+        if(!movementPlan){recordEditorLearningEvent(site.niche||"",prompt,"applied","universal",site.briefingLayoutVariant||"01",verifiedSolution);captureReviewCandidate();}
         setMessages(prev=>[...prev,{role:"assistant",text:movementPlan?"Movimentação registrada nos dados do projeto. Conferindo a posição e o alinhamento na prévia antes de confirmar.":result.changedIds.includes("primary-cta-theme")?"Configuração de cor dos CTAs atualizada. A mudança visual dos botões ainda precisa ser confirmada na prévia; não aprove se os CTAs não mudaram ou se outras áreas foram afetadas.":summarizeUniversalEdit(result)}]);
         return;
       }
