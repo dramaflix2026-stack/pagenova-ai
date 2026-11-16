@@ -640,3 +640,25 @@ test("Vértice TP9 Modelo 1 workflow has four anchored steps and keeps other tem
  assert.match(step,/Orientação e orçamento/);
  assert.match(step,/Execução autorizada/);
 });
+
+test("Vértice TP9 approved gallery displays six distinct repair photos and an accessible lightbox",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const integration=readFileSync(new URL("../src/components/template9-automotive-experience.tsx",import.meta.url),"utf8");
+ const gallery=readFileSync(new URL("../src/components/tp9-vertice-gallery.tsx",import.meta.url),"utf8");
+ assert.match(integration,/isVertice&&<TP9VerticeGallery\/>/);
+ assert.match(integration,/!isVertice&&<section className="pn-t9x-section pn-t9x-gallery"/);
+ assert.match(integration,/\{reviewsSection\}/);
+ assert.match(gallery,/id="tp9-galeria"/);
+ assert.match(gallery,/aria-modal="true"/);
+ assert.match(gallery,/if\(event\.key==="Escape"\)/);
+ assert.match(gallery,/if\(event\.key==="ArrowLeft"\)/);
+ assert.match(gallery,/if\(event\.key==="ArrowRight"\)/);
+ assert.match(gallery,/role="dialog"/);
+ assert.match(gallery,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(gallery,/grid-template-columns:1fr/);
+ assert.match(gallery,/Fotografias ilustrativas de terceiros/);
+ const photos=[...gallery.matchAll(/photo:"(photo-[^"]+)"/g)].map(match=>match[1]);
+ assert.equal(photos.length,6,"must contain exactly six real photos");
+ assert.equal(new Set(photos).size,6,"all six photos must be different");
+});
