@@ -827,8 +827,8 @@
       "path": "src/components/tp10-language-testimonials.tsx",
       "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01",
       "approvedBindingRevision": {
-        "sha": "1717772235c4107f69b01c5840ed218283301a00",
-        "reason": "User explicitly approved the TP10 Model 3 section 06 Editorial Premium testimonial layout; changes are scoped to variant 03, retaining six entries, demo labels, and variants 01/02."
+        "sha": "2b739958a3cc94305fb87eb99a1d10f7ba5d2e80",
+        "reason": "User explicitly approved TP10 Education Model 3 Option 1 portrait-photo testimonial cards, with 6 coherent entries, responsive editorial layout, fictional demo labels, and no changes to Models 1/2 or universal editor."
       }
     }
   ],
