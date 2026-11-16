@@ -1,7 +1,7 @@
 "use client";
 
 type EducationReview={name:string;role?:string;quote:string;photo?:string};
-type Props={reviews?:EducationReview[];publishedMode?:boolean;variant:"01"|"02"|"03"};
+type Props={reviews?:EducationReview[];publishedMode?:boolean;variant:"01"|"02"|"03";niche?:string;brand?:string};
 
 export const isLanguageSchool=(niche:string,brand="")=>/(?:idiomas|language\s*school|escola\s+de\s+ingl[eê]s)/i.test(niche+" "+brand);
 
@@ -15,12 +15,24 @@ const examples:EducationReview[]=[
  {name:"André Costa",role:"Inglês para negócios",quote:"A seção de cursos apresenta diferentes objetivos de estudo de um jeito acessível.",photo:"https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=180&h=180&q=80"}
 ];
 
-export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant}:Props){
+const generalExamples:EducationReview[]=[
+ {name:"Mariana Oliveira",role:"Experiências de aprendizagem",quote:"Achei útil conhecer as propostas de formação e entender quais caminhos de estudo poderia explorar.",photo:"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=180&h=180&q=80"},
+ {name:"Rafael Martins",role:"Formação e desenvolvimento",quote:"As atividades foram apresentadas de forma clara, o que facilita descobrir oportunidades para desenvolver novas habilidades.",photo:"https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=180&h=180&q=80"},
+ {name:"Camila Rodrigues",role:"Novos conhecimentos",quote:"Gostei da maneira como os conteúdos estão organizados. Ajuda a imaginar uma jornada de aprendizagem passo a passo.",photo:"https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=180&h=180&q=80"},
+ {name:"Lucas Ferreira",role:"Aprendizado na prática",quote:"Ver diferentes áreas de interesse em um só lugar torna mais simples pensar no próximo passo da minha formação.",photo:"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=180&h=180&q=80"},
+ {name:"Beatriz Almeida",role:"Vivências educativas",quote:"A apresentação das experiências e dos espaços despertou minha curiosidade para conhecer melhor as atividades.",photo:"https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=180&h=180&q=80"},
+ {name:"André Costa",role:"Evolução nos estudos",quote:"Encontrei informações organizadas para entender as possibilidades e tirar dúvidas antes de buscar uma matrícula.",photo:"https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=180&h=180&q=80"}
+];
+
+export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant,niche="",brand=""}:Props){
  const actual=reviews.filter(r=>!!r.name?.trim()&&!!r.quote?.trim()).slice(0,6);
  const demoCount=Math.max(0,6-actual.length);
+ const nicheText=(niche+" "+brand).replace(/[-_]/g," ");
+ const useLanguageExamples=variant!=="03"||isLanguageSchool(niche,brand)||/(?:idioma|ingl[eê]s|espanhol|franc[eê]s|alem[aã]o|italiano|l[ií]nguas|fluency|language|english)/i.test(nicheText);
+ const demoExamples=useLanguageExamples?examples:generalExamples;
  const entries=[
   ...actual.map(r=>({...r,isDemo:false})),
-  ...examples.slice(0,demoCount).map(r=>({...r,isDemo:true}))
+  ...demoExamples.slice(0,demoCount).map(r=>({...r,isDemo:true}))
  ];
  return <div className={"tp10edu-six tp10edu-six--"+variant} data-edu-testimonial-count={entries.length}>
  <style>{`
@@ -88,6 +100,6 @@ export function TP10LanguageTestimonials({reviews=[],publishedMode=false,variant
  @media(max-width:560px){.tp10edu-six-grid{grid-template-columns:1fr;gap:14px}.tp10edu-six-card{padding:22px}.tp10edu-six-person{margin-bottom:16px}.tp10edu-six-card blockquote{font-size:16px!important;margin-bottom:19px!important}}
  `}</style>
  {demoCount>0&&<p className="tp10edu-six-notice">{publishedMode?"DEMONSTRAÇÃO FICTÍCIA — Os nomes, as fotos e os relatos abaixo são exemplos de layout, não representam alunos nem avaliações reais. Substitua-os por depoimentos verificados.":"Exemplos fictícios para demonstrar o layout. As fotos, os nomes e os comentários não representam alunos nem avaliações reais."}</p>}
- {entries.length?<div className="tp10edu-six-grid">{entries.map((r,i)=><article className="tp10edu-six-card" key={r.name+"-"+i}><div className="tp10edu-six-person"><div className="tp10edu-six-avatar" aria-label={r.isDemo?"Retrato ilustrativo":"Identificação do aluno"}>{r.name.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("")}{r.photo&&<img src={r.photo} loading="lazy" alt={r.isDemo?"Retrato ilustrativo fictício":"Foto fornecida de "+r.name} onError={e=>{e.currentTarget.style.display="none"}}/>}</div><div><strong>{r.name}</strong>{r.role&&<span>{r.role}</span>}</div></div><blockquote>“{r.quote}”</blockquote><div className="tp10edu-six-foot">{r.isDemo?"Exemplo fictício · Não é aluno real":"Depoimento cadastrado"}</div></article>)}</div>:<div className="tp10edu-six-empty">Depoimentos reais serão exibidos quando forem cadastrados pela instituição.</div>}
+ {entries.length?<div className="tp10edu-six-grid">{entries.map((r,i)=><article className="tp10edu-six-card" key={r.name+"-"+i}><div className="tp10edu-six-person"><div className="tp10edu-six-avatar" aria-label={r.isDemo?"Retrato ilustrativo":"Identificação do aluno"}>{r.name.split(/\s+/).slice(0,2).map(w=>w[0]||"").join("")}{r.photo&&<img src={variant==="03"&&r.isDemo?r.photo.replace("w=180&h=180","w=480&h=680"):r.photo} loading="lazy" alt={r.isDemo?"Retrato ilustrativo fictício":"Foto fornecida de "+r.name} onError={e=>{e.currentTarget.style.display="none"}}/>}</div><div><strong>{r.name}</strong>{r.role&&<span>{r.role}</span>}</div></div><blockquote>“{r.quote}”</blockquote><div className="tp10edu-six-foot">{r.isDemo?"Exemplo fictício · Não é aluno real":"Depoimento cadastrado"}</div></article>)}</div>:<div className="tp10edu-six-empty">Depoimentos reais serão exibidos quando forem cadastrados pela instituição.</div>}
  </div>;
 }

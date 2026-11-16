@@ -131,8 +131,8 @@
       "path": "src/components/builder-v2-tp10-model3.tsx",
       "blobSha": "45824e42f82dd813703358d326dcc398ab6f6b4d",
       "approvedBindingRevision": {
-        "sha": "233072b466c38c2137ba761ecd0b66bbf0e6898e",
-        "reason": "User explicitly approved TP10 Model 3 section 07 FAQ Editorial Premium. Scoped styles improve accessible accordion controls, spacing, mobile responsiveness and reduced-motion behavior while preserving section 05 and all other templates."
+        "sha": "874b078501f7f855b5395cd0231b21e051fd9f5c",
+        "reason": "User approved TP10 Model 3 Option 1 testimonial fix after screenshot exposed the false school-type gate; six real-or-labeled-demo portrait cards now render for all TP10 niches, without changing Models 1/2 or the universal editor."
       }
     },
     {
@@ -827,8 +827,8 @@
       "path": "src/components/tp10-language-testimonials.tsx",
       "blobSha": "b12641c1fe90a9f73037f8e6c919e08b21493c01",
       "approvedBindingRevision": {
-        "sha": "2b739958a3cc94305fb87eb99a1d10f7ba5d2e80",
-        "reason": "User explicitly approved TP10 Education Model 3 Option 1 portrait-photo testimonial cards, with 6 coherent entries, responsive editorial layout, fictional demo labels, and no changes to Models 1/2 or universal editor."
+        "sha": "99cb560c0c7b3c623c3205e156b804477ca35653",
+        "reason": "User approved TP10 Model 3 Option 1 testimonial fix. Variant 03 supports niche-appropriate fictional examples and higher-resolution portrait photos; variants 01/02, labeled demo safeguards, and universal editor remain unchanged."
       }
     }
   ],
