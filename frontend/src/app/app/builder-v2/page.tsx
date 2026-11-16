@@ -13,7 +13,7 @@ import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
-import {selectApprovedExecutionTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
+import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -1253,8 +1253,10 @@ export default function BuilderV2() {
       // A verified approved technique can rescue the deterministic parser when
       // the heuristic would otherwise route the same request to a less-specific
       // AI/copy handler. Do not contradict strongly evidenced AI route decisions.
-      const memoryRouteOverride=Boolean(approvedTechnique&&!compound&&!hasAttachments&&!imageChange&&
-        (preferScopedCopy||(learnedAiEligible&&!(onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence))));
+      const memoryRouteOverride=shouldRerouteUsingApprovedTechnique(approvedTechnique,{
+        compound,hasAttachments,imageChange,preferScopedCopy,learnedAiEligible,
+        strongAiEvidence:onlinePolicy.route==="ai-editor"&&onlinePolicy.usedEvidence
+      });
       const preferLearnedAi=learnedAiEligible&&!preferScopedCopy&&!memoryRouteOverride;
       const result=hasAttachments||imageChange||(preferScopedCopy&&!memoryRouteOverride)||preferLearnedAi
         ?null:applyUniversalNaturalLanguage(site,prompt);
