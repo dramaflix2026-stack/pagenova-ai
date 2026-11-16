@@ -1115,7 +1115,7 @@ export default function BuilderV2() {
       const approvedTechnique=selectApprovedExecutionTechnique(approvedSolutions,{
         intent:inferredIntent,target:inferredTarget,sectionKey:inferredSectionKey,
         niche:site.niche||"",model:site.briefingLayoutVariant||"01",
-        family:String(resolveBriefingFamily(site.niche||"")||""),instruction:prompt
+        family:String(resolveBriefingFamily(site.niche||"")||""),template:site.templateId,instruction:prompt
       });
       const relevantPatterns=approvedPatterns.filter(pattern=>
         pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
@@ -1197,7 +1197,7 @@ export default function BuilderV2() {
             setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);
             setSite(learnedBackground.site);setInstruction("");setGenerationError("");
             setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",
-              text:"Técnica aprovada anteriormente selecionada para esta seção. Verificando a nova cor na prévia antes de registrar a reutilização."}]);
+              text:approvedTechnique.scope==="family"?"Técnica aprovada em outro nicho da mesma família TP"+approvedTechnique.familyId+" selecionada. Verificando esta nova cor na prévia antes de registrar a transferência.":"Técnica aprovada anteriormente no mesmo nicho selecionada. Verificando a nova cor na prévia antes de registrar a reutilização."}]);
             return;
           }
         }
@@ -1314,6 +1314,8 @@ export default function BuilderV2() {
         preferenceApplied:(preferUniversal&&actualRoute==="universal")||preferLearnedAi||memoryUsedForExecution,
         memorySource:memoryUsedForExecution?approvedTechnique?.sourceEventId:null,
         memoryTechnique:memoryUsedForExecution?approvedTechnique?.technique:null,
+        memoryScope:memoryUsedForExecution?approvedTechnique?.scope:null,
+        familyId:memoryUsedForExecution?approvedTechnique?.familyId:null,
         niche:site.niche||"unknown",model:site.briefingLayoutVariant||"01"
       });
       if(preferUniversal&&result&&!result.ok){

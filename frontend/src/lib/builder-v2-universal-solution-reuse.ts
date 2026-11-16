@@ -4,18 +4,29 @@
  * verified solution snapshot. A memory is a technique hint, NEVER a patch.
  */
 import type {EditorSolutionMemory,SolutionDelta} from "./builder-v2-universal-solution-memory.ts";
+import {resolveBriefingFamily} from "./briefing-template-families.ts";
 export type ReviewedSolutionCase={
  event_id:string;intent:string;target:string;section_key?:string|null;strategy:string;
  review_status:string;execution_status:string;
  verification:"model"|"visual";context:EditorSolutionMemory["context"];deltas:SolutionDelta[];
 };
 export type SolutionRoutingContext={
- intent:string;target:string;sectionKey?:string;niche:string;model:string;family:string;
+ intent:string;target:string;sectionKey?:string;niche:string;model:string;family:string;template?:string;
  instruction:string;
 };
-export type ApprovedTechnique={sourceEventId:string;technique:"section-background"|"section-heading-color"|"block-color"|"block-copy"|"block-alignment"|"section-reorder"|"section-remove"|"section-add";score:number;verification:"model"|"visual"};
+export type ApprovedTechnique={sourceEventId:string;technique:"section-background"|"section-heading-color"|"block-color"|"block-copy"|"block-alignment"|"section-reorder"|"section-remove"|"section-add";score:number;verification:"model"|"visual";scope:"niche"|"family";familyId?:number};
 const norm=(s?:string|null)=>(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+/** Declared TP family can be trusted for routing only if it matches the
+ * canonical 133-niche registry, not merely an arbitrary stored string. */
+const declaredFamily=(raw?:string|null):number|null=>{
+ if(!raw||! /^(?:[1-9]|10)$/.test(raw))return null;
+ return Number(raw);
+};
+const catalogFamily=(niche:string)=>resolveBriefingFamily(niche)||null;
+/** Cross-niche techniques need their own verified execution adapter. At this
+ * stage, only section backgrounds have been proven end-to-end in Production. */
+const portableFamilyTechniques=new Set<ApprovedTechnique["technique"]>(["section-background"]);
 const actionRelevant=(d:SolutionDelta,context:SolutionRoutingContext):ApprovedTechnique["technique"]|null=>{
  const q=norm(context.instruction);
  const style=context.intent==="style",copy=context.intent==="copy",layout=context.intent==="layout";
@@ -46,6 +57,12 @@ const compatibleSection=(d:SolutionDelta,context:SolutionRoutingContext)=>{
  */
 export function selectApprovedExecutionTechnique(records:readonly ReviewedSolutionCase[],context:SolutionRoutingContext):ApprovedTechnique|null{
  if(context.intent==="other"||context.target==="unspecified"||records.length===0)return null;
+ const requestedFamily=catalogFamily(context.niche);
+ const claimedFamily=declaredFamily(context.family);
+ // Unknown catalog niche may reuse exact-own-niche evidence, never another niche.
+ // Known catalog niches must not accept a mismatched or forged family ID.
+ if(requestedFamily&&requestedFamily!==claimedFamily)return null;
+ if(!requestedFamily&&claimedFamily)return null;
  const matches:ApprovedTechnique[]=[];
  for(const item of records.slice(0,150)){
   if(!uuid.test(item.event_id)||item.review_status!=="approved"||item.execution_status!=="applied")continue;
@@ -57,15 +74,32 @@ export function selectApprovedExecutionTechnique(records:readonly ReviewedSoluti
   if(item.verification!=="visual"&&item.verification!=="model")continue;
   if(!item.context||!Array.isArray(item.deltas)||!item.deltas.length||item.deltas.length>50)continue;
   if(norm(item.context.model)!==norm(context.model)||!context.model)continue;
+  // Model identifiers are specific to their template and must match exactly.
+  if(context.template&&item.context.template&&norm(item.context.template)!==norm(context.template))continue;
+  const sourceFamily=catalogFamily(item.context.niche);
+  const storedFamily=declaredFamily(item.context.family);
+  if(sourceFamily&&sourceFamily!==storedFamily)continue;
+  if(!sourceFamily&&storedFamily)continue;
   const sameNiche=!!context.niche&&norm(item.context.niche)===norm(context.niche);
-  const sameFamily=!!context.family&&norm(item.context.family)===norm(context.family);
+  const sameFamily=!!requestedFamily&&requestedFamily===sourceFamily&&
+   requestedFamily===claimedFamily&&sourceFamily===storedFamily;
   if(!sameNiche&&!sameFamily)continue;
+  const transfer=!sameNiche;
+  if(transfer){
+   // Do not allow a weak/fuzzy cross-family hint to rewrite another template.
+   // Transfer requires the same visual template+model, exactly classified section,
+   // and a previously visual-verified technique from the same catalog TP family.
+   if(!context.template||norm(item.context.template)!==norm(context.template))continue;
+   if(!context.sectionKey||!item.section_key||norm(context.sectionKey)!==norm(item.section_key))continue;
+   if(item.verification!=="visual")continue;
+  }
   for(const d of item.deltas){
    if(!d||typeof d!=="object"||!compatibleSection(d,context))continue;
    const technique=actionRelevant(d,context);
-   if(!technique)continue;
+   if(!technique||(transfer&&!portableFamilyTechniques.has(technique)))continue;
    const score=(sameNiche?10:4)+(sameFamily?2:0)+(item.verification==="visual"?3:0)+(!!item.section_key?1:0);
-   matches.push({sourceEventId:item.event_id,technique,score,verification:item.verification});
+   matches.push({sourceEventId:item.event_id,technique,score,verification:item.verification,
+    scope:transfer?"family":"niche",...(sameFamily?{familyId:requestedFamily!}:{})});
    break;
   }
  }
