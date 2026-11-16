@@ -1455,3 +1455,14 @@
  animation:none!important;opacity:1!important;
  filter:none!important;transform:none!important;
 }
+
+
+/* Ambient-only hero animation. Image and face remain static. */
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage{position:relative;width:100%;max-width:735px;aspect-ratio:1002/611;flex:0 1 735px;isolation:isolate}
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-art-approved{display:block;width:100%;height:100%;object-fit:contain;max-width:none;animation:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:visible}
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-curves{opacity:0;animation:pnrAmbientCurves 9s ease-in-out infinite}
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-icons{opacity:0;animation:pnrAmbientIcons 6.8s ease-in-out infinite}
+@keyframes pnrAmbientCurves{0%,100%{opacity:0}30%,52%{opacity:.34}70%{opacity:.08}}
+@keyframes pnrAmbientIcons{0%,100%{opacity:.05}40%{opacity:.2}65%{opacity:.1}}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg{display:none}}
