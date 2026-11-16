@@ -1613,3 +1613,8 @@
 @media(min-width:621px) and (max-width:950px){
  .pnr-page .pnr-footer-onesignal .pnr-footer-social-column{grid-column:span 2}
 }
+
+
+/* LinkedIn was removed after visual QA: show three social links only. */
+.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(3,48px)!important}
+@media(max-width:620px){.pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(3,44px)!important}}
