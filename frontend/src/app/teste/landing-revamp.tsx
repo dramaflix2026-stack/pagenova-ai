@@ -214,7 +214,11 @@ export function LandingRevamp() {
       <img className="pnr-hero-art-approved" src="/landing-premium/hero-illustration-hd.avif" alt="" width="1002" height="611" loading="eager" decoding="async" fetchPriority="high" />
       {/* Lightweight, independently animated vector overlay. Original HD art is unchanged. */}
       
-      <div className="pnr-hero-orbit-motion" data-motion-layer="ambient" />
+      <svg className="pnr-hero-art-orbit-svg" viewBox="0 0 1002 611" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+       <defs><linearGradient id="pnrHeroOrbitPulse" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#82ff6e" stopOpacity="0"/><stop offset="48%" stopColor="#baff94" stopOpacity=".9"/><stop offset="100%" stopColor="#82ff6e" stopOpacity="0"/></linearGradient><filter id="pnrHeroOrbitBlur"><feGaussianBlur stdDeviation="5"/></filter></defs>
+       <path className="pnr-hero-art-orbit-path pnr-hero-art-orbit-path--top" d="M 70 316 C 72 143, 203 62, 416 85" />
+       <path className="pnr-hero-art-orbit-path pnr-hero-art-orbit-path--bottom" d="M 72 317 C 135 491, 550 558, 858 450" />
+      </svg>
       <div className="pnr-hero-cyborg-eye" data-motion-layer="ambient" />
       <div className="pnr-hero-cyborg-scan" data-motion-layer="ambient" />
       <div className="pnr-hero-tech-highlight pnr-hero-tech-highlight--visual" data-motion-layer="ambient" />
