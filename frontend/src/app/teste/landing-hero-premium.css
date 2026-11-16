@@ -1602,3 +1602,14 @@
  .pnr-page .pnr-footer-onesignal .pnr-socials{grid-template-columns:repeat(4,44px)!important;gap:8px!important}
  .pnr-page .pnr-footer-onesignal .pnr-socials a{width:44px!important;height:44px!important}
 }
+
+
+@media(min-width:951px){
+ .pnr-page .pnr-footer-onesignal .pnr-footer-inner{
+  grid-template-columns:minmax(210px,1.55fr) repeat(3,minmax(110px,.8fr)) minmax(222px,1.15fr)!important;
+  gap:clamp(16px,2vw,34px)!important;
+ }
+}
+@media(min-width:621px) and (max-width:950px){
+ .pnr-page .pnr-footer-onesignal .pnr-footer-social-column{grid-column:span 2}
+}
