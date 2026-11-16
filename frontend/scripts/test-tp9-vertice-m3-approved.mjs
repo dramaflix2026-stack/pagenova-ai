@@ -24,7 +24,8 @@ test("All ten user-approved sections render once with unique targetable section 
  assert.equal(new Set(ids).size,ids.length);
 });
 test("Six service cards, six sourced gallery photos and six optional demo reviews",()=>{
- assert.equal((v3.match(/title:"[^"]+",description:"[^"]+",photo:/g)||[]).length,6);
+ const serviceSection=v3.split("const services=")[1].split("const stages=")[0];
+ assert.equal((serviceSection.match(/title:"[^"]+",description:"[^"]+",photo:/g)||[]).length,6);
  assert.match(v3,/gallery:\["TCg8r4Z5Wu0".*"WbKt-WmdMf8"\]/);
  assert.equal((v3.match(/name:"Cliente demonstrativo \d+"/g)||[]).length,6);
  assert.match(v3,/DEMONSTRATIVO — NÃO É AVALIAÇÃO REAL/);
