@@ -309,6 +309,30 @@ export default function BuilderV2() {
   const [publishing,setPublishing] = useState(false);
   const [publishError,setPublishError] = useState("");
   const [publishNotice,setPublishNotice] = useState("");
+  // Scoped commercial approval only. The site/editor/generator remain untouched.
+  const [agentHandoffBusy,setAgentHandoffBusy]=useState(false);
+  const [agentHandoffError,setAgentHandoffError]=useState("");
+  async function approveSiteAndOpenSeller() {
+    if(!site.publishedUrl||agentHandoffBusy)return;
+    if(!window.confirm("Aprovar este site para uma conversa de TESTE com o Vendedor IA? Nenhuma mensagem será enviada automaticamente e nenhum lead externo será abordado."))return;
+    const popup=window.open("about:blank","_blank");
+    setAgentHandoffBusy(true);setAgentHandoffError("");
+    try{
+      const res=await fetch("/api/convya/handoff",{
+        method:"POST",credentials:"same-origin",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({projectId:site.id}),
+      });
+      const data=await res.json() as {launchUrl?:string;error?:string};
+      if(!res.ok||!data.launchUrl)throw new Error(data.error||"Não foi possível preparar o Vendedor IA.");
+      if(popup){popup.opener=null;popup.location.href=data.launchUrl}
+      else window.location.assign(data.launchUrl);
+    }catch(error){
+      popup?.close();
+      setAgentHandoffError(error instanceof Error?error.message:"Falha ao abrir o Vendedor IA.");
+    }finally{setAgentHandoffBusy(false)}
+  }
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [reviewCandidate,setReviewCandidate]=useState<{id:string;status:"pending"|"approved"|"rejected"}|null>(null);
   const previewVisualAuditRef=useRef<HTMLDivElement|null>(null);
@@ -2181,8 +2205,15 @@ export default function BuilderV2() {
 <button type="button" onClick={()=>void publishSite()} disabled={publishing||busy||site.blocks.length<1} className="min-h-11 rounded-xl bg-lime-300 px-4 py-3 text-sm font-bold text-black disabled:cursor-not-allowed disabled:opacity-40">{publishing?"Publicando...":site.publishedUrl?"Atualizar publicação":"Publicar site"}</button>
 {site.publishedUrl&&<a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="min-h-11 rounded-xl border border-lime-300/60 px-4 py-3 text-sm font-semibold text-lime-300">Ver site ↗</a>}
 {site.publishedUrl&&<button type="button" onClick={()=>void navigator.clipboard.writeText(site.publishedUrl||"")} className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/80">Copiar URL</button>}
+{process.env.NEXT_PUBLIC_CONVYA_AGENT_MVP==="enabled"&&site.publishedUrl&&
+ <button type="button" onClick={()=>void approveSiteAndOpenSeller()}
+ disabled={agentHandoffBusy||publishing||busy}
+ className="min-h-11 rounded-xl border border-lime-300/70 bg-lime-300/10 px-4 py-3 text-sm font-semibold text-lime-300 disabled:opacity-40">
+ {agentHandoffBusy?"Preparando teste...":"✓ Aprovar site e testar Vendedor IA"}
+ </button>}
+
 <a href="/app/builder" className="min-h-11 rounded-xl border border-white/20 px-4 py-3 text-sm text-white/65">Editor anterior ↗</a>
-</div></section>{(site.publishedUrl||publishError||publishNotice)&&<div className="mt-3 rounded-xl border border-white/20 bg-[#141d1a] p-4 text-sm text-white">{publishError&&<p role="alert" className="text-red-300">{publishError}</p>}{publishNotice&&<p role="status" className="text-lime-300">{publishNotice}</p>}{site.publishedUrl&&<div className="mt-2 flex flex-wrap items-center gap-2"><a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="break-all text-lime-300 underline">Ver site publicado ↗</a><button type="button" onClick={()=>navigator.clipboard.writeText(site.publishedUrl||"")} className="rounded-lg border border-white/25 px-3 py-1 text-xs">Copiar link</button></div>}</div>}</div>
+</div>{agentHandoffError&&<p role="alert" className="mt-2 text-sm text-red-300">{agentHandoffError}</p>}</section>{(site.publishedUrl||publishError||publishNotice)&&<div className="mt-3 rounded-xl border border-white/20 bg-[#141d1a] p-4 text-sm text-white">{publishError&&<p role="alert" className="text-red-300">{publishError}</p>}{publishNotice&&<p role="status" className="text-lime-300">{publishNotice}</p>}{site.publishedUrl&&<div className="mt-2 flex flex-wrap items-center gap-2"><a href={site.publishedUrl} target="_blank" rel="noopener noreferrer" className="break-all text-lime-300 underline">Ver site publicado ↗</a><button type="button" onClick={()=>navigator.clipboard.writeText(site.publishedUrl||"")} className="rounded-lg border border-white/25 px-3 py-1 text-xs">Copiar link</button></div>}</div>}</div>
       </div>
     </div>
     <style jsx global>{`
