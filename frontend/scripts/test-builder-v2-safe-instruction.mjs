@@ -110,3 +110,9 @@ test("does not backfill historic records and does not add parallel learning tabl
  assert.doesNotMatch(sql,/CREATE TABLE|INSERT INTO|DEFAULT ['"]/i);
  assert.match(sql,/Historical|Historic/i);
 });
+
+test("privacy guard omits requests involving a secret even when the rest is a valid style command",()=>{
+ const example=capture("Altere o fundo da seção Serviços para azul e inclua token de acesso");
+ assert.deepEqual(example,{version:1,status:"omitted",text:null});
+ assert.equal(isSafeEditorInstruction(example),true);
+});
