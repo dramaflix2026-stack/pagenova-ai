@@ -711,3 +711,21 @@ test("Vértice TP9 quote form respects configured channels and preserves approve
  assert.match(quote,/grid-template-columns:1fr/);
  assert.match(quote,/SERVICES=\[/);
 });
+
+test("Vértice TP9 Model 1 cinematic closing keeps approved footer and uses real quote form",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const component=readFileSync(new URL("../src/components/template9-automotive-final.tsx",import.meta.url),"utf8");
+ const closing=readFileSync(new URL("../src/components/tp9-vertice-final-cta.tsx",import.meta.url),"utf8");
+ assert.match(component,/isVertice&&<TP9VerticeFinalCTA\/>/);
+ assert.match(component,/!isVertice&&<section className="pn-t9f-cta" id="tp9-chamada-final"/);
+ assert.match(component,/<footer className="pn-t9f-footer" id="tp9-rodape"/);
+ assert.match(closing,/id="tp9-chamada-final"/);
+ assert.match(closing,/href="#tp9-orcamento"/);
+ assert.match(closing,/Seu carro merece/);
+ assert.match(closing,/Solicitar orçamento/);
+ assert.match(closing,/images\.unsplash\.com\/photo-1635352124120-739339ec9ac1/);
+ assert.doesNotMatch(closing,/photo-1486262715619-67b85e0b08d3/);
+ assert.match(closing,/font:900 clamp\(44px,6\.5vw,100px\)\/1\.065 Inter/);
+ assert.match(closing,/@media\(max-width:480px\)/);
+ assert.doesNotMatch(closing,/https:\/\/wa\.me\/|mailto:/);
+});
