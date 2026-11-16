@@ -101,3 +101,11 @@ test("all three asynchronous visual audit paths capture original submission, inc
  assert.equal(outcomes,6);
  assert.match(page,/capturedSubmission===undefined\?activeSubmissionTraceRef\.current:capturedSubmission/);
 });
+
+test("trace schema stores no client prompts or error texts and does not infer corrections",()=>{
+ const sql=readFileSync(new URL("../supabase/migrations/20261116_builder_editor_learning_request_trace.sql",import.meta.url),"utf8");
+ const logic=readFileSync(new URL("../src/lib/builder-v2-editor-attempt-trace.ts",import.meta.url),"utf8");
+ assert.doesNotMatch(sql,/original_prompt|prompt_text|message_text|source_instruction|raw_command/);
+ assert.doesNotMatch(logic,/related_request_id|correction_of|guessPreviousRequest/);
+ assert.match(logic,/Related corrections are intentionally/);
+});
