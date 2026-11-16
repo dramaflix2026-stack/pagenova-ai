@@ -623,3 +623,20 @@ test("Vértice TP9 Modelo 1 differenciais remain scoped with four cards and a re
  assert.match(section,/Converse com nossa equipe/);
  assert.doesNotMatch(section,/[0-9]+\s*(?:anos|clientes|estrelas|avaliações|certificações)/i);
 });
+
+test("Vértice TP9 Modelo 1 workflow has four anchored steps and keeps other templates untouched",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const source=readFileSync(new URL("../src/components/template9-automotive-experience.tsx",import.meta.url),"utf8");
+ const step=readFileSync(new URL("../src/components/tp9-vertice-process.tsx",import.meta.url),"utf8");
+ assert.match(source,/isVertice&&<TP9VerticeProcess contactHref=\{target\}\/>/);
+ assert.match(source,/!isVertice&&<section className="pn-t9x-section" id="tp9-processo"/);
+ assert.match(source,/id="tp9-galeria"/);
+ assert.equal((step.match(/\{number:"0[1-4]",title:/g)||[]).length,4);
+ assert.match(step,/id="tp9-processo"/);
+ assert.match(step,/grid-template-columns:minmax\(0,\.92fr\) minmax\(0,1\.08fr\)/);
+ assert.match(step,/grid-template-columns:1fr/);
+ assert.match(step,/unsplash\.com\/photos\/erWc6mrOq_I/);
+ assert.match(step,/Solicitar atendimento/);
+ assert.match(step,/Orientação e orçamento/);
+ assert.match(step,/Execução autorizada/);
+});
