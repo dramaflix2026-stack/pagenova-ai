@@ -1466,3 +1466,22 @@
 @keyframes pnrAmbientCurves{0%,100%{opacity:0}30%,52%{opacity:.34}70%{opacity:.08}}
 @keyframes pnrAmbientIcons{0%,100%{opacity:.05}40%{opacity:.2}65%{opacity:.1}}
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg{display:none}}
+
+
+/* Reliable visible hero motion: the approved artwork floats as one intact unit.
+   No overlays, synthetic pupils or disconnected strokes. */
+.pnr-page .pnr-hero--premium .pnr-hero-ambient-svg{display:none!important}
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage{
+ animation:pnrHeroVisibleFloat 4.8s ease-in-out infinite!important;
+ will-change:transform;
+}
+.pnr-page .pnr-hero--premium .pnr-hero-image-stage>.pnr-hero-art-approved{
+ animation:none!important;opacity:1!important;filter:none!important;
+}
+@keyframes pnrHeroVisibleFloat{
+ 0%,100%{transform:translate3d(0,0,0)}
+ 50%{transform:translate3d(0,-13px,0)}
+}
+@media(prefers-reduced-motion:reduce){
+ .pnr-page .pnr-hero--premium .pnr-hero-image-stage{animation:none!important;transform:none!important}
+}
