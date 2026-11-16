@@ -1653,3 +1653,63 @@
  .pnr-page .pnr-price-grid{grid-template-columns:minmax(0,1fr)!important}
  .pnr-page .pnr-price-card{min-width:0}
 }
+
+
+/* Approved Possibilidades Reais — premium asymmetric bento, isolated from legacy tiles. */
+.pnr-page .pnr-audiences .pnr-bento-grid{display:grid;grid-template-columns:1.12fr .88fr;grid-template-rows:repeat(2,minmax(255px,auto));gap:18px;max-width:1150px;margin:35px auto 0}
+.pnr-page .pnr-audiences .pnr-bento-card{position:relative;display:flex;align-items:stretch;min-width:0;min-height:255px;overflow:hidden;border:1px solid rgba(161,255,119,.23);border-radius:24px;background:radial-gradient(ellipse at 85% 15%,rgba(138,255,93,.13),transparent 56%),linear-gradient(135deg,#10241a,#07130e 80%);color:#f5fff4;text-decoration:none;isolation:isolate;box-shadow:inset 0 1px rgba(255,255,255,.045),0 18px 42px rgba(0,0,0,.14);transition:border-color .25s ease,transform .25s ease,box-shadow .25s ease}
+.pnr-page .pnr-audiences .pnr-bento-card:hover{transform:translateY(-4px);border-color:rgba(171,255,119,.62);box-shadow:0 22px 48px rgba(0,0,0,.25),0 0 30px rgba(135,255,87,.06)}
+.pnr-page .pnr-audiences .pnr-bento-card:focus-visible{outline:3px solid #b5ff87;outline-offset:4px}
+.pnr-page .pnr-audiences .pnr-bento-card-0{min-height:315px}
+.pnr-page .pnr-audiences .pnr-bento-card-1{min-height:315px}
+.pnr-page .pnr-audiences .pnr-bento-content{position:relative;z-index:2;width:59%;padding:32px 26px 30px 32px;display:flex;flex-direction:column;align-items:flex-start}
+.pnr-page .pnr-audiences .pnr-bento-card-1 .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-3 .pnr-bento-content{width:65%}
+.pnr-page .pnr-audiences .pnr-bento-eyebrow{display:inline-flex;align-items:center;gap:9px;color:#adff83;font-size:10px;font-weight:800;letter-spacing:.13em}
+.pnr-page .pnr-audiences .pnr-bento-eyebrow svg{flex:none}
+.pnr-page .pnr-audiences .pnr-bento-content h3{font-size:clamp(23px,2.2vw,32px);line-height:1.1;letter-spacing:-.04em;margin:27px 0 12px;font-weight:800;color:#f7fff5}
+.pnr-page .pnr-audiences .pnr-bento-content p{font-size:13px;line-height:1.65;color:#bbcfbd;margin:0;max-width:310px}
+.pnr-page .pnr-audiences .pnr-bento-cta{display:inline-flex;align-items:center;gap:7px;margin-top:auto;padding-top:25px;color:#b8ff8e;font-size:12px;font-weight:700}
+.pnr-page .pnr-audiences .pnr-bento-corner{position:absolute;z-index:4;right:17px;top:17px;display:grid;place-items:center;width:35px;height:35px;border:1px solid rgba(164,255,115,.35);border-radius:12px;color:#baff90;background:rgba(20,48,27,.7)}
+.pnr-page .pnr-audiences .pnr-bento-visual{position:absolute;right:0;top:0;bottom:0;width:50%;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:.96}
+.pnr-page .pnr-audiences .pnr-bento-visual:before{content:"";position:absolute;inset:10%;background:radial-gradient(circle,rgba(133,255,92,.17),transparent 65%);filter:blur(12px)}
+.pnr-page .pnr-audiences .pnr-bento-browser{position:relative;width:110%;height:185px;transform:perspective(700px) rotateY(-14deg) rotateX(5deg) translateX(13%);border:1px solid rgba(170,255,132,.35);border-radius:12px;background:#0b1913;box-shadow:-14px 20px 30px rgba(0,0,0,.3);overflow:hidden}
+.pnr-page .pnr-audiences .pnr-bento-browser-bar{height:25px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#1a3324;border-bottom:1px solid rgba(157,255,122,.17)}
+.pnr-page .pnr-audiences .pnr-bento-browser-bar i{width:5px;height:5px;border-radius:50%;background:#91b99a}
+.pnr-page .pnr-audiences .pnr-bento-browser-bar span{font-size:8px;color:#9ab7a1;margin-left:8px}
+.pnr-page .pnr-audiences .pnr-bento-browser-body{display:flex;height:calc(100% - 25px)}
+.pnr-page .pnr-audiences .pnr-bento-browser-sidebar{width:27%;padding:15px 10px;display:flex;flex-direction:column;gap:12px;border-right:1px solid #294b33}
+.pnr-page .pnr-audiences .pnr-bento-browser-sidebar b{height:6px;width:90%;border-radius:8px;background:#2c5037}
+.pnr-page .pnr-audiences .pnr-bento-browser-sidebar b:nth-child(2){background:#9ffb72}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview{flex:1;padding:15px;display:flex;flex-direction:column;gap:9px}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview>span{width:50%;height:7px;background:#a8ff8b;border-radius:5px}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview>strong{width:83%;height:24px;background:linear-gradient(90deg,#315f3a,#1d3425);border-radius:6px}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview>em{width:60%;height:6px;background:#486e4d;border-radius:5px}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview>div{display:flex;gap:7px;margin-top:6px}
+.pnr-page .pnr-audiences .pnr-bento-browser-preview>div i{flex:1;height:48px;background:linear-gradient(140deg,#2c5635,#152a1d);border:1px solid #355b3c;border-radius:7px}
+.pnr-page .pnr-audiences .pnr-bento-workflow{position:relative;display:flex;align-items:center;transform:rotate(-12deg) translateX(8%);filter:drop-shadow(0 14px 20px rgba(0,0,0,.3))}
+.pnr-page .pnr-audiences .pnr-bento-flow-node{display:flex;flex-direction:column;align-items:center;gap:6px;justify-content:center;flex:none;width:68px;height:75px;border:1px solid #5e9c5b;border-radius:14px;background:#173324;color:#b7ff8c;font-size:10px;font-weight:700}
+.pnr-page .pnr-audiences .pnr-bento-flow-node-main{width:76px;height:88px;background:#a4ff77;color:#12331c;box-shadow:0 0 35px rgba(147,255,104,.24)}
+.pnr-page .pnr-audiences .pnr-bento-flow-line{width:20px;height:2px;background:#9afa78;flex:none}
+.pnr-page .pnr-audiences .pnr-bento-mobile-preview{position:relative;width:125px;height:215px;border:5px solid #284735;border-radius:22px;background:#112a1b;transform:rotate(10deg) translate(14%,12%);padding:15px 10px;box-shadow:-14px 20px 32px rgba(0,0,0,.32)}
+.pnr-page .pnr-audiences .pnr-bento-mobile-top{position:absolute;top:5px;left:40%;width:25px;height:4px;border-radius:4px;background:#729b76}
+.pnr-page .pnr-audiences .pnr-bento-mobile-photo{height:92px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(135deg,#315b37,#87c15e);color:#dcffcc}
+.pnr-page .pnr-audiences .pnr-bento-mobile-text{height:7px;background:#6f9a74;border-radius:5px;margin-top:12px}
+.pnr-page .pnr-audiences .pnr-bento-mobile-text.short{width:65%;margin-top:7px}
+.pnr-page .pnr-audiences .pnr-bento-mobile-action{height:19px;margin-top:14px;background:#a3ff78;border-radius:6px}
+.pnr-page .pnr-audiences .pnr-bento-analytics{position:relative;width:180px;height:157px;border:1px solid #447a4b;border-radius:14px;background:linear-gradient(155deg,#173523,#0d2015);transform:rotate(8deg) translateX(12%);padding:16px;box-shadow:-12px 17px 30px rgba(0,0,0,.3)}
+.pnr-page .pnr-audiences .pnr-bento-analytics-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:800;color:#b7ff8e}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars{height:76px;display:flex;align-items:flex-end;gap:8px;padding-top:15px}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i{flex:1;height:45%;background:#386b3f;border-radius:4px 4px 0 0}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(2){height:66%}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(3){height:52%}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(4){height:82%;background:#a6ff80}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(5){height:68%}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(6){height:95%;background:#a6ff80}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bars i:nth-child(7){height:76%}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bottom{display:flex;gap:7px;margin-top:9px}
+.pnr-page .pnr-audiences .pnr-bento-analytics-bottom span{width:33%;height:5px;background:#365d3c;border-radius:4px}
+@media(min-width:1000px){.pnr-page .pnr-audiences .pnr-bento-card-0{grid-column:1;grid-row:1}.pnr-page .pnr-audiences .pnr-bento-card-1{grid-column:2;grid-row:1}.pnr-page .pnr-audiences .pnr-bento-card-2{grid-column:1;grid-row:2}.pnr-page .pnr-audiences .pnr-bento-card-3{grid-column:2;grid-row:2}}
+@media(max-width:999px){.pnr-page .pnr-audiences .pnr-bento-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto}.pnr-page .pnr-audiences .pnr-bento-card{min-height:315px}.pnr-page .pnr-audiences .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-1 .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-3 .pnr-bento-content{width:75%;padding:27px 20px}.pnr-page .pnr-audiences .pnr-bento-visual{opacity:.5;right:-9%;width:53%}}
+@media(max-width:680px){.pnr-page .pnr-audiences .pnr-bento-grid{grid-template-columns:minmax(0,1fr);gap:14px;margin-top:25px}.pnr-page .pnr-audiences .pnr-bento-card{min-height:255px;border-radius:19px}.pnr-page .pnr-audiences .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-1 .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-3 .pnr-bento-content{width:68%;padding:25px 18px 23px}.pnr-page .pnr-audiences .pnr-bento-content h3{font-size:24px;margin:19px 0 10px}.pnr-page .pnr-audiences .pnr-bento-content p{font-size:12px;line-height:1.5}.pnr-page .pnr-audiences .pnr-bento-visual{right:-6%;opacity:.68;width:48%}.pnr-page .pnr-audiences .pnr-bento-corner{width:30px;height:30px;right:12px;top:12px}.pnr-page .pnr-audiences .pnr-bento-cta{font-size:11px;padding-top:17px}.pnr-page .pnr-audiences .pnr-bento-workflow{transform:rotate(-12deg) translateX(20%) scale(.73)}}
+@media(max-width:390px){.pnr-page .pnr-audiences .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-1 .pnr-bento-content,.pnr-page .pnr-audiences .pnr-bento-card-3 .pnr-bento-content{width:74%}.pnr-page .pnr-audiences .pnr-bento-visual{opacity:.35;right:-15%}.pnr-page .pnr-audiences .pnr-bento-content h3{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-audiences .pnr-bento-card{transition:none!important;animation:none!important}.pnr-page .pnr-audiences .pnr-bento-card:hover{transform:none}}
