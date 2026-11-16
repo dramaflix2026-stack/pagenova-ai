@@ -13,7 +13,7 @@ const base={
 };
 const context={
  intent:"style",target:"services",sectionKey:"services",
- niche:"Fisioterapia",model:"02",family:"4",
+ niche:"Fisioterapia",model:"02",family:"4",template:"institutional",
  instruction:"Mude o fundo da seção Serviços para azul"
 };
 const pick=(a=[base],b={})=>selectApprovedExecutionTechnique(a,{...context,...b});
@@ -51,7 +51,7 @@ test("same niche is preferred over same-family cross-niche case, visual over dat
  const distant={...base,event_id:otherId,verification:"model",context:{...base.context,niche:"Acupuntura"}};
  const selected=pick([distant,base]);
  assert.equal(selected.sourceEventId,goodId);
- const family=pick([distant],{niche:"Quiropraxia",family:"4"});
+ const family=pick([distant],{niche:"Clínica veterinária",family:"4"});
  assert.equal(family?.sourceEventId,otherId);
 });
 test("different technique: title color must not be mistaken for background change",()=>{
