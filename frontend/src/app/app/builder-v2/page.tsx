@@ -13,6 +13,7 @@ import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib
 import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v2-universal-review";
 import {beginEditorSubmissionTrace,nextEditorOperationTrace,isValidEditorOperationTrace,type EditorSubmissionTrace,type EditorOperationTrace} from "@/lib/builder-v2-editor-attempt-trace";
+import {captureSafeEditorInstruction,isSafeEditorInstruction,type SafeEditorInstruction} from "@/lib/builder-v2-editor-safe-instruction";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
 import {applyApprovedSectionBackground} from "@/lib/builder-v2-universal-learned-style";
@@ -216,7 +217,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -229,6 +230,13 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
       ...(isValidEditorOperationTrace(event.trace)?{
         request_id:event.trace.requestId,project_id:event.trace.projectId,
         operation_index:event.trace.operationIndex,submitted_at:event.trace.submittedAt
+      }:{}),
+      // Only the redacted, validated excerpt crosses into persistent learning.
+      // Pre-delivery local events do not have this field and stay untouched.
+      ...(isSafeEditorInstruction(event.safeInstruction)?{
+        instruction_redacted:event.safeInstruction.text,
+        instruction_redaction_version:event.safeInstruction.version,
+        instruction_capture_status:event.safeInstruction.status
       }:{}),
       review_status:"pending"
     });
@@ -340,8 +348,11 @@ function persistEditorLearningEvent(niche:string, instruction:string, outcome:"a
     try{const existing=JSON.parse(localStorage.getItem(key)||"[]");events=Array.isArray(existing)?existing:[];}catch(error){console.warn("[editor-learning] Local history unavailable",error);}
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
+    // Privacy boundary: NEVER put the original instruction in this persisted event.
+    // Unknown words and quoted client copy are masked; risky submissions omitted.
+    const safeInstruction=captureSafeEditorInstruction(instruction);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
-      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{})};
+      ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),safeInstruction};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
