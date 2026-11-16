@@ -1574,3 +1574,26 @@ test("retry of malformed immediately-after section recovers only known generic f
  assert.equal(result.site.universalSectionEvents?.at(-2)?.action,"remove");
  assert.equal(result.site.universalSectionEvents?.at(-1)?.action,"move");
 });
+
+test("online learner changes execution preference after confirmed rejection/approval",async()=>{
+ const {learnReviewedExecutionRoute}=await import("../src/lib/builder-v2-universal-online-learning.ts");
+ const context={intent:"style",target:"differences",niche:"Escola de idiomas",model:"01",sectionKey:"differences",allowed:["universal","ai-editor"]};
+ const rejected=Array.from({length:3},()=>({intent:"style",target:"differences",strategy:"universal-visual-verification",niche:"Escola de idiomas",model:"01",section_key:"differences",review_status:"rejected",execution_status:"applied"}));
+ const approved=Array.from({length:3},()=>({intent:"style",target:"differences",strategy:"ai-editor",niche:"Escola de idiomas",model:"01",section_key:"differences",review_status:"approved",execution_status:"applied"}));
+ const before=learnReviewedExecutionRoute(rejected,context);
+ assert.equal(before.route,"none");
+ const after=learnReviewedExecutionRoute([...approved,...rejected],context);
+ assert.equal(after.route,"ai-editor");
+ assert.equal(after.usedEvidence,true);
+ assert.ok(after.metrics["ai-editor"].mean>after.metrics.universal.mean);
+ const restored=learnReviewedExecutionRoute([...Array.from({length:4},()=>({...approved[0],strategy:"universal"})),...rejected],context);
+ assert.equal(restored.route,"universal");
+ assert.equal(learnReviewedExecutionRoute([{...approved[0],review_status:"pending"}],context).route,"none");
+ assert.equal(learnReviewedExecutionRoute([...approved,...rejected],{...context,allowed:["universal"]}).route,"none");
+});
+test("reviewed learning is wired into actual Builder dispatch",()=>{
+ const page=readFileSync(new URL("../src/app/app/builder-v2/page.tsx",import.meta.url),"utf8");
+ assert.match(page,/onlinePolicy=learnReviewedExecutionRoute\(relevantPatterns,/);
+ assert.match(page,/onlinePolicy.route==="ai-editor"/);
+ assert.match(page,/actualRoute=hasAttachments/);
+});

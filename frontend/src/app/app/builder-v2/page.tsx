@@ -9,6 +9,7 @@ import {diagnoseUniversalEditFailure,verifyUniversalEditResult} from "@/lib/buil
 import {findUniversalPreviewSections,universalPreviewSectionSelectors} from "@/lib/builder-v2-universal-preview-sections";
 import {resolveUniversalSection} from "@/lib/builder-v2-universal-targets";
 import {classifyUniversalFeedback,inferUniversalFeedbackFailureCode} from "@/lib/builder-v2-universal-feedback";
+import {learnReviewedExecutionRoute} from "@/lib/builder-v2-universal-online-learning";
 import {createClient as createSupabaseBrowserClient} from "@/lib/supabase/client";
 import {parseUniversalCopyEdit,isIsolatedUniversalCopyResult} from "@/lib/builder-v2-universal-copy-edits";
 
@@ -1028,6 +1029,13 @@ export default function BuilderV2() {
       const relevantPatterns=approvedPatterns.filter(pattern=>
         pattern.intent===inferredIntent&&pattern.target===inferredTarget&&
         (!pattern.section_key||!inferredSectionKey||pattern.section_key===inferredSectionKey));
+      // Online learning: every reviewed Supabase event updates the next choice.
+      // The strategy changes only where both candidate routes are supported.
+      const onlinePolicy=learnReviewedExecutionRoute(relevantPatterns,{
+        intent:inferredIntent,target:inferredTarget,niche:site.niche||"",model:site.briefingLayoutVariant||"01",
+        sectionKey:inferredSectionKey,allowed:["universal","ai-editor"]
+      });
+
       // The reviewed outcomes are used before execution, never just displayed as statistics.
       // Strongly rejected button-color routes require an explicit, verified alternative;
       // unrelated hero/text approvals must not offset their failure history.
@@ -1070,7 +1078,7 @@ export default function BuilderV2() {
       const aiScore=preferredStrategy["ai-editor"]||0;
       const universalScore=preferredStrategy.universal||0;
       const learnedAiEligible=inferredIntent!=="other"&&!compound&&!hasAttachments&&!imageChange&&
-        aiScore>=2&&aiScore>universalScore&&universalScore<0;
+        (onlinePolicy.route==="ai-editor"||(onlinePolicy.route==="none"&&aiScore>=2&&aiScore>universalScore&&universalScore<0));
       const sectionBackgroundRequest=!hasAttachments&&!/\b(?:bot[aã]o(?:es)?|cta|button|agendamento)\b/i.test(prompt)&&/\bfundo\b/i.test(prompt)&&/(?:#[0-9a-f]{3,6}\b|\b(?:preto|branco|cinza|grafite|chumbo|azul|verde|vermelho|amarelo|laranja|roxo|rosa|bege|marrom|dourado|creme)\b)/i.test(prompt)&&/\b(?:servi[cç]os|se[cç][aã]o|parte|sobre|contato|depoimentos|galeria)\b/i.test(prompt);
       // A compound color request must run through the atomic universal parser.
       // The background-only shortcut can verify just one clause and must never
@@ -1160,6 +1168,8 @@ export default function BuilderV2() {
       console.info("[editor-learning] Strategy execution",{
         intent:inferredIntent,target:inferredTarget,
         reviewedEvents:relevantPatterns.length,
+        onlineRoute:onlinePolicy.route,onlineEvidence:onlinePolicy.usedEvidence,
+        learnedSuccessRates:Object.fromEntries(Object.entries(onlinePolicy.metrics).map(([route,v])=>[route,Number(v.mean.toFixed(3))])),
         scores:preferredStrategy,
         learnedPreference:preferUniversal?"universal":"none",
         actualRoute,
