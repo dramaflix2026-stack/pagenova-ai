@@ -360,3 +360,36 @@
  .atelier-site .atelier-footer-bottom{flex-wrap:wrap}
 }
 @media(prefers-reduced-motion:reduce){.atelier-site .atelier-button,.atelier-site .atelier-nav-cta{transition:none}}
+
+
+/* Contrast regression fix: services section always uses ink on warm paper,
+   including when the interactive demo toggles its visual theme. */
+.atelier-site .atelier-services{
+ background:#efeee9!important;color:#17251b!important;
+}
+.atelier-site .atelier-services .atelier-section-heading,
+.atelier-site .atelier-services .atelier-section-heading h2{
+ color:#17251b!important;opacity:1!important;
+}
+.atelier-site .atelier-services .atelier-section-heading>span{
+ color:#526854!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article{
+ background:#faf9f5!important;color:#17251b!important;
+ border:1px solid #d5d9cf!important;
+}
+.atelier-site .atelier-services-grid article h3{
+ color:#19271c!important;opacity:1!important;font-weight:750!important;
+}
+.atelier-site .atelier-services-grid article p{
+ color:#566459!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article>span{
+ color:#648f46!important;opacity:1!important;
+}
+.atelier-site .atelier-services-grid article b{
+ color:#365b2b!important;border-color:#cbd6c3!important;
+}
+.atelier-site .atelier-services-grid article:hover{
+ background:#f4f7ed!important;border-color:#83a966!important;
+}
