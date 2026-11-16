@@ -784,3 +784,35 @@ test("Vértice TP9 Model 2 preserves luxury layout while localizing hero and ess
  assert.match(router,/briefingLayoutVariant==="02"\?<BuilderV2TP9Model2Hero/);
  assert.match(router,/briefingLayoutVariant==="02"\?<BuilderV2TP9Model2Sections/);
 });
+
+test("Vértice TP9 Model 2 new services and advantages are isolated and preserve approved sections",async()=>{
+ const {readFileSync}=await import("node:fs");
+ const sections=readFileSync(new URL("../src/components/builder-v2-tp9-model2-sections.tsx",import.meta.url),"utf8");
+ const journey=readFileSync(new URL("../src/components/builder-v2-tp9-model2-journey.tsx",import.meta.url),"utf8");
+ const cards=readFileSync(new URL("../src/components/tp9-vertice-m2-services.tsx",import.meta.url),"utf8");
+ const benefits=readFileSync(new URL("../src/components/tp9-vertice-m2-differentials.tsx",import.meta.url),"utf8");
+ assert.match(sections,/isVertice\?<TP9VerticeM2Services\/>:<section id="tp9-servicos"/);
+ assert.match(sections,/id="tp9-sobre"/);
+ assert.match(sections,/d.services.map\(\(name,i\)/);
+ assert.match(journey,/isVertice\?<TP9VerticeM2Differentials\/>:<section className="tp9m2-difference"/);
+ assert.match(journey,/id="tp9-como-funciona"/);
+ assert.match(journey,/d.steps.map\(\(step,i\)/);
+ assert.equal((cards.match(/\{number:"0[1-6]",name:/g)||[]).length,6,"six Vértice service cards");
+ assert.equal((benefits.match(/\{number:"0[1-4]",title:/g)||[]).length,4,"four Vértice differentiators");
+ assert.match(cards,/Revisão preventiva/);
+ assert.match(cards,/Troca de óleo e filtros/);
+ assert.match(cards,/Freios e suspensão/);
+ assert.match(cards,/Diagnóstico eletrônico/);
+ assert.match(cards,/Ar-condicionado automotivo/);
+ assert.match(cards,/Alinhamento e balanceamento/);
+ assert.equal(new Set([...cards.matchAll(/photo:"(photo-[^"]+)"/g)].map(m=>m[1])).size,6);
+ assert.match(cards,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(cards,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(cards,/grid-template-columns:1fr/);
+ assert.match(cards,/href="#tp9-contato"/);
+ assert.match(benefits,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(benefits,/grid-template-columns:1fr/);
+ assert.match(benefits,/href="#tp9-contato"/);
+ assert.match(benefits,/images\.unsplash\.com\/photo-/);
+ assert.match(cards,/Consulte a disponibilidade diretamente com a empresa/);
+});
