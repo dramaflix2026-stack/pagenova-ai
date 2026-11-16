@@ -1271,7 +1271,6 @@
 /* Remove disconnected decorative curves across the hero and following sections. */
 .pnr-page .pnr-hero-ring,
 .pnr-page .pnr-hero-ring::before,
-.pnr-page .pnr-hero-orbit-motion,
 .pnr-page .pnr-portrait-ring,
 .pnr-page .pnr-hero-light-sweep{display:none!important;background:none!important;border:0!important}
 .pnr-page .pnr-hero--premium::before,
@@ -1344,3 +1343,7 @@
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}
 }
+
+/* Restore localized hero orbit, previously blocked by legacy global removal rule. */
+.pnr-page .pnr-hero--premium .pnr-hero-orbit-motion{display:block!important;visibility:visible!important;opacity:1;z-index:3;inset:9% 4% 9% 2%;background:conic-gradient(from 12deg at 50% 50%,transparent 0deg,transparent 52deg,rgba(170,255,126,.4) 76deg,transparent 102deg,transparent 205deg,rgba(160,255,120,.42) 233deg,transparent 259deg,transparent 360deg);-webkit-mask:radial-gradient(ellipse 49% 44% at 50% 50%,transparent 94%,#000 98%,transparent 100%);mask:radial-gradient(ellipse 49% 44% at 50% 50%,transparent 94%,#000 98%,transparent 100%);animation:pnrHeroOrbitTravel 5.5s linear infinite}
+.pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{background:radial-gradient(ellipse 4.5% 5.5% at 56% 38%,rgba(185,255,145,.8),rgba(69,255,136,.23) 48%,transparent 100%)}
