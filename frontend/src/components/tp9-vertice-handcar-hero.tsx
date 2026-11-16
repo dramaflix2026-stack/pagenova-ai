@@ -3,15 +3,17 @@
 import {useState} from "react";
 
 type Props={brand:string;niche:string;headline?:string;description?:string;image?:string;contactHref?:string};
-const defaultPhoto="https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=2200&q=88";
-const fallbackPhoto="https://images.unsplash.com/photo-1493238792000-8113da705763?auto=format&fit=crop&w=1800&q=85";
+const defaultPhoto="https://unsplash.com/photos/XP8o9_Arwqg/download?force=true&w=1800";
+const fallbackPhoto="https://unsplash.com/photos/EJr3XkHdBm0/download?force=true&w=1800";
 
 export function TP9VerticeHandcarHero({headline,description,image,contactHref}:Props){
  const [menuOpen,setMenuOpen]=useState(false);
  const cleanHeadline=(headline||"").trim().replace(/^v[ée]rtice\s+auto\s+center\s*[:\-–—|.]?\s*/i,"").trim();
  const title=cleanHeadline.length>8?cleanHeadline:"Performance e confiança para seu veículo.";
  const subtitle=(description||"").trim()||"Manutenção preventiva e corretiva com diagnóstico técnico, transparência e atenção aos detalhes.";
- const photo=image&&/^https:\/\/[^\s]+$/i.test(image)?image:defaultPhoto;
+ // A seed photo from the old automotive template should not override the newly approved Vértice image.
+ // Later user-edited external or uploaded image URLs remain eligible.
+ const photo=image&&/^https:\/\/[^\s]+$/i.test(image)&&!image.includes("photo-1486262715619-67b85e0b08d3")?image:defaultPhoto;
  const contact=contactHref&&(/^(https?:\/\/|mailto:|tel:)/i.test(contactHref)||contactHref==="#tp9-contato")?contactHref:"#tp9-orcamento";
  const external=/^https?:\/\//i.test(contact);
  const closeMenu=()=>setMenuOpen(false);
