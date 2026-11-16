@@ -1,6 +1,6 @@
 "use client";
 
-import {ArrowRight,ArrowUp,Mail,MapPin,MessageCircle,Wrench} from "lucide-react";
+import {ArrowRight,ArrowUp,Mail,MapPin,MessageCircle} from "lucide-react";
 
 type Props={brand:string;niche:string;email?:string;whatsapp?:string;address?:string};
 
