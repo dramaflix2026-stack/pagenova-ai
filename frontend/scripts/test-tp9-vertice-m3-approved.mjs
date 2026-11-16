@@ -26,7 +26,7 @@ test("All ten user-approved sections render once with unique targetable section 
 test("Six service cards, six sourced gallery photos and six optional demo reviews",()=>{
  const serviceSection=v3.split("const services=")[1].split("const stages=")[0];
  assert.equal((serviceSection.match(/title:"[^"]+",description:"[^"]+",photo:/g)||[]).length,6);
- assert.match(v3,/gallery:\["TCg8r4Z5Wu0".*"WbKt-WmdMf8"\]/);
+ assert.match(v3,/gallery:\["erWc6mrOq_I".*"ZFIgxM5BP5g"\]/);
  assert.equal((v3.match(/name:"Cliente demonstrativo \d+"/g)||[]).length,6);
  assert.match(v3,/DEMONSTRATIVO — NÃO É AVALIAÇÃO REAL/);
  assert.match(v3,/\[\.\.\.validReviews\.map/);
@@ -67,4 +67,24 @@ test("Approved binding is pinned in the protected template manifest",()=>{
  assert.ok(entry);
  assert.match(entry.approvedBindingRevision.reason,/Vértice Auto Center TP9 Model 3/);
  assert.match(entry.approvedBindingRevision.sha,/^[0-9a-f]{40}$/);
+});
+
+test("Vértice service and journey tiles never match global broad card selectors",()=>{
+ for(const oldClass of ["tp9v3-serviceCard","tp9v3-processCard","tp9v3-cardScrim","tp9v3-cardContent"]){
+   assert.ok(!v3.includes(oldClass),oldClass+" collides with global card theme");
+   assert.ok(!styles.includes(oldClass),oldClass+" collides with global card theme");
+ }
+ for(const newClass of ["tp9v3-serviceTile","tp9v3-processTile","tp9v3-photoShade","tp9v3-serviceContent"]){
+   assert.ok(v3.includes(newClass),newClass+" must be rendered");
+   assert.ok(styles.includes(newClass),newClass+" must have scoped styles");
+ }
+ assert.match(styles,/\.tp9v3-serviceTile \.tp9v3-serviceContent h3/);
+ assert.match(styles,/\.tp9v3-processTile \.tp9v3-processCopy p/);
+});
+test("Vértice CTA footer stays a full-width stack instead of the forced global 4-column grid",()=>{
+ assert.match(styles,/body footer\.tp9v3-footer>div\.tp9v3-wrap:first-child/);
+ assert.match(styles,/display:block!important;/);
+ assert.match(styles,/grid-template-columns:none!important;/);
+ assert.match(styles,/body footer\.tp9v3-footer a\.tp9v3-button\.primary/);
+ assert.match(styles,/grid-template-columns:1fr!important/);
 });
