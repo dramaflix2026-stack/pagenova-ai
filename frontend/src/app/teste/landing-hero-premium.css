@@ -1211,3 +1211,9 @@
 @keyframes pnr-brand-breathe{0%,100%{filter:drop-shadow(0 0 0 rgba(45,255,157,0))}50%{filter:drop-shadow(0 0 7px rgba(45,255,157,.34))}}
 @keyframes pnr-brand-glow{0%,100%{opacity:0}50%{opacity:.6}}
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-brand img,.pnr-page .pnr-brand::after{animation:none!important}}
+
+
+/* Guarantee artwork is a complete designed banner, not an icon. */
+.pnr-page .pnr-trust .pnr-guarantee-full-art{display:block!important;width:min(100%,1320px)!important;max-width:1320px!important;margin:0 auto 48px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;min-height:0!important;overflow:hidden!important}
+.pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{display:block;width:100%;height:auto;max-width:none;object-fit:contain;border:0;box-shadow:none}
+@media(max-width:767px){.pnr-page .pnr-trust .pnr-guarantee-full-art{margin-bottom:32px!important}.pnr-page .pnr-guarantee-full-art .pnr-guarantee-full-image{width:100%;height:auto}}
