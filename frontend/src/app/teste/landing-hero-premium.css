@@ -1826,3 +1826,19 @@
 .pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-art.is-loaded.is-current{opacity:1;visibility:visible;pointer-events:auto}
 .pnr-page .pnr-showcase-dashboard:has(.pnr-showcase-approved-art.is-current)::before{opacity:1}
 @media(prefers-reduced-motion:reduce){.pnr-page .pnr-showcase-dashboard .pnr-showcase-approved-art{transition:none}}
+
+/* Approved particle sphere feature — isolated after the landing FAQ. 
+   Keep artwork separate: do not recreate or substitute the approved image. */
+.pnr-page .pnr-orb-section{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);align-items:center;gap:clamp(12px,4vw,80px);min-height:clamp(480px,48vw,680px);padding:clamp(72px,8vw,128px) max(6vw,calc((100vw - 1280px)/2));background:#020805;color:#f4fff0}
+.pnr-page .pnr-orb-section:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 77% 48%,rgba(60,140,70,.09),transparent 42%);z-index:-1}
+.pnr-page .pnr-orb-copy{max-width:570px;position:relative;z-index:2}
+.pnr-page .pnr-orb-eyebrow{display:block;color:#9de36d;letter-spacing:.19em;font-size:11px;font-weight:750;margin-bottom:26px}
+.pnr-page .pnr-orb-copy h2{font-size:clamp(40px,5.5vw,78px);font-weight:650;letter-spacing:-.065em;line-height:1.03;color:#f5fff1;margin:0}
+.pnr-page .pnr-orb-copy h2 em{font-style:normal;color:#a7ff7d}
+.pnr-page .pnr-orb-copy p{color:#9eafa2;line-height:1.75;font-size:clamp(15px,1.35vw,18px);max-width:440px;margin-top:26px}
+.pnr-page .pnr-orb-stage{width:100%;aspect-ratio:1/1;max-width:620px;justify-self:center;display:grid;place-items:center;position:relative}
+.pnr-page .pnr-orb-art{width:100%;height:100%;background-image:url('/images/pagenova-esfera-aprovada.webp');background-size:contain;background-repeat:no-repeat;background-position:center;animation:pnr-orb-float 8s ease-in-out infinite,pnr-orb-breathe 6s ease-in-out infinite;will-change:transform,filter}
+@keyframes pnr-orb-float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-12px,0)}}
+@keyframes pnr-orb-breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.1)}}
+@media(max-width:800px){.pnr-page .pnr-orb-section{grid-template-columns:1fr;text-align:center;padding:72px 22px 55px;gap:6px}.pnr-page .pnr-orb-copy{margin:auto}.pnr-page .pnr-orb-copy p{margin:20px auto 0}.pnr-page .pnr-orb-stage{max-width:500px}}
+@media(prefers-reduced-motion:reduce){.pnr-page .pnr-orb-art{animation:none;will-change:auto}}
