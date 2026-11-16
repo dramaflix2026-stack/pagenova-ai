@@ -76,7 +76,7 @@ test("outer AI edit/generation exception is captured, including service errors",
 test("request tracing also starts for a new site generation, without inventing correction links",()=>{
  assert.match(send,/if\(!busy\)activeSubmissionTraceRef\.current=\(!!prompt\|\|propertyFiles\.length>0\)/);
  assert.match(send,/const submittedFailureTrace=activeSubmissionTraceRef\.current/);
- assert.match(send,/const recordEditorPathFailureOnce=\(path:EditorFailurePath\)=>/);
+ assert.match(send,/const recordEditorPathFailureOnce=\(path:EditorFailurePath,evidence\?:EditorDiagnosticEvidence\)=>/);
  assert.match(send,/capturedFailureRequestIdsRef\.current\.has\(submittedFailureTrace\.requestId\)/);
  assert.match(editor,/if\(outcome==="rejected"&&submission\?\.requestId\)/);
  assert.match(send,/shouldCaptureEditorFailure\(path,prompt,alreadyRecorded\)/);

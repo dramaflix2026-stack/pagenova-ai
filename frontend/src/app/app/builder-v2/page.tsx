@@ -15,6 +15,7 @@ import {commitExactEditorReview,selectPendingEditorReview} from "@/lib/builder-v
 import {beginEditorSubmissionTrace,nextEditorOperationTrace,isValidEditorOperationTrace,type EditorSubmissionTrace,type EditorOperationTrace} from "@/lib/builder-v2-editor-attempt-trace";
 import {captureSafeEditorInstruction,isSafeEditorInstruction,type SafeEditorInstruction} from "@/lib/builder-v2-editor-safe-instruction";
 import {isEditorFailurePath,shouldCaptureEditorFailure,type EditorFailurePath} from "@/lib/builder-v2-editor-failure-coverage";
+import {diagnoseEditorFailure,isValidEditorFailureDiagnosis,type EditorDiagnosticEvidence,type EditorFailureDiagnosis} from "@/lib/builder-v2-editor-diagnosis";
 import {interpretEditorFeedback,isValidEditorInterpretation,safeEditorInterpretationContext,type EditorCommandInterpretation} from "@/lib/builder-v2-editor-interpretation";
 import {captureVerifiedEditorSolution,type EditorSolutionMemory} from "@/lib/builder-v2-universal-solution-memory";
 import {selectApprovedExecutionTechnique,shouldRerouteUsingApprovedTechnique,confirmedReuseSource,type ReviewedSolutionCase} from "@/lib/builder-v2-universal-solution-reuse";
@@ -219,7 +220,7 @@ async function confirmCloudEditorLearningReview(
   }
  });
 }
-async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction;interpretation?:EditorCommandInterpretation;failurePath?:EditorFailurePath}){
+async function syncEditorLearningEvent(event:{id:string;niche:string;model?:string;intent:string;target:string;outcome:string;strategy:string;sectionKey?:string;failureCode?:string|null;review?:string;solution?:EditorSolutionMemory;reuse?:{sourceEventId:string;technique:string};trace?:EditorOperationTrace;safeInstruction?:SafeEditorInstruction;interpretation?:EditorCommandInterpretation;failurePath?:EditorFailurePath;diagnosis?:EditorFailureDiagnosis}){
   try{
     const client=createSupabaseBrowserClient();
     const {data:{user},error:authError}=await client.auth.getUser();
@@ -254,6 +255,17 @@ async function syncEditorLearningEvent(event:{id:string;niche:string;model?:stri
       }:{}),
       ...(event.outcome==="rejected"&&isEditorFailurePath(event.failurePath)?{
         failure_path:event.failurePath
+      }:{}),
+      // Evidence is a closed enum, never the exception text or private prompt.
+      // A visual/state mismatch is an observation, NOT proof of a root cause.
+      ...(event.outcome==="rejected"&&isValidEditorFailureDiagnosis(event.diagnosis)?{
+        diagnosis_source:event.diagnosis.source,
+        diagnosis_status:event.diagnosis.status,
+        diagnosis_stage:event.diagnosis.stage,
+        diagnosis_code:event.diagnosis.code,
+        diagnosis_cause:event.diagnosis.cause,
+        diagnosis_evidence:event.diagnosis.evidence,
+        diagnosis_confidence:event.diagnosis.confidence
       }:{}),
       review_status:"pending"
     });
@@ -357,7 +369,7 @@ async function readApprovedEditorSolutionCases(intent:string,target:string):Prom
   });
  }catch(error){console.warn("[editor-learning] Approved solution lookup unavailable",error);return [];}
 }
-function persistEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string},trace?:EditorOperationTrace|null,failurePath?:EditorFailurePath){
+function persistEditorLearningEvent(niche:string, instruction:string, outcome:"applied"|"rejected",strategy:string,model:string="unknown",solution?:EditorSolutionMemory|null,reuse?:{sourceEventId:string;technique:string},trace?:EditorOperationTrace|null,failurePath?:EditorFailurePath,evidence?:EditorDiagnosticEvidence){
   if(typeof window==="undefined")return;
   try{
     const key="pagenova:editor-learning-events:v1";
@@ -365,6 +377,8 @@ function persistEditorLearningEvent(niche:string, instruction:string, outcome:"a
     try{const existing=JSON.parse(localStorage.getItem(key)||"[]");events=Array.isArray(existing)?existing:[];}catch(error){console.warn("[editor-learning] Local history unavailable",error);}
     const {intent,target,sectionKey}=classifyUniversalFeedback(instruction);
     const failureCode=inferUniversalFeedbackFailureCode(strategy,outcome);
+    const diagnosis=outcome==="rejected"
+      ?diagnoseEditorFailure({failureCode,failurePath,evidence}):null;
     // Privacy boundary: NEVER put the original instruction in this persisted event.
     // Unknown words and quoted client copy are masked; risky submissions omitted.
     const safeInstruction=captureSafeEditorInstruction(instruction);
@@ -372,7 +386,8 @@ function persistEditorLearningEvent(niche:string, instruction:string, outcome:"a
       isValidEditorOperationTrace(trace)?trace.interpretationContext:null);
     const event={id:crypto.randomUUID(),at:new Date().toISOString(),niche:niche.slice(0,80)||"unknown",model,intent,target,
       ...(sectionKey?{sectionKey}:{}),failureCode,outcome,strategy,review:"pending",...(outcome==="applied"&&solution?{solution}:{}),...(outcome==="applied"&&reuse?{reuse}:{}),...(isValidEditorOperationTrace(trace)?{trace}:{}),interpretation,safeInstruction,
-      ...(outcome==="rejected"&&isEditorFailurePath(failurePath)?{failurePath}:{})};
+      ...(outcome==="rejected"&&isEditorFailurePath(failurePath)?{failurePath}:{}),
+      ...(diagnosis?{diagnosis}:{})};
     events.push(event);
     try{localStorage.setItem(key,JSON.stringify(events.slice(-150)));}catch(error){console.warn("[editor-learning] Local persistence failed",error);}
     window.dispatchEvent(new CustomEvent("pagenova:editor-learning-captured",{detail:{id:event.id,event}}));
@@ -397,7 +412,8 @@ export default function BuilderV2() {
     model:string="unknown",solution?:EditorSolutionMemory|null,
     reuse?:{sourceEventId:string;technique:string},
     capturedSubmission?:EditorSubmissionTrace|null,
-    failurePath?:EditorFailurePath
+    failurePath?:EditorFailurePath,
+    evidence?:EditorDiagnosticEvidence
   ){
     const submission=capturedSubmission===undefined?activeSubmissionTraceRef.current:capturedSubmission;
     if(outcome==="rejected"&&submission?.requestId){
@@ -406,7 +422,7 @@ export default function BuilderV2() {
       ids.add(submission.requestId);
     }
     const operation=nextEditorOperationTrace(submission);
-    return persistEditorLearningEvent(niche,instruction,outcome,strategy,model,solution,reuse,operation,failurePath);
+    return persistEditorLearningEvent(niche,instruction,outcome,strategy,model,solution,reuse,operation,failurePath,evidence);
   }
   useEffect(()=>{
     if(site.cinematic?.mode!=="cinematic")return;
@@ -510,7 +526,7 @@ export default function BuilderV2() {
         pendingBackgroundVisualReviewRef.current=null;
         const sectionFailed=failures.some(failure=>failure.startsWith(pending.section+":"));
         if(sectionFailed){
-          recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",failures.some(failure=>failure.startsWith(pending.section+": seção não encontrada"))?"universal-visual-missing-target":"universal-visual-verification",pending.variant,null,undefined,pending.trace);
+          recordEditorLearningEvent(pending.niche,pending.prompt,"rejected",failures.some(failure=>failure.startsWith(pending.section+": seção não encontrada"))?"universal-visual-missing-target":"universal-visual-verification",pending.variant,null,undefined,pending.trace,undefined,failures.some(failure=>failure.startsWith(pending.section+": seção não encontrada"))?"dom-section-absent":"dom-color-mismatch");
           captureReviewCandidate();
           setMessages(previous=>[...previous,{role:"assistant",text:"Edição não confirmada visualmente: a cor solicitada não corresponde à seção renderizada. Confira o aviso de verificação e marque a tentativa como reprovada."}]);
           console.warn("[editor] Visual verification rejected section background",pending.section,failures);
@@ -545,7 +561,7 @@ export default function BuilderV2() {
       }else if(++attempts>=25){
         pendingSectionPhotoVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-image-section-missing-target",pending.variant,null,undefined,pending.trace);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-image-section-missing-target",pending.variant,null,undefined,pending.trace,undefined,!root?undefined:targets.length===0?"dom-section-absent":"dom-photo-absent");
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"A fotografia solicitada não apareceu na seção correta da prévia. Não considere essa edição como concluída."}]);
       }
@@ -576,7 +592,7 @@ export default function BuilderV2() {
       }else if(++checks>=30){
         pendingMoveVisualReviewRef.current=null;
         window.clearInterval(timer);
-        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed",pending.variant,null,undefined,pending.trace);
+        recordEditorLearningEvent(pending.niche,pending.prompt,"rejected","universal-move-visual-postcondition-failed",pending.variant,null,undefined,pending.trace,undefined,root&&win?"dom-layout-mismatch":undefined);
         captureReviewCandidate();
         setMessages(previous=>[...previous,{role:"assistant",text:"Edição NÃO confirmada na prévia: "+outcome.reason+" Não aprove esta tentativa; o motor registrou a falha."}]);
       }
@@ -1071,14 +1087,14 @@ export default function BuilderV2() {
     let failureCapturedWithoutTrace=false;
     // Capture only actual user-visible failure branches. Never upload error
     // messages, exception stacks, uploaded images or private prompt contents.
-    const recordEditorPathFailureOnce=(path:EditorFailurePath)=>{
+    const recordEditorPathFailureOnce=(path:EditorFailurePath,evidence?:EditorDiagnosticEvidence)=>{
       const alreadyRecorded=submittedFailureTrace?.requestId
         ?capturedFailureRequestIdsRef.current.has(submittedFailureTrace.requestId)
         :failureCapturedWithoutTrace;
       if(!shouldCaptureEditorFailure(path,prompt,alreadyRecorded))return;
       if(!submittedFailureTrace)failureCapturedWithoutTrace=true;
       recordEditorLearningEvent(site.niche||"",prompt,"rejected","editor-error:"+path,
-        site.briefingLayoutVariant||"01",undefined,undefined,submittedFailureTrace,path);
+        site.briefingLayoutVariant||"01",undefined,undefined,submittedFailureTrace,path,evidence);
       captureReviewCandidate();
     };
     // Freeze canonical template metadata at submission, NOT at the eventual
@@ -1106,7 +1122,7 @@ export default function BuilderV2() {
         };
         if(colorRequest){
           const hex=prompt.match(/#[0-9a-fA-F]{6}(?![0-9a-fA-F])/)?.[0];
-          if(!hex){recordEditorPathFailureOnce("preflight");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe a cor em hexadecimal, por exemplo #14263D. Nenhuma alteração aplicada."}]);return;}
+          if(!hex){recordEditorPathFailureOnce("preflight","preflight-missing-hex");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Informe a cor em hexadecimal, por exemplo #14263D. Nenhuma alteração aplicada."}]);return;}
           upsert("vet-testimonials-style","paragraph",{background:hex});
           summary="Fundo dos depoimentos alterado para "+hex+".";
         }else if(heroImageRequest){
@@ -1184,7 +1200,7 @@ export default function BuilderV2() {
         const photoUrl="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=850&q=82";
         const next={...site,blocks:site.blocks.map(b=>b.id===card.id?{...b,src:photoUrl,mobileSrc:photoUrl,userUploaded:true}:b)};
         const photoVerification=verifyUniversalEditResult(site,next,[card.id]);
-        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification",site.briefingLayoutVariant||"01");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
+        if(!photoVerification.ok){recordEditorLearningEvent(site.niche||"",prompt,"rejected","image-verification",site.briefingLayoutVariant||"01",undefined,undefined,undefined,undefined,"state-postcondition");setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Troca de imagem não confirmada: "+photoVerification.reason}]);return;}
         recordEditorLearningEvent(site.niche||"",prompt,"applied","image-card",site.briefingLayoutVariant||"01");captureReviewCandidate();
         recordVersion(site,"Antes da troca de fotografia do card");setHistory(prev=>[...prev.slice(-19),site]);setRedoHistory([]);setSite(next);setInstruction("");setGenerationError("");
         setMessages(prev=>[...prev,{role:"user",text:prompt},{role:"assistant",text:"Alterada somente a fotografia do card Planejamento em Nossa Metodologia. Outras imagens preservadas."}]);return;
@@ -1421,12 +1437,12 @@ export default function BuilderV2() {
         const verification=verifyUniversalEditResult(site,result.site,result.changedIds);
         if(!verification.ok){
           const failureCode=diagnoseUniversalEditFailure(verification.reason);
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+failureCode,site.briefingLayoutVariant||"01");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-verification:"+failureCode,site.briefingLayoutVariant||"01",undefined,undefined,undefined,undefined,"state-postcondition");
           setMessages(prev=>[...prev,{role:"assistant",text:"Edição não confirmada: "+verification.reason+" Nenhuma alteração aplicada."}]);
           return;
         }
         if(result.changedIds.length===0||JSON.stringify(result.site)===JSON.stringify(site)){
-          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change",site.briefingLayoutVariant||"01");
+          recordEditorLearningEvent(site.niche||"",prompt,"rejected","universal-no-change",site.briefingLayoutVariant||"01",undefined,undefined,undefined,undefined,"no-state-delta");
           setMessages(prev=>[...prev,{role:"assistant",text:"A operação não produziu alteração verificável. Nenhuma alteração aplicada."}]);
           return;
         }
