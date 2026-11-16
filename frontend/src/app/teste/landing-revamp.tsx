@@ -271,7 +271,7 @@ export function PageNovaTrustSections({language="pt"}:{language?:Lang}){
  const t=translations[language];
  const [openFaq,setOpenFaq]=useState<number|null>(0);
  return <div className="pnr-page pnr-shared-trust"><section className="pnr-section pnr-trust" id="garantia">
-    <div className="pnr-guarantee pnr-guarantee-full-art"><img className="pnr-guarantee-full-image" src="/images/garantia-pagenova-original.webp" alt="Garantia incondicional de 7 dias PageNova AI" loading="lazy" /></div>
+    <div className="pnr-guarantee pnr-guarantee-full-art"><img className="pnr-guarantee-full-image" src="/images/garantia-pagenova-original.webp" alt="Garantia incondicional de 7 dias PageNova AI" width="1200" height="700" loading="lazy" decoding="async" /></div>
     <div className="pnr-faq" id="faq"><div className="pnr-faq-intro"><p className="pnr-overline">{t.faqTag}</p><h2>{t.faqTitle} <em>{t.faqHi}</em></h2><p>{t.faqDesc}</p></div><div className="pnr-faq-items">{t.faqs.map((item:FAQ,i)=><div key={i} className={"pnr-faq-item"+(openFaq===i?" opened":"")}><button type="button" aria-expanded={openFaq===i} onClick={()=>setOpenFaq(openFaq===i?null:i)}>{item.q}<ChevronDown size={17}/></button>{openFaq===i&&<p>{item.a}</p>}</div>)}</div></div>
    </section></div>;
 }
