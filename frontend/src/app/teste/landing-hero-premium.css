@@ -1372,7 +1372,7 @@
 .pnr-page .pnr-hero--premium .pnr-hero-scene{position:relative;isolation:isolate;overflow:hidden}
 .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye{
  position:absolute;inset:0;display:block!important;pointer-events:none;z-index:5!important;
- background:radial-gradient(ellipse 2.25% 3.1% at 55.9% 38.4%,rgba(214,255,188,.95) 0%,rgba(88,255,142,.65) 29%,rgba(66,255,126,.25) 58%,transparent 100%);
+ background:radial-gradient(ellipse 2.25% 3.1% at 47.1% 43.0%,rgba(214,255,188,.95) 0%,rgba(88,255,142,.65) 29%,rgba(66,255,126,.25) 58%,transparent 100%);
  mix-blend-mode:screen;animation:pnrCyborgEyeActive 3.2s ease-in-out infinite!important;
 }
 .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{
@@ -1398,3 +1398,5 @@
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-eye,
  .pnr-page .pnr-hero--premium .pnr-hero-cyborg-scan{animation:none!important;opacity:0!important}
 }
+
+/* Calibrated against the approved portrait: robot pupil is ~47.1% x, 43% y of the image, not 56% x. */
